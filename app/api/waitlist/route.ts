@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
   try {
@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Valid email required" }, { status: 400 });
     }
 
-    const supabase = await createSupabaseServerClient();
+    const supabase = createClient();
     const { error } = await supabase.from("waitlist").insert({ email });
 
     if (error && !error.message.toLowerCase().includes("duplicate")) {
