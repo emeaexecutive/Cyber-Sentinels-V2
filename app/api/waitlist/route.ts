@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Valid email required" }, { status: 400 });
     }
 
-    const supabase = createClient();
+    const supabase = await createClient();
     const { error } = await supabase.from("waitlist").insert({ email });
 
     if (error && !error.message.toLowerCase().includes("duplicate")) {
