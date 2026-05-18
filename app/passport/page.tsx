@@ -24,22 +24,30 @@ export default async function PassportPage() {
           {passport ? (
             <>
               <p className="text-sm text-zinc-500">Subject</p>
-              <h2 className="mt-2 text-3xl font-bold">{passport.subject_name}</h2>
+              <h2 className="mt-2 text-3xl font-bold">
+                {passport.subject_name}
+              </h2>
 
               <div className="mt-8 grid gap-4 md:grid-cols-3">
                 <div className="rounded-2xl border border-zinc-800 bg-black p-5">
                   <p className="text-zinc-500">Type</p>
-                  <p className="mt-3 text-2xl font-bold">{passport.subject_type}</p>
+                  <p className="mt-3 text-2xl font-bold">
+                    {passport.subject_type}
+                  </p>
                 </div>
 
                 <div className="rounded-2xl border border-zinc-800 bg-black p-5">
                   <p className="text-zinc-500">Trust Score</p>
-                  <p className="mt-3 text-2xl font-bold">{passport.trust_score}</p>
+                  <p className="mt-3 text-2xl font-bold">
+                    {passport.trust_score}
+                  </p>
                 </div>
 
                 <div className="rounded-2xl border border-zinc-800 bg-black p-5">
                   <p className="text-zinc-500">Clearance</p>
-                  <p className="mt-3 text-2xl font-bold">{passport.clearance}</p>
+                  <p className="mt-3 text-2xl font-bold">
+                    {passport.clearance}
+                  </p>
                 </div>
               </div>
             </>
@@ -47,37 +55,42 @@ export default async function PassportPage() {
             <p className="text-zinc-500">No passport created yet.</p>
           )}
         </section>
+
+        <form
+          action="/api/passports"
+          method="POST"
+          className="mt-10 grid gap-4 rounded-3xl border border-zinc-800 bg-zinc-950 p-8"
+        >
+          <h2 className="text-2xl font-bold">Create New Passport</h2>
+
+          <input
+            name="user_email"
+            type="email"
+            placeholder="Email"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="subject_name"
+            placeholder="Subject name"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <select
+            name="subject_type"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          >
+            <option value="human">Human</option>
+            <option value="agent">AI Agent</option>
+            <option value="candidate">Candidate</option>
+            <option value="content">Content</option>
+          </select>
+
+          <button className="rounded-xl bg-white px-5 py-4 font-semibold text-black">
+            Create Passport
+          </button>
+        </form>
       </div>
     </main>
   );
 }
-<form action="/api/passports" method="POST" className="mt-10 grid gap-4 rounded-3xl border border-zinc-800 bg-zinc-950 p-8">
-  <h2 className="text-2xl font-bold">Create New Passport</h2>
-
-  <input
-    name="user_email"
-    type="email"
-    placeholder="Email"
-    className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
-  />
-
-  <input
-    name="subject_name"
-    placeholder="Subject name"
-    className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
-  />
-
-  <select
-    name="subject_type"
-    className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
-  >
-    <option value="human">Human</option>
-    <option value="agent">AI Agent</option>
-    <option value="candidate">Candidate</option>
-    <option value="content">Content</option>
-  </select>
-
-  <button className="rounded-xl bg-white px-5 py-4 font-semibold text-black">
-    Create Passport
-  </button>
-</form>
