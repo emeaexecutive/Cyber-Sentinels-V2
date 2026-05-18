@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { calculateTrustScore } from "@/lib/trust-score";
 
 export async function POST(req: Request) {
   try {
@@ -11,11 +12,18 @@ export async function POST(req: Request) {
     const syntheticRisk = Number(formData.get("synthetic_risk") || 20);
     const confidence = Number(formData.get("confidence") || 85);
 
+const trustScore = calculateTrustScore(
+  profileConsistency,
+  syntheticRisk,
+  confidence
+); 
+
     const { error } = await supabase.from("trust_reports").insert({
-      profile_consistency: profileConsistency,
-      synthetic_risk: syntheticRisk,
-      confidence,
-      report_type: "hiring_shield",
+  profile_consistency: profileConsistency,
+  synthetic_risk: syntheticRisk,
+  confidence,
+  trust_score: trustScore,
+  report_type: "hiring_shield",
     });
 
     if (error) throw error;
