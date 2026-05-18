@@ -1,21 +1,44 @@
-<div className="mt-8 flex flex-wrap gap-3">
-  <a href="/passport" className="rounded-xl bg-white px-5 py-3 font-semibold text-black">
-    Create Passport
-  </a>
+import Link from "next/link";
 
-  <a href="/command-center" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-    Command Center
-  </a>
+export default function HomePage() {
+  return (
+    <main className="min-h-screen bg-black p-8 text-white">
+      <div className="mx-auto max-w-6xl">
+        <p className="text-xs uppercase tracking-[0.4em] text-zinc-500">
+          Cyber Sentinels V2
+        </p>
 
-  <a href="/hiring-shield" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-    Hiring Shield
-  </a>
+        <h1 className="mt-8 max-w-4xl text-6xl font-bold">
+          Proof before permission.
+        </h1>
 
-  <a href="/clearances" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-    Clearances
-  </a>
+        <p className="mt-6 max-w-2xl text-zinc-400">
+          AI trust infrastructure for verified humans, autonomous agents,
+          hiring signals and synthetic identity risk.
+        </p>
 
-  <a href="/signals" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-    Signals
-  </a>
-</div>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <Link href="/passport" className="rounded-xl bg-white px-5 py-3 font-semibold text-black">
+            Create Passport
+          </Link>
+
+          <Link href="/command-center" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+            Command Center
+          </Link>
+
+          <Link href="/hiring-shield" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+            Hiring Shield
+          </Link>
+
+          <Link href="/clearances" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+            Clearances
+          </Link>
+
+          <Link href="/signals" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+            Signals
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+}
