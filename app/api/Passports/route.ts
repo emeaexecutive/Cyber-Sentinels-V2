@@ -3,30 +3,30 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const formData = await req.formData();
     const supabase = await createClient();
 
-    const { data, error } = await supabase
-      .from("passports")
-      .insert({
-        user_email: body.user_email,
-        subject_name: body.subject_name,
-        subject_type: body.subject_type,
-        trust_score: body.trust_score || 50,
-        clearance: "pending",
-        verified: false,
-      })
-      .select()
-      .single();
+    const subjectName = String(formData.get("subject_name") || "");
+    const userEmail = String(formData.get("user_email") || "");
+    const subjectType = String(formData.get("subject_type") || "human");
+
+    const { error } = await supabase.from("passports").insert({
+      user_email: userEmail,
+      subject_name: subjectName,
+      subject_type: subjectType,
+      trust_score: 50,
+      clearance: "pending",
+      verified: false,
+    });
 
     if (error) throw error;
 
     await supabase.from("signals").insert({
-      event: `Passport created for ${body.subject_name}`,
+      event: `Passport created for ${subjectName}`,
     });
 
-    return NextResponse.json({ ok: true, passport: data });
-  } catch (error) {
+    return NextResponse.redirect(new URL("/passport", req.url));
+  } catch {
     return NextResponse.json(
       { ok: false, error: "Could not create passport" },
       { status: 500 }
