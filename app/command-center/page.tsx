@@ -32,7 +32,11 @@ export default async function CommandCenterPage() {
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
           ← Back to Cyber Sentinels
         </Link>
-
+<form action="/api/auth/logout" method="POST" className="mt-4">
+          <button className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
+            Logout
+          </button>
+        </form>
         <h1 className="mt-8 text-5xl font-bold">Command Center</h1>
 
         <section className="mt-10 grid gap-4 md:grid-cols-3">
