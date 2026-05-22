@@ -6,10 +6,18 @@ export const metadata: Metadata = {
   description: "Proof-before-permission infrastructure for humans, autonomous agents and synthetic content.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
+        <div className="shell">
+          {children}
+        </div>
+      </body>
     </html>
   );
 }
