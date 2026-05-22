@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 const supportedSignals = [
   "Human Presence Index calculated",
@@ -12,6 +15,14 @@ const supportedSignals = [
 
 export default async function SignalsPage() {
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
 
   const { data: signals } = await supabase
     .from("signals")

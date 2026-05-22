@@ -62,6 +62,10 @@ export default function HomePage() {
             Origin Trace™
           </Link>
 
+          <Link href="/security" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+            Security
+          </Link>
+
           <Link href="/admin" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
             Admin
           </Link>

@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { assertServerEnv } from "@/lib/security";
 
 type CookieToSet = {
   name: string;
@@ -8,6 +9,8 @@ type CookieToSet = {
 };
 
 export async function createClient() {
+  assertServerEnv();
+
   const cookieStore = await cookies();
 
   return createServerClient(

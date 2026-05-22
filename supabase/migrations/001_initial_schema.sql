@@ -6,6 +6,10 @@ create table if not exists waitlist (
   company text,
   role text,
   use_case text,
+  abuse_risk text default 'low',
+  suspicious_activity boolean default false,
+  source_ip_hash text,
+  user_agent_hash text,
   created_at timestamptz default now()
 );
 
@@ -17,6 +21,10 @@ create table if not exists verification_passports (
   status text default 'pending',
   world_verified boolean default false,
   risk_flags jsonb default '[]'::jsonb,
+  abuse_risk text default 'low',
+  suspicious_activity boolean default false,
+  source_ip_hash text,
+  user_agent_hash text,
   created_at timestamptz default now()
 );
 
@@ -25,6 +33,10 @@ create table if not exists audit_logs (
   event_type text not null,
   actor text,
   metadata jsonb default '{}'::jsonb,
+  abuse_risk text default 'low',
+  suspicious_activity boolean default false,
+  source_ip_hash text,
+  user_agent_hash text,
   created_at timestamptz default now()
 );
 
@@ -33,7 +45,7 @@ create table if not exists passports (
   user_email text,
   subject_type text not null check (subject_type in ('human','agent','candidate','content')),
   subject_name text not null,
-  media_type text default 'profile' check (media_type in ('image','video','audio','document','profile','agent')),
+  media_type text default 'image' check (media_type in ('image','video','audio','document')),
   human_presence_index int default 50 check (human_presence_index >= 0 and human_presence_index <= 100),
   biometric_confidence int default 70 check (biometric_confidence >= 0 and biometric_confidence <= 100),
   behavioural_consistency int default 70 check (behavioural_consistency >= 0 and behavioural_consistency <= 100),
@@ -57,13 +69,17 @@ create table if not exists passports (
   trust_score int default 50 check (trust_score >= 0 and trust_score <= 100),
   clearance text default 'pending',
   verified boolean default false,
+  abuse_risk text default 'low',
+  suspicious_activity boolean default false,
+  source_ip_hash text,
+  user_agent_hash text,
   created_at timestamptz default now()
 );
 
 create table if not exists trust_reports (
   id uuid primary key default gen_random_uuid(),
   candidate_name text,
-  media_type text default 'profile' check (media_type in ('image','video','audio','document','profile','agent')),
+  media_type text default 'image' check (media_type in ('image','video','audio','document')),
   human_presence_index int default 50 check (human_presence_index >= 0 and human_presence_index <= 100),
   biometric_confidence int default 70 check (biometric_confidence >= 0 and biometric_confidence <= 100),
   behavioural_consistency int default 70 check (behavioural_consistency >= 0 and behavioural_consistency <= 100),
@@ -88,6 +104,10 @@ create table if not exists trust_reports (
   confidence int not null check (confidence >= 0 and confidence <= 100),
   trust_score int not null check (trust_score >= 0 and trust_score <= 100),
   report_type text default 'hiring_shield',
+  abuse_risk text default 'low',
+  suspicious_activity boolean default false,
+  source_ip_hash text,
+  user_agent_hash text,
   created_at timestamptz default now()
 );
 
@@ -118,6 +138,10 @@ alter table passports add column if not exists upload_chain_status text default 
 alter table passports add column if not exists human_review_required boolean default false;
 alter table passports add column if not exists provenance_status text default 'unverified';
 alter table passports add column if not exists review_status text default 'pending';
+alter table passports add column if not exists abuse_risk text default 'low';
+alter table passports add column if not exists suspicious_activity boolean default false;
+alter table passports add column if not exists source_ip_hash text;
+alter table passports add column if not exists user_agent_hash text;
 
 alter table trust_reports add column if not exists candidate_name text;
 alter table trust_reports add column if not exists media_type text default 'profile';
@@ -140,6 +164,20 @@ alter table trust_reports add column if not exists upload_chain_status text defa
 alter table trust_reports add column if not exists human_review_required boolean default false;
 alter table trust_reports add column if not exists provenance_status text default 'unverified';
 alter table trust_reports add column if not exists review_status text default 'pending';
+alter table trust_reports add column if not exists abuse_risk text default 'low';
+alter table trust_reports add column if not exists suspicious_activity boolean default false;
+alter table trust_reports add column if not exists source_ip_hash text;
+alter table trust_reports add column if not exists user_agent_hash text;
+
+alter table waitlist add column if not exists abuse_risk text default 'low';
+alter table waitlist add column if not exists suspicious_activity boolean default false;
+alter table waitlist add column if not exists source_ip_hash text;
+alter table waitlist add column if not exists user_agent_hash text;
+
+alter table audit_logs add column if not exists abuse_risk text default 'low';
+alter table audit_logs add column if not exists suspicious_activity boolean default false;
+alter table audit_logs add column if not exists source_ip_hash text;
+alter table audit_logs add column if not exists user_agent_hash text;
 
 alter table waitlist enable row level security;
 alter table verification_passports enable row level security;
@@ -168,14 +206,14 @@ create policy "Allow authenticated audit reads" on audit_logs
   to authenticated
   using (true);
 
-create policy "Allow public passport reads" on passports
+create policy "Allow authenticated passport reads" on passports
   for select
-  to anon, authenticated
+  to authenticated
   using (true);
 
-create policy "Allow public passport inserts" on passports
+create policy "Allow authenticated passport inserts" on passports
   for insert
-  to anon, authenticated
+  to authenticated
   with check (true);
 
 create policy "Allow authenticated passport updates" on passports
@@ -184,22 +222,22 @@ create policy "Allow authenticated passport updates" on passports
   using (true)
   with check (true);
 
-create policy "Allow public trust report reads" on trust_reports
+create policy "Allow authenticated trust report reads" on trust_reports
   for select
-  to anon, authenticated
+  to authenticated
   using (true);
 
-create policy "Allow public trust report inserts" on trust_reports
+create policy "Allow authenticated trust report inserts" on trust_reports
   for insert
-  to anon, authenticated
+  to authenticated
   with check (true);
 
-create policy "Allow public signal reads" on signals
+create policy "Allow authenticated signal reads" on signals
   for select
-  to anon, authenticated
+  to authenticated
   using (true);
 
-create policy "Allow public signal inserts" on signals
+create policy "Allow authenticated signal inserts" on signals
   for insert
-  to anon, authenticated
+  to authenticated
   with check (true);

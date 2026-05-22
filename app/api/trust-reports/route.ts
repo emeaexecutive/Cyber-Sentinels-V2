@@ -1,62 +1,118 @@
 import { NextResponse } from "next/server";
 import { recordTrustEvent } from "@/lib/database/events";
+import {
+  allowedEvidenceMediaTypes,
+  allowedOriginStatuses,
+  checkRateLimitPlaceholder,
+  configurationError,
+  getAllowedValue,
+  getOptionalText,
+  getRequestRiskFields,
+  getRequiredText,
+  getScore,
+  requireAuthenticatedUser,
+} from "@/lib/security";
 import { createClient } from "@/lib/supabase/server";
 import { calculateHumanPresence } from "@/lib/trust-engine/calculateHumanPresence";
 import { calculateOriginTrace } from "@/lib/trust-engine/calculateOriginTrace";
 import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
 import type { OriginStatus } from "@/types/origin";
 
-const MEDIA_TYPES = ["image", "video", "audio", "document", "profile", "agent"] as const;
-
-function getMediaType(value: FormDataEntryValue | null) {
-  const mediaType = String(value || "profile");
-
-  return MEDIA_TYPES.includes(mediaType as (typeof MEDIA_TYPES)[number])
-    ? mediaType
-    : "profile";
-}
-
 export async function POST(req: Request) {
   try {
-    const formData = await req.formData();
-    const supabase = await createClient();
+    // Security: trust reports influence review decisions. Require auth,
+    // validate all inputs, and never accept client-submitted final scores.
+    const rateLimited = checkRateLimitPlaceholder({
+      route: "/api/trust-reports",
+      req,
+      limit: 20,
+      windowMs: 60_000,
+    });
 
-    const candidateName = String(formData.get("candidate_name") || "Candidate");
-    const profileConsistency = Number(formData.get("profile_consistency") || 80);
-    const biometricConfidence = Number(
-      formData.get("biometric_confidence") || 70
+    if (rateLimited) {
+      return rateLimited;
+    }
+
+    const supabase = await createClient();
+    const user = await requireAuthenticatedUser(supabase);
+
+    if (!user) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+
+    const formData = await req.formData();
+
+    const candidateName = getRequiredText(formData, "candidate_name");
+    const profileConsistency = getScore(formData, "profile_consistency", 80);
+    const biometricConfidence = getScore(formData, "biometric_confidence", 70);
+    const behaviouralConsistency = getScore(
+      formData,
+      "behavioural_consistency",
+      profileConsistency
     );
-    const behaviouralConsistency = Number(
-      formData.get("behavioural_consistency") || profileConsistency
+    const syntheticRisk = getScore(formData, "synthetic_risk", 20);
+    const livenessScore = getScore(formData, "liveness_score", 75);
+    const voiceCloneRisk = getScore(formData, "voice_clone_risk", 10);
+    const videoDeepfakeRisk = getScore(formData, "video_deepfake_risk", 15);
+    const imageAuthenticityScore = getScore(
+      formData,
+      "image_authenticity_score",
+      80
     );
-    const syntheticRisk = Number(formData.get("synthetic_risk") || 20);
-    const livenessScore = Number(formData.get("liveness_score") || 75);
-    const voiceCloneRisk = Number(formData.get("voice_clone_risk") || 10);
-    const videoDeepfakeRisk = Number(formData.get("video_deepfake_risk") || 15);
-    const imageAuthenticityScore = Number(
-      formData.get("image_authenticity_score") || 80
+    const confidence = getScore(formData, "confidence", 85);
+    const mediaType = getAllowedValue(
+      formData,
+      "media_type",
+      allowedEvidenceMediaTypes,
+      "image"
     );
-    const confidence = Number(formData.get("confidence") || 85);
-    const mediaType = getMediaType(formData.get("media_type"));
-    const provenanceStatus = String(
-      formData.get("provenance_status") || "unverified"
+    const provenanceStatus = getAllowedValue(
+      formData,
+      "provenance_status",
+      allowedOriginStatuses,
+      "unverified"
     );
-    const trustTimelineScore = Number(
-      formData.get("trust_timeline_score") || 50
+    const trustTimelineScore = getScore(formData, "trust_timeline_score", 50);
+    const attributionConfidence = getScore(
+      formData,
+      "attribution_confidence",
+      30
     );
-    const attributionConfidence = Number(
-      formData.get("attribution_confidence") || 30
+    const likelySourceType = getOptionalText(
+      formData,
+      "likely_source_type",
+      "unknown"
     );
-    const likelySourceType = String(formData.get("likely_source_type") || "unknown");
-    const modelFingerprintRisk = Number(
-      formData.get("model_fingerprint_risk") || 20
+    const modelFingerprintRisk = getScore(
+      formData,
+      "model_fingerprint_risk",
+      20
     );
-    const metadataIntegrity = String(formData.get("metadata_integrity") || "unknown");
-    const watermarkStatus = String(formData.get("watermark_status") || "unknown");
-    const c2paStatus = String(formData.get("c2pa_status") || provenanceStatus);
-    const uploadChainStatus = String(
-      formData.get("upload_chain_status") || "unknown"
+    const metadataIntegrity = getAllowedValue(
+      formData,
+      "metadata_integrity",
+      allowedOriginStatuses,
+      "unknown"
     );
+    const watermarkStatus = getAllowedValue(
+      formData,
+      "watermark_status",
+      allowedOriginStatuses,
+      "unknown"
+    );
+    const c2paStatus = getAllowedValue(
+      formData,
+      "c2pa_status",
+      allowedOriginStatuses,
+      provenanceStatus
+    );
+    const uploadChainStatus = getAllowedValue(
+      formData,
+      "upload_chain_status",
+      allowedOriginStatuses,
+      "unknown"
+    );
+    const requestRisk = getRequestRiskFields(req);
 
     const humanPresenceIndex = calculateHumanPresence({
       biometricConfidence,
@@ -117,6 +173,7 @@ export async function POST(req: Request) {
       confidence,
       trust_score: trustScore,
       report_type: "hiring_shield",
+      ...requestRisk,
     });
 
     if (error) throw error;
@@ -135,6 +192,7 @@ export async function POST(req: Request) {
           attribution_confidence: attributionConfidence,
           trust_score: trustScore,
           provenance_status: provenanceStatus,
+          ...requestRisk,
         },
       },
       trustUpdate: {
@@ -171,7 +229,9 @@ export async function POST(req: Request) {
         biometric_confidence: biometricConfidence,
         behavioural_consistency: behaviouralConsistency,
         trust_timeline_score: trustTimelineScore,
+        ...requestRisk,
       },
+      ...requestRisk,
     });
 
     await supabase.from("audit_logs").insert({
@@ -183,14 +243,21 @@ export async function POST(req: Request) {
         likely_source_type: likelySourceType,
         model_fingerprint_risk: modelFingerprintRisk,
         origin_trace_score: originTraceScore,
+        ...requestRisk,
       },
+      ...requestRisk,
     });
 
     if (humanReviewRequired) {
       await supabase.from("audit_logs").insert({
         event_type: "attribution_review_required",
         actor: candidateName,
-        metadata: { candidate_name: candidateName, attribution_confidence: attributionConfidence },
+        metadata: {
+          candidate_name: candidateName,
+          attribution_confidence: attributionConfidence,
+          ...requestRisk,
+        },
+        ...requestRisk,
       });
     }
 
@@ -198,7 +265,12 @@ export async function POST(req: Request) {
       await supabase.from("audit_logs").insert({
         event_type: "provenance_missing",
         actor: candidateName,
-        metadata: { candidate_name: candidateName, c2pa_status: c2paStatus },
+        metadata: {
+          candidate_name: candidateName,
+          c2pa_status: c2paStatus,
+          ...requestRisk,
+        },
+        ...requestRisk,
       });
     }
 
@@ -206,12 +278,27 @@ export async function POST(req: Request) {
       await supabase.from("audit_logs").insert({
         event_type: "watermark_not_found",
         actor: candidateName,
-        metadata: { candidate_name: candidateName },
+        metadata: { candidate_name: candidateName, ...requestRisk },
+        ...requestRisk,
       });
     }
 
     return NextResponse.redirect(new URL("/hiring-shield", req.url));
-  } catch {
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message === "Server configuration is incomplete."
+    ) {
+      return configurationError();
+    }
+
+    if (error instanceof Error && error.message === "Invalid input") {
+      return NextResponse.json(
+        { ok: false, error: "Invalid trust report input" },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { ok: false, error: "Could not create trust report" },
       { status: 500 }

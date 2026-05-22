@@ -7,6 +7,8 @@ import {
 } from "@/lib/back-office";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 type Signal = {
   id: string;
   event: string;

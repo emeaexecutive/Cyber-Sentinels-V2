@@ -1,8 +1,19 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 export default async function PassportPage() {
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
 
   const { data: passports } = await supabase
     .from("passports")
@@ -154,13 +165,6 @@ export default async function PassportPage() {
           <h2 className="text-2xl font-bold">Create New Passport</h2>
 
           <input
-            name="user_email"
-            type="email"
-            placeholder="Email"
-            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
-          />
-
-          <input
             name="subject_name"
             placeholder="Subject name"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
@@ -180,12 +184,10 @@ export default async function PassportPage() {
             name="media_type"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           >
-            <option value="profile">Profile</option>
             <option value="image">Image</option>
             <option value="video">Video</option>
             <option value="audio">Audio</option>
             <option value="document">Document</option>
-            <option value="agent">Agent</option>
           </select>
 
           <input

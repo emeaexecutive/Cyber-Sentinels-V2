@@ -1,8 +1,19 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 export default async function HiringShieldPage() {
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
 
   const { data: reports } = await supabase
     .from("trust_reports")
@@ -74,12 +85,10 @@ export default async function HiringShieldPage() {
             name="media_type"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           >
-            <option value="profile">Profile</option>
             <option value="image">Image</option>
             <option value="video">Video</option>
             <option value="audio">Audio</option>
             <option value="document">Document</option>
-            <option value="agent">Agent</option>
           </select>
 
           <input
