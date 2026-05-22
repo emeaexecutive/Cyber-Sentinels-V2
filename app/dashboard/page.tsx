@@ -1,5 +1,9 @@
 import { ShieldCheck, Bot, Fingerprint, FileWarning } from "lucide-react";
+import { redirect } from "next/navigation";
 import { calculateTrustScore } from "@/lib/verification";
+import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 const passports = [
   { name: "Executive Login", type: "human", worldVerified: true, domainVerified: true, contentProvenance: false, riskFlags: [] },
@@ -7,7 +11,16 @@ const passports = [
   { name: "Synthetic Interview Clip", type: "content", worldVerified: false, domainVerified: false, contentProvenance: true, riskFlags: ["voice mismatch"] }
 ] as const;
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   return (
     <main className="min-h-screen bg-sentinel-black px-6 py-8 text-sentinel-white grid-bg">
       <section className="mx-auto max-w-7xl">

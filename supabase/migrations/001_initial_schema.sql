@@ -233,6 +233,11 @@ create policy "Allow authenticated audit reads" on audit_logs
   to authenticated
   using (true);
 
+-- Security: audit_logs are append-only. Application code and RLS policies only
+-- insert or read audit events; there are intentionally no update/delete
+-- policies for this table.
+revoke update, delete on audit_logs from anon, authenticated;
+
 create policy "Allow authenticated passport reads" on passports
   for select
   to authenticated

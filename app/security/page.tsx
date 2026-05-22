@@ -2,6 +2,10 @@ import Link from "next/link";
 
 const principles = [
   {
+    title: "Proof Before Permission",
+    body: "Cyber Sentinels treats access, clearance, and score changes as earned outcomes. Claims require server-validated proof before permission is granted.",
+  },
+  {
     title: "Zero Trust Assumption",
     body: "Every identity, evidence file, request header, and score-like claim starts as untrusted until the server validates it.",
   },
