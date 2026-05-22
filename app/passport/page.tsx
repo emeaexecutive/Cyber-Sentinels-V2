@@ -110,6 +110,36 @@ export default async function PassportPage() {
                   </p>
                 </div>
               </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-4">
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Origin Trace Score</p>
+                  <p className="mt-3 text-xl font-bold">
+                    {passport.origin_trace_score ?? 0}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Attribution Confidence</p>
+                  <p className="mt-3 text-xl font-bold">
+                    {passport.attribution_confidence ?? 0}%
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Review Status</p>
+                  <p className="mt-3 text-xl font-bold capitalize">
+                    {passport.review_status ?? "pending"}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Likely Source</p>
+                  <p className="mt-3 text-xl font-bold capitalize">
+                    {passport.likely_source_type ?? "unknown"}
+                  </p>
+                </div>
+              </div>
             </>
           ) : (
             <p className="text-zinc-500">No passport created yet.</p>
@@ -155,6 +185,7 @@ export default async function PassportPage() {
             <option value="video">Video</option>
             <option value="audio">Audio</option>
             <option value="document">Document</option>
+            <option value="agent">Agent</option>
           </select>
 
           <input
@@ -238,6 +269,68 @@ export default async function PassportPage() {
             placeholder="Trust timeline score e.g. 64"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
+
+          <input
+            name="attribution_confidence"
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Attribution confidence e.g. 42"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="likely_source_type"
+            placeholder="Likely source type e.g. unknown, model, platform"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="model_fingerprint_risk"
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Model fingerprint risk e.g. 35"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <select
+            name="metadata_integrity"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          >
+            <option value="unknown">Unknown metadata integrity</option>
+            <option value="intact">Metadata intact</option>
+            <option value="stripped">Metadata stripped</option>
+            <option value="tampered">Metadata tampered</option>
+          </select>
+
+          <select
+            name="watermark_status"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          >
+            <option value="unknown">Unknown watermark status</option>
+            <option value="found">Watermark found</option>
+            <option value="not_found">Watermark not found</option>
+          </select>
+
+          <select
+            name="c2pa_status"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          >
+            <option value="unknown">Unknown C2PA status</option>
+            <option value="verified">C2PA verified</option>
+            <option value="missing">C2PA missing</option>
+            <option value="tampered">C2PA tampered</option>
+          </select>
+
+          <select
+            name="upload_chain_status"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          >
+            <option value="unknown">Unknown upload chain</option>
+            <option value="verified">Upload chain verified</option>
+            <option value="broken">Upload chain broken</option>
+          </select>
 
           <button className="rounded-xl bg-white px-5 py-4 font-semibold text-black">
             Create Passport

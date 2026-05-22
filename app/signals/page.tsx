@@ -1,6 +1,15 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
+const supportedSignals = [
+  "Human Presence Index calculated",
+  "Reality Passport created",
+  "Origin Trace generated",
+  "Metadata stripped",
+  "Watermark not found",
+  "Human review required",
+];
+
 export default async function SignalsPage() {
   const supabase = await createClient();
 
@@ -19,6 +28,15 @@ export default async function SignalsPage() {
         <h1 className="mt-8 text-5xl font-bold">
           Live Signals
         </h1>
+
+        <section className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+          <h2 className="text-xl font-semibold">Supported Signal Types</h2>
+          <div className="mt-4 grid gap-2 text-sm text-zinc-400 md:grid-cols-2">
+            {supportedSignals.map((signal) => (
+              <p key={signal}>{signal}</p>
+            ))}
+          </div>
+        </section>
 
         <div className="mt-8 space-y-4">
           {signals?.length ? (

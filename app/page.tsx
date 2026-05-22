@@ -51,7 +51,15 @@ export default function HomePage() {
           </Link>
 
           <Link href="/human-presence-index" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-            Human Presence Index
+            Human Presence Index™
+          </Link>
+
+          <Link href="/reality-passport" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+            Reality Passport™
+          </Link>
+
+          <Link href="/origin-trace" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+            Origin Trace™
           </Link>
         </div>
       </div>

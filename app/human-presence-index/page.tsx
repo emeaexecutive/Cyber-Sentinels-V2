@@ -45,9 +45,8 @@ export default function HumanPresenceIndexPage() {
           </h1>
 
           <p className="mt-6 max-w-3xl text-zinc-400">
-            HPI™ is Cyber Sentinels' proprietary trust score for authentic
-            human presence. It combines identity, behaviour, liveness,
-            biometric evidence, media risk, provenance and trust history.
+            Beyond face recognition. Beyond liveness. Proof of authentic human
+            presence over time.
           </p>
         </section>
 

@@ -33,7 +33,7 @@ create table if not exists passports (
   user_email text,
   subject_type text not null check (subject_type in ('human','agent','candidate','content')),
   subject_name text not null,
-  media_type text default 'profile' check (media_type in ('image','video','audio','document','profile')),
+  media_type text default 'profile' check (media_type in ('image','video','audio','document','profile','agent')),
   human_presence_index int default 50 check (human_presence_index >= 0 and human_presence_index <= 100),
   biometric_confidence int default 70 check (biometric_confidence >= 0 and biometric_confidence <= 100),
   behavioural_consistency int default 70 check (behavioural_consistency >= 0 and behavioural_consistency <= 100),
@@ -43,6 +43,15 @@ create table if not exists passports (
   voice_clone_risk int default 10 check (voice_clone_risk >= 0 and voice_clone_risk <= 100),
   video_deepfake_risk int default 15 check (video_deepfake_risk >= 0 and video_deepfake_risk <= 100),
   image_authenticity_score int default 80 check (image_authenticity_score >= 0 and image_authenticity_score <= 100),
+  origin_trace_score int default 50 check (origin_trace_score >= 0 and origin_trace_score <= 100),
+  attribution_confidence int default 30 check (attribution_confidence >= 0 and attribution_confidence <= 100),
+  likely_source_type text default 'unknown',
+  model_fingerprint_risk int default 20 check (model_fingerprint_risk >= 0 and model_fingerprint_risk <= 100),
+  metadata_integrity text default 'unknown',
+  watermark_status text default 'unknown',
+  c2pa_status text default 'unknown',
+  upload_chain_status text default 'unknown',
+  human_review_required boolean default false,
   provenance_status text default 'unverified',
   review_status text default 'pending',
   trust_score int default 50 check (trust_score >= 0 and trust_score <= 100),
@@ -54,7 +63,7 @@ create table if not exists passports (
 create table if not exists trust_reports (
   id uuid primary key default gen_random_uuid(),
   candidate_name text,
-  media_type text default 'profile' check (media_type in ('image','video','audio','document','profile')),
+  media_type text default 'profile' check (media_type in ('image','video','audio','document','profile','agent')),
   human_presence_index int default 50 check (human_presence_index >= 0 and human_presence_index <= 100),
   biometric_confidence int default 70 check (biometric_confidence >= 0 and biometric_confidence <= 100),
   behavioural_consistency int default 70 check (behavioural_consistency >= 0 and behavioural_consistency <= 100),
@@ -65,6 +74,15 @@ create table if not exists trust_reports (
   voice_clone_risk int default 10 check (voice_clone_risk >= 0 and voice_clone_risk <= 100),
   video_deepfake_risk int default 15 check (video_deepfake_risk >= 0 and video_deepfake_risk <= 100),
   image_authenticity_score int default 80 check (image_authenticity_score >= 0 and image_authenticity_score <= 100),
+  origin_trace_score int default 50 check (origin_trace_score >= 0 and origin_trace_score <= 100),
+  attribution_confidence int default 30 check (attribution_confidence >= 0 and attribution_confidence <= 100),
+  likely_source_type text default 'unknown',
+  model_fingerprint_risk int default 20 check (model_fingerprint_risk >= 0 and model_fingerprint_risk <= 100),
+  metadata_integrity text default 'unknown',
+  watermark_status text default 'unknown',
+  c2pa_status text default 'unknown',
+  upload_chain_status text default 'unknown',
+  human_review_required boolean default false,
   provenance_status text default 'unverified',
   review_status text default 'pending',
   confidence int not null check (confidence >= 0 and confidence <= 100),
@@ -89,6 +107,15 @@ alter table passports add column if not exists liveness_score int default 75;
 alter table passports add column if not exists voice_clone_risk int default 10;
 alter table passports add column if not exists video_deepfake_risk int default 15;
 alter table passports add column if not exists image_authenticity_score int default 80;
+alter table passports add column if not exists origin_trace_score int default 50;
+alter table passports add column if not exists attribution_confidence int default 30;
+alter table passports add column if not exists likely_source_type text default 'unknown';
+alter table passports add column if not exists model_fingerprint_risk int default 20;
+alter table passports add column if not exists metadata_integrity text default 'unknown';
+alter table passports add column if not exists watermark_status text default 'unknown';
+alter table passports add column if not exists c2pa_status text default 'unknown';
+alter table passports add column if not exists upload_chain_status text default 'unknown';
+alter table passports add column if not exists human_review_required boolean default false;
 alter table passports add column if not exists provenance_status text default 'unverified';
 alter table passports add column if not exists review_status text default 'pending';
 
@@ -102,6 +129,15 @@ alter table trust_reports add column if not exists liveness_score int default 75
 alter table trust_reports add column if not exists voice_clone_risk int default 10;
 alter table trust_reports add column if not exists video_deepfake_risk int default 15;
 alter table trust_reports add column if not exists image_authenticity_score int default 80;
+alter table trust_reports add column if not exists origin_trace_score int default 50;
+alter table trust_reports add column if not exists attribution_confidence int default 30;
+alter table trust_reports add column if not exists likely_source_type text default 'unknown';
+alter table trust_reports add column if not exists model_fingerprint_risk int default 20;
+alter table trust_reports add column if not exists metadata_integrity text default 'unknown';
+alter table trust_reports add column if not exists watermark_status text default 'unknown';
+alter table trust_reports add column if not exists c2pa_status text default 'unknown';
+alter table trust_reports add column if not exists upload_chain_status text default 'unknown';
+alter table trust_reports add column if not exists human_review_required boolean default false;
 alter table trust_reports add column if not exists provenance_status text default 'unverified';
 alter table trust_reports add column if not exists review_status text default 'pending';
 

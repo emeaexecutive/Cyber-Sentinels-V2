@@ -13,6 +13,8 @@ type Passport = {
   voice_clone_risk: number | null;
   video_deepfake_risk: number | null;
   image_authenticity_score: number | null;
+  origin_trace_score: number | null;
+  attribution_confidence: number | null;
   provenance_status: string | null;
   review_status: string | null;
   trust_score: number | null;
@@ -65,6 +67,17 @@ export default async function CommandCenterPage() {
   const reviewPassports =
     passports?.filter((p) => (p.clearance ?? "pending") === "pending") ?? [];
   const pendingCount = reviewPassports.length;
+  const originTraceAlerts =
+    passports?.filter((p) => (p.attribution_confidence ?? 100) < 50).length ??
+    0;
+  const averageAttribution = passports?.length
+    ? Math.round(
+        passports.reduce(
+          (sum, p) => sum + (p.attribution_confidence ?? 0),
+          0
+        ) / passports.length
+      )
+    : 0;
 
   return (
     <main className="min-h-screen bg-black p-8 text-white">
@@ -81,7 +94,7 @@ export default async function CommandCenterPage() {
 
         <h1 className="mt-8 text-5xl font-bold">Command Center</h1>
 
-        <section className="mt-10 grid gap-4 md:grid-cols-5">
+        <section className="mt-10 grid gap-4 md:grid-cols-4">
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-zinc-500">Passports</p>
             <p className="mt-3 text-4xl font-bold">{passports?.length ?? 0}</p>
@@ -105,6 +118,21 @@ export default async function CommandCenterPage() {
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-zinc-500">HPI™</p>
             <p className="mt-3 text-4xl font-bold">{averageHpi}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-zinc-500">Reality Passports</p>
+            <p className="mt-3 text-4xl font-bold">{passports?.length ?? 0}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-zinc-500">Attribution Confidence</p>
+            <p className="mt-3 text-4xl font-bold">{averageAttribution}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-zinc-500">Origin Trace Alerts</p>
+            <p className="mt-3 text-4xl font-bold">{originTraceAlerts}</p>
           </div>
         </section>
 

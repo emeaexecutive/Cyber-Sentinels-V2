@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { calculateHumanPresenceIndex } from "@/lib/human-presence-index";
+import {
+  calculateOriginTraceScore,
+  requiresAttributionReview,
+} from "@/lib/origin-trace";
 import { calculateTrustScore } from "@/lib/trust-score";
 
-const MEDIA_TYPES = ["image", "video", "audio", "document", "profile"] as const;
+const MEDIA_TYPES = ["image", "video", "audio", "document", "profile", "agent"] as const;
 
 function getMediaType(value: FormDataEntryValue | null) {
   const mediaType = String(value || "profile");
@@ -41,6 +45,19 @@ export async function POST(req: Request) {
     const trustTimelineScore = Number(
       formData.get("trust_timeline_score") || 50
     );
+    const attributionConfidence = Number(
+      formData.get("attribution_confidence") || 30
+    );
+    const likelySourceType = String(formData.get("likely_source_type") || "unknown");
+    const modelFingerprintRisk = Number(
+      formData.get("model_fingerprint_risk") || 20
+    );
+    const metadataIntegrity = String(formData.get("metadata_integrity") || "unknown");
+    const watermarkStatus = String(formData.get("watermark_status") || "unknown");
+    const c2paStatus = String(formData.get("c2pa_status") || provenanceStatus);
+    const uploadChainStatus = String(
+      formData.get("upload_chain_status") || "unknown"
+    );
 
     const trustScore = calculateTrustScore(
       profileConsistency,
@@ -57,6 +74,22 @@ export async function POST(req: Request) {
       videoDeepfakeRisk,
       syntheticRisk,
     });
+    const originTraceScore = calculateOriginTraceScore({
+      attributionConfidence,
+      modelFingerprintRisk,
+      metadataIntegrity,
+      watermarkStatus,
+      c2paStatus,
+      uploadChainStatus,
+    });
+    const humanReviewRequired = requiresAttributionReview({
+      attributionConfidence,
+      modelFingerprintRisk,
+      metadataIntegrity,
+      watermarkStatus,
+      c2paStatus,
+      uploadChainStatus,
+    });
 
     const { error } = await supabase.from("trust_reports").insert({
       candidate_name: candidateName,
@@ -70,6 +103,15 @@ export async function POST(req: Request) {
       voice_clone_risk: voiceCloneRisk,
       video_deepfake_risk: videoDeepfakeRisk,
       image_authenticity_score: imageAuthenticityScore,
+      origin_trace_score: originTraceScore,
+      attribution_confidence: attributionConfidence,
+      likely_source_type: likelySourceType,
+      model_fingerprint_risk: modelFingerprintRisk,
+      metadata_integrity: metadataIntegrity,
+      watermark_status: watermarkStatus,
+      c2pa_status: c2paStatus,
+      upload_chain_status: uploadChainStatus,
+      human_review_required: humanReviewRequired,
       provenance_status: provenanceStatus,
       trust_timeline_score: trustTimelineScore,
       review_status: "pending",
@@ -84,6 +126,22 @@ export async function POST(req: Request) {
       event: `Hiring Shield report generated for ${candidateName}`,
     });
 
+    await supabase.from("signals").insert({
+      event: `Origin Trace generated for ${candidateName} with attribution confidence ${attributionConfidence}%`,
+    });
+
+    if (metadataIntegrity === "stripped") {
+      await supabase.from("signals").insert({ event: "Metadata stripped" });
+    }
+
+    if (watermarkStatus === "not_found") {
+      await supabase.from("signals").insert({ event: "Watermark not found" });
+    }
+
+    if (humanReviewRequired) {
+      await supabase.from("signals").insert({ event: "Human review required" });
+    }
+
     await supabase.from("audit_logs").insert({
       event_type: "trust_report.created",
       actor: candidateName,
@@ -92,6 +150,8 @@ export async function POST(req: Request) {
         synthetic_risk: syntheticRisk,
         image_authenticity_score: imageAuthenticityScore,
         human_presence_index: humanPresenceIndex,
+        origin_trace_score: originTraceScore,
+        attribution_confidence: attributionConfidence,
         trust_score: trustScore,
         provenance_status: provenanceStatus,
       },
@@ -108,6 +168,42 @@ export async function POST(req: Request) {
         trust_timeline_score: trustTimelineScore,
       },
     });
+
+    await supabase.from("audit_logs").insert({
+      event_type: "origin_trace_created",
+      actor: candidateName,
+      metadata: {
+        candidate_name: candidateName,
+        attribution_confidence: attributionConfidence,
+        likely_source_type: likelySourceType,
+        model_fingerprint_risk: modelFingerprintRisk,
+        origin_trace_score: originTraceScore,
+      },
+    });
+
+    if (humanReviewRequired) {
+      await supabase.from("audit_logs").insert({
+        event_type: "attribution_review_required",
+        actor: candidateName,
+        metadata: { candidate_name: candidateName, attribution_confidence: attributionConfidence },
+      });
+    }
+
+    if (provenanceStatus === "missing" || c2paStatus === "missing") {
+      await supabase.from("audit_logs").insert({
+        event_type: "provenance_missing",
+        actor: candidateName,
+        metadata: { candidate_name: candidateName, c2pa_status: c2paStatus },
+      });
+    }
+
+    if (watermarkStatus === "not_found") {
+      await supabase.from("audit_logs").insert({
+        event_type: "watermark_not_found",
+        actor: candidateName,
+        metadata: { candidate_name: candidateName },
+      });
+    }
 
     return NextResponse.redirect(new URL("/hiring-shield", req.url));
   } catch {
