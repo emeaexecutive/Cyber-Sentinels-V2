@@ -2,6 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminVerificationActions } from "@/components/admin-verification-actions";
 import {
+  hasAdminVerifiedCookie,
+  isAdminAllowlisted,
+} from "@/lib/admin-auth";
+import {
   backOfficeStatuses,
   decisionActions,
   type BackOfficeStatus,
@@ -175,6 +179,10 @@ export default async function AdminPage() {
     redirect("/login");
   }
 
+  if (!isAdminAllowlisted(user.email) || !(await hasAdminVerifiedCookie())) {
+    redirect("/admin/access");
+  }
+
   const [
     waitlist,
     verificationCases,
@@ -257,7 +265,10 @@ export default async function AdminPage() {
         </Link>
 
         <section className="mt-8">
-          <h1 className="text-4xl font-bold">Back Office Trust Operations</h1>
+          <h1 className="text-4xl font-bold">Triple-Secure Back Office</h1>
+          <p className="mt-2 text-sm font-medium text-emerald-300">
+            Authenticated. Allowlisted. Step-up verified.
+          </p>
           <p className="mt-4 max-w-3xl text-zinc-400">
             Review evidence, verify human presence, inspect origin traces and
             approve or escalate trust decisions.
@@ -295,7 +306,7 @@ export default async function AdminPage() {
                   <p className="mt-1 text-sm text-zinc-500">
                     {[entry.company, entry.role, entry.use_case]
                       .filter(Boolean)
-                      .join(" · ") || "No details supplied"}
+                      .join(" / ") || "No details supplied"}
                   </p>
                   <p className="mt-2 text-xs text-zinc-600">
                     {formatDate(entry.created_at)}
@@ -323,7 +334,7 @@ export default async function AdminPage() {
                         {item.subject_name ?? "Unnamed subject"}
                       </p>
                       <p className="mt-1 text-sm text-zinc-500">
-                        {item.subject_type ?? "unknown"} · {formatDate(item.created_at)}
+                        {item.subject_type ?? "unknown"} / {formatDate(item.created_at)}
                       </p>
                     </div>
                     <StatusBadge status={item.status} />
@@ -354,7 +365,7 @@ export default async function AdminPage() {
                       <div>
                         <p className="font-medium">{passport.subject_name}</p>
                         <p className="mt-1 text-sm text-zinc-500">
-                          {passport.subject_type} · Trust {passport.trust_score ?? "n/a"}
+                          {passport.subject_type} / Trust {passport.trust_score ?? "n/a"}
                         </p>
                       </div>
                       <StatusBadge status={passport.review_status} />
@@ -379,7 +390,7 @@ export default async function AdminPage() {
                           {report.candidate_name ?? "Unnamed candidate"}
                         </p>
                         <p className="mt-1 text-sm text-zinc-500">
-                          {report.report_type ?? "trust_report"} · Trust{" "}
+                          {report.report_type ?? "trust_report"} / Trust{" "}
                           {report.trust_score ?? "n/a"}
                         </p>
                       </div>
@@ -421,7 +432,7 @@ export default async function AdminPage() {
                   <div key={log.id} className="rounded-lg border border-zinc-800 p-4">
                     <p className="text-zinc-300">{log.event_type}</p>
                     <p className="mt-2 text-xs text-zinc-600">
-                      {log.actor ?? "system"} · {formatDate(log.created_at)}
+                      {log.actor ?? "system"} / {formatDate(log.created_at)}
                     </p>
                   </div>
                 ))

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdminAccess } from "@/lib/admin-auth";
 import {
   backOfficeStatuses,
   decisionActions,
@@ -52,14 +53,12 @@ export async function POST(
 ) {
   try {
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const adminAccess = await requireAdminAccess(supabase);
 
-    if (!user) {
+    if (!adminAccess.ok) {
       return NextResponse.json(
-        { ok: false, error: "Authentication required" },
-        { status: 401 }
+        { ok: false, error: "Unauthorized" },
+        { status: adminAccess.status }
       );
     }
 
@@ -81,14 +80,14 @@ export async function POST(
       );
     }
 
-    const actor = user.email ?? user.id;
+    const actor = adminAccess.user.email ?? adminAccess.user.id;
     const requestRisk = getRequestRiskFields(req);
 
     const { data: verificationCase, error: updateError } = await supabase
       .from("verification_cases")
       .update({
         status: parsed.status,
-        reviewed_by: user.id,
+        reviewed_by: adminAccess.user.id,
         reviewed_at: new Date().toISOString(),
       })
       .eq("id", id)
@@ -117,16 +116,29 @@ export async function POST(
       );
     }
 
-    const subjectName =
-      typeof verificationCase.subject_name === "string" &&
-      verificationCase.subject_name
-        ? verificationCase.subject_name
-        : "verification case";
-    const signal = `Verification case ${parsed.status}: ${subjectName}`;
+    const statusAuditInsert = await createAuditLog(
+      supabase,
+      "admin_case_status_updated",
+      actor,
+      {
+        verification_case_id: id,
+        subject_name: verificationCase.subject_name,
+        subject_type: verificationCase.subject_type,
+        status: parsed.status,
+        ...requestRisk,
+      }
+    );
+
+    if (statusAuditInsert.error) {
+      return NextResponse.json(
+        { ok: false, error: "Could not record audit event" },
+        { status: 500 }
+      );
+    }
 
     const auditInsert = await createAuditLog(
       supabase,
-      "verification_case.decision_created",
+      "admin_decision_created",
       actor,
       {
         verification_case_id: id,
@@ -146,7 +158,10 @@ export async function POST(
       );
     }
 
-    const signalInsert = await createSignal(supabase, signal);
+    const signalInsert = await createSignal(
+      supabase,
+      "Verification case decision created"
+    );
 
     if (signalInsert.error) {
       return NextResponse.json(
