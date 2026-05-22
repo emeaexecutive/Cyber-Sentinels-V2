@@ -33,6 +33,13 @@ create table if not exists passports (
   user_email text,
   subject_type text not null check (subject_type in ('human','agent','candidate','content')),
   subject_name text not null,
+  media_type text default 'profile' check (media_type in ('image','video','audio','document','profile')),
+  synthetic_risk int default 20 check (synthetic_risk >= 0 and synthetic_risk <= 100),
+  liveness_score int default 75 check (liveness_score >= 0 and liveness_score <= 100),
+  voice_clone_risk int default 10 check (voice_clone_risk >= 0 and voice_clone_risk <= 100),
+  video_deepfake_risk int default 15 check (video_deepfake_risk >= 0 and video_deepfake_risk <= 100),
+  provenance_status text default 'unverified',
+  review_status text default 'pending',
   trust_score int default 50 check (trust_score >= 0 and trust_score <= 100),
   clearance text default 'pending',
   verified boolean default false,
@@ -41,8 +48,15 @@ create table if not exists passports (
 
 create table if not exists trust_reports (
   id uuid primary key default gen_random_uuid(),
+  candidate_name text,
+  media_type text default 'profile' check (media_type in ('image','video','audio','document','profile')),
   profile_consistency int not null check (profile_consistency >= 0 and profile_consistency <= 100),
   synthetic_risk int not null check (synthetic_risk >= 0 and synthetic_risk <= 100),
+  liveness_score int default 75 check (liveness_score >= 0 and liveness_score <= 100),
+  voice_clone_risk int default 10 check (voice_clone_risk >= 0 and voice_clone_risk <= 100),
+  video_deepfake_risk int default 15 check (video_deepfake_risk >= 0 and video_deepfake_risk <= 100),
+  provenance_status text default 'unverified',
+  review_status text default 'pending',
   confidence int not null check (confidence >= 0 and confidence <= 100),
   trust_score int not null check (trust_score >= 0 and trust_score <= 100),
   report_type text default 'hiring_shield',
@@ -55,6 +69,22 @@ create table if not exists signals (
   created_at timestamptz default now()
 );
 
+alter table passports add column if not exists media_type text default 'profile';
+alter table passports add column if not exists synthetic_risk int default 20;
+alter table passports add column if not exists liveness_score int default 75;
+alter table passports add column if not exists voice_clone_risk int default 10;
+alter table passports add column if not exists video_deepfake_risk int default 15;
+alter table passports add column if not exists provenance_status text default 'unverified';
+alter table passports add column if not exists review_status text default 'pending';
+
+alter table trust_reports add column if not exists candidate_name text;
+alter table trust_reports add column if not exists media_type text default 'profile';
+alter table trust_reports add column if not exists liveness_score int default 75;
+alter table trust_reports add column if not exists voice_clone_risk int default 10;
+alter table trust_reports add column if not exists video_deepfake_risk int default 15;
+alter table trust_reports add column if not exists provenance_status text default 'unverified';
+alter table trust_reports add column if not exists review_status text default 'pending';
+
 alter table waitlist enable row level security;
 alter table verification_passports enable row level security;
 alter table audit_logs enable row level security;
@@ -65,6 +95,11 @@ alter table signals enable row level security;
 create policy "Allow public waitlist inserts" on waitlist
   for insert
   to anon
+  with check (true);
+
+create policy "Allow public audit inserts" on audit_logs
+  for insert
+  to anon, authenticated
   with check (true);
 
 create policy "Allow public passport reads" on passports

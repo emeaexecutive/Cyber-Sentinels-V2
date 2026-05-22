@@ -6,6 +6,13 @@ type Passport = {
   id: string;
   subject_name: string;
   subject_type: string;
+  media_type: string | null;
+  synthetic_risk: number | null;
+  liveness_score: number | null;
+  voice_clone_risk: number | null;
+  video_deepfake_risk: number | null;
+  provenance_status: string | null;
+  review_status: string | null;
   trust_score: number | null;
   clearance: string | null;
   verified: boolean | null;
@@ -117,23 +124,24 @@ export default async function CommandCenterPage() {
                   </div>
 
                   <div>
-                    <p className="text-sm text-zinc-500">Type</p>
+                    <p className="text-sm text-zinc-500">Type / Media</p>
                     <p className="mt-1 capitalize text-zinc-300">
-                      {passport.subject_type}
+                      {passport.subject_type} / {passport.media_type ?? "profile"}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-zinc-500">Trust</p>
+                    <p className="text-sm text-zinc-500">Risk</p>
                     <p className="mt-1 text-zinc-300">
-                      {passport.trust_score ?? 0}/100
+                      Synthetic {passport.synthetic_risk ?? 0}%
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-zinc-500">Clearance</p>
+                    <p className="text-sm text-zinc-500">Liveness / Deepfake</p>
                     <p className="mt-1 capitalize text-zinc-300">
-                      {passport.clearance ?? "pending"}
+                      {passport.liveness_score ?? 0}% /{" "}
+                      {passport.video_deepfake_risk ?? 0}%
                     </p>
                   </div>
 

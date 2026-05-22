@@ -17,6 +17,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    if (!error) {
+      await supabase.from("audit_logs").insert({
+        event_type: "waitlist.created",
+        actor: email,
+        metadata: { source: "waitlist" },
+      });
+    }
+
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Unexpected error" }, { status: 500 });

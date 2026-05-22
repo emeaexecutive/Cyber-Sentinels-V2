@@ -56,6 +56,48 @@ export default async function HiringShieldPage() {
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
+          <select
+            name="media_type"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          >
+            <option value="profile">Profile</option>
+            <option value="image">Image</option>
+            <option value="video">Video</option>
+            <option value="audio">Audio</option>
+            <option value="document">Document</option>
+          </select>
+
+          <input
+            name="liveness_score"
+            type="number"
+            placeholder="Liveness verification score e.g. 86"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="voice_clone_risk"
+            type="number"
+            placeholder="Cloned voice risk e.g. 14"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="video_deepfake_risk"
+            type="number"
+            placeholder="Deepfake video risk e.g. 18"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <select
+            name="provenance_status"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          >
+            <option value="unverified">Unverified provenance</option>
+            <option value="verified">Verified provenance</option>
+            <option value="missing">Missing provenance</option>
+            <option value="tampered">Tampered provenance</option>
+          </select>
+
           <input
             name="confidence"
             type="number"
@@ -126,6 +168,36 @@ export default async function HiringShieldPage() {
                     </p>
                   </div>
 
+                </div>
+
+                <div className="mt-5 grid gap-4 md:grid-cols-4">
+                  <div>
+                    <p className="text-zinc-500">Media</p>
+                    <p className="mt-2 text-xl font-bold capitalize">
+                      {report.media_type ?? "profile"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-zinc-500">Liveness</p>
+                    <p className="mt-2 text-xl font-bold">
+                      {report.liveness_score ?? 0}%
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-zinc-500">Audio Clone Risk</p>
+                    <p className="mt-2 text-xl font-bold">
+                      {report.voice_clone_risk ?? 0}%
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-zinc-500">Video Deepfake Risk</p>
+                    <p className="mt-2 text-xl font-bold">
+                      {report.video_deepfake_risk ?? 0}%
+                    </p>
+                  </div>
                 </div>
 
               </div>

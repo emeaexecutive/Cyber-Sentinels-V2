@@ -37,6 +37,18 @@ export default function HomePage() {
           <Link href="/signals" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
             Signals
           </Link>
+
+          <Link href="/deepfake-detection" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+            Deepfake Detection
+          </Link>
+
+          <Link href="/video-verification" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+            Video Verification
+          </Link>
+
+          <Link href="/agent-passport" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+            Agent Passport
+          </Link>
         </div>
       </div>
     </main>

@@ -50,6 +50,36 @@ export default async function PassportPage() {
                   </p>
                 </div>
               </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-4">
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Media Type</p>
+                  <p className="mt-3 text-xl font-bold capitalize">
+                    {passport.media_type ?? "profile"}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Synthetic Risk</p>
+                  <p className="mt-3 text-xl font-bold">
+                    {passport.synthetic_risk ?? 0}%
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Liveness</p>
+                  <p className="mt-3 text-xl font-bold">
+                    {passport.liveness_score ?? 0}%
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Provenance</p>
+                  <p className="mt-3 text-xl font-bold capitalize">
+                    {passport.provenance_status ?? "unverified"}
+                  </p>
+                </div>
+              </div>
             </>
           ) : (
             <p className="text-zinc-500">No passport created yet.</p>
@@ -84,6 +114,63 @@ export default async function PassportPage() {
             <option value="agent">AI Agent</option>
             <option value="candidate">Candidate</option>
             <option value="content">Content</option>
+          </select>
+
+          <select
+            name="media_type"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          >
+            <option value="profile">Profile</option>
+            <option value="image">Image</option>
+            <option value="video">Video</option>
+            <option value="audio">Audio</option>
+            <option value="document">Document</option>
+          </select>
+
+          <input
+            name="synthetic_risk"
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Synthetic risk score e.g. 20"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="liveness_score"
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Liveness verification score e.g. 82"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="voice_clone_risk"
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Audio clone risk e.g. 12"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="video_deepfake_risk"
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Deepfake video risk e.g. 18"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <select
+            name="provenance_status"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          >
+            <option value="unverified">Unverified provenance</option>
+            <option value="verified">Verified provenance</option>
+            <option value="missing">Missing provenance</option>
+            <option value="tampered">Tampered provenance</option>
           </select>
 
           <button className="rounded-xl bg-white px-5 py-4 font-semibold text-black">
