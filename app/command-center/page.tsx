@@ -1,10 +1,20 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function CommandCenterPage() {
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   const { data: passports } = await supabase.from("passports").select("*");
+
   const { data: signals } = await supabase
     .from("signals")
     .select("*")
@@ -12,6 +22,7 @@ export default async function CommandCenterPage() {
     .limit(5);
 
   const verifiedCount = passports?.filter((p) => p.verified).length ?? 0;
+
   const averageTrust = passports?.length
     ? Math.round(
         passports.reduce((sum, p) => sum + (p.trust_score ?? 0), 0) /
@@ -23,8 +34,14 @@ export default async function CommandCenterPage() {
     <main className="min-h-screen bg-black p-8 text-white">
       <div className="mx-auto max-w-6xl">
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
-          ← Back to Cyber Sentinels
+          Back to Cyber Sentinels
         </Link>
+
+        <form action="/api/auth/logout" method="POST" className="mt-4">
+          <button className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
+            Logout
+          </button>
+        </form>
 
         <h1 className="mt-8 text-5xl font-bold">Command Center</h1>
 
