@@ -1,13 +1,52 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AdminVerificationActions } from "@/components/admin-verification-actions";
 import {
-  backOfficeConcepts,
   backOfficeStatuses,
   decisionActions,
+  type BackOfficeStatus,
+  type DecisionAction,
 } from "@/lib/back-office";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
+
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+
+type WaitlistEntry = {
+  id: string;
+  email: string;
+  company: string | null;
+  role: string | null;
+  use_case: string | null;
+  created_at: string;
+};
+
+type VerificationCase = {
+  id: string;
+  subject_name: string | null;
+  subject_type: string | null;
+  status: BackOfficeStatus | string | null;
+  created_at: string;
+};
+
+type Passport = {
+  id: string;
+  subject_name: string;
+  subject_type: string;
+  review_status: string | null;
+  trust_score: number | null;
+  created_at: string;
+};
+
+type TrustReport = {
+  id: string;
+  candidate_name: string | null;
+  report_type: string | null;
+  review_status: string | null;
+  trust_score: number | null;
+  created_at: string;
+};
 
 type Signal = {
   id: string;
@@ -22,15 +61,107 @@ type AuditLog = {
   created_at: string;
 };
 
-async function getTableCount(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  table: string
-) {
-  const { count } = await supabase
-    .from(table)
-    .select("*", { count: "exact", head: true });
+type EvidenceFile = {
+  id: string;
+  verification_case_id: string | null;
+  file_name: string | null;
+  scan_status: string | null;
+  created_at: string;
+};
 
-  return count ?? 0;
+type Decision = {
+  id: string;
+  verification_case_id: string | null;
+  decision: DecisionAction | string | null;
+  status: BackOfficeStatus | string | null;
+  created_at: string;
+};
+
+type RiskScore = {
+  id: string;
+  verification_case_id: string | null;
+  score: number | null;
+  risk_level: string | null;
+  created_at: string;
+};
+
+type TableResult<T> = {
+  rows: T[];
+  count: number;
+  available: boolean;
+};
+
+async function fetchTable<T>(
+  supabase: SupabaseServerClient,
+  table: string,
+  select: string,
+  orderColumn = "created_at",
+  limit = 8
+): Promise<TableResult<T>> {
+  const { data, count, error } = await supabase
+    .from(table)
+    .select(select, { count: "exact" })
+    .order(orderColumn, { ascending: false })
+    .limit(limit)
+    .returns<T[]>();
+
+  if (error) {
+    return { rows: [], count: 0, available: false };
+  }
+
+  return {
+    rows: data ?? [],
+    count: count ?? data?.length ?? 0,
+    available: true,
+  };
+}
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleString("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
+function StatusBadge({ status }: { status: string | null }) {
+  const normalized = status && backOfficeStatuses.includes(status as BackOfficeStatus)
+    ? status
+    : "pending";
+
+  const styles: Record<BackOfficeStatus, string> = {
+    pending: "border-zinc-700 text-zinc-300",
+    in_review: "border-cyan-700 text-cyan-200",
+    verified: "border-emerald-700 text-emerald-200",
+    rejected: "border-red-800 text-red-200",
+    escalated: "border-amber-700 text-amber-200",
+  };
+
+  return (
+    <span
+      className={`inline-flex rounded-full border px-2.5 py-1 text-xs ${styles[
+        normalized as BackOfficeStatus
+      ]}`}
+    >
+      {normalized}
+    </span>
+  );
+}
+
+function DecisionBadge({ decision }: { decision: string | null }) {
+  const normalized =
+    decision && decisionActions.includes(decision as DecisionAction)
+      ? decision
+      : "manual_review";
+
+  return (
+    <span className="inline-flex rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300">
+      {normalized}
+    </span>
+  );
+}
+
+function EmptyState({ label }: { label: string }) {
+  return <p className="text-sm text-zinc-500">{label}</p>;
 }
 
 export default async function AdminPage() {
@@ -45,160 +176,340 @@ export default async function AdminPage() {
   }
 
   const [
-    waitlistCount,
-    passportCount,
-    trustReportsCount,
-    signalsCount,
-    auditLogsCount,
-    { data: recentSignals },
-    { data: recentAuditLogs },
+    waitlist,
+    verificationCases,
+    passports,
+    trustReports,
+    signals,
+    auditLogs,
+    evidenceFiles,
+    decisions,
+    riskScores,
   ] = await Promise.all([
-    getTableCount(supabase, "waitlist"),
-    getTableCount(supabase, "passports"),
-    getTableCount(supabase, "trust_reports"),
-    getTableCount(supabase, "signals"),
-    getTableCount(supabase, "audit_logs"),
-    supabase
-      .from("signals")
-      .select("id,event,created_at")
-      .order("created_at", { ascending: false })
-      .limit(5)
-      .returns<Signal[]>(),
-    supabase
-      .from("audit_logs")
-      .select("id,event_type,actor,created_at")
-      .order("created_at", { ascending: false })
-      .limit(5)
-      .returns<AuditLog[]>(),
+    fetchTable<WaitlistEntry>(
+      supabase,
+      "waitlist",
+      "id,email,company,role,use_case,created_at"
+    ),
+    fetchTable<VerificationCase>(
+      supabase,
+      "verification_cases",
+      "id,subject_name,subject_type,status,created_at"
+    ),
+    fetchTable<Passport>(
+      supabase,
+      "passports",
+      "id,subject_name,subject_type,review_status,trust_score,created_at"
+    ),
+    fetchTable<TrustReport>(
+      supabase,
+      "trust_reports",
+      "id,candidate_name,report_type,review_status,trust_score,created_at"
+    ),
+    fetchTable<Signal>(supabase, "signals", "id,event,created_at"),
+    fetchTable<AuditLog>(
+      supabase,
+      "audit_logs",
+      "id,event_type,actor,created_at"
+    ),
+    fetchTable<EvidenceFile>(
+      supabase,
+      "evidence_files",
+      "id,verification_case_id,file_name,scan_status,created_at"
+    ),
+    fetchTable<Decision>(
+      supabase,
+      "decisions",
+      "id,verification_case_id,decision,status,created_at"
+    ),
+    fetchTable<RiskScore>(
+      supabase,
+      "risk_scores",
+      "id,verification_case_id,score,risk_level,created_at"
+    ),
   ]);
 
   const metrics = [
-    { label: "Waitlist", value: waitlistCount },
-    { label: "Passports", value: passportCount },
-    { label: "Trust Reports", value: trustReportsCount },
-    { label: "Signals", value: signalsCount },
-    { label: "Audit Logs", value: auditLogsCount },
-  ];
-
-  const navLinks = [
-    { href: "/command-center", label: "Command Center" },
-    { href: "/passport", label: "Passport" },
-    { href: "/hiring-shield", label: "Hiring Shield" },
-    { href: "/signals", label: "Signals" },
-    { href: "/clearances", label: "Clearances" },
+    { label: "Waitlist", value: waitlist.count, available: waitlist.available },
+    {
+      label: "Verification Cases",
+      value: verificationCases.count,
+      available: verificationCases.available,
+    },
+    { label: "Passports", value: passports.count, available: passports.available },
+    {
+      label: "Trust Reports",
+      value: trustReports.count,
+      available: trustReports.available,
+    },
+    { label: "Signals", value: signals.count, available: signals.available },
+    { label: "Audit Logs", value: auditLogs.count, available: auditLogs.available },
+    { label: "Evidence", value: evidenceFiles.count, available: evidenceFiles.available },
+    { label: "Decisions", value: decisions.count, available: decisions.available },
+    { label: "Risk Scores", value: riskScores.count, available: riskScores.available },
   ];
 
   return (
-    <main className="min-h-screen bg-black p-8 text-white">
-      <div className="mx-auto max-w-6xl">
+    <main className="min-h-screen bg-black p-6 text-white md:p-8">
+      <div className="mx-auto max-w-7xl">
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
           Back to Cyber Sentinels
         </Link>
 
-        <h1 className="mt-8 text-5xl font-bold">
-          Back Office Trust Operations
-        </h1>
+        <section className="mt-8">
+          <h1 className="text-4xl font-bold">Back Office Trust Operations</h1>
+          <p className="mt-4 max-w-3xl text-zinc-400">
+            Review evidence, verify human presence, inspect origin traces and
+            approve or escalate trust decisions.
+          </p>
+          <p className="mt-2 text-sm text-zinc-500">
+            Every decision creates a signal and audit event.
+          </p>
+        </section>
 
-        <p className="mt-4 max-w-3xl text-zinc-400">
-          Review evidence, verify human presence, inspect origin traces and
-          approve or escalate trust decisions.
-        </p>
-
-        <nav className="mt-8 flex flex-wrap gap-3">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        <section className="mt-10 grid gap-4 md:grid-cols-5">
+        <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {metrics.map((metric) => (
             <div
               key={metric.label}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6"
+              className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"
             >
-              <p className="text-zinc-500">{metric.label}</p>
-              <p className="mt-3 text-4xl font-bold">{metric.value}</p>
+              <p className="text-sm text-zinc-500">{metric.label}</p>
+              <p className="mt-2 text-3xl font-semibold">{metric.value}</p>
+              {!metric.available ? (
+                <p className="mt-1 text-xs text-zinc-600">Table unavailable</p>
+              ) : null}
             </div>
           ))}
         </section>
 
-        <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-xl font-semibold">Verification Queue</h2>
-          <p className="mt-3 text-zinc-500">
-            Placeholder for verification_cases, evidence_files, decisions,
-            risk_scores, teams and api_keys.
-          </p>
-
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            <div>
-              <p className="text-sm text-zinc-500">Statuses</p>
-              <div className="mt-3 space-y-2 text-sm text-zinc-300">
-                {backOfficeStatuses.map((status) => (
-                  <p key={status}>{status}</p>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm text-zinc-500">Decisions</p>
-              <div className="mt-3 space-y-2 text-sm text-zinc-300">
-                {decisionActions.map((decision) => (
-                  <p key={decision}>{decision}</p>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm text-zinc-500">Admin Concepts</p>
-              <div className="mt-3 space-y-2 text-sm text-zinc-300">
-                {backOfficeConcepts.map((concept) => (
-                  <p key={concept}>{concept}</p>
-                ))}
-              </div>
-            </div>
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <h2 className="text-xl font-semibold">Waitlist Entries</h2>
+          <div className="mt-5 grid gap-3">
+            {waitlist.rows.length ? (
+              waitlist.rows.map((entry) => (
+                <div
+                  key={entry.id}
+                  className="rounded-lg border border-zinc-800 p-4"
+                >
+                  <p className="font-medium text-zinc-100">{entry.email}</p>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    {[entry.company, entry.role, entry.use_case]
+                      .filter(Boolean)
+                      .join(" · ") || "No details supplied"}
+                  </p>
+                  <p className="mt-2 text-xs text-zinc-600">
+                    {formatDate(entry.created_at)}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <EmptyState label="No waitlist entries." />
+            )}
           </div>
         </section>
 
-        <section className="mt-10 grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-            <h2 className="text-xl font-semibold">Recent Signals</h2>
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <h2 className="text-xl font-semibold">Verification Queue</h2>
+          <div className="mt-5 grid gap-3">
+            {verificationCases.rows.length ? (
+              verificationCases.rows.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-lg border border-zinc-800 p-4"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium text-zinc-100">
+                        {item.subject_name ?? "Unnamed subject"}
+                      </p>
+                      <p className="mt-1 text-sm text-zinc-500">
+                        {item.subject_type ?? "unknown"} · {formatDate(item.created_at)}
+                      </p>
+                    </div>
+                    <StatusBadge status={item.status} />
+                  </div>
+                  <AdminVerificationActions caseId={item.id} />
+                </div>
+              ))
+            ) : (
+              <EmptyState
+                label={
+                  verificationCases.available
+                    ? "No verification cases."
+                    : "verification_cases table is not available yet."
+                }
+              />
+            )}
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Recent Passports</h2>
             <div className="mt-5 space-y-3">
-              {recentSignals?.length ? (
-                recentSignals.map((signal) => (
-                  <div key={signal.id} className="rounded-xl border border-zinc-800 p-4">
-                    <p className="text-zinc-300">{signal.event}</p>
-                    <p className="mt-2 text-xs text-zinc-500">
-                      {new Date(signal.created_at).toLocaleString()}
-                    </p>
+              {passports.rows.length ? (
+                passports.rows.map((passport) => (
+                  <div key={passport.id} className="rounded-lg border border-zinc-800 p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium">{passport.subject_name}</p>
+                        <p className="mt-1 text-sm text-zinc-500">
+                          {passport.subject_type} · Trust {passport.trust_score ?? "n/a"}
+                        </p>
+                      </div>
+                      <StatusBadge status={passport.review_status} />
+                    </div>
                   </div>
                 ))
               ) : (
-                <p className="text-zinc-500">No recent signals.</p>
+                <EmptyState label="No recent passports." />
               )}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-            <h2 className="text-xl font-semibold">Recent Audit Logs</h2>
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Recent Trust Reports</h2>
             <div className="mt-5 space-y-3">
-              {recentAuditLogs?.length ? (
-                recentAuditLogs.map((log) => (
-                  <div key={log.id} className="rounded-xl border border-zinc-800 p-4">
-                    <p className="text-zinc-300">{log.event_type}</p>
-                    <p className="mt-2 text-xs text-zinc-500">
-                      {log.actor ?? "system"} ·{" "}
-                      {new Date(log.created_at).toLocaleString()}
+              {trustReports.rows.length ? (
+                trustReports.rows.map((report) => (
+                  <div key={report.id} className="rounded-lg border border-zinc-800 p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium">
+                          {report.candidate_name ?? "Unnamed candidate"}
+                        </p>
+                        <p className="mt-1 text-sm text-zinc-500">
+                          {report.report_type ?? "trust_report"} · Trust{" "}
+                          {report.trust_score ?? "n/a"}
+                        </p>
+                      </div>
+                      <StatusBadge status={report.review_status} />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <EmptyState label="No recent trust reports." />
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Recent Signals</h2>
+            <div className="mt-5 space-y-3">
+              {signals.rows.length ? (
+                signals.rows.map((signal) => (
+                  <div key={signal.id} className="rounded-lg border border-zinc-800 p-4">
+                    <p className="text-zinc-300">{signal.event}</p>
+                    <p className="mt-2 text-xs text-zinc-600">
+                      {formatDate(signal.created_at)}
                     </p>
                   </div>
                 ))
               ) : (
-                <p className="text-zinc-500">No recent audit logs.</p>
+                <EmptyState label="No recent signals." />
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Recent Audit Logs</h2>
+            <div className="mt-5 space-y-3">
+              {auditLogs.rows.length ? (
+                auditLogs.rows.map((log) => (
+                  <div key={log.id} className="rounded-lg border border-zinc-800 p-4">
+                    <p className="text-zinc-300">{log.event_type}</p>
+                    <p className="mt-2 text-xs text-zinc-600">
+                      {log.actor ?? "system"} · {formatDate(log.created_at)}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <EmptyState label="No recent audit logs." />
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-6 lg:grid-cols-3">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Evidence Pending Scan</h2>
+            <div className="mt-5 space-y-3">
+              {evidenceFiles.rows.length ? (
+                evidenceFiles.rows
+                  .filter((file) => file.scan_status !== "clean")
+                  .map((file) => (
+                    <div key={file.id} className="rounded-lg border border-zinc-800 p-4">
+                      <p className="font-medium">
+                        {file.file_name ?? "Evidence file"}
+                      </p>
+                      <p className="mt-1 text-sm text-zinc-500">
+                        {file.scan_status ?? "pending"}
+                      </p>
+                    </div>
+                  ))
+              ) : (
+                <EmptyState
+                  label={
+                    evidenceFiles.available
+                      ? "No evidence pending scan."
+                      : "evidence_files table is not available yet."
+                  }
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Decision Queue</h2>
+            <div className="mt-5 space-y-3">
+              {decisions.rows.length ? (
+                decisions.rows.map((decision) => (
+                  <div key={decision.id} className="rounded-lg border border-zinc-800 p-4">
+                    <div className="flex flex-wrap gap-2">
+                      <DecisionBadge decision={decision.decision} />
+                      <StatusBadge status={decision.status} />
+                    </div>
+                    <p className="mt-2 text-xs text-zinc-600">
+                      {formatDate(decision.created_at)}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  label={
+                    decisions.available
+                      ? "No decisions recorded."
+                      : "decisions table is not available yet."
+                  }
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Risk Overview</h2>
+            <div className="mt-5 space-y-3">
+              {riskScores.rows.length ? (
+                riskScores.rows.map((risk) => (
+                  <div key={risk.id} className="rounded-lg border border-zinc-800 p-4">
+                    <p className="font-medium">
+                      Score {risk.score ?? "n/a"}
+                    </p>
+                    <p className="mt-1 text-sm text-zinc-500">
+                      {risk.risk_level ?? "unclassified"}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  label={
+                    riskScores.available
+                      ? "No risk scores."
+                      : "risk_scores table is not available yet."
+                  }
+                />
               )}
             </div>
           </div>

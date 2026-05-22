@@ -132,6 +132,44 @@ create table if not exists signals (
   created_at timestamptz default now()
 );
 
+create table if not exists verification_cases (
+  id uuid primary key default gen_random_uuid(),
+  subject_type text default 'human',
+  subject_name text,
+  status text default 'pending' check (status in ('pending','in_review','verified','rejected','escalated')),
+  reviewed_by uuid,
+  reviewed_at timestamptz,
+  created_at timestamptz default now()
+);
+
+create table if not exists evidence_files (
+  id uuid primary key default gen_random_uuid(),
+  verification_case_id uuid references verification_cases(id) on delete cascade,
+  file_name text,
+  file_url text,
+  media_type text,
+  scan_status text default 'pending',
+  created_at timestamptz default now()
+);
+
+create table if not exists decisions (
+  id uuid primary key default gen_random_uuid(),
+  verification_case_id uuid references verification_cases(id) on delete cascade,
+  decision text not null check (decision in ('allow','deny','manual_review','needs_more_evidence')),
+  status text not null check (status in ('pending','in_review','verified','rejected','escalated')),
+  notes text,
+  actor text,
+  created_at timestamptz default now()
+);
+
+create table if not exists risk_scores (
+  id uuid primary key default gen_random_uuid(),
+  verification_case_id uuid references verification_cases(id) on delete cascade,
+  score int check (score >= 0 and score <= 100),
+  risk_level text default 'unclassified',
+  created_at timestamptz default now()
+);
+
 alter table passports add column if not exists media_type text default 'profile';
 alter table passports add column if not exists human_presence_index int default 50;
 alter table passports add column if not exists biometric_confidence int default 70;
@@ -212,6 +250,10 @@ alter table audit_logs enable row level security;
 alter table passports enable row level security;
 alter table trust_reports enable row level security;
 alter table signals enable row level security;
+alter table verification_cases enable row level security;
+alter table evidence_files enable row level security;
+alter table decisions enable row level security;
+alter table risk_scores enable row level security;
 
 create policy "Allow public waitlist inserts" on waitlist
   for insert
@@ -273,3 +315,34 @@ create policy "Allow authenticated signal inserts" on signals
   for insert
   to authenticated
   with check (true);
+
+create policy "Allow authenticated verification case reads" on verification_cases
+  for select
+  to authenticated
+  using (true);
+
+create policy "Allow authenticated verification case updates" on verification_cases
+  for update
+  to authenticated
+  using (true)
+  with check (true);
+
+create policy "Allow authenticated evidence reads" on evidence_files
+  for select
+  to authenticated
+  using (true);
+
+create policy "Allow authenticated decision reads" on decisions
+  for select
+  to authenticated
+  using (true);
+
+create policy "Allow authenticated decision inserts" on decisions
+  for insert
+  to authenticated
+  with check (true);
+
+create policy "Allow authenticated risk score reads" on risk_scores
+  for select
+  to authenticated
+  using (true);
