@@ -18,6 +18,16 @@ export async function createAuditLog(
     typeof metadata.suspicious_activity === "boolean"
       ? metadata.suspicious_activity
       : false;
+  const scanStatus =
+    typeof metadata.scan_status === "string" ? metadata.scan_status : "pending";
+  const allowedFileType =
+    typeof metadata.allowed_file_type === "string"
+      ? metadata.allowed_file_type
+      : "unverified";
+  const rateLimitStatus =
+    typeof metadata.rate_limit_status === "string"
+      ? metadata.rate_limit_status
+      : "allowed";
 
   // Security: audit logs are append-only in application logic. Do not update or
   // delete existing audit rows from server routes.
@@ -29,5 +39,8 @@ export async function createAuditLog(
     suspicious_activity: suspiciousActivity,
     source_ip_hash: sourceIpHash,
     user_agent_hash: userAgentHash,
+    scan_status: scanStatus,
+    allowed_file_type: allowedFileType,
+    rate_limit_status: rateLimitStatus,
   });
 }

@@ -150,6 +150,9 @@ export function getRequestRiskFields(req: Request) {
     suspicious_activity: false,
     source_ip_hash: hashValue(sourceIp),
     user_agent_hash: hashValue(userAgent),
+    scan_status: "pending",
+    allowed_file_type: "unverified",
+    rate_limit_status: "allowed",
   };
 }
 

@@ -118,7 +118,10 @@ export async function POST(req: Request) {
       allowedOriginStatuses,
       "unknown"
     );
-    const requestRisk = getRequestRiskFields(req);
+    const requestRisk = {
+      ...getRequestRiskFields(req),
+      allowed_file_type: mediaType,
+    };
     const originTrace = calculateOriginTrace({
       attributionConfidence,
       modelFingerprintRisk,

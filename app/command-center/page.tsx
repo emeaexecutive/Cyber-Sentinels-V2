@@ -22,6 +22,9 @@ type Passport = {
   trust_score: number | null;
   clearance: string | null;
   verified: boolean | null;
+  suspicious_activity: boolean | null;
+  abuse_risk: string | null;
+  scan_status: string | null;
   created_at: string | null;
 };
 
@@ -80,6 +83,15 @@ export default async function CommandCenterPage() {
         ) / passports.length
       )
     : 0;
+  const suspiciousActivityCount =
+    passports?.filter((p) => p.suspicious_activity).length ?? 0;
+  const elevatedAbuseRiskCount =
+    passports?.filter((p) => (p.abuse_risk ?? "low") !== "low").length ?? 0;
+  const evidencePendingScan =
+    passports?.filter((p) => (p.scan_status ?? "pending") === "pending").length ??
+    0;
+  const securityEvents =
+    suspiciousActivityCount + elevatedAbuseRiskCount + evidencePendingScan;
 
   return (
     <main className="min-h-screen bg-black p-8 text-white">
@@ -135,6 +147,26 @@ export default async function CommandCenterPage() {
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-zinc-500">Origin Trace Alerts</p>
             <p className="mt-3 text-4xl font-bold">{originTraceAlerts}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-zinc-500">Suspicious Activity</p>
+            <p className="mt-3 text-4xl font-bold">{suspiciousActivityCount}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-zinc-500">Abuse Risk</p>
+            <p className="mt-3 text-4xl font-bold">{elevatedAbuseRiskCount}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-zinc-500">Evidence Pending Scan</p>
+            <p className="mt-3 text-4xl font-bold">{evidencePendingScan}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-zinc-500">Security Events</p>
+            <p className="mt-3 text-4xl font-bold">{securityEvents}</p>
           </div>
         </section>
 

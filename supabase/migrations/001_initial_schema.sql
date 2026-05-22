@@ -10,6 +10,9 @@ create table if not exists waitlist (
   suspicious_activity boolean default false,
   source_ip_hash text,
   user_agent_hash text,
+  scan_status text default 'pending',
+  allowed_file_type text default 'unverified',
+  rate_limit_status text default 'allowed',
   created_at timestamptz default now()
 );
 
@@ -25,6 +28,9 @@ create table if not exists verification_passports (
   suspicious_activity boolean default false,
   source_ip_hash text,
   user_agent_hash text,
+  scan_status text default 'pending',
+  allowed_file_type text default 'unverified',
+  rate_limit_status text default 'allowed',
   created_at timestamptz default now()
 );
 
@@ -37,6 +43,9 @@ create table if not exists audit_logs (
   suspicious_activity boolean default false,
   source_ip_hash text,
   user_agent_hash text,
+  scan_status text default 'pending',
+  allowed_file_type text default 'unverified',
+  rate_limit_status text default 'allowed',
   created_at timestamptz default now()
 );
 
@@ -73,6 +82,9 @@ create table if not exists passports (
   suspicious_activity boolean default false,
   source_ip_hash text,
   user_agent_hash text,
+  scan_status text default 'pending',
+  allowed_file_type text default 'unverified',
+  rate_limit_status text default 'allowed',
   created_at timestamptz default now()
 );
 
@@ -108,6 +120,9 @@ create table if not exists trust_reports (
   suspicious_activity boolean default false,
   source_ip_hash text,
   user_agent_hash text,
+  scan_status text default 'pending',
+  allowed_file_type text default 'unverified',
+  rate_limit_status text default 'allowed',
   created_at timestamptz default now()
 );
 
@@ -142,6 +157,9 @@ alter table passports add column if not exists abuse_risk text default 'low';
 alter table passports add column if not exists suspicious_activity boolean default false;
 alter table passports add column if not exists source_ip_hash text;
 alter table passports add column if not exists user_agent_hash text;
+alter table passports add column if not exists scan_status text default 'pending';
+alter table passports add column if not exists allowed_file_type text default 'unverified';
+alter table passports add column if not exists rate_limit_status text default 'allowed';
 
 alter table trust_reports add column if not exists candidate_name text;
 alter table trust_reports add column if not exists media_type text default 'profile';
@@ -168,16 +186,25 @@ alter table trust_reports add column if not exists abuse_risk text default 'low'
 alter table trust_reports add column if not exists suspicious_activity boolean default false;
 alter table trust_reports add column if not exists source_ip_hash text;
 alter table trust_reports add column if not exists user_agent_hash text;
+alter table trust_reports add column if not exists scan_status text default 'pending';
+alter table trust_reports add column if not exists allowed_file_type text default 'unverified';
+alter table trust_reports add column if not exists rate_limit_status text default 'allowed';
 
 alter table waitlist add column if not exists abuse_risk text default 'low';
 alter table waitlist add column if not exists suspicious_activity boolean default false;
 alter table waitlist add column if not exists source_ip_hash text;
 alter table waitlist add column if not exists user_agent_hash text;
+alter table waitlist add column if not exists scan_status text default 'pending';
+alter table waitlist add column if not exists allowed_file_type text default 'unverified';
+alter table waitlist add column if not exists rate_limit_status text default 'allowed';
 
 alter table audit_logs add column if not exists abuse_risk text default 'low';
 alter table audit_logs add column if not exists suspicious_activity boolean default false;
 alter table audit_logs add column if not exists source_ip_hash text;
 alter table audit_logs add column if not exists user_agent_hash text;
+alter table audit_logs add column if not exists scan_status text default 'pending';
+alter table audit_logs add column if not exists allowed_file_type text default 'unverified';
+alter table audit_logs add column if not exists rate_limit_status text default 'allowed';
 
 alter table waitlist enable row level security;
 alter table verification_passports enable row level security;
