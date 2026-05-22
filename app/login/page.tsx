@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -9,22 +9,22 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   async function signIn() {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      setMessage("Supabase env vars are missing.");
-      return;
-    }
-
     setLoading(true);
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    let supabase;
+
+    try {
+      supabase = createClient();
+    } catch {
+      setMessage("Supabase env vars are missing.");
+      setLoading(false);
+      return;
+    }
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/command-center`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/command-center`,
       },
     });
 
