@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
+import { recordTrustEvent } from "@/lib/database/events";
 import { createClient } from "@/lib/supabase/server";
-import { calculateHumanPresenceIndex } from "@/lib/human-presence-index";
-import {
-  calculateOriginTraceScore,
-  requiresAttributionReview,
-} from "@/lib/origin-trace";
+import { calculateHumanPresence } from "@/lib/trust-engine/calculateHumanPresence";
+import { calculateOriginTrace } from "@/lib/trust-engine/calculateOriginTrace";
+import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
+import type { OriginStatus } from "@/types/origin";
 
 const MEDIA_TYPES = ["image", "video", "audio", "document", "profile", "agent"] as const;
 
@@ -57,23 +57,18 @@ export async function POST(req: Request) {
     const uploadChainStatus = String(
       formData.get("upload_chain_status") || "unknown"
     );
-    const originTraceScore = calculateOriginTraceScore({
+    const originTrace = calculateOriginTrace({
       attributionConfidence,
       modelFingerprintRisk,
-      metadataIntegrity,
-      watermarkStatus,
-      c2paStatus,
-      uploadChainStatus,
+      metadataIntegrity: metadataIntegrity as OriginStatus,
+      watermarkStatus: watermarkStatus as OriginStatus,
+      c2paStatus: c2paStatus as OriginStatus,
+      uploadChainStatus: uploadChainStatus as OriginStatus,
+      likelySourceType,
     });
-    const humanReviewRequired = requiresAttributionReview({
-      attributionConfidence,
-      modelFingerprintRisk,
-      metadataIntegrity,
-      watermarkStatus,
-      c2paStatus,
-      uploadChainStatus,
-    });
-    const humanPresenceIndex = calculateHumanPresenceIndex({
+    const originTraceScore = originTrace.score;
+    const humanReviewRequired = originTrace.humanReviewRequired;
+    const humanPresenceIndex = calculateHumanPresence({
       biometricConfidence,
       behaviouralConsistency,
       livenessScore,
@@ -82,6 +77,16 @@ export async function POST(req: Request) {
       voiceCloneRisk,
       videoDeepfakeRisk,
       syntheticRisk,
+    });
+    const trustScore = calculateTrustScore({
+      humanPresenceIndex,
+      originTraceScore,
+      livenessScore,
+      imageAuthenticityScore,
+      syntheticRisk,
+      voiceCloneRisk,
+      videoDeepfakeRisk,
+      reviewOutcome: "manual_review",
     });
 
     const { error } = await supabase.from("passports").insert({
@@ -109,15 +114,31 @@ export async function POST(req: Request) {
       provenance_status: provenanceStatus,
       trust_timeline_score: trustTimelineScore,
       review_status: "pending",
-      trust_score: 50,
+      trust_score: trustScore,
       clearance: "pending",
       verified: false,
     });
 
     if (error) throw error;
 
-    await supabase.from("signals").insert({
-      event: `Reality Passport created for ${subjectName}`,
+    await recordTrustEvent(supabase, {
+      signal: `Reality Passport created for ${subjectName}`,
+      audit: {
+        eventType: "reality_passport_created",
+        actor: userEmail || "anonymous",
+        metadata: {
+          subject_name: subjectName,
+          human_presence_index: humanPresenceIndex,
+          origin_trace_score: originTraceScore,
+        },
+      },
+      trustUpdate: {
+        action: "trust.update",
+        actor: userEmail || "anonymous",
+        subject: subjectName,
+        score: trustScore,
+        metadata: { source: "passport.created" },
+      },
     });
 
     await supabase.from("signals").insert({
@@ -151,16 +172,6 @@ export async function POST(req: Request) {
         origin_trace_score: originTraceScore,
         attribution_confidence: attributionConfidence,
         provenance_status: provenanceStatus,
-      },
-    });
-
-    await supabase.from("audit_logs").insert({
-      event_type: "reality_passport_created",
-      actor: userEmail || "anonymous",
-      metadata: {
-        subject_name: subjectName,
-        human_presence_index: humanPresenceIndex,
-        origin_trace_score: originTraceScore,
       },
     });
 

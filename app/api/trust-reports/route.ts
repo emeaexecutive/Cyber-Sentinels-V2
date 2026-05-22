@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
+import { recordTrustEvent } from "@/lib/database/events";
 import { createClient } from "@/lib/supabase/server";
-import { calculateHumanPresenceIndex } from "@/lib/human-presence-index";
-import {
-  calculateOriginTraceScore,
-  requiresAttributionReview,
-} from "@/lib/origin-trace";
-import { calculateTrustScore } from "@/lib/trust-score";
+import { calculateHumanPresence } from "@/lib/trust-engine/calculateHumanPresence";
+import { calculateOriginTrace } from "@/lib/trust-engine/calculateOriginTrace";
+import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
+import type { OriginStatus } from "@/types/origin";
 
 const MEDIA_TYPES = ["image", "video", "audio", "document", "profile", "agent"] as const;
 
@@ -59,12 +58,7 @@ export async function POST(req: Request) {
       formData.get("upload_chain_status") || "unknown"
     );
 
-    const trustScore = calculateTrustScore(
-      profileConsistency,
-      syntheticRisk,
-      confidence
-    );
-    const humanPresenceIndex = calculateHumanPresenceIndex({
+    const humanPresenceIndex = calculateHumanPresence({
       biometricConfidence,
       behaviouralConsistency,
       livenessScore,
@@ -74,21 +68,26 @@ export async function POST(req: Request) {
       videoDeepfakeRisk,
       syntheticRisk,
     });
-    const originTraceScore = calculateOriginTraceScore({
+    const originTrace = calculateOriginTrace({
       attributionConfidence,
       modelFingerprintRisk,
-      metadataIntegrity,
-      watermarkStatus,
-      c2paStatus,
-      uploadChainStatus,
+      metadataIntegrity: metadataIntegrity as OriginStatus,
+      watermarkStatus: watermarkStatus as OriginStatus,
+      c2paStatus: c2paStatus as OriginStatus,
+      uploadChainStatus: uploadChainStatus as OriginStatus,
+      likelySourceType,
     });
-    const humanReviewRequired = requiresAttributionReview({
-      attributionConfidence,
-      modelFingerprintRisk,
-      metadataIntegrity,
-      watermarkStatus,
-      c2paStatus,
-      uploadChainStatus,
+    const originTraceScore = originTrace.score;
+    const humanReviewRequired = originTrace.humanReviewRequired;
+    const trustScore = calculateTrustScore({
+      humanPresenceIndex,
+      originTraceScore,
+      livenessScore,
+      imageAuthenticityScore,
+      syntheticRisk,
+      voiceCloneRisk,
+      videoDeepfakeRisk,
+      reviewOutcome: confidence > 80 ? "allow" : "manual_review",
     });
 
     const { error } = await supabase.from("trust_reports").insert({
@@ -122,8 +121,29 @@ export async function POST(req: Request) {
 
     if (error) throw error;
 
-    await supabase.from("signals").insert({
-      event: `Hiring Shield report generated for ${candidateName}`,
+    await recordTrustEvent(supabase, {
+      signal: `Hiring Shield report generated for ${candidateName}`,
+      audit: {
+        eventType: "trust_report.created",
+        actor: candidateName,
+        metadata: {
+          media_type: mediaType,
+          synthetic_risk: syntheticRisk,
+          image_authenticity_score: imageAuthenticityScore,
+          human_presence_index: humanPresenceIndex,
+          origin_trace_score: originTraceScore,
+          attribution_confidence: attributionConfidence,
+          trust_score: trustScore,
+          provenance_status: provenanceStatus,
+        },
+      },
+      trustUpdate: {
+        action: "trust.update",
+        actor: candidateName,
+        subject: candidateName,
+        score: trustScore,
+        metadata: { source: "trust_report.created" },
+      },
     });
 
     await supabase.from("signals").insert({
@@ -141,21 +161,6 @@ export async function POST(req: Request) {
     if (humanReviewRequired) {
       await supabase.from("signals").insert({ event: "Human review required" });
     }
-
-    await supabase.from("audit_logs").insert({
-      event_type: "trust_report.created",
-      actor: candidateName,
-      metadata: {
-        media_type: mediaType,
-        synthetic_risk: syntheticRisk,
-        image_authenticity_score: imageAuthenticityScore,
-        human_presence_index: humanPresenceIndex,
-        origin_trace_score: originTraceScore,
-        attribution_confidence: attributionConfidence,
-        trust_score: trustScore,
-        provenance_status: provenanceStatus,
-      },
-    });
 
     await supabase.from("audit_logs").insert({
       event_type: "human_presence_index_created",

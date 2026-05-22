@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { recordTrustEvent } from "@/lib/database/events";
 import { createClient } from "@/lib/supabase/server";
+import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
 
 type Decision = "approve" | "reject";
 
@@ -40,8 +42,10 @@ export async function POST(
 
   const clearance = decision === "approve" ? "approved" : "rejected";
   const verified = decision === "approve";
-  const trustScore = decision === "approve" ? 85 : 25;
   const reviewStatus = decision === "approve" ? "verified" : "rejected";
+  const trustScore = calculateTrustScore({
+    reviewOutcome: decision === "approve" ? "allow" : "deny",
+  });
 
   const { data: passport, error } = await supabase
     .from("passports")
@@ -62,19 +66,28 @@ export async function POST(
     );
   }
 
-  await supabase.from("signals").insert({
-    event: `Passport ${clearance} for ${passport.subject_name}`,
-  });
-
-  await supabase.from("audit_logs").insert({
-    event_type: "passport.review_status_changed",
-    actor: user.email ?? user.id,
-    metadata: {
-      passport_id: id,
-      subject_name: passport.subject_name,
-      review_status: reviewStatus,
-      clearance,
-      verified,
+  await recordTrustEvent(supabase, {
+    signal: `Passport ${clearance} for ${passport.subject_name}`,
+    audit: {
+      eventType: "passport.review_status_changed",
+      actor: user.email ?? user.id,
+      metadata: {
+        passport_id: id,
+        subject_name: passport.subject_name,
+        review_status: reviewStatus,
+        clearance,
+        verified,
+      },
+    },
+    trustUpdate: {
+      action: "trust.update",
+      actor: user.email ?? user.id,
+      subject: passport.subject_name,
+      score: trustScore,
+      metadata: {
+        passport_id: id,
+        review_status: reviewStatus,
+      },
     },
   });
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { recordTrustEvent } from "@/lib/database/events";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
@@ -18,14 +19,19 @@ export async function POST(req: Request) {
     }
 
     if (!error) {
-      await supabase.from("signals").insert({
-        event: `Waitlist entry created for ${email}`,
-      });
-
-      await supabase.from("audit_logs").insert({
-        event_type: "waitlist.created",
-        actor: email,
-        metadata: { source: "waitlist" },
+      await recordTrustEvent(supabase, {
+        signal: `Waitlist entry created for ${email}`,
+        audit: {
+          eventType: "waitlist.created",
+          actor: email,
+          metadata: { source: "waitlist" },
+        },
+        trustUpdate: {
+          action: "trust.update",
+          actor: email,
+          subject: email,
+          metadata: { source: "waitlist.created" },
+        },
       });
     }
 
