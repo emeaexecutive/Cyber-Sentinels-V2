@@ -13,7 +13,7 @@ export default async function SignalsPage() {
     <main className="min-h-screen bg-black text-white p-8">
       <div className="max-w-5xl mx-auto">
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
-          ← Back to Cyber Sentinels
+          Back to Cyber Sentinels
         </Link>
 
         <h1 className="mt-8 text-5xl font-bold">

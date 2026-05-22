@@ -14,7 +14,7 @@ export default async function HiringShieldPage() {
       <div className="mx-auto max-w-5xl">
 
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
-          ← Back to Cyber Sentinels
+          Back to Cyber Sentinels
         </Link>
 
         <h1 className="mt-8 text-5xl font-bold">

@@ -15,7 +15,7 @@ export default async function PassportPage() {
     <main className="min-h-screen bg-black p-8 text-white">
       <div className="mx-auto max-w-5xl">
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
-          ← Back to Cyber Sentinels
+          Back to Cyber Sentinels
         </Link>
 
         <h1 className="mt-8 text-5xl font-bold">Sentinel Passport</h1>

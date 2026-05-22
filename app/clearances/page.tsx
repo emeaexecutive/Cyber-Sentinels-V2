@@ -26,7 +26,7 @@ export default function ClearancesPage() {
     <main className="min-h-screen bg-black p-8 text-white">
       <div className="mx-auto max-w-6xl">
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
-          ← Back to Cyber Sentinels
+          Back to Cyber Sentinels
         </Link>
 
         <h1 className="mt-8 text-5xl font-bold">Clearances</h1>
