@@ -61,6 +61,10 @@ export default function HomePage() {
           <Link href="/origin-trace" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
             Origin Trace™
           </Link>
+
+          <Link href="/admin" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+            Admin
+          </Link>
         </div>
       </div>
     </main>

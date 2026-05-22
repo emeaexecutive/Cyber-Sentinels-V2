@@ -153,10 +153,20 @@ create policy "Allow public waitlist inserts" on waitlist
   to anon
   with check (true);
 
+create policy "Allow authenticated waitlist reads" on waitlist
+  for select
+  to authenticated
+  using (true);
+
 create policy "Allow public audit inserts" on audit_logs
   for insert
   to anon, authenticated
   with check (true);
+
+create policy "Allow authenticated audit reads" on audit_logs
+  for select
+  to authenticated
+  using (true);
 
 create policy "Allow public passport reads" on passports
   for select
