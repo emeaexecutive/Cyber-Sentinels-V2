@@ -2,6 +2,16 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+type Passport = {
+  id: string;
+  subject_name: string;
+  subject_type: string;
+  trust_score: number | null;
+  clearance: string | null;
+  verified: boolean | null;
+  created_at: string | null;
+};
+
 export default async function CommandCenterPage() {
   const supabase = await createClient();
 
@@ -13,7 +23,11 @@ export default async function CommandCenterPage() {
     redirect("/login");
   }
 
-  const { data: passports } = await supabase.from("passports").select("*");
+  const { data: passports } = await supabase
+    .from("passports")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .returns<Passport[]>();
 
   const { data: signals } = await supabase
     .from("signals")
@@ -30,6 +44,10 @@ export default async function CommandCenterPage() {
       )
     : 0;
 
+  const reviewPassports =
+    passports?.filter((p) => (p.clearance ?? "pending") === "pending") ?? [];
+  const pendingCount = reviewPassports.length;
+
   return (
     <main className="min-h-screen bg-black p-8 text-white">
       <div className="mx-auto max-w-6xl">
@@ -45,7 +63,7 @@ export default async function CommandCenterPage() {
 
         <h1 className="mt-8 text-5xl font-bold">Command Center</h1>
 
-        <section className="mt-10 grid gap-4 md:grid-cols-3">
+        <section className="mt-10 grid gap-4 md:grid-cols-4">
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-zinc-500">Passports</p>
             <p className="mt-3 text-4xl font-bold">{passports?.length ?? 0}</p>
@@ -59,6 +77,92 @@ export default async function CommandCenterPage() {
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-zinc-500">Average Trust</p>
             <p className="mt-3 text-4xl font-bold">{averageTrust}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-zinc-500">Pending Review</p>
+            <p className="mt-3 text-4xl font-bold">{pendingCount}</p>
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Passport Review Queue</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Approve verified subjects or reject risky submissions.
+              </p>
+            </div>
+
+            <Link
+              href="/passport"
+              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              Create Passport
+            </Link>
+          </div>
+
+          <div className="mt-6 space-y-3">
+            {reviewPassports.length ? (
+              reviewPassports.map((passport) => (
+                <div
+                  key={passport.id}
+                  className="grid gap-4 rounded-xl border border-zinc-800 p-4 md:grid-cols-[1.5fr_1fr_1fr_1fr_auto]"
+                >
+                  <div>
+                    <p className="text-sm text-zinc-500">Subject</p>
+                    <p className="mt-1 font-semibold">
+                      {passport.subject_name}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-zinc-500">Type</p>
+                    <p className="mt-1 capitalize text-zinc-300">
+                      {passport.subject_type}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-zinc-500">Trust</p>
+                    <p className="mt-1 text-zinc-300">
+                      {passport.trust_score ?? 0}/100
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-zinc-500">Clearance</p>
+                    <p className="mt-1 capitalize text-zinc-300">
+                      {passport.clearance ?? "pending"}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 md:justify-end">
+                    <form
+                      action={`/api/passports/${passport.id}/decision`}
+                      method="POST"
+                    >
+                      <input type="hidden" name="decision" value="approve" />
+                      <button className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black">
+                        Approve
+                      </button>
+                    </form>
+
+                    <form
+                      action={`/api/passports/${passport.id}/decision`}
+                      method="POST"
+                    >
+                      <input type="hidden" name="decision" value="reject" />
+                      <button className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
+                        Reject
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-zinc-500">No passports awaiting review.</p>
+            )}
           </div>
         </section>
 

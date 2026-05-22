@@ -77,6 +77,12 @@ create policy "Allow public passport inserts" on passports
   to anon, authenticated
   with check (true);
 
+create policy "Allow authenticated passport updates" on passports
+  for update
+  to authenticated
+  using (true)
+  with check (true);
+
 create policy "Allow public trust report reads" on trust_reports
   for select
   to anon, authenticated

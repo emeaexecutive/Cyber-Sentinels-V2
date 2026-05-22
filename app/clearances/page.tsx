@@ -4,19 +4,19 @@ export default function ClearancesPage() {
   const plans = [
     {
       name: "Free",
-      price: "€0",
+      price: "EUR 0",
       description: "Basic trust profile and one verification.",
       features: ["1 Passport", "Basic trust score", "Public profile"],
     },
     {
       name: "Pro",
-      price: "€15/mo",
+      price: "EUR 15/mo",
       description: "For creators, founders and AI users.",
       features: ["Multiple passports", "Verification history", "Trust badge"],
     },
     {
       name: "Teams",
-      price: "€99/mo",
+      price: "EUR 99/mo",
       description: "For recruiters, operators and small teams.",
       features: ["Hiring Shield reports", "Team trust view", "Audit logs"],
     },
@@ -44,7 +44,7 @@ export default function ClearancesPage() {
 
               <ul className="mt-6 space-y-2 text-sm text-zinc-300">
                 {plan.features.map((feature) => (
-                  <li key={feature}>• {feature}</li>
+                  <li key={feature}>{feature}</li>
                 ))}
               </ul>
 
