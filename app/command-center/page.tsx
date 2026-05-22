@@ -7,6 +7,7 @@ type Passport = {
   subject_name: string;
   subject_type: string;
   media_type: string | null;
+  human_presence_index: number | null;
   synthetic_risk: number | null;
   liveness_score: number | null;
   voice_clone_risk: number | null;
@@ -52,6 +53,15 @@ export default async function CommandCenterPage() {
       )
     : 0;
 
+  const averageHpi = passports?.length
+    ? Math.round(
+        passports.reduce(
+          (sum, p) => sum + (p.human_presence_index ?? 0),
+          0
+        ) / passports.length
+      )
+    : 0;
+
   const reviewPassports =
     passports?.filter((p) => (p.clearance ?? "pending") === "pending") ?? [];
   const pendingCount = reviewPassports.length;
@@ -71,7 +81,7 @@ export default async function CommandCenterPage() {
 
         <h1 className="mt-8 text-5xl font-bold">Command Center</h1>
 
-        <section className="mt-10 grid gap-4 md:grid-cols-4">
+        <section className="mt-10 grid gap-4 md:grid-cols-5">
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-zinc-500">Passports</p>
             <p className="mt-3 text-4xl font-bold">{passports?.length ?? 0}</p>
@@ -90,6 +100,11 @@ export default async function CommandCenterPage() {
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-zinc-500">Pending Review</p>
             <p className="mt-3 text-4xl font-bold">{pendingCount}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-zinc-500">HPI™</p>
+            <p className="mt-3 text-4xl font-bold">{averageHpi}</p>
           </div>
         </section>
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { calculateHumanPresenceIndex } from "@/lib/human-presence-index";
 import { calculateTrustScore } from "@/lib/trust-score";
 
 const MEDIA_TYPES = ["image", "video", "audio", "document", "profile"] as const;
@@ -19,6 +20,12 @@ export async function POST(req: Request) {
 
     const candidateName = String(formData.get("candidate_name") || "Candidate");
     const profileConsistency = Number(formData.get("profile_consistency") || 80);
+    const biometricConfidence = Number(
+      formData.get("biometric_confidence") || 70
+    );
+    const behaviouralConsistency = Number(
+      formData.get("behavioural_consistency") || profileConsistency
+    );
     const syntheticRisk = Number(formData.get("synthetic_risk") || 20);
     const livenessScore = Number(formData.get("liveness_score") || 75);
     const voiceCloneRisk = Number(formData.get("voice_clone_risk") || 10);
@@ -31,16 +38,32 @@ export async function POST(req: Request) {
     const provenanceStatus = String(
       formData.get("provenance_status") || "unverified"
     );
+    const trustTimelineScore = Number(
+      formData.get("trust_timeline_score") || 50
+    );
 
     const trustScore = calculateTrustScore(
       profileConsistency,
       syntheticRisk,
       confidence
     );
+    const humanPresenceIndex = calculateHumanPresenceIndex({
+      biometricConfidence,
+      behaviouralConsistency,
+      livenessScore,
+      imageAuthenticityScore,
+      trustTimelineScore,
+      voiceCloneRisk,
+      videoDeepfakeRisk,
+      syntheticRisk,
+    });
 
     const { error } = await supabase.from("trust_reports").insert({
       candidate_name: candidateName,
       media_type: mediaType,
+      human_presence_index: humanPresenceIndex,
+      biometric_confidence: biometricConfidence,
+      behavioural_consistency: behaviouralConsistency,
       profile_consistency: profileConsistency,
       synthetic_risk: syntheticRisk,
       liveness_score: livenessScore,
@@ -48,6 +71,7 @@ export async function POST(req: Request) {
       video_deepfake_risk: videoDeepfakeRisk,
       image_authenticity_score: imageAuthenticityScore,
       provenance_status: provenanceStatus,
+      trust_timeline_score: trustTimelineScore,
       review_status: "pending",
       confidence,
       trust_score: trustScore,
@@ -67,8 +91,21 @@ export async function POST(req: Request) {
         media_type: mediaType,
         synthetic_risk: syntheticRisk,
         image_authenticity_score: imageAuthenticityScore,
+        human_presence_index: humanPresenceIndex,
         trust_score: trustScore,
         provenance_status: provenanceStatus,
+      },
+    });
+
+    await supabase.from("audit_logs").insert({
+      event_type: "human_presence_index_created",
+      actor: candidateName,
+      metadata: {
+        candidate_name: candidateName,
+        human_presence_index: humanPresenceIndex,
+        biometric_confidence: biometricConfidence,
+        behavioural_consistency: behaviouralConsistency,
+        trust_timeline_score: trustTimelineScore,
       },
     });
 

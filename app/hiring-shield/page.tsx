@@ -50,6 +50,20 @@ export default async function HiringShieldPage() {
           />
 
           <input
+            name="biometric_confidence"
+            type="number"
+            placeholder="Biometric confidence e.g. 84"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="behavioural_consistency"
+            type="number"
+            placeholder="Behavioural consistency e.g. 78"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
             name="synthetic_risk"
             type="number"
             placeholder="Synthetic risk score e.g. 12"
@@ -112,6 +126,13 @@ export default async function HiringShieldPage() {
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
+          <input
+            name="trust_timeline_score"
+            type="number"
+            placeholder="Trust timeline score e.g. 66"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
           <button className="rounded-xl bg-white px-5 py-4 font-semibold text-black">
             Generate Report
           </button>
@@ -134,6 +155,16 @@ export default async function HiringShieldPage() {
                 </p>
 
                 <div className="mt-5 grid gap-4 md:grid-cols-4">
+
+                  <div>
+                    <p className="text-zinc-500">
+                      HPI™
+                    </p>
+
+                    <p className="mt-2 text-3xl font-bold">
+                      {report.human_presence_index ?? 0}
+                    </p>
+                  </div>
 
                   <div>
                     <p className="text-zinc-500">

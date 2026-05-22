@@ -34,6 +34,10 @@ create table if not exists passports (
   subject_type text not null check (subject_type in ('human','agent','candidate','content')),
   subject_name text not null,
   media_type text default 'profile' check (media_type in ('image','video','audio','document','profile')),
+  human_presence_index int default 50 check (human_presence_index >= 0 and human_presence_index <= 100),
+  biometric_confidence int default 70 check (biometric_confidence >= 0 and biometric_confidence <= 100),
+  behavioural_consistency int default 70 check (behavioural_consistency >= 0 and behavioural_consistency <= 100),
+  trust_timeline_score int default 50 check (trust_timeline_score >= 0 and trust_timeline_score <= 100),
   synthetic_risk int default 20 check (synthetic_risk >= 0 and synthetic_risk <= 100),
   liveness_score int default 75 check (liveness_score >= 0 and liveness_score <= 100),
   voice_clone_risk int default 10 check (voice_clone_risk >= 0 and voice_clone_risk <= 100),
@@ -51,6 +55,10 @@ create table if not exists trust_reports (
   id uuid primary key default gen_random_uuid(),
   candidate_name text,
   media_type text default 'profile' check (media_type in ('image','video','audio','document','profile')),
+  human_presence_index int default 50 check (human_presence_index >= 0 and human_presence_index <= 100),
+  biometric_confidence int default 70 check (biometric_confidence >= 0 and biometric_confidence <= 100),
+  behavioural_consistency int default 70 check (behavioural_consistency >= 0 and behavioural_consistency <= 100),
+  trust_timeline_score int default 50 check (trust_timeline_score >= 0 and trust_timeline_score <= 100),
   profile_consistency int not null check (profile_consistency >= 0 and profile_consistency <= 100),
   synthetic_risk int not null check (synthetic_risk >= 0 and synthetic_risk <= 100),
   liveness_score int default 75 check (liveness_score >= 0 and liveness_score <= 100),
@@ -72,6 +80,10 @@ create table if not exists signals (
 );
 
 alter table passports add column if not exists media_type text default 'profile';
+alter table passports add column if not exists human_presence_index int default 50;
+alter table passports add column if not exists biometric_confidence int default 70;
+alter table passports add column if not exists behavioural_consistency int default 70;
+alter table passports add column if not exists trust_timeline_score int default 50;
 alter table passports add column if not exists synthetic_risk int default 20;
 alter table passports add column if not exists liveness_score int default 75;
 alter table passports add column if not exists voice_clone_risk int default 10;
@@ -82,6 +94,10 @@ alter table passports add column if not exists review_status text default 'pendi
 
 alter table trust_reports add column if not exists candidate_name text;
 alter table trust_reports add column if not exists media_type text default 'profile';
+alter table trust_reports add column if not exists human_presence_index int default 50;
+alter table trust_reports add column if not exists biometric_confidence int default 70;
+alter table trust_reports add column if not exists behavioural_consistency int default 70;
+alter table trust_reports add column if not exists trust_timeline_score int default 50;
 alter table trust_reports add column if not exists liveness_score int default 75;
 alter table trust_reports add column if not exists voice_clone_risk int default 10;
 alter table trust_reports add column if not exists video_deepfake_risk int default 15;

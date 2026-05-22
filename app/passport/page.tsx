@@ -30,6 +30,13 @@ export default async function PassportPage() {
 
               <div className="mt-8 grid gap-4 md:grid-cols-3">
                 <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Human Presence Index™</p>
+                  <p className="mt-3 text-2xl font-bold">
+                    {passport.human_presence_index ?? 0}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
                   <p className="text-zinc-500">Type</p>
                   <p className="mt-3 text-2xl font-bold">
                     {passport.subject_type}
@@ -151,6 +158,24 @@ export default async function PassportPage() {
           </select>
 
           <input
+            name="biometric_confidence"
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Biometric confidence e.g. 82"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="behavioural_consistency"
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Behavioural consistency e.g. 76"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
             name="synthetic_risk"
             type="number"
             min="0"
@@ -204,6 +229,15 @@ export default async function PassportPage() {
             <option value="missing">Missing provenance</option>
             <option value="tampered">Tampered provenance</option>
           </select>
+
+          <input
+            name="trust_timeline_score"
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Trust timeline score e.g. 64"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
 
           <button className="rounded-xl bg-white px-5 py-4 font-semibold text-black">
             Create Passport

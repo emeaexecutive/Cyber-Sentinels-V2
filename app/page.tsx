@@ -49,6 +49,10 @@ export default function HomePage() {
           <Link href="/agent-passport" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
             Agent Passport
           </Link>
+
+          <Link href="/human-presence-index" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+            Human Presence Index
+          </Link>
         </div>
       </div>
     </main>
