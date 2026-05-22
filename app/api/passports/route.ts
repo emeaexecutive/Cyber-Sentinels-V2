@@ -24,6 +24,9 @@ export async function POST(req: Request) {
     const livenessScore = Number(formData.get("liveness_score") || 75);
     const voiceCloneRisk = Number(formData.get("voice_clone_risk") || 10);
     const videoDeepfakeRisk = Number(formData.get("video_deepfake_risk") || 15);
+    const imageAuthenticityScore = Number(
+      formData.get("image_authenticity_score") || 80
+    );
     const provenanceStatus = String(
       formData.get("provenance_status") || "unverified"
     );
@@ -37,6 +40,7 @@ export async function POST(req: Request) {
       liveness_score: livenessScore,
       voice_clone_risk: voiceCloneRisk,
       video_deepfake_risk: videoDeepfakeRisk,
+      image_authenticity_score: imageAuthenticityScore,
       provenance_status: provenanceStatus,
       review_status: "pending",
       trust_score: 50,
@@ -57,6 +61,7 @@ export async function POST(req: Request) {
         subject_name: subjectName,
         subject_type: subjectType,
         media_type: mediaType,
+        image_authenticity_score: imageAuthenticityScore,
         provenance_status: provenanceStatus,
       },
     });

@@ -82,6 +82,13 @@ export default async function HiringShieldPage() {
           />
 
           <input
+            name="image_authenticity_score"
+            type="number"
+            placeholder="Image authenticity score e.g. 88"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
             name="video_deepfake_risk"
             type="number"
             placeholder="Deepfake video risk e.g. 18"
@@ -196,6 +203,22 @@ export default async function HiringShieldPage() {
                     <p className="text-zinc-500">Video Deepfake Risk</p>
                     <p className="mt-2 text-xl font-bold">
                       {report.video_deepfake_risk ?? 0}%
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  <div>
+                    <p className="text-zinc-500">Image Authenticity</p>
+                    <p className="mt-2 text-xl font-bold">
+                      {report.image_authenticity_score ?? 0}%
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-zinc-500">Provenance / C2PA</p>
+                    <p className="mt-2 text-xl font-bold capitalize">
+                      {report.provenance_status ?? "unverified"}
                     </p>
                   </div>
                 </div>

@@ -11,6 +11,7 @@ type Passport = {
   liveness_score: number | null;
   voice_clone_risk: number | null;
   video_deepfake_risk: number | null;
+  image_authenticity_score: number | null;
   provenance_status: string | null;
   review_status: string | null;
   trust_score: number | null;
@@ -138,10 +139,10 @@ export default async function CommandCenterPage() {
                   </div>
 
                   <div>
-                    <p className="text-sm text-zinc-500">Liveness / Deepfake</p>
+                    <p className="text-sm text-zinc-500">Liveness / Image</p>
                     <p className="mt-1 capitalize text-zinc-300">
                       {passport.liveness_score ?? 0}% /{" "}
-                      {passport.video_deepfake_risk ?? 0}%
+                      {passport.image_authenticity_score ?? 0}%
                     </p>
                   </div>
 

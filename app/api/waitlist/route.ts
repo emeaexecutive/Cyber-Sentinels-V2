@@ -18,6 +18,10 @@ export async function POST(req: Request) {
     }
 
     if (!error) {
+      await supabase.from("signals").insert({
+        event: `Waitlist entry created for ${email}`,
+      });
+
       await supabase.from("audit_logs").insert({
         event_type: "waitlist.created",
         actor: email,

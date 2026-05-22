@@ -80,6 +80,29 @@ export default async function PassportPage() {
                   </p>
                 </div>
               </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-3">
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Image Authenticity</p>
+                  <p className="mt-3 text-xl font-bold">
+                    {passport.image_authenticity_score ?? 0}%
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Audio Clone Risk</p>
+                  <p className="mt-3 text-xl font-bold">
+                    {passport.voice_clone_risk ?? 0}%
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Video Deepfake Risk</p>
+                  <p className="mt-3 text-xl font-bold">
+                    {passport.video_deepfake_risk ?? 0}%
+                  </p>
+                </div>
+              </div>
             </>
           ) : (
             <p className="text-zinc-500">No passport created yet.</p>
@@ -151,6 +174,15 @@ export default async function PassportPage() {
             min="0"
             max="100"
             placeholder="Audio clone risk e.g. 12"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="image_authenticity_score"
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Image authenticity score e.g. 88"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 

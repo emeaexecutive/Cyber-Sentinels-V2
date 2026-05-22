@@ -6,19 +6,29 @@ export default function ClearancesPage() {
       name: "Free",
       price: "EUR 0",
       description: "Basic trust profile and one verification.",
-      features: ["1 Passport", "Basic trust score", "Public profile"],
+      features: ["1 Trust Passport", "Basic trust score", "Public profile"],
     },
     {
       name: "Pro",
       price: "EUR 15/mo",
       description: "For creators, founders and AI users.",
-      features: ["Multiple passports", "Verification history", "Trust badge"],
+      features: [
+        "Multiple passports",
+        "Candidate Trust Report",
+        "Verification history",
+        "Trust badge",
+      ],
     },
     {
       name: "Teams",
       price: "EUR 99/mo",
       description: "For recruiters, operators and small teams.",
-      features: ["Hiring Shield reports", "Team trust view", "Audit logs"],
+      features: [
+        "Hiring Shield reports",
+        "AI Agent Passport",
+        "Team trust view",
+        "Audit logs",
+      ],
     },
   ];
 

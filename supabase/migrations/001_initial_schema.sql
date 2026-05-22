@@ -38,6 +38,7 @@ create table if not exists passports (
   liveness_score int default 75 check (liveness_score >= 0 and liveness_score <= 100),
   voice_clone_risk int default 10 check (voice_clone_risk >= 0 and voice_clone_risk <= 100),
   video_deepfake_risk int default 15 check (video_deepfake_risk >= 0 and video_deepfake_risk <= 100),
+  image_authenticity_score int default 80 check (image_authenticity_score >= 0 and image_authenticity_score <= 100),
   provenance_status text default 'unverified',
   review_status text default 'pending',
   trust_score int default 50 check (trust_score >= 0 and trust_score <= 100),
@@ -55,6 +56,7 @@ create table if not exists trust_reports (
   liveness_score int default 75 check (liveness_score >= 0 and liveness_score <= 100),
   voice_clone_risk int default 10 check (voice_clone_risk >= 0 and voice_clone_risk <= 100),
   video_deepfake_risk int default 15 check (video_deepfake_risk >= 0 and video_deepfake_risk <= 100),
+  image_authenticity_score int default 80 check (image_authenticity_score >= 0 and image_authenticity_score <= 100),
   provenance_status text default 'unverified',
   review_status text default 'pending',
   confidence int not null check (confidence >= 0 and confidence <= 100),
@@ -74,6 +76,7 @@ alter table passports add column if not exists synthetic_risk int default 20;
 alter table passports add column if not exists liveness_score int default 75;
 alter table passports add column if not exists voice_clone_risk int default 10;
 alter table passports add column if not exists video_deepfake_risk int default 15;
+alter table passports add column if not exists image_authenticity_score int default 80;
 alter table passports add column if not exists provenance_status text default 'unverified';
 alter table passports add column if not exists review_status text default 'pending';
 
@@ -82,6 +85,7 @@ alter table trust_reports add column if not exists media_type text default 'prof
 alter table trust_reports add column if not exists liveness_score int default 75;
 alter table trust_reports add column if not exists voice_clone_risk int default 10;
 alter table trust_reports add column if not exists video_deepfake_risk int default 15;
+alter table trust_reports add column if not exists image_authenticity_score int default 80;
 alter table trust_reports add column if not exists provenance_status text default 'unverified';
 alter table trust_reports add column if not exists review_status text default 'pending';
 
