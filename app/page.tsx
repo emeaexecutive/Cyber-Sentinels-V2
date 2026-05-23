@@ -50,6 +50,12 @@ const trustModules = [
     copy: "Attach a professional profile URL as one reviewed evidence signal, never the source of truth.",
     metric: "Professional",
   },
+  {
+    name: "Trust Timeline™",
+    href: "/trust-timeline",
+    copy: "Replay historical trust memory across people, agents, candidates and Reality Passports.",
+    metric: "Memory",
+  },
 ];
 
 const riskSignals = [
@@ -68,6 +74,7 @@ const routeLinks = [
   { href: "/clearances", label: "Clearances" },
   { href: "/signals", label: "Signals" },
   { href: "/trust-radar", label: "Live Trust Radar™" },
+  { href: "/trust-timeline", label: "Trust Timeline™" },
   { href: "/deepfake-detection", label: "Deepfake Detection" },
   { href: "/video-verification", label: "Video Verification" },
   { href: "/agent-passport", label: "AI Agent Passport" },

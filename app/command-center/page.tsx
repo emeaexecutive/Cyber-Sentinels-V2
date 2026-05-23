@@ -6,6 +6,11 @@ import {
   normalizeSignals,
   type SignalRow,
 } from "@/lib/trust-engine/liveSignals";
+import {
+  formatTimelineTimeAgo,
+  normalizeTimelineEvents,
+  type AuditLogRow,
+} from "@/lib/trust-engine/timeline";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +31,7 @@ type Passport = {
   review_status: string | null;
   trust_score: number | null;
   clearance: string | null;
+  reality_passport_status: string | null;
   verified: boolean | null;
   suspicious_activity: boolean | null;
   abuse_risk: string | null;
@@ -59,6 +65,17 @@ export default async function CommandCenterPage() {
     .limit(5)
     .returns<SignalRow[]>();
   const radarSignals = normalizeSignals(signals).slice(0, 4);
+  const { data: auditLogs } = await supabase
+    .from("audit_logs")
+    .select("id,event_type,actor,metadata,created_at")
+    .order("created_at", { ascending: false })
+    .limit(5)
+    .returns<AuditLogRow[]>();
+  const timelinePreview = normalizeTimelineEvents({
+    auditLogs,
+    signals,
+    passports,
+  }).slice(0, 4);
 
   const verifiedCount = passports?.filter((p) => p.verified).length ?? 0;
 
@@ -273,6 +290,41 @@ export default async function CommandCenterPage() {
             ) : (
               <p className="text-zinc-500">No passports awaiting review.</p>
             )}
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Trust Timeline Preview</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Trust is earned over time.
+              </p>
+            </div>
+            <Link
+              href="/trust-timeline"
+              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              Open Trust Timeline
+            </Link>
+          </div>
+
+          <div className="mt-6 grid gap-3 md:grid-cols-2">
+            {timelinePreview.map((event) => (
+              <Link
+                key={event.id}
+                href={`/trust-timeline/${encodeURIComponent(event.id)}`}
+                className="rounded-xl border border-zinc-800 bg-black p-4 hover:border-zinc-500"
+              >
+                <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                  {event.source}
+                </p>
+                <p className="mt-2 font-medium text-zinc-100">{event.event}</p>
+                <p className="mt-3 text-xs text-zinc-600">
+                  {formatTimelineTimeAgo(event.created_at)} / {event.severity}
+                </p>
+              </Link>
+            ))}
           </div>
         </section>
 
