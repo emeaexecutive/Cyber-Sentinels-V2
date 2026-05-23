@@ -45,6 +45,11 @@ type Passport = {
   subject_type: string;
   review_status: string | null;
   trust_score: number | null;
+  linkedin_url: string | null;
+  linkedin_verification_status: string | null;
+  linkedin_claimed_company: string | null;
+  linkedin_claimed_role: string | null;
+  linkedin_review_required: boolean | null;
   created_at: string;
 };
 
@@ -54,6 +59,11 @@ type TrustReport = {
   report_type: string | null;
   review_status: string | null;
   trust_score: number | null;
+  linkedin_url: string | null;
+  linkedin_verification_status: string | null;
+  linkedin_claimed_company: string | null;
+  linkedin_claimed_role: string | null;
+  linkedin_review_required: boolean | null;
   created_at: string;
 };
 
@@ -213,12 +223,12 @@ export default async function AdminPage() {
     fetchTable<Passport>(
       supabase,
       "passports",
-      "id,subject_name,subject_type,review_status,trust_score,created_at"
+      "*"
     ),
     fetchTable<TrustReport>(
       supabase,
       "trust_reports",
-      "id,candidate_name,report_type,review_status,trust_score,created_at"
+      "*"
     ),
     fetchTable<Signal>(supabase, "signals", "id,event,created_at"),
     fetchTable<AuditLog>(
@@ -263,6 +273,31 @@ export default async function AdminPage() {
     { label: "Risk Scores", value: riskScores.count, available: riskScores.available },
   ];
   const radarSignals = normalizeSignals(signals.rows).slice(0, 5);
+  const linkedInReviewQueue = [
+    ...passports.rows.map((passport) => ({
+      id: `passport-${passport.id}`,
+      subject_name: passport.subject_name,
+      linkedin_url: passport.linkedin_url,
+      status: passport.linkedin_verification_status ?? "unverified",
+      claimed_company: passport.linkedin_claimed_company,
+      claimed_role: passport.linkedin_claimed_role,
+      review_required: Boolean(passport.linkedin_review_required),
+    })),
+    ...trustReports.rows.map((report) => ({
+      id: `report-${report.id}`,
+      subject_name: report.candidate_name ?? "Unnamed candidate",
+      linkedin_url: report.linkedin_url,
+      status: report.linkedin_verification_status ?? "unverified",
+      claimed_company: report.linkedin_claimed_company,
+      claimed_role: report.linkedin_claimed_role,
+      review_required: Boolean(report.linkedin_review_required),
+    })),
+  ].filter(
+    (item) =>
+      item.linkedin_url &&
+      (item.review_required ||
+        ["submitted", "manual_review", "mismatch"].includes(item.status))
+  );
 
   return (
     <main className="min-h-screen bg-black p-6 text-white md:p-8">
@@ -357,6 +392,56 @@ export default async function AdminPage() {
                     : "verification_cases table is not available yet."
                 }
               />
+            )}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <h2 className="text-xl font-semibold">LinkedIn Review Queue</h2>
+          <p className="mt-2 text-sm text-zinc-500">
+            LinkedIn is one signal, not the source of truth.
+          </p>
+          <div className="mt-5 grid gap-3">
+            {linkedInReviewQueue.length ? (
+              linkedInReviewQueue.map((item) => (
+                <div
+                  key={item.id}
+                  className="grid gap-4 rounded-lg border border-zinc-800 p-4 lg:grid-cols-[1fr_1.4fr_0.8fr_1fr_0.8fr]"
+                >
+                  <div>
+                    <p className="text-sm text-zinc-500">Subject</p>
+                    <p className="mt-1 font-medium text-zinc-100">
+                      {item.subject_name}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-zinc-500">LinkedIn URL</p>
+                    <p className="mt-1 break-all text-sm text-zinc-300">
+                      {item.linkedin_url}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-zinc-500">Status</p>
+                    <p className="mt-1 text-zinc-300">{item.status}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-zinc-500">Claimed role/company</p>
+                    <p className="mt-1 text-zinc-300">
+                      {[item.claimed_role, item.claimed_company]
+                        .filter(Boolean)
+                        .join(" / ") || "Not supplied"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-zinc-500">Review required</p>
+                    <p className="mt-1 text-zinc-300">
+                      {item.review_required ? "Yes" : "No"}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <EmptyState label="No LinkedIn profiles awaiting review." />
             )}
           </div>
         </section>

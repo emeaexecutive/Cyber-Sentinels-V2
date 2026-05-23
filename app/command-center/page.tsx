@@ -30,6 +30,8 @@ type Passport = {
   suspicious_activity: boolean | null;
   abuse_risk: string | null;
   scan_status: string | null;
+  linkedin_review_required: boolean | null;
+  linkedin_verification_status: string | null;
   created_at: string | null;
 };
 
@@ -99,6 +101,14 @@ export default async function CommandCenterPage() {
     0;
   const securityEvents =
     suspiciousActivityCount + elevatedAbuseRiskCount + evidencePendingScan;
+  const linkedInProfilesUnderReview =
+    passports?.filter(
+      (p) =>
+        p.linkedin_review_required ||
+        ["submitted", "manual_review", "mismatch"].includes(
+          p.linkedin_verification_status ?? ""
+        )
+    ).length ?? 0;
 
   return (
     <main className="min-h-screen bg-black p-8 text-white">
@@ -174,6 +184,13 @@ export default async function CommandCenterPage() {
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-zinc-500">Security Events</p>
             <p className="mt-3 text-4xl font-bold">{securityEvents}</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-zinc-500">LinkedIn profiles under review</p>
+            <p className="mt-3 text-4xl font-bold">
+              {linkedInProfilesUnderReview}
+            </p>
           </div>
         </section>
 

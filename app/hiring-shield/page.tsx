@@ -54,6 +54,25 @@ export default async function HiringShieldPage() {
           />
 
           <input
+            name="linkedin_url"
+            type="url"
+            placeholder="LinkedIn profile URL e.g. https://www.linkedin.com/in/name"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="linkedin_claimed_role"
+            placeholder="Claimed LinkedIn role"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="linkedin_claimed_company"
+            placeholder="Claimed LinkedIn company"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
             name="profile_consistency"
             type="number"
             placeholder="Profile consistency score e.g. 88"
@@ -348,6 +367,36 @@ export default async function HiringShieldPage() {
                     <p className="text-zinc-500">Human Review</p>
                     <p className="mt-2 text-xl font-bold">
                       {report.human_review_required ? "Required" : "Optional"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-4 md:grid-cols-4">
+                  <div>
+                    <p className="text-zinc-500">LinkedIn Verification</p>
+                    <p className="mt-2 text-xl font-bold capitalize">
+                      {report.linkedin_verification_status ?? "unverified"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-zinc-500">LinkedIn Consistency</p>
+                    <p className="mt-2 text-xl font-bold">
+                      {report.linkedin_profile_consistency ?? "Pending"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-zinc-500">Claimed Role</p>
+                    <p className="mt-2 text-xl font-bold">
+                      {report.linkedin_claimed_role ?? "Not submitted"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-zinc-500">LinkedIn Review</p>
+                    <p className="mt-2 text-xl font-bold">
+                      {report.linkedin_review_required ? "Required" : "Not required"}
                     </p>
                   </div>
                 </div>

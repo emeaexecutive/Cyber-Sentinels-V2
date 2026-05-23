@@ -44,6 +44,12 @@ const trustModules = [
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
     metric: "Hiring",
   },
+  {
+    name: "LinkedIn Trust Verification",
+    href: "/linkedin-verification",
+    copy: "Attach a professional profile URL as one reviewed evidence signal, never the source of truth.",
+    metric: "Professional",
+  },
 ];
 
 const riskSignals = [
@@ -68,6 +74,7 @@ const routeLinks = [
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },
+  { href: "/linkedin-verification", label: "LinkedIn Trust Verification" },
   { href: "/security", label: "Security Layer" },
   { href: "/admin", label: "Back Office / Admin" },
 ];

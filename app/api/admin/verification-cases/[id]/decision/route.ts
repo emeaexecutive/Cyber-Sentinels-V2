@@ -105,7 +105,9 @@ export async function POST(
         reviewed_at: new Date().toISOString(),
       })
       .eq("id", id)
-      .select("id,passport_id,subject_name,subject_type,status")
+      .select(
+        "id,passport_id,subject_name,subject_type,status,linkedin_url,linkedin_verification_status,linkedin_claimed_company,linkedin_claimed_role"
+      )
       .single();
 
     if (updateError || !verificationCase) {
@@ -153,6 +155,47 @@ export async function POST(
       );
     }
 
+    if (verificationCase.linkedin_url) {
+      const reviewedStatus =
+        parsed.decision === "allow"
+          ? "verified_external"
+          : parsed.decision === "deny"
+            ? "mismatch"
+            : "manual_review";
+
+      await supabase
+        .from("verification_cases")
+        .update({
+          linkedin_verification_status: reviewedStatus,
+          linkedin_review_required: parsed.decision === "manual_review",
+        })
+        .eq("id", id);
+
+      if (parsed.decision === "allow") {
+        await createSignal(supabase, "LinkedIn profile manually approved");
+      }
+
+      if (parsed.decision === "deny") {
+        await createSignal(supabase, "LinkedIn profile mismatch detected");
+        await createAuditLog(supabase, "linkedin_profile_mismatch", actor, {
+          verification_case_id: id,
+          linkedin_url: verificationCase.linkedin_url,
+          linkedin_claimed_company: verificationCase.linkedin_claimed_company,
+          linkedin_claimed_role: verificationCase.linkedin_claimed_role,
+          ...requestRisk,
+        });
+      }
+
+      await createAuditLog(supabase, "linkedin_profile_reviewed", actor, {
+        verification_case_id: id,
+        linkedin_url: verificationCase.linkedin_url,
+        linkedin_verification_status: reviewedStatus,
+        decision: parsed.decision,
+        status: parsed.status,
+        ...requestRisk,
+      });
+    }
+
     if (verificationCase.passport_id) {
       const { data: passport } = await supabase
         .from("passports")
@@ -185,17 +228,29 @@ export async function POST(
           : parsed.status === "rejected"
             ? "rejected"
             : parsed.status;
+      const passportUpdateFields: Record<string, unknown> = {
+        review_status: parsed.status,
+        verification_status: parsed.status,
+        reality_passport_status: parsed.status,
+        clearance,
+        verified: parsed.status === "verified",
+        trust_score: trustScore,
+      };
+
+      if (verificationCase.linkedin_url) {
+        passportUpdateFields.linkedin_verification_status =
+          parsed.decision === "allow"
+            ? "verified_external"
+            : parsed.decision === "deny"
+              ? "mismatch"
+              : "manual_review";
+        passportUpdateFields.linkedin_review_required =
+          parsed.decision === "manual_review";
+      }
 
       const passportUpdate = await supabase
         .from("passports")
-        .update({
-          review_status: parsed.status,
-          verification_status: parsed.status,
-          reality_passport_status: parsed.status,
-          clearance,
-          verified: parsed.status === "verified",
-          trust_score: trustScore,
-        })
+        .update(passportUpdateFields)
         .eq("id", verificationCase.passport_id);
 
       if (passportUpdate.error) {

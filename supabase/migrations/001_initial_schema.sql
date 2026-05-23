@@ -77,6 +77,12 @@ create table if not exists passports (
   review_status text default 'pending',
   verification_status text default 'pending',
   reality_passport_status text default 'pending',
+  linkedin_url text,
+  linkedin_verification_status text default 'unverified',
+  linkedin_profile_consistency int,
+  linkedin_claimed_company text,
+  linkedin_claimed_role text,
+  linkedin_review_required boolean default false,
   trust_score int default 50 check (trust_score >= 0 and trust_score <= 100),
   clearance text default 'pending',
   verified boolean default false,
@@ -115,6 +121,12 @@ create table if not exists trust_reports (
   human_review_required boolean default false,
   provenance_status text default 'unverified',
   review_status text default 'pending',
+  linkedin_url text,
+  linkedin_verification_status text default 'unverified',
+  linkedin_profile_consistency int,
+  linkedin_claimed_company text,
+  linkedin_claimed_role text,
+  linkedin_review_required boolean default false,
   confidence int not null check (confidence >= 0 and confidence <= 100),
   trust_score int not null check (trust_score >= 0 and trust_score <= 100),
   report_type text default 'hiring_shield',
@@ -145,6 +157,12 @@ create table if not exists verification_cases (
   human_presence_index int,
   origin_trace_score int,
   trust_score int,
+  linkedin_url text,
+  linkedin_verification_status text default 'unverified',
+  linkedin_profile_consistency int,
+  linkedin_claimed_company text,
+  linkedin_claimed_role text,
+  linkedin_review_required boolean default false,
   reviewed_by uuid,
   reviewed_at timestamptz,
   created_at timestamptz default now()
@@ -201,6 +219,12 @@ alter table passports add column if not exists provenance_status text default 'u
 alter table passports add column if not exists review_status text default 'pending';
 alter table passports add column if not exists verification_status text default 'pending';
 alter table passports add column if not exists reality_passport_status text default 'pending';
+alter table passports add column if not exists linkedin_url text;
+alter table passports add column if not exists linkedin_verification_status text default 'unverified';
+alter table passports add column if not exists linkedin_profile_consistency int;
+alter table passports add column if not exists linkedin_claimed_company text;
+alter table passports add column if not exists linkedin_claimed_role text;
+alter table passports add column if not exists linkedin_review_required boolean default false;
 alter table passports add column if not exists abuse_risk text default 'low';
 alter table passports add column if not exists suspicious_activity boolean default false;
 alter table passports add column if not exists source_ip_hash text;
@@ -230,6 +254,12 @@ alter table trust_reports add column if not exists upload_chain_status text defa
 alter table trust_reports add column if not exists human_review_required boolean default false;
 alter table trust_reports add column if not exists provenance_status text default 'unverified';
 alter table trust_reports add column if not exists review_status text default 'pending';
+alter table trust_reports add column if not exists linkedin_url text;
+alter table trust_reports add column if not exists linkedin_verification_status text default 'unverified';
+alter table trust_reports add column if not exists linkedin_profile_consistency int;
+alter table trust_reports add column if not exists linkedin_claimed_company text;
+alter table trust_reports add column if not exists linkedin_claimed_role text;
+alter table trust_reports add column if not exists linkedin_review_required boolean default false;
 alter table trust_reports add column if not exists abuse_risk text default 'low';
 alter table trust_reports add column if not exists suspicious_activity boolean default false;
 alter table trust_reports add column if not exists source_ip_hash text;
@@ -260,6 +290,12 @@ alter table verification_cases add column if not exists decision_type text;
 alter table verification_cases add column if not exists human_presence_index int;
 alter table verification_cases add column if not exists origin_trace_score int;
 alter table verification_cases add column if not exists trust_score int;
+alter table verification_cases add column if not exists linkedin_url text;
+alter table verification_cases add column if not exists linkedin_verification_status text default 'unverified';
+alter table verification_cases add column if not exists linkedin_profile_consistency int;
+alter table verification_cases add column if not exists linkedin_claimed_company text;
+alter table verification_cases add column if not exists linkedin_claimed_role text;
+alter table verification_cases add column if not exists linkedin_review_required boolean default false;
 
 alter table verification_cases drop constraint if exists verification_cases_status_check;
 alter table verification_cases drop constraint if exists verification_cases_verification_status_check;

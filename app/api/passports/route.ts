@@ -14,6 +14,7 @@ import {
   requireAuthenticatedUser,
 } from "@/lib/security";
 import { createClient } from "@/lib/supabase/server";
+import { getLinkedInEvidence } from "@/lib/linkedin-verification";
 import { calculateHumanPresence } from "@/lib/trust-engine/calculateHumanPresence";
 import { calculateOriginTrace } from "@/lib/trust-engine/calculateOriginTrace";
 import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
@@ -42,6 +43,7 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
+    const linkedInEvidence = getLinkedInEvidence(formData);
 
     const subjectName = getRequiredText(formData, "subject_name");
     const userEmail = user.email ?? user.id;
@@ -183,6 +185,7 @@ export async function POST(req: Request) {
         review_status: "pending",
         verification_status: "pending",
         reality_passport_status: "pending",
+        ...linkedInEvidence,
         trust_score: trustScore,
         clearance: "pending",
         verified: false,
@@ -213,6 +216,7 @@ export async function POST(req: Request) {
           human_presence_index: humanPresenceIndex,
           origin_trace_score: originTraceScore,
           trust_score: trustScore,
+          ...linkedInEvidence,
         })
         .select("id")
         .single();
@@ -221,6 +225,32 @@ export async function POST(req: Request) {
     if (!verificationCase) throw new Error("Could not create verification case");
 
     await supabase.from("signals").insert({ event: "Review requested" });
+
+    if (linkedInEvidence.linkedin_url) {
+      await supabase
+        .from("signals")
+        .insert({ event: "LinkedIn profile submitted" });
+      await supabase
+        .from("signals")
+        .insert({ event: "LinkedIn profile consistency check required" });
+
+      await supabase.from("audit_logs").insert({
+        event_type: "linkedin_profile_submitted",
+        actor: userEmail || "anonymous",
+        metadata: {
+          passport_id: passport.id,
+          verification_case_id: verificationCase.id,
+          subject_name: subjectName,
+          linkedin_url: linkedInEvidence.linkedin_url,
+          linkedin_claimed_company: linkedInEvidence.linkedin_claimed_company,
+          linkedin_claimed_role: linkedInEvidence.linkedin_claimed_role,
+          linkedin_verification_status:
+            linkedInEvidence.linkedin_verification_status,
+          ...requestRisk,
+        },
+        ...requestRisk,
+      });
+    }
 
     await supabase.from("audit_logs").insert({
       event_type: "verification_created",

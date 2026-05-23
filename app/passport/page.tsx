@@ -167,6 +167,29 @@ export default async function PassportPage() {
                   </p>
                 </div>
               </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-3">
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">LinkedIn Verification</p>
+                  <p className="mt-3 text-xl font-bold capitalize">
+                    {passport.linkedin_verification_status ?? "unverified"}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Claimed Role</p>
+                  <p className="mt-3 text-xl font-bold">
+                    {passport.linkedin_claimed_role ?? "Not submitted"}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">LinkedIn Review</p>
+                  <p className="mt-3 text-xl font-bold">
+                    {passport.linkedin_review_required ? "Required" : "Not required"}
+                  </p>
+                </div>
+              </div>
             </>
           ) : (
             <p className="text-zinc-500">No passport created yet.</p>
@@ -183,6 +206,25 @@ export default async function PassportPage() {
           <input
             name="subject_name"
             placeholder="Subject name"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="linkedin_url"
+            type="url"
+            placeholder="LinkedIn profile URL e.g. https://www.linkedin.com/in/name"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="linkedin_claimed_role"
+            placeholder="Claimed LinkedIn role"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            name="linkedin_claimed_company"
+            placeholder="Claimed LinkedIn company"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 

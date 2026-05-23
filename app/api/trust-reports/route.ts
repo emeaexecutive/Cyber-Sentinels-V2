@@ -13,6 +13,7 @@ import {
   requireAuthenticatedUser,
 } from "@/lib/security";
 import { createClient } from "@/lib/supabase/server";
+import { getLinkedInEvidence } from "@/lib/linkedin-verification";
 import { calculateHumanPresence } from "@/lib/trust-engine/calculateHumanPresence";
 import { calculateOriginTrace } from "@/lib/trust-engine/calculateOriginTrace";
 import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
@@ -41,6 +42,7 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
+    const linkedInEvidence = getLinkedInEvidence(formData);
 
     const candidateName = getRequiredText(formData, "candidate_name");
     const profileConsistency = getScore(formData, "profile_consistency", 80);
@@ -173,6 +175,7 @@ export async function POST(req: Request) {
       provenance_status: provenanceStatus,
       trust_timeline_score: trustTimelineScore,
       review_status: "pending",
+      ...linkedInEvidence,
       confidence,
       trust_score: trustScore,
       report_type: "hiring_shield",
@@ -180,6 +183,30 @@ export async function POST(req: Request) {
     });
 
     if (error) throw error;
+
+    if (linkedInEvidence.linkedin_url) {
+      await supabase
+        .from("signals")
+        .insert({ event: "LinkedIn profile submitted" });
+      await supabase
+        .from("signals")
+        .insert({ event: "LinkedIn profile consistency check required" });
+
+      await supabase.from("audit_logs").insert({
+        event_type: "linkedin_profile_submitted",
+        actor: user.email ?? user.id,
+        metadata: {
+          candidate_name: candidateName,
+          linkedin_url: linkedInEvidence.linkedin_url,
+          linkedin_claimed_company: linkedInEvidence.linkedin_claimed_company,
+          linkedin_claimed_role: linkedInEvidence.linkedin_claimed_role,
+          linkedin_verification_status:
+            linkedInEvidence.linkedin_verification_status,
+          ...requestRisk,
+        },
+        ...requestRisk,
+      });
+    }
 
     await recordTrustEvent(supabase, {
       signal: `Hiring Shield report generated for ${candidateName}`,
