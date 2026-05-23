@@ -1,76 +1,320 @@
+import Image from "next/image";
 import Link from "next/link";
+
+const primaryCtas = [
+  { href: "/passport", label: "Create Trust Passport" },
+  { href: "/command-center", label: "Open Command Center" },
+  { href: "/human-presence-index", label: "View Human Presence Index" },
+];
+
+const trustModules = [
+  {
+    name: "Trust Passport",
+    href: "/passport",
+    copy: "Issue a verified trust credential for humans, agents, candidates and content.",
+    metric: "Identity",
+  },
+  {
+    name: "Human Presence Index™",
+    href: "/human-presence-index",
+    copy: "Score liveness, behavior consistency and biometric confidence before access.",
+    metric: "Presence",
+  },
+  {
+    name: "Reality Passport™",
+    href: "/reality-passport",
+    copy: "Package provenance, authenticity and verification state into a usable record.",
+    metric: "Reality",
+  },
+  {
+    name: "Origin Trace™",
+    href: "/origin-trace",
+    copy: "Inspect source patterns, watermark status, upload chain integrity and C2PA hints.",
+    metric: "Origin",
+  },
+  {
+    name: "AI Agent Passport",
+    href: "/agent-passport",
+    copy: "Track autonomous agent identity, permissions, behavior and accountability.",
+    metric: "Agents",
+  },
+  {
+    name: "Hiring Shield",
+    href: "/hiring-shield",
+    copy: "Review candidate trust signals and synthetic identity risk before decisions.",
+    metric: "Hiring",
+  },
+];
+
+const riskSignals = [
+  "Deepfake video risk",
+  "Deepfake audio risk",
+  "Synthetic image risk",
+  "Voice clone risk",
+  "Model fingerprint risk",
+  "Metadata integrity",
+];
+
+const routeLinks = [
+  { href: "/passport", label: "Trust Passport" },
+  { href: "/command-center", label: "Command Center" },
+  { href: "/hiring-shield", label: "Hiring Shield" },
+  { href: "/clearances", label: "Clearances" },
+  { href: "/signals", label: "Signals" },
+  { href: "/deepfake-detection", label: "Deepfake Detection" },
+  { href: "/video-verification", label: "Video Verification" },
+  { href: "/agent-passport", label: "AI Agent Passport" },
+  { href: "/human-presence-index", label: "Human Presence Index™" },
+  { href: "/reality-passport", label: "Reality Passport™" },
+  { href: "/origin-trace", label: "Origin Trace™" },
+  { href: "/security", label: "Security Layer" },
+  { href: "/admin", label: "Back Office / Admin" },
+];
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-black p-8 text-white">
-      <div className="mx-auto max-w-6xl">
-        <p className="text-xs uppercase tracking-[0.4em] text-zinc-500">
-          Cyber Sentinels V2
-        </p>
+    <main className="min-h-screen bg-[#050505] text-white">
+      <section className="relative min-h-[92vh] overflow-hidden">
+        <Image
+          src="/cyber-sentinels-hero.png"
+          alt="Cyber Sentinels trust operations interface"
+          fill
+          priority
+          className="object-cover"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#050505] to-transparent" />
 
-        <h1 className="mt-8 max-w-4xl text-6xl font-bold">
-          Proof before permission.
-        </h1>
+        <div className="relative mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-between px-6 py-8 md:px-8">
+          <nav className="flex items-center justify-between gap-4">
+            <Link
+              href="/"
+              className="text-xs font-semibold uppercase tracking-[0.32em] text-zinc-200"
+            >
+              Cyber Sentinels
+            </Link>
+            <Link
+              href="/admin"
+              className="rounded-lg border border-white/20 bg-black/30 px-4 py-2 text-sm text-zinc-200 backdrop-blur hover:border-white/50"
+            >
+              Back Office / Admin
+            </Link>
+          </nav>
 
-        <p className="mt-6 max-w-2xl text-zinc-400">
-          AI trust infrastructure for verified humans, autonomous agents,
-          hiring signals and synthetic identity risk.
-        </p>
+          <div className="max-w-4xl pb-10">
+            <p className="text-sm uppercase tracking-[0.28em] text-teal-200">
+              Premium trust infrastructure
+            </p>
+            <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[1.02] md:text-7xl">
+              Proof before permission
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-200">
+              Cyber Sentinels verifies human presence, origin traces, synthetic
+              media risk and AI agent identity before critical systems grant
+              trust.
+            </p>
 
-        <div className="mt-10 flex flex-wrap gap-3">
-          <Link href="/passport" className="rounded-xl bg-white px-5 py-3 font-semibold text-black">
-            Create Passport
-          </Link>
+            <div className="mt-8 flex flex-wrap gap-3">
+              {primaryCtas.map((cta, index) => (
+                <Link
+                  key={cta.href}
+                  href={cta.href}
+                  className={
+                    index === 0
+                      ? "rounded-lg bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200"
+                      : "rounded-lg border border-white/25 bg-black/30 px-5 py-3 font-semibold text-white backdrop-blur hover:border-white/60"
+                  }
+                >
+                  {cta.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
-          <Link href="/command-center" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-            Command Center
-          </Link>
+      <section className="border-y border-zinc-900 bg-black">
+        <div className="mx-auto grid max-w-7xl gap-4 px-6 py-6 md:grid-cols-4 md:px-8">
+          {[
+            ["Human", "presence verified"],
+            ["Origin", "trace inspected"],
+            ["Media", "risk scored"],
+            ["Decision", "audit logged"],
+          ].map(([label, value]) => (
+            <div key={label} className="border-l border-zinc-800 pl-4">
+              <p className="text-xs uppercase tracking-[0.22em] text-zinc-500">
+                {label}
+              </p>
+              <p className="mt-2 text-lg font-medium text-zinc-100">{value}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
-          <Link href="/hiring-shield" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-            Hiring Shield
-          </Link>
+      <section className="mx-auto max-w-7xl px-6 py-20 md:px-8">
+        <div className="max-w-3xl">
+          <p className="text-sm uppercase tracking-[0.24em] text-amber-200">
+            Trust stack
+          </p>
+          <h2 className="mt-4 text-3xl font-semibold md:text-5xl">
+            One control plane for identity, media, agents and decisions.
+          </h2>
+        </div>
 
-          <Link href="/clearances" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-            Clearances
-          </Link>
+        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {trustModules.map((module) => (
+            <Link
+              key={module.href}
+              href={module.href}
+              className="group rounded-lg border border-zinc-800 bg-zinc-950 p-5 transition hover:border-zinc-500 hover:bg-zinc-900"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <h3 className="text-xl font-semibold">{module.name}</h3>
+                <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-400 group-hover:text-white">
+                  {module.metric}
+                </span>
+              </div>
+              <p className="mt-4 leading-7 text-zinc-400">{module.copy}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-          <Link href="/signals" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-            Signals
-          </Link>
+      <section className="bg-zinc-950">
+        <div className="mx-auto grid max-w-7xl gap-10 px-6 py-20 md:px-8 lg:grid-cols-[1fr_1.15fr]">
+          <div>
+            <p className="text-sm uppercase tracking-[0.24em] text-rose-200">
+              Deepfake video / audio / image risk
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold md:text-5xl">
+              Synthetic content is treated as an operational risk signal.
+            </h2>
+            <p className="mt-5 leading-8 text-zinc-400">
+              Score liveness, voice clone exposure, image authenticity, model
+              fingerprints and metadata integrity before the content moves
+              deeper into a workflow.
+            </p>
+            <Link
+              href="/deepfake-detection"
+              className="mt-8 inline-flex rounded-lg border border-zinc-700 px-5 py-3 font-semibold hover:border-zinc-400"
+            >
+              Inspect deepfake risk
+            </Link>
+          </div>
 
-          <Link href="/deepfake-detection" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-            Deepfake Detection
-          </Link>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {riskSignals.map((signal, index) => (
+              <div
+                key={signal}
+                className="rounded-lg border border-zinc-800 bg-black p-4"
+              >
+                <p className="text-sm text-zinc-500">
+                  Signal {String(index + 1).padStart(2, "0")}
+                </p>
+                <p className="mt-3 text-lg font-medium">{signal}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-          <Link href="/video-verification" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-            Video Verification
-          </Link>
-
-          <Link href="/agent-passport" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-            Agent Passport
-          </Link>
-
-          <Link href="/human-presence-index" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-            Human Presence Index™
-          </Link>
-
-          <Link href="/reality-passport" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-            Reality Passport™
-          </Link>
-
-          <Link href="/origin-trace" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-            Origin Trace™
-          </Link>
-
-          <Link href="/security" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
+      <section className="mx-auto grid max-w-7xl gap-4 px-6 py-20 md:px-8 lg:grid-cols-3">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-sm uppercase tracking-[0.22em] text-teal-200">
             Security Layer
-          </Link>
-
-          <Link href="/admin" className="rounded-xl border border-zinc-700 px-5 py-3 text-white">
-            Admin
+          </p>
+          <h2 className="mt-4 text-2xl font-semibold">
+            Trust operations with protected admin review.
+          </h2>
+          <p className="mt-4 leading-7 text-zinc-400">
+            Supabase auth, allowlisted administration and step-up verification
+            keep the back office behind deliberate controls.
+          </p>
+          <Link
+            href="/security"
+            className="mt-6 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm font-semibold hover:border-zinc-400"
+          >
+            View security layer
           </Link>
         </div>
-      </div>
+
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-sm uppercase tracking-[0.22em] text-amber-200">
+            Back Office / Admin
+          </p>
+          <h2 className="mt-4 text-2xl font-semibold">
+            Every decision creates evidence in the system.
+          </h2>
+          <p className="mt-4 leading-7 text-zinc-400">
+            Review evidence, update verification cases, create signals and
+            append audit events from one operator surface.
+          </p>
+          <Link
+            href="/admin"
+            className="mt-6 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm font-semibold hover:border-zinc-400"
+          >
+            Open admin
+          </Link>
+        </div>
+
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-sm uppercase tracking-[0.22em] text-rose-200">
+            Hiring Shield
+          </p>
+          <h2 className="mt-4 text-2xl font-semibold">
+            Candidate trust signals before hiring momentum.
+          </h2>
+          <p className="mt-4 leading-7 text-zinc-400">
+            Bring synthetic identity, media confidence and human review into the
+            hiring decision trail.
+          </p>
+          <Link
+            href="/hiring-shield"
+            className="mt-6 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm font-semibold hover:border-zinc-400"
+          >
+            Launch Hiring Shield
+          </Link>
+        </div>
+      </section>
+
+      <section className="border-t border-zinc-900 bg-black">
+        <div className="mx-auto max-w-7xl px-6 py-14 md:px-8">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div>
+              <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
+                Routes
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold">
+                Existing Cyber Sentinels surfaces
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {primaryCtas.map((cta) => (
+                <Link
+                  key={`footer-${cta.href}`}
+                  href={cta.href}
+                  className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200"
+                >
+                  {cta.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            {routeLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
