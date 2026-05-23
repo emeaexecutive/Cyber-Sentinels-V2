@@ -40,6 +40,10 @@ type VerificationCase = {
   subject_type: string | null;
   status: BackOfficeStatus | string | null;
   verification_status: BackOfficeStatus | string | null;
+  human_presence_index: number | null;
+  origin_trace_score: number | null;
+  trust_score: number | null;
+  reviewed_by: string | null;
   created_at: string;
 };
 
@@ -227,7 +231,7 @@ export default async function AdminPage() {
     fetchTable<VerificationCase>(
       supabase,
       "verification_cases",
-      "id,subject_name,subject_type,status,created_at"
+      "id,subject_name,subject_type,status,verification_status,human_presence_index,origin_trace_score,trust_score,reviewed_by,created_at"
     ),
     fetchTable<Passport>(
       supabase,
@@ -313,6 +317,13 @@ export default async function AdminPage() {
       (item.review_required ||
         ["submitted", "manual_review", "mismatch"].includes(item.status))
   );
+  const verificationQueuePreview = verificationCases.rows
+    .filter((item) =>
+      ["pending", "in_review", "escalated"].includes(
+        item.verification_status ?? item.status ?? "pending"
+      )
+    )
+    .slice(0, 4);
 
   return (
     <main className="min-h-screen bg-black p-6 text-white md:p-8">
@@ -350,6 +361,12 @@ export default async function AdminPage() {
             className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
           >
             Open Prediction Engine
+          </Link>
+          <Link
+            href="/verification-queue"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Verification Queue
           </Link>
         </section>
 
@@ -425,6 +442,55 @@ export default async function AdminPage() {
                     : "verification_cases table is not available yet."
                 }
               />
+            )}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">
+                Verification Operations Queue Preview
+              </h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Live cases waiting for human review, escalation or evidence.
+              </p>
+            </div>
+            <Link
+              href="/verification-queue"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Queue
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {verificationQueuePreview.length ? (
+              verificationQueuePreview.map((item) => (
+                <div
+                  key={`queue-preview-${item.id}`}
+                  className="rounded-lg border border-zinc-800 p-4"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium text-zinc-100">
+                        {item.subject_name ?? "Unnamed subject"}
+                      </p>
+                      <p className="mt-1 text-sm text-zinc-500">
+                        {item.subject_type ?? "unknown"} / Trust{" "}
+                        {item.trust_score ?? "n/a"}
+                      </p>
+                    </div>
+                    <StatusBadge status={item.verification_status ?? item.status} />
+                  </div>
+                  <p className="mt-3 text-sm text-zinc-500">
+                    HPI {item.human_presence_index ?? "n/a"} / Origin{" "}
+                    {item.origin_trace_score ?? "n/a"} / Reviewer{" "}
+                    {item.reviewed_by ?? "Unassigned"}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <EmptyState label="No active verification work in queue." />
             )}
           </div>
         </section>

@@ -138,6 +138,18 @@ export async function POST(
           { status: 500 }
         );
       }
+
+      const reviewStartedSignal = await createSignal(
+        supabase,
+        "review_started"
+      );
+
+      if (reviewStartedSignal.error) {
+        return NextResponse.json(
+          { ok: false, error: "Could not record signal" },
+          { status: 500 }
+        );
+      }
     }
 
     const decisionInsert = await supabase.from("decisions").insert({
@@ -303,6 +315,28 @@ export async function POST(
       );
     }
 
+    const reviewActionAudit = await createAuditLog(
+      supabase,
+      "review_action_created",
+      actor,
+      {
+        verification_case_id: id,
+        subject_name: verificationCase.subject_name,
+        subject_type: verificationCase.subject_type,
+        decision: parsed.decision,
+        status: parsed.status,
+        notes: parsed.notes || null,
+        ...requestRisk,
+      }
+    );
+
+    if (reviewActionAudit.error) {
+      return NextResponse.json(
+        { ok: false, error: "Could not record audit event" },
+        { status: 500 }
+      );
+    }
+
     const signalInsert = await createSignal(
       supabase,
       "Verification case decision created"
@@ -320,6 +354,18 @@ export async function POST(
       parsed.status === "rejected" ||
       parsed.status === "escalated"
     ) {
+      const reviewSignal = await createSignal(
+        supabase,
+        parsed.status === "escalated" ? "review_escalated" : "review_completed"
+      );
+
+      if (reviewSignal.error) {
+        return NextResponse.json(
+          { ok: false, error: "Could not record signal" },
+          { status: 500 }
+        );
+      }
+
       const workflowAuditInsert = await createAuditLog(
         supabase,
         "verification_completed",

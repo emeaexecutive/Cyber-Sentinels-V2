@@ -68,6 +68,12 @@ const trustModules = [
     copy: "Estimate emerging trust risk before decay becomes obvious.",
     metric: "Forecast",
   },
+  {
+    name: "Verification Queue™",
+    href: "/verification-queue",
+    copy: "Operate live verification work across cases, evidence, reviews and decisions.",
+    metric: "Ops",
+  },
 ];
 
 const riskSignals = [
@@ -89,6 +95,7 @@ const routeLinks = [
   { href: "/trust-timeline", label: "Trust Timeline™" },
   { href: "/trust-graph", label: "Trust Graph Explorer™" },
   { href: "/trust-prediction", label: "Trust Prediction Engine™" },
+  { href: "/verification-queue", label: "Verification Queue™" },
   { href: "/deepfake-detection", label: "Deepfake Detection" },
   { href: "/video-verification", label: "Video Verification" },
   { href: "/agent-passport", label: "AI Agent Passport" },
