@@ -15,7 +15,7 @@ type ActionConfig = {
 };
 
 const actions: ActionConfig[] = [
-  { label: "Mark in review", decision: "manual_review", status: "in_review" },
+  { label: "Mark reviewing", decision: "manual_review", status: "reviewing" },
   { label: "Mark verified", decision: "allow", status: "verified" },
   { label: "Mark rejected", decision: "deny", status: "rejected" },
   { label: "Mark escalated", decision: "manual_review", status: "escalated" },

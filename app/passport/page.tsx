@@ -151,6 +151,22 @@ export default async function PassportPage() {
                   </p>
                 </div>
               </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Verification Status</p>
+                  <p className="mt-3 text-xl font-bold capitalize">
+                    {passport.verification_status ?? "pending"}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-black p-5">
+                  <p className="text-zinc-500">Reality Passport Status</p>
+                  <p className="mt-3 text-xl font-bold capitalize">
+                    {passport.reality_passport_status ?? "pending"}
+                  </p>
+                </div>
+              </div>
             </>
           ) : (
             <p className="text-zinc-500">No passport created yet.</p>
@@ -162,7 +178,7 @@ export default async function PassportPage() {
           method="POST"
           className="mt-10 grid gap-4 rounded-3xl border border-zinc-800 bg-zinc-950 p-8"
         >
-          <h2 className="text-2xl font-bold">Create New Passport</h2>
+          <h2 className="text-2xl font-bold">Submit Verification</h2>
 
           <input
             name="subject_name"
@@ -335,7 +351,7 @@ export default async function PassportPage() {
           </select>
 
           <button className="rounded-xl bg-white px-5 py-4 font-semibold text-black">
-            Create Passport
+            Submit Verification
           </button>
         </form>
       </div>

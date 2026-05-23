@@ -75,6 +75,8 @@ create table if not exists passports (
   human_review_required boolean default false,
   provenance_status text default 'unverified',
   review_status text default 'pending',
+  verification_status text default 'pending',
+  reality_passport_status text default 'pending',
   trust_score int default 50 check (trust_score >= 0 and trust_score <= 100),
   clearance text default 'pending',
   verified boolean default false,
@@ -134,9 +136,15 @@ create table if not exists signals (
 
 create table if not exists verification_cases (
   id uuid primary key default gen_random_uuid(),
+  passport_id uuid references passports(id) on delete set null,
   subject_type text default 'human',
   subject_name text,
-  status text default 'pending' check (status in ('pending','in_review','verified','rejected','escalated')),
+  status text default 'pending' check (status in ('pending','reviewing','verified','rejected','escalated')),
+  verification_status text default 'pending' check (verification_status in ('pending','reviewing','verified','rejected','escalated')),
+  decision_type text check (decision_type in ('allow','deny','manual_review','needs_more_evidence')),
+  human_presence_index int,
+  origin_trace_score int,
+  trust_score int,
   reviewed_by uuid,
   reviewed_at timestamptz,
   created_at timestamptz default now()
@@ -156,7 +164,7 @@ create table if not exists decisions (
   id uuid primary key default gen_random_uuid(),
   verification_case_id uuid references verification_cases(id) on delete cascade,
   decision text not null check (decision in ('allow','deny','manual_review','needs_more_evidence')),
-  status text not null check (status in ('pending','in_review','verified','rejected','escalated')),
+  status text not null check (status in ('pending','reviewing','verified','rejected','escalated')),
   notes text,
   actor text,
   created_at timestamptz default now()
@@ -191,6 +199,8 @@ alter table passports add column if not exists upload_chain_status text default 
 alter table passports add column if not exists human_review_required boolean default false;
 alter table passports add column if not exists provenance_status text default 'unverified';
 alter table passports add column if not exists review_status text default 'pending';
+alter table passports add column if not exists verification_status text default 'pending';
+alter table passports add column if not exists reality_passport_status text default 'pending';
 alter table passports add column if not exists abuse_risk text default 'low';
 alter table passports add column if not exists suspicious_activity boolean default false;
 alter table passports add column if not exists source_ip_hash text;
@@ -243,6 +253,32 @@ alter table audit_logs add column if not exists user_agent_hash text;
 alter table audit_logs add column if not exists scan_status text default 'pending';
 alter table audit_logs add column if not exists allowed_file_type text default 'unverified';
 alter table audit_logs add column if not exists rate_limit_status text default 'allowed';
+
+alter table verification_cases add column if not exists passport_id uuid references passports(id) on delete set null;
+alter table verification_cases add column if not exists verification_status text default 'pending';
+alter table verification_cases add column if not exists decision_type text;
+alter table verification_cases add column if not exists human_presence_index int;
+alter table verification_cases add column if not exists origin_trace_score int;
+alter table verification_cases add column if not exists trust_score int;
+
+alter table verification_cases drop constraint if exists verification_cases_status_check;
+alter table verification_cases drop constraint if exists verification_cases_verification_status_check;
+alter table verification_cases drop constraint if exists verification_cases_decision_type_check;
+update verification_cases set status = 'reviewing' where status = 'in_review';
+update verification_cases
+  set verification_status = 'reviewing'
+  where verification_status = 'in_review';
+alter table verification_cases add constraint verification_cases_status_check
+  check (status in ('pending','reviewing','verified','rejected','escalated'));
+alter table verification_cases add constraint verification_cases_verification_status_check
+  check (verification_status in ('pending','reviewing','verified','rejected','escalated'));
+alter table verification_cases add constraint verification_cases_decision_type_check
+  check (decision_type is null or decision_type in ('allow','deny','manual_review','needs_more_evidence'));
+
+alter table decisions drop constraint if exists decisions_status_check;
+update decisions set status = 'reviewing' where status = 'in_review';
+alter table decisions add constraint decisions_status_check
+  check (status in ('pending','reviewing','verified','rejected','escalated'));
 
 alter table waitlist enable row level security;
 alter table verification_passports enable row level security;
@@ -320,6 +356,11 @@ create policy "Allow authenticated verification case reads" on verification_case
   for select
   to authenticated
   using (true);
+
+create policy "Allow authenticated verification case inserts" on verification_cases
+  for insert
+  to authenticated
+  with check (true);
 
 create policy "Allow authenticated verification case updates" on verification_cases
   for update

@@ -154,38 +154,91 @@ export async function POST(req: Request) {
       reviewOutcome: "manual_review",
     });
 
-    const { error } = await supabase.from("passports").insert({
-      user_email: userEmail,
-      subject_name: subjectName,
-      subject_type: subjectType,
-      media_type: mediaType,
-      human_presence_index: humanPresenceIndex,
-      biometric_confidence: biometricConfidence,
-      behavioural_consistency: behaviouralConsistency,
-      synthetic_risk: syntheticRisk,
-      liveness_score: livenessScore,
-      voice_clone_risk: voiceCloneRisk,
-      video_deepfake_risk: videoDeepfakeRisk,
-      image_authenticity_score: imageAuthenticityScore,
-      origin_trace_score: originTraceScore,
-      attribution_confidence: attributionConfidence,
-      likely_source_type: likelySourceType,
-      model_fingerprint_risk: modelFingerprintRisk,
-      metadata_integrity: metadataIntegrity,
-      watermark_status: watermarkStatus,
-      c2pa_status: c2paStatus,
-      upload_chain_status: uploadChainStatus,
-      human_review_required: humanReviewRequired,
-      provenance_status: provenanceStatus,
-      trust_timeline_score: trustTimelineScore,
-      review_status: "pending",
-      trust_score: trustScore,
-      clearance: "pending",
-      verified: false,
-      ...requestRisk,
-    });
+    const { data: passport, error } = await supabase
+      .from("passports")
+      .insert({
+        user_email: userEmail,
+        subject_name: subjectName,
+        subject_type: subjectType,
+        media_type: mediaType,
+        human_presence_index: humanPresenceIndex,
+        biometric_confidence: biometricConfidence,
+        behavioural_consistency: behaviouralConsistency,
+        synthetic_risk: syntheticRisk,
+        liveness_score: livenessScore,
+        voice_clone_risk: voiceCloneRisk,
+        video_deepfake_risk: videoDeepfakeRisk,
+        image_authenticity_score: imageAuthenticityScore,
+        origin_trace_score: originTraceScore,
+        attribution_confidence: attributionConfidence,
+        likely_source_type: likelySourceType,
+        model_fingerprint_risk: modelFingerprintRisk,
+        metadata_integrity: metadataIntegrity,
+        watermark_status: watermarkStatus,
+        c2pa_status: c2paStatus,
+        upload_chain_status: uploadChainStatus,
+        human_review_required: humanReviewRequired,
+        provenance_status: provenanceStatus,
+        trust_timeline_score: trustTimelineScore,
+        review_status: "pending",
+        verification_status: "pending",
+        reality_passport_status: "pending",
+        trust_score: trustScore,
+        clearance: "pending",
+        verified: false,
+        ...requestRisk,
+      })
+      .select("id")
+      .single();
 
     if (error) throw error;
+    if (!passport) throw new Error("Could not create passport");
+
+    await supabase.from("signals").insert({ event: "Verification started" });
+    await supabase
+      .from("signals")
+      .insert({ event: "Human Presence calculated" });
+    await supabase.from("signals").insert({ event: "Origin Trace created" });
+
+    const { data: verificationCase, error: verificationCaseError } =
+      await supabase
+        .from("verification_cases")
+        .insert({
+          passport_id: passport.id,
+          subject_name: subjectName,
+          subject_type: subjectType,
+          status: "pending",
+          verification_status: "pending",
+          decision_type: "manual_review",
+          human_presence_index: humanPresenceIndex,
+          origin_trace_score: originTraceScore,
+          trust_score: trustScore,
+        })
+        .select("id")
+        .single();
+
+    if (verificationCaseError) throw verificationCaseError;
+    if (!verificationCase) throw new Error("Could not create verification case");
+
+    await supabase.from("signals").insert({ event: "Review requested" });
+
+    await supabase.from("audit_logs").insert({
+      event_type: "verification_created",
+      actor: userEmail || "anonymous",
+      metadata: {
+        passport_id: passport.id,
+        verification_case_id: verificationCase.id,
+        subject_name: subjectName,
+        subject_type: subjectType,
+        verification_status: "pending",
+        decision_type: "manual_review",
+        human_presence_index: humanPresenceIndex,
+        origin_trace_score: originTraceScore,
+        trust_score: trustScore,
+        ...requestRisk,
+      },
+      ...requestRisk,
+    });
 
     await recordTrustEvent(supabase, {
       signal: `Reality Passport created for ${subjectName}`,

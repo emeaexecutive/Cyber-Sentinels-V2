@@ -31,6 +31,7 @@ type VerificationCase = {
   subject_name: string | null;
   subject_type: string | null;
   status: BackOfficeStatus | string | null;
+  verification_status: BackOfficeStatus | string | null;
   created_at: string;
 };
 
@@ -128,13 +129,15 @@ function formatDate(value: string) {
 }
 
 function StatusBadge({ status }: { status: string | null }) {
-  const normalized = status && backOfficeStatuses.includes(status as BackOfficeStatus)
-    ? status
-    : "pending";
+  const displayStatus = status === "in_review" ? "reviewing" : status;
+  const normalized =
+    displayStatus && backOfficeStatuses.includes(displayStatus as BackOfficeStatus)
+      ? displayStatus
+      : "pending";
 
   const styles: Record<BackOfficeStatus, string> = {
     pending: "border-zinc-700 text-zinc-300",
-    in_review: "border-cyan-700 text-cyan-200",
+    reviewing: "border-cyan-700 text-cyan-200",
     verified: "border-emerald-700 text-emerald-200",
     rejected: "border-red-800 text-red-200",
     escalated: "border-amber-700 text-amber-200",
@@ -337,7 +340,7 @@ export default async function AdminPage() {
                         {item.subject_type ?? "unknown"} / {formatDate(item.created_at)}
                       </p>
                     </div>
-                    <StatusBadge status={item.status} />
+                    <StatusBadge status={item.verification_status ?? item.status} />
                   </div>
                   <AdminVerificationActions caseId={item.id} />
                 </div>
