@@ -1,6 +1,6 @@
 export type BackOfficeStatus =
   | "pending"
-  | "reviewing"
+  | "in_review"
   | "verified"
   | "rejected"
   | "escalated";
@@ -30,7 +30,7 @@ export const backOfficeConcepts: BackOfficeConcept[] = [
 
 export const backOfficeStatuses: BackOfficeStatus[] = [
   "pending",
-  "reviewing",
+  "in_review",
   "verified",
   "rejected",
   "escalated",

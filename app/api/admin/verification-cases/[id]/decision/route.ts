@@ -115,7 +115,7 @@ export async function POST(
       );
     }
 
-    if (parsed.status === "reviewing") {
+    if (parsed.status === "in_review") {
       const reviewStartedInsert = await createAuditLog(
         supabase,
         "verification_review_started",

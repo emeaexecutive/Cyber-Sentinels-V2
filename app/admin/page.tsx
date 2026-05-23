@@ -133,15 +133,14 @@ function formatDate(value: string) {
 }
 
 function StatusBadge({ status }: { status: string | null }) {
-  const displayStatus = status === "in_review" ? "reviewing" : status;
   const normalized =
-    displayStatus && backOfficeStatuses.includes(displayStatus as BackOfficeStatus)
-      ? displayStatus
+    status && backOfficeStatuses.includes(status as BackOfficeStatus)
+      ? status
       : "pending";
 
   const styles: Record<BackOfficeStatus, string> = {
     pending: "border-zinc-700 text-zinc-300",
-    reviewing: "border-cyan-700 text-cyan-200",
+    in_review: "border-cyan-700 text-cyan-200",
     verified: "border-emerald-700 text-emerald-200",
     rejected: "border-red-800 text-red-200",
     escalated: "border-amber-700 text-amber-200",
