@@ -56,6 +56,12 @@ const trustModules = [
     copy: "Replay historical trust memory across people, agents, candidates and Reality Passports.",
     metric: "Memory",
   },
+  {
+    name: "Trust Graph Explorer™",
+    href: "/trust-graph",
+    copy: "Map relationships between identities, evidence, signals, decisions and passports.",
+    metric: "Graph",
+  },
 ];
 
 const riskSignals = [
@@ -75,6 +81,7 @@ const routeLinks = [
   { href: "/signals", label: "Signals" },
   { href: "/trust-radar", label: "Live Trust Radar™" },
   { href: "/trust-timeline", label: "Trust Timeline™" },
+  { href: "/trust-graph", label: "Trust Graph Explorer™" },
   { href: "/deepfake-detection", label: "Deepfake Detection" },
   { href: "/video-verification", label: "Video Verification" },
   { href: "/agent-passport", label: "AI Agent Passport" },

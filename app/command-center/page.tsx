@@ -296,6 +296,23 @@ export default async function CommandCenterPage() {
         <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
+              <h2 className="text-xl font-semibold">Trust Graph Explorer™</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Map identities, evidence, signals and decisions.
+              </p>
+            </div>
+            <Link
+              href="/trust-graph"
+              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              Open Trust Graph
+            </Link>
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
               <h2 className="text-xl font-semibold">Trust Timeline Preview</h2>
               <p className="mt-2 text-sm text-zinc-500">
                 Trust is earned over time.
