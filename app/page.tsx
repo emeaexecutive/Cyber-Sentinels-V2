@@ -62,6 +62,12 @@ const trustModules = [
     copy: "Map relationships between identities, evidence, signals, decisions and passports.",
     metric: "Graph",
   },
+  {
+    name: "Trust Prediction Engine™",
+    href: "/trust-prediction",
+    copy: "Estimate emerging trust risk before decay becomes obvious.",
+    metric: "Forecast",
+  },
 ];
 
 const riskSignals = [
@@ -82,6 +88,7 @@ const routeLinks = [
   { href: "/trust-radar", label: "Live Trust Radar™" },
   { href: "/trust-timeline", label: "Trust Timeline™" },
   { href: "/trust-graph", label: "Trust Graph Explorer™" },
+  { href: "/trust-prediction", label: "Trust Prediction Engine™" },
   { href: "/deepfake-detection", label: "Deepfake Detection" },
   { href: "/video-verification", label: "Video Verification" },
   { href: "/agent-passport", label: "AI Agent Passport" },

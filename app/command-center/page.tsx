@@ -11,6 +11,10 @@ import {
   normalizeTimelineEvents,
   type AuditLogRow,
 } from "@/lib/trust-engine/timeline";
+import {
+  predictTrustRisk,
+  type PredictionInputDecision,
+} from "@/lib/trust-engine/predictions";
 
 export const dynamic = "force-dynamic";
 
@@ -71,11 +75,23 @@ export default async function CommandCenterPage() {
     .order("created_at", { ascending: false })
     .limit(5)
     .returns<AuditLogRow[]>();
+  const { data: decisions } = await supabase
+    .from("decisions")
+    .select("decision,status,created_at")
+    .order("created_at", { ascending: false })
+    .limit(10)
+    .returns<PredictionInputDecision[]>();
   const timelinePreview = normalizeTimelineEvents({
     auditLogs,
     signals,
     passports,
   }).slice(0, 4);
+  const prediction = predictTrustRisk({
+    passports,
+    signals,
+    auditLogs,
+    decisions,
+  });
 
   const verifiedCount = passports?.filter((p) => p.verified).length ?? 0;
 
@@ -290,6 +306,41 @@ export default async function CommandCenterPage() {
             ) : (
               <p className="text-zinc-500">No passports awaiting review.</p>
             )}
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Trust Prediction Engine™</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                {prediction.trend}
+              </p>
+            </div>
+            <Link
+              href="/trust-prediction"
+              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              Open Prediction Engine
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            <div className="rounded-xl border border-zinc-800 bg-black p-4">
+              <p className="text-sm text-zinc-500">Prediction Score</p>
+              <p className="mt-2 text-3xl font-bold">{prediction.score}</p>
+            </div>
+            <div className="rounded-xl border border-zinc-800 bg-black p-4">
+              <p className="text-sm text-zinc-500">State</p>
+              <p className="mt-2 text-3xl font-bold capitalize">
+                {prediction.state}
+              </p>
+            </div>
+            <div className="rounded-xl border border-zinc-800 bg-black p-4">
+              <p className="text-sm text-zinc-500">Risk Direction</p>
+              <p className="mt-2 text-3xl font-bold capitalize">
+                {prediction.riskDirection}
+              </p>
+            </div>
           </div>
         </section>
 

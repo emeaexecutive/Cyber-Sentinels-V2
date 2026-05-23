@@ -16,6 +16,10 @@ import {
   formatTimeAgo,
   normalizeSignals,
 } from "@/lib/trust-engine/liveSignals";
+import {
+  predictTrustRisk,
+  type PredictionInputDecision,
+} from "@/lib/trust-engine/predictions";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +49,11 @@ type Passport = {
   subject_type: string;
   review_status: string | null;
   trust_score: number | null;
+  human_presence_index?: number | null;
+  origin_trace_score?: number | null;
+  synthetic_risk?: number | null;
+  voice_clone_risk?: number | null;
+  video_deepfake_risk?: number | null;
   linkedin_url: string | null;
   linkedin_verification_status: string | null;
   linkedin_claimed_company: string | null;
@@ -273,6 +282,12 @@ export default async function AdminPage() {
     { label: "Risk Scores", value: riskScores.count, available: riskScores.available },
   ];
   const radarSignals = normalizeSignals(signals.rows).slice(0, 5);
+  const prediction = predictTrustRisk({
+    passports: passports.rows,
+    signals: signals.rows,
+    auditLogs: auditLogs.rows,
+    decisions: decisions.rows as PredictionInputDecision[],
+  });
   const linkedInReviewQueue = [
     ...passports.rows.map((passport) => ({
       id: `passport-${passport.id}`,
@@ -329,6 +344,12 @@ export default async function AdminPage() {
             className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
           >
             Open Trust Graph
+          </Link>
+          <Link
+            href="/trust-prediction"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Prediction Engine
           </Link>
         </section>
 
@@ -405,6 +426,38 @@ export default async function AdminPage() {
                 }
               />
             )}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Trust Prediction Panel</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                {prediction.trend}
+              </p>
+            </div>
+            <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">
+              {prediction.state}
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <div className="rounded-lg border border-zinc-800 bg-black p-4">
+              <p className="text-sm text-zinc-500">Prediction Score</p>
+              <p className="mt-2 text-3xl font-semibold">{prediction.score}</p>
+            </div>
+            <div className="rounded-lg border border-zinc-800 bg-black p-4">
+              <p className="text-sm text-zinc-500">Risk Direction</p>
+              <p className="mt-2 text-3xl font-semibold capitalize">
+                {prediction.riskDirection}
+              </p>
+            </div>
+            <div className="rounded-lg border border-zinc-800 bg-black p-4">
+              <p className="text-sm text-zinc-500">Recommended Action</p>
+              <p className="mt-2 text-lg font-semibold">
+                {prediction.recommendedActions[0]}
+              </p>
+            </div>
           </div>
         </section>
 
