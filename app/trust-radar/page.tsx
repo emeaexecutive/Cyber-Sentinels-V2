@@ -35,7 +35,7 @@ export default async function TrustRadarPage() {
       .from("signals")
       .select("id,event,created_at")
       .order("created_at", { ascending: false })
-      .limit(30)
+      .limit(18)
       .returns<SignalRow[]>(),
     supabase
       .from("passports")
@@ -53,13 +53,13 @@ export default async function TrustRadarPage() {
       <div className="mx-auto max-w-7xl">
         <nav className="flex flex-wrap gap-3">
           <Link href="/" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
-            Homepage
-          </Link>
-          <Link href="/admin" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
-            /admin
+            /
           </Link>
           <Link href="/command-center" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
             /command-center
+          </Link>
+          <Link href="/admin" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
+            /admin
           </Link>
         </nav>
 
@@ -97,15 +97,33 @@ export default async function TrustRadarPage() {
 
         <section className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {[
-            ["Signals today", metrics.signalsToday],
-            ["Critical alerts", metrics.criticalAlerts],
-            ["Pending reviews", metrics.pendingReviews],
-            ["Average Human Presence Index", metrics.averageHumanPresenceIndex],
+            ["Signals Today", metrics.signalsToday],
+            ["Critical Alerts", metrics.criticalAlerts],
+            ["Pending Reviews", metrics.pendingReviews],
+            ["Average HPI™", metrics.averageHumanPresenceIndex],
             ["Average Origin Trace", metrics.averageOriginTrace],
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
               <p className="text-sm text-zinc-500">{label}</p>
               <p className="mt-3 text-3xl font-semibold">{value}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="mt-10 grid gap-3 md:grid-cols-3">
+          {[
+            "Signal detected",
+            "Trust state changed",
+            "Reality status updated",
+          ].map((item) => (
+            <div
+              key={item}
+              className="rounded-lg border border-zinc-800 bg-zinc-950 p-5"
+            >
+              <p className="text-sm uppercase tracking-[0.2em] text-zinc-500">
+                Trust Vocabulary
+              </p>
+              <p className="mt-3 text-xl font-semibold">{item}</p>
             </div>
           ))}
         </section>
@@ -151,7 +169,7 @@ export default async function TrustRadarPage() {
 
                   <div className="text-left sm:text-right">
                     <p className="text-sm text-zinc-500">{formatTimeAgo(signal.created_at)}</p>
-                    <p className={`mt-2 text-sm font-medium ${statusStyles[signal.status]}`}>
+                    <p className={`mt-2 rounded-full border border-zinc-800 px-2.5 py-1 text-sm font-medium ${statusStyles[signal.status]}`}>
                       {signal.status}
                     </p>
                   </div>
