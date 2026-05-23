@@ -61,6 +61,7 @@ const routeLinks = [
   { href: "/hiring-shield", label: "Hiring Shield" },
   { href: "/clearances", label: "Clearances" },
   { href: "/signals", label: "Signals" },
+  { href: "/trust-radar", label: "Live Trust Radar™" },
   { href: "/deepfake-detection", label: "Deepfake Detection" },
   { href: "/video-verification", label: "Video Verification" },
   { href: "/agent-passport", label: "AI Agent Passport" },
