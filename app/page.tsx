@@ -80,6 +80,12 @@ const trustModules = [
     copy: "Request trust checks, passport summaries, decisions and evidence summaries from external apps.",
     metric: "API",
   },
+  {
+    name: "Developer Console",
+    href: "/developer-console",
+    copy: "Manage Trust API access, review API keys and inspect developer usage signals.",
+    metric: "Builders",
+  },
 ];
 
 const riskSignals = [
@@ -103,6 +109,7 @@ const routeLinks = [
   { href: "/trust-prediction", label: "Trust Prediction Engine™" },
   { href: "/verification-queue", label: "Verification Queue™" },
   { href: "/api-docs", label: "Trust API" },
+  { href: "/developer-console", label: "Developer Console" },
   { href: "/deepfake-detection", label: "Deepfake Detection" },
   { href: "/video-verification", label: "Video Verification" },
   { href: "/agent-passport", label: "AI Agent Passport" },

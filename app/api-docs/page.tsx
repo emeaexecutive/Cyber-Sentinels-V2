@@ -59,6 +59,7 @@ export default function ApiDocsPage() {
             ["/", "Home"],
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
+            ["/developer-console", "Developer Console"],
             ["/decision-engine", "Decision Engine"],
             ["/policy-engine", "Policy Engine"],
           ].map(([href, label]) => (
@@ -95,6 +96,12 @@ export default function ApiDocsPage() {
             should add scoped keys, durable rate limits, request signing and
             customer-level audit retention.
           </p>
+          <Link
+            href="/developer-console"
+            className="mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Developer Console
+          </Link>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2">
