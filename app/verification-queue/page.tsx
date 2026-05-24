@@ -7,6 +7,7 @@ import {
 } from "@/lib/admin-auth";
 import { type BackOfficeStatus } from "@/lib/back-office";
 import { createClient } from "@/lib/supabase/server";
+import { evaluateDecisionEngine } from "@/lib/trust-engine/decisionEngine";
 import { formatTimeAgo } from "@/lib/trust-engine/liveSignals";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +23,7 @@ type VerificationCase = {
   human_presence_index: number | null;
   origin_trace_score: number | null;
   trust_score: number | null;
+  linkedin_profile_consistency: number | null;
   reviewed_by: string | null;
   created_at: string | null;
 };
@@ -189,7 +191,7 @@ export default async function VerificationQueuePage() {
       fetchRows<VerificationCase>(
         supabase,
         "verification_cases",
-        "id,subject_name,subject_type,status,verification_status,human_presence_index,origin_trace_score,trust_score,reviewed_by,created_at",
+        "id,subject_name,subject_type,status,verification_status,human_presence_index,origin_trace_score,trust_score,linkedin_profile_consistency,reviewed_by,created_at",
         60
       ),
       fetchRows<Signal>(supabase, "signals", "id,event,created_at", 18),
@@ -242,6 +244,7 @@ export default async function VerificationQueuePage() {
           {[
             ["/", "Home"],
             ["/admin", "Admin"],
+            ["/decision-engine", "Decision Engine"],
             ["/trust-timeline", "Trust Timeline"],
             ["/trust-graph", "Trust Graph"],
           ].map(([href, label]) => (
@@ -301,6 +304,7 @@ export default async function VerificationQueuePage() {
                 const status = displayStatus(item);
                 const risk = inferRisk(item);
                 const decision = latestDecisionByCase.get(item.id);
+                const suggestedDecision = evaluateDecisionEngine(item);
                 const relatedEvidence = evidenceFiles.filter(
                   (file) => file.verification_case_id === item.id
                 );
@@ -382,6 +386,40 @@ export default async function VerificationQueuePage() {
                         <p className="mt-2 break-all text-zinc-300">
                           {item.reviewed_by ?? decision?.actor ?? "Unassigned"}
                         </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 border-t border-zinc-900 pt-4 md:grid-cols-[0.8fr_1fr_1.5fr]">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                          Suggested Decision
+                        </p>
+                        <p className="mt-2 text-zinc-100">
+                          {suggestedDecision.decision}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                          Recommended Action
+                        </p>
+                        <p className="mt-2 text-zinc-300">
+                          {suggestedDecision.recommendedAction}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                          Reason Codes
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {suggestedDecision.reasonCodes.map((reason) => (
+                            <span
+                              key={reason}
+                              className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300"
+                            >
+                              {reason}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
 

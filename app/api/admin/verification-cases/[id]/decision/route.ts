@@ -14,6 +14,10 @@ import { createClient } from "@/lib/supabase/server";
 import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
+import {
+  decisionEngineAuditEvent,
+  evaluateDecisionEngine,
+} from "@/lib/trust-engine/decisionEngine";
 
 type DecisionPayload = {
   decision?: unknown;
@@ -23,6 +27,7 @@ type DecisionPayload = {
 
 type PassportForDecision = {
   id: string;
+  trust_score: number | null;
   human_presence_index: number | null;
   origin_trace_score: number | null;
   liveness_score: number | null;
@@ -30,6 +35,11 @@ type PassportForDecision = {
   synthetic_risk: number | null;
   voice_clone_risk: number | null;
   video_deepfake_risk: number | null;
+  linkedin_profile_consistency: number | null;
+  provenance_status: string | null;
+  review_status: string | null;
+  suspicious_activity: boolean | null;
+  abuse_risk: string | null;
 };
 
 const uuidPattern =
@@ -106,7 +116,7 @@ export async function POST(
       })
       .eq("id", id)
       .select(
-        "id,passport_id,subject_name,subject_type,status,linkedin_url,linkedin_verification_status,linkedin_claimed_company,linkedin_claimed_role"
+        "id,passport_id,subject_name,subject_type,status,human_presence_index,origin_trace_score,trust_score,linkedin_url,linkedin_verification_status,linkedin_profile_consistency,linkedin_claimed_company,linkedin_claimed_role"
       )
       .single();
 
@@ -212,7 +222,7 @@ export async function POST(
       const { data: passport } = await supabase
         .from("passports")
         .select(
-          "id,human_presence_index,origin_trace_score,liveness_score,image_authenticity_score,synthetic_risk,voice_clone_risk,video_deepfake_risk"
+          "id,trust_score,human_presence_index,origin_trace_score,synthetic_risk,liveness_score,linkedin_profile_consistency,video_deepfake_risk,voice_clone_risk,image_authenticity_score,provenance_status,review_status,suspicious_activity,abuse_risk"
         )
         .eq("id", verificationCase.passport_id)
         .single()
@@ -268,6 +278,80 @@ export async function POST(
       if (passportUpdate.error) {
         return NextResponse.json(
           { ok: false, error: "Could not update passport" },
+          { status: 500 }
+        );
+      }
+    }
+
+    const { data: decisionPassport } = verificationCase.passport_id
+      ? await supabase
+          .from("passports")
+          .select(
+            "id,trust_score,human_presence_index,origin_trace_score,synthetic_risk,liveness_score,linkedin_profile_consistency,video_deepfake_risk,voice_clone_risk,image_authenticity_score,provenance_status,review_status,suspicious_activity,abuse_risk"
+          )
+          .eq("id", verificationCase.passport_id)
+          .single()
+          .returns<PassportForDecision>()
+      : { data: null };
+    const engineResult = evaluateDecisionEngine({
+      trust_score:
+        decisionPassport?.trust_score ?? verificationCase.trust_score ?? null,
+      human_presence_index:
+        decisionPassport?.human_presence_index ??
+        verificationCase.human_presence_index ??
+        null,
+      origin_trace_score:
+        decisionPassport?.origin_trace_score ??
+        verificationCase.origin_trace_score ??
+        null,
+      synthetic_risk: decisionPassport?.synthetic_risk ?? null,
+      liveness_score: decisionPassport?.liveness_score ?? null,
+      linkedin_profile_consistency:
+        decisionPassport?.linkedin_profile_consistency ??
+        verificationCase.linkedin_profile_consistency ??
+        null,
+      video_deepfake_risk: decisionPassport?.video_deepfake_risk ?? null,
+      voice_clone_risk: decisionPassport?.voice_clone_risk ?? null,
+      image_authenticity_score:
+        decisionPassport?.image_authenticity_score ?? null,
+      provenance_status: decisionPassport?.provenance_status ?? null,
+      review_status: decisionPassport?.review_status ?? parsed.status,
+      suspicious_activity: decisionPassport?.suspicious_activity ?? false,
+      abuse_risk: decisionPassport?.abuse_risk ?? null,
+    });
+
+    const engineAuditInsert = await createAuditLog(
+      supabase,
+      decisionEngineAuditEvent,
+      actor,
+      {
+        verification_case_id: id,
+        passport_id: verificationCase.passport_id,
+        subject_name: verificationCase.subject_name,
+        subject_type: verificationCase.subject_type,
+        decision_recommended: engineResult.decision,
+        risk_level: engineResult.riskLevel,
+        reason_codes: engineResult.reasonCodes,
+        signals: engineResult.signals,
+        human_decision: parsed.decision,
+        status: parsed.status,
+        ...requestRisk,
+      }
+    );
+
+    if (engineAuditInsert.error) {
+      return NextResponse.json(
+        { ok: false, error: "Could not record decision engine audit event" },
+        { status: 500 }
+      );
+    }
+
+    for (const signal of engineResult.signals) {
+      const engineSignalInsert = await createSignal(supabase, signal);
+
+      if (engineSignalInsert.error) {
+        return NextResponse.json(
+          { ok: false, error: "Could not record decision engine signal" },
           { status: 500 }
         );
       }

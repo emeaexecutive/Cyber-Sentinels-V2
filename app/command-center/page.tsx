@@ -15,6 +15,7 @@ import {
   predictTrustRisk,
   type PredictionInputDecision,
 } from "@/lib/trust-engine/predictions";
+import { evaluateDecisionEngine } from "@/lib/trust-engine/decisionEngine";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,7 @@ type Passport = {
   scan_status: string | null;
   linkedin_review_required: boolean | null;
   linkedin_verification_status: string | null;
+  linkedin_profile_consistency: number | null;
   created_at: string | null;
 };
 
@@ -142,6 +144,20 @@ export default async function CommandCenterPage() {
           p.linkedin_verification_status ?? ""
         )
     ).length ?? 0;
+  const decisionRecommendations =
+    passports?.map((passport) => evaluateDecisionEngine(passport)) ?? [];
+  const manualReviewRecommendations = decisionRecommendations.filter(
+    (result) => result.decision === "manual_review"
+  ).length;
+  const allowRecommendations = decisionRecommendations.filter(
+    (result) => result.decision === "allow"
+  ).length;
+  const denyRecommendations = decisionRecommendations.filter(
+    (result) => result.decision === "deny"
+  ).length;
+  const evidenceRecommendations = decisionRecommendations.filter(
+    (result) => result.decision === "needs_more_evidence"
+  ).length;
 
   return (
     <main className="min-h-screen bg-black p-8 text-white">
@@ -224,6 +240,53 @@ export default async function CommandCenterPage() {
             <p className="mt-3 text-4xl font-bold">
               {linkedInProfilesUnderReview}
             </p>
+          </div>
+
+          <Link
+            href="/decision-engine"
+            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 hover:border-zinc-500"
+          >
+            <p className="text-zinc-500">Decision Engine</p>
+            <p className="mt-3 text-4xl font-bold">
+              {manualReviewRecommendations}
+            </p>
+            <p className="mt-2 text-sm text-zinc-500">
+              manual_review_required
+            </p>
+          </Link>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Decision Engine&trade;</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Recommended actions across live passports.
+              </p>
+            </div>
+            <Link
+              href="/decision-engine"
+              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              Open Decision Engine
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-3 md:grid-cols-4">
+            {[
+              ["Allow", allowRecommendations, "trust_allow_recommended"],
+              ["Deny", denyRecommendations, "trust_deny_recommended"],
+              ["Manual Review", manualReviewRecommendations, "manual_review_required"],
+              ["More Evidence", evidenceRecommendations, "evidence_required"],
+            ].map(([label, value, signal]) => (
+              <div
+                key={label}
+                className="rounded-xl border border-zinc-800 bg-black p-4"
+              >
+                <p className="text-sm text-zinc-500">{label}</p>
+                <p className="mt-2 text-3xl font-bold">{value}</p>
+                <p className="mt-2 text-xs text-zinc-600">{signal}</p>
+              </div>
+            ))}
           </div>
         </section>
 
