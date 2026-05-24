@@ -267,23 +267,60 @@ export default async function AdminPage() {
   ]);
 
   const metrics = [
-    { label: "Waitlist", value: waitlist.count, available: waitlist.available },
+    {
+      label: "Waitlist",
+      value: waitlist.count,
+      available: waitlist.available,
+      href: "/admin",
+    },
     {
       label: "Verification Cases",
       value: verificationCases.count,
       available: verificationCases.available,
+      href: "/verification-queue",
     },
-    { label: "Passports", value: passports.count, available: passports.available },
+    {
+      label: "Passports",
+      value: passports.count,
+      available: passports.available,
+      href: "/admin",
+    },
     {
       label: "Trust Reports",
       value: trustReports.count,
       available: trustReports.available,
+      href: "/admin",
     },
-    { label: "Signals", value: signals.count, available: signals.available },
-    { label: "Audit Logs", value: auditLogs.count, available: auditLogs.available },
-    { label: "Evidence", value: evidenceFiles.count, available: evidenceFiles.available },
-    { label: "Decisions", value: decisions.count, available: decisions.available },
-    { label: "Risk Scores", value: riskScores.count, available: riskScores.available },
+    {
+      label: "Signals",
+      value: signals.count,
+      available: signals.available,
+      href: "/signals",
+    },
+    {
+      label: "Audit Logs",
+      value: auditLogs.count,
+      available: auditLogs.available,
+      href: "/trust-timeline",
+    },
+    {
+      label: "Evidence",
+      value: evidenceFiles.count,
+      available: evidenceFiles.available,
+      href: "/evidence-vault",
+    },
+    {
+      label: "Decisions",
+      value: decisions.count,
+      available: decisions.available,
+      href: "/decision-engine",
+    },
+    {
+      label: "Risk Scores",
+      value: riskScores.count,
+      available: riskScores.available,
+      href: "/trust-prediction",
+    },
   ];
   const radarSignals = normalizeSignals(signals.rows).slice(0, 5);
   const prediction = predictTrustRisk({
@@ -380,12 +417,19 @@ export default async function AdminPage() {
           >
             Open Policy Engine
           </Link>
+          <Link
+            href="/evidence-vault"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Evidence Vault
+          </Link>
         </section>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {metrics.map((metric) => (
-            <div
+            <Link
               key={metric.label}
+              href={metric.href}
               className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"
             >
               <p className="text-sm text-zinc-500">{metric.label}</p>
@@ -393,7 +437,7 @@ export default async function AdminPage() {
               {!metric.available ? (
                 <p className="mt-1 text-xs text-zinc-600">Table unavailable</p>
               ) : null}
-            </div>
+            </Link>
           ))}
         </section>
 

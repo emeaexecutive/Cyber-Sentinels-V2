@@ -261,10 +261,13 @@ export default async function CommandCenterPage() {
             <p className="mt-3 text-4xl font-bold">{elevatedAbuseRiskCount}</p>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <Link
+            href="/evidence-vault"
+            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 hover:border-zinc-500"
+          >
             <p className="text-zinc-500">Evidence Pending Scan</p>
             <p className="mt-3 text-4xl font-bold">{evidencePendingScan}</p>
-          </div>
+          </Link>
 
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-zinc-500">Security Events</p>

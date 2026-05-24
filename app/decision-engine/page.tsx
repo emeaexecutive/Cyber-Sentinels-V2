@@ -110,6 +110,7 @@ export default function DecisionEnginePage() {
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
             ["/policy-engine", "Policy Engine"],
+            ["/evidence-vault", "Evidence Vault"],
             ["/verification-queue", "Verification Queue"],
           ].map(([href, label]) => (
             <Link
@@ -148,6 +149,24 @@ export default function DecisionEnginePage() {
               className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
               Open Policy Engine
+            </Link>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Evidence Sufficiency</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Decision recommendations include whether liveness, provenance,
+                profile and media evidence are strong enough for review.
+              </p>
+            </div>
+            <Link
+              href="/evidence-vault"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Evidence Vault
             </Link>
           </div>
         </section>

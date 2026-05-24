@@ -245,6 +245,7 @@ export default async function VerificationQueuePage() {
             ["/", "Home"],
             ["/admin", "Admin"],
             ["/decision-engine", "Decision Engine"],
+            ["/evidence-vault", "Evidence Vault"],
             ["/trust-timeline", "Trust Timeline"],
             ["/trust-graph", "Trust Graph"],
           ].map(([href, label]) => (
@@ -437,10 +438,21 @@ export default async function VerificationQueuePage() {
                       >
                         Open Trust Graph
                       </Link>
-                      <span className="text-xs text-zinc-600">
-                        {relatedEvidence.length} evidence file
-                        {relatedEvidence.length === 1 ? "" : "s"}
-                      </span>
+                      {relatedEvidence.length ? (
+                        <Link
+                          href={`/evidence-vault?case=${encodeURIComponent(
+                            item.id
+                          )}`}
+                          className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-200 hover:border-zinc-400"
+                        >
+                          View {relatedEvidence.length} evidence file
+                          {relatedEvidence.length === 1 ? "" : "s"}
+                        </Link>
+                      ) : (
+                        <span className="text-xs text-zinc-600">
+                          No evidence files linked
+                        </span>
+                      )}
                     </div>
                   </div>
                 );
