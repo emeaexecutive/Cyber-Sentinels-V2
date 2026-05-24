@@ -4,7 +4,7 @@ import Link from "next/link";
 const primaryCtas = [
   { href: "/passport", label: "Create Trust Passport" },
   { href: "/command-center", label: "Open Command Center" },
-  { href: "/human-presence-index", label: "View Human Presence Index" },
+  { href: "/billing", label: "View Clearances / Billing" },
 ];
 
 const trustModules = [
@@ -86,6 +86,12 @@ const trustModules = [
     copy: "Manage Trust API access, review API keys and inspect developer usage signals.",
     metric: "Builders",
   },
+  {
+    name: "Clearances / Billing",
+    href: "/billing",
+    copy: "Choose Free, Pro, Teams or Reports access with Stripe-ready billing placeholders.",
+    metric: "Plans",
+  },
 ];
 
 const riskSignals = [
@@ -102,6 +108,7 @@ const routeLinks = [
   { href: "/command-center", label: "Command Center" },
   { href: "/hiring-shield", label: "Hiring Shield" },
   { href: "/clearances", label: "Clearances" },
+  { href: "/billing", label: "Billing" },
   { href: "/signals", label: "Signals" },
   { href: "/trust-radar", label: "Live Trust Radar™" },
   { href: "/trust-timeline", label: "Trust Timeline™" },

@@ -321,6 +321,12 @@ export default async function AdminPage() {
       available: riskScores.available,
       href: "/trust-prediction",
     },
+    {
+      label: "Billing / Clearances",
+      value: "Ready",
+      available: true,
+      href: "/billing",
+    },
   ];
   const radarSignals = normalizeSignals(signals.rows).slice(0, 5);
   const prediction = predictTrustRisk({
@@ -434,6 +440,12 @@ export default async function AdminPage() {
             className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
           >
             Open Developer Console
+          </Link>
+          <Link
+            href="/billing"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Billing / Clearances
           </Link>
         </section>
 

@@ -86,6 +86,7 @@ export default async function DeveloperConsolePage() {
           {[
             ["/", "Home"],
             ["/api-docs", "API Docs"],
+            ["/billing", "Billing"],
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
           ].map(([href, label]) => (
@@ -118,6 +119,7 @@ export default async function DeveloperConsolePage() {
             ["Active Keys", activeKeys.length],
             ["Usage Count", usageCount],
             ["Rate Warnings", thresholdWarnings],
+            ["API Limit", "0 / 250 / 5000"],
           ].map(([label, value]) => (
             <div
               key={label}
