@@ -74,6 +74,12 @@ const trustModules = [
     copy: "Operate live verification work across cases, evidence, reviews and decisions.",
     metric: "Ops",
   },
+  {
+    name: "Trust API",
+    href: "/api-docs",
+    copy: "Request trust checks, passport summaries, decisions and evidence summaries from external apps.",
+    metric: "API",
+  },
 ];
 
 const riskSignals = [
@@ -96,6 +102,7 @@ const routeLinks = [
   { href: "/trust-graph", label: "Trust Graph Explorer™" },
   { href: "/trust-prediction", label: "Trust Prediction Engine™" },
   { href: "/verification-queue", label: "Verification Queue™" },
+  { href: "/api-docs", label: "Trust API" },
   { href: "/deepfake-detection", label: "Deepfake Detection" },
   { href: "/video-verification", label: "Video Verification" },
   { href: "/agent-passport", label: "AI Agent Passport" },
