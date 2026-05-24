@@ -18,6 +18,10 @@ import {
   decisionEngineAuditEvent,
   evaluateDecisionEngine,
 } from "@/lib/trust-engine/decisionEngine";
+import {
+  evaluatePolicyEngine,
+  policyEngineAuditEvent,
+} from "@/lib/trust-engine/policyEngine";
 
 type DecisionPayload = {
   decision?: unknown;
@@ -27,6 +31,7 @@ type DecisionPayload = {
 
 type PassportForDecision = {
   id: string;
+  media_type: string | null;
   trust_score: number | null;
   human_presence_index: number | null;
   origin_trace_score: number | null;
@@ -222,7 +227,7 @@ export async function POST(
       const { data: passport } = await supabase
         .from("passports")
         .select(
-          "id,trust_score,human_presence_index,origin_trace_score,synthetic_risk,liveness_score,linkedin_profile_consistency,video_deepfake_risk,voice_clone_risk,image_authenticity_score,provenance_status,review_status,suspicious_activity,abuse_risk"
+          "id,media_type,trust_score,human_presence_index,origin_trace_score,synthetic_risk,liveness_score,linkedin_profile_consistency,video_deepfake_risk,voice_clone_risk,image_authenticity_score,provenance_status,review_status,suspicious_activity,abuse_risk"
         )
         .eq("id", verificationCase.passport_id)
         .single()
@@ -287,7 +292,7 @@ export async function POST(
       ? await supabase
           .from("passports")
           .select(
-            "id,trust_score,human_presence_index,origin_trace_score,synthetic_risk,liveness_score,linkedin_profile_consistency,video_deepfake_risk,voice_clone_risk,image_authenticity_score,provenance_status,review_status,suspicious_activity,abuse_risk"
+            "id,media_type,trust_score,human_presence_index,origin_trace_score,synthetic_risk,liveness_score,linkedin_profile_consistency,video_deepfake_risk,voice_clone_risk,image_authenticity_score,provenance_status,review_status,suspicious_activity,abuse_risk"
           )
           .eq("id", verificationCase.passport_id)
           .single()
@@ -352,6 +357,78 @@ export async function POST(
       if (engineSignalInsert.error) {
         return NextResponse.json(
           { ok: false, error: "Could not record decision engine signal" },
+          { status: 500 }
+        );
+      }
+    }
+
+    const policyResult = evaluatePolicyEngine({
+      requested_action: parsed.decision,
+      subject_type: verificationCase.subject_type,
+      media_type: decisionPassport?.media_type ?? null,
+      has_trust_passport: Boolean(verificationCase.passport_id),
+      has_human_presence_index:
+        typeof decisionPassport?.human_presence_index === "number" ||
+        typeof verificationCase.human_presence_index === "number",
+      has_origin_trace:
+        typeof decisionPassport?.origin_trace_score === "number" ||
+        typeof verificationCase.origin_trace_score === "number",
+      has_audit_log: true,
+      has_signal: true,
+      has_media_evidence: decisionPassport?.media_type
+        ? !["video", "audio"].includes(decisionPassport.media_type)
+        : true,
+      is_admin: true,
+      trust_score:
+        decisionPassport?.trust_score ?? verificationCase.trust_score ?? null,
+      human_presence_index:
+        decisionPassport?.human_presence_index ??
+        verificationCase.human_presence_index ??
+        null,
+      origin_trace_score:
+        decisionPassport?.origin_trace_score ??
+        verificationCase.origin_trace_score ??
+        null,
+      synthetic_risk: decisionPassport?.synthetic_risk ?? null,
+      liveness_score: decisionPassport?.liveness_score ?? null,
+      provenance_status: decisionPassport?.provenance_status ?? null,
+      linkedin_url: verificationCase.linkedin_url,
+      linkedin_verification_status: verificationCase.linkedin_verification_status,
+      suspicious_activity: decisionPassport?.suspicious_activity ?? false,
+    });
+
+    const policyAuditInsert = await createAuditLog(
+      supabase,
+      policyEngineAuditEvent,
+      actor,
+      {
+        verification_case_id: id,
+        passport_id: verificationCase.passport_id,
+        subject_name: verificationCase.subject_name,
+        subject_type: verificationCase.subject_type,
+        policy_result: policyResult.policy_result,
+        policy_action: policyResult.policy_action,
+        reason_codes: policyResult.reason_codes,
+        signals: policyResult.signals,
+        human_decision: parsed.decision,
+        status: parsed.status,
+        ...requestRisk,
+      }
+    );
+
+    if (policyAuditInsert.error) {
+      return NextResponse.json(
+        { ok: false, error: "Could not record policy engine audit event" },
+        { status: 500 }
+      );
+    }
+
+    for (const signal of policyResult.signals) {
+      const policySignalInsert = await createSignal(supabase, signal);
+
+      if (policySignalInsert.error) {
+        return NextResponse.json(
+          { ok: false, error: "Could not record policy engine signal" },
           { status: 500 }
         );
       }

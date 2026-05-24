@@ -16,6 +16,7 @@ import {
   type PredictionInputDecision,
 } from "@/lib/trust-engine/predictions";
 import { evaluateDecisionEngine } from "@/lib/trust-engine/decisionEngine";
+import { evaluatePolicyEngine } from "@/lib/trust-engine/policyEngine";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,7 @@ type Passport = {
   abuse_risk: string | null;
   scan_status: string | null;
   linkedin_review_required: boolean | null;
+  linkedin_url: string | null;
   linkedin_verification_status: string | null;
   linkedin_profile_consistency: number | null;
   created_at: string | null;
@@ -158,6 +160,40 @@ export default async function CommandCenterPage() {
   const evidenceRecommendations = decisionRecommendations.filter(
     (result) => result.decision === "needs_more_evidence"
   ).length;
+  const policyResults =
+    passports?.map((passport) =>
+      evaluatePolicyEngine({
+        requested_action: "allow",
+        subject_type: passport.subject_type,
+        media_type: passport.media_type,
+        has_trust_passport: true,
+        has_human_presence_index: passport.human_presence_index !== null,
+        has_origin_trace: passport.origin_trace_score !== null,
+        has_audit_log: Boolean(auditLogs?.length),
+        has_signal: Boolean(signals?.length),
+        has_media_evidence: passport.media_type
+          ? !["video", "audio"].includes(passport.media_type)
+          : true,
+        is_admin: true,
+        human_presence_index: passport.human_presence_index,
+        origin_trace_score: passport.origin_trace_score,
+        synthetic_risk: passport.synthetic_risk,
+        liveness_score: passport.liveness_score,
+        provenance_status: passport.provenance_status,
+        linkedin_url: passport.linkedin_url,
+        linkedin_verification_status: passport.linkedin_verification_status,
+        suspicious_activity: passport.suspicious_activity,
+      })
+    ) ?? [];
+  const policyBlockedActions = policyResults.filter(
+    (result) => result.policy_action === "block"
+  ).length;
+  const policyManualReviews = policyResults.filter(
+    (result) => result.policy_action === "manual_review"
+  ).length;
+  const policyPassed = policyResults.filter(
+    (result) => result.policy_result === "pass"
+  ).length;
 
   return (
     <main className="min-h-screen bg-black p-8 text-white">
@@ -254,6 +290,17 @@ export default async function CommandCenterPage() {
               manual_review_required
             </p>
           </Link>
+
+          <Link
+            href="/policy-engine"
+            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 hover:border-zinc-500"
+          >
+            <p className="text-zinc-500">Policy Engine</p>
+            <p className="mt-3 text-4xl font-bold">{policyBlockedActions}</p>
+            <p className="mt-2 text-sm text-zinc-500">
+              policy_blocked_action
+            </p>
+          </Link>
         </section>
 
         <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
@@ -277,6 +324,39 @@ export default async function CommandCenterPage() {
               ["Deny", denyRecommendations, "trust_deny_recommended"],
               ["Manual Review", manualReviewRecommendations, "manual_review_required"],
               ["More Evidence", evidenceRecommendations, "evidence_required"],
+            ].map(([label, value, signal]) => (
+              <div
+                key={label}
+                className="rounded-xl border border-zinc-800 bg-black p-4"
+              >
+                <p className="text-sm text-zinc-500">{label}</p>
+                <p className="mt-2 text-3xl font-bold">{value}</p>
+                <p className="mt-2 text-xs text-zinc-600">{signal}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Policy Engine&trade;</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Rules-based trust governance across live passports.
+              </p>
+            </div>
+            <Link
+              href="/policy-engine"
+              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              Open Policy Engine
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {[
+              ["Passed", policyPassed, "policy_passed"],
+              ["Manual Review", policyManualReviews, "policy_manual_review_required"],
+              ["Blocked", policyBlockedActions, "policy_blocked_action"],
             ].map(([label, value, signal]) => (
               <div
                 key={label}
