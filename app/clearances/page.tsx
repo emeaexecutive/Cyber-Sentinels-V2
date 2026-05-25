@@ -9,6 +9,7 @@ export default function ClearancesPage() {
           {[
             ["/", "Home"],
             ["/billing", "Billing"],
+            ["/client-portal", "Client Portal"],
             ["/passport", "Trust Passport"],
             ["/developer-console", "Developer Console"],
           ].map(([href, label]) => (

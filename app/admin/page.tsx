@@ -557,6 +557,12 @@ export default async function AdminPage() {
           >
             Open Compliance Export
           </Link>
+          <Link
+            href="/client-portal"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            View Client Portal
+          </Link>
         </section>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">

@@ -81,6 +81,12 @@ const trustModules = [
     metric: "Reports",
   },
   {
+    name: "Client Portal™",
+    href: "/client-portal",
+    copy: "Give customers a clean workspace for passports, verification cases, reports and exports.",
+    metric: "Clients",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -176,6 +182,7 @@ const routeLinks = [
   { href: "/revocation-engine", label: "Revocation Engine™" },
   { href: "/trust-recovery", label: "Trust Recovery™" },
   { href: "/compliance-export", label: "Compliance Export™" },
+  { href: "/client-portal", label: "Client Portal™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },

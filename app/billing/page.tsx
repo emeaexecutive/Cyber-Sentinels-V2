@@ -60,6 +60,7 @@ export default async function BillingPage() {
           {[
             ["/", "Home"],
             ["/clearances", "Clearances"],
+            ["/client-portal", "Client Portal"],
             ["/developer-console", "Developer Console"],
             ["/compliance-export", "Compliance Export"],
             ["/admin", "Admin"],
@@ -164,11 +165,17 @@ export default async function BillingPage() {
             <p className="mt-2 text-sm text-zinc-500">
               Report and compliance export credits available.
             </p>
+          <Link
+            href="/compliance-export"
+            className="mt-4 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+          >
+            Open Compliance Export
+          </Link>
             <Link
-              href="/compliance-export"
-              className="mt-4 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              href="/client-portal"
+              className="ml-2 mt-4 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
-              Open Compliance Export
+              Open Client Portal
             </Link>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
