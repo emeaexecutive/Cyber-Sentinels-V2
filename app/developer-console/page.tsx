@@ -87,6 +87,7 @@ export default async function DeveloperConsolePage() {
             ["/", "Home"],
             ["/api-docs", "API Docs"],
             ["/billing", "Billing"],
+            ["/global-trust", "Global Trust"],
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
           ].map(([href, label]) => (
@@ -258,6 +259,32 @@ export default async function DeveloperConsolePage() {
             </div>
           </div>
 
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Global API Readiness</h2>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {[
+                "api_gateway",
+                "regional_data_controls",
+                "rate_limit_enforcement",
+                "compliance_exports",
+              ].map((item) => (
+                <code
+                  key={item}
+                  className="rounded-lg border border-zinc-800 bg-black p-3 text-sm text-zinc-300"
+                >
+                  {item}
+                </code>
+              ))}
+            </div>
+            <p className="mt-4 text-sm leading-6 text-zinc-500">
+              Trust API V1 is ready for scoped keys and audit events. Future
+              production hardening should add gateway enforcement, regional
+              routing, signed requests and durable rate limits.
+            </p>
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-6 lg:grid-cols-2">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Recent API Signals</h2>
             <div className="mt-5 space-y-3">

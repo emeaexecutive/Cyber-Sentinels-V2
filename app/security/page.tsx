@@ -62,6 +62,12 @@ export default function SecurityPage() {
           be authenticated, validated, logged and reviewable.
         </p>
 
+        <p className="mt-4 max-w-3xl text-zinc-400">
+          Cyber Sentinels is designed to move toward secure regional deployment,
+          encrypted evidence storage, API governance and audit-ready
+          verification.
+        </p>
+
         <section className="mt-12 grid gap-8 md:grid-cols-2">
           {principles.map((principle) => (
             <article key={principle.title} className="border-t border-zinc-800 pt-6">

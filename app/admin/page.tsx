@@ -447,6 +447,12 @@ export default async function AdminPage() {
           >
             Open Billing / Clearances
           </Link>
+          <Link
+            href="/global-trust"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Global Infrastructure
+          </Link>
         </section>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -463,6 +469,44 @@ export default async function AdminPage() {
               ) : null}
             </Link>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">
+                Global Infrastructure Readiness
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
+                Cyber Sentinels is moving from prototype toward secure global
+                trust infrastructure with regional controls, encrypted evidence,
+                API governance, media processing queues and audit-ready exports.
+              </p>
+            </div>
+            <Link
+              href="/global-trust"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              View Readiness
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {[
+              "secure_media_processing",
+              "encrypted_evidence_storage",
+              "audit_immutability_layer",
+              "api_gateway",
+              "regional_data_controls",
+              "compliance_exports",
+            ].map((item) => (
+              <code
+                key={item}
+                className="rounded-lg border border-zinc-800 bg-black p-3 text-sm text-zinc-300"
+              >
+                {item}
+              </code>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

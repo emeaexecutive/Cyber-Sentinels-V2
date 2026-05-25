@@ -92,6 +92,12 @@ const trustModules = [
     copy: "Choose Free, Pro, Teams or Reports access with Stripe-ready billing placeholders.",
     metric: "Plans",
   },
+  {
+    name: "Global Trust Infrastructure",
+    href: "/global-trust",
+    copy: "Readiness layer for secure global trust across humans, agents, media, evidence and APIs.",
+    metric: "Global",
+  },
 ];
 
 const riskSignals = [
@@ -117,6 +123,7 @@ const routeLinks = [
   { href: "/verification-queue", label: "Verification Queue™" },
   { href: "/api-docs", label: "Trust API" },
   { href: "/developer-console", label: "Developer Console" },
+  { href: "/global-trust", label: "Global Trust Infrastructure" },
   { href: "/deepfake-detection", label: "Deepfake Detection" },
   { href: "/video-verification", label: "Video Verification" },
   { href: "/agent-passport", label: "AI Agent Passport" },
