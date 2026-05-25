@@ -327,6 +327,16 @@ export default async function AdminPage() {
       available: true,
       href: "/billing",
     },
+    {
+      label: "Step-Up Requests",
+      value: signals.rows.filter((signal) =>
+        /step_up|permission_step_up|agent_permission_escalated/i.test(
+          signal.event
+        )
+      ).length,
+      available: signals.available,
+      href: "/step-up-verification",
+    },
   ];
   const radarSignals = normalizeSignals(signals.rows).slice(0, 5);
   const prediction = predictTrustRisk({
@@ -364,6 +374,13 @@ export default async function AdminPage() {
     .filter((item) =>
       ["pending", "in_review", "escalated"].includes(
         item.verification_status ?? item.status ?? "pending"
+      )
+    )
+    .slice(0, 4);
+  const stepUpRequests = signals.rows
+    .filter((signal) =>
+      /step_up|permission_step_up|agent_permission_escalated/i.test(
+        signal.event
       )
     )
     .slice(0, 4);
@@ -471,6 +488,12 @@ export default async function AdminPage() {
           >
             Open Permissions Firewall
           </Link>
+          <Link
+            href="/step-up-verification"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Step-Up Verification
+          </Link>
         </section>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -524,6 +547,41 @@ export default async function AdminPage() {
                 {item}
               </code>
             ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Step-Up Requests</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                High-risk actions waiting for stronger proof, admin approval or
+                manual review.
+              </p>
+            </div>
+            <Link
+              href="/step-up-verification"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Step-Up Verification
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {stepUpRequests.length ? (
+              stepUpRequests.map((signal) => (
+                <div
+                  key={signal.id}
+                  className="rounded-lg border border-zinc-800 bg-black p-4"
+                >
+                  <p className="text-zinc-300">{signal.event}</p>
+                  <p className="mt-2 text-xs text-zinc-600">
+                    {formatDate(signal.created_at)}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <EmptyState label="No live step-up requests. Demo requests are available in Step-Up Verification." />
+            )}
           </div>
         </section>
 

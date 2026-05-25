@@ -57,6 +57,12 @@ const trustModules = [
     metric: "Access",
   },
   {
+    name: "Step-Up Verification™",
+    href: "/step-up-verification",
+    copy: "Request stronger proof when high-risk actions need liveness, admin approval or extra evidence.",
+    metric: "Step-Up",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -148,6 +154,7 @@ const routeLinks = [
   { href: "/agent-passport", label: "AI Agent Passport" },
   { href: "/agent-registry", label: "Agent Registry™" },
   { href: "/permissions-firewall", label: "Permissions Firewall™" },
+  { href: "/step-up-verification", label: "Step-Up Verification™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },

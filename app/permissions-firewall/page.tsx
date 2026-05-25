@@ -50,6 +50,7 @@ export default async function PermissionsFirewallPage() {
             ["/agent-registry", "Agent Registry"],
             ["/developer-console", "Developer Console"],
             ["/mission-control", "Mission Control"],
+            ["/step-up-verification", "Step-Up Verification"],
             ["/admin", "Admin"],
           ].map(([href, label]) => (
             <Link
@@ -172,6 +173,10 @@ export default async function PermissionsFirewallPage() {
               "High-risk actions below trust threshold require stronger human approval.",
             ],
             [
+              "Step-Up Verification",
+              "When the firewall returns step_up_required, Cyber Sentinels requests stronger proof before permission.",
+            ],
+            [
               "API Key Access",
               "API keys need explicit scopes and revoked keys are blocked.",
             ],
@@ -190,6 +195,14 @@ export default async function PermissionsFirewallPage() {
             >
               <h2 className="text-xl font-semibold">{title}</h2>
               <p className="mt-3 text-sm leading-6 text-zinc-500">{body}</p>
+              {title === "Step-Up Verification" ? (
+                <Link
+                  href="/step-up-verification"
+                  className="mt-4 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+                >
+                  Open Step-Up Verification
+                </Link>
+              ) : null}
             </div>
           ))}
         </section>

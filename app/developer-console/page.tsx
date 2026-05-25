@@ -20,6 +20,7 @@ const endpoints = [
   ["GET", "/api/trust/passport", "Read a safe Trust Passport summary."],
   ["POST", "/api/trust/decision", "Run Decision Engine and Policy Engine."],
   ["GET", "/api/trust/evidence", "Read evidence summary and upload status."],
+  ["POST", "/api/step-up", "Request stronger proof for high-risk actions."],
 ];
 
 function formatDate(value: string | null) {
@@ -88,6 +89,7 @@ export default async function DeveloperConsolePage() {
             ["/api-docs", "API Docs"],
             ["/billing", "Billing"],
             ["/permissions-firewall", "Permissions Firewall"],
+            ["/step-up-verification", "Step-Up Verification"],
             ["/global-trust", "Global Trust"],
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
@@ -237,6 +239,10 @@ export default async function DeveloperConsolePage() {
               <p>
                 API permissions should be scoped through the Permissions
                 Firewall and revoked keys must be denied at the gateway.
+              </p>
+              <p>
+                High-risk API actions should trigger Step-Up Verification before
+                permission is granted.
               </p>
               <p>Every production trust decision should emit audit and signal events.</p>
             </div>

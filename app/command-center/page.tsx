@@ -202,6 +202,12 @@ export default async function CommandCenterPage() {
   const policyPassed = policyResults.filter(
     (result) => result.policy_result === "pass"
   ).length;
+  const stepUpRequired =
+    signals?.filter((signal) =>
+      /step_up|permission_step_up|agent_permission_escalated/i.test(
+        signal.event
+      )
+    ).length ?? 0;
 
   return (
     <main className="min-h-screen bg-black p-8 text-white">
@@ -214,6 +220,12 @@ export default async function CommandCenterPage() {
           className="ml-3 text-sm text-zinc-400 hover:text-white"
         >
           Open Mission Control™
+        </Link>
+        <Link
+          href="/step-up-verification"
+          className="ml-3 text-sm text-zinc-400 hover:text-white"
+        >
+          Step-Up Verification™
         </Link>
 
         <form action="/api/auth/logout" method="POST" className="mt-4">
@@ -361,6 +373,15 @@ export default async function CommandCenterPage() {
             <p className="mt-2 text-sm text-zinc-500">
               policy_blocked_action
             </p>
+          </Link>
+
+          <Link
+            href="/step-up-verification"
+            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 hover:border-zinc-500"
+          >
+            <p className="text-zinc-500">Step-Up Required</p>
+            <p className="mt-3 text-4xl font-bold">{stepUpRequired}</p>
+            <p className="mt-2 text-sm text-zinc-500">step_up_required</p>
           </Link>
         </section>
 

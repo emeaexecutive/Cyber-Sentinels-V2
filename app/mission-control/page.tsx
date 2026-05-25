@@ -110,10 +110,15 @@ export default async function MissionControlPage() {
     evidence: evidenceResult.data,
     apiAuditEvents: apiAuditResult.data,
   });
+  const stepUpRequired =
+    signalsResult.data?.filter((signal) =>
+      /step_up|permission_step_up|agent_permission_escalated/i.test(signal.event)
+    ).length ?? 0;
   const metrics = [
     ["Active verifications", snapshot.metrics.activeVerifications],
     ["Registered agents", agents.length],
     ["Permissions firewall", "ACTIVE"],
+    ["Step-Up required", stepUpRequired],
     ["Critical alerts", snapshot.metrics.criticalAlerts],
     ["Signals today", snapshot.metrics.signalsToday],
     ["Average trust score", snapshot.metrics.averageTrustScore],
@@ -133,6 +138,7 @@ export default async function MissionControlPage() {
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
             ["/permissions-firewall", "Permissions Firewall"],
+            ["/step-up-verification", "Step-Up Verification"],
             ["/verification-queue", "Verification Queue"],
             ["/global-trust", "Global Trust"],
           ].map(([href, label]) => (
