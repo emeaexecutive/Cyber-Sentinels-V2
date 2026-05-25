@@ -13,6 +13,13 @@ import {
 
 const subjectTypes = ["human", "agent", "api_key", "system"] as const;
 const realityDriftLevels = ["low", "medium", "high", "critical"] as const;
+const hpgStates = [
+  "stable",
+  "drifting",
+  "anomalous",
+  "under_review",
+  "critical",
+] as const;
 
 function getAllowed<T extends readonly string[]>(
   body: Record<string, unknown>,
@@ -83,6 +90,7 @@ export async function POST(req: Request) {
       admin_approval_status:
         getOptionalText(body, "admin_approval_status") ?? "approved",
       reality_drift: getAllowed(body, "reality_drift", realityDriftLevels, "low"),
+      hpg_state: getAllowed(body, "hpg_state", hpgStates, "stable"),
       trust_score:
         typeof body.trust_score === "number" ? body.trust_score : 90,
       human_presence_index:

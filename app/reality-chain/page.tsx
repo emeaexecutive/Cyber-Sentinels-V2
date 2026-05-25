@@ -22,6 +22,7 @@ export default function RealityChainPage() {
             ["/origin-dna", "Origin DNA"],
             ["/origin-trace", "Origin Trace"],
             ["/reality-passport", "Reality Passport"],
+            ["/human-presence-genome", "Human Presence Genome"],
             ["/evidence-vault", "Evidence Vault"],
             ["/trust-prediction", "Prediction Engine"],
             ["/mission-control", "Mission Control"],
@@ -138,6 +139,12 @@ export default function RealityChainPage() {
             <p className="mt-4 text-sm leading-6 text-zinc-500">
               {chain.human_presence_impact}
             </p>
+            <Link
+              href="/human-presence-genome"
+              className="mt-4 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open HPG
+            </Link>
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">

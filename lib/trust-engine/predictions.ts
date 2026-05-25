@@ -85,6 +85,7 @@ export function createDemoPrediction(): TrustPrediction {
     factors: [
       "Trust drift detected",
       "Reality Drift high",
+      "HPG instability detected",
       "Origin Trace weakening",
       "Repeated manual reviews",
     ],
@@ -101,6 +102,7 @@ export function createDemoPrediction(): TrustPrediction {
     signals: [
       "Trust drift detected",
       "Reality drift detected",
+      "Human Presence Genome instability",
       "Behavior anomaly forecast",
       "Synthetic escalation forecast",
     ],
@@ -177,6 +179,11 @@ export function predictTrustRisk(sources: PredictionSources): TrustPrediction {
       signal.event
     )
   ).length;
+  const hpgSignalCount = signals.filter((signal) =>
+    /hpg|presence_shift|behavioral_drift|synthetic_deviation/i.test(
+      signal.event
+    )
+  ).length;
   const reviewAuditCount = auditLogs.filter((log) =>
     /review|decision|verification/i.test(log.event_type)
   ).length;
@@ -229,6 +236,13 @@ export function predictTrustRisk(sources: PredictionSources): TrustPrediction {
     factors.push("Reality Drift high");
     emittedSignals.push("Reality drift detected");
     recentTrustChanges.push("Reality Drift: low → high");
+  }
+
+  if (hpgSignalCount > 0) {
+    score += 14;
+    factors.push("HPG instability detected");
+    emittedSignals.push("Human Presence Genome instability");
+    recentTrustChanges.push("HPG: stable → drifting");
   }
 
   if (reviewAuditCount >= 4) {

@@ -153,6 +153,7 @@ export default async function MissionControlPage() {
     ["Manual reviews", snapshot.metrics.manualReviews],
     ["Trust drift events", snapshot.metrics.trustDriftEvents],
     ["Reality Drift", snapshot.metrics.realityDriftEvents || "WATCH"],
+    ["HPG signals", snapshot.metrics.hpgSignals || "STABLE"],
   ];
 
   return (
@@ -170,6 +171,7 @@ export default async function MissionControlPage() {
             ["/compliance-export", "Compliance Export"],
             ["/origin-dna", "Origin DNA"],
             ["/reality-chain", "Reality Chain"],
+            ["/human-presence-genome", "Human Presence Genome"],
             ["/verifier-network", "Verifier Network"],
             ["/trust-feed", "Trust Feed"],
             ["/verification-queue", "Verification Queue"],

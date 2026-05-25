@@ -61,6 +61,7 @@ export type MissionMetrics = {
   manualReviews: number;
   trustDriftEvents: number;
   realityDriftEvents: number;
+  hpgSignals: number;
 };
 
 export type MissionControlSnapshot = {
@@ -84,6 +85,7 @@ export const missionSections = [
   ["Origin DNA™", "/origin-dna"],
   ["Reality Chain™", "/reality-chain"],
   ["Human Presence Index™", "/human-presence-index"],
+  ["Human Presence Genome™", "/human-presence-genome"],
   ["Step-Up Verification™", "/step-up-verification"],
   ["Revocation Engine™", "/revocation-engine"],
   ["Trust Recovery™", "/trust-recovery"],
@@ -96,6 +98,7 @@ export const demoMissionSignals: MissionSignal[] = [
   { id: "demo-trust-drift", event: "Trust drift detected" },
   { id: "demo-synthetic-escalation", event: "Synthetic escalation forecast" },
   { id: "demo-human-presence", event: "Human Presence changed" },
+  { id: "demo-hpg", event: "Human Presence Genome stable" },
   { id: "demo-evidence-scan", event: "Evidence scan complete" },
   { id: "demo-admin-decision", event: "Admin decision created" },
   { id: "demo-reality-passport", event: "Reality Passport updated" },
@@ -135,6 +138,7 @@ export function createDemoMissionControlSnapshot(): MissionControlSnapshot {
       manualReviews: 6,
       trustDriftEvents: 4,
       realityDriftEvents: 2,
+      hpgSignals: 3,
     },
     systemIndicators: createSystemIndicators(),
     regionalActivity: createRegionalActivity(18),
@@ -229,6 +233,11 @@ export function createMissionControlSnapshot(
       signal.event
     )
   ).length;
+  const hpgSignals = signals.filter((signal) =>
+    /hpg|presence_shift|behavioral_drift|synthetic_deviation/i.test(
+      signal.event
+    )
+  ).length;
   const signalFallback = signals.length ? signals.slice(0, 6) : demoMissionSignals;
 
   return {
@@ -243,6 +252,7 @@ export function createMissionControlSnapshot(
       manualReviews,
       trustDriftEvents,
       realityDriftEvents,
+      hpgSignals,
     },
     systemIndicators: createSystemIndicators(),
     regionalActivity: createRegionalActivity(

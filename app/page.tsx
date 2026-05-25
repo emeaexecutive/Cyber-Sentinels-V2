@@ -27,6 +27,12 @@ const trustModules = [
     metric: "Presence",
   },
   {
+    name: "Human Presence Genome™",
+    href: "/human-presence-genome",
+    copy: "Create a weighted human presence pattern from face, voice, behavior, timeline and interaction signals.",
+    metric: "HPG",
+  },
+  {
     name: "Reality Passport™",
     href: "/reality-passport",
     copy: "Package provenance, authenticity and verification state into a usable record.",
@@ -252,6 +258,7 @@ const routeLinks = [
   { href: "/profile", label: "Public Trust Profile™" },
   { href: "/trust-feed", label: "Trust Feed™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
+  { href: "/human-presence-genome", label: "Human Presence Genome™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },
   { href: "/origin-dna", label: "Origin DNA™" },

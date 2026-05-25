@@ -81,6 +81,9 @@ export default async function TrustPredictionPage() {
           <Link href="/reality-chain" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
             /reality-chain
           </Link>
+          <Link href="/human-presence-genome" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
+            /human-presence-genome
+          </Link>
         </nav>
 
         <section className="mt-10 grid gap-8 lg:grid-cols-[1fr_0.8fr]">
@@ -126,6 +129,14 @@ export default async function TrustPredictionPage() {
               Reality Drift events from Origin DNA and Reality Chain are treated
               as forecast signals when origin confidence drops or transformation
               history changes.
+            </p>
+          </div>
+
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:col-span-2">
+            <h2 className="text-xl font-semibold">HPG Signal Input</h2>
+            <p className="mt-4 text-sm leading-6 text-zinc-500">
+              Human Presence Genome shifts are treated as prediction inputs when
+              behavioral stability drops or synthetic deviation rises.
             </p>
           </div>
         </section>

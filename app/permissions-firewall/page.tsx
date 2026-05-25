@@ -52,6 +52,7 @@ export default async function PermissionsFirewallPage() {
             ["/mission-control", "Mission Control"],
             ["/step-up-verification", "Step-Up Verification"],
             ["/reality-chain", "Reality Chain"],
+            ["/human-presence-genome", "Human Presence Genome"],
             ["/revocation-engine", "Revocation Engine"],
             ["/trust-recovery", "Trust Recovery"],
             ["/admin", "Admin"],
@@ -194,6 +195,10 @@ export default async function PermissionsFirewallPage() {
             [
               "Reality Drift",
               "High Reality Drift from Origin DNA or Reality Chain forces step-up before sensitive access.",
+            ],
+            [
+              "HPG Instability",
+              "Anomalous or critical Human Presence Genome states force step-up before high-risk actions.",
             ],
           ].map(([title, body]) => (
             <div
