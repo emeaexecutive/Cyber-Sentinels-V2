@@ -23,7 +23,8 @@ export type PermissionReasonCode =
   | "evidence_required"
   | "policy_violation"
   | "agent_restricted"
-  | "api_key_revoked";
+  | "api_key_revoked"
+  | "reality_drift_high";
 
 export type PermissionFirewallInput = {
   subject_type: PermissionSubjectType;
@@ -37,6 +38,7 @@ export type PermissionFirewallInput = {
   permission_scope?: AgentPermissionScope | null;
   evidence_status?: string | null;
   admin_approval_status?: string | null;
+  reality_drift?: "low" | "medium" | "high" | "critical" | null;
 };
 
 export type PermissionFirewallResult = {
@@ -101,6 +103,7 @@ export const demoPermissionDecisions: Array<{
       permission_scope: "access_files",
       evidence_status: "complete",
       admin_approval_status: "missing",
+      reality_drift: "high",
     },
   },
   {
@@ -229,6 +232,10 @@ export function evaluatePermissionsFirewall(
     reasonCodes.push("evidence_required");
   }
 
+  if (input.reality_drift === "high" || input.reality_drift === "critical") {
+    reasonCodes.push("reality_drift_high");
+  }
+
   if (isHighRisk && input.admin_approval_status === "missing") {
     reasonCodes.push("admin_approval_required");
   }
@@ -252,6 +259,14 @@ export function evaluatePermissionsFirewall(
   }
 
   if (isHighRisk && (input.trust_score ?? 0) < 85) {
+    return {
+      decision: "step_up_required",
+      reason_codes: codes,
+      recommended_next_step: nextStep("step_up_required"),
+    };
+  }
+
+  if (codes.includes("reality_drift_high")) {
     return {
       decision: "step_up_required",
       reason_codes: codes,

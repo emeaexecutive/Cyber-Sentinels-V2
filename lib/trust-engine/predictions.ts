@@ -84,6 +84,7 @@ export function createDemoPrediction(): TrustPrediction {
     trend: "Trust drift detected across demo signals.",
     factors: [
       "Trust drift detected",
+      "Reality Drift high",
       "Origin Trace weakening",
       "Repeated manual reviews",
     ],
@@ -99,6 +100,7 @@ export function createDemoPrediction(): TrustPrediction {
     ],
     signals: [
       "Trust drift detected",
+      "Reality drift detected",
       "Behavior anomaly forecast",
       "Synthetic escalation forecast",
     ],
@@ -170,6 +172,11 @@ export function predictTrustRisk(sources: PredictionSources): TrustPrediction {
   const riskSignalCount = signals.filter((signal) =>
     /(drift|anomaly|risk|deepfake|mismatch|weak|escalat)/i.test(signal.event)
   ).length;
+  const realityDriftSignalCount = signals.filter((signal) =>
+    /reality_drift|reality drift|origin_confidence|reality_chain/i.test(
+      signal.event
+    )
+  ).length;
   const reviewAuditCount = auditLogs.filter((log) =>
     /review|decision|verification/i.test(log.event_type)
   ).length;
@@ -215,6 +222,13 @@ export function predictTrustRisk(sources: PredictionSources): TrustPrediction {
     score += 12;
     factors.push("Verification anomalies increasing");
     emittedSignals.push("Prediction escalated");
+  }
+
+  if (realityDriftSignalCount > 0) {
+    score += 16;
+    factors.push("Reality Drift high");
+    emittedSignals.push("Reality drift detected");
+    recentTrustChanges.push("Reality Drift: low → high");
   }
 
   if (reviewAuditCount >= 4) {

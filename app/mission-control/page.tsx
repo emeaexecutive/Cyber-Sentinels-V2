@@ -152,6 +152,7 @@ export default async function MissionControlPage() {
     ["API calls today", snapshot.metrics.apiCallsToday],
     ["Manual reviews", snapshot.metrics.manualReviews],
     ["Trust drift events", snapshot.metrics.trustDriftEvents],
+    ["Reality Drift", snapshot.metrics.realityDriftEvents || "WATCH"],
   ];
 
   return (
@@ -167,6 +168,8 @@ export default async function MissionControlPage() {
             ["/revocation-engine", "Revocation Engine"],
             ["/trust-recovery", "Trust Recovery"],
             ["/compliance-export", "Compliance Export"],
+            ["/origin-dna", "Origin DNA"],
+            ["/reality-chain", "Reality Chain"],
             ["/verifier-network", "Verifier Network"],
             ["/trust-feed", "Trust Feed"],
             ["/verification-queue", "Verification Queue"],

@@ -12,6 +12,7 @@ import {
 } from "@/lib/trust-engine/agentRegistry";
 
 const subjectTypes = ["human", "agent", "api_key", "system"] as const;
+const realityDriftLevels = ["low", "medium", "high", "critical"] as const;
 
 function getAllowed<T extends readonly string[]>(
   body: Record<string, unknown>,
@@ -81,6 +82,7 @@ export async function POST(req: Request) {
       evidence_status: getOptionalText(body, "evidence_status") ?? "complete",
       admin_approval_status:
         getOptionalText(body, "admin_approval_status") ?? "approved",
+      reality_drift: getAllowed(body, "reality_drift", realityDriftLevels, "low"),
       trust_score:
         typeof body.trust_score === "number" ? body.trust_score : 90,
       human_presence_index:

@@ -39,6 +39,18 @@ const trustModules = [
     metric: "Origin",
   },
   {
+    name: "Origin DNA™",
+    href: "/origin-dna",
+    copy: "Fingerprint media, people, AI agents and evidence through hashes, signatures and model traces.",
+    metric: "DNA",
+  },
+  {
+    name: "Reality Chain™",
+    href: "/reality-chain",
+    copy: "Track transformation history, generation chains and reality drift as content changes over time.",
+    metric: "Drift",
+  },
+  {
     name: "AI Agent Passport",
     href: "/agent-passport",
     copy: "Track autonomous agent identity, permissions, behavior and accountability.",
@@ -242,6 +254,8 @@ const routeLinks = [
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },
+  { href: "/origin-dna", label: "Origin DNA™" },
+  { href: "/reality-chain", label: "Reality Chain™" },
   { href: "/linkedin-verification", label: "LinkedIn Trust Verification" },
   { href: "/security", label: "Security Layer" },
   { href: "/admin", label: "Back Office / Admin" },

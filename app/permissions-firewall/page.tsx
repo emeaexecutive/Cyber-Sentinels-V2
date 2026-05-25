@@ -51,6 +51,7 @@ export default async function PermissionsFirewallPage() {
             ["/developer-console", "Developer Console"],
             ["/mission-control", "Mission Control"],
             ["/step-up-verification", "Step-Up Verification"],
+            ["/reality-chain", "Reality Chain"],
             ["/revocation-engine", "Revocation Engine"],
             ["/trust-recovery", "Trust Recovery"],
             ["/admin", "Admin"],
@@ -172,7 +173,7 @@ export default async function PermissionsFirewallPage() {
           {[
             [
               "Human Step-Up",
-              "High-risk actions below trust threshold require stronger human approval.",
+              "High-risk actions below trust threshold, or with high Reality Drift, require stronger human approval.",
             ],
             [
               "Step-Up Verification",
@@ -189,6 +190,10 @@ export default async function PermissionsFirewallPage() {
             [
               "Permission Decision",
               "Every request resolves to allow, deny, step-up, manual review or revoke.",
+            ],
+            [
+              "Reality Drift",
+              "High Reality Drift from Origin DNA or Reality Chain forces step-up before sensitive access.",
             ],
           ].map(([title, body]) => (
             <div

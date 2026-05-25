@@ -60,6 +60,7 @@ export type MissionMetrics = {
   apiCallsToday: number;
   manualReviews: number;
   trustDriftEvents: number;
+  realityDriftEvents: number;
 };
 
 export type MissionControlSnapshot = {
@@ -80,6 +81,8 @@ export const missionSections = [
   ["Trust Timeline™", "/trust-timeline"],
   ["Trust Graph™", "/trust-graph"],
   ["Reality Passport™", "/reality-passport"],
+  ["Origin DNA™", "/origin-dna"],
+  ["Reality Chain™", "/reality-chain"],
   ["Human Presence Index™", "/human-presence-index"],
   ["Step-Up Verification™", "/step-up-verification"],
   ["Revocation Engine™", "/revocation-engine"],
@@ -96,6 +99,7 @@ export const demoMissionSignals: MissionSignal[] = [
   { id: "demo-evidence-scan", event: "Evidence scan complete" },
   { id: "demo-admin-decision", event: "Admin decision created" },
   { id: "demo-reality-passport", event: "Reality Passport updated" },
+  { id: "demo-reality-drift", event: "Reality drift detected" },
   { id: "demo-step-up", event: "Step-Up verification required" },
   { id: "demo-revocation", event: "Revocation review started" },
   { id: "demo-recovery", event: "Trust recovery requested" },
@@ -130,6 +134,7 @@ export function createDemoMissionControlSnapshot(): MissionControlSnapshot {
       apiCallsToday: 144,
       manualReviews: 6,
       trustDriftEvents: 4,
+      realityDriftEvents: 2,
     },
     systemIndicators: createSystemIndicators(),
     regionalActivity: createRegionalActivity(18),
@@ -219,6 +224,11 @@ export function createMissionControlSnapshot(
   const trustDriftEvents = signals.filter((signal) =>
     /drift|synthetic escalation|presence changed/i.test(signal.event)
   ).length;
+  const realityDriftEvents = signals.filter((signal) =>
+    /reality_drift|reality drift|origin_confidence|reality_chain/i.test(
+      signal.event
+    )
+  ).length;
   const signalFallback = signals.length ? signals.slice(0, 6) : demoMissionSignals;
 
   return {
@@ -232,6 +242,7 @@ export function createMissionControlSnapshot(
       apiCallsToday,
       manualReviews,
       trustDriftEvents,
+      realityDriftEvents,
     },
     systemIndicators: createSystemIndicators(),
     regionalActivity: createRegionalActivity(
