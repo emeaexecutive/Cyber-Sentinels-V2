@@ -15,6 +15,7 @@ export default function MarketplaceTrustPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
+            ["/verify", "Public Verify"],
             ["/trust-badges", "Trust Badges"],
             ["/api-docs", "API Docs"],
             ["/developer-console", "Developer Console"],
@@ -86,7 +87,7 @@ export default function MarketplaceTrustPage() {
             ],
             [
               "API Integration",
-              "Trust checks, badge verification and report exports for partner platforms.",
+              "Trust checks, public verify endpoint, badge verification and report exports for partner platforms.",
             ],
             [
               "Trust Badges",

@@ -21,6 +21,7 @@ export default function TrustBadgesPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
+            ["/verify", "Public Verify"],
             ["/marketplace-trust", "Marketplace Trust"],
             ["/developer-console", "Developer Console"],
             ["/client-portal", "Client Portal"],
@@ -51,8 +52,9 @@ export default function TrustBadgesPage() {
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {demoTrustBadges.map((badge) => (
-            <div
+            <Link
               key={badge.badge_id}
+              href={`/verify/${encodeURIComponent(badge.badge_id)}`}
               className="rounded-lg border border-zinc-800 bg-zinc-950 p-5"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -72,7 +74,7 @@ export default function TrustBadgesPage() {
                 {badge.verification_summary}
               </p>
               <p className="mt-4 text-3xl font-semibold">{badge.trust_score}</p>
-            </div>
+            </Link>
           ))}
         </section>
 

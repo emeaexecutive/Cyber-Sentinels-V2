@@ -117,6 +117,12 @@ const trustModules = [
     metric: "Badges",
   },
   {
+    name: "Public Verification Portal™",
+    href: "/verify",
+    copy: "Let anyone check public-safe badge, passport, report and Reality Passport status.",
+    metric: "Verify",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -218,6 +224,7 @@ const routeLinks = [
   { href: "/verifier-network", label: "Verifier Network™" },
   { href: "/marketplace-trust", label: "Marketplace Trust Layer™" },
   { href: "/trust-badges", label: "Trust Badges" },
+  { href: "/verify", label: "Public Verification Portal™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },

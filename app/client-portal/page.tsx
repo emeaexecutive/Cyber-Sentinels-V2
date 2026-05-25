@@ -181,6 +181,7 @@ export default async function ClientPortalPage() {
             ["/verification-queue", "Verification Queue"],
             ["/compliance-export", "Compliance Export"],
             ["/trust-badges", "Trust Badges"],
+            ["/verify", "Public Verify"],
             ["/billing", "Billing"],
             ["/developer-console", "Developer Console"],
           ].map(([href, label]) => (
@@ -344,6 +345,10 @@ export default async function ClientPortalPage() {
         <section className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Trust Badges</h2>
+            <p className="mt-2 text-sm text-zinc-500">
+              Shareable public verification links can be used without exposing
+              private evidence.
+            </p>
             <div className="mt-5 space-y-3">
               {[
                 "Verified Human",

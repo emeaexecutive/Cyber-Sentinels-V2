@@ -23,6 +23,7 @@ const endpoints = [
   ["POST", "/api/step-up", "Request stronger proof for high-risk actions."],
   ["POST", "/api/compliance/export", "Create report export placeholders."],
   ["POST", "/api/badges/verify", "Verify public-safe trust badges."],
+  ["GET", "/api/public/verify/[id]", "Read public-safe verification summaries."],
 ];
 
 function formatDate(value: string | null) {
@@ -98,6 +99,7 @@ export default async function DeveloperConsolePage() {
             ["/team-access", "Team Access"],
             ["/marketplace-trust", "Marketplace Trust"],
             ["/trust-badges", "Trust Badges"],
+            ["/verify", "Public Verify"],
             ["/global-trust", "Global Trust"],
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
@@ -271,6 +273,10 @@ export default async function DeveloperConsolePage() {
               <p>
                 Marketplace integrations can verify public trust badges through
                 the badge verification API.
+              </p>
+              <p>
+                Public verification endpoints must never expose private
+                evidence, admin notes, raw files or internal risk details.
               </p>
               <p>Every production trust decision should emit audit and signal events.</p>
             </div>
