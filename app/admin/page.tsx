@@ -465,6 +465,12 @@ export default async function AdminPage() {
           >
             Open Agent Registry
           </Link>
+          <Link
+            href="/permissions-firewall"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Permissions Firewall
+          </Link>
         </section>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">

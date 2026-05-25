@@ -54,6 +54,7 @@ export default async function AgentRegistryPage() {
           {[
             ["/", "Home"],
             ["/agent-passport", "Agent Passport"],
+            ["/permissions-firewall", "Permissions Firewall"],
             ["/mission-control", "Mission Control"],
             ["/admin", "Admin"],
           ].map(([href, label]) => (
@@ -77,6 +78,12 @@ export default async function AgentRegistryPage() {
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
             Every autonomous agent needs a passport before permission.
           </p>
+          <Link
+            href="/permissions-firewall"
+            className="mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Permissions Firewall™
+          </Link>
           {error || !data?.length ? (
             <p className="mt-3 text-sm text-zinc-600">
               Showing demo agents until the agents table contains records.

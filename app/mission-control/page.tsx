@@ -113,6 +113,7 @@ export default async function MissionControlPage() {
   const metrics = [
     ["Active verifications", snapshot.metrics.activeVerifications],
     ["Registered agents", agents.length],
+    ["Permissions firewall", "ACTIVE"],
     ["Critical alerts", snapshot.metrics.criticalAlerts],
     ["Signals today", snapshot.metrics.signalsToday],
     ["Average trust score", snapshot.metrics.averageTrustScore],
@@ -131,6 +132,7 @@ export default async function MissionControlPage() {
             ["/", "Home"],
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
+            ["/permissions-firewall", "Permissions Firewall"],
             ["/verification-queue", "Verification Queue"],
             ["/global-trust", "Global Trust"],
           ].map(([href, label]) => (

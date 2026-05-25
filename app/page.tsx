@@ -51,6 +51,12 @@ const trustModules = [
     metric: "Registry",
   },
   {
+    name: "Permissions Firewall™",
+    href: "/permissions-firewall",
+    copy: "Evaluate whether humans, agents, API keys or systems can perform high-risk actions.",
+    metric: "Access",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -141,6 +147,7 @@ const routeLinks = [
   { href: "/video-verification", label: "Video Verification" },
   { href: "/agent-passport", label: "AI Agent Passport" },
   { href: "/agent-registry", label: "Agent Registry™" },
+  { href: "/permissions-firewall", label: "Permissions Firewall™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },
