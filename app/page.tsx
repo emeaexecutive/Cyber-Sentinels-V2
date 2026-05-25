@@ -99,6 +99,12 @@ const trustModules = [
     metric: "Roles",
   },
   {
+    name: "Verifier Network™",
+    href: "/verifier-network",
+    copy: "Prepare a trusted network of approved verifiers, reviewers and trust partners.",
+    metric: "Partners",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -197,6 +203,7 @@ const routeLinks = [
   { href: "/client-portal", label: "Client Portal™" },
   { href: "/team-workspace", label: "Team Workspace™" },
   { href: "/team-access", label: "Team Access" },
+  { href: "/verifier-network", label: "Verifier Network™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },

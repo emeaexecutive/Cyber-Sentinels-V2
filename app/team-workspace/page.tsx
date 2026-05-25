@@ -242,6 +242,7 @@ export default async function TeamWorkspacePage() {
           {[
             ["/", "Home"],
             ["/team-access", "Team Access"],
+            ["/verifier-network", "Verifier Network"],
             ["/client-portal", "Client Portal"],
             ["/verification-queue", "Verification Queue"],
             ["/developer-console", "Developer Console"],
@@ -268,6 +269,10 @@ export default async function TeamWorkspacePage() {
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
             Trust operations for teams verifying humans, AI agents, candidates
             and synthetic media.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-500">
+            Approved reviewers from the Verifier Network can support team case
+            review and escalation workflows.
           </p>
           <Link
             href="/team-access"

@@ -246,6 +246,7 @@ export default async function VerificationQueuePage() {
             ["/admin", "Admin"],
             ["/decision-engine", "Decision Engine"],
             ["/evidence-vault", "Evidence Vault"],
+            ["/verifier-network", "Verifier Network"],
             ["/trust-timeline", "Trust Timeline"],
             ["/trust-graph", "Trust Graph"],
           ].map(([href, label]) => (
@@ -270,6 +271,10 @@ export default async function VerificationQueuePage() {
             Live verification work across cases, evidence, signals, audit logs
             and decisions. Every review action is routed through the protected
             admin decision loop.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-500">
+            V1 verifier assignment is prepared through the Verifier Network for
+            approved reviewers and trust partners.
           </p>
         </section>
 

@@ -128,6 +128,10 @@ export default async function MissionControlPage() {
         signal.event
       )
     ).length ?? 0;
+  const verifierNetwork =
+    signalsResult.data?.filter((signal) =>
+      /verifier|case_assigned/i.test(signal.event)
+    ).length ?? 0;
   const metrics = [
     ["Active verifications", snapshot.metrics.activeVerifications],
     ["Registered agents", agents.length],
@@ -136,6 +140,7 @@ export default async function MissionControlPage() {
     ["Revocation Engine", revocationEvents || "ACTIVE"],
     ["Recovery Queue", recoveryQueue],
     ["Export Center", exportCenter || "READY"],
+    ["Verifier Network", verifierNetwork || "READY"],
     ["Critical alerts", snapshot.metrics.criticalAlerts],
     ["Signals today", snapshot.metrics.signalsToday],
     ["Average trust score", snapshot.metrics.averageTrustScore],
@@ -159,6 +164,7 @@ export default async function MissionControlPage() {
             ["/revocation-engine", "Revocation Engine"],
             ["/trust-recovery", "Trust Recovery"],
             ["/compliance-export", "Compliance Export"],
+            ["/verifier-network", "Verifier Network"],
             ["/verification-queue", "Verification Queue"],
             ["/global-trust", "Global Trust"],
           ].map(([href, label]) => (
