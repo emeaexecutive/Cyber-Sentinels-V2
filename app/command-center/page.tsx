@@ -201,6 +201,12 @@ export default async function CommandCenterPage() {
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
           Back to Cyber Sentinels
         </Link>
+        <Link
+          href="/mission-control"
+          className="ml-3 text-sm text-zinc-400 hover:text-white"
+        >
+          Open Mission Control™
+        </Link>
 
         <form action="/api/auth/logout" method="POST" className="mt-4">
           <button className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
@@ -209,6 +215,42 @@ export default async function CommandCenterPage() {
         </form>
 
         <h1 className="mt-8 text-5xl font-bold">Command Center</h1>
+
+        <section className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">
+                Mission Control™ Preview
+              </h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Global nerve center for radar, verification, policy, decision,
+                evidence and API readiness.
+              </p>
+            </div>
+            <Link
+              href="/mission-control"
+              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              Open Mission Control
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-3 md:grid-cols-4">
+            {[
+              ["Trust Layer", "ACTIVE"],
+              ["Evidence Chain", "ACTIVE"],
+              ["API Gateway", "READY"],
+              ["Security Layer", "GREEN"],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-xl border border-zinc-800 bg-black p-4"
+              >
+                <p className="text-sm text-zinc-500">{label}</p>
+                <p className="mt-2 text-lg font-semibold">{value}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <section className="mt-10 grid gap-4 md:grid-cols-4">
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">

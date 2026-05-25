@@ -2,12 +2,18 @@ import Image from "next/image";
 import Link from "next/link";
 
 const primaryCtas = [
+  { href: "/mission-control", label: "Open Mission Control™" },
   { href: "/passport", label: "Create Trust Passport" },
   { href: "/command-center", label: "Open Command Center" },
-  { href: "/billing", label: "View Clearances / Billing" },
 ];
 
 const trustModules = [
+  {
+    name: "Mission Control™",
+    href: "/mission-control",
+    copy: "Single pane of glass for trust radar, queues, policies, decisions, evidence and global signals.",
+    metric: "Live Ops",
+  },
   {
     name: "Trust Passport",
     href: "/passport",
@@ -112,6 +118,7 @@ const riskSignals = [
 const routeLinks = [
   { href: "/passport", label: "Trust Passport" },
   { href: "/command-center", label: "Command Center" },
+  { href: "/mission-control", label: "Mission Control™" },
   { href: "/hiring-shield", label: "Hiring Shield" },
   { href: "/clearances", label: "Clearances" },
   { href: "/billing", label: "Billing" },
