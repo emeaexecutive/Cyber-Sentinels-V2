@@ -542,6 +542,12 @@ export default async function AdminPage() {
             Open Mission Control
           </Link>
           <Link
+            href="/launch-console"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Launch Console
+          </Link>
+          <Link
             href="/agent-registry"
             className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
           >

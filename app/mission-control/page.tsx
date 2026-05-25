@@ -14,6 +14,7 @@ import { normalizeAgents, type AgentRow } from "@/lib/trust-engine/agentRegistry
 import { getPublicTrustFeed } from "@/lib/trust-feed/feed";
 import { evaluateRealityOS } from "@/lib/trust-engine/realityOS";
 import { demoTrustLedgerEvents } from "@/lib/trust-engine/trustLedger";
+import { demoLaunchReadiness } from "@/lib/launch/readiness";
 
 export const dynamic = "force-dynamic";
 
@@ -155,6 +156,7 @@ export default async function MissionControlPage() {
   });
   const metrics = [
     ["Reality OS status", realityOS.state],
+    ["Launch readiness", `${demoLaunchReadiness.score}%`],
     ["Trust Ledger", demoTrustLedgerEvents.length],
     ["Active verifications", snapshot.metrics.activeVerifications],
     ["Registered agents", agents.length],
@@ -185,6 +187,7 @@ export default async function MissionControlPage() {
           {[
             ["/", "Home"],
             ["/admin", "Admin"],
+            ["/launch-console", "Launch Console"],
             ["/command-center", "Command Center"],
             ["/permissions-firewall", "Permissions Firewall"],
             ["/step-up-verification", "Step-Up Verification"],

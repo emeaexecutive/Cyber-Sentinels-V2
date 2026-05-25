@@ -105,6 +105,12 @@ const trustModules = [
     metric: "Ledger",
   },
   {
+    name: "Launch Console(TM)",
+    href: "/launch-console",
+    copy: "Review V1 private beta readiness across auth, Supabase, security, APIs, billing and public verification.",
+    metric: "Launch",
+  },
+  {
     name: "AI Agent Passport",
     href: "/agent-passport",
     copy: "Track autonomous agent identity, permissions, behavior and accountability.",
@@ -319,6 +325,7 @@ const routeLinks = [
   { href: "/trust-seal-authority", label: "Trust Seal Authority(TM)" },
   { href: "/trust-registry", label: "Trust Registry(TM)" },
   { href: "/trust-ledger", label: "Trust Score Ledger(TM)" },
+  { href: "/launch-console", label: "Launch Console(TM)" },
   { href: "/linkedin-verification", label: "LinkedIn Trust Verification" },
   { href: "/security", label: "Security Layer" },
   { href: "/admin", label: "Back Office / Admin" },
