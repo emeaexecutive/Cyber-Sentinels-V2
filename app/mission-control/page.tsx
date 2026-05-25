@@ -114,11 +114,16 @@ export default async function MissionControlPage() {
     signalsResult.data?.filter((signal) =>
       /step_up|permission_step_up|agent_permission_escalated/i.test(signal.event)
     ).length ?? 0;
+  const revocationEvents =
+    signalsResult.data?.filter((signal) =>
+      /revoked|restricted|paused|locked|expired|revocation/i.test(signal.event)
+    ).length ?? 0;
   const metrics = [
     ["Active verifications", snapshot.metrics.activeVerifications],
     ["Registered agents", agents.length],
     ["Permissions firewall", "ACTIVE"],
     ["Step-Up required", stepUpRequired],
+    ["Revocation Engine", revocationEvents || "ACTIVE"],
     ["Critical alerts", snapshot.metrics.criticalAlerts],
     ["Signals today", snapshot.metrics.signalsToday],
     ["Average trust score", snapshot.metrics.averageTrustScore],
@@ -139,6 +144,7 @@ export default async function MissionControlPage() {
             ["/command-center", "Command Center"],
             ["/permissions-firewall", "Permissions Firewall"],
             ["/step-up-verification", "Step-Up Verification"],
+            ["/revocation-engine", "Revocation Engine"],
             ["/verification-queue", "Verification Queue"],
             ["/global-trust", "Global Trust"],
           ].map(([href, label]) => (

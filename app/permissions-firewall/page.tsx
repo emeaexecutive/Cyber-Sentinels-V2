@@ -51,6 +51,7 @@ export default async function PermissionsFirewallPage() {
             ["/developer-console", "Developer Console"],
             ["/mission-control", "Mission Control"],
             ["/step-up-verification", "Step-Up Verification"],
+            ["/revocation-engine", "Revocation Engine"],
             ["/admin", "Admin"],
           ].map(([href, label]) => (
             <Link
@@ -182,7 +183,7 @@ export default async function PermissionsFirewallPage() {
             ],
             [
               "Revocation Rules",
-              "Critical risk, policy violations and revoked subjects can remove access.",
+              "Critical risk, policy violations and revoked subjects can remove access through the revoke decision.",
             ],
             [
               "Permission Decision",

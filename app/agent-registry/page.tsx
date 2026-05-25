@@ -55,6 +55,7 @@ export default async function AgentRegistryPage() {
             ["/", "Home"],
             ["/agent-passport", "Agent Passport"],
             ["/permissions-firewall", "Permissions Firewall"],
+            ["/revocation-engine", "Revocation Engine"],
             ["/mission-control", "Mission Control"],
             ["/admin", "Admin"],
           ].map(([href, label]) => (
@@ -83,6 +84,12 @@ export default async function AgentRegistryPage() {
             className="mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
           >
             Open Permissions Firewall™
+          </Link>
+          <Link
+            href="/revocation-engine"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Revocation Engine™
           </Link>
           {error || !data?.length ? (
             <p className="mt-3 text-sm text-zinc-600">
@@ -188,6 +195,37 @@ export default async function AgentRegistryPage() {
                     {risk}
                   </span>
                 ))}
+              </div>
+            </section>
+
+            <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h2 className="text-xl font-semibold">Restricted / Revoked Agents</h2>
+              <div className="mt-5 space-y-3">
+                {agents.filter((agent) =>
+                  ["restricted", "revoked"].includes(agent.status)
+                ).length ? (
+                  agents
+                    .filter((agent) =>
+                      ["restricted", "revoked"].includes(agent.status)
+                    )
+                    .map((agent) => (
+                      <div
+                        key={`revoked-${agent.id}`}
+                        className="rounded-lg border border-zinc-800 bg-black p-3"
+                      >
+                        <p className="text-sm text-zinc-300">
+                          {agent.agent_name}
+                        </p>
+                        <p className="mt-1 text-xs text-zinc-600">
+                          {agent.status} / {agent.policy_status ?? "policy_review"}
+                        </p>
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-sm text-zinc-500">
+                    No restricted or revoked agents in the current registry.
+                  </p>
+                )}
               </div>
             </section>
 

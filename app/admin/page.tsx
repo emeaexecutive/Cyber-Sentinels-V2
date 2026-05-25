@@ -337,6 +337,16 @@ export default async function AdminPage() {
       available: signals.available,
       href: "/step-up-verification",
     },
+    {
+      label: "Revocations",
+      value: signals.rows.filter((signal) =>
+        /revoked|restricted|paused|locked|expired|revocation/i.test(
+          signal.event
+        )
+      ).length,
+      available: signals.available,
+      href: "/revocation-engine",
+    },
   ];
   const radarSignals = normalizeSignals(signals.rows).slice(0, 5);
   const prediction = predictTrustRisk({
@@ -380,6 +390,13 @@ export default async function AdminPage() {
   const stepUpRequests = signals.rows
     .filter((signal) =>
       /step_up|permission_step_up|agent_permission_escalated/i.test(
+        signal.event
+      )
+    )
+    .slice(0, 4);
+  const revocationEvents = signals.rows
+    .filter((signal) =>
+      /revoked|restricted|paused|locked|expired|revocation/i.test(
         signal.event
       )
     )
@@ -494,6 +511,12 @@ export default async function AdminPage() {
           >
             Open Step-Up Verification
           </Link>
+          <Link
+            href="/revocation-engine"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Revocation Engine
+          </Link>
         </section>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -581,6 +604,41 @@ export default async function AdminPage() {
               ))
             ) : (
               <EmptyState label="No live step-up requests. Demo requests are available in Step-Up Verification." />
+            )}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Revocation Panel</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Trust reversals, restricted agents, paused API keys and locked
+                evidence requiring admin attention.
+              </p>
+            </div>
+            <Link
+              href="/revocation-engine"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Revocation Engine
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {revocationEvents.length ? (
+              revocationEvents.map((signal) => (
+                <div
+                  key={signal.id}
+                  className="rounded-lg border border-zinc-800 bg-black p-4"
+                >
+                  <p className="text-zinc-300">{signal.event}</p>
+                  <p className="mt-2 text-xs text-zinc-600">
+                    {formatDate(signal.created_at)}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <EmptyState label="No live revocation events. Demo reversals are available in Revocation Engine." />
             )}
           </div>
         </section>

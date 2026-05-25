@@ -90,6 +90,7 @@ export default async function DeveloperConsolePage() {
             ["/billing", "Billing"],
             ["/permissions-firewall", "Permissions Firewall"],
             ["/step-up-verification", "Step-Up Verification"],
+            ["/revocation-engine", "Revocation Engine"],
             ["/global-trust", "Global Trust"],
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
@@ -243,6 +244,10 @@ export default async function DeveloperConsolePage() {
               <p>
                 High-risk API actions should trigger Step-Up Verification before
                 permission is granted.
+              </p>
+              <p>
+                API key abuse should pause or revoke access through the
+                Revocation Engine placeholder.
               </p>
               <p>Every production trust decision should emit audit and signal events.</p>
             </div>

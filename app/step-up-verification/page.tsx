@@ -67,6 +67,7 @@ export default async function StepUpVerificationPage() {
             ["/permissions-firewall", "Permissions Firewall"],
             ["/mission-control", "Mission Control"],
             ["/developer-console", "Developer Console"],
+            ["/revocation-engine", "Revocation Engine"],
             ["/admin", "Admin"],
           ].map(([href, label]) => (
             <Link
@@ -213,6 +214,16 @@ export default async function StepUpVerificationPage() {
                   No failed or expired step-ups in the demo queue.
                 </p>
               )}
+              <p className="text-sm leading-6 text-zinc-500">
+                Failed or expired step-up requests can trigger revocation,
+                restrictions or admin reversal review.
+              </p>
+              <Link
+                href="/revocation-engine"
+                className="inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Open Revocation Engine
+              </Link>
             </div>
           </div>
         </section>

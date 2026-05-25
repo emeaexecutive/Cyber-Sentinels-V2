@@ -63,6 +63,12 @@ const trustModules = [
     metric: "Step-Up",
   },
   {
+    name: "Revocation Engine™",
+    href: "/revocation-engine",
+    copy: "Revoke, restrict or expire trust when synthetic risk, abuse or evidence failures appear.",
+    metric: "Revoke",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -155,6 +161,7 @@ const routeLinks = [
   { href: "/agent-registry", label: "Agent Registry™" },
   { href: "/permissions-firewall", label: "Permissions Firewall™" },
   { href: "/step-up-verification", label: "Step-Up Verification™" },
+  { href: "/revocation-engine", label: "Revocation Engine™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },
