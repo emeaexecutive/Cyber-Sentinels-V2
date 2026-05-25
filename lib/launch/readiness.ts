@@ -42,6 +42,7 @@ export type LaunchReadinessSnapshot = {
   score: number;
   status: "ready_for_private_beta" | "partial_readiness" | "blocked";
   modules: ReadinessModule[];
+  privateBetaChecklist: ChecklistItem[];
   securityChecklist: ChecklistItem[];
   supabaseChecklist: ChecklistItem[];
   vercelChecklist: ChecklistItem[];
@@ -79,6 +80,18 @@ export const demoReadinessModules: ReadinessModule[] = [
 ];
 
 export const demoLaunchChecklist: ChecklistItem[] = [
+  { label: "Auth", state: "ready" },
+  { label: "Supabase env vars", state: "partial" },
+  { label: "Admin security", state: "ready" },
+  { label: "Database tables", state: "partial" },
+  { label: "Signals loop", state: "partial" },
+  { label: "Audit loop", state: "partial" },
+  { label: "Passport workflow", state: "ready" },
+  { label: "Hiring Shield workflow", state: "ready" },
+  { label: "Verification queue", state: "ready" },
+  { label: "Public verification", state: "ready" },
+  { label: "Billing placeholders", state: "ready" },
+  { label: "Vercel deployment", state: "partial" },
   { label: "Environment variables set", state: "partial" },
   { label: "Supabase tables created", state: "partial" },
   { label: "Auth working", state: "ready" },
@@ -117,6 +130,7 @@ export function createLaunchReadinessSnapshot(
     score,
     status: statusFromScore(score, modules),
     modules,
+    privateBetaChecklist: demoLaunchChecklist.slice(0, 12),
     securityChecklist: demoLaunchChecklist.filter((item) =>
       /Auth|Admin|Environment|GitHub|Vercel/i.test(item.label)
     ),

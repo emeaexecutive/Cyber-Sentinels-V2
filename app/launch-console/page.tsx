@@ -90,6 +90,11 @@ export default function LaunchConsolePage() {
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
             Private beta readiness for the Cyber Sentinels trust layer.
           </p>
+          <p className="mt-4 max-w-4xl leading-8 text-zinc-300">
+            Cyber Sentinels V1 is a private beta trust operations layer. It
+            combines Trust Passports, Human Presence, Origin Trace, Evidence,
+            Policy, Decisions, Audit and Public Verification.
+          </p>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">
@@ -191,6 +196,10 @@ export default function LaunchConsolePage() {
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <Checklist
+            title="Private Beta Checklist"
+            items={readiness.privateBetaChecklist}
+          />
           <Checklist title="Security Checklist" items={readiness.securityChecklist} />
           <Checklist title="Supabase Checklist" items={readiness.supabaseChecklist} />
           <Checklist title="Vercel Checklist" items={readiness.vercelChecklist} />
