@@ -19,6 +19,7 @@ export default function MarketplaceTrustPage() {
             ["/verify", "Public Verify"],
             ["/profile", "Public Profiles"],
             ["/trust-badges", "Trust Badges"],
+            ["/trust-embeds", "Trust Embeds"],
             ["/api-docs", "API Docs"],
             ["/developer-console", "Developer Console"],
             ["/compliance-export", "Compliance Export"],
@@ -94,7 +95,7 @@ export default function MarketplaceTrustPage() {
             ],
             [
               "Trust Badges",
-              "Portable public-safe trust summaries without exposing sensitive evidence.",
+              "Portable public-safe trust summaries and embed widgets without exposing sensitive evidence.",
             ],
             [
               "Risk Signals",

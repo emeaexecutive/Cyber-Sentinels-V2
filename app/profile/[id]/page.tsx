@@ -37,6 +37,7 @@ export default async function PublicProfileDetailPage({
             ["/profile", "Public Profiles"],
             ["/verify", "Verify"],
             ["/trust-badges", "Trust Badges"],
+            ["/trust-embeds", "Trust Embeds"],
             ["/passport", "Create Passport"],
           ].map(([href, label]) => (
             <Link
@@ -162,6 +163,12 @@ export default async function PublicProfileDetailPage({
               className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
             >
               Create your own Trust Passport
+            </Link>
+            <Link
+              href="/trust-embeds"
+              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              Embed this trust badge
             </Link>
           </div>
 

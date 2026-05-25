@@ -24,6 +24,7 @@ export default function VerifyPage() {
             ["/", "Home"],
             ["/profile", "Public Profiles"],
             ["/trust-badges", "Trust Badges"],
+            ["/trust-embeds", "Trust Embeds"],
             ["/marketplace-trust", "Marketplace Trust"],
             ["/api-docs", "API Docs"],
           ].map(([href, label]) => (
@@ -66,6 +67,24 @@ export default function VerifyPage() {
             V1 examples link directly below while signed verification IDs are
             prepared.
           </p>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Shareable Verification Widgets</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Trust Embeds carry public-safe badge status into websites,
+                marketplaces, email signatures and Carrd pages.
+              </p>
+            </div>
+            <Link
+              href="/trust-embeds"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Embeds
+            </Link>
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

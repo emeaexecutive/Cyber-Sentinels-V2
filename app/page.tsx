@@ -81,6 +81,12 @@ const trustModules = [
     metric: "Fabric",
   },
   {
+    name: "Trust Embeds(TM)",
+    href: "/trust-embeds",
+    copy: "Publish public-safe trust badges for profiles, websites, marketplaces and email signatures.",
+    metric: "Embeds",
+  },
+  {
     name: "AI Agent Passport",
     href: "/agent-passport",
     copy: "Track autonomous agent identity, permissions, behavior and accountability.",
@@ -291,6 +297,7 @@ const routeLinks = [
   { href: "/synthetic-counterpart", label: "Synthetic Counterpart™" },
   { href: "/reality-os", label: "Reality OS(TM)" },
   { href: "/trust-fabric", label: "Trust Fabric(TM)" },
+  { href: "/trust-embeds", label: "Trust Embeds(TM)" },
   { href: "/linkedin-verification", label: "LinkedIn Trust Verification" },
   { href: "/security", label: "Security Layer" },
   { href: "/admin", label: "Back Office / Admin" },

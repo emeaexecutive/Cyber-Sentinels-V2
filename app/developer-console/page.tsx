@@ -24,6 +24,7 @@ const endpoints = [
   ["POST", "/api/compliance/export", "Create report export placeholders."],
   ["POST", "/api/badges/verify", "Verify public-safe trust badges."],
   ["GET", "/api/public/verify/[id]", "Read public-safe verification summaries."],
+  ["GET", "/api/embed/[id]", "Read public-safe Trust Embed badge JSON."],
 ];
 
 function formatDate(value: string | null) {
@@ -99,6 +100,7 @@ export default async function DeveloperConsolePage() {
             ["/team-access", "Team Access"],
             ["/marketplace-trust", "Marketplace Trust"],
             ["/trust-badges", "Trust Badges"],
+            ["/trust-embeds", "Trust Embeds"],
             ["/verify", "Public Verify"],
             ["/global-trust", "Global Trust"],
             ["/admin", "Admin"],
@@ -273,6 +275,10 @@ export default async function DeveloperConsolePage() {
               <p>
                 Marketplace integrations can verify public trust badges through
                 the badge verification API.
+              </p>
+              <p>
+                Trust Embed APIs return public-safe badge JSON for websites,
+                marketplaces, email signatures and Carrd pages.
               </p>
               <p>
                 Public verification endpoints must never expose private

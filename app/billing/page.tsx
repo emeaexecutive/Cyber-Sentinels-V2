@@ -63,6 +63,7 @@ export default async function BillingPage() {
             ["/client-portal", "Client Portal"],
             ["/team-workspace", "Team Workspace"],
             ["/marketplace-trust", "Marketplace Trust"],
+            ["/trust-embeds", "Trust Embeds"],
             ["/developer-console", "Developer Console"],
             ["/compliance-export", "Compliance Export"],
             ["/admin", "Admin"],
@@ -199,6 +200,20 @@ export default async function BillingPage() {
             <p className="mt-2 text-sm text-zinc-500">
               Storage billing placeholder.
             </p>
+          </div>
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Trust Embeds</h2>
+            <p className="mt-4 text-3xl font-semibold">Pro / Teams</p>
+            <p className="mt-2 text-sm text-zinc-500">
+              Public-safe badge widgets for profiles, websites, marketplaces
+              and email signatures.
+            </p>
+            <Link
+              href="/trust-embeds"
+              className="mt-4 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Embeds
+            </Link>
           </div>
         </section>
 
