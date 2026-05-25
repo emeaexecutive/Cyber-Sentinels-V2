@@ -122,6 +122,12 @@ export default async function MissionControlPage() {
     signalsResult.data?.filter((signal) =>
       /recovery|restored/i.test(signal.event)
     ).length ?? 0;
+  const exportCenter =
+    signalsResult.data?.filter((signal) =>
+      /compliance_export|trust_report|audit_pack|report_exported/i.test(
+        signal.event
+      )
+    ).length ?? 0;
   const metrics = [
     ["Active verifications", snapshot.metrics.activeVerifications],
     ["Registered agents", agents.length],
@@ -129,6 +135,7 @@ export default async function MissionControlPage() {
     ["Step-Up required", stepUpRequired],
     ["Revocation Engine", revocationEvents || "ACTIVE"],
     ["Recovery Queue", recoveryQueue],
+    ["Export Center", exportCenter || "READY"],
     ["Critical alerts", snapshot.metrics.criticalAlerts],
     ["Signals today", snapshot.metrics.signalsToday],
     ["Average trust score", snapshot.metrics.averageTrustScore],
@@ -151,6 +158,7 @@ export default async function MissionControlPage() {
             ["/step-up-verification", "Step-Up Verification"],
             ["/revocation-engine", "Revocation Engine"],
             ["/trust-recovery", "Trust Recovery"],
+            ["/compliance-export", "Compliance Export"],
             ["/verification-queue", "Verification Queue"],
             ["/global-trust", "Global Trust"],
           ].map(([href, label]) => (

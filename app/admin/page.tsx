@@ -355,6 +355,16 @@ export default async function AdminPage() {
       available: signals.available,
       href: "/trust-recovery",
     },
+    {
+      label: "Compliance Exports",
+      value: signals.rows.filter((signal) =>
+        /compliance_export|trust_report|audit_pack|report_exported/i.test(
+          signal.event
+        )
+      ).length,
+      available: signals.available,
+      href: "/compliance-export",
+    },
   ];
   const radarSignals = normalizeSignals(signals.rows).slice(0, 5);
   const prediction = predictTrustRisk({
@@ -411,6 +421,13 @@ export default async function AdminPage() {
     .slice(0, 4);
   const recoveryEvents = signals.rows
     .filter((signal) => /recovery|restored/i.test(signal.event))
+    .slice(0, 4);
+  const complianceExportEvents = signals.rows
+    .filter((signal) =>
+      /compliance_export|trust_report|audit_pack|report_exported/i.test(
+        signal.event
+      )
+    )
     .slice(0, 4);
 
   return (
@@ -533,6 +550,12 @@ export default async function AdminPage() {
             className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
           >
             Open Trust Recovery
+          </Link>
+          <Link
+            href="/compliance-export"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Compliance Export
           </Link>
         </section>
 
@@ -691,6 +714,41 @@ export default async function AdminPage() {
               ))
             ) : (
               <EmptyState label="No live recovery requests. Demo appeals are available in Trust Recovery." />
+            )}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Compliance Export</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Audit-ready report packs for customers, regulators and internal
+                review.
+              </p>
+            </div>
+            <Link
+              href="/compliance-export"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Export Center
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {complianceExportEvents.length ? (
+              complianceExportEvents.map((signal) => (
+                <div
+                  key={signal.id}
+                  className="rounded-lg border border-zinc-800 bg-black p-4"
+                >
+                  <p className="text-zinc-300">{signal.event}</p>
+                  <p className="mt-2 text-xs text-zinc-600">
+                    {formatDate(signal.created_at)}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <EmptyState label="No live compliance exports. Demo report packs are available in Compliance Export." />
             )}
           </div>
         </section>

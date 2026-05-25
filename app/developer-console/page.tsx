@@ -21,6 +21,7 @@ const endpoints = [
   ["POST", "/api/trust/decision", "Run Decision Engine and Policy Engine."],
   ["GET", "/api/trust/evidence", "Read evidence summary and upload status."],
   ["POST", "/api/step-up", "Request stronger proof for high-risk actions."],
+  ["POST", "/api/compliance/export", "Create report export placeholders."],
 ];
 
 function formatDate(value: string | null) {
@@ -91,6 +92,7 @@ export default async function DeveloperConsolePage() {
             ["/permissions-firewall", "Permissions Firewall"],
             ["/step-up-verification", "Step-Up Verification"],
             ["/revocation-engine", "Revocation Engine"],
+            ["/compliance-export", "Compliance Export"],
             ["/global-trust", "Global Trust"],
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
@@ -248,6 +250,10 @@ export default async function DeveloperConsolePage() {
               <p>
                 API key abuse should pause or revoke access through the
                 Revocation Engine placeholder.
+              </p>
+              <p>
+                Report summaries and compliance exports should be exposed only
+                through scoped API access.
               </p>
               <p>Every production trust decision should emit audit and signal events.</p>
             </div>

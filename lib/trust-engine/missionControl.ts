@@ -84,6 +84,7 @@ export const missionSections = [
   ["Step-Up Verification™", "/step-up-verification"],
   ["Revocation Engine™", "/revocation-engine"],
   ["Trust Recovery™", "/trust-recovery"],
+  ["Compliance Export™", "/compliance-export"],
 ] as const;
 
 export const demoMissionSignals: MissionSignal[] = [
@@ -96,6 +97,7 @@ export const demoMissionSignals: MissionSignal[] = [
   { id: "demo-step-up", event: "Step-Up verification required" },
   { id: "demo-revocation", event: "Revocation review started" },
   { id: "demo-recovery", event: "Trust recovery requested" },
+  { id: "demo-compliance-export", event: "Compliance export created" },
 ];
 
 function isToday(value: string | null | undefined) {

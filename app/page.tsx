@@ -75,6 +75,12 @@ const trustModules = [
     metric: "Appeals",
   },
   {
+    name: "Compliance Export™",
+    href: "/compliance-export",
+    copy: "Prepare portable trust report packs for audits, customers and internal review.",
+    metric: "Reports",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -169,6 +175,7 @@ const routeLinks = [
   { href: "/step-up-verification", label: "Step-Up Verification™" },
   { href: "/revocation-engine", label: "Revocation Engine™" },
   { href: "/trust-recovery", label: "Trust Recovery™" },
+  { href: "/compliance-export", label: "Compliance Export™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },
