@@ -1,7 +1,21 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+
+const RATE_LIMIT_MESSAGE =
+  "Email login is temporarily rate-limited. Please wait a few minutes before requesting another magic link.";
+
+function isRateLimitError(message: string) {
+  const normalizedMessage = message.toLowerCase();
+
+  return (
+    normalizedMessage.includes("rate limit") ||
+    normalizedMessage.includes("email rate limit exceeded") ||
+    normalizedMessage.includes("too many requests")
+  );
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -9,6 +23,13 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   async function signIn() {
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setMessage("Please enter your email address.");
+      return;
+    }
+
     setLoading(true);
 
     let supabase;
@@ -22,7 +43,7 @@ export default function LoginPage() {
     }
 
     const { error } = await supabase.auth.signInWithOtp({
-      email,
+      email: trimmedEmail,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=/command-center`,
       },
@@ -31,7 +52,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (error) {
-      setMessage(error.message);
+      setMessage(isRateLimitError(error.message) ? RATE_LIMIT_MESSAGE : error.message);
       return;
     }
 
@@ -56,6 +77,10 @@ export default function LoginPage() {
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
+          <p className="text-sm text-zinc-400">
+            Only click once. Supabase may rate-limit repeated login emails.
+          </p>
+
           <button
             onClick={signIn}
             disabled={loading}
@@ -65,6 +90,10 @@ export default function LoginPage() {
           </button>
 
           {message && <p className="text-sm text-zinc-400">{message}</p>}
+
+          <Link href="/" className="text-sm text-zinc-400 underline">
+            Back to homepage
+          </Link>
         </div>
       </div>
     </main>
