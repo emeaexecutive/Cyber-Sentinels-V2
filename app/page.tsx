@@ -57,6 +57,18 @@ const trustModules = [
     metric: "Drift",
   },
   {
+    name: "Reality Twin™",
+    href: "/reality-twin",
+    copy: "Model a trust profile across identity, signals, behavior and evidence to anticipate synthetic risk.",
+    metric: "Twin",
+  },
+  {
+    name: "Synthetic Counterpart™",
+    href: "/synthetic-counterpart",
+    copy: "Estimate how easily a person, agent or profile could be impersonated or cloned.",
+    metric: "Clone",
+  },
+  {
     name: "AI Agent Passport",
     href: "/agent-passport",
     copy: "Track autonomous agent identity, permissions, behavior and accountability.",
@@ -263,6 +275,8 @@ const routeLinks = [
   { href: "/origin-trace", label: "Origin Trace™" },
   { href: "/origin-dna", label: "Origin DNA™" },
   { href: "/reality-chain", label: "Reality Chain™" },
+  { href: "/reality-twin", label: "Reality Twin™" },
+  { href: "/synthetic-counterpart", label: "Synthetic Counterpart™" },
   { href: "/linkedin-verification", label: "LinkedIn Trust Verification" },
   { href: "/security", label: "Security Layer" },
   { href: "/admin", label: "Back Office / Admin" },

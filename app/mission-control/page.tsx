@@ -154,6 +154,7 @@ export default async function MissionControlPage() {
     ["Trust drift events", snapshot.metrics.trustDriftEvents],
     ["Reality Drift", snapshot.metrics.realityDriftEvents || "WATCH"],
     ["HPG signals", snapshot.metrics.hpgSignals || "STABLE"],
+    ["Clone Risk", snapshot.metrics.cloneRiskEvents || "WATCH"],
   ];
 
   return (
@@ -171,6 +172,8 @@ export default async function MissionControlPage() {
             ["/compliance-export", "Compliance Export"],
             ["/origin-dna", "Origin DNA"],
             ["/reality-chain", "Reality Chain"],
+            ["/reality-twin", "Reality Twin"],
+            ["/synthetic-counterpart", "Synthetic Counterpart"],
             ["/human-presence-genome", "Human Presence Genome"],
             ["/verifier-network", "Verifier Network"],
             ["/trust-feed", "Trust Feed"],

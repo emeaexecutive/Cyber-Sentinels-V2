@@ -62,6 +62,7 @@ export type MissionMetrics = {
   trustDriftEvents: number;
   realityDriftEvents: number;
   hpgSignals: number;
+  cloneRiskEvents: number;
 };
 
 export type MissionControlSnapshot = {
@@ -84,6 +85,8 @@ export const missionSections = [
   ["Reality Passport™", "/reality-passport"],
   ["Origin DNA™", "/origin-dna"],
   ["Reality Chain™", "/reality-chain"],
+  ["Reality Twin™", "/reality-twin"],
+  ["Synthetic Counterpart™", "/synthetic-counterpart"],
   ["Human Presence Index™", "/human-presence-index"],
   ["Human Presence Genome™", "/human-presence-genome"],
   ["Step-Up Verification™", "/step-up-verification"],
@@ -99,6 +102,7 @@ export const demoMissionSignals: MissionSignal[] = [
   { id: "demo-synthetic-escalation", event: "Synthetic escalation forecast" },
   { id: "demo-human-presence", event: "Human Presence changed" },
   { id: "demo-hpg", event: "Human Presence Genome stable" },
+  { id: "demo-clone-risk", event: "Synthetic clone risk detected" },
   { id: "demo-evidence-scan", event: "Evidence scan complete" },
   { id: "demo-admin-decision", event: "Admin decision created" },
   { id: "demo-reality-passport", event: "Reality Passport updated" },
@@ -139,6 +143,7 @@ export function createDemoMissionControlSnapshot(): MissionControlSnapshot {
       trustDriftEvents: 4,
       realityDriftEvents: 2,
       hpgSignals: 3,
+      cloneRiskEvents: 2,
     },
     systemIndicators: createSystemIndicators(),
     regionalActivity: createRegionalActivity(18),
@@ -238,6 +243,11 @@ export function createMissionControlSnapshot(
       signal.event
     )
   ).length;
+  const cloneRiskEvents = signals.filter((signal) =>
+    /clone_risk|synthetic_clone|identity_exposure|reality_twin/i.test(
+      signal.event
+    )
+  ).length;
   const signalFallback = signals.length ? signals.slice(0, 6) : demoMissionSignals;
 
   return {
@@ -253,6 +263,7 @@ export function createMissionControlSnapshot(
       trustDriftEvents,
       realityDriftEvents,
       hpgSignals,
+      cloneRiskEvents,
     },
     systemIndicators: createSystemIndicators(),
     regionalActivity: createRegionalActivity(

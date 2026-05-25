@@ -84,6 +84,9 @@ export default async function TrustPredictionPage() {
           <Link href="/human-presence-genome" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
             /human-presence-genome
           </Link>
+          <Link href="/reality-twin" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
+            /reality-twin
+          </Link>
         </nav>
 
         <section className="mt-10 grid gap-8 lg:grid-cols-[1fr_0.8fr]">
@@ -137,6 +140,14 @@ export default async function TrustPredictionPage() {
             <p className="mt-4 text-sm leading-6 text-zinc-500">
               Human Presence Genome shifts are treated as prediction inputs when
               behavioral stability drops or synthetic deviation rises.
+            </p>
+          </div>
+
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:col-span-2">
+            <h2 className="text-xl font-semibold">Clone Risk Signal Input</h2>
+            <p className="mt-4 text-sm leading-6 text-zinc-500">
+              Reality Twin and Synthetic Counterpart signals increase forecast
+              pressure when identity exposure rises or clone risk escalates.
             </p>
           </div>
         </section>

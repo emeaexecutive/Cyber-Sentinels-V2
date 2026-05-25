@@ -20,6 +20,7 @@ const hpgStates = [
   "under_review",
   "critical",
 ] as const;
+const cloneRiskStates = ["low", "watch", "elevated", "high", "critical"] as const;
 
 function getAllowed<T extends readonly string[]>(
   body: Record<string, unknown>,
@@ -91,6 +92,7 @@ export async function POST(req: Request) {
         getOptionalText(body, "admin_approval_status") ?? "approved",
       reality_drift: getAllowed(body, "reality_drift", realityDriftLevels, "low"),
       hpg_state: getAllowed(body, "hpg_state", hpgStates, "stable"),
+      clone_risk: getAllowed(body, "clone_risk", cloneRiskStates, "low"),
       trust_score:
         typeof body.trust_score === "number" ? body.trust_score : 90,
       human_presence_index:

@@ -53,6 +53,7 @@ export default async function PermissionsFirewallPage() {
             ["/step-up-verification", "Step-Up Verification"],
             ["/reality-chain", "Reality Chain"],
             ["/human-presence-genome", "Human Presence Genome"],
+            ["/reality-twin", "Reality Twin"],
             ["/revocation-engine", "Revocation Engine"],
             ["/trust-recovery", "Trust Recovery"],
             ["/admin", "Admin"],
@@ -199,6 +200,10 @@ export default async function PermissionsFirewallPage() {
             [
               "HPG Instability",
               "Anomalous or critical Human Presence Genome states force step-up before high-risk actions.",
+            ],
+            [
+              "Clone Risk",
+              "High synthetic clone risk from Reality Twin or Synthetic Counterpart forces step-up.",
             ],
           ].map(([title, body]) => (
             <div

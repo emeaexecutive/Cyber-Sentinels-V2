@@ -86,6 +86,7 @@ export function createDemoPrediction(): TrustPrediction {
       "Trust drift detected",
       "Reality Drift high",
       "HPG instability detected",
+      "Clone risk elevated",
       "Origin Trace weakening",
       "Repeated manual reviews",
     ],
@@ -103,6 +104,7 @@ export function createDemoPrediction(): TrustPrediction {
       "Trust drift detected",
       "Reality drift detected",
       "Human Presence Genome instability",
+      "Synthetic clone risk detected",
       "Behavior anomaly forecast",
       "Synthetic escalation forecast",
     ],
@@ -184,6 +186,11 @@ export function predictTrustRisk(sources: PredictionSources): TrustPrediction {
       signal.event
     )
   ).length;
+  const cloneRiskSignalCount = signals.filter((signal) =>
+    /clone_risk|synthetic_clone|identity_exposure|reality_twin/i.test(
+      signal.event
+    )
+  ).length;
   const reviewAuditCount = auditLogs.filter((log) =>
     /review|decision|verification/i.test(log.event_type)
   ).length;
@@ -243,6 +250,13 @@ export function predictTrustRisk(sources: PredictionSources): TrustPrediction {
     factors.push("HPG instability detected");
     emittedSignals.push("Human Presence Genome instability");
     recentTrustChanges.push("HPG: stable → drifting");
+  }
+
+  if (cloneRiskSignalCount > 0) {
+    score += 18;
+    factors.push("Clone risk elevated");
+    emittedSignals.push("Synthetic clone risk detected");
+    recentTrustChanges.push("Clone Risk: watch → elevated");
   }
 
   if (reviewAuditCount >= 4) {

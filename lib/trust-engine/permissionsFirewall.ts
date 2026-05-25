@@ -25,7 +25,8 @@ export type PermissionReasonCode =
   | "agent_restricted"
   | "api_key_revoked"
   | "reality_drift_high"
-  | "hpg_instability_high";
+  | "hpg_instability_high"
+  | "clone_risk_high";
 
 export type PermissionFirewallInput = {
   subject_type: PermissionSubjectType;
@@ -41,6 +42,7 @@ export type PermissionFirewallInput = {
   admin_approval_status?: string | null;
   reality_drift?: "low" | "medium" | "high" | "critical" | null;
   hpg_state?: "stable" | "drifting" | "anomalous" | "under_review" | "critical" | null;
+  clone_risk?: "low" | "watch" | "elevated" | "high" | "critical" | null;
 };
 
 export type PermissionFirewallResult = {
@@ -107,6 +109,7 @@ export const demoPermissionDecisions: Array<{
       admin_approval_status: "missing",
       reality_drift: "high",
       hpg_state: "drifting",
+      clone_risk: "high",
     },
   },
   {
@@ -243,6 +246,10 @@ export function evaluatePermissionsFirewall(
     reasonCodes.push("hpg_instability_high");
   }
 
+  if (input.clone_risk === "high" || input.clone_risk === "critical") {
+    reasonCodes.push("clone_risk_high");
+  }
+
   if (isHighRisk && input.admin_approval_status === "missing") {
     reasonCodes.push("admin_approval_required");
   }
@@ -282,6 +289,14 @@ export function evaluatePermissionsFirewall(
   }
 
   if (codes.includes("hpg_instability_high")) {
+    return {
+      decision: "step_up_required",
+      reason_codes: codes,
+      recommended_next_step: nextStep("step_up_required"),
+    };
+  }
+
+  if (codes.includes("clone_risk_high")) {
     return {
       decision: "step_up_required",
       reason_codes: codes,
