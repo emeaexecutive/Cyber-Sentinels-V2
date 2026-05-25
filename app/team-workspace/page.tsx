@@ -244,6 +244,7 @@ export default async function TeamWorkspacePage() {
             ["/team-access", "Team Access"],
             ["/verifier-network", "Verifier Network"],
             ["/trust-badges", "Trust Badges"],
+            ["/trust-seal-authority", "Trust Seals"],
             ["/client-portal", "Client Portal"],
             ["/verification-queue", "Verification Queue"],
             ["/developer-console", "Developer Console"],
@@ -384,6 +385,33 @@ export default async function TeamWorkspacePage() {
             rows={decisions.rows}
             fallback={demoTeamDecisions}
           />
+
+          <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Team Trust Seals</h2>
+            <div className="mt-5 space-y-3">
+              {[
+                "Team Trust Seal",
+                "Evidence Chain Verified Seal",
+                "Company Trust Seal",
+              ].map((seal) => (
+                <div
+                  key={seal}
+                  className="rounded-lg border border-zinc-800 bg-black p-4"
+                >
+                  <p className="font-medium text-zinc-100">{seal}</p>
+                  <p className="mt-2 text-sm text-zinc-500">
+                    Team seal placeholder
+                  </p>
+                </div>
+              ))}
+            </div>
+            <Link
+              href="/trust-seal-authority"
+              className="mt-5 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Seals
+            </Link>
+          </section>
 
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Team Trust Badges</h2>

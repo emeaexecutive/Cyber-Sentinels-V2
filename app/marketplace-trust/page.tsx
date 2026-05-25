@@ -20,6 +20,7 @@ export default function MarketplaceTrustPage() {
             ["/profile", "Public Profiles"],
             ["/trust-badges", "Trust Badges"],
             ["/trust-embeds", "Trust Embeds"],
+            ["/trust-seal-authority", "Trust Seals"],
             ["/api-docs", "API Docs"],
             ["/developer-console", "Developer Console"],
             ["/compliance-export", "Compliance Export"],
@@ -157,6 +158,24 @@ export default function MarketplaceTrustPage() {
                 </code>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Trust Seal Authority</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Marketplaces can display Cyber Sentinels seals for verified
+                sellers, creators, companies, agents and media objects.
+              </p>
+            </div>
+            <Link
+              href="/trust-seal-authority"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Seals
+            </Link>
           </div>
         </section>
 

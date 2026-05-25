@@ -40,6 +40,7 @@ export default function TrustEmbedsPage() {
             ["/verify", "Public Verify"],
             ["/profile", "Public Profiles"],
             ["/trust-badges", "Trust Badges"],
+            ["/trust-seal-authority", "Trust Seal Authority"],
             ["/marketplace-trust", "Marketplace Trust"],
             ["/developer-console", "Developer Console"],
           ].map(([href, label]) => (
@@ -101,6 +102,20 @@ export default function TrustEmbedsPage() {
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Seal Widgets</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-500">
+              Trust Seal Authority can power compact seal widgets for public
+              trust marks alongside profile and badge embeds.
+            </p>
+            <Link
+              href="/trust-seal-authority"
+              className="mt-5 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Seal Authority
+            </Link>
+          </div>
+
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Embed Code Placeholder</h2>
             <p className="mt-2 text-sm text-zinc-500">

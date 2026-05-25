@@ -25,6 +25,7 @@ export default function VerifyPage() {
             ["/profile", "Public Profiles"],
             ["/trust-badges", "Trust Badges"],
             ["/trust-embeds", "Trust Embeds"],
+            ["/trust-seal-authority", "Trust Seals"],
             ["/marketplace-trust", "Marketplace Trust"],
             ["/api-docs", "API Docs"],
           ].map(([href, label]) => (
@@ -67,6 +68,24 @@ export default function VerifyPage() {
             V1 examples link directly below while signed verification IDs are
             prepared.
           </p>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Seal Verification</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Verify Cyber Sentinels trust seals through public-safe seal
+                pages or the seal verification API.
+              </p>
+            </div>
+            <Link
+              href="/trust-seal-authority"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Seals
+            </Link>
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

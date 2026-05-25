@@ -183,6 +183,7 @@ export default async function ClientPortalPage() {
             ["/verification-queue", "Verification Queue"],
             ["/compliance-export", "Compliance Export"],
             ["/trust-badges", "Trust Badges"],
+            ["/trust-seal-authority", "Trust Seals"],
             ["/verify", "Public Verify"],
             ["/profile", "Public Profiles"],
             ["/trust-feed", "Trust Feed"],
@@ -372,6 +373,35 @@ export default async function ClientPortalPage() {
               className="mt-5 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
               Open Trust Feed
+            </Link>
+          </div>
+
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">My Trust Seals</h2>
+            <p className="mt-2 text-sm text-zinc-500">
+              Public-safe seals issued for active passports, reports, profiles
+              and verified trust objects.
+            </p>
+            <div className="mt-5 space-y-3">
+              {["Verified Human Seal", "Reality Passport Seal", "HPI Checked Seal"].map(
+                (seal) => (
+                  <div
+                    key={seal}
+                    className="rounded-lg border border-zinc-800 bg-black p-4"
+                  >
+                    <p className="font-medium text-zinc-100">{seal}</p>
+                    <p className="mt-2 text-sm text-zinc-500">
+                      Seal status placeholder
+                    </p>
+                  </div>
+                )
+              )}
+            </div>
+            <Link
+              href="/trust-seal-authority"
+              className="mt-5 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Seals
             </Link>
           </div>
 

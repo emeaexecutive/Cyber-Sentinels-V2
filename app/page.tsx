@@ -87,6 +87,12 @@ const trustModules = [
     metric: "Embeds",
   },
   {
+    name: "Trust Seal Authority(TM)",
+    href: "/trust-seal-authority",
+    copy: "Issue public-safe trust marks for verified humans, agents, companies, teams, marketplaces and media.",
+    metric: "Seals",
+  },
+  {
     name: "AI Agent Passport",
     href: "/agent-passport",
     copy: "Track autonomous agent identity, permissions, behavior and accountability.",
@@ -298,6 +304,7 @@ const routeLinks = [
   { href: "/reality-os", label: "Reality OS(TM)" },
   { href: "/trust-fabric", label: "Trust Fabric(TM)" },
   { href: "/trust-embeds", label: "Trust Embeds(TM)" },
+  { href: "/trust-seal-authority", label: "Trust Seal Authority(TM)" },
   { href: "/linkedin-verification", label: "LinkedIn Trust Verification" },
   { href: "/security", label: "Security Layer" },
   { href: "/admin", label: "Back Office / Admin" },
