@@ -69,6 +69,18 @@ const trustModules = [
     metric: "Clone",
   },
   {
+    name: "Reality OS(TM)",
+    href: "/reality-os",
+    copy: "Orchestrate humans, AI agents, evidence, media and permissions as one trust operating layer.",
+    metric: "OS",
+  },
+  {
+    name: "Trust Fabric(TM)",
+    href: "/trust-fabric",
+    copy: "Connect trust signals, evidence, decisions, permissions and relationships across the platform.",
+    metric: "Fabric",
+  },
+  {
     name: "AI Agent Passport",
     href: "/agent-passport",
     copy: "Track autonomous agent identity, permissions, behavior and accountability.",
@@ -277,6 +289,8 @@ const routeLinks = [
   { href: "/reality-chain", label: "Reality Chain™" },
   { href: "/reality-twin", label: "Reality Twin™" },
   { href: "/synthetic-counterpart", label: "Synthetic Counterpart™" },
+  { href: "/reality-os", label: "Reality OS(TM)" },
+  { href: "/trust-fabric", label: "Trust Fabric(TM)" },
   { href: "/linkedin-verification", label: "LinkedIn Trust Verification" },
   { href: "/security", label: "Security Layer" },
   { href: "/admin", label: "Back Office / Admin" },

@@ -20,6 +20,7 @@ import {
   predictTrustRisk,
   type PredictionInputDecision,
 } from "@/lib/trust-engine/predictions";
+import { evaluateTrustFabric } from "@/lib/trust-engine/trustFabric";
 
 export const dynamic = "force-dynamic";
 
@@ -372,6 +373,24 @@ export default async function AdminPage() {
     signals: signals.rows,
     auditLogs: auditLogs.rows,
     decisions: decisions.rows as PredictionInputDecision[],
+    fabricActivity: signals.count + auditLogs.count + decisions.count,
+  });
+  const trustFabric = evaluateTrustFabric({
+    active_nodes:
+      passports.count +
+      verificationCases.count +
+      signals.count +
+      decisions.count +
+      evidenceFiles.count,
+    humans: passports.rows.filter((passport) => passport.subject_type === "human")
+      .length,
+    agents: passports.rows.filter((passport) => passport.subject_type === "agent")
+      .length,
+    signals: signals.count,
+    decisions: decisions.count,
+    evidence: evidenceFiles.count,
+    relationships: signals.count + auditLogs.count + decisions.count,
+    global_activity: signals.count + auditLogs.count,
   });
   const linkedInReviewQueue = [
     ...passports.rows.map((passport) => ({
@@ -604,6 +623,18 @@ export default async function AdminPage() {
             className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
           >
             Open Public Profiles
+          </Link>
+          <Link
+            href="/reality-os"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Reality OS
+          </Link>
+          <Link
+            href="/trust-fabric"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Trust Fabric
           </Link>
         </section>
 
@@ -1044,6 +1075,40 @@ export default async function AdminPage() {
             ) : (
               <EmptyState label="No active verification work in queue." />
             )}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Trust Fabric</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Connected trust signals across passports, evidence, decisions,
+                audits and operational relationships.
+              </p>
+            </div>
+            <Link
+              href="/trust-fabric"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Fabric
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["Active Nodes", trustFabric.active_nodes],
+              ["Signals", trustFabric.signals],
+              ["Relationships", trustFabric.relationships],
+              ["Health", trustFabric.health],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-lg border border-zinc-800 bg-black p-4"
+              >
+                <p className="text-sm text-zinc-500">{label}</p>
+                <p className="mt-2 text-2xl font-semibold capitalize">{value}</p>
+              </div>
+            ))}
           </div>
         </section>
 

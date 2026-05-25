@@ -32,6 +32,7 @@ export type PredictionSources = {
   signals?: PredictionInputSignal[] | null;
   auditLogs?: PredictionInputAuditLog[] | null;
   decisions?: PredictionInputDecision[] | null;
+  fabricActivity?: number | null;
 };
 
 export type TrustPrediction = {
@@ -117,12 +118,15 @@ export function predictTrustRisk(sources: PredictionSources): TrustPrediction {
   const signals = sources.signals ?? [];
   const auditLogs = sources.auditLogs ?? [];
   const decisions = sources.decisions ?? [];
+  const fabricActivity =
+    typeof sources.fabricActivity === "number" ? sources.fabricActivity : 0;
 
   if (
     !passports.length &&
     !signals.length &&
     !auditLogs.length &&
-    !decisions.length
+    !decisions.length &&
+    !fabricActivity
   ) {
     return createDemoPrediction();
   }
@@ -262,6 +266,13 @@ export function predictTrustRisk(sources: PredictionSources): TrustPrediction {
   if (reviewAuditCount >= 4) {
     score += 8;
     factors.push("Review history indicates elevated scrutiny");
+  }
+
+  if (fabricActivity >= 100) {
+    score += 10;
+    factors.push("Trust Fabric activity increasing");
+    emittedSignals.push("Trust Fabric shift detected");
+    recentTrustChanges.push("Trust Fabric: monitoring -> adaptive");
   }
 
   const predictionScore = clampScore(score);

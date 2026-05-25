@@ -87,6 +87,8 @@ export const missionSections = [
   ["Reality Chain™", "/reality-chain"],
   ["Reality Twin™", "/reality-twin"],
   ["Synthetic Counterpart™", "/synthetic-counterpart"],
+  ["Reality OS(TM)", "/reality-os"],
+  ["Trust Fabric(TM)", "/trust-fabric"],
   ["Human Presence Index™", "/human-presence-index"],
   ["Human Presence Genome™", "/human-presence-genome"],
   ["Step-Up Verification™", "/step-up-verification"],

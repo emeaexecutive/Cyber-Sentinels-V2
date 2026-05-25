@@ -63,6 +63,7 @@ export default async function TrustPredictionPage() {
     signals,
     auditLogs,
     decisions,
+    fabricActivity: signals.length + auditLogs.length + decisions.length,
   });
 
   return (
@@ -148,6 +149,14 @@ export default async function TrustPredictionPage() {
             <p className="mt-4 text-sm leading-6 text-zinc-500">
               Reality Twin and Synthetic Counterpart signals increase forecast
               pressure when identity exposure rises or clone risk escalates.
+            </p>
+          </div>
+
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:col-span-2">
+            <h2 className="text-xl font-semibold">Trust Fabric Activity</h2>
+            <p className="mt-4 text-sm leading-6 text-zinc-500">
+              Fabric activity from signals, audit events and decisions is used
+              as prediction pressure when connected trust systems shift at once.
             </p>
           </div>
         </section>

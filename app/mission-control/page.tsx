@@ -12,6 +12,7 @@ import {
 } from "@/lib/trust-engine/missionControl";
 import { normalizeAgents, type AgentRow } from "@/lib/trust-engine/agentRegistry";
 import { getPublicTrustFeed } from "@/lib/trust-feed/feed";
+import { evaluateRealityOS } from "@/lib/trust-engine/realityOS";
 
 export const dynamic = "force-dynamic";
 
@@ -134,7 +135,25 @@ export default async function MissionControlPage() {
       /verifier|case_assigned/i.test(signal.event)
     ).length ?? 0;
   const trustFeedItems = getPublicTrustFeed(4);
+  const realityOS = evaluateRealityOS({
+    active_nodes:
+      snapshot.metrics.activeVerifications +
+      agents.length +
+      snapshot.metrics.signalsToday +
+      snapshot.metrics.manualReviews,
+    agents: agents.length,
+    signals: snapshot.metrics.signalsToday || snapshot.metrics.cloneRiskEvents,
+    decisions: snapshot.metrics.manualReviews,
+    evidence: snapshot.metrics.evidencePendingScan,
+    synthetic_activity:
+      snapshot.metrics.cloneRiskEvents + snapshot.metrics.realityDriftEvents,
+    global_activity:
+      snapshot.metrics.signalsToday + snapshot.metrics.apiCallsToday,
+    permission_pressure: stepUpRequired + revocationEvents,
+    human_presence_strength: snapshot.metrics.averageTrustScore || 84,
+  });
   const metrics = [
+    ["Reality OS status", realityOS.state],
     ["Active verifications", snapshot.metrics.activeVerifications],
     ["Registered agents", agents.length],
     ["Permissions firewall", "ACTIVE"],
@@ -174,6 +193,8 @@ export default async function MissionControlPage() {
             ["/reality-chain", "Reality Chain"],
             ["/reality-twin", "Reality Twin"],
             ["/synthetic-counterpart", "Synthetic Counterpart"],
+            ["/reality-os", "Reality OS"],
+            ["/trust-fabric", "Trust Fabric"],
             ["/human-presence-genome", "Human Presence Genome"],
             ["/verifier-network", "Verifier Network"],
             ["/trust-feed", "Trust Feed"],

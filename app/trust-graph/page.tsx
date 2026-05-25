@@ -14,6 +14,7 @@ import {
   type TrustReportGraphRow,
   type VerificationCaseGraphRow,
 } from "@/lib/trust-engine/graph";
+import { evaluateTrustFabric } from "@/lib/trust-engine/trustFabric";
 
 export const dynamic = "force-dynamic";
 
@@ -147,6 +148,14 @@ export default async function TrustGraphPage() {
     verificationCases,
     evidenceFiles,
   });
+  const trustFabric = evaluateTrustFabric({
+    active_nodes: graph.nodes.length,
+    signals: signals.length,
+    decisions: decisions.length,
+    evidence: evidenceFiles.length,
+    relationships: graph.edges.length,
+    global_activity: graph.nodes.length + graph.edges.length,
+  });
   const edgeCounts = new Map(
     graph.nodes.map((node) => [node.id, graphEdgesForNode(graph, node.id).length])
   );
@@ -163,6 +172,9 @@ export default async function TrustGraphPage() {
           </Link>
           <Link href="/admin" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
             /admin
+          </Link>
+          <Link href="/trust-fabric" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
+            /trust-fabric
           </Link>
         </nav>
 
@@ -186,6 +198,40 @@ export default async function TrustGraphPage() {
               <p className="mt-3 text-3xl font-semibold">{value}</p>
             </div>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Trust Fabric Connection</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Graph nodes and edges feed the connective fabric used by
+                Reality OS, Prediction and Mission Control.
+              </p>
+            </div>
+            <Link
+              href="/trust-fabric"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Fabric
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["Fabric Nodes", trustFabric.active_nodes],
+              ["Fabric Relationships", trustFabric.relationships],
+              ["Fabric Signals", trustFabric.signals],
+              ["Fabric Health", trustFabric.health],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-lg border border-zinc-800 bg-black p-4"
+              >
+                <p className="text-sm text-zinc-500">{label}</p>
+                <p className="mt-2 text-2xl font-semibold capitalize">{value}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-10 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
