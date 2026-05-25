@@ -599,6 +599,12 @@ export default async function AdminPage() {
           >
             Open Public Verification
           </Link>
+          <Link
+            href="/profile"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Public Profiles
+          </Link>
         </section>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -885,6 +891,40 @@ export default async function AdminPage() {
               ["Signal", "trust_badge_verified"],
               ["Audit", "trust_badge_verified"],
               ["Security", "public-safe summary"],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-lg border border-zinc-800 bg-black p-4"
+              >
+                <p className="text-sm text-zinc-500">{label}</p>
+                <p className="mt-2 text-sm font-medium text-zinc-200">{value}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Public Profile Preview</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Shareable public trust profiles for humans, candidates, agents,
+                companies, creators and verifiers.
+              </p>
+            </div>
+            <Link
+              href="/profile"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Public Profiles
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["API", "/api/public/profile/[id]"],
+              ["Signal", "public_profile_viewed"],
+              ["Audit", "public_profile_viewed"],
+              ["Security", "no private evidence"],
             ].map(([label, value]) => (
               <div
                 key={label}

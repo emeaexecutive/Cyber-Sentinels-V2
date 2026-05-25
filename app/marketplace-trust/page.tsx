@@ -16,6 +16,7 @@ export default function MarketplaceTrustPage() {
           {[
             ["/", "Home"],
             ["/verify", "Public Verify"],
+            ["/profile", "Public Profiles"],
             ["/trust-badges", "Trust Badges"],
             ["/api-docs", "API Docs"],
             ["/developer-console", "Developer Console"],
@@ -87,7 +88,7 @@ export default function MarketplaceTrustPage() {
             ],
             [
               "API Integration",
-              "Trust checks, public verify endpoint, badge verification and report exports for partner platforms.",
+              "Trust checks, public profile verification, badge verification and report exports for partner platforms.",
             ],
             [
               "Trust Badges",

@@ -22,6 +22,7 @@ export default function TrustBadgesPage() {
           {[
             ["/", "Home"],
             ["/verify", "Public Verify"],
+            ["/profile", "Public Profiles"],
             ["/marketplace-trust", "Marketplace Trust"],
             ["/developer-console", "Developer Console"],
             ["/client-portal", "Client Portal"],
@@ -46,7 +47,8 @@ export default function TrustBadgesPage() {
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
             Badge examples and states for humans, agents, media, evidence and
-            marketplace interactions.
+            marketplace interactions. Badges can be embedded into public trust
+            profiles without exposing private evidence.
           </p>
         </section>
 

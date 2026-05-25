@@ -123,6 +123,12 @@ const trustModules = [
     metric: "Verify",
   },
   {
+    name: "Public Trust Profile™",
+    href: "/profile",
+    copy: "Share public-safe trust profiles for humans, candidates, agents, companies and creators.",
+    metric: "Profiles",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -225,6 +231,7 @@ const routeLinks = [
   { href: "/marketplace-trust", label: "Marketplace Trust Layer™" },
   { href: "/trust-badges", label: "Trust Badges" },
   { href: "/verify", label: "Public Verification Portal™" },
+  { href: "/profile", label: "Public Trust Profile™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },

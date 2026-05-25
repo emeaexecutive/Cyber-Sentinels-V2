@@ -22,6 +22,7 @@ export default function VerifyPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
+            ["/profile", "Public Profiles"],
             ["/trust-badges", "Trust Badges"],
             ["/marketplace-trust", "Marketplace Trust"],
             ["/api-docs", "API Docs"],
@@ -65,6 +66,24 @@ export default function VerifyPage() {
             V1 examples link directly below while signed verification IDs are
             prepared.
           </p>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Public Trust Profiles</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Share public-safe trust pages for verified humans, candidates,
+                AI agents, companies and creators.
+              </p>
+            </div>
+            <Link
+              href="/profile"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Public Profiles
+            </Link>
+          </div>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
