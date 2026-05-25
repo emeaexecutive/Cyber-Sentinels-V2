@@ -563,6 +563,12 @@ export default async function AdminPage() {
           >
             View Client Portal
           </Link>
+          <Link
+            href="/team-workspace"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            View Team Workspace
+          </Link>
         </section>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -756,6 +762,40 @@ export default async function AdminPage() {
             ) : (
               <EmptyState label="No live compliance exports. Demo report packs are available in Compliance Export." />
             )}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Team Workspace Preview</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Shared operations for team-owned passports, cases, reports, API
+                keys, billing and admin decisions.
+              </p>
+            </div>
+            <Link
+              href="/team-workspace"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Team Workspace
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["Team roles", "owner / admin / reviewer"],
+              ["Permissions", "review_cases / manage_api_keys"],
+              ["Plan", "Teams placeholder"],
+              ["Data key", "team_id"],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-lg border border-zinc-800 bg-black p-4"
+              >
+                <p className="text-sm text-zinc-500">{label}</p>
+                <p className="mt-2 text-sm font-medium text-zinc-200">{value}</p>
+              </div>
+            ))}
           </div>
         </section>
 

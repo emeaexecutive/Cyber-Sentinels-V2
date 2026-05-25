@@ -93,6 +93,7 @@ export default async function DeveloperConsolePage() {
             ["/step-up-verification", "Step-Up Verification"],
             ["/revocation-engine", "Revocation Engine"],
             ["/compliance-export", "Compliance Export"],
+            ["/team-workspace", "Team Workspace"],
             ["/global-trust", "Global Trust"],
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
@@ -254,6 +255,10 @@ export default async function DeveloperConsolePage() {
               <p>
                 Report summaries and compliance exports should be exposed only
                 through scoped API access.
+              </p>
+              <p>
+                Team API keys should inherit team roles, billing limits and
+                revocation rules.
               </p>
               <p>Every production trust decision should emit audit and signal events.</p>
             </div>

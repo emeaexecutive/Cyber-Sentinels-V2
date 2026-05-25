@@ -177,6 +177,7 @@ export default async function ClientPortalPage() {
           {[
             ["/", "Home"],
             ["/passport", "Trust Passport"],
+            ["/team-workspace", "Team Workspace"],
             ["/verification-queue", "Verification Queue"],
             ["/compliance-export", "Compliance Export"],
             ["/billing", "Billing"],
@@ -350,6 +351,12 @@ export default async function ClientPortalPage() {
               className="mt-5 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
               Open Billing
+            </Link>
+            <Link
+              href="/team-workspace"
+              className="ml-2 mt-5 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Team Workspace
             </Link>
           </div>
 

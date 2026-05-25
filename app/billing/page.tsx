@@ -61,6 +61,7 @@ export default async function BillingPage() {
             ["/", "Home"],
             ["/clearances", "Clearances"],
             ["/client-portal", "Client Portal"],
+            ["/team-workspace", "Team Workspace"],
             ["/developer-console", "Developer Console"],
             ["/compliance-export", "Compliance Export"],
             ["/admin", "Admin"],
@@ -142,6 +143,14 @@ export default async function BillingPage() {
                     Start checkout
                   </button>
                 </form>
+                {plan.tier === "teams" ? (
+                  <Link
+                    href="/team-workspace"
+                    className="mt-3 inline-flex w-full justify-center rounded-lg border border-cyan-800 px-3 py-2 text-sm text-cyan-200 hover:text-white"
+                  >
+                    Open Team Workspace
+                  </Link>
+                ) : null}
               </div>
             ))}
           </div>

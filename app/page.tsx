@@ -87,6 +87,12 @@ const trustModules = [
     metric: "Clients",
   },
   {
+    name: "Team Workspace™",
+    href: "/team-workspace",
+    copy: "Coordinate shared trust operations, reviews, reports, evidence and API usage for teams.",
+    metric: "Teams",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -183,6 +189,7 @@ const routeLinks = [
   { href: "/trust-recovery", label: "Trust Recovery™" },
   { href: "/compliance-export", label: "Compliance Export™" },
   { href: "/client-portal", label: "Client Portal™" },
+  { href: "/team-workspace", label: "Team Workspace™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },
