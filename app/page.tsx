@@ -93,6 +93,12 @@ const trustModules = [
     metric: "Teams",
   },
   {
+    name: "Team Access",
+    href: "/team-access",
+    copy: "Invite team members, assign roles and prepare access controls for shared trust operations.",
+    metric: "Roles",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -190,6 +196,7 @@ const routeLinks = [
   { href: "/compliance-export", label: "Compliance Export™" },
   { href: "/client-portal", label: "Client Portal™" },
   { href: "/team-workspace", label: "Team Workspace™" },
+  { href: "/team-access", label: "Team Access" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },

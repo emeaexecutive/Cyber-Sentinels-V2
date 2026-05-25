@@ -83,7 +83,8 @@ export default async function BillingPage() {
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">Billing</h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
             Manage clearance tier, usage and billing placeholders before Stripe
-            Checkout is connected.
+            Checkout is connected. Team plans are role-based for owners,
+            admins, reviewers, analysts and viewers.
           </p>
         </section>
 

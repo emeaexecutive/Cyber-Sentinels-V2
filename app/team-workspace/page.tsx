@@ -241,6 +241,7 @@ export default async function TeamWorkspacePage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
+            ["/team-access", "Team Access"],
             ["/client-portal", "Client Portal"],
             ["/verification-queue", "Verification Queue"],
             ["/developer-console", "Developer Console"],
@@ -268,6 +269,12 @@ export default async function TeamWorkspacePage() {
             Trust operations for teams verifying humans, AI agents, candidates
             and synthetic media.
           </p>
+          <Link
+            href="/team-access"
+            className="mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Manage Team Access
+          </Link>
           {isDemo ? (
             <p className="mt-3 text-sm text-zinc-600">
               Showing demo team workspace until teams and team_members tables

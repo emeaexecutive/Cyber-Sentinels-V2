@@ -94,6 +94,7 @@ export default async function DeveloperConsolePage() {
             ["/revocation-engine", "Revocation Engine"],
             ["/compliance-export", "Compliance Export"],
             ["/team-workspace", "Team Workspace"],
+            ["/team-access", "Team Access"],
             ["/global-trust", "Global Trust"],
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
@@ -259,6 +260,10 @@ export default async function DeveloperConsolePage() {
               <p>
                 Team API keys should inherit team roles, billing limits and
                 revocation rules.
+              </p>
+              <p>
+                Team API access should respect Team Access roles before key
+                creation or rotation.
               </p>
               <p>Every production trust decision should emit audit and signal events.</p>
             </div>

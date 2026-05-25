@@ -14,6 +14,8 @@ export const teamPermissions = [
   "view_reports",
   "manage_api_keys",
   "manage_billing",
+  "view_evidence",
+  "export_reports",
 ] as const;
 
 export const futureTeamFields = [
