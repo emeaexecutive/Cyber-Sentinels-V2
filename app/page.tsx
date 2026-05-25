@@ -129,6 +129,12 @@ const trustModules = [
     metric: "Profiles",
   },
   {
+    name: "Trust Feed™",
+    href: "/trust-feed",
+    copy: "View public-safe trust activity across profiles, badges, passports, agents and marketplaces.",
+    metric: "Activity",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -232,6 +238,7 @@ const routeLinks = [
   { href: "/trust-badges", label: "Trust Badges" },
   { href: "/verify", label: "Public Verification Portal™" },
   { href: "/profile", label: "Public Trust Profile™" },
+  { href: "/trust-feed", label: "Trust Feed™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },

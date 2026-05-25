@@ -86,6 +86,7 @@ export const missionSections = [
   ["Trust Recovery™", "/trust-recovery"],
   ["Compliance Export™", "/compliance-export"],
   ["Verifier Network™", "/verifier-network"],
+  ["Trust Feed™", "/trust-feed"],
 ] as const;
 
 export const demoMissionSignals: MissionSignal[] = [
@@ -100,6 +101,7 @@ export const demoMissionSignals: MissionSignal[] = [
   { id: "demo-recovery", event: "Trust recovery requested" },
   { id: "demo-compliance-export", event: "Compliance export created" },
   { id: "demo-verifier-assignment", event: "Case assigned to verifier" },
+  { id: "demo-trust-feed", event: "Public activity generated" },
 ];
 
 function isToday(value: string | null | undefined) {

@@ -13,6 +13,7 @@ import {
   futureClientOwnershipFields,
   type ClientOwnedFields,
 } from "@/lib/trust-engine/clientPortal";
+import { getPublicTrustFeed } from "@/lib/trust-feed/feed";
 
 export const dynamic = "force-dynamic";
 
@@ -164,6 +165,7 @@ export default async function ClientPortalPage() {
     ["API Usage", demoClientSummary.api_usage],
     ["Current Clearance", demoClientSummary.current_clearance],
   ];
+  const myActivity = getPublicTrustFeed(3);
 
   await createSignal(supabase, "client_portal_opened");
   await createAuditLog(supabase, "client_portal_accessed", user.email, {
@@ -183,6 +185,7 @@ export default async function ClientPortalPage() {
             ["/trust-badges", "Trust Badges"],
             ["/verify", "Public Verify"],
             ["/profile", "Public Profiles"],
+            ["/trust-feed", "Trust Feed"],
             ["/billing", "Billing"],
             ["/developer-console", "Developer Console"],
           ].map(([href, label]) => (
@@ -344,6 +347,34 @@ export default async function ClientPortalPage() {
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-3">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">My Activity</h2>
+            <p className="mt-2 text-sm text-zinc-500">
+              Public-safe trust activity from profiles, badges, passports and
+              verification updates.
+            </p>
+            <div className="mt-5 space-y-3">
+              {myActivity.map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.public_link}
+                  className="block rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-700"
+                >
+                  <p className="font-medium text-zinc-100">{item.event}</p>
+                  <p className="mt-2 text-sm text-zinc-500">
+                    {item.subject_name} / {item.status}
+                  </p>
+                </Link>
+              ))}
+            </div>
+            <Link
+              href="/trust-feed"
+              className="mt-5 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Feed
+            </Link>
+          </div>
+
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Trust Badges</h2>
             <p className="mt-2 text-sm text-zinc-500">

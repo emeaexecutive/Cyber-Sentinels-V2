@@ -11,6 +11,7 @@ import {
   type MissionVerificationCase,
 } from "@/lib/trust-engine/missionControl";
 import { normalizeAgents, type AgentRow } from "@/lib/trust-engine/agentRegistry";
+import { getPublicTrustFeed } from "@/lib/trust-feed/feed";
 
 export const dynamic = "force-dynamic";
 
@@ -132,6 +133,7 @@ export default async function MissionControlPage() {
     signalsResult.data?.filter((signal) =>
       /verifier|case_assigned/i.test(signal.event)
     ).length ?? 0;
+  const trustFeedItems = getPublicTrustFeed(4);
   const metrics = [
     ["Active verifications", snapshot.metrics.activeVerifications],
     ["Registered agents", agents.length],
@@ -141,6 +143,7 @@ export default async function MissionControlPage() {
     ["Recovery Queue", recoveryQueue],
     ["Export Center", exportCenter || "READY"],
     ["Verifier Network", verifierNetwork || "READY"],
+    ["Trust Feed", trustFeedItems.length],
     ["Critical alerts", snapshot.metrics.criticalAlerts],
     ["Signals today", snapshot.metrics.signalsToday],
     ["Average trust score", snapshot.metrics.averageTrustScore],
@@ -165,6 +168,7 @@ export default async function MissionControlPage() {
             ["/trust-recovery", "Trust Recovery"],
             ["/compliance-export", "Compliance Export"],
             ["/verifier-network", "Verifier Network"],
+            ["/trust-feed", "Trust Feed"],
             ["/verification-queue", "Verification Queue"],
             ["/global-trust", "Global Trust"],
           ].map(([href, label]) => (
@@ -273,6 +277,37 @@ export default async function MissionControlPage() {
                   {formatTime(signal.created_at)}
                 </p>
               </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Trust Feed Preview</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Public-safe network activity across badges, profiles, agents and marketplaces.
+              </p>
+            </div>
+            <Link
+              href="/trust-feed"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Feed
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {trustFeedItems.map((item) => (
+              <Link
+                key={item.id}
+                href={item.public_link}
+                className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-zinc-500"
+              >
+                <p className="font-medium text-zinc-100">{item.event}</p>
+                <p className="mt-2 text-sm text-zinc-500">
+                  {item.subject_name} / {item.trust_band}
+                </p>
+              </Link>
             ))}
           </div>
         </section>

@@ -4,6 +4,7 @@ import {
   publicProfileStatuses,
   publicProfileTypes,
 } from "@/lib/public-profile/profile";
+import { getPublicTrustFeed } from "@/lib/trust-feed/feed";
 
 function statusClass(status: string) {
   if (status === "active") return "border-emerald-700 text-emerald-200";
@@ -15,6 +16,8 @@ function statusClass(status: string) {
 }
 
 export default function PublicProfilesPage() {
+  const recentActivity = getPublicTrustFeed(4);
+
   return (
     <main className="min-h-screen bg-black px-6 py-8 text-white md:px-8">
       <div className="mx-auto max-w-7xl">
@@ -115,6 +118,37 @@ export default function PublicProfilesPage() {
                 </span>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Recent Activity</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Public-safe trust activity connected to profiles and badges.
+              </p>
+            </div>
+            <Link
+              href="/trust-feed"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Feed
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {recentActivity.map((item) => (
+              <Link
+                key={item.id}
+                href={item.public_link}
+                className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-zinc-500"
+              >
+                <p className="font-medium text-zinc-100">{item.event}</p>
+                <p className="mt-2 text-sm text-zinc-500">
+                  {item.subject_name} / {item.status}
+                </p>
+              </Link>
+            ))}
           </div>
         </section>
       </div>
