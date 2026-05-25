@@ -581,6 +581,18 @@ export default async function AdminPage() {
           >
             Open Verifier Network
           </Link>
+          <Link
+            href="/marketplace-trust"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Marketplace Trust
+          </Link>
+          <Link
+            href="/trust-badges"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Trust Badges
+          </Link>
         </section>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -833,6 +845,40 @@ export default async function AdminPage() {
               ["Status", "pending / approved / suspended"],
               ["Assignments", "case_assigned_to_verifier"],
               ["Admin rule", "future approval only"],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-lg border border-zinc-800 bg-black p-4"
+              >
+                <p className="text-sm text-zinc-500">{label}</p>
+                <p className="mt-2 text-sm font-medium text-zinc-200">{value}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Badge Verification</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Public-safe badge checks for marketplaces, client portals and
+                trust partners.
+              </p>
+            </div>
+            <Link
+              href="/trust-badges"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Badges
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["API", "/api/badges/verify"],
+              ["Signal", "trust_badge_verified"],
+              ["Audit", "trust_badge_verified"],
+              ["Security", "public-safe summary"],
             ].map(([label, value]) => (
               <div
                 key={label}

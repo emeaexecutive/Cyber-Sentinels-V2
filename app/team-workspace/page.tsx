@@ -243,6 +243,7 @@ export default async function TeamWorkspacePage() {
             ["/", "Home"],
             ["/team-access", "Team Access"],
             ["/verifier-network", "Verifier Network"],
+            ["/trust-badges", "Trust Badges"],
             ["/client-portal", "Client Portal"],
             ["/verification-queue", "Verification Queue"],
             ["/developer-console", "Developer Console"],
@@ -383,6 +384,27 @@ export default async function TeamWorkspacePage() {
             rows={decisions.rows}
             fallback={demoTeamDecisions}
           />
+
+          <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Team Trust Badges</h2>
+            <div className="mt-5 space-y-3">
+              {[
+                "Verified Agent",
+                "Origin Trace Checked",
+                "Evidence Chain Verified",
+              ].map((badge) => (
+                <div
+                  key={badge}
+                  className="rounded-lg border border-zinc-800 bg-black p-4"
+                >
+                  <p className="font-medium text-zinc-100">{badge}</p>
+                  <p className="mt-2 text-sm text-zinc-500">
+                    Team badge placeholder
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
 
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Recent Team Signals</h2>

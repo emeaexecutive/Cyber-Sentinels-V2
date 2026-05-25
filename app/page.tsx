@@ -105,6 +105,18 @@ const trustModules = [
     metric: "Partners",
   },
   {
+    name: "Marketplace Trust Layer™",
+    href: "/marketplace-trust",
+    copy: "Verify users, sellers, candidates, creators, agents, media and high-risk marketplace interactions.",
+    metric: "Marketplaces",
+  },
+  {
+    name: "Trust Badges",
+    href: "/trust-badges",
+    copy: "Issue and verify public-safe trust badges for external platforms and customers.",
+    metric: "Badges",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -204,6 +216,8 @@ const routeLinks = [
   { href: "/team-workspace", label: "Team Workspace™" },
   { href: "/team-access", label: "Team Access" },
   { href: "/verifier-network", label: "Verifier Network™" },
+  { href: "/marketplace-trust", label: "Marketplace Trust Layer™" },
+  { href: "/trust-badges", label: "Trust Badges" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },

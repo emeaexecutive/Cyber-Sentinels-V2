@@ -22,6 +22,7 @@ const endpoints = [
   ["GET", "/api/trust/evidence", "Read evidence summary and upload status."],
   ["POST", "/api/step-up", "Request stronger proof for high-risk actions."],
   ["POST", "/api/compliance/export", "Create report export placeholders."],
+  ["POST", "/api/badges/verify", "Verify public-safe trust badges."],
 ];
 
 function formatDate(value: string | null) {
@@ -95,6 +96,8 @@ export default async function DeveloperConsolePage() {
             ["/compliance-export", "Compliance Export"],
             ["/team-workspace", "Team Workspace"],
             ["/team-access", "Team Access"],
+            ["/marketplace-trust", "Marketplace Trust"],
+            ["/trust-badges", "Trust Badges"],
             ["/global-trust", "Global Trust"],
             ["/admin", "Admin"],
             ["/command-center", "Command Center"],
@@ -264,6 +267,10 @@ export default async function DeveloperConsolePage() {
               <p>
                 Team API access should respect Team Access roles before key
                 creation or rotation.
+              </p>
+              <p>
+                Marketplace integrations can verify public trust badges through
+                the badge verification API.
               </p>
               <p>Every production trust decision should emit audit and signal events.</p>
             </div>

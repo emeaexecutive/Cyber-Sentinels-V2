@@ -62,6 +62,7 @@ export default async function BillingPage() {
             ["/clearances", "Clearances"],
             ["/client-portal", "Client Portal"],
             ["/team-workspace", "Team Workspace"],
+            ["/marketplace-trust", "Marketplace Trust"],
             ["/developer-console", "Developer Console"],
             ["/compliance-export", "Compliance Export"],
             ["/admin", "Admin"],
@@ -84,7 +85,8 @@ export default async function BillingPage() {
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
             Manage clearance tier, usage and billing placeholders before Stripe
             Checkout is connected. Team plans are role-based for owners,
-            admins, reviewers, analysts and viewers.
+            admins, reviewers, analysts and viewers. Marketplace and badge API
+            usage can share the same API limit placeholders.
           </p>
         </section>
 
@@ -164,7 +166,8 @@ export default async function BillingPage() {
               {profile.api_calls_used} / {profile.api_call_limit}
             </p>
             <p className="mt-2 text-sm text-zinc-500">
-              Placeholder usage meter.
+              Placeholder usage meter for Trust API, marketplace checks and
+              badge verification.
             </p>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">

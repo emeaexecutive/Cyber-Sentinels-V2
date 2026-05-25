@@ -180,6 +180,7 @@ export default async function ClientPortalPage() {
             ["/team-workspace", "Team Workspace"],
             ["/verification-queue", "Verification Queue"],
             ["/compliance-export", "Compliance Export"],
+            ["/trust-badges", "Trust Badges"],
             ["/billing", "Billing"],
             ["/developer-console", "Developer Console"],
           ].map(([href, label]) => (
@@ -341,6 +342,27 @@ export default async function ClientPortalPage() {
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-3">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Trust Badges</h2>
+            <div className="mt-5 space-y-3">
+              {[
+                "Verified Human",
+                "HPI™ Checked",
+                "Reality Passport Active",
+              ].map((badge) => (
+                <div
+                  key={badge}
+                  className="rounded-lg border border-zinc-800 bg-black p-4"
+                >
+                  <p className="font-medium text-zinc-100">{badge}</p>
+                  <p className="mt-2 text-sm text-zinc-500">
+                    Badge status placeholder
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Billing / Clearances</h2>
             <p className="mt-4 text-3xl font-semibold">
