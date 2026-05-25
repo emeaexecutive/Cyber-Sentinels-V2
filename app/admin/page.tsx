@@ -21,6 +21,7 @@ import {
   type PredictionInputDecision,
 } from "@/lib/trust-engine/predictions";
 import { evaluateTrustFabric } from "@/lib/trust-engine/trustFabric";
+import { demoTrustLedgerEvents } from "@/lib/trust-engine/trustLedger";
 
 export const dynamic = "force-dynamic";
 
@@ -625,6 +626,12 @@ export default async function AdminPage() {
             Open Public Profiles
           </Link>
           <Link
+            href="/trust-ledger"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Open Trust Ledger
+          </Link>
+          <Link
             href="/reality-os"
             className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
           >
@@ -652,6 +659,38 @@ export default async function AdminPage() {
               ) : null}
             </Link>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Trust Ledger</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Ledger rows explain score changes, decisions, revocations,
+                recoveries, evidence updates and verification outcomes.
+              </p>
+            </div>
+            <Link
+              href="/trust-ledger"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Ledger
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {demoTrustLedgerEvents.slice(0, 3).map((event) => (
+              <div
+                key={event.id}
+                className="rounded-lg border border-zinc-800 bg-black p-4"
+              >
+                <p className="text-sm text-zinc-500">{event.event_type}</p>
+                <p className="mt-2 text-lg font-semibold">
+                  {event.previous_value ?? "new"} -&gt; {event.new_value ?? "n/a"}
+                </p>
+                <p className="mt-2 text-xs text-zinc-600">{event.reason_code}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

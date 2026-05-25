@@ -99,6 +99,12 @@ const trustModules = [
     metric: "Registry",
   },
   {
+    name: "Trust Score Ledger(TM)",
+    href: "/trust-ledger",
+    copy: "Replay trust score changes, decisions, revocations, recoveries and evidence events over time.",
+    metric: "Ledger",
+  },
+  {
     name: "AI Agent Passport",
     href: "/agent-passport",
     copy: "Track autonomous agent identity, permissions, behavior and accountability.",
@@ -312,6 +318,7 @@ const routeLinks = [
   { href: "/trust-embeds", label: "Trust Embeds(TM)" },
   { href: "/trust-seal-authority", label: "Trust Seal Authority(TM)" },
   { href: "/trust-registry", label: "Trust Registry(TM)" },
+  { href: "/trust-ledger", label: "Trust Score Ledger(TM)" },
   { href: "/linkedin-verification", label: "LinkedIn Trust Verification" },
   { href: "/security", label: "Security Layer" },
   { href: "/admin", label: "Back Office / Admin" },

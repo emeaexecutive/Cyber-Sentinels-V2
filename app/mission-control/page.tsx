@@ -13,6 +13,7 @@ import {
 import { normalizeAgents, type AgentRow } from "@/lib/trust-engine/agentRegistry";
 import { getPublicTrustFeed } from "@/lib/trust-feed/feed";
 import { evaluateRealityOS } from "@/lib/trust-engine/realityOS";
+import { demoTrustLedgerEvents } from "@/lib/trust-engine/trustLedger";
 
 export const dynamic = "force-dynamic";
 
@@ -154,6 +155,7 @@ export default async function MissionControlPage() {
   });
   const metrics = [
     ["Reality OS status", realityOS.state],
+    ["Trust Ledger", demoTrustLedgerEvents.length],
     ["Active verifications", snapshot.metrics.activeVerifications],
     ["Registered agents", agents.length],
     ["Permissions firewall", "ACTIVE"],
@@ -198,6 +200,7 @@ export default async function MissionControlPage() {
             ["/human-presence-genome", "Human Presence Genome"],
             ["/verifier-network", "Verifier Network"],
             ["/trust-feed", "Trust Feed"],
+            ["/trust-ledger", "Trust Ledger"],
             ["/verification-queue", "Verification Queue"],
             ["/global-trust", "Global Trust"],
           ].map(([href, label]) => (

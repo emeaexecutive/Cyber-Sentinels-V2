@@ -40,6 +40,7 @@ export default async function PublicProfileDetailPage({
             ["/trust-embeds", "Trust Embeds"],
             ["/trust-seal-authority", "Trust Seals"],
             ["/trust-registry", "Trust Registry"],
+            ["/trust-ledger", "Trust Ledger"],
             ["/passport", "Create Passport"],
           ].map(([href, label]) => (
             <Link
@@ -131,6 +132,20 @@ export default async function PublicProfileDetailPage({
               </p>
             </div>
           </div>
+
+          <section className="mt-6 rounded-lg border border-zinc-800 bg-black p-4">
+            <h2 className="text-xl font-semibold">Public-Safe Ledger Summary</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-400">
+              Recent trust changes can be summarized publicly without exposing
+              private evidence, raw audit logs, admin notes or internal scores.
+            </p>
+            <Link
+              href={`/api/ledger/subject/${encodeURIComponent(profile.verification_id)}`}
+              className="mt-4 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              View ledger JSON
+            </Link>
+          </section>
 
           <section className="mt-6 rounded-lg border border-zinc-800 bg-black p-4">
             <h2 className="text-xl font-semibold">Verification Sources</h2>
