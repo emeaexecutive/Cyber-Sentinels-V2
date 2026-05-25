@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import {
-  demoRevocationCases,
-  revocationActions,
-  revocationAuditEvents,
-  revocationSignals,
-  revocationStatuses,
-  revocationTriggers,
-} from "@/lib/trust-engine/revocationEngine";
+  demoRecoveryCases,
+  recoveryActions,
+  recoveryAuditEvents,
+  recoverySignals,
+  recoveryStatuses,
+  recoveryTriggers,
+} from "@/lib/trust-engine/trustRecovery";
 
 export const dynamic = "force-dynamic";
 
@@ -17,19 +17,21 @@ type Signal = {
   created_at: string | null;
 };
 
-type RevocationBucket = {
+type RecoveryBucket = {
   title: string;
-  items: typeof demoRevocationCases;
-  empty: string;
+  items: typeof demoRecoveryCases;
 };
 
 function statusClass(status: string) {
-  if (status === "revoked") return "border-red-700 text-red-200";
-  if (["restricted", "under_review", "paused", "expired"].includes(status)) {
-    return "border-amber-700 text-amber-200";
+  if (["approved", "restored"].includes(status)) {
+    return "border-emerald-700 text-emerald-200";
   }
 
-  return "border-emerald-700 text-emerald-200";
+  if (["denied", "expired"].includes(status)) {
+    return "border-red-700 text-red-200";
+  }
+
+  return "border-amber-700 text-amber-200";
 }
 
 function formatTime(value: string | null) {
@@ -41,50 +43,36 @@ function formatTime(value: string | null) {
   });
 }
 
-export default async function RevocationEnginePage() {
+export default async function TrustRecoveryPage() {
   const supabase = await createClient();
   const { data: signals } = await supabase
     .from("signals")
     .select("id,event,created_at")
-    .or(
-      "event.ilike.%revoked%,event.ilike.%restricted%,event.ilike.%paused%,event.ilike.%locked%,event.ilike.%expired%,event.ilike.%revocation%"
-    )
+    .or("event.ilike.%recovery%,event.ilike.%restored%")
     .order("created_at", { ascending: false })
     .limit(8)
     .returns<Signal[]>();
-  const restrictedAgents = demoRevocationCases.filter(
-    (item) => item.action === "restrict_agent"
+  const evidenceRequired = demoRecoveryCases.filter(
+    (item) => item.status === "evidence_required"
   );
-  const pausedApiKeys = demoRevocationCases.filter(
-    (item) => item.action === "pause_api_key"
+  const stepUpRequired = demoRecoveryCases.filter(
+    (item) => item.status === "step_up_required"
   );
-  const expiredClearances = demoRevocationCases.filter(
-    (item) => item.action === "expire_clearance"
+  const adminReview = demoRecoveryCases.filter((item) =>
+    ["in_review", "admin_review"].includes(item.status)
   );
-  const evidenceLocks = demoRevocationCases.filter(
-    (item) => item.action === "lock_evidence"
+  const restoredTrust = demoRecoveryCases.filter(
+    (item) => item.status === "restored"
   );
-  const buckets: RevocationBucket[] = [
-    {
-      title: "Restricted Agents",
-      items: restrictedAgents,
-      empty: "No restricted demo agents.",
-    },
-    {
-      title: "Paused API Keys",
-      items: pausedApiKeys,
-      empty: "No paused demo API keys.",
-    },
-    {
-      title: "Expired Clearances",
-      items: expiredClearances,
-      empty: "No expired demo clearances.",
-    },
-    {
-      title: "Evidence Locks",
-      items: evidenceLocks,
-      empty: "No evidence locks in demo.",
-    },
+  const deniedRecovery = demoRecoveryCases.filter(
+    (item) => item.status === "denied"
+  );
+  const buckets: RecoveryBucket[] = [
+    { title: "Evidence Required", items: evidenceRequired },
+    { title: "Step-Up Required", items: stepUpRequired },
+    { title: "Admin Review", items: adminReview },
+    { title: "Restored Trust", items: restoredTrust },
+    { title: "Denied Recovery", items: deniedRecovery },
   ];
 
   return (
@@ -93,11 +81,10 @@ export default async function RevocationEnginePage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/mission-control", "Mission Control"],
-            ["/permissions-firewall", "Permissions Firewall"],
+            ["/revocation-engine", "Revocation Engine"],
             ["/step-up-verification", "Step-Up Verification"],
-            ["/trust-recovery", "Trust Recovery"],
-            ["/agent-registry", "Agent Registry"],
+            ["/permissions-firewall", "Permissions Firewall"],
+            ["/mission-control", "Mission Control"],
             ["/admin", "Admin"],
           ].map(([href, label]) => (
             <Link
@@ -112,29 +99,23 @@ export default async function RevocationEnginePage() {
 
         <section className="mt-10">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Trust reversal
+            Appeal workflow
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Revocation Engine&trade;
+            Trust Recovery&trade;
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Trust must be reversible when reality changes.
+            Trust can be lost. It can also be rebuilt with evidence.
           </p>
-          <Link
-            href="/trust-recovery"
-            className="mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Trust Recovery™
-          </Link>
         </section>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-          {demoRevocationCases.map((item) => (
+        <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          {demoRecoveryCases.map((item) => (
             <div
               key={item.subject}
               className="rounded-lg border border-zinc-800 bg-zinc-950 p-5"
             >
-              <p className="text-sm text-zinc-500">{item.trigger_reason}</p>
+              <p className="text-sm text-zinc-500">{item.recovery_reason}</p>
               <h2 className="mt-2 text-xl font-semibold">{item.subject}</h2>
               <div className="mt-4 flex flex-wrap gap-2">
                 <code className="rounded-full border border-cyan-800 px-2.5 py-1 text-xs text-cyan-200">
@@ -157,25 +138,26 @@ export default async function RevocationEnginePage() {
 
         <section className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Active Trust States</h2>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {revocationStatuses.map((status) => (
-                <span
-                  key={status}
-                  className={`rounded-full border px-2.5 py-1 text-xs ${statusClass(
-                    status
-                  )}`}
+            <h2 className="text-xl font-semibold">Recovery Queue</h2>
+            <div className="mt-5 space-y-3">
+              {demoRecoveryCases.map((item) => (
+                <div
+                  key={`queue-${item.subject}`}
+                  className="rounded-lg border border-zinc-800 bg-black p-4"
                 >
-                  {status}
-                </span>
+                  <p className="font-medium text-zinc-100">{item.subject}</p>
+                  <p className="mt-2 text-sm text-zinc-500">
+                    {item.recovery_reason} / {item.status}
+                  </p>
+                </div>
               ))}
             </div>
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Revocation Triggers</h2>
+            <h2 className="text-xl font-semibold">Recovery Triggers</h2>
             <div className="mt-5 flex flex-wrap gap-2">
-              {revocationTriggers.map((trigger) => (
+              {recoveryTriggers.map((trigger) => (
                 <code
                   key={trigger}
                   className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300"
@@ -187,9 +169,9 @@ export default async function RevocationEnginePage() {
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Revocation Actions</h2>
+            <h2 className="text-xl font-semibold">Recovery Actions</h2>
             <div className="mt-5 flex flex-wrap gap-2">
-              {revocationActions.map((action) => (
+              {recoveryActions.map((action) => (
                 <code
                   key={action}
                   className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300"
@@ -201,8 +183,8 @@ export default async function RevocationEnginePage() {
           </div>
         </section>
 
-        <section className="mt-8 grid gap-6 lg:grid-cols-4">
-          {buckets.map(({ title, items, empty }) => (
+        <section className="mt-8 grid gap-6 lg:grid-cols-5">
+          {buckets.map(({ title, items }) => (
             <div
               key={title}
               className="rounded-lg border border-zinc-800 bg-zinc-950 p-5"
@@ -224,7 +206,9 @@ export default async function RevocationEnginePage() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-zinc-500">{empty}</p>
+                  <p className="text-sm text-zinc-500">
+                    No demo cases in this lane.
+                  </p>
                 )}
               </div>
             </div>
@@ -233,28 +217,33 @@ export default async function RevocationEnginePage() {
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Admin Reversal History</h2>
-            <div className="mt-5 space-y-3">
-              {demoRevocationCases
-                .filter((item) =>
-                  ["under_review", "revoked"].includes(item.status)
-                )
-                .map((item) => (
-                  <div
-                    key={`history-${item.subject}`}
-                    className="rounded-lg border border-zinc-800 bg-black p-4"
-                  >
-                    <p className="font-medium text-zinc-100">{item.subject}</p>
-                    <p className="mt-2 text-sm text-zinc-500">
-                      {item.trigger_reason} / {item.action}
-                    </p>
-                  </div>
-                ))}
+            <h2 className="text-xl font-semibold">Recovery History</h2>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {recoveryStatuses.map((status) => (
+                <span
+                  key={status}
+                  className={`rounded-full border px-2.5 py-1 text-xs ${statusClass(
+                    status
+                  )}`}
+                >
+                  {status}
+                </span>
+              ))}
+            </div>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {recoveryAuditEvents.map((event) => (
+                <code
+                  key={event}
+                  className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300"
+                >
+                  {event}
+                </code>
+              ))}
             </div>
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Recent Revocation Signals</h2>
+            <h2 className="text-xl font-semibold">Recent Recovery Signals</h2>
             <div className="mt-5 space-y-3">
               {signals?.length
                 ? signals.map((signal) => (
@@ -268,7 +257,7 @@ export default async function RevocationEnginePage() {
                       </p>
                     </div>
                   ))
-                : revocationSignals.map((signal) => (
+                : recoverySignals.map((signal) => (
                     <div
                       key={signal}
                       className="rounded-lg border border-zinc-800 bg-black p-4"
@@ -277,20 +266,6 @@ export default async function RevocationEnginePage() {
                     </div>
                   ))}
             </div>
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <h2 className="text-xl font-semibold">Audit Logs</h2>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {revocationAuditEvents.map((event) => (
-              <code
-                key={event}
-                className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300"
-              >
-                {event}
-              </code>
-            ))}
           </div>
         </section>
       </div>

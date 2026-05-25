@@ -69,6 +69,12 @@ const trustModules = [
     metric: "Revoke",
   },
   {
+    name: "Trust Recovery™",
+    href: "/trust-recovery",
+    copy: "Rebuild revoked, restricted or escalated trust through evidence, step-up and admin review.",
+    metric: "Appeals",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -162,6 +168,7 @@ const routeLinks = [
   { href: "/permissions-firewall", label: "Permissions Firewall™" },
   { href: "/step-up-verification", label: "Step-Up Verification™" },
   { href: "/revocation-engine", label: "Revocation Engine™" },
+  { href: "/trust-recovery", label: "Trust Recovery™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },

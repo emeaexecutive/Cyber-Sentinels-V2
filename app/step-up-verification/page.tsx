@@ -68,6 +68,7 @@ export default async function StepUpVerificationPage() {
             ["/mission-control", "Mission Control"],
             ["/developer-console", "Developer Console"],
             ["/revocation-engine", "Revocation Engine"],
+            ["/trust-recovery", "Trust Recovery"],
             ["/admin", "Admin"],
           ].map(([href, label]) => (
             <Link
@@ -219,10 +220,10 @@ export default async function StepUpVerificationPage() {
                 restrictions or admin reversal review.
               </p>
               <Link
-                href="/revocation-engine"
+                href="/trust-recovery"
                 className="inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
               >
-                Open Revocation Engine
+                Open Trust Recovery
               </Link>
             </div>
           </div>

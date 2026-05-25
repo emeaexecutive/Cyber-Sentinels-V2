@@ -83,6 +83,7 @@ export const missionSections = [
   ["Human Presence Index™", "/human-presence-index"],
   ["Step-Up Verification™", "/step-up-verification"],
   ["Revocation Engine™", "/revocation-engine"],
+  ["Trust Recovery™", "/trust-recovery"],
 ] as const;
 
 export const demoMissionSignals: MissionSignal[] = [
@@ -94,6 +95,7 @@ export const demoMissionSignals: MissionSignal[] = [
   { id: "demo-reality-passport", event: "Reality Passport updated" },
   { id: "demo-step-up", event: "Step-Up verification required" },
   { id: "demo-revocation", event: "Revocation review started" },
+  { id: "demo-recovery", event: "Trust recovery requested" },
 ];
 
 function isToday(value: string | null | undefined) {
