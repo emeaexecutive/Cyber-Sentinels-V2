@@ -45,6 +45,12 @@ const trustModules = [
     metric: "Agents",
   },
   {
+    name: "Agent Registry™",
+    href: "/agent-registry",
+    copy: "Verify AI agents, govern permission scopes and track policy status before autonomous access.",
+    metric: "Registry",
+  },
+  {
     name: "Hiring Shield",
     href: "/hiring-shield",
     copy: "Review candidate trust signals and synthetic identity risk before decisions.",
@@ -134,6 +140,7 @@ const routeLinks = [
   { href: "/deepfake-detection", label: "Deepfake Detection" },
   { href: "/video-verification", label: "Video Verification" },
   { href: "/agent-passport", label: "AI Agent Passport" },
+  { href: "/agent-registry", label: "Agent Registry™" },
   { href: "/human-presence-index", label: "Human Presence Index™" },
   { href: "/reality-passport", label: "Reality Passport™" },
   { href: "/origin-trace", label: "Origin Trace™" },

@@ -16,6 +16,12 @@ export default function AgentPassportPage() {
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
           Back to Cyber Sentinels
         </Link>
+        <Link
+          href="/agent-registry"
+          className="ml-3 text-sm text-zinc-400 hover:text-white"
+        >
+          Open Agent Registry™
+        </Link>
 
         <p className="mt-10 text-xs uppercase tracking-[0.4em] text-zinc-500">
           Verified Agent
@@ -30,6 +36,13 @@ export default function AgentPassportPage() {
           record with provenance, review status, clearances, audit logs and
           proof before permission controls.
         </p>
+
+        <Link
+          href="/agent-registry"
+          className="mt-8 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-300 hover:text-white"
+        >
+          View Agent Registry™
+        </Link>
 
         <section className="mt-10 grid gap-4 md:grid-cols-3">
           {capabilities.map((capability) => (

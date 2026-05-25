@@ -10,6 +10,7 @@ import {
   type MissionSignal,
   type MissionVerificationCase,
 } from "@/lib/trust-engine/missionControl";
+import { normalizeAgents, type AgentRow } from "@/lib/trust-engine/agentRegistry";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +53,7 @@ export default async function MissionControlPage() {
     decisionsResult,
     evidenceResult,
     apiAuditResult,
+    agentsResult,
   ] = await Promise.all([
     supabase
       .from("passports")
@@ -92,7 +94,14 @@ export default async function MissionControlPage() {
       .order("created_at", { ascending: false })
       .limit(100)
       .returns<ApiAuditEvent[]>(),
+    supabase
+      .from("agents")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(100)
+      .returns<AgentRow[]>(),
   ]);
+  const agents = agentsResult.error ? [] : normalizeAgents(agentsResult.data);
   const snapshot = createMissionControlSnapshot({
     passports: passportsResult.data,
     verificationCases: casesResult.data,
@@ -103,6 +112,7 @@ export default async function MissionControlPage() {
   });
   const metrics = [
     ["Active verifications", snapshot.metrics.activeVerifications],
+    ["Registered agents", agents.length],
     ["Critical alerts", snapshot.metrics.criticalAlerts],
     ["Signals today", snapshot.metrics.signalsToday],
     ["Average trust score", snapshot.metrics.averageTrustScore],

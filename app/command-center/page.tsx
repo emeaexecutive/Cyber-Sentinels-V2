@@ -17,6 +17,7 @@ import {
 } from "@/lib/trust-engine/predictions";
 import { evaluateDecisionEngine } from "@/lib/trust-engine/decisionEngine";
 import { evaluatePolicyEngine } from "@/lib/trust-engine/policyEngine";
+import { normalizeAgents, type AgentRow } from "@/lib/trust-engine/agentRegistry";
 
 export const dynamic = "force-dynamic";
 
@@ -85,6 +86,13 @@ export default async function CommandCenterPage() {
     .order("created_at", { ascending: false })
     .limit(10)
     .returns<PredictionInputDecision[]>();
+  const { data: agentRows, error: agentRowsError } = await supabase
+    .from("agents")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(50)
+    .returns<AgentRow[]>();
+  const agents = agentRowsError ? [] : normalizeAgents(agentRows);
   const timelinePreview = normalizeTimelineEvents({
     auditLogs,
     signals,
@@ -257,6 +265,14 @@ export default async function CommandCenterPage() {
             <p className="text-zinc-500">Passports</p>
             <p className="mt-3 text-4xl font-bold">{passports?.length ?? 0}</p>
           </div>
+
+          <Link
+            href="/agent-registry"
+            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 hover:border-zinc-500"
+          >
+            <p className="text-zinc-500">AI Agents</p>
+            <p className="mt-3 text-4xl font-bold">{agents.length}</p>
+          </Link>
 
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-zinc-500">Verified</p>
