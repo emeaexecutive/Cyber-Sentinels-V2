@@ -25,6 +25,7 @@ const endpoints = [
   ["POST", "/api/badges/verify", "Verify public-safe trust badges."],
   ["GET", "/api/public/verify/[id]", "Read public-safe verification summaries."],
   ["GET", "/api/embed/[id]", "Read public-safe Trust Embed badge JSON."],
+  ["GET/POST", "/api/registry/search", "Search public-safe registry records."],
 ];
 
 function formatDate(value: string | null) {
@@ -101,6 +102,7 @@ export default async function DeveloperConsolePage() {
             ["/marketplace-trust", "Marketplace Trust"],
             ["/trust-badges", "Trust Badges"],
             ["/trust-embeds", "Trust Embeds"],
+            ["/trust-registry", "Trust Registry"],
             ["/verify", "Public Verify"],
             ["/global-trust", "Global Trust"],
             ["/admin", "Admin"],
@@ -279,6 +281,10 @@ export default async function DeveloperConsolePage() {
               <p>
                 Trust Embed APIs return public-safe badge JSON for websites,
                 marketplaces, email signatures and Carrd pages.
+              </p>
+              <p>
+                Registry API search returns only public-safe trust records for
+                discovery and verification.
               </p>
               <p>
                 Public verification endpoints must never expose private

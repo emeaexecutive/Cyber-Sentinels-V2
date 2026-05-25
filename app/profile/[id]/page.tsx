@@ -39,6 +39,7 @@ export default async function PublicProfileDetailPage({
             ["/trust-badges", "Trust Badges"],
             ["/trust-embeds", "Trust Embeds"],
             ["/trust-seal-authority", "Trust Seals"],
+            ["/trust-registry", "Trust Registry"],
             ["/passport", "Create Passport"],
           ].map(([href, label]) => (
             <Link
@@ -176,6 +177,12 @@ export default async function PublicProfileDetailPage({
               className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
             >
               View trust seals
+            </Link>
+            <Link
+              href="/trust-registry"
+              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              Back to Registry
             </Link>
           </div>
 

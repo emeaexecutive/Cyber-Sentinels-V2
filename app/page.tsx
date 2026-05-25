@@ -93,6 +93,12 @@ const trustModules = [
     metric: "Seals",
   },
   {
+    name: "Trust Registry(TM)",
+    href: "/trust-registry",
+    copy: "Search public-safe Cyber Sentinels trust records, seals, badges and Reality Passports.",
+    metric: "Registry",
+  },
+  {
     name: "AI Agent Passport",
     href: "/agent-passport",
     copy: "Track autonomous agent identity, permissions, behavior and accountability.",
@@ -305,6 +311,7 @@ const routeLinks = [
   { href: "/trust-fabric", label: "Trust Fabric(TM)" },
   { href: "/trust-embeds", label: "Trust Embeds(TM)" },
   { href: "/trust-seal-authority", label: "Trust Seal Authority(TM)" },
+  { href: "/trust-registry", label: "Trust Registry(TM)" },
   { href: "/linkedin-verification", label: "LinkedIn Trust Verification" },
   { href: "/security", label: "Security Layer" },
   { href: "/admin", label: "Back Office / Admin" },

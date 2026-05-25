@@ -65,6 +65,7 @@ export default async function BillingPage() {
             ["/marketplace-trust", "Marketplace Trust"],
             ["/trust-embeds", "Trust Embeds"],
             ["/trust-seal-authority", "Trust Seals"],
+            ["/trust-registry", "Trust Registry"],
             ["/developer-console", "Developer Console"],
             ["/compliance-export", "Compliance Export"],
             ["/admin", "Admin"],
@@ -228,6 +229,20 @@ export default async function BillingPage() {
               className="mt-4 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
               Open Trust Seals
+            </Link>
+          </div>
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Registry Listing</h2>
+            <p className="mt-4 text-3xl font-semibold">Pro / Teams</p>
+            <p className="mt-2 text-sm text-zinc-500">
+              Public-safe discovery listings for profiles, seals, badges,
+              companies, agents and Reality Passports.
+            </p>
+            <Link
+              href="/trust-registry"
+              className="mt-4 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Registry
             </Link>
           </div>
         </section>

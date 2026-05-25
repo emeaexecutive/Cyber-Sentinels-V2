@@ -40,6 +40,7 @@ export default function TrustEmbedsPage() {
             ["/verify", "Public Verify"],
             ["/profile", "Public Profiles"],
             ["/trust-badges", "Trust Badges"],
+            ["/trust-registry", "Trust Registry"],
             ["/trust-seal-authority", "Trust Seal Authority"],
             ["/marketplace-trust", "Marketplace Trust"],
             ["/developer-console", "Developer Console"],
@@ -102,6 +103,20 @@ export default function TrustEmbedsPage() {
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Registry Lookup</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-500">
+              Embed publishers can look up public-safe registry entries before
+              choosing a badge, seal or profile widget.
+            </p>
+            <Link
+              href="/trust-registry"
+              className="mt-5 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Open Trust Registry
+            </Link>
+          </div>
+
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Seal Widgets</h2>
             <p className="mt-3 text-sm leading-6 text-zinc-500">
