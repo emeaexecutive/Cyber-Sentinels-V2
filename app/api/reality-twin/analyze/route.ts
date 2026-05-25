@@ -72,6 +72,16 @@ export async function POST(req: Request) {
       if (result.identity_exposure >= 70) {
         await createSignal(supabase, "identity_exposure_increased");
       }
+      await createSignal(supabase, "reality_resilience_changed");
+      await createAuditLog(
+        supabase,
+        "reality_twin_created",
+        subjectId ?? "reality-twin-api",
+        {
+          clone_risk: result.clone_risk,
+          reality_resilience: result.reality_resilience,
+        }
+      );
       await createAuditLog(
         supabase,
         "synthetic_counterpart_evaluated",

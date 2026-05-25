@@ -115,7 +115,9 @@ export function evaluateSyntheticCounterpart(
     ...(state === "high" || state === "critical" || state === "elevated"
       ? ["Require step-up", "Increase evidence", "Enable Origin DNA"]
       : ["Monitor exposure"]),
-    ...(realityResilience < 75 ? ["Increase HPG frequency"] : []),
+    ...(realityResilience < 75 || state === "elevated"
+      ? ["Increase HPG frequency"]
+      : []),
   ];
 
   return {
