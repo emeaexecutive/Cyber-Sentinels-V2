@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const RATE_LIMIT_MESSAGE =
-  "Email login is temporarily rate-limited. Please wait a few minutes before requesting another magic link.";
+  "Email login is temporarily rate-limited. Use password login or wait before requesting another magic link.";
 
 function isRateLimitError(message: string) {
   const normalizedMessage = message.toLowerCase();
@@ -21,8 +21,11 @@ function isRateLimitError(message: string) {
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState<
+    "password" | "magic-link" | "reset" | null
+  >(null);
   const [showDevAuth, setShowDevAuth] = useState(false);
 
   useEffect(() => {
@@ -32,7 +35,16 @@ export default function LoginPage() {
     );
   }, []);
 
-  async function signIn() {
+  function getSupabaseClient() {
+    try {
+      return createClient();
+    } catch {
+      setMessage("Supabase env vars are missing.");
+      return null;
+    }
+  }
+
+  async function signInWithPassword() {
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail) {
@@ -40,15 +52,51 @@ export default function LoginPage() {
       return;
     }
 
-    setLoading(true);
+    if (!password) {
+      setMessage("Please enter your password.");
+      return;
+    }
 
-    let supabase;
+    setMessage("");
+    setLoadingAction("password");
 
-    try {
-      supabase = createClient();
-    } catch {
-      setMessage("Supabase env vars are missing.");
-      setLoading(false);
+    const supabase = getSupabaseClient();
+
+    if (!supabase) {
+      setLoadingAction(null);
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: trimmedEmail,
+      password,
+    });
+
+    setLoadingAction(null);
+
+    if (error) {
+      setMessage(error.message || "Could not sign in with password.");
+      return;
+    }
+
+    router.push("/command-center");
+  }
+
+  async function signInWithMagicLink() {
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setMessage("Please enter your email address.");
+      return;
+    }
+
+    setMessage("");
+    setLoadingAction("magic-link");
+
+    const supabase = getSupabaseClient();
+
+    if (!supabase) {
+      setLoadingAction(null);
       return;
     }
 
@@ -59,7 +107,7 @@ export default function LoginPage() {
       },
     });
 
-    setLoading(false);
+    setLoadingAction(null);
 
     if (error) {
       setMessage(isRateLimitError(error.message) ? RATE_LIMIT_MESSAGE : error.message);
@@ -67,6 +115,38 @@ export default function LoginPage() {
     }
 
     setMessage("Magic link sent. Check your email.");
+  }
+
+  async function sendPasswordResetEmail() {
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setMessage("Please enter your email address.");
+      return;
+    }
+
+    setMessage("");
+    setLoadingAction("reset");
+
+    const supabase = getSupabaseClient();
+
+    if (!supabase) {
+      setLoadingAction(null);
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    setLoadingAction(null);
+
+    if (error) {
+      setMessage(error.message || "Could not send password reset email.");
+      return;
+    }
+
+    setMessage("Password reset email sent. Check your email.");
   }
 
   return (
@@ -88,6 +168,16 @@ export default function LoginPage() {
             onChange={(event) => setEmail(event.target.value)}
             type="email"
             placeholder="Email address"
+            autoComplete="email"
+            className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+          />
+
+          <input
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            type="password"
+            placeholder="Password"
+            autoComplete="current-password"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
@@ -96,11 +186,30 @@ export default function LoginPage() {
           </p>
 
           <button
-            onClick={signIn}
-            disabled={loading}
+            onClick={signInWithPassword}
+            disabled={loadingAction !== null}
             className="rounded-xl bg-white p-4 font-semibold text-black disabled:opacity-50"
+            type="button"
           >
-            {loading ? "Sending..." : "Send Magic Link"}
+            {loadingAction === "password" ? "Signing in..." : "Sign in with password"}
+          </button>
+
+          <button
+            onClick={signInWithMagicLink}
+            disabled={loadingAction !== null}
+            className="rounded-xl border border-zinc-700 p-4 font-semibold text-white disabled:opacity-50"
+            type="button"
+          >
+            {loadingAction === "magic-link" ? "Sending..." : "Send Magic Link"}
+          </button>
+
+          <button
+            onClick={sendPasswordResetEmail}
+            disabled={loadingAction !== null}
+            className="rounded-xl border border-zinc-800 p-4 font-semibold text-zinc-200 disabled:opacity-50"
+            type="button"
+          >
+            {loadingAction === "reset" ? "Sending..." : "Send Password Reset Email"}
           </button>
 
           {message && <p className="text-sm text-zinc-400">{message}</p>}
