@@ -15,6 +15,8 @@ import {
 } from "@/lib/security";
 import { createClient } from "@/lib/supabase/server";
 import { getLinkedInEvidence } from "@/lib/linkedin-verification";
+import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
+import { createSignal } from "@/lib/trust-engine/createSignal";
 import { calculateHumanPresence } from "@/lib/trust-engine/calculateHumanPresence";
 import { calculateOriginTrace } from "@/lib/trust-engine/calculateOriginTrace";
 import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
@@ -26,6 +28,23 @@ async function bestEffort(label: string, task: () => Promise<unknown>) {
   } catch (error) {
     console.warn(`${label} failed`, error);
   }
+}
+
+function getSafePassportError(error: unknown) {
+  if (process.env.NODE_ENV !== "development") {
+    return "Could not create passport";
+  }
+
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message;
+  }
+
+  return error instanceof Error ? error.message : "Could not create passport";
 }
 
 export async function POST(req: Request) {
@@ -204,6 +223,30 @@ export async function POST(req: Request) {
 
     if (error) throw error;
     if (!passport) throw new Error("Could not create passport");
+
+    await bestEffort("Required passport signal", async () => {
+      const { error: signalError } = await createSignal(
+        supabase,
+        `Trust Passport created for ${subjectName}`
+      );
+
+      if (signalError) throw signalError;
+    });
+
+    await bestEffort("Required passport audit", async () => {
+      const { error: auditError } = await createAuditLog(
+        supabase,
+        "passport_created",
+        user.email ?? subjectName,
+        {
+          subject_name: subjectName,
+          subject_type: subjectType,
+          trust_score: trustScore,
+        }
+      );
+
+      if (auditError) throw auditError;
+    });
 
     await supabase.from("signals").insert({ event: "Verification started" });
     await supabase
@@ -431,7 +474,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(
-      { ok: false, error: "Could not create passport" },
+      { ok: false, error: getSafePassportError(error) },
       { status: 500 }
     );
   }

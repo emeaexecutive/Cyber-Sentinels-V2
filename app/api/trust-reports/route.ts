@@ -310,14 +310,18 @@ export async function POST(req: Request) {
     });
 
     await bestEffort("Required trust report audit", async () => {
-      const { error: auditError } = await createAuditLog(supabase, "trust_report_created", candidateName, {
-        candidate_name: candidateName,
-        trust_score: trustScore,
-        synthetic_risk: syntheticRisk,
-        human_presence_index: humanPresenceIndex,
-        origin_trace_score: originTraceScore,
-        ...requestRisk,
-      });
+      const { error: auditError } = await createAuditLog(
+        supabase,
+        "trust_report_created",
+        user.email ?? candidateName,
+        {
+          candidate_name: candidateName,
+          trust_score: trustScore,
+          synthetic_risk: syntheticRisk,
+          human_presence_index: humanPresenceIndex,
+          origin_trace_score: originTraceScore,
+        }
+      );
 
       if (auditError) throw auditError;
     });
