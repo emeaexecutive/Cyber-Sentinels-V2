@@ -335,6 +335,11 @@ const routeLinks = [
 ];
 
 export default function HomePage() {
+  const routeLinksForEnvironment =
+    process.env.ENABLE_DEMO_SEED === "true"
+      ? [...routeLinks, { href: "/demo-lab", label: "Demo Lab™" }]
+      : routeLinks;
+
   return (
     <main className="min-h-screen bg-[#050505] text-white">
       <section className="relative min-h-[92vh] overflow-hidden">
@@ -566,7 +571,7 @@ export default function HomePage() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            {routeLinks.map((link) => (
+            {routeLinksForEnvironment.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
