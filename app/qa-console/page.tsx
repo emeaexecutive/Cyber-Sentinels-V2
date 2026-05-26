@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SessionGuard } from "@/components/session-guard";
 import { getQaReadiness, type QaStatus } from "@/lib/qa/checks";
 import { createClient } from "@/lib/supabase/server";
 
@@ -27,6 +28,7 @@ export default async function QaConsolePage() {
 
   return (
     <main className="min-h-screen bg-black px-6 py-8 text-white md:px-8">
+      <SessionGuard />
       <div className="mx-auto max-w-7xl">
         <nav className="flex flex-wrap gap-3 text-sm">
           {[

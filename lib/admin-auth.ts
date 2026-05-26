@@ -35,8 +35,8 @@ export async function hasAdminVerifiedCookie() {
 export function getAdminCookieOptions() {
   return {
     httpOnly: true,
-    sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict" as const,
+    secure: true,
     path: "/",
     maxAge: adminVerifiedMaxAge,
   };

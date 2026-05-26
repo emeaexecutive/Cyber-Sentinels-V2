@@ -68,6 +68,11 @@ export default function SecurityPage() {
           verification.
         </p>
 
+        <p className="mt-4 max-w-3xl text-zinc-400">
+          Cyber Sentinels enforces session discipline through inactivity
+          timeouts, absolute session limits and audit-logged expiry events.
+        </p>
+
         <section className="mt-12 grid gap-8 md:grid-cols-2">
           {principles.map((principle) => (
             <article key={principle.title} className="border-t border-zinc-800 pt-6">

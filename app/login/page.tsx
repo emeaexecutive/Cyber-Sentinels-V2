@@ -33,6 +33,10 @@ export default function LoginPage() {
       process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH === "true" &&
         window.location.hostname === "localhost",
     );
+
+    if (new URLSearchParams(window.location.search).get("expired") === "1") {
+      setMessage("Session expired for security. Please sign in again.");
+    }
   }, []);
 
   function getSupabaseClient() {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SessionGuard } from "@/components/session-guard";
 import {
   hasAdminVerifiedCookie,
   isAdminAllowlisted,
@@ -31,6 +32,7 @@ export default async function AdminAccessPage({
 
   return (
     <main className="min-h-screen bg-black p-6 text-white md:p-8">
+      {user ? <SessionGuard /> : null}
       <div className="mx-auto max-w-md">
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
           Back to Cyber Sentinels
