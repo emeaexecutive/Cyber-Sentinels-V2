@@ -1,10 +1,14 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   demoLaunchReadiness,
   readinessStates,
   type ChecklistItem,
   type ReadinessState,
 } from "@/lib/launch/readiness";
+import { createClient } from "@/lib/supabase/server";
+
+export const dynamic = "force-dynamic";
 
 function stateClass(state: ReadinessState) {
   if (state === "ready") return "border-emerald-700 text-emerald-200";
@@ -45,7 +49,16 @@ function Checklist({
   );
 }
 
-export default function LaunchConsolePage() {
+export default async function LaunchConsolePage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   const readiness = demoLaunchReadiness;
   const criticalBlockers = readiness.modules.filter(
     (module) => module.state === "blocked"

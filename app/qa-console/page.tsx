@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getQaReadiness, type QaStatus } from "@/lib/qa/checks";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +14,15 @@ function statusClass(status: QaStatus) {
 }
 
 export default async function QaConsolePage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   const readiness = await getQaReadiness();
 
   return (

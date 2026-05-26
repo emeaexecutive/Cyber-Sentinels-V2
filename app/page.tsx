@@ -283,69 +283,67 @@ const riskSignals = [
   "Metadata integrity",
 ];
 
-const routeLinks = [
-  { href: "/passport", label: "Trust Passport" },
-  { href: "/command-center", label: "Command Center" },
-  { href: "/mission-control", label: "Mission Control™" },
-  { href: "/hiring-shield", label: "Hiring Shield" },
-  { href: "/clearances", label: "Clearances" },
-  { href: "/billing", label: "Billing" },
-  { href: "/signals", label: "Signals" },
-  { href: "/trust-radar", label: "Live Trust Radar™" },
-  { href: "/trust-timeline", label: "Trust Timeline™" },
-  { href: "/trust-graph", label: "Trust Graph Explorer™" },
-  { href: "/trust-prediction", label: "Trust Prediction Engine™" },
-  { href: "/verification-queue", label: "Verification Queue™" },
-  { href: "/evidence-vault", label: "Evidence Vault™" },
-  { href: "/decision-engine", label: "Decision Engine™" },
-  { href: "/policy-engine", label: "Policy Engine™" },
-  { href: "/api-docs", label: "Trust API" },
-  { href: "/developer-console", label: "Developer Console" },
-  { href: "/global-trust", label: "Global Trust Infrastructure" },
-  { href: "/deepfake-detection", label: "Deepfake Detection" },
-  { href: "/video-verification", label: "Video Verification" },
-  { href: "/agent-passport", label: "AI Agent Passport" },
-  { href: "/agent-registry", label: "Agent Registry™" },
-  { href: "/permissions-firewall", label: "Permissions Firewall™" },
-  { href: "/step-up-verification", label: "Step-Up Verification™" },
-  { href: "/revocation-engine", label: "Revocation Engine™" },
-  { href: "/trust-recovery", label: "Trust Recovery™" },
-  { href: "/compliance-export", label: "Compliance Export™" },
-  { href: "/client-portal", label: "Client Portal™" },
-  { href: "/team-workspace", label: "Team Workspace™" },
-  { href: "/team-access", label: "Team Access" },
-  { href: "/verifier-network", label: "Verifier Network™" },
-  { href: "/marketplace-trust", label: "Marketplace Trust Layer™" },
-  { href: "/trust-badges", label: "Trust Badges" },
-  { href: "/verify", label: "Public Verification Portal™" },
-  { href: "/profile", label: "Public Trust Profile™" },
-  { href: "/trust-feed", label: "Trust Feed™" },
-  { href: "/human-presence-index", label: "Human Presence Index™" },
-  { href: "/human-presence-genome", label: "Human Presence Genome™" },
-  { href: "/reality-passport", label: "Reality Passport™" },
-  { href: "/origin-trace", label: "Origin Trace™" },
-  { href: "/origin-dna", label: "Origin DNA™" },
-  { href: "/reality-chain", label: "Reality Chain™" },
-  { href: "/reality-twin", label: "Reality Twin™" },
-  { href: "/synthetic-counterpart", label: "Synthetic Counterpart™" },
-  { href: "/reality-os", label: "Reality OS(TM)" },
-  { href: "/trust-fabric", label: "Trust Fabric(TM)" },
-  { href: "/trust-embeds", label: "Trust Embeds(TM)" },
-  { href: "/trust-seal-authority", label: "Trust Seal Authority(TM)" },
-  { href: "/trust-registry", label: "Trust Registry(TM)" },
-  { href: "/trust-ledger", label: "Trust Score Ledger(TM)" },
-  { href: "/launch-console", label: "Launch Console(TM)" },
-  { href: "/qa-console", label: "QA Console" },
-  { href: "/linkedin-verification", label: "LinkedIn Trust Verification" },
-  { href: "/security", label: "Security Layer" },
-  { href: "/admin", label: "Back Office / Admin" },
-];
-
 export default function HomePage() {
-  const routeLinksForEnvironment =
-    process.env.ENABLE_DEMO_SEED === "true"
-      ? [...routeLinks, { href: "/demo-lab", label: "Demo Lab™" }]
-      : routeLinks;
+  const groupedNavigation = [
+    {
+      title: "Core Product",
+      links: [
+        { href: "/passport", label: "Trust Passport" },
+        { href: "/mission-control", label: "Mission Control™" },
+        { href: "/command-center", label: "Command Center" },
+        { href: "/client-portal", label: "Client Portal™" },
+        { href: "/team-workspace", label: "Team Workspace™" },
+        { href: "/billing", label: "Billing" },
+      ],
+    },
+    {
+      title: "Trust Operations",
+      links: [
+        { href: "/signals", label: "Signals" },
+        { href: "/trust-radar", label: "Live Trust Radar™" },
+        { href: "/verification-queue", label: "Verification Queue™" },
+        { href: "/evidence-vault", label: "Evidence Vault™" },
+        { href: "/decision-engine", label: "Decision Engine™" },
+        { href: "/policy-engine", label: "Policy Engine™" },
+        { href: "/hiring-shield", label: "Hiring Shield" },
+        { href: "/trust-timeline", label: "Trust Timeline™" },
+        { href: "/trust-graph", label: "Trust Graph Explorer™" },
+        { href: "/trust-prediction", label: "Trust Prediction Engine™" },
+      ],
+    },
+    {
+      title: "Public Verification",
+      links: [
+        { href: "/verify", label: "Public Verification Portal™" },
+        { href: "/profile", label: "Public Trust Profile™" },
+        { href: "/trust-registry", label: "Trust Registry(TM)" },
+        { href: "/trust-badges", label: "Trust Badges" },
+        { href: "/trust-embeds", label: "Trust Embeds(TM)" },
+        { href: "/trust-seal-authority", label: "Trust Seal Authority(TM)" },
+        { href: "/marketplace-trust", label: "Marketplace Trust Layer™" },
+      ],
+    },
+    {
+      title: "Developer / API",
+      links: [
+        { href: "/api-docs", label: "Trust API" },
+        { href: "/developer-console", label: "Developer Console" },
+      ],
+    },
+    {
+      title: "Admin / QA",
+      links: [
+        { href: "/admin", label: "Back Office / Admin" },
+        { href: "/admin/access", label: "Admin Access" },
+        { href: "/launch-console", label: "Launch Console(TM)" },
+        { href: "/qa-console", label: "QA Console" },
+        { href: "/security", label: "Security Layer" },
+        ...(process.env.ENABLE_DEMO_SEED === "true"
+          ? [{ href: "/demo-lab", label: "Demo Lab™" }]
+          : []),
+      ],
+    },
+  ];
 
   return (
     <main className="min-h-screen bg-[#050505] text-white">
@@ -577,15 +575,24 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            {routeLinksForEnvironment.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white"
-              >
-                {link.label}
-              </Link>
+          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+            {groupedNavigation.map((group) => (
+              <div key={group.title} className="min-w-0">
+                <h3 className="text-sm font-semibold text-zinc-200">
+                  {group.title}
+                </h3>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {group.links.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="rounded-lg border border-zinc-800 px-3 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>

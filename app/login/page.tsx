@@ -77,6 +77,10 @@ export default function LoginPage() {
         <p className="mt-4 text-zinc-400">
           Access the Cyber Sentinels Command Center.
         </p>
+        <p className="mt-3 text-sm leading-6 text-zinc-500">
+          Enter your email and Supabase will send a magic link. Open that email
+          link to finish signing in.
+        </p>
 
         <div className="mt-8 grid gap-4">
           <input
