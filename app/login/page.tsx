@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const RATE_LIMIT_MESSAGE =
@@ -18,9 +19,18 @@ function isRateLimitError(message: string) {
 }
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showDevAuth, setShowDevAuth] = useState(false);
+
+  useEffect(() => {
+    setShowDevAuth(
+      process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH === "true" &&
+        window.location.hostname === "localhost",
+    );
+  }, []);
 
   async function signIn() {
     const trimmedEmail = email.trim();
@@ -90,6 +100,21 @@ export default function LoginPage() {
           </button>
 
           {message && <p className="text-sm text-zinc-400">{message}</p>}
+
+          {showDevAuth && (
+            <div className="grid gap-2 border border-yellow-500/40 p-4">
+              <p className="text-sm font-semibold text-yellow-300">
+                Local development only.
+              </p>
+              <button
+                onClick={() => router.push("/command-center?dev=true")}
+                type="button"
+                className="rounded-xl bg-yellow-300 p-4 font-semibold text-black"
+              >
+                Continue as Dev Tester
+              </button>
+            </div>
+          )}
 
           <Link href="/" className="text-sm text-zinc-400 underline">
             Back to homepage
