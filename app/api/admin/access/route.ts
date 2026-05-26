@@ -21,8 +21,13 @@ async function recordAdminAccessAttempt(
 ) {
   const metadata = getRequestRiskFields(req);
 
-  await createAuditLog(supabase, eventType, actor, metadata);
-  await createSignal(supabase, signal);
+  try {
+    await createAuditLog(supabase, eventType, actor, metadata);
+    await createSignal(supabase, signal);
+  } catch (error) {
+    // Safe beta logging only. Never log or expose ADMIN_ACCESS_CODE.
+    console.warn("Admin access audit write failed", error);
+  }
 }
 
 export async function POST(req: Request) {

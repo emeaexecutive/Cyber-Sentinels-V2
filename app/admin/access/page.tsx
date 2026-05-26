@@ -20,13 +20,9 @@ export default async function AdminAccessPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  const allowlisted = isAdminAllowlisted(user?.email);
 
-  const allowlisted = isAdminAllowlisted(user.email);
-
-  if (allowlisted && (await hasAdminVerifiedCookie())) {
+  if (user && allowlisted && (await hasAdminVerifiedCookie())) {
     redirect("/admin");
   }
 
@@ -46,8 +42,23 @@ export default async function AdminAccessPage({
             Authenticated. Allowlisted. Step-up verified.
           </p>
 
-          {allowlisted ? (
+          {!user ? (
+            <div className="mt-6 rounded-lg border border-amber-900 bg-black p-4">
+              <p className="text-sm font-medium text-amber-200">
+                Login required before admin access code.
+              </p>
+              <Link
+                href="/login"
+                className="mt-4 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black"
+              >
+                Go to login
+              </Link>
+            </div>
+          ) : allowlisted ? (
             <form action="/api/admin/access" method="post" className="mt-6 grid gap-4">
+              <p className="text-sm text-emerald-300">
+                Logged in as {user.email ?? user.id}. This account is allowlisted.
+              </p>
               <label className="grid gap-2 text-sm text-zinc-400">
                 Admin access code
                 <input
@@ -71,7 +82,14 @@ export default async function AdminAccessPage({
               ) : null}
             </form>
           ) : (
-            <p className="mt-6 text-sm text-red-300">Admin access denied.</p>
+            <div className="mt-6 rounded-lg border border-red-900 bg-black p-4">
+              <p className="text-sm text-red-300">
+                Logged in as {user.email ?? user.id}. This account is not allowlisted for admin access.
+              </p>
+              {denied ? (
+                <p className="mt-2 text-sm text-red-300">Admin access denied.</p>
+              ) : null}
+            </div>
           )}
         </section>
       </div>

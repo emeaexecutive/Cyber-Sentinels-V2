@@ -14,7 +14,7 @@ export type AdminAccessResult =
 export function getAdminEmails() {
   return (process.env.ADMIN_EMAILS ?? "")
     .split(",")
-    .map((email) => email.trim().toLowerCase())
+    .map((email) => email.trim().toLocaleLowerCase())
     .filter(Boolean);
 }
 
@@ -23,7 +23,7 @@ export function isAdminAllowlisted(email: string | null | undefined) {
     return false;
   }
 
-  return getAdminEmails().includes(email.toLowerCase());
+  return getAdminEmails().includes(email.trim().toLocaleLowerCase());
 }
 
 export async function hasAdminVerifiedCookie() {
