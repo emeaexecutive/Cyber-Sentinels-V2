@@ -66,6 +66,7 @@ export default function LaunchConsolePage() {
             ["/", "Home"],
             ["/admin", "Admin"],
             ["/mission-control", "Mission Control"],
+            ["/qa-console", "QA Console"],
             ["/trust-registry", "Trust Registry"],
             ["/developer-console", "Developer Console"],
             ["/billing", "Billing"],

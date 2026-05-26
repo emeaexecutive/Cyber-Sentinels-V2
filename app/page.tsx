@@ -111,6 +111,12 @@ const trustModules = [
     metric: "Launch",
   },
   {
+    name: "QA Console",
+    href: "/qa-console",
+    copy: "Run private beta checks for auth, database reachability, trust loops, verification and deployment readiness.",
+    metric: "QA",
+  },
+  {
     name: "AI Agent Passport",
     href: "/agent-passport",
     copy: "Track autonomous agent identity, permissions, behavior and accountability.",
@@ -329,6 +335,7 @@ const routeLinks = [
   { href: "/trust-registry", label: "Trust Registry(TM)" },
   { href: "/trust-ledger", label: "Trust Score Ledger(TM)" },
   { href: "/launch-console", label: "Launch Console(TM)" },
+  { href: "/qa-console", label: "QA Console" },
   { href: "/linkedin-verification", label: "LinkedIn Trust Verification" },
   { href: "/security", label: "Security Layer" },
   { href: "/admin", label: "Back Office / Admin" },
