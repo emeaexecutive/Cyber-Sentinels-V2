@@ -20,6 +20,14 @@ import { calculateOriginTrace } from "@/lib/trust-engine/calculateOriginTrace";
 import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
 import type { OriginStatus } from "@/types/origin";
 
+async function bestEffort(label: string, task: () => Promise<unknown>) {
+  try {
+    await task();
+  } catch (error) {
+    console.warn(`${label} failed`, error);
+  }
+}
+
 export async function POST(req: Request) {
   try {
     // Security: passport creation can affect trust state, so require Supabase
@@ -234,40 +242,46 @@ export async function POST(req: Request) {
         .from("signals")
         .insert({ event: "LinkedIn profile consistency check required" });
 
+      await bestEffort("Passport LinkedIn audit", async () => {
+        await supabase.from("audit_logs").insert({
+          event_type: "linkedin_profile_submitted",
+          actor: userEmail || "anonymous",
+          metadata: {
+            passport_id: passport.id,
+            verification_case_id: verificationCase.id,
+            subject_name: subjectName,
+            linkedin_url: linkedInEvidence.linkedin_url,
+            linkedin_claimed_company: linkedInEvidence.linkedin_claimed_company,
+            linkedin_claimed_role: linkedInEvidence.linkedin_claimed_role,
+            linkedin_verification_status:
+              linkedInEvidence.linkedin_verification_status,
+            ...requestRisk,
+          },
+          created_at: new Date().toISOString(),
+          ...requestRisk,
+        });
+      });
+    }
+
+    await bestEffort("Passport verification audit", async () => {
       await supabase.from("audit_logs").insert({
-        event_type: "linkedin_profile_submitted",
+        event_type: "verification_created",
         actor: userEmail || "anonymous",
         metadata: {
           passport_id: passport.id,
           verification_case_id: verificationCase.id,
           subject_name: subjectName,
-          linkedin_url: linkedInEvidence.linkedin_url,
-          linkedin_claimed_company: linkedInEvidence.linkedin_claimed_company,
-          linkedin_claimed_role: linkedInEvidence.linkedin_claimed_role,
-          linkedin_verification_status:
-            linkedInEvidence.linkedin_verification_status,
+          subject_type: subjectType,
+          verification_status: "pending",
+          decision_type: "manual_review",
+          human_presence_index: humanPresenceIndex,
+          origin_trace_score: originTraceScore,
+          trust_score: trustScore,
           ...requestRisk,
         },
+        created_at: new Date().toISOString(),
         ...requestRisk,
       });
-    }
-
-    await supabase.from("audit_logs").insert({
-      event_type: "verification_created",
-      actor: userEmail || "anonymous",
-      metadata: {
-        passport_id: passport.id,
-        verification_case_id: verificationCase.id,
-        subject_name: subjectName,
-        subject_type: subjectType,
-        verification_status: "pending",
-        decision_type: "manual_review",
-        human_presence_index: humanPresenceIndex,
-        origin_trace_score: originTraceScore,
-        trust_score: trustScore,
-        ...requestRisk,
-      },
-      ...requestRisk,
     });
 
     await recordTrustEvent(supabase, {
@@ -311,78 +325,92 @@ export async function POST(req: Request) {
       await supabase.from("signals").insert({ event: "Human review required" });
     }
 
-    await supabase.from("audit_logs").insert({
-      event_type: "passport.created",
-      actor: userEmail || "anonymous",
-      metadata: {
-        subject_name: subjectName,
-        subject_type: subjectType,
-        media_type: mediaType,
-        image_authenticity_score: imageAuthenticityScore,
-        origin_trace_score: originTraceScore,
-        attribution_confidence: attributionConfidence,
-        provenance_status: provenanceStatus,
-        ...requestRisk,
-      },
-      ...requestRisk,
-    });
-
-    await supabase.from("audit_logs").insert({
-      event_type: "human_presence_index_created",
-      actor: userEmail || "anonymous",
-      metadata: {
-        subject_name: subjectName,
-        human_presence_index: humanPresenceIndex,
-        biometric_confidence: biometricConfidence,
-        behavioural_consistency: behaviouralConsistency,
-        trust_timeline_score: trustTimelineScore,
-        ...requestRisk,
-      },
-      ...requestRisk,
-    });
-
-    await supabase.from("audit_logs").insert({
-      event_type: "origin_trace_created",
-      actor: userEmail || "anonymous",
-      metadata: {
-        subject_name: subjectName,
-        attribution_confidence: attributionConfidence,
-        likely_source_type: likelySourceType,
-        model_fingerprint_risk: modelFingerprintRisk,
-        origin_trace_score: originTraceScore,
-        ...requestRisk,
-      },
-      ...requestRisk,
-    });
-
-    if (humanReviewRequired) {
+    await bestEffort("Passport audit logs", async () => {
       await supabase.from("audit_logs").insert({
-        event_type: "attribution_review_required",
+        event_type: "passport.created",
+        actor: userEmail || "anonymous",
+        metadata: {
+          subject_name: subjectName,
+          subject_type: subjectType,
+          media_type: mediaType,
+          image_authenticity_score: imageAuthenticityScore,
+          origin_trace_score: originTraceScore,
+          attribution_confidence: attributionConfidence,
+          provenance_status: provenanceStatus,
+          ...requestRisk,
+        },
+        created_at: new Date().toISOString(),
+        ...requestRisk,
+      });
+
+      await supabase.from("audit_logs").insert({
+        event_type: "human_presence_index_created",
+        actor: userEmail || "anonymous",
+        metadata: {
+          subject_name: subjectName,
+          human_presence_index: humanPresenceIndex,
+          biometric_confidence: biometricConfidence,
+          behavioural_consistency: behaviouralConsistency,
+          trust_timeline_score: trustTimelineScore,
+          ...requestRisk,
+        },
+        created_at: new Date().toISOString(),
+        ...requestRisk,
+      });
+
+      await supabase.from("audit_logs").insert({
+        event_type: "origin_trace_created",
         actor: userEmail || "anonymous",
         metadata: {
           subject_name: subjectName,
           attribution_confidence: attributionConfidence,
+          likely_source_type: likelySourceType,
+          model_fingerprint_risk: modelFingerprintRisk,
+          origin_trace_score: originTraceScore,
           ...requestRisk,
         },
+        created_at: new Date().toISOString(),
         ...requestRisk,
+      });
+    });
+
+    if (humanReviewRequired) {
+      await bestEffort("Passport attribution audit", async () => {
+        await supabase.from("audit_logs").insert({
+          event_type: "attribution_review_required",
+          actor: userEmail || "anonymous",
+          metadata: {
+            subject_name: subjectName,
+            attribution_confidence: attributionConfidence,
+            ...requestRisk,
+          },
+          created_at: new Date().toISOString(),
+          ...requestRisk,
+        });
       });
     }
 
     if (provenanceStatus === "missing" || c2paStatus === "missing") {
-      await supabase.from("audit_logs").insert({
-        event_type: "provenance_missing",
-        actor: userEmail || "anonymous",
-        metadata: { subject_name: subjectName, c2pa_status: c2paStatus, ...requestRisk },
-        ...requestRisk,
+      await bestEffort("Passport provenance audit", async () => {
+        await supabase.from("audit_logs").insert({
+          event_type: "provenance_missing",
+          actor: userEmail || "anonymous",
+          metadata: { subject_name: subjectName, c2pa_status: c2paStatus, ...requestRisk },
+          created_at: new Date().toISOString(),
+          ...requestRisk,
+        });
       });
     }
 
     if (watermarkStatus === "not_found") {
-      await supabase.from("audit_logs").insert({
-        event_type: "watermark_not_found",
-        actor: userEmail || "anonymous",
-        metadata: { subject_name: subjectName, ...requestRisk },
-        ...requestRisk,
+      await bestEffort("Passport watermark audit", async () => {
+        await supabase.from("audit_logs").insert({
+          event_type: "watermark_not_found",
+          actor: userEmail || "anonymous",
+          metadata: { subject_name: subjectName, ...requestRisk },
+          created_at: new Date().toISOString(),
+          ...requestRisk,
+        });
       });
     }
 

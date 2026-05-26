@@ -31,10 +31,11 @@ export async function createAuditLog(
 
   // Security: audit logs are append-only in application logic. Do not update or
   // delete existing audit rows from server routes.
-  return supabase.from("audit_logs").insert({
+  const result = await supabase.from("audit_logs").insert({
     event_type: eventType,
     actor,
     metadata,
+    created_at: new Date().toISOString(),
     abuse_risk: abuseRisk,
     suspicious_activity: suspiciousActivity,
     source_ip_hash: sourceIpHash,
@@ -43,4 +44,10 @@ export async function createAuditLog(
     allowed_file_type: allowedFileType,
     rate_limit_status: rateLimitStatus,
   });
+
+  if (result.error) {
+    console.warn("Audit log insert failed", result.error);
+  }
+
+  return result;
 }

@@ -13,23 +13,48 @@ type TrustEventInput = {
   trustUpdate: TrustUpdate;
 };
 
+async function bestEffort(label: string, task: () => Promise<unknown>) {
+  try {
+    await task();
+  } catch (error) {
+    console.warn(`${label} failed`, error);
+  }
+}
+
 export async function recordTrustEvent(
   supabase: SupabaseClient,
   input: TrustEventInput
 ) {
-  await createSignal(supabase, input.signal);
+  await bestEffort("Trust event signal write", async () => {
+    const { error } = await createSignal(supabase, input.signal);
 
-  await createAuditLog(
-    supabase,
-    input.audit.eventType,
-    input.audit.actor,
-    input.audit.metadata
-  );
+    if (error) throw error;
+  });
 
-  await createAuditLog(supabase, "trust.update", input.trustUpdate.actor, {
-    action: input.trustUpdate.action,
-    subject: input.trustUpdate.subject,
-    score: input.trustUpdate.score,
-    ...(input.trustUpdate.metadata ?? {}),
+  await bestEffort("Trust event audit write", async () => {
+    const { error } = await createAuditLog(
+      supabase,
+      input.audit.eventType,
+      input.audit.actor,
+      input.audit.metadata
+    );
+
+    if (error) throw error;
+  });
+
+  await bestEffort("Trust update audit write", async () => {
+    const { error } = await createAuditLog(
+      supabase,
+      "trust.update",
+      input.trustUpdate.actor,
+      {
+        action: input.trustUpdate.action,
+        subject: input.trustUpdate.subject,
+        score: input.trustUpdate.score,
+        ...(input.trustUpdate.metadata ?? {}),
+      }
+    );
+
+    if (error) throw error;
   });
 }

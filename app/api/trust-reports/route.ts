@@ -14,6 +14,8 @@ import {
 } from "@/lib/security";
 import { createClient } from "@/lib/supabase/server";
 import { getLinkedInEvidence } from "@/lib/linkedin-verification";
+import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
+import { createSignal } from "@/lib/trust-engine/createSignal";
 import { calculateHumanPresence } from "@/lib/trust-engine/calculateHumanPresence";
 import { calculateOriginTrace } from "@/lib/trust-engine/calculateOriginTrace";
 import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
@@ -298,6 +300,28 @@ export async function POST(req: Request) {
 
     if (error) throw error;
 
+    await bestEffort("Required trust report signal", async () => {
+      const { error: signalError } = await createSignal(
+        supabase,
+        `Hiring Shield report generated for ${candidateName}`
+      );
+
+      if (signalError) throw signalError;
+    });
+
+    await bestEffort("Required trust report audit", async () => {
+      const { error: auditError } = await createAuditLog(supabase, "trust_report_created", candidateName, {
+        candidate_name: candidateName,
+        trust_score: trustScore,
+        synthetic_risk: syntheticRisk,
+        human_presence_index: humanPresenceIndex,
+        origin_trace_score: originTraceScore,
+        ...requestRisk,
+      });
+
+      if (auditError) throw auditError;
+    });
+
     if (linkedInEvidence.linkedin_url) {
       await bestEffort("LinkedIn trust report signals", async () => {
         await supabase
@@ -321,6 +345,7 @@ export async function POST(req: Request) {
               linkedInEvidence.linkedin_verification_status,
             ...requestRisk,
           },
+          created_at: new Date().toISOString(),
           ...requestRisk,
         });
       });
@@ -384,6 +409,7 @@ export async function POST(req: Request) {
           trust_timeline_score: trustTimelineScore,
           ...requestRisk,
         },
+        created_at: new Date().toISOString(),
         ...requestRisk,
       });
 
@@ -398,6 +424,7 @@ export async function POST(req: Request) {
           origin_trace_score: originTraceScore,
           ...requestRisk,
         },
+        created_at: new Date().toISOString(),
         ...requestRisk,
       });
 
@@ -410,6 +437,7 @@ export async function POST(req: Request) {
             attribution_confidence: attributionConfidence,
             ...requestRisk,
           },
+          created_at: new Date().toISOString(),
           ...requestRisk,
         });
       }
@@ -423,6 +451,7 @@ export async function POST(req: Request) {
             c2pa_status: c2paStatus,
             ...requestRisk,
           },
+          created_at: new Date().toISOString(),
           ...requestRisk,
         });
       }
@@ -432,6 +461,7 @@ export async function POST(req: Request) {
           event_type: "watermark_not_found",
           actor: candidateName,
           metadata: { candidate_name: candidateName, ...requestRisk },
+          created_at: new Date().toISOString(),
           ...requestRisk,
         });
       }

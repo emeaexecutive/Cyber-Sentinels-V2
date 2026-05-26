@@ -3,6 +3,14 @@ import { NextResponse } from "next/server";
 
 const DEMO_ACTOR = "demo-lab";
 
+async function bestEffort(label: string, task: () => Promise<unknown>) {
+  try {
+    await task();
+  } catch (error) {
+    console.warn(`${label} failed`, error);
+  }
+}
+
 function createDemoClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -237,17 +245,20 @@ export async function POST() {
       },
     };
 
-    const { error: auditError } = await supabase.from("audit_logs").insert([
-      { event_type: "passport_created", actor: DEMO_ACTOR, metadata },
-      { event_type: "hpi_created", actor: DEMO_ACTOR, metadata },
-      { event_type: "origin_trace_created", actor: DEMO_ACTOR, metadata },
-      { event_type: "trust_report_created", actor: DEMO_ACTOR, metadata },
-      { event_type: "manual_review_requested", actor: DEMO_ACTOR, metadata },
-    ]);
+    await bestEffort("Demo seed audit logs", async () => {
+      const createdAt = new Date().toISOString();
+      const { error: auditError } = await supabase.from("audit_logs").insert([
+        { event_type: "passport_created", actor: DEMO_ACTOR, metadata, created_at: createdAt },
+        { event_type: "hpi_created", actor: DEMO_ACTOR, metadata, created_at: createdAt },
+        { event_type: "origin_trace_created", actor: DEMO_ACTOR, metadata, created_at: createdAt },
+        { event_type: "trust_report_created", actor: DEMO_ACTOR, metadata, created_at: createdAt },
+        { event_type: "manual_review_requested", actor: DEMO_ACTOR, metadata, created_at: createdAt },
+      ]);
 
-    if (auditError) {
-      throw auditError;
-    }
+      if (auditError) {
+        throw auditError;
+      }
+    });
 
     return NextResponse.json({
       ok: true,
