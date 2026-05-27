@@ -187,7 +187,9 @@ function rowKey(row: AnyRow, fallback: string) {
 }
 
 function tableEmptyLabel(table: string, available: boolean) {
-  return available ? "No rows yet" : `${table} table is not available yet.`;
+  return available
+    ? "No live records yet. Create a Trust Passport or Hiring Shield report to populate this section."
+    : `${table} table is not available yet.`;
 }
 
 export default async function AdminPage() {
@@ -410,217 +412,112 @@ export default async function AdminPage() {
       )
     )
     .slice(0, 4);
+  const pendingEvidenceFiles = evidenceFiles.rows.filter(
+    (file) => file.scan_status !== "clean"
+  );
+  const kpiMetrics = metrics.filter((metric) =>
+    [
+      "Verification Cases",
+      "Passports",
+      "Trust Reports",
+      "Signals",
+      "Audit Logs",
+      "Decisions",
+    ].includes(metric.label)
+  );
+  const moduleLinks = [
+    ["Mission Control", "/mission-control"],
+    ["Verification Queue", "/verification-queue"],
+    ["Evidence Vault", "/evidence-vault"],
+    ["Decision Engine", "/decision-engine"],
+    ["Launch Console", "/launch-console"],
+    ["Trust History", "/trust-timeline"],
+    ["Trust Graph", "/trust-graph"],
+    ["Prediction Engine", "/trust-prediction"],
+    ["Policy Engine", "/policy-engine"],
+    ["API Docs", "/api-docs"],
+    ["Developer Console", "/developer-console"],
+    ["Billing / Clearances", "/billing"],
+    ["Global Infrastructure", "/global-trust"],
+    ["QA Console", "/qa-console"],
+    ["Agent Registry", "/agent-registry"],
+    ["Permissions Firewall", "/permissions-firewall"],
+    ["Step-Up Verification", "/step-up-verification"],
+    ["Revocation Engine", "/revocation-engine"],
+    ["Trust Recovery", "/trust-recovery"],
+    ["Compliance Export", "/compliance-export"],
+    ["Client Portal", "/client-portal"],
+    ["Team Workspace", "/team-workspace"],
+    ["Team Access", "/team-access"],
+    ["Verifier Network", "/verifier-network"],
+    ["Marketplace Trust", "/marketplace-trust"],
+    ["Trust Badges", "/trust-badges"],
+    ["Public Verification", "/verify"],
+    ["Public Profiles", "/profile"],
+    ["Trust Ledger", "/trust-ledger"],
+    ["Reality OS", "/reality-os"],
+    ["Trust Fabric", "/trust-fabric"],
+  ];
 
   return (
-    <main className="min-h-screen bg-black p-6 text-white md:p-8">
+    <main id="top" className="min-h-screen bg-black pb-16 text-white">
       <SessionGuard />
-      <div className="mx-auto max-w-7xl">
-        <Link href="/" className="text-sm text-zinc-400 hover:text-white">
-          Back to Cyber Sentinels
-        </Link>
+      <header className="sticky top-0 z-40 border-b border-zinc-800 bg-black/95 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-8">
+          <Link href="/admin" className="text-sm font-semibold text-white">
+            Cyber Sentinels Back Office
+          </Link>
+          <nav className="flex flex-wrap items-center gap-2 text-xs text-zinc-300">
+            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/api/auth/logout">
+              Logout
+            </Link>
+            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/mission-control">
+              Mission Control
+            </Link>
+            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/verification-queue">
+              Verification Queue
+            </Link>
+            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/evidence-vault">
+              Evidence Vault
+            </Link>
+            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/decision-engine">
+              Decision Engine
+            </Link>
+            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/launch-console">
+              Launch Console
+            </Link>
+          </nav>
+        </div>
+      </header>
 
-        <section className="mt-8">
-          <h1 className="text-4xl font-bold">Triple-Secure Back Office</h1>
-          <p className="mt-2 text-sm font-medium text-emerald-300">
-            Authenticated. Allowlisted. Step-up verified.
-          </p>
-          <p className="mt-4 max-w-3xl text-zinc-400">
-            Review evidence, verify human presence, inspect origin traces and
-            approve or escalate trust decisions.
-          </p>
-          <p className="mt-2 text-sm text-zinc-500">
-            Every decision creates a signal and audit event.
-          </p>
-          <Link
-            href="/trust-timeline"
-            className="mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            View Trust History
-          </Link>
-          <Link
-            href="/trust-graph"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Trust Graph
-          </Link>
-          <Link
-            href="/trust-prediction"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Prediction Engine
-          </Link>
-          <Link
-            href="/verification-queue"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Verification Queue
-          </Link>
-          <Link
-            href="/decision-engine"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Decision Engine
-          </Link>
-          <Link
-            href="/policy-engine"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Policy Engine
-          </Link>
-          <Link
-            href="/evidence-vault"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Evidence Vault
-          </Link>
-          <Link
-            href="/api-docs"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open API Docs
-          </Link>
-          <Link
-            href="/developer-console"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Developer Console
-          </Link>
-          <Link
-            href="/billing"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Billing / Clearances
-          </Link>
-          <Link
-            href="/global-trust"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Global Infrastructure
-          </Link>
-          <Link
-            href="/mission-control"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Mission Control
-          </Link>
-          <Link
-            href="/launch-console"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Launch Console
-          </Link>
-          <Link
-            href="/qa-console"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open QA Console
-          </Link>
-          <Link
-            href="/agent-registry"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Agent Registry
-          </Link>
-          <Link
-            href="/permissions-firewall"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Permissions Firewall
-          </Link>
-          <Link
-            href="/step-up-verification"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Step-Up Verification
-          </Link>
-          <Link
-            href="/revocation-engine"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Revocation Engine
-          </Link>
-          <Link
-            href="/trust-recovery"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Trust Recovery
-          </Link>
-          <Link
-            href="/compliance-export"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Compliance Export
-          </Link>
-          <Link
-            href="/client-portal"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            View Client Portal
-          </Link>
-          <Link
-            href="/team-workspace"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            View Team Workspace
-          </Link>
-          <Link
-            href="/team-access"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Team Access
-          </Link>
-          <Link
-            href="/verifier-network"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Verifier Network
-          </Link>
-          <Link
-            href="/marketplace-trust"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Marketplace Trust
-          </Link>
-          <Link
-            href="/trust-badges"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Trust Badges
-          </Link>
-          <Link
-            href="/verify"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Public Verification
-          </Link>
-          <Link
-            href="/profile"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Public Profiles
-          </Link>
-          <Link
-            href="/trust-ledger"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Trust Ledger
-          </Link>
-          <Link
-            href="/reality-os"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Reality OS
-          </Link>
-          <Link
-            href="/trust-fabric"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            Open Trust Fabric
-          </Link>
+      <div className="mx-auto max-w-7xl px-4 py-6 md:px-8">
+        <section className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-emerald-300">
+              Authenticated. Allowlisted. Step-up verified.
+            </p>
+            <h1 className="mt-2 text-3xl font-bold md:text-4xl">
+              Back Office
+            </h1>
+          </div>
+          <nav className="flex flex-wrap gap-2 text-xs text-zinc-300">
+            <a href="#operations" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
+              Operations
+            </a>
+            <a href="#activity" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
+              Activity
+            </a>
+            <a href="#modules" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
+              Modules
+            </a>
+            <a href="#demo" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
+              Demo
+            </a>
+          </nav>
         </section>
 
-        <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {metrics.map((metric) => (
+        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+          {kpiMetrics.map((metric) => (
             <Link
               key={metric.label}
               href={metric.href}
@@ -635,840 +532,323 @@ export default async function AdminPage() {
           ))}
         </section>
 
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">Trust Ledger</h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                Ledger rows explain score changes, decisions, revocations,
-                recoveries, evidence updates and verification outcomes.
-              </p>
-            </div>
-            <Link
-              href="/trust-ledger"
-              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
-            >
-              Open Ledger
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            {demoTrustLedgerEvents.slice(0, 3).map((event) => (
-              <div
-                key={event.id}
-                className="rounded-lg border border-zinc-800 bg-black p-4"
-              >
-                <p className="text-sm text-zinc-500">{event.event_type}</p>
-                <p className="mt-2 text-lg font-semibold">
-                  {event.previous_value ?? "new"} -&gt; {event.new_value ?? "n/a"}
-                </p>
-                <p className="mt-2 text-xs text-zinc-600">{event.reason_code}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">
-                Global Infrastructure Readiness
-              </h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
-                Cyber Sentinels is moving from prototype toward secure global
-                trust infrastructure with regional controls, encrypted evidence,
-                API governance, media processing queues and audit-ready exports.
-              </p>
-            </div>
-            <Link
-              href="/global-trust"
-              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
-            >
-              View Readiness
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            {[
-              "secure_media_processing",
-              "encrypted_evidence_storage",
-              "audit_immutability_layer",
-              "api_gateway",
-              "regional_data_controls",
-              "compliance_exports",
-            ].map((item) => (
-              <code
-                key={item}
-                className="rounded-lg border border-zinc-800 bg-black p-3 text-sm text-zinc-300"
-              >
-                {item}
-              </code>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">Step-Up Requests</h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                High-risk actions waiting for stronger proof, admin approval or
-                manual review.
-              </p>
-            </div>
-            <Link
-              href="/step-up-verification"
-              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
-            >
-              Open Step-Up Verification
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {stepUpRequests.length ? (
-              stepUpRequests.map((signal, index) => (
-                <div
-                  key={rowKey(signal, `step-up-${index}`)}
-                  className="rounded-lg border border-zinc-800 bg-black p-4"
-                >
-                  <p className="text-zinc-300">
-                    {signal.event ?? "Signal recorded"}
-                  </p>
-                  <p className="mt-2 text-xs text-zinc-600">
-                    {formatDate(signal.created_at)}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <EmptyState label="No live step-up requests. Demo requests are available in Step-Up Verification." />
-            )}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">Revocation Panel</h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                Trust reversals, restricted agents, paused API keys and locked
-                evidence requiring admin attention.
-              </p>
-            </div>
-            <Link
-              href="/revocation-engine"
-              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
-            >
-              Open Revocation Engine
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {revocationEvents.length ? (
-              revocationEvents.map((signal, index) => (
-                <div
-                  key={rowKey(signal, `revocation-${index}`)}
-                  className="rounded-lg border border-zinc-800 bg-black p-4"
-                >
-                  <p className="text-zinc-300">
-                    {signal.event ?? "Signal recorded"}
-                  </p>
-                  <p className="mt-2 text-xs text-zinc-600">
-                    {formatDate(signal.created_at)}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <EmptyState label="No live revocation events. Demo reversals are available in Revocation Engine." />
-            )}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">Recovery Queue</h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                Appeals and restoration requests requiring evidence, step-up or
-                admin review.
-              </p>
-            </div>
-            <Link
-              href="/trust-recovery"
-              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
-            >
-              Open Trust Recovery
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {recoveryEvents.length ? (
-              recoveryEvents.map((signal, index) => (
-                <div
-                  key={rowKey(signal, `recovery-${index}`)}
-                  className="rounded-lg border border-zinc-800 bg-black p-4"
-                >
-                  <p className="text-zinc-300">
-                    {signal.event ?? "Signal recorded"}
-                  </p>
-                  <p className="mt-2 text-xs text-zinc-600">
-                    {formatDate(signal.created_at)}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <EmptyState label="No live recovery requests. Demo appeals are available in Trust Recovery." />
-            )}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">Compliance Export</h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                Audit-ready report packs for customers, regulators and internal
-                review.
-              </p>
-            </div>
-            <Link
-              href="/compliance-export"
-              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
-            >
-              Open Export Center
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {complianceExportEvents.length ? (
-              complianceExportEvents.map((signal, index) => (
-                <div
-                  key={rowKey(signal, `compliance-export-${index}`)}
-                  className="rounded-lg border border-zinc-800 bg-black p-4"
-                >
-                  <p className="text-zinc-300">
-                    {signal.event ?? "Signal recorded"}
-                  </p>
-                  <p className="mt-2 text-xs text-zinc-600">
-                    {formatDate(signal.created_at)}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <EmptyState label="No live compliance exports. Demo report packs are available in Compliance Export." />
-            )}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">Team Workspace Preview</h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                Shared operations for team-owned passports, cases, reports, API
-                keys, billing and admin decisions.
-              </p>
-            </div>
-            <Link
-              href="/team-workspace"
-              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
-            >
-              Open Team Workspace
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-4">
-            {[
-              ["Team roles", "owner / admin / reviewer"],
-              ["Permissions", "review_cases / manage_api_keys"],
-              ["Plan", "Teams placeholder"],
-              ["Data key", "team_id"],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="rounded-lg border border-zinc-800 bg-black p-4"
-              >
-                <p className="text-sm text-zinc-500">{label}</p>
-                <p className="mt-2 text-sm font-medium text-zinc-200">{value}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">Verifier Network</h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                Approved reviewers and trust partners for distributed case
-                review, escalation and export workflows.
-              </p>
-            </div>
-            <Link
-              href="/verifier-network"
-              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
-            >
-              Open Verifier Network
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-4">
-            {[
-              ["Verifier types", "internal / partner / reviewer"],
-              ["Status", "pending / approved / suspended"],
-              ["Assignments", "case_assigned_to_verifier"],
-              ["Admin rule", "future approval only"],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="rounded-lg border border-zinc-800 bg-black p-4"
-              >
-                <p className="text-sm text-zinc-500">{label}</p>
-                <p className="mt-2 text-sm font-medium text-zinc-200">{value}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">Badge Verification</h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                Public-safe badge checks for marketplaces, client portals and
-                trust partners.
-              </p>
-            </div>
-            <Link
-              href="/trust-badges"
-              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
-            >
-              Open Trust Badges
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-4">
-            {[
-              ["API", "/api/badges/verify"],
-              ["Signal", "trust_badge_verified"],
-              ["Audit", "trust_badge_verified"],
-              ["Security", "public-safe summary"],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="rounded-lg border border-zinc-800 bg-black p-4"
-              >
-                <p className="text-sm text-zinc-500">{label}</p>
-                <p className="mt-2 text-sm font-medium text-zinc-200">{value}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">Public Profile Preview</h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                Shareable public trust profiles for humans, candidates, agents,
-                companies, creators and verifiers.
-              </p>
-            </div>
-            <Link
-              href="/profile"
-              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
-            >
-              Open Public Profiles
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-4">
-            {[
-              ["API", "/api/public/profile/[id]"],
-              ["Signal", "public_profile_viewed"],
-              ["Audit", "public_profile_viewed"],
-              ["Security", "no private evidence"],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="rounded-lg border border-zinc-800 bg-black p-4"
-              >
-                <p className="text-sm text-zinc-500">{label}</p>
-                <p className="mt-2 text-sm font-medium text-zinc-200">{value}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <h2 className="text-xl font-semibold">Waitlist Entries</h2>
-          <div className="mt-5 grid gap-3">
-            {waitlist.rows.length ? (
-              waitlist.rows.map((entry, index) => (
-                <div
-                  key={rowKey(entry, `waitlist-${index}`)}
-                  className="rounded-lg border border-zinc-800 p-4"
-                >
-                  <p className="font-medium text-zinc-100">
-                    {entry.email ?? "Unknown email"}
-                  </p>
-                  <p className="mt-1 text-sm text-zinc-500">
-                    {[entry.company, entry.role, entry.use_case]
-                      .filter(Boolean)
-                      .join(" / ") || "No details supplied"}
-                  </p>
-                  <p className="mt-2 text-xs text-zinc-600">
-                    {formatDate(entry.created_at)}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <EmptyState label={tableEmptyLabel("waitlist", waitlist.available)} />
-            )}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <h2 className="text-xl font-semibold">Verification Queue</h2>
-          <div className="mt-5 grid gap-3">
-            {verificationCases.rows.length ? (
-              verificationCases.rows.map((item, index) => (
-                <div
-                  key={rowKey(item, `verification-case-${index}`)}
-                  className="rounded-lg border border-zinc-800 p-4"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="font-medium text-zinc-100">
-                        {item.subject_name ?? "Unnamed subject"}
-                      </p>
-                      <p className="mt-1 text-sm text-zinc-500">
-                        {item.subject_type ?? "unknown"} / {formatDate(item.created_at)}
-                      </p>
-                    </div>
-                    <StatusBadge status={item.verification_status ?? item.status} />
-                  </div>
-                  {item.id ? (
-                    <AdminVerificationActions caseId={String(item.id)} />
-                  ) : null}
-                </div>
-              ))
-            ) : (
-              <EmptyState
-                label={tableEmptyLabel(
-                  "verification_cases",
-                  verificationCases.available
-                )}
-              />
-            )}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">
-                Verification Operations Queue Preview
-              </h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                Live cases waiting for human review, escalation or evidence.
-              </p>
-            </div>
+        <section id="operations" className="mt-8 scroll-mt-24">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold">Operations</h2>
             <Link
               href="/verification-queue"
               className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
-              Open Queue
+              Open Full Queue
             </Link>
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {verificationQueuePreview.length ? (
-              verificationQueuePreview.map((item, index) => (
-                <div
-                  key={rowKey(item, `queue-preview-${index}`)}
-                  className="rounded-lg border border-zinc-800 p-4"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="font-medium text-zinc-100">
-                        {item.subject_name ?? "Unnamed subject"}
-                      </p>
-                      <p className="mt-1 text-sm text-zinc-500">
-                        {item.subject_type ?? "unknown"} / Trust{" "}
-                        {item.trust_score ?? "n/a"}
-                      </p>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Verification Queue</h3>
+              <div className="mt-5 space-y-3">
+                {verificationCases.rows.length ? (
+                  verificationCases.rows.map((item, index) => (
+                    <div key={rowKey(item, `verification-case-${index}`)} className="rounded-lg border border-zinc-800 p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="font-medium text-zinc-100">
+                            {item.subject_name ?? "Unnamed subject"}
+                          </p>
+                          <p className="mt-1 text-sm text-zinc-500">
+                            {item.subject_type ?? "unknown"} / {formatDate(item.created_at)}
+                          </p>
+                        </div>
+                        <StatusBadge status={item.verification_status ?? item.status} />
+                      </div>
+                      {item.id ? (
+                        <AdminVerificationActions caseId={String(item.id)} />
+                      ) : null}
                     </div>
-                    <StatusBadge status={item.verification_status ?? item.status} />
-                  </div>
-                  <p className="mt-3 text-sm text-zinc-500">
-                    HPI {item.human_presence_index ?? "n/a"} / Origin{" "}
-                    {item.origin_trace_score ?? "n/a"} / Reviewer{" "}
-                    {item.reviewed_by ?? "Unassigned"}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <EmptyState
-                label={tableEmptyLabel(
-                  "verification_cases",
-                  verificationCases.available
+                  ))
+                ) : (
+                  <EmptyState label={tableEmptyLabel("verification_cases", verificationCases.available)} />
                 )}
-              />
-            )}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">Trust Fabric</h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                Connected trust signals across passports, evidence, decisions,
-                audits and operational relationships.
-              </p>
-            </div>
-            <Link
-              href="/trust-fabric"
-              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
-            >
-              Open Trust Fabric
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-4">
-            {[
-              ["Active Nodes", trustFabric.active_nodes],
-              ["Signals", trustFabric.signals],
-              ["Relationships", trustFabric.relationships],
-              ["Health", trustFabric.health],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="rounded-lg border border-zinc-800 bg-black p-4"
-              >
-                <p className="text-sm text-zinc-500">{label}</p>
-                <p className="mt-2 text-2xl font-semibold capitalize">{value}</p>
               </div>
-            ))}
-          </div>
-        </section>
+            </div>
 
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">Trust Prediction Panel</h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                {prediction.trend}
-              </p>
-            </div>
-            <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">
-              {prediction.state}
-            </span>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            <div className="rounded-lg border border-zinc-800 bg-black p-4">
-              <p className="text-sm text-zinc-500">Prediction Score</p>
-              <p className="mt-2 text-3xl font-semibold">{prediction.score}</p>
-            </div>
-            <div className="rounded-lg border border-zinc-800 bg-black p-4">
-              <p className="text-sm text-zinc-500">Risk Direction</p>
-              <p className="mt-2 text-3xl font-semibold capitalize">
-                {prediction.riskDirection}
-              </p>
-            </div>
-            <div className="rounded-lg border border-zinc-800 bg-black p-4">
-              <p className="text-sm text-zinc-500">Recommended Action</p>
-              <p className="mt-2 text-lg font-semibold">
-                {prediction.recommendedActions[0]}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <h2 className="text-xl font-semibold">LinkedIn Review Queue</h2>
-          <p className="mt-2 text-sm text-zinc-500">
-            LinkedIn is one signal, not the source of truth.
-          </p>
-          <div className="mt-5 grid gap-3">
-            {linkedInReviewQueue.length ? (
-              linkedInReviewQueue.map((item, index) => (
-                <div
-                  key={item.id ?? `linkedin-review-${index}`}
-                  className="grid gap-4 rounded-lg border border-zinc-800 p-4 lg:grid-cols-[1fr_1.4fr_0.8fr_1fr_0.8fr]"
-                >
-                  <div>
-                    <p className="text-sm text-zinc-500">Subject</p>
-                    <p className="mt-1 font-medium text-zinc-100">
-                      {item.subject_name}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-zinc-500">LinkedIn URL</p>
-                    <p className="mt-1 break-all text-sm text-zinc-300">
-                      {item.linkedin_url}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-zinc-500">Status</p>
-                    <p className="mt-1 text-zinc-300">{item.status}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-zinc-500">Claimed role/company</p>
-                    <p className="mt-1 text-zinc-300">
-                      {[item.claimed_role, item.claimed_company]
-                        .filter(Boolean)
-                        .join(" / ") || "Not supplied"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-zinc-500">Review required</p>
-                    <p className="mt-1 text-zinc-300">
-                      {item.review_required ? "Yes" : "No"}
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <EmptyState label="No LinkedIn profiles awaiting review." />
-            )}
-          </div>
-        </section>
-
-        <section className="mt-8 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Recent Passports</h2>
-            <div className="mt-5 space-y-3">
-              {passports.rows.length ? (
-                passports.rows.map((passport, index) => (
-                  <div
-                    key={rowKey(passport, `passport-${index}`)}
-                    className="rounded-lg border border-zinc-800 p-4"
-                  >
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="font-medium">
-                          {passport.subject_name ?? "Unnamed subject"}
-                        </p>
-                        <p className="mt-1 text-sm text-zinc-500">
-                          {passport.subject_type ?? "unknown"} / Trust{" "}
-                          {passport.trust_score ?? "n/a"}
-                        </p>
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Pending Decisions</h3>
+              <div className="mt-5 space-y-3">
+                {decisions.rows.length ? (
+                  decisions.rows.map((decision, index) => (
+                    <div key={rowKey(decision, `decision-${index}`)} className="rounded-lg border border-zinc-800 p-4">
+                      <div className="flex flex-wrap gap-2">
+                        <DecisionBadge decision={decision.decision} />
+                        <StatusBadge status={decision.status} />
                       </div>
-                      <StatusBadge status={passport.review_status} />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <EmptyState
-                  label={tableEmptyLabel("passports", passports.available)}
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Recent Trust Reports</h2>
-            <div className="mt-5 space-y-3">
-              {trustReports.rows.length ? (
-                trustReports.rows.map((report, index) => (
-                  <div
-                    key={rowKey(report, `trust-report-${index}`)}
-                    className="rounded-lg border border-zinc-800 p-4"
-                  >
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="font-medium">
-                          {report.candidate_name ?? "Unnamed candidate"}
-                        </p>
-                        <p className="mt-1 text-sm text-zinc-500">
-                          {report.report_type ?? "trust_report"} / Trust{" "}
-                          {report.trust_score ?? "n/a"}
-                        </p>
-                      </div>
-                      <StatusBadge status={report.review_status} />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <EmptyState
-                  label={tableEmptyLabel("trust_reports", trustReports.available)}
-                />
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-8 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Recent Signals</h2>
-            <div className="mt-5 space-y-3">
-              {signals.rows.length ? (
-                signals.rows.map((signal, index) => (
-                  <div
-                    key={rowKey(signal, `signal-${index}`)}
-                    className="rounded-lg border border-zinc-800 p-4"
-                  >
-                    <p className="text-zinc-300">
-                      {signal.event ?? "Signal recorded"}
-                    </p>
-                    <p className="mt-2 text-xs text-zinc-600">
-                      {formatDate(signal.created_at)}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <EmptyState label={tableEmptyLabel("signals", signals.available)} />
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-semibold">Recent Radar Activity</h2>
-                <p className="mt-2 text-sm text-zinc-500">
-                  Signal detected / Trust state changed / Reality status updated
-                </p>
-              </div>
-              <Link
-                href="/trust-radar"
-                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
-              >
-                Open Radar
-              </Link>
-            </div>
-            <div className="mt-5 space-y-3">
-              {radarSignals.map((signal, index) => (
-                <div
-                  key={signal.id ?? `radar-signal-${index}`}
-                  className={`rounded-lg border border-zinc-800 p-4 ${
-                    index === 0 ? "animate-pulse" : ""
-                  }`}
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
-                        {signal.isDemo ? "Demo Signal" : signal.source_type}
-                      </p>
-                      <p className="mt-2 text-zinc-300">
-                        {signal.event ?? "Signal recorded"}
-                      </p>
-                    </div>
-                    <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300">
-                      {signal.severity}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-xs text-zinc-600">
-                    {formatTimeAgo(signal.created_at)} / {signal.status}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-8 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Recent Audit Logs</h2>
-            <div className="mt-5 space-y-3">
-              {auditLogs.rows.length ? (
-                auditLogs.rows.map((log, index) => (
-                  <div
-                    key={rowKey(log, `audit-log-${index}`)}
-                    className="rounded-lg border border-zinc-800 p-4"
-                  >
-                    <p className="text-zinc-300">
-                      {log.event_type ?? "Audit event"}
-                    </p>
-                    <p className="mt-2 text-xs text-zinc-600">
-                      {log.actor ?? "system"} / {formatDate(log.created_at)}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <EmptyState
-                  label={tableEmptyLabel("audit_logs", auditLogs.available)}
-                />
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-8 grid gap-6 lg:grid-cols-3">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Evidence Pending Scan</h2>
-            <div className="mt-5 space-y-3">
-              {evidenceFiles.rows.length ? (
-                evidenceFiles.rows
-                  .filter((file) => file.scan_status !== "clean")
-                  .map((file, index) => (
-                    <div
-                      key={rowKey(file, `evidence-file-${index}`)}
-                      className="rounded-lg border border-zinc-800 p-4"
-                    >
-                      <p className="font-medium">
-                        {file.file_name ?? "Evidence file"}
-                      </p>
-                      <p className="mt-1 text-sm text-zinc-500">
-                        {file.scan_status ?? "pending"}
+                      <p className="mt-2 text-xs text-zinc-600">
+                        {formatDate(decision.created_at)}
                       </p>
                     </div>
                   ))
-              ) : (
-                <EmptyState
-                  label={
-                    tableEmptyLabel("evidence_files", evidenceFiles.available)
-                  }
-                />
-              )}
+                ) : (
+                  <EmptyState label={tableEmptyLabel("decisions", decisions.available)} />
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Recent Passports</h3>
+              <div className="mt-5 space-y-3">
+                {passports.rows.length ? (
+                  passports.rows.map((passport, index) => (
+                    <div key={rowKey(passport, `passport-${index}`)} className="rounded-lg border border-zinc-800 p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="font-medium">{passport.subject_name ?? "Unnamed subject"}</p>
+                          <p className="mt-1 text-sm text-zinc-500">
+                            {passport.subject_type ?? "unknown"} / Trust {passport.trust_score ?? "n/a"}
+                          </p>
+                        </div>
+                        <StatusBadge status={passport.review_status} />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState label={tableEmptyLabel("passports", passports.available)} />
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Recent Trust Reports</h3>
+              <div className="mt-5 space-y-3">
+                {trustReports.rows.length ? (
+                  trustReports.rows.map((report, index) => (
+                    <div key={rowKey(report, `trust-report-${index}`)} className="rounded-lg border border-zinc-800 p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="font-medium">{report.candidate_name ?? "Unnamed candidate"}</p>
+                          <p className="mt-1 text-sm text-zinc-500">
+                            {report.report_type ?? "trust_report"} / Trust {report.trust_score ?? "n/a"}
+                          </p>
+                        </div>
+                        <StatusBadge status={report.review_status} />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState label={tableEmptyLabel("trust_reports", trustReports.available)} />
+                )}
+              </div>
             </div>
           </div>
+        </section>
 
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Decision Queue</h2>
-            <div className="mt-5 space-y-3">
-              {decisions.rows.length ? (
-                decisions.rows.map((decision, index) => (
-                  <div
-                    key={rowKey(decision, `decision-${index}`)}
-                    className="rounded-lg border border-zinc-800 p-4"
-                  >
-                    <div className="flex flex-wrap gap-2">
-                      <DecisionBadge decision={decision.decision} />
-                      <StatusBadge status={decision.status} />
+        <section id="activity" className="mt-8 scroll-mt-24">
+          <h2 className="mb-4 text-xl font-semibold">Activity</h2>
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Recent Signals</h3>
+              <div className="mt-5 space-y-3">
+                {signals.rows.length ? (
+                  signals.rows.map((signal, index) => (
+                    <div key={rowKey(signal, `signal-${index}`)} className="rounded-lg border border-zinc-800 p-4">
+                      <p className="text-zinc-300">{signal.event ?? "Signal recorded"}</p>
+                      <p className="mt-2 text-xs text-zinc-600">{formatDate(signal.created_at)}</p>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState label={tableEmptyLabel("signals", signals.available)} />
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Recent Audit Logs</h3>
+              <div className="mt-5 space-y-3">
+                {auditLogs.rows.length ? (
+                  auditLogs.rows.map((log, index) => (
+                    <div key={rowKey(log, `audit-log-${index}`)} className="rounded-lg border border-zinc-800 p-4">
+                      <p className="text-zinc-300">{log.event_type ?? "Audit event"}</p>
+                      <p className="mt-2 text-xs text-zinc-600">
+                        {log.actor ?? "system"} / {formatDate(log.created_at)}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState label={tableEmptyLabel("audit_logs", auditLogs.available)} />
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Evidence Pending Scan</h3>
+              <div className="mt-5 space-y-3">
+                {pendingEvidenceFiles.length ? (
+                  pendingEvidenceFiles.map((file, index) => (
+                    <div key={rowKey(file, `evidence-file-${index}`)} className="rounded-lg border border-zinc-800 p-4">
+                      <p className="font-medium">{file.file_name ?? "Evidence file"}</p>
+                      <p className="mt-1 text-sm text-zinc-500">{file.scan_status ?? "pending"}</p>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState label={tableEmptyLabel("evidence_files", evidenceFiles.available)} />
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="modules" className="mt-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <details>
+            <summary className="cursor-pointer list-none">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="text-xl font-semibold">Advanced Modules</h2>
+                <span className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300">
+                  Show / Hide modules
+                </span>
+              </div>
+            </summary>
+            <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {moduleLinks.map(([label, href]) => (
+                <Link
+                  key={`${label}-${href}`}
+                  href={href}
+                  className="rounded-lg border border-zinc-800 bg-black px-3 py-2 text-sm text-zinc-300 hover:text-white"
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </details>
+        </section>
+
+        <section id="demo" className="mt-8 scroll-mt-24">
+          <h2 className="mb-4 text-xl font-semibold">Simulation / Demo Intelligence</h2>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <h3 className="text-lg font-semibold">Trust Prediction Panel</h3>
+                <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">
+                  {prediction.state}
+                </span>
+              </div>
+              <p className="mt-2 text-sm text-zinc-500">{prediction.trend}</p>
+              <div className="mt-5 grid gap-3 md:grid-cols-3">
+                <div className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <p className="text-sm text-zinc-500">Prediction Score</p>
+                  <p className="mt-2 text-3xl font-semibold">{prediction.score}</p>
+                </div>
+                <div className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <p className="text-sm text-zinc-500">Risk Direction</p>
+                  <p className="mt-2 text-3xl font-semibold capitalize">{prediction.riskDirection}</p>
+                </div>
+                <div className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <p className="text-sm text-zinc-500">Recommended Action</p>
+                  <p className="mt-2 text-lg font-semibold">{prediction.recommendedActions[0]}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Trust Fabric</h3>
+              <div className="mt-5 grid gap-3 md:grid-cols-4">
+                {[
+                  ["Active Nodes", trustFabric.active_nodes],
+                  ["Signals", trustFabric.signals],
+                  ["Relationships", trustFabric.relationships],
+                  ["Health", trustFabric.health],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                    <p className="text-sm text-zinc-500">{label}</p>
+                    <p className="mt-2 text-2xl font-semibold capitalize">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Trust Ledger</h3>
+              <div className="mt-5 grid gap-3 md:grid-cols-3">
+                {demoTrustLedgerEvents.slice(0, 3).map((event) => (
+                  <div key={event.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                    <p className="text-sm text-zinc-500">{event.event_type}</p>
+                    <p className="mt-2 text-lg font-semibold">
+                      {event.previous_value ?? "new"} -&gt; {event.new_value ?? "n/a"}
+                    </p>
+                    <p className="mt-2 text-xs text-zinc-600">{event.reason_code}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Recent Radar Activity</h3>
+              <div className="mt-5 space-y-3">
+                {radarSignals.map((signal, index) => (
+                  <div key={signal.id ?? `radar-signal-${index}`} className="rounded-lg border border-zinc-800 p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+                          {signal.isDemo ? "Demo Signal" : signal.source_type}
+                        </p>
+                        <p className="mt-2 text-zinc-300">{signal.event ?? "Signal recorded"}</p>
+                      </div>
+                      <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300">
+                        {signal.severity}
+                      </span>
                     </div>
                     <p className="mt-2 text-xs text-zinc-600">
-                      {formatDate(decision.created_at)}
+                      {formatTimeAgo(signal.created_at)} / {signal.status}
                     </p>
                   </div>
-                ))
-              ) : (
-                <EmptyState
-                  label={
-                    tableEmptyLabel("decisions", decisions.available)
-                  }
-                />
-              )}
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Risk Overview</h2>
-            <div className="mt-5 space-y-3">
-              {riskScores.rows.length ? (
-                riskScores.rows.map((risk, index) => (
-                  <div
-                    key={rowKey(risk, `risk-score-${index}`)}
-                    className="rounded-lg border border-zinc-800 p-4"
-                  >
-                    <p className="font-medium">
-                      Score {risk.score ?? "n/a"}
-                    </p>
-                    <p className="mt-1 text-sm text-zinc-500">
-                      {risk.risk_level ?? "unclassified"}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <EmptyState
-                  label={
-                    tableEmptyLabel("risk_scores", riskScores.available)
-                  }
-                />
-              )}
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">LinkedIn Review Queue</h3>
+              <div className="mt-5 grid gap-3">
+                {linkedInReviewQueue.length ? (
+                  linkedInReviewQueue.map((item, index) => (
+                    <div key={item.id ?? `linkedin-review-${index}`} className="rounded-lg border border-zinc-800 p-4">
+                      <p className="font-medium text-zinc-100">{item.subject_name}</p>
+                      <p className="mt-1 break-all text-sm text-zinc-300">{item.linkedin_url}</p>
+                      <p className="mt-2 text-xs text-zinc-600">
+                        {item.status} / {[item.claimed_role, item.claimed_company].filter(Boolean).join(" / ") || "Not supplied"}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState label="No live records yet. Create a Trust Passport or Hiring Shield report to populate this section." />
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Waitlist Entries</h3>
+              <div className="mt-5 grid gap-3">
+                {waitlist.rows.length ? (
+                  waitlist.rows.map((entry, index) => (
+                    <div key={rowKey(entry, `waitlist-${index}`)} className="rounded-lg border border-zinc-800 p-4">
+                      <p className="font-medium text-zinc-100">{entry.email ?? "Unknown email"}</p>
+                      <p className="mt-1 text-sm text-zinc-500">
+                        {[entry.company, entry.role, entry.use_case].filter(Boolean).join(" / ") || "No details supplied"}
+                      </p>
+                      <p className="mt-2 text-xs text-zinc-600">{formatDate(entry.created_at)}</p>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState label={tableEmptyLabel("waitlist", waitlist.available)} />
+                )}
+              </div>
             </div>
           </div>
         </section>
       </div>
+
+      <a
+        href="#top"
+        className="fixed bottom-4 right-4 z-50 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs text-zinc-300 shadow-lg hover:text-white"
+      >
+        Back to top
+      </a>
     </main>
   );
 }
