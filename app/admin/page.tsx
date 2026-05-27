@@ -803,6 +803,70 @@ export default async function AdminPage() {
             </div>
 
             <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Step-Up Requests</h3>
+              <div className="mt-5 space-y-3">
+                {stepUpRequests.length ? (
+                  stepUpRequests.map((signal, index) => (
+                    <div key={rowKey(signal, `step-up-${index}`)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                      <p className="text-zinc-300">{signal.event ?? "Signal recorded"}</p>
+                      <p className="mt-2 text-xs text-zinc-600">{formatDate(signal.created_at)}</p>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState label="No live records yet. Create a Trust Passport or Hiring Shield report to populate this section." />
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Revocation Panel</h3>
+              <div className="mt-5 space-y-3">
+                {revocationEvents.length ? (
+                  revocationEvents.map((signal, index) => (
+                    <div key={rowKey(signal, `revocation-${index}`)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                      <p className="text-zinc-300">{signal.event ?? "Signal recorded"}</p>
+                      <p className="mt-2 text-xs text-zinc-600">{formatDate(signal.created_at)}</p>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState label="No live records yet. Create a Trust Passport or Hiring Shield report to populate this section." />
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Recovery Queue</h3>
+              <div className="mt-5 space-y-3">
+                {recoveryEvents.length ? (
+                  recoveryEvents.map((signal, index) => (
+                    <div key={rowKey(signal, `recovery-${index}`)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                      <p className="text-zinc-300">{signal.event ?? "Signal recorded"}</p>
+                      <p className="mt-2 text-xs text-zinc-600">{formatDate(signal.created_at)}</p>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState label="No live records yet. Create a Trust Passport or Hiring Shield report to populate this section." />
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Compliance Export</h3>
+              <div className="mt-5 space-y-3">
+                {complianceExportEvents.length ? (
+                  complianceExportEvents.map((signal, index) => (
+                    <div key={rowKey(signal, `compliance-export-${index}`)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                      <p className="text-zinc-300">{signal.event ?? "Signal recorded"}</p>
+                      <p className="mt-2 text-xs text-zinc-600">{formatDate(signal.created_at)}</p>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState label="No live records yet. Create a Trust Passport or Hiring Shield report to populate this section." />
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
               <h3 className="text-lg font-semibold">LinkedIn Review Queue</h3>
               <div className="mt-5 grid gap-3">
                 {linkedInReviewQueue.length ? (
