@@ -28,97 +28,7 @@ export const dynamic = "force-dynamic";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
-type WaitlistEntry = {
-  id: string;
-  email?: string | null;
-  company?: string | null;
-  role?: string | null;
-  use_case?: string | null;
-  created_at?: string | null;
-};
-
-type VerificationCase = {
-  id: string;
-  subject_name?: string | null;
-  subject_type?: string | null;
-  status?: BackOfficeStatus | string | null;
-  verification_status?: BackOfficeStatus | string | null;
-  human_presence_index?: number | null;
-  origin_trace_score?: number | null;
-  trust_score?: number | null;
-  reviewed_by?: string | null;
-  created_at?: string | null;
-};
-
-type Passport = {
-  id: string;
-  subject_name?: string | null;
-  subject_type?: string | null;
-  review_status?: string | null;
-  trust_score?: number | null;
-  human_presence_index?: number | null;
-  origin_trace_score?: number | null;
-  synthetic_risk?: number | null;
-  voice_clone_risk?: number | null;
-  video_deepfake_risk?: number | null;
-  linkedin_url?: string | null;
-  linkedin_verification_status?: string | null;
-  linkedin_claimed_company?: string | null;
-  linkedin_claimed_role?: string | null;
-  linkedin_review_required?: boolean | null;
-  created_at?: string | null;
-};
-
-type TrustReport = {
-  id: string;
-  candidate_name?: string | null;
-  report_type?: string | null;
-  review_status?: string | null;
-  trust_score?: number | null;
-  linkedin_url?: string | null;
-  linkedin_verification_status?: string | null;
-  linkedin_claimed_company?: string | null;
-  linkedin_claimed_role?: string | null;
-  linkedin_review_required?: boolean | null;
-  created_at?: string | null;
-};
-
-type Signal = {
-  id: string;
-  event?: string | null;
-  created_at?: string | null;
-};
-
-type AuditLog = {
-  id: string;
-  event_type?: string | null;
-  actor?: string | null;
-  created_at?: string | null;
-};
-
-type EvidenceFile = {
-  id: string;
-  verification_case_id?: string | null;
-  file_name?: string | null;
-  scan_status?: string | null;
-  created_at?: string | null;
-};
-
-type Decision = {
-  id: string;
-  verification_case_id?: string | null;
-  decision?: DecisionAction | string | null;
-  status?: BackOfficeStatus | string | null;
-  created_at?: string | null;
-};
-
-type RiskScore = {
-  id: string;
-  verification_case_id?: string | null;
-  score?: number | null;
-  risk_level?: string | null;
-  created_at?: string | null;
-};
+type AnyRow = Record<string, any>;
 
 type TableResult<T> = {
   rows: T[];
@@ -163,13 +73,12 @@ function toTableResult<T>(data: T[] | null, count: number | null) {
 async function fetchTable<T>(
   supabase: SupabaseServerClient,
   table: string,
-  select: string,
   orderColumn = "created_at",
   limit = 8
 ): Promise<TableResult<T>> {
   const primary = await supabase
     .from(table)
-    .select(select, { count: "exact" })
+    .select("*", { count: "exact" })
     .order(orderColumn, { ascending: false })
     .limit(limit)
     .returns<T[]>();
@@ -273,6 +182,14 @@ function EmptyState({ label }: { label: string }) {
   return <p className="text-sm text-zinc-500">{label}</p>;
 }
 
+function rowKey(row: AnyRow, fallback: string) {
+  return String(row.id ?? fallback);
+}
+
+function tableEmptyLabel(table: string, available: boolean) {
+  return available ? "No rows yet" : `${table} table is not available yet.`;
+}
+
 export default async function AdminPage() {
   const supabase = await createClient();
 
@@ -299,15 +216,15 @@ export default async function AdminPage() {
     decisions,
     riskScores,
   ] = await Promise.all([
-    fetchTable<WaitlistEntry>(supabase, "waitlist", "*"),
-    fetchTable<VerificationCase>(supabase, "verification_cases", "*"),
-    fetchTable<Passport>(supabase, "passports", "*"),
-    fetchTable<TrustReport>(supabase, "trust_reports", "*"),
-    fetchTable<Signal>(supabase, "signals", "*"),
-    fetchTable<AuditLog>(supabase, "audit_logs", "*"),
-    fetchTable<EvidenceFile>(supabase, "evidence_files", "*"),
-    fetchTable<Decision>(supabase, "decisions", "*"),
-    fetchTable<RiskScore>(supabase, "risk_scores", "*"),
+    fetchTable<AnyRow>(supabase, "waitlist"),
+    fetchTable<AnyRow>(supabase, "verification_cases"),
+    fetchTable<AnyRow>(supabase, "passports"),
+    fetchTable<AnyRow>(supabase, "trust_reports"),
+    fetchTable<AnyRow>(supabase, "signals"),
+    fetchTable<AnyRow>(supabase, "audit_logs"),
+    fetchTable<AnyRow>(supabase, "evidence_files"),
+    fetchTable<AnyRow>(supabase, "decisions"),
+    fetchTable<AnyRow>(supabase, "risk_scores"),
   ]);
 
   const metrics = [
@@ -410,7 +327,9 @@ export default async function AdminPage() {
       href: "/compliance-export",
     },
   ];
-  const radarSignals = normalizeSignals(signals.rows).slice(0, 5);
+  const radarSignals = normalizeSignals(
+    signals.rows as Parameters<typeof normalizeSignals>[0]
+  ).slice(0, 5);
   const prediction = predictTrustRisk({
     passports: passports.rows,
     signals: signals.rows,
@@ -804,9 +723,9 @@ export default async function AdminPage() {
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {stepUpRequests.length ? (
-              stepUpRequests.map((signal) => (
+              stepUpRequests.map((signal, index) => (
                 <div
-                  key={signal.id}
+                  key={rowKey(signal, `step-up-${index}`)}
                   className="rounded-lg border border-zinc-800 bg-black p-4"
                 >
                   <p className="text-zinc-300">
@@ -841,9 +760,9 @@ export default async function AdminPage() {
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {revocationEvents.length ? (
-              revocationEvents.map((signal) => (
+              revocationEvents.map((signal, index) => (
                 <div
-                  key={signal.id}
+                  key={rowKey(signal, `revocation-${index}`)}
                   className="rounded-lg border border-zinc-800 bg-black p-4"
                 >
                   <p className="text-zinc-300">
@@ -878,9 +797,9 @@ export default async function AdminPage() {
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {recoveryEvents.length ? (
-              recoveryEvents.map((signal) => (
+              recoveryEvents.map((signal, index) => (
                 <div
-                  key={signal.id}
+                  key={rowKey(signal, `recovery-${index}`)}
                   className="rounded-lg border border-zinc-800 bg-black p-4"
                 >
                   <p className="text-zinc-300">
@@ -915,9 +834,9 @@ export default async function AdminPage() {
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {complianceExportEvents.length ? (
-              complianceExportEvents.map((signal) => (
+              complianceExportEvents.map((signal, index) => (
                 <div
-                  key={signal.id}
+                  key={rowKey(signal, `compliance-export-${index}`)}
                   className="rounded-lg border border-zinc-800 bg-black p-4"
                 >
                   <p className="text-zinc-300">
@@ -1074,9 +993,9 @@ export default async function AdminPage() {
           <h2 className="text-xl font-semibold">Waitlist Entries</h2>
           <div className="mt-5 grid gap-3">
             {waitlist.rows.length ? (
-              waitlist.rows.map((entry) => (
+              waitlist.rows.map((entry, index) => (
                 <div
-                  key={entry.id}
+                  key={rowKey(entry, `waitlist-${index}`)}
                   className="rounded-lg border border-zinc-800 p-4"
                 >
                   <p className="font-medium text-zinc-100">
@@ -1093,7 +1012,7 @@ export default async function AdminPage() {
                 </div>
               ))
             ) : (
-              <EmptyState label="No waitlist entries." />
+              <EmptyState label={tableEmptyLabel("waitlist", waitlist.available)} />
             )}
           </div>
         </section>
@@ -1102,9 +1021,9 @@ export default async function AdminPage() {
           <h2 className="text-xl font-semibold">Verification Queue</h2>
           <div className="mt-5 grid gap-3">
             {verificationCases.rows.length ? (
-              verificationCases.rows.map((item) => (
+              verificationCases.rows.map((item, index) => (
                 <div
-                  key={item.id}
+                  key={rowKey(item, `verification-case-${index}`)}
                   className="rounded-lg border border-zinc-800 p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1118,16 +1037,17 @@ export default async function AdminPage() {
                     </div>
                     <StatusBadge status={item.verification_status ?? item.status} />
                   </div>
-                  <AdminVerificationActions caseId={item.id} />
+                  {item.id ? (
+                    <AdminVerificationActions caseId={String(item.id)} />
+                  ) : null}
                 </div>
               ))
             ) : (
               <EmptyState
-                label={
+                label={tableEmptyLabel(
+                  "verification_cases",
                   verificationCases.available
-                    ? "No verification cases."
-                    : "verification_cases table is not available yet."
-                }
+                )}
               />
             )}
           </div>
@@ -1152,9 +1072,9 @@ export default async function AdminPage() {
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {verificationQueuePreview.length ? (
-              verificationQueuePreview.map((item) => (
+              verificationQueuePreview.map((item, index) => (
                 <div
-                  key={`queue-preview-${item.id}`}
+                  key={rowKey(item, `queue-preview-${index}`)}
                   className="rounded-lg border border-zinc-800 p-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1177,7 +1097,12 @@ export default async function AdminPage() {
                 </div>
               ))
             ) : (
-              <EmptyState label="No active verification work in queue." />
+              <EmptyState
+                label={tableEmptyLabel(
+                  "verification_cases",
+                  verificationCases.available
+                )}
+              />
             )}
           </div>
         </section>
@@ -1255,9 +1180,9 @@ export default async function AdminPage() {
           </p>
           <div className="mt-5 grid gap-3">
             {linkedInReviewQueue.length ? (
-              linkedInReviewQueue.map((item) => (
+              linkedInReviewQueue.map((item, index) => (
                 <div
-                  key={item.id}
+                  key={item.id ?? `linkedin-review-${index}`}
                   className="grid gap-4 rounded-lg border border-zinc-800 p-4 lg:grid-cols-[1fr_1.4fr_0.8fr_1fr_0.8fr]"
                 >
                   <div>
@@ -1303,8 +1228,11 @@ export default async function AdminPage() {
             <h2 className="text-xl font-semibold">Recent Passports</h2>
             <div className="mt-5 space-y-3">
               {passports.rows.length ? (
-                passports.rows.map((passport) => (
-                  <div key={passport.id} className="rounded-lg border border-zinc-800 p-4">
+                passports.rows.map((passport, index) => (
+                  <div
+                    key={rowKey(passport, `passport-${index}`)}
+                    className="rounded-lg border border-zinc-800 p-4"
+                  >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <p className="font-medium">
@@ -1320,7 +1248,9 @@ export default async function AdminPage() {
                   </div>
                 ))
               ) : (
-                <EmptyState label="No recent passports." />
+                <EmptyState
+                  label={tableEmptyLabel("passports", passports.available)}
+                />
               )}
             </div>
           </div>
@@ -1329,8 +1259,11 @@ export default async function AdminPage() {
             <h2 className="text-xl font-semibold">Recent Trust Reports</h2>
             <div className="mt-5 space-y-3">
               {trustReports.rows.length ? (
-                trustReports.rows.map((report) => (
-                  <div key={report.id} className="rounded-lg border border-zinc-800 p-4">
+                trustReports.rows.map((report, index) => (
+                  <div
+                    key={rowKey(report, `trust-report-${index}`)}
+                    className="rounded-lg border border-zinc-800 p-4"
+                  >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <p className="font-medium">
@@ -1346,7 +1279,9 @@ export default async function AdminPage() {
                   </div>
                 ))
               ) : (
-                <EmptyState label="No recent trust reports." />
+                <EmptyState
+                  label={tableEmptyLabel("trust_reports", trustReports.available)}
+                />
               )}
             </div>
           </div>
@@ -1357,8 +1292,11 @@ export default async function AdminPage() {
             <h2 className="text-xl font-semibold">Recent Signals</h2>
             <div className="mt-5 space-y-3">
               {signals.rows.length ? (
-                signals.rows.map((signal) => (
-                  <div key={signal.id} className="rounded-lg border border-zinc-800 p-4">
+                signals.rows.map((signal, index) => (
+                  <div
+                    key={rowKey(signal, `signal-${index}`)}
+                    className="rounded-lg border border-zinc-800 p-4"
+                  >
                     <p className="text-zinc-300">
                       {signal.event ?? "Signal recorded"}
                     </p>
@@ -1368,7 +1306,7 @@ export default async function AdminPage() {
                   </div>
                 ))
               ) : (
-                <EmptyState label="No recent signals." />
+                <EmptyState label={tableEmptyLabel("signals", signals.available)} />
               )}
             </div>
           </div>
@@ -1391,7 +1329,7 @@ export default async function AdminPage() {
             <div className="mt-5 space-y-3">
               {radarSignals.map((signal, index) => (
                 <div
-                  key={signal.id}
+                  key={signal.id ?? `radar-signal-${index}`}
                   className={`rounded-lg border border-zinc-800 p-4 ${
                     index === 0 ? "animate-pulse" : ""
                   }`}
@@ -1423,8 +1361,11 @@ export default async function AdminPage() {
             <h2 className="text-xl font-semibold">Recent Audit Logs</h2>
             <div className="mt-5 space-y-3">
               {auditLogs.rows.length ? (
-                auditLogs.rows.map((log) => (
-                  <div key={log.id} className="rounded-lg border border-zinc-800 p-4">
+                auditLogs.rows.map((log, index) => (
+                  <div
+                    key={rowKey(log, `audit-log-${index}`)}
+                    className="rounded-lg border border-zinc-800 p-4"
+                  >
                     <p className="text-zinc-300">
                       {log.event_type ?? "Audit event"}
                     </p>
@@ -1434,7 +1375,9 @@ export default async function AdminPage() {
                   </div>
                 ))
               ) : (
-                <EmptyState label="No recent audit logs." />
+                <EmptyState
+                  label={tableEmptyLabel("audit_logs", auditLogs.available)}
+                />
               )}
             </div>
           </div>
@@ -1447,8 +1390,11 @@ export default async function AdminPage() {
               {evidenceFiles.rows.length ? (
                 evidenceFiles.rows
                   .filter((file) => file.scan_status !== "clean")
-                  .map((file) => (
-                    <div key={file.id} className="rounded-lg border border-zinc-800 p-4">
+                  .map((file, index) => (
+                    <div
+                      key={rowKey(file, `evidence-file-${index}`)}
+                      className="rounded-lg border border-zinc-800 p-4"
+                    >
                       <p className="font-medium">
                         {file.file_name ?? "Evidence file"}
                       </p>
@@ -1460,9 +1406,7 @@ export default async function AdminPage() {
               ) : (
                 <EmptyState
                   label={
-                    evidenceFiles.available
-                      ? "No evidence pending scan."
-                      : "evidence_files table is not available yet."
+                    tableEmptyLabel("evidence_files", evidenceFiles.available)
                   }
                 />
               )}
@@ -1473,8 +1417,11 @@ export default async function AdminPage() {
             <h2 className="text-xl font-semibold">Decision Queue</h2>
             <div className="mt-5 space-y-3">
               {decisions.rows.length ? (
-                decisions.rows.map((decision) => (
-                  <div key={decision.id} className="rounded-lg border border-zinc-800 p-4">
+                decisions.rows.map((decision, index) => (
+                  <div
+                    key={rowKey(decision, `decision-${index}`)}
+                    className="rounded-lg border border-zinc-800 p-4"
+                  >
                     <div className="flex flex-wrap gap-2">
                       <DecisionBadge decision={decision.decision} />
                       <StatusBadge status={decision.status} />
@@ -1487,9 +1434,7 @@ export default async function AdminPage() {
               ) : (
                 <EmptyState
                   label={
-                    decisions.available
-                      ? "No decisions recorded."
-                      : "decisions table is not available yet."
+                    tableEmptyLabel("decisions", decisions.available)
                   }
                 />
               )}
@@ -1500,8 +1445,11 @@ export default async function AdminPage() {
             <h2 className="text-xl font-semibold">Risk Overview</h2>
             <div className="mt-5 space-y-3">
               {riskScores.rows.length ? (
-                riskScores.rows.map((risk) => (
-                  <div key={risk.id} className="rounded-lg border border-zinc-800 p-4">
+                riskScores.rows.map((risk, index) => (
+                  <div
+                    key={rowKey(risk, `risk-score-${index}`)}
+                    className="rounded-lg border border-zinc-800 p-4"
+                  >
                     <p className="font-medium">
                       Score {risk.score ?? "n/a"}
                     </p>
@@ -1513,9 +1461,7 @@ export default async function AdminPage() {
               ) : (
                 <EmptyState
                   label={
-                    riskScores.available
-                      ? "No risk scores."
-                      : "risk_scores table is not available yet."
+                    tableEmptyLabel("risk_scores", riskScores.available)
                   }
                 />
               )}
