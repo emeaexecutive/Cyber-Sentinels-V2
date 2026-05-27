@@ -7,17 +7,17 @@ export type PredictionInputPassport = {
   synthetic_risk?: number | null;
   voice_clone_risk?: number | null;
   video_deepfake_risk?: number | null;
-  review_status: string | null;
+  review_status?: string | null;
   linkedin_verification_status?: string | null;
 };
 
 export type PredictionInputSignal = {
-  event: string;
+  event?: string | null;
   created_at?: string | null;
 };
 
 export type PredictionInputAuditLog = {
-  event_type: string;
+  event_type?: string | null;
   created_at?: string | null;
 };
 
@@ -178,25 +178,27 @@ export function predictTrustRisk(sources: PredictionSources): TrustPrediction {
     )
   ).length;
   const riskSignalCount = signals.filter((signal) =>
-    /(drift|anomaly|risk|deepfake|mismatch|weak|escalat)/i.test(signal.event)
+    /(drift|anomaly|risk|deepfake|mismatch|weak|escalat)/i.test(
+      signal.event ?? ""
+    )
   ).length;
   const realityDriftSignalCount = signals.filter((signal) =>
     /reality_drift|reality drift|origin_confidence|reality_chain/i.test(
-      signal.event
+      signal.event ?? ""
     )
   ).length;
   const hpgSignalCount = signals.filter((signal) =>
     /hpg|presence_shift|behavioral_drift|synthetic_deviation/i.test(
-      signal.event
+      signal.event ?? ""
     )
   ).length;
   const cloneRiskSignalCount = signals.filter((signal) =>
     /clone_risk|synthetic_clone|identity_exposure|reality_twin/i.test(
-      signal.event
+      signal.event ?? ""
     )
   ).length;
   const reviewAuditCount = auditLogs.filter((log) =>
-    /review|decision|verification/i.test(log.event_type)
+    /review|decision|verification/i.test(log.event_type ?? "")
   ).length;
 
   if (averageHpi !== null && averageHpi < 70) {

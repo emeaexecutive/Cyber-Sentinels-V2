@@ -7,6 +7,12 @@ export type SignalRow = {
   created_at: string | null;
 };
 
+type LooseSignalRow = {
+  id: string;
+  event?: string | null;
+  created_at?: string | null;
+};
+
 export type PassportSignalStats = {
   human_presence_index: number | null;
   origin_trace_score: number | null;
@@ -150,23 +156,26 @@ export function createDemoSignals(now = new Date()): RadarSignal[] {
   });
 }
 
-export function normalizeSignals(signals: SignalRow[] | null | undefined) {
+export function normalizeSignals(
+  signals: Array<SignalRow | LooseSignalRow> | null | undefined
+) {
   if (!signals?.length) {
     return createDemoSignals();
   }
 
   return signals.map((signal) => {
-    const severity = inferSeverity(signal.event);
+    const event = signal.event ?? "Signal recorded";
+    const severity = inferSeverity(event);
 
     return {
       id: signal.id,
-      event: signal.event,
+      event,
       severity,
       created_at: signal.created_at ?? new Date().toISOString(),
-      source_type: inferSourceType(signal.event),
-      status: inferStatus(signal.event, severity),
+      source_type: inferSourceType(event),
+      status: inferStatus(event, severity),
       isDemo: false,
-      visual: inferVisual(signal.event),
+      visual: inferVisual(event),
     };
   });
 }

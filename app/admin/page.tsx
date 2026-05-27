@@ -30,94 +30,94 @@ type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
 type WaitlistEntry = {
   id: string;
-  email: string;
-  company: string | null;
-  role: string | null;
-  use_case: string | null;
-  created_at: string;
+  email?: string | null;
+  company?: string | null;
+  role?: string | null;
+  use_case?: string | null;
+  created_at?: string | null;
 };
 
 type VerificationCase = {
   id: string;
-  subject_name: string | null;
-  subject_type: string | null;
-  status: BackOfficeStatus | string | null;
-  verification_status: BackOfficeStatus | string | null;
-  human_presence_index: number | null;
-  origin_trace_score: number | null;
-  trust_score: number | null;
-  reviewed_by: string | null;
-  created_at: string;
+  subject_name?: string | null;
+  subject_type?: string | null;
+  status?: BackOfficeStatus | string | null;
+  verification_status?: BackOfficeStatus | string | null;
+  human_presence_index?: number | null;
+  origin_trace_score?: number | null;
+  trust_score?: number | null;
+  reviewed_by?: string | null;
+  created_at?: string | null;
 };
 
 type Passport = {
   id: string;
-  subject_name: string;
-  subject_type: string;
-  review_status: string | null;
-  trust_score: number | null;
+  subject_name?: string | null;
+  subject_type?: string | null;
+  review_status?: string | null;
+  trust_score?: number | null;
   human_presence_index?: number | null;
   origin_trace_score?: number | null;
   synthetic_risk?: number | null;
   voice_clone_risk?: number | null;
   video_deepfake_risk?: number | null;
-  linkedin_url: string | null;
-  linkedin_verification_status: string | null;
-  linkedin_claimed_company: string | null;
-  linkedin_claimed_role: string | null;
-  linkedin_review_required: boolean | null;
-  created_at: string;
+  linkedin_url?: string | null;
+  linkedin_verification_status?: string | null;
+  linkedin_claimed_company?: string | null;
+  linkedin_claimed_role?: string | null;
+  linkedin_review_required?: boolean | null;
+  created_at?: string | null;
 };
 
 type TrustReport = {
   id: string;
-  candidate_name: string | null;
-  report_type: string | null;
-  review_status: string | null;
-  trust_score: number | null;
-  linkedin_url: string | null;
-  linkedin_verification_status: string | null;
-  linkedin_claimed_company: string | null;
-  linkedin_claimed_role: string | null;
-  linkedin_review_required: boolean | null;
-  created_at: string;
+  candidate_name?: string | null;
+  report_type?: string | null;
+  review_status?: string | null;
+  trust_score?: number | null;
+  linkedin_url?: string | null;
+  linkedin_verification_status?: string | null;
+  linkedin_claimed_company?: string | null;
+  linkedin_claimed_role?: string | null;
+  linkedin_review_required?: boolean | null;
+  created_at?: string | null;
 };
 
 type Signal = {
   id: string;
-  event: string;
-  created_at: string;
+  event?: string | null;
+  created_at?: string | null;
 };
 
 type AuditLog = {
   id: string;
-  event_type: string;
-  actor: string | null;
-  created_at: string;
+  event_type?: string | null;
+  actor?: string | null;
+  created_at?: string | null;
 };
 
 type EvidenceFile = {
   id: string;
-  verification_case_id: string | null;
-  file_name: string | null;
-  scan_status: string | null;
-  created_at: string;
+  verification_case_id?: string | null;
+  file_name?: string | null;
+  scan_status?: string | null;
+  created_at?: string | null;
 };
 
 type Decision = {
   id: string;
-  verification_case_id: string | null;
-  decision: DecisionAction | string | null;
-  status: BackOfficeStatus | string | null;
-  created_at: string;
+  verification_case_id?: string | null;
+  decision?: DecisionAction | string | null;
+  status?: BackOfficeStatus | string | null;
+  created_at?: string | null;
 };
 
 type RiskScore = {
   id: string;
-  verification_case_id: string | null;
-  score: number | null;
-  risk_level: string | null;
-  created_at: string;
+  verification_case_id?: string | null;
+  score?: number | null;
+  risk_level?: string | null;
+  created_at?: string | null;
 };
 
 type TableResult<T> = {
@@ -126,24 +126,33 @@ type TableResult<T> = {
   available: boolean;
 };
 
-async function fetchTable<T>(
-  supabase: SupabaseServerClient,
-  table: string,
-  select: string,
-  orderColumn = "created_at",
-  limit = 8
-): Promise<TableResult<T>> {
-  const { data, count, error } = await supabase
-    .from(table)
-    .select(select, { count: "exact" })
-    .order(orderColumn, { ascending: false })
-    .limit(limit)
-    .returns<T[]>();
+type SupabaseQueryError = {
+  code?: string;
+  message?: string;
+  details?: string;
+  hint?: string;
+};
 
-  if (error) {
-    return { rows: [], count: 0, available: false };
-  }
+function isMissingTableError(error: SupabaseQueryError | null) {
+  const text = [
+    error?.code,
+    error?.message,
+    error?.details,
+    error?.hint,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
 
+  return (
+    error?.code === "42P01" ||
+    error?.code === "PGRST205" ||
+    text.includes("could not find the table") ||
+    (text.includes("relation") && text.includes("does not exist"))
+  );
+}
+
+function toTableResult<T>(data: T[] | null, count: number | null) {
   return {
     rows: data ?? [],
     count: count ?? data?.length ?? 0,
@@ -151,14 +160,78 @@ async function fetchTable<T>(
   };
 }
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleString("en-US", {
+async function fetchTable<T>(
+  supabase: SupabaseServerClient,
+  table: string,
+  select: string,
+  orderColumn = "created_at",
+  limit = 8
+): Promise<TableResult<T>> {
+  const primary = await supabase
+    .from(table)
+    .select(select, { count: "exact" })
+    .order(orderColumn, { ascending: false })
+    .limit(limit)
+    .returns<T[]>();
+
+  if (!primary.error) {
+    return toTableResult(primary.data, primary.count);
+  }
+
+  if (isMissingTableError(primary.error)) {
+    return { rows: [], count: 0, available: false };
+  }
+
+  const broad = await supabase
+    .from(table)
+    .select("*", { count: "exact" })
+    .order(orderColumn, { ascending: false })
+    .limit(limit)
+    .returns<T[]>();
+
+  if (!broad.error) {
+    return toTableResult(broad.data, broad.count);
+  }
+
+  if (isMissingTableError(broad.error)) {
+    return { rows: [], count: 0, available: false };
+  }
+
+  const unordered = await supabase
+    .from(table)
+    .select("*", { count: "exact" })
+    .limit(limit)
+    .returns<T[]>();
+
+  if (!unordered.error) {
+    return toTableResult(unordered.data, unordered.count);
+  }
+
+  return {
+    rows: [],
+    count: 0,
+    available: !isMissingTableError(unordered.error),
+  };
+}
+
+function formatDate(value?: string | null) {
+  if (!value) {
+    return "Unknown date";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Unknown date";
+  }
+
+  return date.toLocaleString("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
   });
 }
 
-function StatusBadge({ status }: { status: string | null }) {
+function StatusBadge({ status }: { status?: string | null }) {
   const normalized =
     status && backOfficeStatuses.includes(status as BackOfficeStatus)
       ? status
@@ -183,7 +256,7 @@ function StatusBadge({ status }: { status: string | null }) {
   );
 }
 
-function DecisionBadge({ decision }: { decision: string | null }) {
+function DecisionBadge({ decision }: { decision?: string | null }) {
   const normalized =
     decision && decisionActions.includes(decision as DecisionAction)
       ? decision
@@ -226,47 +299,15 @@ export default async function AdminPage() {
     decisions,
     riskScores,
   ] = await Promise.all([
-    fetchTable<WaitlistEntry>(
-      supabase,
-      "waitlist",
-      "id,email,company,role,use_case,created_at"
-    ),
-    fetchTable<VerificationCase>(
-      supabase,
-      "verification_cases",
-      "id,subject_name,subject_type,status,verification_status,human_presence_index,origin_trace_score,trust_score,reviewed_by,created_at"
-    ),
-    fetchTable<Passport>(
-      supabase,
-      "passports",
-      "*"
-    ),
-    fetchTable<TrustReport>(
-      supabase,
-      "trust_reports",
-      "*"
-    ),
-    fetchTable<Signal>(supabase, "signals", "id,event,created_at"),
-    fetchTable<AuditLog>(
-      supabase,
-      "audit_logs",
-      "id,event_type,actor,created_at"
-    ),
-    fetchTable<EvidenceFile>(
-      supabase,
-      "evidence_files",
-      "id,verification_case_id,file_name,scan_status,created_at"
-    ),
-    fetchTable<Decision>(
-      supabase,
-      "decisions",
-      "id,verification_case_id,decision,status,created_at"
-    ),
-    fetchTable<RiskScore>(
-      supabase,
-      "risk_scores",
-      "id,verification_case_id,score,risk_level,created_at"
-    ),
+    fetchTable<WaitlistEntry>(supabase, "waitlist", "*"),
+    fetchTable<VerificationCase>(supabase, "verification_cases", "*"),
+    fetchTable<Passport>(supabase, "passports", "*"),
+    fetchTable<TrustReport>(supabase, "trust_reports", "*"),
+    fetchTable<Signal>(supabase, "signals", "*"),
+    fetchTable<AuditLog>(supabase, "audit_logs", "*"),
+    fetchTable<EvidenceFile>(supabase, "evidence_files", "*"),
+    fetchTable<Decision>(supabase, "decisions", "*"),
+    fetchTable<RiskScore>(supabase, "risk_scores", "*"),
   ]);
 
   const metrics = [
@@ -334,7 +375,7 @@ export default async function AdminPage() {
       label: "Step-Up Requests",
       value: signals.rows.filter((signal) =>
         /step_up|permission_step_up|agent_permission_escalated/i.test(
-          signal.event
+          signal.event ?? ""
         )
       ).length,
       available: signals.available,
@@ -344,7 +385,7 @@ export default async function AdminPage() {
       label: "Revocations",
       value: signals.rows.filter((signal) =>
         /revoked|restricted|paused|locked|expired|revocation/i.test(
-          signal.event
+          signal.event ?? ""
         )
       ).length,
       available: signals.available,
@@ -353,7 +394,7 @@ export default async function AdminPage() {
     {
       label: "Recovery Queue",
       value: signals.rows.filter((signal) =>
-        /recovery|restored/i.test(signal.event)
+        /recovery|restored/i.test(signal.event ?? "")
       ).length,
       available: signals.available,
       href: "/trust-recovery",
@@ -362,7 +403,7 @@ export default async function AdminPage() {
       label: "Compliance Exports",
       value: signals.rows.filter((signal) =>
         /compliance_export|trust_report|audit_pack|report_exported/i.test(
-          signal.event
+          signal.event ?? ""
         )
       ).length,
       available: signals.available,
@@ -397,7 +438,7 @@ export default async function AdminPage() {
   const linkedInReviewQueue = [
     ...passports.rows.map((passport) => ({
       id: `passport-${passport.id}`,
-      subject_name: passport.subject_name,
+      subject_name: passport.subject_name ?? "Unnamed subject",
       linkedin_url: passport.linkedin_url,
       status: passport.linkedin_verification_status ?? "unverified",
       claimed_company: passport.linkedin_claimed_company,
@@ -429,24 +470,24 @@ export default async function AdminPage() {
   const stepUpRequests = signals.rows
     .filter((signal) =>
       /step_up|permission_step_up|agent_permission_escalated/i.test(
-        signal.event
+        signal.event ?? ""
       )
     )
     .slice(0, 4);
   const revocationEvents = signals.rows
     .filter((signal) =>
       /revoked|restricted|paused|locked|expired|revocation/i.test(
-        signal.event
+        signal.event ?? ""
       )
     )
     .slice(0, 4);
   const recoveryEvents = signals.rows
-    .filter((signal) => /recovery|restored/i.test(signal.event))
+    .filter((signal) => /recovery|restored/i.test(signal.event ?? ""))
     .slice(0, 4);
   const complianceExportEvents = signals.rows
     .filter((signal) =>
       /compliance_export|trust_report|audit_pack|report_exported/i.test(
-        signal.event
+        signal.event ?? ""
       )
     )
     .slice(0, 4);
@@ -768,7 +809,9 @@ export default async function AdminPage() {
                   key={signal.id}
                   className="rounded-lg border border-zinc-800 bg-black p-4"
                 >
-                  <p className="text-zinc-300">{signal.event}</p>
+                  <p className="text-zinc-300">
+                    {signal.event ?? "Signal recorded"}
+                  </p>
                   <p className="mt-2 text-xs text-zinc-600">
                     {formatDate(signal.created_at)}
                   </p>
@@ -803,7 +846,9 @@ export default async function AdminPage() {
                   key={signal.id}
                   className="rounded-lg border border-zinc-800 bg-black p-4"
                 >
-                  <p className="text-zinc-300">{signal.event}</p>
+                  <p className="text-zinc-300">
+                    {signal.event ?? "Signal recorded"}
+                  </p>
                   <p className="mt-2 text-xs text-zinc-600">
                     {formatDate(signal.created_at)}
                   </p>
@@ -838,7 +883,9 @@ export default async function AdminPage() {
                   key={signal.id}
                   className="rounded-lg border border-zinc-800 bg-black p-4"
                 >
-                  <p className="text-zinc-300">{signal.event}</p>
+                  <p className="text-zinc-300">
+                    {signal.event ?? "Signal recorded"}
+                  </p>
                   <p className="mt-2 text-xs text-zinc-600">
                     {formatDate(signal.created_at)}
                   </p>
@@ -873,7 +920,9 @@ export default async function AdminPage() {
                   key={signal.id}
                   className="rounded-lg border border-zinc-800 bg-black p-4"
                 >
-                  <p className="text-zinc-300">{signal.event}</p>
+                  <p className="text-zinc-300">
+                    {signal.event ?? "Signal recorded"}
+                  </p>
                   <p className="mt-2 text-xs text-zinc-600">
                     {formatDate(signal.created_at)}
                   </p>
@@ -1030,7 +1079,9 @@ export default async function AdminPage() {
                   key={entry.id}
                   className="rounded-lg border border-zinc-800 p-4"
                 >
-                  <p className="font-medium text-zinc-100">{entry.email}</p>
+                  <p className="font-medium text-zinc-100">
+                    {entry.email ?? "Unknown email"}
+                  </p>
                   <p className="mt-1 text-sm text-zinc-500">
                     {[entry.company, entry.role, entry.use_case]
                       .filter(Boolean)
@@ -1256,9 +1307,12 @@ export default async function AdminPage() {
                   <div key={passport.id} className="rounded-lg border border-zinc-800 p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <p className="font-medium">{passport.subject_name}</p>
+                        <p className="font-medium">
+                          {passport.subject_name ?? "Unnamed subject"}
+                        </p>
                         <p className="mt-1 text-sm text-zinc-500">
-                          {passport.subject_type} / Trust {passport.trust_score ?? "n/a"}
+                          {passport.subject_type ?? "unknown"} / Trust{" "}
+                          {passport.trust_score ?? "n/a"}
                         </p>
                       </div>
                       <StatusBadge status={passport.review_status} />
@@ -1305,7 +1359,9 @@ export default async function AdminPage() {
               {signals.rows.length ? (
                 signals.rows.map((signal) => (
                   <div key={signal.id} className="rounded-lg border border-zinc-800 p-4">
-                    <p className="text-zinc-300">{signal.event}</p>
+                    <p className="text-zinc-300">
+                      {signal.event ?? "Signal recorded"}
+                    </p>
                     <p className="mt-2 text-xs text-zinc-600">
                       {formatDate(signal.created_at)}
                     </p>
@@ -1345,7 +1401,9 @@ export default async function AdminPage() {
                       <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
                         {signal.isDemo ? "Demo Signal" : signal.source_type}
                       </p>
-                      <p className="mt-2 text-zinc-300">{signal.event}</p>
+                      <p className="mt-2 text-zinc-300">
+                        {signal.event ?? "Signal recorded"}
+                      </p>
                     </div>
                     <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300">
                       {signal.severity}
@@ -1367,7 +1425,9 @@ export default async function AdminPage() {
               {auditLogs.rows.length ? (
                 auditLogs.rows.map((log) => (
                   <div key={log.id} className="rounded-lg border border-zinc-800 p-4">
-                    <p className="text-zinc-300">{log.event_type}</p>
+                    <p className="text-zinc-300">
+                      {log.event_type ?? "Audit event"}
+                    </p>
                     <p className="mt-2 text-xs text-zinc-600">
                       {log.actor ?? "system"} / {formatDate(log.created_at)}
                     </p>
