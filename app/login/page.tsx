@@ -35,6 +35,7 @@ export default function LoginPage() {
     );
 
     if (new URLSearchParams(window.location.search).get("expired") === "1") {
+      window.localStorage.removeItem("cyber_sentinels_session_started_at");
       setMessage("Session expired for security. Please sign in again.");
     }
   }, []);

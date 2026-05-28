@@ -23,6 +23,10 @@ export function SessionGuard() {
       if (absoluteTimer.current) clearTimeout(absoluteTimer.current);
     }
 
+    function clearSessionStart() {
+      window.localStorage.removeItem(SESSION_START_KEY);
+    }
+
     async function expireSession(reason: ExpiryReason) {
       if (expiring.current) return;
 
@@ -48,8 +52,23 @@ export function SessionGuard() {
         // Fall through to login; server-side pages still enforce Supabase auth.
       }
 
-      window.localStorage.removeItem(SESSION_START_KEY);
+      clearSessionStart();
       window.location.assign("/login?expired=1");
+    }
+
+    function clearOnLogout(event: MouseEvent | SubmitEvent) {
+      const target = event.target;
+
+      if (!(target instanceof Element)) {
+        return;
+      }
+
+      const logoutLink = target.closest('a[href="/api/auth/logout"]');
+      const logoutForm = target.closest('form[action="/api/auth/logout"]');
+
+      if (logoutLink || logoutForm) {
+        clearSessionStart();
+      }
     }
 
     function scheduleInactivityTimers() {
@@ -100,12 +119,16 @@ export function SessionGuard() {
         passive: true,
       });
     });
+    window.addEventListener("click", clearOnLogout);
+    window.addEventListener("submit", clearOnLogout);
 
     return () => {
       clearTimers();
       activityEvents.forEach((eventName) => {
         window.removeEventListener(eventName, scheduleInactivityTimers);
       });
+      window.removeEventListener("click", clearOnLogout);
+      window.removeEventListener("submit", clearOnLogout);
     };
   }, []);
 

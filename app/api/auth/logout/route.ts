@@ -4,12 +4,25 @@ import {
   adminVerifiedCookieName,
   getAdminCookieOptions,
 } from "@/lib/admin-auth";
-import { createClient } from "@/lib/supabase/server";
+import {
+  createClient,
+  isInvalidRefreshTokenError,
+} from "@/lib/supabase/server";
 
 async function logout(req: Request) {
   const supabase = await createClient();
 
-  await supabase.auth.signOut();
+  try {
+    const { error } = await supabase.auth.signOut();
+
+    if (error && !isInvalidRefreshTokenError(error)) {
+      throw error;
+    }
+  } catch (error) {
+    if (!isInvalidRefreshTokenError(error)) {
+      throw error;
+    }
+  }
 
   const response = NextResponse.redirect(new URL("/login", req.url), {
     status: 303,
