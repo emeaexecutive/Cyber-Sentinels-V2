@@ -381,13 +381,12 @@ export default async function AdminPage() {
       (item.review_required ||
         ["submitted", "manual_review", "mismatch"].includes(item.status))
   );
-  const verificationQueuePreview = verificationCases.rows
+  const pendingVerificationCases = verificationCases.rows
     .filter((item) =>
-      ["pending", "in_review", "escalated"].includes(
+      ["pending"].includes(
         item.verification_status ?? item.status ?? "pending"
       )
-    )
-    .slice(0, 4);
+    );
   const stepUpRequests = signals.rows
     .filter((signal) =>
       /step_up|permission_step_up|agent_permission_escalated/i.test(
@@ -546,8 +545,8 @@ export default async function AdminPage() {
             <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
               <h3 className="text-lg font-semibold">Verification Queue</h3>
               <div className="mt-5 space-y-3">
-                {verificationCases.rows.length ? (
-                  verificationCases.rows.map((item, index) => (
+                {pendingVerificationCases.length ? (
+                  pendingVerificationCases.map((item, index) => (
                     <div key={rowKey(item, `verification-case-${index}`)} className="rounded-lg border border-zinc-800 p-4">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import type { BackOfficeStatus, DecisionAction } from "@/lib/back-office";
+import type { DecisionAction } from "@/lib/back-office";
 
 type AdminVerificationActionsProps = {
   caseId: string;
@@ -11,14 +11,13 @@ type AdminVerificationActionsProps = {
 type ActionConfig = {
   label: string;
   decision: DecisionAction;
-  status: BackOfficeStatus;
 };
 
 const actions: ActionConfig[] = [
-  { label: "Mark in review", decision: "manual_review", status: "in_review" },
-  { label: "Mark verified", decision: "allow", status: "verified" },
-  { label: "Mark rejected", decision: "deny", status: "rejected" },
-  { label: "Mark escalated", decision: "manual_review", status: "escalated" },
+  { label: "Approve", decision: "allow" },
+  { label: "Reject", decision: "deny" },
+  { label: "Escalate", decision: "needs_more_evidence" },
+  { label: "Manual Review", decision: "manual_review" },
 ];
 
 export function AdminVerificationActions({
@@ -39,8 +38,6 @@ export function AdminVerificationActions({
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             decision: action.decision,
-            status: action.status,
-            notes: `Admin action: ${action.label}`,
           }),
         }
       );
@@ -53,7 +50,7 @@ export function AdminVerificationActions({
         return;
       }
 
-      setMessage(`${action.status} saved`);
+      setMessage(`${action.label} saved`);
       router.refresh();
     });
   }
@@ -63,7 +60,7 @@ export function AdminVerificationActions({
       <div className="flex flex-wrap gap-2">
         {actions.map((action) => (
           <button
-            key={`${caseId}-${action.status}`}
+            key={`${caseId}-${action.decision}`}
             type="button"
             disabled={isPending}
             onClick={() => submitDecision(action)}

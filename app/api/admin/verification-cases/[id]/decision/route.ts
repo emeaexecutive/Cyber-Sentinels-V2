@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminAccess } from "@/lib/admin-auth";
 import {
-  backOfficeStatuses,
   decisionActions,
   type BackOfficeStatus,
   type DecisionAction,
@@ -25,8 +24,6 @@ import {
 
 type DecisionPayload = {
   decision?: unknown;
-  status?: unknown;
-  notes?: unknown;
 };
 
 type PassportForDecision = {
@@ -52,26 +49,30 @@ const uuidPattern =
 
 function parsePayload(payload: DecisionPayload) {
   const decision = String(payload.decision ?? "");
-  const status = String(payload.status ?? "");
-  const notes = String(payload.notes ?? "").trim();
 
   if (!decisionActions.includes(decision as DecisionAction)) {
     return { error: "Invalid decision" };
   }
 
-  if (!backOfficeStatuses.includes(status as BackOfficeStatus)) {
-    return { error: "Invalid status" };
-  }
-
-  if (notes.length > 1000) {
-    return { error: "Notes are too long" };
-  }
-
   return {
     decision: decision as DecisionAction,
-    status: status as BackOfficeStatus,
-    notes,
   };
+}
+
+function getDecisionStatus(decision: DecisionAction): BackOfficeStatus {
+  if (decision === "allow") {
+    return "verified";
+  }
+
+  if (decision === "deny") {
+    return "rejected";
+  }
+
+  if (decision === "needs_more_evidence") {
+    return "escalated";
+  }
+
+  return "in_review";
 }
 
 export async function POST(
@@ -109,12 +110,13 @@ export async function POST(
 
     const actor = adminAccess.user.email ?? adminAccess.user.id;
     const requestRisk = getRequestRiskFields(req);
+    const status = getDecisionStatus(parsed.decision);
 
     const { data: verificationCase, error: updateError } = await supabase
       .from("verification_cases")
       .update({
-        status: parsed.status,
-        verification_status: parsed.status,
+        status,
+        verification_status: status,
         decision_type: parsed.decision,
         reviewed_by: adminAccess.user.id,
         reviewed_at: new Date().toISOString(),
@@ -132,7 +134,7 @@ export async function POST(
       );
     }
 
-    if (parsed.status === "in_review") {
+    if (status === "in_review") {
       const reviewStartedInsert = await createAuditLog(
         supabase,
         "verification_review_started",
@@ -142,7 +144,7 @@ export async function POST(
           subject_name: verificationCase.subject_name,
           subject_type: verificationCase.subject_type,
           decision: parsed.decision,
-          status: parsed.status,
+          status,
           ...requestRisk,
         }
       );
@@ -170,9 +172,9 @@ export async function POST(
     const decisionInsert = await supabase.from("decisions").insert({
       verification_case_id: id,
       decision: parsed.decision,
-      status: parsed.status,
-      notes: parsed.notes || null,
+      status,
       actor,
+      created_at: new Date().toISOString(),
     });
 
     if (decisionInsert.error) {
@@ -218,7 +220,7 @@ export async function POST(
         linkedin_url: verificationCase.linkedin_url,
         linkedin_verification_status: reviewedStatus,
         decision: parsed.decision,
-        status: parsed.status,
+        status,
         ...requestRisk,
       });
     }
@@ -250,19 +252,26 @@ export async function POST(
       });
 
       const clearance =
-        parsed.status === "verified"
+        status === "verified"
           ? "approved"
-          : parsed.status === "rejected"
+          : status === "rejected"
             ? "rejected"
-            : parsed.status;
+            : status;
       const passportUpdateFields: Record<string, unknown> = {
-        review_status: parsed.status,
-        verification_status: parsed.status,
-        reality_passport_status: parsed.status,
+        review_status: status,
+        verification_status: status,
+        reality_passport_status: status,
         clearance,
-        verified: parsed.status === "verified",
         trust_score: trustScore,
       };
+
+      if (parsed.decision === "allow") {
+        passportUpdateFields.verified = true;
+      }
+
+      if (parsed.decision === "deny") {
+        passportUpdateFields.verified = false;
+      }
 
       if (verificationCase.linkedin_url) {
         passportUpdateFields.linkedin_verification_status =
@@ -320,7 +329,7 @@ export async function POST(
       image_authenticity_score:
         decisionPassport?.image_authenticity_score ?? null,
       provenance_status: decisionPassport?.provenance_status ?? null,
-      review_status: decisionPassport?.review_status ?? parsed.status,
+      review_status: decisionPassport?.review_status ?? status,
       suspicious_activity: decisionPassport?.suspicious_activity ?? false,
       abuse_risk: decisionPassport?.abuse_risk ?? null,
     });
@@ -339,7 +348,7 @@ export async function POST(
         reason_codes: engineResult.reasonCodes,
         signals: engineResult.signals,
         human_decision: parsed.decision,
-        status: parsed.status,
+        status,
         ...requestRisk,
       }
     );
@@ -411,7 +420,7 @@ export async function POST(
         reason_codes: policyResult.reason_codes,
         signals: policyResult.signals,
         human_decision: parsed.decision,
-        status: parsed.status,
+        status,
         ...requestRisk,
       }
     );
@@ -442,7 +451,7 @@ export async function POST(
         verification_case_id: id,
         subject_name: verificationCase.subject_name,
         subject_type: verificationCase.subject_type,
-        status: parsed.status,
+        status,
         ...requestRisk,
       }
     );
@@ -463,8 +472,8 @@ export async function POST(
         subject_name: verificationCase.subject_name,
         subject_type: verificationCase.subject_type,
         decision: parsed.decision,
-        status: parsed.status,
-        notes: parsed.notes || null,
+        status,
+        passport_id: verificationCase.passport_id,
         ...requestRisk,
       }
     );
@@ -485,8 +494,7 @@ export async function POST(
         subject_name: verificationCase.subject_name,
         subject_type: verificationCase.subject_type,
         decision: parsed.decision,
-        status: parsed.status,
-        notes: parsed.notes || null,
+        status,
         ...requestRisk,
       }
     );
@@ -500,7 +508,9 @@ export async function POST(
 
     const signalInsert = await createSignal(
       supabase,
-      "Verification case decision created"
+      `Admin decision created for ${
+        verificationCase.subject_name ?? "Unnamed subject"
+      }: ${parsed.decision}`
     );
 
     if (signalInsert.error) {
@@ -511,13 +521,13 @@ export async function POST(
     }
 
     if (
-      parsed.status === "verified" ||
-      parsed.status === "rejected" ||
-      parsed.status === "escalated"
+      status === "verified" ||
+      status === "rejected" ||
+      status === "escalated"
     ) {
       const reviewSignal = await createSignal(
         supabase,
-        parsed.status === "escalated" ? "review_escalated" : "review_completed"
+        status === "escalated" ? "review_escalated" : "review_completed"
       );
 
       if (reviewSignal.error) {
@@ -537,7 +547,7 @@ export async function POST(
           subject_name: verificationCase.subject_name,
           subject_type: verificationCase.subject_type,
           decision: parsed.decision,
-          status: parsed.status,
+          status,
           ...requestRisk,
         }
       );
@@ -562,14 +572,7 @@ export async function POST(
       }
     }
 
-    return NextResponse.json({
-      ok: true,
-      verification_case: {
-        id,
-        status: parsed.status,
-      },
-      decision: parsed.decision,
-    });
+    return NextResponse.redirect(new URL("/admin", req.url), { status: 303 });
   } catch (error) {
     if (
       error instanceof Error &&
