@@ -118,26 +118,41 @@ export function SessionGuard() {
       "scroll",
       "touchstart",
     ] as const;
+    const pathname = window.location.pathname;
+    const autoExpiryDisabled =
+      pathname.startsWith("/admin") ||
+      pathname.startsWith("/verification-queue");
 
     if (isDevelopment) {
       console.log("SessionGuard initialized");
     }
 
-    scheduleInactivityTimers();
-    ensureAbsoluteTimeout();
-    activityEvents.forEach((eventName) => {
-      window.addEventListener(eventName, scheduleInactivityTimers, {
-        passive: true,
+    const storedStart = window.localStorage.getItem(SESSION_START_KEY);
+
+    if (!storedStart || !Number.isFinite(Number(storedStart))) {
+      window.localStorage.setItem(SESSION_START_KEY, String(Date.now()));
+    }
+
+    if (!autoExpiryDisabled) {
+      scheduleInactivityTimers();
+      ensureAbsoluteTimeout();
+      activityEvents.forEach((eventName) => {
+        window.addEventListener(eventName, scheduleInactivityTimers, {
+          passive: true,
+        });
       });
-    });
+    }
+
     window.addEventListener("click", clearOnLogout);
     window.addEventListener("submit", clearOnLogout);
 
     return () => {
       clearTimers();
-      activityEvents.forEach((eventName) => {
-        window.removeEventListener(eventName, scheduleInactivityTimers);
-      });
+      if (!autoExpiryDisabled) {
+        activityEvents.forEach((eventName) => {
+          window.removeEventListener(eventName, scheduleInactivityTimers);
+        });
+      }
       window.removeEventListener("click", clearOnLogout);
       window.removeEventListener("submit", clearOnLogout);
     };
