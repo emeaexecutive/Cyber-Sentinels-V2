@@ -7,35 +7,15 @@ import type { BackOfficeStatus, DecisionAction } from "@/lib/back-office";
 type QueueAction = {
   label: string;
   decision: DecisionAction;
-  status: BackOfficeStatus;
-  notes: string;
+  status?: Extract<BackOfficeStatus, "escalated">;
 };
 
 const actions: QueueAction[] = [
-  {
-    label: "Approve",
-    decision: "allow",
-    status: "verified",
-    notes: "Verification queue action: approve",
-  },
-  {
-    label: "Reject",
-    decision: "deny",
-    status: "rejected",
-    notes: "Verification queue action: reject",
-  },
-  {
-    label: "Escalate",
-    decision: "manual_review",
-    status: "escalated",
-    notes: "Verification queue action: escalate",
-  },
-  {
-    label: "Request Evidence",
-    decision: "needs_more_evidence",
-    status: "in_review",
-    notes: "Verification queue action: request more evidence",
-  },
+  { label: "Approve", decision: "allow" },
+  { label: "Reject", decision: "deny" },
+  { label: "Escalate", decision: "manual_review", status: "escalated" },
+  { label: "Manual Review", decision: "manual_review" },
+  { label: "Needs More Evidence", decision: "needs_more_evidence" },
 ];
 
 export function VerificationQueueActions({ caseId }: { caseId: string }) {
@@ -54,8 +34,7 @@ export function VerificationQueueActions({ caseId }: { caseId: string }) {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             decision: action.decision,
-            status: action.status,
-            notes: action.notes,
+            ...(action.status ? { status: action.status } : {}),
           }),
         }
       );

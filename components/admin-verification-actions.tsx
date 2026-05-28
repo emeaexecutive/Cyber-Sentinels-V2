@@ -11,13 +11,15 @@ type AdminVerificationActionsProps = {
 type ActionConfig = {
   label: string;
   decision: DecisionAction;
+  status?: "escalated";
 };
 
 const actions: ActionConfig[] = [
   { label: "Approve", decision: "allow" },
   { label: "Reject", decision: "deny" },
-  { label: "Escalate", decision: "needs_more_evidence" },
+  { label: "Escalate", decision: "manual_review", status: "escalated" },
   { label: "Manual Review", decision: "manual_review" },
+  { label: "Needs More Evidence", decision: "needs_more_evidence" },
 ];
 
 export function AdminVerificationActions({
@@ -38,6 +40,7 @@ export function AdminVerificationActions({
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             decision: action.decision,
+            ...(action.status ? { status: action.status } : {}),
           }),
         }
       );
@@ -60,7 +63,7 @@ export function AdminVerificationActions({
       <div className="flex flex-wrap gap-2">
         {actions.map((action) => (
           <button
-            key={`${caseId}-${action.decision}`}
+            key={`${caseId}-${action.label}`}
             type="button"
             disabled={isPending}
             onClick={() => submitDecision(action)}

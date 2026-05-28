@@ -24,6 +24,7 @@ import {
 
 type DecisionPayload = {
   decision?: unknown;
+  status?: unknown;
 };
 
 type PassportForDecision = {
@@ -49,17 +50,30 @@ const uuidPattern =
 
 function parsePayload(payload: DecisionPayload) {
   const decision = String(payload.decision ?? "");
+  const status = String(payload.status ?? "");
 
   if (!decisionActions.includes(decision as DecisionAction)) {
     return { error: "Invalid decision" };
   }
 
+  if (status && !(decision === "manual_review" && status === "escalated")) {
+    return { error: "Invalid status" };
+  }
+
   return {
     decision: decision as DecisionAction,
+    requestedStatus: status as "escalated" | "",
   };
 }
 
-function getDecisionStatus(decision: DecisionAction): BackOfficeStatus {
+function getDecisionStatus(
+  decision: DecisionAction,
+  requestedStatus?: "escalated" | ""
+): BackOfficeStatus {
+  if (requestedStatus === "escalated") {
+    return "escalated";
+  }
+
   if (decision === "allow") {
     return "verified";
   }
@@ -110,7 +124,10 @@ export async function POST(
 
     const actor = adminAccess.user.email ?? adminAccess.user.id;
     const requestRisk = getRequestRiskFields(req);
-    const status = getDecisionStatus(parsed.decision);
+    const status = getDecisionStatus(
+      parsed.decision,
+      parsed.requestedStatus
+    );
 
     const { data: verificationCase, error: updateError } = await supabase
       .from("verification_cases")
@@ -469,12 +486,10 @@ export async function POST(
       actor,
       {
         verification_case_id: id,
+        passport_id: verificationCase.passport_id,
         subject_name: verificationCase.subject_name,
-        subject_type: verificationCase.subject_type,
         decision: parsed.decision,
         status,
-        passport_id: verificationCase.passport_id,
-        ...requestRisk,
       }
     );
 
