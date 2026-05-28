@@ -350,7 +350,6 @@ export async function POST(req: Request) {
             ...requestRisk,
           },
           created_at: new Date().toISOString(),
-          ...requestRisk,
         });
       });
     }
@@ -414,7 +413,6 @@ export async function POST(req: Request) {
           ...requestRisk,
         },
         created_at: new Date().toISOString(),
-        ...requestRisk,
       });
 
       await supabase.from("audit_logs").insert({
@@ -429,7 +427,6 @@ export async function POST(req: Request) {
           ...requestRisk,
         },
         created_at: new Date().toISOString(),
-        ...requestRisk,
       });
 
       if (humanReviewRequired) {
@@ -442,7 +439,6 @@ export async function POST(req: Request) {
             ...requestRisk,
           },
           created_at: new Date().toISOString(),
-          ...requestRisk,
         });
       }
 
@@ -456,7 +452,6 @@ export async function POST(req: Request) {
             ...requestRisk,
           },
           created_at: new Date().toISOString(),
-          ...requestRisk,
         });
       }
 
@@ -466,7 +461,6 @@ export async function POST(req: Request) {
           actor: candidateName,
           metadata: { candidate_name: candidateName, ...requestRisk },
           created_at: new Date().toISOString(),
-          ...requestRisk,
         });
       }
     });

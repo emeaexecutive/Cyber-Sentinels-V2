@@ -110,7 +110,13 @@ async function insertAuditLog(
   values: Record<string, unknown>
 ) {
   try {
-    const { error } = await supabase.from("audit_logs").insert(values);
+    const { event_type, actor, metadata, created_at } = values;
+    const { error } = await supabase.from("audit_logs").insert({
+      event_type,
+      actor,
+      metadata,
+      created_at,
+    });
 
     if (error) {
       logSupabaseWriteError("audit_logs insert", error);
@@ -383,7 +389,6 @@ export async function POST(req: Request) {
             ...requestRisk,
           },
           created_at: new Date().toISOString(),
-          ...requestRisk,
         });
       });
     }
@@ -405,7 +410,6 @@ export async function POST(req: Request) {
           ...requestRisk,
         },
         created_at: new Date().toISOString(),
-        ...requestRisk,
       });
     });
 
@@ -467,7 +471,6 @@ export async function POST(req: Request) {
           ...requestRisk,
         },
         created_at: new Date().toISOString(),
-        ...requestRisk,
       });
 
       await insertAuditLog(supabase, {
@@ -482,7 +485,6 @@ export async function POST(req: Request) {
           ...requestRisk,
         },
         created_at: new Date().toISOString(),
-        ...requestRisk,
       });
 
       await insertAuditLog(supabase, {
@@ -497,7 +499,6 @@ export async function POST(req: Request) {
           ...requestRisk,
         },
         created_at: new Date().toISOString(),
-        ...requestRisk,
       });
     });
 
@@ -512,7 +513,6 @@ export async function POST(req: Request) {
             ...requestRisk,
           },
           created_at: new Date().toISOString(),
-          ...requestRisk,
         });
       });
     }
@@ -524,7 +524,6 @@ export async function POST(req: Request) {
           actor: userEmail || "anonymous",
           metadata: { subject_name: subjectName, c2pa_status: c2paStatus, ...requestRisk },
           created_at: new Date().toISOString(),
-          ...requestRisk,
         });
       });
     }
@@ -536,7 +535,6 @@ export async function POST(req: Request) {
           actor: userEmail || "anonymous",
           metadata: { subject_name: subjectName, ...requestRisk },
           created_at: new Date().toISOString(),
-          ...requestRisk,
         });
       });
     }
