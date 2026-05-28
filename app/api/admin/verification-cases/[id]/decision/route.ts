@@ -66,6 +66,21 @@ function parsePayload(payload: DecisionPayload) {
   };
 }
 
+async function readDecisionPayload(req: Request): Promise<DecisionPayload> {
+  const contentType = req.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    return (await req.json()) as DecisionPayload;
+  }
+
+  const formData = await req.formData();
+
+  return {
+    decision: formData.get("decision"),
+    status: formData.get("status"),
+  };
+}
+
 function getDecisionStatus(
   decision: DecisionAction,
   requestedStatus?: "escalated" | ""
@@ -118,7 +133,7 @@ export async function POST(
       );
     }
 
-    const parsed = parsePayload((await req.json()) as DecisionPayload);
+    const parsed = parsePayload(await readDecisionPayload(req));
 
     if ("error" in parsed) {
       return NextResponse.json(
