@@ -139,26 +139,28 @@ export async function POST(
       verification_case_id: id,
     });
 
-    if (!user) {
-      console.warn("admin decision auth failed", {
-        reason: "unauthenticated",
-        verification_case_id: id,
+    if (!user || !allowlisted || !adminCookie) {
+      const reason = !user
+        ? "no_supabase_user"
+        : !allowlisted
+          ? "not_allowlisted"
+          : "missing_admin_cookie";
+
+      console.error("admin decision auth failed", {
+        hasUser: Boolean(user),
+        email: user?.email,
+        allowlisted,
+        hasAdminCookie: adminCookie,
       });
 
-      return NextResponse.redirect(new URL("/login?expired=1", req.url), {
-        status: 303,
-      });
-    }
-
-    if (!allowlisted || !adminCookie) {
-      console.warn("admin decision auth failed", {
-        reason: !allowlisted ? "forbidden" : "missing_admin_cookie",
-        verification_case_id: id,
-      });
-
-      return NextResponse.redirect(new URL("/admin/access?denied=1", req.url), {
-        status: 303,
-      });
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Unauthorized",
+          reason,
+        },
+        { status: !user ? 401 : 403 }
+      );
     }
 
     if ("error" in parsed) {
