@@ -113,15 +113,15 @@ export async function POST(
     const adminAccess = await requireAdminAccess(supabase);
 
     if (!adminAccess.ok) {
-      const isDevelopment = process.env.NODE_ENV === "development";
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "Unauthorized",
-          ...(isDevelopment ? { reason: adminAccess.reason } : {}),
-        },
-        { status: adminAccess.status }
-      );
+      if (adminAccess.reason === "unauthenticated") {
+        return NextResponse.redirect(new URL("/login?expired=1", req.url), {
+          status: 303,
+        });
+      }
+
+      return NextResponse.redirect(new URL("/admin/access?denied=1", req.url), {
+        status: 303,
+      });
     }
 
     const { id } = await context.params;
