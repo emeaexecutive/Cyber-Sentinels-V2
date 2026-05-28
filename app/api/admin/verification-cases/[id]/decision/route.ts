@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { requireAdminAccess } from "@/lib/admin-auth";
+import {
+  hasAdminVerifiedCookie,
+  isAdminAllowlisted,
+} from "@/lib/admin-auth";
 import {
   decisionActions,
   type BackOfficeStatus,
@@ -110,20 +113,6 @@ export async function POST(
 ) {
   try {
     const supabase = await createClient();
-    const adminAccess = await requireAdminAccess(supabase);
-
-    if (!adminAccess.ok) {
-      if (adminAccess.reason === "unauthenticated") {
-        return NextResponse.redirect(new URL("/login?expired=1", req.url), {
-          status: 303,
-        });
-      }
-
-      return NextResponse.redirect(new URL("/admin/access?denied=1", req.url), {
-        status: 303,
-      });
-    }
-
     const { id } = await context.params;
 
     if (!uuidPattern.test(id)) {
@@ -134,6 +123,41 @@ export async function POST(
     }
 
     const parsed = parsePayload(await readDecisionPayload(req));
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const allowlisted = isAdminAllowlisted(user?.email);
+    const adminCookie = await hasAdminVerifiedCookie();
+
+    console.info("admin decision auth check", {
+      user_email: user?.email ?? null,
+      is_admin_allowlisted: allowlisted,
+      has_admin_verified_cookie: adminCookie,
+      decision: "error" in parsed ? null : parsed.decision,
+      verification_case_id: id,
+    });
+
+    if (!user) {
+      console.warn("admin decision auth failed", {
+        reason: "unauthenticated",
+        verification_case_id: id,
+      });
+
+      return NextResponse.redirect(new URL("/login?expired=1", req.url), {
+        status: 303,
+      });
+    }
+
+    if (!allowlisted || !adminCookie) {
+      console.warn("admin decision auth failed", {
+        reason: !allowlisted ? "forbidden" : "missing_admin_cookie",
+        verification_case_id: id,
+      });
+
+      return NextResponse.redirect(new URL("/admin/access?denied=1", req.url), {
+        status: 303,
+      });
+    }
 
     if ("error" in parsed) {
       return NextResponse.json(
@@ -142,7 +166,7 @@ export async function POST(
       );
     }
 
-    const actor = adminAccess.user.email ?? adminAccess.user.id;
+    const actor = user.email ?? user.id;
     const requestRisk = getRequestRiskFields(req);
     const status = getDecisionStatus(
       parsed.decision,
@@ -155,7 +179,7 @@ export async function POST(
         status,
         verification_status: status,
         decision_type: parsed.decision,
-        reviewed_by: adminAccess.user.id,
+        reviewed_by: user.id,
         reviewed_at: new Date().toISOString(),
       })
       .eq("id", id)
@@ -215,6 +239,8 @@ export async function POST(
     });
 
     if (decisionInsert.error) {
+      console.error("decision insert failed", decisionInsert.error);
+
       return NextResponse.json(
         { ok: false, error: "Could not record decision" },
         { status: 500 }
@@ -332,6 +358,40 @@ export async function POST(
           { status: 500 }
         );
       }
+    }
+
+    const signalInsert = await createSignal(
+      supabase,
+      `Admin decision created for ${
+        verificationCase.subject_name ?? "Unnamed subject"
+      }: ${parsed.decision}`
+    );
+
+    if (signalInsert.error) {
+      return NextResponse.json(
+        { ok: false, error: "Could not record signal" },
+        { status: 500 }
+      );
+    }
+
+    const auditInsert = await createAuditLog(
+      supabase,
+      "admin_decision_created",
+      actor,
+      {
+        verification_case_id: id,
+        passport_id: verificationCase.passport_id,
+        subject_name: verificationCase.subject_name,
+        decision: parsed.decision,
+        status,
+      }
+    );
+
+    if (auditInsert.error) {
+      return NextResponse.json(
+        { ok: false, error: "Could not record audit event" },
+        { status: 500 }
+      );
     }
 
     const { data: decisionPassport } = verificationCase.passport_id
@@ -500,26 +560,6 @@ export async function POST(
       );
     }
 
-    const auditInsert = await createAuditLog(
-      supabase,
-      "admin_decision_created",
-      actor,
-      {
-        verification_case_id: id,
-        passport_id: verificationCase.passport_id,
-        subject_name: verificationCase.subject_name,
-        decision: parsed.decision,
-        status,
-      }
-    );
-
-    if (auditInsert.error) {
-      return NextResponse.json(
-        { ok: false, error: "Could not record audit event" },
-        { status: 500 }
-      );
-    }
-
     const reviewActionAudit = await createAuditLog(
       supabase,
       "review_action_created",
@@ -537,20 +577,6 @@ export async function POST(
     if (reviewActionAudit.error) {
       return NextResponse.json(
         { ok: false, error: "Could not record audit event" },
-        { status: 500 }
-      );
-    }
-
-    const signalInsert = await createSignal(
-      supabase,
-      `Admin decision created for ${
-        verificationCase.subject_name ?? "Unnamed subject"
-      }: ${parsed.decision}`
-    );
-
-    if (signalInsert.error) {
-      return NextResponse.json(
-        { ok: false, error: "Could not record signal" },
         { status: 500 }
       );
     }
