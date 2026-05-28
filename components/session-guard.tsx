@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const INACTIVITY_WARNING_MS = 14 * 60 * 1000;
 const INACTIVITY_LOGOUT_MS = 15 * 60 * 1000;
@@ -11,6 +12,11 @@ const isDevelopment = process.env.NODE_ENV === "development";
 type ExpiryReason = "inactivity" | "absolute_timeout";
 
 export function SessionGuard() {
+  const pathname = usePathname();
+  const autoExpiryDisabled =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/command-center") ||
+    pathname.startsWith("/verification-queue");
   const [warningVisible, setWarningVisible] = useState(false);
   const warningTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const logoutTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -18,6 +24,10 @@ export function SessionGuard() {
   const expiring = useRef(false);
 
   useEffect(() => {
+    if (autoExpiryDisabled) {
+      return;
+    }
+
     function clearTimers() {
       if (warningTimer.current) clearTimeout(warningTimer.current);
       if (logoutTimer.current) clearTimeout(logoutTimer.current);
@@ -118,11 +128,6 @@ export function SessionGuard() {
       "scroll",
       "touchstart",
     ] as const;
-    const pathname = window.location.pathname;
-    const autoExpiryDisabled =
-      pathname.startsWith("/admin") ||
-      pathname.startsWith("/verification-queue");
-
     if (isDevelopment) {
       console.log("SessionGuard initialized");
     }
@@ -133,30 +138,30 @@ export function SessionGuard() {
       window.localStorage.setItem(SESSION_START_KEY, String(Date.now()));
     }
 
-    if (!autoExpiryDisabled) {
-      scheduleInactivityTimers();
-      ensureAbsoluteTimeout();
-      activityEvents.forEach((eventName) => {
-        window.addEventListener(eventName, scheduleInactivityTimers, {
-          passive: true,
-        });
+    scheduleInactivityTimers();
+    ensureAbsoluteTimeout();
+    activityEvents.forEach((eventName) => {
+      window.addEventListener(eventName, scheduleInactivityTimers, {
+        passive: true,
       });
-    }
+    });
 
     window.addEventListener("click", clearOnLogout);
     window.addEventListener("submit", clearOnLogout);
 
     return () => {
       clearTimers();
-      if (!autoExpiryDisabled) {
-        activityEvents.forEach((eventName) => {
-          window.removeEventListener(eventName, scheduleInactivityTimers);
-        });
-      }
+      activityEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, scheduleInactivityTimers);
+      });
       window.removeEventListener("click", clearOnLogout);
       window.removeEventListener("submit", clearOnLogout);
     };
-  }, []);
+  }, [autoExpiryDisabled]);
+
+  if (autoExpiryDisabled) {
+    return null;
+  }
 
   if (!warningVisible) {
     return null;

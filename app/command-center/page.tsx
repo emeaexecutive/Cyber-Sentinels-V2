@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { SessionGuard } from "@/components/session-guard";
 import { createClient } from "@/lib/supabase/server";
 import {
   formatTimeAgo,
@@ -212,7 +211,6 @@ export default async function CommandCenterPage() {
 
   return (
     <main className="min-h-screen bg-black p-8 text-white">
-      <SessionGuard />
       <div className="mx-auto max-w-6xl">
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
           Back to Cyber Sentinels
