@@ -200,7 +200,7 @@ export default async function AdminPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/login?next=/admin/access");
   }
 
   if (!isAdminAllowlisted(user.email) || !(await hasAdminVerifiedCookie())) {

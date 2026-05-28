@@ -18,11 +18,20 @@ function isRateLimitError(message: string) {
   );
 }
 
+function getSafeRedirect(path: string | null) {
+  if (!path || !path.startsWith("/") || path.startsWith("//")) {
+    return "/command-center";
+  }
+
+  return path;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [nextPath, setNextPath] = useState("/command-center");
   const [loadingAction, setLoadingAction] = useState<
     "password" | "magic-link" | "reset" | null
   >(null);
@@ -34,7 +43,11 @@ export default function LoginPage() {
         window.location.hostname === "localhost",
     );
 
-    if (new URLSearchParams(window.location.search).get("expired") === "1") {
+    const searchParams = new URLSearchParams(window.location.search);
+
+    setNextPath(getSafeRedirect(searchParams.get("next")));
+
+    if (searchParams.get("expired") === "1") {
       window.localStorage.removeItem("cyber_sentinels_session_started_at");
       setMessage("Session expired for security. Please sign in again.");
     }
@@ -84,7 +97,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/command-center");
+    router.push(nextPath);
   }
 
   async function signInWithMagicLink() {
@@ -108,7 +121,9 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOtp({
       email: trimmedEmail,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/command-center`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+          nextPath || "/command-center"
+        )}`,
       },
     });
 
@@ -165,6 +180,9 @@ export default function LoginPage() {
         <p className="mt-3 text-sm leading-6 text-zinc-500">
           Enter your email and Supabase will send a magic link. Open that email
           link to finish signing in.
+        </p>
+        <p className="mt-3 text-sm leading-6 text-zinc-500">
+          Login first, then you will return to Admin Access.
         </p>
 
         <div className="mt-8 grid gap-4">

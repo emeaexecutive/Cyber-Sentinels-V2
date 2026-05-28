@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.redirect(new URL("/login", req.url), {
+      return NextResponse.redirect(new URL("/login?next=/admin/access", req.url), {
         status: 303,
       });
     }

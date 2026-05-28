@@ -21,6 +21,10 @@ export default async function AdminAccessPage({
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (!user) {
+    redirect("/login?next=/admin/access");
+  }
+
   const allowlisted = isAdminAllowlisted(user?.email);
 
   if (user && allowlisted && (await hasAdminVerifiedCookie())) {
@@ -44,19 +48,7 @@ export default async function AdminAccessPage({
             Authenticated. Allowlisted. Step-up verified.
           </p>
 
-          {!user ? (
-            <div className="mt-6 rounded-lg border border-amber-900 bg-black p-4">
-              <p className="text-sm font-medium text-amber-200">
-                Login required before admin access code.
-              </p>
-              <Link
-                href="/login"
-                className="mt-4 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black"
-              >
-                Go to login
-              </Link>
-            </div>
-          ) : allowlisted ? (
+          {allowlisted ? (
             <form action="/api/admin/access" method="post" className="mt-6 grid gap-4">
               <p className="text-sm text-emerald-300">
                 Logged in as {user.email ?? user.id}. This account is allowlisted.
