@@ -9,7 +9,11 @@ type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
 export type AdminAccessResult =
   | { ok: true; user: User }
-  | { ok: false; status: 401 | 403; reason: "unauthenticated" | "forbidden" };
+  | {
+      ok: false;
+      status: 401 | 403;
+      reason: "unauthenticated" | "forbidden" | "missing_admin_cookie";
+    };
 
 export function getAdminEmails() {
   return (process.env.ADMIN_EMAILS ?? "")
@@ -58,7 +62,7 @@ export async function requireAdminAccess(
   }
 
   if (!(await hasAdminVerifiedCookie())) {
-    return { ok: false, status: 403, reason: "forbidden" };
+    return { ok: false, status: 403, reason: "missing_admin_cookie" };
   }
 
   return { ok: true, user };

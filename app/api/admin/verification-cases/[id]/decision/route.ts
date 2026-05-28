@@ -98,8 +98,13 @@ export async function POST(
     const adminAccess = await requireAdminAccess(supabase);
 
     if (!adminAccess.ok) {
+      const isDevelopment = process.env.NODE_ENV === "development";
       return NextResponse.json(
-        { ok: false, error: "Unauthorized" },
+        {
+          ok: false,
+          error: "Unauthorized",
+          ...(isDevelopment ? { reason: adminAccess.reason } : {}),
+        },
         { status: adminAccess.status }
       );
     }

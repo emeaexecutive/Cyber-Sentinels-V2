@@ -31,6 +31,7 @@ export function VerificationQueueActions({ caseId }: { caseId: string }) {
         `/api/admin/verification-cases/${caseId}/decision`,
         {
           method: "POST",
+          credentials: "include",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             decision: action.decision,
