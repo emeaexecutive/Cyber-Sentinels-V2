@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const RATE_LIMIT_MESSAGE =
   "Email login is temporarily rate-limited. Use password login or wait before requesting another magic link.";
+const SESSION_START_KEY = "cyber_sentinels_session_started_at";
 
 function isRateLimitError(message: string) {
   const normalizedMessage = message.toLowerCase();
@@ -48,7 +49,7 @@ export default function LoginPage() {
     setNextPath(getSafeRedirect(searchParams.get("next")));
 
     if (searchParams.get("expired") === "1") {
-      window.localStorage.removeItem("cyber_sentinels_session_started_at");
+      window.localStorage.removeItem(SESSION_START_KEY);
       setMessage("Session expired for security. Please sign in again.");
     }
   }, []);
@@ -97,6 +98,7 @@ export default function LoginPage() {
       return;
     }
 
+    window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
     router.push(nextPath);
   }
 

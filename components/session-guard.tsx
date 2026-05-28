@@ -6,6 +6,7 @@ const INACTIVITY_WARNING_MS = 14 * 60 * 1000;
 const INACTIVITY_LOGOUT_MS = 15 * 60 * 1000;
 const ABSOLUTE_TIMEOUT_MS = 12 * 60 * 60 * 1000;
 const SESSION_START_KEY = "cyber_sentinels_session_started_at";
+const isDevelopment = process.env.NODE_ENV === "development";
 
 type ExpiryReason = "inactivity" | "absolute_timeout";
 
@@ -31,6 +32,10 @@ export function SessionGuard() {
       if (expiring.current) return;
 
       expiring.current = true;
+
+      if (isDevelopment) {
+        console.log("SessionGuard timeout logout", reason);
+      }
 
       try {
         await fetch("/api/auth/session-expired", {
@@ -86,13 +91,15 @@ export function SessionGuard() {
 
     function ensureAbsoluteTimeout() {
       const storedStart = window.localStorage.getItem(SESSION_START_KEY);
-      const sessionStart = storedStart ? Number(storedStart) : Date.now();
+      const now = Date.now();
+      const sessionStart = storedStart ? Number(storedStart) : now;
 
       if (!storedStart || !Number.isFinite(sessionStart)) {
-        window.localStorage.setItem(SESSION_START_KEY, String(sessionStart));
+        window.localStorage.setItem(SESSION_START_KEY, String(now));
+        return;
       }
 
-      const remainingMs = sessionStart + ABSOLUTE_TIMEOUT_MS - Date.now();
+      const remainingMs = sessionStart + ABSOLUTE_TIMEOUT_MS - now;
 
       if (remainingMs <= 0) {
         void expireSession("absolute_timeout");
@@ -111,6 +118,10 @@ export function SessionGuard() {
       "scroll",
       "touchstart",
     ] as const;
+
+    if (isDevelopment) {
+      console.log("SessionGuard initialized");
+    }
 
     scheduleInactivityTimers();
     ensureAbsoluteTimeout();
