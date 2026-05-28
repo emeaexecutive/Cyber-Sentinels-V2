@@ -22,29 +22,102 @@ import { calculateOriginTrace } from "@/lib/trust-engine/calculateOriginTrace";
 import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
 import type { OriginStatus } from "@/types/origin";
 
+type SupabaseWriteError = {
+  message?: string;
+  details?: string | null;
+  hint?: string | null;
+  code?: string;
+};
+
 async function bestEffort(label: string, task: () => Promise<unknown>) {
   try {
     await task();
   } catch (error) {
-    console.warn(`${label} failed`, error);
+    console.error(`${label} failed`, error);
   }
 }
 
-function getSafePassportError(error: unknown) {
+function getSupabaseErrorFields(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return {
+      message: error instanceof Error ? error.message : undefined,
+      details: undefined,
+      hint: undefined,
+    };
+  }
+
+  const supabaseError = error as SupabaseWriteError;
+
+  return {
+    message:
+      typeof supabaseError.message === "string"
+        ? supabaseError.message
+        : undefined,
+    details:
+      typeof supabaseError.details === "string"
+        ? supabaseError.details
+        : undefined,
+    hint: typeof supabaseError.hint === "string" ? supabaseError.hint : undefined,
+  };
+}
+
+function logSupabaseWriteError(label: string, error: unknown) {
+  const fields = getSupabaseErrorFields(error);
+
+  console.error(`${label} failed`, {
+    ...fields,
+    code:
+      error && typeof error === "object" && "code" in error
+        ? (error as SupabaseWriteError).code
+        : undefined,
+  });
+}
+
+function getPassportErrorResponse(error: unknown) {
   if (process.env.NODE_ENV !== "development") {
-    return "Could not create passport";
+    return { ok: false, error: "Could not create passport" };
   }
 
-  if (
-    error &&
-    typeof error === "object" &&
-    "message" in error &&
-    typeof error.message === "string"
-  ) {
-    return error.message;
-  }
+  const fields = getSupabaseErrorFields(error);
 
-  return error instanceof Error ? error.message : "Could not create passport";
+  return {
+    ok: false,
+    error:
+      fields.message ??
+      (error instanceof Error ? error.message : "Could not create passport"),
+    details: fields.details,
+    hint: fields.hint,
+  };
+}
+
+async function insertSignal(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  event: string
+) {
+  try {
+    const { error } = await supabase.from("signals").insert({ event });
+
+    if (error) {
+      logSupabaseWriteError("signals insert", error);
+    }
+  } catch (error) {
+    logSupabaseWriteError("signals insert", error);
+  }
+}
+
+async function insertAuditLog(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  values: Record<string, unknown>
+) {
+  try {
+    const { error } = await supabase.from("audit_logs").insert(values);
+
+    if (error) {
+      logSupabaseWriteError("audit_logs insert", error);
+    }
+  } catch (error) {
+    logSupabaseWriteError("audit_logs insert", error);
+  }
 }
 
 export async function POST(req: Request) {
@@ -221,7 +294,10 @@ export async function POST(req: Request) {
       .select("id")
       .single();
 
-    if (error) throw error;
+    if (error) {
+      logSupabaseWriteError("passport insert", error);
+      throw error;
+    }
     if (!passport) throw new Error("Could not create passport");
 
     await bestEffort("Required passport signal", async () => {
@@ -230,7 +306,10 @@ export async function POST(req: Request) {
         `Trust Passport created for ${subjectName}`
       );
 
-      if (signalError) throw signalError;
+      if (signalError) {
+        logSupabaseWriteError("signals insert", signalError);
+        throw signalError;
+      }
     });
 
     await bestEffort("Required passport audit", async () => {
@@ -245,14 +324,15 @@ export async function POST(req: Request) {
         }
       );
 
-      if (auditError) throw auditError;
+      if (auditError) {
+        logSupabaseWriteError("audit_logs insert", auditError);
+        throw auditError;
+      }
     });
 
-    await supabase.from("signals").insert({ event: "Verification started" });
-    await supabase
-      .from("signals")
-      .insert({ event: "Human Presence calculated" });
-    await supabase.from("signals").insert({ event: "Origin Trace created" });
+    await insertSignal(supabase, "Verification started");
+    await insertSignal(supabase, "Human Presence calculated");
+    await insertSignal(supabase, "Origin Trace created");
 
     const { data: verificationCase, error: verificationCaseError } =
       await supabase
@@ -272,21 +352,23 @@ export async function POST(req: Request) {
         .select("id")
         .single();
 
-    if (verificationCaseError) throw verificationCaseError;
+    if (verificationCaseError) {
+      logSupabaseWriteError("verification_cases insert", verificationCaseError);
+      throw verificationCaseError;
+    }
     if (!verificationCase) throw new Error("Could not create verification case");
 
-    await supabase.from("signals").insert({ event: "Review requested" });
+    await insertSignal(supabase, "Review requested");
 
     if (linkedInEvidence.linkedin_url) {
-      await supabase
-        .from("signals")
-        .insert({ event: "LinkedIn profile submitted" });
-      await supabase
-        .from("signals")
-        .insert({ event: "LinkedIn profile consistency check required" });
+      await insertSignal(supabase, "LinkedIn profile submitted");
+      await insertSignal(
+        supabase,
+        "LinkedIn profile consistency check required"
+      );
 
       await bestEffort("Passport LinkedIn audit", async () => {
-        await supabase.from("audit_logs").insert({
+        await insertAuditLog(supabase, {
           event_type: "linkedin_profile_submitted",
           actor: userEmail || "anonymous",
           metadata: {
@@ -307,7 +389,7 @@ export async function POST(req: Request) {
     }
 
     await bestEffort("Passport verification audit", async () => {
-      await supabase.from("audit_logs").insert({
+      await insertAuditLog(supabase, {
         event_type: "verification_created",
         actor: userEmail || "anonymous",
         metadata: {
@@ -348,28 +430,30 @@ export async function POST(req: Request) {
       },
     });
 
-    await supabase.from("signals").insert({
-      event: `Human Presence Index calculated for ${subjectName}: ${humanPresenceIndex}`,
-    });
+    await insertSignal(
+      supabase,
+      `Human Presence Index calculated for ${subjectName}: ${humanPresenceIndex}`
+    );
 
-    await supabase.from("signals").insert({
-      event: `Origin Trace generated for ${subjectName} with attribution confidence ${attributionConfidence}%`,
-    });
+    await insertSignal(
+      supabase,
+      `Origin Trace generated for ${subjectName} with attribution confidence ${attributionConfidence}%`
+    );
 
     if (metadataIntegrity === "stripped") {
-      await supabase.from("signals").insert({ event: "Metadata stripped" });
+      await insertSignal(supabase, "Metadata stripped");
     }
 
     if (watermarkStatus === "not_found") {
-      await supabase.from("signals").insert({ event: "Watermark not found" });
+      await insertSignal(supabase, "Watermark not found");
     }
 
     if (humanReviewRequired) {
-      await supabase.from("signals").insert({ event: "Human review required" });
+      await insertSignal(supabase, "Human review required");
     }
 
     await bestEffort("Passport audit logs", async () => {
-      await supabase.from("audit_logs").insert({
+      await insertAuditLog(supabase, {
         event_type: "passport.created",
         actor: userEmail || "anonymous",
         metadata: {
@@ -386,7 +470,7 @@ export async function POST(req: Request) {
         ...requestRisk,
       });
 
-      await supabase.from("audit_logs").insert({
+      await insertAuditLog(supabase, {
         event_type: "human_presence_index_created",
         actor: userEmail || "anonymous",
         metadata: {
@@ -401,7 +485,7 @@ export async function POST(req: Request) {
         ...requestRisk,
       });
 
-      await supabase.from("audit_logs").insert({
+      await insertAuditLog(supabase, {
         event_type: "origin_trace_created",
         actor: userEmail || "anonymous",
         metadata: {
@@ -419,7 +503,7 @@ export async function POST(req: Request) {
 
     if (humanReviewRequired) {
       await bestEffort("Passport attribution audit", async () => {
-        await supabase.from("audit_logs").insert({
+        await insertAuditLog(supabase, {
           event_type: "attribution_review_required",
           actor: userEmail || "anonymous",
           metadata: {
@@ -435,7 +519,7 @@ export async function POST(req: Request) {
 
     if (provenanceStatus === "missing" || c2paStatus === "missing") {
       await bestEffort("Passport provenance audit", async () => {
-        await supabase.from("audit_logs").insert({
+        await insertAuditLog(supabase, {
           event_type: "provenance_missing",
           actor: userEmail || "anonymous",
           metadata: { subject_name: subjectName, c2pa_status: c2paStatus, ...requestRisk },
@@ -447,7 +531,7 @@ export async function POST(req: Request) {
 
     if (watermarkStatus === "not_found") {
       await bestEffort("Passport watermark audit", async () => {
-        await supabase.from("audit_logs").insert({
+        await insertAuditLog(supabase, {
           event_type: "watermark_not_found",
           actor: userEmail || "anonymous",
           metadata: { subject_name: subjectName, ...requestRisk },
@@ -474,7 +558,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(
-      { ok: false, error: getSafePassportError(error) },
+      getPassportErrorResponse(error),
       { status: 500 }
     );
   }
