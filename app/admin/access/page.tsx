@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { SessionGuard } from "@/components/session-guard";
 import {
   hasAdminVerifiedCookie,
   isAdminAllowlisted,
@@ -36,7 +35,6 @@ export default async function AdminAccessPage({
 
   return (
     <main className="min-h-screen bg-black p-6 text-white md:p-8">
-      {user ? <SessionGuard /> : null}
       <div className="mx-auto max-w-md">
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
           Back to Cyber Sentinels
@@ -72,7 +70,9 @@ export default async function AdminAccessPage({
               </button>
 
               {denied ? (
-                <p className="text-sm text-red-300">Admin access denied.</p>
+                <p className="text-sm text-red-300">
+                  Admin access expired. Re-enter admin code.
+                </p>
               ) : null}
             </form>
           ) : (
@@ -81,7 +81,9 @@ export default async function AdminAccessPage({
                 Logged in as {user.email ?? user.id}. This account is not allowlisted for admin access.
               </p>
               {denied ? (
-                <p className="mt-2 text-sm text-red-300">Admin access denied.</p>
+                <p className="mt-2 text-sm text-red-300">
+                  Admin access expired. Re-enter admin code.
+                </p>
               ) : null}
             </div>
           )}

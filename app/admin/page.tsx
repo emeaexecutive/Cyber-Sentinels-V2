@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminVerificationActions } from "@/components/admin-verification-actions";
-import { SessionGuard } from "@/components/session-guard";
 import {
   hasAdminVerifiedCookie,
   isAdminAllowlisted,
@@ -460,7 +459,6 @@ export default async function AdminPage() {
 
   return (
     <main id="top" className="min-h-screen bg-black pb-16 text-white">
-      <SessionGuard />
       <header className="sticky top-0 z-40 border-b border-zinc-800 bg-black/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-8">
           <Link href="/admin" className="text-sm font-semibold text-white">

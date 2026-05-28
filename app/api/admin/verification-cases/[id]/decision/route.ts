@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import {
+  adminVerifiedCookieName,
+  getAdminCookieOptions,
   hasAdminVerifiedCookie,
   isAdminAllowlisted,
 } from "@/lib/admin-auth";
@@ -140,12 +142,6 @@ export async function POST(
     });
 
     if (!user || !allowlisted || !adminCookie) {
-      const reason = !user
-        ? "no_supabase_user"
-        : !allowlisted
-          ? "not_allowlisted"
-          : "missing_admin_cookie";
-
       console.error("admin decision auth failed", {
         hasUser: Boolean(user),
         email: user?.email,
@@ -153,14 +149,9 @@ export async function POST(
         hasAdminCookie: adminCookie,
       });
 
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "Unauthorized",
-          reason,
-        },
-        { status: !user ? 401 : 403 }
-      );
+      return NextResponse.redirect(new URL("/admin/access?denied=1", req.url), {
+        status: 303,
+      });
     }
 
     if ("error" in parsed) {
@@ -648,7 +639,17 @@ export async function POST(
       }
     }
 
-    return NextResponse.redirect(new URL("/admin", req.url), { status: 303 });
+    const response = NextResponse.redirect(new URL("/admin", req.url), {
+      status: 303,
+    });
+
+    response.cookies.set(
+      adminVerifiedCookieName,
+      "true",
+      getAdminCookieOptions()
+    );
+
+    return response;
   } catch (error) {
     if (
       error instanceof Error &&
