@@ -126,6 +126,8 @@ export async function POST(
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    console.log("decision user", user?.email);
+
     const allowlisted = isAdminAllowlisted(user?.email);
     const adminCookie = await hasAdminVerifiedCookie();
 
@@ -173,7 +175,39 @@ export async function POST(
       parsed.requestedStatus
     );
 
-    const { data: verificationCase, error: updateError } = await supabase
+    const { data: verificationCase, error: verificationCaseError } = await supabase
+      .from("verification_cases")
+      .select(
+        "id,passport_id,subject_name,subject_type,status,human_presence_index,origin_trace_score,trust_score,linkedin_url,linkedin_verification_status,linkedin_profile_consistency,linkedin_claimed_company,linkedin_claimed_role"
+      )
+      .eq("id", id)
+      .single();
+
+    if (verificationCaseError || !verificationCase) {
+      return NextResponse.json(
+        { ok: false, error: "Could not load verification case" },
+        { status: 500 }
+      );
+    }
+
+    const decisionInsert = await supabase.from("decisions").insert({
+      verification_case_id: id,
+      decision: parsed.decision,
+      status,
+      actor,
+      created_at: new Date().toISOString(),
+    });
+
+    if (decisionInsert.error) {
+      console.error("decision insert failed", decisionInsert.error);
+
+      return NextResponse.json(
+        { ok: false, error: "Could not record decision" },
+        { status: 500 }
+      );
+    }
+
+    const updateResult = await supabase
       .from("verification_cases")
       .update({
         status,
@@ -182,13 +216,9 @@ export async function POST(
         reviewed_by: user.id,
         reviewed_at: new Date().toISOString(),
       })
-      .eq("id", id)
-      .select(
-        "id,passport_id,subject_name,subject_type,status,human_presence_index,origin_trace_score,trust_score,linkedin_url,linkedin_verification_status,linkedin_profile_consistency,linkedin_claimed_company,linkedin_claimed_role"
-      )
-      .single();
+      .eq("id", id);
 
-    if (updateError || !verificationCase) {
+    if (updateResult.error) {
       return NextResponse.json(
         { ok: false, error: "Could not update verification case" },
         { status: 500 }
@@ -228,23 +258,6 @@ export async function POST(
           { status: 500 }
         );
       }
-    }
-
-    const decisionInsert = await supabase.from("decisions").insert({
-      verification_case_id: id,
-      decision: parsed.decision,
-      status,
-      actor,
-      created_at: new Date().toISOString(),
-    });
-
-    if (decisionInsert.error) {
-      console.error("decision insert failed", decisionInsert.error);
-
-      return NextResponse.json(
-        { ok: false, error: "Could not record decision" },
-        { status: 500 }
-      );
     }
 
     if (verificationCase.linkedin_url) {
