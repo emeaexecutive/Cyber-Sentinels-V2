@@ -465,9 +465,14 @@ export default async function AdminPage() {
             Cyber Sentinels Back Office
           </Link>
           <nav className="flex flex-wrap items-center gap-2 text-xs text-zinc-300">
-            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/api/auth/logout">
-              Logout
-            </Link>
+            <form action="/api/auth/logout" method="POST">
+              <button
+                className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white"
+                type="submit"
+              >
+                Logout
+              </button>
+            </form>
             <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/mission-control">
               Mission Control
             </Link>
