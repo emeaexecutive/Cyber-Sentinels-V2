@@ -348,7 +348,7 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "signals"),
     fetchTable<AnyRow>(supabase, "audit_logs"),
     fetchTable<AnyRow>(supabase, "evidence_files"),
-    fetchTable<AnyRow>(supabase, "decisions"),
+    fetchTable<AnyRow>(supabase, "decisions", "created_at", 10),
     fetchTable<AnyRow>(supabase, "risk_scores"),
   ]);
 

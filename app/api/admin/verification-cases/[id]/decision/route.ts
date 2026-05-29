@@ -177,67 +177,6 @@ export async function POST(
       parsed.requestedStatus
     );
 
-    const { data: decisionCase, error: decisionCaseError } = await supabase
-      .from("verification_cases")
-      .select("id,passport_id,subject_name,subject_type")
-      .eq("id", id)
-      .single();
-
-    if (decisionCaseError || !decisionCase) {
-      return NextResponse.json(
-        { ok: false, error: "Could not load verification case" },
-        { status: 500 }
-      );
-    }
-
-    const decisionInsert = await supabase.from("decisions").insert({
-      case_id: id,
-      verification_case_id: id,
-      passport_id: decisionCase.passport_id,
-      decision: parsed.decision,
-      status,
-      actor,
-      decided_by: actor,
-      created_at: new Date().toISOString(),
-    }).select("id, created_at").single();
-
-    if (decisionInsert.error) {
-      console.error("decision insert failed", decisionInsert.error);
-
-      return NextResponse.json(
-        { ok: false, error: "Could not record decision" },
-        { status: 500 }
-      );
-    }
-
-    const decisionRow = decisionInsert.data;
-
-    console.log("decision inserted", {
-      decision_id: decisionRow?.id,
-      verification_case_id: id,
-      decision: parsed.decision,
-      status,
-      actor,
-    });
-
-    const updateResult = await supabase
-      .from("verification_cases")
-      .update({
-        status,
-        verification_status: status,
-        decision_type: parsed.decision,
-        reviewed_by: user.id,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", id);
-
-    if (updateResult.error) {
-      return NextResponse.json(
-        { ok: false, error: "Could not update verification case" },
-        { status: 500 }
-      );
-    }
-
     const { data: verificationCase, error: verificationCaseError } = await supabase
       .from("verification_cases")
       .select(
@@ -248,7 +187,53 @@ export async function POST(
 
     if (verificationCaseError || !verificationCase) {
       return NextResponse.json(
-        { ok: false, error: "Could not load verification case workflow state" },
+        { ok: false, error: "Could not load verification case" },
+        { status: 500 }
+      );
+    }
+
+    const now = new Date().toISOString();
+
+    const { data: decisionRow, error: decisionInsertError } = await supabase
+      .from("decisions")
+      .insert({
+        verification_case_id: id,
+        case_id: id,
+        passport_id: verificationCase.passport_id,
+        decision: parsed.decision,
+        status,
+        actor,
+        decided_by: actor,
+        created_at: now,
+        updated_at: now,
+      })
+      .select("id, verification_case_id, case_id, decision, status, actor, decided_by, created_at")
+      .single();
+
+    if (decisionInsertError || !decisionRow) {
+      console.error("decision insert failed", decisionInsertError);
+      return NextResponse.json(
+        { ok: false, error: "Could not record decision" },
+        { status: 500 }
+      );
+    }
+
+    console.log("decision inserted", decisionRow);
+
+    const updateResult = await supabase
+      .from("verification_cases")
+      .update({
+        status,
+        verification_status: status,
+        decision_type: parsed.decision,
+        reviewed_by: user.id,
+        reviewed_at: now,
+      })
+      .eq("id", id);
+
+    if (updateResult.error) {
+      return NextResponse.json(
+        { ok: false, error: "Could not update verification case" },
         { status: 500 }
       );
     }
