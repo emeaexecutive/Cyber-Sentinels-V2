@@ -204,7 +204,7 @@ export default async function VerificationQueuePage() {
       fetchRows<Decision>(
         supabase,
         "decisions",
-        "id,verification_case_id,decision,status,actor,created_at",
+        "*",
         50
       ),
       fetchRows<EvidenceFile>(

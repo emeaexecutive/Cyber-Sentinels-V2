@@ -21,7 +21,6 @@ import {
   type PredictionInputDecision,
 } from "@/lib/trust-engine/predictions";
 import { evaluateTrustFabric } from "@/lib/trust-engine/trustFabric";
-import { demoTrustLedgerEvents } from "@/lib/trust-engine/trustLedger";
 
 export const dynamic = "force-dynamic";
 
@@ -179,6 +178,43 @@ function DecisionBadge({ decision }: { decision?: string | null }) {
 
 function EmptyState({ label }: { label: string }) {
   return <p className="text-sm text-zinc-500">{label}</p>;
+}
+
+function shortId(value?: string | null) {
+  return value ? value.slice(0, 8) : "n/a";
+}
+
+function AuditPanelItem({
+  label,
+  row,
+  detail,
+}: {
+  label: string;
+  row?: AnyRow;
+  detail?: string;
+}) {
+  return (
+    <div className="rounded-lg border border-zinc-800 bg-black p-4">
+      <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+        {label}
+      </p>
+      {row ? (
+        <>
+          <p className="mt-2 break-all text-sm font-medium text-zinc-100">
+            {shortId(String(row.id ?? ""))}
+          </p>
+          {detail ? (
+            <p className="mt-1 text-sm text-zinc-400">{detail}</p>
+          ) : null}
+          <p className="mt-2 text-xs text-zinc-600">
+            {formatDate(row.created_at)}
+          </p>
+        </>
+      ) : (
+        <p className="mt-2 text-sm text-zinc-500">No live record yet.</p>
+      )}
+    </div>
+  );
 }
 
 function BackOfficeAccessGate({
@@ -501,6 +537,14 @@ export default async function BackOfficePage({
   const pendingEvidenceFiles = evidenceFiles.rows.filter(
     (file) => file.scan_status !== "clean"
   );
+  const latestDecision = decisions.rows[0];
+  const latestVerificationCase = verificationCases.rows[0];
+  const latestPassport = passports.rows[0];
+  const latestSignal = signals.rows[0];
+  const latestAuditLog = auditLogs.rows[0];
+
+  console.log("Latest decision", latestDecision);
+
   const kpiMetrics = metrics.filter((metric) =>
     [
       "Verification Cases",
@@ -600,9 +644,6 @@ export default async function BackOfficePage({
             <a href="#modules" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
               Modules
             </a>
-            <a href="#demo" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
-              Demo
-            </a>
           </nav>
         </section>
 
@@ -620,6 +661,71 @@ export default async function BackOfficePage({
               ) : null}
             </Link>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Decision Pipeline Audit</h2>
+              <p className="mt-2 text-sm text-zinc-500">
+                Latest live records ordered by created_at desc.
+              </p>
+            </div>
+            <span className="rounded-full border border-emerald-700 px-3 py-1 text-xs text-emerald-200">
+              Supabase live
+            </span>
+          </div>
+          <div className="grid gap-3 md:grid-cols-5">
+            <AuditPanelItem
+              label="Latest Decision"
+              row={latestDecision}
+              detail={[
+                latestDecision?.decision,
+                latestDecision?.status,
+                latestDecision?.actor,
+                latestDecision?.verification_case_id,
+              ]
+                .filter(Boolean)
+                .join(" / ")}
+            />
+            <AuditPanelItem
+              label="Latest Verification Case"
+              row={latestVerificationCase}
+              detail={[
+                latestVerificationCase?.subject_name,
+                latestVerificationCase?.verification_status ??
+                  latestVerificationCase?.status,
+              ]
+                .filter(Boolean)
+                .join(" / ")}
+            />
+            <AuditPanelItem
+              label="Latest Passport Update"
+              row={latestPassport}
+              detail={[
+                latestPassport?.subject_name,
+                latestPassport?.verification_status ??
+                  latestPassport?.review_status,
+              ]
+                .filter(Boolean)
+                .join(" / ")}
+            />
+            <AuditPanelItem
+              label="Latest Signal"
+              row={latestSignal}
+              detail={latestSignal?.event}
+            />
+            <AuditPanelItem
+              label="Latest Audit Event"
+              row={latestAuditLog}
+              detail={[
+                latestAuditLog?.event_type,
+                latestAuditLog?.actor,
+              ]
+                .filter(Boolean)
+                .join(" / ")}
+            />
+          </div>
         </section>
 
         <section id="operations" className="mt-8 scroll-mt-24">
@@ -674,6 +780,15 @@ export default async function BackOfficePage({
                       <p className="mt-2 text-xs text-zinc-600">
                         {formatDate(decision.created_at)}
                       </p>
+                      <div className="mt-3 grid gap-1 text-xs text-zinc-500">
+                        <p>Actor: {decision.actor ?? decision.decided_by ?? "n/a"}</p>
+                        <p>
+                          Verification Case:{" "}
+                          {decision.verification_case_id ??
+                            decision.case_id ??
+                            "n/a"}
+                        </p>
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -809,8 +924,8 @@ export default async function BackOfficePage({
           </details>
         </section>
 
-        <section id="demo" className="mt-8 scroll-mt-24">
-          <h2 className="mb-4 text-xl font-semibold">Simulation / Demo Intelligence</h2>
+        <section className="mt-8">
+          <h2 className="mb-4 text-xl font-semibold">Operational Intelligence</h2>
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -848,21 +963,6 @@ export default async function BackOfficePage({
                   <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
                     <p className="text-sm text-zinc-500">{label}</p>
                     <p className="mt-2 text-2xl font-semibold capitalize">{value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-              <h3 className="text-lg font-semibold">Trust Ledger</h3>
-              <div className="mt-5 grid gap-3 md:grid-cols-3">
-                {demoTrustLedgerEvents.slice(0, 3).map((event) => (
-                  <div key={event.id} className="rounded-lg border border-zinc-800 bg-black p-4">
-                    <p className="text-sm text-zinc-500">{event.event_type}</p>
-                    <p className="mt-2 text-lg font-semibold">
-                      {event.previous_value ?? "new"} -&gt; {event.new_value ?? "n/a"}
-                    </p>
-                    <p className="mt-2 text-xs text-zinc-600">{event.reason_code}</p>
                   </div>
                 ))}
               </div>

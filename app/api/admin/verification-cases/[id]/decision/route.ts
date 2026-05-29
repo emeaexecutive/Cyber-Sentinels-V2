@@ -193,10 +193,13 @@ export async function POST(
     }
 
     const decisionInsert = await supabase.from("decisions").insert({
+      case_id: id,
       verification_case_id: id,
+      passport_id: verificationCase.passport_id,
       decision: parsed.decision,
       status,
       actor,
+      decided_by: actor,
       created_at: new Date().toISOString(),
     });
 

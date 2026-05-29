@@ -81,7 +81,7 @@ export default async function MissionControlPage() {
       .returns<MissionSignal[]>(),
     supabase
       .from("decisions")
-      .select("decision,status,created_at")
+      .select("*")
       .order("created_at", { ascending: false })
       .limit(100)
       .returns<MissionDecision[]>(),
