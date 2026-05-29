@@ -333,7 +333,7 @@ export default function HomePage() {
     {
       title: "Admin / QA",
       links: [
-        { href: "/back-office", label: "Back Office Access" },
+        { href: "/back-office", label: "Back Office / Admin" },
         { href: "/launch-console", label: "Launch Console(TM)" },
         { href: "/qa-console", label: "QA Console" },
         { href: "/security", label: "Security Layer" },
@@ -370,7 +370,7 @@ export default function HomePage() {
               href="/back-office"
               className="rounded-lg border border-white/20 bg-black/30 px-4 py-2 text-sm text-zinc-200 backdrop-blur hover:border-white/50"
             >
-              Back Office Access
+              Back Office / Admin
             </Link>
           </nav>
 

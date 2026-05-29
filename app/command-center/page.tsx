@@ -232,7 +232,7 @@ export default async function CommandCenterPage() {
           href="/back-office"
           className="ml-3 text-sm font-semibold text-emerald-300 hover:text-white"
         >
-          Back Office Access
+          Back Office
         </Link>
 
         <form action="/api/auth/logout" method="POST" className="mt-4">
