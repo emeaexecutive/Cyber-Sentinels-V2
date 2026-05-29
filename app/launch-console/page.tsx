@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { SessionGuard } from "@/components/session-guard";
 import {
   demoLaunchReadiness,
   readinessStates,
@@ -57,7 +56,7 @@ export default async function LaunchConsolePage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/login?next=/command-center");
   }
 
   const readiness = demoLaunchReadiness;
@@ -74,7 +73,6 @@ export default async function LaunchConsolePage() {
 
   return (
     <main className="min-h-screen bg-black px-6 py-8 text-white md:px-8">
-      <SessionGuard />
       <div className="mx-auto max-w-7xl">
         <nav className="flex flex-wrap gap-3 text-sm">
           {[

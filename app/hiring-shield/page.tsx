@@ -12,7 +12,7 @@ export default async function HiringShieldPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/login?next=/command-center");
   }
 
   const { data: reports } = await supabase

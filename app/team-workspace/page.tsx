@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { SessionGuard } from "@/components/session-guard";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
@@ -151,7 +150,7 @@ export default async function TeamWorkspacePage() {
   } = await supabase.auth.getUser();
 
   if (!user?.email) {
-    redirect("/login");
+    redirect("/login?next=/command-center");
   }
 
   const { data: memberships, error: membersError } = await supabase
@@ -238,7 +237,6 @@ export default async function TeamWorkspacePage() {
 
   return (
     <main className="min-h-screen bg-black px-6 py-8 text-white md:px-8">
-      <SessionGuard />
       <div className="mx-auto max-w-7xl">
         <nav className="flex flex-wrap gap-3 text-sm">
           {[

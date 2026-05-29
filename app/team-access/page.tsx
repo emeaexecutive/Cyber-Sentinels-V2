@@ -52,7 +52,7 @@ export default async function TeamAccessPage() {
   } = await supabase.auth.getUser();
 
   if (!user?.email) {
-    redirect("/login");
+    redirect("/login?next=/command-center");
   }
 
   const [{ data: members, error: membersError }, { data: signals }] =

@@ -63,7 +63,7 @@ async function handleInvalidRefreshSession(error: unknown) {
   }
 
   await clearAuthCookies();
-  redirect("/login?expired=1");
+  redirect("/login?next=/command-center");
 }
 
 export async function createClient() {

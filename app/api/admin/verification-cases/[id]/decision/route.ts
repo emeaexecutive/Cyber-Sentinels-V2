@@ -149,6 +149,15 @@ export async function POST(
         hasAdminCookie: adminCookie,
       });
 
+      if (!user) {
+        return NextResponse.redirect(
+          new URL("/login?next=/admin/access", req.url),
+          {
+            status: 303,
+          }
+        );
+      }
+
       return NextResponse.redirect(new URL("/admin/access?denied=1", req.url), {
         status: 303,
       });

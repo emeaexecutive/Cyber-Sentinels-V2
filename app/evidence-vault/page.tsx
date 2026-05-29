@@ -111,7 +111,7 @@ export default async function EvidenceVaultPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/login?next=/command-center");
   }
 
   const [{ data: evidenceRows }, { data: passports }, { data: cases }] =

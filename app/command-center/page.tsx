@@ -58,7 +58,7 @@ export default async function CommandCenterPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/login?next=/command-center");
   }
 
   const { data: passports } = await supabase

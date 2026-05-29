@@ -36,7 +36,7 @@ export default async function VerifierNetworkPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/login?next=/command-center");
   }
 
   const [{ data, error }, { data: signals }] = await Promise.all([

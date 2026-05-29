@@ -78,7 +78,7 @@ export default async function AdminAccessPage({
           ) : (
             <div className="mt-6 rounded-lg border border-red-900 bg-black p-4">
               <p className="text-sm text-red-300">
-                Logged in as {user.email ?? user.id}. This account is not allowlisted for admin access.
+                Not allowlisted.
               </p>
               {denied ? (
                 <p className="mt-2 text-sm text-red-300">
