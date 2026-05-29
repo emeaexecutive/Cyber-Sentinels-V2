@@ -177,15 +177,13 @@ export async function POST(
       parsed.requestedStatus
     );
 
-    const { data: verificationCase, error: verificationCaseError } = await supabase
+    const { data: decisionCase, error: decisionCaseError } = await supabase
       .from("verification_cases")
-      .select(
-        "id,passport_id,subject_name,subject_type,status,human_presence_index,origin_trace_score,trust_score,linkedin_url,linkedin_verification_status,linkedin_profile_consistency,linkedin_claimed_company,linkedin_claimed_role"
-      )
+      .select("id,passport_id,subject_name,subject_type")
       .eq("id", id)
       .single();
 
-    if (verificationCaseError || !verificationCase) {
+    if (decisionCaseError || !decisionCase) {
       return NextResponse.json(
         { ok: false, error: "Could not load verification case" },
         { status: 500 }
@@ -195,13 +193,13 @@ export async function POST(
     const decisionInsert = await supabase.from("decisions").insert({
       case_id: id,
       verification_case_id: id,
-      passport_id: verificationCase.passport_id,
+      passport_id: decisionCase.passport_id,
       decision: parsed.decision,
       status,
       actor,
       decided_by: actor,
       created_at: new Date().toISOString(),
-    });
+    }).select("id, created_at").single();
 
     if (decisionInsert.error) {
       console.error("decision insert failed", decisionInsert.error);
@@ -211,6 +209,16 @@ export async function POST(
         { status: 500 }
       );
     }
+
+    const decisionRow = decisionInsert.data;
+
+    console.log("decision inserted", {
+      decision_id: decisionRow?.id,
+      verification_case_id: id,
+      decision: parsed.decision,
+      status,
+      actor,
+    });
 
     const updateResult = await supabase
       .from("verification_cases")
@@ -226,6 +234,21 @@ export async function POST(
     if (updateResult.error) {
       return NextResponse.json(
         { ok: false, error: "Could not update verification case" },
+        { status: 500 }
+      );
+    }
+
+    const { data: verificationCase, error: verificationCaseError } = await supabase
+      .from("verification_cases")
+      .select(
+        "id,passport_id,subject_name,subject_type,status,human_presence_index,origin_trace_score,trust_score,linkedin_url,linkedin_verification_status,linkedin_profile_consistency,linkedin_claimed_company,linkedin_claimed_role"
+      )
+      .eq("id", id)
+      .single();
+
+    if (verificationCaseError || !verificationCase) {
+      return NextResponse.json(
+        { ok: false, error: "Could not load verification case workflow state" },
         { status: 500 }
       );
     }
