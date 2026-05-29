@@ -333,8 +333,7 @@ export default function HomePage() {
     {
       title: "Admin / QA",
       links: [
-        { href: "/admin", label: "Back Office / Admin" },
-        { href: "/admin/access", label: "Admin Access" },
+        { href: "/back-office", label: "Back Office Access" },
         { href: "/launch-console", label: "Launch Console(TM)" },
         { href: "/qa-console", label: "QA Console" },
         { href: "/security", label: "Security Layer" },
@@ -368,10 +367,10 @@ export default function HomePage() {
               Cyber Sentinels
             </Link>
             <Link
-              href="/admin"
+              href="/back-office"
               className="rounded-lg border border-white/20 bg-black/30 px-4 py-2 text-sm text-zinc-200 backdrop-blur hover:border-white/50"
             >
-              Back Office / Admin
+              Back Office Access
             </Link>
           </nav>
 
@@ -514,21 +513,15 @@ export default function HomePage() {
 
         <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm uppercase tracking-[0.22em] text-amber-200">
-            Back Office / Admin
+            Back Office
           </p>
           <h2 className="mt-4 text-2xl font-semibold">
             Every decision creates evidence in the system.
           </h2>
           <p className="mt-4 leading-7 text-zinc-400">
             Review evidence, update verification cases, create signals and
-            append audit events from one operator surface.
+            append audit events from the operator surface in the top navigation.
           </p>
-          <Link
-            href="/admin"
-            className="mt-6 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm font-semibold hover:border-zinc-400"
-          >
-            Open admin
-          </Link>
         </div>
 
         <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">

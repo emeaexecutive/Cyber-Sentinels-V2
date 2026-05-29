@@ -36,7 +36,7 @@ export default function TrustLedgerPage() {
           {[
             ["/", "Home"],
             ["/trust-timeline", "Trust Timeline"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
             ["/mission-control", "Mission Control"],
             ["/client-portal", "Client Portal"],
             ["/profile", "Public Profiles"],

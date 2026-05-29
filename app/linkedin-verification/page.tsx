@@ -49,7 +49,7 @@ export default function LinkedInVerificationPage() {
             Add to Hiring Shield
           </Link>
           <Link
-            href="/admin"
+            href="/back-office"
             className="rounded-xl border border-zinc-700 px-5 py-3 text-white"
           >
             Review in Back Office

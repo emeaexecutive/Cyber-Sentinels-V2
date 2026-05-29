@@ -155,7 +155,7 @@ export default async function EvidenceVaultPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
             ["/command-center", "Command Center"],
             ["/verification-queue", "Verification Queue"],
             ["/policy-engine", "Policy Engine"],

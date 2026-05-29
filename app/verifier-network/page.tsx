@@ -69,7 +69,7 @@ export default async function VerifierNetworkPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
             ["/mission-control", "Mission Control"],
             ["/verification-queue", "Verification Queue"],
             ["/team-workspace", "Team Workspace"],

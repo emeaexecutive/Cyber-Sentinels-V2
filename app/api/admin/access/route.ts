@@ -38,13 +38,13 @@ export async function POST(req: Request) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.redirect(new URL("/login?next=/admin/access", req.url), {
+      return NextResponse.redirect(new URL("/login?next=/back-office", req.url), {
         status: 303,
       });
     }
 
     const actor = user.email ?? user.id;
-    const deniedUrl = new URL("/admin/access?denied=1", req.url);
+    const deniedUrl = new URL("/back-office?denied=1", req.url);
 
     if (!isAdminAllowlisted(user.email)) {
       await recordAdminAccessAttempt(
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
       req
     );
 
-    const response = NextResponse.redirect(new URL("/admin", req.url), {
+    const response = NextResponse.redirect(new URL("/back-office", req.url), {
       status: 303,
     });
     response.cookies.set(
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
       return configurationError();
     }
 
-    return NextResponse.redirect(new URL("/admin/access?denied=1", req.url), {
+    return NextResponse.redirect(new URL("/back-office?denied=1", req.url), {
       status: 303,
     });
   }

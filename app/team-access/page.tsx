@@ -91,7 +91,7 @@ export default async function TeamAccessPage() {
             ["/team-workspace", "Team Workspace"],
             ["/developer-console", "Developer Console"],
             ["/billing", "Billing"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
           ].map(([href, label]) => (
             <Link
               key={href}

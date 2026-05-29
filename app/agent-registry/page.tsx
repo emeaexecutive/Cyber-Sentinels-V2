@@ -57,7 +57,7 @@ export default async function AgentRegistryPage() {
             ["/permissions-firewall", "Permissions Firewall"],
             ["/revocation-engine", "Revocation Engine"],
             ["/mission-control", "Mission Control"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
           ].map(([href, label]) => (
             <Link
               key={href}

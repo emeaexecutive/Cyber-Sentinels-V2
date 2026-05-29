@@ -107,7 +107,7 @@ export default function DecisionEnginePage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
             ["/command-center", "Command Center"],
             ["/policy-engine", "Policy Engine"],
             ["/evidence-vault", "Evidence Vault"],

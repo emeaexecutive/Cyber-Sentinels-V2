@@ -151,14 +151,14 @@ export async function POST(
 
       if (!user) {
         return NextResponse.redirect(
-          new URL("/login?next=/admin/access", req.url),
+          new URL("/login?next=/back-office", req.url),
           {
             status: 303,
           }
         );
       }
 
-      return NextResponse.redirect(new URL("/admin/access?denied=1", req.url), {
+      return NextResponse.redirect(new URL("/back-office?denied=1", req.url), {
         status: 303,
       });
     }
@@ -648,7 +648,7 @@ export async function POST(
       }
     }
 
-    const response = NextResponse.redirect(new URL("/admin", req.url), {
+    const response = NextResponse.redirect(new URL("/back-office", req.url), {
       status: 303,
     });
 

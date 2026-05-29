@@ -77,7 +77,7 @@ export default async function LaunchConsolePage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
             ["/mission-control", "Mission Control"],
             ["/qa-console", "QA Console"],
             ["/trust-registry", "Trust Registry"],

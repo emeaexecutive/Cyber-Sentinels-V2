@@ -179,11 +179,11 @@ export default async function VerificationQueuePage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?next=/admin/access");
+    redirect("/login?next=/back-office");
   }
 
   if (!isAdminAllowlisted(user.email) || !(await hasAdminVerifiedCookie())) {
-    redirect("/admin/access");
+    redirect("/back-office");
   }
 
   const [cases, signals, auditLogs, decisions, evidenceFiles] =
@@ -243,7 +243,7 @@ export default async function VerificationQueuePage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
             ["/decision-engine", "Decision Engine"],
             ["/evidence-vault", "Evidence Vault"],
             ["/verifier-network", "Verifier Network"],

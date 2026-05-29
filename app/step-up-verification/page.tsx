@@ -69,7 +69,7 @@ export default async function StepUpVerificationPage() {
             ["/developer-console", "Developer Console"],
             ["/revocation-engine", "Revocation Engine"],
             ["/trust-recovery", "Trust Recovery"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
           ].map(([href, label]) => (
             <Link
               key={href}

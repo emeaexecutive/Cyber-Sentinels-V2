@@ -186,7 +186,7 @@ export default async function MissionControlPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
             ["/launch-console", "Launch Console"],
             ["/command-center", "Command Center"],
             ["/permissions-firewall", "Permissions Firewall"],

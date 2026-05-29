@@ -91,7 +91,7 @@ export default async function ComplianceExportPage() {
           {[
             ["/", "Home"],
             ["/mission-control", "Mission Control"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
             ["/billing", "Billing"],
             ["/developer-console", "Developer Console"],
             ["/evidence-vault", "Evidence Vault"],

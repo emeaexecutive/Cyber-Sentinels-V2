@@ -56,7 +56,7 @@ export default async function PermissionsFirewallPage() {
             ["/reality-twin", "Reality Twin"],
             ["/revocation-engine", "Revocation Engine"],
             ["/trust-recovery", "Trust Recovery"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
           ].map(([href, label]) => (
             <Link
               key={href}

@@ -57,7 +57,7 @@ export default function ApiDocsPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
             ["/command-center", "Command Center"],
             ["/developer-console", "Developer Console"],
             ["/decision-engine", "Decision Engine"],

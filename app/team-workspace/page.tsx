@@ -249,7 +249,7 @@ export default async function TeamWorkspacePage() {
             ["/verification-queue", "Verification Queue"],
             ["/developer-console", "Developer Console"],
             ["/billing", "Billing"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
           ].map(([href, label]) => (
             <Link
               key={href}

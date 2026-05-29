@@ -184,7 +184,7 @@ export default function LoginPage() {
           link to finish signing in.
         </p>
         <p className="mt-3 text-sm leading-6 text-zinc-500">
-          Login first, then you will return to Admin Access.
+          Login first, then you will return to Back Office Access.
         </p>
 
         <div className="mt-8 grid gap-4">

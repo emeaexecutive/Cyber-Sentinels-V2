@@ -98,7 +98,7 @@ export default async function RevocationEnginePage() {
             ["/step-up-verification", "Step-Up Verification"],
             ["/trust-recovery", "Trust Recovery"],
             ["/agent-registry", "Agent Registry"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
           ].map(([href, label]) => (
             <Link
               key={href}

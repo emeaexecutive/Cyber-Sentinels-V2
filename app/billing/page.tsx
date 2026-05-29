@@ -68,7 +68,7 @@ export default async function BillingPage() {
             ["/trust-registry", "Trust Registry"],
             ["/developer-console", "Developer Console"],
             ["/compliance-export", "Compliance Export"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
           ].map(([href, label]) => (
             <Link
               key={href}

@@ -32,7 +32,7 @@ export default async function QaConsolePage() {
           {[
             ["/", "Home"],
             ["/launch-console", "Launch Console"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
             ["/command-center", "Command Center"],
             ["/verification-queue", "Verification Queue"],
           ].map(([href, label]) => (

@@ -85,7 +85,7 @@ export default async function TrustRecoveryPage() {
             ["/step-up-verification", "Step-Up Verification"],
             ["/permissions-firewall", "Permissions Firewall"],
             ["/mission-control", "Mission Control"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
           ].map(([href, label]) => (
             <Link
               key={href}

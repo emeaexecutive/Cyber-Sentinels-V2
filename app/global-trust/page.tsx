@@ -69,7 +69,7 @@ export default function GlobalTrustPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
             ["/security", "Security"],
             ["/api-docs", "Trust API"],
             ["/evidence-vault", "Evidence Vault"],

@@ -147,7 +147,7 @@ export default function PolicyEnginePage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/admin", "Admin"],
+            ["/back-office", "Back Office"],
             ["/command-center", "Command Center"],
             ["/decision-engine", "Decision Engine"],
             ["/evidence-vault", "Evidence Vault"],
