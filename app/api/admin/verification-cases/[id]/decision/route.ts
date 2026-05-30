@@ -128,18 +128,9 @@ export async function POST(
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    console.log("decision user", user?.email);
 
     const allowlisted = isAdminAllowlisted(user?.email);
     const adminCookie = await hasAdminVerifiedCookie();
-
-    console.info("admin decision auth check", {
-      user_email: user?.email ?? null,
-      is_admin_allowlisted: allowlisted,
-      has_admin_verified_cookie: adminCookie,
-      decision: "error" in parsed ? null : parsed.decision,
-      verification_case_id: id,
-    });
 
     if (!user || !allowlisted || !adminCookie) {
       console.error("admin decision auth failed", {
@@ -217,8 +208,6 @@ export async function POST(
         { status: 500 }
       );
     }
-
-    console.log("decision inserted", decisionRow);
 
     const updateResult = await supabase
       .from("verification_cases")

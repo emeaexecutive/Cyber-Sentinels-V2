@@ -543,8 +543,6 @@ export default async function BackOfficePage({
   const latestSignal = signals.rows[0];
   const latestAuditLog = auditLogs.rows[0];
 
-  console.log("Latest decision", latestDecision);
-
   const kpiMetrics = metrics.filter((metric) =>
     [
       "Verification Cases",
