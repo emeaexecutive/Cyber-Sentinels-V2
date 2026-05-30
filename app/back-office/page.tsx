@@ -292,6 +292,10 @@ function rowKey(row: AnyRow, fallback: string) {
   return String(row.id ?? fallback);
 }
 
+function evidenceStatus(row?: AnyRow) {
+  return row?.status ?? row?.scan_status ?? "pending_review";
+}
+
 function tableEmptyLabel(table: string, available: boolean) {
   return available
     ? "No live records yet. Create a Trust Passport or Hiring Shield report to populate this section."
@@ -347,7 +351,7 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "trust_reports"),
     fetchTable<AnyRow>(supabase, "signals"),
     fetchTable<AnyRow>(supabase, "audit_logs"),
-    fetchTable<AnyRow>(supabase, "evidence_files"),
+    fetchTable<AnyRow>(supabase, "evidence_files", "created_at", 100),
     fetchTable<AnyRow>(supabase, "decisions", "created_at", 10),
     fetchTable<AnyRow>(supabase, "risk_scores"),
   ]);
@@ -535,8 +539,21 @@ export default async function BackOfficePage({
     )
     .slice(0, 4);
   const pendingEvidenceFiles = evidenceFiles.rows.filter(
-    (file) => file.scan_status !== "clean"
+    (file) => evidenceStatus(file) !== "clean"
   );
+  const evidenceByCase = new Map<string, AnyRow[]>();
+
+  evidenceFiles.rows.forEach((file) => {
+    if (!file.verification_case_id) {
+      return;
+    }
+
+    const caseId = String(file.verification_case_id);
+    const current = evidenceByCase.get(caseId) ?? [];
+    current.push(file);
+    evidenceByCase.set(caseId, current);
+  });
+
   const latestDecision = decisions.rows[0];
   const latestVerificationCase = verificationCases.rows[0];
   const latestPassport = passports.rows[0];
@@ -611,6 +628,9 @@ export default async function BackOfficePage({
             </Link>
             <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/evidence-vault">
               Evidence Vault
+            </Link>
+            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/evidence-upload">
+              Upload Evidence
             </Link>
             <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/decision-engine">
               Decision Engine
@@ -729,36 +749,73 @@ export default async function BackOfficePage({
         <section id="operations" className="mt-8 scroll-mt-24">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-xl font-semibold">Operations</h2>
+            <div className="flex flex-wrap gap-2">
             <Link
               href="/verification-queue"
               className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
               Open Full Queue
             </Link>
+              <Link
+                href="/evidence-upload"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Upload Evidence
+              </Link>
+            </div>
           </div>
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
               <h3 className="text-lg font-semibold">Verification Queue</h3>
               <div className="mt-5 space-y-3">
                 {pendingVerificationCases.length ? (
-                  pendingVerificationCases.map((item, index) => (
-                    <div key={rowKey(item, `verification-case-${index}`)} className="rounded-lg border border-zinc-800 p-4">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <p className="font-medium text-zinc-100">
-                            {item.subject_name ?? "Unnamed subject"}
-                          </p>
-                          <p className="mt-1 text-sm text-zinc-500">
-                            {item.subject_type ?? "unknown"} / {formatDate(item.created_at)}
-                          </p>
+                  pendingVerificationCases.map((item, index) => {
+                    const caseEvidence =
+                      evidenceByCase.get(String(item.id)) ?? [];
+                    const latestEvidence = caseEvidence[0];
+
+                    return (
+                      <div key={rowKey(item, `verification-case-${index}`)} className="rounded-lg border border-zinc-800 p-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="font-medium text-zinc-100">
+                              {item.subject_name ?? "Unnamed subject"}
+                            </p>
+                            <p className="mt-1 text-sm text-zinc-500">
+                              {item.subject_type ?? "unknown"} / {formatDate(item.created_at)}
+                            </p>
+                          </div>
+                          <StatusBadge status={item.verification_status ?? item.status} />
                         </div>
-                        <StatusBadge status={item.verification_status ?? item.status} />
+                        <div className="mt-3 rounded-lg border border-zinc-900 bg-black p-3 text-xs text-zinc-500">
+                          <p className="font-medium text-zinc-300">
+                            Evidence: {caseEvidence.length}
+                          </p>
+                          {latestEvidence ? (
+                            <>
+                              <p className="mt-1">
+                                Latest:{" "}
+                                {latestEvidence.evidence_type ??
+                                  latestEvidence.media_type ??
+                                  "evidence"}{" "}
+                                / {evidenceStatus(latestEvidence)}
+                              </p>
+                              <p className="mt-1 break-all">
+                                {latestEvidence.evidence_url ??
+                                  latestEvidence.file_url ??
+                                  "No URL supplied"}
+                              </p>
+                            </>
+                          ) : (
+                            <p className="mt-1">No evidence uploaded yet.</p>
+                          )}
+                        </div>
+                        {item.id ? (
+                          <AdminVerificationActions caseId={String(item.id)} />
+                        ) : null}
                       </div>
-                      {item.id ? (
-                        <AdminVerificationActions caseId={String(item.id)} />
-                      ) : null}
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <EmptyState label={tableEmptyLabel("verification_cases", verificationCases.available)} />
                 )}
@@ -886,8 +943,11 @@ export default async function BackOfficePage({
                 {pendingEvidenceFiles.length ? (
                   pendingEvidenceFiles.map((file, index) => (
                     <div key={rowKey(file, `evidence-file-${index}`)} className="rounded-lg border border-zinc-800 p-4">
-                      <p className="font-medium">{file.file_name ?? "Evidence file"}</p>
-                      <p className="mt-1 text-sm text-zinc-500">{file.scan_status ?? "pending"}</p>
+                      <p className="font-medium">{file.file_name ?? file.evidence_type ?? "Evidence file"}</p>
+                      <p className="mt-1 text-sm text-zinc-500">{evidenceStatus(file)}</p>
+                      <p className="mt-1 break-all text-xs text-zinc-600">
+                        {file.evidence_url ?? file.file_url ?? "No URL supplied"}
+                      </p>
                     </div>
                   ))
                 ) : (
