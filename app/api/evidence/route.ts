@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
-import { createSignal } from "@/lib/trust-engine/createSignal";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -80,10 +78,24 @@ export async function POST(req: Request) {
     );
   }
 
-  const signalInsert = await createSignal(supabase, "Evidence uploaded");
+  const signalMetadata = {
+    verification_case_id: verificationCaseId,
+    passport_id: verificationCase.passport_id,
+    evidence_type: evidenceType,
+  };
 
-  if (signalInsert.error) {
-    console.error("evidence signal insert failed", signalInsert.error);
+  const { data: signalRow, error: signalError } = await supabase
+    .from("signals")
+    .insert({
+      event: "Evidence uploaded",
+      metadata: signalMetadata,
+      created_at: now,
+    })
+    .select("id")
+    .single();
+
+  if (signalError || !signalRow) {
+    console.error("evidence signal insert failed", signalError);
 
     return NextResponse.json(
       { ok: false, error: "Could not record signal" },
@@ -91,19 +103,27 @@ export async function POST(req: Request) {
     );
   }
 
-  const auditInsert = await createAuditLog(supabase, "evidence_uploaded", actor, {
-    evidence_file_id: evidenceRow.id,
+  const auditMetadata = {
     verification_case_id: verificationCaseId,
     passport_id: verificationCase.passport_id,
-    subject_name: verificationCase.subject_name,
-    subject_type: verificationCase.subject_type,
     evidence_type: evidenceType,
     file_url: fileUrl,
-    status: "pending_review",
-  });
+    notes,
+  };
 
-  if (auditInsert.error) {
-    console.error("evidence audit insert failed", auditInsert.error);
+  const { data: auditRow, error: auditError } = await supabase
+    .from("audit_logs")
+    .insert({
+      event_type: "evidence_uploaded",
+      actor,
+      metadata: auditMetadata,
+      created_at: now,
+    })
+    .select("id")
+    .single();
+
+  if (auditError || !auditRow) {
+    console.error("evidence audit insert failed", auditError);
 
     return NextResponse.json(
       { ok: false, error: "Could not record audit event" },
@@ -111,7 +131,16 @@ export async function POST(req: Request) {
     );
   }
 
-  return NextResponse.redirect(new URL("/evidence-upload?uploaded=1", req.url), {
-    status: 303,
+  console.log("evidence uploaded", {
+    evidence_id: evidenceRow.id,
+    signal_id: signalRow.id,
+    audit_id: auditRow.id,
+  });
+
+  return NextResponse.json({
+    ok: true,
+    evidence_id: evidenceRow.id,
+    signal_id: signalRow.id,
+    audit_id: auditRow.id,
   });
 }
