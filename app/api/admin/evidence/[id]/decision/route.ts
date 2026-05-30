@@ -1,0 +1,151 @@
+import { NextResponse } from "next/server";
+import {
+  hasAdminVerifiedCookie,
+  isAdminAllowlisted,
+} from "@/lib/admin-auth";
+import { createClient } from "@/lib/supabase/server";
+
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+type EvidenceDecision = "accepted" | "rejected";
+
+async function readDecision(req: Request) {
+  const contentType = req.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    const payload = (await req.json()) as { decision?: unknown };
+    return String(payload.decision ?? "");
+  }
+
+  const formData = await req.formData();
+
+  return String(formData.get("decision") ?? "");
+}
+
+function normalizeDecision(decision: string): EvidenceDecision | null {
+  if (decision === "accept" || decision === "accepted") {
+    return "accepted";
+  }
+
+  if (decision === "reject" || decision === "rejected") {
+    return "rejected";
+  }
+
+  return null;
+}
+
+export async function POST(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const supabase = await createClient();
+  const { id } = await context.params;
+
+  if (!uuidPattern.test(id)) {
+    return NextResponse.json(
+      { ok: false, error: "Invalid evidence id" },
+      { status: 400 }
+    );
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const allowlisted = isAdminAllowlisted(user?.email);
+  const hasAdminCookie = await hasAdminVerifiedCookie();
+
+  if (!user || !allowlisted || !hasAdminCookie) {
+    console.error("admin evidence decision auth failed", {
+      hasUser: Boolean(user),
+      email: user?.email,
+      allowlisted,
+      hasAdminCookie,
+    });
+
+    if (!user) {
+      return NextResponse.redirect(
+        new URL("/login?next=/back-office", req.url),
+        { status: 303 }
+      );
+    }
+
+    return NextResponse.redirect(new URL("/back-office?denied=1", req.url), {
+      status: 303,
+    });
+  }
+
+  const decision = normalizeDecision(await readDecision(req));
+
+  if (!decision) {
+    return NextResponse.json(
+      { ok: false, error: "Invalid evidence decision" },
+      { status: 400 }
+    );
+  }
+
+  const { data: evidenceRow, error: evidenceFetchError } = await supabase
+    .from("evidence_files")
+    .select("id, verification_case_id, passport_id, evidence_type, file_url")
+    .eq("id", id)
+    .single();
+
+  if (evidenceFetchError || !evidenceRow) {
+    return NextResponse.json(
+      { ok: false, error: "Evidence not found" },
+      { status: 404 }
+    );
+  }
+
+  const { error: evidenceUpdateError } = await supabase
+    .from("evidence_files")
+    .update({ status: decision })
+    .eq("id", id);
+
+  if (evidenceUpdateError) {
+    console.error("evidence decision update failed", evidenceUpdateError);
+
+    return NextResponse.json(
+      { ok: false, error: "Could not update evidence" },
+      { status: 500 }
+    );
+  }
+
+  const actor = user.email ?? user.id;
+  const now = new Date().toISOString();
+  const accepted = decision === "accepted";
+  const event = accepted ? "Evidence accepted" : "Evidence rejected";
+  const eventType = accepted ? "evidence_accepted" : "evidence_rejected";
+  const metadata = {
+    evidence_id: id,
+    verification_case_id: evidenceRow.verification_case_id,
+    passport_id: evidenceRow.passport_id,
+    evidence_type: evidenceRow.evidence_type,
+    file_url: evidenceRow.file_url,
+  };
+
+  const { error: signalError } = await supabase.from("signals").insert({
+    event,
+    metadata,
+    created_at: now,
+  });
+
+  if (signalError) {
+    console.error("evidence review signal insert failed", signalError);
+  }
+
+  const { error: auditError } = await supabase.from("audit_logs").insert({
+    event_type: eventType,
+    actor,
+    metadata,
+    created_at: now,
+  });
+
+  if (auditError) {
+    console.error("evidence review audit insert failed", auditError);
+  }
+
+  return NextResponse.redirect(new URL("/back-office", req.url), {
+    status: 303,
+  });
+}

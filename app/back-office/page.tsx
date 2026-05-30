@@ -296,6 +296,33 @@ function evidenceStatus(row?: AnyRow) {
   return row?.status ?? row?.scan_status ?? "pending_review";
 }
 
+function EvidenceReviewActions({ evidenceId }: { evidenceId: string }) {
+  const action = `/api/admin/evidence/${evidenceId}/decision`;
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-2">
+      <form method="POST" action={action}>
+        <input type="hidden" name="decision" value="accept" />
+        <button
+          type="submit"
+          className="rounded-lg border border-emerald-700 px-3 py-2 text-xs font-medium text-emerald-200 hover:border-emerald-400 hover:text-white"
+        >
+          Accept Evidence
+        </button>
+      </form>
+      <form method="POST" action={action}>
+        <input type="hidden" name="decision" value="reject" />
+        <button
+          type="submit"
+          className="rounded-lg border border-red-800 px-3 py-2 text-xs font-medium text-red-200 hover:border-red-500 hover:text-white"
+        >
+          Reject Evidence
+        </button>
+      </form>
+    </div>
+  );
+}
+
 function tableEmptyLabel(table: string, available: boolean) {
   return available
     ? "No live records yet. Create a Trust Passport or Hiring Shield report to populate this section."
@@ -792,18 +819,44 @@ export default async function BackOfficePage({
                             Evidence: {caseEvidence.length}
                           </p>
                           {latestEvidence ? (
-                            <>
-                              <p className="mt-1">
-                                Latest:{" "}
-                                {latestEvidence.evidence_type ??
-                                  latestEvidence.media_type ??
-                                  "evidence"}{" "}
-                                / {evidenceStatus(latestEvidence)}
-                              </p>
-                              <p className="mt-1 break-all">
-                                {latestEvidence.file_url ?? "No URL supplied"}
-                              </p>
-                            </>
+                            <div className="mt-3 space-y-3">
+                              {caseEvidence.map((evidence, evidenceIndex) => (
+                                <div
+                                  key={rowKey(
+                                    evidence,
+                                    `case-evidence-${index}-${evidenceIndex}`
+                                  )}
+                                  className="rounded-lg border border-zinc-800 bg-zinc-950 p-3"
+                                >
+                                  <div className="flex flex-wrap items-start justify-between gap-2">
+                                    <div>
+                                      <p className="font-medium text-zinc-200">
+                                        {evidence.evidence_type ??
+                                          evidence.media_type ??
+                                          "evidence"}
+                                      </p>
+                                      <p className="mt-1 text-zinc-500">
+                                        {formatDate(evidence.created_at)}
+                                      </p>
+                                    </div>
+                                    <StatusBadge status={evidenceStatus(evidence)} />
+                                  </div>
+                                  <p className="mt-2 break-all text-zinc-400">
+                                    {evidence.file_url ?? "No URL supplied"}
+                                  </p>
+                                  {evidence.notes ? (
+                                    <p className="mt-2 text-zinc-500">
+                                      {evidence.notes}
+                                    </p>
+                                  ) : null}
+                                  {evidence.id ? (
+                                    <EvidenceReviewActions
+                                      evidenceId={String(evidence.id)}
+                                    />
+                                  ) : null}
+                                </div>
+                              ))}
+                            </div>
                           ) : (
                             <p className="mt-1">No evidence uploaded yet.</p>
                           )}
