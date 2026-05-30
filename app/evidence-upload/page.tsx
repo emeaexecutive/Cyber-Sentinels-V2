@@ -83,7 +83,7 @@ export default async function EvidenceUploadPage({
             <label className="grid gap-2 text-sm text-zinc-400">
               Evidence URL
               <input
-                name="evidence_url"
+                name="file_url"
                 type="url"
                 required
                 className="rounded-lg border border-zinc-800 bg-black p-3 text-white"

@@ -801,9 +801,7 @@ export default async function BackOfficePage({
                                 / {evidenceStatus(latestEvidence)}
                               </p>
                               <p className="mt-1 break-all">
-                                {latestEvidence.evidence_url ??
-                                  latestEvidence.file_url ??
-                                  "No URL supplied"}
+                                {latestEvidence.file_url ?? "No URL supplied"}
                               </p>
                             </>
                           ) : (
@@ -946,7 +944,7 @@ export default async function BackOfficePage({
                       <p className="font-medium">{file.file_name ?? file.evidence_type ?? "Evidence file"}</p>
                       <p className="mt-1 text-sm text-zinc-500">{evidenceStatus(file)}</p>
                       <p className="mt-1 break-all text-xs text-zinc-600">
-                        {file.evidence_url ?? file.file_url ?? "No URL supplied"}
+                        {file.file_url ?? "No URL supplied"}
                       </p>
                     </div>
                   ))

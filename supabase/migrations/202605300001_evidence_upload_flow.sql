@@ -3,7 +3,7 @@
 
 alter table public.evidence_files add column if not exists passport_id uuid references public.passports(id) on delete set null;
 alter table public.evidence_files add column if not exists evidence_type text;
-alter table public.evidence_files add column if not exists evidence_url text;
+alter table public.evidence_files add column if not exists file_url text;
 alter table public.evidence_files add column if not exists notes text;
 alter table public.evidence_files add column if not exists uploaded_by text;
 alter table public.evidence_files add column if not exists status text default 'pending_review';

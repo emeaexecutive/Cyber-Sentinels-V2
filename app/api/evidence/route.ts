@@ -27,13 +27,13 @@ export async function POST(req: Request) {
   const formData = await req.formData();
   const verificationCaseId = getRequiredText(formData, "verification_case_id");
   const evidenceType = getRequiredText(formData, "evidence_type");
-  const evidenceUrl = getRequiredText(formData, "evidence_url");
+  const fileUrl = getRequiredText(formData, "file_url");
   const notes = getRequiredText(formData, "notes");
 
   if (
     !uuidPattern.test(verificationCaseId) ||
     !evidenceType ||
-    !evidenceUrl
+    !fileUrl
   ) {
     return NextResponse.redirect(new URL("/evidence-upload?error=1", req.url), {
       status: 303,
@@ -60,8 +60,7 @@ export async function POST(req: Request) {
       verification_case_id: verificationCaseId,
       passport_id: verificationCase.passport_id,
       evidence_type: evidenceType,
-      evidence_url: evidenceUrl,
-      file_url: evidenceUrl,
+      file_url: fileUrl,
       media_type: evidenceType,
       notes,
       uploaded_by: actor,
@@ -69,7 +68,7 @@ export async function POST(req: Request) {
       scan_status: "pending_review",
       created_at: now,
     })
-    .select("id, verification_case_id, passport_id, evidence_type, evidence_url, status, created_at")
+    .select("id, verification_case_id, passport_id, evidence_type, file_url, status, created_at")
     .single();
 
   if (evidenceError || !evidenceRow) {
@@ -99,7 +98,7 @@ export async function POST(req: Request) {
     subject_name: verificationCase.subject_name,
     subject_type: verificationCase.subject_type,
     evidence_type: evidenceType,
-    evidence_url: evidenceUrl,
+    file_url: fileUrl,
     status: "pending_review",
   });
 
