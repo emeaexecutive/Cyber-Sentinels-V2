@@ -1,7 +1,6 @@
 "use client";
 
-import { DragEvent, FormEvent, useMemo, useRef, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { DragEvent, FormEvent, useRef, useState } from "react";
 
 const allowedTypes = new Map([
   ["application/pdf", "PDF"],
@@ -12,14 +11,7 @@ const allowedTypes = new Map([
     "DOCX",
   ],
 ]);
-
-function sanitizeName(name: string) {
-  return name
-    .trim()
-    .replace(/[^a-zA-Z0-9._-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
+const maxFileSize = 10 * 1024 * 1024;
 
 function fileExtension(file: File) {
   const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
@@ -37,9 +29,9 @@ function isAllowedFile(file: File) {
 }
 
 export function EvidenceUploadForm() {
-  const supabase = useMemo(() => createClient(), []);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [verificationCaseId, setVerificationCaseId] = useState("");
+  const [evidenceUrl, setEvidenceUrl] = useState("");
   const [notes, setNotes] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -60,6 +52,12 @@ export function EvidenceUploadForm() {
     if (!isAllowedFile(nextFile)) {
       setFile(null);
       setError("Supported files: PDF, PNG, JPG, JPEG, DOCX.");
+      return;
+    }
+
+    if (nextFile.size > maxFileSize) {
+      setFile(null);
+      setError("Evidence file must be 10MB or smaller.");
       return;
     }
 
@@ -85,60 +83,21 @@ export function EvidenceUploadForm() {
     setIsUploading(true);
     setProgress(10);
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
+    const body = new FormData();
+    body.set("verification_case_id", verificationCaseId.trim());
+    body.set("file", file);
+    body.set("evidence_url", evidenceUrl.trim());
+    body.set("notes", notes.trim());
 
-    if (userError || !user) {
-      setIsUploading(false);
-      setProgress(0);
-      setError("Login required before uploading evidence.");
-      return;
-    }
+    setProgress(40);
 
-    const extension = fileExtension(file);
-    const safeName = sanitizeName(file.name) || `evidence.${extension}`;
-    const storagePath = `${verificationCaseId.trim()}/${crypto.randomUUID()}-${safeName}`;
-
-    setProgress(35);
-
-    const { error: uploadError } = await supabase.storage
-      .from("evidence-files")
-      .upload(storagePath, file, {
-        cacheControl: "3600",
-        contentType: file.type || undefined,
-        upsert: false,
-      });
-
-    if (uploadError) {
-      setIsUploading(false);
-      setProgress(0);
-      setError(uploadError.message);
-      return;
-    }
-
-    setProgress(70);
-
-    const { data: publicUrlData } = supabase.storage
-      .from("evidence-files")
-      .getPublicUrl(storagePath);
-
-    const response = await fetch("/api/evidence", {
+    const response = await fetch("/api/evidence/upload", {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        verification_case_id: verificationCaseId.trim(),
-        file_name: file.name,
-        file_type:
-          allowedTypes.get(file.type) ?? extension.toUpperCase() ?? "UNKNOWN",
-        file_size: file.size,
-        storage_path: storagePath,
-        public_url: publicUrlData.publicUrl,
-        notes: notes.trim(),
-      }),
+      body,
     });
+
+    setProgress(85);
 
     const payload = (await response.json().catch(() => null)) as {
       ok?: boolean;
@@ -156,6 +115,7 @@ export function EvidenceUploadForm() {
     setIsUploading(false);
     setMessage("Evidence uploaded.");
     setFile(null);
+    setEvidenceUrl("");
     setNotes("");
   }
 
@@ -217,6 +177,16 @@ export function EvidenceUploadForm() {
           Choose File
         </button>
       </div>
+
+      <label className="grid gap-2 text-sm text-zinc-400">
+        Optional evidence URL
+        <input
+          value={evidenceUrl}
+          onChange={(event) => setEvidenceUrl(event.target.value)}
+          type="url"
+          className="rounded-lg border border-zinc-800 bg-black p-3 text-white"
+        />
+      </label>
 
       <label className="grid gap-2 text-sm text-zinc-400">
         Notes
