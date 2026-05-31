@@ -539,7 +539,9 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.redirect(new URL("/passport", req.url));
+    return NextResponse.redirect(new URL("/passport?created=1", req.url), {
+      status: 303,
+    });
   } catch (error) {
     if (
       error instanceof Error &&

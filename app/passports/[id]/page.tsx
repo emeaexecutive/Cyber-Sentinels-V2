@@ -111,8 +111,8 @@ export default async function PassportViewerPage({
     return (
       <main className="min-h-screen bg-black px-6 py-8 text-white md:px-8">
         <div className="mx-auto max-w-5xl">
-          <Link href="/passport" className="text-sm text-zinc-400 hover:text-white">
-            Back to Passports
+          <Link href="/passports" className="text-sm text-zinc-400 hover:text-white">
+            Back to Trust Passports
           </Link>
           <section className="mt-10 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
             <h1 className="text-3xl font-semibold">Passport not found</h1>
@@ -197,7 +197,8 @@ export default async function PassportViewerPage({
       <div className="mx-auto max-w-7xl">
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
-            ["/passport", "Passports"],
+            ["/passports", "Trust Passports"],
+            ["/passport", "Create Passport"],
             ["/back-office", "Back Office"],
             ["/verification-queue", "Verification Queue"],
             ["/evidence-vault", "Evidence Vault"],

@@ -4,6 +4,7 @@ import Link from "next/link";
 const primaryCtas = [
   { href: "/mission-control", label: "Open Mission Control™" },
   { href: "/passport", label: "Create Trust Passport" },
+  { href: "/passports", label: "Trust Passports" },
   { href: "/command-center", label: "Open Command Center" },
 ];
 
@@ -289,6 +290,7 @@ export default function HomePage() {
       title: "Core Product",
       links: [
         { href: "/passport", label: "Trust Passport" },
+        { href: "/passports", label: "Trust Passports" },
         { href: "/mission-control", label: "Mission Control™" },
         { href: "/command-center", label: "Command Center" },
         { href: "/client-portal", label: "Client Portal™" },
@@ -366,12 +368,20 @@ export default function HomePage() {
             >
               Cyber Sentinels
             </Link>
-            <Link
-              href="/back-office"
-              className="rounded-lg border border-white/20 bg-black/30 px-4 py-2 text-sm text-zinc-200 backdrop-blur hover:border-white/50"
-            >
-              Back Office / Admin
-            </Link>
+            <div className="flex flex-wrap justify-end gap-2">
+              <Link
+                href="/passports"
+                className="rounded-lg border border-white/20 bg-black/30 px-4 py-2 text-sm text-zinc-200 backdrop-blur hover:border-white/50"
+              >
+                Trust Passports
+              </Link>
+              <Link
+                href="/back-office"
+                className="rounded-lg border border-white/20 bg-black/30 px-4 py-2 text-sm text-zinc-200 backdrop-blur hover:border-white/50"
+              >
+                Back Office / Admin
+              </Link>
+            </div>
           </nav>
 
           <div className="max-w-4xl pb-10">

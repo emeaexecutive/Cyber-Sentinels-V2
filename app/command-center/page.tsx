@@ -229,6 +229,13 @@ export default async function CommandCenterPage() {
         </Link>
 
         <Link
+          href="/passports"
+          className="ml-3 text-sm text-zinc-400 hover:text-white"
+        >
+          Trust Passports
+        </Link>
+
+        <Link
           href="/back-office"
           className="ml-3 text-sm font-semibold text-emerald-300 hover:text-white"
         >

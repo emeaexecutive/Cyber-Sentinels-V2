@@ -4,7 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export default async function PassportPage() {
+type PassportPageProps = {
+  searchParams?: Promise<{ created?: string }>;
+};
+
+export default async function PassportPage({ searchParams }: PassportPageProps) {
   const supabase = await createClient();
 
   const {
@@ -21,6 +25,8 @@ export default async function PassportPage() {
     .order("created_at", { ascending: false });
 
   const passport = passports?.[0];
+  const params = await searchParams;
+  const created = params?.created === "1";
 
   return (
     <main className="min-h-screen bg-black p-8 text-white">
@@ -28,8 +34,26 @@ export default async function PassportPage() {
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
           Back to Cyber Sentinels
         </Link>
+        <Link
+          href="/passports"
+          className="ml-4 text-sm text-zinc-400 hover:text-white"
+        >
+          Trust Passports
+        </Link>
 
         <h1 className="mt-8 text-5xl font-bold">Sentinel Passport</h1>
+
+        {created ? (
+          <section className="mt-8 rounded-2xl border border-emerald-800 bg-zinc-950 p-5">
+            <p className="text-sm text-emerald-200">Trust Passport created.</p>
+            <Link
+              href="/passports"
+              className="mt-3 inline-flex rounded-xl border border-emerald-700 px-4 py-2 text-sm text-emerald-100 hover:text-white"
+            >
+              View Trust Passports
+            </Link>
+          </section>
+        ) : null}
 
         <section className="mt-10 rounded-3xl border border-zinc-800 bg-zinc-950 p-8">
           {passport ? (
@@ -395,6 +419,13 @@ export default async function PassportPage() {
           <button className="rounded-xl bg-white px-5 py-4 font-semibold text-black">
             Submit Verification
           </button>
+
+          <Link
+            href="/passports"
+            className="text-center text-sm text-zinc-400 hover:text-white"
+          >
+            View Trust Passports
+          </Link>
         </form>
       </div>
     </main>
