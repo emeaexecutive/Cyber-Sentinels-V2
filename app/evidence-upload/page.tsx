@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { EvidenceUploadForm } from "./evidence-upload-form";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +46,7 @@ export default async function EvidenceUploadPage({
           </p>
           <h1 className="mt-3 text-3xl font-semibold">Upload Evidence</h1>
           <p className="mt-3 text-sm leading-6 text-zinc-400">
-            Register an evidence URL against a verification case before admin
+            Upload evidence files against a verification case before admin
             approval.
           </p>
 
@@ -60,52 +61,7 @@ export default async function EvidenceUploadPage({
             </p>
           ) : null}
 
-          <form action="/api/evidence" method="POST" className="mt-6 grid gap-4">
-            <label className="grid gap-2 text-sm text-zinc-400">
-              Verification case ID
-              <input
-                name="verification_case_id"
-                required
-                className="rounded-lg border border-zinc-800 bg-black p-3 text-white"
-              />
-            </label>
-
-            <label className="grid gap-2 text-sm text-zinc-400">
-              Evidence type
-              <input
-                name="evidence_type"
-                required
-                placeholder="document, image, video, url, linkedin"
-                className="rounded-lg border border-zinc-800 bg-black p-3 text-white"
-              />
-            </label>
-
-            <label className="grid gap-2 text-sm text-zinc-400">
-              Evidence URL
-              <input
-                name="file_url"
-                type="url"
-                required
-                className="rounded-lg border border-zinc-800 bg-black p-3 text-white"
-              />
-            </label>
-
-            <label className="grid gap-2 text-sm text-zinc-400">
-              Notes
-              <textarea
-                name="notes"
-                rows={4}
-                className="rounded-lg border border-zinc-800 bg-black p-3 text-white"
-              />
-            </label>
-
-            <button
-              type="submit"
-              className="rounded-lg bg-white p-3 font-semibold text-black"
-            >
-              Register Evidence
-            </button>
-          </form>
+          <EvidenceUploadForm />
         </section>
       </div>
     </main>

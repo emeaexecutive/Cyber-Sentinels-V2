@@ -57,7 +57,7 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRecord }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
-            {evidence.evidence_type}
+            {evidence.file_type ?? evidence.evidence_type}
           </p>
           <h3 className="mt-2 font-semibold text-zinc-100">
             {evidence.file_name ?? "Evidence artefact"}
@@ -80,6 +80,12 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRecord }) {
           <span className="text-zinc-300">{evidence.submitted_by ?? "n/a"}</span>
         </p>
         <p className="text-zinc-500">
+          File{" "}
+          <span className="text-zinc-300">
+            {evidence.public_url || evidence.storage_path ? "available" : "n/a"}
+          </span>
+        </p>
+        <p className="text-zinc-500">
           Origin{" "}
           <span className="text-zinc-300">
             {evidence.origin_trace_score ?? "n/a"}
@@ -96,6 +102,16 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRecord }) {
         <p>Hash {evidence.hash ?? "not recorded"}</p>
         <p className="mt-1">Created {formatDate(evidence.created_at)}</p>
       </div>
+      {evidence.public_url ? (
+        <Link
+          href={evidence.public_url}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-4 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+        >
+          Open Evidence
+        </Link>
+      ) : null}
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-type EvidenceDecision = "accepted" | "rejected";
+type EvidenceDecision = "accepted" | "rejected" | "needs_more_evidence";
 
 async function readDecision(req: Request) {
   const contentType = req.headers.get("content-type") ?? "";
@@ -30,6 +30,13 @@ function normalizeDecision(decision: string): EvidenceDecision | null {
 
   if (decision === "reject" || decision === "rejected") {
     return "rejected";
+  }
+
+  if (
+    decision === "request_more_evidence" ||
+    decision === "needs_more_evidence"
+  ) {
+    return "needs_more_evidence";
   }
 
   return null;
@@ -86,7 +93,7 @@ export async function POST(
 
   const { data: evidenceRow, error: evidenceFetchError } = await supabase
     .from("evidence_files")
-    .select("id, verification_case_id, passport_id, evidence_type, file_url")
+    .select("id, verification_case_id, passport_id, evidence_type, file_type, file_url, public_url")
     .eq("id", id)
     .single();
 
@@ -114,14 +121,23 @@ export async function POST(
   const actor = user.email ?? user.id;
   const now = new Date().toISOString();
   const accepted = decision === "accepted";
-  const event = accepted ? "Evidence accepted" : "Evidence rejected";
-  const eventType = accepted ? "evidence_accepted" : "evidence_rejected";
+  const rejected = decision === "rejected";
+  const event = accepted
+    ? "Evidence accepted"
+    : rejected
+      ? "Evidence rejected"
+      : "More evidence requested";
+  const eventType = accepted
+    ? "evidence_accepted"
+    : rejected
+      ? "evidence_rejected"
+      : "evidence_more_evidence_requested";
   const metadata = {
     evidence_id: id,
     verification_case_id: evidenceRow.verification_case_id,
     passport_id: evidenceRow.passport_id,
-    evidence_type: evidenceRow.evidence_type,
-    file_url: evidenceRow.file_url,
+    evidence_type: evidenceRow.evidence_type ?? evidenceRow.file_type,
+    file_url: evidenceRow.public_url ?? evidenceRow.file_url,
   };
 
   const { error: signalError } = await supabase.from("signals").insert({

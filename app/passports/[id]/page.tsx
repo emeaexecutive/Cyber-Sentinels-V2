@@ -298,7 +298,7 @@ export default async function PassportViewerPage({
                       value={item.status ?? item.scan_status}
                     />
                     <InfoTile label="Upload Date" value={formatDate(item.created_at)} />
-                    <InfoTile label="File URL" value={item.file_url} />
+                    <InfoTile label="File URL" value={item.public_url ?? item.file_url} />
                   </div>
                 </div>
               ))

@@ -12,8 +12,11 @@ export type EvidenceType =
 
 export type EvidenceStatus =
   | "submitted"
+  | "pending_review"
   | "scanning"
   | "clean"
+  | "accepted"
+  | "needs_more_evidence"
   | "suspicious"
   | "tampered"
   | "rejected"
@@ -45,6 +48,8 @@ export type EvidenceRecord = {
   file_name: string | null;
   evidence_type: EvidenceType;
   media_type: string | null;
+  file_type: string | null;
+  public_url: string | null;
   source: string | null;
   submitted_by: string | null;
   storage_path: string | null;
@@ -62,6 +67,7 @@ type EvidenceRow = Partial<
   EvidenceRecord & {
     verification_case_id: string | null;
     file_url: string | null;
+    public_url: string | null;
   }
 >;
 
@@ -88,6 +94,8 @@ export const demoEvidence: EvidenceRecord[] = [
     file_name: "liveness-selfie-frame.png",
     evidence_type: "image",
     media_type: "image",
+    file_type: "image",
+    public_url: null,
     source: "web_capture",
     submitted_by: "reviewer@cybersentinels.ai",
     storage_path: "demo/liveness-selfie-frame.png",
@@ -107,6 +115,8 @@ export const demoEvidence: EvidenceRecord[] = [
     file_name: "candidate-interview-recording.mp4",
     evidence_type: "meeting_recording",
     media_type: "video",
+    file_type: "video",
+    public_url: null,
     source: "meeting_recording",
     submitted_by: "hiring-shield",
     storage_path: "demo/candidate-interview-recording.mp4",
@@ -126,6 +136,8 @@ export const demoEvidence: EvidenceRecord[] = [
     file_name: "origin-claim-package.zip",
     evidence_type: "document",
     media_type: "document",
+    file_type: "document",
+    public_url: null,
     source: "manual_upload",
     submitted_by: "analyst@cybersentinels.ai",
     storage_path: "demo/origin-claim-package.zip",
@@ -145,6 +157,8 @@ export const demoEvidence: EvidenceRecord[] = [
     file_name: "linkedin-profile-url",
     evidence_type: "linkedin",
     media_type: "profile",
+    file_type: "profile",
+    public_url: "https://linkedin.com/in/demo-profile",
     source: "profile_link",
     submitted_by: "candidate",
     storage_path: "https://linkedin.com/in/demo-profile",
@@ -165,8 +179,11 @@ function normalizeStatus(value: unknown): EvidenceStatus {
   if (
     [
       "submitted",
+      "pending_review",
       "scanning",
       "clean",
+      "accepted",
+      "needs_more_evidence",
       "suspicious",
       "tampered",
       "rejected",
@@ -226,9 +243,11 @@ export function normalizeEvidenceRows(rows: EvidenceRow[] | null | undefined) {
       file_name: row.file_name ?? "Evidence artefact",
       evidence_type: normalizeEvidenceType(row),
       media_type: row.media_type ?? null,
+      file_type: row.file_type ?? row.media_type ?? null,
+      public_url: row.public_url ?? row.file_url ?? null,
       source: row.source ?? "evidence_files",
       submitted_by: row.submitted_by ?? null,
-      storage_path: row.storage_path ?? row.file_url ?? null,
+      storage_path: row.storage_path ?? row.public_url ?? row.file_url ?? null,
       hash: row.hash ?? null,
       scan_status: scanStatus,
       provenance_status: row.provenance_status ?? "unknown",

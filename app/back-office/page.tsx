@@ -319,6 +319,15 @@ function EvidenceReviewActions({ evidenceId }: { evidenceId: string }) {
           Reject Evidence
         </button>
       </form>
+      <form method="POST" action={action}>
+        <input type="hidden" name="decision" value="request_more_evidence" />
+        <button
+          type="submit"
+          className="rounded-lg border border-amber-700 px-3 py-2 text-xs font-medium text-amber-200 hover:border-amber-400 hover:text-white"
+        >
+          Request More Evidence
+        </button>
+      </form>
     </div>
   );
 }
@@ -831,9 +840,9 @@ export default async function BackOfficePage({
                                   <div className="flex flex-wrap items-start justify-between gap-2">
                                     <div>
                                       <p className="font-medium text-zinc-200">
-                                        {evidence.evidence_type ??
-                                          evidence.media_type ??
-                                          "evidence"}
+                                        {evidence.file_name ??
+                                          evidence.evidence_type ??
+                                          "Evidence file"}
                                       </p>
                                       <p className="mt-1 text-zinc-500">
                                         {formatDate(evidence.created_at)}
@@ -841,13 +850,32 @@ export default async function BackOfficePage({
                                     </div>
                                     <StatusBadge status={evidenceStatus(evidence)} />
                                   </div>
-                                  <p className="mt-2 break-all text-zinc-400">
-                                    {evidence.file_url ?? "No URL supplied"}
-                                  </p>
+                                  <div className="mt-2 grid gap-1 text-zinc-500">
+                                    <p>
+                                      Type:{" "}
+                                      {evidence.file_type ??
+                                        evidence.evidence_type ??
+                                        evidence.media_type ??
+                                        "unknown"}
+                                    </p>
+                                    <p>Uploaded: {formatDate(evidence.created_at)}</p>
+                                  </div>
                                   {evidence.notes ? (
                                     <p className="mt-2 text-zinc-500">
                                       {evidence.notes}
                                     </p>
+                                  ) : null}
+                                  {evidence.public_url || evidence.file_url ? (
+                                    <Link
+                                      href={String(
+                                        evidence.public_url ?? evidence.file_url
+                                      )}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="mt-3 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+                                    >
+                                      Open Evidence
+                                    </Link>
                                   ) : null}
                                   {evidence.id ? (
                                     <EvidenceReviewActions
@@ -995,10 +1023,20 @@ export default async function BackOfficePage({
                   pendingEvidenceFiles.map((file, index) => (
                     <div key={rowKey(file, `evidence-file-${index}`)} className="rounded-lg border border-zinc-800 p-4">
                       <p className="font-medium">{file.file_name ?? file.evidence_type ?? "Evidence file"}</p>
-                      <p className="mt-1 text-sm text-zinc-500">{evidenceStatus(file)}</p>
-                      <p className="mt-1 break-all text-xs text-zinc-600">
-                        {file.file_url ?? "No URL supplied"}
+                      <p className="mt-1 text-sm text-zinc-500">{file.file_type ?? file.evidence_type ?? file.media_type ?? "unknown"} / {evidenceStatus(file)}</p>
+                      <p className="mt-1 text-xs text-zinc-600">
+                        Uploaded: {formatDate(file.created_at)}
                       </p>
+                      {file.public_url || file.file_url ? (
+                        <Link
+                          href={String(file.public_url ?? file.file_url)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+                        >
+                          Open Evidence
+                        </Link>
+                      ) : null}
                     </div>
                   ))
                 ) : (
