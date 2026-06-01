@@ -381,9 +381,13 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "decisions", "created_at", 10),
   ]);
 
-  const radarSignals = normalizeSignals(
-    signals.rows as Parameters<typeof normalizeSignals>[0]
-  ).slice(0, 5);
+  const radarSignals = signals.rows.length
+    ? normalizeSignals(
+        signals.rows as Parameters<typeof normalizeSignals>[0]
+      )
+        .filter((signal) => !signal.isDemo)
+        .slice(0, 5)
+    : [];
   const prediction = predictTrustRisk({
     passports: passports.rows,
     signals: signals.rows,
@@ -531,15 +535,23 @@ export default async function BackOfficePage({
             Cyber Sentinels Back Office
           </Link>
           <nav className="flex flex-wrap items-center gap-2 text-xs text-zinc-300">
-            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/">
-              Home
-            </Link>
-            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/passport">
-              Create Passport
-            </Link>
-            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/passports">
-              Trust Passports
-            </Link>
+            {[
+              ["/", "Home"],
+              ["/passport", "Create Passport"],
+              ["/passports", "Trust Passports"],
+              ["/verification-queue", "Verification Queue"],
+              ["/evidence-vault", "Evidence Vault"],
+              ["/mission-control", "Mission Control"],
+              ["/back-office", "Back Office"],
+            ].map(([href, label]) => (
+              <Link
+                key={href}
+                className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white"
+                href={href}
+              >
+                {label}
+              </Link>
+            ))}
             <form action="/api/auth/logout" method="POST">
               <button
                 className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white"
@@ -548,24 +560,6 @@ export default async function BackOfficePage({
                 Logout
               </button>
             </form>
-            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/mission-control">
-              Mission Control
-            </Link>
-            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/verification-queue">
-              Verification Queue
-            </Link>
-            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/evidence-vault">
-              Evidence Vault
-            </Link>
-            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/evidence-upload">
-              Upload Evidence
-            </Link>
-            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/decision-engine">
-              Decision Engine
-            </Link>
-            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/launch-console">
-              Launch Console
-            </Link>
           </nav>
         </div>
       </header>
@@ -582,7 +576,7 @@ export default async function BackOfficePage({
           </div>
           <nav className="flex flex-wrap gap-2 text-xs text-zinc-300">
             <a href="#verification-queue" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
-              Verification Queue
+              Priority Queue
             </a>
             <a href="#evidence-review" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
               Evidence Review
@@ -607,7 +601,7 @@ export default async function BackOfficePage({
               href: "/passports",
             },
             {
-              label: "Pending Cases",
+              label: "Pending Reviews",
               value: verificationCases.rows.filter((item) =>
                 ["pending", "in_review", "escalated"].includes(
                   item.verification_status ?? item.status ?? "pending"
@@ -617,7 +611,7 @@ export default async function BackOfficePage({
               href: "/verification-queue",
             },
             {
-              label: "Evidence Pending Review",
+              label: "Evidence Pending",
               value: evidenceFiles.rows.filter((file) =>
                 ["pending_review", "needs_more_evidence", "pending"].includes(
                   evidenceStatus(file)
@@ -627,13 +621,8 @@ export default async function BackOfficePage({
               href: "#evidence-review",
             },
             {
-              label: "Decisions Today",
-              value: decisions.rows.filter(
-                (decision) =>
-                  decision.created_at &&
-                  new Date(decision.created_at).toDateString() ===
-                    new Date().toDateString()
-              ).length,
+              label: "Decisions",
+              value: decisions.count,
               available: decisions.available,
               href: "#decision-history",
             },
@@ -732,7 +721,7 @@ export default async function BackOfficePage({
 
         <section id="verification-queue" className="mt-8 scroll-mt-24">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold">Verification Queue</h2>
+            <h2 className="text-xl font-semibold">Priority Queue</h2>
             <div className="flex flex-wrap gap-2">
             <Link
               href="/verification-queue"
@@ -750,7 +739,7 @@ export default async function BackOfficePage({
           </div>
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-              <h3 className="text-lg font-semibold">Verification Queue</h3>
+              <h3 className="text-lg font-semibold">Latest Verification Cases</h3>
               <div className="mt-5 space-y-3">
                 {pendingVerificationCases.length ? (
                   pendingVerificationCases.map((item, index) => {
@@ -890,7 +879,7 @@ export default async function BackOfficePage({
                     );
                   })
                 ) : (
-                  <EmptyState label={tableEmptyLabel("verification_cases", verificationCases.available)} />
+                  <EmptyState label="No verification cases yet." />
                 )}
               </div>
             </div>
@@ -920,7 +909,7 @@ export default async function BackOfficePage({
                     </div>
                   ))
                 ) : (
-                  <EmptyState label={tableEmptyLabel("decisions", decisions.available)} />
+                  <EmptyState label="No decisions recorded yet." />
                 )}
               </div>
             </div>
@@ -1048,7 +1037,7 @@ export default async function BackOfficePage({
                 </div>
               ))
             ) : (
-              <EmptyState label="No evidence yet." />
+              <EmptyState label="No evidence uploaded yet." />
             )}
           </div>
         </section>
@@ -1067,7 +1056,7 @@ export default async function BackOfficePage({
                     </div>
                   ))
                 ) : (
-                  <EmptyState label={tableEmptyLabel("signals", signals.available)} />
+                  <EmptyState label="No signals linked yet." />
                 )}
               </div>
             </div>
@@ -1197,7 +1186,7 @@ export default async function BackOfficePage({
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
-                          {signal.isDemo ? "Demo Signal" : signal.source_type}
+                          {signal.source_type}
                         </p>
                         <p className="mt-2 text-zinc-300">{signal.event ?? "Signal recorded"}</p>
                       </div>
