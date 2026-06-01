@@ -16,6 +16,7 @@ type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
 type VerificationCase = {
   id: string;
+  passport_id: string | null;
   subject_name: string | null;
   subject_type: string | null;
   status: BackOfficeStatus | string | null;
@@ -191,7 +192,7 @@ export default async function VerificationQueuePage() {
       fetchRows<VerificationCase>(
         supabase,
         "verification_cases",
-        "id,subject_name,subject_type,status,verification_status,human_presence_index,origin_trace_score,trust_score,linkedin_profile_consistency,reviewed_by,created_at",
+        "id,passport_id,subject_name,subject_type,status,verification_status,human_presence_index,origin_trace_score,trust_score,linkedin_profile_consistency,reviewed_by,created_at",
         60
       ),
       fetchRows<Signal>(supabase, "signals", "id,event,created_at", 18),
@@ -243,12 +244,11 @@ export default async function VerificationQueuePage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/back-office", "Back Office"],
-            ["/decision-engine", "Decision Engine"],
+            ["/passports", "Trust Passports"],
+            ["/verification-queue", "Verification Queue"],
             ["/evidence-vault", "Evidence Vault"],
-            ["/verifier-network", "Verifier Network"],
-            ["/trust-timeline", "Trust Timeline"],
-            ["/trust-graph", "Trust Graph"],
+            ["/mission-control", "Mission Control"],
+            ["/back-office", "Back Office"],
           ].map(([href, label]) => (
             <Link
               key={href}
@@ -430,7 +430,31 @@ export default async function VerificationQueuePage() {
                     </div>
 
                     <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-zinc-900 pt-4">
+                      <Link
+                        href="/back-office"
+                        className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-200 hover:border-zinc-400"
+                      >
+                        Review
+                      </Link>
                       <VerificationQueueActions caseId={item.id} />
+                      <Link
+                        href={`/evidence-upload?case=${encodeURIComponent(
+                          item.id
+                        )}`}
+                        className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-200 hover:border-zinc-400"
+                      >
+                        Upload Evidence
+                      </Link>
+                      {item.passport_id ? (
+                        <Link
+                          href={`/passports/${encodeURIComponent(
+                            item.passport_id
+                          )}`}
+                          className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-200 hover:border-zinc-400"
+                        >
+                          View Passport
+                        </Link>
+                      ) : null}
                       <Link
                         href={`/trust-timeline/${item.id}`}
                         className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-200 hover:border-zinc-400"

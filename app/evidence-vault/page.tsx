@@ -171,10 +171,11 @@ export default async function EvidenceVaultPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/back-office", "Back Office"],
-            ["/command-center", "Command Center"],
+            ["/passports", "Trust Passports"],
             ["/verification-queue", "Verification Queue"],
-            ["/policy-engine", "Policy Engine"],
+            ["/evidence-vault", "Evidence Vault"],
+            ["/mission-control", "Mission Control"],
+            ["/back-office", "Back Office"],
           ].map(([href, label]) => (
             <Link
               key={href}

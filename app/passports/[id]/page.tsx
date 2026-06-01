@@ -197,11 +197,12 @@ export default async function PassportViewerPage({
       <div className="mx-auto max-w-7xl">
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
+            ["/", "Home"],
             ["/passports", "Trust Passports"],
-            ["/passport", "Create Passport"],
-            ["/back-office", "Back Office"],
             ["/verification-queue", "Verification Queue"],
             ["/evidence-vault", "Evidence Vault"],
+            ["/mission-control", "Mission Control"],
+            ["/back-office", "Back Office"],
           ].map(([href, label]) => (
             <Link
               key={href}
@@ -221,6 +222,36 @@ export default async function PassportViewerPage({
             {fieldValue(passport.subject_name, "Unnamed passport")}
           </h1>
           <p className="mt-4 break-all text-sm text-zinc-500">{id}</p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/passport"
+              className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200"
+            >
+              Start Verification
+            </Link>
+            <Link
+              href={`/evidence-upload${
+                latestVerification?.id
+                  ? `?case=${encodeURIComponent(String(latestVerification.id))}`
+                  : ""
+              }`}
+              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              Upload Evidence
+            </Link>
+            <Link
+              href="/evidence-vault"
+              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              View Evidence
+            </Link>
+            <Link
+              href="#audit-timeline"
+              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              View Audit Trail
+            </Link>
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
@@ -261,7 +292,7 @@ export default async function PassportViewerPage({
             </div>
           </div>
 
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div id="audit-timeline" className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Decision Panel</h2>
             <div className="mt-5 grid gap-4 md:grid-cols-3">
               <InfoTile label="Latest Decision" value={latestDecision?.decision} />

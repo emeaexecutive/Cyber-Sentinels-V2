@@ -64,9 +64,11 @@ export default async function TrustPassportRegistryPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/passport", "Create Passport"],
+            ["/passports", "Trust Passports"],
+            ["/verification-queue", "Verification Queue"],
+            ["/evidence-vault", "Evidence Vault"],
+            ["/mission-control", "Mission Control"],
             ["/back-office", "Back Office"],
-            ["/command-center", "Command Center"],
           ].map(([href, label]) => (
             <Link
               key={href}

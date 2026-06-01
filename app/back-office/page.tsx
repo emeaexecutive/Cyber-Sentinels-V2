@@ -648,6 +648,12 @@ export default async function BackOfficePage({
             Cyber Sentinels Back Office
           </Link>
           <nav className="flex flex-wrap items-center gap-2 text-xs text-zinc-300">
+            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/">
+              Home
+            </Link>
+            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/passports">
+              Trust Passports
+            </Link>
             <form action="/api/auth/logout" method="POST">
               <button
                 className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white"
@@ -888,6 +894,36 @@ export default async function BackOfficePage({
                           ) : (
                             <p className="mt-1">No evidence uploaded yet.</p>
                           )}
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {item.passport_id ? (
+                            <Link
+                              href={`/passports/${encodeURIComponent(
+                                String(item.passport_id)
+                              )}`}
+                              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-200 hover:border-zinc-400"
+                            >
+                              Open Passport
+                            </Link>
+                          ) : null}
+                          {item.id ? (
+                            <Link
+                              href={`/evidence-upload?case=${encodeURIComponent(
+                                String(item.id)
+                              )}`}
+                              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-200 hover:border-zinc-400"
+                            >
+                              Upload Evidence
+                            </Link>
+                          ) : null}
+                          {caseEvidence.length ? (
+                            <Link
+                              href="/evidence-vault"
+                              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-200 hover:border-zinc-400"
+                            >
+                              Review Evidence
+                            </Link>
+                          ) : null}
                         </div>
                         {item.id ? (
                           <AdminVerificationActions caseId={String(item.id)} />

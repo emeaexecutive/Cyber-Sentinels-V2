@@ -186,9 +186,12 @@ export default async function MissionControlPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
+            ["/passports", "Trust Passports"],
+            ["/verification-queue", "Verification Queue"],
+            ["/evidence-vault", "Evidence Vault"],
+            ["/mission-control", "Mission Control"],
             ["/back-office", "Back Office"],
             ["/launch-console", "Launch Console"],
-            ["/command-center", "Command Center"],
             ["/permissions-firewall", "Permissions Firewall"],
             ["/step-up-verification", "Step-Up Verification"],
             ["/revocation-engine", "Revocation Engine"],
@@ -204,7 +207,6 @@ export default async function MissionControlPage() {
             ["/verifier-network", "Verifier Network"],
             ["/trust-feed", "Trust Feed"],
             ["/trust-ledger", "Trust Ledger"],
-            ["/verification-queue", "Verification Queue"],
             ["/global-trust", "Global Trust"],
           ].map(([href, label]) => (
             <Link

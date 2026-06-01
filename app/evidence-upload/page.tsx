@@ -6,7 +6,7 @@ import { EvidenceUploadForm } from "./evidence-upload-form";
 export const dynamic = "force-dynamic";
 
 type EvidenceUploadPageProps = {
-  searchParams?: Promise<{ uploaded?: string; error?: string }>;
+  searchParams?: Promise<{ uploaded?: string; error?: string; case?: string }>;
 };
 
 export default async function EvidenceUploadPage({
@@ -29,6 +29,15 @@ export default async function EvidenceUploadPage({
     <main className="min-h-screen bg-black px-6 py-8 text-white md:px-8">
       <div className="mx-auto max-w-2xl">
         <nav className="flex flex-wrap gap-3 text-sm">
+          <Link href="/" className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">
+            Home
+          </Link>
+          <Link href="/passports" className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">
+            Trust Passports
+          </Link>
+          <Link href="/mission-control" className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">
+            Mission Control
+          </Link>
           <Link href="/back-office" className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">
             Back Office
           </Link>
@@ -61,7 +70,7 @@ export default async function EvidenceUploadPage({
             </p>
           ) : null}
 
-          <EvidenceUploadForm />
+          <EvidenceUploadForm initialVerificationCaseId={params?.case ?? ""} />
         </section>
       </div>
     </main>

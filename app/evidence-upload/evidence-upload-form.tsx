@@ -28,9 +28,15 @@ function isAllowedFile(file: File) {
   );
 }
 
-export function EvidenceUploadForm() {
+export function EvidenceUploadForm({
+  initialVerificationCaseId = "",
+}: {
+  initialVerificationCaseId?: string;
+}) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [verificationCaseId, setVerificationCaseId] = useState("");
+  const [verificationCaseId, setVerificationCaseId] = useState(
+    initialVerificationCaseId
+  );
   const [evidenceUrl, setEvidenceUrl] = useState("");
   const [notes, setNotes] = useState("");
   const [file, setFile] = useState<File | null>(null);

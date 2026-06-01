@@ -234,6 +234,18 @@ export default async function CommandCenterPage() {
         >
           Trust Passports
         </Link>
+        <Link
+          href="/verification-queue"
+          className="ml-3 text-sm text-zinc-400 hover:text-white"
+        >
+          Verification Queue
+        </Link>
+        <Link
+          href="/evidence-vault"
+          className="ml-3 text-sm text-zinc-400 hover:text-white"
+        >
+          Evidence Vault
+        </Link>
 
         <Link
           href="/back-office"

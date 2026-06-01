@@ -31,17 +31,53 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
   return (
     <main className="min-h-screen bg-black p-8 text-white">
       <div className="mx-auto max-w-5xl">
-        <Link href="/" className="text-sm text-zinc-400 hover:text-white">
-          Back to Cyber Sentinels
-        </Link>
-        <Link
-          href="/passports"
-          className="ml-4 text-sm text-zinc-400 hover:text-white"
-        >
-          Trust Passports
-        </Link>
+        <nav className="flex flex-wrap gap-3 text-sm">
+          {[
+            ["/", "Home"],
+            ["/passports", "Trust Passports"],
+            ["/verification-queue", "Verification Queue"],
+            ["/evidence-vault", "Evidence Vault"],
+            ["/mission-control", "Mission Control"],
+            ["/back-office", "Back Office"],
+          ].map(([href, label]) => (
+            <Link
+              key={href}
+              href={href}
+              className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white"
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
 
         <h1 className="mt-8 text-5xl font-bold">Sentinel Passport</h1>
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link
+            href="#submit-verification"
+            className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black"
+          >
+            Start Verification
+          </Link>
+          <Link
+            href="/evidence-upload"
+            className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            Upload Evidence
+          </Link>
+          <Link
+            href="/evidence-vault"
+            className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            View Evidence
+          </Link>
+          <Link
+            href="/trust-timeline"
+            className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            View Audit Trail
+          </Link>
+        </div>
 
         {created ? (
           <section className="mt-8 rounded-2xl border border-emerald-800 bg-zinc-950 p-5">
@@ -221,6 +257,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
         </section>
 
         <form
+          id="submit-verification"
           action="/api/passports"
           method="POST"
           className="mt-10 grid gap-4 rounded-3xl border border-zinc-800 bg-zinc-950 p-8"

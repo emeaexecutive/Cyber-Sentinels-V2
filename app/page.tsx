@@ -369,18 +369,22 @@ export default function HomePage() {
               Cyber Sentinels
             </Link>
             <div className="flex flex-wrap justify-end gap-2">
-              <Link
-                href="/passports"
-                className="rounded-lg border border-white/20 bg-black/30 px-4 py-2 text-sm text-zinc-200 backdrop-blur hover:border-white/50"
-              >
-                Trust Passports
-              </Link>
-              <Link
-                href="/back-office"
-                className="rounded-lg border border-white/20 bg-black/30 px-4 py-2 text-sm text-zinc-200 backdrop-blur hover:border-white/50"
-              >
-                Back Office / Admin
-              </Link>
+              {[
+                ["/", "Home"],
+                ["/passports", "Trust Passports"],
+                ["/verification-queue", "Verification Queue"],
+                ["/evidence-vault", "Evidence Vault"],
+                ["/mission-control", "Mission Control"],
+                ["/back-office", "Back Office"],
+              ].map(([href, label]) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="rounded-lg border border-white/20 bg-black/30 px-3 py-2 text-sm text-zinc-200 backdrop-blur hover:border-white/50"
+                >
+                  {label}
+                </Link>
+              ))}
             </div>
           </nav>
 
