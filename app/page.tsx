@@ -4,16 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-const navLinks = [
-  ["/", "Home"],
-  ["/passport", "Create Passport"],
-  ["/passports", "Trust Passports"],
-  ["/verification-queue", "Verification Queue"],
-  ["/evidence-vault", "Evidence Vault"],
-  ["/mission-control", "Mission Control"],
-  ["/back-office", "Back Office"],
-];
-
 const workflowSteps = [
   ["01", "Create Passport", "Identity proves who.", "/passport"],
   ["02", "Upload Evidence", "Evidence proves why.", "/evidence-upload"],
@@ -76,25 +66,7 @@ export default async function HomePage() {
         <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-[#04070c] to-transparent" />
 
         <div className="relative mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-between px-6 py-7 md:px-8">
-          <nav className="flex items-center justify-between gap-4">
-            <Link
-              href="/"
-              className="text-xs font-semibold uppercase tracking-[0.32em] text-cyan-100"
-            >
-              Cyber Sentinels
-            </Link>
-            <div className="flex flex-wrap justify-end gap-2">
-              {navLinks.map(([href, label]) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="rounded-lg border border-white/15 bg-black/35 px-3 py-2 text-sm text-zinc-200 backdrop-blur hover:border-cyan-300/60 hover:text-white"
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </nav>
+          <div />
 
           <div className="max-w-5xl pb-12">
             <p className="text-sm uppercase tracking-[0.28em] text-cyan-200">

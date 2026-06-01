@@ -529,29 +529,12 @@ export default async function BackOfficePage({
 
   return (
     <main id="top" className="min-h-screen bg-black pb-16 text-white">
-      <header className="sticky top-0 z-40 border-b border-zinc-800 bg-black/95 backdrop-blur">
+      <header className="border-b border-zinc-800 bg-black/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-8">
           <Link href="/back-office" className="text-sm font-semibold text-white">
             Cyber Sentinels Back Office
           </Link>
           <nav className="flex flex-wrap items-center gap-2 text-xs text-zinc-300">
-            {[
-              ["/", "Home"],
-              ["/passport", "Create Passport"],
-              ["/passports", "Trust Passports"],
-              ["/verification-queue", "Verification Queue"],
-              ["/evidence-vault", "Evidence Vault"],
-              ["/mission-control", "Mission Control"],
-              ["/back-office", "Back Office"],
-            ].map(([href, label]) => (
-              <Link
-                key={href}
-                className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white"
-                href={href}
-              >
-                {label}
-              </Link>
-            ))}
             <form action="/api/auth/logout" method="POST">
               <button
                 className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white"

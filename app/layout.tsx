@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GlobalNavigation } from "@/components/global-navigation";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <div className="shell">
+          <GlobalNavigation />
           {children}
         </div>
       </body>

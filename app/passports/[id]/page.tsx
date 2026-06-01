@@ -10,16 +10,6 @@ type PassportViewerPageProps = {
   params: Promise<{ id: string }>;
 };
 
-const navLinks = [
-  ["/", "Home"],
-  ["/passport", "Create Passport"],
-  ["/passports", "Trust Passports"],
-  ["/verification-queue", "Verification Queue"],
-  ["/evidence-vault", "Evidence Vault"],
-  ["/mission-control", "Mission Control"],
-  ["/back-office", "Back Office"],
-];
-
 function formatDate(value: unknown) {
   if (!value) {
     return "Not recorded";
@@ -228,19 +218,7 @@ export default async function PassportViewerPage({
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
       <div className="mx-auto max-w-7xl">
-        <nav className="flex flex-wrap gap-3 text-sm">
-          {navLinks.map(([href, label]) => (
-            <Link
-              key={href}
-              href={href}
-              className="rounded-lg border border-zinc-800 bg-black px-3 py-2 text-zinc-300 hover:border-cyan-500 hover:text-white"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-
-        <section className="mt-10 rounded-lg border border-zinc-800 bg-gradient-to-br from-zinc-950 to-[#06111d] p-6">
+        <section className="rounded-lg border border-zinc-800 bg-gradient-to-br from-zinc-950 to-[#06111d] p-6">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
