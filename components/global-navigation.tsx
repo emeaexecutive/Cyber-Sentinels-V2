@@ -6,6 +6,7 @@ const navLinks = [
   ["/passports", "Trust Passports"],
   ["/workforce-trust", "Workforce Trust"],
   ["/intent-verification", "Intent Verification"],
+  ["/state-verification", "State Verification"],
   ["/autonomy-governance", "Autonomy Governance"],
   ["/verification-queue", "Verification Queue"],
   ["/evidence-vault", "Evidence Vault"],

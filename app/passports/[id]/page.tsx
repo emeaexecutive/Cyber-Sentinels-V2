@@ -162,7 +162,11 @@ export default async function PassportViewerPage({
     );
   }
 
-  const [{ data: verificationCases }, { data: evidenceFiles }] =
+  const [
+    { data: verificationCases },
+    { data: evidenceFiles },
+    { data: stateChecks },
+  ] =
     await Promise.all([
       supabase
         .from("verification_cases")
@@ -174,11 +178,18 @@ export default async function PassportViewerPage({
         .select("*")
         .eq("passport_id", id)
         .order("created_at", { ascending: false }),
+      supabase
+        .from("passport_state_checks")
+        .select("*")
+        .eq("passport_id", id)
+        .order("created_at", { ascending: false })
+        .limit(25),
     ]);
 
   const cases = verificationCases ?? [];
   const caseIds = new Set(cases.map((item) => String(item.id)));
   const evidence = evidenceFiles ?? [];
+  const passportStateChecks = stateChecks ?? [];
 
   const decisionQueries = [
     supabase
@@ -362,6 +373,76 @@ export default async function PassportViewerPage({
               Identity is not trust. This view connects identity, evidence,
               human review, signals and audit events into one defensible record.
             </p>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                Dynamic Trust State
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">
+                State Verification Timeline
+              </h2>
+            </div>
+            <Link
+              href="/state-verification"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:border-cyan-500 hover:text-white"
+            >
+              Create State Check
+            </Link>
+          </div>
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-500">
+            Trust changes over time. Static identity is insufficient, so each
+            state check records identity, evidence, trust and risk movement.
+          </p>
+          <div className="mt-5 space-y-3">
+            {passportStateChecks.length ? (
+              passportStateChecks.map((check, index) => (
+                <div
+                  key={String(check.id ?? `state-check-${index}`)}
+                  className="rounded-lg border border-zinc-800 bg-black p-4"
+                >
+                  <div className="grid gap-4 md:grid-cols-[1fr_1fr_1fr_1fr_0.9fr] md:items-center">
+                    <div>
+                      <p className="text-xs text-zinc-500 md:hidden">
+                        Identity State
+                      </p>
+                      <StatusChip value={check.identity_state} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 md:hidden">
+                        Evidence State
+                      </p>
+                      <StatusChip value={check.evidence_state} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 md:hidden">
+                        Trust State
+                      </p>
+                      <StatusChip value={check.trust_state} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 md:hidden">
+                        Risk Movement
+                      </p>
+                      <StatusChip value={check.risk_movement} />
+                    </div>
+                    <p className="text-sm text-zinc-400">
+                      {formatDate(check.created_at)}
+                    </p>
+                  </div>
+                  {check.notes ? (
+                    <p className="mt-4 text-sm leading-6 text-zinc-500">
+                      {fieldValue(check.notes)}
+                    </p>
+                  ) : null}
+                </div>
+              ))
+            ) : (
+              <EmptyState label="No state verification checks recorded yet." />
+            )}
           </div>
         </section>
 
