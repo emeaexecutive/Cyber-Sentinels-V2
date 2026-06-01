@@ -9,6 +9,7 @@ const navLinks = [
   ["/state-verification", "State Verification"],
   ["/autonomy-governance", "Autonomy Governance"],
   ["/execution-passports", "Execution Passports"],
+  ["/trust-graph-explorer", "Trust Graph"],
   ["/verification-queue", "Verification Queue"],
   ["/evidence-vault", "Evidence Vault"],
   ["/mission-control", "Mission Control"],

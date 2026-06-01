@@ -311,6 +311,12 @@ export default async function PassportViewerPage({
               >
                 View Audit Trail
               </Link>
+              <Link
+                href={`/trust-graph-explorer?passport_id=${encodeURIComponent(id)}`}
+                className="rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400"
+              >
+                Open Trust Graph
+              </Link>
             </div>
           </div>
         </section>
