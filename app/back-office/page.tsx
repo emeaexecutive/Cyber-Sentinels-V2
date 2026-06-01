@@ -18,6 +18,7 @@ import {
 } from "@/lib/trust-engine/liveSignals";
 import {
   calculateTrustScoreV1,
+  getTrustScoreReasonTone,
   isRowLinkedToPassport,
 } from "@/lib/trust-score-engine";
 import {
@@ -324,6 +325,25 @@ function EvidenceReviewActions({ evidenceId }: { evidenceId: string }) {
         </button>
       </form>
     </div>
+  );
+}
+
+function ReasonCodeChip({ reason }: { reason: string }) {
+  const tone = getTrustScoreReasonTone(reason);
+  const styles = {
+    positive: "border-emerald-800 bg-emerald-950/30 text-emerald-200",
+    warning: "border-amber-800 bg-amber-950/30 text-amber-200",
+    danger: "border-red-900 bg-red-950/30 text-red-200",
+  };
+  const icon = tone === "positive" ? "✓" : "!";
+
+  return (
+    <span
+      className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs ${styles[tone]}`}
+    >
+      <span aria-hidden="true">{icon}</span>
+      {reason}
+    </span>
   );
 }
 
@@ -815,18 +835,21 @@ export default async function BackOfficePage({
                           <StatusBadge status={item.verification_status ?? item.status} />
                         </div>
                         {trustScore ? (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {(trustScore.reasonCodes.length
-                              ? trustScore.reasonCodes
-                              : ["Evidence missing"]
-                            ).map((reason) => (
-                              <span
-                                key={`${item.id}-${reason}`}
-                                className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300"
-                              >
-                                {reason}
-                              </span>
-                            ))}
+                          <div className="mt-3">
+                            <p className="mb-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
+                              Reason Codes
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {(trustScore.reasonCodes.length
+                                ? trustScore.reasonCodes
+                                : ["Evidence missing"]
+                              ).map((reason) => (
+                                <ReasonCodeChip
+                                  key={`${item.id}-${reason}`}
+                                  reason={reason}
+                                />
+                              ))}
+                            </div>
                           </div>
                         ) : null}
                         <div className="mt-3 rounded-lg border border-zinc-900 bg-black p-3 text-xs text-zinc-500">
@@ -998,18 +1021,21 @@ export default async function BackOfficePage({
                           <StatusBadge status={passport.review_status} />
                         </div>
                         {trustScore ? (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {(trustScore.reasonCodes.length
-                              ? trustScore.reasonCodes
-                              : ["Evidence missing"]
-                            ).map((reason) => (
-                              <span
-                                key={`${passport.id}-${reason}`}
-                                className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300"
-                              >
-                                {reason}
-                              </span>
-                            ))}
+                          <div className="mt-3">
+                            <p className="mb-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
+                              Reason Codes
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {(trustScore.reasonCodes.length
+                                ? trustScore.reasonCodes
+                                : ["Evidence missing"]
+                              ).map((reason) => (
+                                <ReasonCodeChip
+                                  key={`${passport.id}-${reason}`}
+                                  reason={reason}
+                                />
+                              ))}
+                            </div>
                           </div>
                         ) : null}
                       </div>

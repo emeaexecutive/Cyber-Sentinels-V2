@@ -6,6 +6,8 @@ export type TrustScoreResult = {
   reasonCodes: string[];
 };
 
+export type TrustScoreReasonTone = "positive" | "warning" | "danger";
+
 type TrustScoreInput = {
   passport?: TrustRow | null;
   evidence?: TrustRow[];
@@ -92,6 +94,10 @@ export function calculateTrustScoreV1({
   const verificationCompleted = auditEvents.includes("verification_completed");
   const decisionCompletedSignal = signalEvents.includes("decision completed");
   const manualReviewRequired = signalEvents.includes("manual_review_required");
+  const needsMoreEvidence =
+    statuses.includes("escalated") ||
+    statuses.includes("needs_more_evidence") ||
+    decisionValues.includes("needs_more_evidence");
 
   if (passport?.verified === true || statuses.includes("verified")) {
     score += 15;
@@ -114,6 +120,7 @@ export function calculateTrustScoreV1({
 
   if (decisionCompletedSignal) {
     score += 5;
+    reasonCodes.push("Decision completed signal");
   }
 
   if (decisionValues.includes("deny")) {
@@ -124,12 +131,9 @@ export function calculateTrustScoreV1({
     score -= 15;
   }
 
-  if (
-    statuses.includes("escalated") ||
-    statuses.includes("needs_more_evidence") ||
-    decisionValues.includes("needs_more_evidence")
-  ) {
+  if (needsMoreEvidence) {
     score -= 10;
+    reasonCodes.push("Needs more evidence");
   }
 
   if (manualReviewRequired) {
@@ -148,4 +152,25 @@ export function calculateTrustScoreV1({
     confidenceLabel: getTrustConfidenceLabel(finalScore),
     reasonCodes,
   };
+}
+
+export function getTrustScoreReasonTone(
+  reason: string
+): TrustScoreReasonTone {
+  if (
+    [
+      "Evidence accepted",
+      "Admin decision recorded",
+      "Verification completed",
+      "Decision completed signal",
+    ].includes(reason)
+  ) {
+    return "positive";
+  }
+
+  if (reason === "Evidence missing" || reason === "Needs more evidence") {
+    return "warning";
+  }
+
+  return "danger";
 }

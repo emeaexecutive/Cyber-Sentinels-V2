@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { calculateTrustScoreV1 } from "@/lib/trust-score-engine";
+import {
+  calculateTrustScoreV1,
+  getTrustScoreReasonTone,
+} from "@/lib/trust-score-engine";
 
 export const dynamic = "force-dynamic";
 
@@ -101,6 +104,25 @@ function EmptyState({ label }: { label: string }) {
 
 function evidenceUrl(item: AnyRow) {
   return item.public_url ?? item.file_url ?? item.evidence_url;
+}
+
+function ReasonCodeChip({ reason }: { reason: string }) {
+  const tone = getTrustScoreReasonTone(reason);
+  const styles = {
+    positive: "border-emerald-800 bg-emerald-950/30 text-emerald-200",
+    warning: "border-amber-800 bg-amber-950/30 text-amber-200",
+    danger: "border-red-900 bg-red-950/30 text-red-200",
+  };
+  const icon = tone === "positive" ? "✓" : "!";
+
+  return (
+    <span
+      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs ${styles[tone]}`}
+    >
+      <span aria-hidden="true">{icon}</span>
+      {reason}
+    </span>
+  );
 }
 
 export default async function PassportViewerPage({
@@ -297,18 +319,18 @@ export default async function PassportViewerPage({
                 {trustScore.confidenceLabel}
               </p>
             </div>
-            <div className="flex max-w-3xl flex-wrap gap-2">
+            <div className="max-w-3xl">
+              <p className="mb-3 text-xs uppercase tracking-[0.18em] text-zinc-600">
+                Reason Codes
+              </p>
+              <div className="flex flex-wrap gap-2">
               {(trustScore.reasonCodes.length
                 ? trustScore.reasonCodes
                 : ["Evidence missing"]
               ).map((reason) => (
-                <span
-                  key={reason}
-                  className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300"
-                >
-                  {reason}
-                </span>
+                <ReasonCodeChip key={reason} reason={reason} />
               ))}
+              </div>
             </div>
           </div>
         </section>
