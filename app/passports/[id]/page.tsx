@@ -166,6 +166,7 @@ export default async function PassportViewerPage({
     { data: verificationCases },
     { data: evidenceFiles },
     { data: stateChecks },
+    { data: executionPassports },
   ] =
     await Promise.all([
       supabase
@@ -184,12 +185,19 @@ export default async function PassportViewerPage({
         .eq("passport_id", id)
         .order("created_at", { ascending: false })
         .limit(25),
+      supabase
+        .from("execution_passports")
+        .select("*")
+        .eq("passport_id", id)
+        .order("created_at", { ascending: false })
+        .limit(25),
     ]);
 
   const cases = verificationCases ?? [];
   const caseIds = new Set(cases.map((item) => String(item.id)));
   const evidence = evidenceFiles ?? [];
   const passportStateChecks = stateChecks ?? [];
+  const passportExecutions = executionPassports ?? [];
 
   const decisionQueries = [
     supabase
@@ -442,6 +450,94 @@ export default async function PassportViewerPage({
               ))
             ) : (
               <EmptyState label="No state verification checks recorded yet." />
+            )}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                Execution Governance
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">
+                Execution Passport Timeline
+              </h2>
+            </div>
+            <Link
+              href="/execution-passports"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:border-cyan-500 hover:text-white"
+            >
+              Create Execution Passport
+            </Link>
+          </div>
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-500">
+            Approval before execution. Evidence-backed authorization. Every
+            high-risk action needs a passport.
+          </p>
+          <div className="mt-5 space-y-3">
+            {passportExecutions.length ? (
+              passportExecutions.map((execution, index) => (
+                <div
+                  key={String(execution.id ?? `execution-${index}`)}
+                  className="rounded-lg border border-zinc-800 bg-black p-4"
+                >
+                  <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr] xl:items-center">
+                    <div>
+                      <p className="text-xs text-zinc-500 xl:hidden">
+                        Execution Summary
+                      </p>
+                      <p className="font-medium text-zinc-100">
+                        {fieldValue(execution.execution_summary)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 xl:hidden">
+                        Execution Type
+                      </p>
+                      <p className="text-sm text-zinc-300">
+                        {fieldValue(execution.execution_type)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 xl:hidden">
+                        Risk Level
+                      </p>
+                      <StatusChip value={execution.risk_level} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 xl:hidden">Status</p>
+                      <StatusChip value={execution.status} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 xl:hidden">
+                        Approval Required
+                      </p>
+                      <p className="text-sm text-zinc-300">
+                        {execution.approval_required ? "yes" : "no"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 xl:hidden">
+                        Evidence Required
+                      </p>
+                      <p className="text-sm text-zinc-300">
+                        {execution.evidence_required ? "yes" : "no"}
+                      </p>
+                    </div>
+                    <p className="text-sm text-zinc-400">
+                      {formatDate(execution.created_at)}
+                    </p>
+                  </div>
+                  {execution.notes ? (
+                    <p className="mt-4 text-sm leading-6 text-zinc-500">
+                      {fieldValue(execution.notes)}
+                    </p>
+                  ) : null}
+                </div>
+              ))
+            ) : (
+              <EmptyState label="No execution passports recorded yet." />
             )}
           </div>
         </section>
