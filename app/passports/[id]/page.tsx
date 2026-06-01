@@ -198,6 +198,7 @@ export default async function PassportViewerPage({
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
+            ["/passport", "Create Passport"],
             ["/passports", "Trust Passports"],
             ["/verification-queue", "Verification Queue"],
             ["/evidence-vault", "Evidence Vault"],

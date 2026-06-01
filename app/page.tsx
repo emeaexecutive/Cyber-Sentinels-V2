@@ -371,6 +371,7 @@ export default function HomePage() {
             <div className="flex flex-wrap justify-end gap-2">
               {[
                 ["/", "Home"],
+                ["/passport", "Create Passport"],
                 ["/passports", "Trust Passports"],
                 ["/verification-queue", "Verification Queue"],
                 ["/evidence-vault", "Evidence Vault"],
@@ -434,6 +435,50 @@ export default function HomePage() {
               </p>
               <p className="mt-2 text-lg font-medium text-zinc-100">{value}</p>
             </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-16 md:px-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
+              Start Here
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold md:text-5xl">
+              Run the trust workflow end to end.
+            </h2>
+          </div>
+          <Link
+            href="/back-office"
+            className="rounded-lg border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-200 hover:text-white"
+          >
+            Open Back Office
+          </Link>
+        </div>
+        <div className="mt-8 grid gap-4 md:grid-cols-5">
+          {[
+            ["1", "Create Trust Passport", "/passport"],
+            ["2", "Upload Evidence", "/evidence-upload"],
+            ["3", "Review Evidence", "/back-office#evidence-review"],
+            ["4", "Approve / Reject", "/back-office#verification-queue"],
+            ["5", "View Trust Passport", "/passports"],
+          ].map(([step, label, href]) => (
+            <Link
+              key={step}
+              href={href}
+              className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 hover:border-zinc-500"
+            >
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                Step {step}
+              </p>
+              <p className="mt-3 min-h-12 font-semibold text-zinc-100">
+                {label}
+              </p>
+              <span className="mt-4 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300">
+                Open
+              </span>
+            </Link>
           ))}
         </div>
       </section>

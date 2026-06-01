@@ -319,15 +319,6 @@ function EvidenceReviewActions({ evidenceId }: { evidenceId: string }) {
           Reject Evidence
         </button>
       </form>
-      <form method="POST" action={action}>
-        <input type="hidden" name="decision" value="request_more_evidence" />
-        <button
-          type="submit"
-          className="rounded-lg border border-amber-700 px-3 py-2 text-xs font-medium text-amber-200 hover:border-amber-400 hover:text-white"
-        >
-          Request More Evidence
-        </button>
-      </form>
     </div>
   );
 }
@@ -379,7 +370,6 @@ export default async function BackOfficePage({
     auditLogs,
     evidenceFiles,
     decisions,
-    riskScores,
   ] = await Promise.all([
     fetchTable<AnyRow>(supabase, "waitlist"),
     fetchTable<AnyRow>(supabase, "verification_cases"),
@@ -389,109 +379,8 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "audit_logs"),
     fetchTable<AnyRow>(supabase, "evidence_files", "created_at", 100),
     fetchTable<AnyRow>(supabase, "decisions", "created_at", 10),
-    fetchTable<AnyRow>(supabase, "risk_scores"),
   ]);
 
-  const metrics = [
-    {
-      label: "Waitlist",
-      value: waitlist.count,
-      available: waitlist.available,
-      href: "/back-office",
-    },
-    {
-      label: "Verification Cases",
-      value: verificationCases.count,
-      available: verificationCases.available,
-      href: "/verification-queue",
-    },
-    {
-      label: "Passports",
-      value: passports.count,
-      available: passports.available,
-      href: "/back-office",
-    },
-    {
-      label: "Trust Reports",
-      value: trustReports.count,
-      available: trustReports.available,
-      href: "/back-office",
-    },
-    {
-      label: "Signals",
-      value: signals.count,
-      available: signals.available,
-      href: "/signals",
-    },
-    {
-      label: "Audit Logs",
-      value: auditLogs.count,
-      available: auditLogs.available,
-      href: "/trust-timeline",
-    },
-    {
-      label: "Evidence",
-      value: evidenceFiles.count,
-      available: evidenceFiles.available,
-      href: "/evidence-vault",
-    },
-    {
-      label: "Decisions",
-      value: decisions.count,
-      available: decisions.available,
-      href: "/decision-engine",
-    },
-    {
-      label: "Risk Scores",
-      value: riskScores.count,
-      available: riskScores.available,
-      href: "/trust-prediction",
-    },
-    {
-      label: "Billing / Clearances",
-      value: "Ready",
-      available: true,
-      href: "/billing",
-    },
-    {
-      label: "Step-Up Requests",
-      value: signals.rows.filter((signal) =>
-        /step_up|permission_step_up|agent_permission_escalated/i.test(
-          signal.event ?? ""
-        )
-      ).length,
-      available: signals.available,
-      href: "/step-up-verification",
-    },
-    {
-      label: "Revocations",
-      value: signals.rows.filter((signal) =>
-        /revoked|restricted|paused|locked|expired|revocation/i.test(
-          signal.event ?? ""
-        )
-      ).length,
-      available: signals.available,
-      href: "/revocation-engine",
-    },
-    {
-      label: "Recovery Queue",
-      value: signals.rows.filter((signal) =>
-        /recovery|restored/i.test(signal.event ?? "")
-      ).length,
-      available: signals.available,
-      href: "/trust-recovery",
-    },
-    {
-      label: "Compliance Exports",
-      value: signals.rows.filter((signal) =>
-        /compliance_export|trust_report|audit_pack|report_exported/i.test(
-          signal.event ?? ""
-        )
-      ).length,
-      available: signals.available,
-      href: "/compliance-export",
-    },
-  ];
   const radarSignals = normalizeSignals(
     signals.rows as Parameters<typeof normalizeSignals>[0]
   ).slice(0, 5);
@@ -544,12 +433,7 @@ export default async function BackOfficePage({
       (item.review_required ||
         ["submitted", "manual_review", "mismatch"].includes(item.status))
   );
-  const pendingVerificationCases = verificationCases.rows
-    .filter((item) =>
-      ["pending"].includes(
-        item.verification_status ?? item.status ?? "pending"
-      )
-    );
+  const pendingVerificationCases = verificationCases.rows;
   const stepUpRequests = signals.rows
     .filter((signal) =>
       /step_up|permission_step_up|agent_permission_escalated/i.test(
@@ -589,6 +473,15 @@ export default async function BackOfficePage({
     current.push(file);
     evidenceByCase.set(caseId, current);
   });
+  const latestDecisionByCase = new Map<string, AnyRow>();
+
+  decisions.rows.forEach((decision) => {
+    const caseId = decision.verification_case_id ?? decision.case_id;
+
+    if (caseId && !latestDecisionByCase.has(String(caseId))) {
+      latestDecisionByCase.set(String(caseId), decision);
+    }
+  });
 
   const latestDecision = decisions.rows[0];
   const latestVerificationCase = verificationCases.rows[0];
@@ -596,16 +489,6 @@ export default async function BackOfficePage({
   const latestSignal = signals.rows[0];
   const latestAuditLog = auditLogs.rows[0];
 
-  const kpiMetrics = metrics.filter((metric) =>
-    [
-      "Verification Cases",
-      "Passports",
-      "Trust Reports",
-      "Signals",
-      "Audit Logs",
-      "Decisions",
-    ].includes(metric.label)
-  );
   const moduleLinks = [
     ["Mission Control", "/mission-control"],
     ["Verification Queue", "/verification-queue"],
@@ -651,6 +534,9 @@ export default async function BackOfficePage({
             <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/">
               Home
             </Link>
+            <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/passport">
+              Create Passport
+            </Link>
             <Link className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white" href="/passports">
               Trust Passports
             </Link>
@@ -695,11 +581,14 @@ export default async function BackOfficePage({
             </h1>
           </div>
           <nav className="flex flex-wrap gap-2 text-xs text-zinc-300">
-            <a href="#operations" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
-              Operations
+            <a href="#verification-queue" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
+              Verification Queue
+            </a>
+            <a href="#evidence-review" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
+              Evidence Review
             </a>
             <a href="#activity" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
-              Activity
+              Audit / Signals
             </a>
             <a href="#modules" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
               Modules
@@ -707,8 +596,60 @@ export default async function BackOfficePage({
           </nav>
         </section>
 
-        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
-          {kpiMetrics.map((metric) => (
+        <section className="mt-6">
+          <h2 className="mb-4 text-xl font-semibold">Operational Snapshot</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+          {[
+            {
+              label: "Passports",
+              value: passports.count,
+              available: passports.available,
+              href: "/passports",
+            },
+            {
+              label: "Pending Cases",
+              value: verificationCases.rows.filter((item) =>
+                ["pending", "in_review", "escalated"].includes(
+                  item.verification_status ?? item.status ?? "pending"
+                )
+              ).length,
+              available: verificationCases.available,
+              href: "/verification-queue",
+            },
+            {
+              label: "Evidence Pending Review",
+              value: evidenceFiles.rows.filter((file) =>
+                ["pending_review", "needs_more_evidence", "pending"].includes(
+                  evidenceStatus(file)
+                )
+              ).length,
+              available: evidenceFiles.available,
+              href: "#evidence-review",
+            },
+            {
+              label: "Decisions Today",
+              value: decisions.rows.filter(
+                (decision) =>
+                  decision.created_at &&
+                  new Date(decision.created_at).toDateString() ===
+                    new Date().toDateString()
+              ).length,
+              available: decisions.available,
+              href: "#decision-history",
+            },
+            {
+              label: "Audit Events",
+              value: auditLogs.count,
+              available: auditLogs.available,
+              href: "#audit-timeline",
+            },
+            {
+              label: "Signals",
+              value: signals.count,
+              available: signals.available,
+              href: "#signal-timeline",
+            },
+          ].map((metric) => (
             <Link
               key={metric.label}
               href={metric.href}
@@ -721,6 +662,7 @@ export default async function BackOfficePage({
               ) : null}
             </Link>
           ))}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
@@ -788,9 +730,9 @@ export default async function BackOfficePage({
           </div>
         </section>
 
-        <section id="operations" className="mt-8 scroll-mt-24">
+        <section id="verification-queue" className="mt-8 scroll-mt-24">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold">Operations</h2>
+            <h2 className="text-xl font-semibold">Verification Queue</h2>
             <div className="flex flex-wrap gap-2">
             <Link
               href="/verification-queue"
@@ -815,6 +757,9 @@ export default async function BackOfficePage({
                     const caseEvidence =
                       evidenceByCase.get(String(item.id)) ?? [];
                     const latestEvidence = caseEvidence[0];
+                    const latestCaseDecision = latestDecisionByCase.get(
+                      String(item.id)
+                    );
 
                     return (
                       <div key={rowKey(item, `verification-case-${index}`)} className="rounded-lg border border-zinc-800 p-4">
@@ -824,7 +769,10 @@ export default async function BackOfficePage({
                               {item.subject_name ?? "Unnamed subject"}
                             </p>
                             <p className="mt-1 text-sm text-zinc-500">
-                              {item.subject_type ?? "unknown"} / {formatDate(item.created_at)}
+                              {item.subject_type ?? "unknown"} / Created {formatDate(item.created_at)}
+                            </p>
+                            <p className="mt-1 text-sm text-zinc-500">
+                              Trust Score: {item.trust_score ?? "n/a"}
                             </p>
                           </div>
                           <StatusBadge status={item.verification_status ?? item.status} />
@@ -832,6 +780,23 @@ export default async function BackOfficePage({
                         <div className="mt-3 rounded-lg border border-zinc-900 bg-black p-3 text-xs text-zinc-500">
                           <p className="font-medium text-zinc-300">
                             Evidence: {caseEvidence.length}
+                          </p>
+                          <p className="mt-1">
+                            Latest Evidence Status:{" "}
+                            {latestEvidence
+                              ? evidenceStatus(latestEvidence)
+                              : "No evidence yet"}
+                          </p>
+                          <p className="mt-1">
+                            Latest Decision:{" "}
+                            {latestCaseDecision
+                              ? [
+                                  latestCaseDecision.decision,
+                                  latestCaseDecision.status,
+                                ]
+                                  .filter(Boolean)
+                                  .join(" / ")
+                              : "No decisions yet"}
                           </p>
                           {latestEvidence ? (
                             <div className="mt-3 space-y-3">
@@ -883,11 +848,6 @@ export default async function BackOfficePage({
                                       Open Evidence
                                     </Link>
                                   ) : null}
-                                  {evidence.id ? (
-                                    <EvidenceReviewActions
-                                      evidenceId={String(evidence.id)}
-                                    />
-                                  ) : null}
                                 </div>
                               ))}
                             </div>
@@ -916,14 +876,12 @@ export default async function BackOfficePage({
                               Upload Evidence
                             </Link>
                           ) : null}
-                          {caseEvidence.length ? (
-                            <Link
-                              href="/evidence-vault"
-                              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-200 hover:border-zinc-400"
-                            >
-                              Review Evidence
-                            </Link>
-                          ) : null}
+                          <Link
+                            href="/evidence-vault"
+                            className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-200 hover:border-zinc-400"
+                          >
+                            Review Evidence
+                          </Link>
                         </div>
                         {item.id ? (
                           <AdminVerificationActions caseId={String(item.id)} />
@@ -937,8 +895,8 @@ export default async function BackOfficePage({
               </div>
             </div>
 
-            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-              <h3 className="text-lg font-semibold">Pending Decisions</h3>
+            <div id="decision-history" className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Decision History</h3>
               <div className="mt-5 space-y-3">
                 {decisions.rows.length ? (
                   decisions.rows.map((decision, index) => (
@@ -1015,11 +973,91 @@ export default async function BackOfficePage({
           </div>
         </section>
 
+        <section id="evidence-review" className="mt-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold">Evidence Review</h2>
+            <Link
+              href="/evidence-upload"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Upload Evidence
+            </Link>
+          </div>
+          <div className="mt-5 space-y-3">
+            {evidenceFiles.rows.length ? (
+              evidenceFiles.rows.map((file, index) => (
+                <div
+                  key={rowKey(file, `evidence-review-${index}`)}
+                  className="rounded-lg border border-zinc-800 bg-black p-4"
+                >
+                  <div className="grid gap-4 md:grid-cols-[1.2fr_0.7fr_0.7fr_1fr_0.8fr] md:items-start">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                        File
+                      </p>
+                      <p className="mt-2 break-all font-medium text-zinc-100">
+                        {file.file_name ?? file.file_url ?? "Evidence file"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                        Type
+                      </p>
+                      <p className="mt-2 text-zinc-300">
+                        {file.evidence_type ?? file.file_type ?? "unknown"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                        Status
+                      </p>
+                      <p className="mt-2 text-zinc-300">{evidenceStatus(file)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                        Uploaded By
+                      </p>
+                      <p className="mt-2 break-all text-zinc-300">
+                        {file.uploaded_by ?? "n/a"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                        Created
+                      </p>
+                      <p className="mt-2 text-zinc-300">
+                        {formatDate(file.created_at)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2 border-t border-zinc-900 pt-4">
+                    {file.public_url || file.file_url ? (
+                      <Link
+                        href={String(file.public_url ?? file.file_url)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-200 hover:border-zinc-400"
+                      >
+                        Open Evidence
+                      </Link>
+                    ) : null}
+                    {file.id ? (
+                      <EvidenceReviewActions evidenceId={String(file.id)} />
+                    ) : null}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <EmptyState label="No evidence yet." />
+            )}
+          </div>
+        </section>
+
         <section id="activity" className="mt-8 scroll-mt-24">
-          <h2 className="mb-4 text-xl font-semibold">Activity</h2>
+          <h2 className="mb-4 text-xl font-semibold">Audit And Signal Timelines</h2>
           <div className="grid gap-6 lg:grid-cols-3">
-            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-              <h3 className="text-lg font-semibold">Recent Signals</h3>
+            <div id="signal-timeline" className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Signal Timeline</h3>
               <div className="mt-5 space-y-3">
                 {signals.rows.length ? (
                   signals.rows.map((signal, index) => (
@@ -1034,8 +1072,8 @@ export default async function BackOfficePage({
               </div>
             </div>
 
-            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-              <h3 className="text-lg font-semibold">Recent Audit Logs</h3>
+            <div id="audit-timeline" className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold">Audit Timeline</h3>
               <div className="mt-5 space-y-3">
                 {auditLogs.rows.length ? (
                   auditLogs.rows.map((log, index) => (

@@ -32,6 +32,9 @@ export default async function EvidenceUploadPage({
           <Link href="/" className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">
             Home
           </Link>
+          <Link href="/passport" className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">
+            Create Passport
+          </Link>
           <Link href="/passports" className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">
             Trust Passports
           </Link>

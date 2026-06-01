@@ -229,6 +229,12 @@ export default async function CommandCenterPage() {
         </Link>
 
         <Link
+          href="/passport"
+          className="ml-3 text-sm text-zinc-400 hover:text-white"
+        >
+          Create Passport
+        </Link>
+        <Link
           href="/passports"
           className="ml-3 text-sm text-zinc-400 hover:text-white"
         >

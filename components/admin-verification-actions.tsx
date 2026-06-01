@@ -13,8 +13,6 @@ type ActionConfig = {
 const actions: ActionConfig[] = [
   { label: "Approve", decision: "allow" },
   { label: "Reject", decision: "deny" },
-  { label: "Escalate", decision: "manual_review", status: "escalated" },
-  { label: "Manual Review", decision: "manual_review" },
   { label: "Needs More Evidence", decision: "needs_more_evidence" },
 ];
 

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
-  demoEvidence,
   getEvidenceSummary,
   normalizeEvidenceRows,
   type EvidenceRecord,
@@ -151,7 +150,7 @@ export default async function EvidenceVaultPage() {
     ]);
 
   const normalizedEvidence = normalizeEvidenceRows(evidenceRows);
-  const evidence = normalizedEvidence.length ? normalizedEvidence : demoEvidence;
+  const evidence = normalizedEvidence;
   const summary = getEvidenceSummary(evidence);
   const pendingScan = evidence.filter((item) =>
     ["submitted", "scanning"].includes(item.scan_status)
@@ -171,6 +170,7 @@ export default async function EvidenceVaultPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
+            ["/passport", "Create Passport"],
             ["/passports", "Trust Passports"],
             ["/verification-queue", "Verification Queue"],
             ["/evidence-vault", "Evidence Vault"],
