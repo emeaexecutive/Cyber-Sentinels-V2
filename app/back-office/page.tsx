@@ -17,6 +17,10 @@ import {
   normalizeSignals,
 } from "@/lib/trust-engine/liveSignals";
 import {
+  calculateTrustScoreV1,
+  isRowLinkedToPassport,
+} from "@/lib/trust-score-engine";
+import {
   predictTrustRisk,
   type PredictionInputDecision,
 } from "@/lib/trust-engine/predictions";
@@ -465,6 +469,9 @@ export default async function BackOfficePage({
   const pendingEvidenceFiles = evidenceFiles.rows.filter(
     (file) => evidenceStatus(file) !== "clean"
   );
+  const passportById = new Map(
+    passports.rows.map((passport) => [String(passport.id), passport])
+  );
   const evidenceByCase = new Map<string, AnyRow[]>();
 
   evidenceFiles.rows.forEach((file) => {
@@ -486,6 +493,62 @@ export default async function BackOfficePage({
       latestDecisionByCase.set(String(caseId), decision);
     }
   });
+  const trustScoreByCase = new Map(
+    verificationCases.rows.map((item) => {
+      const caseId = String(item.id);
+      const passportId = item.passport_id ? String(item.passport_id) : "";
+      const caseIds = new Set([caseId]);
+      const evidence = evidenceByCase.get(caseId) ?? [];
+
+      return [
+        caseId,
+        calculateTrustScoreV1({
+          passport: passportId ? passportById.get(passportId) ?? item : item,
+          evidence,
+          decisions: decisions.rows.filter((decision) => {
+            const decisionCaseId = decision.verification_case_id ?? decision.case_id;
+
+            return decisionCaseId ? String(decisionCaseId) === caseId : false;
+          }),
+          auditLogs: auditLogs.rows.filter((log) =>
+            isRowLinkedToPassport(log, passportId, caseIds)
+          ),
+          signals: signals.rows.filter((signal) =>
+            isRowLinkedToPassport(signal, passportId, caseIds)
+          ),
+        }),
+      ] as const;
+    })
+  );
+  const trustScoreByPassport = new Map(
+    passports.rows.map((passport) => {
+      const passportId = String(passport.id);
+      const caseIds = new Set(
+        verificationCases.rows
+          .filter((item) => String(item.passport_id ?? "") === passportId)
+          .map((item) => String(item.id))
+      );
+
+      return [
+        passportId,
+        calculateTrustScoreV1({
+          passport,
+          evidence: evidenceFiles.rows.filter((file) =>
+            isRowLinkedToPassport(file, passportId, caseIds)
+          ),
+          decisions: decisions.rows.filter((decision) =>
+            isRowLinkedToPassport(decision, passportId, caseIds)
+          ),
+          auditLogs: auditLogs.rows.filter((log) =>
+            isRowLinkedToPassport(log, passportId, caseIds)
+          ),
+          signals: signals.rows.filter((signal) =>
+            isRowLinkedToPassport(signal, passportId, caseIds)
+          ),
+        }),
+      ] as const;
+    })
+  );
 
   const latestDecision = decisions.rows[0];
   const latestVerificationCase = verificationCases.rows[0];
@@ -732,6 +795,7 @@ export default async function BackOfficePage({
                     const latestCaseDecision = latestDecisionByCase.get(
                       String(item.id)
                     );
+                    const trustScore = trustScoreByCase.get(String(item.id));
 
                     return (
                       <div key={rowKey(item, `verification-case-${index}`)} className="rounded-lg border border-zinc-800 p-4">
@@ -744,11 +808,27 @@ export default async function BackOfficePage({
                               {item.subject_type ?? "unknown"} / Created {formatDate(item.created_at)}
                             </p>
                             <p className="mt-1 text-sm text-zinc-500">
-                              Trust Score: {item.trust_score ?? "n/a"}
+                              Trust Score: {trustScore?.score ?? item.trust_score ?? "n/a"}
+                              {trustScore ? ` / ${trustScore.confidenceLabel}` : ""}
                             </p>
                           </div>
                           <StatusBadge status={item.verification_status ?? item.status} />
                         </div>
+                        {trustScore ? (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {(trustScore.reasonCodes.length
+                              ? trustScore.reasonCodes
+                              : ["Evidence missing"]
+                            ).map((reason) => (
+                              <span
+                                key={`${item.id}-${reason}`}
+                                className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300"
+                              >
+                                {reason}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
                         <div className="mt-3 rounded-lg border border-zinc-900 bg-black p-3 text-xs text-zinc-500">
                           <p className="font-medium text-zinc-300">
                             Evidence: {caseEvidence.length}
@@ -901,19 +981,40 @@ export default async function BackOfficePage({
               <h3 className="text-lg font-semibold">Recent Passports</h3>
               <div className="mt-5 space-y-3">
                 {passports.rows.length ? (
-                  passports.rows.map((passport, index) => (
-                    <div key={rowKey(passport, `passport-${index}`)} className="rounded-lg border border-zinc-800 p-4">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <p className="font-medium">{passport.subject_name ?? "Unnamed subject"}</p>
-                          <p className="mt-1 text-sm text-zinc-500">
-                            {passport.subject_type ?? "unknown"} / Trust {passport.trust_score ?? "n/a"}
-                          </p>
+                  passports.rows.map((passport, index) => {
+                    const trustScore = trustScoreByPassport.get(String(passport.id));
+
+                    return (
+                      <div key={rowKey(passport, `passport-${index}`)} className="rounded-lg border border-zinc-800 p-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="font-medium">{passport.subject_name ?? "Unnamed subject"}</p>
+                            <p className="mt-1 text-sm text-zinc-500">
+                              {passport.subject_type ?? "unknown"} / Trust{" "}
+                              {trustScore?.score ?? passport.trust_score ?? "n/a"}
+                              {trustScore ? ` / ${trustScore.confidenceLabel}` : ""}
+                            </p>
+                          </div>
+                          <StatusBadge status={passport.review_status} />
                         </div>
-                        <StatusBadge status={passport.review_status} />
+                        {trustScore ? (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {(trustScore.reasonCodes.length
+                              ? trustScore.reasonCodes
+                              : ["Evidence missing"]
+                            ).map((reason) => (
+                              <span
+                                key={`${passport.id}-${reason}`}
+                                className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300"
+                              >
+                                {reason}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <EmptyState label={tableEmptyLabel("passports", passports.available)} />
                 )}

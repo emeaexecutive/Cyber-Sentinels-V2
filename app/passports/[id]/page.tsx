@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { calculateTrustScoreV1 } from "@/lib/trust-score-engine";
 
 export const dynamic = "force-dynamic";
 
@@ -214,6 +215,13 @@ export default async function PassportViewerPage({
     passport.verification_status ??
     passport.review_status ??
     passport.reality_passport_status;
+  const trustScore = calculateTrustScoreV1({
+    passport,
+    evidence,
+    decisions,
+    auditLogs: relatedAuditLogs,
+    signals: relatedSignals,
+  });
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -229,6 +237,9 @@ export default async function PassportViewerPage({
                   {fieldValue(passport.subject_name, "Unnamed passport")}
                 </h1>
                 <StatusChip value={passportStatus} />
+                <span className="inline-flex rounded-full border border-emerald-800/70 bg-emerald-950/20 px-3 py-1 text-xs text-emerald-100">
+                  {trustScore.score} / {trustScore.confidenceLabel}
+                </span>
               </div>
               <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400">
                 This passport is not a static identity record. It is an
@@ -266,8 +277,40 @@ export default async function PassportViewerPage({
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           <InfoTile label="Passport ID" value={passport.id} />
           <InfoTile label="Name" value={passport.subject_name} />
-          <InfoTile label="Trust Score" value={passport.trust_score} />
+          <InfoTile
+            label="Trust Score"
+            value={`${trustScore.score} / ${trustScore.confidenceLabel}`}
+          />
           <InfoTile label="Created Date" value={formatDate(passport.created_at)} />
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                Trust Score Engine V1
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold text-zinc-100">
+                {trustScore.score}
+              </h2>
+              <p className="mt-1 text-sm text-cyan-200">
+                {trustScore.confidenceLabel}
+              </p>
+            </div>
+            <div className="flex max-w-3xl flex-wrap gap-2">
+              {(trustScore.reasonCodes.length
+                ? trustScore.reasonCodes
+                : ["Evidence missing"]
+              ).map((reason) => (
+                <span
+                  key={reason}
+                  className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300"
+                >
+                  {reason}
+                </span>
+              ))}
+            </div>
+          </div>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">

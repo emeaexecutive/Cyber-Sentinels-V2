@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import {
+  calculateTrustScoreV1,
+  isRowLinkedToPassport,
+} from "@/lib/trust-score-engine";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +15,11 @@ type PassportRow = {
   verification_status: string | null;
   review_status: string | null;
   trust_score: number | null;
+  verified?: boolean | null;
   created_at: string | null;
 };
+
+type AnyRow = Record<string, any>;
 
 type RegistryPageProps = {
   searchParams?: Promise<{
@@ -94,16 +101,72 @@ export default async function TrustPassportRegistryPage({
     redirect("/login?next=/passports");
   }
 
-  const { data: passports } = await supabase
-    .from("passports")
-    .select(
-      "id,subject_name,subject_type,verification_status,review_status,trust_score,created_at"
-    )
-    .order("created_at", { ascending: false })
-    .limit(100)
-    .returns<PassportRow[]>();
+  const [
+    { data: passports },
+    { data: verificationCases },
+    { data: evidenceFiles },
+    { data: decisions },
+    { data: auditLogs },
+    { data: signals },
+  ] = await Promise.all([
+    supabase
+      .from("passports")
+      .select(
+        "id,subject_name,subject_type,verification_status,review_status,trust_score,verified,created_at"
+      )
+      .order("created_at", { ascending: false })
+      .limit(100)
+      .returns<PassportRow[]>(),
+    supabase.from("verification_cases").select("*").limit(1000).returns<AnyRow[]>(),
+    supabase.from("evidence_files").select("*").limit(1000).returns<AnyRow[]>(),
+    supabase.from("decisions").select("*").limit(1000).returns<AnyRow[]>(),
+    supabase.from("audit_logs").select("*").limit(1000).returns<AnyRow[]>(),
+    supabase.from("signals").select("*").limit(1000).returns<AnyRow[]>(),
+  ]);
 
   const rows = passports ?? [];
+  const cases = verificationCases ?? [];
+  const allEvidence = evidenceFiles ?? [];
+  const allDecisions = decisions ?? [];
+  const allAuditLogs = auditLogs ?? [];
+  const allSignals = signals ?? [];
+  const caseIdsByPassport = new Map<string, Set<string>>();
+
+  cases.forEach((item) => {
+    if (!item.passport_id || !item.id) {
+      return;
+    }
+
+    const passportId = String(item.passport_id);
+    const current = caseIdsByPassport.get(passportId) ?? new Set<string>();
+    current.add(String(item.id));
+    caseIdsByPassport.set(passportId, current);
+  });
+
+  const trustScoresByPassport = new Map(
+    rows.map((passport) => {
+      const caseIds = caseIdsByPassport.get(passport.id) ?? new Set<string>();
+
+      return [
+        passport.id,
+        calculateTrustScoreV1({
+          passport,
+          evidence: allEvidence.filter((row) =>
+            isRowLinkedToPassport(row, passport.id, caseIds)
+          ),
+          decisions: allDecisions.filter((row) =>
+            isRowLinkedToPassport(row, passport.id, caseIds)
+          ),
+          auditLogs: allAuditLogs.filter((row) =>
+            isRowLinkedToPassport(row, passport.id, caseIds)
+          ),
+          signals: allSignals.filter((row) =>
+            isRowLinkedToPassport(row, passport.id, caseIds)
+          ),
+        }),
+      ] as const;
+    })
+  );
   const filteredPassports = rows.filter((passport) =>
     matchesFilter(passport, filters)
   );
@@ -187,7 +250,7 @@ export default async function TrustPassportRegistryPage({
         </form>
 
         <section className="mt-6 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <div className="hidden grid-cols-[1.4fr_0.8fr_1fr_1fr_0.7fr_1fr_auto] gap-4 border-b border-zinc-800 pb-3 text-xs uppercase tracking-[0.18em] text-zinc-500 lg:grid">
+          <div className="hidden grid-cols-[1.3fr_0.7fr_0.9fr_0.9fr_1.2fr_1fr_auto] gap-4 border-b border-zinc-800 pb-3 text-xs uppercase tracking-[0.18em] text-zinc-500 lg:grid">
             <span>Name</span>
             <span>Type</span>
             <span>Verification</span>
@@ -199,11 +262,14 @@ export default async function TrustPassportRegistryPage({
 
           <div className="mt-4 space-y-3">
             {filteredPassports.length ? (
-              filteredPassports.map((passport) => (
-                <div
-                  key={passport.id}
-                  className="grid gap-4 rounded-lg border border-zinc-800 bg-black p-4 lg:grid-cols-[1.4fr_0.8fr_1fr_1fr_0.7fr_1fr_auto] lg:items-center"
-                >
+              filteredPassports.map((passport) => {
+                const trustScore = trustScoresByPassport.get(passport.id);
+
+                return (
+                  <div
+                    key={passport.id}
+                    className="grid gap-4 rounded-lg border border-zinc-800 bg-black p-4 lg:grid-cols-[1.3fr_0.7fr_0.9fr_0.9fr_1.2fr_1fr_auto] lg:items-center"
+                  >
                   <div>
                     <p className="text-xs text-zinc-500 lg:hidden">Name</p>
                     <p className="font-medium text-zinc-100">
@@ -231,8 +297,17 @@ export default async function TrustPassportRegistryPage({
                   </div>
                   <div>
                     <p className="text-xs text-zinc-500 lg:hidden">Trust</p>
-                    <p className="text-sm font-semibold text-zinc-100">
-                      {valueOrFallback(passport.trust_score)}
+                    <p className="text-2xl font-semibold text-zinc-100">
+                      {trustScore?.score ?? valueOrFallback(passport.trust_score)}
+                    </p>
+                    <p className="mt-1 text-xs text-cyan-200">
+                      {trustScore?.confidenceLabel ?? "In Review"}
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-500">
+                      {(trustScore?.reasonCodes.length
+                        ? trustScore.reasonCodes
+                        : ["Evidence missing"]
+                      ).join(" / ")}
                     </p>
                   </div>
                   <div>
@@ -248,7 +323,8 @@ export default async function TrustPassportRegistryPage({
                     View Passport
                   </Link>
                 </div>
-              ))
+                );
+              })
             ) : (
               <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
                 No Trust Passports match this view.
