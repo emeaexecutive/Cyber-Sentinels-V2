@@ -115,6 +115,7 @@ export async function POST(
     passport_id: evidenceRow.passport_id,
     evidence_type: evidenceRow.evidence_type ?? evidenceRow.file_type,
     file_url: evidenceRow.public_url ?? evidenceRow.file_url,
+    actor,
   };
 
   const { error: signalError } = await supabase.from("signals").insert({

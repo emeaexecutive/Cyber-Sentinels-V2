@@ -204,18 +204,25 @@ export async function POST(
       );
     }
 
+    const graphMetadata = {
+      passport_id: verificationCase.passport_id,
+      verification_case_id: id,
+      decision_id: decisionRow.id,
+      subject_name: verificationCase.subject_name,
+      subject_type: verificationCase.subject_type,
+      decision: parsed.decision,
+      status,
+      actor,
+      ...requestRisk,
+    };
+
     if (status === "in_review") {
       const reviewStartedInsert = await createAuditLog(
         supabase,
         "verification_review_started",
         actor,
         {
-          verification_case_id: id,
-          subject_name: verificationCase.subject_name,
-          subject_type: verificationCase.subject_type,
-          decision: parsed.decision,
-          status,
-          ...requestRisk,
+          ...graphMetadata,
         }
       );
 
@@ -228,7 +235,8 @@ export async function POST(
 
       const reviewStartedSignal = await createSignal(
         supabase,
-        "review_started"
+        "review_started",
+        graphMetadata
       );
 
       if (reviewStartedSignal.error) {
@@ -256,27 +264,31 @@ export async function POST(
         .eq("id", id);
 
       if (parsed.decision === "allow") {
-        await createSignal(supabase, "LinkedIn profile manually approved");
+        await createSignal(
+          supabase,
+          "LinkedIn profile manually approved",
+          graphMetadata
+        );
       }
 
       if (parsed.decision === "deny") {
-        await createSignal(supabase, "LinkedIn profile mismatch detected");
+        await createSignal(
+          supabase,
+          "LinkedIn profile mismatch detected",
+          graphMetadata
+        );
         await createAuditLog(supabase, "linkedin_profile_mismatch", actor, {
-          verification_case_id: id,
+          ...graphMetadata,
           linkedin_url: verificationCase.linkedin_url,
           linkedin_claimed_company: verificationCase.linkedin_claimed_company,
           linkedin_claimed_role: verificationCase.linkedin_claimed_role,
-          ...requestRisk,
         });
       }
 
       await createAuditLog(supabase, "linkedin_profile_reviewed", actor, {
-        verification_case_id: id,
+        ...graphMetadata,
         linkedin_url: verificationCase.linkedin_url,
         linkedin_verification_status: reviewedStatus,
-        decision: parsed.decision,
-        status,
-        ...requestRisk,
       });
     }
 
@@ -356,7 +368,8 @@ export async function POST(
       supabase,
       `Admin decision created for ${
         verificationCase.subject_name ?? "Unnamed subject"
-      }: ${parsed.decision}`
+      }: ${parsed.decision}`,
+      graphMetadata
     );
 
     if (signalInsert.error) {
@@ -371,11 +384,7 @@ export async function POST(
       "admin_decision_created",
       actor,
       {
-        verification_case_id: id,
-        passport_id: verificationCase.passport_id,
-        subject_name: verificationCase.subject_name,
-        decision: parsed.decision,
-        status,
+        ...graphMetadata,
       }
     );
 
@@ -428,17 +437,12 @@ export async function POST(
       decisionEngineAuditEvent,
       actor,
       {
-        verification_case_id: id,
-        passport_id: verificationCase.passport_id,
-        subject_name: verificationCase.subject_name,
-        subject_type: verificationCase.subject_type,
+        ...graphMetadata,
         decision_recommended: engineResult.decision,
         risk_level: engineResult.riskLevel,
         reason_codes: engineResult.reasonCodes,
         signals: engineResult.signals,
         human_decision: parsed.decision,
-        status,
-        ...requestRisk,
       }
     );
 
@@ -450,7 +454,11 @@ export async function POST(
     }
 
     for (const signal of engineResult.signals) {
-      const engineSignalInsert = await createSignal(supabase, signal);
+      const engineSignalInsert = await createSignal(
+        supabase,
+        signal,
+        graphMetadata
+      );
 
       if (engineSignalInsert.error) {
         return NextResponse.json(
@@ -500,17 +508,12 @@ export async function POST(
       policyEngineAuditEvent,
       actor,
       {
-        verification_case_id: id,
-        passport_id: verificationCase.passport_id,
-        subject_name: verificationCase.subject_name,
-        subject_type: verificationCase.subject_type,
+        ...graphMetadata,
         policy_result: policyResult.policy_result,
         policy_action: policyResult.policy_action,
         reason_codes: policyResult.reason_codes,
         signals: policyResult.signals,
         human_decision: parsed.decision,
-        status,
-        ...requestRisk,
       }
     );
 
@@ -522,7 +525,11 @@ export async function POST(
     }
 
     for (const signal of policyResult.signals) {
-      const policySignalInsert = await createSignal(supabase, signal);
+      const policySignalInsert = await createSignal(
+        supabase,
+        signal,
+        graphMetadata
+      );
 
       if (policySignalInsert.error) {
         return NextResponse.json(
@@ -537,11 +544,7 @@ export async function POST(
       "admin_case_status_updated",
       actor,
       {
-        verification_case_id: id,
-        subject_name: verificationCase.subject_name,
-        subject_type: verificationCase.subject_type,
-        status,
-        ...requestRisk,
+        ...graphMetadata,
       }
     );
 
@@ -557,12 +560,7 @@ export async function POST(
       "review_action_created",
       actor,
       {
-        verification_case_id: id,
-        subject_name: verificationCase.subject_name,
-        subject_type: verificationCase.subject_type,
-        decision: parsed.decision,
-        status,
-        ...requestRisk,
+        ...graphMetadata,
       }
     );
 
@@ -580,7 +578,8 @@ export async function POST(
     ) {
       const reviewSignal = await createSignal(
         supabase,
-        status === "escalated" ? "review_escalated" : "review_completed"
+        status === "escalated" ? "review_escalated" : "review_completed",
+        graphMetadata
       );
 
       if (reviewSignal.error) {
@@ -595,13 +594,7 @@ export async function POST(
         "verification_completed",
         actor,
         {
-          verification_case_id: id,
-          passport_id: verificationCase.passport_id,
-          subject_name: verificationCase.subject_name,
-          subject_type: verificationCase.subject_type,
-          decision: parsed.decision,
-          status,
-          ...requestRisk,
+          ...graphMetadata,
         }
       );
 
@@ -614,7 +607,8 @@ export async function POST(
 
       const completedSignalInsert = await createSignal(
         supabase,
-        "Decision completed"
+        "Decision completed",
+        graphMetadata
       );
 
       if (completedSignalInsert.error) {

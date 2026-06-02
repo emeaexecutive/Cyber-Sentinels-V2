@@ -61,10 +61,13 @@ async function submitHelpQuestion(formData: FormData) {
     .single();
 
   if (!error) {
-    await createAuditLog(supabase, "help_question_created", actor, {
+    const graphMetadata = {
       help_question_id: helpQuestion?.id,
-    });
-    await createSignal(supabase, "Help question created");
+      actor,
+    };
+
+    await createAuditLog(supabase, "help_question_created", actor, graphMetadata);
+    await createSignal(supabase, "Help question created", graphMetadata);
   }
 
   redirect("/help?submitted=1");

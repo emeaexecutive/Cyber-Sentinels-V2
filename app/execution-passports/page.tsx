@@ -117,7 +117,7 @@ async function createExecutionPassport(formData: FormData) {
     .single();
 
   if (!error) {
-    await createAuditLog(supabase, "execution_passport_created", actor, {
+    const graphMetadata = {
       execution_passport_id: executionPassport?.id,
       passport_id: passportId,
       intent_id: intentId || null,
@@ -127,8 +127,16 @@ async function createExecutionPassport(formData: FormData) {
       approval_required: approvalRequired,
       evidence_required: evidenceRequired,
       status: status || "pending_review",
-    });
-    await createSignal(supabase, "Execution passport created");
+      actor,
+    };
+
+    await createAuditLog(
+      supabase,
+      "execution_passport_created",
+      actor,
+      graphMetadata
+    );
+    await createSignal(supabase, "Execution passport created", graphMetadata);
   }
 
   redirect("/execution-passports?created=1");

@@ -109,15 +109,24 @@ async function createStateCheck(formData: FormData) {
     .single();
 
   if (!error) {
-    await createAuditLog(supabase, "state_verification_created", actor, {
+    const graphMetadata = {
+      state_check_id: stateCheck?.id,
       passport_state_check_id: stateCheck?.id,
       passport_id: passportId,
       identity_state: identityState || "current",
       evidence_state: evidenceState || "under_review",
       trust_state: trustState || "stable",
       risk_movement: riskMovement || "unchanged",
-    });
-    await createSignal(supabase, "State verification created");
+      actor,
+    };
+
+    await createAuditLog(
+      supabase,
+      "state_verification_created",
+      actor,
+      graphMetadata
+    );
+    await createSignal(supabase, "State verification created", graphMetadata);
   }
 
   redirect("/state-verification?created=1");

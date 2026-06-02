@@ -92,10 +92,11 @@ function getPassportErrorResponse(error: unknown) {
 
 async function insertSignal(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  event: string
+  event: string,
+  metadata: Record<string, unknown> = {}
 ) {
   try {
-    const { error } = await supabase.from("signals").insert({ event });
+    const { error } = await supabase.from("signals").insert({ event, metadata });
 
     if (error) {
       logSupabaseWriteError("signals insert", error);
@@ -114,7 +115,10 @@ async function insertAuditLog(
     const { error } = await supabase.from("audit_logs").insert({
       event_type,
       actor,
-      metadata,
+      metadata: {
+        ...(metadata && typeof metadata === "object" ? metadata : {}),
+        actor,
+      },
       created_at,
     });
 
@@ -306,10 +310,21 @@ export async function POST(req: Request) {
     }
     if (!passport) throw new Error("Could not create passport");
 
+    const passportMetadata = {
+      passport_id: passport.id,
+      subject_name: subjectName,
+      subject_type: subjectType,
+      actor: userEmail,
+    };
+
     await bestEffort("Required passport signal", async () => {
       const { error: signalError } = await createSignal(
         supabase,
-        `Trust Passport created for ${subjectName}`
+        `Trust Passport created for ${subjectName}`,
+        {
+          ...passportMetadata,
+          trust_score: trustScore,
+        }
       );
 
       if (signalError) {
@@ -324,8 +339,7 @@ export async function POST(req: Request) {
         "passport_created",
         user.email ?? subjectName,
         {
-          subject_name: subjectName,
-          subject_type: subjectType,
+          ...passportMetadata,
           trust_score: trustScore,
         }
       );
@@ -336,9 +350,14 @@ export async function POST(req: Request) {
       }
     });
 
-    await insertSignal(supabase, "Verification started");
-    await insertSignal(supabase, "Human Presence calculated");
-    await insertSignal(supabase, "Origin Trace created");
+    await insertSignal(supabase, "Human Presence calculated", {
+      ...passportMetadata,
+      human_presence_index: humanPresenceIndex,
+    });
+    await insertSignal(supabase, "Origin Trace created", {
+      ...passportMetadata,
+      origin_trace_score: originTraceScore,
+    });
 
     const { data: verificationCase, error: verificationCaseError } =
       await supabase
@@ -364,13 +383,20 @@ export async function POST(req: Request) {
     }
     if (!verificationCase) throw new Error("Could not create verification case");
 
-    await insertSignal(supabase, "Review requested");
+    const graphMetadata = {
+      ...passportMetadata,
+      verification_case_id: verificationCase.id,
+    };
+
+    await insertSignal(supabase, "Verification started", graphMetadata);
+    await insertSignal(supabase, "Review requested", graphMetadata);
 
     if (linkedInEvidence.linkedin_url) {
-      await insertSignal(supabase, "LinkedIn profile submitted");
+      await insertSignal(supabase, "LinkedIn profile submitted", graphMetadata);
       await insertSignal(
         supabase,
-        "LinkedIn profile consistency check required"
+        "LinkedIn profile consistency check required",
+        graphMetadata
       );
 
       await bestEffort("Passport LinkedIn audit", async () => {
@@ -378,8 +404,7 @@ export async function POST(req: Request) {
           event_type: "linkedin_profile_submitted",
           actor: userEmail || "anonymous",
           metadata: {
-            passport_id: passport.id,
-            verification_case_id: verificationCase.id,
+            ...graphMetadata,
             subject_name: subjectName,
             linkedin_url: linkedInEvidence.linkedin_url,
             linkedin_claimed_company: linkedInEvidence.linkedin_claimed_company,
@@ -398,8 +423,7 @@ export async function POST(req: Request) {
         event_type: "verification_created",
         actor: userEmail || "anonymous",
         metadata: {
-          passport_id: passport.id,
-          verification_case_id: verificationCase.id,
+          ...graphMetadata,
           subject_name: subjectName,
           subject_type: subjectType,
           verification_status: "pending",
@@ -419,6 +443,7 @@ export async function POST(req: Request) {
         eventType: "reality_passport_created",
         actor: userEmail || "anonymous",
         metadata: {
+          ...graphMetadata,
           subject_name: subjectName,
           human_presence_index: humanPresenceIndex,
           origin_trace_score: originTraceScore,
@@ -430,30 +455,39 @@ export async function POST(req: Request) {
         actor: userEmail || "anonymous",
         subject: subjectName,
         score: trustScore,
-        metadata: { source: "passport.created" },
+        metadata: { ...graphMetadata, source: "passport.created" },
       },
     });
 
     await insertSignal(
       supabase,
-      `Human Presence Index calculated for ${subjectName}: ${humanPresenceIndex}`
+      `Human Presence Index calculated for ${subjectName}: ${humanPresenceIndex}`,
+      {
+        ...graphMetadata,
+        human_presence_index: humanPresenceIndex,
+      }
     );
 
     await insertSignal(
       supabase,
-      `Origin Trace generated for ${subjectName} with attribution confidence ${attributionConfidence}%`
+      `Origin Trace generated for ${subjectName} with attribution confidence ${attributionConfidence}%`,
+      {
+        ...graphMetadata,
+        attribution_confidence: attributionConfidence,
+        origin_trace_score: originTraceScore,
+      }
     );
 
     if (metadataIntegrity === "stripped") {
-      await insertSignal(supabase, "Metadata stripped");
+      await insertSignal(supabase, "Metadata stripped", graphMetadata);
     }
 
     if (watermarkStatus === "not_found") {
-      await insertSignal(supabase, "Watermark not found");
+      await insertSignal(supabase, "Watermark not found", graphMetadata);
     }
 
     if (humanReviewRequired) {
-      await insertSignal(supabase, "Human review required");
+      await insertSignal(supabase, "Human review required", graphMetadata);
     }
 
     await bestEffort("Passport audit logs", async () => {
@@ -461,6 +495,7 @@ export async function POST(req: Request) {
         event_type: "passport.created",
         actor: userEmail || "anonymous",
         metadata: {
+          ...graphMetadata,
           subject_name: subjectName,
           subject_type: subjectType,
           media_type: mediaType,
@@ -477,6 +512,7 @@ export async function POST(req: Request) {
         event_type: "human_presence_index_created",
         actor: userEmail || "anonymous",
         metadata: {
+          ...graphMetadata,
           subject_name: subjectName,
           human_presence_index: humanPresenceIndex,
           biometric_confidence: biometricConfidence,
@@ -491,6 +527,7 @@ export async function POST(req: Request) {
         event_type: "origin_trace_created",
         actor: userEmail || "anonymous",
         metadata: {
+          ...graphMetadata,
           subject_name: subjectName,
           attribution_confidence: attributionConfidence,
           likely_source_type: likelySourceType,
@@ -508,6 +545,7 @@ export async function POST(req: Request) {
           event_type: "attribution_review_required",
           actor: userEmail || "anonymous",
           metadata: {
+            ...graphMetadata,
             subject_name: subjectName,
             attribution_confidence: attributionConfidence,
             ...requestRisk,
@@ -522,7 +560,12 @@ export async function POST(req: Request) {
         await insertAuditLog(supabase, {
           event_type: "provenance_missing",
           actor: userEmail || "anonymous",
-          metadata: { subject_name: subjectName, c2pa_status: c2paStatus, ...requestRisk },
+          metadata: {
+            ...graphMetadata,
+            subject_name: subjectName,
+            c2pa_status: c2paStatus,
+            ...requestRisk,
+          },
           created_at: new Date().toISOString(),
         });
       });
@@ -533,7 +576,7 @@ export async function POST(req: Request) {
         await insertAuditLog(supabase, {
           event_type: "watermark_not_found",
           actor: userEmail || "anonymous",
-          metadata: { subject_name: subjectName, ...requestRisk },
+          metadata: { ...graphMetadata, subject_name: subjectName, ...requestRisk },
           created_at: new Date().toISOString(),
         });
       });

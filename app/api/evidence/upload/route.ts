@@ -170,9 +170,11 @@ export async function POST(req: Request) {
   }
 
   const signalMetadata = {
+    evidence_id: evidenceRow.id,
     verification_case_id: verificationCaseId,
     passport_id: verificationCase.passport_id,
     evidence_type: fileType,
+    actor,
   };
 
   const { data: signalRow, error: signalError } = await supabase
@@ -195,6 +197,7 @@ export async function POST(req: Request) {
   }
 
   const auditMetadata = {
+    evidence_id: evidenceRow.id,
     verification_case_id: verificationCaseId,
     passport_id: verificationCase.passport_id,
     evidence_type: fileType,
@@ -205,6 +208,7 @@ export async function POST(req: Request) {
     file_url: fileUrl,
     evidence_url: optionalEvidenceUrl || null,
     notes,
+    actor,
   };
 
   const { data: auditRow, error: auditError } = await supabase

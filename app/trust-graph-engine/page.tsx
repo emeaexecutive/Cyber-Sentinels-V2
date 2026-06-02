@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
 import { scoreGraphHealth } from "@/lib/trust-graph/scoreGraphHealth";
+import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
+import { createSignal } from "@/lib/trust-engine/createSignal";
 
 export const dynamic = "force-dynamic";
 
@@ -112,11 +114,25 @@ function isRelatedEvent(row: AnyRow, passportId: string, caseIds: Set<string>) {
   const rowMetadata = metadata(row);
   const metadataPassportId = String(rowMetadata.passport_id ?? "");
   const metadataCaseId = String(rowMetadata.verification_case_id ?? "");
+  const rowPassportId = String(row.passport_id ?? "");
+  const rowCaseId = String(row.verification_case_id ?? row.case_id ?? "");
 
   return (
     metadataPassportId === passportId ||
-    (metadataCaseId ? caseIds.has(metadataCaseId) : false)
+    (metadataCaseId ? caseIds.has(metadataCaseId) : false) ||
+    rowPassportId === passportId ||
+    (rowCaseId ? caseIds.has(rowCaseId) : false)
   );
+}
+
+function relatedId(row: AnyRow, field: string) {
+  return metadata(row)[field] ?? row[field] ?? null;
+}
+
+function eventMatchesDecision(row: AnyRow, decisionId: string) {
+  const metadataDecisionId = relatedId(row, "decision_id");
+
+  return metadataDecisionId ? String(metadataDecisionId) === decisionId : true;
 }
 
 function statusValue(row: AnyRow) {
@@ -151,6 +167,20 @@ function nodeFromRow(
     risk_level: row.risk_level ?? null,
     metadata: {
       passport_id: passportId,
+      verification_case_id: relatedId(row, "verification_case_id"),
+      evidence_id: sourceTable === "evidence_files" ? row.id : relatedId(row, "evidence_id"),
+      decision_id: sourceTable === "decisions" ? row.id : relatedId(row, "decision_id"),
+      intent_id: relatedId(row, "intent_id"),
+      autonomy_profile_id: relatedId(row, "autonomy_profile_id"),
+      execution_passport_id:
+        sourceTable === "execution_passports"
+          ? row.id
+          : relatedId(row, "execution_passport_id"),
+      state_check_id:
+        sourceTable === "passport_state_checks"
+          ? row.id
+          : relatedId(row, "state_check_id"),
+      actor: relatedId(row, "actor"),
       snapshot_id: snapshotId,
     },
   };
@@ -166,11 +196,12 @@ async function generateGraphSnapshot(formData: FormData) {
   }
 
   const supabase = await createClient();
-  await requireAdminPageAccess(supabase, {
+  const user = await requireAdminPageAccess(supabase, {
     path: "/trust-graph-engine",
     action: "generate_graph_snapshot",
     passport_id: passportId,
   });
+  const actor = user.email ?? user.id;
 
   const { data: passport } = await supabase
     .from("passports")
@@ -399,11 +430,18 @@ async function generateGraphSnapshot(formData: FormData) {
       relationship_type: relationshipType,
       source_table: sourceTable,
       source_id: String(sourceId),
-      metadata: {
-        passport_id: passportId,
-        snapshot_id: snapshotId,
-      },
-    });
+    metadata: {
+      passport_id: passportId,
+      verification_case_id: sourceTable === "verification_cases" ? sourceId : null,
+      evidence_id: sourceTable === "evidence_files" ? sourceId : null,
+      decision_id: sourceTable === "decisions" ? sourceId : null,
+      execution_passport_id:
+        sourceTable === "execution_passports" ? sourceId : null,
+      state_check_id: sourceTable === "passport_state_checks" ? sourceId : null,
+      actor,
+      snapshot_id: snapshotId,
+    },
+  });
   };
 
   if (passportNodeId) {
@@ -466,28 +504,50 @@ async function generateGraphSnapshot(formData: FormData) {
   });
   decisionRows.forEach((decision) => {
     relatedAuditLogs.forEach((log) =>
-      addEdge(
-        nodeKey("decisions", decision.id),
-        nodeKey("audit_logs", log.id),
-        "decision_generated_audit",
-        "audit_logs",
-        log.id
-      )
+      eventMatchesDecision(log, String(decision.id))
+        ? addEdge(
+            nodeKey("decisions", decision.id),
+            nodeKey("audit_logs", log.id),
+            "decision_generated_audit",
+            "audit_logs",
+            log.id
+          )
+        : null
     );
     relatedSignals.forEach((signal) =>
-      addEdge(
-        nodeKey("decisions", decision.id),
-        nodeKey("signals", signal.id),
-        "decision_generated_signal",
-        "signals",
-        signal.id
-      )
+      eventMatchesDecision(signal, String(decision.id))
+        ? addEdge(
+            nodeKey("decisions", decision.id),
+            nodeKey("signals", signal.id),
+            "decision_generated_signal",
+            "signals",
+            signal.id
+          )
+        : null
     );
   });
 
   if (edges.length) {
     await supabase.from("trust_graph_edges").insert(edges);
   }
+
+  const snapshotMetadata = {
+    passport_id: passportId,
+    actor,
+    snapshot_id: snapshotId,
+  };
+
+  await createAuditLog(
+    supabase,
+    "trust_graph_snapshot_created",
+    actor,
+    snapshotMetadata
+  );
+  await createSignal(
+    supabase,
+    "Trust graph snapshot created",
+    snapshotMetadata
+  );
 
   redirect(
     `/trust-graph-engine?passport_id=${encodeURIComponent(passportId)}&generated=1`

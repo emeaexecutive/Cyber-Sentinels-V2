@@ -96,15 +96,23 @@ async function createAutonomyProfile(formData: FormData) {
     .single();
 
   if (!error) {
-    await createAuditLog(supabase, "autonomy_profile_created", actor, {
+    const graphMetadata = {
       autonomy_profile_id: profile?.id,
       subject_name: subjectName,
       subject_type: subjectType || "workflow",
       autonomy_level: autonomyLevel || "Observe",
       approval_required: approvalRequired,
       risk_level: riskLevel || "medium",
-    });
-    await createSignal(supabase, "Autonomy profile created");
+      actor,
+    };
+
+    await createAuditLog(
+      supabase,
+      "autonomy_profile_created",
+      actor,
+      graphMetadata
+    );
+    await createSignal(supabase, "Autonomy profile created", graphMetadata);
   }
 
   redirect("/autonomy-governance?created=1");

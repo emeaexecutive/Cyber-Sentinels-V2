@@ -94,12 +94,16 @@ async function createIntentRequest(formData: FormData) {
     .single();
 
   if (!error) {
-    await createAuditLog(supabase, "intent_request_created", actor, {
+    const graphMetadata = {
+      intent_id: intentRequest?.id,
       intent_request_id: intentRequest?.id,
       intent_summary: intentSummary,
       risk_level: riskLevel || "unclassified",
-    });
-    await createSignal(supabase, "Intent request created");
+      actor,
+    };
+
+    await createAuditLog(supabase, "intent_request_created", actor, graphMetadata);
+    await createSignal(supabase, "Intent request created", graphMetadata);
   }
 
   redirect("/intent-verification?created=1");

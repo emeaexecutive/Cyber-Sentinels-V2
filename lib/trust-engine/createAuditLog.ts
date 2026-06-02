@@ -11,7 +11,10 @@ export async function createAuditLog(
   const result = await supabase.from("audit_logs").insert({
     event_type: eventType,
     actor,
-    metadata,
+    metadata: {
+      ...metadata,
+      actor,
+    },
     created_at: new Date().toISOString(),
   });
 

@@ -25,8 +25,13 @@ export async function recordTrustEvent(
   supabase: SupabaseClient,
   input: TrustEventInput
 ) {
+  const auditMetadata = {
+    ...(input.audit.metadata ?? {}),
+    actor: input.audit.actor,
+  };
+
   await bestEffort("Trust event signal write", async () => {
-    const { error } = await createSignal(supabase, input.signal);
+    const { error } = await createSignal(supabase, input.signal, auditMetadata);
 
     if (error) throw error;
   });
@@ -36,7 +41,7 @@ export async function recordTrustEvent(
       supabase,
       input.audit.eventType,
       input.audit.actor,
-      input.audit.metadata
+      auditMetadata
     );
 
     if (error) throw error;
