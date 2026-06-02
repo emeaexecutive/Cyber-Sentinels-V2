@@ -365,6 +365,61 @@ function HelpQuestionActions({ question }: { question: AnyRow }) {
   );
 }
 
+function TrustAssistantQuestionActions({ question }: { question: AnyRow }) {
+  const action = `/api/admin/trust-assistant-questions/${question.id}/answer`;
+
+  return (
+    <div className="mt-4 grid gap-3 border-t border-zinc-900 pt-4">
+      <form method="POST" action={action} className="grid gap-3">
+        <input type="hidden" name="action" value="answer" />
+        <label className="grid gap-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
+          Answer in app
+          <textarea
+            name="answer"
+            required
+            rows={3}
+            defaultValue={String(question.answer ?? "")}
+            placeholder="Write a governed assistant answer"
+            className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm normal-case tracking-normal text-white placeholder:text-zinc-600"
+          />
+        </label>
+        <input
+          name="answer_source"
+          defaultValue={String(question.answer_source ?? "admin_review")}
+          className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white placeholder:text-zinc-600"
+          placeholder="answer source"
+        />
+        <button
+          type="submit"
+          className="w-fit rounded-lg border border-emerald-700 px-3 py-2 text-xs font-medium text-emerald-200 hover:border-emerald-400 hover:text-white"
+        >
+          Answer
+        </button>
+      </form>
+      <div className="flex flex-wrap gap-2">
+        <form method="POST" action={action}>
+          <input type="hidden" name="action" value="reviewed" />
+          <button
+            type="submit"
+            className="rounded-lg border border-cyan-800 px-3 py-2 text-xs font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
+          >
+            Mark Reviewed
+          </button>
+        </form>
+        <form method="POST" action={action}>
+          <input type="hidden" name="action" value="escalated" />
+          <button
+            type="submit"
+            className="rounded-lg border border-amber-800 px-3 py-2 text-xs font-medium text-amber-200 hover:border-amber-400 hover:text-white"
+          >
+            Mark Escalated
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function ReasonCodeChip({ reason }: { reason: string }) {
   const tone = getTrustScoreReasonTone(reason);
   const styles = {
@@ -414,6 +469,7 @@ export default async function BackOfficePage({
     evidenceFiles,
     decisions,
     helpQuestions,
+    trustAssistantQuestions,
     stateChecks,
     executionPassports,
   ] = await Promise.all([
@@ -426,6 +482,7 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "evidence_files", "created_at", 100),
     fetchTable<AnyRow>(supabase, "decisions", "created_at", 100),
     fetchTable<AnyRow>(supabase, "help_questions", "created_at", 8),
+    fetchTable<AnyRow>(supabase, "trust_assistant_questions", "created_at", 8),
     fetchTable<AnyRow>(supabase, "passport_state_checks", "created_at", 100),
     fetchTable<AnyRow>(supabase, "execution_passports", "created_at", 100),
   ]);
@@ -652,6 +709,7 @@ export default async function BackOfficePage({
     ["Launch Console", "/launch-console"],
     ["Trust History", "/trust-timeline"],
     ["Trust Graph", "/trust-graph-engine"],
+    ["Trust Assistant", "/trust-assistant"],
     ["Help Center", "/help"],
     ["Prediction Engine", "/trust-prediction"],
     ["Policy Engine", "/policy-engine"],
@@ -1304,6 +1362,75 @@ export default async function BackOfficePage({
                 ))
               ) : (
                 <EmptyState label={tableEmptyLabel("help_questions", helpQuestions.available)} />
+              )}
+            </div>
+          </div>
+
+          <div
+            id="trust-assistant"
+            className="mb-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                  Trust Assistant
+                </p>
+                <h2 className="mt-2 text-xl font-semibold">
+                  Assistant Review Queue
+                </h2>
+              </div>
+              <Link
+                href="/trust-assistant"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Open Trust Assistant
+              </Link>
+            </div>
+            <div className="mt-5 grid gap-3">
+              {trustAssistantQuestions.rows.length ? (
+                trustAssistantQuestions.rows.map((question, index) => (
+                  <div
+                    key={rowKey(question, `trust-assistant-question-${index}`)}
+                    className="rounded-lg border border-zinc-800 bg-black p-4"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <p className="max-w-4xl text-zinc-300">
+                        {question.question ?? "Trust Assistant question"}
+                      </p>
+                      <span className="inline-flex rounded-full border border-cyan-800/70 bg-cyan-950/20 px-2.5 py-1 text-xs text-cyan-100">
+                        {question.status ?? "pending_review"}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs text-zinc-600">
+                      Asked by {question.asked_by_email ?? "n/a"} /{" "}
+                      {formatDate(question.created_at)}
+                    </p>
+                    {question.answer ? (
+                      <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                          Answer
+                        </p>
+                        <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-300">
+                          {question.answer}
+                        </p>
+                        <p className="mt-3 text-xs text-zinc-600">
+                          {question.answer_source ?? "admin_review"} /{" "}
+                          {question.answered_by ?? "n/a"}
+                        </p>
+                      </div>
+                    ) : null}
+                    {question.id ? (
+                      <TrustAssistantQuestionActions question={question} />
+                    ) : null}
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  label={tableEmptyLabel(
+                    "trust_assistant_questions",
+                    trustAssistantQuestions.available
+                  )}
+                />
               )}
             </div>
           </div>
