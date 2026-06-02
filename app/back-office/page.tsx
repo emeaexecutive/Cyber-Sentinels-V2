@@ -1,10 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { AdminVerificationActions } from "@/components/admin-verification-actions";
-import {
-  hasAdminVerifiedCookie,
-  isAdminAllowlisted,
-} from "@/lib/admin-auth";
+import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import {
   backOfficeStatuses,
   decisionActions,
@@ -362,29 +358,11 @@ export default async function BackOfficePage({
   searchParams,
 }: BackOfficePageProps) {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login?next=/back-office");
-  }
-
-  if (!isAdminAllowlisted(user.email)) {
-    return <NotAllowlistedGate />;
-  }
-
   const params = await searchParams;
-
-  if (!(await hasAdminVerifiedCookie())) {
-    return (
-      <BackOfficeAccessGate
-        email={user.email ?? user.id}
-        denied={params?.denied === "1"}
-      />
-    );
-  }
+  await requireAdminPageAccess(supabase, {
+    path: "/back-office",
+    denied: params?.denied === "1",
+  });
 
   const [
     waitlist,
@@ -685,7 +663,7 @@ export default async function BackOfficePage({
         <section className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-sm font-medium text-emerald-300">
-              Authenticated. Allowlisted. Step-up verified.
+              Admin Access Verified
             </p>
             <h1 className="mt-2 text-3xl font-bold md:text-4xl">
               Back Office

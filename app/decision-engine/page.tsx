@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
+import { createClient } from "@/lib/supabase/server";
 import {
   evaluateDecisionEngine,
   type DecisionEngineInput,
 } from "@/lib/trust-engine/decisionEngine";
+
+export const dynamic = "force-dynamic";
 
 const sampleDecisions: Array<{
   label: string;
@@ -95,7 +99,10 @@ function badgeClass(riskLevel: string) {
   return "border-emerald-700 text-emerald-200";
 }
 
-export default function DecisionEnginePage() {
+export default async function DecisionEnginePage() {
+  const supabase = await createClient();
+  await requireAdminPageAccess(supabase, { path: "/decision-engine" });
+
   const decisions = sampleDecisions.map((sample) => ({
     ...sample,
     result: evaluateDecisionEngine(sample.input),

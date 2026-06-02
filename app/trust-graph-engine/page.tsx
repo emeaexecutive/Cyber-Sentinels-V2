@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
 import { scoreGraphHealth } from "@/lib/trust-graph/scoreGraphHealth";
 
@@ -165,13 +166,11 @@ async function generateGraphSnapshot(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(`/login?next=/trust-graph-engine?passport_id=${encodeURIComponent(passportId)}`);
-  }
+  await requireAdminPageAccess(supabase, {
+    path: "/trust-graph-engine",
+    action: "generate_graph_snapshot",
+    passport_id: passportId,
+  });
 
   const { data: passport } = await supabase
     .from("passports")
@@ -553,6 +552,11 @@ export default async function TrustGraphEnginePage({
 }: TrustGraphEnginePageProps) {
   const params = await searchParams;
   const supabase = await createClient();
+  await requireAdminPageAccess(supabase, {
+    path: "/trust-graph-engine",
+    passport_id: params?.passport_id,
+  });
+
   const [metrics, { data: passports }] = await Promise.all([
     Promise.all(metricTables.map(([table, label]) => liveCount(table, label))),
     supabase

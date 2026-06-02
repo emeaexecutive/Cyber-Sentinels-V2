@@ -1,10 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { VerificationQueueActions } from "@/components/verification-queue-actions";
-import {
-  hasAdminVerifiedCookie,
-  isAdminAllowlisted,
-} from "@/lib/admin-auth";
+import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { type BackOfficeStatus } from "@/lib/back-office";
 import { createClient } from "@/lib/supabase/server";
 import { evaluateDecisionEngine } from "@/lib/trust-engine/decisionEngine";
@@ -175,17 +171,7 @@ function averageReviewTime(cases: VerificationCase[], decisions: Decision[]) {
 
 export default async function VerificationQueuePage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login?next=/back-office");
-  }
-
-  if (!isAdminAllowlisted(user.email) || !(await hasAdminVerifiedCookie())) {
-    redirect("/back-office");
-  }
+  await requireAdminPageAccess(supabase, { path: "/verification-queue" });
 
   const [cases, signals, auditLogs, decisions, evidenceFiles] =
     await Promise.all([

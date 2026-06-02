@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
 import {
   getEvidenceSummary,
@@ -121,13 +121,7 @@ function EmptyState({ label }: { label: string }) {
 
 export default async function EvidenceVaultPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login?next=/command-center");
-  }
+  await requireAdminPageAccess(supabase, { path: "/evidence-vault" });
 
   const [{ data: evidenceRows }, { data: passports }, { data: cases }] =
     await Promise.all([

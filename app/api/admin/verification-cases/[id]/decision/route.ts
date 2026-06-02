@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import {
   adminVerifiedCookieName,
   getAdminCookieOptions,
-  hasAdminVerifiedCookie,
-  isAdminAllowlisted,
 } from "@/lib/admin-auth";
+import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
 import {
   decisionActions,
   type BackOfficeStatus,
@@ -125,33 +124,10 @@ export async function POST(
     }
 
     const parsed = parsePayload(await readDecisionPayload(req));
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const access = await requireAdminApiAccess(req, supabase);
 
-    const allowlisted = isAdminAllowlisted(user?.email);
-    const adminCookie = await hasAdminVerifiedCookie();
-
-    if (!user || !allowlisted || !adminCookie) {
-      console.error("admin decision auth failed", {
-        hasUser: Boolean(user),
-        email: user?.email,
-        allowlisted,
-        hasAdminCookie: adminCookie,
-      });
-
-      if (!user) {
-        return NextResponse.redirect(
-          new URL("/login?next=/back-office", req.url),
-          {
-            status: 303,
-          }
-        );
-      }
-
-      return NextResponse.redirect(new URL("/back-office?denied=1", req.url), {
-        status: 303,
-      });
+    if (!access.ok) {
+      return access.response;
     }
 
     if ("error" in parsed) {
@@ -161,6 +137,7 @@ export async function POST(
       );
     }
 
+    const user = access.user;
     const actor = user.email ?? user.id;
     const requestRisk = getRequestRiskFields(req);
     const status = getDecisionStatus(

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
 import {
   createMissionControlSnapshot,
@@ -42,13 +42,7 @@ function formatTime(value: string | null | undefined) {
 
 export default async function MissionControlPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login?next=/command-center");
-  }
+  await requireAdminPageAccess(supabase, { path: "/mission-control" });
 
   const [
     passportsResult,

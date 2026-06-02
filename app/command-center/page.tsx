@@ -260,6 +260,26 @@ export default async function CommandCenterPage() {
           Back Office
         </Link>
 
+        <form
+          action="/api/admin/access"
+          method="post"
+          className="mt-5 flex max-w-xl flex-wrap gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3"
+        >
+          <input
+            name="access_code"
+            type="password"
+            autoComplete="one-time-code"
+            placeholder="Admin access code"
+            className="min-w-0 flex-1 rounded-lg border border-zinc-800 bg-black px-3 py-2 text-sm text-white placeholder:text-zinc-600"
+          />
+          <button
+            type="submit"
+            className="rounded-lg border border-emerald-800 px-3 py-2 text-sm font-semibold text-emerald-200 hover:border-emerald-400"
+          >
+            Verify Admin Access
+          </button>
+        </form>
+
         <form action="/api/auth/logout" method="POST" className="mt-4">
           <button className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
             Logout

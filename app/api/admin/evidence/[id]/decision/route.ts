@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import {
-  hasAdminVerifiedCookie,
-  isAdminAllowlisted,
-} from "@/lib/admin-auth";
+import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
 
 const uuidPattern =
@@ -56,30 +53,10 @@ export async function POST(
     );
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const allowlisted = isAdminAllowlisted(user?.email);
-  const hasAdminCookie = await hasAdminVerifiedCookie();
+  const access = await requireAdminApiAccess(req, supabase);
 
-  if (!user || !allowlisted || !hasAdminCookie) {
-    console.error("admin evidence decision auth failed", {
-      hasUser: Boolean(user),
-      email: user?.email,
-      allowlisted,
-      hasAdminCookie,
-    });
-
-    if (!user) {
-      return NextResponse.redirect(
-        new URL("/login?next=/back-office", req.url),
-        { status: 303 }
-      );
-    }
-
-    return NextResponse.redirect(new URL("/back-office?denied=1", req.url), {
-      status: 303,
-    });
+  if (!access.ok) {
+    return access.response;
   }
 
   const decision = normalizeDecision(await readDecision(req));
@@ -118,7 +95,7 @@ export async function POST(
     );
   }
 
-  const actor = user.email ?? user.id;
+  const actor = access.user.email ?? access.user.id;
   const now = new Date().toISOString();
   const accepted = decision === "accepted";
   const rejected = decision === "rejected";

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import {
   getAdminCookieOptions,
-  isAdminAllowlisted,
   adminVerifiedCookieName,
 } from "@/lib/admin-auth";
+import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
 import {
   configurationError,
   getRequestRiskFields,
@@ -33,30 +33,18 @@ async function recordAdminAccessAttempt(
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const access = await requireAdminApiAccess(req, supabase, {
+      requireCookie: false,
+      audit: false,
+    });
 
-    if (!user) {
-      return NextResponse.redirect(new URL("/login?next=/back-office", req.url), {
-        status: 303,
-      });
+    if (!access.ok) {
+      return access.response;
     }
 
+    const user = access.user;
     const actor = user.email ?? user.id;
-    const deniedUrl = new URL("/back-office?denied=1", req.url);
-
-    if (!isAdminAllowlisted(user.email)) {
-      await recordAdminAccessAttempt(
-        supabase,
-        "admin_access_denied",
-        "Admin access denied",
-        actor,
-        req
-      );
-
-      return NextResponse.redirect(deniedUrl, { status: 303 });
-    }
+    const deniedUrl = new URL("/command-center", req.url);
 
     const formData = await req.formData();
     const submittedCode = String(formData.get("access_code") ?? "");
@@ -100,7 +88,7 @@ export async function POST(req: Request) {
       return configurationError();
     }
 
-    return NextResponse.redirect(new URL("/back-office?denied=1", req.url), {
+    return NextResponse.redirect(new URL("/command-center", req.url), {
       status: 303,
     });
   }
