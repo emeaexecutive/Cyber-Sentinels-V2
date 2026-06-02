@@ -325,6 +325,46 @@ function EvidenceReviewActions({ evidenceId }: { evidenceId: string }) {
   );
 }
 
+function HelpQuestionActions({ question }: { question: AnyRow }) {
+  const action = `/api/admin/help-questions/${question.id}/answer`;
+
+  return (
+    <div className="mt-4 grid gap-3 border-t border-zinc-900 pt-4">
+      <form method="POST" action={action} className="grid gap-3">
+        <input type="hidden" name="action" value="answer" />
+        <label className="grid gap-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
+          Answer
+          <textarea
+            name="answer"
+            required
+            rows={3}
+            defaultValue={String(question.answer ?? "")}
+            placeholder="Write an admin-managed answer"
+            className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm normal-case tracking-normal text-white placeholder:text-zinc-600"
+          />
+        </label>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="submit"
+            className="rounded-lg border border-emerald-700 px-3 py-2 text-xs font-medium text-emerald-200 hover:border-emerald-400 hover:text-white"
+          >
+            Answer
+          </button>
+        </div>
+      </form>
+      <form method="POST" action={action}>
+        <input type="hidden" name="action" value="close" />
+        <button
+          type="submit"
+          className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-300 hover:border-zinc-400 hover:text-white"
+        >
+          Mark Closed
+        </button>
+      </form>
+    </div>
+  );
+}
+
 function ReasonCodeChip({ reason }: { reason: string }) {
   const tone = getTrustScoreReasonTone(reason);
   const styles = {
@@ -1241,8 +1281,20 @@ export default async function BackOfficePage({
                       </span>
                     </div>
                     <p className="mt-2 text-xs text-zinc-600">
+                      Created by {question.created_by ?? "n/a"} /{" "}
                       {formatDate(question.created_at)}
                     </p>
+                    {question.answer ? (
+                      <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                          Answer
+                        </p>
+                        <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-300">
+                          {question.answer}
+                        </p>
+                      </div>
+                    ) : null}
+                    {question.id ? <HelpQuestionActions question={question} /> : null}
                   </div>
                 ))
               ) : (

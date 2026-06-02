@@ -10,6 +10,15 @@ type HelpPageProps = {
   searchParams?: Promise<{ submitted?: string }>;
 };
 
+type HelpQuestion = {
+  id: string;
+  question: string | null;
+  answer: string | null;
+  status: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
 const faqs = [
   ["What is a Trust Passport?", "A Trust Passport is a live record that connects a subject to identity, evidence, decisions, signals and audit history."],
   ["What is evidence?", "Evidence is supporting material such as uploaded files, URLs or records used to verify a claim."],
@@ -79,6 +88,13 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const { data: answeredQuestions } = await supabase
+    .from("help_questions")
+    .select("id,question,answer,status,created_at,updated_at")
+    .not("answer", "is", null)
+    .order("updated_at", { ascending: false })
+    .limit(20)
+    .returns<HelpQuestion[]>();
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -129,6 +145,42 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
                 <h2 className="mt-4 font-semibold text-zinc-100">{label}</h2>
               </Link>
             ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-sm uppercase tracking-[0.22em] text-zinc-500">
+            Answered Questions
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold">
+            Admin-managed knowledge base.
+          </h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            {answeredQuestions?.length ? (
+              answeredQuestions.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-lg border border-zinc-800 bg-black p-5"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <h3 className="max-w-xl text-base font-semibold text-zinc-100">
+                      {item.question ?? "Help question"}
+                    </h3>
+                    <span className="inline-flex rounded-full border border-cyan-800/70 bg-cyan-950/20 px-2.5 py-1 text-xs text-cyan-100">
+                      {item.status ?? "answered"}
+                    </span>
+                  </div>
+                  <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-zinc-400">
+                    {item.answer}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500 md:col-span-2">
+                No answered questions yet. Admin answers will appear here after
+                review.
+              </p>
+            )}
           </div>
         </section>
 
