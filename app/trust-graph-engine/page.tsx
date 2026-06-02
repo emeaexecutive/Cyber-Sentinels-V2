@@ -697,9 +697,16 @@ export default async function TrustGraphEnginePage({
       isRelatedEvent(row, selectedPassportId, selectedCaseIds)
     )
   );
+  const selectedSubjectName = String(selectedPassport?.subject_name ?? "")
+    .trim()
+    .toLowerCase();
   const selectedSignals = sortNewestFirst(
-    (selectedSignalRows ?? []).filter((row) =>
-      isRelatedEvent(row, selectedPassportId, selectedCaseIds)
+    (selectedSignalRows ?? []).filter(
+      (row) =>
+        isRelatedEvent(row, selectedPassportId, selectedCaseIds) ||
+        (selectedSubjectName
+          ? String(row.event ?? "").toLowerCase().includes(selectedSubjectName)
+          : false)
     )
   );
   const graphHealth = scoreGraphHealth({

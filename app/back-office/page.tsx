@@ -553,6 +553,10 @@ export default async function BackOfficePage({
       const passportId = item.passport_id ? String(item.passport_id) : "";
       const caseIds = new Set([caseId]);
 
+      const subjectSignalNeedle = String(item.subject_name ?? "")
+        .trim()
+        .toLowerCase();
+
       return [
         caseId,
         scoreGraphHealth({
@@ -567,8 +571,14 @@ export default async function BackOfficePage({
           auditLogs: auditLogs.rows.filter((log) =>
             isRowLinkedToPassport(log, passportId, caseIds)
           ),
-          signals: signals.rows.filter((signal) =>
-            isRowLinkedToPassport(signal, passportId, caseIds)
+          signals: signals.rows.filter(
+            (signal) =>
+              isRowLinkedToPassport(signal, passportId, caseIds) ||
+              (subjectSignalNeedle
+                ? String(signal.event ?? "")
+                    .toLowerCase()
+                    .includes(subjectSignalNeedle)
+                : false)
           ),
           stateChecks: stateChecks.rows.filter(
             (row) => String(row.passport_id ?? "") === passportId

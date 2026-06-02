@@ -241,8 +241,17 @@ export default async function PassportViewerPage({
   });
   const decisions = sortNewestFirst([...decisionsById.values()]);
   const latestVerification = cases[0];
+  const subjectSignalNeedle = String(passport.subject_name ?? "")
+    .trim()
+    .toLowerCase();
   const relatedSignals = sortNewestFirst(
-    (signalRows ?? []).filter((row) => isRelatedEvent(row, id, caseIds))
+    (signalRows ?? []).filter(
+      (row) =>
+        isRelatedEvent(row, id, caseIds) ||
+        (subjectSignalNeedle
+          ? String(row.event ?? "").toLowerCase().includes(subjectSignalNeedle)
+          : false)
+    )
   );
   const relatedAuditLogs = sortNewestFirst(
     (auditRows ?? []).filter((row) => isRelatedEvent(row, id, caseIds))

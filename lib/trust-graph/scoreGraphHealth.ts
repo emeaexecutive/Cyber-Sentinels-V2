@@ -18,8 +18,47 @@ export type TrustGraphTimelineEvent = {
   created_at: string;
 };
 
-function hasRows(rows?: TrustGraphRow[]) {
-  return Boolean(rows?.length);
+function rowMatchesPassport(row: TrustGraphRow, passportId: string) {
+  return String(row.passport_id ?? "") === passportId;
+}
+
+function rowMatchesCase(row: TrustGraphRow, verificationCaseIds: Set<string>) {
+  const verificationCaseId = String(row.verification_case_id ?? row.case_id ?? "");
+
+  return verificationCaseId ? verificationCaseIds.has(verificationCaseId) : false;
+}
+
+function rowMetadata(row: TrustGraphRow) {
+  const value = row.metadata;
+
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+
+  return {};
+}
+
+function rowMetadataMatches(
+  row: TrustGraphRow,
+  passportId: string,
+  verificationCaseIds: Set<string>
+) {
+  const metadata = rowMetadata(row);
+  const metadataPassportId = String(metadata.passport_id ?? "");
+  const metadataCaseId = String(metadata.verification_case_id ?? "");
+
+  return (
+    metadataPassportId === passportId ||
+    (metadataCaseId ? verificationCaseIds.has(metadataCaseId) : false)
+  );
+}
+
+function signalMatchesSubject(row: TrustGraphRow, subjectName: string) {
+  if (!subjectName) {
+    return false;
+  }
+
+  return String(row.event ?? "").toLowerCase().includes(subjectName.toLowerCase());
 }
 
 function rowDate(row?: TrustGraphRow) {
@@ -75,42 +114,80 @@ export function scoreGraphHealth(input: TrustGraphHealthInput) {
   const executionPassports = input.executionPassports ?? [];
   const graphNodes = input.graphNodes ?? [];
   const graphEdges = input.graphEdges ?? [];
+  const passportId = String(input.passport?.id ?? "");
+  const subjectName = String(input.passport?.subject_name ?? "").trim();
+  const verificationCaseIds = new Set(
+    verificationCases.map((row) => String(row.id)).filter(Boolean)
+  );
+  const hasPassport = Boolean(input.passport);
+  const hasVerificationCase = verificationCases.some(
+    (row) => !passportId || rowMatchesPassport(row, passportId)
+  );
+  const hasEvidence = evidenceFiles.some(
+    (row) =>
+      !passportId ||
+      rowMatchesPassport(row, passportId) ||
+      rowMatchesCase(row, verificationCaseIds)
+  );
+  const hasDecision = decisions.some(
+    (row) =>
+      !passportId ||
+      rowMatchesPassport(row, passportId) ||
+      rowMatchesCase(row, verificationCaseIds)
+  );
+  const hasAuditTrail = auditLogs.some(
+    (row) =>
+      !passportId ||
+      rowMetadataMatches(row, passportId, verificationCaseIds)
+  );
+  const hasSignalTrail = signals.some(
+    (row) =>
+      !passportId ||
+      rowMetadataMatches(row, passportId, verificationCaseIds) ||
+      signalMatchesSubject(row, subjectName)
+  );
+  const hasStateCheck = stateChecks.some(
+    (row) => !passportId || rowMatchesPassport(row, passportId)
+  );
+  const hasExecutionPassport = executionPassports.some(
+    (row) => !passportId || rowMatchesPassport(row, passportId)
+  );
 
   let score = 0;
 
-  if (input.passport) {
+  if (hasPassport) {
     score += 20;
   }
 
-  if (hasRows(verificationCases)) {
+  if (hasVerificationCase) {
     score += 20;
   }
 
-  if (hasRows(evidenceFiles)) {
+  if (hasEvidence) {
     score += 20;
   }
 
-  if (hasRows(decisions)) {
+  if (hasDecision) {
     score += 20;
   }
 
-  if (hasRows(auditLogs)) {
+  if (hasAuditTrail) {
     score += 10;
   }
 
-  if (hasRows(signals)) {
+  if (hasSignalTrail) {
     score += 10;
   }
 
   score = Math.max(0, Math.min(score, 100));
 
   const missingLinks = [
-    evidenceFiles.length ? "" : "No evidence linked",
-    decisions.length ? "" : "No admin decision linked",
-    auditLogs.length ? "" : "No audit trail linked",
-    signals.length ? "" : "No signal trail linked",
-    stateChecks.length ? "" : "No state check linked",
-    executionPassports.length ? "" : "No execution passport linked",
+    hasEvidence ? "" : "No evidence linked",
+    hasDecision ? "" : "No admin decision linked",
+    hasAuditTrail ? "" : "No audit trail linked",
+    hasSignalTrail ? "" : "No signal trail linked",
+    hasStateCheck ? "" : "No state check linked",
+    hasExecutionPassport ? "" : "No execution passport linked",
   ].filter(Boolean);
 
   const timeline: TrustGraphTimelineEvent[] = [
@@ -178,8 +255,8 @@ export function scoreGraphHealth(input: TrustGraphHealthInput) {
   );
 
   const strengths = [
-    input.passport ? "a passport" : "",
-    evidenceFiles.length ? "evidence" : "",
+    hasPassport ? "a passport" : "",
+    hasEvidence ? "evidence" : "",
     evidenceFiles.some((row) =>
       /accepted|approved|clean|verified/i.test(
         String(row.status ?? row.scan_status ?? row.review_status ?? "")
@@ -187,9 +264,9 @@ export function scoreGraphHealth(input: TrustGraphHealthInput) {
     )
       ? "an accepted review"
       : "",
-    decisions.length ? "an admin decision" : "",
-    auditLogs.length ? "audit events" : "",
-    signals.length ? "signals" : "",
+    hasDecision ? "an admin decision" : "",
+    hasAuditTrail ? "audit events" : "",
+    hasSignalTrail ? "signals" : "",
   ].filter(Boolean);
 
   const explanation = missingLinks.length
@@ -203,6 +280,15 @@ export function scoreGraphHealth(input: TrustGraphHealthInput) {
     decisionCoverage: decisions.length,
     auditCoverage: auditLogs.length,
     signalDensity: signals.length,
+    hasPassport,
+    hasVerificationCase,
+    hasEvidence,
+    hasDecision,
+    hasAuditTrail,
+    hasSignalTrail,
+    hasStateCheck,
+    hasExecutionPassport,
+    completenessScore: score,
     score,
     label: labelForScore(score),
     health: healthForScore(score),
