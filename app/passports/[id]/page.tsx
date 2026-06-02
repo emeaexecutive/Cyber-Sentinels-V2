@@ -5,6 +5,7 @@ import {
   calculateTrustScoreV1,
   getTrustScoreReasonTone,
 } from "@/lib/trust-score-engine";
+import { scoreGraphHealth } from "@/lib/trust-graph/scoreGraphHealth";
 
 export const dynamic = "force-dynamic";
 
@@ -263,6 +264,16 @@ export default async function PassportViewerPage({
     auditLogs: relatedAuditLogs,
     signals: relatedSignals,
   });
+  const graphHealth = scoreGraphHealth({
+    passport,
+    verificationCases: cases,
+    evidenceFiles: evidence,
+    decisions,
+    auditLogs: relatedAuditLogs,
+    signals: relatedSignals,
+    stateChecks: passportStateChecks,
+    executionPassports: passportExecutions,
+  });
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -329,6 +340,52 @@ export default async function PassportViewerPage({
             value={`${trustScore.score} / ${trustScore.confidenceLabel}`}
           />
           <InfoTile label="Created Date" value={formatDate(passport.created_at)} />
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                Trust Graph Health
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">
+                {graphHealth.label}
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-500">
+                {graphHealth.explanation}
+              </p>
+            </div>
+            <div className="text-left md:text-right">
+              <p className="text-4xl font-semibold text-zinc-100">
+                {graphHealth.score}
+              </p>
+              <p className="mt-1 text-xs uppercase tracking-[0.16em] text-zinc-600">
+                Completeness Score
+              </p>
+            </div>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {graphHealth.missingLinks.length ? (
+              graphHealth.missingLinks.map((warning) => (
+                <span
+                  key={warning}
+                  className="rounded-full border border-amber-800 bg-amber-950/20 px-2.5 py-1 text-xs text-amber-200"
+                >
+                  {warning}
+                </span>
+              ))
+            ) : (
+              <span className="rounded-full border border-emerald-800 bg-emerald-950/20 px-2.5 py-1 text-xs text-emerald-200">
+                No missing links detected
+              </span>
+            )}
+          </div>
+          <Link
+            href={`/trust-graph-engine?passport_id=${encodeURIComponent(id)}`}
+            className="mt-5 inline-flex rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400"
+          >
+            Open Trust Graph
+          </Link>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">

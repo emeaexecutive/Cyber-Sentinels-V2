@@ -21,6 +21,7 @@ import {
   getTrustScoreReasonTone,
   isRowLinkedToPassport,
 } from "@/lib/trust-score-engine";
+import { scoreGraphHealth } from "@/lib/trust-graph/scoreGraphHealth";
 import {
   predictTrustRisk,
   type PredictionInputDecision,
@@ -395,6 +396,8 @@ export default async function BackOfficePage({
     evidenceFiles,
     decisions,
     helpQuestions,
+    stateChecks,
+    executionPassports,
   ] = await Promise.all([
     fetchTable<AnyRow>(supabase, "waitlist"),
     fetchTable<AnyRow>(supabase, "verification_cases"),
@@ -403,8 +406,10 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "signals"),
     fetchTable<AnyRow>(supabase, "audit_logs"),
     fetchTable<AnyRow>(supabase, "evidence_files", "created_at", 100),
-    fetchTable<AnyRow>(supabase, "decisions", "created_at", 10),
+    fetchTable<AnyRow>(supabase, "decisions", "created_at", 100),
     fetchTable<AnyRow>(supabase, "help_questions", "created_at", 8),
+    fetchTable<AnyRow>(supabase, "passport_state_checks", "created_at", 100),
+    fetchTable<AnyRow>(supabase, "execution_passports", "created_at", 100),
   ]);
 
   const radarSignals = signals.rows.length
@@ -537,6 +542,39 @@ export default async function BackOfficePage({
           ),
           signals: signals.rows.filter((signal) =>
             isRowLinkedToPassport(signal, passportId, caseIds)
+          ),
+        }),
+      ] as const;
+    })
+  );
+  const graphHealthByCase = new Map(
+    verificationCases.rows.map((item) => {
+      const caseId = String(item.id);
+      const passportId = item.passport_id ? String(item.passport_id) : "";
+      const caseIds = new Set([caseId]);
+
+      return [
+        caseId,
+        scoreGraphHealth({
+          passport: passportId ? passportById.get(passportId) ?? null : null,
+          verificationCases: [item],
+          evidenceFiles: evidenceFiles.rows.filter((file) =>
+            isRowLinkedToPassport(file, passportId, caseIds)
+          ),
+          decisions: decisions.rows.filter((decision) =>
+            isRowLinkedToPassport(decision, passportId, caseIds)
+          ),
+          auditLogs: auditLogs.rows.filter((log) =>
+            isRowLinkedToPassport(log, passportId, caseIds)
+          ),
+          signals: signals.rows.filter((signal) =>
+            isRowLinkedToPassport(signal, passportId, caseIds)
+          ),
+          stateChecks: stateChecks.rows.filter(
+            (row) => String(row.passport_id ?? "") === passportId
+          ),
+          executionPassports: executionPassports.rows.filter(
+            (row) => String(row.passport_id ?? "") === passportId
           ),
         }),
       ] as const;
@@ -819,6 +857,10 @@ export default async function BackOfficePage({
                       String(item.id)
                     );
                     const trustScore = trustScoreByCase.get(String(item.id));
+                    const graphHealth = graphHealthByCase.get(String(item.id));
+                    const passportId = item.passport_id
+                      ? String(item.passport_id)
+                      : "";
 
                     return (
                       <div key={rowKey(item, `verification-case-${index}`)} className="rounded-lg border border-zinc-800 p-4">
@@ -852,6 +894,28 @@ export default async function BackOfficePage({
                                   reason={reason}
                                 />
                               ))}
+                            </div>
+                          </div>
+                        ) : null}
+                        {graphHealth ? (
+                          <div className="mt-3 rounded-lg border border-cyan-900/60 bg-cyan-950/10 p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                              <div>
+                                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300/70">
+                                  Graph Health
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-cyan-100">
+                                  {graphHealth.health} / {graphHealth.score}
+                                </p>
+                              </div>
+                              {passportId ? (
+                                <Link
+                                  href={`/trust-graph-engine?passport_id=${encodeURIComponent(passportId)}`}
+                                  className="rounded-lg border border-cyan-800 px-3 py-2 text-xs text-cyan-100 hover:border-cyan-400"
+                                >
+                                  Open Graph
+                                </Link>
+                              ) : null}
                             </div>
                           </div>
                         ) : null}

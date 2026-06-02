@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { scoreGraphHealth } from "@/lib/trust-graph/scoreGraphHealth";
 
 export const dynamic = "force-dynamic";
 
@@ -593,6 +594,127 @@ export default async function TrustGraphEnginePage({
         .returns<AnyRow[]>()
     : { data: [] as AnyRow[] };
 
+  const [
+    { data: selectedCases },
+    { data: selectedPassportEvidence },
+    { data: selectedPassportDecisions },
+    { data: selectedAuditRows },
+    { data: selectedSignalRows },
+    { data: selectedStateChecks },
+    { data: selectedExecutionPassports },
+  ] = selectedPassportId
+    ? await Promise.all([
+        supabase
+          .from("verification_cases")
+          .select("*")
+          .eq("passport_id", selectedPassportId)
+          .order("created_at", { ascending: false })
+          .limit(50)
+          .returns<AnyRow[]>(),
+        supabase
+          .from("evidence_files")
+          .select("*")
+          .eq("passport_id", selectedPassportId)
+          .order("created_at", { ascending: false })
+          .limit(50)
+          .returns<AnyRow[]>(),
+        supabase
+          .from("decisions")
+          .select("*")
+          .eq("passport_id", selectedPassportId)
+          .order("created_at", { ascending: false })
+          .limit(50)
+          .returns<AnyRow[]>(),
+        supabase
+          .from("audit_logs")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(100)
+          .returns<AnyRow[]>(),
+        supabase
+          .from("signals")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(100)
+          .returns<AnyRow[]>(),
+        supabase
+          .from("passport_state_checks")
+          .select("*")
+          .eq("passport_id", selectedPassportId)
+          .order("created_at", { ascending: false })
+          .limit(50)
+          .returns<AnyRow[]>(),
+        supabase
+          .from("execution_passports")
+          .select("*")
+          .eq("passport_id", selectedPassportId)
+          .order("created_at", { ascending: false })
+          .limit(50)
+          .returns<AnyRow[]>(),
+      ])
+    : [
+        { data: [] as AnyRow[] },
+        { data: [] as AnyRow[] },
+        { data: [] as AnyRow[] },
+        { data: [] as AnyRow[] },
+        { data: [] as AnyRow[] },
+        { data: [] as AnyRow[] },
+        { data: [] as AnyRow[] },
+      ];
+  const selectedCaseRows = selectedCases ?? [];
+  const selectedCaseIds = new Set(selectedCaseRows.map((item) => String(item.id)));
+  const [{ data: selectedCaseEvidence }, { data: selectedCaseDecisions }] =
+    selectedCaseIds.size
+      ? await Promise.all([
+          supabase
+            .from("evidence_files")
+            .select("*")
+            .in("verification_case_id", [...selectedCaseIds])
+            .order("created_at", { ascending: false })
+            .limit(50)
+            .returns<AnyRow[]>(),
+          supabase
+            .from("decisions")
+            .select("*")
+            .in("verification_case_id", [...selectedCaseIds])
+            .order("created_at", { ascending: false })
+            .limit(50)
+            .returns<AnyRow[]>(),
+        ])
+      : [{ data: [] as AnyRow[] }, { data: [] as AnyRow[] }];
+  const selectedEvidenceById = new Map<string, AnyRow>();
+  [...(selectedPassportEvidence ?? []), ...(selectedCaseEvidence ?? [])].forEach(
+    (row) => selectedEvidenceById.set(String(row.id), row)
+  );
+  const selectedDecisionById = new Map<string, AnyRow>();
+  [...(selectedPassportDecisions ?? []), ...(selectedCaseDecisions ?? [])].forEach(
+    (row) => selectedDecisionById.set(String(row.id), row)
+  );
+  const selectedEvidence = sortNewestFirst([...selectedEvidenceById.values()]);
+  const selectedDecisions = sortNewestFirst([...selectedDecisionById.values()]);
+  const selectedAuditLogs = sortNewestFirst(
+    (selectedAuditRows ?? []).filter((row) =>
+      isRelatedEvent(row, selectedPassportId, selectedCaseIds)
+    )
+  );
+  const selectedSignals = sortNewestFirst(
+    (selectedSignalRows ?? []).filter((row) =>
+      isRelatedEvent(row, selectedPassportId, selectedCaseIds)
+    )
+  );
+  const graphHealth = scoreGraphHealth({
+    passport: selectedPassport ?? null,
+    verificationCases: selectedCaseRows,
+    evidenceFiles: selectedEvidence,
+    decisions: selectedDecisions,
+    auditLogs: selectedAuditLogs,
+    signals: selectedSignals,
+    stateChecks: selectedStateChecks ?? [],
+    executionPassports: selectedExecutionPassports ?? [],
+    graphNodes,
+    graphEdges: graphEdges ?? [],
+  });
+
   const nodesByType = (type: string) =>
     graphNodes.filter((node) => node.node_type === type);
 
@@ -686,6 +808,94 @@ export default async function TrustGraphEnginePage({
               Graph snapshot generated.
             </p>
           ) : null}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-sm uppercase tracking-[0.22em] text-zinc-500">
+                Graph Intelligence Summary
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">
+                {graphHealth.label}
+              </h2>
+            </div>
+            <span className="rounded-full border border-cyan-800 bg-cyan-950/20 px-3 py-1 text-sm text-cyan-100">
+              {graphHealth.score}/100
+            </span>
+          </div>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-7">
+            {[
+              ["Total Nodes", graphHealth.totalNodes],
+              ["Total Edges", graphHealth.totalEdges],
+              ["Evidence Coverage", graphHealth.evidenceCoverage],
+              ["Decision Coverage", graphHealth.decisionCoverage],
+              ["Audit Coverage", graphHealth.auditCoverage],
+              ["Signal Density", graphHealth.signalDensity],
+              ["Completeness", graphHealth.score],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                  {label}
+                </p>
+                <p className="mt-3 text-2xl font-semibold text-zinc-100">
+                  {value}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            <div className="rounded-lg border border-zinc-800 bg-black p-4">
+              <h3 className="font-semibold text-zinc-100">Missing Links</h3>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {graphHealth.missingLinks.length ? (
+                  graphHealth.missingLinks.map((warning) => (
+                    <span
+                      key={warning}
+                      className="rounded-full border border-amber-800 bg-amber-950/20 px-2.5 py-1 text-xs text-amber-200"
+                    >
+                      {warning}
+                    </span>
+                  ))
+                ) : (
+                  <span className="rounded-full border border-emerald-800 bg-emerald-950/20 px-2.5 py-1 text-xs text-emerald-200">
+                    No missing links detected
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="rounded-lg border border-zinc-800 bg-black p-4">
+              <h3 className="font-semibold text-zinc-100">Graph Explainability</h3>
+              <p className="mt-3 text-sm leading-6 text-zinc-500">
+                {graphHealth.explanation}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-sm uppercase tracking-[0.22em] text-zinc-500">
+            Graph Relationship Timeline
+          </p>
+          <div className="mt-5 space-y-3">
+            {graphHealth.timeline.length ? (
+              graphHealth.timeline.map((event, index) => (
+                <div
+                  key={`${event.label}-${index}`}
+                  className="rounded-lg border border-zinc-800 bg-black p-4"
+                >
+                  <p className="font-medium text-zinc-100">{event.label}</p>
+                  <p className="mt-2 text-xs text-zinc-600">
+                    {formatDate(event.created_at)}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
+                No graph timeline events available yet.
+              </p>
+            )}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
