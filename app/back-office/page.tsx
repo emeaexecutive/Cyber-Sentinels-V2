@@ -394,6 +394,7 @@ export default async function BackOfficePage({
     auditLogs,
     evidenceFiles,
     decisions,
+    helpQuestions,
   ] = await Promise.all([
     fetchTable<AnyRow>(supabase, "waitlist"),
     fetchTable<AnyRow>(supabase, "verification_cases"),
@@ -403,6 +404,7 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "audit_logs"),
     fetchTable<AnyRow>(supabase, "evidence_files", "created_at", 100),
     fetchTable<AnyRow>(supabase, "decisions", "created_at", 10),
+    fetchTable<AnyRow>(supabase, "help_questions", "created_at", 8),
   ]);
 
   const radarSignals = signals.rows.length
@@ -583,7 +585,8 @@ export default async function BackOfficePage({
     ["Decision Engine", "/decision-engine"],
     ["Launch Console", "/launch-console"],
     ["Trust History", "/trust-timeline"],
-    ["Trust Graph", "/trust-graph"],
+    ["Trust Graph", "/trust-graph-engine"],
+    ["Help Center", "/help"],
     ["Prediction Engine", "/trust-prediction"],
     ["Policy Engine", "/policy-engine"],
     ["API Docs", "/api-docs"],
@@ -1153,6 +1156,49 @@ export default async function BackOfficePage({
         </section>
 
         <section id="activity" className="mt-8 scroll-mt-24">
+          <div className="mb-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                  Help Center
+                </p>
+                <h2 className="mt-2 text-xl font-semibold">
+                  Latest Help Questions
+                </h2>
+              </div>
+              <Link
+                href="/help"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Open Help Center
+              </Link>
+            </div>
+            <div className="mt-5 grid gap-3">
+              {helpQuestions.rows.length ? (
+                helpQuestions.rows.map((question, index) => (
+                  <div
+                    key={rowKey(question, `help-question-${index}`)}
+                    className="rounded-lg border border-zinc-800 bg-black p-4"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <p className="max-w-4xl text-zinc-300">
+                        {question.question ?? "Help question"}
+                      </p>
+                      <span className="inline-flex rounded-full border border-cyan-800/70 bg-cyan-950/20 px-2.5 py-1 text-xs text-cyan-100">
+                        {question.status ?? "open"}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs text-zinc-600">
+                      {formatDate(question.created_at)}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <EmptyState label={tableEmptyLabel("help_questions", helpQuestions.available)} />
+              )}
+            </div>
+          </div>
+
           <h2 className="mb-4 text-xl font-semibold">Audit And Signal Timelines</h2>
           <div className="grid gap-6 lg:grid-cols-3">
             <div id="signal-timeline" className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
