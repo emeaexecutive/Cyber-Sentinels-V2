@@ -85,14 +85,22 @@ export async function POST(
   const now = new Date().toISOString();
   const updateValues =
     action === "answer"
-      ? { answer: payload.answer, status: "answered", updated_at: now }
+      ? {
+          answer: payload.answer,
+          status: "answered",
+          admin_answered_by: actor,
+          answered_at: now,
+          updated_at: now,
+        }
       : { status: "closed", updated_at: now };
 
   const { data: helpQuestion, error } = await supabase
     .from("help_questions")
     .update(updateValues)
     .eq("id", id)
-    .select("id, question, status, answer, created_by, created_at, updated_at")
+    .select(
+      "id, question, status, answer, created_by_user_id, created_by_email, created_by_name, reply_channel, admin_answered_by, answered_at, created_at, updated_at"
+    )
     .single();
 
   if (error || !helpQuestion) {
@@ -106,6 +114,9 @@ export async function POST(
 
   const metadata = {
     help_question_id: id,
+    created_by_user_id: helpQuestion.created_by_user_id,
+    created_by_email: helpQuestion.created_by_email,
+    admin_answered_by: action === "answer" ? actor : null,
     actor,
   };
   const eventType =

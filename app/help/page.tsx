@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
@@ -15,6 +16,9 @@ type HelpQuestion = {
   question: string | null;
   answer: string | null;
   status: string | null;
+  created_by_email: string | null;
+  admin_answered_by: string | null;
+  answered_at: string | null;
   created_at: string | null;
   updated_at: string | null;
 };
@@ -60,11 +64,23 @@ async function submitHelpQuestion(formData: FormData) {
   }
 
   const actor = user.email ?? user.id;
+  const userMetadata = user.user_metadata ?? {};
+  const createdByName =
+    typeof userMetadata.name === "string"
+      ? userMetadata.name
+      : typeof userMetadata.full_name === "string"
+        ? userMetadata.full_name
+        : null;
   const { data: helpQuestion, error } = await supabase
     .from("help_questions")
     .insert({
       question,
+      status: "open",
+      reply_channel: "in_app",
       created_by: actor,
+      created_by_user_id: user.id,
+      created_by_email: user.email ?? null,
+      created_by_name: createdByName,
     })
     .select("id")
     .single();
@@ -88,13 +104,27 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const { data: answeredQuestions } = await supabase
-    .from("help_questions")
-    .select("id,question,answer,status,created_at,updated_at")
-    .not("answer", "is", null)
-    .order("updated_at", { ascending: false })
-    .limit(20)
-    .returns<HelpQuestion[]>();
+  const isAdmin = isAdminAllowlisted(user?.email);
+  const { data: helpQuestions } = user
+    ? isAdmin
+      ? await supabase
+          .from("help_questions")
+          .select(
+            "id,question,answer,status,created_by_email,admin_answered_by,answered_at,created_at,updated_at"
+          )
+          .order("created_at", { ascending: false })
+          .limit(50)
+          .returns<HelpQuestion[]>()
+      : await supabase
+          .from("help_questions")
+          .select(
+            "id,question,answer,status,created_by_email,admin_answered_by,answered_at,created_at,updated_at"
+          )
+          .eq("created_by_user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(50)
+          .returns<HelpQuestion[]>()
+    : { data: [] as HelpQuestion[] };
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -150,14 +180,14 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <p className="text-sm uppercase tracking-[0.22em] text-zinc-500">
-            Answered Questions
+            Your Questions
           </p>
           <h2 className="mt-2 text-2xl font-semibold">
-            Admin-managed knowledge base.
+            Track submitted questions and admin answers.
           </h2>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            {answeredQuestions?.length ? (
-              answeredQuestions.map((item) => (
+            {helpQuestions?.length ? (
+              helpQuestions.map((item) => (
                 <div
                   key={item.id}
                   className="rounded-lg border border-zinc-800 bg-black p-5"
@@ -171,14 +201,21 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
                     </span>
                   </div>
                   <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-zinc-400">
-                    {item.answer}
+                    {item.answer ?? "Awaiting admin answer."}
+                  </p>
+                  <p className="mt-4 text-xs text-zinc-600">
+                    {item.admin_answered_by
+                      ? `Answered by ${item.admin_answered_by}`
+                      : "Not answered yet"}
+                    {item.answered_at ? ` / ${new Date(item.answered_at).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : ""}
                   </p>
                 </div>
               ))
             ) : (
               <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500 md:col-span-2">
-                No answered questions yet. Admin answers will appear here after
-                review.
+                {user
+                  ? "No submitted questions yet. Ask a question below to start a traceable help thread."
+                  : "Sign in to view your submitted questions and admin answers."}
               </p>
             )}
           </div>

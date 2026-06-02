@@ -1281,7 +1281,8 @@ export default async function BackOfficePage({
                       </span>
                     </div>
                     <p className="mt-2 text-xs text-zinc-600">
-                      Created by {question.created_by ?? "n/a"} /{" "}
+                      Asked by{" "}
+                      {question.created_by_email ?? question.created_by ?? "n/a"} /{" "}
                       {formatDate(question.created_at)}
                     </p>
                     {question.answer ? (
@@ -1291,6 +1292,10 @@ export default async function BackOfficePage({
                         </p>
                         <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-300">
                           {question.answer}
+                        </p>
+                        <p className="mt-3 text-xs text-zinc-600">
+                          Answered by {question.admin_answered_by ?? "n/a"} /{" "}
+                          {formatDate(question.answered_at)}
                         </p>
                       </div>
                     ) : null}
