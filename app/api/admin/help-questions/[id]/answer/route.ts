@@ -16,11 +16,13 @@ async function readPayload(req: Request) {
     const payload = (await req.json()) as {
       action?: unknown;
       answer?: unknown;
+      answer_source?: unknown;
     };
 
     return {
       action: String(payload.action ?? "").trim(),
       answer: String(payload.answer ?? "").trim(),
+      answerSource: String(payload.answer_source ?? "").trim(),
     };
   }
 
@@ -29,6 +31,7 @@ async function readPayload(req: Request) {
   return {
     action: String(formData.get("action") ?? "").trim(),
     answer: String(formData.get("answer") ?? "").trim(),
+    answerSource: String(formData.get("answer_source") ?? "").trim(),
   };
 }
 
@@ -134,6 +137,32 @@ export async function POST(
 
   if (signalInsert.error) {
     console.error("help question signal insert failed", signalInsert.error);
+  }
+
+  if (
+    action === "answer" &&
+    payload.answerSource === "ai_draft_from_knowledge_base"
+  ) {
+    const aiAuditInsert = await createAuditLog(
+      supabase,
+      "ai_answer_approved",
+      actor,
+      metadata
+    );
+
+    if (aiAuditInsert.error) {
+      console.error("AI answer approval audit insert failed", aiAuditInsert.error);
+    }
+
+    const aiSignalInsert = await createSignal(
+      supabase,
+      "AI answer approved",
+      metadata
+    );
+
+    if (aiSignalInsert.error) {
+      console.error("AI answer approval signal insert failed", aiSignalInsert.error);
+    }
   }
 
   return NextResponse.redirect(new URL("/back-office#activity", req.url), {

@@ -361,7 +361,9 @@ export default async function TrustAssistantPage({
                     </span>
                   </div>
                   <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-zinc-400">
-                    {row.answer ?? "Awaiting admin review."}
+                    {row.status === "answered" && row.answer
+                      ? row.answer
+                      : "Awaiting admin review."}
                   </p>
                   <p className="mt-3 text-xs text-zinc-600">
                     {row.answer_source ? `${row.answer_source} / ` : ""}

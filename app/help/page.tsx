@@ -247,13 +247,15 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
                     </span>
                   </div>
                   <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-zinc-400">
-                    {item.answer ?? "Awaiting admin answer."}
+                    {item.status === "answered" && item.answer
+                      ? item.answer
+                      : "Awaiting admin answer."}
                   </p>
                   <p className="mt-4 text-xs text-zinc-600">
-                    {item.admin_answered_by
+                    {item.status === "answered" && item.admin_answered_by
                       ? `Answered by ${item.admin_answered_by}`
                       : "Not answered yet"}
-                    {item.answered_at ? ` / ${new Date(item.answered_at).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : ""}
+                    {item.status === "answered" && item.answered_at ? ` / ${new Date(item.answered_at).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : ""}
                   </p>
                 </div>
               ))

@@ -327,13 +327,37 @@ function EvidenceReviewActions({ evidenceId }: { evidenceId: string }) {
 
 function HelpQuestionActions({ question }: { question: AnyRow }) {
   const action = `/api/admin/help-questions/${question.id}/answer`;
+  const draftAction = "/api/admin/assistant/draft-answer";
+  const isAiDraft = question.status === "drafted";
 
   return (
     <div className="mt-4 grid gap-3 border-t border-zinc-900 pt-4">
+      {question.status !== "answered" ? (
+        <form method="POST" action={draftAction}>
+          <input type="hidden" name="target" value="help" />
+          <input type="hidden" name="question_id" value={String(question.id)} />
+          <input
+            type="hidden"
+            name="question_text"
+            value={String(question.question ?? "")}
+          />
+          <button
+            type="submit"
+            className="rounded-lg border border-cyan-800 px-3 py-2 text-xs font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
+          >
+            Generate Draft
+          </button>
+        </form>
+      ) : null}
       <form method="POST" action={action} className="grid gap-3">
         <input type="hidden" name="action" value="answer" />
+        <input
+          type="hidden"
+          name="answer_source"
+          value={isAiDraft ? "ai_draft_from_knowledge_base" : "admin_review"}
+        />
         <label className="grid gap-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
-          Answer
+          {question.answer ? "Edit Draft" : "Answer"}
           <textarea
             name="answer"
             required
@@ -348,7 +372,7 @@ function HelpQuestionActions({ question }: { question: AnyRow }) {
             type="submit"
             className="rounded-lg border border-emerald-700 px-3 py-2 text-xs font-medium text-emerald-200 hover:border-emerald-400 hover:text-white"
           >
-            Answer
+            Approve Answer
           </button>
         </div>
       </form>
@@ -367,13 +391,31 @@ function HelpQuestionActions({ question }: { question: AnyRow }) {
 
 function TrustAssistantQuestionActions({ question }: { question: AnyRow }) {
   const action = `/api/admin/trust-assistant-questions/${question.id}/answer`;
+  const draftAction = "/api/admin/assistant/draft-answer";
 
   return (
     <div className="mt-4 grid gap-3 border-t border-zinc-900 pt-4">
+      {question.status !== "answered" ? (
+        <form method="POST" action={draftAction}>
+          <input type="hidden" name="target" value="trust_assistant" />
+          <input type="hidden" name="question_id" value={String(question.id)} />
+          <input
+            type="hidden"
+            name="question_text"
+            value={String(question.question ?? "")}
+          />
+          <button
+            type="submit"
+            className="rounded-lg border border-cyan-800 px-3 py-2 text-xs font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
+          >
+            Generate Draft
+          </button>
+        </form>
+      ) : null}
       <form method="POST" action={action} className="grid gap-3">
         <input type="hidden" name="action" value="answer" />
         <label className="grid gap-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
-          Answer in app
+          {question.answer ? "Edit Draft" : "Answer in app"}
           <textarea
             name="answer"
             required
@@ -393,7 +435,7 @@ function TrustAssistantQuestionActions({ question }: { question: AnyRow }) {
           type="submit"
           className="w-fit rounded-lg border border-emerald-700 px-3 py-2 text-xs font-medium text-emerald-200 hover:border-emerald-400 hover:text-white"
         >
-          Answer
+          Approve Answer
         </button>
       </form>
       <div className="flex flex-wrap gap-2">
@@ -446,7 +488,7 @@ function tableEmptyLabel(table: string, available: boolean) {
 }
 
 type BackOfficePageProps = {
-  searchParams?: Promise<{ denied?: string }>;
+  searchParams?: Promise<{ denied?: string; ai_draft?: string }>;
 };
 
 export default async function BackOfficePage({
@@ -458,6 +500,14 @@ export default async function BackOfficePage({
     path: "/back-office",
     denied: params?.denied === "1",
   });
+  const aiDraftMessage =
+    params?.ai_draft === "missing_openai_key"
+      ? "AI drafting unavailable — missing OPENAI_API_KEY."
+      : params?.ai_draft === "no_approved_source"
+        ? "No approved knowledge source available."
+        : params?.ai_draft === "created"
+          ? "AI answer draft created. Review and approve before users see it."
+          : "";
 
   const [
     waitlist,
@@ -785,6 +835,11 @@ export default async function BackOfficePage({
             </a>
           </nav>
         </section>
+        {aiDraftMessage ? (
+          <p className="mt-5 rounded-lg border border-cyan-900 bg-cyan-950/20 p-3 text-sm text-cyan-100">
+            {aiDraftMessage}
+          </p>
+        ) : null}
 
         <section className="mt-6">
           <h2 className="mb-4 text-xl font-semibold">Operational Snapshot</h2>

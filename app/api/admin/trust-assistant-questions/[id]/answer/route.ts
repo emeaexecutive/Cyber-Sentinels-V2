@@ -158,6 +158,32 @@ export async function POST(
     console.error("trust assistant signal insert failed", signalInsert.error);
   }
 
+  if (
+    action === "answer" &&
+    payload.answerSource === "ai_draft_from_knowledge_base"
+  ) {
+    const aiAuditInsert = await createAuditLog(
+      supabase,
+      "ai_answer_approved",
+      actor,
+      metadata
+    );
+
+    if (aiAuditInsert.error) {
+      console.error("AI answer approval audit insert failed", aiAuditInsert.error);
+    }
+
+    const aiSignalInsert = await createSignal(
+      supabase,
+      "AI answer approved",
+      metadata
+    );
+
+    if (aiSignalInsert.error) {
+      console.error("AI answer approval signal insert failed", aiSignalInsert.error);
+    }
+  }
+
   return NextResponse.redirect(new URL("/back-office#trust-assistant", req.url), {
     status: 303,
   });
