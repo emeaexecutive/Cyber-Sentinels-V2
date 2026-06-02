@@ -26,6 +26,14 @@ type ConversationRow = {
   updated_at: string | null;
 };
 
+type KnowledgeArticle = {
+  id: string;
+  title: string | null;
+  category: string | null;
+  summary: string | null;
+  body: string | null;
+};
+
 const suggestedQuestions = [
   "What is a Trust Passport?",
   "Why was this verification rejected?",
@@ -147,6 +155,7 @@ export default async function TrustAssistantPage({
     { count: auditCount },
     { count: graphNodeCount },
     { count: helpAnswerCount },
+    { data: knowledgeArticles },
   ] = await Promise.all([
     supabase.from("passports").select("id", { count: "exact", head: true }),
     supabase.from("evidence_files").select("id", { count: "exact", head: true }),
@@ -160,6 +169,13 @@ export default async function TrustAssistantPage({
       .from("help_questions")
       .select("id", { count: "exact", head: true })
       .not("answer", "is", null),
+    supabase
+      .from("knowledge_articles")
+      .select("id,title,category,summary,body")
+      .eq("status", "approved")
+      .order("updated_at", { ascending: false })
+      .limit(6)
+      .returns<KnowledgeArticle[]>(),
   ]);
   const sourceCounts = new Map([
     ["Passports", passportCount ?? 0],
@@ -273,6 +289,40 @@ export default async function TrustAssistantPage({
                 <p className="font-medium text-zinc-100">{question}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-sm uppercase tracking-[0.22em] text-zinc-500">
+            Source Material
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold">
+            Approved knowledge articles for human review.
+          </h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            {knowledgeArticles?.length ? (
+              knowledgeArticles.map((article) => (
+                <Link
+                  key={article.id}
+                  href={`/knowledge-base?article_id=${encodeURIComponent(article.id)}`}
+                  className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-800"
+                >
+                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                    {article.category ?? "Knowledge"}
+                  </p>
+                  <h3 className="mt-3 font-semibold text-zinc-100">
+                    {article.title}
+                  </h3>
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-500">
+                    {article.summary ?? article.body}
+                  </p>
+                </Link>
+              ))
+            ) : (
+              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500 md:col-span-3">
+                No approved knowledge articles available yet.
+              </p>
+            )}
           </div>
         </section>
 

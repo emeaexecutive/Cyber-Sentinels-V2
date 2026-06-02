@@ -11,6 +11,7 @@ const navLinks = [
   ["/execution-passports", "Execution Passports"],
   ["/trust-graph-engine", "Trust Graph"],
   ["/trust-assistant", "Trust Assistant"],
+  ["/knowledge-base", "Knowledge Base"],
   ["/help", "Help"],
   ["/verification-queue", "Verification Queue"],
   ["/evidence-vault", "Evidence Vault"],

@@ -470,6 +470,7 @@ export default async function BackOfficePage({
     decisions,
     helpQuestions,
     trustAssistantQuestions,
+    knowledgeArticles,
     stateChecks,
     executionPassports,
   ] = await Promise.all([
@@ -483,6 +484,7 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "decisions", "created_at", 100),
     fetchTable<AnyRow>(supabase, "help_questions", "created_at", 8),
     fetchTable<AnyRow>(supabase, "trust_assistant_questions", "created_at", 8),
+    fetchTable<AnyRow>(supabase, "knowledge_articles", "updated_at", 20),
     fetchTable<AnyRow>(supabase, "passport_state_checks", "created_at", 100),
     fetchTable<AnyRow>(supabase, "execution_passports", "created_at", 100),
   ]);
@@ -710,6 +712,7 @@ export default async function BackOfficePage({
     ["Trust History", "/trust-timeline"],
     ["Trust Graph", "/trust-graph-engine"],
     ["Trust Assistant", "/trust-assistant"],
+    ["Knowledge Base", "/knowledge-base"],
     ["Help Center", "/help"],
     ["Prediction Engine", "/trust-prediction"],
     ["Policy Engine", "/policy-engine"],
@@ -1432,6 +1435,67 @@ export default async function BackOfficePage({
                   )}
                 />
               )}
+            </div>
+          </div>
+
+          <div className="mb-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                  Knowledge Base
+                </p>
+                <h2 className="mt-2 text-xl font-semibold">
+                  Governed Content Layer
+                </h2>
+              </div>
+              <Link
+                href="/knowledge-base"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Open Knowledge Base
+              </Link>
+            </div>
+            <div className="mt-5 grid gap-4 lg:grid-cols-2">
+              {[
+                ["Latest Draft Articles", "draft"],
+                ["Latest Approved Articles", "approved"],
+              ].map(([label, status]) => {
+                const rows = knowledgeArticles.rows
+                  .filter((article) => article.status === status)
+                  .slice(0, 5);
+
+                return (
+                  <div
+                    key={status}
+                    className="rounded-lg border border-zinc-800 bg-black p-4"
+                  >
+                    <h3 className="font-semibold text-zinc-100">{label}</h3>
+                    <div className="mt-4 grid gap-3">
+                      {rows.length ? (
+                        rows.map((article, index) => (
+                          <Link
+                            key={rowKey(article, `knowledge-${status}-${index}`)}
+                            href={`/knowledge-base?article_id=${encodeURIComponent(String(article.id))}`}
+                            className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 hover:border-cyan-800"
+                          >
+                            <p className="font-medium text-zinc-100">
+                              {article.title ?? "Knowledge article"}
+                            </p>
+                            <p className="mt-1 text-xs text-zinc-600">
+                              {article.category ?? "Uncategorized"} /{" "}
+                              {formatDate(article.updated_at)}
+                            </p>
+                          </Link>
+                        ))
+                      ) : (
+                        <EmptyState
+                          label={`No ${status} knowledge articles yet.`}
+                        />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

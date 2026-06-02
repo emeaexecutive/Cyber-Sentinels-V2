@@ -23,6 +23,14 @@ type HelpQuestion = {
   updated_at: string | null;
 };
 
+type KnowledgeArticle = {
+  id: string;
+  title: string | null;
+  category: string | null;
+  summary: string | null;
+  body: string | null;
+};
+
 const faqs = [
   ["What is a Trust Passport?", "A Trust Passport is a live record that connects a subject to identity, evidence, decisions, signals and audit history."],
   ["What is evidence?", "Evidence is supporting material such as uploaded files, URLs or records used to verify a claim."],
@@ -125,6 +133,13 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
           .limit(50)
           .returns<HelpQuestion[]>()
     : { data: [] as HelpQuestion[] };
+  const { data: knowledgeArticles } = await supabase
+    .from("knowledge_articles")
+    .select("id,title,category,summary,body")
+    .eq("status", "approved")
+    .order("updated_at", { ascending: false })
+    .limit(12)
+    .returns<KnowledgeArticle[]>();
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -155,6 +170,37 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
                 <p className="mt-3 text-sm leading-6 text-zinc-500">{answer}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-sm uppercase tracking-[0.22em] text-zinc-500">
+            Knowledge Base FAQs
+          </p>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {knowledgeArticles?.length ? (
+              knowledgeArticles.map((article) => (
+                <Link
+                  key={article.id}
+                  href={`/knowledge-base?article_id=${encodeURIComponent(article.id)}`}
+                  className="rounded-lg border border-zinc-800 bg-black p-5 hover:border-cyan-800"
+                >
+                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                    {article.category ?? "Knowledge"}
+                  </p>
+                  <h2 className="mt-3 text-base font-semibold text-zinc-100">
+                    {article.title}
+                  </h2>
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-500">
+                    {article.summary ?? article.body}
+                  </p>
+                </Link>
+              ))
+            ) : (
+              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500 md:col-span-2 xl:col-span-3">
+                Approved knowledge articles will appear here.
+              </p>
+            )}
           </div>
         </section>
 
