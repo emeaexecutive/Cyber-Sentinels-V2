@@ -761,6 +761,7 @@ export default async function BackOfficePage({
     ["Launch Console", "/launch-console"],
     ["Trust History", "/trust-timeline"],
     ["Trust Graph", "/trust-graph-engine"],
+    ["Trust Intelligence", "/trust-intelligence"],
     ["Trust Assistant", "/trust-assistant"],
     ["Knowledge Base", "/knowledge-base"],
     ["Help Center", "/help"],
@@ -821,6 +822,12 @@ export default async function BackOfficePage({
             </h1>
           </div>
           <nav className="flex flex-wrap gap-2 text-xs text-zinc-300">
+            <Link
+              href="/trust-intelligence"
+              className="rounded-lg border border-cyan-800 px-3 py-2 text-cyan-100 hover:text-white"
+            >
+              Open Trust Intelligence
+            </Link>
             <a href="#verification-queue" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
               Priority Queue
             </a>

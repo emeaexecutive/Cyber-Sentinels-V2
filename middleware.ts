@@ -16,6 +16,7 @@ const adminPagePrefixes = [
   "/decision-engine",
   "/mission-control",
   "/trust-graph-engine",
+  "/trust-intelligence",
 ];
 
 function isProtectedAdminPath(pathname: string) {
@@ -104,6 +105,7 @@ export const config = {
     "/decision-engine/:path*",
     "/mission-control/:path*",
     "/trust-graph-engine/:path*",
+    "/trust-intelligence/:path*",
     "/api/admin/:path*",
   ],
 };

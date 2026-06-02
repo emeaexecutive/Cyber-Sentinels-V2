@@ -10,6 +10,7 @@ const navLinks = [
   ["/autonomy-governance", "Autonomy Governance"],
   ["/execution-passports", "Execution Passports"],
   ["/trust-graph-engine", "Trust Graph"],
+  ["/trust-intelligence", "Trust Intelligence"],
   ["/trust-assistant", "Trust Assistant"],
   ["/knowledge-base", "Knowledge Base"],
   ["/help", "Help"],
