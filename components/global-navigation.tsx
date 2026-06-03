@@ -7,6 +7,7 @@ const navGroups = [
       ["/", "Home"],
       ["/how-to-use", "How to Use"],
       ["/passport", "Create Passport"],
+      ["/status", "System Status"],
     ],
   },
   {

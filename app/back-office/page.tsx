@@ -891,7 +891,7 @@ export default async function BackOfficePage({
 
         <section id="overview" className="mt-6 scroll-mt-24">
           <h2 className="mb-4 text-xl font-semibold">Operational Snapshot</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
           {[
             {
               label: "Passports",
@@ -936,6 +936,12 @@ export default async function BackOfficePage({
               value: signals.count,
               available: signals.available,
               href: "#signal-timeline",
+            },
+            {
+              label: "System Health",
+              value: "Live",
+              available: true,
+              href: "/status",
             },
           ].map((metric) => (
             <Link

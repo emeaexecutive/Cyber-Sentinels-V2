@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { GlobalNavigation } from "@/components/global-navigation";
 import Link from "next/link";
+import { GlobalNavigation } from "@/components/global-navigation";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Cyber Sentinels V2 | AI Trust Infrastructure",
-  description: "Proof-before-permission infrastructure for humans, autonomous agents and synthetic content.",
+  description:
+    "Proof-before-permission infrastructure for humans, autonomous agents and synthetic content.",
 };
 
 export default function RootLayout({
@@ -21,9 +22,10 @@ export default function RootLayout({
           {children}
           <footer className="border-t border-zinc-900 bg-black px-6 py-8 text-sm text-zinc-500 md:px-8">
             <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
-              <p>©2026 Cyber Sentinels™</p>
+              <p>&copy;2026 Cyber Sentinels&trade;</p>
               <nav className="flex flex-wrap gap-3">
                 {[
+                  ["/status", "System Status"],
                   ["/privacy", "Privacy"],
                   ["/terms", "Terms"],
                   ["/cookies", "Cookies"],
