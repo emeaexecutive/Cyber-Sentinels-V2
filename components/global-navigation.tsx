@@ -34,14 +34,6 @@ const adminNavGroups = [
       ["/state-verification", "State Verification"],
     ],
   },
-  {
-    label: "Support",
-    links: [
-      ["/help", "Help"],
-      ["/knowledge-base", "Knowledge Base"],
-      ["/trust-assistant", "Trust Assistant"],
-    ],
-  },
 ];
 
 const publicLinks = [
@@ -58,7 +50,6 @@ const userLinks = [
   ["/passport", "Create Passport"],
   ["/passports", "My Passports"],
   ["/help", "Help"],
-  ["/trust-assistant", "Trust Assistant"],
 ];
 
 function LogoutButton() {
@@ -192,12 +183,6 @@ export function GlobalNavigation({
                   </div>
                 );
               })}
-              <Link
-                href="/status"
-                className="rounded-lg border border-zinc-800 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
-              >
-                System Status
-              </Link>
               <LogoutButton />
             </>
           ) : null}
