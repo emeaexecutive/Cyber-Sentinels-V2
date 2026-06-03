@@ -8,6 +8,61 @@ type PassportPageProps = {
   searchParams?: Promise<{ created?: string }>;
 };
 
+function friendlyStatus(status?: string | null) {
+  const normalized = String(status ?? "pending").toLowerCase();
+
+  if (["verified", "approved", "allow", "complete", "completed"].includes(normalized)) {
+    return "Verification completed";
+  }
+
+  if (["rejected", "denied", "deny"].includes(normalized)) {
+    return "Additional review required";
+  }
+
+  if (["escalated", "manual_review", "in_review"].includes(normalized)) {
+    return "Under review";
+  }
+
+  if (["needs_more_evidence", "evidence_requested"].includes(normalized)) {
+    return "Awaiting evidence";
+  }
+
+  return "Pending review";
+}
+
+function OnboardingCard({
+  title,
+  copy,
+  href,
+  complete,
+}: {
+  title: string;
+  copy: string;
+  href: string;
+  complete?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className="rounded-lg border border-zinc-800 bg-zinc-950 p-5 hover:border-cyan-800"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <h2 className="text-lg font-semibold text-zinc-100">{title}</h2>
+        <span
+          className={`rounded-full border px-2.5 py-1 text-xs ${
+            complete
+              ? "border-emerald-800 bg-emerald-950/30 text-emerald-200"
+              : "border-zinc-700 text-zinc-400"
+          }`}
+        >
+          {complete ? "Done" : "Next"}
+        </span>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-zinc-500">{copy}</p>
+    </Link>
+  );
+}
+
 export default async function PassportPage({ searchParams }: PassportPageProps) {
   const supabase = await createClient();
 
@@ -28,9 +83,13 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
   const passport = passports?.[0];
   const params = await searchParams;
   const created = params?.created === "1";
+  const hasPassport = Boolean(passport);
+  const currentStatus = friendlyStatus(
+    passport?.verification_status ?? passport?.review_status
+  );
 
   return (
-    <main className="min-h-screen bg-black p-8 text-white">
+    <main className="min-h-screen bg-[#04070c] p-8 text-white">
       <div className="mx-auto max-w-5xl">
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
@@ -49,7 +108,48 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
           ))}
         </nav>
 
-        <h1 className="mt-8 text-5xl font-bold">Sentinel Passport</h1>
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
+            Guided Setup
+          </p>
+          <h1 className="mt-4 text-4xl font-semibold">
+            Create and manage your Trust Passport
+          </h1>
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-400">
+            Start with a passport, upload evidence when requested, and track the
+            verification process from one calm workspace.
+          </p>
+        </section>
+
+        <section className="mt-8 grid gap-4 md:grid-cols-5">
+          <OnboardingCard
+            title="Create your first Trust Passport"
+            copy="Create the trust record that starts verification."
+            href="#submit-verification"
+            complete={hasPassport}
+          />
+          <OnboardingCard
+            title="Upload evidence"
+            copy="Add supporting files when evidence is requested."
+            href="/evidence-upload"
+          />
+          <OnboardingCard
+            title="Track verification progress"
+            copy="Open My Passports to see status and next steps."
+            href="/passports"
+            complete={hasPassport}
+          />
+          <OnboardingCard
+            title="View notifications"
+            copy="Read updates about evidence, decisions and appeals."
+            href="/notifications"
+          />
+          <OnboardingCard
+            title="Learn how Trust Scores work"
+            copy="Understand risk indicators and human review."
+            href="/how-to-use"
+          />
+        </section>
 
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
@@ -83,6 +183,30 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
             </Link>
           </section>
         ) : null}
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                Current Step
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">
+                {hasPassport ? currentStatus : "Create your first Trust Passport"}
+              </h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
+                {hasPassport
+                  ? "Your passport has been created. Continue by uploading evidence when requested, then watch for review updates and notifications."
+                  : "No Trust Passports yet. Create your first Trust Passport to begin verification."}
+              </p>
+            </div>
+            <Link
+              href={hasPassport ? "/evidence-upload" : "#submit-verification"}
+              className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
+            >
+              {hasPassport ? "Upload Evidence" : "Start Passport"}
+            </Link>
+          </div>
+        </section>
 
         <section className="mt-10 rounded-3xl border border-zinc-800 bg-zinc-950 p-8">
           {passport ? (
@@ -245,7 +369,12 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
               </div>
             </>
           ) : (
-            <p className="text-zinc-500">No passport created yet.</p>
+            <div className="rounded-lg border border-zinc-800 bg-black p-5">
+              <p className="font-medium text-zinc-100">No Trust Passports yet.</p>
+              <p className="mt-2 text-sm leading-6 text-zinc-500">
+                Create your first Trust Passport to begin verification.
+              </p>
+            </div>
           )}
         </section>
 

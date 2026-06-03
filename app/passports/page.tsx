@@ -55,10 +55,32 @@ function valueOrFallback(value: string | number | null | undefined) {
   return String(value);
 }
 
+function friendlyStatus(value: string | null | undefined) {
+  const normalized = String(value ?? "pending").toLowerCase();
+
+  if (["verified", "approved", "allow", "complete", "completed"].includes(normalized)) {
+    return "Verification completed";
+  }
+
+  if (["rejected", "denied", "deny"].includes(normalized)) {
+    return "Additional review required";
+  }
+
+  if (["escalated", "manual_review", "in_review"].includes(normalized)) {
+    return "Under review";
+  }
+
+  if (["needs_more_evidence", "evidence_requested"].includes(normalized)) {
+    return "Awaiting evidence";
+  }
+
+  return "Pending review";
+}
+
 function StatusChip({ value }: { value?: string | null }) {
   return (
     <span className="inline-flex rounded-full border border-cyan-800/70 bg-cyan-950/20 px-2.5 py-1 text-xs text-cyan-100">
-      {valueOrFallback(value)}
+      {friendlyStatus(value)}
     </span>
   );
 }
@@ -196,11 +218,11 @@ export default async function TrustPassportRegistryPage({
           <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="text-4xl font-semibold md:text-6xl">
-                Latest Trust Passports
+                My Trust Passports
               </h1>
               <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400">
-                Identity proves who. Evidence proves why. Open a passport to
-                inspect the complete trust timeline.
+                Track verification progress, evidence status, review outcomes
+                and audit visibility for your own passports.
               </p>
             </div>
             <Link
@@ -332,7 +354,7 @@ export default async function TrustPassportRegistryPage({
                 <p className="text-sm text-zinc-400">
                   {rows.length
                     ? "No Trust Passports match this view. Clear filters or adjust the search."
-                    : "No passports yet. Create a Trust Passport to start the demo workflow."}
+                    : "No Trust Passports yet. Create your first Trust Passport to begin verification."}
                 </p>
                 {!rows.length ? (
                   <Link

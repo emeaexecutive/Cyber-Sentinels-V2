@@ -1027,6 +1027,40 @@ export default async function BackOfficePage({
           </p>
         ) : null}
 
+        <section className="mt-6 grid gap-4 md:grid-cols-4">
+          {[
+            [
+              "What needs review?",
+              `${verificationCases.count} verification cases and ${pendingEvidenceFiles.length} evidence files need attention.`,
+              "#verification-queue",
+            ],
+            [
+              "What is risky?",
+              `${radarSignals.filter((signal) => ["high", "critical"].includes(String(signal.severity).toLowerCase())).length} high-risk signals are visible in the latest operating data.`,
+              "#signal-timeline",
+            ],
+            [
+              "What is blocked?",
+              `${dataRightsRequests.rows.filter((request) => request.status !== "completed").length} data-rights requests and ${appeals.rows.filter((appeal) => !["closed", "upheld", "reversed"].includes(String(appeal.status))).length} appeals are still open.`,
+              "#help",
+            ],
+            [
+              "What requires escalation?",
+              `${trustAssistantQuestions.rows.filter((question) => question.status === "escalated").length + messageThreads.rows.filter((thread) => thread.status === "escalated").length} escalated support or assistant items need admin review.`,
+              "#trust-assistant",
+            ],
+          ].map(([title, copy, href]) => (
+            <Link
+              key={title}
+              href={href}
+              className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 hover:border-cyan-800"
+            >
+              <h2 className="text-sm font-semibold text-zinc-100">{title}</h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-500">{copy}</p>
+            </Link>
+          ))}
+        </section>
+
         <section id="overview" className="mt-6 scroll-mt-24">
           <h2 className="mb-4 text-xl font-semibold">Operational Snapshot</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">

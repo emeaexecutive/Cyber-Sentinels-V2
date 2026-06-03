@@ -28,6 +28,46 @@ function value(value: unknown, fallback = "Not recorded") {
     : String(value);
 }
 
+function friendlyStatus(status: unknown) {
+  const normalized = String(status ?? "pending").toLowerCase();
+
+  if (["verified", "approved", "allow", "complete", "completed"].includes(normalized)) {
+    return "Verification completed";
+  }
+
+  if (["rejected", "denied", "deny"].includes(normalized)) {
+    return "Additional review required";
+  }
+
+  if (["escalated", "manual_review", "in_review"].includes(normalized)) {
+    return "Under review";
+  }
+
+  if (["needs_more_evidence", "evidence_requested"].includes(normalized)) {
+    return "Awaiting evidence";
+  }
+
+  return "Pending review";
+}
+
+function nextAction(status: unknown, hasEvidence: boolean, hasDecision: boolean) {
+  const friendly = friendlyStatus(status);
+
+  if (!hasEvidence) {
+    return "No evidence uploaded yet. Upload evidence to continue the verification process.";
+  }
+
+  if (hasDecision || friendly === "Verification completed") {
+    return "Verification completed. Review the decision, audit trail and notifications for details.";
+  }
+
+  if (friendly === "Additional review required") {
+    return "A review outcome needs attention. You can read updates or submit an appeal if needed.";
+  }
+
+  return "Your passport is under review. Watch notifications for evidence requests or review updates.";
+}
+
 function rowMetadata(row: AnyRow) {
   const metadata = row.metadata;
   return metadata && typeof metadata === "object" && !Array.isArray(metadata)
@@ -261,11 +301,39 @@ export default async function PassportViewerPage({
           </div>
           <div className="rounded-lg border border-zinc-800 bg-black p-5">
             <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Status</p>
-            <div className="mt-4"><StatusChip>{value(status)}</StatusChip></div>
+            <div className="mt-4"><StatusChip>{friendlyStatus(status)}</StatusChip></div>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-black p-5">
             <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Created</p>
             <p className="mt-3 text-lg text-zinc-100">{formatDate(passport.created_at)}</p>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+            Next Required Action
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold">
+            {friendlyStatus(status)}
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
+            {nextAction(status, evidence.length > 0, decisions.length > 0)}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {!evidence.length ? (
+              <Link
+                href="/evidence-upload"
+                className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
+              >
+                Upload Evidence
+              </Link>
+            ) : null}
+            <Link
+              href="/notifications"
+              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            >
+              View Notifications
+            </Link>
           </div>
         </section>
 
@@ -276,13 +344,13 @@ export default async function PassportViewerPage({
                 <div key={String(item.id)} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <p className="font-medium">{value(item.file_name ?? item.file_url, "Evidence file")}</p>
                   <p className="mt-1 text-sm text-zinc-500">
-                    {value(item.evidence_type ?? item.file_type)} / {value(item.status ?? item.scan_status, "pending")}
+                    {value(item.evidence_type ?? item.file_type)} / {friendlyStatus(item.status ?? item.scan_status)}
                   </p>
                   <p className="mt-2 text-xs text-zinc-600">{formatDate(item.created_at)}</p>
                 </div>
               ))
             ) : (
-              <Empty label="Upload evidence to continue verification." />
+              <Empty label="No evidence uploaded yet. Upload evidence to continue the verification process." />
             )}
           </Panel>
 
@@ -292,13 +360,13 @@ export default async function PassportViewerPage({
                 <div key={String(decision.id)} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <p className="font-medium">{value(decision.decision, "Decision")}</p>
                   <p className="mt-1 text-sm text-zinc-500">
-                    {value(decision.status)} / {value(decision.actor ?? decision.decided_by)}
+                    {friendlyStatus(decision.status)} / {value(decision.actor ?? decision.decided_by)}
                   </p>
                   <p className="mt-2 text-xs text-zinc-600">{formatDate(decision.created_at)}</p>
                 </div>
               ))
             ) : (
-              <Empty label="Your verification is awaiting review." />
+              <Empty label="No decision recorded yet. Your verification may still be under review." />
             )}
           </Panel>
 
@@ -311,7 +379,7 @@ export default async function PassportViewerPage({
                 </div>
               ))
             ) : (
-              <Empty label="No linked signals yet." />
+              <Empty label="No signals yet. Status updates will appear as the workflow progresses." />
             )}
           </Panel>
 
@@ -325,7 +393,7 @@ export default async function PassportViewerPage({
                 </div>
               ))
             ) : (
-              <Empty label="No linked audit trail yet." />
+              <Empty label="No audit records yet. Review history will appear as actions are recorded." />
             )}
           </Panel>
 
@@ -345,7 +413,7 @@ export default async function PassportViewerPage({
                 </div>
               ))
             ) : (
-              <Empty label="No notifications yet." />
+              <Empty label="No notifications yet. Operational updates will appear here." />
             )}
           </Panel>
 
