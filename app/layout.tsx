@@ -9,9 +9,9 @@ import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Cyber Sentinels V2 | AI Trust Infrastructure",
+  title: "Cyber Sentinels | Governed Trust Infrastructure",
   description:
-    "Proof-before-permission infrastructure for humans, autonomous agents and synthetic content.",
+    "Evidence-backed trust infrastructure for governed verification and operational transparency.",
 };
 
 const footerSections = [

@@ -19,8 +19,6 @@ const userPagePrefixes = [
   "/messages",
   "/notifications",
   "/appeals",
-  "/agents",
-  "/trust-events",
   "/developers/api-keys",
 ];
 
@@ -32,11 +30,15 @@ const adminPagePrefixes = [
   "/decision-engine",
   "/trust-intelligence",
   "/trust-graph-engine",
+  "/mission-control",
+  "/signals",
   "/workforce-trust",
   "/intent-verification",
   "/autonomy-governance",
   "/execution-passports",
   "/state-verification",
+  "/agents",
+  "/trust-events",
 ];
 
 function matchesPrefix(pathname: string, prefixes: string[]) {
@@ -168,8 +170,6 @@ export const config = {
     "/messages/:path*",
     "/notifications/:path*",
     "/appeals/:path*",
-    "/agents/:path*",
-    "/trust-events/:path*",
     "/developers/api-keys/:path*",
     "/back-office/:path*",
     "/admin/agents/:path*",
@@ -178,11 +178,15 @@ export const config = {
     "/decision-engine/:path*",
     "/trust-intelligence/:path*",
     "/trust-graph-engine/:path*",
+    "/mission-control/:path*",
+    "/signals/:path*",
     "/workforce-trust/:path*",
     "/intent-verification/:path*",
     "/autonomy-governance/:path*",
     "/execution-passports/:path*",
     "/state-verification/:path*",
+    "/agents/:path*",
+    "/trust-events/:path*",
     "/api/admin/:path*",
   ],
 };

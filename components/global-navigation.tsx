@@ -22,8 +22,6 @@ const adminNavGroups = [
     links: [
       ["/trust-intelligence", "Trust Intelligence"],
       ["/trust-graph-engine", "Trust Graph"],
-      ["/trust-events", "Trust Events"],
-      ["/admin/agents", "Agent Registry"],
     ],
   },
   {
@@ -56,8 +54,9 @@ const supportLegalLinks = [
 const publicLinks = [
   ["/", "Home"],
   ["/demo", "Demo"],
-  ["/developers", "Developers"],
   ["/how-to-use", "How to Use"],
+  ["/security", "Security"],
+  ["/help", "Help"],
   ["/login", "Login"],
 ];
 
@@ -65,11 +64,7 @@ const userLinks = [
   ["/", "Home"],
   ["/passport", "Create Passport"],
   ["/passports", "My Passports"],
-  ["/developers", "Developers"],
-  ["/agents", "AI Agents"],
-  ["/trust-events", "Trust Events"],
   ["/notifications", "Notifications"],
-  ["/messages", "Messages"],
   ["/appeals", "Appeals"],
   ["/help", "Help"],
 ];

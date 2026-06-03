@@ -154,11 +154,6 @@ export async function POST(req: Request) {
     );
   }
 
-  const { data: publicUrlData } = supabase.storage
-    .from(bucketName)
-    .getPublicUrl(storagePath);
-  const fileUrl = publicUrlData.publicUrl;
-
   const { data: evidenceRow, error: evidenceError } = await supabase
     .from("evidence_files")
     .insert({
@@ -169,8 +164,8 @@ export async function POST(req: Request) {
       file_type: fileType,
       file_size: file.size,
       storage_path: storagePath,
-      public_url: fileUrl,
-      file_url: fileUrl,
+      public_url: null,
+      file_url: null,
       media_type: fileType,
       notes,
       uploaded_by: actor,
@@ -226,7 +221,6 @@ export async function POST(req: Request) {
     file_type: fileType,
     file_size: file.size,
     storage_path: storagePath,
-    file_url: fileUrl,
     evidence_url: optionalEvidenceUrl || null,
     notes,
     actor,

@@ -37,7 +37,7 @@ export default function ResetPasswordPage() {
       }
 
       setMessage("Password updated successfully.");
-      router.push("/command-center");
+      router.push("/passport");
     } catch {
       setMessage("Could not update password.");
     } finally {
