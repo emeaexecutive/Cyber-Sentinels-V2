@@ -21,17 +21,22 @@ export default function RootLayout({
           {children}
           <footer className="border-t border-zinc-900 bg-black px-6 py-8 text-sm text-zinc-500 md:px-8">
             <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
-              <p>Cyber Sentinels Trust OS</p>
+              <p>©2026 Cyber Sentinels™</p>
               <nav className="flex flex-wrap gap-3">
                 {[
-                  ["/help", "Help"],
-                  ["/security", "Security"],
-                  ["/privacy", "Privacy"],
-                  ["/terms", "Terms"],
-                  ["/cookies", "Cookies"],
+                  ["/about-us", "About us"],
+                  ["/security", "Security and online safety"],
+                  ["/media-centre", "Media centre"],
+                  ["/careers", "Careers"],
+                  ["/our-people", "Our people"],
+                  ["/corporate-sustainability", "Corporate sustainability"],
+                  ["/modern-slavery-statement", "Modern Slavery statement"],
+                  ["/privacy", "Privacy policy"],
+                  ["/cookies", "Cookies and preferences"],
                   ["/legal", "Legal"],
                   ["/regulatory", "Regulatory"],
                   ["/accessibility", "Accessibility"],
+                  ["/terms", "Terms & conditions"],
                 ].map(([href, label]) => (
                   <Link key={href} href={href} className="hover:text-white">
                     {label}

@@ -32,12 +32,15 @@ const navGroups = [
       ["/workforce-trust", "Workforce Trust"],
       ["/intent-verification", "Intent Verification"],
       ["/autonomy-governance", "Autonomy Governance"],
+      ["/execution-passports", "Execution Passports"],
+      ["/state-verification", "State Verification"],
     ],
   },
   {
-    label: "Legal & Support",
+    label: "Support & Legal",
     links: [
       ["/help", "Help"],
+      ["/knowledge-base", "Knowledge Base"],
       ["/security", "Security"],
       ["/privacy", "Privacy"],
       ["/terms", "Terms"],
