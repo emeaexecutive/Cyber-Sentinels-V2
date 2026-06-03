@@ -46,6 +46,9 @@ const metricTables = [
   ["decisions", "Decisions"],
   ["signals", "Signals"],
   ["audit_logs", "Audit Events"],
+  ["agents", "Agents"],
+  ["trust_events", "Trust Events"],
+  ["agent_permissions", "Agent Permissions"],
   ["trust_graph_nodes", "Graph Nodes"],
   ["trust_graph_edges", "Graph Edges"],
 ];

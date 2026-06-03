@@ -658,6 +658,8 @@ export default async function BackOfficePage({
     messageEvents,
     notifications,
     appeals,
+    agents,
+    trustEvents,
     stateChecks,
     executionPassports,
     trustGraphNodes,
@@ -679,6 +681,8 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "message_events", "created_at", 80),
     fetchTable<AnyRow>(supabase, "notifications", "created_at", 20),
     fetchTable<AnyRow>(supabase, "appeals", "created_at", 20),
+    fetchTable<AnyRow>(supabase, "agents", "created_at", 20),
+    fetchTable<AnyRow>(supabase, "trust_events", "created_at", 30),
     fetchTable<AnyRow>(supabase, "passport_state_checks", "created_at", 100),
     fetchTable<AnyRow>(supabase, "execution_passports", "created_at", 100),
     fetchTable<AnyRow>(supabase, "trust_graph_nodes", "created_at", 20),
@@ -1748,6 +1752,154 @@ export default async function BackOfficePage({
                     dataRightsRequests.available
                   )}
                 />
+              )}
+            </div>
+          </div>
+
+          <div
+            id="ai-trust-events"
+            className="mb-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                  AI Trust Event Pipeline
+                </p>
+                <h2 className="mt-2 text-xl font-semibold">
+                  Latest Trust Events
+                </h2>
+              </div>
+              <Link
+                href="/trust-events"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Open Trust Events
+              </Link>
+            </div>
+            <div className="mt-5 grid gap-3">
+              {trustEvents.rows.length ? (
+                trustEvents.rows.slice(0, 8).map((event, index) => (
+                  <div
+                    key={rowKey(event, `trust-event-${index}`)}
+                    className="rounded-lg border border-zinc-800 bg-black p-4"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-zinc-100">
+                          {event.event_type ?? "Trust event"}
+                        </p>
+                        <p className="mt-1 text-xs text-zinc-600">
+                          {event.actor_type ?? "actor"} /{" "}
+                          {event.actor_label ?? "n/a"} /{" "}
+                          {formatDate(event.created_at)}
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-cyan-800/70 bg-cyan-950/20 px-2.5 py-1 text-xs text-cyan-100">
+                        {event.risk_level ?? "low"}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  label={tableEmptyLabel(
+                    "trust_events",
+                    trustEvents.available
+                  )}
+                />
+              )}
+            </div>
+          </div>
+
+          <div
+            id="agent-registry"
+            className="mb-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                  AI Identity
+                </p>
+                <h2 className="mt-2 text-xl font-semibold">Agent Registry</h2>
+              </div>
+              <Link
+                href="/admin/agents"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Open Admin Agents
+              </Link>
+            </div>
+            <div className="mt-5 grid gap-3">
+              {agents.rows.length ? (
+                agents.rows.slice(0, 8).map((agent, index) => (
+                  <Link
+                    key={rowKey(agent, `agent-${index}`)}
+                    href={`/agents/${encodeURIComponent(String(agent.id))}`}
+                    className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-800"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-zinc-100">
+                          {agent.name ?? agent.agent_name ?? "Agent"}
+                        </p>
+                        <p className="mt-1 text-xs text-zinc-600">
+                          {agent.owner_email ?? "n/a"} /{" "}
+                          {agent.model_provider ?? "unknown"}{" "}
+                          {agent.model_name ?? agent.model_family ?? ""}
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-cyan-800/70 bg-cyan-950/20 px-2.5 py-1 text-xs text-cyan-100">
+                        {agent.status ?? "pending"}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-zinc-400">
+                      {agent.purpose ?? agent.declared_purpose ?? "No purpose recorded."}
+                    </p>
+                  </Link>
+                ))
+              ) : (
+                <EmptyState label={tableEmptyLabel("agents", agents.available)} />
+              )}
+            </div>
+          </div>
+
+          <div
+            id="high-risk-agent-events"
+            className="mb-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5"
+          >
+            <h2 className="text-xl font-semibold">High-Risk Agent Events</h2>
+            <div className="mt-5 grid gap-3">
+              {trustEvents.rows.filter((event) =>
+                ["high", "critical"].includes(String(event.risk_level).toLowerCase())
+              ).length ? (
+                trustEvents.rows
+                  .filter((event) =>
+                    ["high", "critical"].includes(String(event.risk_level).toLowerCase())
+                  )
+                  .slice(0, 8)
+                  .map((event, index) => (
+                    <Link
+                      key={rowKey(event, `high-risk-agent-event-${index}`)}
+                      href={`/trust-events?agent_id=${encodeURIComponent(String(event.agent_id ?? ""))}`}
+                      className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-800"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <p className="font-medium text-zinc-100">
+                          {event.event_type ?? "Trust event"}
+                        </p>
+                        <span className="rounded-full border border-amber-800 px-2.5 py-1 text-xs text-amber-200">
+                          {event.risk_level}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm text-zinc-500">
+                        {event.actor_label ?? "Agent"} /{" "}
+                        {event.event_source ?? "unknown"} /{" "}
+                        {formatDate(event.created_at)}
+                      </p>
+                    </Link>
+                  ))
+              ) : (
+                <EmptyState label="No high-risk agent events." />
               )}
             </div>
           </div>

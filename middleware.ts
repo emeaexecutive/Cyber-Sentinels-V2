@@ -19,10 +19,13 @@ const userPagePrefixes = [
   "/messages",
   "/notifications",
   "/appeals",
+  "/agents",
+  "/trust-events",
 ];
 
 const adminPagePrefixes = [
   "/back-office",
+  "/admin/agents",
   "/verification-queue",
   "/evidence-vault",
   "/decision-engine",
@@ -164,7 +167,10 @@ export const config = {
     "/messages/:path*",
     "/notifications/:path*",
     "/appeals/:path*",
+    "/agents/:path*",
+    "/trust-events/:path*",
     "/back-office/:path*",
+    "/admin/agents/:path*",
     "/verification-queue/:path*",
     "/evidence-vault/:path*",
     "/decision-engine/:path*",

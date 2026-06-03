@@ -1,141 +1,144 @@
 import { NextResponse } from "next/server";
+import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
-import {
-  demoAgents,
-  normalizeAgent,
-  normalizeAgents,
-  permissionScopes,
-  type AgentPermissionScope,
-  type AgentRow,
-} from "@/lib/trust-engine/agentRegistry";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
+import type { AgentIdentity } from "@/lib/ai-trust/types";
 
-function safeText(value: unknown, fallback: string, maxLength = 160) {
-  if (value === undefined || value === null || value === "") return fallback;
-  if (typeof value !== "string" || value.length > maxLength) {
-    throw new Error("Invalid input");
-  }
-
-  return value.trim();
+function text(value: unknown, fallback = "") {
+  return String(value ?? fallback).trim();
 }
 
-function safePermissions(value: unknown): AgentPermissionScope[] {
-  if (!Array.isArray(value)) return ["read_profile"];
+async function readPayload(req: Request) {
+  const contentType = req.headers.get("content-type") ?? "";
 
-  return value.filter((item): item is AgentPermissionScope =>
-    permissionScopes.includes(item as AgentPermissionScope)
-  );
+  if (contentType.includes("application/json")) {
+    return ((await req.json().catch(() => ({}))) ?? {}) as Record<string, unknown>;
+  }
+
+  const formData = await req.formData();
+
+  return Object.fromEntries(formData.entries()) as Record<string, unknown>;
 }
 
 export async function GET() {
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("agents")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(50)
-      .returns<AgentRow[]>();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    if (error) {
-      return NextResponse.json({
-        ok: true,
-        agents: demoAgents,
-        tableAvailable: false,
-      });
-    }
+  if (!user) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
 
-    return NextResponse.json({
-      ok: true,
-      agents: data?.length ? normalizeAgents(data) : demoAgents,
-      tableAvailable: true,
-    });
-  } catch {
+  let query = supabase.from("agents").select("*");
+
+  if (!isAdminAllowlisted(user.email)) {
+    query = query.eq("owner_user_id", user.id);
+  }
+
+  const result = await query
+    .order("created_at", { ascending: false })
+    .limit(100)
+    .returns<AgentIdentity[]>();
+
+  if (result.error) {
     return NextResponse.json(
       { ok: false, error: "Could not retrieve agents" },
       { status: 500 }
     );
   }
+
+  return NextResponse.json({ ok: true, agents: result.data ?? [] });
 }
 
 export async function POST(req: Request) {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    if (!user) {
-      return NextResponse.json(
-        { ok: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+  if (!user) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
 
-    const body = (await req.json().catch(() => ({}))) as Record<
-      string,
-      unknown
-    >;
-    const payload: AgentRow = {
-      agent_name: safeText(body.agent_name, "New AI Agent"),
-      agent_type: safeText(body.agent_type, "general_agent"),
-      owner_name: safeText(body.owner_name, user.email ?? user.id),
-      owner_email: safeText(body.owner_email, user.email ?? user.id),
-      model_provider: safeText(body.model_provider, "unknown"),
-      model_family: safeText(body.model_family, "unknown"),
-      declared_purpose: safeText(
-        body.declared_purpose,
-        "Placeholder agent registration"
-      ),
-      permissions: safePermissions(body.permissions),
-      risk_level: "medium",
-      trust_score: 50,
-      origin_trace_score: 50,
-      policy_status: "pending_policy_review",
-      status: "pending",
-    };
-    const { data, error } = await supabase
-      .from("agents")
-      .insert(payload)
-      .select("*")
-      .returns<AgentRow[]>();
+  const payload = await readPayload(req);
+  const name = text(payload.name ?? payload.agent_name);
 
-    const agent = error || !data?.[0]
-      ? normalizeAgent({
-          id: "placeholder-agent",
-          ...payload,
-          created_at: new Date().toISOString(),
-        })
-      : normalizeAgent(data[0]);
-
-    await createSignal(supabase, "agent_registered");
-    await createAuditLog(
-      supabase,
-      "agent_registry_created",
-      user.email ?? user.id,
-      {
-        agent_id: agent.id,
-        agent_name: agent.agent_name,
-        table_available: !error,
-      }
-    );
-
+  if (!name) {
     return NextResponse.json(
-      { ok: true, agent, tableAvailable: !error },
-      { status: 201 }
+      { ok: false, error: "Agent name is required" },
+      { status: 400 }
     );
-  } catch (error) {
-    if (error instanceof Error && error.message === "Invalid input") {
-      return NextResponse.json(
-        { ok: false, error: "Invalid agent input" },
-        { status: 400 }
-      );
-    }
+  }
 
+  const actor = user.email ?? user.id;
+  const insert = {
+    name,
+    agent_name: name,
+    owner_email: text(payload.owner_email, user.email ?? user.id),
+    owner_user_id: user.id,
+    owner_name: actor,
+    purpose: text(payload.purpose ?? payload.declared_purpose, "AI trust workflow support"),
+    declared_purpose: text(payload.purpose ?? payload.declared_purpose, "AI trust workflow support"),
+    model_provider: text(payload.model_provider, "unknown"),
+    model_name: text(payload.model_name ?? payload.model_family, "unknown"),
+    model_family: text(payload.model_name ?? payload.model_family, "unknown"),
+    permission_scope: text(payload.permission_scope, "review_only"),
+    status: text(payload.status, "pending"),
+    trust_score: Number(payload.trust_score ?? 50),
+    metadata: {
+      actor,
+      source: "api.agents",
+    },
+  };
+
+  const { data: agent, error } = await supabase
+    .from("agents")
+    .insert(insert)
+    .select("*")
+    .single<AgentIdentity>();
+
+  if (error || !agent) {
+    console.error("agent insert failed", error);
     return NextResponse.json(
       { ok: false, error: "Could not create agent" },
       { status: 500 }
     );
   }
+
+  const eventMetadata = {
+    agent_id: agent.id,
+    actor,
+    owner_user_id: user.id,
+  };
+
+  const { data: trustEvent } = await supabase
+    .from("trust_events")
+    .insert({
+      actor_type: "agent",
+      actor_id: agent.id,
+      actor_label: agent.name,
+      event_type: "agent_created",
+      event_source: "api.agents",
+      risk_level: "low",
+      agent_id: agent.id,
+      metadata: eventMetadata,
+    })
+    .select("id,event_type")
+    .single();
+  await createAuditLog(supabase, "agent_created", actor, eventMetadata);
+  await createSignal(supabase, "Agent created", eventMetadata);
+  await createAuditLog(supabase, "trust_event_created", actor, {
+    ...eventMetadata,
+    trust_event_id: trustEvent?.id,
+    event_type: trustEvent?.event_type ?? "agent_created",
+  });
+  await createSignal(supabase, "Trust event created", {
+    ...eventMetadata,
+    trust_event_id: trustEvent?.id,
+    event_type: trustEvent?.event_type ?? "agent_created",
+  });
+
+  return NextResponse.json({ ok: true, agent }, { status: 201 });
 }

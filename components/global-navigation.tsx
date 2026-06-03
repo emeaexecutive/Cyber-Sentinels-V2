@@ -22,6 +22,8 @@ const adminNavGroups = [
     links: [
       ["/trust-intelligence", "Trust Intelligence"],
       ["/trust-graph-engine", "Trust Graph"],
+      ["/trust-events", "Trust Events"],
+      ["/admin/agents", "Agent Registry"],
     ],
   },
   {
@@ -62,6 +64,8 @@ const userLinks = [
   ["/", "Home"],
   ["/passport", "Create Passport"],
   ["/passports", "My Passports"],
+  ["/agents", "AI Agents"],
+  ["/trust-events", "Trust Events"],
   ["/notifications", "Notifications"],
   ["/messages", "Messages"],
   ["/appeals", "Appeals"],
