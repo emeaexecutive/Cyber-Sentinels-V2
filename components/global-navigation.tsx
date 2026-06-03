@@ -36,12 +36,25 @@ const adminNavGroups = [
   },
 ];
 
+const supportLegalLinks = [
+  ["/help", "Help"],
+  ["/security", "Security"],
+  ["/data-rights", "Data Rights"],
+  ["/trust-principles", "Trust Principles"],
+  ["/ai-governance", "AI Governance"],
+  ["/transparency", "Transparency"],
+  ["/privacy", "Privacy"],
+  ["/terms", "Terms"],
+  ["/cookies", "Cookies"],
+  ["/legal", "Legal"],
+  ["/regulatory", "Regulatory"],
+  ["/accessibility", "Accessibility"],
+];
+
 const publicLinks = [
   ["/", "Home"],
   ["/demo", "Demo"],
   ["/how-to-use", "How to Use"],
-  ["/security", "Security"],
-  ["/help", "Help"],
   ["/login", "Login"],
 ];
 
@@ -78,6 +91,49 @@ function FlatLinks({ links }: { links: string[][] }) {
         </Link>
       ))}
     </>
+  );
+}
+
+function NavigationDropdown({
+  label,
+  links,
+  openGroup,
+  setOpenGroup,
+}: {
+  label: string;
+  links: string[][];
+  openGroup: string | null;
+  setOpenGroup: React.Dispatch<React.SetStateAction<string | null>>;
+}) {
+  const isOpen = openGroup === label;
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        aria-expanded={isOpen}
+        className="rounded-lg border border-zinc-800 bg-black/50 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
+        onClick={() =>
+          setOpenGroup((current) => (current === label ? null : label))
+        }
+      >
+        {label}
+      </button>
+      {isOpen ? (
+        <div className="absolute right-0 top-10 z-50 grid min-w-56 gap-1 rounded-lg border border-zinc-800 bg-black p-2 shadow-xl">
+          {links.map(([href, linkLabel]) => (
+            <Link
+              key={href}
+              href={href}
+              className="rounded-md px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+              onClick={() => setOpenGroup(null)}
+            >
+              {linkLabel}
+            </Link>
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -134,10 +190,26 @@ export function GlobalNavigation({
           ref={navRef}
           className="flex flex-wrap items-center justify-end gap-2 text-xs text-zinc-300"
         >
-          {accessLevel === "public" ? <FlatLinks links={publicLinks} /> : null}
+          {accessLevel === "public" ? (
+            <>
+              <FlatLinks links={publicLinks} />
+              <NavigationDropdown
+                label="Support & Legal"
+                links={supportLegalLinks}
+                openGroup={openGroup}
+                setOpenGroup={setOpenGroup}
+              />
+            </>
+          ) : null}
           {accessLevel === "user" ? (
             <>
               <FlatLinks links={userLinks} />
+              <NavigationDropdown
+                label="Support & Legal"
+                links={supportLegalLinks}
+                openGroup={openGroup}
+                setOpenGroup={setOpenGroup}
+              />
               <LogoutButton />
             </>
           ) : null}
@@ -149,40 +221,21 @@ export function GlobalNavigation({
               >
                 Home
               </Link>
-              {adminNavGroups.map((group) => {
-                const isOpen = openGroup === group.label;
-
-                return (
-                  <div key={group.label} className="relative">
-                    <button
-                      type="button"
-                      aria-expanded={isOpen}
-                      className="rounded-lg border border-zinc-800 bg-black/50 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
-                      onClick={() =>
-                        setOpenGroup((current) =>
-                          current === group.label ? null : group.label
-                        )
-                      }
-                    >
-                      {group.label}
-                    </button>
-                    {isOpen ? (
-                      <div className="absolute right-0 top-10 z-50 grid min-w-56 gap-1 rounded-lg border border-zinc-800 bg-black p-2 shadow-xl">
-                        {group.links.map(([href, label]) => (
-                          <Link
-                            key={href}
-                            href={href}
-                            className="rounded-md px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
-                            onClick={() => setOpenGroup(null)}
-                          >
-                            {label}
-                          </Link>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                );
-              })}
+              {adminNavGroups.map((group) => (
+                <NavigationDropdown
+                  key={group.label}
+                  label={group.label}
+                  links={group.links}
+                  openGroup={openGroup}
+                  setOpenGroup={setOpenGroup}
+                />
+              ))}
+              <NavigationDropdown
+                label="Support & Legal"
+                links={supportLegalLinks}
+                openGroup={openGroup}
+                setOpenGroup={setOpenGroup}
+              />
               <LogoutButton />
             </>
           ) : null}

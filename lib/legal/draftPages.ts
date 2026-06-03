@@ -7,6 +7,9 @@ export const legalDraftLinks: Array<[string, string]> = [
   ["/accessibility", "Accessibility"],
   ["/security", "Security"],
   ["/data-rights", "Data Rights"],
+  ["/trust-principles", "Trust Principles"],
+  ["/ai-governance", "AI Governance"],
+  ["/transparency", "Transparency"],
 ];
 
 export const commonLegalSections = [

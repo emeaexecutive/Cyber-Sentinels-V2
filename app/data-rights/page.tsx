@@ -88,7 +88,7 @@ export default async function DataRightsPage({
       <div className="mx-auto max-w-5xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-amber-300">
-            Draft policy - requires legal review before production use.
+            Draft policy — requires legal review before production use.
           </p>
           <h1 className="mt-4 text-4xl font-semibold">Data Rights</h1>
           <p className="mt-4 max-w-3xl leading-7 text-zinc-400">

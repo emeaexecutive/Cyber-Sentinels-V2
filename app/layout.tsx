@@ -19,29 +19,29 @@ const footerSections = [
     title: "Company",
     links: [
       ["/about", "About us"],
-      ["/media-centre", "Media centre"],
       ["/careers", "Careers"],
-      ["/our-people", "Our people"],
-      ["/sustainability", "Corporate sustainability"],
+      ["/media-centre", "Media centre"],
+      ["/sustainability", "Sustainability"],
       ["/modern-slavery", "Modern Slavery statement"],
     ],
   },
   {
     title: "Trust & Safety",
     links: [
-      ["/security", "Security and online safety"],
+      ["/security", "Security"],
       ["/help", "Help"],
-      ["/how-to-use", "How to Use"],
       ["/data-rights", "Data Rights"],
-      ["/status", "System Status"],
+      ["/trust-principles", "Trust Principles"],
+      ["/ai-governance", "AI Governance"],
+      ["/transparency", "Transparency"],
     ],
   },
   {
     title: "Legal",
     links: [
-      ["/privacy", "Privacy policy"],
-      ["/cookies", "Cookies and preferences"],
-      ["/terms", "Terms & conditions"],
+      ["/privacy", "Privacy"],
+      ["/cookies", "Cookies"],
+      ["/terms", "Terms"],
       ["/legal", "Legal"],
       ["/regulatory", "Regulatory"],
       ["/accessibility", "Accessibility"],
@@ -51,7 +51,7 @@ const footerSections = [
     title: "Social",
     links: [
       ["https://www.linkedin.com", "LinkedIn"],
-      ["https://x.com", "Twitter / X"],
+      ["https://x.com", "Twitter/X"],
     ],
   },
 ];
