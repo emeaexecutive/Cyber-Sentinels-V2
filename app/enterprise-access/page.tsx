@@ -18,6 +18,9 @@ async function submitEnterpriseAccessRequest(formData: FormData) {
     work_email: String(formData.get("work_email") ?? "").trim(),
     company: String(formData.get("company") ?? "").trim(),
     role: String(formData.get("role") ?? "").trim(),
+    company_size: String(formData.get("company_size") ?? "").trim(),
+    current_problem: String(formData.get("current_problem") ?? "").trim(),
+    ai_usage_level: String(formData.get("ai_usage_level") ?? "").trim(),
     use_case: String(formData.get("use_case") ?? "").trim(),
     message: String(formData.get("message") ?? "").trim(),
   };
@@ -80,7 +83,8 @@ export default async function EnterpriseAccessPage({
         <section className="rounded-lg border border-zinc-800 bg-black p-6">
           {submitted ? (
             <div className="rounded-lg border border-emerald-900 bg-emerald-950/30 p-4 text-sm text-emerald-100">
-              Thanks — your request has been received.
+              Thanks &mdash; Cyber Sentinels is currently onboarding early
+              partners and design collaborators.
             </div>
           ) : null}
 
@@ -118,6 +122,29 @@ export default async function EnterpriseAccessPage({
               placeholder="Role"
               className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
             />
+            <input
+              name="company_size"
+              placeholder="Company size"
+              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+            />
+            <input
+              name="current_problem"
+              placeholder="Current problem"
+              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+            />
+            <select
+              name="ai_usage_level"
+              defaultValue=""
+              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+            >
+              <option value="" disabled>
+                AI usage level
+              </option>
+              <option value="exploring">Exploring AI use cases</option>
+              <option value="piloting">Piloting AI workflows</option>
+              <option value="operational">AI is operational today</option>
+              <option value="governance_required">AI governance is required</option>
+            </select>
             <input
               name="use_case"
               placeholder="Use case"

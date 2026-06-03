@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 const platformCapabilities = [
   [
     "Create Trust Passports",
-    "Establish a structured trust record for people, organisations, AI agents and high-risk workflows.",
+    "Establish a structured trust record for people, organisations and high-risk workflows.",
   ],
   [
     "Evidence-Backed Review",
@@ -97,6 +97,53 @@ const principles = [
   "Responsible AI Assistance",
 ];
 
+const trustProblems = [
+  "Identity ambiguity",
+  "Synthetic actors",
+  "Fragmented accountability",
+  "Opaque workflows",
+  "Audit gaps",
+  "Governance risks",
+];
+
+const designedFor = [
+  [
+    "AI Platforms",
+    "Teams building AI-native systems that need identity, intent and review accountability.",
+  ],
+  [
+    "Enterprise Operations",
+    "Operational teams that need clearer verification workflows and decision traceability.",
+  ],
+  [
+    "Workforce Verification",
+    "Organizations reviewing employees, contractors or sensitive workforce access.",
+  ],
+  [
+    "High-Risk Workflows",
+    "Processes where approval, evidence and audit history should be visible before action.",
+  ],
+  [
+    "Governance Teams",
+    "Leaders responsible for oversight, review processes and accountable decisions.",
+  ],
+  [
+    "Trust & Safety Operations",
+    "Teams managing identity, evidence, escalation and review outcomes.",
+  ],
+  [
+    "Regulated Environments",
+    "Organizations that need careful records, human oversight and audit-ready workflows.",
+  ],
+];
+
+const futureDirections = [
+  "AI agent identity",
+  "Trust events",
+  "Explainable trust systems",
+  "Governance workflows",
+];
+
 const metrics = [
   ["passports", "Passports"],
   ["evidence_files", "Evidence Files"],
@@ -158,6 +205,40 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-7xl px-6 py-14 md:px-8">
+        <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+          <div>
+            <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
+              Why Cyber Sentinels Exists
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold md:text-4xl">
+              AI-native systems create new trust problems.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-zinc-400">
+              As organizations adopt AI-assisted workflows, identity, evidence,
+              approval and accountability can become harder to verify. Cyber
+              Sentinels exists to make trust review more evidence-backed,
+              governed and understandable.
+            </p>
+            <p className="mt-4 text-sm leading-7 text-zinc-400">
+              The platform is built around operational transparency, auditability
+              and human oversight for decisions that should not disappear inside
+              opaque systems.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {trustProblems.map((problem) => (
+              <div
+                key={problem}
+                className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-300"
+              >
+                {problem}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto grid max-w-7xl gap-4 px-6 py-12 md:grid-cols-4 md:px-8">
         {[
           ["Enterprise trust", "Evidence-backed verification for sensitive business workflows."],
@@ -185,6 +266,20 @@ export default async function HomePage() {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-14 md:px-8">
+        <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
+          Designed For
+        </p>
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {designedFor.map(([title, copy]) => (
+            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
+              <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-500">{copy}</p>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -275,18 +370,46 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-14 md:px-8">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
+            Future Platform Direction
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold">
+            Roadmap concepts, not V1 claims.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            Cyber Sentinels is exploring future infrastructure for AI identity,
+            trust event pipelines, explainable trust systems and governed
+            workflow oversight. These are future platform direction items and
+            should not be treated as fully operational V1 modules.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            {futureDirections.map((item) => (
+              <span
+                key={item}
+                className="rounded-lg border border-zinc-800 bg-black px-4 py-3 text-sm text-zinc-300"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-14 md:px-8">
         <div className="grid gap-6 rounded-lg border border-zinc-800 bg-black p-6 md:grid-cols-[1fr_auto] md:items-center">
           <div>
             <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-              Commercial Readiness
+              Founder Contact
             </p>
             <h2 className="mt-3 text-3xl font-semibold">
-              Explore governed trust operations for your organisation.
+              Interested in collaboration or early access?
             </h2>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-              Request Enterprise Access is available as a public lead path. The
-              V1 demo can be used to evaluate the Trust OS workflow without
-              exposing private records.
+              Cyber Sentinels is currently onboarding early partners and design
+              collaborators for founder-led discovery, demos and validation.
+              Contact founder@cybersentinels.ai or request access to start the
+              conversation.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">

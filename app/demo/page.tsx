@@ -3,7 +3,7 @@ import Link from "next/link";
 const demoSteps = [
   [
     "Create Passport",
-    "Create a Trust Passport for the person, organisation, AI agent or workflow being reviewed.",
+    "Create a Trust Passport for the person, organisation or workflow being reviewed.",
     "The demo starts with a structured trust record.",
   ],
   [
@@ -27,9 +27,9 @@ const demoSteps = [
     "Audit visibility supports accountability and governance.",
   ],
   [
-    "Trust Visibility Generated",
-    "Open the passport and Trust Graph to see relationships and status.",
-    "Decision-makers can understand the trust state without reading raw system data.",
+    "Trust Visibility",
+    "View the passport status, evidence state and audit trail in one place.",
+    "Decision-makers can understand the trust state without reading internal system data.",
   ],
 ];
 
@@ -56,7 +56,7 @@ const demoConcepts = [
   ],
   [
     "Trust Graph concept",
-    "Trust relationships help explain how passports, evidence, decisions, audit events and signals connect.",
+    "Trust relationships help explain how passports, evidence, decisions and audit events connect.",
   ],
 ];
 
@@ -69,7 +69,7 @@ export default function DemoPage() {
             V1 Demo Experience
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Understand Cyber Sentinels in under two minutes
+            Understand Cyber Sentinels in 90 seconds
           </h1>
           <p className="mt-4 max-w-3xl leading-7 text-zinc-400">
             This public demo explains the Cyber Sentinels workflow without
@@ -127,8 +127,8 @@ export default function DemoPage() {
           <h2 className="text-2xl font-semibold">Demo Outcome</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             By the end of the flow, the user can see a verification status, the
-            evidence supporting review, the recorded decision, the audit trail
-            and a simple view of trust relationships.
+            evidence supporting review, the recorded decision and the audit
+            trail that explains what happened.
           </p>
         </section>
       </div>

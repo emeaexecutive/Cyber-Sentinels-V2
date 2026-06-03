@@ -654,6 +654,7 @@ export default async function BackOfficePage({
     trustAssistantQuestions,
     knowledgeArticles,
     dataRightsRequests,
+    enterpriseAccessRequests,
     messageThreads,
     messageEvents,
     notifications,
@@ -677,6 +678,7 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "trust_assistant_questions", "created_at", 8),
     fetchTable<AnyRow>(supabase, "knowledge_articles", "updated_at", 20),
     fetchTable<AnyRow>(supabase, "data_rights_requests", "created_at", 20),
+    fetchTable<AnyRow>(supabase, "enterprise_access_requests", "created_at", 20),
     fetchTable<AnyRow>(supabase, "message_threads", "updated_at", 20),
     fetchTable<AnyRow>(supabase, "message_events", "created_at", 80),
     fetchTable<AnyRow>(supabase, "notifications", "created_at", 20),
@@ -1750,6 +1752,78 @@ export default async function BackOfficePage({
                   label={tableEmptyLabel(
                     "data_rights_requests",
                     dataRightsRequests.available
+                  )}
+                />
+              )}
+            </div>
+          </div>
+
+          <div
+            id="enterprise-access"
+            className="mb-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                  Market Validation
+                </p>
+                <h2 className="mt-2 text-xl font-semibold">
+                  Enterprise Access Requests
+                </h2>
+              </div>
+              <Link
+                href="/enterprise-access"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Open Request Page
+              </Link>
+            </div>
+            <div className="mt-5 grid gap-3">
+              {enterpriseAccessRequests.rows.length ? (
+                enterpriseAccessRequests.rows.map((request, index) => (
+                  <div
+                    key={rowKey(request, `enterprise-access-${index}`)}
+                    className="rounded-lg border border-zinc-800 bg-black p-4"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-zinc-100">
+                          {request.company ?? "Enterprise request"}
+                        </p>
+                        <p className="mt-1 text-sm text-zinc-500">
+                          {request.name ?? "Unknown contact"} / {request.work_email ?? "No email"}
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-cyan-800 px-3 py-1 text-xs text-cyan-100">
+                        {request.status ?? "new"}
+                      </span>
+                    </div>
+                    <div className="mt-3 grid gap-2 text-sm text-zinc-400 md:grid-cols-2">
+                      <p>Role: {request.role ?? "Not provided"}</p>
+                      <p>Company size: {request.company_size ?? "Not provided"}</p>
+                      <p>AI usage: {request.ai_usage_level ?? "Not provided"}</p>
+                      <p>Use case: {request.use_case ?? "Not provided"}</p>
+                    </div>
+                    {request.current_problem ? (
+                      <p className="mt-3 text-sm leading-6 text-zinc-400">
+                        Problem: {request.current_problem}
+                      </p>
+                    ) : null}
+                    {request.message ? (
+                      <p className="mt-3 text-sm leading-6 text-zinc-500">
+                        {request.message}
+                      </p>
+                    ) : null}
+                    <p className="mt-3 text-xs text-zinc-600">
+                      {formatDate(request.created_at)}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  label={tableEmptyLabel(
+                    "enterprise_access_requests",
+                    enterpriseAccessRequests.available
                   )}
                 />
               )}
