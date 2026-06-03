@@ -828,18 +828,24 @@ export default async function BackOfficePage({
             >
               Open Trust Intelligence
             </Link>
-            <a href="#verification-queue" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
-              Priority Queue
-            </a>
-            <a href="#evidence-review" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
-              Evidence Review
-            </a>
-            <a href="#activity" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
-              Audit / Signals
-            </a>
-            <a href="#modules" className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white">
-              Modules
-            </a>
+            {[
+              ["#overview", "Overview"],
+              ["#verification-queue", "Queue"],
+              ["#evidence-review", "Evidence"],
+              ["#decisions", "Decisions"],
+              ["#audit-timeline", "Audit"],
+              ["#signal-timeline", "Signals"],
+              ["#help", "Help"],
+              ["#graph", "Graph"],
+            ].map(([href, label]) => (
+              <a
+                key={href}
+                href={href}
+                className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white"
+              >
+                {label}
+              </a>
+            ))}
           </nav>
         </section>
         {aiDraftMessage ? (
@@ -848,7 +854,7 @@ export default async function BackOfficePage({
           </p>
         ) : null}
 
-        <section className="mt-6">
+        <section id="overview" className="mt-6 scroll-mt-24">
           <h2 className="mb-4 text-xl font-semibold">Operational Snapshot</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
           {[
@@ -912,7 +918,7 @@ export default async function BackOfficePage({
           </div>
         </section>
 
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+        <section id="decisions" className="mt-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-xl font-semibold">Decision Pipeline Audit</h2>
@@ -1377,7 +1383,7 @@ export default async function BackOfficePage({
                 <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
                   Help Center
                 </p>
-                <h2 className="mt-2 text-xl font-semibold">
+                <h2 id="help" className="mt-2 scroll-mt-24 text-xl font-semibold">
                   Latest Help Questions
                 </h2>
               </div>
@@ -1500,7 +1506,7 @@ export default async function BackOfficePage({
             </div>
           </div>
 
-          <div className="mb-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div id="graph" className="mb-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
