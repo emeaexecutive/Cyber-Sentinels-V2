@@ -325,6 +325,38 @@ function EvidenceReviewActions({ evidenceId }: { evidenceId: string }) {
   );
 }
 
+function DataRightsActions({ request }: { request: AnyRow }) {
+  const action = `/api/admin/data-rights/${request.id}/status`;
+  const status = String(request.status ?? "open");
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-2 border-t border-zinc-900 pt-3">
+      {status !== "in_progress" && status !== "completed" ? (
+        <form method="POST" action={action}>
+          <input type="hidden" name="status" value="in_progress" />
+          <button
+            type="submit"
+            className="rounded-lg border border-cyan-800 px-3 py-2 text-xs font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
+          >
+            Mark In Progress
+          </button>
+        </form>
+      ) : null}
+      {status !== "completed" ? (
+        <form method="POST" action={action}>
+          <input type="hidden" name="status" value="completed" />
+          <button
+            type="submit"
+            className="rounded-lg border border-emerald-700 px-3 py-2 text-xs font-medium text-emerald-200 hover:border-emerald-400 hover:text-white"
+          >
+            Mark Completed
+          </button>
+        </form>
+      ) : null}
+    </div>
+  );
+}
+
 function HelpQuestionActions({ question }: { question: AnyRow }) {
   const action = `/api/admin/help-questions/${question.id}/answer`;
   const draftAction = "/api/admin/assistant/draft-answer";
@@ -521,6 +553,7 @@ export default async function BackOfficePage({
     helpQuestions,
     trustAssistantQuestions,
     knowledgeArticles,
+    dataRightsRequests,
     stateChecks,
     executionPassports,
   ] = await Promise.all([
@@ -535,6 +568,7 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "help_questions", "created_at", 8),
     fetchTable<AnyRow>(supabase, "trust_assistant_questions", "created_at", 8),
     fetchTable<AnyRow>(supabase, "knowledge_articles", "updated_at", 20),
+    fetchTable<AnyRow>(supabase, "data_rights_requests", "created_at", 20),
     fetchTable<AnyRow>(supabase, "passport_state_checks", "created_at", 100),
     fetchTable<AnyRow>(supabase, "execution_passports", "created_at", 100),
   ]);
@@ -836,6 +870,7 @@ export default async function BackOfficePage({
               ["#audit-timeline", "Audit"],
               ["#signal-timeline", "Signals"],
               ["#help", "Help"],
+              ["#data-rights", "Data Rights"],
               ["#graph", "Graph"],
             ].map(([href, label]) => (
               <a
@@ -1433,6 +1468,72 @@ export default async function BackOfficePage({
                 ))
               ) : (
                 <EmptyState label={tableEmptyLabel("help_questions", helpQuestions.available)} />
+              )}
+            </div>
+          </div>
+
+          <div
+            id="data-rights"
+            className="mb-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                  Privacy Operations
+                </p>
+                <h2 className="mt-2 text-xl font-semibold">
+                  Data Rights Requests
+                </h2>
+              </div>
+              <Link
+                href="/data-rights"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Open Data Rights
+              </Link>
+            </div>
+            <div className="mt-5 grid gap-3">
+              {dataRightsRequests.rows.length ? (
+                dataRightsRequests.rows.map((request, index) => (
+                  <div
+                    key={rowKey(request, `data-rights-${index}`)}
+                    className="rounded-lg border border-zinc-800 bg-black p-4"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-zinc-100">
+                          {request.request_type ?? "Data rights request"}
+                        </p>
+                        <p className="mt-2 text-xs text-zinc-600">
+                          {request.requester_email ?? "n/a"} /{" "}
+                          {formatDate(request.created_at)}
+                        </p>
+                      </div>
+                      <span className="inline-flex rounded-full border border-cyan-800/70 bg-cyan-950/20 px-2.5 py-1 text-xs text-cyan-100">
+                        {request.status ?? "open"}
+                      </span>
+                    </div>
+                    {request.details ? (
+                      <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-zinc-400">
+                        {request.details}
+                      </p>
+                    ) : null}
+                    {request.handled_by ? (
+                      <p className="mt-3 text-xs text-zinc-600">
+                        Handled by {request.handled_by} /{" "}
+                        {formatDate(request.handled_at)}
+                      </p>
+                    ) : null}
+                    {request.id ? <DataRightsActions request={request} /> : null}
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  label={tableEmptyLabel(
+                    "data_rights_requests",
+                    dataRightsRequests.available
+                  )}
+                />
               )}
             </div>
           </div>

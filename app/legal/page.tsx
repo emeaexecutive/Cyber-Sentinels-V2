@@ -1,13 +1,23 @@
+import { LegalDraftPage } from "@/components/legal-draft-page";
+import { commonLegalSections, legalDraftLinks } from "@/lib/legal/draftPages";
+
 export default function LegalPage() {
   return (
-    <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
-      <div className="mx-auto max-w-4xl rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-        <h1 className="text-4xl font-semibold">Legal</h1>
-        <p className="mt-4 text-sm leading-7 text-zinc-400">
-          Legal notices, policies and governance obligations for Cyber Sentinels
-          should be reviewed before operational deployment.
-        </p>
-      </div>
-    </main>
+    <LegalDraftPage
+      title="Legal Notices"
+      subtitle="Legal notices for Cyber Sentinels policies, governance obligations and trust workflow disclaimers."
+      sections={[
+        ...commonLegalSections,
+        {
+          title: "Entity and Service Notices",
+          body: "Formal company, contracting, jurisdiction and service-provider details should be added after business and legal review.",
+        },
+        {
+          title: "Intellectual Property",
+          body: "Cyber Sentinels names, marks, copy and product concepts should be treated as protected business materials subject to final legal review.",
+        },
+      ]}
+      links={legalDraftLinks}
+    />
   );
 }

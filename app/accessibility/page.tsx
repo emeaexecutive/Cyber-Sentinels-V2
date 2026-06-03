@@ -1,13 +1,23 @@
+import { LegalDraftPage } from "@/components/legal-draft-page";
+import { commonLegalSections, legalDraftLinks } from "@/lib/legal/draftPages";
+
 export default function AccessibilityPage() {
   return (
-    <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
-      <div className="mx-auto max-w-4xl rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-        <h1 className="text-4xl font-semibold">Accessibility</h1>
-        <p className="mt-4 text-sm leading-7 text-zinc-400">
-          Cyber Sentinels aims to keep trust operations readable, keyboard
-          navigable and clear for repeated administrative workflows.
-        </p>
-      </div>
-    </main>
+    <LegalDraftPage
+      title="Accessibility"
+      subtitle="Cyber Sentinels should be usable with clear navigation, readable contrast, keyboard-friendly controls and accessible forms."
+      sections={[
+        ...commonLegalSections,
+        {
+          title: "Current Intent",
+          body: "The product aims for readable layouts, clear labels and predictable navigation across trust workflows.",
+        },
+        {
+          title: "Future Review",
+          body: "Formal WCAG testing and remediation should be completed before any certified accessibility claim is made.",
+        },
+      ]}
+      links={legalDraftLinks}
+    />
   );
 }

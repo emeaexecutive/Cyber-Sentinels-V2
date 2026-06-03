@@ -24,19 +24,19 @@ export default function RootLayout({
               <p>©2026 Cyber Sentinels™</p>
               <nav className="flex flex-wrap gap-3">
                 {[
-                  ["/about-us", "About us"],
-                  ["/security", "Security and online safety"],
-                  ["/media-centre", "Media centre"],
-                  ["/careers", "Careers"],
-                  ["/our-people", "Our people"],
-                  ["/corporate-sustainability", "Corporate sustainability"],
-                  ["/modern-slavery-statement", "Modern Slavery statement"],
-                  ["/privacy", "Privacy policy"],
-                  ["/cookies", "Cookies and preferences"],
+                  ["/privacy", "Privacy"],
+                  ["/terms", "Terms"],
+                  ["/cookies", "Cookies"],
                   ["/legal", "Legal"],
                   ["/regulatory", "Regulatory"],
                   ["/accessibility", "Accessibility"],
-                  ["/terms", "Terms & conditions"],
+                  ["/security", "Security and online safety"],
+                  ["/data-rights", "Data Rights"],
+                  ["/about", "About us"],
+                  ["/media-centre", "Media centre"],
+                  ["/careers", "Careers"],
+                  ["/modern-slavery", "Modern Slavery"],
+                  ["/sustainability", "Sustainability"],
                 ].map(([href, label]) => (
                   <Link key={href} href={href} className="hover:text-white">
                     {label}
