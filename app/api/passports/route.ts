@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { recordTrustEvent } from "@/lib/database/events";
+import { createNotification } from "@/lib/communications/createNotification";
 import {
   allowedEvidenceMediaTypes,
   allowedOriginStatuses,
@@ -348,6 +349,17 @@ export async function POST(req: Request) {
         logSupabaseWriteError("audit_logs insert", auditError);
         throw auditError;
       }
+    });
+
+    await bestEffort("Passport notification", async () => {
+      await createNotification(supabase, {
+        userId: user.id,
+        title: "Trust Passport created",
+        body: `Trust Passport created for ${subjectName}.`,
+        notificationType: "passport_created",
+        actor: userEmail,
+        metadata: passportMetadata,
+      });
     });
 
     await insertSignal(supabase, "Human Presence calculated", {

@@ -358,6 +358,86 @@ function DataRightsActions({ request }: { request: AnyRow }) {
   );
 }
 
+function MessageThreadActions({ thread }: { thread: AnyRow }) {
+  const action = `/api/admin/messages/${thread.id}/action`;
+
+  return (
+    <div className="mt-4 grid gap-3 border-t border-zinc-900 pt-4">
+      <form method="POST" action={action} className="grid gap-3">
+        <input type="hidden" name="action" value="reply" />
+        <textarea
+          name="message"
+          required
+          rows={3}
+          placeholder="Reply to the user"
+          className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white placeholder:text-zinc-600"
+        />
+        <button
+          type="submit"
+          className="w-fit rounded-lg border border-cyan-800 px-3 py-2 text-xs font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
+        >
+          Reply
+        </button>
+      </form>
+      <div className="flex flex-wrap gap-2">
+        <form method="POST" action={action}>
+          <input type="hidden" name="action" value="escalate" />
+          <button
+            type="submit"
+            className="rounded-lg border border-amber-800 px-3 py-2 text-xs font-medium text-amber-200 hover:border-amber-400 hover:text-white"
+          >
+            Escalate
+          </button>
+        </form>
+        <form method="POST" action={action}>
+          <input type="hidden" name="action" value="close" />
+          <button
+            type="submit"
+            className="rounded-lg border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-300 hover:border-zinc-400 hover:text-white"
+          >
+            Close Thread
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function AppealReviewActions({ appeal }: { appeal: AnyRow }) {
+  const action = `/api/admin/appeals/${appeal.id}/review`;
+
+  return (
+    <form method="POST" action={action} className="mt-4 grid gap-3 border-t border-zinc-900 pt-4">
+      <select
+        name="status"
+        defaultValue={String(appeal.status ?? "under_review")}
+        className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white"
+      >
+        {["under_review", "upheld", "reversed", "escalated", "closed"].map(
+          (status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          )
+        )}
+      </select>
+      <textarea
+        name="resolution_notes"
+        rows={3}
+        defaultValue={String(appeal.resolution_notes ?? "")}
+        placeholder="Resolution notes visible to the user"
+        className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white placeholder:text-zinc-600"
+      />
+      <button
+        type="submit"
+        className="w-fit rounded-lg border border-emerald-700 px-3 py-2 text-xs font-medium text-emerald-200 hover:border-emerald-400 hover:text-white"
+      >
+        Update Appeal
+      </button>
+    </form>
+  );
+}
+
 function HelpQuestionActions({ question }: { question: AnyRow }) {
   const action = `/api/admin/help-questions/${question.id}/answer`;
   const draftAction = "/api/admin/assistant/draft-answer";
@@ -574,6 +654,10 @@ export default async function BackOfficePage({
     trustAssistantQuestions,
     knowledgeArticles,
     dataRightsRequests,
+    messageThreads,
+    messageEvents,
+    notifications,
+    appeals,
     stateChecks,
     executionPassports,
     trustGraphNodes,
@@ -591,11 +675,30 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "trust_assistant_questions", "created_at", 8),
     fetchTable<AnyRow>(supabase, "knowledge_articles", "updated_at", 20),
     fetchTable<AnyRow>(supabase, "data_rights_requests", "created_at", 20),
+    fetchTable<AnyRow>(supabase, "message_threads", "updated_at", 20),
+    fetchTable<AnyRow>(supabase, "message_events", "created_at", 80),
+    fetchTable<AnyRow>(supabase, "notifications", "created_at", 20),
+    fetchTable<AnyRow>(supabase, "appeals", "created_at", 20),
     fetchTable<AnyRow>(supabase, "passport_state_checks", "created_at", 100),
     fetchTable<AnyRow>(supabase, "execution_passports", "created_at", 100),
     fetchTable<AnyRow>(supabase, "trust_graph_nodes", "created_at", 20),
     fetchTable<AnyRow>(supabase, "trust_graph_edges", "created_at", 20),
   ]);
+
+  const messageEventsByThread = new Map<string, AnyRow[]>();
+
+  messageEvents.rows.forEach((event) => {
+    const threadId = String(event.thread_id ?? "");
+
+    if (!threadId) {
+      return;
+    }
+
+    messageEventsByThread.set(threadId, [
+      ...(messageEventsByThread.get(threadId) ?? []),
+      event,
+    ]);
+  });
 
   const radarSignals = signals.rows.length
     ? normalizeSignals(
@@ -1610,6 +1713,184 @@ export default async function BackOfficePage({
                     "data_rights_requests",
                     dataRightsRequests.available
                   )}
+                />
+              )}
+            </div>
+          </div>
+
+          <div
+            id="messages"
+            className="mb-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                  User Communications
+                </p>
+                <h2 className="mt-2 text-xl font-semibold">
+                  Message Threads
+                </h2>
+              </div>
+              <Link
+                href="/messages"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Open Messages
+              </Link>
+            </div>
+            <div className="mt-5 grid gap-3">
+              {messageThreads.rows.length ? (
+                messageThreads.rows.map((thread, index) => (
+                  <div
+                    key={rowKey(thread, `message-thread-${index}`)}
+                    className="rounded-lg border border-zinc-800 bg-black p-4"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-zinc-100">
+                          {thread.subject ?? "Message thread"}
+                        </p>
+                        <p className="mt-1 text-xs text-zinc-600">
+                          {thread.created_by_email ?? "n/a"} /{" "}
+                          {formatDate(thread.updated_at ?? thread.created_at)}
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-cyan-800/70 bg-cyan-950/20 px-2.5 py-1 text-xs text-cyan-100">
+                        {thread.status ?? "open"}
+                      </span>
+                    </div>
+                    <div className="mt-4 grid gap-2">
+                      {(messageEventsByThread.get(String(thread.id)) ?? [])
+                        .slice(-3)
+                        .map((event, eventIndex) => (
+                          <div
+                            key={rowKey(event, `message-event-${eventIndex}`)}
+                            className="rounded-lg border border-zinc-800 bg-zinc-950 p-3"
+                          >
+                            <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                              {event.sender_type ?? "message"} /{" "}
+                              {formatDate(event.created_at)}
+                            </p>
+                            <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-300">
+                              {event.message ?? "Message"}
+                            </p>
+                          </div>
+                        ))}
+                    </div>
+                    {thread.id ? <MessageThreadActions thread={thread} /> : null}
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  label={tableEmptyLabel(
+                    "message_threads",
+                    messageThreads.available
+                  )}
+                />
+              )}
+            </div>
+          </div>
+
+          <div
+            id="appeals"
+            className="mb-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                  Human Review
+                </p>
+                <h2 className="mt-2 text-xl font-semibold">Appeals</h2>
+              </div>
+              <Link
+                href="/appeals"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Open Appeals
+              </Link>
+            </div>
+            <div className="mt-5 grid gap-3">
+              {appeals.rows.length ? (
+                appeals.rows.map((appeal, index) => (
+                  <div
+                    key={rowKey(appeal, `appeal-${index}`)}
+                    className="rounded-lg border border-zinc-800 bg-black p-4"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-zinc-100">
+                          {appeal.submitted_by_email ?? "Appeal"}
+                        </p>
+                        <p className="mt-1 break-all text-xs text-zinc-600">
+                          Passport {appeal.passport_id ?? "n/a"} /{" "}
+                          {formatDate(appeal.created_at)}
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-cyan-800/70 bg-cyan-950/20 px-2.5 py-1 text-xs text-cyan-100">
+                        {appeal.status ?? "submitted"}
+                      </span>
+                    </div>
+                    <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-zinc-300">
+                      {appeal.appeal_reason ?? "Appeal reason not supplied."}
+                    </p>
+                    {appeal.id ? <AppealReviewActions appeal={appeal} /> : null}
+                  </div>
+                ))
+              ) : (
+                <EmptyState label={tableEmptyLabel("appeals", appeals.available)} />
+              )}
+            </div>
+          </div>
+
+          <div
+            id="notifications"
+            className="mb-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                  User Updates
+                </p>
+                <h2 className="mt-2 text-xl font-semibold">
+                  Recent Notifications
+                </h2>
+              </div>
+              <Link
+                href="/notifications"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Open Notifications
+              </Link>
+            </div>
+            <div className="mt-5 grid gap-3">
+              {notifications.rows.length ? (
+                notifications.rows.map((notification, index) => (
+                  <div
+                    key={rowKey(notification, `notification-${index}`)}
+                    className="rounded-lg border border-zinc-800 bg-black p-4"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-zinc-100">
+                          {notification.title ?? "Notification"}
+                        </p>
+                        <p className="mt-2 text-sm leading-6 text-zinc-400">
+                          {notification.body ?? "Update recorded."}
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300">
+                        {notification.is_read ? "read" : "unread"}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-xs text-zinc-600">
+                      {notification.notification_type ?? "update"} /{" "}
+                      {formatDate(notification.created_at)}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  label={tableEmptyLabel("notifications", notifications.available)}
                 />
               )}
             </div>

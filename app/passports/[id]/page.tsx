@@ -195,6 +195,28 @@ export default async function PassportViewerPage({
   const auditLogs = (auditRows ?? [])
     .filter((row) => relatedEvent(row, id, caseIds))
     .slice(0, 12);
+  const [{ data: notifications }, { data: messageThreads }, { data: appeals }] =
+    await Promise.all([
+      supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5),
+      supabase
+        .from("message_threads")
+        .select("*")
+        .eq("created_by_user_id", user.id)
+        .order("updated_at", { ascending: false })
+        .limit(5),
+      supabase
+        .from("appeals")
+        .select("*")
+        .eq("submitted_by_user_id", user.id)
+        .eq("passport_id", id)
+        .order("created_at", { ascending: false })
+        .limit(5),
+    ]);
   const score = calculateTrustScoreV1({
     passport,
     evidence,
@@ -304,6 +326,82 @@ export default async function PassportViewerPage({
               ))
             ) : (
               <Empty label="No linked audit trail yet." />
+            )}
+          </Panel>
+
+          <Panel title="Notifications">
+            {(notifications ?? []).length ? (
+              (notifications ?? []).map((notification) => (
+                <div key={String(notification.id)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <p className="font-medium text-zinc-100">
+                    {value(notification.title, "Notification")}
+                  </p>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    {value(notification.body, "Update recorded.")}
+                  </p>
+                  <p className="mt-2 text-xs text-zinc-600">
+                    {formatDate(notification.created_at)}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <Empty label="No notifications yet." />
+            )}
+          </Panel>
+
+          <Panel title="Recent Messages">
+            {(messageThreads ?? []).length ? (
+              (messageThreads ?? []).map((thread) => (
+                <Link
+                  key={String(thread.id)}
+                  href="/messages"
+                  className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-800"
+                >
+                  <p className="font-medium text-zinc-100">
+                    {value(thread.subject, "Message thread")}
+                  </p>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    {value(thread.status, "open")}
+                  </p>
+                  <p className="mt-2 text-xs text-zinc-600">
+                    {formatDate(thread.updated_at ?? thread.created_at)}
+                  </p>
+                </Link>
+              ))
+            ) : (
+              <Empty label="No messages yet." />
+            )}
+          </Panel>
+
+          <Panel title="Appeal Status">
+            {(appeals ?? []).length ? (
+              (appeals ?? []).map((appeal) => (
+                <Link
+                  key={String(appeal.id)}
+                  href="/appeals"
+                  className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-800"
+                >
+                  <p className="font-medium text-zinc-100">
+                    {value(appeal.status, "submitted")}
+                  </p>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    {value(appeal.resolution_notes, "Awaiting human review.")}
+                  </p>
+                  <p className="mt-2 text-xs text-zinc-600">
+                    {formatDate(appeal.created_at)}
+                  </p>
+                </Link>
+              ))
+            ) : (
+              <div className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-sm text-zinc-500">No appeal submitted.</p>
+                <Link
+                  href="/appeals"
+                  className="mt-3 inline-flex rounded-lg border border-cyan-800 px-3 py-2 text-sm text-cyan-100 hover:text-white"
+                >
+                  Submit Appeal
+                </Link>
+              </div>
             )}
           </Panel>
         </div>

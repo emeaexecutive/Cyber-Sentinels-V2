@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createNotification } from "@/lib/communications/createNotification";
 import {
   adminVerifiedCookieName,
   getAdminCookieOptions,
@@ -33,6 +34,7 @@ type DecisionPayload = {
 
 type PassportForDecision = {
   id: string;
+  user_email: string | null;
   media_type: string | null;
   trust_score: number | null;
   human_presence_index: number | null;
@@ -296,7 +298,7 @@ export async function POST(
       const { data: passport } = await supabase
         .from("passports")
         .select(
-          "id,media_type,trust_score,human_presence_index,origin_trace_score,synthetic_risk,liveness_score,linkedin_profile_consistency,video_deepfake_risk,voice_clone_risk,image_authenticity_score,provenance_status,review_status,suspicious_activity,abuse_risk"
+          "id,user_email,media_type,trust_score,human_presence_index,origin_trace_score,synthetic_risk,liveness_score,linkedin_profile_consistency,video_deepfake_risk,voice_clone_risk,image_authenticity_score,provenance_status,review_status,suspicious_activity,abuse_risk"
         )
         .eq("id", verificationCase.passport_id)
         .single()
@@ -617,6 +619,18 @@ export async function POST(
           { status: 500 }
         );
       }
+
+      await createNotification(supabase, {
+        userId: null,
+        title: "Decision completed",
+        body: `Your verification decision is ${status}.`,
+        notificationType: "decision_completed",
+        actor,
+        metadata: {
+          ...graphMetadata,
+          user_email: decisionPassport?.user_email ?? null,
+        },
+      });
     }
 
     const response = NextResponse.redirect(new URL("/back-office", req.url), {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createNotification } from "@/lib/communications/createNotification";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 
@@ -250,6 +251,15 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+
+  await createNotification(supabase, {
+    userId: user.id,
+    title: "Evidence uploaded",
+    body: "Your evidence was uploaded and is pending human review.",
+    notificationType: "evidence_uploaded",
+    actor,
+    metadata: auditMetadata,
+  });
 
   return NextResponse.json({
     ok: true,

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createNotification } from "@/lib/communications/createNotification";
 import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -118,6 +119,14 @@ export async function POST(
     actor,
   };
 
+  const { data: passport } = evidenceRow.passport_id
+    ? await supabase
+        .from("passports")
+        .select("id,user_email")
+        .eq("id", evidenceRow.passport_id)
+        .maybeSingle()
+    : { data: null };
+
   const { error: signalError } = await supabase.from("signals").insert({
     event,
     metadata,
@@ -138,6 +147,26 @@ export async function POST(
   if (auditError) {
     console.error("evidence review audit insert failed", auditError);
   }
+
+  await createNotification(supabase, {
+    userId: null,
+    title: event,
+    body:
+      decision === "needs_more_evidence"
+        ? "More evidence was requested for your verification."
+        : `Your evidence was ${decision}.`,
+    notificationType:
+      decision === "needs_more_evidence"
+        ? "evidence_requested"
+        : decision === "accepted"
+          ? "evidence_accepted"
+          : "evidence_rejected",
+    actor,
+    metadata: {
+      ...metadata,
+      user_email: passport?.user_email ?? null,
+    },
+  });
 
   return NextResponse.redirect(new URL("/back-office", req.url), {
     status: 303,
