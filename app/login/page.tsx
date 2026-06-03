@@ -52,6 +52,14 @@ export default function LoginPage() {
       window.localStorage.removeItem(SESSION_START_KEY);
       setMessage("Session expired for security. Please sign in again.");
     }
+
+    if (searchParams.get("error") === "missing_verification_code") {
+      setMessage("The verification link was missing a setup code. Please request a new sign-in link.");
+    }
+
+    if (searchParams.get("error") === "verification_failed") {
+      setMessage("We could not complete email verification. Please request a new link or sign in with your password.");
+    }
   }, []);
 
   function getSupabaseClient() {
@@ -227,8 +235,8 @@ export default function LoginPage() {
             Create your Cyber Sentinels account
           </h1>
           <p className="mt-4 max-w-2xl leading-7 text-zinc-400">
-            Create a Trust Passport, upload evidence and manage your
-            verification securely.
+            Create account or sign in to create Trust Passports, upload
+            evidence and manage your verification securely.
           </p>
 
           <div className="mt-6 grid gap-3 text-sm leading-6 text-zinc-400">
@@ -239,7 +247,8 @@ export default function LoginPage() {
           </div>
 
           <p className="mt-6 rounded-lg border border-zinc-800 bg-black p-3 text-xs text-zinc-500">
-            Admin systems are protected separately.
+            Admin access is separate and protected. Normal users continue into
+            the Trust Passport workflow, not Back Office.
           </p>
         </section>
 

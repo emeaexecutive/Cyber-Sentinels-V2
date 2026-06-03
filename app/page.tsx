@@ -143,7 +143,7 @@ export default async function HomePage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              href="/passport"
+              href="/enterprise-access"
               className="rounded-lg bg-white px-5 py-3 font-semibold text-black hover:bg-cyan-100"
             >
               Request Enterprise Access
@@ -284,13 +284,14 @@ export default async function HomePage() {
               Explore governed trust operations for your organisation.
             </h2>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-              Request Enterprise Access is a placeholder path for now. The V1
-              demo can be used to evaluate the Trust OS workflow.
+              Request Enterprise Access is available as a public lead path. The
+              V1 demo can be used to evaluate the Trust OS workflow without
+              exposing private records.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/passport"
+              href="/enterprise-access"
               className="rounded-lg bg-white px-5 py-3 font-semibold text-black hover:bg-cyan-100"
             >
               Request Enterprise Access

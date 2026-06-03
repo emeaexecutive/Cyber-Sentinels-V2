@@ -33,6 +33,33 @@ const demoSteps = [
   ],
 ];
 
+const demoConcepts = [
+  [
+    "What Cyber Sentinels does",
+    "Cyber Sentinels gives teams a governed way to create trust records, collect evidence, review outcomes and keep an audit trail.",
+  ],
+  [
+    "Trust Passport workflow",
+    "A Trust Passport is the user-facing record that shows verification status, evidence state and decision history.",
+  ],
+  [
+    "Evidence upload concept",
+    "Users provide supporting evidence, while sensitive records stay out of the public demo experience.",
+  ],
+  [
+    "Admin review concept",
+    "Admins review evidence separately from the user journey and record outcomes through protected operational workflows.",
+  ],
+  [
+    "Decision and audit trail",
+    "Approvals, rejections and requests for more evidence are recorded with traceable audit history.",
+  ],
+  [
+    "Trust Graph concept",
+    "Trust relationships help explain how passports, evidence, decisions, audit events and signals connect.",
+  ],
+];
+
 export default function DemoPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -45,30 +72,35 @@ export default function DemoPage() {
             Understand Cyber Sentinels in under two minutes
           </h1>
           <p className="mt-4 max-w-3xl leading-7 text-zinc-400">
-            This guided demo shows how governed verification moves from a Trust
-            Passport to evidence-backed review, decision history, audit
-            visibility and trust relationship insight.
+            This public demo explains the Cyber Sentinels workflow without
+            exposing private records or requiring sign-in.
           </p>
           <div className="mt-6 flex flex-wrap gap-3 text-sm">
             <Link
-              href="/passport"
+              href="/enterprise-access"
               className="rounded-lg bg-white px-4 py-3 font-semibold text-black"
             >
-              Start Demo Workflow
+              Request Enterprise Access
             </Link>
             <Link
-              href="/passports"
+              href="/login?next=/passport"
               className="rounded-lg border border-zinc-700 px-4 py-3 text-zinc-300 hover:text-white"
             >
-              View Trust Passports
-            </Link>
-            <Link
-              href="/back-office"
-              className="rounded-lg border border-cyan-800 px-4 py-3 text-cyan-100 hover:text-white"
-            >
-              Open Back Office
+              Create Trust Passport
             </Link>
           </div>
+        </section>
+
+        <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {demoConcepts.map(([title, copy]) => (
+            <article
+              key={title}
+              className="rounded-lg border border-zinc-800 bg-black p-5"
+            >
+              <h2 className="text-lg font-semibold text-zinc-100">{title}</h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
+            </article>
+          ))}
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
