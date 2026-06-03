@@ -56,6 +56,7 @@ const supportLegalLinks = [
 const publicLinks = [
   ["/", "Home"],
   ["/demo", "Demo"],
+  ["/developers", "Developers"],
   ["/how-to-use", "How to Use"],
   ["/login", "Login"],
 ];
@@ -64,6 +65,7 @@ const userLinks = [
   ["/", "Home"],
   ["/passport", "Create Passport"],
   ["/passports", "My Passports"],
+  ["/developers", "Developers"],
   ["/agents", "AI Agents"],
   ["/trust-events", "Trust Events"],
   ["/notifications", "Notifications"],

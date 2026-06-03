@@ -118,5 +118,13 @@ export async function POST(req: Request) {
     actor,
   });
 
-  return NextResponse.json({ ok: true, trust_event: event }, { status: 201 });
+  return NextResponse.json(
+    {
+      ok: true,
+      event_id: event.id,
+      timestamp: event.created_at,
+      status: "created",
+    },
+    { status: 201 }
+  );
 }
