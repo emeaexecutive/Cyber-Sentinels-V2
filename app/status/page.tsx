@@ -126,15 +126,15 @@ async function checkAdminRouteProtected(): Promise<HealthCheck> {
     const protectedByRedirect =
       response.status >= 300 &&
       response.status < 400 &&
-      location.includes("/command-center");
+      (location.includes("/login") || location.includes("/command-center"));
 
     return {
       label: "admin route protected",
       ok: protectedByRedirect,
       value: protectedByRedirect ? "Protected" : `HTTP ${response.status}`,
       detail: protectedByRedirect
-        ? "Anonymous /back-office probe redirected to /command-center."
-        : `Anonymous /back-office probe did not redirect to /command-center. Location: ${location || "none"}.`,
+        ? "Anonymous /back-office probe redirected away from the admin page."
+        : `Anonymous /back-office probe did not redirect to login or command-center. Location: ${location || "none"}.`,
     };
   } catch (error) {
     return {

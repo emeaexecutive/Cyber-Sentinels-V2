@@ -9,27 +9,47 @@ type CookieToSet = {
   options: CookieOptions;
 };
 
+const userPagePrefixes = [
+  "/passport",
+  "/passports",
+  "/evidence-upload",
+  "/trust-assistant",
+  "/knowledge-base",
+];
+
 const adminPagePrefixes = [
   "/back-office",
   "/verification-queue",
   "/evidence-vault",
-  "/decision-engine",
-  "/mission-control",
-  "/trust-graph-engine",
   "/trust-intelligence",
+  "/trust-graph-engine",
+  "/workforce-trust",
+  "/intent-verification",
+  "/autonomy-governance",
+  "/execution-passports",
+  "/state-verification",
 ];
 
-function isProtectedAdminPath(pathname: string) {
-  return (
-    adminPagePrefixes.some(
-      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-    ) ||
-    pathname.startsWith("/api/admin/")
+function matchesPrefix(pathname: string, prefixes: string[]) {
+  return prefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   );
+}
+
+function isProtectedUserPath(pathname: string) {
+  return matchesPrefix(pathname, userPagePrefixes);
+}
+
+function isProtectedAdminPath(pathname: string) {
+  return matchesPrefix(pathname, adminPagePrefixes) || pathname.startsWith("/api/admin/");
 }
 
 function isAdminAccessEndpoint(pathname: string) {
   return pathname === "/api/admin/access";
+}
+
+function isBackOfficePage(pathname: string) {
+  return pathname === "/back-office" || pathname.startsWith("/back-office/");
 }
 
 function isAllowlisted(email: string | null | undefined) {
@@ -44,10 +64,25 @@ function isAllowlisted(email: string | null | undefined) {
     .includes(email.trim().toLowerCase());
 }
 
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+function clearAdminCookie(response: NextResponse) {
+  response.cookies.set(adminVerifiedCookieName, "", {
+    path: "/",
+    maxAge: 0,
+  });
 
-  if (!isProtectedAdminPath(pathname)) {
+  return response;
+}
+
+function redirectTo(req: NextRequest, path: string) {
+  return NextResponse.redirect(new URL(path, req.url));
+}
+
+export async function middleware(req: NextRequest) {
+  const { pathname, search } = req.nextUrl;
+  const protectsUser = isProtectedUserPath(pathname);
+  const protectsAdmin = isProtectedAdminPath(pathname);
+
+  if (!protectsUser && !protectsAdmin) {
     return NextResponse.next();
   }
 
@@ -76,36 +111,60 @@ export async function middleware(req: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const hasAdminCookie = req.cookies.get(adminVerifiedCookieName)?.value === "true";
-  const allowed =
-    Boolean(user) &&
-    isAllowlisted(user?.email) &&
-    (isAdminAccessEndpoint(pathname) || hasAdminCookie);
 
-  if (allowed) {
+  if (!user) {
+    if (protectsAdmin) {
+      return clearAdminCookie(redirectTo(req, "/login?next=/back-office"));
+    }
+
+    return redirectTo(
+      req,
+      `/login?next=${encodeURIComponent(`${pathname}${search}`)}`
+    );
+  }
+
+  if (protectsUser && !protectsAdmin) {
     return response;
   }
 
-  const redirectResponse = NextResponse.redirect(
-    new URL("/command-center", req.url)
-  );
-  redirectResponse.cookies.set(adminVerifiedCookieName, "", {
-    path: "/",
-    maxAge: 0,
-  });
+  const allowlisted = isAllowlisted(user.email);
 
-  return redirectResponse;
+  if (!allowlisted) {
+    return clearAdminCookie(
+      redirectTo(req, "/command-center?message=admin_access_required")
+    );
+  }
+
+  if (isAdminAccessEndpoint(pathname) || isBackOfficePage(pathname)) {
+    return response;
+  }
+
+  const hasAdminCookie = req.cookies.get(adminVerifiedCookieName)?.value === "true";
+
+  if (hasAdminCookie) {
+    return response;
+  }
+
+  return redirectTo(req, "/back-office?denied=1");
 }
 
 export const config = {
   matcher: [
+    "/passport/:path*",
+    "/passports/:path*",
+    "/evidence-upload/:path*",
+    "/trust-assistant/:path*",
+    "/knowledge-base/:path*",
     "/back-office/:path*",
     "/verification-queue/:path*",
     "/evidence-vault/:path*",
-    "/decision-engine/:path*",
-    "/mission-control/:path*",
-    "/trust-graph-engine/:path*",
     "/trust-intelligence/:path*",
+    "/trust-graph-engine/:path*",
+    "/workforce-trust/:path*",
+    "/intent-verification/:path*",
+    "/autonomy-governance/:path*",
+    "/execution-passports/:path*",
+    "/state-verification/:path*",
     "/api/admin/:path*",
   ],
 };

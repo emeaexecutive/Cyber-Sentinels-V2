@@ -963,7 +963,8 @@ export default async function TrustGraphEnginePage({
               ))
             ) : (
               <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
-                No graph timeline events available yet.
+                No graph yet. Generate Graph Snapshot to create a timeline from
+                linked passport records.
               </p>
             )}
           </div>
@@ -989,7 +990,7 @@ export default async function TrustGraphEnginePage({
             <NodeGroup
               title="Passport"
               nodes={nodesByType("passport")}
-              emptyLabel="Generate a graph snapshot to see the passport node."
+              emptyLabel="No graph yet. Generate Graph Snapshot to see the passport node."
             />
             <NodeGroup
               title="Verification Case"

@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GlobalNavigation } from "@/components/global-navigation";
+import {
+  GlobalNavigation,
+  type NavigationAccessLevel,
+} from "@/components/global-navigation";
+import { hasAdminVerifiedCookie, isAdminAllowlisted } from "@/lib/admin-auth";
+import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -51,16 +56,39 @@ const footerSections = [
   },
 ];
 
-export default function RootLayout({
+async function getNavigationAccessLevel(): Promise<NavigationAccessLevel> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return "public";
+    }
+
+    if (isAdminAllowlisted(user.email) && (await hasAdminVerifiedCookie())) {
+      return "admin";
+    }
+
+    return "user";
+  } catch {
+    return "public";
+  }
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const accessLevel = await getNavigationAccessLevel();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <div className="shell">
-          <GlobalNavigation />
+          <GlobalNavigation accessLevel={accessLevel} />
           {children}
           <footer className="border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8">
             <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-4">

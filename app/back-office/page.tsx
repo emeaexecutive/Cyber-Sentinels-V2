@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AdminVerificationActions } from "@/components/admin-verification-actions";
-import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
+import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import {
   backOfficeStatuses,
   decisionActions,
@@ -8,6 +8,7 @@ import {
   type DecisionAction,
 } from "@/lib/back-office";
 import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import {
   formatTimeAgo,
   normalizeSignals,
@@ -528,6 +529,25 @@ export default async function BackOfficePage({
 }: BackOfficePageProps) {
   const supabase = await createClient();
   const params = await searchParams;
+  const access = await checkAdminAccess(supabase);
+
+  if (!access.ok) {
+    if (access.reason === "unauthenticated") {
+      redirect("/login?next=/back-office");
+    }
+
+    if (access.reason === "not_allowlisted") {
+      return <NotAllowlistedGate />;
+    }
+
+    return (
+      <BackOfficeAccessGate
+        email={access.user?.email ?? access.user?.id ?? "admin"}
+        denied={params?.denied === "1"}
+      />
+    );
+  }
+
   await requireAdminPageAccess(supabase, {
     path: "/back-office",
     denied: params?.denied === "1",
@@ -556,6 +576,8 @@ export default async function BackOfficePage({
     dataRightsRequests,
     stateChecks,
     executionPassports,
+    trustGraphNodes,
+    trustGraphEdges,
   ] = await Promise.all([
     fetchTable<AnyRow>(supabase, "waitlist"),
     fetchTable<AnyRow>(supabase, "verification_cases"),
@@ -571,6 +593,8 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "data_rights_requests", "created_at", 20),
     fetchTable<AnyRow>(supabase, "passport_state_checks", "created_at", 100),
     fetchTable<AnyRow>(supabase, "execution_passports", "created_at", 100),
+    fetchTable<AnyRow>(supabase, "trust_graph_nodes", "created_at", 20),
+    fetchTable<AnyRow>(supabase, "trust_graph_edges", "created_at", 20),
   ]);
 
   const radarSignals = signals.rows.length
@@ -786,6 +810,24 @@ export default async function BackOfficePage({
   const latestPassport = passports.rows[0];
   const latestSignal = signals.rows[0];
   const latestAuditLog = auditLogs.rows[0];
+  const demoChecklist = [
+    ["Passport created", passports.count > 0],
+    ["Evidence uploaded", evidenceFiles.count > 0],
+    [
+      "Evidence accepted",
+      evidenceFiles.rows.some((file) =>
+        ["accepted", "clean", "approved"].includes(evidenceStatus(file))
+      ),
+    ],
+    ["Decision recorded", decisions.count > 0],
+    ["Audit trail written", auditLogs.count > 0],
+    ["Signals generated", signals.count > 0],
+    ["Trust Passport view available", passports.count > 0],
+    [
+      "Trust Graph available",
+      trustGraphNodes.count > 0 || trustGraphEdges.count > 0,
+    ],
+  ] as const;
 
   const moduleLinks = [
     ["Mission Control", "/mission-control"],
@@ -956,6 +998,42 @@ export default async function BackOfficePage({
               ) : null}
             </Link>
           ))}
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                Demo Readiness
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">V1 Demo Checklist</h2>
+            </div>
+            <Link
+              href="/demo"
+              className="rounded-lg border border-cyan-800 px-3 py-2 text-xs text-cyan-100 hover:text-white"
+            >
+              Open Demo
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {demoChecklist.map(([label, ok]) => (
+              <div
+                key={label}
+                className="rounded-lg border border-zinc-800 bg-black p-4"
+              >
+                <span
+                  className={`inline-flex rounded-full border px-2.5 py-1 text-xs ${
+                    ok
+                      ? "border-emerald-800 bg-emerald-950/30 text-emerald-200"
+                      : "border-amber-800 bg-amber-950/30 text-amber-200"
+                  }`}
+                >
+                  {ok ? "Ready" : "Missing"}
+                </span>
+                <p className="mt-3 text-sm font-medium text-zinc-100">{label}</p>
+              </div>
+            ))}
           </div>
         </section>
 

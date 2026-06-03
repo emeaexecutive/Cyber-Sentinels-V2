@@ -373,7 +373,8 @@ export default async function TrustAssistantPage({
               ))
             ) : (
               <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
-                No conversation history yet.
+                No help questions yet. Ask a question above to start a traceable
+                Trust Assistant thread.
               </p>
             )}
           </div>

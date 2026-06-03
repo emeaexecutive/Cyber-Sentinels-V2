@@ -50,8 +50,13 @@ type Passport = {
   created_at: string | null;
 };
 
-export default async function CommandCenterPage() {
+export default async function CommandCenterPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ message?: string }>;
+}) {
   const supabase = await createClient();
+  const params = await searchParams;
 
   const {
     data: { user },
@@ -287,6 +292,11 @@ export default async function CommandCenterPage() {
         </form>
 
         <h1 className="mt-8 text-5xl font-bold">Command Center</h1>
+        {params?.message === "admin_access_required" ? (
+          <p className="mt-5 rounded-lg border border-amber-800 bg-amber-950/20 p-3 text-sm text-amber-200">
+            Admin access required.
+          </p>
+        ) : null}
 
         <section className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">

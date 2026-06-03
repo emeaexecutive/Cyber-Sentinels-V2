@@ -4,13 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-const navGroups = [
+export type NavigationAccessLevel = "public" | "user" | "admin";
+
+const adminNavGroups = [
   {
     label: "Home",
     links: [
       ["/", "Home"],
       ["/how-to-use", "How to Use"],
-      ["/passport", "Create Passport"],
+      ["/demo", "Demo"],
       ["/status", "System Status"],
     ],
   },
@@ -58,7 +60,57 @@ const navGroups = [
   },
 ];
 
-export function GlobalNavigation() {
+const publicLinks = [
+  ["/", "Home"],
+  ["/how-to-use", "How to Use"],
+  ["/demo", "Demo"],
+  ["/security", "Security"],
+  ["/help", "Help"],
+  ["/login", "Login"],
+];
+
+const userLinks = [
+  ["/", "Home"],
+  ["/passport", "Create Passport"],
+  ["/passports", "Trust Passports"],
+  ["/help", "Help"],
+  ["/trust-assistant", "Trust Assistant"],
+];
+
+function LogoutButton() {
+  return (
+    <form action="/api/auth/logout" method="POST">
+      <button
+        type="submit"
+        className="rounded-lg border border-zinc-800 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
+      >
+        Logout
+      </button>
+    </form>
+  );
+}
+
+function FlatLinks({ links }: { links: string[][] }) {
+  return (
+    <>
+      {links.map(([href, label]) => (
+        <Link
+          key={href}
+          href={href}
+          className="rounded-lg border border-zinc-800 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
+        >
+          {label}
+        </Link>
+      ))}
+    </>
+  );
+}
+
+export function GlobalNavigation({
+  accessLevel,
+}: {
+  accessLevel: NavigationAccessLevel;
+}) {
   const pathname = usePathname();
   const navRef = useRef<HTMLElement | null>(null);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
@@ -107,40 +159,52 @@ export function GlobalNavigation() {
           ref={navRef}
           className="flex flex-wrap items-center justify-end gap-2 text-xs text-zinc-300"
         >
-          {navGroups.map((group) => {
-            const isOpen = openGroup === group.label;
+          {accessLevel === "public" ? <FlatLinks links={publicLinks} /> : null}
+          {accessLevel === "user" ? (
+            <>
+              <FlatLinks links={userLinks} />
+              <LogoutButton />
+            </>
+          ) : null}
+          {accessLevel === "admin" ? (
+            <>
+              {adminNavGroups.map((group) => {
+                const isOpen = openGroup === group.label;
 
-            return (
-              <div key={group.label} className="relative">
-                <button
-                  type="button"
-                  aria-expanded={isOpen}
-                  className="rounded-lg border border-zinc-800 bg-black/50 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
-                  onClick={() =>
-                    setOpenGroup((current) =>
-                      current === group.label ? null : group.label
-                    )
-                  }
-                >
-                  {group.label}
-                </button>
-                {isOpen ? (
-                  <div className="absolute right-0 top-10 z-50 grid min-w-56 gap-1 rounded-lg border border-zinc-800 bg-black p-2 shadow-xl">
-                    {group.links.map(([href, label]) => (
-                      <Link
-                        key={href}
-                        href={href}
-                        className="rounded-md px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
-                        onClick={() => setOpenGroup(null)}
-                      >
-                        {label}
-                      </Link>
-                    ))}
+                return (
+                  <div key={group.label} className="relative">
+                    <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      className="rounded-lg border border-zinc-800 bg-black/50 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
+                      onClick={() =>
+                        setOpenGroup((current) =>
+                          current === group.label ? null : group.label
+                        )
+                      }
+                    >
+                      {group.label}
+                    </button>
+                    {isOpen ? (
+                      <div className="absolute right-0 top-10 z-50 grid min-w-56 gap-1 rounded-lg border border-zinc-800 bg-black p-2 shadow-xl">
+                        {group.links.map(([href, label]) => (
+                          <Link
+                            key={href}
+                            href={href}
+                            className="rounded-md px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                            onClick={() => setOpenGroup(null)}
+                          >
+                            {label}
+                          </Link>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
-              </div>
-            );
-          })}
+                );
+              })}
+              <LogoutButton />
+            </>
+          ) : null}
         </nav>
       </div>
     </header>

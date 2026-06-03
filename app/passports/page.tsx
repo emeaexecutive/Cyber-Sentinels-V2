@@ -326,9 +326,21 @@ export default async function TrustPassportRegistryPage({
                 );
               })
             ) : (
-              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
-                No Trust Passports match this view.
-              </p>
+              <div className="rounded-lg border border-zinc-800 bg-black p-5">
+                <p className="text-sm text-zinc-400">
+                  {rows.length
+                    ? "No Trust Passports match this view. Clear filters or adjust the search."
+                    : "No passports yet. Create a Trust Passport to start the demo workflow."}
+                </p>
+                {!rows.length ? (
+                  <Link
+                    href="/passport"
+                    className="mt-4 inline-flex rounded-lg border border-cyan-800 px-3 py-2 text-sm text-cyan-100 hover:text-white"
+                  >
+                    Create Trust Passport
+                  </Link>
+                ) : null}
+              </div>
             )}
           </div>
         </section>
