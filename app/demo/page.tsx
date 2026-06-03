@@ -1,13 +1,36 @@
 import Link from "next/link";
 
 const demoSteps = [
-  "Create Passport",
-  "Upload Evidence",
-  "Accept Evidence",
-  "Approve Decision",
-  "View Trust Passport",
-  "Open Trust Graph",
-  "Review Audit Trail",
+  [
+    "Create Passport",
+    "Create a Trust Passport for the person, organisation, AI agent or workflow being reviewed.",
+    "The demo starts with a structured trust record.",
+  ],
+  [
+    "Upload Evidence",
+    "Attach supporting files or records to the verification case.",
+    "Evidence gives the review process something concrete to assess.",
+  ],
+  [
+    "Review Verification",
+    "Inspect the submitted evidence and current verification state.",
+    "Human review remains part of high-risk trust outcomes.",
+  ],
+  [
+    "Decision Recorded",
+    "Record an approval, rejection or request for more evidence.",
+    "The decision becomes part of the passport history.",
+  ],
+  [
+    "Audit Trail Created",
+    "Confirm that evidence, review and decision events are traceable.",
+    "Audit visibility supports accountability and governance.",
+  ],
+  [
+    "Trust Visibility Generated",
+    "Open the passport and Trust Graph to see relationships and status.",
+    "Decision-makers can understand the trust state without reading raw system data.",
+  ],
 ];
 
 export default function DemoPage() {
@@ -16,15 +39,15 @@ export default function DemoPage() {
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">
-            V1 Demo
+            V1 Demo Experience
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Cyber Sentinels Demo Workflow
+            Understand Cyber Sentinels in under two minutes
           </h1>
           <p className="mt-4 max-w-3xl leading-7 text-zinc-400">
-            Walk through the V1 Trust OS flow without exposing private records:
-            create a passport, attach evidence, review the case, record a
-            decision, then inspect the passport, graph and audit trail.
+            This guided demo shows how governed verification moves from a Trust
+            Passport to evidence-backed review, decision history, audit
+            visibility and trust relationship insight.
           </p>
           <div className="mt-6 flex flex-wrap gap-3 text-sm">
             <Link
@@ -49,7 +72,7 @@ export default function DemoPage() {
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {demoSteps.map((step, index) => (
+          {demoSteps.map(([step, copy, value], index) => (
             <article
               key={step}
               className="rounded-lg border border-zinc-800 bg-black p-5"
@@ -60,12 +83,21 @@ export default function DemoPage() {
               <h2 className="mt-3 text-xl font-semibold text-zinc-100">
                 {step}
               </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-500">
-                Use real workflow screens and live records. Empty states are OK
-                for the first run and should guide the next demo action.
+              <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
+              <p className="mt-4 rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm leading-6 text-zinc-500">
+                {value}
               </p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <h2 className="text-2xl font-semibold">Demo Outcome</h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            By the end of the flow, the user can see a verification status, the
+            evidence supporting review, the recorded decision, the audit trail
+            and a simple view of trust relationships.
+          </p>
         </section>
       </div>
     </main>

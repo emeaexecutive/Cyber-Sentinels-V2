@@ -3,39 +3,98 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-const productCards = [
+const platformCapabilities = [
   [
     "Create Trust Passports",
-    "Start a structured trust record for a person, organisation, agent or workflow.",
+    "Establish a structured trust record for people, organisations, AI agents and high-risk workflows.",
   ],
   [
-    "Upload Evidence",
-    "Attach documents and supporting records to a verification workflow.",
+    "Evidence-Backed Review",
+    "Attach supporting records so verification decisions are grounded in reviewable evidence.",
   ],
   [
-    "Review Verification",
-    "Support governed review with evidence, status history and human oversight.",
+    "Governed Verification",
+    "Support human oversight, review states and decision history for sensitive outcomes.",
   ],
   [
-    "Track Audit Trails",
-    "See what changed, when it changed and which workflow recorded it.",
+    "Audit Visibility",
+    "Maintain traceable records of evidence uploads, decisions, signals and workflow changes.",
   ],
   [
-    "Visualise Trust Relationships",
-    "Connect passports, evidence, decisions, signals and audit history.",
+    "Trust Relationships",
+    "Visualise how passports, evidence, reviews and operational signals connect.",
   ],
   [
-    "Govern Operational Risk",
-    "Keep trust decisions explainable, reviewable and grounded in evidence.",
+    "Operational Risk Governance",
+    "Help teams understand what needs review, what is blocked and what requires escalation.",
   ],
 ];
 
-const workflow = [
-  ["1", "Create Passport", "Create the trust record."],
-  ["2", "Upload Evidence", "Add supporting proof."],
-  ["3", "Verification Review", "Review evidence with human oversight."],
-  ["4", "Decision & Audit", "Record the outcome and audit history."],
-  ["5", "Trust Visibility", "Track status, signals and relationships."],
+const useCases = [
+  [
+    "Workforce Verification",
+    "Verify workforce identity, evidence and status across onboarding or ongoing review.",
+    "Reduce review ambiguity and support consistent workforce trust decisions.",
+  ],
+  [
+    "Contractor & Vendor Trust",
+    "Track evidence and review status for external parties involved in sensitive operations.",
+    "Improve third-party visibility without relying on informal approvals.",
+  ],
+  [
+    "Executive Verification",
+    "Create evidence-backed review records for high-profile identity and authority checks.",
+    "Support confidence in sensitive leadership, access or representation workflows.",
+  ],
+  [
+    "AI Agent Governance",
+    "Map what agents or workflows are allowed to observe, advise, approve or execute.",
+    "Keep autonomy tied to approval, evidence and audit visibility.",
+  ],
+  [
+    "Operational Auditability",
+    "Record what happened, when it happened and which review workflow produced it.",
+    "Make operational trust decisions explainable for internal and external review.",
+  ],
+  [
+    "High-Risk Workflow Review",
+    "Require evidence, approval and audit history before important actions proceed.",
+    "Reduce uncontrolled execution in sensitive business processes.",
+  ],
+  [
+    "Digital Trust Operations",
+    "Centralise trust passports, evidence, decisions, signals and notifications.",
+    "Give teams one governed view of verification and trust operations.",
+  ],
+];
+
+const industries = [
+  "Financial Services",
+  "Cybersecurity",
+  "AI Platforms",
+  "Enterprise SaaS",
+  "Regulated Operations",
+  "Recruitment & Workforce",
+  "Compliance Teams",
+  "Government & Public Sector",
+];
+
+const architectureLayers = [
+  "Identity Layer",
+  "Evidence Layer",
+  "Verification Layer",
+  "Audit Layer",
+  "Governance Layer",
+  "Intelligence Layer",
+];
+
+const principles = [
+  "Human Oversight",
+  "Evidence-First Verification",
+  "Explainability",
+  "Auditability",
+  "Privacy-Aware Architecture",
+  "Responsible AI Assistance",
 ];
 
 const metrics = [
@@ -68,27 +127,32 @@ export default async function HomePage() {
       <section className="border-b border-zinc-900 px-6 py-20 md:px-8">
         <div className="mx-auto max-w-7xl">
           <p className="text-sm uppercase tracking-[0.28em] text-cyan-200">
-            Evidence-backed trust
+            Enterprise Trust Platform
           </p>
           <h1 className="mt-5 text-5xl font-semibold leading-tight md:text-7xl">
             Cyber Sentinels™
           </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-300">
-            Evidence-backed trust infrastructure for verification, governance
-            and operational transparency.
+          <p className="mt-6 max-w-4xl text-xl leading-8 text-zinc-200">
+            Governed trust infrastructure for identity, workforce, AI and
+            operational verification.
+          </p>
+          <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
+            Cyber Sentinels helps organisations manage evidence-backed review,
+            auditability, operational transparency and responsible AI assistance
+            through a calm Trust OS environment.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/passport"
               className="rounded-lg bg-white px-5 py-3 font-semibold text-black hover:bg-cyan-100"
             >
-              Create Trust Passport
+              Request Enterprise Access
             </Link>
             <Link
               href="/demo"
               className="rounded-lg border border-cyan-800 px-5 py-3 font-semibold text-cyan-100 hover:border-cyan-400"
             >
-              View Demo
+              Explore Trust OS
             </Link>
           </div>
         </div>
@@ -96,10 +160,10 @@ export default async function HomePage() {
 
       <section className="mx-auto grid max-w-7xl gap-4 px-6 py-12 md:grid-cols-4 md:px-8">
         {[
-          ["What is it?", "A governed Trust OS for evidence-backed verification workflows."],
-          ["Who is it for?", "Teams and individuals who need reviewable trust, evidence and audit visibility."],
-          ["What does it do?", "Creates passports, tracks evidence, records decisions and keeps audit history visible."],
-          ["Why it matters", "Trust decisions should be understandable, human-governed and traceable."],
+          ["Enterprise trust", "Evidence-backed verification for sensitive business workflows."],
+          ["Operational transparency", "Clear status, decisions, audit history and next actions."],
+          ["Governed workflows", "Human oversight for high-risk trust and AI-assisted review."],
+          ["Auditability", "Traceable records for accountability, review and governance."],
         ].map(([title, copy]) => (
           <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
             <h2 className="text-lg font-semibold text-zinc-100">{title}</h2>
@@ -111,10 +175,10 @@ export default async function HomePage() {
       <section className="border-y border-zinc-900 bg-zinc-950 px-6 py-14 md:px-8">
         <div className="mx-auto max-w-7xl">
           <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-            What Cyber Sentinels Does
+            Platform Capabilities
           </p>
           <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {productCards.map(([title, copy]) => (
+            {platformCapabilities.map(([title, copy]) => (
               <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
                 <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>
                 <p className="mt-3 text-sm leading-6 text-zinc-500">{copy}</p>
@@ -126,16 +190,55 @@ export default async function HomePage() {
 
       <section className="mx-auto max-w-7xl px-6 py-14 md:px-8">
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-          How It Works
+          Who Cyber Sentinels Is For
         </p>
-        <div className="mt-6 grid gap-4 lg:grid-cols-5">
-          {workflow.map(([step, title, copy]) => (
-            <div key={step} className="rounded-lg border border-zinc-800 bg-black p-5">
-              <p className="flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-800 text-sm font-semibold text-cyan-100">
-                {step}
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {useCases.map(([title, useCase, value]) => (
+            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
+              <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">{useCase}</p>
+              <p className="mt-4 rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm leading-6 text-zinc-500">
+                {value}
               </p>
-              <h2 className="mt-4 text-lg font-semibold">{title}</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-500">{copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-y border-zinc-900 bg-zinc-950 px-6 py-14 md:px-8">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
+            Industries
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            {industries.map((industry) => (
+              <span
+                key={industry}
+                className="rounded-lg border border-zinc-800 bg-black px-4 py-3 text-sm text-zinc-300"
+              >
+                {industry}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-14 md:px-8">
+        <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
+          The Cyber Sentinels Trust OS™
+        </p>
+        <div className="mt-6 grid gap-3 lg:grid-cols-6">
+          {architectureLayers.map((layer, index) => (
+            <div key={layer} className="rounded-lg border border-zinc-800 bg-black p-5">
+              <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">
+                Layer {index + 1}
+              </p>
+              <h2 className="mt-3 text-lg font-semibold text-zinc-100">{layer}</h2>
+              {index < architectureLayers.length - 1 ? (
+                <p className="mt-3 text-sm text-zinc-600">Feeds governed trust visibility</p>
+              ) : (
+                <p className="mt-3 text-sm text-zinc-600">Supports operational intelligence</p>
+              )}
             </div>
           ))}
         </div>
@@ -144,17 +247,14 @@ export default async function HomePage() {
       <section className="border-y border-zinc-900 bg-zinc-950 px-6 py-14 md:px-8">
         <div className="mx-auto max-w-7xl">
           <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-            Trust Principles Preview
+            Core Principles
           </p>
-          <div className="mt-5 max-w-3xl">
-            <h2 className="text-3xl font-semibold">
-              Built for evidence, human oversight and auditability.
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-zinc-400">
-              Cyber Sentinels treats trust as an operational process. Evidence
-              matters, decisions should be explainable, and high-risk outcomes
-              should remain governed by humans.
-            </p>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {principles.map((principle) => (
+              <article key={principle} className="rounded-lg border border-zinc-800 bg-black p-5">
+                <h2 className="text-lg font-semibold text-zinc-100">{principle}</h2>
+              </article>
+            ))}
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
             {[
@@ -175,6 +275,37 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-14 md:px-8">
+        <div className="grid gap-6 rounded-lg border border-zinc-800 bg-black p-6 md:grid-cols-[1fr_auto] md:items-center">
+          <div>
+            <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
+              Commercial Readiness
+            </p>
+            <h2 className="mt-3 text-3xl font-semibold">
+              Explore governed trust operations for your organisation.
+            </h2>
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+              Request Enterprise Access is a placeholder path for now. The V1
+              demo can be used to evaluate the Trust OS workflow.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/passport"
+              className="rounded-lg bg-white px-5 py-3 font-semibold text-black hover:bg-cyan-100"
+            >
+              Request Enterprise Access
+            </Link>
+            <Link
+              href="/demo"
+              className="rounded-lg border border-cyan-800 px-5 py-3 font-semibold text-cyan-100 hover:border-cyan-400"
+            >
+              Explore Trust OS
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 pb-14 md:px-8">
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
           System Metrics
         </p>
