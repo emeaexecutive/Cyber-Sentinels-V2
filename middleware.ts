@@ -15,12 +15,14 @@ const userPagePrefixes = [
   "/evidence-upload",
   "/trust-assistant",
   "/knowledge-base",
+  "/data-rights",
 ];
 
 const adminPagePrefixes = [
   "/back-office",
   "/verification-queue",
   "/evidence-vault",
+  "/decision-engine",
   "/trust-intelligence",
   "/trust-graph-engine",
   "/workforce-trust",
@@ -158,6 +160,7 @@ export const config = {
     "/back-office/:path*",
     "/verification-queue/:path*",
     "/evidence-vault/:path*",
+    "/decision-engine/:path*",
     "/trust-intelligence/:path*",
     "/trust-graph-engine/:path*",
     "/workforce-trust/:path*",

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 
 const bucketName = "evidence-files";
@@ -108,6 +109,25 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { ok: false, error: "Verification case not found" },
       { status: 404 }
+    );
+  }
+
+  const { data: passport } = verificationCase.passport_id
+    ? await supabase
+        .from("passports")
+        .select("id,user_email")
+        .eq("id", verificationCase.passport_id)
+        .maybeSingle()
+    : { data: null };
+
+  if (
+    passport?.user_email &&
+    user.email !== passport.user_email &&
+    !isAdminAllowlisted(user.email)
+  ) {
+    return NextResponse.json(
+      { ok: false, error: "You can only upload evidence for your own verification." },
+      { status: 403 }
     );
   }
 

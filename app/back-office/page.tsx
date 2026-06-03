@@ -516,7 +516,7 @@ function ReasonCodeChip({ reason }: { reason: string }) {
 
 function tableEmptyLabel(table: string, available: boolean) {
   return available
-    ? "No live records yet. Create a Trust Passport or Hiring Shield report to populate this section."
+    ? "No pending records."
     : `${table} table is not available yet.`;
 }
 
@@ -898,12 +898,6 @@ export default async function BackOfficePage({
             </h1>
           </div>
           <nav className="flex flex-wrap gap-2 text-xs text-zinc-300">
-            <Link
-              href="/trust-intelligence"
-              className="rounded-lg border border-cyan-800 px-3 py-2 text-cyan-100 hover:text-white"
-            >
-              Open Trust Intelligence
-            </Link>
             {[
               ["#overview", "Overview"],
               ["#verification-queue", "Queue"],
@@ -912,8 +906,7 @@ export default async function BackOfficePage({
               ["#audit-timeline", "Audit"],
               ["#signal-timeline", "Signals"],
               ["#help", "Help"],
-              ["#data-rights", "Data Rights"],
-              ["#graph", "Graph"],
+              ["#intelligence", "Intelligence"],
             ].map(([href, label]) => (
               <a
                 key={href}
@@ -1385,7 +1378,7 @@ export default async function BackOfficePage({
                     );
                   })
                 ) : (
-                  <EmptyState label={tableEmptyLabel("passports", passports.available)} />
+                  <EmptyState label={passports.available ? "No pending reviews." : tableEmptyLabel("passports", passports.available)} />
                 )}
               </div>
             </div>
@@ -1490,7 +1483,7 @@ export default async function BackOfficePage({
                 </div>
               ))
             ) : (
-              <EmptyState label="No evidence uploaded yet." />
+              <EmptyState label="No evidence awaiting review." />
             )}
           </div>
         </section>
@@ -1765,7 +1758,7 @@ export default async function BackOfficePage({
                     </div>
                   ))
                 ) : (
-                  <EmptyState label="No signals linked yet." />
+                  <EmptyState label="No critical signals." />
                 )}
               </div>
             </div>
@@ -1812,14 +1805,14 @@ export default async function BackOfficePage({
                     </div>
                   ))
                 ) : (
-                  <EmptyState label={tableEmptyLabel("evidence_files", evidenceFiles.available)} />
+                  <EmptyState label={evidenceFiles.available ? "No evidence awaiting review." : tableEmptyLabel("evidence_files", evidenceFiles.available)} />
                 )}
               </div>
             </div>
           </div>
         </section>
 
-        <section id="modules" className="mt-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+        <section id="intelligence" className="mt-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <details>
             <summary className="cursor-pointer list-none">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1843,9 +1836,17 @@ export default async function BackOfficePage({
           </details>
         </section>
 
-        <section className="mt-8">
-          <h2 className="mb-4 text-xl font-semibold">Operational Intelligence</h2>
-          <div className="grid gap-6 lg:grid-cols-2">
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <details>
+            <summary className="cursor-pointer list-none">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="text-xl font-semibold">Operational Intelligence</h2>
+                <span className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300">
+                  Show / Hide intelligence
+                </span>
+              </div>
+            </summary>
+          <div className="mt-5 grid gap-6 lg:grid-cols-2">
             <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <h3 className="text-lg font-semibold">Trust Prediction Panel</h3>
@@ -2013,6 +2014,7 @@ export default async function BackOfficePage({
               </div>
             </div>
           </div>
+          </details>
         </section>
       </div>
 

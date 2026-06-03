@@ -16,12 +16,13 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?next=/command-center");
+    redirect("/login?next=/passport");
   }
 
   const { data: passports } = await supabase
     .from("passports")
     .select("*")
+    .eq("user_email", user.email ?? "")
     .order("created_at", { ascending: false });
 
   const passport = passports?.[0];
@@ -34,11 +35,9 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/passports", "Trust Passports"],
-            ["/verification-queue", "Verification Queue"],
-            ["/evidence-vault", "Evidence Vault"],
-            ["/mission-control", "Mission Control"],
-            ["/back-office", "Back Office"],
+            ["/passports", "My Passports"],
+            ["/evidence-upload", "Upload Evidence"],
+            ["/help", "Help"],
           ].map(([href, label]) => (
             <Link
               key={href}
@@ -66,16 +65,10 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
             Upload Evidence
           </Link>
           <Link
-            href="/evidence-vault"
+            href="/passports"
             className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
           >
-            View Evidence
-          </Link>
-          <Link
-            href="/trust-timeline"
-            className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
-          >
-            View Audit Trail
+            My Passports
           </Link>
         </div>
 

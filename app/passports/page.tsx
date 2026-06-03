@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 
 type PassportRow = {
   id: string;
+  user_email?: string | null;
   subject_name: string | null;
   subject_type: string | null;
   verification_status: string | null;
@@ -112,8 +113,9 @@ export default async function TrustPassportRegistryPage({
     supabase
       .from("passports")
       .select(
-        "id,subject_name,subject_type,verification_status,review_status,trust_score,verified,created_at"
+        "id,user_email,subject_name,subject_type,verification_status,review_status,trust_score,verified,created_at"
       )
+      .eq("user_email", user.email ?? "")
       .order("created_at", { ascending: false })
       .limit(100)
       .returns<PassportRow[]>(),

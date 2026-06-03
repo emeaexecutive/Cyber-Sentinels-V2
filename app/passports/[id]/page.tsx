@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 import { calculateTrustScoreV1 } from "@/lib/trust-score-engine";
 
@@ -98,6 +99,26 @@ export default async function PassportViewerPage({
           <h1 className="text-3xl font-semibold">Passport not found</h1>
           <Link href="/passports" className="mt-5 inline-flex text-sm text-cyan-200">
             Back to Trust Passports
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  if (
+    passport.user_email &&
+    user.email !== passport.user_email &&
+    !isAdminAllowlisted(user.email)
+  ) {
+    return (
+      <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
+        <div className="mx-auto max-w-4xl rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <h1 className="text-3xl font-semibold">Passport not available</h1>
+          <p className="mt-3 text-sm text-zinc-400">
+            You can only view passports linked to your account.
+          </p>
+          <Link href="/passports" className="mt-5 inline-flex text-sm text-cyan-200">
+            Back to My Passports
           </Link>
         </div>
       </main>
@@ -239,7 +260,7 @@ export default async function PassportViewerPage({
                 </div>
               ))
             ) : (
-              <Empty label="No evidence linked yet." />
+              <Empty label="Upload evidence to continue verification." />
             )}
           </Panel>
 
@@ -255,7 +276,7 @@ export default async function PassportViewerPage({
                 </div>
               ))
             ) : (
-              <Empty label="No decisions recorded yet." />
+              <Empty label="Your verification is awaiting review." />
             )}
           </Panel>
 

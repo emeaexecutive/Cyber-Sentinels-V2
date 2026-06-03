@@ -8,20 +8,12 @@ export type NavigationAccessLevel = "public" | "user" | "admin";
 
 const adminNavGroups = [
   {
-    label: "Home",
-    links: [
-      ["/", "Home"],
-      ["/how-to-use", "How to Use"],
-      ["/demo", "Demo"],
-      ["/status", "System Status"],
-    ],
-  },
-  {
     label: "Trust Operations",
     links: [
       ["/passports", "Trust Passports"],
       ["/verification-queue", "Verification Queue"],
       ["/evidence-vault", "Evidence Vault"],
+      ["/decision-engine", "Decisions"],
       ["/back-office", "Back Office"],
     ],
   },
@@ -30,8 +22,6 @@ const adminNavGroups = [
     links: [
       ["/trust-intelligence", "Trust Intelligence"],
       ["/trust-graph-engine", "Trust Graph"],
-      ["/trust-assistant", "Trust Assistant"],
-      ["/knowledge-base", "Knowledge Base"],
     ],
   },
   {
@@ -45,25 +35,19 @@ const adminNavGroups = [
     ],
   },
   {
-    label: "Support & Legal",
+    label: "Support",
     links: [
       ["/help", "Help"],
-      ["/security", "Security"],
-      ["/data-rights", "Data Rights"],
-      ["/privacy", "Privacy"],
-      ["/terms", "Terms"],
-      ["/cookies", "Cookies"],
-      ["/legal", "Legal"],
-      ["/regulatory", "Regulatory"],
-      ["/accessibility", "Accessibility"],
+      ["/knowledge-base", "Knowledge Base"],
+      ["/trust-assistant", "Trust Assistant"],
     ],
   },
 ];
 
 const publicLinks = [
   ["/", "Home"],
-  ["/how-to-use", "How to Use"],
   ["/demo", "Demo"],
+  ["/how-to-use", "How to Use"],
   ["/security", "Security"],
   ["/help", "Help"],
   ["/login", "Login"],
@@ -72,7 +56,7 @@ const publicLinks = [
 const userLinks = [
   ["/", "Home"],
   ["/passport", "Create Passport"],
-  ["/passports", "Trust Passports"],
+  ["/passports", "My Passports"],
   ["/help", "Help"],
   ["/trust-assistant", "Trust Assistant"],
 ];
@@ -168,6 +152,12 @@ export function GlobalNavigation({
           ) : null}
           {accessLevel === "admin" ? (
             <>
+              <Link
+                href="/"
+                className="rounded-lg border border-zinc-800 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
+              >
+                Home
+              </Link>
               {adminNavGroups.map((group) => {
                 const isOpen = openGroup === group.label;
 
@@ -202,6 +192,12 @@ export function GlobalNavigation({
                   </div>
                 );
               })}
+              <Link
+                href="/status"
+                className="rounded-lg border border-zinc-800 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
+              >
+                System Status
+              </Link>
               <LogoutButton />
             </>
           ) : null}

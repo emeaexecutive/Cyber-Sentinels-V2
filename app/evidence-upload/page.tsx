@@ -36,19 +36,7 @@ export default async function EvidenceUploadPage({
             Create Passport
           </Link>
           <Link href="/passports" className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">
-            Trust Passports
-          </Link>
-          <Link href="/mission-control" className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">
-            Mission Control
-          </Link>
-          <Link href="/back-office" className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">
-            Back Office
-          </Link>
-          <Link href="/verification-queue" className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">
-            Verification Queue
-          </Link>
-          <Link href="/evidence-vault" className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">
-            Evidence Vault
+            My Passports
           </Link>
         </nav>
 
@@ -58,8 +46,8 @@ export default async function EvidenceUploadPage({
           </p>
           <h1 className="mt-3 text-3xl font-semibold">Upload Evidence</h1>
           <p className="mt-3 text-sm leading-6 text-zinc-400">
-            Upload evidence files against a verification case before admin
-            approval.
+            Upload evidence to continue verification. Your verification is
+            awaiting review after evidence is submitted.
           </p>
 
           {uploaded ? (
