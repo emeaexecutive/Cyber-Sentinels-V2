@@ -8,6 +8,8 @@ const requestTypes = [
   "Request deletion",
   "Request correction",
   "Request export",
+  "Request objection review",
+  "Request restriction of processing",
   "Contact privacy team",
 ];
 
@@ -86,7 +88,7 @@ export default async function DataRightsPage({
       <div className="mx-auto max-w-5xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-amber-300">
-            Draft - requires legal review.
+            Draft policy - requires legal review before production use.
           </p>
           <h1 className="mt-4 text-4xl font-semibold">Data Rights</h1>
           <p className="mt-4 max-w-3xl leading-7 text-zinc-400">
@@ -96,17 +98,36 @@ export default async function DataRightsPage({
           </p>
         </section>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-2">
-          {requestTypes.map((type) => (
-            <article
-              key={type}
-              className="rounded-lg border border-zinc-800 bg-black p-5"
-            >
-              <h2 className="font-semibold text-zinc-100">{type}</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">
-                Submit this request for privacy-team review. Identity and
-                authorization checks may be required before fulfillment.
-              </p>
+        <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[
+            [
+              "Access",
+              "Ask what account, passport, evidence metadata, audit or signal data is associated with your user account.",
+            ],
+            [
+              "Deletion",
+              "Request deletion where legally and operationally appropriate. Some audit records may need to be retained for security or compliance review.",
+            ],
+            [
+              "Correction",
+              "Request correction of inaccurate account, passport or workflow information where the record can be updated.",
+            ],
+            [
+              "Export",
+              "Request a portable export of eligible personal data connected to your account and trust workflows.",
+            ],
+            [
+              "Objection",
+              "Object to certain processing activities where applicable law gives you that right.",
+            ],
+            [
+              "Restriction",
+              "Request restriction of processing while a privacy, accuracy or objection review is pending.",
+            ],
+          ].map(([title, copy]) => (
+            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
+              <h2 className="font-semibold text-zinc-100">{title}</h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
             </article>
           ))}
         </section>

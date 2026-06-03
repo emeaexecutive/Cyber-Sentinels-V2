@@ -8,11 +8,15 @@ export default function ModernSlaveryStatementPage() {
       sections={[
         {
           title: "Current Status",
-          body: "This is a placeholder structure and not a finalized statutory modern slavery statement.",
+          body: "This page is a placeholder structure and is not a finalized statutory modern slavery statement.",
         },
         {
-          title: "Future Review",
-          body: "Supply-chain scope, reporting obligations, responsible owners and review cadence should be confirmed by counsel.",
+          title: "Supply Chain",
+          body: "Supplier scope, due diligence procedures, risk assessment, training and reporting obligations should be confirmed before publication.",
+        },
+        {
+          title: "Responsible Operations",
+          body: "Cyber Sentinels intends to support human-governed, auditable trust infrastructure while avoiding claims that have not been reviewed.",
         },
       ]}
     />

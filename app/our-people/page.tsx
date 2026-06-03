@@ -1,13 +1,24 @@
+import { LegalDraftPage } from "@/components/legal-draft-page";
+
 export default function OurPeoplePage() {
   return (
-    <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
-      <div className="mx-auto max-w-4xl rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-        <h1 className="text-4xl font-semibold">Our people</h1>
-        <p className="mt-4 text-sm leading-7 text-zinc-400">
-          Cyber Sentinels is built around human-governed trust operations,
-          security review and accountable decision workflows.
-        </p>
-      </div>
-    </main>
+    <LegalDraftPage
+      title="Our People"
+      subtitle="Cyber Sentinels is built around human-governed trust operations, security review and accountable decision workflows."
+      sections={[
+        {
+          title: "Human Governance",
+          body: "The product direction centers human review for sensitive evidence, decisions, trust graph interpretation and high-risk workflow authorization.",
+        },
+        {
+          title: "Accountable Operations",
+          body: "Operational roles, responsibilities and escalation paths should be documented before production deployment.",
+        },
+        {
+          title: "Public Team Information",
+          body: "Leadership, advisors, hiring contacts and team biographies should be published only after consent and communications review.",
+        },
+      ]}
+    />
   );
 }

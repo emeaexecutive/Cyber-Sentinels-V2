@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 const navGroups = [
   {
-    label: "Start",
+    label: "Home",
     links: [
       ["/", "Home"],
       ["/how-to-use", "How to Use"],
@@ -25,6 +29,7 @@ const navGroups = [
       ["/trust-intelligence", "Trust Intelligence"],
       ["/trust-graph-engine", "Trust Graph"],
       ["/trust-assistant", "Trust Assistant"],
+      ["/knowledge-base", "Knowledge Base"],
     ],
   },
   {
@@ -41,7 +46,6 @@ const navGroups = [
     label: "Support & Legal",
     links: [
       ["/help", "Help"],
-      ["/knowledge-base", "Knowledge Base"],
       ["/security", "Security"],
       ["/data-rights", "Data Rights"],
       ["/privacy", "Privacy"],
@@ -50,44 +54,93 @@ const navGroups = [
       ["/legal", "Legal"],
       ["/regulatory", "Regulatory"],
       ["/accessibility", "Accessibility"],
-      ["/about", "About"],
-      ["/careers", "Careers"],
-      ["/media-centre", "Media Centre"],
-      ["/modern-slavery", "Modern Slavery"],
-      ["/sustainability", "Sustainability"],
     ],
   },
 ];
 
 export function GlobalNavigation() {
+  const pathname = usePathname();
+  const navRef = useRef<HTMLElement | null>(null);
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
+
+  useEffect(() => {
+    setOpenGroup(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    function closeOnOutsideClick(event: MouseEvent) {
+      if (
+        navRef.current &&
+        event.target instanceof Node &&
+        !navRef.current.contains(event.target)
+      ) {
+        setOpenGroup(null);
+      }
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpenGroup(null);
+      }
+    }
+
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-900 bg-[#04070c]/95 text-white backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-8">
         <Link
           href="/"
           className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-100"
+          onClick={() => setOpenGroup(null)}
         >
           Cyber Sentinels
         </Link>
-        <nav className="flex flex-wrap items-center justify-end gap-2 text-xs text-zinc-300">
-          {navGroups.map((group) => (
-            <details key={group.label} className="group relative">
-              <summary className="cursor-pointer list-none rounded-lg border border-zinc-800 bg-black/50 px-3 py-2 hover:border-cyan-500/70 hover:text-white">
-                {group.label}
-              </summary>
-              <div className="absolute right-0 top-10 z-50 hidden min-w-56 gap-1 rounded-lg border border-zinc-800 bg-black p-2 shadow-xl group-open:grid">
-                {group.links.map(([href, label]) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="rounded-md px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
-                  >
-                    {label}
-                  </Link>
-                ))}
+        <nav
+          ref={navRef}
+          className="flex flex-wrap items-center justify-end gap-2 text-xs text-zinc-300"
+        >
+          {navGroups.map((group) => {
+            const isOpen = openGroup === group.label;
+
+            return (
+              <div key={group.label} className="relative">
+                <button
+                  type="button"
+                  aria-expanded={isOpen}
+                  className="rounded-lg border border-zinc-800 bg-black/50 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
+                  onClick={() =>
+                    setOpenGroup((current) =>
+                      current === group.label ? null : group.label
+                    )
+                  }
+                >
+                  {group.label}
+                </button>
+                {isOpen ? (
+                  <div className="absolute right-0 top-10 z-50 grid min-w-56 gap-1 rounded-lg border border-zinc-800 bg-black p-2 shadow-xl">
+                    {group.links.map(([href, label]) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        className="rounded-md px-3 py-2 text-zinc-300 hover:bg-zinc-900 hover:text-white"
+                        onClick={() => setOpenGroup(null)}
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-            </details>
-          ))}
+            );
+          })}
         </nav>
       </div>
     </header>

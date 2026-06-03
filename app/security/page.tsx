@@ -1,40 +1,37 @@
 import { LegalDraftPage } from "@/components/legal-draft-page";
-import { commonLegalSections, legalDraftLinks } from "@/lib/legal/draftPages";
-
-const securitySections = [
-  ...commonLegalSections,
-  {
-    title: "Encrypted Storage",
-    body: "Cyber Sentinels is designed for encrypted platform storage and server-side access controls. Deployment encryption settings should be verified before any formal security claim.",
-  },
-  {
-    title: "Private Evidence Files",
-    body: "Evidence files should remain private, reviewed through controlled workflows and never exposed through public buckets unless explicitly approved.",
-  },
-  {
-    title: "Admin Review",
-    body: "Sensitive workflows such as evidence decisions, Back Office review and admin APIs require authenticated access, allowlist checks and admin verification.",
-  },
-  {
-    title: "Audit Trail",
-    body: "Security-relevant actions write audit events and signals so review history remains traceable.",
-  },
-  {
-    title: "Row Level Security",
-    body: "Operational Supabase tables use RLS and authenticated grants to limit direct database access. Policies must be reviewed before production deployment.",
-  },
-  {
-    title: "Biometric Data",
-    body: "Cyber Sentinels does not claim raw biometric storage. No raw biometric storage should be added unless explicitly designed, documented and legally reviewed.",
-  },
-];
+import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export default function SecurityPage() {
   return (
     <LegalDraftPage
       title="Security and Online Safety"
-      subtitle="Cyber Sentinels assumes trust actions must be authenticated, validated, logged and reviewable."
-      sections={securitySections}
+      subtitle="Cyber Sentinels is designed around proof-before-permission workflows, protected evidence handling and auditable admin review."
+      sections={[
+        {
+          title: "Row Level Security",
+          body: "Operational Supabase tables should use RLS policies and authenticated grants so direct data access is scoped to signed-in users and authorized workflows.",
+        },
+        {
+          title: "Private Evidence Storage",
+          body: "Evidence files should be stored in private buckets and accessed through controlled review flows. Public evidence exposure should require separate approval.",
+        },
+        {
+          title: "Audit Logs",
+          body: "Security-relevant activity writes audit events so passport creation, evidence review, decisions, admin access and data-rights requests can be traced.",
+        },
+        {
+          title: "Admin Review",
+          body: "Back Office and admin APIs require authenticated sessions, admin allowlist checks and a verified admin cookie before sensitive actions can be performed.",
+        },
+        {
+          title: "Session Discipline",
+          body: "Logout and session-expiry flows should clear admin state and redirect users away from protected operations when access is no longer valid.",
+        },
+        {
+          title: "No Raw Biometric Storage",
+          body: "Cyber Sentinels does not claim raw biometric storage. No raw biometric processing or storage should be implemented unless separately designed and legally reviewed.",
+        },
+      ]}
       links={legalDraftLinks}
     />
   );

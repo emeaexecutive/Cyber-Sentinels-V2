@@ -7,12 +7,16 @@ export default function CorporateSustainabilityPage() {
       subtitle="Cyber Sentinels is designed to support responsible, auditable and human-governed trust infrastructure."
       sections={[
         {
-          title: "Responsible Operations",
+          title: "Responsible Trust Infrastructure",
+          body: "The product direction emphasizes accountable workflows, evidence-backed decisions and human governance for sensitive trust operations.",
+        },
+        {
+          title: "Operational Sustainability",
           body: "Sustainability commitments should be specific, measurable and reviewed before public use.",
         },
         {
-          title: "Trust Infrastructure",
-          body: "The product direction emphasizes accountable workflows, evidence-backed decisions and human governance.",
+          title: "Future Reporting",
+          body: "Environmental, social and governance reporting should be added only when ownership, methodology and review cadence are confirmed.",
         },
       ]}
     />
