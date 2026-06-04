@@ -10,10 +10,58 @@ type EnterpriseAccessPageProps = {
   }>;
 };
 
+const enterpriseAccessInsertFields = [
+  "name",
+  "work_email",
+  "company",
+  "role",
+  "company_size",
+  "current_problem",
+  "ai_usage_level",
+  "use_case",
+  "message",
+  "status",
+] as const;
+
+type EnterpriseAccessInsertField =
+  (typeof enterpriseAccessInsertFields)[number];
+type EnterpriseAccessInsertPayload = Record<EnterpriseAccessInsertField, string>;
+
+type SupabaseErrorLike = {
+  message?: string;
+  code?: string;
+  details?: string;
+};
+
+function logEnterpriseAccessSubmitError(error: unknown) {
+  const supabaseError = error as SupabaseErrorLike;
+
+  console.error("enterprise access submit failed", {
+    message:
+      typeof supabaseError?.message === "string"
+        ? supabaseError.message
+        : "Unknown enterprise access submit error",
+    code: typeof supabaseError?.code === "string" ? supabaseError.code : null,
+    details:
+      typeof supabaseError?.details === "string"
+        ? supabaseError.details
+        : null,
+  });
+}
+
+function buildEnterpriseAccessPayload(
+  values: Record<EnterpriseAccessInsertField, string>
+): EnterpriseAccessInsertPayload {
+  return enterpriseAccessInsertFields.reduce((payload, field) => {
+    payload[field] = values[field];
+    return payload;
+  }, {} as EnterpriseAccessInsertPayload);
+}
+
 async function submitEnterpriseAccessRequest(formData: FormData) {
   "use server";
 
-  const payload = {
+  const payload = buildEnterpriseAccessPayload({
     name: String(formData.get("name") ?? "").trim(),
     work_email: String(formData.get("work_email") ?? "").trim(),
     company: String(formData.get("company") ?? "").trim(),
@@ -24,7 +72,7 @@ async function submitEnterpriseAccessRequest(formData: FormData) {
     use_case: String(formData.get("use_case") ?? "").trim(),
     message: String(formData.get("message") ?? "").trim(),
     status: "new",
-  };
+  });
 
   if (!payload.name || !payload.work_email || !payload.company) {
     redirect("/enterprise-access?error=required");
@@ -35,7 +83,7 @@ async function submitEnterpriseAccessRequest(formData: FormData) {
   try {
     supabase = createServiceRoleClient();
   } catch (error) {
-    console.error("enterprise access submit failed", error);
+    logEnterpriseAccessSubmitError(error);
     redirect("/enterprise-access?error=submit_failed");
   }
 
@@ -44,7 +92,7 @@ async function submitEnterpriseAccessRequest(formData: FormData) {
     .insert(payload);
 
   if (error) {
-    console.error("enterprise access submit failed", error);
+    logEnterpriseAccessSubmitError(error);
     redirect("/enterprise-access?error=submit_failed");
   }
 
