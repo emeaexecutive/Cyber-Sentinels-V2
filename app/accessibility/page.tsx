@@ -17,7 +17,7 @@ export default function AccessibilityPage() {
         },
         {
           title: "Readable Contrast",
-          body: "The dark Trust OS interface should preserve strong contrast for headings, labels, form controls, status chips and operational text.",
+          body: "The dark product interface should preserve strong contrast for headings, labels, form controls, status chips and operational text.",
         },
         {
           title: "Feedback Contact",

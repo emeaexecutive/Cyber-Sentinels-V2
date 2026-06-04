@@ -8,7 +8,7 @@ export default function AboutUsPage() {
       sections={[
         {
           title: "What Cyber Sentinels Does",
-          body: "Cyber Sentinels connects Trust Passports, evidence files, admin decisions, audit logs, signals and graph relationships into one operational Trust OS.",
+          body: "Cyber Sentinels connects Trust Passports, evidence files, admin decisions, audit logs, signals and trust relationships into governed trust infrastructure.",
         },
         {
           title: "Identity and Workforce Trust",

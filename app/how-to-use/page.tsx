@@ -101,7 +101,7 @@ export default function HowToUsePage() {
             Cyber Sentinels™ is a trust infrastructure platform designed to help
             organisations and individuals manage evidence-backed verification
             workflows, trust operations and audit visibility through a governed
-            Trust OS environment.
+            governed trust infrastructure environment.
           </p>
         </section>
 

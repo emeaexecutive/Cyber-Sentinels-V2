@@ -19,6 +19,7 @@ const footerSections = [
     title: "Company",
     links: [
       ["/about", "About us"],
+      ["/enterprise-access", "Enterprise access"],
       ["/careers", "Careers"],
       ["/media-centre", "Media centre"],
       ["/sustainability", "Sustainability"],

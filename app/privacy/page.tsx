@@ -5,7 +5,7 @@ export default function PrivacyPage() {
   return (
     <LegalDraftPage
       title="Privacy Policy"
-      subtitle="This draft explains how Cyber Sentinels expects to handle account, passport, evidence, audit and signal data across Trust OS workflows."
+      subtitle="This draft explains how Cyber Sentinels expects to handle account, passport, evidence, audit and signal data across governed trust workflows."
       sections={[
         {
           title: "Account Data",

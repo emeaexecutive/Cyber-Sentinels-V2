@@ -26,7 +26,7 @@ export default function TrustPrinciplesPage() {
         },
         {
           title: "Security by Design",
-          body: "The platform separates public, user and admin access. Authentication, role separation, admin protection, private evidence storage, row-level security and secure workflows are core operating assumptions for the Trust OS.",
+          body: "The platform separates public, user and admin access. Authentication, role separation, admin protection, private evidence storage, row-level security and secure workflows are core operating assumptions for governed trust infrastructure.",
         },
         {
           title: "Responsible AI Assistance",

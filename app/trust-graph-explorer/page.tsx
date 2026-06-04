@@ -483,7 +483,7 @@ export default async function TrustGraphExplorerPage({
                 Graph Summary
               </p>
               <h2 className="mt-2 text-2xl font-semibold">
-                Live relationship surface across the Trust OS.
+                Live relationship surface across governed trust infrastructure.
               </h2>
             </div>
             {metricsUnavailable ? (
