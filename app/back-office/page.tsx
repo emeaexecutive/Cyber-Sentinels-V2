@@ -1958,6 +1958,10 @@ export default async function BackOfficePage({
                       <p>Role: {request.role ?? "Not provided"}</p>
                       <p>Company size: {request.company_size ?? "Not provided"}</p>
                       <p>AI usage: {request.ai_usage_level ?? "Not provided"}</p>
+                      <p>
+                        Problem category:{" "}
+                        {request.current_problem_category ?? "Not provided"}
+                      </p>
                       <p>Use case: {request.use_case ?? "Not provided"}</p>
                     </div>
                     {request.current_problem ? (

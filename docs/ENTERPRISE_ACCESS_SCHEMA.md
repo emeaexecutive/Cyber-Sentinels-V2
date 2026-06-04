@@ -38,6 +38,7 @@ Allowed insert fields:
 - `company`
 - `role`
 - `company_size`
+- `current_problem_category`
 - `current_problem`
 - `ai_usage_level`
 - `use_case`
@@ -60,6 +61,7 @@ Expected columns:
 - `company text`
 - `role text`
 - `company_size text`
+- `current_problem_category text`
 - `current_problem text`
 - `ai_usage_level text`
 - `use_case text`

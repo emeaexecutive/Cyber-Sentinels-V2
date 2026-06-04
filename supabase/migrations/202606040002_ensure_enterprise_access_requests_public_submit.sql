@@ -5,6 +5,7 @@ create table if not exists public.enterprise_access_requests (
   company text,
   role text,
   company_size text,
+  current_problem_category text,
   current_problem text,
   ai_usage_level text,
   use_case text,
@@ -19,6 +20,7 @@ alter table public.enterprise_access_requests add column if not exists work_emai
 alter table public.enterprise_access_requests add column if not exists company text;
 alter table public.enterprise_access_requests add column if not exists role text;
 alter table public.enterprise_access_requests add column if not exists company_size text;
+alter table public.enterprise_access_requests add column if not exists current_problem_category text;
 alter table public.enterprise_access_requests add column if not exists current_problem text;
 alter table public.enterprise_access_requests add column if not exists ai_usage_level text;
 alter table public.enterprise_access_requests add column if not exists use_case text;

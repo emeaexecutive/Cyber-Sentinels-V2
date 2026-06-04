@@ -16,6 +16,7 @@ const enterpriseAccessInsertFields = [
   "company",
   "role",
   "company_size",
+  "current_problem_category",
   "current_problem",
   "ai_usage_level",
   "use_case",
@@ -58,6 +59,32 @@ function buildEnterpriseAccessPayload(
   }, {} as EnterpriseAccessInsertPayload);
 }
 
+function getEnterpriseInterestSignal(problemCategory: string) {
+  const normalizedCategory = problemCategory.toLowerCase();
+
+  if (normalizedCategory.includes("auditability")) {
+    return "auditability_interest_detected";
+  }
+
+  if (
+    normalizedCategory.includes("identity") ||
+    normalizedCategory.includes("permissions")
+  ) {
+    return "ai_identity_interest_detected";
+  }
+
+  if (
+    normalizedCategory.includes("approval") ||
+    normalizedCategory.includes("governance") ||
+    normalizedCategory.includes("oversight") ||
+    normalizedCategory.includes("accountability")
+  ) {
+    return "governance_interest_detected";
+  }
+
+  return "operational_trust_interest_detected";
+}
+
 async function submitEnterpriseAccessRequest(formData: FormData) {
   "use server";
 
@@ -67,6 +94,9 @@ async function submitEnterpriseAccessRequest(formData: FormData) {
     company: String(formData.get("company") ?? "").trim(),
     role: String(formData.get("role") ?? "").trim(),
     company_size: String(formData.get("company_size") ?? "").trim(),
+    current_problem_category: String(
+      formData.get("current_problem_category") ?? ""
+    ).trim(),
     current_problem: String(formData.get("current_problem") ?? "").trim(),
     ai_usage_level: String(formData.get("ai_usage_level") ?? "").trim(),
     use_case: String(formData.get("use_case") ?? "").trim(),
@@ -99,10 +129,18 @@ async function submitEnterpriseAccessRequest(formData: FormData) {
   const { error: interestSignalError } = await supabase.from("interest_signals").insert({
     company: payload.company,
     role: payload.role || null,
-    use_case: payload.use_case || payload.current_problem || null,
+    use_case:
+      payload.use_case || payload.current_problem_category || payload.current_problem || null,
     interest_level: payload.ai_usage_level || "early_access_request",
-    source: "enterprise_access",
-    notes: [payload.current_problem, payload.message].filter(Boolean).join(" / ") || null,
+    source: getEnterpriseInterestSignal(payload.current_problem_category),
+    notes:
+      [
+        payload.current_problem_category,
+        payload.current_problem,
+        payload.message,
+      ]
+        .filter(Boolean)
+        .join(" / ") || null,
   });
 
   if (interestSignalError) {
@@ -138,8 +176,8 @@ export default async function EnterpriseAccessPage({
             {[
               "Evidence-backed verification",
               "Human-governed review",
-              "Operational audit trails",
-              "AI and workflow trust oversight",
+              "Operational trust maturity",
+              "AI governance and auditability",
             ].map((item) => (
               <div
                 key={item}
@@ -197,9 +235,46 @@ export default async function EnterpriseAccessPage({
               placeholder="Company size"
               className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
             />
+            <select
+              name="current_problem_category"
+              defaultValue=""
+              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+            >
+              <option value="" disabled>
+                Operational trust challenge
+              </option>
+              <option value="Lack of AI auditability">
+                Lack of AI auditability
+              </option>
+              <option value="Unclear ownership/accountability">
+                Unclear ownership/accountability
+              </option>
+              <option value="Human approval requirements">
+                Human approval requirements
+              </option>
+              <option value="Workflow governance concerns">
+                Workflow governance concerns
+              </option>
+              <option value="AI identity and permissions">
+                AI identity and permissions
+              </option>
+              <option value="Evidence and provenance tracking">
+                Evidence and provenance tracking
+              </option>
+              <option value="Compliance and operational oversight">
+                Compliance and operational oversight
+              </option>
+              <option value="Trust and verification workflows">
+                Trust and verification workflows
+              </option>
+              <option value="Exploring trust infrastructure">
+                Exploring trust infrastructure
+              </option>
+              <option value="Other">Other</option>
+            </select>
             <input
               name="current_problem"
-              placeholder="Current problem"
+              placeholder="Describe the operational trust problem"
               className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
             />
             <select
@@ -208,12 +283,26 @@ export default async function EnterpriseAccessPage({
               className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
             >
               <option value="" disabled>
-                AI usage level
+                AI maturity and oversight need
               </option>
-              <option value="exploring">Exploring AI use cases</option>
-              <option value="piloting">Piloting AI workflows</option>
-              <option value="operational">AI is operational today</option>
-              <option value="governance_required">AI governance is required</option>
+              <option value="Exploring AI adoption">
+                Exploring AI adoption
+              </option>
+              <option value="Piloting AI-assisted workflows">
+                Piloting AI-assisted workflows
+              </option>
+              <option value="AI systems are operational internally">
+                AI systems are operational internally
+              </option>
+              <option value="AI agents/workflows require governance">
+                AI agents/workflows require governance
+              </option>
+              <option value="Operational auditability is becoming critical">
+                Operational auditability is becoming critical
+              </option>
+              <option value="Trust and oversight requirements are increasing">
+                Trust and oversight requirements are increasing
+              </option>
             </select>
             <input
               name="use_case"
