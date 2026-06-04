@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 type EnterpriseAccessPageProps = {
   searchParams?: Promise<{
-    submitted?: string;
+    success?: string;
     error?: string;
   }>;
 };
@@ -23,6 +23,7 @@ async function submitEnterpriseAccessRequest(formData: FormData) {
     ai_usage_level: String(formData.get("ai_usage_level") ?? "").trim(),
     use_case: String(formData.get("use_case") ?? "").trim(),
     message: String(formData.get("message") ?? "").trim(),
+    status: "new",
   };
 
   if (!payload.name || !payload.work_email || !payload.company) {
@@ -35,10 +36,11 @@ async function submitEnterpriseAccessRequest(formData: FormData) {
     .insert(payload);
 
   if (error) {
+    console.error("enterprise access submit failed", error);
     redirect("/enterprise-access?error=submit_failed");
   }
 
-  await supabase.from("interest_signals").insert({
+  const { error: interestSignalError } = await supabase.from("interest_signals").insert({
     company: payload.company,
     role: payload.role || null,
     use_case: payload.use_case || payload.current_problem || null,
@@ -47,14 +49,18 @@ async function submitEnterpriseAccessRequest(formData: FormData) {
     notes: [payload.current_problem, payload.message].filter(Boolean).join(" / ") || null,
   });
 
-  redirect("/enterprise-access?submitted=1");
+  if (interestSignalError) {
+    console.error("enterprise access interest signal insert failed", interestSignalError);
+  }
+
+  redirect("/enterprise-access?success=true");
 }
 
 export default async function EnterpriseAccessPage({
   searchParams,
 }: EnterpriseAccessPageProps) {
   const params = await searchParams;
-  const submitted = params?.submitted === "1";
+  const success = params?.success === "true";
   const error = params?.error;
 
   return (
@@ -90,10 +96,9 @@ export default async function EnterpriseAccessPage({
         </section>
 
         <section className="rounded-lg border border-zinc-800 bg-black p-6">
-          {submitted ? (
+          {success ? (
             <div className="rounded-lg border border-emerald-900 bg-emerald-950/30 p-4 text-sm text-emerald-100">
-              Thanks &mdash; Cyber Sentinels is currently onboarding early
-              partners and design collaborators.
+              Thanks &mdash; your request has been received.
             </div>
           ) : null}
 
