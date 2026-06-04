@@ -53,6 +53,7 @@ const supportLegalLinks = [
 
 const publicLinks = [
   ["/", "Home"],
+  ["/why-now", "Why Now"],
   ["/demo", "Demo"],
   ["/how-to-use", "How to Use"],
   ["/security", "Security"],

@@ -20,6 +20,9 @@ const footerSections = [
     links: [
       ["/about", "About us"],
       ["/enterprise-access", "Enterprise access"],
+      ["/enterprise", "Enterprise"],
+      ["/platform", "Platform"],
+      ["/journal", "Founder journal"],
       ["/careers", "Careers"],
       ["/media-centre", "Media centre"],
       ["/sustainability", "Sustainability"],
@@ -35,6 +38,9 @@ const footerSections = [
       ["/trust-principles", "Trust Principles"],
       ["/ai-governance", "AI Governance"],
       ["/transparency", "Transparency"],
+      ["/why-now", "Why Now"],
+      ["/timeline", "Timeline"],
+      ["/trust-os", "Trust OS"],
     ],
   },
   {

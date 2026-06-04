@@ -29,7 +29,7 @@ const demoSteps = [
   [
     "Trust Visibility",
     "View the passport status, evidence state and audit trail in one place.",
-    "Decision-makers can understand the trust state without reading internal system data.",
+    "Decision-makers can understand the trust state without reading raw operational records.",
   ],
 ];
 

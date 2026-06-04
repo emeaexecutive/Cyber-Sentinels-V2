@@ -229,7 +229,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
             Your Questions
           </p>
           <h2 className="mt-2 text-2xl font-semibold">
-            Track submitted questions and admin answers.
+            Track submitted questions and human-reviewed answers.
           </h2>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {helpQuestions?.length ? (
@@ -249,7 +249,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
                   <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-zinc-400">
                     {item.status === "answered" && item.answer
                       ? item.answer
-                      : "Awaiting admin answer."}
+                      : "Awaiting a reviewed answer."}
                   </p>
                   <p className="mt-4 text-xs text-zinc-600">
                     {item.status === "answered" && item.admin_answered_by
@@ -263,7 +263,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
               <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500 md:col-span-2">
                 {user
                   ? "No submitted questions yet. Ask a question below to start a traceable help thread."
-                  : "Sign in to view your submitted questions and admin answers."}
+                  : "Sign in to view your submitted questions and reviewed answers."}
               </p>
             )}
           </div>
@@ -274,7 +274,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
             Ask a Question
           </p>
           <h2 className="mt-2 text-2xl font-semibold">
-            Store a question for admin review.
+            Store a question for human review.
           </h2>
           <p className="mt-3 text-sm text-zinc-500">
             AI answers will be added in a later release.
@@ -306,7 +306,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
           ) : (
             <div className="mt-5 rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-sm text-zinc-400">
-                Sign in to submit a help question for admin review.
+                Sign in to submit a help question for review.
               </p>
               <Link
                 href="/login?next=/help"

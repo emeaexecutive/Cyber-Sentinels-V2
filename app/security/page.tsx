@@ -5,7 +5,7 @@ export default function SecurityPage() {
   return (
     <LegalDraftPage
       title="Security and Online Safety"
-      subtitle="Cyber Sentinels is designed around proof-before-permission workflows, protected evidence handling and auditable admin review."
+      subtitle="Cyber Sentinels is designed around evidence-backed verification, protected evidence handling and auditable human review."
       sections={[
         {
           title: "Row Level Security",
@@ -21,7 +21,7 @@ export default function SecurityPage() {
         },
         {
           title: "Admin Review",
-          body: "Back Office and admin APIs require authenticated sessions, admin allowlist checks and a verified admin cookie before sensitive actions can be performed.",
+          body: "Protected operational areas and sensitive APIs require authenticated sessions, admin allowlist checks and a verified admin cookie before sensitive actions can be performed.",
         },
         {
           title: "Session Discipline",
