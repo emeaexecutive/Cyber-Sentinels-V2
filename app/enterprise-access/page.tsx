@@ -62,22 +62,22 @@ function buildEnterpriseAccessPayload(
 function getEnterpriseInterestSignal(problemCategory: string) {
   const normalizedCategory = problemCategory.toLowerCase();
 
-  if (normalizedCategory.includes("auditability")) {
+  if (normalizedCategory === "auditability") {
     return "auditability_interest_detected";
   }
 
   if (
-    normalizedCategory.includes("identity") ||
-    normalizedCategory.includes("permissions")
+    normalizedCategory === "ai_identity" ||
+    normalizedCategory === "provenance"
   ) {
     return "ai_identity_interest_detected";
   }
 
   if (
-    normalizedCategory.includes("approval") ||
-    normalizedCategory.includes("governance") ||
-    normalizedCategory.includes("oversight") ||
-    normalizedCategory.includes("accountability")
+    normalizedCategory === "ownership" ||
+    normalizedCategory === "human_review" ||
+    normalizedCategory === "workflow_governance" ||
+    normalizedCategory === "compliance"
   ) {
     return "governance_interest_detected";
   }
@@ -243,34 +243,34 @@ export default async function EnterpriseAccessPage({
               <option value="" disabled>
                 Operational trust challenge
               </option>
-              <option value="Lack of AI auditability">
+              <option value="auditability">
                 Lack of AI auditability
               </option>
-              <option value="Unclear ownership/accountability">
+              <option value="ownership">
                 Unclear ownership/accountability
               </option>
-              <option value="Human approval requirements">
+              <option value="human_review">
                 Human approval requirements
               </option>
-              <option value="Workflow governance concerns">
+              <option value="workflow_governance">
                 Workflow governance concerns
               </option>
-              <option value="AI identity and permissions">
+              <option value="ai_identity">
                 AI identity and permissions
               </option>
-              <option value="Evidence and provenance tracking">
+              <option value="provenance">
                 Evidence and provenance tracking
               </option>
-              <option value="Compliance and operational oversight">
+              <option value="compliance">
                 Compliance and operational oversight
               </option>
-              <option value="Trust and verification workflows">
+              <option value="trust_workflows">
                 Trust and verification workflows
               </option>
-              <option value="Exploring trust infrastructure">
+              <option value="trust_infrastructure">
                 Exploring trust infrastructure
               </option>
-              <option value="Other">Other</option>
+              <option value="other">Other</option>
             </select>
             <input
               name="current_problem"
@@ -285,22 +285,22 @@ export default async function EnterpriseAccessPage({
               <option value="" disabled>
                 AI maturity and oversight need
               </option>
-              <option value="Exploring AI adoption">
+              <option value="exploring_ai">
                 Exploring AI adoption
               </option>
-              <option value="Piloting AI-assisted workflows">
+              <option value="piloting_workflows">
                 Piloting AI-assisted workflows
               </option>
-              <option value="AI systems are operational internally">
+              <option value="operational_ai">
                 AI systems are operational internally
               </option>
-              <option value="AI agents/workflows require governance">
+              <option value="governance_required">
                 AI agents/workflows require governance
               </option>
-              <option value="Operational auditability is becoming critical">
+              <option value="auditability_critical">
                 Operational auditability is becoming critical
               </option>
-              <option value="Trust and oversight requirements are increasing">
+              <option value="trust_requirements">
                 Trust and oversight requirements are increasing
               </option>
             </select>
