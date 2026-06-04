@@ -67,8 +67,7 @@ export async function POST(req: Request) {
     !allowedFileTypes.has(fileType) ||
     !Number.isFinite(fileSize) ||
     fileSize <= 0 ||
-    !storagePath ||
-    !publicUrl
+    !storagePath
   ) {
     return NextResponse.json(
       { ok: false, error: "Invalid evidence upload" },
@@ -101,8 +100,8 @@ export async function POST(req: Request) {
       file_type: fileType,
       file_size: fileSize,
       storage_path: storagePath,
-      public_url: publicUrl,
-      file_url: publicUrl,
+      public_url: publicUrl || null,
+      file_url: publicUrl || null,
       media_type: fileType,
       notes,
       uploaded_by: actor,
@@ -158,8 +157,8 @@ export async function POST(req: Request) {
     file_type: fileType,
     file_size: fileSize,
     storage_path: storagePath,
-    public_url: publicUrl,
-    file_url: publicUrl,
+    public_url: publicUrl || null,
+    file_url: publicUrl || null,
     notes,
     actor,
   };
@@ -183,12 +182,6 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-
-  console.log("evidence uploaded", {
-    evidence_id: evidenceRow.id,
-    signal_id: signalRow.id,
-    audit_id: auditRow.id,
-  });
 
   return NextResponse.json({
     ok: true,

@@ -18,11 +18,6 @@ async function getPlanFromRequest(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    // Replace with Stripe Checkout later:
-    // 1. validate authenticated user and selected plan
-    // 2. create or reuse Stripe customer
-    // 3. create Checkout Session with price id
-    // 4. return the Stripe checkout URL
     const plan = await getPlanFromRequest(req);
 
     if (!isClearanceTier(plan)) {
@@ -36,30 +31,38 @@ export async function POST(req: Request) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    const actor = user?.email ?? user?.id ?? "billing_placeholder";
 
-    await createSignal(supabase, "billing_checkout_started");
-    await createSignal(supabase, "plan_upgrade_requested");
-    await createSignal(supabase, "clearance_selected");
+    if (!user) {
+      return NextResponse.json(
+        { ok: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const actor = user.email ?? user.id;
+
+    await createSignal(supabase, "billing_checkout_disabled", {
+      plan,
+      actor,
+    });
     await createAuditLog(
       supabase,
-      "billing_checkout_placeholder_created",
+      "billing_checkout_disabled",
       actor,
       {
         plan,
-        checkout_provider: "stripe_placeholder",
+        checkout_provider: "stripe_not_configured",
       }
     );
-    await createAuditLog(supabase, "clearance_changed", actor, {
-      clearance_tier: plan,
-      subscription_status: plan === "free" ? "none" : "checkout_placeholder",
-    });
 
-    return NextResponse.json({
-      ok: true,
-      message: "Stripe checkout placeholder",
-      plan,
-    });
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Stripe checkout is not implemented yet.",
+        plan,
+      },
+      { status: 501 }
+    );
   } catch {
     return NextResponse.json(
       { ok: false, error: "Could not start checkout" },
