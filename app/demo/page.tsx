@@ -131,6 +131,21 @@ export default function DemoPage() {
             trail that explains what happened.
           </p>
         </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-6">
+          <h2 className="text-2xl font-semibold">What was unclear?</h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            Cyber Sentinels is evolving through early operational feedback and
+            design collaboration. Share confusion points, onboarding issues or
+            enterprise use cases after signing in.
+          </p>
+          <Link
+            href="/login?next=/feedback"
+            className="mt-5 inline-flex rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:text-white"
+          >
+            Share Feedback
+          </Link>
+        </section>
       </div>
     </main>
   );

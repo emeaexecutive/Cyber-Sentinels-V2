@@ -66,6 +66,7 @@ const userLinks = [
   ["/passports", "My Passports"],
   ["/notifications", "Notifications"],
   ["/appeals", "Appeals"],
+  ["/feedback", "Feedback"],
   ["/help", "Help"],
 ];
 

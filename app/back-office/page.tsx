@@ -295,6 +295,52 @@ function rowKey(row: AnyRow, fallback: string) {
   return String(row.id ?? fallback);
 }
 
+function FeedbackActions({
+  item,
+  target = "feedback_reports",
+}: {
+  item: AnyRow;
+  target?: "feedback_reports" | "interest_signals";
+}) {
+  const action = `/api/admin/feedback/${item.id}`;
+  const status = String(item.status ?? "new");
+
+  return (
+    <form
+      method="POST"
+      action={action}
+      className="mt-4 grid gap-3 border-t border-zinc-900 pt-4"
+    >
+      <input type="hidden" name="target" value={target} />
+      <div className="flex flex-wrap gap-2">
+        {[
+          ["reviewed", "Mark Reviewed"],
+          ["resolved", "Mark Resolved"],
+          ["high_signal", "Mark High-Signal"],
+        ].map(([value, label]) => (
+          <button
+            key={value}
+            type="submit"
+            name="status"
+            value={value}
+            disabled={status === value}
+            className="rounded-lg border border-cyan-800 px-3 py-2 text-xs font-medium text-cyan-100 hover:border-cyan-400 hover:text-white disabled:opacity-50"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <textarea
+        name="admin_notes"
+        defaultValue={String(item.admin_notes ?? "")}
+        rows={2}
+        placeholder="Founder/admin notes"
+        className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white placeholder:text-zinc-600"
+      />
+    </form>
+  );
+}
+
 function evidenceStatus(row?: AnyRow) {
   return row?.status ?? row?.scan_status ?? "pending_review";
 }
@@ -655,6 +701,8 @@ export default async function BackOfficePage({
     knowledgeArticles,
     dataRightsRequests,
     enterpriseAccessRequests,
+    feedbackReports,
+    interestSignals,
     messageThreads,
     messageEvents,
     notifications,
@@ -679,6 +727,8 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "knowledge_articles", "updated_at", 20),
     fetchTable<AnyRow>(supabase, "data_rights_requests", "created_at", 20),
     fetchTable<AnyRow>(supabase, "enterprise_access_requests", "created_at", 20),
+    fetchTable<AnyRow>(supabase, "feedback_reports", "created_at", 50),
+    fetchTable<AnyRow>(supabase, "interest_signals", "created_at", 30),
     fetchTable<AnyRow>(supabase, "message_threads", "updated_at", 20),
     fetchTable<AnyRow>(supabase, "message_events", "created_at", 80),
     fetchTable<AnyRow>(supabase, "notifications", "created_at", 20),
@@ -705,6 +755,79 @@ export default async function BackOfficePage({
       event,
     ]);
   });
+
+  const feedbackByCategory = (category: string) =>
+    feedbackReports.rows.filter((report) => report.category === category);
+  const confusionPoints = feedbackByCategory("confusion_point").concat(
+    feedbackByCategory("onboarding_issue")
+  );
+  const featureRequests = feedbackByCategory("feature_request");
+  const bugReports = feedbackByCategory("bug_report");
+  const highSignalFeedback = feedbackReports.rows.filter(
+    (report) => report.status === "high_signal"
+  );
+  const founderSignals = [
+    [
+      "Most common confusion points",
+      confusionPoints.length
+        ? `${confusionPoints.length} confusion or onboarding reports`
+        : "No confusion points recorded yet",
+    ],
+    [
+      "Most requested features",
+      featureRequests.length
+        ? `${featureRequests.length} feature requests`
+        : "No feature requests recorded yet",
+    ],
+    [
+      "Most viewed pages",
+      "Page analytics are not instrumented yet",
+    ],
+    [
+      "Enterprise access requests",
+      `${enterpriseAccessRequests.count} access requests`,
+    ],
+    [
+      "High-signal feedback",
+      highSignalFeedback.length
+        ? `${highSignalFeedback.length} items marked high-signal`
+        : "No high-signal feedback marked yet",
+    ],
+    [
+      "Signup failures",
+      "Tracked through auth/error feedback when reported",
+    ],
+    [
+      "Onboarding drop-offs",
+      `${feedbackByCategory("onboarding_issue").length} onboarding issues reported`,
+    ],
+  ];
+  const feedbackPanels = [
+    {
+      label: "Bugs",
+      rows: bugReports,
+      target: "feedback_reports" as const,
+      empty: "No bug reports yet.",
+    },
+    {
+      label: "Confusion Points",
+      rows: confusionPoints,
+      target: "feedback_reports" as const,
+      empty: "No confusion points yet.",
+    },
+    {
+      label: "Enterprise Interest",
+      rows: interestSignals.rows,
+      target: "interest_signals" as const,
+      empty: "No enterprise interest signals yet.",
+    },
+    {
+      label: "Feature Requests",
+      rows: featureRequests,
+      target: "feedback_reports" as const,
+      empty: "No feature requests yet.",
+    },
+  ];
 
   const radarSignals = signals.rows.length
     ? normalizeSignals(
@@ -1015,6 +1138,7 @@ export default async function BackOfficePage({
               ["#audit-timeline", "Audit"],
               ["#signal-timeline", "Signals"],
               ["#help", "Help"],
+              ["#feedback-signals", "Feedback"],
               ["#intelligence", "Intelligence"],
             ].map(([href, label]) => (
               <a
@@ -1168,6 +1292,38 @@ export default async function BackOfficePage({
                   {ok ? "Ready" : "Missing"}
                 </span>
                 <p className="mt-3 text-sm font-medium text-zinc-100">{label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                Founder Signals
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">
+                Early Market Learning
+              </h2>
+            </div>
+            <Link
+              href="#feedback-signals"
+              className="rounded-lg border border-cyan-800 px-3 py-2 text-xs text-cyan-100 hover:text-white"
+            >
+              Open Feedback
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {founderSignals.map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-lg border border-zinc-800 bg-black p-4"
+              >
+                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                  {label}
+                </p>
+                <p className="mt-3 text-sm leading-6 text-zinc-300">{value}</p>
               </div>
             ))}
           </div>
@@ -1827,6 +1983,98 @@ export default async function BackOfficePage({
                   )}
                 />
               )}
+            </div>
+          </div>
+
+          <div
+            id="feedback-signals"
+            className="mb-8 scroll-mt-24 rounded-lg border border-zinc-800 bg-zinc-950 p-5"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                  Feedback & Signals
+                </p>
+                <h2 className="mt-2 text-xl font-semibold">
+                  Real-World Learning
+                </h2>
+              </div>
+              <Link
+                href="/feedback"
+                className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+              >
+                Open Feedback Form
+              </Link>
+            </div>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-500">
+              Lightweight founder-led feedback signals from users, enterprise
+              conversations and early validation. Cyber Sentinels is evolving
+              through early operational feedback and design collaboration.
+            </p>
+            <div className="mt-5 grid gap-4 xl:grid-cols-2">
+              {feedbackPanels.map((panel) => (
+                <div
+                  key={panel.label}
+                  className="rounded-lg border border-zinc-800 bg-black p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="font-semibold text-zinc-100">
+                      {panel.label}
+                    </h3>
+                    <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400">
+                      {panel.rows.length}
+                    </span>
+                  </div>
+                  <div className="mt-4 grid gap-3">
+                    {panel.rows.length ? (
+                      panel.rows.slice(0, 6).map((item, index) => (
+                        <div
+                          key={rowKey(item, `${panel.label}-${index}`)}
+                          className="rounded-lg border border-zinc-800 bg-zinc-950 p-3"
+                        >
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                              <p className="font-medium text-zinc-100">
+                                {item.company ??
+                                  item.category ??
+                                  "Feedback signal"}
+                              </p>
+                              <p className="mt-1 text-xs text-zinc-600">
+                                {item.submitted_by_email ??
+                                  item.source ??
+                                  "unknown source"}{" "}
+                                / {formatDate(item.created_at)}
+                              </p>
+                            </div>
+                            <span className="rounded-full border border-cyan-800/70 bg-cyan-950/20 px-2.5 py-1 text-xs text-cyan-100">
+                              {item.status ?? "new"}
+                            </span>
+                          </div>
+                          <p className="mt-3 text-sm leading-6 text-zinc-400">
+                            {item.message ??
+                              item.use_case ??
+                              item.notes ??
+                              "No details supplied."}
+                          </p>
+                          {item.screenshot_url ? (
+                            <Link
+                              href={String(item.screenshot_url)}
+                              className="mt-2 inline-flex text-xs text-cyan-200 hover:text-white"
+                            >
+                              Screenshot
+                            </Link>
+                          ) : null}
+                          {item.id ? (
+                            <FeedbackActions item={item} target={panel.target} />
+                          ) : null}
+                        </div>
+                      ))
+                    ) : (
+                      <EmptyState label={panel.empty} />
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

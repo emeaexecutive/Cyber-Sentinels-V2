@@ -19,6 +19,7 @@ const userPagePrefixes = [
   "/messages",
   "/notifications",
   "/appeals",
+  "/feedback",
   "/developers/api-keys",
 ];
 
@@ -170,6 +171,7 @@ export const config = {
     "/messages/:path*",
     "/notifications/:path*",
     "/appeals/:path*",
+    "/feedback/:path*",
     "/developers/api-keys/:path*",
     "/back-office/:path*",
     "/admin/agents/:path*",

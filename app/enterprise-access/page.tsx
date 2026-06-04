@@ -38,6 +38,15 @@ async function submitEnterpriseAccessRequest(formData: FormData) {
     redirect("/enterprise-access?error=submit_failed");
   }
 
+  await supabase.from("interest_signals").insert({
+    company: payload.company,
+    role: payload.role || null,
+    use_case: payload.use_case || payload.current_problem || null,
+    interest_level: payload.ai_usage_level || "early_access_request",
+    source: "enterprise_access",
+    notes: [payload.current_problem, payload.message].filter(Boolean).join(" / ") || null,
+  });
+
   redirect("/enterprise-access?submitted=1");
 }
 
