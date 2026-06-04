@@ -12,12 +12,31 @@ const problemPoints = [
   "Governance risks",
 ];
 
+const trustIndicators = [
+  "Governed workflows",
+  "Auditability",
+  "Evidence-backed review",
+  "Human oversight",
+  "Explainable trust systems",
+  "Privacy-aware architecture",
+];
+
 const aiNativeExamples = [
   "AI copilots",
   "Autonomous workflows",
   "Machine-driven operations",
   "AI agents with permissions",
   "Synthetic media systems",
+];
+
+const howItWorksFlow = [
+  "Identity",
+  "Evidence",
+  "Verification",
+  "Trust Events",
+  "Human Review",
+  "Audit Trail",
+  "Governance Visibility",
 ];
 
 const infrastructureLayers = [
@@ -175,6 +194,22 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-6xl px-6 pb-16 md:px-8">
+        <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
+          Trust Signals
+        </p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {trustIndicators.map((indicator) => (
+            <div
+              key={indicator}
+              className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-300"
+            >
+              {indicator}
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="border-y border-zinc-900 bg-zinc-950 px-6 py-16 md:px-8">
         <div className="mx-auto max-w-6xl">
           <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
@@ -204,6 +239,33 @@ export default async function HomePage() {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-16 md:px-8">
+        <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
+          How Cyber Sentinels Works
+        </p>
+        <h2 className="mt-4 max-w-3xl text-3xl font-semibold md:text-4xl">
+          A calm operating flow for governed trust.
+        </h2>
+        <div className="mt-8 grid gap-3 lg:grid-cols-7">
+          {howItWorksFlow.map((step, index) => (
+            <div
+              key={step}
+              className="rounded-lg border border-zinc-800 bg-black p-4"
+            >
+              <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">
+                {index + 1}
+              </p>
+              <p className="mt-3 text-sm font-semibold text-zinc-100">{step}</p>
+              {index < howItWorksFlow.length - 1 ? (
+                <p className="mt-3 text-xs text-zinc-600">Connects forward</p>
+              ) : (
+                <p className="mt-3 text-xs text-zinc-600">Makes trust visible</p>
+              )}
+            </div>
+          ))}
         </div>
       </section>
 
@@ -249,6 +311,37 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="mx-auto grid max-w-6xl gap-8 px-6 py-16 md:px-8 lg:grid-cols-2">
+        <div className="rounded-lg border border-zinc-800 bg-black p-6">
+          <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
+            Built for AI-Native Operations
+          </p>
+          <h2 className="mt-4 text-3xl font-semibold">
+            Operational actors need operational trust.
+          </h2>
+          <p className="mt-4 text-sm leading-7 text-zinc-400">
+            AI systems are beginning to participate in work as copilots,
+            workflow engines and permissioned agents. That creates new
+            requirements around provenance, accountability, review paths and
+            governance visibility.
+          </p>
+        </div>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
+            Why Human Oversight Matters
+          </p>
+          <h2 className="mt-4 text-3xl font-semibold">
+            High-risk trust outcomes should remain governed.
+          </h2>
+          <p className="mt-4 text-sm leading-7 text-zinc-400">
+            Cyber Sentinels does not position autonomous AI decisions as the
+            only path for sensitive outcomes. Escalation, review,
+            accountability and operational governance remain central to the
+            platform direction.
+          </p>
+        </div>
+      </section>
+
       <section className="mx-auto grid max-w-6xl gap-8 px-6 py-16 md:px-8 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
           <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
@@ -281,6 +374,12 @@ export default async function HomePage() {
               className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
             >
               Transparency
+            </Link>
+            <Link
+              href="/operational-principles"
+              className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
+            >
+              Operational Principles
             </Link>
           </div>
         </div>
@@ -339,7 +438,9 @@ export default async function HomePage() {
             <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
               Cyber Sentinels is onboarding early partners and design
               collaborators for real user testing, strategic conversations and
-              governed trust workflow validation.
+              governed trust workflow validation. The platform is evolving
+              through early operational deployment, feedback and design
+              collaboration.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">

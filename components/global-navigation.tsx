@@ -41,6 +41,7 @@ const supportLegalLinks = [
   ["/security", "Security"],
   ["/data-rights", "Data Rights"],
   ["/trust-principles", "Trust Principles"],
+  ["/operational-principles", "Operational Principles"],
   ["/ai-governance", "AI Governance"],
   ["/transparency", "Transparency"],
   ["/privacy", "Privacy"],
