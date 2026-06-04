@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +30,15 @@ async function submitEnterpriseAccessRequest(formData: FormData) {
     redirect("/enterprise-access?error=required");
   }
 
-  const supabase = await createClient();
+  let supabase;
+
+  try {
+    supabase = createServiceRoleClient();
+  } catch (error) {
+    console.error("enterprise access submit failed", error);
+    redirect("/enterprise-access?error=submit_failed");
+  }
+
   const { error } = await supabase
     .from("enterprise_access_requests")
     .insert(payload);
