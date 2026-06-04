@@ -297,6 +297,12 @@ export default async function CommandCenterPage({
             Admin access required.
           </p>
         ) : null}
+        {params?.message === "admin_not_configured" ? (
+          <p className="mt-5 rounded-lg border border-amber-800 bg-amber-950/20 p-3 text-sm text-amber-200">
+            Admin not configured. Set ADMIN_EMAILS to the comma-separated admin
+            allowlist before opening Back Office.
+          </p>
+        ) : null}
 
         <section className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">

@@ -11,6 +11,8 @@ type HealthCheck = {
   detail: string;
 };
 
+const statusTimeoutMs = 5000;
+
 const countTables = [
   "passports",
   "verification_cases",
@@ -28,6 +30,54 @@ function stateClass(ok: boolean) {
   return ok
     ? "border-emerald-800 bg-emerald-950/20 text-emerald-200"
     : "border-amber-800 bg-amber-950/20 text-amber-200";
+}
+
+function timeoutCheck(label: string): HealthCheck {
+  return {
+    label,
+    ok: false,
+    value: "Unavailable",
+    detail: `Timed out after ${statusTimeoutMs / 1000} seconds.`,
+  };
+}
+
+async function withStatusTimeout(
+  label: string,
+  task: () => Promise<HealthCheck>
+): Promise<HealthCheck> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      task(),
+      new Promise<HealthCheck>((resolve) => {
+        timeout = setTimeout(() => resolve(timeoutCheck(label)), statusTimeoutMs);
+      }),
+    ]);
+  } catch (error) {
+    console.error(`${label} status check failed.`, error);
+
+    return {
+      label,
+      ok: false,
+      value: "Unavailable",
+      detail: error instanceof Error ? error.message : "Status check failed.",
+    };
+  } finally {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+  }
+}
+
+function projectStatusFallback(): HealthCheck {
+  return {
+    label: "project status",
+    ok: true,
+    value: "open",
+    detail:
+      "Fallback project status is open so the status page remains visible when live checks fail.",
+  };
 }
 
 async function getTableCount(table: string): Promise<HealthCheck> {
@@ -149,10 +199,13 @@ async function checkAdminRouteProtected(): Promise<HealthCheck> {
 
 async function runChecks() {
   return Promise.all([
-    checkSupabaseConnected(),
-    ...countTables.map((table) => getTableCount(table)),
-    checkEvidenceBucket(),
-    checkAdminRouteProtected(),
+    Promise.resolve(projectStatusFallback()),
+    withStatusTimeout("Supabase connected", checkSupabaseConnected),
+    ...countTables.map((table) =>
+      withStatusTimeout(`${table} count`, () => getTableCount(table))
+    ),
+    withStatusTimeout("storage bucket evidence-files reachable", checkEvidenceBucket),
+    withStatusTimeout("admin route protected", checkAdminRouteProtected),
   ]);
 }
 

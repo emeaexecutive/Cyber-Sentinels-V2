@@ -7,6 +7,10 @@ export function createServiceRoleClient() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
+    console.error("Supabase service role client is not configured.", {
+      NEXT_PUBLIC_SUPABASE_URL: Boolean(supabaseUrl),
+      SUPABASE_SERVICE_ROLE_KEY: Boolean(serviceRoleKey),
+    });
     throw new Error("Supabase service role client is not configured.");
   }
 

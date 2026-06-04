@@ -47,10 +47,15 @@ export const allowedOriginStatuses = [
 const rateLimitBuckets = new Map<string, RateLimitBucket>();
 
 export function assertServerEnv() {
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  ) {
+  const missing = [
+    ["NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL],
+    ["NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY],
+  ]
+    .filter(([, value]) => !value)
+    .map(([name]) => name);
+
+  if (missing.length > 0) {
+    console.error("Server configuration is incomplete. Missing env vars:", missing);
     throw new Error("Server configuration is incomplete.");
   }
 }

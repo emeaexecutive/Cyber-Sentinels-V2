@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
 import type { User } from "@supabase/supabase-js";
 import {
   adminVerifiedCookieName,
+  getAdminAccessFailureReason,
   hasAdminVerifiedCookie,
-  isAdminAllowlisted,
 } from "@/lib/admin-auth";
 import type { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
@@ -17,7 +17,11 @@ export type AdminCheckResult =
   | {
       ok: false;
       user: User | null;
-      reason: "unauthenticated" | "not_allowlisted" | "missing_admin_cookie";
+      reason:
+        | "unauthenticated"
+        | "admin_not_configured"
+        | "not_allowlisted"
+        | "missing_admin_cookie";
     };
 
 export async function clearAdminState() {
@@ -56,10 +60,17 @@ export async function checkAdminAccess(
   } = await supabase.auth.getUser();
 
   if (!user) {
+    console.error("Supabase session missing for admin access check.");
     return { ok: false, user: null, reason: "unauthenticated" };
   }
 
-  if (!isAdminAllowlisted(user.email)) {
+  const adminFailureReason = getAdminAccessFailureReason(user.email);
+
+  if (adminFailureReason === "admin_not_configured") {
+    return { ok: false, user, reason: "admin_not_configured" };
+  }
+
+  if (adminFailureReason === "forbidden") {
     return { ok: false, user, reason: "not_allowlisted" };
   }
 
@@ -84,7 +95,11 @@ export async function requireAdminPageAccess(
       result.user?.email ?? result.user?.id ?? "unknown",
       { ...metadata, reason: result.reason }
     );
-    redirect("/command-center");
+    const message =
+      result.reason === "admin_not_configured"
+        ? "admin_not_configured"
+        : "admin_access_required";
+    redirect(`/command-center?message=${message}`);
   }
 
   await auditAdminAccess(supabase, "admin_access_verified", result.user.email ?? result.user.id, metadata);
@@ -130,8 +145,18 @@ export async function requireAdminApiAccess(
 
   return {
     ok: false as const,
-    response: NextResponse.redirect(new URL("/command-center", req.url), {
-      status: 303,
-    }),
+    response: NextResponse.redirect(
+      new URL(
+        `/command-center?message=${
+          result.reason === "admin_not_configured"
+            ? "admin_not_configured"
+            : "admin_access_required"
+        }`,
+        req.url
+      ),
+      {
+        status: 303,
+      }
+    ),
   };
 }

@@ -40,6 +40,8 @@ export async function POST(req: Request) {
       received: true,
     });
   } catch (error) {
+    console.error("World ID verification failed.", error);
+
     if (
       error instanceof Error &&
       error.message === "Server configuration is incomplete."

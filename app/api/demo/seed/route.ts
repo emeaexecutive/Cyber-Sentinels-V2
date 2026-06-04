@@ -16,6 +16,10 @@ function createDemoClient() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
+    console.error("Demo seed Supabase service configuration missing.", {
+      NEXT_PUBLIC_SUPABASE_URL: Boolean(supabaseUrl),
+      SUPABASE_SERVICE_ROLE_KEY: Boolean(serviceRoleKey),
+    });
     return null;
   }
 

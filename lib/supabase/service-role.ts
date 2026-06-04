@@ -1,3 +1,5 @@
+import "server-only";
+
 import { createClient } from "@supabase/supabase-js";
 
 export function createServiceRoleClient() {
@@ -5,6 +7,10 @@ export function createServiceRoleClient() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
+    console.error("Supabase service role configuration missing.", {
+      NEXT_PUBLIC_SUPABASE_URL: Boolean(supabaseUrl),
+      SUPABASE_SERVICE_ROLE_KEY: Boolean(serviceRoleKey),
+    });
     throw new Error("Missing Supabase service role configuration");
   }
 

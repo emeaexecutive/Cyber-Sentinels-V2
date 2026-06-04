@@ -10,6 +10,8 @@ type CookieToSet = {
   options: CookieOptions;
 };
 
+const authTimeoutMs = 5000;
+
 export function isInvalidRefreshTokenError(error: unknown) {
   if (!error || typeof error !== "object") {
     return false;
@@ -66,6 +68,26 @@ async function handleInvalidRefreshSession(error: unknown) {
   redirect("/login?next=/command-center");
 }
 
+async function withAuthTimeout<T>(task: () => Promise<T>): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      task(),
+      new Promise<T>((_, reject) => {
+        timeout = setTimeout(
+          () => reject(new Error(`Supabase auth timed out after ${authTimeoutMs / 1000} seconds.`)),
+          authTimeoutMs
+        );
+      }),
+    ]);
+  } finally {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+  }
+}
+
 export async function createClient() {
   assertServerEnv();
 
@@ -96,7 +118,7 @@ export async function createClient() {
 
   supabase.auth.getUser = (async (...args: Parameters<typeof originalGetUser>) => {
     try {
-      const result = await originalGetUser(...args);
+      const result = await withAuthTimeout(() => originalGetUser(...args));
 
       if (isInvalidRefreshTokenError(result.error)) {
         await handleInvalidRefreshSession(result.error);
@@ -104,7 +126,16 @@ export async function createClient() {
 
       return result;
     } catch (error) {
-      await handleInvalidRefreshSession(error);
+      if (isInvalidRefreshTokenError(error)) {
+        await handleInvalidRefreshSession(error);
+      }
+
+      console.error("Supabase server auth call failed.", error);
+
+      return {
+        data: { user: null },
+        error: error instanceof Error ? error : new Error("Supabase auth failed."),
+      };
     }
   }) as typeof supabase.auth.getUser;
 

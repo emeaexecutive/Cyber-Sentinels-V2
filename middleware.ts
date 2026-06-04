@@ -64,16 +64,41 @@ function isBackOfficePage(pathname: string) {
   return pathname === "/back-office" || pathname.startsWith("/back-office/");
 }
 
-function isAllowlisted(email: string | null | undefined) {
-  if (!email) {
-    return false;
-  }
-
+function getAdminEmails() {
   return (process.env.ADMIN_EMAILS ?? "")
     .split(",")
     .map((entry) => entry.trim().toLowerCase())
-    .filter(Boolean)
-    .includes(email.trim().toLowerCase());
+    .filter(Boolean);
+}
+
+function isAdminConfigured() {
+  const configured = getAdminEmails().length > 0;
+
+  if (!configured) {
+    console.error("Middleware admin redirect reason: ADMIN_EMAILS missing.");
+  }
+
+  return configured;
+}
+
+function isAllowlisted(email: string | null | undefined) {
+  if (!email) {
+    console.error("Middleware admin redirect reason: Supabase session email missing.");
+    return false;
+  }
+
+  const adminEmails = getAdminEmails();
+  const normalizedEmail = email.trim().toLowerCase();
+  const allowlisted = adminEmails.includes(normalizedEmail);
+
+  if (!allowlisted) {
+    console.error("Middleware admin redirect reason: admin email mismatch.", {
+      email: normalizedEmail,
+      configuredAdminCount: adminEmails.length,
+    });
+  }
+
+  return allowlisted;
 }
 
 function clearAdminCookie(response: NextResponse) {
@@ -86,6 +111,11 @@ function clearAdminCookie(response: NextResponse) {
 }
 
 function redirectTo(req: NextRequest, path: string) {
+  console.error("Middleware redirect.", {
+    from: req.nextUrl.pathname,
+    to: path,
+  });
+
   return NextResponse.redirect(new URL(path, req.url));
 }
 
@@ -95,6 +125,17 @@ export async function middleware(req: NextRequest) {
   const protectsAdmin = isProtectedAdminPath(pathname);
 
   if (!protectsUser && !protectsAdmin) {
+    return NextResponse.next();
+  }
+
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    console.error("Middleware Supabase env missing.", {
+      NEXT_PUBLIC_SUPABASE_URL: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+    });
     return NextResponse.next();
   }
 
@@ -120,11 +161,20 @@ export async function middleware(req: NextRequest) {
       },
     }
   );
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (error) {
+    console.error("Supabase middleware auth failed.", error);
+  }
 
   if (!user) {
+    console.error("Middleware redirect reason: Supabase session missing.", {
+      pathname,
+    });
+
     if (protectsAdmin) {
       return clearAdminCookie(redirectTo(req, "/login?next=/back-office"));
     }
@@ -139,9 +189,25 @@ export async function middleware(req: NextRequest) {
     return response;
   }
 
+  if (protectsAdmin && !isAdminConfigured()) {
+    if (isBackOfficePage(pathname)) {
+      console.error("Middleware allowing Back Office to render admin_not_configured gate.");
+      return clearAdminCookie(response);
+    }
+
+    return clearAdminCookie(
+      redirectTo(req, "/command-center?message=admin_not_configured")
+    );
+  }
+
   const allowlisted = isAllowlisted(user.email);
 
   if (!allowlisted) {
+    if (isBackOfficePage(pathname)) {
+      console.error("Middleware allowing Back Office to render not_allowlisted gate.");
+      return clearAdminCookie(response);
+    }
+
     return clearAdminCookie(
       redirectTo(req, "/command-center?message=admin_access_required")
     );

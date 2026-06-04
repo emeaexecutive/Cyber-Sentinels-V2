@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 const RATE_LIMIT_MESSAGE =
   "Email login is temporarily rate-limited. Use password login or wait before requesting another magic link.";
 const SESSION_START_KEY = "cyber_sentinels_session_started_at";
+const authTimeoutMs = 5000;
 
 function isRateLimitError(message: string) {
   const normalizedMessage = message.toLowerCase();
@@ -25,6 +26,26 @@ function getSafeRedirect(path: string | null) {
   }
 
   return path;
+}
+
+async function withAuthTimeout<T>(task: Promise<T>): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      task,
+      new Promise<T>((_, reject) => {
+        timeout = setTimeout(
+          () => reject(new Error(`Supabase auth timed out after ${authTimeoutMs / 1000} seconds.`)),
+          authTimeoutMs
+        );
+      }),
+    ]);
+  } finally {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+  }
 }
 
 export default function LoginPage() {
@@ -94,20 +115,27 @@ export default function LoginPage() {
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: trimmedEmail,
-      password,
-    });
+    try {
+      const { error } = await withAuthTimeout(
+        supabase.auth.signInWithPassword({
+          email: trimmedEmail,
+          password,
+        })
+      );
 
-    setLoadingAction(null);
+      if (error) {
+        setMessage(error.message || "Could not sign in.");
+        return;
+      }
 
-    if (error) {
-      setMessage(error.message || "Could not sign in.");
-      return;
+      window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
+      router.push(nextPath);
+    } catch (error) {
+      console.error("Supabase password sign-in failed.", error);
+      setMessage(error instanceof Error ? error.message : "Could not sign in.");
+    } finally {
+      setLoadingAction(null);
     }
-
-    window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
-    router.push(nextPath);
   }
 
   async function createAccountWithPassword() {
@@ -133,26 +161,33 @@ export default function LoginPage() {
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
-      email: trimmedEmail,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-          nextPath || "/passport"
-        )}`,
-      },
-    });
+    try {
+      const { error } = await withAuthTimeout(
+        supabase.auth.signUp({
+          email: trimmedEmail,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+              nextPath || "/passport"
+            )}`,
+          },
+        })
+      );
 
-    setLoadingAction(null);
+      if (error) {
+        setMessage(error.message || "Could not create account.");
+        return;
+      }
 
-    if (error) {
-      setMessage(error.message || "Could not create account.");
-      return;
+      setMessage(
+        "Account created. Check your email if confirmation is required, then continue to your passport workflow."
+      );
+    } catch (error) {
+      console.error("Supabase account creation failed.", error);
+      setMessage(error instanceof Error ? error.message : "Could not create account.");
+    } finally {
+      setLoadingAction(null);
     }
-
-    setMessage(
-      "Account created. Check your email if confirmation is required, then continue to your passport workflow."
-    );
   }
 
   async function signInWithMagicLink() {
@@ -173,23 +208,30 @@ export default function LoginPage() {
       return;
     }
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email: trimmedEmail,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-          nextPath || "/passport"
-        )}`,
-      },
-    });
+    try {
+      const { error } = await withAuthTimeout(
+        supabase.auth.signInWithOtp({
+          email: trimmedEmail,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+              nextPath || "/passport"
+            )}`,
+          },
+        })
+      );
 
-    setLoadingAction(null);
+      if (error) {
+        setMessage(isRateLimitError(error.message) ? RATE_LIMIT_MESSAGE : error.message);
+        return;
+      }
 
-    if (error) {
-      setMessage(isRateLimitError(error.message) ? RATE_LIMIT_MESSAGE : error.message);
-      return;
+      setMessage("Magic link sent. Check your email.");
+    } catch (error) {
+      console.error("Supabase magic-link sign-in failed.", error);
+      setMessage(error instanceof Error ? error.message : "Could not send magic link.");
+    } finally {
+      setLoadingAction(null);
     }
-
-    setMessage("Magic link sent. Check your email.");
   }
 
   async function sendPasswordResetEmail() {
@@ -210,18 +252,27 @@ export default function LoginPage() {
       return;
     }
 
-    const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+    try {
+      const { error } = await withAuthTimeout(
+        supabase.auth.resetPasswordForEmail(trimmedEmail, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        })
+      );
 
-    setLoadingAction(null);
+      if (error) {
+        setMessage(error.message || "Could not send password reset email.");
+        return;
+      }
 
-    if (error) {
-      setMessage(error.message || "Could not send password reset email.");
-      return;
+      setMessage("Password reset email sent. Check your email.");
+    } catch (error) {
+      console.error("Supabase password reset email failed.", error);
+      setMessage(
+        error instanceof Error ? error.message : "Could not send password reset email."
+      );
+    } finally {
+      setLoadingAction(null);
     }
-
-    setMessage("Password reset email sent. Check your email.");
   }
 
   return (

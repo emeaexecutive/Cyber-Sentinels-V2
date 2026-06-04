@@ -291,6 +291,29 @@ function NotAllowlistedGate() {
   );
 }
 
+function AdminNotConfiguredGate() {
+  return (
+    <main className="min-h-screen bg-black p-6 text-white md:p-8">
+      <div className="mx-auto max-w-md">
+        <Link href="/" className="text-sm text-zinc-400 hover:text-white">
+          Back to Cyber Sentinels
+        </Link>
+
+        <section className="mt-10 rounded-lg border border-amber-900 bg-zinc-950 p-6">
+          <h1 className="text-3xl font-bold">Back Office Access</h1>
+          <p className="mt-4 text-sm text-amber-200">
+            Admin not configured.
+          </p>
+          <p className="mt-3 text-sm leading-6 text-zinc-400">
+            Set ADMIN_EMAILS to the comma-separated admin allowlist before
+            opening Back Office.
+          </p>
+        </section>
+      </div>
+    </main>
+  );
+}
+
 function rowKey(row: AnyRow, fallback: string) {
   return String(row.id ?? fallback);
 }
@@ -660,6 +683,10 @@ export default async function BackOfficePage({
   if (!access.ok) {
     if (access.reason === "unauthenticated") {
       redirect("/login?next=/back-office");
+    }
+
+    if (access.reason === "admin_not_configured") {
+      return <AdminNotConfiguredGate />;
     }
 
     if (access.reason === "not_allowlisted") {

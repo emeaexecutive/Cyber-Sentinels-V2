@@ -5,6 +5,28 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+const authTimeoutMs = 5000;
+
+async function withAuthTimeout<T>(task: Promise<T>): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      task,
+      new Promise<T>((_, reject) => {
+        timeout = setTimeout(
+          () => reject(new Error(`Supabase auth timed out after ${authTimeoutMs / 1000} seconds.`)),
+          authTimeoutMs
+        );
+      }),
+    ]);
+  } finally {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+  }
+}
+
 export default function ResetPasswordPage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
@@ -29,7 +51,9 @@ export default function ResetPasswordPage() {
 
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({ password });
+      const { error } = await withAuthTimeout(
+        supabase.auth.updateUser({ password })
+      );
 
       if (error) {
         setMessage(error.message || "Could not update password.");
@@ -38,8 +62,9 @@ export default function ResetPasswordPage() {
 
       setMessage("Password updated successfully.");
       router.push("/passport");
-    } catch {
-      setMessage("Could not update password.");
+    } catch (error) {
+      console.error("Supabase password update failed.", error);
+      setMessage(error instanceof Error ? error.message : "Could not update password.");
     } finally {
       setLoading(false);
     }

@@ -39,6 +39,7 @@ export async function POST(req: Request) {
     });
 
     if (!access.ok) {
+      console.error("Admin access denied before code check.");
       return access.response;
     }
 
@@ -51,6 +52,10 @@ export async function POST(req: Request) {
     const expectedCode = process.env.ADMIN_ACCESS_CODE ?? "";
 
     if (!expectedCode || submittedCode !== expectedCode) {
+      console.error("Admin access code check failed.", {
+        missingAdminAccessCode: !expectedCode,
+        actor,
+      });
       await recordAdminAccessAttempt(
         supabase,
         "admin_access_denied",
@@ -88,8 +93,13 @@ export async function POST(req: Request) {
       return configurationError();
     }
 
-    return NextResponse.redirect(new URL("/command-center", req.url), {
-      status: 303,
-    });
+    console.error("Admin access route failed.", error);
+
+    return NextResponse.redirect(
+      new URL("/command-center?message=admin_access_required", req.url),
+      {
+        status: 303,
+      }
+    );
   }
 }

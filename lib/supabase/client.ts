@@ -53,17 +53,22 @@ async function handleAuthResult<T>(task: () => Promise<T>) {
         : null;
 
     if (isInvalidRefreshTokenError(maybeError)) {
+      console.error("Supabase auth session expired.", maybeError);
       expireBrowserSession();
-      return new Promise<T>(() => {});
+      throw maybeError instanceof Error
+        ? maybeError
+        : new Error("Supabase auth session expired.");
     }
 
     return result;
   } catch (error) {
     if (isInvalidRefreshTokenError(error)) {
+      console.error("Supabase auth session expired.", error);
       expireBrowserSession();
-      return new Promise<T>(() => {});
+      throw error;
     }
 
+    console.error("Supabase auth call failed.", error);
     throw error;
   }
 }
