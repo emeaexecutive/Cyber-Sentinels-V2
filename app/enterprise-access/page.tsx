@@ -1,6 +1,3 @@
-import { redirect } from "next/navigation";
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
-
 export const dynamic = "force-dynamic";
 
 type EnterpriseAccessPageProps = {
@@ -9,146 +6,6 @@ type EnterpriseAccessPageProps = {
     error?: string;
   }>;
 };
-
-const enterpriseAccessInsertFields = [
-  "name",
-  "work_email",
-  "company",
-  "role",
-  "company_size",
-  "current_problem_category",
-  "current_problem",
-  "ai_usage_level",
-  "use_case",
-  "message",
-  "status",
-] as const;
-
-type EnterpriseAccessInsertField =
-  (typeof enterpriseAccessInsertFields)[number];
-type EnterpriseAccessInsertPayload = Record<EnterpriseAccessInsertField, string>;
-
-type SupabaseErrorLike = {
-  message?: string;
-  code?: string;
-  details?: string;
-};
-
-function logEnterpriseAccessSubmitError(error: unknown) {
-  const supabaseError = error as SupabaseErrorLike;
-
-  console.error("enterprise access submit failed", {
-    message:
-      typeof supabaseError?.message === "string"
-        ? supabaseError.message
-        : "Unknown enterprise access submit error",
-    code: typeof supabaseError?.code === "string" ? supabaseError.code : null,
-    details:
-      typeof supabaseError?.details === "string"
-        ? supabaseError.details
-        : null,
-  });
-}
-
-function buildEnterpriseAccessPayload(
-  values: Record<EnterpriseAccessInsertField, string>
-): EnterpriseAccessInsertPayload {
-  return enterpriseAccessInsertFields.reduce((payload, field) => {
-    payload[field] = values[field];
-    return payload;
-  }, {} as EnterpriseAccessInsertPayload);
-}
-
-function getEnterpriseInterestSignal(problemCategory: string) {
-  const normalizedCategory = problemCategory.toLowerCase();
-
-  if (normalizedCategory === "auditability") {
-    return "auditability_interest_detected";
-  }
-
-  if (
-    normalizedCategory === "ai_identity" ||
-    normalizedCategory === "provenance"
-  ) {
-    return "ai_identity_interest_detected";
-  }
-
-  if (
-    normalizedCategory === "ownership" ||
-    normalizedCategory === "human_review" ||
-    normalizedCategory === "workflow_governance" ||
-    normalizedCategory === "compliance"
-  ) {
-    return "governance_interest_detected";
-  }
-
-  return "operational_trust_interest_detected";
-}
-
-async function submitEnterpriseAccessRequest(formData: FormData) {
-  "use server";
-
-  const payload = buildEnterpriseAccessPayload({
-    name: String(formData.get("name") ?? "").trim(),
-    work_email: String(formData.get("work_email") ?? "").trim(),
-    company: String(formData.get("company") ?? "").trim(),
-    role: String(formData.get("role") ?? "").trim(),
-    company_size: String(formData.get("company_size") ?? "").trim(),
-    current_problem_category: String(
-      formData.get("current_problem_category") ?? ""
-    ).trim(),
-    current_problem: String(formData.get("current_problem") ?? "").trim(),
-    ai_usage_level: String(formData.get("ai_usage_level") ?? "").trim(),
-    use_case: String(formData.get("use_case") ?? "").trim(),
-    message: String(formData.get("message") ?? "").trim(),
-    status: "new",
-  });
-
-  if (!payload.name || !payload.work_email || !payload.company) {
-    redirect("/enterprise-access?error=required");
-  }
-
-  let supabase;
-
-  try {
-    supabase = createServiceRoleClient();
-  } catch (error) {
-    logEnterpriseAccessSubmitError(error);
-    redirect("/enterprise-access?error=submit_failed");
-  }
-
-  const { error } = await supabase
-    .from("enterprise_access_requests")
-    .insert(payload);
-
-  if (error) {
-    logEnterpriseAccessSubmitError(error);
-    redirect("/enterprise-access?error=submit_failed");
-  }
-
-  const { error: interestSignalError } = await supabase.from("interest_signals").insert({
-    company: payload.company,
-    role: payload.role || null,
-    use_case:
-      payload.use_case || payload.current_problem_category || payload.current_problem || null,
-    interest_level: payload.ai_usage_level || "early_access_request",
-    source: getEnterpriseInterestSignal(payload.current_problem_category),
-    notes:
-      [
-        payload.current_problem_category,
-        payload.current_problem,
-        payload.message,
-      ]
-        .filter(Boolean)
-        .join(" / ") || null,
-  });
-
-  if (interestSignalError) {
-    console.error("enterprise access interest signal insert failed", interestSignalError);
-  }
-
-  redirect("/enterprise-access?success=true");
-}
 
 export default async function EnterpriseAccessPage({
   searchParams,
@@ -208,7 +65,18 @@ export default async function EnterpriseAccessPage({
             </div>
           ) : null}
 
-          <form action={submitEnterpriseAccessRequest} className="grid gap-4">
+          {error === "service_unavailable" ? (
+            <div className="mb-4 rounded-lg border border-amber-900 bg-amber-950/30 p-4 text-sm text-amber-100">
+              Enterprise access requests are temporarily unavailable. The page
+              is still open, and no sign-in is required.
+            </div>
+          ) : null}
+
+          <form
+            action="/api/enterprise-access"
+            method="post"
+            className="grid gap-4"
+          >
             <input
               name="name"
               placeholder="Name"
