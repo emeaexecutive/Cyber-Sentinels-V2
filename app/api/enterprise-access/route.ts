@@ -121,7 +121,19 @@ export async function POST(req: Request) {
   try {
     console.log(
       "ENTERPRISE_ACCESS_ROUTE_VERSION",
-      "service-role-insert-2026-06-05"
+      "service-role-diagnostic-2026-06-05"
+    );
+    console.log(
+      "HAS_SUPABASE_URL",
+      Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL)
+    );
+    console.log(
+      "HAS_SERVICE_ROLE",
+      Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)
+    );
+    console.log(
+      "SERVICE_ROLE_PREFIX",
+      process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 12)
     );
 
     const formData = await req.formData();
