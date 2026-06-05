@@ -69,17 +69,15 @@ export default async function EnterpriseAccessPage({
 
           {error === "submit_failed" ? (
             <div className="mb-4 rounded-lg border border-red-900 bg-red-950/30 p-4 text-sm text-red-100">
-              We could not submit the request. The form is available, but the
-              server could not record the request.
+              We could not submit your request. Please try again or contact
+              support.
             </div>
           ) : null}
 
           {error === "permission_denied" ? (
             <div className="mb-4 rounded-lg border border-red-900 bg-red-950/30 p-4 text-sm text-red-100">
-              Enterprise access requests are not accepting submissions because
-              the production database permissions are not configured. Please
-              check the Vercel Production Supabase service-role environment
-              variable and Supabase grants.
+              We could not submit your request. Please try again or contact
+              support.
             </div>
           ) : null}
 

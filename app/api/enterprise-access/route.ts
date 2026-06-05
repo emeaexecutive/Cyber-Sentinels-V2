@@ -12,24 +12,11 @@ const enterpriseAccessInsertFields = [
   "ai_usage_level",
   "use_case",
   "message",
-  "design_partner_interest",
-  "governance_interest",
-  "operational_ai_interest",
-  "status",
 ] as const;
 
 type EnterpriseAccessInsertField =
   (typeof enterpriseAccessInsertFields)[number];
-type EnterpriseAccessInsertPayload = Omit<
-  Record<EnterpriseAccessInsertField, string>,
-  | "design_partner_interest"
-  | "governance_interest"
-  | "operational_ai_interest"
-> & {
-  design_partner_interest: boolean;
-  governance_interest: boolean;
-  operational_ai_interest: boolean;
-};
+type EnterpriseAccessInsertPayload = Record<EnterpriseAccessInsertField, string>;
 
 type SupabaseErrorLike = {
   message?: string;
@@ -79,36 +66,6 @@ function field(formData: FormData, name: EnterpriseAccessInsertField) {
   return String(formData.get(name) ?? "").trim();
 }
 
-function booleanField(formData: FormData, name: EnterpriseAccessInsertField) {
-  const value = String(formData.get(name) ?? "").trim().toLowerCase();
-  return value === "true" || value === "on" || value === "1";
-}
-
-function isGovernanceCategory(problemCategory: string) {
-  const normalizedCategory = problemCategory.toLowerCase();
-
-  return [
-    "auditability",
-    "ownership",
-    "human_review",
-    "workflow_governance",
-    "compliance",
-    "trust_workflows",
-  ].includes(normalizedCategory);
-}
-
-function isOperationalAiLevel(aiUsageLevel: string) {
-  const normalizedLevel = aiUsageLevel.toLowerCase();
-
-  return [
-    "piloting_workflows",
-    "operational_ai",
-    "governance_required",
-    "auditability_critical",
-    "trust_requirements",
-  ].includes(normalizedLevel);
-}
-
 function buildEnterpriseAccessPayload(
   formData: FormData
 ): EnterpriseAccessInsertPayload {
@@ -126,17 +83,6 @@ function buildEnterpriseAccessPayload(
     ai_usage_level: aiUsageLevel,
     use_case: field(formData, "use_case"),
     message: field(formData, "message"),
-    design_partner_interest: booleanField(
-      formData,
-      "design_partner_interest"
-    ),
-    governance_interest:
-      booleanField(formData, "governance_interest") ||
-      isGovernanceCategory(currentProblemCategory),
-    operational_ai_interest:
-      booleanField(formData, "operational_ai_interest") ||
-      isOperationalAiLevel(aiUsageLevel),
-    status: "new",
   };
 }
 
@@ -171,6 +117,9 @@ export async function POST(req: Request) {
     const formData = await req.formData();
     const payload = buildEnterpriseAccessPayload(formData);
     logSubmittedFieldKeys(formData);
+    console.error("enterprise access insert payload keys", {
+      keys: Object.keys(payload).sort(),
+    });
 
     if (!payload.name || !payload.work_email || !payload.company) {
       console.error("enterprise access submit missing required fields");
