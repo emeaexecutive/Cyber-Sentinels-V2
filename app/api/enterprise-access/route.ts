@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 const enterpriseAccessInsertFields = [
   "name",
   "work_email",
@@ -118,24 +121,24 @@ function getEnterpriseInterestSignal(problemCategory: string) {
 }
 
 export async function POST(req: Request) {
-  try {
-    console.log(
-      "ENTERPRISE_ACCESS_ROUTE_VERSION",
-      "service-role-diagnostic-2026-06-05"
-    );
-    console.log(
-      "HAS_SUPABASE_URL",
-      Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL)
-    );
-    console.log(
-      "HAS_SERVICE_ROLE",
-      Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)
-    );
-    console.log(
-      "SERVICE_ROLE_PREFIX",
-      process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 12)
-    );
+  console.log(
+    "ENTERPRISE_ACCESS_ROUTE_VERSION",
+    "route-hit-service-role-2026-06-05"
+  );
+  console.log(
+    "HAS_SUPABASE_URL",
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL)
+  );
+  console.log(
+    "HAS_SERVICE_ROLE",
+    Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)
+  );
+  console.log(
+    "SERVICE_ROLE_PREFIX",
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 12)
+  );
 
+  try {
     const formData = await req.formData();
     const payload = buildEnterpriseAccessPayload(formData);
     logSubmittedFieldKeys(formData);
