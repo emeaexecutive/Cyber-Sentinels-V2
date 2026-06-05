@@ -28,16 +28,21 @@ function redirectTo(req: Request, path: string) {
   return NextResponse.redirect(new URL(path, req.url), { status: 303 });
 }
 
-function enterpriseAccessErrorUrl(req: Request, error: string) {
-  const url = new URL("/enterprise-access", req.url);
-  url.searchParams.set("error", error);
-  return url;
-}
-
-function redirectWithEnterpriseAccessError(req: Request, error: string) {
-  return NextResponse.redirect(enterpriseAccessErrorUrl(req, error), {
-    status: 303,
-  });
+function enterpriseAccessErrorResponse(
+  error: string,
+  status: number,
+  supabaseError?: SupabaseErrorLike
+) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error,
+      code: supabaseError?.code ?? null,
+      message:
+        "We could not submit your request. Please try again or contact support.",
+    },
+    { status }
+  );
 }
 
 function logEnterpriseAccessSubmitError(error: unknown) {
@@ -114,6 +119,8 @@ function getEnterpriseInterestSignal(problemCategory: string) {
 
 export async function POST(req: Request) {
   try {
+    console.log("ENTERPRISE_ACCESS_ROUTE_VERSION", "2026-06-05-no-select");
+
     const formData = await req.formData();
     const payload = buildEnterpriseAccessPayload(formData);
     logSubmittedFieldKeys(formData);
@@ -123,32 +130,28 @@ export async function POST(req: Request) {
 
     if (!payload.name || !payload.work_email || !payload.company) {
       console.error("enterprise access submit missing required fields");
-      return redirectWithEnterpriseAccessError(req, "required");
+      return enterpriseAccessErrorResponse("required_fields_missing", 400);
     }
 
-    let supabase;
+    let supabaseAdmin;
 
     try {
-      supabase = createServiceRoleClient();
+      supabaseAdmin = createServiceRoleClient();
     } catch (error) {
       logEnterpriseAccessSubmitError(error);
-      return redirectWithEnterpriseAccessError(req, "service_unavailable");
+      return enterpriseAccessErrorResponse("service_unavailable", 503);
     }
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("enterprise_access_requests")
       .insert(payload);
 
     if (error) {
       logEnterpriseAccessSubmitError(error);
-      if (error.code === "42501") {
-        return redirectWithEnterpriseAccessError(req, "permission_denied");
-      }
-
-      return redirectWithEnterpriseAccessError(req, "submit_failed");
+      return enterpriseAccessErrorResponse("submit_failed", 500, error);
     }
 
-    const { error: interestSignalError } = await supabase
+    const { error: interestSignalError } = await supabaseAdmin
       .from("interest_signals")
       .insert({
         company: payload.company,
@@ -180,6 +183,6 @@ export async function POST(req: Request) {
     return redirectTo(req, "/enterprise-access?success=true");
   } catch (error) {
     logEnterpriseAccessSubmitError(error);
-    return redirectWithEnterpriseAccessError(req, "submit_failed");
+    return enterpriseAccessErrorResponse("submit_failed", 500);
   }
 }
