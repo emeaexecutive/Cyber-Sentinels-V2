@@ -15,6 +15,7 @@ import {
   requireAuthenticatedUser,
 } from "@/lib/security";
 import { createClient } from "@/lib/supabase/server";
+import { checkUsageLimit } from "@/lib/billing/checkUsageLimit";
 import { getLinkedInEvidence } from "@/lib/linkedin-verification";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
@@ -151,6 +152,15 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.redirect(new URL("/login", req.url));
+    }
+
+    const usageLimit = await checkUsageLimit(supabase, user, "passport");
+
+    if (!usageLimit.ok) {
+      return NextResponse.json(
+        { ok: false, error: usageLimit.reason },
+        { status: 403 }
+      );
     }
 
     const formData = await req.formData();

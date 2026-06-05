@@ -14,6 +14,10 @@ Cyber Sentinels requires explicit environment configuration for Vercel and Supab
 | `NEXT_PUBLIC_SITE_URL` | Public + server runtime | Canonical deployed site URL for redirects, health metadata and Supabase auth callback setup. |
 | `ADMIN_EMAILS` | Server + middleware | Comma-separated admin email allowlist. |
 | `ADMIN_ACCESS_CODE` | Server only | Admin step-up access code. Never expose this in client code or logs. |
+| `STRIPE_SECRET_KEY` | Server only | Stripe API key for Checkout and Customer Portal session creation. |
+| `STRIPE_WEBHOOK_SECRET` | Server only | Stripe webhook signing secret for event verification. |
+| `STRIPE_PRO_PRICE_ID` | Server only | Stripe recurring Price ID used for the Pro tier Checkout session. |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Public | Optional public Stripe key if client-side Stripe components are added later. |
 
 ## Production
 
@@ -25,6 +29,9 @@ Set all required variables in the Vercel Production environment:
 - `NEXT_PUBLIC_SITE_URL`
 - `ADMIN_EMAILS`
 - `ADMIN_ACCESS_CODE`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_PRO_PRICE_ID`
 
 Production Supabase configuration should include the production callback URL:
 
@@ -40,6 +47,9 @@ Set the same required variables in the Vercel Preview environment:
 - `NEXT_PUBLIC_SITE_URL`
 - `ADMIN_EMAILS`
 - `ADMIN_ACCESS_CODE`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_PRO_PRICE_ID`
 
 For preview deployments, either set `NEXT_PUBLIC_SITE_URL` to the intended preview URL or use the stable preview domain. Supabase auth redirects must include the preview callback URL before auth-dependent preview testing.
 
@@ -51,6 +61,7 @@ Environment access is centralized in `lib/env.ts`.
 - Secret values are never logged.
 - Server-only secrets remain in server utilities and API routes.
 - Public Supabase variables may be used by server-rendered Supabase clients because they are public-safe by design.
+- Stripe secret and webhook variables are server-only and must never be used in client components.
 
 ## Deployment Health
 
@@ -62,4 +73,3 @@ The `/status` page exposes public-safe health information only:
 - storage available
 
 It does not expose environment values, service-role keys, bucket names beyond operational labels, user records or database row data.
-

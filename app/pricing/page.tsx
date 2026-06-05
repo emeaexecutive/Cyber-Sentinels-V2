@@ -1,0 +1,96 @@
+import Link from "next/link";
+import { clearancePlans } from "@/lib/billing/plans";
+
+const ctaByTier = {
+  free: {
+    label: "Create Account",
+    href: "/login?next=/passport",
+    form: false,
+  },
+  pro: {
+    label: "Start Pro",
+    href: "/api/stripe/create-checkout-session",
+    form: true,
+  },
+  enterprise: {
+    label: "Request Enterprise Access",
+    href: "/enterprise-access",
+    form: false,
+  },
+};
+
+export default function PricingPage() {
+  return (
+    <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
+      <div className="mx-auto max-w-6xl">
+        <section>
+          <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
+            Pricing
+          </p>
+          <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-6xl">
+            Simple access tiers for governed trust workflows.
+          </h1>
+          <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
+            Start with a basic Trust Passport, expand into evidence workflows
+            and trust graph visibility, or request enterprise access for
+            governance modules and custom review.
+          </p>
+        </section>
+
+        <section className="mt-10 grid gap-5 lg:grid-cols-3">
+          {clearancePlans.map((plan) => {
+            const cta = ctaByTier[plan.tier];
+
+            return (
+              <article
+                key={plan.tier}
+                className={`rounded-lg border p-6 ${
+                  plan.highlighted
+                    ? "border-cyan-700 bg-cyan-950/10"
+                    : "border-zinc-800 bg-black"
+                }`}
+              >
+                <h2 className="text-2xl font-semibold">{plan.name}</h2>
+                <p className="mt-4 text-4xl font-semibold">{plan.price}</p>
+                <p className="mt-1 text-sm text-zinc-500">{plan.cadence}</p>
+                <p className="mt-5 text-sm leading-6 text-zinc-400">
+                  {plan.description}
+                </p>
+                <ul className="mt-6 grid gap-3 text-sm text-zinc-300">
+                  {plan.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="rounded-lg border border-zinc-800 bg-zinc-950 p-3"
+                    >
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-6">
+                  {cta.form ? (
+                    <form action={cta.href} method="POST">
+                      <button
+                        type="submit"
+                        className="w-full rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
+                      >
+                        {cta.label}
+                      </button>
+                    </form>
+                  ) : (
+                    <Link
+                      href={cta.href}
+                      className="inline-flex w-full justify-center rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
+                    >
+                      {cta.label}
+                    </Link>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </section>
+      </div>
+    </main>
+  );
+}
+

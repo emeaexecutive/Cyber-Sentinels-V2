@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { checkUsageLimit } from "@/lib/billing/checkUsageLimit";
 import { createClient } from "@/lib/supabase/server";
 import {
   buildTrustGraph,
@@ -100,6 +101,44 @@ function GraphSection({
 
 export default async function TrustGraphPage() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const usageLimit = await checkUsageLimit(supabase, user, "trust_graph");
+
+  if (!usageLimit.ok) {
+    return (
+      <main className="min-h-screen bg-black px-6 py-12 text-white md:px-8">
+        <div className="mx-auto max-w-4xl rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
+            Trust Graph
+          </p>
+          <h1 className="mt-4 text-4xl font-semibold">
+            Trust graph access is available on Pro and Enterprise.
+          </h1>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-400">
+            Free access includes a basic Trust Passport view. Upgrade to Pro to
+            use graph visibility across evidence, review, signals and audit
+            history.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/pricing"
+              className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
+            >
+              View Pricing
+            </Link>
+            <Link
+              href="/login?next=/trust-graph"
+              className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-200 hover:border-cyan-500"
+            >
+              Sign In
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   const [
     passports,

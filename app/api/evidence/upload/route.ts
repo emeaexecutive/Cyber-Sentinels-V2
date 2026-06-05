@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createNotification } from "@/lib/communications/createNotification";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
+import { checkUsageLimit } from "@/lib/billing/checkUsageLimit";
 import { createClient } from "@/lib/supabase/server";
 
 const bucketName = "evidence-files";
@@ -62,6 +63,15 @@ export async function POST(req: Request) {
     return NextResponse.redirect(new URL("/login?next=/evidence-upload", req.url), {
       status: 303,
     });
+  }
+
+  const usageLimit = await checkUsageLimit(supabase, user, "evidence_upload");
+
+  if (!usageLimit.ok) {
+    return NextResponse.json(
+      { ok: false, error: usageLimit.reason },
+      { status: 403 }
+    );
   }
 
   const formData = await req.formData();

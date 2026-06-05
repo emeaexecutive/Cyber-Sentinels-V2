@@ -4,7 +4,10 @@ export type RequiredEnvName =
   | "SUPABASE_SERVICE_ROLE_KEY"
   | "NEXT_PUBLIC_SITE_URL"
   | "ADMIN_EMAILS"
-  | "ADMIN_ACCESS_CODE";
+  | "ADMIN_ACCESS_CODE"
+  | "STRIPE_SECRET_KEY"
+  | "STRIPE_WEBHOOK_SECRET"
+  | "STRIPE_PRO_PRICE_ID";
 
 type EnvValidationOptions = {
   context: string;
@@ -121,4 +124,22 @@ export function getSiteUrlEnv(context: string) {
   assertEnv({ context, names: ["NEXT_PUBLIC_SITE_URL"] });
 
   return process.env.NEXT_PUBLIC_SITE_URL as string;
+}
+
+export function getStripeSecretKeyEnv(context: string) {
+  assertEnv({ context, names: ["STRIPE_SECRET_KEY"] });
+
+  return process.env.STRIPE_SECRET_KEY as string;
+}
+
+export function getStripeWebhookSecretEnv(context: string) {
+  assertEnv({ context, names: ["STRIPE_WEBHOOK_SECRET"] });
+
+  return process.env.STRIPE_WEBHOOK_SECRET as string;
+}
+
+export function getStripeProPriceIdEnv(context: string) {
+  assertEnv({ context, names: ["STRIPE_PRO_PRICE_ID"] });
+
+  return process.env.STRIPE_PRO_PRICE_ID as string;
 }

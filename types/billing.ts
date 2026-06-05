@@ -1,4 +1,5 @@
-export type ClearanceTier = "free" | "pro" | "teams" | "reports";
+export type ClearanceTier = "free" | "pro" | "enterprise";
+export type UserPlan = ClearanceTier;
 
 export type SubscriptionStatus =
   | "none"
@@ -6,7 +7,9 @@ export type SubscriptionStatus =
   | "active"
   | "past_due"
   | "paused"
-  | "canceled";
+  | "canceled"
+  | "cancelled"
+  | "incomplete";
 
 export type BillingPlan = {
   tier: ClearanceTier;
@@ -18,6 +21,11 @@ export type BillingPlan = {
   api_call_limit: number;
   report_credits: number;
   evidence_storage: string;
+  passport_limit: number | null;
+  evidence_upload_limit: number | null;
+  trust_graph_enabled: boolean;
+  governance_enabled: boolean;
+  api_access_enabled: boolean;
   highlighted?: boolean;
 };
 

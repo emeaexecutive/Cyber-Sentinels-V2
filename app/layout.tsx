@@ -22,6 +22,7 @@ const footerSections = [
       ["/enterprise-access", "Enterprise access"],
       ["/enterprise", "Enterprise"],
       ["/design-partners", "Design partners"],
+      ["/pricing", "Pricing"],
       ["/platform", "Platform"],
       ["/journal", "Founder journal"],
       ["/careers", "Careers"],

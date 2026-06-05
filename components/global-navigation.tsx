@@ -56,6 +56,7 @@ const publicLinks = [
   ["/", "Home"],
   ["/why-now", "Why Now"],
   ["/design-partners", "Design Partners"],
+  ["/pricing", "Pricing"],
   ["/demo", "Demo"],
   ["/how-to-use", "How to Use"],
   ["/security", "Security"],
