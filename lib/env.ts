@@ -18,10 +18,6 @@ type EnvValidationOptions = {
 export const requiredEnvNames: RequiredEnvName[] = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-  "SUPABASE_SERVICE_ROLE_KEY",
-  "NEXT_PUBLIC_SITE_URL",
-  "ADMIN_EMAILS",
-  "ADMIN_ACCESS_CODE",
 ];
 
 export function isProductionBuildPhase() {
@@ -48,6 +44,27 @@ export function isEnvConfigurationError(error: unknown) {
     error instanceof Error &&
     error.message.startsWith("Missing required environment variables")
   );
+}
+
+export function getPublicEnvDiagnostics() {
+  return {
+    hasSupabaseUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+    hasSupabaseAnonKey: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+    hasAppUrl: Boolean(
+      process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL
+    ),
+  };
+}
+
+export function logPublicEnvDiagnostics(context: string) {
+  if (isProductionBuildPhase()) {
+    return;
+  }
+
+  console.error("Cyber Sentinels environment diagnostics.", {
+    context,
+    ...getPublicEnvDiagnostics(),
+  });
 }
 
 export function assertEnv({
@@ -85,6 +102,7 @@ export function getPublicSupabaseEnv(context: string) {
 
   if (missing.length > 0) {
     logMissingEnv(context, missing);
+    logPublicEnvDiagnostics(context);
     throw new Error(
       `Missing required environment variables for ${context}: ${missing.join(", ")}`
     );

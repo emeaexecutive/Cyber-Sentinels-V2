@@ -7,8 +7,10 @@ import { createClient } from "@/lib/supabase/client";
 
 const RATE_LIMIT_MESSAGE =
   "Email login is temporarily rate-limited. Use password login or wait before requesting another magic link.";
+const CONNECTION_FAILURE_MESSAGE =
+  "Cyber Sentinels could not connect. Check Vercel Production environment variables.";
 const SESSION_START_KEY = "cyber_sentinels_session_started_at";
-const authTimeoutMs = 5000;
+const authTimeoutMs = 8000;
 
 function isRateLimitError(message: string) {
   const normalizedMessage = message.toLowerCase();
@@ -86,8 +88,9 @@ export default function LoginPage() {
   function getSupabaseClient() {
     try {
       return createClient();
-    } catch {
-      setMessage("Supabase env vars are missing.");
+    } catch (error) {
+      console.error("Supabase browser client creation failed.", error);
+      setMessage(CONNECTION_FAILURE_MESSAGE);
       return null;
     }
   }

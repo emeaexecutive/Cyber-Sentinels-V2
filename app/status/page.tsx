@@ -1,8 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import {
+  getPublicEnvDiagnostics,
   getPublicSupabaseEnv,
   getServiceRoleEnv,
-  getSiteUrlEnv,
+  logPublicEnvDiagnostics,
 } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,9 @@ type HealthCheck = {
   detail: string;
 };
 
-const statusTimeoutMs = 5000;
+const statusTimeoutMs = 8000;
+const connectionFailureMessage =
+  "Cyber Sentinels could not connect. Check Vercel Production environment variables.";
 
 function stateLabel(ok: boolean) {
   return ok ? "OK" : "Check";
@@ -28,7 +31,7 @@ function stateClass(ok: boolean) {
 
 function operationalFailure(
   label: string,
-  detail = "Operational check failed."
+  detail = connectionFailureMessage
 ): HealthCheck {
   return {
     label,
@@ -75,11 +78,7 @@ async function withStatusTimeout(
 }
 
 async function checkAppOnline(): Promise<HealthCheck> {
-  try {
-    getSiteUrlEnv("deployment status app URL");
-  } catch (error) {
-    console.error("Site URL health metadata missing.", error);
-  }
+  logPublicEnvDiagnostics("deployment status page");
 
   return {
     label: "App online",
@@ -183,6 +182,8 @@ async function runChecks() {
 export default async function StatusPage() {
   const checks = await runChecks();
   const healthy = checks.filter((check) => check.ok).length;
+  const diagnostics = getPublicEnvDiagnostics();
+  const hasConnectionFailure = checks.some((check) => !check.ok);
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -202,6 +203,22 @@ export default async function StatusPage() {
             <span className="rounded-lg border border-zinc-800 bg-black px-4 py-3 text-sm text-zinc-300">
               {healthy}/{checks.length} checks OK
             </span>
+          </div>
+          {hasConnectionFailure ? (
+            <div className="mt-6 rounded-lg border border-amber-800 bg-amber-950/20 p-4 text-sm text-amber-100">
+              {connectionFailureMessage}
+            </div>
+          ) : null}
+          <div className="mt-5 grid gap-3 text-xs text-zinc-500 md:grid-cols-3">
+            <div className="rounded-lg border border-zinc-800 bg-black p-3">
+              Supabase URL configured: {diagnostics.hasSupabaseUrl ? "true" : "false"}
+            </div>
+            <div className="rounded-lg border border-zinc-800 bg-black p-3">
+              Supabase anon key configured: {diagnostics.hasSupabaseAnonKey ? "true" : "false"}
+            </div>
+            <div className="rounded-lg border border-zinc-800 bg-black p-3">
+              App URL configured: {diagnostics.hasAppUrl ? "true" : "false"}
+            </div>
           </div>
         </section>
 
