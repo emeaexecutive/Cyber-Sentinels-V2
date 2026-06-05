@@ -145,9 +145,19 @@ export async function POST(req: Request) {
 
     const supabase = createServiceRoleClient();
 
-    const { error } = await supabase
-      .from("enterprise_access_requests")
-      .insert(payload);
+    const { error } = await supabase.rpc(
+      "submit_enterprise_access_request",
+      {
+        p_name: payload.name,
+        p_email: payload.work_email,
+        p_company: payload.company || null,
+        p_role: payload.role || null,
+        p_message: payload.message || null,
+        p_use_case: payload.use_case || null,
+        p_urgency: payload.ai_usage_level || null,
+        p_company_size: payload.company_size || null,
+      }
+    );
 
     if (error) {
       logEnterpriseAccessSubmitError(error);
