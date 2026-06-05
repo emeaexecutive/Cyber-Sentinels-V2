@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 const enterpriseAccessInsertFields = [
   "name",
   "work_email",
