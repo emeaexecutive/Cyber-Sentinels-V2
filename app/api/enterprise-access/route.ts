@@ -120,8 +120,17 @@ function getEnterpriseInterestSignal(problemCategory: string) {
   return "operational_trust_interest_detected";
 }
 
+function hasServiceRoleKey() {
+  return Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY?.trim());
+}
+
 export async function POST(req: Request) {
   try {
+    if (!hasServiceRoleKey()) {
+      console.error("enterprise access submit missing service role key");
+      return enterpriseAccessErrorResponse("missing_service_role_key", 500);
+    }
+
     const formData = await req.formData();
     const payload = buildEnterpriseAccessPayload(formData);
     logSubmittedFieldKeys(formData);
