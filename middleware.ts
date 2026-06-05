@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getAdminEmailsEnv, getPublicSupabaseEnv } from "@/lib/env";
 
 const adminVerifiedCookieName = "cyber_admin_verified";
 
@@ -65,10 +66,14 @@ function isBackOfficePage(pathname: string) {
 }
 
 function getAdminEmails() {
-  return (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((entry) => entry.trim().toLowerCase())
-    .filter(Boolean);
+  try {
+    return getAdminEmailsEnv("middleware admin allowlist")
+      .split(",")
+      .map((entry) => entry.trim().toLowerCase())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
 }
 
 function isAdminConfigured() {
@@ -128,14 +133,12 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  ) {
-    console.error("Middleware Supabase env missing.", {
-      NEXT_PUBLIC_SUPABASE_URL: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
-    });
+  let supabaseEnv;
+
+  try {
+    supabaseEnv = getPublicSupabaseEnv("middleware Supabase client");
+  } catch (error) {
+    console.error("Middleware Supabase client unavailable.", error);
     return NextResponse.next();
   }
 
@@ -145,8 +148,8 @@ export async function middleware(req: NextRequest) {
     },
   });
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+    supabaseEnv.supabaseUrl,
+    supabaseEnv.supabaseAnonKey,
     {
       cookies: {
         getAll() {

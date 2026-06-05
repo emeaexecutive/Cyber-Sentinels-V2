@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import type { User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { getPublicSupabaseEnv } from "@/lib/env";
 import type { createClient } from "@/lib/supabase/server";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -47,17 +48,7 @@ export const allowedOriginStatuses = [
 const rateLimitBuckets = new Map<string, RateLimitBucket>();
 
 export function assertServerEnv() {
-  const missing = [
-    ["NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL],
-    ["NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY],
-  ]
-    .filter(([, value]) => !value)
-    .map(([name]) => name);
-
-  if (missing.length > 0) {
-    console.error("Server configuration is incomplete. Missing env vars:", missing);
-    throw new Error("Server configuration is incomplete.");
-  }
+  getPublicSupabaseEnv("Supabase server client");
 }
 
 export function configurationError() {

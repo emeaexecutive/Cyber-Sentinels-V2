@@ -8,6 +8,7 @@ import {
   configurationError,
   getRequestRiskFields,
 } from "@/lib/security";
+import { getAdminAccessCodeEnv, isEnvConfigurationError } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
@@ -49,11 +50,10 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const submittedCode = String(formData.get("access_code") ?? "");
-    const expectedCode = process.env.ADMIN_ACCESS_CODE ?? "";
+    const expectedCode = getAdminAccessCodeEnv("admin access code check");
 
-    if (!expectedCode || submittedCode !== expectedCode) {
+    if (submittedCode !== expectedCode) {
       console.error("Admin access code check failed.", {
-        missingAdminAccessCode: !expectedCode,
         actor,
       });
       await recordAdminAccessAttempt(
@@ -87,8 +87,9 @@ export async function POST(req: Request) {
     return response;
   } catch (error) {
     if (
-      error instanceof Error &&
-      error.message === "Server configuration is incomplete."
+      isEnvConfigurationError(error) ||
+      (error instanceof Error &&
+        error.message === "Server configuration is incomplete.")
     ) {
       return configurationError();
     }

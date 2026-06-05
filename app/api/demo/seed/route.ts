@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { getServiceRoleEnv } from "@/lib/env";
 
 const DEMO_ACTOR = "demo-lab";
 
@@ -12,23 +13,18 @@ async function bestEffort(label: string, task: () => Promise<unknown>) {
 }
 
 function createDemoClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  try {
+    const { supabaseUrl, serviceRoleKey } = getServiceRoleEnv("demo seed");
 
-  if (!supabaseUrl || !serviceRoleKey) {
-    console.error("Demo seed Supabase service configuration missing.", {
-      NEXT_PUBLIC_SUPABASE_URL: Boolean(supabaseUrl),
-      SUPABASE_SERVICE_ROLE_KEY: Boolean(serviceRoleKey),
+    return createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
     });
+  } catch {
     return null;
   }
-
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
 }
 
 export async function POST() {

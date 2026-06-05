@@ -1,4 +1,5 @@
 import { createBrowserClient } from "@supabase/ssr";
+import { getPublicSupabaseEnv } from "@/lib/env";
 
 const SESSION_START_KEY = "cyber_sentinels_session_started_at";
 const ADMIN_VERIFIED_COOKIE_NAME = "cyber_admin_verified";
@@ -74,12 +75,9 @@ async function handleAuthResult<T>(task: () => Promise<T>) {
 }
 
 export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error("Supabase env vars are missing.");
-  }
+  const { supabaseUrl, supabaseAnonKey } = getPublicSupabaseEnv(
+    "Supabase browser client"
+  );
 
   const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
   const originalGetUser = supabase.auth.getUser.bind(supabase.auth);

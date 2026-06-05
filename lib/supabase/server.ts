@@ -2,6 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { adminVerifiedCookieName } from "@/lib/admin-auth";
+import { getPublicSupabaseEnv } from "@/lib/env";
 import { assertServerEnv } from "@/lib/security";
 
 type CookieToSet = {
@@ -90,12 +91,15 @@ async function withAuthTimeout<T>(task: () => Promise<T>): Promise<T> {
 
 export async function createClient() {
   assertServerEnv();
+  const { supabaseUrl, supabaseAnonKey } = getPublicSupabaseEnv(
+    "Supabase server client"
+  );
 
   const cookieStore = await cookies();
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {

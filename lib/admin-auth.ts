@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import type { User } from "@supabase/supabase-js";
+import { getAdminEmailsEnv } from "@/lib/env";
 import type { createClient } from "@/lib/supabase/server";
 
 export const adminVerifiedCookieName = "cyber_admin_verified";
@@ -20,10 +21,12 @@ export type AdminAccessResult =
     };
 
 export function getAdminEmails() {
-  const rawEmails = process.env.ADMIN_EMAILS ?? "";
+  let rawEmails = "";
 
-  if (!rawEmails.trim()) {
-    console.error("Admin access is not configured: ADMIN_EMAILS is missing.");
+  try {
+    rawEmails = getAdminEmailsEnv("admin allowlist");
+  } catch {
+    return [];
   }
 
   return rawEmails

@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
+import { getPublicSupabaseEnv } from "@/lib/env";
 
 export type QaStatus = "ready" | "partial" | "missing" | "blocked";
 
@@ -38,19 +39,20 @@ function envPresence(name: string): QaStatus {
 }
 
 function createQaSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  try {
+    const { supabaseUrl, supabaseAnonKey } = getPublicSupabaseEnv(
+      "QA Supabase probe"
+    );
 
-  if (!supabaseUrl || !anonKey) {
+    return createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+  } catch {
     return null;
   }
-
-  return createClient(supabaseUrl, anonKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
 }
 
 function statusFromDatabaseError(errorCode?: string | null): QaStatus {
@@ -210,8 +212,8 @@ export async function getQaReadiness() {
         },
         {
           label: "Supabase redirect URL reminder",
-          status: envPresence("NEXT_PUBLIC_APP_URL"),
-          detail: "Confirm Supabase auth redirects include the deployed callback URL.",
+          status: envPresence("NEXT_PUBLIC_SITE_URL"),
+          detail: "Confirm Supabase auth redirects include the deployed site callback URL.",
         },
       ],
     },
