@@ -14,6 +14,7 @@ The submit handler runs as a server action and uses a server-only Supabase servi
 - Success redirect: `/enterprise-access?success=true`
 - Failure redirect: `/enterprise-access?error=submit_failed`
 - Required-field redirect: `/enterprise-access?error=required`
+- Design partner intent: `/enterprise-access?intent=design_partner`
 
 The service role key is used only in server code through `lib/supabase/admin.ts`, which imports `server-only`. It must never be exposed to client components or browser code.
 
@@ -43,6 +44,9 @@ Allowed insert fields:
 - `ai_usage_level`
 - `use_case`
 - `message`
+- `design_partner_interest`
+- `governance_interest`
+- `operational_ai_interest`
 - `status`
 
 Default status:
@@ -66,6 +70,9 @@ Expected columns:
 - `ai_usage_level text`
 - `use_case text`
 - `message text`
+- `design_partner_interest boolean not null default false`
+- `governance_interest boolean not null default false`
+- `operational_ai_interest boolean not null default false`
 - `status text default 'new'`
 - `created_at timestamptz default now()`
 - `updated_at timestamptz default now()`

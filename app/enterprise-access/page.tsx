@@ -4,6 +4,7 @@ type EnterpriseAccessPageProps = {
   searchParams?: Promise<{
     success?: string;
     error?: string;
+    intent?: string;
   }>;
 };
 
@@ -13,6 +14,7 @@ export default async function EnterpriseAccessPage({
   const params = await searchParams;
   const success = params?.success === "true";
   const error = params?.error;
+  const designPartnerIntent = params?.intent === "design_partner";
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -25,16 +27,20 @@ export default async function EnterpriseAccessPage({
             Request Cyber Sentinels Enterprise Access
           </h1>
           <p className="mt-4 max-w-3xl leading-7 text-zinc-400">
-            Tell us how your organisation wants to use governed trust
-            infrastructure for verification, auditability, AI governance or
-            operational transparency.
+            Tell us which operational workflow you want to make more
+            accountable: approvals, human review, evidence handling,
+            auditability, AI governance or trust event visibility.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
+            Cyber Sentinels is evolving through operational collaboration and
+            real-world workflow feedback.
           </p>
           <div className="mt-6 grid gap-3 text-sm text-zinc-400 md:grid-cols-2">
             {[
+              "AI-assisted workflow approvals",
+              "Human review escalation",
               "Evidence-backed verification",
-              "Human-governed review",
-              "Operational trust maturity",
-              "AI governance and auditability",
+              "Operational audit trails",
             ].map((item) => (
               <div
                 key={item}
@@ -49,7 +55,9 @@ export default async function EnterpriseAccessPage({
         <section className="rounded-lg border border-zinc-800 bg-black p-6">
           {success ? (
             <div className="rounded-lg border border-emerald-900 bg-emerald-950/30 p-4 text-sm text-emerald-100">
-              Thanks &mdash; your request has been received.
+              Thanks &mdash; your request has been received. We are currently
+              onboarding a limited number of early collaborators and operational
+              design partners.
             </div>
           ) : null}
 
@@ -77,6 +85,11 @@ export default async function EnterpriseAccessPage({
             method="post"
             className="grid gap-4"
           >
+            <input
+              type="hidden"
+              name="design_partner_interest"
+              value={designPartnerIntent ? "true" : "false"}
+            />
             <input
               name="name"
               placeholder="Name"
@@ -179,7 +192,7 @@ export default async function EnterpriseAccessPage({
             />
             <textarea
               name="message"
-              placeholder="Message"
+              placeholder="Relevant workflow context, review requirements or feedback goals"
               rows={5}
               className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
             />
