@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
-
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 const enterpriseAccessInsertFields = [
   "name",
@@ -121,23 +118,6 @@ function getEnterpriseInterestSignal(problemCategory: string) {
 }
 
 export async function POST(req: Request) {
-  console.log(
-    "ENTERPRISE_ACCESS_ROUTE_VERSION",
-    "route-hit-service-role-2026-06-05"
-  );
-  console.log(
-    "HAS_SUPABASE_URL",
-    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL)
-  );
-  console.log(
-    "HAS_SERVICE_ROLE",
-    Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)
-  );
-  console.log(
-    "SERVICE_ROLE_PREFIX",
-    process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 12)
-  );
-
   try {
     const formData = await req.formData();
     const payload = buildEnterpriseAccessPayload(formData);
@@ -151,7 +131,9 @@ export async function POST(req: Request) {
       return enterpriseAccessErrorResponse("required_fields_missing", 400);
     }
 
-    const { error } = await supabaseAdmin
+    const supabase = createServiceRoleClient();
+
+    const { error } = await supabase
       .from("enterprise_access_requests")
       .insert(payload);
 
@@ -160,7 +142,7 @@ export async function POST(req: Request) {
       return enterpriseAccessErrorResponse("submit_failed", 500, error);
     }
 
-    const { error: interestSignalError } = await supabaseAdmin
+    const { error: interestSignalError } = await supabase
       .from("interest_signals")
       .insert({
         company: payload.company,
