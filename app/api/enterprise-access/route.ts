@@ -4,22 +4,18 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const enterpriseAccessInsertFields = [
-  "name",
-  "work_email",
-  "company",
-  "role",
-  "company_size",
-  "current_problem_category",
-  "current_problem",
-  "ai_usage_level",
-  "use_case",
-  "message",
-] as const;
-
-type EnterpriseAccessInsertField =
-  (typeof enterpriseAccessInsertFields)[number];
-type EnterpriseAccessInsertPayload = Record<EnterpriseAccessInsertField, string>;
+type EnterpriseAccessPayload = {
+  name: string;
+  email: string;
+  company: string;
+  role: string;
+  message: string;
+  use_case: string;
+  urgency: string;
+  company_size: string;
+  current_problem_category: string;
+  current_problem: string;
+};
 
 type SupabaseErrorLike = {
   message?: string;
@@ -70,25 +66,23 @@ function logSubmittedFieldKeys(formData: FormData) {
   });
 }
 
-function field(formData: FormData, name: EnterpriseAccessInsertField) {
+function field(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();
 }
 
-function buildEnterpriseAccessPayload(
-  formData: FormData
-): EnterpriseAccessInsertPayload {
+function buildEnterpriseAccessPayload(formData: FormData): EnterpriseAccessPayload {
   const currentProblemCategory = field(formData, "current_problem_category");
-  const aiUsageLevel = field(formData, "ai_usage_level");
+  const urgency = field(formData, "urgency") || field(formData, "ai_usage_level");
 
   return {
     name: field(formData, "name"),
-    work_email: field(formData, "work_email"),
+    email: field(formData, "email") || field(formData, "work_email"),
     company: field(formData, "company"),
     role: field(formData, "role"),
     company_size: field(formData, "company_size"),
     current_problem_category: currentProblemCategory,
     current_problem: field(formData, "current_problem"),
-    ai_usage_level: aiUsageLevel,
+    urgency,
     use_case: field(formData, "use_case"),
     message: field(formData, "message"),
   };
@@ -138,7 +132,7 @@ export async function POST(req: Request) {
       keys: Object.keys(payload).sort(),
     });
 
-    if (!payload.name || !payload.work_email || !payload.company) {
+    if (!payload.name || !payload.email || !payload.company) {
       console.error("enterprise access submit missing required fields");
       return enterpriseAccessErrorResponse("required_fields_missing", 400);
     }
@@ -149,13 +143,13 @@ export async function POST(req: Request) {
       "submit_enterprise_access_request",
       {
         p_name: payload.name,
-        p_email: payload.work_email,
-        p_company: payload.company || null,
-        p_role: payload.role || null,
-        p_message: payload.message || null,
-        p_use_case: payload.use_case || null,
-        p_urgency: payload.ai_usage_level || null,
-        p_company_size: payload.company_size || null,
+        p_email: payload.email,
+        p_company: payload.company ?? null,
+        p_role: payload.role ?? null,
+        p_message: payload.message ?? null,
+        p_use_case: payload.use_case ?? null,
+        p_urgency: payload.urgency ?? null,
+        p_company_size: payload.company_size ?? null,
       }
     );
 
@@ -174,7 +168,7 @@ export async function POST(req: Request) {
           payload.current_problem_category ||
           payload.current_problem ||
           null,
-        interest_level: payload.ai_usage_level || "early_access_request",
+        interest_level: payload.urgency || "early_access_request",
         source: getEnterpriseInterestSignal(payload.current_problem_category),
         notes:
           [
