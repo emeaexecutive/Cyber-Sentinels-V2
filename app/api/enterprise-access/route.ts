@@ -41,6 +41,18 @@ function redirectTo(req: Request, path: string) {
   return NextResponse.redirect(new URL(path, req.url), { status: 303 });
 }
 
+function enterpriseAccessErrorUrl(req: Request, error: string) {
+  const url = new URL("/enterprise-access", req.url);
+  url.searchParams.set("error", error);
+  return url;
+}
+
+function redirectWithEnterpriseAccessError(req: Request, error: string) {
+  return NextResponse.redirect(enterpriseAccessErrorUrl(req, error), {
+    status: 303,
+  });
+}
+
 function logEnterpriseAccessSubmitError(error: unknown) {
   const supabaseError = error as SupabaseErrorLike;
 
@@ -54,6 +66,12 @@ function logEnterpriseAccessSubmitError(error: unknown) {
       typeof supabaseError?.details === "string"
         ? supabaseError.details
         : null,
+  });
+}
+
+function logSubmittedFieldKeys(formData: FormData) {
+  console.error("enterprise access submitted field keys", {
+    keys: [...formData.keys()].sort(),
   });
 }
 
@@ -152,10 +170,11 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const payload = buildEnterpriseAccessPayload(formData);
+    logSubmittedFieldKeys(formData);
 
     if (!payload.name || !payload.work_email || !payload.company) {
       console.error("enterprise access submit missing required fields");
-      return redirectTo(req, "/enterprise-access?error=required");
+      return redirectWithEnterpriseAccessError(req, "required");
     }
 
     let supabase;
@@ -164,7 +183,7 @@ export async function POST(req: Request) {
       supabase = createServiceRoleClient();
     } catch (error) {
       logEnterpriseAccessSubmitError(error);
-      return redirectTo(req, "/enterprise-access?error=service_unavailable");
+      return redirectWithEnterpriseAccessError(req, "service_unavailable");
     }
 
     const { error } = await supabase
@@ -173,7 +192,11 @@ export async function POST(req: Request) {
 
     if (error) {
       logEnterpriseAccessSubmitError(error);
-      return redirectTo(req, "/enterprise-access?error=submit_failed");
+      if (error.code === "42501") {
+        return redirectWithEnterpriseAccessError(req, "permission_denied");
+      }
+
+      return redirectWithEnterpriseAccessError(req, "submit_failed");
     }
 
     const { error: interestSignalError } = await supabase
@@ -208,6 +231,6 @@ export async function POST(req: Request) {
     return redirectTo(req, "/enterprise-access?success=true");
   } catch (error) {
     logEnterpriseAccessSubmitError(error);
-    return redirectTo(req, "/enterprise-access?error=submit_failed");
+    return redirectWithEnterpriseAccessError(req, "submit_failed");
   }
 }
