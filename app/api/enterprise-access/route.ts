@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const enterpriseAccessInsertFields = [
   "name",
@@ -119,7 +119,10 @@ function getEnterpriseInterestSignal(problemCategory: string) {
 
 export async function POST(req: Request) {
   try {
-    console.log("ENTERPRISE_ACCESS_ROUTE_VERSION", "2026-06-05-no-select");
+    console.log(
+      "ENTERPRISE_ACCESS_ROUTE_VERSION",
+      "service-role-insert-2026-06-05"
+    );
 
     const formData = await req.formData();
     const payload = buildEnterpriseAccessPayload(formData);
@@ -131,15 +134,6 @@ export async function POST(req: Request) {
     if (!payload.name || !payload.work_email || !payload.company) {
       console.error("enterprise access submit missing required fields");
       return enterpriseAccessErrorResponse("required_fields_missing", 400);
-    }
-
-    let supabaseAdmin;
-
-    try {
-      supabaseAdmin = createServiceRoleClient();
-    } catch (error) {
-      logEnterpriseAccessSubmitError(error);
-      return enterpriseAccessErrorResponse("service_unavailable", 503);
     }
 
     const { error } = await supabaseAdmin
