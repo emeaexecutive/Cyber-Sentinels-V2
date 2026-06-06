@@ -116,6 +116,14 @@ function getEnterpriseInterestSignal(problemCategory: string) {
 
 export async function POST(req: Request) {
   try {
+    console.log("ENTERPRISE_ACCESS_ROUTE_PROBE", "2026-06-06-1008");
+    console.log("ENTERPRISE_ACCESS_ENV", {
+      hasUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+      hasServiceRole: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+      serviceRolePrefix: process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 16),
+      hasAnon: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+    });
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -138,31 +146,29 @@ export async function POST(req: Request) {
       return enterpriseAccessErrorResponse("required_fields_missing", 400);
     }
 
-    console.log("ENTERPRISE_ACCESS_ADMIN_CLIENT", {
-      hasUrl: Boolean(supabaseUrl),
-      hasServiceRole: Boolean(serviceRoleKey),
-      keyLooksLikeJwt: serviceRoleKey.startsWith("eyJ"),
-    });
-    console.log("USING_ADMIN_CLIENT", true);
-    console.log("KEY_PREFIX", serviceRoleKey.slice(0, 12));
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+        },
+      }
+    );
 
-    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    });
-
+    console.log("ENTERPRISE_ACCESS_INSERT_CLIENT", "admin-inline");
     const { error } = await supabaseAdmin
       .from("enterprise_access_requests")
       .insert([payload]);
 
     if (error) {
-      console.error("enterprise access supabase error json", error);
-      console.error(
-        "enterprise access supabase error json string",
-        JSON.stringify(error)
-      );
+      console.error("ENTERPRISE_ACCESS_SUPABASE_ERROR", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
       logEnterpriseAccessSubmitError(error);
       return enterpriseAccessErrorResponse("submit_failed", 500, error);
     }
