@@ -47,6 +47,12 @@ export default function EnterprisePage() {
           >
             Request Enterprise Access
           </Link>
+          <Link
+            href="/enterprise/hiring-security"
+            className="ml-3 mt-5 inline-flex rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400"
+          >
+            Hiring Security
+          </Link>
         </section>
       </div>
     </main>

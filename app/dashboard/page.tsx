@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ShieldCheck, Bot, Fingerprint, FileWarning } from "lucide-react";
 import { redirect } from "next/navigation";
 import { calculateTrustScore } from "@/lib/verification";
@@ -36,6 +37,23 @@ export default async function DashboardPage() {
           <Metric title="Verified Humans" value="148" icon={<Fingerprint />} />
           <Metric title="Agent Passports" value="37" icon={<Bot />} />
           <Metric title="Open Risk Flags" value="4" icon={<FileWarning />} />
+        </div>
+
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {[
+            ["/enterprise/hiring-security", "Trusted Hiring"],
+            ["/verify/candidate", "Candidate Verification"],
+            ["/recruiter/dashboard", "Recruiter Dashboard"],
+          ].map(([href, label]) => (
+            <Link
+              key={href}
+              href={href}
+              className="rounded-3xl border border-sentinel-line bg-white/[0.04] p-5 hover:border-sentinel-green"
+            >
+              <p className="text-sm text-sentinel-muted">Hiring Integrity</p>
+              <p className="mt-2 text-xl font-semibold">{label}</p>
+            </Link>
+          ))}
         </div>
 
         <div className="mt-8 rounded-3xl border border-sentinel-line bg-sentinel-panel/80 p-5">

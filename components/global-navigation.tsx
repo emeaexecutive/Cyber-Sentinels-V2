@@ -19,6 +19,7 @@ const adminNavGroups = [
       ["/evidence-vault", "Evidence Vault"],
       ["/decision-engine", "Decisions"],
       ["/back-office", "Back Office"],
+      ["/admin/reviews", "Admin Reviews"],
     ],
   },
   {
@@ -60,6 +61,7 @@ const publicLinks = [
   ["/", "Home"],
   ["/why-now", "Why Now"],
   ["/design-partners", "Design Partners"],
+  ["/enterprise/hiring-security", "Hiring Security"],
   ["/pricing", "Pricing"],
   ["/trustops", "TrustOps"],
   ["/demo", "Demo"],
@@ -76,6 +78,7 @@ const userLinks = [
   ["/notifications", "Notifications"],
   ["/appeals", "Appeals"],
   ["/feedback", "Feedback"],
+  ["/recruiter/dashboard", "Hiring Dashboard"],
   ["/trustops", "TrustOps"],
   ["/help", "Help"],
 ];
