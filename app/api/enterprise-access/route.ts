@@ -47,6 +47,7 @@ function enterpriseAccessErrorResponse(
 function logEnterpriseAccessSubmitError(error: unknown) {
   const supabaseError = error as SupabaseErrorLike;
 
+  console.log("LIVE_ENTERPRISE_ACCESS_HANDLER_CONFIRMED", "2026-06-06");
   console.error("enterprise access submit failed", {
     message:
       typeof supabaseError?.message === "string"
