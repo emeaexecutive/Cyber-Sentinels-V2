@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       console.log("Stripe billing not configured");
 
       return NextResponse.json(
-        { ok: false, error: "Stripe Pro price is not configured." },
+        { ok: false, error: "Stripe price is not configured." },
         { status: 503 }
       );
     }
@@ -50,13 +50,13 @@ export async function POST(req: Request) {
       metadata: {
         user_id: user.id,
         user_email: userEmail ?? "",
-        plan: "pro",
+        plan: "professional",
       },
       subscription_data: {
         metadata: {
           user_id: user.id,
           user_email: userEmail ?? "",
-          plan: "pro",
+          plan: "professional",
         },
       },
     });

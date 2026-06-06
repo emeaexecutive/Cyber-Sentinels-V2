@@ -792,11 +792,13 @@ export default async function BackOfficePage({
   );
   const proWaitlistRequests = enterpriseAccessRequests.rows.filter(
     (request) =>
-      request.use_case === "pro_waitlist" || request.status === "pro_waitlist"
+      String(request.use_case ?? "").endsWith("_waitlist") ||
+      String(request.status ?? "").endsWith("_waitlist")
   );
   const enterpriseLeadRequests = enterpriseAccessRequests.rows.filter(
     (request) =>
-      request.use_case !== "pro_waitlist" && request.status !== "pro_waitlist"
+      !String(request.use_case ?? "").endsWith("_waitlist") &&
+      !String(request.status ?? "").endsWith("_waitlist")
   );
   const activeSubscriptions = subscriptions.rows.filter((subscription) =>
     ["active", "trialing"].includes(String(subscription.status ?? ""))
@@ -2083,12 +2085,12 @@ export default async function BackOfficePage({
 
             <div className="mt-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h3 className="text-lg font-semibold">Pro Waitlist Requests</h3>
+                <h3 className="text-lg font-semibold">Paid Tier Waitlist Requests</h3>
                 <Link
                   href="/pro-waitlist"
                   className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
                 >
-                  Open Pro Waitlist
+                  Open Waitlist
                 </Link>
               </div>
               <div className="mt-4 grid gap-3">
@@ -2101,7 +2103,7 @@ export default async function BackOfficePage({
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <p className="font-medium text-zinc-100">
-                            {request.company ?? "Pro waitlist request"}
+                            {request.company ?? "Paid tier waitlist request"}
                           </p>
                           <p className="mt-1 text-sm text-zinc-500">
                             {request.name ?? "Unknown contact"} /{" "}
@@ -2109,12 +2111,12 @@ export default async function BackOfficePage({
                           </p>
                         </div>
                         <span className="rounded-full border border-cyan-800 px-3 py-1 text-xs text-cyan-100">
-                          {request.status ?? "pro_waitlist"}
+                          {request.status ?? "waitlist"}
                         </span>
                       </div>
                       <div className="mt-3 grid gap-2 text-sm text-zinc-400 md:grid-cols-2">
                         <p>Role: {request.role ?? "Not provided"}</p>
-                        <p>Use case: {request.use_case ?? "pro_waitlist"}</p>
+                        <p>Use case: {request.use_case ?? "waitlist"}</p>
                       </div>
                       {request.message ? (
                         <p className="mt-3 text-sm leading-6 text-zinc-500">
@@ -2127,7 +2129,7 @@ export default async function BackOfficePage({
                     </div>
                   ))
                 ) : (
-                  <EmptyState label="No Pro waitlist requests yet." />
+                  <EmptyState label="No paid tier waitlist requests yet." />
                 )}
               </div>
             </div>

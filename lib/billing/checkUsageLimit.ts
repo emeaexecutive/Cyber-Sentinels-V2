@@ -3,6 +3,7 @@ import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { getPlan } from "@/lib/billing/plans";
 import { getUserPlan } from "@/lib/billing/getUserPlan";
 import type { createClient } from "@/lib/supabase/server";
+import type { UserPlan } from "@/types/billing";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -14,10 +15,10 @@ export type UsageLimitFeature =
   | "api_access";
 
 export type UsageLimitResult =
-  | { ok: true; plan: "free" | "pro" | "enterprise"; limit: number | null }
+  | { ok: true; plan: UserPlan; limit: number | null }
   | {
       ok: false;
-      plan: "free" | "pro" | "enterprise";
+      plan: UserPlan;
       limit: number | null;
       current: number;
       reason: string;
@@ -77,7 +78,7 @@ export async function checkUsageLimit(
           plan: planName,
           limit: null,
           current: 0,
-          reason: "Trust graph access requires Pro or Enterprise.",
+          reason: "Trust graph access requires Professional, Premium or Enterprise.",
         };
   }
 
@@ -89,7 +90,7 @@ export async function checkUsageLimit(
           plan: planName,
           limit: null,
           current: 0,
-          reason: "Governance modules require Enterprise.",
+          reason: "Governance workflows require Premium or Enterprise.",
         };
   }
 
@@ -153,4 +154,3 @@ export async function checkUsageLimit(
         reason: `Your ${plan.name} plan allows ${limit} evidence uploads.`,
       };
 }
-

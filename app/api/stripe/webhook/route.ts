@@ -21,7 +21,16 @@ function stringId(value: string | { id: string } | null) {
 }
 
 function planFromMetadata(metadata: Stripe.Metadata | null | undefined): UserPlan {
-  return metadata?.plan === "enterprise" ? "enterprise" : metadata?.plan === "pro" ? "pro" : "free";
+  if (
+    metadata?.plan === "starter" ||
+    metadata?.plan === "professional" ||
+    metadata?.plan === "premium" ||
+    metadata?.plan === "enterprise"
+  ) {
+    return metadata.plan;
+  }
+
+  return metadata?.plan === "pro" ? "professional" : "free";
 }
 
 function currentPeriodEnd(subscription: Stripe.Subscription) {
@@ -73,7 +82,7 @@ async function handleCheckoutCompleted(
     stripeCustomerId: customerId,
     stripeSubscriptionId: subscription.id,
     stripePriceId: priceId,
-    plan: "pro",
+    plan: planFromMetadata(session.metadata),
     status: subscription.status,
     currentPeriodEnd: currentPeriodEnd(subscription),
     cancelAtPeriodEnd: subscription.cancel_at_period_end,

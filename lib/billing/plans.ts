@@ -146,8 +146,11 @@ export const billingDatabaseFields = [
   "status",
   "stripe_customer_id",
   "stripe_subscription_id",
+  "verification_workflow_count",
+  "operational_activity_count",
   "passport_limit",
   "evidence_upload_limit",
+  "evidence_upload_count",
   "trust_graph_enabled",
 ] as const;
 
@@ -172,6 +175,9 @@ export function createBillingProfile(
     subscription_status: tier === "free" ? "none" : "active",
     billing_customer_id: null,
     usage_count: 0,
+    verification_workflow_count: 0,
+    evidence_upload_count: 0,
+    operational_activity_count: 0,
     report_credits: plan.report_credits,
     api_call_limit: plan.api_call_limit,
     api_calls_used: 0,

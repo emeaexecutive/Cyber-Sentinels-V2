@@ -41,6 +41,9 @@ export type BillingProfile = {
   subscription_status: SubscriptionStatus;
   billing_customer_id: string | null;
   usage_count: number;
+  verification_workflow_count: number;
+  evidence_upload_count: number;
+  operational_activity_count: number;
   report_credits: number;
   api_call_limit: number;
   api_calls_used: number;

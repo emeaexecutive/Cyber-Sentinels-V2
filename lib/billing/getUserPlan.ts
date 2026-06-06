@@ -8,8 +8,17 @@ type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 const activeSubscriptionStatuses = new Set(["active", "trialing"]);
 
 function normalizePlan(value: unknown): UserPlan {
-  if (value === "enterprise" || value === "pro") {
+  if (
+    value === "starter" ||
+    value === "professional" ||
+    value === "premium" ||
+    value === "enterprise"
+  ) {
     return value;
+  }
+
+  if (value === "pro") {
+    return "professional";
   }
 
   return "free";
@@ -46,4 +55,3 @@ export async function getUserPlan(
 
   return normalizePlan(data.plan);
 }
-
