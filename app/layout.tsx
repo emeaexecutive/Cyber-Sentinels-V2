@@ -23,6 +23,7 @@ const footerSections = [
       ["/enterprise", "Enterprise"],
       ["/design-partners", "Design partners"],
       ["/pricing", "Pricing"],
+      ["/trustops", "TrustOps"],
       ["/platform", "Platform"],
       ["/journal", "Founder journal"],
       ["/careers", "Careers"],
@@ -77,8 +78,12 @@ async function getNavigationAccessLevel(): Promise<NavigationAccessLevel> {
       return "public";
     }
 
-    if (isAdminAllowlisted(user.email) && (await hasAdminVerifiedCookie())) {
-      return "admin";
+    if (isAdminAllowlisted(user.email)) {
+      if (await hasAdminVerifiedCookie()) {
+        return "admin";
+      }
+
+      return "admin-unverified";
     }
 
     return "user";

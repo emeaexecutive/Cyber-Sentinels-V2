@@ -89,6 +89,11 @@ export async function requireAdminPageAccess(
 
   if (!result.ok) {
     await clearAdminState();
+    console.error("Admin page access denied.", {
+      path: metadata.path,
+      reason: result.reason,
+      actor: result.user?.email ?? result.user?.id ?? "unknown",
+    });
     await auditAdminAccess(
       supabase,
       "admin_access_denied",
@@ -145,6 +150,7 @@ export async function requireAdminApiAccess(
 
   return {
     ok: false as const,
+    reason: result.reason,
     response: NextResponse.redirect(
       new URL(
         `/command-center?message=${

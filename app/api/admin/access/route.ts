@@ -40,7 +40,9 @@ export async function POST(req: Request) {
     });
 
     if (!access.ok) {
-      console.error("Admin access denied before code check.");
+      console.error("Admin access denied before code check.", {
+        reason: access.reason,
+      });
       return access.response;
     }
 
@@ -55,6 +57,7 @@ export async function POST(req: Request) {
     if (submittedCode !== expectedCode) {
       console.error("Admin access code check failed.", {
         actor,
+        reason: "invalid_admin_access_code",
       });
       await recordAdminAccessAttempt(
         supabase,

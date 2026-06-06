@@ -4,7 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-export type NavigationAccessLevel = "public" | "user" | "admin";
+export type NavigationAccessLevel =
+  | "public"
+  | "user"
+  | "admin-unverified"
+  | "admin";
 
 const adminNavGroups = [
   {
@@ -57,6 +61,7 @@ const publicLinks = [
   ["/why-now", "Why Now"],
   ["/design-partners", "Design Partners"],
   ["/pricing", "Pricing"],
+  ["/trustops", "TrustOps"],
   ["/demo", "Demo"],
   ["/how-to-use", "How to Use"],
   ["/security", "Security"],
@@ -71,6 +76,7 @@ const userLinks = [
   ["/notifications", "Notifications"],
   ["/appeals", "Appeals"],
   ["/feedback", "Feedback"],
+  ["/trustops", "TrustOps"],
   ["/help", "Help"],
 ];
 
@@ -210,9 +216,17 @@ export function GlobalNavigation({
               />
             </>
           ) : null}
-          {accessLevel === "user" ? (
+          {accessLevel === "user" || accessLevel === "admin-unverified" ? (
             <>
               <FlatLinks links={userLinks} />
+              {accessLevel === "admin-unverified" ? (
+                <Link
+                  href="/admin/access"
+                  className="rounded-lg border border-cyan-700 px-3 py-2 text-cyan-100 hover:border-cyan-400 hover:text-white"
+                >
+                  Admin
+                </Link>
+              ) : null}
               <NavigationDropdown
                 label="Support & Legal"
                 links={supportLegalLinks}
@@ -229,6 +243,12 @@ export function GlobalNavigation({
                 className="rounded-lg border border-zinc-800 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
               >
                 Home
+              </Link>
+              <Link
+                href="/admin/access"
+                className="rounded-lg border border-cyan-700 px-3 py-2 text-cyan-100 hover:border-cyan-400 hover:text-white"
+              >
+                Admin
               </Link>
               {adminNavGroups.map((group) => (
                 <NavigationDropdown

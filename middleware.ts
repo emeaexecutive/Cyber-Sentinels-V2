@@ -226,6 +226,9 @@ export async function middleware(req: NextRequest) {
     return response;
   }
 
+  console.error("Middleware admin redirect reason: missing admin verification cookie.", {
+    pathname,
+  });
   return redirectTo(req, "/back-office?denied=1");
 }
 
