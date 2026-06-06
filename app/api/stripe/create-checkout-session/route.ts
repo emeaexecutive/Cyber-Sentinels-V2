@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createStripeClient, getBillingReturnUrls, getProPriceId } from "@/lib/billing/stripe";
+import { createStripeClient, getBillingReturnUrls } from "@/lib/billing/stripe";
 import { isEnvConfigurationError } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -19,7 +19,15 @@ export async function POST(req: Request) {
 
     const serviceSupabase = createServiceRoleClient();
     const stripe = createStripeClient();
-    const priceId = getProPriceId();
+    const priceId = process.env.STRIPE_PRO_MONTHLY_PRICE_ID;
+
+    if (!priceId) {
+      return NextResponse.json(
+        { ok: false, error: "Stripe Pro price is not configured." },
+        { status: 500 }
+      );
+    }
+
     const { successUrl, cancelUrl } = getBillingReturnUrls();
     const userEmail = user.email ?? null;
 

@@ -35,6 +35,9 @@ export default function PricingPage() {
             and trust graph visibility, or request enterprise access for
             governance modules and custom review.
           </p>
+          <p className="mt-3 text-sm text-zinc-500">
+            Prices shown in EUR. Additional currencies may be supported later.
+          </p>
         </section>
 
         <section className="mt-10 grid gap-5 lg:grid-cols-3">
@@ -93,4 +96,3 @@ export default function PricingPage() {
     </main>
   );
 }
-

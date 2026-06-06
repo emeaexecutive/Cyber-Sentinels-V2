@@ -8,8 +8,8 @@ export const clearancePlans: BillingPlan[] = [
   {
     tier: "free",
     name: "Free",
-    price: "$0",
-    cadence: "forever",
+    price: "€0",
+    cadence: "",
     description: "Basic trust passport access for early individual use.",
     features: [
       "Limited passports",
@@ -29,8 +29,8 @@ export const clearancePlans: BillingPlan[] = [
   {
     tier: "pro",
     name: "Pro",
-    price: "$29",
-    cadence: "per month",
+    price: "€49/month",
+    cadence: "",
     description: "Expanded workflows for evidence, review and trust visibility.",
     features: [
       "More passports",

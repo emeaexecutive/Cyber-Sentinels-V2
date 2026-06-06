@@ -126,6 +126,12 @@ export default async function AgentsPage({
             permission scope and a trust event timeline. No autonomous scoring
             or LLM analysis is used in this foundation.
           </p>
+          <Link
+            href="/agents/register"
+            className="mt-5 inline-flex rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
+          >
+            Register Agent
+          </Link>
         </section>
 
         {params?.error ? (
