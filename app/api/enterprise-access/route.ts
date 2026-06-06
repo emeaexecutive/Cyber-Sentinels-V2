@@ -117,6 +117,7 @@ function getEnterpriseInterestSignal(problemCategory: string) {
 
 export async function POST(req: Request) {
   try {
+    console.log("LIVE_HANDLER_EDITED_NOW", "2026-06-06");
     console.log("ENTERPRISE_ACCESS_ROUTE_PROBE", "2026-06-06-1008");
     console.log("ENTERPRISE_ACCESS_ENV", {
       hasUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
