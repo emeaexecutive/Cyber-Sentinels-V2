@@ -11,6 +11,7 @@ type EnterpriseAccessPayload = {
   role: string;
   message: string;
   use_case: string;
+  status: string;
   ai_usage_level: string;
   company_size: string;
   current_problem_category: string;
@@ -86,6 +87,7 @@ function buildEnterpriseAccessPayload(formData: FormData): EnterpriseAccessPaylo
     current_problem: field(formData, "current_problem"),
     ai_usage_level: aiUsageLevel,
     use_case: field(formData, "use_case"),
+    status: field(formData, "status") || "new",
     message: field(formData, "message"),
   };
 }
@@ -205,7 +207,12 @@ export async function POST(req: Request) {
       );
     }
 
-    return redirectTo(req, "/enterprise-access?success=true");
+    return redirectTo(
+      req,
+      payload.use_case === "pro_waitlist"
+        ? "/pro-waitlist?success=true"
+        : "/enterprise-access?success=true"
+    );
   } catch (error) {
     logEnterpriseAccessSubmitError(error);
     return enterpriseAccessErrorResponse("submit_failed", 500);

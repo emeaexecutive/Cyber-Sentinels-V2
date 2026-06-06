@@ -17,6 +17,15 @@ export async function POST(req: Request) {
       });
     }
 
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.log("Stripe billing not configured");
+
+      return NextResponse.json(
+        { ok: false, error: "Billing portal is not configured." },
+        { status: 503 }
+      );
+    }
+
     const serviceSupabase = createServiceRoleClient();
     const { data: billingCustomer } = await serviceSupabase
       .from("billing_customers")
@@ -52,4 +61,3 @@ export async function POST(req: Request) {
     );
   }
 }
-

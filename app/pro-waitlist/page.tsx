@@ -1,0 +1,98 @@
+export const dynamic = "force-dynamic";
+
+type ProWaitlistPageProps = {
+  searchParams?: Promise<{
+    success?: string;
+    error?: string;
+  }>;
+};
+
+export default async function ProWaitlistPage({
+  searchParams,
+}: ProWaitlistPageProps) {
+  const params = await searchParams;
+  const success = params?.success === "true";
+  const error = params?.error;
+
+  return (
+    <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
+      <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-start">
+        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
+            Pro Waitlist
+          </p>
+          <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
+            Join the Cyber Sentinels Pro waitlist
+          </h1>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            Pro is priced at €49/month. Checkout will open once billing is fully
+            configured.
+          </p>
+          <p className="mt-3 text-sm text-zinc-500">
+            Prices shown in EUR. Additional currencies may be supported later.
+          </p>
+        </section>
+
+        <section className="rounded-lg border border-zinc-800 bg-black p-6">
+          {success ? (
+            <div className="mb-4 rounded-lg border border-emerald-900 bg-emerald-950/30 p-4 text-sm text-emerald-100">
+              Thanks. You are on the Pro waitlist.
+            </div>
+          ) : null}
+
+          {error ? (
+            <div className="mb-4 rounded-lg border border-red-900 bg-red-950/30 p-4 text-sm text-red-100">
+              We could not submit your request. Please try again or contact
+              support.
+            </div>
+          ) : null}
+
+          <form
+            action="/api/enterprise-access"
+            method="post"
+            className="grid gap-4"
+          >
+            <input type="hidden" name="use_case" value="pro_waitlist" />
+            <input type="hidden" name="status" value="pro_waitlist" />
+            <input
+              name="name"
+              required
+              placeholder="Name"
+              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+            />
+            <input
+              name="work_email"
+              required
+              type="email"
+              placeholder="Email"
+              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+            />
+            <input
+              name="company"
+              required
+              placeholder="Company or project"
+              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+            />
+            <input
+              name="role"
+              placeholder="Role"
+              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+            />
+            <textarea
+              name="message"
+              placeholder="What do you want Pro to help you do?"
+              rows={4}
+              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+            />
+            <button
+              type="submit"
+              className="rounded-xl bg-white p-4 font-semibold text-black hover:bg-cyan-100"
+            >
+              Join Pro waitlist
+            </button>
+          </form>
+        </section>
+      </div>
+    </main>
+  );
+}

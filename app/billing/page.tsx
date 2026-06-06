@@ -38,6 +38,14 @@ export default async function BillingPage({
     redirect("/login?next=/billing");
   }
 
+  const isStripeBillingConfigured = Boolean(
+    process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PRO_MONTHLY_PRICE_ID
+  );
+
+  if (!isStripeBillingConfigured) {
+    console.log("Stripe billing not configured");
+  }
+
   const planName = await getUserPlan(supabase, user);
   const currentPlan = getPlan(planName);
   const { data: subscription } = await supabase
@@ -64,6 +72,11 @@ export default async function BillingPage({
             <p className="mt-5 rounded-lg border border-emerald-800 bg-emerald-950/20 p-3 text-sm text-emerald-200">
               Checkout completed. Your subscription will update after Stripe
               confirms the webhook event.
+            </p>
+          ) : null}
+          {!isStripeBillingConfigured ? (
+            <p className="mt-5 rounded-lg border border-amber-900 bg-amber-950/20 p-3 text-sm text-amber-100">
+              Billing not configured yet
             </p>
           ) : null}
         </section>
@@ -115,18 +128,27 @@ export default async function BillingPage({
             >
               View Pricing
             </Link>
-            <form action="/api/stripe/customer-portal" method="POST">
+            {isStripeBillingConfigured ? (
+              <form action="/api/stripe/customer-portal" method="POST">
+                <button
+                  type="submit"
+                  className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
+                >
+                  Manage Stripe Billing
+                </button>
+              </form>
+            ) : (
               <button
-                type="submit"
-                className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
+                type="button"
+                disabled
+                className="rounded-lg bg-zinc-800 px-4 py-3 text-sm font-semibold text-zinc-400"
               >
-                Manage Stripe Billing
+                Billing not configured yet
               </button>
-            </form>
+            )}
           </div>
         </section>
       </div>
     </main>
   );
 }
-

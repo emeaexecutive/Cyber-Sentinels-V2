@@ -53,8 +53,15 @@ export default function PricingPage() {
         <section className="mt-10 grid gap-5 lg:grid-cols-3">
           {clearancePlans.map((plan) => {
             const cta = ctaByTier[plan.tier];
-            const isProBillingDisabled =
+            const shouldUseProWaitlist =
               plan.tier === "pro" && !isStripeBillingConfigured;
+            const visibleCta = shouldUseProWaitlist
+              ? {
+                  label: "Join Pro waitlist",
+                  href: "/pro-waitlist",
+                  form: false,
+                }
+              : cta;
 
             return (
               <article
@@ -82,29 +89,21 @@ export default function PricingPage() {
                   ))}
                 </ul>
                 <div className="mt-6">
-                  {isProBillingDisabled ? (
-                    <button
-                      type="button"
-                      disabled
-                      className="w-full rounded-lg bg-zinc-800 px-4 py-3 text-sm font-semibold text-zinc-400"
-                    >
-                      Billing coming soon
-                    </button>
-                  ) : cta.form ? (
-                    <form action={cta.href} method="POST">
+                  {visibleCta.form ? (
+                    <form action={visibleCta.href} method="POST">
                       <button
                         type="submit"
                         className="w-full rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
                       >
-                        {cta.label}
+                        {visibleCta.label}
                       </button>
                     </form>
                   ) : (
                     <Link
-                      href={cta.href}
+                      href={visibleCta.href}
                       className="inline-flex w-full justify-center rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
                     >
-                      {cta.label}
+                      {visibleCta.label}
                     </Link>
                   )}
                 </div>

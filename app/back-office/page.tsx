@@ -728,6 +728,8 @@ export default async function BackOfficePage({
     knowledgeArticles,
     dataRightsRequests,
     enterpriseAccessRequests,
+    billingCustomers,
+    subscriptions,
     feedbackReports,
     interestSignals,
     messageThreads,
@@ -754,6 +756,8 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "knowledge_articles", "updated_at", 20),
     fetchTable<AnyRow>(supabase, "data_rights_requests", "created_at", 20),
     fetchTable<AnyRow>(supabase, "enterprise_access_requests", "created_at", 20),
+    fetchTable<AnyRow>(supabase, "billing_customers", "created_at", 20),
+    fetchTable<AnyRow>(supabase, "subscriptions", "created_at", 20),
     fetchTable<AnyRow>(supabase, "feedback_reports", "created_at", 50),
     fetchTable<AnyRow>(supabase, "interest_signals", "created_at", 30),
     fetchTable<AnyRow>(supabase, "message_threads", "updated_at", 20),
@@ -782,6 +786,21 @@ export default async function BackOfficePage({
       event,
     ]);
   });
+
+  const isStripeBillingConfigured = Boolean(
+    process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PRO_MONTHLY_PRICE_ID
+  );
+  const proWaitlistRequests = enterpriseAccessRequests.rows.filter(
+    (request) =>
+      request.use_case === "pro_waitlist" || request.status === "pro_waitlist"
+  );
+  const enterpriseLeadRequests = enterpriseAccessRequests.rows.filter(
+    (request) =>
+      request.use_case !== "pro_waitlist" && request.status !== "pro_waitlist"
+  );
+  const activeSubscriptions = subscriptions.rows.filter((subscription) =>
+    ["active", "trialing"].includes(String(subscription.status ?? ""))
+  );
 
   const feedbackByCategory = (category: string) =>
     feedbackReports.rows.filter((report) => report.category === category);
@@ -1166,6 +1185,7 @@ export default async function BackOfficePage({
               ["#signal-timeline", "Signals"],
               ["#help", "Help"],
               ["#feedback-signals", "Feedback"],
+              ["#billing-readiness", "Billing"],
               ["#intelligence", "Intelligence"],
             ].map(([href, label]) => (
               <a
@@ -1962,8 +1982,8 @@ export default async function BackOfficePage({
               </Link>
             </div>
             <div className="mt-5 grid gap-3">
-              {enterpriseAccessRequests.rows.length ? (
-                enterpriseAccessRequests.rows.map((request, index) => (
+              {enterpriseLeadRequests.length ? (
+                enterpriseLeadRequests.map((request, index) => (
                   <div
                     key={rowKey(request, `enterprise-access-${index}`)}
                     className="rounded-lg border border-zinc-800 bg-black p-4"
@@ -2014,6 +2034,102 @@ export default async function BackOfficePage({
                   )}
                 />
               )}
+            </div>
+
+            <div
+              id="billing-readiness"
+              className="mt-6 rounded-lg border border-zinc-800 bg-black p-4"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                    Billing Status
+                  </p>
+                  <h3 className="mt-2 text-lg font-semibold">
+                    Payment Readiness Summary
+                  </h3>
+                </div>
+                <span
+                  className={`rounded-full border px-3 py-1 text-xs ${
+                    isStripeBillingConfigured
+                      ? "border-emerald-800 text-emerald-200"
+                      : "border-amber-800 text-amber-200"
+                  }`}
+                >
+                  {isStripeBillingConfigured ? "Stripe configured" : "Stripe optional"}
+                </span>
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-4">
+                {[
+                  ["Checkout readiness", isStripeBillingConfigured ? "Ready" : "Waitlist mode"],
+                  ["Billing customers", String(billingCustomers.count)],
+                  ["Subscriptions", String(subscriptions.count)],
+                  ["Active subscriptions", String(activeSubscriptions.length)],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="rounded-lg border border-zinc-800 bg-zinc-950 p-3"
+                  >
+                    <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                      {label}
+                    </p>
+                    <p className="mt-2 text-lg font-semibold text-zinc-100">
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-lg font-semibold">Pro Waitlist Requests</h3>
+                <Link
+                  href="/pro-waitlist"
+                  className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+                >
+                  Open Pro Waitlist
+                </Link>
+              </div>
+              <div className="mt-4 grid gap-3">
+                {proWaitlistRequests.length ? (
+                  proWaitlistRequests.map((request, index) => (
+                    <div
+                      key={rowKey(request, `pro-waitlist-${index}`)}
+                      className="rounded-lg border border-zinc-800 bg-black p-4"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="font-medium text-zinc-100">
+                            {request.company ?? "Pro waitlist request"}
+                          </p>
+                          <p className="mt-1 text-sm text-zinc-500">
+                            {request.name ?? "Unknown contact"} /{" "}
+                            {request.work_email ?? "No email"}
+                          </p>
+                        </div>
+                        <span className="rounded-full border border-cyan-800 px-3 py-1 text-xs text-cyan-100">
+                          {request.status ?? "pro_waitlist"}
+                        </span>
+                      </div>
+                      <div className="mt-3 grid gap-2 text-sm text-zinc-400 md:grid-cols-2">
+                        <p>Role: {request.role ?? "Not provided"}</p>
+                        <p>Use case: {request.use_case ?? "pro_waitlist"}</p>
+                      </div>
+                      {request.message ? (
+                        <p className="mt-3 text-sm leading-6 text-zinc-500">
+                          {request.message}
+                        </p>
+                      ) : null}
+                      <p className="mt-3 text-xs text-zinc-600">
+                        {formatDate(request.created_at)}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState label="No Pro waitlist requests yet." />
+                )}
+              </div>
             </div>
           </div>
 
