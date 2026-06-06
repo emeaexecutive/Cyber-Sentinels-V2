@@ -17,17 +17,20 @@ export async function POST(req: Request) {
       });
     }
 
-    const serviceSupabase = createServiceRoleClient();
-    const stripe = createStripeClient();
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     const priceId = process.env.STRIPE_PRO_MONTHLY_PRICE_ID;
 
-    if (!priceId) {
+    if (!stripeSecretKey || !priceId) {
+      console.log("Stripe billing not configured");
+
       return NextResponse.json(
         { ok: false, error: "Stripe Pro price is not configured." },
-        { status: 500 }
+        { status: 503 }
       );
     }
 
+    const serviceSupabase = createServiceRoleClient();
+    const stripe = createStripeClient();
     const { successUrl, cancelUrl } = getBillingReturnUrls();
     const userEmail = user.email ?? null;
 

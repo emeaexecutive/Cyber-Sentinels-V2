@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { clearancePlans } from "@/lib/billing/plans";
 
+export const dynamic = "force-dynamic";
+
 const ctaByTier = {
   free: {
     label: "Create Account",
@@ -20,6 +22,14 @@ const ctaByTier = {
 };
 
 export default function PricingPage() {
+  const isStripeBillingConfigured = Boolean(
+    process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PRO_MONTHLY_PRICE_ID
+  );
+
+  if (!isStripeBillingConfigured) {
+    console.log("Stripe billing not configured");
+  }
+
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
@@ -43,6 +53,8 @@ export default function PricingPage() {
         <section className="mt-10 grid gap-5 lg:grid-cols-3">
           {clearancePlans.map((plan) => {
             const cta = ctaByTier[plan.tier];
+            const isProBillingDisabled =
+              plan.tier === "pro" && !isStripeBillingConfigured;
 
             return (
               <article
@@ -70,7 +82,15 @@ export default function PricingPage() {
                   ))}
                 </ul>
                 <div className="mt-6">
-                  {cta.form ? (
+                  {isProBillingDisabled ? (
+                    <button
+                      type="button"
+                      disabled
+                      className="w-full rounded-lg bg-zinc-800 px-4 py-3 text-sm font-semibold text-zinc-400"
+                    >
+                      Billing coming soon
+                    </button>
+                  ) : cta.form ? (
                     <form action={cta.href} method="POST">
                       <button
                         type="submit"
