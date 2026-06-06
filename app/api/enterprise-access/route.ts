@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type EnterpriseAccessPayload = {
   name: string;
-  email: string;
+  work_email: string;
   company: string;
   role: string;
   message: string;
   use_case: string;
-  urgency: string;
+  ai_usage_level: string;
   company_size: string;
   current_problem_category: string;
   current_problem: string;
@@ -72,17 +72,17 @@ function field(formData: FormData, name: string) {
 
 function buildEnterpriseAccessPayload(formData: FormData): EnterpriseAccessPayload {
   const currentProblemCategory = field(formData, "current_problem_category");
-  const urgency = field(formData, "urgency") || field(formData, "ai_usage_level");
+  const aiUsageLevel = field(formData, "urgency") || field(formData, "ai_usage_level");
 
   return {
     name: field(formData, "name"),
-    email: field(formData, "email") || field(formData, "work_email"),
+    work_email: field(formData, "email") || field(formData, "work_email"),
     company: field(formData, "company"),
     role: field(formData, "role"),
     company_size: field(formData, "company_size"),
     current_problem_category: currentProblemCategory,
     current_problem: field(formData, "current_problem"),
-    urgency,
+    ai_usage_level: aiUsageLevel,
     use_case: field(formData, "use_case"),
     message: field(formData, "message"),
   };
@@ -114,15 +114,16 @@ function getEnterpriseInterestSignal(problemCategory: string) {
   return "operational_trust_interest_detected";
 }
 
-function hasServiceRoleKey() {
-  return Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY?.trim());
-}
-
 export async function POST(req: Request) {
   try {
-    if (!hasServiceRoleKey()) {
-      console.error("enterprise access submit missing service role key");
-      return enterpriseAccessErrorResponse("missing_service_role_key", 500);
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      return Response.json(
+        { ok: false, error: "missing_supabase_admin_env" },
+        { status: 500 }
+      );
     }
 
     const formData = await req.formData();
@@ -132,33 +133,34 @@ export async function POST(req: Request) {
       keys: Object.keys(payload).sort(),
     });
 
-    if (!payload.name || !payload.email || !payload.company) {
+    if (!payload.name || !payload.work_email || !payload.company) {
       console.error("enterprise access submit missing required fields");
       return enterpriseAccessErrorResponse("required_fields_missing", 400);
     }
 
-    const supabase = createServiceRoleClient();
+    console.log("ENTERPRISE_ACCESS_ADMIN_CLIENT", {
+      hasUrl: Boolean(supabaseUrl),
+      hasServiceRole: Boolean(serviceRoleKey),
+      keyLooksLikeJwt: serviceRoleKey.startsWith("eyJ"),
+    });
 
-    const { error } = await supabase.rpc(
-      "submit_enterprise_access_request",
-      {
-        p_name: payload.name,
-        p_email: payload.email,
-        p_company: payload.company ?? null,
-        p_role: payload.role ?? null,
-        p_message: payload.message ?? null,
-        p_use_case: payload.use_case ?? null,
-        p_urgency: payload.urgency ?? null,
-        p_company_size: payload.company_size ?? null,
-      }
-    );
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+
+    const { error } = await supabaseAdmin
+      .from("enterprise_access_requests")
+      .insert(payload);
 
     if (error) {
       logEnterpriseAccessSubmitError(error);
       return enterpriseAccessErrorResponse("submit_failed", 500, error);
     }
 
-    const { error: interestSignalError } = await supabase
+    const { error: interestSignalError } = await supabaseAdmin
       .from("interest_signals")
       .insert({
         company: payload.company,
@@ -168,7 +170,7 @@ export async function POST(req: Request) {
           payload.current_problem_category ||
           payload.current_problem ||
           null,
-        interest_level: payload.urgency || "early_access_request",
+        interest_level: payload.ai_usage_level || "early_access_request",
         source: getEnterpriseInterestSignal(payload.current_problem_category),
         notes:
           [
