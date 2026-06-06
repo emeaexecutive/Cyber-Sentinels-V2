@@ -143,6 +143,8 @@ export async function POST(req: Request) {
       hasServiceRole: Boolean(serviceRoleKey),
       keyLooksLikeJwt: serviceRoleKey.startsWith("eyJ"),
     });
+    console.log("USING_ADMIN_CLIENT", true);
+    console.log("KEY_PREFIX", serviceRoleKey.slice(0, 12));
 
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
       auth: {
@@ -153,9 +155,14 @@ export async function POST(req: Request) {
 
     const { error } = await supabaseAdmin
       .from("enterprise_access_requests")
-      .insert(payload);
+      .insert([payload]);
 
     if (error) {
+      console.error("enterprise access supabase error json", error);
+      console.error(
+        "enterprise access supabase error json string",
+        JSON.stringify(error)
+      );
       logEnterpriseAccessSubmitError(error);
       return enterpriseAccessErrorResponse("submit_failed", 500, error);
     }
