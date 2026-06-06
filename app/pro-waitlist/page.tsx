@@ -4,8 +4,30 @@ type ProWaitlistPageProps = {
   searchParams?: Promise<{
     success?: string;
     error?: string;
+    plan?: string;
   }>;
 };
+
+const waitlistPlans = {
+  starter: {
+    name: "Starter",
+    price: "€9.99/month",
+    useCase: "starter_waitlist",
+    status: "starter_waitlist",
+  },
+  professional: {
+    name: "Professional",
+    price: "€29.99/month",
+    useCase: "professional_waitlist",
+    status: "professional_waitlist",
+  },
+  premium: {
+    name: "Premium",
+    price: "€39.99/month",
+    useCase: "premium_waitlist",
+    status: "premium_waitlist",
+  },
+} as const;
 
 export default async function ProWaitlistPage({
   searchParams,
@@ -13,6 +35,10 @@ export default async function ProWaitlistPage({
   const params = await searchParams;
   const success = params?.success === "true";
   const error = params?.error;
+  const selectedPlan =
+    params?.plan && params.plan in waitlistPlans
+      ? waitlistPlans[params.plan as keyof typeof waitlistPlans]
+      : waitlistPlans.professional;
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -22,11 +48,11 @@ export default async function ProWaitlistPage({
             Pro Waitlist
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Join the Cyber Sentinels Pro waitlist
+            Join the Cyber Sentinels {selectedPlan.name} waitlist
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Pro is priced at €49/month. Checkout will open once billing is fully
-            configured.
+            {selectedPlan.name} is priced at {selectedPlan.price}. Checkout
+            will open once billing is fully configured.
           </p>
           <p className="mt-3 text-sm text-zinc-500">
             Prices shown in EUR. Additional currencies may be supported later.
@@ -36,7 +62,7 @@ export default async function ProWaitlistPage({
         <section className="rounded-lg border border-zinc-800 bg-black p-6">
           {success ? (
             <div className="mb-4 rounded-lg border border-emerald-900 bg-emerald-950/30 p-4 text-sm text-emerald-100">
-              Thanks. You are on the Pro waitlist.
+              Thanks. You are on the {selectedPlan.name} waitlist.
             </div>
           ) : null}
 
@@ -52,8 +78,8 @@ export default async function ProWaitlistPage({
             method="post"
             className="grid gap-4"
           >
-            <input type="hidden" name="use_case" value="pro_waitlist" />
-            <input type="hidden" name="status" value="pro_waitlist" />
+            <input type="hidden" name="use_case" value={selectedPlan.useCase} />
+            <input type="hidden" name="status" value={selectedPlan.status} />
             <input
               name="name"
               required
@@ -88,7 +114,7 @@ export default async function ProWaitlistPage({
               type="submit"
               className="rounded-xl bg-white p-4 font-semibold text-black hover:bg-cyan-100"
             >
-              Join Pro waitlist
+              Join {selectedPlan.name} waitlist
             </button>
           </form>
         </section>

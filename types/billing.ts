@@ -1,4 +1,9 @@
-export type ClearanceTier = "free" | "pro" | "enterprise";
+export type ClearanceTier =
+  | "free"
+  | "starter"
+  | "professional"
+  | "premium"
+  | "enterprise";
 export type UserPlan = ClearanceTier;
 
 export type SubscriptionStatus =
@@ -18,6 +23,8 @@ export type BillingPlan = {
   cadence: string;
   description: string;
   features: string[];
+  verification_workflow_limit: number | null;
+  operational_activity_tracking: boolean;
   api_call_limit: number;
   report_credits: number;
   evidence_storage: string;

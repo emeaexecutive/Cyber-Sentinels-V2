@@ -9,10 +9,20 @@ const ctaByTier = {
     href: "/login?next=/passport",
     form: false,
   },
-  pro: {
-    label: "Start Pro",
+  starter: {
+    label: "Start Starter",
+    href: "/pro-waitlist?plan=starter",
+    form: false,
+  },
+  professional: {
+    label: "Start Professional",
     href: "/api/stripe/create-checkout-session",
     form: true,
+  },
+  premium: {
+    label: "Start Premium",
+    href: "/pro-waitlist?plan=premium",
+    form: false,
   },
   enterprise: {
     label: "Request Enterprise Access",
@@ -38,12 +48,12 @@ export default function PricingPage() {
             Pricing
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-6xl">
-            Simple access tiers for governed trust workflows.
+            Verification workflow tiers for operational trust infrastructure.
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
-            Start with a basic Trust Passport, expand into evidence workflows
-            and trust graph visibility, or request enterprise access for
-            governance modules and custom review.
+            Start with focused verification cases, expand into evidence
+            workflows and trust graph visibility, or request enterprise access
+            for governance tooling and operational collaboration.
           </p>
           <p className="mt-3 text-sm text-zinc-500">
             Prices shown in EUR. Additional currencies may be supported later.
@@ -53,12 +63,14 @@ export default function PricingPage() {
         <section className="mt-10 grid gap-5 lg:grid-cols-3">
           {clearancePlans.map((plan) => {
             const cta = ctaByTier[plan.tier];
-            const shouldUseProWaitlist =
-              plan.tier === "pro" && !isStripeBillingConfigured;
-            const visibleCta = shouldUseProWaitlist
+            const shouldUseWaitlist =
+              plan.tier !== "free" &&
+              plan.tier !== "enterprise" &&
+              (plan.tier !== "professional" || !isStripeBillingConfigured);
+            const visibleCta = shouldUseWaitlist
               ? {
-                  label: "Join Pro waitlist",
-                  href: "/pro-waitlist",
+                  label: cta.label,
+                  href: `/pro-waitlist?plan=${plan.tier}`,
                   form: false,
                 }
               : cta;

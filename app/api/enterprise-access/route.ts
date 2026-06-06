@@ -209,7 +209,7 @@ export async function POST(req: Request) {
 
     return redirectTo(
       req,
-      payload.use_case === "pro_waitlist"
+      payload.use_case.endsWith("_waitlist")
         ? "/pro-waitlist?success=true"
         : "/enterprise-access?success=true"
     );
