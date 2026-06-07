@@ -499,7 +499,10 @@ export default async function VerificationQueuePage() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-zinc-500">No queue signals yet.</p>
+                <p className="text-sm text-zinc-500">
+                  No queue events yet. Verification updates will appear here
+                  when workflows need operational review.
+                </p>
               )}
             </div>
           </div>
@@ -521,7 +524,10 @@ export default async function VerificationQueuePage() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-zinc-500">No review audit events yet.</p>
+                <p className="text-sm text-zinc-500">
+                  No review audit activity yet. Decisions and review milestones
+                  will appear here as they are recorded.
+                </p>
               )}
             </div>
           </div>

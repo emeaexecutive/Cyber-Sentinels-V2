@@ -3,7 +3,7 @@ import Link from "next/link";
 const categories = [
   {
     name: "Biometric signals",
-    copy: "Face, voice, retina and fingerprint confidence for authentic human presence.",
+    copy: "Face, voice, document and behavioural confidence for authentic human presence.",
   },
   {
     name: "Behavioural signals",
@@ -58,7 +58,7 @@ export default function HumanPresenceIndexPage() {
           <p className="mt-4 max-w-3xl text-zinc-400">
             Human Presence Index™ is not just facial recognition and not just
             liveness. It is proof of authentic human presence over time using
-            face, voice, retina, fingerprint, behaviour, device, media and
+            face, voice, document, behaviour, device, media and
             trust-history signals.
           </p>
         </section>

@@ -5,12 +5,12 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 const supportedSignals = [
-  "Human Presence Index calculated",
-  "Reality Passport created",
-  "Origin Trace generated",
-  "Metadata stripped",
-  "Watermark not found",
-  "Human review required",
+  "Verification workflow created",
+  "Evidence uploaded",
+  "Operational review requested",
+  "Review status updated",
+  "Governance event recorded",
+  "Audit activity preserved",
 ];
 
 export default async function SignalsPage() {
@@ -37,11 +37,11 @@ export default async function SignalsPage() {
         </Link>
 
         <h1 className="mt-8 text-5xl font-bold">
-          Live Signals
+          Trust Events
         </h1>
 
         <section className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
-          <h2 className="text-xl font-semibold">Supported Signal Types</h2>
+          <h2 className="text-xl font-semibold">Operational Event Types</h2>
           <div className="mt-4 grid gap-2 text-sm text-zinc-400 md:grid-cols-2">
             {supportedSignals.map((signal) => (
               <p key={signal}>{signal}</p>
@@ -65,7 +65,8 @@ export default async function SignalsPage() {
             ))
           ) : (
             <div className="text-zinc-500">
-              No signals detected yet.
+              No trust events yet. Create a verification workflow or upload
+              evidence to begin the operational record.
             </div>
           )}
         </div>

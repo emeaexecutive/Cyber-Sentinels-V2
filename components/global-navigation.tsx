@@ -42,7 +42,6 @@ const adminNavGroups = [
 ];
 
 const supportLegalLinks = [
-  ["/help", "Help"],
   ["/security", "Security"],
   ["/data-rights", "Data Rights"],
   ["/trust-principles", "Trust Principles"],
@@ -59,27 +58,21 @@ const supportLegalLinks = [
 
 const publicLinks = [
   ["/", "Home"],
-  ["/why-now", "Why Now"],
-  ["/design-partners", "Design Partners"],
-  ["/enterprise/hiring-security", "Hiring Security"],
+  ["/platform", "Platform"],
   ["/pricing", "Pricing"],
-  ["/trustops", "TrustOps"],
-  ["/demo", "Demo"],
-  ["/how-to-use", "How to Use"],
-  ["/security", "Security"],
+  ["/enterprise", "Enterprise"],
+  ["/journal", "Journal"],
   ["/help", "Help"],
   ["/login", "Login"],
 ];
 
 const userLinks = [
   ["/", "Home"],
-  ["/passport", "Create Passport"],
+  ["/platform", "Platform"],
+  ["/pricing", "Pricing"],
   ["/passports", "My Passports"],
+  ["/passport", "New Workflow"],
   ["/notifications", "Notifications"],
-  ["/appeals", "Appeals"],
-  ["/feedback", "Feedback"],
-  ["/recruiter/dashboard", "Hiring Dashboard"],
-  ["/trustops", "TrustOps"],
   ["/help", "Help"],
 ];
 
@@ -209,15 +202,7 @@ export function GlobalNavigation({
           className="flex flex-wrap items-center justify-end gap-2 text-xs text-zinc-300"
         >
           {accessLevel === "public" ? (
-            <>
-              <FlatLinks links={publicLinks} />
-              <NavigationDropdown
-                label="Support & Legal"
-                links={supportLegalLinks}
-                openGroup={openGroup}
-                setOpenGroup={setOpenGroup}
-              />
-            </>
+            <FlatLinks links={publicLinks} />
           ) : null}
           {accessLevel === "user" || accessLevel === "admin-unverified" ? (
             <>
@@ -230,12 +215,6 @@ export function GlobalNavigation({
                   Admin
                 </Link>
               ) : null}
-              <NavigationDropdown
-                label="Support & Legal"
-                links={supportLegalLinks}
-                openGroup={openGroup}
-                setOpenGroup={setOpenGroup}
-              />
               <LogoutButton />
             </>
           ) : null}

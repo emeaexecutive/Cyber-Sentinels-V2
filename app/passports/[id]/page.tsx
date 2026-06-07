@@ -54,18 +54,18 @@ function nextAction(status: unknown, hasEvidence: boolean, hasDecision: boolean)
   const friendly = friendlyStatus(status);
 
   if (!hasEvidence) {
-    return "No evidence uploaded yet. Upload evidence to continue the verification process.";
+    return "Upload evidence so reviewers can continue the verification workflow.";
   }
 
   if (hasDecision || friendly === "Verification completed") {
-    return "Verification completed. Review the decision, audit trail and notifications for details.";
+    return "Review the outcome, audit trail and notifications for the verification record.";
   }
 
   if (friendly === "Additional review required") {
     return "A review outcome needs attention. You can read updates or submit an appeal if needed.";
   }
 
-  return "Your passport is under review. Watch notifications for evidence requests or review updates.";
+  return "This passport is in operational review. Watch notifications for evidence requests or review updates.";
 }
 
 function rowMetadata(row: AnyRow) {
@@ -284,18 +284,22 @@ export default async function PassportViewerPage({
               </h1>
               <p className="mt-3 text-sm text-zinc-500">{id}</p>
             </div>
-            <Link
-              href={`/trust-graph-engine?passport_id=${encodeURIComponent(id)}`}
-              className="rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400"
-            >
-              Open Trust Graph
-            </Link>
+            {isAdminAllowlisted(user.email) ? (
+              <Link
+                href={`/trust-graph-engine?passport_id=${encodeURIComponent(id)}`}
+                className="rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400"
+              >
+                Open Trust Graph
+              </Link>
+            ) : null}
           </div>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           <div className="rounded-lg border border-zinc-800 bg-black p-5">
-            <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Trust Score</p>
+            <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+              Verification Confidence
+            </p>
             <p className="mt-3 text-4xl font-semibold">{score.score}</p>
             <p className="mt-1 text-sm text-cyan-200">{score.confidenceLabel}</p>
           </div>
@@ -350,7 +354,7 @@ export default async function PassportViewerPage({
                 </div>
               ))
             ) : (
-              <Empty label="No evidence uploaded yet. Upload evidence to continue the verification process." />
+              <Empty label="No evidence has been uploaded yet. Add supporting records when you are ready to continue the workflow." />
             )}
           </Panel>
 
@@ -366,11 +370,11 @@ export default async function PassportViewerPage({
                 </div>
               ))
             ) : (
-              <Empty label="No decision recorded yet. Your verification may still be under review." />
+              <Empty label="No decision has been recorded yet. The verification workflow may still be in operational review." />
             )}
           </Panel>
 
-          <Panel title="Signals">
+          <Panel title="Trust Events">
             {signals.length ? (
               signals.map((signal) => (
                 <div key={String(signal.id)} className="rounded-lg border border-zinc-800 bg-black p-4">
@@ -379,7 +383,7 @@ export default async function PassportViewerPage({
                 </div>
               ))
             ) : (
-              <Empty label="No signals yet. Status updates will appear as the workflow progresses." />
+              <Empty label="No trust events yet. Workflow updates will appear here as the review progresses." />
             )}
           </Panel>
 
@@ -393,7 +397,7 @@ export default async function PassportViewerPage({
                 </div>
               ))
             ) : (
-              <Empty label="No audit records yet. Review history will appear as actions are recorded." />
+              <Empty label="No audit activity yet. Review history will appear here when actions are recorded." />
             )}
           </Panel>
 
@@ -413,7 +417,7 @@ export default async function PassportViewerPage({
                 </div>
               ))
             ) : (
-              <Empty label="No notifications yet. Operational updates will appear here." />
+              <Empty label="No notifications yet. Operational updates will appear here when the workflow changes." />
             )}
           </Panel>
 
@@ -437,7 +441,7 @@ export default async function PassportViewerPage({
                 </Link>
               ))
             ) : (
-              <Empty label="No messages yet." />
+              <Empty label="No messages yet. Start a message thread if you need help with this verification workflow." />
             )}
           </Panel>
 
@@ -462,7 +466,10 @@ export default async function PassportViewerPage({
               ))
             ) : (
               <div className="rounded-lg border border-zinc-800 bg-black p-4">
-                <p className="text-sm text-zinc-500">No appeal submitted.</p>
+                <p className="text-sm text-zinc-500">
+                  No appeal submitted. Appeals are available when a review
+                  outcome needs another look.
+                </p>
                 <Link
                   href="/appeals"
                   className="mt-3 inline-flex rounded-lg border border-cyan-800 px-3 py-2 text-sm text-cyan-100 hover:text-white"

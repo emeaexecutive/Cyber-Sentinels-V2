@@ -46,14 +46,14 @@ export default async function TrustEventsPage({
       <div className="mx-auto max-w-7xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Trust Event Pipeline
+            Trust Events
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
             Trust Events
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-400">
-            A structured event stream for AI identity, verification activity,
-            evidence-backed review and operational trust visibility.
+            A structured record for verification activity, evidence-backed
+            review and operational trust visibility.
           </p>
         </section>
 
@@ -78,7 +78,7 @@ export default async function TrustEventsPage({
                   <p className="text-sm text-zinc-400">{event.actor_type ?? "n/a"}</p>
                   <p className="text-sm text-zinc-400">{event.actor_label ?? "n/a"}</p>
                   <span className="w-fit rounded-full border border-cyan-800 px-2.5 py-1 text-xs text-cyan-100">
-                    {event.risk_level ?? "low"}
+                    {event.risk_level ?? "review"}
                   </span>
                   <p className="text-sm text-zinc-500">{event.event_source ?? "unknown"}</p>
                   <div className="flex flex-wrap gap-2 text-xs">
@@ -99,7 +99,8 @@ export default async function TrustEventsPage({
               ))
             ) : (
               <p className="rounded-lg border border-zinc-800 bg-black p-5 text-sm text-zinc-500">
-                No trust events yet. Agent, verification and trust activity will appear here as structured events.
+                No trust events yet. Verification activity, evidence updates and
+                review milestones will appear here as the workflow progresses.
               </p>
             )}
           </div>

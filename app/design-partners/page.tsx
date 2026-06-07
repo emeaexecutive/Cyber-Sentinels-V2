@@ -52,7 +52,7 @@ const workflowExamples = [
 
 const notCyberSentinels = [
   "Social scoring",
-  "Autonomous surveillance",
+  "Operational oversight",
   "Black-box trust scoring",
   "Uncontrolled AI governance",
   "Synthetic authority systems",

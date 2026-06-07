@@ -17,7 +17,7 @@ export default function TransparencyPage() {
           body: "The platform does not guarantee fraud prevention, identity authenticity, trustworthiness, safety or full regulatory compliance. Trust scores and status labels are risk indicators that support review, not guarantees.",
         },
         {
-          title: "Trust Scores",
+          title: "Verification Confidence",
           body: "Trust scores should be treated as risk-based indicators. They may reflect evidence, review status, signals, decisions and audit history, but they should be interpreted with context and human oversight.",
         },
         {

@@ -145,8 +145,8 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
             href="/notifications"
           />
           <OnboardingCard
-            title="Learn how Trust Scores work"
-            copy="Understand risk indicators and human review."
+            title="Understand operational review"
+            copy="See how evidence, status and audit visibility support verification."
             href="/how-to-use"
           />
         </section>
@@ -156,7 +156,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
             href="#submit-verification"
             className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black"
           >
-            Start Verification
+            Create Verification Workflow
           </Link>
           <Link
             href="/evidence-upload"
@@ -174,7 +174,9 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
 
         {created ? (
           <section className="mt-8 rounded-2xl border border-emerald-800 bg-zinc-950 p-5">
-            <p className="text-sm text-emerald-200">Trust Passport created.</p>
+            <p className="text-sm text-emerald-200">
+              Verification workflow created.
+            </p>
             <Link
               href="/passports"
               className="mt-3 inline-flex rounded-xl border border-emerald-700 px-4 py-2 text-sm text-emerald-100 hover:text-white"
@@ -218,7 +220,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
 
               <div className="mt-8 grid gap-4 md:grid-cols-3">
                 <div className="rounded-2xl border border-zinc-800 bg-black p-5">
-                  <p className="text-zinc-500">Human Presence Index™</p>
+                  <p className="text-zinc-500">Evidence-backed verification</p>
                   <p className="mt-3 text-2xl font-bold">
                     {passport.human_presence_index ?? 0}
                   </p>
@@ -232,7 +234,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
                 </div>
 
                 <div className="rounded-2xl border border-zinc-800 bg-black p-5">
-                  <p className="text-zinc-500">Trust Score</p>
+                  <p className="text-zinc-500">Verification confidence</p>
                   <p className="mt-3 text-2xl font-bold">
                     {passport.trust_score}
                   </p>
@@ -255,7 +257,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
                 </div>
 
                 <div className="rounded-2xl border border-zinc-800 bg-black p-5">
-                  <p className="text-zinc-500">Synthetic Risk</p>
+                  <p className="text-zinc-500">Review risk</p>
                   <p className="mt-3 text-xl font-bold">
                     {passport.synthetic_risk ?? 0}%
                   </p>
@@ -285,14 +287,14 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
                 </div>
 
                 <div className="rounded-2xl border border-zinc-800 bg-black p-5">
-                  <p className="text-zinc-500">Audio Clone Risk</p>
+                  <p className="text-zinc-500">Audio review</p>
                   <p className="mt-3 text-xl font-bold">
                     {passport.voice_clone_risk ?? 0}%
                   </p>
                 </div>
 
                 <div className="rounded-2xl border border-zinc-800 bg-black p-5">
-                  <p className="text-zinc-500">Video Deepfake Risk</p>
+                  <p className="text-zinc-500">Video review</p>
                   <p className="mt-3 text-xl font-bold">
                     {passport.video_deepfake_risk ?? 0}%
                   </p>
@@ -384,7 +386,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
           method="POST"
           className="mt-10 grid gap-4 rounded-3xl border border-zinc-800 bg-zinc-950 p-8"
         >
-          <h2 className="text-2xl font-bold">Submit Verification</h2>
+          <h2 className="text-2xl font-bold">Create Verification Workflow</h2>
 
           <input
             name="subject_name"
@@ -454,7 +456,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
             type="number"
             min="0"
             max="100"
-            placeholder="Synthetic risk score e.g. 20"
+            placeholder="Review risk indicator e.g. 20"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
@@ -472,7 +474,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
             type="number"
             min="0"
             max="100"
-            placeholder="Audio clone risk e.g. 12"
+            placeholder="Audio review indicator e.g. 12"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
@@ -490,7 +492,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
             type="number"
             min="0"
             max="100"
-            placeholder="Deepfake video risk e.g. 18"
+            placeholder="Video review indicator e.g. 18"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
@@ -533,7 +535,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
             type="number"
             min="0"
             max="100"
-            placeholder="Model fingerprint risk e.g. 35"
+            placeholder="Source pattern review e.g. 35"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
@@ -576,7 +578,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
           </select>
 
           <button className="rounded-xl bg-white px-5 py-4 font-semibold text-black">
-            Submit Verification
+            Create Verification Workflow
           </button>
 
           <Link

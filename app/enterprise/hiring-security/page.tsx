@@ -31,8 +31,8 @@ export default function HiringSecurityPage() {
             <Link href="/verify/candidate" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">
               Verify Candidate
             </Link>
-            <Link href="/recruiter/dashboard" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm text-cyan-100">
-              Recruiter Dashboard
+            <Link href="/enterprise-access" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm text-cyan-100">
+              Request Enterprise Access
             </Link>
           </div>
         </section>

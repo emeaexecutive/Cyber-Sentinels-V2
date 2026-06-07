@@ -239,7 +239,7 @@ export default async function EvidenceVaultPage() {
                   <EvidenceCard key={item.id} evidence={item} />
                 ))
               ) : (
-                <EmptyState label="No evidence pending scan." />
+                <EmptyState label="No evidence is waiting for review. Uploaded files will appear here when they need operational attention." />
               )}
             </div>
           </div>
@@ -252,7 +252,7 @@ export default async function EvidenceVaultPage() {
                   <EvidenceCard key={item.id} evidence={item} />
                 ))
               ) : (
-                <EmptyState label="No suspicious evidence." />
+                <EmptyState label="No evidence needs escalation right now. Review flags will appear here when a file requires closer attention." />
               )}
             </div>
           </div>
@@ -288,7 +288,7 @@ export default async function EvidenceVaultPage() {
                   </div>
                 ))
               ) : (
-                <EmptyState label="All tracked custody chains are intact." />
+                <EmptyState label="Custody records are clear. Any chain-of-custody issues will appear here with review context." />
               )}
             </div>
           </div>
@@ -324,7 +324,7 @@ export default async function EvidenceVaultPage() {
                   </div>
                 ))
               ) : (
-                <EmptyState label="No linked passports yet." />
+                <EmptyState label="No linked Trust Passports yet. Create a verification workflow to connect evidence with a passport record." />
               )}
             </div>
           </div>
@@ -349,7 +349,7 @@ export default async function EvidenceVaultPage() {
                   </div>
                 ))
               ) : (
-                <EmptyState label="No linked verification cases yet." />
+                <EmptyState label="No linked verification cases yet. Cases will appear here when evidence is attached to an active workflow." />
               )}
             </div>
           </div>

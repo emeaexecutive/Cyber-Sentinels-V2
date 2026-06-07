@@ -748,7 +748,10 @@ export default async function CommandCenterPage({
                 </div>
               ))
             ) : (
-              <p className="text-zinc-500">No signals yet.</p>
+              <p className="text-zinc-500">
+                No trust events yet. Activity will appear here when
+                verification workflows begin moving through review.
+              </p>
             )}
           </div>
         </section>

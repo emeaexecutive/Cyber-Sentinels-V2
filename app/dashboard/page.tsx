@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShieldCheck, Bot, Fingerprint, FileWarning } from "lucide-react";
+import { ShieldCheck, Bot, ClipboardCheck, FileWarning } from "lucide-react";
 import { redirect } from "next/navigation";
 import { calculateTrustScore } from "@/lib/verification";
 import { createClient } from "@/lib/supabase/server";
@@ -27,30 +27,30 @@ export default async function DashboardPage() {
       <section className="mx-auto max-w-7xl">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-sentinel-green">Cyber Sentinels V2</p>
-            <h1 className="mt-2 text-4xl font-semibold">Trust Command Dashboard</h1>
+            <p className="text-sm uppercase tracking-[0.3em] text-sentinel-green">Cyber Sentinels</p>
+            <h1 className="mt-2 text-4xl font-semibold">Verification Workspace</h1>
           </div>
           <ShieldCheck className="h-10 w-10 text-sentinel-green" />
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <Metric title="Verified Humans" value="148" icon={<Fingerprint />} />
+          <Metric title="Verification Workflows" value="148" icon={<ClipboardCheck />} />
           <Metric title="Agent Passports" value="37" icon={<Bot />} />
-          <Metric title="Open Risk Flags" value="4" icon={<FileWarning />} />
+          <Metric title="Items In Review" value="4" icon={<FileWarning />} />
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {[
             ["/enterprise/hiring-security", "Trusted Hiring"],
             ["/verify/candidate", "Candidate Verification"],
-            ["/recruiter/dashboard", "Recruiter Dashboard"],
+            ["/passport", "Create Verification Workflow"],
           ].map(([href, label]) => (
             <Link
               key={href}
               href={href}
               className="rounded-3xl border border-sentinel-line bg-white/[0.04] p-5 hover:border-sentinel-green"
             >
-              <p className="text-sm text-sentinel-muted">Hiring Integrity</p>
+              <p className="text-sm text-sentinel-muted">Operational Workflow</p>
               <p className="mt-2 text-xl font-semibold">{label}</p>
             </Link>
           ))}
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
                     <p className="capitalize">{p.type}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-sentinel-muted">Trust Score</p>
+                    <p className="text-sm text-sentinel-muted">Verification Confidence</p>
                     <p className="text-sentinel-green">{score}/100</p>
                   </div>
                   <div>

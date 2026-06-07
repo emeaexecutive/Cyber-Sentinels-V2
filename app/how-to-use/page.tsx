@@ -190,7 +190,7 @@ export default function HowToUsePage() {
             </div>
           </Section>
 
-          <Section title="Trust Scores & Signals">
+          <Section title="Verification Confidence & Trust Events">
             <p>Trust indicators may be generated using:</p>
             <BulletList items={trustIndicators} />
             <p className="mt-5">

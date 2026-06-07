@@ -92,7 +92,7 @@ export default function OriginDNAPage() {
                 ["Compression", primary.compression_signature],
                 ["First Seen", new Date(primary.first_seen).toLocaleString()],
                 ["Last Seen", new Date(primary.last_seen).toLocaleString()],
-                ["Model Fingerprint", primary.ai_model_fingerprint ?? "none"],
+                ["Source Pattern", primary.ai_model_fingerprint ?? "none"],
               ].map(([label, value]) => (
                 <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">

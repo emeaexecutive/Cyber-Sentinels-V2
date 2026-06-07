@@ -178,7 +178,7 @@ export default async function HiringShieldPage() {
           <input
             name="model_fingerprint_risk"
             type="number"
-            placeholder="Model fingerprint risk e.g. 35"
+            placeholder="Source pattern review e.g. 35"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
@@ -285,7 +285,7 @@ export default async function HiringShieldPage() {
 
                   <div>
                     <p className="text-zinc-500">
-                      Trust Score
+                      Verification Confidence
                     </p>
 
                     <p className="mt-2 text-3xl font-bold">
