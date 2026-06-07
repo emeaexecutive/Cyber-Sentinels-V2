@@ -17,6 +17,20 @@ function asStringArray(value: unknown) {
   return Array.isArray(value) ? value.map((item) => String(item)) : [];
 }
 
+function asObject(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, any>)
+    : {};
+}
+
+function latestAiAnalysis(row: Record<string, any> | null | undefined) {
+  return asObject(asObject(row?.metadata).analysis);
+}
+
+function textList(value: unknown) {
+  return Array.isArray(value) ? value.map((item) => String(item)).filter(Boolean) : [];
+}
+
 function Badge({ value }: { value?: string | null }) {
   return (
     <span className="rounded-full border border-cyan-800 px-2.5 py-1 text-xs text-cyan-100">
@@ -27,10 +41,13 @@ function Badge({ value }: { value?: string | null }) {
 
 export default async function AgentPassportPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ ai_governance?: string }>;
 }) {
   const { id } = await params;
+  const query = searchParams ? await searchParams : {};
   const supabase = await createClient();
   const {
     data: { user },
@@ -62,7 +79,12 @@ export default async function AgentPassportPage({
     );
   }
 
-  const [{ data: events }, { data: permissions }, { data: latestTrustRun }] = await Promise.all([
+  const [
+    { data: events },
+    { data: permissions },
+    { data: latestTrustRun },
+    { data: latestAiOverview },
+  ] = await Promise.all([
     supabase
       .from("trust_events")
       .select("*")
@@ -85,6 +107,15 @@ export default async function AgentPassportPage({
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    supabase
+      .from("audit_logs")
+      .select("*")
+      .eq("event_type", "governance_recommendation_created")
+      .eq("metadata->>subject_type", "agent")
+      .eq("metadata->>subject_id", id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
   const activityRisk = (events ?? []).some((event) =>
     ["high", "critical"].includes(String(event.risk_level ?? "").toLowerCase())
@@ -100,6 +131,10 @@ export default async function AgentPassportPage({
     ...asStringArray(latestTrustRun?.negative_signals),
     ...asStringArray(latestTrustRun?.missing_requirements),
   ];
+  const aiAnalysis = latestAiAnalysis(latestAiOverview);
+  const aiSourceReasoning = textList(aiAnalysis.source_reasoning);
+  const aiObservations = textList(aiAnalysis.observations);
+  const aiRecommendations = textList(aiAnalysis.recommendations);
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -124,6 +159,14 @@ export default async function AgentPassportPage({
           </div>
         </section>
 
+        {query.ai_governance ? (
+          <div className="mt-6 rounded-lg border border-amber-900 bg-amber-950/20 p-4 text-sm text-amber-100">
+            {query.ai_governance === "missing_openai_key"
+              ? "AI-assisted governance analysis is unavailable because OPENAI_API_KEY is not configured."
+              : "AI-assisted governance analysis could not be generated. Human governance review remains available."}
+          </div>
+        ) : null}
+
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           {[
             ["Owner", agent.owner_email ?? "Not recorded"],
@@ -136,6 +179,68 @@ export default async function AgentPassportPage({
               <p className="mt-3 text-lg font-semibold text-zinc-100">{value}</p>
             </div>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                AI-assisted activity overview
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">
+                {aiAnalysis.title ?? "Agent Activity Summary"}
+              </h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
+                Cyber Sentinels uses AI-assisted analysis while maintaining human governance and explainable operational review.
+              </p>
+            </div>
+            <form action="/api/ai-governance/analyze" method="POST">
+              <input type="hidden" name="subject_type" value="agent" />
+              <input type="hidden" name="subject_id" value={id} />
+              <button className="rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
+                Generate AI Overview
+              </button>
+            </form>
+          </div>
+          <p className="mt-4 max-w-4xl text-sm leading-6 text-zinc-300">
+            {aiAnalysis.explanation ?? "No AI-assisted activity overview has been generated yet."}
+          </p>
+          <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+              <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">Operational Context</p>
+              <p className="mt-2 text-sm leading-6 text-zinc-300">
+                {aiAnalysis.operational_context ?? "Generate an overview to review operational context."}
+              </p>
+            </div>
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+              <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">Source Reasoning</p>
+              <p className="mt-2 text-sm leading-6 text-zinc-300">
+                {aiSourceReasoning.length ? aiSourceReasoning.join(" ") : "No source reasoning recorded."}
+              </p>
+            </div>
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+              <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">Generated</p>
+              <p className="mt-2 text-sm text-zinc-300">{formatDate(latestAiOverview?.created_at)}</p>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+              <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">Governance Observations</p>
+              <ul className="mt-2 grid gap-2 text-sm leading-6 text-zinc-300">
+                {(aiObservations.length ? aiObservations : ["No observations recorded."]).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+              <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">Recommendations Only</p>
+              <ul className="mt-2 grid gap-2 text-sm leading-6 text-zinc-300">
+                {(aiRecommendations.length ? aiRecommendations : ["No recommendations recorded."]).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
