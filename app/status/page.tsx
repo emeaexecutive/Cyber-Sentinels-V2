@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { summarizeIntegrationStatus } from "@/lib/integrations/registry";
 import {
   getPublicEnvDiagnostics,
   getPublicSupabaseEnv,
@@ -184,6 +185,17 @@ export default async function StatusPage() {
   const healthy = checks.filter((check) => check.ok).length;
   const diagnostics = getPublicEnvDiagnostics();
   const hasConnectionFailure = checks.some((check) => !check.ok);
+  const integrationSummary = summarizeIntegrationStatus();
+  const supabaseConnected = checks.find((check) => check.label === "Supabase connected")?.ok;
+  const apiSummary = [
+    [
+      "Supabase connected",
+      supabaseConnected ? "connected" : integrationSummary.supabase,
+    ],
+    ["Stripe", integrationSummary.stripe],
+    ["OpenAI", integrationSummary.openai],
+    ["World ID", integrationSummary.worldId],
+  ];
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -219,6 +231,18 @@ export default async function StatusPage() {
             <div className="rounded-lg border border-zinc-800 bg-black p-3">
               App URL configured: {diagnostics.hasAppUrl ? "true" : "false"}
             </div>
+          </div>
+          <div className="mt-5 grid gap-3 text-sm md:grid-cols-4">
+            {apiSummary.map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-3">
+                <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">
+                  {label}
+                </p>
+                <p className="mt-2 font-medium text-zinc-200">
+                  {value === "disabled" ? "Not configured yet" : value}
+                </p>
+              </div>
+            ))}
           </div>
         </section>
 
