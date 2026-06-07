@@ -28,6 +28,10 @@ function value(value: unknown, fallback = "Not recorded") {
     : String(value);
 }
 
+function asStringArray(value: unknown) {
+  return Array.isArray(value) ? value.map((item) => String(item)) : [];
+}
+
 function friendlyStatus(status: unknown) {
   const normalized = String(status ?? "pending").toLowerCase();
 
@@ -235,7 +239,12 @@ export default async function PassportViewerPage({
   const auditLogs = (auditRows ?? [])
     .filter((row) => relatedEvent(row, id, caseIds))
     .slice(0, 12);
-  const [{ data: notifications }, { data: messageThreads }, { data: appeals }] =
+  const [
+    { data: notifications },
+    { data: messageThreads },
+    { data: appeals },
+    { data: latestTrustRun },
+  ] =
     await Promise.all([
       supabase
         .from("notifications")
@@ -256,6 +265,14 @@ export default async function PassportViewerPage({
         .eq("passport_id", id)
         .order("created_at", { ascending: false })
         .limit(5),
+      supabase
+        .from("trust_algorithm_runs")
+        .select("*")
+        .eq("subject_type", "passport")
+        .eq("subject_id", id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
     ]);
   const score = calculateTrustScoreV1({
     passport,
@@ -269,6 +286,11 @@ export default async function PassportViewerPage({
     passport.review_status ??
     passport.reality_passport_status ??
     "pending";
+  const trustRunReasonCodes = [
+    ...asStringArray(latestTrustRun?.positive_signals),
+    ...asStringArray(latestTrustRun?.negative_signals),
+    ...asStringArray(latestTrustRun?.missing_requirements),
+  ];
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -310,6 +332,52 @@ export default async function PassportViewerPage({
           <div className="rounded-lg border border-zinc-800 bg-black p-5">
             <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Created</p>
             <p className="mt-3 text-lg text-zinc-100">{formatDate(passport.created_at)}</p>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                Explainable Trust Algorithm
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">
+                {latestTrustRun?.score ?? "Not calculated"}
+              </h2>
+              <p className="mt-1 text-sm text-cyan-200">
+                {value(latestTrustRun?.confidence_level, "Run the algorithm to classify this passport.")}
+              </p>
+            </div>
+            <form action="/api/trust-algorithm/run" method="POST">
+              <input type="hidden" name="subject_type" value="passport" />
+              <input type="hidden" name="subject_id" value={id} />
+              <button className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-cyan-100">
+                Recalculate Trust Score
+              </button>
+            </form>
+          </div>
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-400">
+            {value(latestTrustRun?.explanation, "No algorithm explanation has been recorded yet.")}
+          </p>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+              <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">Recommended Action</p>
+              <p className="mt-2 text-sm text-zinc-300">
+                {value(latestTrustRun?.recommended_action, "Calculate trust score to generate an action.")}
+              </p>
+            </div>
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+              <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">Reason Codes</p>
+              <p className="mt-2 text-sm text-zinc-300">
+                {trustRunReasonCodes.length ? trustRunReasonCodes.join(", ") : "None recorded"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+              <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">Last Calculated</p>
+              <p className="mt-2 text-sm text-zinc-300">
+                {formatDate(latestTrustRun?.created_at)}
+              </p>
+            </div>
           </div>
         </section>
 
