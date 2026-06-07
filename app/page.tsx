@@ -159,6 +159,35 @@ export default function HomePage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:px-8">
+        <div className="rounded-lg border border-zinc-800 bg-black p-6">
+          <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
+            Future Direction — AI Agent Identity
+          </p>
+          <h2 className="mt-4 max-w-4xl text-3xl font-semibold md:text-4xl">
+            Exploring AI-native governance infrastructure.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            AI systems are evolving from passive assistants into operational
+            actors. Cyber Sentinels is exploring AI agent identity, signed
+            operational actions, provenance, governance visibility and
+            human-to-agent accountability as an early platform direction.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
+            Cyber Sentinels does not replace human governance or operational
+            accountability. The future direction is an operational trust layer
+            that keeps AI agents linked to organizations, owners and review
+            workflows.
+          </p>
+          <Link
+            href="/agents"
+            className="mt-6 inline-flex rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
+          >
+            Explore AI Agent Identity
+          </Link>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-16 md:px-8">
         <div className="grid gap-6 rounded-lg border border-zinc-800 bg-black p-6 md:grid-cols-[1fr_auto] md:items-center">
           <div>
             <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">

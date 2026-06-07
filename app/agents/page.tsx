@@ -1,222 +1,119 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
-import { createSignal } from "@/lib/trust-engine/createSignal";
-import type { AgentIdentity } from "@/lib/ai-trust/types";
 
 export const dynamic = "force-dynamic";
 
-function formatDate(value?: string | null) {
-  if (!value) return "Not recorded";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Not recorded";
-  return date.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
-}
+const registryConcepts = [
+  [
+    "Organization-owned AI agents",
+    "Agent identity should be connected to the organization responsible for its deployment.",
+  ],
+  [
+    "Verification status",
+    "Agent records can show whether ownership, purpose and operating scope have been reviewed.",
+  ],
+  [
+    "Operational provenance",
+    "Important actions should be traceable to signed activity, evidence and review context.",
+  ],
+  [
+    "Signed activity visibility",
+    "Teams should be able to see what an agent claimed to do, when it happened and which workflow it belonged to.",
+  ],
+];
 
-async function createAgent(formData: FormData) {
-  "use server";
+const accountabilityLinks = [
+  "Organizations",
+  "Human owners",
+  "Governance workflows",
+  "Operational accountability",
+];
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login?next=/agents");
-
-  const name = String(formData.get("name") ?? "").trim();
-  if (!name) redirect("/agents?error=missing_name");
-
-  const actor = user.email ?? user.id;
-  const payload = {
-    name,
-    agent_name: name,
-    owner_email: user.email ?? actor,
-    owner_user_id: user.id,
-    owner_name: actor,
-    purpose: String(formData.get("purpose") ?? "").trim(),
-    declared_purpose: String(formData.get("purpose") ?? "").trim(),
-    model_provider: String(formData.get("model_provider") ?? "").trim(),
-    model_name: String(formData.get("model_name") ?? "").trim(),
-    model_family: String(formData.get("model_name") ?? "").trim(),
-    permission_scope: String(formData.get("permission_scope") ?? "review_only").trim(),
-    status: "pending",
-    trust_score: 50,
-    metadata: { actor, source: "agents.page" },
-  };
-
-  const { data: agent, error } = await supabase
-    .from("agents")
-    .insert(payload)
-    .select("id,name")
-    .single();
-
-  if (error || !agent) {
-    console.error("agent page insert failed", error);
-    redirect("/agents?error=create_failed");
-  }
-
-  const metadata = { agent_id: agent.id, actor, owner_user_id: user.id };
-
-  const { data: trustEvent } = await supabase
-    .from("trust_events")
-    .insert({
-      actor_type: "agent",
-      actor_id: agent.id,
-      actor_label: agent.name,
-      event_type: "agent_created",
-      event_source: "agents.page",
-      risk_level: "low",
-      agent_id: agent.id,
-      metadata,
-    })
-    .select("id,event_type")
-    .single();
-  await createAuditLog(supabase, "agent_created", actor, metadata);
-  await createSignal(supabase, "Agent created", metadata);
-  await createAuditLog(supabase, "trust_event_created", actor, {
-    ...metadata,
-    trust_event_id: trustEvent?.id,
-    event_type: trustEvent?.event_type ?? "agent_created",
-  });
-  await createSignal(supabase, "Trust event created", {
-    ...metadata,
-    trust_event_id: trustEvent?.id,
-    event_type: trustEvent?.event_type ?? "agent_created",
-  });
-
-  redirect(`/agents/${encodeURIComponent(agent.id)}`);
-}
-
-export default async function AgentsPage({
-  searchParams,
-}: {
-  searchParams?: Promise<Record<string, string | undefined>>;
-}) {
-  const params = await searchParams;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login?next=/agents");
-
-  const { data: agents } = await supabase
-    .from("agents")
-    .select("*")
-    .eq("owner_user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(50)
-    .returns<AgentIdentity[]>();
-
-  const rows = agents ?? [];
-
+export default function AgentsPage() {
   return (
-    <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
-      <div className="mx-auto max-w-7xl">
+    <main className="min-h-screen bg-[#05070b] px-6 py-12 text-white md:px-8">
+      <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            AI Identity
+            Early Platform Direction
           </p>
-          <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            AI Agent Passports
+          <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-6xl">
+            AI Agent Identity
           </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-400">
-            Register AI agents with purpose, ownership, model context,
-            permission scope and a trust event timeline. No autonomous scoring
-            or LLM analysis is used in this foundation.
+          <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
+            AI systems are evolving from passive assistants into operational
+            actors. Cyber Sentinels is exploring AI-native governance
+            infrastructure for agent identity, signed operational actions,
+            provenance and governance visibility.
           </p>
-          <Link
-            href="/agents/register"
-            className="mt-5 inline-flex rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
-          >
-            Register Agent
-          </Link>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
+            Cyber Sentinels does not replace human governance or operational
+            accountability. Agent identity should strengthen review,
+            provenance and ownership clarity while keeping humans and
+            organizations responsible for outcomes.
+          </p>
         </section>
 
-        {params?.error ? (
-          <p className="mt-6 rounded-lg border border-red-900 bg-red-950/20 p-4 text-sm text-red-200">
-            Could not create this agent. Check the required fields.
-          </p>
-        ) : null}
-
-        <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.4fr]">
-          <form action={createAgent} className="grid gap-4 rounded-lg border border-zinc-800 bg-black p-5">
-            <h2 className="text-xl font-semibold">Create Agent Identity</h2>
-            <input
-              name="name"
-              required
-              placeholder="Agent name"
-              className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white placeholder:text-zinc-600"
-            />
-            <textarea
-              name="purpose"
-              rows={4}
-              placeholder="Purpose"
-              className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white placeholder:text-zinc-600"
-            />
-            <input
-              name="model_provider"
-              placeholder="Model provider"
-              className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white placeholder:text-zinc-600"
-            />
-            <input
-              name="model_name"
-              placeholder="Model name"
-              className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white placeholder:text-zinc-600"
-            />
-            <select
-              name="permission_scope"
-              defaultValue="review_only"
-              className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white"
-            >
-              <option value="review_only">Review only</option>
-              <option value="observe">Observe</option>
-              <option value="advise">Advise</option>
-              <option value="approval_required">Approval required</option>
-              <option value="restricted_execution">Restricted execution</option>
-            </select>
-            <button className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">
-              Create Agent
-            </button>
-          </form>
-
-          <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Your Agents</h2>
-            <div className="mt-5 grid gap-3">
-              {rows.length ? (
-                rows.map((agent) => (
-                  <Link
-                    key={agent.id}
-                    href={`/agents/${encodeURIComponent(agent.id)}`}
-                    className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-800"
-                  >
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="font-medium text-zinc-100">{agent.name}</p>
-                        <p className="mt-1 text-sm text-zinc-500">
-                          {agent.model_provider ?? "unknown"} / {agent.model_name ?? "unknown"}
-                        </p>
-                      </div>
-                      <span className="rounded-full border border-cyan-800 px-2.5 py-1 text-xs text-cyan-100">
-                        {agent.status ?? "pending"}
-                      </span>
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-zinc-400">
-                      {agent.purpose ?? "No purpose recorded."}
-                    </p>
-                    <p className="mt-3 text-xs text-zinc-600">
-                      Trust {agent.trust_score ?? 50} / Created {formatDate(agent.created_at)}
-                    </p>
-                  </Link>
-                ))
-              ) : (
-                <p className="rounded-lg border border-zinc-800 bg-black p-5 text-sm text-zinc-500">
-                  No AI agents yet. Create an agent identity to begin trust event tracking.
-                </p>
-              )}
+        <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-lg border border-zinc-800 bg-black p-6">
+            <p className="text-sm uppercase tracking-[0.18em] text-zinc-500">
+              Future Direction
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold">
+              Future operational trust layer
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-zinc-400">
+              This is a strategic direction layer, not a full agent control
+              platform. The near-term goal is to prepare the
+              trust model for organization-owned agents, signed activity and
+              human-to-agent accountability.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {accountabilityLinks.map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-zinc-800 px-3 py-1 text-xs text-zinc-300"
+                >
+                  {item}
+                </span>
+              ))}
             </div>
-          </section>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {registryConcepts.map(([title, copy]) => (
+              <article
+                key={title}
+                className="rounded-lg border border-zinc-800 bg-black p-5"
+              >
+                <h3 className="font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-500">{copy}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-sm uppercase tracking-[0.18em] text-zinc-500">
+            Concept Preview
+          </p>
+          <div className="mt-4 grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+            <div>
+              <h2 className="text-2xl font-semibold">
+                Agent identity should remain linked to people and organizations.
+              </h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+                A future agent profile can show owner, organization, declared
+                scope, verification status and signed activity visibility
+                while keeping governance decisions tied to accountable owners.
+              </p>
+            </div>
+            <Link
+              href="/trust/agent/example-agent"
+              className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
+            >
+              View Concept Agent
+            </Link>
+          </div>
         </section>
       </div>
     </main>
