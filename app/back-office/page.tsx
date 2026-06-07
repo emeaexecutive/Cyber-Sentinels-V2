@@ -1114,6 +1114,7 @@ export default async function BackOfficePage({
     ["Verification Queue", "/verification-queue"],
     ["Evidence Vault", "/evidence-vault"],
     ["Decision Engine", "/decision-engine"],
+    ["Launch Control", "/admin/launch-control"],
     ["Launch Console", "/launch-console"],
     ["Trust History", "/trust-timeline"],
     ["Trust Graph", "/trust-graph-engine"],
