@@ -137,12 +137,20 @@ export default async function AdminIntegrationsPage() {
                 OpenAI and World ID. Secret values are never displayed.
               </p>
             </div>
-            <Link
-              href="/status"
-              className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
-            >
-              Public Status
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/admin/api-tests"
+                className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
+              >
+                API Tests
+              </Link>
+              <Link
+                href="/status"
+                className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+              >
+                Public Status
+              </Link>
+            </div>
           </div>
         </section>
 
