@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PrivateBetaNotice } from "@/components/private-beta";
 
 const demoSteps = [
   [
@@ -75,12 +76,13 @@ export default function DemoPage() {
             This public demo explains the Cyber Sentinels workflow without
             exposing private records or requiring sign-in.
           </p>
+          <PrivateBetaNotice className="mt-4 max-w-3xl" />
           <div className="mt-6 flex flex-wrap gap-3 text-sm">
             <Link
-              href="/enterprise-access"
+              href="/enterprise-access?intent=design_partner"
               className="rounded-lg bg-white px-4 py-3 font-semibold text-black"
             >
-              Request Enterprise Access
+              Request Design Partner Access
             </Link>
             <Link
               href="/login?next=/passport"

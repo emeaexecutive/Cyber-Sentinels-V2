@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { FeedbackPrompt } from "@/components/private-beta";
 import { createNotification } from "@/lib/communications/createNotification";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
@@ -121,9 +122,12 @@ export default async function AppealsPage({
         </section>
 
         {params?.submitted ? (
-          <p className="mt-6 rounded-lg border border-emerald-800 bg-emerald-950/20 p-4 text-sm text-emerald-200">
-            Appeal submitted for review.
-          </p>
+          <div className="mt-6 grid gap-3">
+            <p className="rounded-lg border border-emerald-800 bg-emerald-950/20 p-4 text-sm text-emerald-200">
+              Appeal submitted for review.
+            </p>
+            <FeedbackPrompt />
+          </div>
         ) : null}
 
         <form action={submitAppeal} className="mt-8 grid gap-4 rounded-lg border border-zinc-800 bg-black p-5">

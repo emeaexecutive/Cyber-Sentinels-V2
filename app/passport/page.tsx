@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { FeedbackPrompt, PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -112,6 +113,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
             Guided Setup
           </p>
+          <PrivateBetaBadge className="mt-4" />
           <h1 className="mt-4 text-4xl font-semibold">
             Create and manage your Trust Passport
           </h1>
@@ -119,6 +121,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
             Start with a passport, upload evidence when requested, and track the
             verification process from one calm workspace.
           </p>
+          <PrivateBetaNotice className="mt-4 max-w-3xl" />
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-5">
@@ -177,6 +180,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
             <p className="text-sm text-emerald-200">
               Verification workflow created.
             </p>
+            <FeedbackPrompt className="mt-4" />
             <Link
               href="/passports"
               className="mt-3 inline-flex rounded-xl border border-emerald-700 px-4 py-2 text-sm text-emerald-100 hover:text-white"

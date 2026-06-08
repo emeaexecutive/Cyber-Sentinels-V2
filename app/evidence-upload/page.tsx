@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { FeedbackPrompt } from "@/components/private-beta";
 import { createClient } from "@/lib/supabase/server";
 import { EvidenceUploadForm } from "./evidence-upload-form";
 
@@ -51,9 +52,12 @@ export default async function EvidenceUploadPage({
           </p>
 
           {uploaded ? (
-            <p className="mt-5 rounded-lg border border-emerald-800 bg-black p-3 text-sm text-emerald-200">
-              Evidence uploaded.
-            </p>
+            <div className="mt-5 grid gap-3">
+              <p className="rounded-lg border border-emerald-800 bg-black p-3 text-sm text-emerald-200">
+                Evidence uploaded.
+              </p>
+              <FeedbackPrompt />
+            </div>
           ) : null}
           {error ? (
             <p className="mt-5 rounded-lg border border-red-900 bg-black p-3 text-sm text-red-200">

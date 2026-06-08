@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 
 const workflowSteps = [
   [
@@ -49,6 +50,7 @@ export default function HomePage() {
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
             Operational Trust Infrastructure
           </p>
+          <PrivateBetaBadge className="mt-4" />
           <h1 className="mt-5 max-w-5xl text-5xl font-semibold leading-tight md:text-7xl">
             Cyber Sentinels helps teams run evidence-backed verification
             workflows.
@@ -63,6 +65,7 @@ export default function HomePage() {
             governance visibility without turning user workflows into noisy
             monitoring dashboards.
           </p>
+          <PrivateBetaNotice className="mt-5 max-w-3xl" />
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/pricing"

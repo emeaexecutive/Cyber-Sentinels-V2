@@ -66,6 +66,7 @@ function field(formData: FormData, name: string) {
 function buildEnterpriseAccessPayload(formData: FormData): EnterpriseAccessPayload {
   const currentProblemCategory = field(formData, "current_problem_category");
   const aiUsageLevel = field(formData, "urgency") || field(formData, "ai_usage_level");
+  const designPartnerInterest = field(formData, "design_partner_interest") === "true";
 
   return {
     name: field(formData, "name"),
@@ -76,8 +77,10 @@ function buildEnterpriseAccessPayload(formData: FormData): EnterpriseAccessPaylo
     current_problem_category: currentProblemCategory,
     current_problem: field(formData, "current_problem"),
     ai_usage_level: aiUsageLevel,
-    use_case: field(formData, "use_case"),
-    status: field(formData, "status") || "new",
+    use_case: field(formData, "use_case") || (designPartnerInterest ? "design_partner_access" : ""),
+    status:
+      field(formData, "status") ||
+      (designPartnerInterest ? "design_partner_interest" : "new"),
     message: field(formData, "message"),
   };
 }

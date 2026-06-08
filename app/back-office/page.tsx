@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdminVerificationActions } from "@/components/admin-verification-actions";
+import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import {
   backOfficeStatuses,
@@ -731,6 +732,7 @@ export default async function BackOfficePage({
     billingCustomers,
     subscriptions,
     feedbackReports,
+    launchControlNotes,
     interestSignals,
     messageThreads,
     messageEvents,
@@ -759,6 +761,7 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "billing_customers", "created_at", 20),
     fetchTable<AnyRow>(supabase, "subscriptions", "created_at", 20),
     fetchTable<AnyRow>(supabase, "feedback_reports", "created_at", 50),
+    fetchTable<AnyRow>(supabase, "launch_control_notes", "created_at", 20),
     fetchTable<AnyRow>(supabase, "interest_signals", "created_at", 30),
     fetchTable<AnyRow>(supabase, "message_threads", "updated_at", 20),
     fetchTable<AnyRow>(supabase, "message_events", "created_at", 80),
@@ -799,6 +802,12 @@ export default async function BackOfficePage({
     (request) =>
       !String(request.use_case ?? "").endsWith("_waitlist") &&
       !String(request.status ?? "").endsWith("_waitlist")
+  );
+  const designPartnerRequests = enterpriseAccessRequests.rows.filter((request) =>
+    /design_partner/i.test(`${request.use_case ?? ""} ${request.status ?? ""} ${request.message ?? ""}`)
+  );
+  const launchBlockers = launchControlNotes.rows.filter(
+    (note) => String(note.status ?? "") === "blocker"
   );
   const activeSubscriptions = subscriptions.rows.filter((subscription) =>
     ["active", "trialing"].includes(String(subscription.status ?? ""))
@@ -1174,6 +1183,7 @@ export default async function BackOfficePage({
             <p className="text-sm font-medium text-emerald-300">
               Admin Access Verified
             </p>
+            <PrivateBetaBadge className="mt-3" />
             <h1 className="mt-2 text-3xl font-bold md:text-4xl">
               Back Office
             </h1>
@@ -1206,6 +1216,44 @@ export default async function BackOfficePage({
             {aiDraftMessage}
           </p>
         ) : null}
+
+        <section className="mt-6 rounded-lg border border-cyan-900 bg-cyan-950/10 p-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">
+                Private Beta
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">
+                Design Partner Learning Panel
+              </h2>
+              <PrivateBetaNotice className="mt-3 max-w-3xl" />
+            </div>
+            <Link
+              href="/admin/readiness-gate"
+              className="rounded-lg border border-cyan-800 px-3 py-2 text-xs text-cyan-100 hover:text-white"
+            >
+              Readiness Gate
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3 xl:grid-cols-5">
+            {[
+              ["Enterprise access requests", String(enterpriseAccessRequests.count)],
+              ["Feedback reports", String(feedbackReports.count)],
+              ["Pro waitlist", String(proWaitlistRequests.length + waitlist.count)],
+              ["Design partner interest", String(designPartnerRequests.length)],
+              ["Launch blockers", String(launchBlockers.length)],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                  {label}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-zinc-100">
+                  {value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <section className="mt-6 grid gap-4 md:grid-cols-4">
           {[

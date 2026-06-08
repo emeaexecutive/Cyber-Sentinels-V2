@@ -1,3 +1,5 @@
+import { FeedbackPrompt, PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
+
 export const dynamic = "force-dynamic";
 
 type EnterpriseAccessPageProps = {
@@ -23,8 +25,11 @@ export default async function EnterpriseAccessPage({
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
             Enterprise Access
           </p>
+          <PrivateBetaBadge className="mt-4" />
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Request Cyber Sentinels Enterprise Access
+            {designPartnerIntent
+              ? "Request Design Partner Access"
+              : "Request Cyber Sentinels Enterprise Access"}
           </h1>
           <p className="mt-4 max-w-3xl leading-7 text-zinc-400">
             Tell us which operational workflow you want to make more
@@ -35,6 +40,7 @@ export default async function EnterpriseAccessPage({
             Cyber Sentinels is evolving through operational collaboration and
             real-world workflow feedback.
           </p>
+          <PrivateBetaNotice className="mt-4 max-w-3xl" />
           <div className="mt-6 grid gap-3 text-sm text-zinc-400 md:grid-cols-2">
             {[
               "AI-assisted workflow approvals",
@@ -60,6 +66,7 @@ export default async function EnterpriseAccessPage({
               design partners.
             </div>
           ) : null}
+          {success ? <FeedbackPrompt className="mb-4 mt-4" /> : null}
 
           {error === "required" ? (
             <div className="mb-4 rounded-lg border border-amber-900 bg-amber-950/30 p-4 text-sm text-amber-100">
@@ -208,9 +215,19 @@ export default async function EnterpriseAccessPage({
               type="submit"
               className="rounded-xl bg-white p-4 font-semibold text-black hover:bg-cyan-100"
             >
-              Request Enterprise Access
+              {designPartnerIntent
+                ? "Request Design Partner Access"
+                : "Request Enterprise Access"}
             </button>
           </form>
+          {!designPartnerIntent ? (
+            <a
+              href="/enterprise-access?intent=design_partner"
+              className="mt-4 inline-flex text-sm font-semibold text-cyan-200 hover:text-white"
+            >
+              Request Design Partner Access
+            </a>
+          ) : null}
         </section>
       </div>
     </main>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 import { clearancePlans } from "@/lib/billing/plans";
 
 export const dynamic = "force-dynamic";
@@ -47,6 +48,7 @@ export default function PricingPage() {
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
             Pricing
           </p>
+          <PrivateBetaBadge className="mt-4" />
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-6xl">
             Verification workflow tiers for operational trust infrastructure.
           </h1>
@@ -58,6 +60,13 @@ export default function PricingPage() {
           <p className="mt-3 text-sm text-zinc-500">
             Prices shown in EUR. Additional currencies may be supported later.
           </p>
+          <PrivateBetaNotice className="mt-4 max-w-3xl" />
+          <Link
+            href="/enterprise-access?intent=design_partner"
+            className="mt-5 inline-flex rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:text-white"
+          >
+            Request Design Partner Access
+          </Link>
         </section>
 
         <section className="mt-10 grid gap-5 lg:grid-cols-3">
