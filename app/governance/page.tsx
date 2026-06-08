@@ -18,6 +18,9 @@ export const dynamic = "force-dynamic";
 
 type AnyRow = Record<string, any>;
 
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 async function createPolicy(formData: FormData) {
   "use server";
 
@@ -63,6 +66,7 @@ async function updateAction(formData: FormData) {
   const actionId = String(formData.get("action_id") ?? "").trim();
   const status = String(formData.get("action_status") ?? "in_review").trim();
   const note = String(formData.get("resolution_notes") ?? "").trim();
+  const assignedTo = String(formData.get("assigned_to") ?? "").trim();
 
   if (!actionId || !governanceStatuses.includes(status)) {
     redirect("/governance?action_error=invalid_status");
@@ -72,7 +76,20 @@ async function updateAction(formData: FormData) {
     .from("governance_actions")
     .update({
       action_status: status,
-      assigned_to: user.id,
+      assigned_to: uuidPattern.test(assignedTo) ? assignedTo : user.id,
+      assigned_by: user.id,
+      assigned_at: new Date().toISOString(),
+      escalation_chain:
+        status === "escalated"
+          ? [
+              {
+                actor_id: user.id,
+                status,
+                note: note || "Governance action escalated by human reviewer.",
+                at: new Date().toISOString(),
+              },
+            ]
+          : undefined,
       resolution_notes: note || `Human reviewer set status to ${status}.`,
       resolved_at: ["approved", "rejected", "resolved"].includes(status)
         ? new Date().toISOString()
@@ -171,12 +188,13 @@ export default async function GovernancePage({
     );
   }
 
-  const [policies, actions, signals, evidence, auditLogs] = await Promise.all([
+  const [policies, actions, signals, evidence, auditLogs, workspaceMembers] = await Promise.all([
     fetchRows<GovernancePolicyRow>(supabase, "governance_policies", 160),
     fetchRows<GovernanceActionRow>(supabase, "governance_actions", 200),
     fetchRows<AnyRow>(supabase, "signals", 100),
     fetchRows<AnyRow>(supabase, "evidence_files", 100),
     fetchRows<AnyRow>(supabase, "audit_logs", 100),
+    fetchRows<AnyRow>(supabase, "workspace_members", 200),
   ]);
   const queue = buildGovernanceQueue(actions, policies);
   const metrics = governanceMetrics(actions);
@@ -284,10 +302,37 @@ export default async function GovernancePage({
                       <Link href={subjectHref(action)} className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:text-white">
                         Related Record
                       </Link>
+                      <form action={updateAction} className="flex flex-wrap gap-2">
+                        <input type="hidden" name="action_id" value={action.id} />
+                        <input type="hidden" name="action_status" value={action.action_status ?? "pending"} />
+                        <input
+                          type="hidden"
+                          name="resolution_notes"
+                          value="Human reviewer assignment updated for operational coordination."
+                        />
+                        <select
+                          name="assigned_to"
+                          defaultValue={action.assigned_to ?? user.id}
+                          className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100"
+                        >
+                          <option value={user.id}>Assign to me</option>
+                          {workspaceMembers
+                            .filter((member) => ["admin", "reviewer"].includes(String(member.role ?? "")))
+                            .map((member) => (
+                              <option key={String(member.id)} value={String(member.user_id)}>
+                                {String(member.role ?? "reviewer")} {String(member.user_id).slice(0, 8)}
+                              </option>
+                            ))}
+                        </select>
+                        <button className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:text-white">
+                          Assign Reviewer
+                        </button>
+                      </form>
                       {["approved", "rejected", "escalated", "in_review", "resolved"].map((status) => (
                         <form key={status} action={updateAction}>
                           <input type="hidden" name="action_id" value={action.id} />
                           <input type="hidden" name="action_status" value={status} />
+                          <input type="hidden" name="assigned_to" value={action.assigned_to ?? user.id} />
                           <input
                             type="hidden"
                             name="resolution_notes"

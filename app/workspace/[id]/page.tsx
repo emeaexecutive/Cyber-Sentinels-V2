@@ -85,6 +85,55 @@ async function linkCaseRelationship(formData: FormData) {
   redirect(`/workspace/${workspaceId}`);
 }
 
+async function updateCaseCoordination(formData: FormData) {
+  "use server";
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login?next=/workspace");
+
+  const workspaceId = String(formData.get("workspace_id") ?? "");
+  const caseId = String(formData.get("case_id") ?? "");
+  const assignedTo = String(formData.get("assigned_to") ?? "").trim();
+  const status = String(formData.get("status") ?? "in_review").trim();
+  const note = String(formData.get("coordination_note") ?? "").trim();
+
+  if (
+    !uuidPattern.test(workspaceId) ||
+    !uuidPattern.test(caseId) ||
+    !caseStatuses.includes(status)
+  ) {
+    redirect(`/workspace/${workspaceId}?case_error=invalid_coordination`);
+  }
+
+  await supabase
+    .from("trust_cases")
+    .update({
+      assigned_to: uuidPattern.test(assignedTo) ? assignedTo : user.id,
+      assigned_by: user.id,
+      assigned_at: new Date().toISOString(),
+      status,
+      escalation_chain:
+        status === "escalated"
+          ? [
+              {
+                actor_id: user.id,
+                status,
+                note: note || "Trust case escalated for coordinated review.",
+                at: new Date().toISOString(),
+              },
+            ]
+          : undefined,
+    })
+    .eq("id", caseId)
+    .eq("workspace_id", workspaceId);
+
+  redirect(`/workspace/${workspaceId}`);
+}
+
 async function fetchRows<T>(
   supabase: Awaited<ReturnType<typeof createClient>>,
   table: string,
@@ -100,7 +149,17 @@ async function fetchRows<T>(
   return error ? [] : data ?? [];
 }
 
-function CaseCard({ item }: { item: TrustCaseRow }) {
+function CaseCard({
+  item,
+  workspaceId,
+  members,
+  currentUserId,
+}: {
+  item: TrustCaseRow;
+  workspaceId: string;
+  members: WorkspaceMemberRow[];
+  currentUserId: string;
+}) {
   return (
     <div className="rounded-lg border border-zinc-800 bg-black p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -122,6 +181,52 @@ function CaseCard({ item }: { item: TrustCaseRow }) {
       <p className="mt-3 text-xs text-zinc-600">
         Created {formatWorkspaceDate(item.created_at)}
       </p>
+      <div className="mt-4 grid gap-3 border-t border-zinc-900 pt-4">
+        <form action={updateCaseCoordination} className="flex flex-wrap gap-2">
+          <input type="hidden" name="workspace_id" value={workspaceId} />
+          <input type="hidden" name="case_id" value={item.id} />
+          <input type="hidden" name="status" value={item.status ?? "in_review"} />
+          <input
+            type="hidden"
+            name="coordination_note"
+            value={item.description ?? "Reviewer assignment updated for operational coordination."}
+          />
+          <select
+            name="assigned_to"
+            defaultValue={item.assigned_to ?? currentUserId}
+            className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100"
+          >
+            <option value={currentUserId}>Assign to me</option>
+            {members
+              .filter((member) => ["admin", "reviewer"].includes(String(member.role ?? "")))
+              .map((member) => (
+                <option key={member.id} value={member.user_id ?? currentUserId}>
+                  {member.role ?? "reviewer"} {String(member.user_id ?? "").slice(0, 8)}
+                </option>
+              ))}
+          </select>
+          <button className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:text-white">
+            Assign Reviewer
+          </button>
+        </form>
+        <div className="flex flex-wrap gap-2">
+          {[
+            ["escalated", "Escalate Workflow", "Workflow escalated for coordinated human review."],
+            ["in_review", "Request More Evidence", "Additional evidence may be required before this case can move forward."],
+          ].map(([status, label, note]) => (
+            <form key={status} action={updateCaseCoordination}>
+              <input type="hidden" name="workspace_id" value={workspaceId} />
+              <input type="hidden" name="case_id" value={item.id} />
+              <input type="hidden" name="assigned_to" value={item.assigned_to ?? currentUserId} />
+              <input type="hidden" name="status" value={status} />
+              <input type="hidden" name="coordination_note" value={note} />
+              <button className={`rounded-lg border px-3 py-2 text-sm ${statusClass(status)}`}>
+                {label}
+              </button>
+            </form>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -192,7 +297,7 @@ export default async function WorkspaceDetailPage({
 
   if (!workspace) notFound();
 
-  const [members, cases, relationships, signals, evidence, timeline, auditLogs] = await Promise.all([
+  const [members, cases, relationships, signals, evidence, timeline, auditLogs, governanceActions] = await Promise.all([
     fetchRows<WorkspaceMemberRow>(supabase, "workspace_members", 200),
     fetchRows<TrustCaseRow>(supabase, "trust_cases", 200),
     fetchRows<CaseRelationshipRow>(supabase, "trust_case_relationships", 200),
@@ -200,6 +305,7 @@ export default async function WorkspaceDetailPage({
     fetchRows<AnyRow>(supabase, "evidence_files", 80),
     fetchRows<AnyRow>(supabase, "trust_timeline_events", 120),
     fetchRows<AnyRow>(supabase, "audit_logs", 120),
+    fetchRows<AnyRow>(supabase, "governance_actions", 120),
   ]);
   const scopedMembers = members.filter((item) => item.workspace_id === id);
   const canAccessWorkspace =
@@ -239,6 +345,26 @@ export default async function WorkspaceDetailPage({
   });
   const metrics = workspaceMetrics(scopedCases, scopedMembers);
   const reviewQueue = buildReviewQueue({ cases: scopedCases, signals, evidence });
+  const scopedGovernanceActions = governanceActions.filter((item) => {
+    const metadata = item.metadata && typeof item.metadata === "object" ? item.metadata : {};
+    return (
+      metadata.workspace_id === id ||
+      (metadata.trust_case_id ? caseIds.has(String(metadata.trust_case_id)) : false) ||
+      (item.subject_type === "trust_case" && item.subject_id ? caseIds.has(String(item.subject_id)) : false)
+    );
+  });
+  const unresolvedGovernance = scopedGovernanceActions.filter((item) =>
+    ["pending", "in_review", "escalated"].includes(String(item.action_status ?? "pending"))
+  );
+  const now = Date.now();
+  const stalledCases = scopedCases.filter((item) => {
+    const created = item.created_at ? new Date(item.created_at).getTime() : now;
+    return now - created > 1000 * 60 * 60 * 24 * 7 && ["open", "in_review"].includes(String(item.status ?? "open"));
+  });
+  const overdueActions = unresolvedGovernance.filter((item) => {
+    const created = item.created_at ? new Date(item.created_at).getTime() : now;
+    return now - created > 1000 * 60 * 60 * 24 * 3;
+  });
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -297,6 +423,33 @@ export default async function WorkspaceDetailPage({
               <p className="mt-2 text-3xl font-semibold text-zinc-100">{value}</p>
             </div>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold">Workspace Coordination</h2>
+            <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400">
+              Human review
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["Pending Reviews", reviewQueue.length],
+              ["Governance Actions", unresolvedGovernance.length],
+              ["Stalled Workflows", stalledCases.length],
+              ["Overdue Actions", overdueActions.length],
+            ].map(([label, value]) => (
+              <div key={String(label)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-sm text-zinc-500">{String(label)}</p>
+                <p className="mt-2 text-2xl font-semibold text-zinc-100">{String(value)}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-sm leading-6 text-zinc-500">
+            Coordination stays focused on assignments, escalations, evidence
+            requests and unresolved governance actions. AI may summarize this
+            later, but it does not send autonomous escalations.
+          </p>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.9fr]">
@@ -361,7 +514,15 @@ export default async function WorkspaceDetailPage({
             <h2 className="text-xl font-semibold">Active Cases</h2>
             <div className="mt-5 grid gap-3">
               {scopedCases.length ? (
-                scopedCases.map((item) => <CaseCard key={item.id} item={item} />)
+                scopedCases.map((item) => (
+                  <CaseCard
+                    key={item.id}
+                    item={item}
+                    workspaceId={id}
+                    members={scopedMembers}
+                    currentUserId={user.id}
+                  />
+                ))
               ) : (
                 <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
                   No cases yet. Create one to coordinate review, escalation and governance work.

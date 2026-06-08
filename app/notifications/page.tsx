@@ -24,7 +24,7 @@ async function markAllRead() {
 
   await supabase
     .from("notifications")
-    .update({ is_read: true })
+    .update({ is_read: true, read: true })
     .eq("user_id", user.id);
 
   const actor = user.email ?? user.id;
@@ -33,6 +33,66 @@ async function markAllRead() {
   });
   await createSignal(supabase, "Notifications marked read", { actor });
   redirect("/notifications?read=1");
+}
+
+function notificationMessage(row: Record<string, any>) {
+  return String(row.message ?? row.body ?? "Operational update recorded.");
+}
+
+function notificationRead(row: Record<string, any>) {
+  return Boolean(row.read ?? row.is_read);
+}
+
+function severityClass(severity?: string | null) {
+  const normalized = String(severity ?? "info").toLowerCase();
+  if (["critical", "high"].includes(normalized)) return "border-red-800 text-red-200";
+  if (["review", "warning", "medium"].includes(normalized)) return "border-amber-800 text-amber-200";
+  if (normalized === "success") return "border-emerald-800 text-emerald-200";
+  return "border-cyan-800 text-cyan-200";
+}
+
+function typeLabel(value?: string | null) {
+  return String(value ?? "update").replace(/_/g, " ");
+}
+
+function NotificationCard({ notification }: { notification: Record<string, any> }) {
+  const isRead = notificationRead(notification);
+  const metadata =
+    notification.metadata && typeof notification.metadata === "object" && !Array.isArray(notification.metadata)
+      ? notification.metadata
+      : {};
+
+  return (
+    <article
+      className={`rounded-lg border p-4 ${
+        isRead ? "border-zinc-800 bg-black" : "border-cyan-900 bg-cyan-950/10"
+      }`}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="font-semibold text-zinc-100">
+            {notification.title ?? "Notification"}
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">
+            {notificationMessage(notification)}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <span className={`rounded-full border px-3 py-1 text-xs capitalize ${severityClass(notification.severity)}`}>
+            {notification.severity ?? "info"}
+          </span>
+          <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs capitalize text-zinc-300">
+            {typeLabel(notification.notification_type)}
+          </span>
+        </div>
+      </div>
+      <div className="mt-3 grid gap-2 text-xs text-zinc-600 md:grid-cols-3">
+        <p>{formatDate(notification.created_at)}</p>
+        <p>State: {isRead ? "read" : "unread"}</p>
+        <p>Email ready: {metadata.email_ready ? "prepared" : "not configured yet"}</p>
+      </div>
+    </article>
+  );
 }
 
 export default async function NotificationsPage({
@@ -56,7 +116,23 @@ export default async function NotificationsPage({
     .limit(50);
 
   const rows = notifications ?? [];
-  const unreadCount = rows.filter((row) => !row.is_read).length;
+  const unread = rows.filter((row) => !notificationRead(row));
+  const escalations = rows.filter((row) =>
+    /escalation|suspicious|review/i.test(
+      `${row.notification_type ?? ""} ${row.severity ?? ""} ${row.title ?? ""}`
+    )
+  );
+  const governanceActions = rows.filter((row) =>
+    /governance|review|evidence_request|ai_recommendation/i.test(
+      String(row.notification_type ?? "")
+    )
+  );
+  const reminders = rows.filter((row) =>
+    /assigned|request|pending|reminder/i.test(
+      `${row.notification_type ?? ""} ${row.title ?? ""} ${notificationMessage(row)}`
+    )
+  );
+  const unreadCount = unread.length;
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -69,7 +145,9 @@ export default async function NotificationsPage({
             <div>
               <h1 className="text-4xl font-semibold">Notification Center</h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
-                Review passport, evidence, decision, appeal and message updates.
+                Review high-value operational updates across governance actions,
+                evidence requests, trust cases, appeals and AI-assisted review
+                recommendations.
               </p>
             </div>
             <form action={markAllRead}>
@@ -88,52 +166,84 @@ export default async function NotificationsPage({
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold">Latest Updates</h2>
+            <h2 className="text-xl font-semibold">Unread</h2>
             <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">
               {unreadCount} unread
             </span>
           </div>
           <div className="mt-5 grid gap-3">
-            {rows.length ? (
-              rows.map((notification) => (
-                <article
-                  key={String(notification.id)}
-                  className={`rounded-lg border p-4 ${
-                    notification.is_read
-                      ? "border-zinc-800 bg-black"
-                      : "border-cyan-900 bg-cyan-950/10"
-                  }`}
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold text-zinc-100">
-                        {notification.title ?? "Notification"}
-                      </h3>
-                      <p className="mt-2 text-sm leading-6 text-zinc-400">
-                        {notification.body ?? "Update recorded."}
-                      </p>
-                    </div>
-                    <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">
-                      {notification.notification_type ?? "update"}
-                    </span>
-                  </div>
-                  <p className="mt-3 text-xs text-zinc-600">
-                    {formatDate(notification.created_at)}
-                  </p>
-                </article>
+            {unread.length ? (
+              unread.map((notification) => (
+                <NotificationCard key={String(notification.id)} notification={notification} />
               ))
             ) : (
               <p className="rounded-lg border border-zinc-800 bg-black p-5 text-sm text-zinc-500">
-                No notifications yet. Updates will appear here when your trust
-                workflow changes.
+                No unread operational notifications. New assignments,
+                escalations and evidence requests will appear here.
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-6 lg:grid-cols-3">
+          {[
+            ["Escalations", escalations, "No escalations require attention."],
+            ["Governance Actions", governanceActions, "No governance notifications are waiting."],
+            ["Review Reminders", reminders, "No review reminders are pending."],
+          ].map(([title, collection, empty]) => {
+            const items = collection as Record<string, any>[];
+            return (
+              <section key={String(title)} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h2 className="text-xl font-semibold">{String(title)}</h2>
+                  <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400">
+                    {items.length}
+                  </span>
+                </div>
+                <div className="mt-5 grid gap-3">
+                  {items.length ? (
+                    items.slice(0, 5).map((notification) => (
+                      <NotificationCard key={String(notification.id)} notification={notification} />
+                    ))
+                  ) : (
+                    <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
+                      {String(empty)}
+                    </p>
+                  )}
+                </div>
+              </section>
+            );
+          })}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold">Recent</h2>
+            <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400">
+              {rows.length}
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3">
+            {rows.length ? (
+              rows.slice(0, 12).map((notification) => (
+                <NotificationCard key={String(notification.id)} notification={notification} />
+              ))
+            ) : (
+              <p className="rounded-lg border border-zinc-800 bg-black p-5 text-sm text-zinc-500">
+                No notifications yet. Cyber Sentinels keeps this view focused
+                on high-value operational coordination rather than constant
+                activity noise.
               </p>
             )}
           </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-sm text-zinc-400">
-            Future secure email and SMS notifications planned.
+          <h2 className="text-xl font-semibold">Email Readiness</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
+            Notification records include delivery-safe metadata for future
+            email digests and governance escalation alerts. No external email
+            provider is required for V1.
           </p>
         </section>
       </div>

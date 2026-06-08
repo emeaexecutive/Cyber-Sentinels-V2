@@ -23,6 +23,9 @@ export type TrustCaseRow = {
   status: string | null;
   priority: string | null;
   assigned_to: string | null;
+  assigned_by?: string | null;
+  assigned_at?: string | null;
+  escalation_chain?: unknown;
   created_by: string | null;
   created_at: string | null;
 };

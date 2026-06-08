@@ -10,35 +10,84 @@ export async function createNotification(
     body: string;
     notificationType: string;
     actor: string;
+    severity?: "info" | "review" | "warning" | "critical";
     metadata?: Record<string, unknown>;
   }
 ) {
-  const metadata = {
+  const metadata: Record<string, unknown> = {
     ...(values.metadata ?? {}),
     actor: values.actor,
+    email_ready: false,
   };
-  const result = await supabase.from("notifications").insert({
-    user_id: values.userId ?? null,
-    title: values.title,
-    body: values.body,
-    notification_type: values.notificationType,
-    metadata,
-  });
+  const result = await supabase
+    .from("notifications")
+    .insert({
+      user_id: values.userId ?? null,
+      title: values.title,
+      body: values.body,
+      message: values.body,
+      notification_type: values.notificationType,
+      severity: values.severity ?? "info",
+      is_read: false,
+      read: false,
+      metadata,
+    })
+    .select("id")
+    .maybeSingle<{ id: string }>();
 
   if (result.error) {
-    console.warn("Notification insert failed", result.error);
+    console.warn("Notification insert failed", {
+      code: result.error.code,
+    });
   }
 
+  const notificationId = result.data?.id ?? null;
   await createAuditLog(supabase, "notification_created", values.actor, {
     ...metadata,
+    notification_id: notificationId,
     notification_type: values.notificationType,
     title: values.title,
   });
   await createSignal(supabase, "Notification created", {
     ...metadata,
+    notification_id: notificationId,
     notification_type: values.notificationType,
     title: values.title,
   });
+
+  const subjectType = typeof metadata.subject_type === "string" ? metadata.subject_type : "notification";
+  const subjectId = typeof metadata.subject_id === "string" ? metadata.subject_id : notificationId;
+
+  if (subjectId) {
+    await supabase.from("trust_timeline_events").insert({
+      subject_type: subjectType,
+      subject_id: subjectId,
+      event_type: "notification_created",
+      event_title: values.title,
+      event_summary: values.body,
+      actor_type: "system",
+      actor_id: values.userId ?? null,
+      metadata: {
+        ...metadata,
+        notification_id: notificationId,
+        notification_type: values.notificationType,
+      },
+      severity: values.severity ?? "info",
+    });
+
+    if (notificationId && subjectType !== "notification") {
+      await supabase.from("trust_relationships").insert({
+        source_type: "notification",
+        source_id: notificationId,
+        relationship_type: "notifies_about",
+        target_type: subjectType,
+        target_id: subjectId,
+        confidence_level: "high",
+        explanation:
+          "Notification was created to coordinate human review for the linked operational trust record.",
+      });
+    }
+  }
 
   return result;
 }
