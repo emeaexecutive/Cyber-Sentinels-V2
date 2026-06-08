@@ -3,6 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 import type { AgentIdentity, AgentPermission, TrustEvent } from "@/lib/ai-trust/types";
+import {
+  buildAgentRelationships,
+  relationshipLabel,
+  type TrustRelationshipView,
+} from "@/lib/trust-relationships/relationships";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +41,35 @@ function Badge({ value }: { value?: string | null }) {
     <span className="rounded-full border border-cyan-800 px-2.5 py-1 text-xs text-cyan-100">
       {value ?? "pending"}
     </span>
+  );
+}
+
+function RelationshipItem({ relationship }: { relationship: TrustRelationshipView }) {
+  return (
+    <div className="rounded-lg border border-zinc-800 bg-black p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-medium text-zinc-100">
+            {relationship.source_label}{" "}
+            <span className="text-cyan-200">
+              {relationshipLabel(relationship.relationship_type).toLowerCase()}
+            </span>{" "}
+            {relationship.target_label}
+          </p>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">
+            {relationship.explanation}
+          </p>
+        </div>
+        <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs capitalize text-zinc-300">
+          {relationship.confidence_level}
+        </span>
+      </div>
+      <div className="mt-4 grid gap-2 text-xs text-zinc-600 md:grid-cols-3">
+        <p>Created by: {relationship.created_by}</p>
+        <p>Triggered by: {relationship.trigger}</p>
+        <p>Recorded: {formatDate(relationship.created_at)}</p>
+      </div>
+    </div>
   );
 }
 
@@ -84,6 +118,8 @@ export default async function AgentPassportPage({
     { data: permissions },
     { data: latestTrustRun },
     { data: latestAiOverview },
+    { data: sourceRelationships },
+    { data: targetRelationships },
   ] = await Promise.all([
     supabase
       .from("trust_events")
@@ -116,6 +152,20 @@ export default async function AgentPassportPage({
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    supabase
+      .from("trust_relationships")
+      .select("*")
+      .eq("source_type", "agent")
+      .eq("source_id", id)
+      .order("created_at", { ascending: false })
+      .limit(24),
+    supabase
+      .from("trust_relationships")
+      .select("*")
+      .eq("target_type", "agent")
+      .eq("target_id", id)
+      .order("created_at", { ascending: false })
+      .limit(24),
   ]);
   const activityRisk = (events ?? []).some((event) =>
     ["high", "critical"].includes(String(event.risk_level ?? "").toLowerCase())
@@ -135,6 +185,17 @@ export default async function AgentPassportPage({
   const aiSourceReasoning = textList(aiAnalysis.source_reasoning);
   const aiObservations = textList(aiAnalysis.observations);
   const aiRecommendations = textList(aiAnalysis.recommendations);
+  const storedRelationshipsById = new Map<string, Record<string, any>>();
+  [...(sourceRelationships ?? []), ...(targetRelationships ?? [])].forEach((row) =>
+    storedRelationshipsById.set(String(row.id), row)
+  );
+  const relationships = buildAgentRelationships({
+    agent,
+    events: events ?? [],
+    permissions: permissions ?? [],
+    trustRuns: latestTrustRun ? [latestTrustRun] : [],
+    storedRelationships: [...storedRelationshipsById.values()],
+  });
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -302,6 +363,28 @@ export default async function AgentPassportPage({
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Relationship View</h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-500">
+              Agent relationships are derived from ownership, activity,
+              permissions and governance records. AI may summarize these links
+              later, but it cannot invent them.
+            </p>
+            <div className="mt-5 grid gap-3">
+              {relationships.length ? (
+                relationships.map((relationship) => (
+                  <RelationshipItem key={relationship.id} relationship={relationship} />
+                ))
+              ) : (
+                <p className="rounded-lg border border-zinc-800 bg-black p-5 text-sm text-zinc-500">
+                  No relationships are available yet. Ownership, trust events
+                  and permissions will create explainable links as the agent is
+                  used.
+                </p>
+              )}
+            </div>
+          </div>
+
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Event Timeline</h2>
             <div className="mt-5 grid gap-3">

@@ -3,6 +3,11 @@ import { redirect } from "next/navigation";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 import { calculateTrustScoreV1 } from "@/lib/trust-score-engine";
+import {
+  buildPassportRelationships,
+  relationshipLabel,
+  type TrustRelationshipView,
+} from "@/lib/trust-relationships/relationships";
 
 export const dynamic = "force-dynamic";
 
@@ -130,6 +135,35 @@ function Panel({
 
 function Empty({ label }: { label: string }) {
   return <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">{label}</p>;
+}
+
+function RelationshipItem({ relationship }: { relationship: TrustRelationshipView }) {
+  return (
+    <div className="rounded-lg border border-zinc-800 bg-black p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-medium text-zinc-100">
+            {relationship.source_label}{" "}
+            <span className="text-cyan-200">
+              {relationshipLabel(relationship.relationship_type).toLowerCase()}
+            </span>{" "}
+            {relationship.target_label}
+          </p>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">
+            {relationship.explanation}
+          </p>
+        </div>
+        <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs capitalize text-zinc-300">
+          {relationship.confidence_level}
+        </span>
+      </div>
+      <div className="mt-4 grid gap-2 text-xs text-zinc-600 md:grid-cols-3">
+        <p>Created by: {relationship.created_by}</p>
+        <p>Triggered by: {relationship.trigger}</p>
+        <p>Recorded: {formatDate(relationship.created_at)}</p>
+      </div>
+    </div>
+  );
 }
 
 export default async function PassportViewerPage({
@@ -262,6 +296,8 @@ export default async function PassportViewerPage({
     { data: appeals },
     { data: latestTrustRun },
     { data: latestAiSummary },
+    { data: sourceRelationships },
+    { data: targetRelationships },
   ] =
     await Promise.all([
       supabase
@@ -300,6 +336,20 @@ export default async function PassportViewerPage({
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
+      supabase
+        .from("trust_relationships")
+        .select("*")
+        .eq("source_type", "passport")
+        .eq("source_id", id)
+        .order("created_at", { ascending: false })
+        .limit(24),
+      supabase
+        .from("trust_relationships")
+        .select("*")
+        .eq("target_type", "passport")
+        .eq("target_id", id)
+        .order("created_at", { ascending: false })
+        .limit(24),
     ]);
   const score = calculateTrustScoreV1({
     passport,
@@ -322,6 +372,20 @@ export default async function PassportViewerPage({
   const aiSourceReasoning = textList(aiAnalysis.source_reasoning);
   const aiObservations = textList(aiAnalysis.observations);
   const aiRecommendations = textList(aiAnalysis.recommendations);
+  const storedRelationshipsById = new Map<string, AnyRow>();
+  [...(sourceRelationships ?? []), ...(targetRelationships ?? [])].forEach((row) =>
+    storedRelationshipsById.set(String(row.id), row)
+  );
+  const relationships = buildPassportRelationships({
+    passport,
+    verificationCases: cases,
+    evidence,
+    decisions,
+    auditLogs,
+    signals,
+    trustRuns: latestTrustRun ? [latestTrustRun] : [],
+    storedRelationships: [...storedRelationshipsById.values()],
+  });
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -511,6 +575,16 @@ export default async function PassportViewerPage({
         </section>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          <Panel title="Relationship View">
+            {relationships.length ? (
+              relationships.map((relationship) => (
+                <RelationshipItem key={relationship.id} relationship={relationship} />
+              ))
+            ) : (
+              <Empty label="No relationships are available yet. Evidence, decisions, signals and audit activity will create explainable links as this passport moves through review." />
+            )}
+          </Panel>
+
           <Panel title="Evidence">
             {evidence.length ? (
               evidence.map((item) => (

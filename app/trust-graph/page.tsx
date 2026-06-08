@@ -2,6 +2,11 @@ import Link from "next/link";
 import { checkUsageLimit } from "@/lib/billing/checkUsageLimit";
 import { createClient } from "@/lib/supabase/server";
 import {
+  normalizeStoredRelationship,
+  relationshipLabel,
+  type TrustRelationshipView,
+} from "@/lib/trust-relationships/relationships";
+import {
   buildTrustGraph,
   graphEdgesForNode,
   graphNodesByType,
@@ -20,6 +25,7 @@ import { evaluateTrustFabric } from "@/lib/trust-engine/trustFabric";
 export const dynamic = "force-dynamic";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+type AnyRow = Record<string, any>;
 
 const nodeStyles: Record<GraphNodeType, string> = {
   human: "border-emerald-800 text-emerald-200",
@@ -99,6 +105,42 @@ function GraphSection({
   );
 }
 
+function formatDate(value: unknown) {
+  if (!value) return "Not recorded";
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) return "Not recorded";
+  return date.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+}
+
+function RelationshipCard({ relationship }: { relationship: TrustRelationshipView }) {
+  return (
+    <div className="rounded-lg border border-zinc-800 bg-black p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-zinc-100">
+            {relationship.source_label}{" "}
+            <span className="text-teal-200">
+              {relationshipLabel(relationship.relationship_type).toLowerCase()}
+            </span>{" "}
+            {relationship.target_label}
+          </p>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">
+            {relationship.explanation}
+          </p>
+        </div>
+        <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs capitalize text-zinc-300">
+          {relationship.confidence_level}
+        </span>
+      </div>
+      <div className="mt-4 grid gap-2 text-xs text-zinc-500 md:grid-cols-3">
+        <p>Created by: {relationship.created_by}</p>
+        <p>Triggered by: {relationship.trigger}</p>
+        <p>Recorded: {formatDate(relationship.created_at)}</p>
+      </div>
+    </div>
+  );
+}
+
 export default async function TrustGraphPage() {
   const supabase = await createClient();
   const {
@@ -148,6 +190,7 @@ export default async function TrustGraphPage() {
     decisions,
     verificationCases,
     evidenceFiles,
+    relationshipRows,
   ] = await Promise.all([
     fetchRows<PassportGraphRow>(
       supabase,
@@ -176,6 +219,12 @@ export default async function TrustGraphPage() {
       "evidence_files",
       "id,verification_case_id,file_name,media_type"
     ),
+    fetchRows<AnyRow>(
+      supabase,
+      "trust_relationships",
+      "id,source_type,source_id,relationship_type,target_type,target_id,confidence_level,explanation,created_at",
+      48
+    ),
   ]);
 
   const graph = buildTrustGraph({
@@ -198,6 +247,14 @@ export default async function TrustGraphPage() {
   const edgeCounts = new Map(
     graph.nodes.map((node) => [node.id, graphEdgesForNode(graph, node.id).length])
   );
+  const storedRelationships = relationshipRows.map(normalizeStoredRelationship);
+  const relationshipTypeCounts = storedRelationships.reduce<Record<string, number>>(
+    (counts, relationship) => {
+      counts[relationship.relationship_type] = (counts[relationship.relationship_type] ?? 0) + 1;
+      return counts;
+    },
+    {}
+  );
 
   return (
     <main className="min-h-screen bg-black p-6 text-white md:p-8">
@@ -219,24 +276,79 @@ export default async function TrustGraphPage() {
 
         <section className="mt-10">
           <p className="text-sm uppercase tracking-[0.28em] text-teal-200">
-            Trust is not a score. It is a network of evidence.
+            Explainable relationships, not graph chaos.
           </p>
           <h1 className="mt-4 text-5xl font-semibold md:text-7xl">
-            Trust Graph Explorer™
+            Trust Graph Explorer
           </h1>
+          <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
+            V1 uses PostgreSQL relationship records and existing operational
+            activity to show verification chains, evidence linkage, agent
+            ownership and signal context. AI may summarize these relationships
+            later, but it does not invent them.
+          </p>
         </section>
 
         <section className="mt-10 grid gap-3 md:grid-cols-3">
           {[
             ["Nodes", graph.nodes.length],
             ["Edges", graph.edges.length],
-            ["Evidence Links", graph.edges.filter((edge) => edge.type === "evidence_for").length],
+            ["Relationship Records", storedRelationships.length],
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
               <p className="text-sm text-zinc-500">{label}</p>
               <p className="mt-3 text-3xl font-semibold">{value}</p>
             </div>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Explainable Relationship Registry</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
+                Each relationship names its source, target, confidence,
+                explanation, recorder and trigger so governance review stays
+                inspectable.
+              </p>
+            </div>
+            <Link
+              href="/trust-graph-engine"
+              className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
+            >
+              Graph Engine
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["Evidence Linkage", relationshipTypeCounts.submitted_evidence ?? 0],
+              ["Signal Relationships", relationshipTypeCounts.generated_signal ?? 0],
+              ["Agent Ownership", relationshipTypeCounts.owned_by ?? 0],
+              [
+                "Governance Links",
+                (relationshipTypeCounts.reviewed_by ?? 0) +
+                  (relationshipTypeCounts.verified_by ?? 0),
+              ],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-sm text-zinc-500">{label}</p>
+                <p className="mt-2 text-2xl font-semibold">{value}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 grid gap-3">
+            {storedRelationships.length ? (
+              storedRelationships.map((relationship) => (
+                <RelationshipCard key={relationship.id} relationship={relationship} />
+              ))
+            ) : (
+              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
+                No stored relationship records yet. Passport and agent pages can
+                still derive explainable relationships from evidence, audit
+                logs, decisions, signals and activity.
+              </p>
+            )}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
