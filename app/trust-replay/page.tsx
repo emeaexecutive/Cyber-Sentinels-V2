@@ -1,0 +1,423 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import {
+  buildReplaySnapshot,
+  replayDefaultAsOf,
+  replayStage,
+  rowMetadata,
+  type ReplayRow,
+  type ReplaySession,
+} from "@/lib/trust-replay/replay";
+import {
+  formatTimelineDate,
+  normalizeStoredTimelineEvent,
+  type TrustTimelineEvent,
+} from "@/lib/trust-timeline/provenance";
+
+export const dynamic = "force-dynamic";
+
+type TrustReplayPageProps = {
+  searchParams?: Promise<{
+    subject_type?: string;
+    subject_id?: string;
+    as_of?: string;
+    replay_saved?: string;
+  }>;
+};
+
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+
+const supportedSubjectTypes = ["all", "passport", "agent", "workflow"];
+
+async function fetchRows(
+  supabase: SupabaseServerClient,
+  table: string,
+  select = "*",
+  limit = 120
+) {
+  const { data, error } = await supabase
+    .from(table)
+    .select(select)
+    .order("created_at", { ascending: false })
+    .limit(limit)
+    .returns<ReplayRow[]>();
+
+  return error ? [] : data ?? [];
+}
+
+async function createReplaySession(formData: FormData) {
+  "use server";
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login?next=/trust-replay");
+  }
+
+  const subjectType = String(formData.get("subject_type") ?? "workflow");
+  const subjectId = String(formData.get("subject_id") ?? "").trim() || null;
+  const asOf = String(formData.get("as_of") ?? replayDefaultAsOf());
+  const replaySummary = String(formData.get("replay_summary") ?? "").trim();
+
+  await supabase.from("trust_replay_sessions").insert({
+    subject_type: subjectType === "all" ? "workflow" : subjectType,
+    subject_id: subjectId,
+    replay_summary:
+      replaySummary ||
+      `Operational replay generated for ${subjectType} as of ${formatTimelineDate(asOf)}.`,
+    generated_by: user.email ?? user.id,
+  });
+
+  const params = new URLSearchParams({
+    subject_type: subjectType,
+    as_of: asOf,
+    replay_saved: "1",
+  });
+
+  if (subjectId) params.set("subject_id", subjectId);
+
+  redirect(`/trust-replay?${params.toString()}`);
+}
+
+function eventTitle(row: ReplayRow, fallback: string) {
+  return String(
+    row.event_title ??
+      row.event_type ??
+      row.event ??
+      row.decision ??
+      row.file_name ??
+      row.relationship_type ??
+      fallback
+  );
+}
+
+function ReplayList({
+  title,
+  rows,
+  empty,
+}: {
+  title: string;
+  rows: ReplayRow[];
+  empty: string;
+}) {
+  return (
+    <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-xl font-semibold">{title}</h2>
+        <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400">
+          {rows.length}
+        </span>
+      </div>
+      <div className="mt-5 grid gap-3">
+        {rows.length ? (
+          rows.slice(0, 10).map((row) => {
+            const metadata = rowMetadata(row);
+            return (
+              <div key={String(row.id)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="font-medium text-zinc-100">{eventTitle(row, title)}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-500">
+                  {String(
+                    row.event_summary ??
+                      row.explanation ??
+                      row.notes ??
+                      metadata.explanation ??
+                      "Replay record preserved for operational governance memory."
+                  )}
+                </p>
+                <p className="mt-3 text-xs text-zinc-600">
+                  {formatTimelineDate(row.created_at)}
+                </p>
+              </div>
+            );
+          })
+        ) : (
+          <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
+            {empty}
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function TimelineReplay({ events }: { events: TrustTimelineEvent[] }) {
+  return (
+    <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-xl font-semibold">Timeline Reconstruction</h2>
+        <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400">
+          immutable replay
+        </span>
+      </div>
+      <div className="mt-5 grid gap-3">
+        {events.length ? (
+          events.slice(0, 20).map((event) => (
+            <div
+              key={event.id}
+              className="grid gap-3 rounded-lg border border-zinc-800 bg-black p-4 md:grid-cols-[160px_1fr]"
+            >
+              <div>
+                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                  {formatTimelineDate(event.created_at)}
+                </p>
+                <p className="mt-3 rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300">
+                  {replayStage(event.event_type)}
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-zinc-100">{event.event_title}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-500">
+                  {event.event_summary}
+                </p>
+                <p className="mt-3 text-xs text-zinc-600">
+                  Actor: {event.actor_type ?? "system"} / Source: {event.source}
+                </p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
+            No timeline events are available for this replay window.
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+export default async function TrustReplayPage({ searchParams }: TrustReplayPageProps) {
+  const query = searchParams ? await searchParams : {};
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login?next=/trust-replay");
+  }
+
+  const subjectType = supportedSubjectTypes.includes(String(query.subject_type))
+    ? String(query.subject_type)
+    : "all";
+  const subjectId = String(query.subject_id ?? "").trim() || null;
+  const asOf = query.as_of && !Number.isNaN(new Date(query.as_of).getTime())
+    ? new Date(query.as_of).toISOString()
+    : replayDefaultAsOf();
+
+  const [
+    timelineRows,
+    evidence,
+    signals,
+    decisions,
+    auditLogs,
+    relationships,
+    sessions,
+  ] = await Promise.all([
+    fetchRows(supabase, "trust_timeline_events", "*", 200),
+    fetchRows(supabase, "evidence_files", "*", 120),
+    fetchRows(supabase, "signals", "*", 160),
+    fetchRows(supabase, "decisions", "*", 120),
+    fetchRows(supabase, "audit_logs", "*", 160),
+    fetchRows(supabase, "trust_relationships", "*", 120),
+    fetchRows(supabase, "trust_replay_sessions", "*", 20) as Promise<ReplaySession[]>,
+  ]);
+  const aiSummaries = auditLogs.filter((row) =>
+    ["ai_summary_generated", "governance_recommendation_created", "anomaly_review_recommended"].includes(
+      String(row.event_type ?? "")
+    )
+  );
+  const timelineEvents = timelineRows.map(normalizeStoredTimelineEvent);
+  const snapshot = buildReplaySnapshot({
+    subjectType,
+    subjectId,
+    asOf,
+    evidence,
+    signals,
+    decisions,
+    auditLogs,
+    relationships,
+    aiSummaries,
+    timelineEvents,
+  });
+
+  return (
+    <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
+      <div className="mx-auto max-w-7xl">
+        <nav className="flex flex-wrap gap-3">
+          <Link href="/" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
+            /
+          </Link>
+          <Link href="/timeline" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
+            Timeline
+          </Link>
+          <Link href="/trust-graph" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
+            Trust Graph
+          </Link>
+        </nav>
+
+        <section className="mt-10 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
+            Operational governance memory
+          </p>
+          <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
+            Trust Replay
+          </h1>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            Cyber Sentinels preserves operational trust memory and explainable
+            governance history. Replay reconstructs what evidence, signals,
+            decisions, relationships, summaries and timeline events existed at a
+            point in time.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
+            Replay is immutable and read-only. It never deletes historical trust
+            events, overwrites governance history, or mutates audit trails. AI
+            may summarize replay context later, but AI does not rewrite
+            operational history.
+          </p>
+        </section>
+
+        {query.replay_saved ? (
+          <div className="mt-6 rounded-lg border border-emerald-900 bg-emerald-950/20 p-4 text-sm text-emerald-100">
+            Replay session saved to operational memory.
+          </div>
+        ) : null}
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
+          <form className="grid gap-4 md:grid-cols-[1fr_2fr_2fr_auto]" action="/trust-replay">
+            <label className="grid gap-2 text-sm text-zinc-400">
+              Subject
+              <select
+                name="subject_type"
+                defaultValue={subjectType}
+                className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-zinc-100"
+              >
+                {supportedSubjectTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-2 text-sm text-zinc-400">
+              Subject ID
+              <input
+                name="subject_id"
+                defaultValue={subjectId ?? ""}
+                placeholder="Optional UUID"
+                className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-zinc-100"
+              />
+            </label>
+            <label className="grid gap-2 text-sm text-zinc-400">
+              Replay as of
+              <input
+                name="as_of"
+                type="datetime-local"
+                defaultValue={asOf.slice(0, 16)}
+                className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-zinc-100"
+              />
+            </label>
+            <button className="self-end rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-cyan-100">
+              Reconstruct
+            </button>
+          </form>
+        </section>
+
+        <section className="mt-8 grid gap-3 md:grid-cols-4">
+          {[
+            ["Evidence", snapshot.evidence.length],
+            ["Decisions", snapshot.decisions.length],
+            ["Signals", snapshot.signals.length],
+            ["Relationships", snapshot.relationships.length],
+          ].map(([label, value]) => (
+            <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+              <p className="text-sm text-zinc-500">{label}</p>
+              <p className="mt-2 text-3xl font-semibold text-zinc-100">{value}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Replay Summary</h2>
+              <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+                {snapshot.summary}
+              </p>
+            </div>
+            <form action={createReplaySession}>
+              <input type="hidden" name="subject_type" value={subjectType} />
+              <input type="hidden" name="subject_id" value={subjectId ?? ""} />
+              <input type="hidden" name="as_of" value={asOf} />
+              <input type="hidden" name="replay_summary" value={snapshot.summary} />
+              <button className="rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
+                Save Replay Session
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+          <TimelineReplay events={snapshot.timelineEvents} />
+          <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Replay Sessions</h2>
+            <div className="mt-5 grid gap-3">
+              {sessions.length ? (
+                sessions.map((session) => (
+                  <div key={session.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                    <p className="text-sm leading-6 text-zinc-300">
+                      {session.replay_summary ?? "Replay session"}
+                    </p>
+                    <p className="mt-3 text-xs text-zinc-600">
+                      {session.generated_by ?? "user"} / {formatTimelineDate(session.created_at)}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
+                  No replay sessions saved yet.
+                </p>
+              )}
+            </div>
+          </section>
+        </div>
+
+        <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <ReplayList
+            title="Evidence Chain"
+            rows={snapshot.evidence}
+            empty="No evidence existed in this replay window."
+          />
+          <ReplayList
+            title="Governance Actions"
+            rows={snapshot.decisions}
+            empty="No governance decisions existed in this replay window."
+          />
+          <ReplayList
+            title="Signals"
+            rows={snapshot.signals}
+            empty="No signals existed in this replay window."
+          />
+          <ReplayList
+            title="Audit History"
+            rows={snapshot.auditLogs}
+            empty="No audit events existed in this replay window."
+          />
+          <ReplayList
+            title="Relationships"
+            rows={snapshot.relationships}
+            empty="No trust relationships existed in this replay window."
+          />
+          <ReplayList
+            title="AI-Assisted Operational Summaries"
+            rows={snapshot.aiSummaries}
+            empty="No AI-assisted summaries existed in this replay window."
+          />
+        </section>
+      </div>
+    </main>
+  );
+}

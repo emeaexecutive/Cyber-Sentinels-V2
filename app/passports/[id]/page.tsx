@@ -459,6 +459,12 @@ export default async function PassportViewerPage({
                 Open Trust Graph
               </Link>
             ) : null}
+            <Link
+              href={`/trust-replay?subject_type=passport&subject_id=${encodeURIComponent(id)}`}
+              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-200 hover:border-cyan-500"
+            >
+              Replay Trust History
+            </Link>
           </div>
         </section>
 
@@ -620,6 +626,30 @@ export default async function PassportViewerPage({
               className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
             >
               View Notifications
+            </Link>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                Replay Trust History
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">
+                Operational memory for this passport
+              </h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
+                Review historical trust progression, evidence evolution,
+                governance decisions and signals over time. Replay is read-only
+                and does not mutate audit trails or governance history.
+              </p>
+            </div>
+            <Link
+              href={`/trust-replay?subject_type=passport&subject_id=${encodeURIComponent(id)}`}
+              className="rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400"
+            >
+              Open Replay
             </Link>
           </div>
         </section>

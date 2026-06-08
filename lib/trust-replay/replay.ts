@@ -1,0 +1,132 @@
+import {
+  formatTimelineDate,
+  timelineCategory,
+  type TrustTimelineEvent,
+} from "@/lib/trust-timeline/provenance";
+
+export type ReplayRow = Record<string, any>;
+
+export type ReplaySnapshot = {
+  subject_type: string;
+  subject_id: string | null;
+  as_of: string;
+  summary: string;
+  evidence: ReplayRow[];
+  signals: ReplayRow[];
+  decisions: ReplayRow[];
+  auditLogs: ReplayRow[];
+  relationships: ReplayRow[];
+  aiSummaries: ReplayRow[];
+  timelineEvents: TrustTimelineEvent[];
+};
+
+export type ReplaySession = {
+  id: string;
+  subject_type: string | null;
+  subject_id: string | null;
+  replay_summary: string | null;
+  generated_by: string | null;
+  created_at: string | null;
+};
+
+export function isAtOrBefore(row: ReplayRow, asOf: string) {
+  const rowDate = new Date(String(row.created_at ?? 0)).getTime();
+  const asOfDate = new Date(asOf).getTime();
+  return Number.isFinite(rowDate) && Number.isFinite(asOfDate) && rowDate <= asOfDate;
+}
+
+export function rowMetadata(row: ReplayRow) {
+  return row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata)
+    ? (row.metadata as Record<string, any>)
+    : {};
+}
+
+export function subjectMatches(row: ReplayRow, subjectType: string, subjectId: string | null) {
+  if (!subjectId) return true;
+  const metadata = rowMetadata(row);
+  const values = [
+    row.subject_id,
+    row.passport_id,
+    row.agent_id,
+    row.verification_case_id,
+    row.source_id,
+    row.target_id,
+    metadata.subject_id,
+    metadata.passport_id,
+    metadata.agent_id,
+    metadata.verification_case_id,
+  ]
+    .filter(Boolean)
+    .map(String);
+
+  return values.includes(subjectId);
+}
+
+export function buildReplaySnapshot(input: {
+  subjectType: string;
+  subjectId: string | null;
+  asOf: string;
+  evidence: ReplayRow[];
+  signals: ReplayRow[];
+  decisions: ReplayRow[];
+  auditLogs: ReplayRow[];
+  relationships: ReplayRow[];
+  aiSummaries: ReplayRow[];
+  timelineEvents: TrustTimelineEvent[];
+}): ReplaySnapshot {
+  const filterRows = (rows: ReplayRow[]) =>
+    rows
+      .filter((row) => isAtOrBefore(row, input.asOf))
+      .filter((row) => subjectMatches(row, input.subjectType, input.subjectId));
+  const timelineEvents = input.timelineEvents
+    .filter((event) =>
+      event.created_at ? new Date(event.created_at).getTime() <= new Date(input.asOf).getTime() : false
+    )
+    .filter((event) => {
+      if (!input.subjectId) return true;
+      return (
+        event.subject_id === input.subjectId ||
+        event.subject_type?.toLowerCase() === input.subjectType.toLowerCase()
+      );
+    });
+  const evidence = filterRows(input.evidence);
+  const signals = filterRows(input.signals);
+  const decisions = filterRows(input.decisions);
+  const auditLogs = filterRows(input.auditLogs);
+  const relationships = filterRows(input.relationships);
+  const aiSummaries = filterRows(input.aiSummaries);
+  const summary = [
+    `Replay as of ${formatTimelineDate(input.asOf)}.`,
+    `${evidence.length} evidence records existed.`,
+    `${decisions.length} governance decisions were available.`,
+    `${signals.length} signals and ${auditLogs.length} audit events were present.`,
+    `${relationships.length} trust relationships were recorded.`,
+  ].join(" ");
+
+  return {
+    subject_type: input.subjectType,
+    subject_id: input.subjectId,
+    as_of: input.asOf,
+    summary,
+    evidence,
+    signals,
+    decisions,
+    auditLogs,
+    relationships,
+    aiSummaries,
+    timelineEvents,
+  };
+}
+
+export function replayStage(eventType: string) {
+  const category = timelineCategory(eventType);
+  if (category === "evidence") return "Evidence state";
+  if (category === "signals") return "Signal state";
+  if (category === "agents") return "Agent activity";
+  if (category === "passports") return "Trust change";
+  return "Governance action";
+}
+
+export function replayDefaultAsOf() {
+  return new Date().toISOString();
+}
