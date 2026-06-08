@@ -24,6 +24,7 @@ const userPagePrefixes = [
   "/recruiter/dashboard",
   "/developers/api-keys",
   "/workspace",
+  "/governance",
 ];
 
 const adminPagePrefixes = [
@@ -253,6 +254,7 @@ export const config = {
     "/recruiter/dashboard/:path*",
     "/developers/api-keys/:path*",
     "/workspace/:path*",
+    "/governance/:path*",
     "/back-office/:path*",
     "/admin/api-tests/:path*",
     "/admin/integrations/:path*",
