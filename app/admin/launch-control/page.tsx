@@ -51,7 +51,7 @@ function formatDate(value?: string | null) {
 function stateLabel(state: LaunchCheckState) {
   if (state === "ready") return "Ready";
   if (state === "blocked") return "Blocked";
-  return "Needs attention";
+  return "Caution";
 }
 
 function stateClass(state: LaunchCheckState) {

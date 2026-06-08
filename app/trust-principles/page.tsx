@@ -5,7 +5,7 @@ export default function TrustPrinciplesPage() {
   return (
     <LegalDraftPage
       title="Trust Principles™"
-      subtitle="Cyber Sentinels is built around evidence-backed, human-governed trust infrastructure."
+      subtitle="Cyber Sentinels is built around AI-assisted, evidence-backed and human-governed operational trust infrastructure."
       links={legalDraftLinks}
       sections={[
         {

@@ -25,6 +25,9 @@ const userPagePrefixes = [
   "/developers/api-keys",
   "/workspace",
   "/governance",
+  "/agents",
+  "/timeline",
+  "/trust-replay",
 ];
 
 const adminPagePrefixes = [
@@ -46,7 +49,6 @@ const adminPagePrefixes = [
   "/autonomy-governance",
   "/execution-passports",
   "/state-verification",
-  "/agents",
   "/trust-events",
 ];
 
@@ -255,6 +257,9 @@ export const config = {
     "/developers/api-keys/:path*",
     "/workspace/:path*",
     "/governance/:path*",
+    "/agents/:path*",
+    "/timeline/:path*",
+    "/trust-replay/:path*",
     "/back-office/:path*",
     "/admin/api-tests/:path*",
     "/admin/integrations/:path*",
@@ -273,7 +278,6 @@ export const config = {
     "/autonomy-governance/:path*",
     "/execution-passports/:path*",
     "/state-verification/:path*",
-    "/agents/:path*",
     "/trust-events/:path*",
     "/api/admin/:path*",
   ],

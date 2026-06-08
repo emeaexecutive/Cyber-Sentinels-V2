@@ -54,8 +54,9 @@ export default function HomePage() {
             workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-300">
-            A calm infrastructure layer for identity context, evidence,
-            operational review, trust events and audit visibility.
+            AI-assisted, human-governed operational trust infrastructure for
+            identity context, evidence, operational review, trust events and
+            audit visibility.
           </p>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-500">
             Built for organizations that need explainable verification and

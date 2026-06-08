@@ -48,23 +48,13 @@ function enterpriseAccessErrorResponse(
 function logEnterpriseAccessSubmitError(error: unknown) {
   const supabaseError = error as SupabaseErrorLike;
 
-  console.log("LIVE_ENTERPRISE_ACCESS_HANDLER_CONFIRMED", "2026-06-06");
-  console.log("LIVE_HANDLER_EDITED_NOW", "commit-6099c67");
   console.error("enterprise access submit failed", {
-    message:
-      typeof supabaseError?.message === "string"
-        ? supabaseError.message
-        : "Unknown enterprise access submit error",
     code: typeof supabaseError?.code === "string" ? supabaseError.code : null,
-    details:
-      typeof supabaseError?.details === "string"
-        ? supabaseError.details
-        : null,
   });
 }
 
 function logSubmittedFieldKeys(formData: FormData) {
-  console.error("enterprise access submitted field keys", {
+  console.warn("enterprise access submitted field keys", {
     keys: [...formData.keys()].sort(),
   });
 }
@@ -120,21 +110,15 @@ function getEnterpriseInterestSignal(problemCategory: string) {
 
 export async function POST(req: Request) {
   try {
-    console.log("LIVE_HANDLER_EDITED_NOW", "2026-06-06");
-    console.log("ENTERPRISE_ACCESS_ROUTE_PROBE", "2026-06-06-1008");
-    console.log("ENTERPRISE_ACCESS_ENV", {
-      hasUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
-      hasServiceRole: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
-      serviceRolePrefix: process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 16),
-      hasAnon: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
-    });
-
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl || !serviceRoleKey) {
       return Response.json(
-        { ok: false, error: "missing_supabase_admin_env" },
+        {
+          ok: false,
+          error: "This operational request is temporarily unavailable.",
+        },
         { status: 500 }
       );
     }
@@ -142,13 +126,12 @@ export async function POST(req: Request) {
     const formData = await req.formData();
     const payload = buildEnterpriseAccessPayload(formData);
     logSubmittedFieldKeys(formData);
-    console.error("enterprise access insert payload keys", {
+    console.warn("enterprise access insert payload keys", {
       keys: Object.keys(payload).sort(),
     });
 
     if (!payload.name || !payload.work_email || !payload.company) {
-      console.error("enterprise access submit missing required fields");
-      return enterpriseAccessErrorResponse("required_fields_missing", 400);
+      return enterpriseAccessErrorResponse("Additional information is required.", 400);
     }
 
     const supabaseAdmin = createClient(
@@ -162,20 +145,16 @@ export async function POST(req: Request) {
       }
     );
 
-    console.log("ENTERPRISE_ACCESS_INSERT_CLIENT", "admin-inline");
     const { error } = await supabaseAdmin
       .from("enterprise_access_requests")
       .insert([payload]);
 
     if (error) {
-      console.error("ENTERPRISE_ACCESS_SUPABASE_ERROR", {
+      console.warn("enterprise access request could not be recorded", {
         code: error.code,
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
       });
       logEnterpriseAccessSubmitError(error);
-      return enterpriseAccessErrorResponse("submit_failed", 500, error);
+      return enterpriseAccessErrorResponse("We could not complete this request.", 500, error);
     }
 
     const { error: interestSignalError } = await supabaseAdmin

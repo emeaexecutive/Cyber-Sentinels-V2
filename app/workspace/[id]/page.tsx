@@ -202,6 +202,29 @@ export default async function WorkspaceDetailPage({
     fetchRows<AnyRow>(supabase, "audit_logs", 120),
   ]);
   const scopedMembers = members.filter((item) => item.workspace_id === id);
+  const canAccessWorkspace =
+    workspace.created_by === user.id ||
+    scopedMembers.some((item) => item.user_id === user.id);
+
+  if (!canAccessWorkspace) {
+    return (
+      <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
+        <div className="mx-auto max-w-4xl rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
+            Workspace
+          </p>
+          <h1 className="mt-4 text-3xl font-semibold">Workspace not available</h1>
+          <p className="mt-3 text-sm leading-7 text-zinc-400">
+            This operational workspace is only available to its members and
+            workspace owner.
+          </p>
+          <Link href="/workspace" className="mt-5 inline-flex text-sm text-cyan-200">
+            Back to Workspaces
+          </Link>
+        </div>
+      </main>
+    );
+  }
   const scopedCases = cases.filter((item) => item.workspace_id === id);
   const caseIds = new Set(scopedCases.map((item) => item.id));
   const scopedRelationships = relationships.filter((item) =>

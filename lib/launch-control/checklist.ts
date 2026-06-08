@@ -20,7 +20,7 @@ export type LaunchSection = {
 };
 
 export type LaunchControlSnapshot = {
-  status: "Ready" | "Needs attention" | "Blocked";
+  status: "Ready" | "Caution" | "Blocked";
   summary: string;
   sections: LaunchSection[];
   blockers: LaunchCheck[];
@@ -89,7 +89,7 @@ function statusFromSections(sections: LaunchSection[]) {
 
   if (attention.length) {
     return {
-      status: "Needs attention" as const,
+      status: "Caution" as const,
       summary: "Core launch paths are present, with optional integrations or improvements still pending.",
       blockers,
       attention,
@@ -147,6 +147,25 @@ export async function createLaunchControlSnapshot(
     fileContains("middleware.ts", /\/back-office/) &&
     fileContains("middleware.ts", /\/api\/admin/) &&
     fileContains("middleware.ts", /adminPagePrefixes/);
+  const reviewerProtectionExists =
+    fileContains("middleware.ts", /\/governance/) &&
+    routeExists("app/governance/page.tsx");
+  const workspaceProtectionExists =
+    fileContains("middleware.ts", /\/workspace/) &&
+    routeExists("app/workspace/page.tsx") &&
+    routeExists("app/workspace/[id]/page.tsx");
+  const timelineProtectionExists =
+    fileContains("middleware.ts", /\/timeline/) &&
+    routeExists("app/timeline/page.tsx");
+  const replayProtectionExists =
+    fileContains("middleware.ts", /\/trust-replay/) &&
+    routeExists("app/trust-replay/page.tsx");
+  const governanceTables = await Promise.all([
+    tableCheck(supabase, "governance_policies", "Governance policies table exists"),
+    tableCheck(supabase, "governance_actions", "Governance actions table exists"),
+    tableCheck(supabase, "trust_workspaces", "Trust workspaces table exists"),
+    tableCheck(supabase, "trust_cases", "Trust cases table exists"),
+  ]);
 
   const sections: LaunchSection[] = [
     {
@@ -215,6 +234,70 @@ export async function createLaunchControlSnapshot(
         ),
         check("Notifications route exists", routeExists("app/notifications/page.tsx"), "Notifications page exists."),
         check("Appeals route exists", routeExists("app/appeals/page.tsx"), "Appeals page exists."),
+      ],
+    },
+    {
+      title: "Trust Readiness",
+      checks: [
+        check(
+          "Auth boundary ready",
+          adminProtectionExists && reviewerProtectionExists && workspaceProtectionExists,
+          "Admin, reviewer and workspace routes are protected.",
+          true
+        ),
+        warning(
+          "Billing readiness",
+          stripeIntegration?.status === "configured",
+          stripeIntegration?.status === "disabled"
+            ? "Billing is safely disabled until Stripe is configured."
+            : stripeIntegration?.notes ?? "Stripe status unknown."
+        ),
+        check(
+          "Governance readiness",
+          governanceTables.every((item) => item.state === "ready") &&
+            routeExists("app/governance/page.tsx"),
+          "Governance policies, actions and route are expected.",
+          true
+        ),
+        check(
+          "Trust workflow readiness",
+          passportTable.state === "ready" &&
+            evidenceFilesTable.state === "ready" &&
+            decisionsTable.state === "ready" &&
+            auditLogsTable.state === "ready" &&
+            signalsTable.state === "ready",
+          "Core trust workflow tables responded.",
+          true
+        ),
+        warning(
+          "Integration readiness",
+          supabaseIntegration?.status === "configured" &&
+            (!stripeIntegration || ["configured", "disabled"].includes(stripeIntegration.status)) &&
+            (!openAiIntegration || ["configured", "disabled"].includes(openAiIntegration.status)) &&
+            (!worldIdIntegration || ["configured", "disabled"].includes(worldIdIntegration.status)),
+          "Optional integrations must be configured or safely disabled."
+        ),
+        check(
+          "Uploads readiness",
+          routeExists("app/evidence-upload/page.tsx") &&
+            routeExists("app/api/evidence/upload/route.ts") &&
+            evidenceFilesTable.state === "ready",
+          "Evidence upload page, API and table are available.",
+          true
+        ),
+        warning(
+          "AI assistance readiness",
+          openAiIntegration?.status === "configured",
+          openAiIntegration?.status === "disabled"
+            ? "AI assistance is safely disabled until OPENAI_API_KEY is configured."
+            : openAiIntegration?.notes ?? "OpenAI status unknown."
+        ),
+        check(
+          "History routes protected",
+          timelineProtectionExists && replayProtectionExists,
+          "Timeline and replay routes are authenticated operational history routes.",
+          true
+        ),
       ],
     },
     {
