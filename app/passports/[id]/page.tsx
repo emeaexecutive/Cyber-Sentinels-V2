@@ -8,6 +8,13 @@ import {
   relationshipLabel,
   type TrustRelationshipView,
 } from "@/lib/trust-relationships/relationships";
+import {
+  buildDerivedPassportTimeline,
+  formatTimelineDate,
+  mergeTimelineEvents,
+  normalizeStoredTimelineEvent,
+  type TrustTimelineEvent,
+} from "@/lib/trust-timeline/provenance";
 
 export const dynamic = "force-dynamic";
 
@@ -166,6 +173,29 @@ function RelationshipItem({ relationship }: { relationship: TrustRelationshipVie
   );
 }
 
+function TimelineItem({ event }: { event: TrustTimelineEvent }) {
+  return (
+    <div className="rounded-lg border border-zinc-800 bg-black p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-medium text-zinc-100">{event.event_title}</p>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">
+            {event.event_summary}
+          </p>
+        </div>
+        <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs capitalize text-zinc-300">
+          {event.severity}
+        </span>
+      </div>
+      <div className="mt-4 grid gap-2 text-xs text-zinc-600 md:grid-cols-3">
+        <p>Actor: {event.actor_type ?? "system"}</p>
+        <p>Event: {event.event_type}</p>
+        <p>When: {formatTimelineDate(event.created_at)}</p>
+      </div>
+    </div>
+  );
+}
+
 export default async function PassportViewerPage({
   params,
   searchParams,
@@ -298,6 +328,7 @@ export default async function PassportViewerPage({
     { data: latestAiSummary },
     { data: sourceRelationships },
     { data: targetRelationships },
+    { data: storedTimeline },
   ] =
     await Promise.all([
       supabase
@@ -350,6 +381,13 @@ export default async function PassportViewerPage({
         .eq("target_id", id)
         .order("created_at", { ascending: false })
         .limit(24),
+      supabase
+        .from("trust_timeline_events")
+        .select("*")
+        .eq("subject_type", "passport")
+        .eq("subject_id", id)
+        .order("created_at", { ascending: false })
+        .limit(40),
     ]);
   const score = calculateTrustScoreV1({
     passport,
@@ -386,6 +424,18 @@ export default async function PassportViewerPage({
     trustRuns: latestTrustRun ? [latestTrustRun] : [],
     storedRelationships: [...storedRelationshipsById.values()],
   });
+  const timelineEvents = mergeTimelineEvents(
+    (storedTimeline ?? []).map(normalizeStoredTimelineEvent),
+    buildDerivedPassportTimeline({
+      passportId: id,
+      evidence,
+      decisions,
+      auditLogs,
+      signals,
+      trustRuns: latestTrustRun ? [latestTrustRun] : [],
+      relationships: [...storedRelationshipsById.values()],
+    })
+  ).slice(0, 12);
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -582,6 +632,21 @@ export default async function PassportViewerPage({
               ))
             ) : (
               <Empty label="No relationships are available yet. Evidence, decisions, signals and audit activity will create explainable links as this passport moves through review." />
+            )}
+          </Panel>
+
+          <Panel title="Provenance Timeline">
+            <p className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 text-sm leading-6 text-zinc-500">
+              Cyber Sentinels provides operational provenance and explainable
+              trust history for evidence, review, trust changes, governance
+              actions and audit events.
+            </p>
+            {timelineEvents.length ? (
+              timelineEvents.map((event) => (
+                <TimelineItem key={event.id} event={event} />
+              ))
+            ) : (
+              <Empty label="No timeline events are available yet. Workflow activity will appear here as provenance is recorded." />
             )}
           </Panel>
 

@@ -8,6 +8,13 @@ import {
   relationshipLabel,
   type TrustRelationshipView,
 } from "@/lib/trust-relationships/relationships";
+import {
+  buildDerivedAgentTimeline,
+  formatTimelineDate,
+  mergeTimelineEvents,
+  normalizeStoredTimelineEvent,
+  type TrustTimelineEvent,
+} from "@/lib/trust-timeline/provenance";
 
 export const dynamic = "force-dynamic";
 
@@ -73,6 +80,29 @@ function RelationshipItem({ relationship }: { relationship: TrustRelationshipVie
   );
 }
 
+function TimelineItem({ event }: { event: TrustTimelineEvent }) {
+  return (
+    <div className="rounded-lg border border-zinc-800 bg-black p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-medium text-zinc-100">{event.event_title}</p>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">
+            {event.event_summary}
+          </p>
+        </div>
+        <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs capitalize text-zinc-300">
+          {event.severity}
+        </span>
+      </div>
+      <div className="mt-4 grid gap-2 text-xs text-zinc-600 md:grid-cols-3">
+        <p>Actor: {event.actor_type ?? "system"}</p>
+        <p>Event: {event.event_type}</p>
+        <p>When: {formatTimelineDate(event.created_at)}</p>
+      </div>
+    </div>
+  );
+}
+
 export default async function AgentPassportPage({
   params,
   searchParams,
@@ -120,6 +150,7 @@ export default async function AgentPassportPage({
     { data: latestAiOverview },
     { data: sourceRelationships },
     { data: targetRelationships },
+    { data: storedTimeline },
   ] = await Promise.all([
     supabase
       .from("trust_events")
@@ -166,6 +197,13 @@ export default async function AgentPassportPage({
       .eq("target_id", id)
       .order("created_at", { ascending: false })
       .limit(24),
+    supabase
+      .from("trust_timeline_events")
+      .select("*")
+      .eq("subject_type", "agent")
+      .eq("subject_id", id)
+      .order("created_at", { ascending: false })
+      .limit(40),
   ]);
   const activityRisk = (events ?? []).some((event) =>
     ["high", "critical"].includes(String(event.risk_level ?? "").toLowerCase())
@@ -196,6 +234,16 @@ export default async function AgentPassportPage({
     trustRuns: latestTrustRun ? [latestTrustRun] : [],
     storedRelationships: [...storedRelationshipsById.values()],
   });
+  const timelineEvents = mergeTimelineEvents(
+    (storedTimeline ?? []).map(normalizeStoredTimelineEvent),
+    buildDerivedAgentTimeline({
+      agentId: id,
+      events: events ?? [],
+      permissions: permissions ?? [],
+      trustRuns: latestTrustRun ? [latestTrustRun] : [],
+      relationships: [...storedRelationshipsById.values()],
+    })
+  ).slice(0, 12);
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -380,6 +428,27 @@ export default async function AgentPassportPage({
                   No relationships are available yet. Ownership, trust events
                   and permissions will create explainable links as the agent is
                   used.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Provenance Timeline</h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-500">
+              Cyber Sentinels provides operational provenance and explainable
+              trust history for agent activity, governance actions, ownership
+              context and operational events.
+            </p>
+            <div className="mt-5 grid gap-3">
+              {timelineEvents.length ? (
+                timelineEvents.map((event) => (
+                  <TimelineItem key={event.id} event={event} />
+                ))
+              ) : (
+                <p className="rounded-lg border border-zinc-800 bg-black p-5 text-sm text-zinc-500">
+                  No timeline events are available yet. Agent activity and
+                  governance records will appear here as provenance is recorded.
                 </p>
               )}
             </div>
