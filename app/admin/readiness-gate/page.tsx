@@ -63,7 +63,7 @@ function stateClass(state: ReadinessGateState) {
 }
 
 function statusClass(status: string) {
-  if (status === "READY FOR PRIVATE TESTING") return "border-emerald-800 text-emerald-200";
+  if (status === "READY FOR DESIGN PARTNERS") return "border-emerald-800 text-emerald-200";
   if (status === "BLOCKED") return "border-red-800 text-red-200";
   return "border-amber-800 text-amber-200";
 }

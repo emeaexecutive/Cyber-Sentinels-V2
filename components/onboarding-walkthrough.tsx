@@ -8,7 +8,7 @@ const copy = {
   governance:
     "Governance actions keep human review accountable: approve, reject, escalate, defer or request evidence.",
   timeline:
-    "Timeline shows how trust changed over time without turning the product into a surveillance feed.",
+    "Timeline shows how trust changed over time as operational provenance, not a passive activity feed.",
   replay:
     "Replay reconstructs historical workflow state so teams can understand how decisions evolved.",
   receipt:

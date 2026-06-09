@@ -20,8 +20,8 @@ export type ReadinessGateSection = {
 };
 
 export type ReadinessGateStatus =
-  | "READY FOR PRIVATE TESTING"
-  | "CAUTION"
+  | "READY FOR DESIGN PARTNERS"
+  | "INTERNAL ONLY"
   | "BLOCKED";
 
 export type ReadinessGateSnapshot = {
@@ -89,7 +89,7 @@ function statusFromSections(sections: ReadinessGateSection[]) {
   if (blockers.length) {
     return {
       status: "BLOCKED" as const,
-      summary: `${blockers.length} critical readiness gate item${blockers.length === 1 ? "" : "s"} must be resolved before private testing.`,
+      summary: `${blockers.length} critical readiness gate item${blockers.length === 1 ? "" : "s"} must be resolved before design-partner rollout.`,
       blockers,
       cautions,
     };
@@ -97,18 +97,18 @@ function statusFromSections(sections: ReadinessGateSection[]) {
 
   if (cautions.length) {
     return {
-      status: "CAUTION" as const,
+      status: "INTERNAL ONLY" as const,
       summary:
-        "Critical paths are present, with optional integrations or operational polish still requiring attention.",
+        "Critical paths are present, but optional integrations or operational polish should stay internal until reviewed.",
       blockers,
       cautions,
     };
   }
 
   return {
-    status: "READY FOR PRIVATE TESTING" as const,
+    status: "READY FOR DESIGN PARTNERS" as const,
     summary:
-      "Public entry, auth, trust workflows, governance, integrations and security controls are ready for controlled private testing.",
+      "Public entry, auth, trust workflows, governance, integrations and security controls are ready for controlled design-partner rollout.",
     blockers,
     cautions,
   };
