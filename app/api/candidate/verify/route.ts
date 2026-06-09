@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { candidateTrustFactors, trustScoreFromFactors } from "@/lib/trusted-layer/phase1";
+import {
+  createReceiptBundle,
+  receiptConfidence,
+  verificationReceiptType,
+} from "@/lib/trust-receipts/receipts";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
 
@@ -111,6 +116,43 @@ export async function POST(req: Request) {
 
   await createAuditLog(supabase, "candidate_verification_requested", actor, metadata);
   await createSignal(supabase, "Candidate verification requested", metadata);
+
+  if (candidateProfile?.id) {
+    await createReceiptBundle(supabase, {
+      subjectType: "candidate",
+      subjectId: candidateProfile.id,
+      receiptType: verificationReceiptType(
+        "candidate_verified",
+        verificationStatus,
+        "candidate_verification_recorded"
+      ),
+      verificationStatus,
+      confidenceLevel: receiptConfidence(verificationStatus, riskLevel),
+      issuedBy: user.id,
+      receiptSummary:
+        ["verified", "approved"].includes(verificationStatus.toLowerCase())
+          ? "Candidate verification was recorded with supporting provenance and operational review context."
+          : "Candidate verification was recorded for human review. This receipt does not claim final candidate approval.",
+      chainSummary:
+        "Candidate evidence chain records profile data, provenance state, verification status, audit activity and review context.",
+      evidenceSnapshot: {
+        candidate_profile_id: candidateProfile.id,
+        trust_report_id: report?.id ?? null,
+        verification_status: verificationStatus,
+        provenance_status: provenanceStatus,
+        risk_level: riskLevel,
+        human_review: true,
+        operational_context:
+          "Candidate verification receipt generated from the hiring verification workflow.",
+      },
+      evidence: [
+        { type: "candidate_profile", id: candidateProfile.id, status: verificationStatus },
+        { type: "trust_report", id: report?.id ?? null, score: trustScore },
+        { type: "audit_log", event_type: "candidate_verification_requested" },
+        { type: "signal", event: "Candidate verification requested" },
+      ],
+    });
+  }
 
   if (wantsRedirect) {
     return NextResponse.redirect(

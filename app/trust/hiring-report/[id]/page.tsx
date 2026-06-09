@@ -57,6 +57,7 @@ export default async function HiringReportPage({ params }: { params: Promise<{ i
     { data: timeline },
     { data: governanceActions },
     { data: relationships },
+    { data: latestReceipt },
   ] = await Promise.all([
     supabase
       .from("interview_risk_signals")
@@ -106,6 +107,14 @@ export default async function HiringReportPage({ params }: { params: Promise<{ i
       .select("*")
       .or(`source_id.eq.${id},target_id.eq.${id}`)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("verification_receipts")
+      .select("id,receipt_type,verification_status,confidence_level,issued_at,receipt_summary")
+      .eq("subject_type", "interview_session")
+      .eq("subject_id", id)
+      .order("issued_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   const fallbackScore = calculateHiringTrustScore({
@@ -265,6 +274,22 @@ export default async function HiringReportPage({ params }: { params: Promise<{ i
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Evidence Chain</h2>
             <div className="mt-5 grid gap-3">
+              {latestReceipt ? (
+                <div className="rounded-lg border border-cyan-900 bg-black p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="font-medium text-zinc-100">
+                      {String(latestReceipt.receipt_type ?? "verification_receipt").replaceAll("_", " ")}
+                    </p>
+                    <StatusBadge status={latestReceipt.confidence_level ?? "In Review"} />
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-zinc-500">
+                    {latestReceipt.receipt_summary ?? "Verification receipt available for explainable review."}
+                  </p>
+                  <Link href={`/trust/receipt/${latestReceipt.id}`} className="mt-3 inline-flex text-sm text-cyan-200 underline">
+                    Open verification receipt
+                  </Link>
+                </div>
+              ) : null}
               {(relationships ?? []).length ? (relationships ?? []).map((relationship) => (
                 <div key={String(relationship.id)} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <p className="font-medium text-zinc-100">{relationship.relationship_type ?? "linked_to"}</p>

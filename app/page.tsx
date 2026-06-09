@@ -65,6 +65,11 @@ export default function HomePage() {
             governance visibility without turning user workflows into noisy
             monitoring dashboards.
           </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
+            Cyber Sentinels creates explainable verification receipts and
+            operational trust evidence chains as trust orchestration
+            infrastructure for accountable review.
+          </p>
           <PrivateBetaNotice className="mt-5 max-w-3xl" />
           <div className="mt-8 flex flex-wrap gap-3">
             <Link

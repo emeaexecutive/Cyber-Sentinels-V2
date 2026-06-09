@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import {
+  createReceiptBundle,
+  receiptConfidence,
+  verificationReceiptType,
+} from "@/lib/trust-receipts/receipts";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
 
@@ -83,6 +88,45 @@ export async function POST(req: Request) {
 
   await createAuditLog(supabase, "recruiter_verification_requested", actor, metadata);
   await createSignal(supabase, "Recruiter verification requested", metadata);
+
+  if (recruiterProfile?.id) {
+    await createReceiptBundle(supabase, {
+      subjectType: "recruiter",
+      subjectId: recruiterProfile.id,
+      receiptType: verificationReceiptType(
+        "recruiter_verified",
+        verificationStatus,
+        "recruiter_verification_recorded"
+      ),
+      verificationStatus,
+      confidenceLevel: receiptConfidence(
+        verificationStatus,
+        domainScore >= 70 ? "low" : "needs_review"
+      ),
+      issuedBy: user.id,
+      receiptSummary:
+        ["verified", "approved"].includes(verificationStatus.toLowerCase())
+          ? "Recruiter verification was recorded with organization and work-domain context."
+          : "Recruiter verification was recorded for human review. This receipt does not grant autonomous hiring authority.",
+      chainSummary:
+        "Recruiter evidence chain records profile data, organization context, verification status, audit activity and review context.",
+      evidenceSnapshot: {
+        recruiter_profile_id: recruiterProfile.id,
+        organization: company,
+        verification_status: verificationStatus,
+        domain_score: domainScore,
+        human_review: true,
+        operational_context:
+          "Recruiter verification receipt generated from the hiring verification workflow.",
+      },
+      evidence: [
+        { type: "recruiter_profile", id: recruiterProfile.id, status: verificationStatus },
+        { type: "organization_context", organization: company, domain_score: domainScore },
+        { type: "audit_log", event_type: "recruiter_verification_requested" },
+        { type: "signal", event: "Recruiter verification requested" },
+      ],
+    });
+  }
 
   if (wantsRedirect) {
     return NextResponse.redirect(new URL("/recruiter/dashboard", req.url), {

@@ -4,6 +4,7 @@ import {
   hiringSignalExplanation,
   interviewRiskSignalTypes,
 } from "@/lib/trusted-layer/hiring";
+import { createReceiptBundle } from "@/lib/trust-receipts/receipts";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
 
@@ -109,6 +110,41 @@ export async function POST(req: Request) {
   });
   await createSignal(supabase, "Interview session created", {
     session_id: session.id,
+  });
+
+  await createReceiptBundle(supabase, {
+    subjectType: "interview_session",
+    subjectId: session.id,
+    receiptType: "interview_integrity_review_started",
+    verificationStatus: "pending",
+    confidenceLevel: "In Review",
+    issuedBy: user.id,
+    receiptSummary:
+      "Interview integrity review was opened with placeholder risk interfaces and human governance context. This receipt does not claim detection accuracy.",
+    chainSummary:
+      "Interview evidence chain records candidate linkage, recruiter linkage, placeholder risk interfaces, audit activity and review context.",
+    evidenceSnapshot: {
+      interview_session_id: session.id,
+      candidate_profile_id: candidateProfileId || null,
+      recruiter_profile_id: recruiterProfileId || null,
+      session_status: "scheduled",
+      integrity_status: "pending",
+      human_review: true,
+      operational_context:
+        "Hiring integrity receipt generated when the interview review workflow was created.",
+    },
+    evidence: [
+      { type: "interview_session", id: session.id, status: "scheduled" },
+      { type: "candidate_profile", id: candidateProfileId || null },
+      { type: "recruiter_profile", id: recruiterProfileId || null },
+      {
+        type: "risk_event_placeholders",
+        signal_types: interviewRiskSignalTypes,
+        detection_accuracy_claimed: false,
+      },
+      { type: "audit_log", event_type: "interview_session_created" },
+      { type: "signal", event: "Interview session created" },
+    ],
   });
 
   if (wantsRedirect) {

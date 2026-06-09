@@ -33,6 +33,12 @@ export default function HiringSecurityPage() {
             infrastructure for candidate provenance, recruiter verification,
             interview integrity and human-governed hiring decisions.
           </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
+            Cyber Sentinels creates explainable verification receipts and
+            operational trust evidence chains so hiring teams can review what
+            supported a verification state without treating AI as the decision
+            maker.
+          </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/dashboard/interview-risk" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">
               Open Interview Risk Dashboard
