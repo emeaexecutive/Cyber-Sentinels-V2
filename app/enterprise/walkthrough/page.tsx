@@ -58,6 +58,9 @@ export default function EnterpriseWalkthroughPage() {
             <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm text-cyan-100">
               Request Design Partner Access
             </Link>
+            <Link href="/enterprise/pilot-setup" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm text-zinc-300">
+              Pilot Setup
+            </Link>
           </div>
         </section>
 

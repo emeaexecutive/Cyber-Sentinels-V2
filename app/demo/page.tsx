@@ -35,7 +35,7 @@ const demoSteps = [
   [
     "Replay",
     "Replay the sample workflow to understand how evidence and governance evolved.",
-    "Replay preserves operational memory without surveillance positioning.",
+    "Replay preserves operational memory and explainable provenance.",
   ],
   [
     "Hiring Integrity Review",

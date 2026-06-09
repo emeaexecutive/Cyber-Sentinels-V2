@@ -10,6 +10,7 @@ import {
   resetDemoWorkspace,
 } from "@/lib/demo/demoWorkspace";
 import { getIntegrationRegistry } from "@/lib/integrations/registry";
+import { isPilotWorkspace, PILOT_MODE } from "@/lib/pilot-mode";
 import { createReadinessGateSnapshot } from "@/lib/readiness-gate/snapshot";
 import { createClient } from "@/lib/supabase/server";
 
@@ -254,8 +255,13 @@ export default async function FounderControlPage() {
     relationships,
     governanceActions,
     replaySessions,
+    receipts,
     notes,
     apiTestRuns,
+    workspaces,
+    trustCases,
+    governanceRows,
+    receiptRows,
   ] = await Promise.all([
     createReadinessGateSnapshot(supabase),
     countTable(supabase, "enterprise_access_requests"),
@@ -273,8 +279,13 @@ export default async function FounderControlPage() {
     countTable(supabase, "trust_relationships"),
     countTable(supabase, "governance_actions"),
     countTable(supabase, "trust_replay_sessions"),
+    countTable(supabase, "verification_receipts"),
     fetchRows(supabase, "launch_control_notes", 40),
     fetchRows(supabase, "api_test_runs", 40),
+    fetchRows(supabase, "trust_workspaces", 120),
+    fetchRows(supabase, "trust_cases", 200),
+    fetchRows(supabase, "governance_actions", 200),
+    fetchRows(supabase, "verification_receipts", 120),
   ]);
 
   const enterpriseRows = await fetchRows(supabase, "enterprise_access_requests", 80);
@@ -290,6 +301,27 @@ export default async function FounderControlPage() {
     ).length;
   const failedApiTests = apiTestRuns.filter((row) =>
     ["failed", "error"].includes(String(row.status ?? "").toLowerCase())
+  );
+  const pilotWorkspaces = workspaces.filter((row) => isPilotWorkspace(row));
+  const designPartnerWorkspaces = workspaces.filter((row) =>
+    /design partner/i.test(`${row.name ?? ""} ${row.slug ?? ""} ${row.description ?? ""}`)
+  );
+  const resolvedGovernanceActions = governanceRows.filter((row) =>
+    ["approved", "rejected", "resolved"].includes(String(row.action_status ?? "").toLowerCase())
+  );
+  const unresolvedEscalations = [
+    ...trustCases.filter((row) => String(row.status ?? "").toLowerCase() === "escalated"),
+    ...governanceRows.filter((row) => String(row.action_status ?? "").toLowerCase() === "escalated"),
+  ];
+  const activationChecks = [
+    ["First trust case", trustCases.length > 0],
+    ["First evidence upload", evidenceFiles.count > 0],
+    ["First governance action", governanceRows.length > 0],
+    ["First trust receipt", receiptRows.length > 0],
+    ["First replay session", replaySessions.count > 0],
+  ] as const;
+  const activationProgress = Math.round(
+    (activationChecks.filter(([, done]) => done).length / activationChecks.length) * 100
   );
   const unresolvedLaunchBlockers = (notes as FounderNote[]).filter(
     (note) => note.status === "blocker"
@@ -391,6 +423,48 @@ export default async function FounderControlPage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Enterprise Readiness</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
+                Pilot Mode keeps design-partner onboarding isolated to
+                workspaces, cases, notifications, governance actions and demo
+                data. No invasive analytics are used.
+              </p>
+            </div>
+            <span className={`rounded-full border px-3 py-1 text-xs ${statusTone(PILOT_MODE ? "active" : "disabled")}`}>
+              Pilot Mode {PILOT_MODE ? "active" : "off"}
+            </span>
+          </div>
+          <MetricGrid
+            items={[
+              ["Active pilots", String(pilotWorkspaces.length)],
+              ["Design partner workspaces", String(designPartnerWorkspaces.length)],
+              ["Unresolved blockers", String(unresolvedLaunchBlockers.length)],
+              ["Onboarding progress", `${activationProgress}%`],
+            ]}
+          />
+          <div className="mt-5 grid gap-3 md:grid-cols-5">
+            {activationChecks.map(([label, done]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">{label}</p>
+                <p className={`mt-2 text-sm font-semibold ${done ? "text-emerald-200" : "text-amber-200"}`}>
+                  {done ? "Complete" : "Not yet"}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/enterprise/pilot-setup" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
+              Design Partner Setup
+            </Link>
+            <Link href="/enterprise/walkthrough" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm text-cyan-100 hover:text-white">
+              Founder Walkthrough
+            </Link>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="text-xl font-semibold">Trust Infrastructure Signals</h2>
           <MetricGrid
             items={[
@@ -400,6 +474,21 @@ export default async function FounderControlPage() {
               ["Trust relationships", metricValue(relationships)],
               ["Governance actions", metricValue(governanceActions)],
               ["Replay sessions", metricValue(replaySessions)],
+              ["Trust receipts", metricValue(receipts)],
+            ]}
+          />
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <h2 className="text-xl font-semibold">Internal Pilot Metrics</h2>
+          <MetricGrid
+            items={[
+              ["Cases created", String(trustCases.length)],
+              ["Evidence uploaded", metricValue(evidenceFiles)],
+              ["Governance resolved", String(resolvedGovernanceActions.length)],
+              ["Replay usage", metricValue(replaySessions)],
+              ["Receipt generation", metricValue(receipts)],
+              ["Unresolved escalations", String(unresolvedEscalations.length), unresolvedEscalations.length ? "text-amber-200" : "text-emerald-200"],
             ]}
           />
         </section>
