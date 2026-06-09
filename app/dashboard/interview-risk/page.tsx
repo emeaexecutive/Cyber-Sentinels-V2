@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { intelligenceSeverityClass } from "@/lib/operational-intelligence/intelligence";
 import { confidenceLevel, hiringSignalExplanation } from "@/lib/trusted-layer/hiring";
 import { createClient } from "@/lib/supabase/server";
 
@@ -62,7 +63,7 @@ export default async function InterviewRiskDashboardPage() {
 
   if (!user) redirect("/login?next=/dashboard/interview-risk");
 
-  const [sessions, candidates, recruiters, riskEvents, riskSignals, governanceActions] =
+  const [sessions, candidates, recruiters, riskEvents, riskSignals, governanceActions, intelligenceEvents] =
     await Promise.all([
       fetchRows(supabase, "interview_sessions", 100),
       fetchRows(supabase, "candidate_profiles", 80),
@@ -70,6 +71,7 @@ export default async function InterviewRiskDashboardPage() {
       fetchRows(supabase, "interview_risk_events", 120),
       fetchRows(supabase, "interview_risk_signals", 120),
       fetchRows(supabase, "governance_actions", 80),
+      fetchRows(supabase, "operational_intelligence_events", 100),
     ]);
 
   const sessionIds = new Set(sessions.map((session) => String(session.id)));
@@ -91,6 +93,11 @@ export default async function InterviewRiskDashboardPage() {
       action.subject_type === "interview_session" &&
       action.subject_id &&
       sessionIds.has(String(action.subject_id))
+  );
+  const hiringIntelligenceEvents = intelligenceEvents.filter(
+    (event) =>
+      event.subject_type === "interview_session" ||
+      ["elevated_risk_pattern", "incomplete_provenance_chain"].includes(String(event.event_type ?? ""))
   );
 
   return (
@@ -185,6 +192,58 @@ export default async function InterviewRiskDashboardPage() {
               )}
             </div>
           </section>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold">Hiring Integrity Intelligence</h2>
+            <span className="rounded-full border border-cyan-800 px-2.5 py-1 text-xs text-cyan-200">
+              Human governed
+            </span>
+          </div>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-500">
+            Interview intelligence explains unresolved candidate risks,
+            suspicious interview patterns, repeated integrity flags and
+            unresolved recruiter reviews. It does not reject candidates.
+          </p>
+          <div className="mt-5 grid gap-3 lg:grid-cols-3">
+            {[
+              ["Unresolved candidate risks", candidates.filter((candidate) => ["high", "needs_review", "unknown"].includes(String(candidate.risk_level ?? "unknown").toLowerCase())).length],
+              ["Repeated integrity flags", hiringIntelligenceEvents.length],
+              ["Unresolved recruiter reviews", recruiters.filter((recruiter) => !["verified", "approved"].includes(String(recruiter.verification_status ?? "").toLowerCase())).length],
+            ].map(([label, value]) => (
+              <div key={String(label)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-sm text-zinc-500">{String(label)}</p>
+                <p className="mt-2 text-2xl font-semibold text-zinc-100">{String(value)}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 grid gap-3">
+            {hiringIntelligenceEvents.length ? (
+              hiringIntelligenceEvents.slice(0, 6).map((event) => (
+                <article key={String(event.id)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <p className="font-medium text-zinc-100">
+                      {String(event.event_type ?? "hiring_intelligence").replaceAll("_", " ")}
+                    </p>
+                    <span className={`rounded-full border px-2.5 py-1 text-xs ${intelligenceSeverityClass(event.severity)}`}>
+                      {event.severity ?? "info"}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-zinc-500">
+                    {event.summary ?? "Hiring integrity intelligence recorded for review."}
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-zinc-600">
+                    {event.recommended_action ?? "Review signal source, candidate provenance and governance state."}
+                  </p>
+                </article>
+              ))
+            ) : (
+              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
+                No hiring intelligence events are recorded yet.
+              </p>
+            )}
+          </div>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">

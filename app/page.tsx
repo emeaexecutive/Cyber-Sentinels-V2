@@ -70,6 +70,10 @@ export default function HomePage() {
             operational trust evidence chains as trust orchestration
             infrastructure for accountable review.
           </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
+            Cyber Sentinels helps organizations operationalize explainable trust
+            workflows and AI-era governance.
+          </p>
           <PrivateBetaNotice className="mt-5 max-w-3xl" />
           <div className="mt-8 flex flex-wrap gap-3">
             <Link

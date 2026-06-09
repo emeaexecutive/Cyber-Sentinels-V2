@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import {
+  intelligenceSeverityClass,
+  workspaceBottlenecks,
+} from "@/lib/operational-intelligence/intelligence";
 import { createClient } from "@/lib/supabase/server";
 import {
   buildReviewQueue,
@@ -297,7 +301,7 @@ export default async function WorkspaceDetailPage({
 
   if (!workspace) notFound();
 
-  const [members, cases, relationships, signals, evidence, timeline, auditLogs, governanceActions] = await Promise.all([
+  const [members, cases, relationships, signals, evidence, timeline, auditLogs, governanceActions, intelligenceEvents] = await Promise.all([
     fetchRows<WorkspaceMemberRow>(supabase, "workspace_members", 200),
     fetchRows<TrustCaseRow>(supabase, "trust_cases", 200),
     fetchRows<CaseRelationshipRow>(supabase, "trust_case_relationships", 200),
@@ -306,6 +310,7 @@ export default async function WorkspaceDetailPage({
     fetchRows<AnyRow>(supabase, "trust_timeline_events", 120),
     fetchRows<AnyRow>(supabase, "audit_logs", 120),
     fetchRows<AnyRow>(supabase, "governance_actions", 120),
+    fetchRows<AnyRow>(supabase, "operational_intelligence_events", 120),
   ]);
   const scopedMembers = members.filter((item) => item.workspace_id === id);
   const canAccessWorkspace =
@@ -364,6 +369,12 @@ export default async function WorkspaceDetailPage({
   const overdueActions = unresolvedGovernance.filter((item) => {
     const created = item.created_at ? new Date(item.created_at).getTime() : now;
     return now - created > 1000 * 60 * 60 * 24 * 3;
+  });
+  const scopedIntelligenceEvents = intelligenceEvents.filter((item) => item.workspace_id === id);
+  const bottlenecks = workspaceBottlenecks({
+    cases: scopedCases,
+    governanceActions: scopedGovernanceActions,
+    intelligenceEvents: scopedIntelligenceEvents,
   });
 
   return (
@@ -450,6 +461,51 @@ export default async function WorkspaceDetailPage({
             requests and unresolved governance actions. AI may summarize this
             later, but it does not send autonomous escalations.
           </p>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold">Workspace Intelligence</h2>
+            <span className="rounded-full border border-cyan-800 px-2.5 py-1 text-xs text-cyan-200">
+              Explainable only
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {bottlenecks.map((item) => (
+              <div key={item.label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-sm text-zinc-500">{item.label}</p>
+                <p className="mt-2 text-2xl font-semibold text-zinc-100">{item.value}</p>
+                <p className="mt-2 text-xs leading-5 text-zinc-600">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 grid gap-3">
+            {scopedIntelligenceEvents.length ? (
+              scopedIntelligenceEvents.slice(0, 5).map((event) => (
+                <article key={String(event.id)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <p className="font-medium text-zinc-100">
+                      {String(event.event_type ?? "operational_intelligence").replaceAll("_", " ")}
+                    </p>
+                    <span className={`rounded-full border px-2.5 py-1 text-xs ${intelligenceSeverityClass(event.severity)}`}>
+                      {event.severity ?? "info"}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-zinc-500">
+                    {event.summary ?? "Operational intelligence recorded for workspace review."}
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-zinc-600">
+                    {event.recommended_action ?? "Review related evidence, signals and governance actions."}
+                  </p>
+                </article>
+              ))
+            ) : (
+              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
+                No workspace intelligence events are recorded yet. Bottlenecks
+                and escalation clusters will appear as workflows progress.
+              </p>
+            )}
+          </div>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.9fr]">
