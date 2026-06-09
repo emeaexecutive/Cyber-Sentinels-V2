@@ -23,7 +23,8 @@ export async function POST(req: Request) {
   const roleAppliedFor = text(formData, "role_applied_for") || text(formData, "role");
   const companyName = text(formData, "company_name");
   const verificationStatus = text(formData, "verification_status") || "pending";
-  const riskLevel = text(formData, "risk_level") || "pending";
+  const provenanceStatus = text(formData, "provenance_status") || "unknown";
+  const riskLevel = text(formData, "risk_level") || "unknown";
   const notes = text(formData, "notes");
 
   if (!candidateName || !email) {
@@ -39,6 +40,7 @@ export async function POST(req: Request) {
     company_name: companyName,
     linkedin_url: text(formData, "linkedin_url"),
     notes,
+    provenance_status: provenanceStatus,
     factors,
     source: "api.candidate.verify",
   };
@@ -53,6 +55,7 @@ export async function POST(req: Request) {
         role_applied_for: roleAppliedFor || null,
         company_name: companyName || null,
         verification_status: verificationStatus,
+        provenance_status: provenanceStatus,
         risk_level: riskLevel,
         notes: notes || null,
         metadata,

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { interviewRiskSignalTypes } from "@/lib/trusted-layer/hiring";
+import {
+  hiringSignalExplanation,
+  interviewRiskSignalTypes,
+} from "@/lib/trusted-layer/hiring";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
 
@@ -42,9 +45,13 @@ export async function POST(req: Request) {
     .insert({
       user_id: user.id,
       candidate_profile_id: candidateProfileId || null,
+      candidate_id: candidateProfileId || null,
       recruiter_profile_id: recruiterProfileId || null,
       title,
       status: "pending",
+      session_status: "scheduled",
+      integrity_status: "pending",
+      risk_level: "unknown",
       metadata: {
         source: "api.interview.create",
       },
@@ -76,10 +83,29 @@ export async function POST(req: Request) {
     console.error("interview risk signal placeholders failed", signalsError);
   }
 
+  const riskEventRows = interviewRiskSignalTypes.map((signalType) => ({
+    interview_session_id: session.id,
+    signal_type: signalType,
+    signal_source: "placeholder_interface",
+    confidence_score: 0,
+    risk_reason: hiringSignalExplanation(signalType),
+    escalation_required: false,
+  }));
+
+  const { error: riskEventsError } = await supabase
+    .from("interview_risk_events")
+    .insert(riskEventRows);
+
+  if (riskEventsError) {
+    console.error("interview risk event placeholders failed", riskEventsError);
+  }
+
   await createAuditLog(supabase, "interview_session_created", user.email ?? user.id, {
     session_id: session.id,
     candidate_profile_id: candidateProfileId || null,
     recruiter_profile_id: recruiterProfileId || null,
+    explanation:
+      "Interview session created for hiring integrity review. Placeholder risk events do not claim detection accuracy.",
   });
   await createSignal(supabase, "Interview session created", {
     session_id: session.id,

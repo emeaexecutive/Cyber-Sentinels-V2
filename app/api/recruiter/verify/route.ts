@@ -50,6 +50,7 @@ export async function POST(req: Request) {
         user_id: user.id,
         full_name: fullName,
         email: workEmail,
+        organization: company,
         company_name: company,
         role_title: roleTitle || null,
         verification_status: verificationStatus,

@@ -33,13 +33,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "session_not_found" }, { status: 404 });
   }
 
-  const { data: signals, error } = await supabase
-    .from("interview_risk_signals")
-    .select("signal_type,status,risk_level,metadata")
-    .eq("session_id", sessionId)
-    .order("created_at", { ascending: true });
+  const [{ data: events, error: eventsError }, { data: signals, error }] = await Promise.all([
+    supabase
+      .from("interview_risk_events")
+      .select("signal_type,signal_source,confidence_score,risk_reason,escalation_required,created_at")
+      .eq("interview_session_id", sessionId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("interview_risk_signals")
+      .select("signal_type,status,risk_level,metadata")
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: true }),
+  ]);
 
-  if (error) {
+  if (eventsError && error) {
     console.error("interview analyze signal fetch failed", error);
     return NextResponse.json({ ok: false, error: "interview_analysis_failed" }, { status: 500 });
   }
@@ -47,7 +54,9 @@ export async function POST(req: Request) {
   return NextResponse.json({
     ok: true,
     session_id: sessionId,
+    risk_events: events ?? [],
     signals: signals ?? [],
-    summary: "Placeholder analysis only. Biometric providers are not connected.",
+    summary:
+      "Placeholder analysis only. Biometric or detection providers are not connected, and no automated rejection is made.",
   });
 }

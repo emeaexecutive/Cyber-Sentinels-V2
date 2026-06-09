@@ -52,6 +52,14 @@ export default async function RecruiterDashboardPage() {
             Create interview sessions, monitor placeholder integrity signals and
             open audit-ready hiring reports.
           </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/dashboard/interview-risk" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">
+              Open Interview Risk Dashboard
+            </Link>
+            <Link href="/enterprise/hiring-security" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm text-cyan-100">
+              Hiring Security
+            </Link>
+          </div>
         </section>
 
         <section className="mt-8">
