@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import { StatusBadge } from "@/components/phase-one-trust";
 import { createClient } from "@/lib/supabase/server";
 
@@ -131,6 +132,9 @@ export default async function TrustReceiptPage({
                 context; they are not blockchain records or autonomous trust
                 decisions.
               </p>
+              <div className="mt-5 max-w-3xl">
+                <OnboardingHint area="receipt" />
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               <StatusBadge status={receipt.verification_status ?? "pending"} />

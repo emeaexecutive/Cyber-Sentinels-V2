@@ -3,6 +3,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { BETA_MODE } from "@/lib/beta-mode";
+import {
+  clearDemoNotifications,
+  createDemoServiceClient,
+  generateDemoWorkflow,
+  resetDemoWorkspace,
+} from "@/lib/demo/demoWorkspace";
 import { getIntegrationRegistry } from "@/lib/integrations/registry";
 import { createReadinessGateSnapshot } from "@/lib/readiness-gate/snapshot";
 import { createClient } from "@/lib/supabase/server";
@@ -70,6 +76,73 @@ async function resolveFounderNote(formData: FormData) {
   revalidatePath("/admin/founder-control");
   revalidatePath("/admin/launch-control");
   revalidatePath("/admin/readiness-gate");
+}
+
+async function generateFounderDemoWorkflow() {
+  "use server";
+
+  const supabase = await createClient();
+  await requireAdminPageAccess(supabase, {
+    path: "/admin/founder-control",
+    action: "generate_demo_workflow",
+  });
+
+  const demoSupabase = createDemoServiceClient();
+  const result = await generateDemoWorkflow(demoSupabase);
+
+  await supabase.from("launch_control_notes").insert({
+    note: `[Founder Control] Generated guided demo workflow ${result.workspace_id}.`,
+    status: "decision",
+    created_by: "founder-control",
+  });
+
+  revalidatePath("/admin/founder-control");
+  revalidatePath("/demo");
+  revalidatePath("/trustops");
+}
+
+async function resetFounderDemoWorkspace() {
+  "use server";
+
+  const supabase = await createClient();
+  await requireAdminPageAccess(supabase, {
+    path: "/admin/founder-control",
+    action: "reset_demo_workspace",
+  });
+
+  const demoSupabase = createDemoServiceClient();
+  await resetDemoWorkspace(demoSupabase);
+
+  await supabase.from("launch_control_notes").insert({
+    note: "[Founder Control] Reset guided demo workspace sample records.",
+    status: "decision",
+    created_by: "founder-control",
+  });
+
+  revalidatePath("/admin/founder-control");
+  revalidatePath("/trustops");
+}
+
+async function clearFounderDemoNotifications() {
+  "use server";
+
+  const supabase = await createClient();
+  await requireAdminPageAccess(supabase, {
+    path: "/admin/founder-control",
+    action: "clear_demo_notifications",
+  });
+
+  const demoSupabase = createDemoServiceClient();
+  await clearDemoNotifications(demoSupabase);
+
+  await supabase.from("launch_control_notes").insert({
+    note: "[Founder Control] Cleared guided demo notifications.",
+    status: "decision",
+    created_by: "founder-control",
+  });
+
+  revalidatePath("/admin/founder-control");
+  revalidatePath("/notifications");
 }
 
 async function countTable(
@@ -365,6 +438,42 @@ export default async function FounderControlPage() {
                 No immediate founder attention items are visible.
               </p>
             )}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                Demo Controls
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">Design Partner Demo Workspace</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
+                Generate or reset sample-only demo records for live walkthroughs.
+                These controls use server-side service credentials and never
+                expose real enterprise data.
+              </p>
+            </div>
+            <Link href="/enterprise/walkthrough" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white">
+              Walkthrough
+            </Link>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <form action={generateFounderDemoWorkflow}>
+              <button className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
+                Generate Demo Workflow
+              </button>
+            </form>
+            <form action={resetFounderDemoWorkspace}>
+              <button className="rounded-lg border border-zinc-700 px-4 py-3 text-sm text-zinc-300 hover:text-white">
+                Reset Demo Workspace
+              </button>
+            </form>
+            <form action={clearFounderDemoNotifications}>
+              <button className="rounded-lg border border-zinc-700 px-4 py-3 text-sm text-zinc-300 hover:text-white">
+                Clear Demo Notifications
+              </button>
+            </form>
           </div>
         </section>
 

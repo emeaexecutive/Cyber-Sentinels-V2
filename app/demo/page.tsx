@@ -3,34 +3,44 @@ import { PrivateBetaNotice } from "@/components/private-beta";
 
 const demoSteps = [
   [
-    "Create Passport",
-    "Create a Trust Passport for the person, organisation or workflow being reviewed.",
-    "The demo starts with a structured trust record.",
+    "Create Trust Case",
+    "Open a sample operational trust case inside the demo workspace.",
+    "The walkthrough starts with a structured case, not real enterprise data.",
   ],
   [
     "Upload Evidence",
-    "Attach supporting files or records to the verification case.",
-    "Evidence gives the review process something concrete to assess.",
+    "Attach sample evidence to explain what reviewers would inspect.",
+    "Evidence gives the review process something concrete and reviewable.",
   ],
   [
-    "Review Verification",
-    "Inspect the submitted evidence and current verification state.",
-    "Human review remains part of high-risk trust outcomes.",
+    "Generate Signals",
+    "Show sample signals such as missing provenance or a pending liveness step.",
+    "Signals explain review context; they do not make autonomous decisions.",
   ],
   [
-    "Decision Recorded",
-    "Record an approval, rejection or request for more evidence.",
-    "The decision becomes part of the passport history.",
+    "Governance Review",
+    "Route the sample case into human review with recommended next actions.",
+    "Governance remains human-led and accountable.",
   ],
   [
-    "Audit Trail Created",
-    "Confirm that evidence, review and decision events are traceable.",
-    "Audit visibility supports accountability and governance.",
+    "Timeline",
+    "Walk through the sample operational history in chronological order.",
+    "The timeline makes the trust workflow explainable.",
   ],
   [
-    "Trust Visibility",
-    "View the passport status, evidence state and audit trail in one place.",
-    "Decision-makers can understand the trust state without reading raw operational records.",
+    "Trust Receipt",
+    "Open a sample verification receipt with evidence, status and reviewer context.",
+    "Receipts are audit-ready explanations, not immutable truth claims.",
+  ],
+  [
+    "Replay",
+    "Replay the sample workflow to understand how evidence and governance evolved.",
+    "Replay preserves operational memory without surveillance positioning.",
+  ],
+  [
+    "Hiring Integrity Review",
+    "Review a sample candidate, recruiter and interview integrity workflow.",
+    "Hiring review is explainable and human-governed.",
   ],
 ];
 
@@ -67,28 +77,34 @@ export default function DemoPage() {
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">
-            V1 Demo Experience
+            Guided Demo Mode
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Understand Cyber Sentinels in 90 seconds
+            Understand what Cyber Sentinels actually does.
           </h1>
           <p className="mt-4 max-w-3xl leading-7 text-zinc-400">
-            This public demo explains the Cyber Sentinels workflow without
-            exposing private records or requiring sign-in.
+            This guided walkthrough uses sample-only data to show how trust
+            cases, evidence, signals, governance review, timelines, receipts,
+            replay and hiring integrity fit together.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
+            Demo mode is isolated from real enterprise records. It does not
+            expose admin tooling, service-role credentials or private customer
+            data.
           </p>
           <PrivateBetaNotice className="mt-4 max-w-3xl" />
           <div className="mt-6 flex flex-wrap gap-3 text-sm">
             <Link
-              href="/enterprise-access?intent=design_partner"
+              href="/enterprise/walkthrough"
               className="rounded-lg bg-white px-4 py-3 font-semibold text-black"
             >
-              Request Design Partner Access
+              Start Enterprise Walkthrough
             </Link>
             <Link
-              href="/login?next=/passport"
+              href="/enterprise-access?intent=design_partner"
               className="rounded-lg border border-zinc-700 px-4 py-3 text-zinc-300 hover:text-white"
             >
-              Create Trust Passport
+              Request Design Partner Access
             </Link>
           </div>
         </section>
@@ -103,6 +119,23 @@ export default function DemoPage() {
               <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-semibold">Onboarding Walkthrough</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+                Minimal walkthrough tips appear where they matter: workspace,
+                trust case, evidence, governance, timeline, replay and trust
+                receipt. They are designed for live demos, not constant product
+                noise.
+              </p>
+            </div>
+            <span className="rounded-full border border-cyan-800 px-3 py-1 text-xs text-cyan-100">
+              Sample data only
+            </span>
+          </div>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">

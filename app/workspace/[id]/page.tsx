@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import {
   intelligenceSeverityClass,
   workspaceBottlenecks,
@@ -414,6 +415,9 @@ export default async function WorkspaceDetailPage({
             AI-assisted workspace summaries can later describe operational
             state, unresolved risks and governance bottlenecks. Humans decide.
           </p>
+          <div className="mt-5 max-w-3xl">
+            <OnboardingHint area="workspace" />
+          </div>
         </section>
 
         {query.case_error || query.relationship_error ? (
@@ -511,6 +515,9 @@ export default async function WorkspaceDetailPage({
         <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.9fr]">
           <div className="rounded-lg border border-zinc-800 bg-black p-5">
             <h2 className="text-xl font-semibold">Create Trust Case</h2>
+            <div className="mt-4">
+              <OnboardingHint area="trustCase" />
+            </div>
             <form action={createCase} className="mt-5 grid gap-4">
               <input type="hidden" name="workspace_id" value={id} />
               <input

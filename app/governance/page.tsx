@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -245,6 +246,9 @@ export default async function GovernancePage({
             passports, signals and AI-assisted recommendations. AI may summarize
             governance state, but humans approve, reject, escalate and resolve.
           </p>
+          <div className="mt-5 max-w-3xl">
+            <OnboardingHint area="governance" />
+          </div>
         </section>
 
         {query.policy_error || query.action_error ? (

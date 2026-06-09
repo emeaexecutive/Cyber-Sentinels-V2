@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { generateDemoWorkflow } from "@/lib/demo/demoWorkspace";
 import { getServiceRoleEnv } from "@/lib/env";
 
 const DEMO_ACTOR = "demo-lab";
@@ -260,6 +261,11 @@ export async function POST() {
       }
     });
 
+    const guidedDemoRecords = await generateDemoWorkflow(supabase).catch((error) => {
+      console.warn("Guided demo workspace failed", error);
+      return null;
+    });
+
     return NextResponse.json({
       ok: true,
       message: "Demo data seeded.",
@@ -270,6 +276,8 @@ export async function POST() {
         audit_logs: 5,
         verification_cases: 1,
         evidence_files: 1,
+        guided_demo_workspace: guidedDemoRecords?.workspace_id ?? null,
+        guided_demo_interview_session: guidedDemoRecords?.interview_session_id ?? null,
       },
     });
   } catch {

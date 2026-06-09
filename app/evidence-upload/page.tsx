@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import { FeedbackPrompt } from "@/components/private-beta";
 import { createClient } from "@/lib/supabase/server";
 import { EvidenceUploadForm } from "./evidence-upload-form";
@@ -50,6 +51,9 @@ export default async function EvidenceUploadPage({
             Upload evidence to continue verification. Your verification is
             awaiting review after evidence is submitted.
           </p>
+          <div className="mt-5 max-w-3xl">
+            <OnboardingHint area="evidence" />
+          </div>
 
           {uploaded ? (
             <div className="mt-5 grid gap-3">

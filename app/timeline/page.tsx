@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import { createClient } from "@/lib/supabase/server";
 import {
   formatTimelineDate,
@@ -145,6 +146,9 @@ export default async function TimelinePage({ searchParams }: TimelinePageProps) 
             history. Timeline events show how trust workflows evolve through
             evidence, review, signals, governance actions and agent activity.
           </p>
+          <div className="mt-5 max-w-3xl">
+            <OnboardingHint area="timeline" />
+          </div>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
             Future AI-assisted summaries may describe progression and governance
             history, but AI does not rewrite history.

@@ -42,6 +42,29 @@ const principles = [
   "Governance visibility without invasive tracking",
 ];
 
+const narrative = [
+  [
+    "Problem",
+    "Synthetic trust, weak provenance and fragmented reviews make operational decisions harder to explain.",
+  ],
+  [
+    "Why Now",
+    "Hiring workflows, AI agents and identity-sensitive operations need reviewable evidence before teams act.",
+  ],
+  [
+    "How It Works",
+    "Create a case, attach evidence, review signals, record governance, preserve timeline, issue receipts and replay history.",
+  ],
+  [
+    "Explainability",
+    "Every workflow shows source context, missing requirements, reason codes and audit history.",
+  ],
+  [
+    "Governance",
+    "AI can assist with summaries, but humans remain responsible for approvals, escalations and decisions.",
+  ],
+];
+
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#05070b] text-white">
@@ -89,6 +112,17 @@ export default function HomePage() {
               Request Enterprise Access
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-12 md:px-8">
+        <div className="grid gap-3 md:grid-cols-5">
+          {narrative.map(([title, copy]) => (
+            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+              <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">{title}</p>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
+            </article>
+          ))}
         </div>
       </section>
 

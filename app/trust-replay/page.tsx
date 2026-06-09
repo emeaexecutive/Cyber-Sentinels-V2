@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import { createClient } from "@/lib/supabase/server";
 import {
   buildReplaySnapshot,
@@ -278,6 +279,9 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             may summarize replay context later, but AI does not rewrite
             operational history.
           </p>
+          <div className="mt-5 max-w-3xl">
+            <OnboardingHint area="replay" />
+          </div>
         </section>
 
         {query.replay_saved ? (
