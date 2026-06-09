@@ -21,31 +21,56 @@ export default async function HiringShieldPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <main className="min-h-screen bg-black p-8 text-white">
+    <main className="min-h-screen bg-[#04070c] p-8 text-white">
       <div className="mx-auto max-w-5xl">
 
         <Link href="/" className="text-sm text-zinc-400 hover:text-white">
           Back to Cyber Sentinels
         </Link>
 
-        <h1 className="mt-8 text-5xl font-bold">
-          Hiring Shield
-        </h1>
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
+            Interview integrity
+          </p>
+          <h1 className="mt-4 text-4xl font-semibold">
+            Hiring Shield
+          </h1>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            Recruiter-friendly integrity review for candidate identity,
+            profile consistency, liveness checks and provenance context. The
+            workflow supports fair review and governance escalation; it does
+            not label candidates or make hiring decisions.
+          </p>
+        </section>
 
-        <p className="mt-4 max-w-2xl text-zinc-400">
-          Candidate trust reports for identity confidence,
-          synthetic risk and profile consistency.
-        </p>
+        <section className="mt-8 grid gap-3 md:grid-cols-4">
+          {[
+            ["Intake", "Capture candidate-provided context."],
+            ["Review", "Check consistency and evidence quality."],
+            ["Governance", "Escalate only when human review is needed."],
+            ["Outcome", "Record an explainable recruiter summary."],
+          ].map(([title, copy]) => (
+            <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+              <p className="font-semibold text-zinc-100">{title}</p>
+              <p className="mt-2 text-sm leading-6 text-zinc-500">{copy}</p>
+            </div>
+          ))}
+        </section>
 
         {/* FORM */}
         <form
           action="/api/trust-reports"
           method="POST"
-          className="mt-10 grid gap-4 rounded-3xl border border-zinc-800 bg-zinc-950 p-8"
+          className="mt-8 grid gap-4 rounded-lg border border-zinc-800 bg-zinc-950 p-6"
         >
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-2xl font-semibold">
             Create Candidate Trust Report
           </h2>
+          <p className="max-w-3xl text-sm leading-6 text-zinc-400">
+            Use the fields as operational inputs for a human reviewer. Scores
+            describe evidence confidence and review needs, not candidate worth
+            or employability.
+          </p>
 
           <input
             name="candidate_name"
@@ -96,7 +121,7 @@ export default async function HiringShieldPage() {
           <input
             name="synthetic_risk"
             type="number"
-            placeholder="Synthetic risk score e.g. 12"
+            placeholder="Synthetic media review signal e.g. 12"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
@@ -120,7 +145,7 @@ export default async function HiringShieldPage() {
           <input
             name="voice_clone_risk"
             type="number"
-            placeholder="Cloned voice risk e.g. 14"
+            placeholder="Voice provenance review signal e.g. 14"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
@@ -134,7 +159,7 @@ export default async function HiringShieldPage() {
           <input
             name="video_deepfake_risk"
             type="number"
-            placeholder="Deepfake video risk e.g. 18"
+            placeholder="Video provenance review signal e.g. 18"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
@@ -221,7 +246,7 @@ export default async function HiringShieldPage() {
           </select>
 
           <button className="rounded-xl bg-white px-5 py-4 font-semibold text-black">
-            Generate Report
+            Generate Review Summary
           </button>
         </form>
 
@@ -234,11 +259,16 @@ export default async function HiringShieldPage() {
 
               <div
                 key={report.id}
-                className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6"
+                className="rounded-lg border border-zinc-800 bg-zinc-950 p-6"
               >
 
                 <p className="text-sm text-zinc-500">
-                  Trust Report
+                  Recruiter review summary
+                </p>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">
+                  Current state: human review remains available. Use this
+                  summary to request clarification, add evidence or record a
+                  governance decision.
                 </p>
 
                 <div className="mt-5 grid gap-4 md:grid-cols-4">
@@ -265,7 +295,7 @@ export default async function HiringShieldPage() {
 
                   <div>
                     <p className="text-zinc-500">
-                      Synthetic Risk
+                      Synthetic media signal
                     </p>
 
                     <p className="mt-2 text-3xl font-bold">
@@ -311,14 +341,14 @@ export default async function HiringShieldPage() {
                   </div>
 
                   <div>
-                    <p className="text-zinc-500">Audio Clone Risk</p>
+                    <p className="text-zinc-500">Voice provenance signal</p>
                     <p className="mt-2 text-xl font-bold">
                       {report.voice_clone_risk ?? 0}%
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-zinc-500">Video Deepfake Risk</p>
+                    <p className="text-zinc-500">Video provenance signal</p>
                     <p className="mt-2 text-xl font-bold">
                       {report.video_deepfake_risk ?? 0}%
                     </p>

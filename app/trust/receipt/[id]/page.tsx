@@ -109,6 +109,12 @@ export default async function TrustReceiptPage({
 
   const snapshot = (receipt.evidence_snapshot ?? {}) as JsonRecord;
   const relationships = [...(receiptRelationships ?? []), ...(subjectRelationships ?? [])];
+  const openGovernance = (governanceActions ?? []).filter((action) =>
+    ["pending", "in_review", "escalated"].includes(String(action.action_status ?? "pending"))
+  );
+  const nextReceiptAction = openGovernance.length
+    ? "Governance review is still pending. Check the open action before sharing a final outcome."
+    : "Share the receipt or replay the workflow if more context is needed.";
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -125,6 +131,9 @@ export default async function TrustReceiptPage({
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
                 {receipt.receipt_summary ??
                   "Explainable verification receipt recorded for operational governance review."}
+              </p>
+              <p className="mt-3 max-w-3xl rounded-lg border border-emerald-900 bg-black p-3 text-sm leading-6 text-emerald-100">
+                Verification receipt available. {nextReceiptAction}
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
                 Cyber Sentinels creates explainable verification receipts and
@@ -148,6 +157,13 @@ export default async function TrustReceiptPage({
           <DetailRow label="Issued" value={formatDate(receipt.issued_at)} />
           <DetailRow label="Expires" value={formatDate(receipt.expires_at)} />
           <DetailRow label="Reviewer State" value={receipt.issued_by ? "Human review recorded" : "System recorded"} />
+        </section>
+
+        <section className="mt-8 grid gap-4 md:grid-cols-4">
+          <DetailRow label="What was verified" value={label(receipt.subject_type, "Workflow subject")} />
+          <DetailRow label="Evidence exists" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} evidence chain(s)` : "No linked evidence chain yet"} />
+          <DetailRow label="What is pending" value={openGovernance.length ? `${openGovernance.length} governance action(s)` : "No pending governance action"} />
+          <DetailRow label="Requires action" value={openGovernance.length ? "Reviewer decision required" : "No action required"} />
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">

@@ -27,7 +27,10 @@ export default function DemoLabPage() {
       }
 
       setState("success");
-      setMessage(payload.message || "Demo data seeded.");
+      setMessage(
+        payload.message ||
+          "Demo workspace seeded. Open the workspace to review the operational progression."
+      );
     } catch {
       setState("error");
       setMessage("Demo data could not be seeded.");
@@ -40,14 +43,20 @@ export default function DemoLabPage() {
         <p className="text-sm uppercase tracking-[0.24em] text-yellow-300">
           Private beta / development only.
         </p>
-        <h1 className="mt-4 text-4xl font-bold">Demo Lab™</h1>
+        <h1 className="mt-4 text-4xl font-bold">Demo Lab</h1>
         <p className="mt-4 text-zinc-400">
-          Seed safe demo trust events for private beta testing.
+          Seed a coherent pilot story with sample evidence, governance review,
+          replay context and verification receipts.
         </p>
 
-        <div className="mt-8 border border-zinc-800 bg-zinc-950 p-6">
+        <div className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm font-semibold text-yellow-300">
-            Private beta / development only.
+            Sample operational progression only.
+          </p>
+          <p className="mt-3 text-sm leading-6 text-zinc-400">
+            The seeded workspace should make the demo understandable within
+            minutes: case intake, evidence upload, unresolved signal,
+            governance review, replay and receipt availability.
           </p>
 
           <button
@@ -59,7 +68,7 @@ export default function DemoLabPage() {
             {state === "loading" ? "Seeding..." : "Seed Demo Data"}
           </button>
 
-          {message && (
+          {message ? (
             <p
               className={
                 state === "success"
@@ -69,7 +78,7 @@ export default function DemoLabPage() {
             >
               {message}
             </p>
-          )}
+          ) : null}
         </div>
       </section>
     </main>

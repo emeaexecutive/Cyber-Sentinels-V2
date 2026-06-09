@@ -1,18 +1,18 @@
 const copy = {
   workspace:
-    "Workspace groups trust cases, reviews, evidence and governance activity for one operational context.",
+    "Workspace groups trust cases, reviews, evidence and governance activity for one operational context. Start with the queue, then clear overdue actions.",
   trustCase:
-    "Trust cases organize the review objective, owner, priority and next action.",
+    "Trust cases organize status, reviewer, unresolved signals, linked evidence, governance actions and the next required step.",
   evidence:
-    "Evidence is the reviewable material behind a trust workflow. Demo evidence is sample-only.",
+    "Evidence uploaded successfully moves the workflow into governance review. Reviewers can approve, request more evidence or escalate.",
   governance:
-    "Governance actions keep human review accountable: approve, reject, escalate, defer or request evidence.",
+    "Governance actions show why review was triggered, who owns it, what evidence supports it and whether escalation is required.",
   timeline:
     "Timeline shows how trust changed over time as operational provenance, not a passive activity feed.",
   replay:
     "Replay reconstructs historical workflow state so teams can understand how decisions evolved.",
   receipt:
-    "Trust receipts summarize status, evidence and reviewer context in a portable, explainable format.",
+    "Verification receipt available: status, evidence, pending work and governance context are summarized without exposing private operational detail.",
 } as const;
 
 type WalkthroughArea = keyof typeof copy;

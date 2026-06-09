@@ -58,7 +58,12 @@ export default async function EvidenceUploadPage({
           {uploaded ? (
             <div className="mt-5 grid gap-3">
               <p className="rounded-lg border border-emerald-800 bg-black p-3 text-sm text-emerald-200">
-                Evidence uploaded.
+                Evidence uploaded successfully. Awaiting governance review.
+              </p>
+              <p className="rounded-lg border border-zinc-800 bg-black p-3 text-sm leading-6 text-zinc-400">
+                Next step: a human reviewer will verify the evidence, link it
+                to the trust case and either approve the workflow, request more
+                evidence or escalate it for additional operational review.
               </p>
               <FeedbackPrompt />
             </div>

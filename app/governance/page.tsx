@@ -122,6 +122,15 @@ function objectMetadata(row: AnyRow) {
     : {};
 }
 
+function reviewerLabel(value?: string | null) {
+  return value ? `Reviewer ${value.slice(0, 8)}` : "Unassigned";
+}
+
+function escalationSummary(value: unknown) {
+  if (!Array.isArray(value) || value.length === 0) return "No escalation chain recorded.";
+  return `${value.length} escalation step${value.length === 1 ? "" : "s"} recorded.`;
+}
+
 function ReviewSignal({ row }: { row: AnyRow }) {
   const metadata = objectMetadata(row);
   return (
@@ -297,6 +306,40 @@ export default async function GovernancePage({
                       </div>
                     </div>
                     <p className="mt-3 text-sm leading-6 text-zinc-400">{action.explanation}</p>
+                    <div className="mt-4 grid gap-3 md:grid-cols-3">
+                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Why triggered</p>
+                        <p className="mt-2 text-sm leading-6 text-zinc-300">
+                          {action.policy?.trigger_type ?? "Operational review threshold reached."}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Who reviewed</p>
+                        <p className="mt-2 text-sm text-zinc-300">{reviewerLabel(action.assigned_to)}</p>
+                      </div>
+                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Current state</p>
+                        <p className="mt-2 text-sm text-zinc-300">{action.action_status ?? "pending"}</p>
+                      </div>
+                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Supporting evidence</p>
+                        <p className="mt-2 text-sm leading-6 text-zinc-300">
+                          {String((action as AnyRow).evidence_summary ?? objectMetadata(action as AnyRow).evidence_summary ?? "Review linked record and evidence vault.")}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Escalation chain</p>
+                        <p className="mt-2 text-sm text-zinc-300">{escalationSummary((action as AnyRow).escalation_chain)}</p>
+                      </div>
+                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Next step</p>
+                        <p className="mt-2 text-sm leading-6 text-zinc-300">
+                          {action.action_status === "escalated"
+                            ? "Additional operational review required."
+                            : "Approve, reject, defer or request evidence after human review."}
+                        </p>
+                      </div>
+                    </div>
                     <div className="mt-4 grid gap-2 text-xs text-zinc-600 md:grid-cols-3">
                       <p>Subject: {action.subject_type ?? "workflow"}</p>
                       <p>Policy: {action.policy?.action_type ?? "human_review_required"}</p>

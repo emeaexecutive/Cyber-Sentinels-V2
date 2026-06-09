@@ -154,17 +154,59 @@ async function fetchRows<T>(
   return error ? [] : data ?? [];
 }
 
+function actorLabel(value?: string | null) {
+  return value ? `Reviewer ${value.slice(0, 8)}` : "Unassigned";
+}
+
+function nextCaseAction(item: TrustCaseRow) {
+  const status = String(item.status ?? "open");
+  if (status === "escalated") return "Additional operational review required.";
+  if (status === "in_review") return "Review linked evidence and record a human decision.";
+  if (status === "approved") return "Verification outcome can be shared or receipted.";
+  if (status === "rejected") return "Explain the decision and close any evidence requests.";
+  if (status === "closed") return "No further action is required.";
+  return "Assign a reviewer and confirm what evidence is needed.";
+}
+
+function rowTitle(row: AnyRow) {
+  return String(row.file_name ?? row.event_title ?? row.event_type ?? row.event ?? row.target_type ?? "Linked record");
+}
+
 function CaseCard({
   item,
   workspaceId,
   members,
   currentUserId,
+  relationships,
+  signals,
+  evidence,
+  governanceActions,
 }: {
   item: TrustCaseRow;
   workspaceId: string;
   members: WorkspaceMemberRow[];
   currentUserId: string;
+  relationships: CaseRelationshipRow[];
+  signals: AnyRow[];
+  evidence: AnyRow[];
+  governanceActions: AnyRow[];
 }) {
+  const linkedRecords = relationships.filter((relationship) => relationship.case_id === item.id);
+  const relatedEvidenceIds = new Set(
+    linkedRecords
+      .filter((relationship) => relationship.target_type === "evidence")
+      .map((relationship) => String(relationship.target_id))
+  );
+  const relatedEvidence = evidence
+    .filter((row) => relatedEvidenceIds.has(String(row.id)))
+    .slice(0, 3);
+  const relatedGovernance = governanceActions
+    .filter((row) => row.subject_type === "trust_case" && String(row.subject_id) === item.id)
+    .slice(0, 3);
+  const unresolvedSignals = signals
+    .filter((row) => /risk|review|escalat|pending/i.test(String(row.event ?? row.event_type ?? "")))
+    .slice(0, 3);
+
   return (
     <div className="rounded-lg border border-zinc-800 bg-black p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -186,6 +228,48 @@ function CaseCard({
       <p className="mt-3 text-xs text-zinc-600">
         Created {formatWorkspaceDate(item.created_at)}
       </p>
+      <div className="mt-4 grid gap-3 border-t border-zinc-900 pt-4 md:grid-cols-3">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Current status</p>
+          <p className="mt-2 text-sm text-zinc-300">{item.status ?? "open"}</p>
+        </div>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Assigned reviewer</p>
+          <p className="mt-2 text-sm text-zinc-300">{actorLabel(item.assigned_to)}</p>
+        </div>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Next required action</p>
+          <p className="mt-2 text-sm leading-6 text-zinc-300">{nextCaseAction(item)}</p>
+        </div>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Unresolved signals</p>
+          <div className="mt-2 grid gap-2">
+            {unresolvedSignals.length ? unresolvedSignals.map((row) => (
+              <p key={String(row.id)} className="text-sm leading-5 text-zinc-400">{rowTitle(row)}</p>
+            )) : <p className="text-sm text-zinc-500">No unresolved signals linked.</p>}
+          </div>
+        </div>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Related evidence</p>
+          <div className="mt-2 grid gap-2">
+            {relatedEvidence.length ? relatedEvidence.map((row) => (
+              <p key={String(row.id)} className="text-sm leading-5 text-zinc-400">{rowTitle(row)}</p>
+            )) : <p className="text-sm text-zinc-500">No evidence linked yet.</p>}
+          </div>
+        </div>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Governance actions</p>
+          <div className="mt-2 grid gap-2">
+            {relatedGovernance.length ? relatedGovernance.map((row) => (
+              <p key={String(row.id)} className="text-sm leading-5 text-zinc-400">
+                {String(row.action_status ?? "pending")} - {String(row.resolution_notes ?? "Human review")}
+              </p>
+            )) : <p className="text-sm text-zinc-500">No governance action linked.</p>}
+          </div>
+        </div>
+      </div>
       <div className="mt-4 grid gap-3 border-t border-zinc-900 pt-4">
         <form action={updateCaseCoordination} className="flex flex-wrap gap-2">
           <input type="hidden" name="workspace_id" value={workspaceId} />
@@ -216,7 +300,7 @@ function CaseCard({
         </form>
         <div className="flex flex-wrap gap-2">
           {[
-            ["escalated", "Escalate Workflow", "Workflow escalated for coordinated human review."],
+            ["escalated", "Escalate Workflow", "Additional operational review required."],
             ["in_review", "Request More Evidence", "Additional evidence may be required before this case can move forward."],
           ].map(([status, label, note]) => (
             <form key={status} action={updateCaseCoordination}>
@@ -584,6 +668,10 @@ export default async function WorkspaceDetailPage({
                     workspaceId={id}
                     members={scopedMembers}
                     currentUserId={user.id}
+                    relationships={scopedRelationships}
+                    signals={signals}
+                    evidence={evidence}
+                    governanceActions={scopedGovernanceActions}
                   />
                 ))
               ) : (

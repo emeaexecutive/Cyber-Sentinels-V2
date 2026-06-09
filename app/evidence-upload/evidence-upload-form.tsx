@@ -117,7 +117,7 @@ export function EvidenceUploadForm({
       }
 
       setProgress(100);
-      setMessage("Evidence uploaded.");
+      setMessage("Evidence uploaded successfully. Awaiting governance review.");
       setFile(null);
       setEvidenceUrl("");
       setNotes("");
@@ -137,9 +137,12 @@ export function EvidenceUploadForm({
   return (
     <form onSubmit={handleSubmit} className="mt-6 grid gap-4">
       {message ? (
-        <p className="rounded-lg border border-emerald-800 bg-black p-3 text-sm text-emerald-200">
-          {message}
-        </p>
+        <div className="rounded-lg border border-emerald-800 bg-black p-3 text-sm text-emerald-200">
+          <p>{message}</p>
+          <p className="mt-2 leading-6 text-emerald-100/80">
+            Next step: reviewer confirms the evidence and updates the case.
+          </p>
+        </div>
       ) : null}
       {error ? (
         <p className="rounded-lg border border-red-900 bg-black p-3 text-sm text-red-200">

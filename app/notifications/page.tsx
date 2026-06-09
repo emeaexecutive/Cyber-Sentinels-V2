@@ -55,6 +55,12 @@ function typeLabel(value?: string | null) {
   return String(value ?? "update").replace(/_/g, " ");
 }
 
+function matchesNotification(row: Record<string, any>, pattern: RegExp) {
+  return pattern.test(
+    `${row.notification_type ?? ""} ${row.severity ?? ""} ${row.title ?? ""} ${notificationMessage(row)}`
+  );
+}
+
 function NotificationCard({ notification }: { notification: Record<string, any> }) {
   const isRead = notificationRead(notification);
   const metadata =
@@ -117,21 +123,14 @@ export default async function NotificationsPage({
 
   const rows = notifications ?? [];
   const unread = rows.filter((row) => !notificationRead(row));
-  const escalations = rows.filter((row) =>
-    /escalation|suspicious|review/i.test(
-      `${row.notification_type ?? ""} ${row.severity ?? ""} ${row.title ?? ""}`
-    )
+  const escalations = rows.filter((row) => matchesNotification(row, /escalation|suspicious|high|critical/i));
+  const approvals = rows.filter((row) => matchesNotification(row, /approved|approval|resolved|completed/i));
+  const evidenceRequests = rows.filter((row) => matchesNotification(row, /evidence_request|request evidence|more evidence|missing evidence/i));
+  const reviewCompletions = rows.filter((row) => matchesNotification(row, /review completed|review_complete|decision recorded|receipt/i));
+  const groupedIds = new Set(
+    [...escalations, ...approvals, ...evidenceRequests, ...reviewCompletions].map((row) => String(row.id))
   );
-  const governanceActions = rows.filter((row) =>
-    /governance|review|evidence_request|ai_recommendation/i.test(
-      String(row.notification_type ?? "")
-    )
-  );
-  const reminders = rows.filter((row) =>
-    /assigned|request|pending|reminder/i.test(
-      `${row.notification_type ?? ""} ${row.title ?? ""} ${notificationMessage(row)}`
-    )
-  );
+  const recentUngrouped = rows.filter((row) => !groupedIds.has(String(row.id)));
   const unreadCount = unread.length;
 
   return (
@@ -185,11 +184,12 @@ export default async function NotificationsPage({
           </div>
         </section>
 
-        <section className="mt-8 grid gap-6 lg:grid-cols-3">
+        <section className="mt-8 grid gap-6 lg:grid-cols-4">
           {[
             ["Escalations", escalations, "No escalations require attention."],
-            ["Governance Actions", governanceActions, "No governance notifications are waiting."],
-            ["Review Reminders", reminders, "No review reminders are pending."],
+            ["Approvals", approvals, "No approval updates are waiting."],
+            ["Evidence Requests", evidenceRequests, "No evidence requests are pending."],
+            ["Review Completions", reviewCompletions, "No completed reviews are waiting."],
           ].map(([title, collection, empty]) => {
             const items = collection as Record<string, any>[];
             return (
@@ -218,21 +218,21 @@ export default async function NotificationsPage({
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold">Recent</h2>
+            <h2 className="text-xl font-semibold">Other Recent Updates</h2>
             <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400">
-              {rows.length}
+              {recentUngrouped.length}
             </span>
           </div>
           <div className="mt-5 grid gap-3">
-            {rows.length ? (
-              rows.slice(0, 12).map((notification) => (
+            {recentUngrouped.length ? (
+              recentUngrouped.slice(0, 12).map((notification) => (
                 <NotificationCard key={String(notification.id)} notification={notification} />
               ))
             ) : (
               <p className="rounded-lg border border-zinc-800 bg-black p-5 text-sm text-zinc-500">
-                No notifications yet. Cyber Sentinels keeps this view focused
-                on high-value operational coordination rather than constant
-                activity noise.
+                No ungrouped updates. Escalations, approvals, evidence
+                requests and review completions are grouped above to avoid
+                notification noise.
               </p>
             )}
           </div>
