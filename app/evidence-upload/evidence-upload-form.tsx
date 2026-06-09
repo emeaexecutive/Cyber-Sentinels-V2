@@ -97,32 +97,41 @@ export function EvidenceUploadForm({
 
     setProgress(40);
 
-    const response = await fetch("/api/evidence/upload", {
-      method: "POST",
-      credentials: "include",
-      body,
-    });
+    try {
+      const response = await fetch("/api/evidence/upload", {
+        method: "POST",
+        credentials: "include",
+        body,
+      });
 
-    setProgress(85);
+      setProgress(85);
 
-    const payload = (await response.json().catch(() => null)) as {
-      ok?: boolean;
-      error?: string;
-    } | null;
+      const payload = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        error?: string;
+      } | null;
 
-    if (!response.ok || !payload?.ok) {
+      if (!response.ok || !payload?.ok) {
+        setError(payload?.error ?? "Could not register uploaded evidence.");
+        return;
+      }
+
+      setProgress(100);
+      setMessage("Evidence uploaded.");
+      setFile(null);
+      setEvidenceUrl("");
+      setNotes("");
+    } catch (uploadError) {
+      console.error("Evidence upload failed.", uploadError);
+      setError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : "Evidence upload failed."
+      );
+    } finally {
       setIsUploading(false);
       setProgress(0);
-      setError(payload?.error ?? "Could not register uploaded evidence.");
-      return;
     }
-
-    setProgress(100);
-    setIsUploading(false);
-    setMessage("Evidence uploaded.");
-    setFile(null);
-    setEvidenceUrl("");
-    setNotes("");
   }
 
   return (

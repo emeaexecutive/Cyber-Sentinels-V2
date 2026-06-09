@@ -3,6 +3,7 @@ import { getPublicSupabaseEnv } from "@/lib/env";
 
 const SESSION_START_KEY = "cyber_sentinels_session_started_at";
 const ADMIN_VERIFIED_COOKIE_NAME = "cyber_admin_verified";
+const authTimeoutMs = 8000;
 
 function isInvalidRefreshTokenError(error: unknown) {
   if (!error || typeof error !== "object") {
@@ -47,7 +48,7 @@ function expireBrowserSession() {
 
 async function handleAuthResult<T>(task: () => Promise<T>) {
   try {
-    const result = await task();
+    const result = await withAuthTimeout(task);
     const maybeError =
       result && typeof result === "object" && "error" in result
         ? (result as { error?: unknown }).error
@@ -71,6 +72,33 @@ async function handleAuthResult<T>(task: () => Promise<T>) {
 
     console.error("Supabase auth call failed.", error);
     throw error;
+  }
+}
+
+async function withAuthTimeout<T>(task: () => Promise<T>): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      task(),
+      new Promise<T>((_, reject) => {
+        timeout = setTimeout(
+          () =>
+            reject(
+              new Error(
+                `Supabase browser auth timed out after ${
+                  authTimeoutMs / 1000
+                } seconds.`
+              )
+            ),
+          authTimeoutMs
+        );
+      }),
+    ]);
+  } finally {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
   }
 }
 

@@ -61,29 +61,69 @@ const footerSections = [
   },
 ];
 
-async function getNavigationAccessLevel(): Promise<NavigationAccessLevel> {
+type NavigationState = {
+  accessLevel: NavigationAccessLevel;
+  authStatusError: string | null;
+};
+
+function getSafeAuthStatusError(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Auth status check failed.";
+}
+
+async function getNavigationState(): Promise<NavigationState> {
   try {
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data, error } = await supabase.auth.getUser();
+    const user = data.user;
+
+    if (error) {
+      console.error("Navigation auth status failed.", error);
+
+      return {
+        accessLevel: "public",
+        authStatusError: getSafeAuthStatusError(error),
+      };
+    }
 
     if (!user) {
-      return "public";
+      return { accessLevel: "public", authStatusError: null };
     }
 
     if (isAdminAllowlisted(user.email)) {
       if (await hasAdminVerifiedCookie()) {
-        return "admin";
+        return { accessLevel: "admin", authStatusError: null };
       }
 
-      return "admin-unverified";
+      return { accessLevel: "admin-unverified", authStatusError: null };
     }
 
-    return "user";
-  } catch {
-    return "public";
+    return { accessLevel: "user", authStatusError: null };
+  } catch (error) {
+    console.error("Navigation auth status check crashed.", error);
+
+    return {
+      accessLevel: "public",
+      authStatusError: getSafeAuthStatusError(error),
+    };
   }
+}
+
+function TemporaryAuthDiagnostic({ message }: { message: string }) {
+  return (
+    <div className="border-b border-amber-500/40 bg-amber-950 px-6 py-3 text-sm text-amber-100 md:px-8">
+      <div className="mx-auto max-w-7xl">
+        <p className="font-semibold">Temporary loading diagnostic</p>
+        <p className="mt-1 text-amber-100/85">
+          Auth status failed, so Cyber Sentinels rendered the public homepage
+          instead of waiting indefinitely. {message}
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export default async function RootLayout({
@@ -91,13 +131,16 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const accessLevel = await getNavigationAccessLevel();
+  const { accessLevel, authStatusError } = await getNavigationState();
 
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <div className="shell">
           <GlobalNavigation accessLevel={accessLevel} />
+          {authStatusError ? (
+            <TemporaryAuthDiagnostic message={authStatusError} />
+          ) : null}
           {children}
           <footer className="border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8">
             <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-4">
