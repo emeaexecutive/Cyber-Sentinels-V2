@@ -39,6 +39,7 @@ const publicPages = ["/", "/platform", "/pricing", "/enterprise", "/why-now", "/
 const protectedRoutes = [
   "/back-office",
   "/admin/founder-control",
+  "/admin/deployment-readiness",
   "/admin/runtime-validation",
   "/admin/trust-integrity",
   "/trustops",

@@ -62,6 +62,18 @@ async function createPilotWorkspace(formData: FormData) {
     .select("id")
     .single();
 
+  if (trustCase?.id) {
+    await supabase.from("governance_actions").insert({
+      subject_type: "trust_case",
+      subject_id: trustCase.id,
+      action_status: "pending",
+      assigned_to: user.id,
+      resolution_notes:
+        "Pilot onboarding governance review created for the first trust case. Upload evidence before resolving.",
+      created_at: new Date().toISOString(),
+    });
+  }
+
   await supabase.from("launch_control_notes").insert({
     note: `[Pilot Setup] ${organizationName} pilot created. Reviewers to invite: ${reviewerEmails || "not provided"}. First case: ${trustCase?.id ?? "not recorded"}.`,
     status: "decision",
@@ -165,16 +177,17 @@ export default async function PilotSetupPage({
             <h2 className="text-xl font-semibold">10 Minute Path</h2>
             <div className="mt-5 grid gap-3 text-sm text-zinc-400">
               {[
-                "Create isolated workspace",
-                "Record reviewer invite list",
-                "Create first trust case",
-                "Upload evidence",
-                "Open governance queue",
-                "Review timeline, replay and receipt",
-              ].map((item, index) => (
+                ["Current state", "Pilot workspace and first case will be created together."],
+                ["Next action", "Upload evidence after workspace creation."],
+                ["Reviewer status", "Creator is added as workspace admin; reviewer emails are recorded for controlled invitation."],
+                ["Governance state", "A pending governance review is opened for the first trust case."],
+                ["Evidence completeness", "Evidence starts incomplete until the first upload succeeds."],
+                ["Receipt availability", "Receipts appear after evidence and review context exist."],
+                ["Replay and timeline", "Timeline starts at case creation; replay becomes useful after review activity."],
+              ].map(([label, item], index) => (
                 <div key={item} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
-                    Step {index + 1}
+                    Step {index + 1} / {label}
                   </p>
                   <p className="mt-2 text-zinc-300">{item}</p>
                 </div>
@@ -186,6 +199,12 @@ export default async function PilotSetupPage({
               </Link>
               <Link href="/governance" className="text-sm text-cyan-200 underline">
                 Governance queue
+              </Link>
+              <Link href="/timeline" className="text-sm text-cyan-200 underline">
+                Timeline
+              </Link>
+              <Link href="/trust-replay" className="text-sm text-cyan-200 underline">
+                Replay
               </Link>
             </div>
           </aside>
