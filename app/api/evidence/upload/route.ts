@@ -53,7 +53,7 @@ function getFileType(file: File) {
   return allowedExtensions.get(getExtension(file.name)) ?? null;
 }
 
-export async function POST(req: Request) {
+async function handleEvidenceUpload(req: Request) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -271,4 +271,17 @@ export async function POST(req: Request) {
     signal_id: signalRow.id,
     audit_id: auditRow.id,
   });
+}
+
+export async function POST(req: Request) {
+  try {
+    return await handleEvidenceUpload(req);
+  } catch (error) {
+    console.error("Evidence upload route failed.", error);
+
+    return NextResponse.json(
+      { ok: false, error: "Evidence upload is temporarily unavailable" },
+      { status: 503 }
+    );
+  }
 }

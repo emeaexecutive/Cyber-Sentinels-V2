@@ -27,6 +27,22 @@ async function withAuthTimeout<T>(task: Promise<T>): Promise<T> {
   }
 }
 
+function getResetPasswordMessage(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  const normalized = message.toLowerCase();
+
+  if (
+    normalized.includes("session") ||
+    normalized.includes("expired") ||
+    normalized.includes("invalid") ||
+    normalized.includes("refresh")
+  ) {
+    return "Reset link expired or invalid. Request a new password reset email.";
+  }
+
+  return message || "Could not update password.";
+}
+
 export default function ResetPasswordPage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
@@ -56,7 +72,7 @@ export default function ResetPasswordPage() {
       );
 
       if (error) {
-        setMessage(error.message || "Could not update password.");
+        setMessage(getResetPasswordMessage(error));
         return;
       }
 
@@ -64,7 +80,7 @@ export default function ResetPasswordPage() {
       router.push("/passport");
     } catch (error) {
       console.error("Supabase password update failed.", error);
-      setMessage(error instanceof Error ? error.message : "Could not update password.");
+      setMessage(getResetPasswordMessage(error));
     } finally {
       setLoading(false);
     }

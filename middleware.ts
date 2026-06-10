@@ -34,6 +34,7 @@ const userPagePrefixes = [
 
 const adminPagePrefixes = [
   "/back-office",
+  "/admin",
   "/admin/api-tests",
   "/admin/integrations",
   "/admin/launch-control",
@@ -54,6 +55,8 @@ const adminPagePrefixes = [
   "/execution-passports",
   "/state-verification",
   "/trust-events",
+  "/trustops",
+  "/launch-control",
 ];
 
 function matchesPrefix(pathname: string, prefixes: string[]) {
@@ -287,6 +290,7 @@ export const config = {
     "/timeline/:path*",
     "/trust-replay/:path*",
     "/back-office/:path*",
+    "/admin/:path*",
     "/admin/api-tests/:path*",
     "/admin/integrations/:path*",
     "/admin/launch-control/:path*",
@@ -307,6 +311,8 @@ export const config = {
     "/execution-passports/:path*",
     "/state-verification/:path*",
     "/trust-events/:path*",
+    "/trustops/:path*",
+    "/launch-control/:path*",
     "/api/admin/:path*",
   ],
 };

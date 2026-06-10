@@ -24,7 +24,7 @@ async function readRequestValues(req: Request) {
   return Object.fromEntries(formData.entries());
 }
 
-export async function POST(req: Request) {
+async function handleInterviewCreate(req: Request) {
   const contentType = req.headers.get("content-type") ?? "";
   const wantsRedirect = !contentType.includes("application/json");
   const supabase = await createClient();
@@ -171,4 +171,17 @@ export async function POST(req: Request) {
     session_url: `/interview/session/${session.id}`,
     report_url: `/trust/hiring-report/${session.id}`,
   });
+}
+
+export async function POST(req: Request) {
+  try {
+    return await handleInterviewCreate(req);
+  } catch (error) {
+    console.error("interview create route failed", error);
+
+    return NextResponse.json(
+      { ok: false, error: "Interview workflow is temporarily unavailable" },
+      { status: 503 }
+    );
+  }
 }

@@ -17,7 +17,7 @@ async function bestEffort(label: string, task: () => Promise<unknown>) {
   }
 }
 
-export async function POST(req: Request) {
+async function handleProvenanceVerification(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -112,4 +112,17 @@ export async function POST(req: Request) {
     authenticity: trustScore >= 70 ? "likely_authentic" : "needs_review",
     factors,
   });
+}
+
+export async function POST(req: Request) {
+  try {
+    return await handleProvenanceVerification(req);
+  } catch (error) {
+    console.error("provenance verification route failed", error);
+
+    return NextResponse.json(
+      { ok: false, error: "Provenance verification is temporarily unavailable" },
+      { status: 503 }
+    );
+  }
 }

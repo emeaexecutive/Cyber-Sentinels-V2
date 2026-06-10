@@ -1,89 +1,81 @@
-# Operational Hardening & Trust Readiness
+# Cyber Sentinels Operational Hardening
 
-Cyber Sentinels is positioned as AI-assisted, human-governed operational trust infrastructure. The platform supports explainable review, provenance, governance, and operational trust workflows without treating AI output as an autonomous authority.
+Date: 2026-06-10
 
-## Route Protections
+## Scope
 
-Public routes are intentionally limited to marketing, docs, pricing, legal, demo, and public verification surfaces.
+This pass focused on reliability, access control, workflow safety, operational consistency and graceful failure handling before design partner rollout. It did not add new platform concepts, routes, or tables.
 
-Authenticated user routes include:
+## Auth Protections
 
-- `/passport` and `/passports/*`
-- `/agents/*`
-- `/workspace/*`
-- `/governance`
-- `/timeline`
-- `/trust-replay`
-- `/evidence-upload`
-- `/messages`, `/notifications`, `/appeals`, `/feedback`
-
-Admin routes require an authenticated admin allowlist and the admin verification cookie:
-
-- `/back-office`
-- `/admin/*`
-- `/verification-queue`
-- `/trust-graph-engine`
-- `/mission-control`
-- `/signals`
-- other protected operational admin surfaces listed in `middleware.ts`
-
-Reviewer boundaries are enforced by `/governance`: authenticated users must be workspace reviewers, workspace owners, or admin allowlisted before governance actions are shown.
-
-## RLS Assumptions
-
-Operational tables revoke anonymous access unless they are explicitly public submission surfaces. The hardening migration reinforces this for major trust tables:
-
-- `passports`
-- `evidence_files`
-- `audit_logs`
-- `signals`
-- `trust_relationships`
-- `trust_timeline_events`
-- `trust_workspaces`
-- `workspace_members`
-- `trust_cases`
-- `trust_case_relationships`
-- `governance_actions`
-- `governance_policies`
-- `ai_agents`
-- `subscriptions`
-
-Workspace and case data is scoped to workspace owners or workspace members. Admin-wide operational views should use server-side admin controls and service role clients only from server code.
+- Signup, login, magic link, email verification, password reset and logout remain routed through Supabase auth.
+- Middleware uses Supabase session recovery and clears stale admin state when protected routes are reached without a valid session.
+- Auth callback failures now redirect back to login with a controlled verification error instead of crashing on invalid or expired callback tokens.
+- Password reset now maps missing, expired, invalid, or revoked sessions to a clear recovery message: request a new password reset email.
+- Missing Supabase auth configuration continues to degrade to a service-unavailable state instead of exposing raw stack traces.
 
 ## Admin Boundaries
 
-Admin access is controlled by `ADMIN_EMAILS` and the `cyber_admin_verified` cookie. If admin configuration is missing, protected admin routes are gated rather than silently exposed.
+- `/admin/*` is now protected as a whole namespace, not only a list of named admin routes.
+- `/back-office`, `/trustops`, `/launch-control` and existing internal operations pages remain admin-gated through middleware and server-side admin checks.
+- TrustOps now requires admin page access, not only a signed-in user.
+- Admin APIs remain routed through `requireAdminApiAccess` where present.
+- Runtime validation now probes `/admin/runtime-validation` as a protected route.
 
-Service role usage must remain server-side only. Client components must not import service role clients, secret environment variables, or OpenAI keys.
+## API Safety
 
-## AI Safety Constraints
+- Core hiring and provenance workflow APIs now catch unexpected runtime failures and return controlled JSON responses.
+- Evidence upload catches malformed multipart data, Supabase outages and storage failures without crashing the route.
+- Stripe, OpenAI and World ID remain treated as configured-or-safely-disabled integrations. Missing keys produce warnings or service-unavailable responses, not platform failure.
+- Invalid payloads continue to return `400` where explicit validation exists.
 
-AI assistance may summarize operational context, governance gaps, missing evidence, unresolved signals, and provenance history.
+## Workflow Protections
 
-AI must not:
+- Candidate, recruiter, interview and provenance workflows retain their existing trust-fabric writes: signals, audit logs, receipts, governance context, timeline sources and replay sessions where relevant.
+- Best-effort downstream writes are allowed to fail without losing the primary workflow response, while failures are logged for operators.
+- Interview creation still starts in pending/scheduled states and records placeholder risk interfaces as non-authoritative, human-review context.
+- Verification receipts remain explainable records, not automated trust authority.
 
-- approve or reject passports
-- ban users
-- mutate trust history
-- rewrite timelines or replay records
-- create hidden scoring logic
-- replace human governance decisions
+## Replay And Timeline Integrity
 
-All AI outputs should remain recommendations or summaries for human review.
+- Replay sessions are ordered from latest operational records and linked by subject type and subject id where existing tables support it.
+- Timeline continuity depends on existing signal, audit log and trust event sources.
+- Evidence references are kept private by default; public-safe views avoid raw evidence exposure.
 
-## Operational Trust Principles
+## Upload And Evidence Safety
 
-Cyber Sentinels should remain calm, understandable, and evidence-led:
+- Evidence uploads require an authenticated user.
+- Uploads validate case id, file presence, size and allowed file type before storage.
+- Evidence records, signals and audit logs are created only after successful storage.
+- Upload failures return safe messages without leaking storage internals.
 
-- Explain why a workflow needs review.
-- Preserve audit trails and timeline events.
-- Link decisions to evidence, signals, relationships, and governance actions where relevant.
-- Keep replay and timeline history immutable.
-- Avoid surveillance language and social-scoring framing.
-- Prefer clear operational messages over raw database errors.
+## UI Failure States
 
-## Launch Readiness
+- Runtime validation and status views distinguish warnings from blockers.
+- Supabase `200`, `401` and `403` REST responses are treated as reachable; protected endpoint denials are not reported as outages.
+- Empty operational views use calm, human-readable empty states instead of raw errors.
+- Unavailable reports and missing workflow data are handled as unavailable or pending, not as authoritative negative trust decisions.
 
-`/admin/launch-control` reports Ready, Caution, or Blocked across auth, billing, governance, trust workflows, integrations, uploads, and AI assistance.
+## Graceful Degradation Strategy
 
-Launch should be considered blocked when core auth, Supabase, admin protection, enterprise access, uploads, or trust workflow tables are unavailable. Optional APIs such as Stripe, OpenAI, and World ID may remain disabled if the application handles that state safely.
+- Critical deployment readiness depends on the app rendering, Supabase URL presence, anon key presence and Supabase endpoint reachability.
+- Stripe, OpenAI and World ID may be not configured yet during rollout and should remain warnings unless a workflow explicitly requires them.
+- Supabase network failures, DNS failures and `5xx` responses remain blockers for core runtime health.
+- Protected route `401` and `403` responses are considered healthy access control outcomes.
+
+## Performance Notes
+
+- This pass avoided broad data-shape refactors.
+- Runtime validation runs checks in parallel and stores compact summaries.
+- Operational dashboards still use multiple table reads for clarity; future optimization can consolidate repeated dashboard reads behind typed summary APIs.
+
+## Deferred Risks
+
+- Supabase RLS must be verified in the target project for production data boundaries.
+- Placeholder liveness, provenance, C2PA, SynthID and AI analysis providers should remain clearly labelled until real providers are wired.
+- Some workflow relationship integrity is best-effort because existing tables do not all share generic `subject_type` and `subject_id` columns.
+- Additional route-level catch guards can be added to lower-risk APIs over time, but the core rollout workflows now fail gracefully.
+
+## Safety Principle
+
+Cyber Sentinels remains explainable, human-governed, operational, calm and enterprise-safe. The system may organize evidence, signals, receipts and governance context, but it must not present opaque automated trust authority as final judgment.

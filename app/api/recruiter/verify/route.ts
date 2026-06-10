@@ -12,7 +12,7 @@ function text(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();
 }
 
-export async function POST(req: Request) {
+async function handleRecruiterVerification(req: Request) {
   const wantsRedirect = !(req.headers.get("content-type") ?? "").includes("application/json");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -144,4 +144,17 @@ export async function POST(req: Request) {
       { label: "Role claim", score: 76, detail: "Placeholder recruiter role review for hiring workflow access." },
     ],
   });
+}
+
+export async function POST(req: Request) {
+  try {
+    return await handleRecruiterVerification(req);
+  } catch (error) {
+    console.error("recruiter verification route failed", error);
+
+    return NextResponse.json(
+      { ok: false, error: "Recruiter verification is temporarily unavailable" },
+      { status: 503 }
+    );
+  }
 }

@@ -23,11 +23,17 @@ export async function GET(req: Request) {
     );
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-  if (!error) {
-    return NextResponse.redirect(new URL(next, url.origin));
+    if (!error) {
+      return NextResponse.redirect(new URL(next, url.origin));
+    }
+
+    console.warn("Supabase auth callback exchange failed.", error);
+  } catch (error) {
+    console.error("Supabase auth callback unavailable.", error);
   }
 
   return NextResponse.redirect(

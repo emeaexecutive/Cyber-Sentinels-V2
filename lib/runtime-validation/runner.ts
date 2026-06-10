@@ -36,7 +36,13 @@ export type RuntimeValidationLog = {
 };
 
 const publicPages = ["/", "/platform", "/pricing", "/enterprise", "/why-now", "/help", "/demo"];
-const protectedRoutes = ["/back-office", "/admin/founder-control", "/trustops", "/launch-control"];
+const protectedRoutes = [
+  "/back-office",
+  "/admin/founder-control",
+  "/admin/runtime-validation",
+  "/trustops",
+  "/launch-control",
+];
 const requiredEnterpriseFields = ["name", "work_email", "company"];
 const workflowTables = [
   ["Trust cases", "trust_cases"],

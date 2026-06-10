@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
 import {
   buildOperationalHealth,
@@ -72,11 +73,17 @@ function IntelligenceEventCard({ event }: { event: AnyOperationalRow }) {
 
 export default async function TrustOpsPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const adminAccess = await checkAdminAccess(supabase);
 
-  if (!user) redirect("/login?next=/trustops");
+  if (!adminAccess.ok && adminAccess.reason === "unauthenticated") {
+    redirect("/login?next=/trustops");
+  }
+
+  if (!adminAccess.ok) {
+    redirect("/back-office?denied=1");
+  }
+
+  await requireAdminPageAccess(supabase, { path: "/trustops" });
 
   const [
     intelligenceEvents,

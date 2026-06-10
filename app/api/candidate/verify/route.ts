@@ -13,7 +13,7 @@ function text(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();
 }
 
-export async function POST(req: Request) {
+async function handleCandidateVerification(req: Request) {
   const wantsRedirect = !(req.headers.get("content-type") ?? "").includes("application/json");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -168,4 +168,17 @@ export async function POST(req: Request) {
     trust_score: trustScore,
     factors,
   });
+}
+
+export async function POST(req: Request) {
+  try {
+    return await handleCandidateVerification(req);
+  } catch (error) {
+    console.error("candidate verification route failed", error);
+
+    return NextResponse.json(
+      { ok: false, error: "Candidate verification is temporarily unavailable" },
+      { status: 503 }
+    );
+  }
 }
