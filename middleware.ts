@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getAdminEmailsEnv, getPublicSupabaseEnv } from "@/lib/env";
+import { isMissingAuthSessionError } from "@/lib/supabase/auth-errors";
 
 const adminVerifiedCookieName = "cyber_admin_verified";
 
@@ -128,7 +129,7 @@ function clearAdminCookie(response: NextResponse) {
 }
 
 function redirectTo(req: NextRequest, path: string) {
-  console.error("Middleware redirect.", {
+  console.log("Middleware redirect.", {
     from: req.nextUrl.pathname,
     to: path,
   });
@@ -144,6 +145,11 @@ export async function middleware(req: NextRequest) {
   if (!protectsUser && !protectsAdmin) {
     return NextResponse.next();
   }
+
+  console.log(
+    "AUTH_GUARD_ROUTE_VERSION",
+    "missing-session-is-not-error-2026-06-10"
+  );
 
   let supabaseEnv;
 
@@ -177,26 +183,42 @@ export async function middleware(req: NextRequest) {
     }
   );
   let user = null;
+  let authError: unknown = null;
 
   try {
     const result = await supabase.auth.getUser();
     user = result.data.user;
+    authError = result.error;
+
+    if (authError && !isMissingAuthSessionError(authError)) {
+      console.error("Supabase middleware auth failed.", authError);
+    }
   } catch (error) {
-    console.error("Supabase middleware auth failed.", error);
+    authError = error;
+
+    if (!isMissingAuthSessionError(error)) {
+      console.error("Supabase middleware auth failed.", error);
+    }
   }
 
   if (!user) {
-    console.error("Middleware redirect reason: Supabase session missing.", {
-      pathname,
-    });
+    const nextPath = `${pathname}${search}`;
+
+    if (!authError || isMissingAuthSessionError(authError)) {
+      console.log("Middleware redirect reason: Supabase session missing.", {
+        pathname,
+      });
+    }
 
     if (protectsAdmin) {
-      return clearAdminCookie(redirectTo(req, "/login?next=/back-office"));
+      return clearAdminCookie(
+        redirectTo(req, `/login?next=${encodeURIComponent(nextPath)}`)
+      );
     }
 
     return redirectTo(
       req,
-      `/login?next=${encodeURIComponent(`${pathname}${search}`)}`
+      `/login?next=${encodeURIComponent(nextPath)}`
     );
   }
 
