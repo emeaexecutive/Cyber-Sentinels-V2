@@ -1,9 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
 import { summarizeIntegrationStatus } from "@/lib/integrations/registry";
 import {
   getPublicEnvDiagnostics,
   getPublicSupabaseEnv,
-  getServiceRoleEnv,
   logPublicEnvDiagnostics,
 } from "@/lib/env";
 
@@ -12,6 +10,7 @@ export const dynamic = "force-dynamic";
 type HealthCheck = {
   label: string;
   ok: boolean;
+  requiredForOverall: boolean;
   value: string;
   detail: string;
 };
@@ -19,6 +18,7 @@ type HealthCheck = {
 const statusTimeoutMs = 8000;
 const connectionFailureMessage =
   "Cyber Sentinels could not connect. Check Vercel Production environment variables.";
+const reachableStatuses = new Set([200, 401, 403]);
 
 function stateLabel(ok: boolean) {
   return ok ? "OK" : "Check";
@@ -32,11 +32,13 @@ function stateClass(ok: boolean) {
 
 function operationalFailure(
   label: string,
-  detail = connectionFailureMessage
+  detail = connectionFailureMessage,
+  requiredForOverall = false
 ): HealthCheck {
   return {
     label,
     ok: false,
+    requiredForOverall,
     value: "Unavailable",
     detail,
   };
@@ -44,6 +46,7 @@ function operationalFailure(
 
 async function withStatusTimeout(
   label: string,
+  requiredForOverall: boolean,
   task: () => Promise<HealthCheck>
 ): Promise<HealthCheck> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -57,7 +60,8 @@ async function withStatusTimeout(
             resolve(
               operationalFailure(
                 label,
-                `Timed out after ${statusTimeoutMs / 1000} seconds.`
+                `Timed out after ${statusTimeoutMs / 1000} seconds.`,
+                requiredForOverall
               )
             ),
           statusTimeoutMs
@@ -69,7 +73,8 @@ async function withStatusTimeout(
 
     return operationalFailure(
       label,
-      error instanceof Error ? error.message : "Health check failed."
+      error instanceof Error ? error.message : "Health check failed.",
+      requiredForOverall
     );
   } finally {
     if (timeout) {
@@ -84,14 +89,31 @@ async function checkAppOnline(): Promise<HealthCheck> {
   return {
     label: "App online",
     ok: true,
+    requiredForOverall: true,
     value: "Online",
     detail: "The status page rendered successfully from the current deployment.",
   };
 }
 
-async function checkSupabaseConnected(): Promise<HealthCheck> {
+function hasReachableSupabaseStatus(status: number) {
+  return reachableStatuses.has(status);
+}
+
+function protectedEndpointDetail(status: number) {
+  if (status === 401) {
+    return "Supabase reachable — protected endpoint requires authentication.";
+  }
+
+  if (status === 403) {
+    return "Supabase reachable — protected endpoint denied this anon-key probe.";
+  }
+
+  return "";
+}
+
+async function checkSupabaseEndpointReachable(): Promise<HealthCheck> {
   const { supabaseUrl, supabaseAnonKey } = getPublicSupabaseEnv(
-    "deployment status Supabase REST check"
+    "deployment status Supabase endpoint check"
   );
 
   const response = await fetch(`${supabaseUrl}/rest/v1/`, {
@@ -101,23 +123,27 @@ async function checkSupabaseConnected(): Promise<HealthCheck> {
     },
   });
 
-  if (!response.ok) {
+  const reachable = hasReachableSupabaseStatus(response.status);
+
+  if (!reachable) {
     console.error("Supabase REST health check failed.", {
       status: response.status,
     });
   }
 
   return {
-    label: "Supabase connected",
-    ok: response.ok,
-    value: response.ok ? "Connected" : `HTTP ${response.status}`,
+    label: "Supabase endpoint reachable",
+    ok: reachable,
+    requiredForOverall: true,
+    value: reachable ? "Reachable" : `HTTP ${response.status}`,
     detail: response.ok
-      ? "Supabase REST endpoint responded to a public anon-key probe."
-      : "Supabase REST endpoint did not return a healthy response.",
+      ? "Supabase REST endpoint responded to a public-safe anon-key probe."
+      : protectedEndpointDetail(response.status) ||
+        "Supabase REST endpoint did not return a reachable response.",
   };
 }
 
-async function checkAuthAvailable(): Promise<HealthCheck> {
+async function checkSupabaseAuthConfigured(): Promise<HealthCheck> {
   const { supabaseUrl, supabaseAnonKey } = getPublicSupabaseEnv(
     "deployment status auth check"
   );
@@ -129,68 +155,116 @@ async function checkAuthAvailable(): Promise<HealthCheck> {
     },
   });
 
-  if (!response.ok) {
+  const reachable = hasReachableSupabaseStatus(response.status);
+
+  if (!reachable) {
     console.error("Supabase auth health check failed.", {
       status: response.status,
     });
   }
 
   return {
-    label: "Auth available",
-    ok: response.ok,
-    value: response.ok ? "Available" : `HTTP ${response.status}`,
+    label: "Supabase auth configured",
+    ok: reachable,
+    requiredForOverall: false,
+    value: response.ok ? "Configured" : `HTTP ${response.status}`,
     detail: response.ok
       ? "Supabase auth endpoint responded to the configured anon key."
-      : "Supabase auth endpoint did not return a healthy response.",
+      : protectedEndpointDetail(response.status) ||
+        "Supabase auth endpoint did not return a reachable response.",
+  };
+}
+
+async function checkDatabaseTableAccess(): Promise<HealthCheck> {
+  const { supabaseUrl, supabaseAnonKey } = getPublicSupabaseEnv(
+    "deployment status database table access check"
+  );
+
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/integration_status?select=id&limit=1`,
+    {
+      cache: "no-store",
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey}`,
+      },
+    }
+  );
+
+  const reachable = hasReachableSupabaseStatus(response.status);
+
+  if (!reachable) {
+    console.error("Supabase database table access check failed.", {
+      status: response.status,
+    });
+  }
+
+  return {
+    label: "Database table access check",
+    ok: reachable,
+    requiredForOverall: false,
+    value: response.ok ? "Accessible" : `HTTP ${response.status}`,
+    detail: response.ok
+      ? "A limited anon-key table probe completed successfully."
+      : protectedEndpointDetail(response.status) ||
+        "The table probe returned an unexpected database response.",
   };
 }
 
 async function checkStorageAvailable(): Promise<HealthCheck> {
-  const { supabaseUrl, serviceRoleKey } = getServiceRoleEnv(
+  const { supabaseUrl, supabaseAnonKey } = getPublicSupabaseEnv(
     "deployment status storage check"
   );
-  const supabase = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
+
+  const response = await fetch(`${supabaseUrl}/storage/v1/bucket`, {
+    cache: "no-store",
+    headers: {
+      apikey: supabaseAnonKey,
+      Authorization: `Bearer ${supabaseAnonKey}`,
     },
   });
-  const { error } = await supabase.storage.listBuckets();
 
-  if (error) {
-    console.error("Supabase storage health check failed.", error);
+  const reachable = hasReachableSupabaseStatus(response.status);
+
+  if (!reachable) {
+    console.error("Supabase storage health check failed.", {
+      status: response.status,
+    });
   }
 
   return {
-    label: "Storage available",
-    ok: !error,
-    value: error ? "Unavailable" : "Available",
-    detail: error
-      ? "Storage bucket listing failed with current service credentials."
-      : "Storage service responded to a server-side bucket probe.",
+    label: "Storage check",
+    ok: reachable,
+    requiredForOverall: false,
+    value: response.ok ? "Accessible" : `HTTP ${response.status}`,
+    detail: response.ok
+      ? "Supabase storage responded to an anon-key bucket probe."
+      : protectedEndpointDetail(response.status) ||
+        "Supabase storage did not return a reachable response.",
   };
 }
 
 async function runChecks() {
   return Promise.all([
-    withStatusTimeout("App online", checkAppOnline),
-    withStatusTimeout("Supabase connected", checkSupabaseConnected),
-    withStatusTimeout("Auth available", checkAuthAvailable),
-    withStatusTimeout("Storage available", checkStorageAvailable),
+    withStatusTimeout("App online", true, checkAppOnline),
+    withStatusTimeout("Supabase endpoint reachable", true, checkSupabaseEndpointReachable),
+    withStatusTimeout("Supabase auth configured", false, checkSupabaseAuthConfigured),
+    withStatusTimeout("Database table access check", false, checkDatabaseTableAccess),
+    withStatusTimeout("Storage check", false, checkStorageAvailable),
   ]);
 }
 
 export default async function StatusPage() {
   const checks = await runChecks();
-  const healthy = checks.filter((check) => check.ok).length;
   const diagnostics = getPublicEnvDiagnostics();
-  const hasConnectionFailure = checks.some((check) => !check.ok);
+  const requiredChecks = checks.filter((check) => check.requiredForOverall);
+  const hasConnectionFailure = requiredChecks.some((check) => !check.ok);
   const integrationSummary = summarizeIntegrationStatus();
-  const supabaseConnected = checks.find((check) => check.label === "Supabase connected")?.ok;
+  const supabaseReachable = checks.find((check) => check.label === "Supabase endpoint reachable")?.ok;
   const apiSummary = [
     [
-      "Supabase connected",
-      supabaseConnected ? "connected" : integrationSummary.supabase,
+      "Supabase endpoint",
+      supabaseReachable ? "reachable" : integrationSummary.supabase,
     ],
     ["Stripe", integrationSummary.stripe],
     ["OpenAI", integrationSummary.openai],
@@ -209,11 +283,11 @@ export default async function StatusPage() {
               <h1 className="text-4xl font-semibold">System Status</h1>
               <p className="mt-4 max-w-3xl leading-7 text-zinc-400">
                 Public-safe deployment checks for runtime availability,
-                Supabase connectivity, authentication and storage.
+                Supabase connectivity, authentication, table access and storage.
               </p>
             </div>
             <span className="rounded-lg border border-zinc-800 bg-black px-4 py-3 text-sm text-zinc-300">
-              {healthy}/{checks.length} checks OK
+              {requiredChecks.every((check) => check.ok) ? "Deployment OK" : "Deployment check"}
             </span>
           </div>
           {hasConnectionFailure ? (
