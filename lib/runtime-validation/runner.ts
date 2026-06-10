@@ -40,6 +40,7 @@ const protectedRoutes = [
   "/back-office",
   "/admin/founder-control",
   "/admin/runtime-validation",
+  "/admin/trust-integrity",
   "/trustops",
   "/launch-control",
 ];

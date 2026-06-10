@@ -36,6 +36,10 @@ export type TrustIntegrityRepairResult = {
 
 const readLimit = 500;
 
+const orderColumns: Record<string, string> = {
+  verification_receipts: "issued_at",
+};
+
 const subjectTables = [
   "trust_cases",
   "evidence_files",
@@ -127,7 +131,9 @@ async function readTable(
 }
 
 async function readIntegrityTables(supabase: SupabaseClient) {
-  const reads = await Promise.all(subjectTables.map((table) => readTable(supabase, table)));
+  const reads = await Promise.all(
+    subjectTables.map((table) => readTable(supabase, table, orderColumns[table] ?? "created_at"))
+  );
 
   return Object.fromEntries(reads.map((read) => [read.table, read])) as Record<string, TableRead>;
 }
