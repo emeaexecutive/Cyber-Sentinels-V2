@@ -147,6 +147,18 @@ export async function POST(req: Request) {
     ],
   });
 
+  const { error: replayError } = await supabase.from("trust_replay_sessions").insert({
+    subject_type: "interview_session",
+    subject_id: session.id,
+    replay_summary:
+      "Initial hiring replay captures interview session creation, placeholder risk interfaces, audit logging, signal generation and receipt context.",
+    generated_by: "api.interview.create",
+  });
+
+  if (replayError) {
+    console.error("interview replay insert failed", replayError);
+  }
+
   if (wantsRedirect) {
     return NextResponse.redirect(new URL(`/interview/session/${session.id}`, req.url), {
       status: 303,

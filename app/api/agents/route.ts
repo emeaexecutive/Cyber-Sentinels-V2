@@ -3,6 +3,7 @@ import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
+import { createReceiptBundle } from "@/lib/trust-receipts/receipts";
 import type { AgentIdentity } from "@/lib/ai-trust/types";
 
 function text(value: unknown, fallback = "") {
@@ -19,6 +20,14 @@ async function readPayload(req: Request) {
   const formData = await req.formData();
 
   return Object.fromEntries(formData.entries()) as Record<string, unknown>;
+}
+
+async function bestEffort(label: string, task: () => Promise<unknown>) {
+  try {
+    await task();
+  } catch (error) {
+    console.warn(`${label} failed`, error);
+  }
 }
 
 export async function GET() {
@@ -138,6 +147,67 @@ export async function POST(req: Request) {
     ...eventMetadata,
     trust_event_id: trustEvent?.id,
     event_type: trustEvent?.event_type ?? "agent_created",
+  });
+
+  await bestEffort("agent governance action insert", async () => {
+    await supabase.from("governance_actions").insert({
+      subject_type: "agent",
+      subject_id: agent.id,
+      action_status: "pending",
+      resolution_notes:
+        "Agent identity created. Review declared purpose, permission scope and trust events before approving autonomous use.",
+    });
+  });
+
+  await bestEffort("agent trust case insert", async () => {
+    await supabase.from("trust_cases").insert({
+      title: `Agent identity review: ${agent.name ?? name}`,
+      description:
+        `Agent identity, governance scope, evidence context and operational activity require human review. Agent ID: ${agent.id}.`,
+      status: "open",
+      priority: "medium",
+      created_by: user.id,
+    });
+  });
+
+  await bestEffort("agent receipt bundle insert", async () => {
+    await createReceiptBundle(supabase, {
+      subjectType: "agent",
+      subjectId: agent.id,
+      receiptType: "agent_identity_registered",
+      verificationStatus: String(agent.status ?? "pending"),
+      confidenceLevel: Number(agent.trust_score ?? 0) >= 70 ? "High Trust" : "In Review",
+      issuedBy: user.id,
+      receiptSummary:
+        "Agent identity was registered with declared purpose, permission scope and human governance context.",
+      chainSummary:
+        "Agent evidence chain links identity metadata, trust events, audit activity, signals and governance review.",
+      evidenceSnapshot: {
+        agent_id: agent.id,
+        name: agent.name,
+        declared_purpose: agent.purpose,
+        permission_scope: agent.permission_scope,
+        status: agent.status,
+        trust_score: agent.trust_score,
+        human_review: true,
+      },
+      evidence: [
+        { type: "agent_identity", id: agent.id, status: agent.status },
+        { type: "trust_event", id: trustEvent?.id ?? null, event_type: trustEvent?.event_type ?? "agent_created" },
+        { type: "audit_log", event_type: "agent_created" },
+        { type: "signal", event: "Agent created" },
+      ],
+    });
+  });
+
+  await bestEffort("agent replay insert", async () => {
+    await supabase.from("trust_replay_sessions").insert({
+      subject_type: "agent",
+      subject_id: agent.id,
+      replay_summary:
+        "Initial agent replay captures identity registration, trust event creation, audit logging, signal generation and pending governance review.",
+      generated_by: "api.agents",
+    });
   });
 
   return NextResponse.json({ ok: true, agent }, { status: 201 });
