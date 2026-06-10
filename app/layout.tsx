@@ -12,6 +12,13 @@ export const metadata: Metadata = {
   title: "Cyber Sentinels | Governed Trust Infrastructure",
   description:
     "Evidence-backed trust infrastructure for governed verification and operational transparency.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/favicon.png", type: "image/png", sizes: "32x32" },
+    ],
+    shortcut: "/favicon.ico",
+  },
 };
 
 const footerSections = [
