@@ -5,7 +5,6 @@ import {
   type NavigationAccessLevel,
 } from "@/components/global-navigation";
 import { hasAdminVerifiedCookie, isAdminAllowlisted } from "@/lib/admin-auth";
-import { isMissingAuthSessionError } from "@/lib/supabase/auth-errors";
 import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
@@ -67,20 +66,18 @@ type NavigationState = {
 };
 
 async function getNavigationState(): Promise<NavigationState> {
+  console.log("NAV_AUTH_ROUTE_VERSION", "get-session-not-get-user-2026-06-10");
+
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.getUser();
-    const user = data.user;
+    const { data, error } = await supabase.auth.getSession();
 
     if (error) {
-      if (isMissingAuthSessionError(error)) {
-        return { accessLevel: "public" };
-      }
-
-      console.error("Navigation auth status failed.", error);
-
+      console.warn("Navigation auth status unavailable", error.message);
       return { accessLevel: "public" };
     }
+
+    const user = data.session?.user ?? null;
 
     if (!user) {
       return { accessLevel: "public" };
@@ -96,11 +93,10 @@ async function getNavigationState(): Promise<NavigationState> {
 
     return { accessLevel: "user" };
   } catch (error) {
-    if (isMissingAuthSessionError(error)) {
-      return { accessLevel: "public" };
-    }
-
-    console.error("Navigation auth status check crashed.", error);
+    console.warn(
+      "Navigation auth status unavailable",
+      error instanceof Error ? error.message : "Unknown navigation auth error."
+    );
 
     return { accessLevel: "public" };
   }
