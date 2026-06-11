@@ -66,6 +66,18 @@ export async function createVerificationReceipt(
   supabase: SupabaseClient,
   input: ReceiptInput
 ) {
+  const existing = await supabase
+    .from("verification_receipts")
+    .select("id")
+    .eq("subject_type", input.subjectType)
+    .eq("subject_id", input.subjectId)
+    .eq("receipt_type", input.receiptType)
+    .maybeSingle();
+
+  if (existing.data?.id) {
+    return existing;
+  }
+
   const result = await supabase.from("verification_receipts").insert({
     subject_type: input.subjectType,
     subject_id: input.subjectId,

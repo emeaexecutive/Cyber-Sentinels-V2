@@ -364,6 +364,12 @@ export default async function FounderControlPage() {
               <Link href="/admin/readiness-gate" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white">
                 Readiness Gate
               </Link>
+              <Link href="/admin/deployment-readiness" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white">
+                Deployment Readiness
+              </Link>
+              <Link href="/admin/runtime-validation" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
+                Runtime Validation
+              </Link>
               <Link href="/admin/api-tests" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
                 API Tests
               </Link>
@@ -455,6 +461,9 @@ export default async function FounderControlPage() {
             ))}
           </div>
           <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/admin/deployment-readiness" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm text-cyan-100 hover:text-white">
+              Deployment Readiness
+            </Link>
             <Link href="/enterprise/pilot-setup" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
               Design Partner Setup
             </Link>
