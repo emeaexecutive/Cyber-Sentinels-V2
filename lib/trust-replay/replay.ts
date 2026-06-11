@@ -33,6 +33,9 @@ function sortByCreatedAt<T extends { created_at?: string | null }>(rows: T[]) {
   return [...rows].sort((a, b) => {
     const left = a.created_at ? new Date(a.created_at).getTime() : 0;
     const right = b.created_at ? new Date(b.created_at).getTime() : 0;
+    if (!Number.isFinite(left) && !Number.isFinite(right)) return 0;
+    if (!Number.isFinite(left)) return 1;
+    if (!Number.isFinite(right)) return -1;
     return left - right;
   });
 }
