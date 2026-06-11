@@ -97,7 +97,7 @@ export const demoMarketplaceUseCases: MarketplaceUseCase[] = [
     title: "Creator platform checks synthetic media",
     marketplace_type: "creator_platform",
     trust_object: "verified_media",
-    summary: "Reality Passport and deepfake/media risk review for uploads.",
+    summary: "Reality Passport and synthetic-media risk review for uploads.",
     recommended_flow: "reality_passport + origin_trace",
   },
   {

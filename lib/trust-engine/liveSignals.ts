@@ -43,7 +43,7 @@ const demoEvents = [
   "Voice anomaly detected",
   "Human Presence Index recalculated",
   "Origin Trace weak",
-  "Deepfake risk increased",
+  "Synthetic-media risk increased",
   "Manual review requested",
   "Reality Passport updated",
   "Admin decision completed",
@@ -55,7 +55,8 @@ function inferSeverity(event: string): RadarSeverity {
 
   if (
     lower.includes("critical") ||
-    lower.includes("deepfake") ||
+    lower.includes("synthetic-media") ||
+    lower.includes("synthetic media") ||
     lower.includes("unknown entity")
   ) {
     return "critical";
@@ -109,7 +110,12 @@ function inferSourceType(event: string) {
 
   if (lower.includes("agent")) return "AI agent";
   if (lower.includes("candidate") || lower.includes("hiring")) return "Candidate verification";
-  if (lower.includes("deepfake") || lower.includes("voice") || lower.includes("image")) {
+  if (
+    lower.includes("synthetic-media") ||
+    lower.includes("synthetic media") ||
+    lower.includes("voice") ||
+    lower.includes("image")
+  ) {
     return "Synthetic media";
   }
   if (lower.includes("reality")) return "Reality Passport";

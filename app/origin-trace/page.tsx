@@ -29,8 +29,8 @@ export default function OriginTracePage() {
           </h1>
 
           <p className="mt-6 max-w-3xl text-zinc-400">
-            Detection tells you if something may be fake. Origin Trace™ asks
-            where it may have come from.
+            Detection can surface uncertainty. Origin Trace™ asks where media,
+            credentials or evidence may have come from.
           </p>
         </section>
 
@@ -39,7 +39,7 @@ export default function OriginTracePage() {
             Cyber Sentinels uses confidence-based wording: likely source,
             attribution confidence, source pattern review, metadata integrity,
             watermark status, C2PA status and upload chain evidence. It does
-            not claim to always identify the creator of a fake.
+            not claim certainty about source identity.
           </p>
         </section>
 
@@ -63,7 +63,7 @@ export default function OriginTracePage() {
             href="/deepfake-detection"
             className="rounded-xl bg-white px-5 py-3 font-semibold text-black"
           >
-            Deepfake Detection
+            Media Risk Review
           </Link>
           <Link
             href="/reality-passport"

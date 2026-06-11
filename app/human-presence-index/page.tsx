@@ -3,19 +3,19 @@ import Link from "next/link";
 const categories = [
   {
     name: "Biometric signals",
-    copy: "Face, voice, document and behavioural confidence for authentic human presence.",
+    copy: "Face, voice, document and behavioural confidence for reviewable human-presence context.",
   },
   {
     name: "Behavioural signals",
-    copy: "Behaviour, device and trust-history patterns that prove presence over time.",
+    copy: "Behaviour, device and trust-history patterns that support presence review over time.",
   },
   {
     name: "Liveness signals",
-    copy: "Not just liveness, but evidence that a real person is present now and repeatedly.",
+    copy: "Evidence that a person is present now and can be reviewed repeatedly.",
   },
   {
-    name: "Media authenticity",
-    copy: "Built for deepfake video, cloned voice, fake profiles and synthetic candidates.",
+    name: "Synthetic-media risk",
+    copy: "Media and voice risk signals that support candidate and identity review.",
   },
   {
     name: "Provenance / C2PA status",
@@ -45,21 +45,20 @@ export default function HumanPresenceIndexPage() {
           </h1>
 
           <p className="mt-6 max-w-3xl text-zinc-400">
-            Beyond face recognition. Beyond liveness. Proof of authentic human
-            presence over time.
+            Beyond face recognition and liveness: reviewable human-presence
+            context over time.
           </p>
         </section>
 
         <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
           <h2 className="text-2xl font-semibold">
-            Beyond face recognition. Beyond deepfake detection.
+            Beyond face recognition. Built for explainable review.
           </h2>
 
           <p className="mt-4 max-w-3xl text-zinc-400">
             Human Presence Index™ is not just facial recognition and not just
-            liveness. It is proof of authentic human presence over time using
-            face, voice, document, behaviour, device, media and
-            trust-history signals.
+            liveness. It organizes face, voice, document, behaviour, device,
+            media and trust-history signals for human-governed review.
           </p>
         </section>
 

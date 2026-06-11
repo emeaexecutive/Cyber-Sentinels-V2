@@ -72,7 +72,7 @@ export default function MarketplaceTrustPage() {
           {[
             [
               "Verified Humans",
-              "Human Presence Index, liveness and step-up checks for real-user assurance.",
+              "Human Presence Index, liveness and step-up checks for reviewable user assurance.",
             ],
             [
               "Verified Sellers / Creators",
@@ -87,7 +87,7 @@ export default function MarketplaceTrustPage() {
               "Agent registry, permissions and policy status before autonomous actions.",
             ],
             [
-              "Deepfake / Media Risk",
+              "Synthetic-Media Risk",
               "Reality Passport, Origin Trace and media-risk signals for uploads.",
             ],
             [

@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 const useCases = [
-  "Workforce and contractor verification",
-  "High-risk workflow review",
-  "Evidence-backed operational decisions",
-  "Trust and safety operations",
-  "Governance and audit readiness",
-  "AI-native workflow oversight",
+  "Hiring Security",
+  "Explainable Governance",
+  "Verification Receipts",
+  "Replayable Trust Timelines",
+  "Evidence Chains",
+  "Human-Governed Review",
 ];
 
 export default function EnterprisePage() {
@@ -18,11 +18,12 @@ export default function EnterprisePage() {
             Enterprise
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Governed trust workflows for enterprise operations.
+            Operational Trust Infrastructure for AI-era workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels helps enterprise teams connect evidence, review,
-            decisions and auditability into explainable trust workflows.
+            Cyber Sentinels helps enterprise teams connect evidence, human
+            review, governance actions, verification receipts and replayable
+            timelines into explainable operational trust workflows.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
             Detection and provenance are signals. Trust requires orchestration

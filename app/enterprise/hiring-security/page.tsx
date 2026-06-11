@@ -20,7 +20,7 @@ export default function HiringSecurityPage() {
             Hiring Security
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            The future of hiring is trust.
+            Hiring Security for explainable, human-governed review.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Cyber Sentinels helps enterprises verify the human behind the
@@ -29,9 +29,10 @@ export default function HiringSecurityPage() {
             governance actions, audit logs, timelines and replay.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
-            This is not a binary deepfake detector. It is operational trust
+            This is not a binary media-forensics tool. It is operational trust
             infrastructure for candidate provenance, recruiter verification,
-            interview integrity and human-governed hiring decisions.
+            interview integrity, explainable review and human-governed hiring
+            decisions.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
             Cyber Sentinels creates explainable verification receipts and

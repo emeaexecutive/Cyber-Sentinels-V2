@@ -178,7 +178,7 @@ export function predictTrustRisk(sources: PredictionSources): TrustPrediction {
     )
   ).length;
   const riskSignalCount = signals.filter((signal) =>
-    /(drift|anomaly|risk|deepfake|mismatch|weak|escalat)/i.test(
+    /(drift|anomaly|risk|synthetic|mismatch|weak|escalat)/i.test(
       signal.event ?? ""
     )
   ).length;
@@ -224,7 +224,7 @@ export function predictTrustRisk(sources: PredictionSources): TrustPrediction {
 
   if (maxSyntheticRisk >= 50 || maxVoiceRisk >= 45 || maxVideoRisk >= 45) {
     score += 20;
-    factors.push("Deepfake probability increasing");
+    factors.push("Synthetic-media risk increasing");
     emittedSignals.push("Synthetic escalation forecast");
   }
 

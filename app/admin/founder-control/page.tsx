@@ -413,12 +413,13 @@ export default async function FounderControlPage() {
               ["Launch notes", String(notes.length), "text-zinc-100"],
             ]}
           />
-          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             {[
               ["Deployment readiness", readiness.status, readiness.blockers.length ? "BLOCKED" : readiness.cautions.length ? "CAUTION" : "READY"],
               ["Runtime validation", failedApiTests.length ? "API checks need review" : "Runtime checks linked", failedApiTests.length ? "CAUTION" : "READY"],
               ["Workflow health", activationProgress >= 80 && !unresolvedEscalations.length ? "Operational flow ready" : "Workflow review needed", activationProgress >= 80 && !unresolvedEscalations.length ? "READY" : "CAUTION"],
               ["Integration warnings", attentionItems.filter((item) => /disabled|missing|failed/i.test(item)).length ? "Warnings present" : "No warnings", attentionItems.filter((item) => /disabled|missing|failed/i.test(item)).length ? "CAUTION" : "READY"],
+              ["Trust integrity", relationships.count && receiptRows.length && replaySessions.count ? "Continuity visible" : "Continuity review needed", relationships.count && receiptRows.length && replaySessions.count ? "READY" : "CAUTION"],
             ].map(([label, value, state]) => (
               <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">{label}</p>

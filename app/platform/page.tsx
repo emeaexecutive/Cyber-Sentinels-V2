@@ -16,7 +16,7 @@ export default function PlatformPage() {
             Platform
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Explainable trust orchestration for AI-era workflows.
+            Operational Trust Infrastructure for AI-era workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Cyber Sentinels combines operational workflows, evidence chains,
