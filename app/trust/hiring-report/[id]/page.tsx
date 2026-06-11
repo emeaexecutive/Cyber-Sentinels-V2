@@ -186,6 +186,10 @@ export default async function HiringReportPage({ params }: { params: Promise<{ i
                 : "No escalated interview integrity events are visible. Continue reviewing provenance, evidence and governance history before making hiring decisions."}
             </p>
             <p className="mt-3 text-sm leading-6 text-zinc-500">
+              Current state: {escalated.length ? "escalation pending reviewer ownership" : "reviewable with no visible escalation"}. Next step: confirm the evidence chain,
+              governance action and replay memory before sharing the hiring trust report.
+            </p>
+            <p className="mt-3 text-sm leading-6 text-zinc-500">
               AI may summarize this context later, but it does not reject
               candidates or replace human hiring governance.
             </p>

@@ -29,6 +29,14 @@ export type ReplaySession = {
   created_at: string | null;
 };
 
+function sortByCreatedAt<T extends { created_at?: string | null }>(rows: T[]) {
+  return [...rows].sort((a, b) => {
+    const left = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const right = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return left - right;
+  });
+}
+
 export function isAtOrBefore(row: ReplayRow, asOf: string) {
   const rowDate = new Date(String(row.created_at ?? 0)).getTime();
   const asOfDate = new Date(asOf).getTime();
@@ -97,16 +105,20 @@ export function buildReplaySnapshot(input: {
   timelineEvents: TrustTimelineEvent[];
 }): ReplaySnapshot {
   const filterRows = (rows: ReplayRow[]) =>
-    rows
-      .filter((row) => isAtOrBefore(row, input.asOf))
-      .filter((row) => subjectMatches(row, input.subjectType, input.subjectId));
-  const timelineEvents = input.timelineEvents
-    .filter((event) =>
-      event.created_at ? new Date(event.created_at).getTime() <= new Date(input.asOf).getTime() : false
-    )
-    .filter((event) => {
-      return timelineSubjectMatches(event, input.subjectId);
-    });
+    sortByCreatedAt(
+      rows
+        .filter((row) => isAtOrBefore(row, input.asOf))
+        .filter((row) => subjectMatches(row, input.subjectType, input.subjectId))
+    );
+  const timelineEvents = sortByCreatedAt(
+    input.timelineEvents
+      .filter((event) =>
+        event.created_at ? new Date(event.created_at).getTime() <= new Date(input.asOf).getTime() : false
+      )
+      .filter((event) => {
+        return timelineSubjectMatches(event, input.subjectId);
+      })
+  );
   const evidence = filterRows(input.evidence);
   const signals = filterRows(input.signals);
   const decisions = filterRows(input.decisions);

@@ -325,6 +325,12 @@ export default async function FounderControlPage() {
     ...trustCases.filter((row) => String(row.status ?? "").toLowerCase() === "escalated"),
     ...governanceRows.filter((row) => String(row.action_status ?? "").toLowerCase() === "escalated"),
   ];
+  const workflowFailures = [
+    ...trustCases.filter((row) => ["failed", "error", "blocked"].includes(String(row.status ?? "").toLowerCase())),
+    ...governanceRows.filter((row) =>
+      ["failed", "error", "blocked"].includes(String(row.action_status ?? "").toLowerCase())
+    ),
+  ];
   const activationChecks = [
     ["First trust case", trustCases.length > 0],
     ["First evidence upload", evidenceFiles.count > 0],
@@ -352,6 +358,7 @@ export default async function FounderControlPage() {
     openai?.status === "disabled" ? "OpenAI is disabled" : "",
     worldId?.status === "disabled" ? "World ID is disabled" : "",
     failedApiTests.length ? `${failedApiTests.length} failed API test${failedApiTests.length === 1 ? "" : "s"}` : "",
+    workflowFailures.length ? `${workflowFailures.length} workflow failure${workflowFailures.length === 1 ? "" : "s"}` : "",
     unresolvedLaunchBlockers.length
       ? `${unresolvedLaunchBlockers.length} unresolved launch blocker${unresolvedLaunchBlockers.length === 1 ? "" : "s"}`
       : "",
@@ -417,7 +424,7 @@ export default async function FounderControlPage() {
             {[
               ["Deployment readiness", readiness.status, readiness.blockers.length ? "BLOCKED" : readiness.cautions.length ? "CAUTION" : "READY"],
               ["Runtime validation", failedApiTests.length ? "API checks need review" : "Runtime checks linked", failedApiTests.length ? "CAUTION" : "READY"],
-              ["Workflow health", activationProgress >= 80 && !unresolvedEscalations.length ? "Operational flow ready" : "Workflow review needed", activationProgress >= 80 && !unresolvedEscalations.length ? "READY" : "CAUTION"],
+              ["Workflow health", activationProgress >= 80 && !unresolvedEscalations.length && !workflowFailures.length ? "Operational flow ready" : "Workflow review needed", activationProgress >= 80 && !unresolvedEscalations.length && !workflowFailures.length ? "READY" : "CAUTION"],
               ["Integration warnings", attentionItems.filter((item) => /disabled|missing|failed/i.test(item)).length ? "Warnings present" : "No warnings", attentionItems.filter((item) => /disabled|missing|failed/i.test(item)).length ? "CAUTION" : "READY"],
               ["Trust integrity", relationships.count && receiptRows.length && replaySessions.count ? "Continuity visible" : "Continuity review needed", relationships.count && receiptRows.length && replaySessions.count ? "READY" : "CAUTION"],
             ].map(([label, value, state]) => (
@@ -527,8 +534,8 @@ export default async function FounderControlPage() {
               ["Cases created", String(trustCases.length)],
               ["Evidence uploaded", metricValue(evidenceFiles)],
               ["Governance resolved", String(resolvedGovernanceActions.length)],
-              ["Replay usage", metricValue(replaySessions)],
               ["Receipt generation", metricValue(receipts)],
+              ["Workflow failures", String(workflowFailures.length), workflowFailures.length ? "text-red-200" : "text-emerald-200"],
               ["Unresolved escalations", String(unresolvedEscalations.length), unresolvedEscalations.length ? "text-amber-200" : "text-emerald-200"],
             ]}
           />
