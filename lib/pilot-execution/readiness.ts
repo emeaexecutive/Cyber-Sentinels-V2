@@ -2,6 +2,12 @@ import "server-only";
 
 import type { RuntimeValidationSummary } from "@/lib/runtime-validation/runner";
 import type { TrustIntegritySummary } from "@/lib/trust-integrity/repair";
+import {
+  isPilotWorkspace,
+  pilotOrganizationStates,
+  pilotStateFromWorkspace,
+  type PilotOrganizationState,
+} from "@/lib/pilot-mode";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export type DeploymentReadinessState = "READY" | "CAUTION" | "BLOCKED";
@@ -25,6 +31,7 @@ export type PilotOperationalMetrics = {
   unresolvedEscalations: number;
   onboardingCompletion: number;
   pilotWorkspaces: number;
+  pilotStateCounts: Record<PilotOrganizationState, number>;
 };
 
 export type DeploymentReadinessReport = {
@@ -88,12 +95,6 @@ function stringValue(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function isPilotWorkspace(row: AnyRow) {
-  return /pilot|design partner|demo/i.test(
-    `${stringValue(row.name)} ${stringValue(row.slug)} ${stringValue(row.description)}`
-  );
-}
-
 async function readRows(table: string, orderColumn = "created_at", limit = 500) {
   try {
     const supabase = createServiceRoleClient();
@@ -130,6 +131,14 @@ export async function readPilotOperationalMetrics(): Promise<PilotOperationalMet
     readRows("audit_logs"),
   ]);
   const pilotWorkspaceIds = new Set(workspaces.filter(isPilotWorkspace).map(rowId).filter(Boolean));
+  const pilotStateCounts = pilotOrganizationStates.reduce(
+    (counts, state) => ({ ...counts, [state]: 0 }),
+    {} as Record<PilotOrganizationState, number>
+  );
+  workspaces.filter(isPilotWorkspace).forEach((workspace) => {
+    const state = pilotStateFromWorkspace(workspace);
+    pilotStateCounts[state] += 1;
+  });
   const pilotCases = cases.filter((item) => pilotWorkspaceIds.has(stringValue(item.workspace_id)));
   const pilotCaseIds = new Set(pilotCases.map(rowId).filter(Boolean));
   const completedGovernance = governanceActions.filter((item) =>
@@ -164,6 +173,7 @@ export async function readPilotOperationalMetrics(): Promise<PilotOperationalMet
       (onboardingSteps.filter(Boolean).length / onboardingSteps.length) * 100
     ),
     pilotWorkspaces: pilotWorkspaceIds.size,
+    pilotStateCounts,
   };
 }
 
@@ -234,6 +244,11 @@ export function buildDeploymentReadinessReport(input: {
         label: "Onboarding completion",
         state: input.metrics.onboardingCompletion >= 80 ? "READY" : "CAUTION",
         message: `${input.metrics.onboardingCompletion}% pilot workflow completion from observed operational records.`,
+      },
+      {
+        label: "Pilot access control",
+        state: input.metrics.pilotStateCounts.suspended > 0 ? "CAUTION" : "READY",
+        message: `${input.metrics.pilotStateCounts.active} active, ${input.metrics.pilotStateCounts.invited} invited, ${input.metrics.pilotStateCounts.internal} internal and ${input.metrics.pilotStateCounts.suspended} suspended pilot workspaces observed.`,
       },
       {
         label: "Unresolved escalations",

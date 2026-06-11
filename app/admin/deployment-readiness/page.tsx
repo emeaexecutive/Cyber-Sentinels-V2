@@ -127,6 +127,35 @@ export default async function DeploymentReadinessPage() {
           ))}
         </section>
 
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Pilot Access Control</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
+                Pilot state counts are derived from isolated workspace records
+                and help operators distinguish invited, active and suspended
+                external pilots.
+              </p>
+            </div>
+            <span className={`rounded-full border px-3 py-1 text-xs ${stateClass(report.metrics.pilotStateCounts.suspended > 0 ? "CAUTION" : "READY")}`}>
+              {report.metrics.pilotStateCounts.suspended > 0 ? "CAUTION" : "READY"}
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["Internal", report.metrics.pilotStateCounts.internal],
+              ["Invited", report.metrics.pilotStateCounts.invited],
+              ["Active", report.metrics.pilotStateCounts.active],
+              ["Suspended", report.metrics.pilotStateCounts.suspended],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-2xl font-semibold text-zinc-100">{value}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-8 grid gap-5">
           {report.sections.map((section) => (
             <article key={section.category} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">

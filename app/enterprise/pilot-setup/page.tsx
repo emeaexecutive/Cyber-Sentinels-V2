@@ -1,6 +1,17 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { pilotModeNotice, pilotWorkspaceSlug, PILOT_MODE } from "@/lib/pilot-mode";
+import { createNotification } from "@/lib/communications/createNotification";
+import {
+  buildPilotActivationMetadata,
+  buildPilotWorkspaceDescription,
+  normalizePilotOrganizationState,
+  pilotGovernanceTemplates,
+  pilotModeNotice,
+  pilotOrganizationStates,
+  pilotVerificationCategories,
+  pilotWorkspaceSlug,
+  PILOT_MODE,
+} from "@/lib/pilot-mode";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -17,8 +28,13 @@ async function createPilotWorkspace(formData: FormData) {
 
   const organizationName = String(formData.get("organization_name") ?? "").trim();
   const reviewerEmails = String(formData.get("reviewer_emails") ?? "").trim();
+  const pilotState = normalizePilotOrganizationState(formData.get("pilot_state"));
   const caseTitle = String(formData.get("case_title") ?? "").trim();
   const caseDescription = String(formData.get("case_description") ?? "").trim();
+  const reviewerEmailList = reviewerEmails
+    .split(/[,\n]/)
+    .map((email) => email.trim())
+    .filter(Boolean);
 
   if (!organizationName || !caseTitle) {
     redirect("/enterprise/pilot-setup?error=missing_fields");
@@ -30,8 +46,10 @@ async function createPilotWorkspace(formData: FormData) {
     .insert({
       name: `${organizationName} Pilot Workspace`,
       slug,
-      description:
-        "Pilot Mode workspace for isolated design-partner onboarding, trust cases, governance review and operational learning.",
+      description: buildPilotWorkspaceDescription({
+        state: pilotState,
+        organizationName,
+      }),
       created_by: user.id,
     })
     .select("id")
@@ -63,7 +81,34 @@ async function createPilotWorkspace(formData: FormData) {
     .single();
 
   if (trustCase?.id) {
+    const pilotMetadata = buildPilotActivationMetadata({
+      organizationName,
+      reviewerEmails: reviewerEmailList,
+      state: pilotState,
+      workspaceId: workspace.id,
+      trustCaseId: trustCase.id,
+    });
+    const { data: policies } = await supabase
+      .from("governance_policies")
+      .insert(
+        pilotGovernanceTemplates.map((template) => ({
+          workspace_id: workspace.id,
+          name: template.name,
+          description: template.description,
+          trigger_type: template.trigger_type,
+          severity: template.severity,
+          action_type: template.action_type,
+          requires_human_review: true,
+        }))
+      )
+      .select("id, trigger_type");
+    const governancePolicyId =
+      policies?.find((policy) => policy.trigger_type === "pilot_governance_pending")?.id ??
+      policies?.[0]?.id ??
+      null;
+
     await supabase.from("governance_actions").insert({
+      policy_id: governancePolicyId,
       subject_type: "trust_case",
       subject_id: trustCase.id,
       action_status: "pending",
@@ -72,10 +117,46 @@ async function createPilotWorkspace(formData: FormData) {
         "Pilot onboarding governance review created for the first trust case. Upload evidence before resolving.",
       created_at: new Date().toISOString(),
     });
+
+    await supabase.from("trust_timeline_events").insert({
+      subject_type: "trust_case",
+      subject_id: trustCase.id,
+      event_type: "pilot_workspace_initialized",
+      event_title: "Pilot workspace initialized",
+      event_summary:
+        "Pilot defaults, verification categories, governance templates, checklist and replay structure were seeded for controlled onboarding.",
+      actor_type: "pilot_setup",
+      actor_id: user.id,
+      metadata: pilotMetadata,
+      severity: pilotState === "suspended" ? "review" : "info",
+    });
+
+    await supabase.from("trust_replay_sessions").insert({
+      subject_type: "trust_case",
+      subject_id: trustCase.id,
+      replay_summary:
+        "Seeded pilot replay path: case created, evidence upload, governance review, timeline generation, verification receipt and replay review. This sample structure guides operators without mutating workflow history.",
+      generated_by: "pilot_setup_seed",
+    });
+
+    await createNotification(supabase, {
+      userId: user.id,
+      title: "Pilot onboarding checklist ready",
+      body:
+        "Next action: upload evidence, then complete human governance review before generating the trust receipt and replay.",
+      notificationType: "pilot_onboarding_next_step",
+      actor: user.email ?? user.id,
+      severity: "review",
+      metadata: {
+        ...pilotMetadata,
+        subject_type: "trust_case",
+        subject_id: trustCase.id,
+      },
+    });
   }
 
   await supabase.from("launch_control_notes").insert({
-    note: `[Pilot Setup] ${organizationName} pilot created. Reviewers to invite: ${reviewerEmails || "not provided"}. First case: ${trustCase?.id ?? "not recorded"}.`,
+    note: `[Pilot Setup] ${organizationName} pilot created with state ${pilotState}. Reviewers to invite: ${reviewerEmails || "not provided"}. First case: ${trustCase?.id ?? "not recorded"}.`,
     status: "decision",
     created_by: user.email ?? user.id,
   });
@@ -85,13 +166,13 @@ async function createPilotWorkspace(formData: FormData) {
     actor: user.email ?? user.id,
     metadata: {
       pilot: true,
+      pilot_state: pilotState,
       organization_name: organizationName,
       workspace_id: workspace.id,
       trust_case_id: trustCase?.id ?? null,
-      reviewer_emails: reviewerEmails
-        .split(/[,\n]/)
-        .map((email) => email.trim())
-        .filter(Boolean),
+      reviewer_emails: reviewerEmailList,
+      verification_categories: [...pilotVerificationCategories],
+      governance_templates: pilotGovernanceTemplates.map((template) => template.name),
       operational_context:
         "Pilot setup created an isolated workspace and first trust case for design-partner onboarding.",
     },
@@ -156,6 +237,20 @@ export default async function PilotSetupPage({
                 placeholder="Reviewer emails, comma or line separated"
                 className="min-h-24 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white"
               />
+              <label className="grid gap-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
+                Pilot State
+                <select
+                  name="pilot_state"
+                  defaultValue="invited"
+                  className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm normal-case tracking-normal text-white"
+                >
+                  {pilotOrganizationStates.map((state) => (
+                    <option key={state} value={state}>
+                      {state}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <input
                 name="case_title"
                 required
@@ -177,6 +272,7 @@ export default async function PilotSetupPage({
             <h2 className="text-xl font-semibold">10 Minute Path</h2>
             <div className="mt-5 grid gap-3 text-sm text-zinc-400">
               {[
+                ["Pilot access", "State is recorded as internal, invited, active or suspended for controlled onboarding."],
                 ["Current state", "Pilot workspace and first case will be created together."],
                 ["Next action", "Upload evidence after workspace creation."],
                 ["Reviewer status", "Creator is added as workspace admin; reviewer emails are recorded for controlled invitation."],

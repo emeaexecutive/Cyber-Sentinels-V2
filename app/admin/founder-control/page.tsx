@@ -10,7 +10,12 @@ import {
   resetDemoWorkspace,
 } from "@/lib/demo/demoWorkspace";
 import { getIntegrationRegistry } from "@/lib/integrations/registry";
-import { isPilotWorkspace, PILOT_MODE } from "@/lib/pilot-mode";
+import {
+  isPilotWorkspace,
+  pilotOrganizationStates,
+  pilotStateFromWorkspace,
+  PILOT_MODE,
+} from "@/lib/pilot-mode";
 import { createReadinessGateSnapshot } from "@/lib/readiness-gate/snapshot";
 import { createClient } from "@/lib/supabase/server";
 
@@ -303,6 +308,13 @@ export default async function FounderControlPage() {
     ["failed", "error"].includes(String(row.status ?? "").toLowerCase())
   );
   const pilotWorkspaces = workspaces.filter((row) => isPilotWorkspace(row));
+  const pilotStateCounts = pilotOrganizationStates.reduce(
+    (counts, state) => ({ ...counts, [state]: 0 }),
+    {} as Record<(typeof pilotOrganizationStates)[number], number>
+  );
+  pilotWorkspaces.forEach((workspace) => {
+    pilotStateCounts[pilotStateFromWorkspace(workspace)] += 1;
+  });
   const designPartnerWorkspaces = workspaces.filter((row) =>
     /design partner/i.test(`${row.name ?? ""} ${row.slug ?? ""} ${row.description ?? ""}`)
   );
@@ -444,7 +456,9 @@ export default async function FounderControlPage() {
           </div>
           <MetricGrid
             items={[
-              ["Active pilots", String(pilotWorkspaces.length)],
+              ["Active pilots", String(pilotStateCounts.active)],
+              ["Invited pilots", String(pilotStateCounts.invited)],
+              ["Suspended pilots", String(pilotStateCounts.suspended), pilotStateCounts.suspended ? "text-amber-200" : "text-emerald-200"],
               ["Design partner workspaces", String(designPartnerWorkspaces.length)],
               ["Unresolved blockers", String(unresolvedLaunchBlockers.length)],
               ["Onboarding progress", `${activationProgress}%`],
