@@ -7,6 +7,7 @@ import {
   upsertUsageLimits,
 } from "@/lib/billing/stripe";
 import { getStripeWebhookSecretEnv, isEnvConfigurationError } from "@/lib/env";
+import { captureOperationalIssue } from "@/lib/operational-monitoring";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import type { UserPlan } from "@/types/billing";
 
@@ -60,7 +61,7 @@ async function handleCheckoutCompleted(
   const userEmail = session.customer_details?.email ?? session.metadata?.user_email ?? null;
 
   if (!userId || !customerId || !subscriptionId) {
-    console.error("checkout.session.completed missing billing identifiers", {
+    captureOperationalIssue("stripe_webhook", "warning", "Checkout webhook missing billing identifiers.", {
       hasUserId: Boolean(userId),
       hasCustomerId: Boolean(customerId),
       hasSubscriptionId: Boolean(subscriptionId),
@@ -98,8 +99,8 @@ async function handleSubscriptionChanged(subscription: Stripe.Subscription) {
   const plan = planFromMetadata(subscription.metadata);
 
   if (!userId) {
-    console.error("subscription webhook missing user_id metadata", {
-      subscriptionId: subscription.id,
+    captureOperationalIssue("stripe_webhook", "warning", "Subscription webhook missing user metadata.", {
+      subscription_id: subscription.id,
     });
     return;
   }
@@ -130,8 +131,8 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const userId = subscription.metadata.user_id;
 
   if (!userId) {
-    console.error("subscription deleted webhook missing user_id metadata", {
-      subscriptionId: subscription.id,
+    captureOperationalIssue("stripe_webhook", "warning", "Subscription deletion webhook missing user metadata.", {
+      subscription_id: subscription.id,
     });
     return;
   }
@@ -167,8 +168,8 @@ async function handleInvoicePayment(event: Stripe.Event) {
   );
 
   if (!userId) {
-    console.error("invoice webhook missing subscription user_id metadata", {
-      subscriptionId,
+    captureOperationalIssue("stripe_webhook", "warning", "Invoice webhook missing subscription user metadata.", {
+      subscription_id: subscriptionId,
     });
     return;
   }
@@ -202,7 +203,7 @@ export async function POST(req: Request) {
     const signature = req.headers.get("stripe-signature");
 
     if (!signature) {
-      console.error("Stripe webhook signature missing");
+      captureOperationalIssue("stripe_webhook", "warning", "Stripe webhook signature missing.");
       return NextResponse.json(
         { ok: false, error: "Missing signature" },
         { status: 400 }
@@ -244,7 +245,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("Stripe webhook handling failed", error);
+    captureOperationalIssue("stripe_webhook", "error", "Stripe webhook handling failed.", {
+      configured: isEnvConfigurationError(error) ? false : true,
+      error_name: error instanceof Error ? error.name : "unknown",
+    });
 
     return NextResponse.json(
       {

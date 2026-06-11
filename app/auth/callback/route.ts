@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { captureOperationalIssue } from "@/lib/operational-monitoring";
 import { createClient } from "@/lib/supabase/server";
 
 function getSafeRedirect(path: string | null) {
@@ -31,9 +32,15 @@ export async function GET(req: Request) {
       return NextResponse.redirect(new URL(next, url.origin));
     }
 
-    console.warn("Supabase auth callback exchange failed.", error);
+    captureOperationalIssue("auth_callback", "warning", "Supabase auth callback exchange failed.", {
+      next_path: next,
+      has_code: Boolean(code),
+    });
   } catch (error) {
-    console.error("Supabase auth callback unavailable.", error);
+    captureOperationalIssue("auth_callback", "error", "Supabase auth callback unavailable.", {
+      next_path: next,
+      error_name: error instanceof Error ? error.name : "unknown",
+    });
   }
 
   return NextResponse.redirect(

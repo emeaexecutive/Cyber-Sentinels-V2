@@ -3,6 +3,7 @@ import "server-only";
 import { existsSync } from "fs";
 import { join } from "path";
 import { getIntegrationRegistry } from "@/lib/integrations/registry";
+import { captureOperationalIssue } from "@/lib/operational-monitoring";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export type ValidationState = "PASS" | "WARNING" | "FAIL";
@@ -175,6 +176,40 @@ async function checkAppRoute(
   }
 
   return check("Public Pages", path, response.status >= 500 ? "FAIL" : "FAIL", `HTTP ${response.status}`, true);
+}
+
+async function securityHeaderChecks(baseUrl: string) {
+  const { response, error } = await fetchWithTimeout(`${getBaseUrl(baseUrl)}/`);
+
+  if (error || !response) {
+    return [
+      check(
+        "Security Headers",
+        "Header probe reachable",
+        "WARNING",
+        error ?? "No response returned."
+      ),
+    ];
+  }
+
+  const requiredHeaders = [
+    ["Content-Security-Policy", "content-security-policy"],
+    ["X-Frame-Options", "x-frame-options"],
+    ["Referrer-Policy", "referrer-policy"],
+    ["X-Content-Type-Options", "x-content-type-options"],
+    ["Permissions-Policy", "permissions-policy"],
+  ] as const;
+
+  return requiredHeaders.map(([label, header]) =>
+    check(
+      "Security Headers",
+      label,
+      response.headers.get(header) ? "PASS" : "WARNING",
+      response.headers.get(header)
+        ? `${label} is configured.`
+        : `${label} is missing from the deployment response.`
+    )
+  );
 }
 
 async function checkProtectedRoute(
@@ -537,6 +572,7 @@ export async function runRuntimeValidation(baseUrl: string): Promise<RuntimeVali
     authSystemChecks,
     enterpriseChecks,
     supabaseChecks,
+    securityChecks,
     adminProtectionChecks,
     workflowChecks,
     telemetryStatusChecks,
@@ -545,6 +581,7 @@ export async function runRuntimeValidation(baseUrl: string): Promise<RuntimeVali
     authChecks(baseUrl),
     enterpriseAccessChecks(baseUrl),
     supabaseRuntimeChecks(),
+    securityHeaderChecks(baseUrl),
     Promise.all(protectedRoutes.map((path) => checkProtectedRoute(baseUrl, path))),
     workflowHealthChecks(),
     telemetryChecks(),
@@ -555,6 +592,7 @@ export async function runRuntimeValidation(baseUrl: string): Promise<RuntimeVali
     ...authSystemChecks,
     ...enterpriseChecks,
     ...supabaseChecks,
+    ...securityChecks,
     ...adminProtectionChecks,
     ...providerChecks(),
     ...workflowChecks,
@@ -608,7 +646,9 @@ export async function writeRuntimeValidationLog(summary: RuntimeValidationSummar
       },
     });
   } catch (error) {
-    console.warn("Runtime validation log insert failed.", error);
+    captureOperationalIssue("runtime_validation", "warning", "Runtime validation log insert failed.", {
+      error_name: error instanceof Error ? error.name : "unknown",
+    });
   }
 }
 
@@ -627,13 +667,17 @@ export async function readRuntimeValidationLogs(limit = 8) {
       .returns<RuntimeValidationLog[]>();
 
     if (error) {
-      console.warn("Runtime validation logs unavailable.", error);
+      captureOperationalIssue("runtime_validation", "warning", "Runtime validation logs unavailable.", {
+        error_name: error.name,
+      });
       return [];
     }
 
     return data ?? [];
   } catch (error) {
-    console.warn("Runtime validation log read failed.", error);
+    captureOperationalIssue("runtime_validation", "warning", "Runtime validation log read failed.", {
+      error_name: error instanceof Error ? error.name : "unknown",
+    });
     return [];
   }
 }

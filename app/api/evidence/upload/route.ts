@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createNotification } from "@/lib/communications/createNotification";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { checkUsageLimit } from "@/lib/billing/checkUsageLimit";
+import { captureOperationalIssue } from "@/lib/operational-monitoring";
 import { createClient } from "@/lib/supabase/server";
 
 const bucketName = "evidence-files";
@@ -45,12 +46,17 @@ function getExtension(fileName: string) {
 
 function getFileType(file: File) {
   const mimeType = allowedMimeTypes.get(file.type);
+  const extensionType = allowedExtensions.get(getExtension(file.name)) ?? null;
 
-  if (mimeType) {
+  if (mimeType && extensionType && (mimeType === extensionType || (mimeType === "JPG" && extensionType === "JPEG"))) {
     return mimeType;
   }
 
-  return allowedExtensions.get(getExtension(file.name)) ?? null;
+  if (!file.type && extensionType) {
+    return extensionType;
+  }
+
+  return null;
 }
 
 async function handleEvidenceUpload(req: Request) {
@@ -156,7 +162,11 @@ async function handleEvidenceUpload(req: Request) {
     });
 
   if (uploadError) {
-    console.error("evidence storage upload failed", uploadError);
+    captureOperationalIssue("evidence_upload", "error", "Evidence storage upload failed.", {
+      verification_case_id: verificationCaseId,
+      file_type: fileType,
+      file_size: file.size,
+    });
 
     return NextResponse.json(
       { ok: false, error: "Could not store evidence file" },
@@ -187,7 +197,12 @@ async function handleEvidenceUpload(req: Request) {
     .single();
 
   if (evidenceError || !evidenceRow) {
-    console.error("evidence insert failed", evidenceError);
+    captureOperationalIssue("evidence_upload", "error", "Evidence database insert failed after storage upload.", {
+      verification_case_id: verificationCaseId,
+      file_type: fileType,
+      file_size: file.size,
+    });
+    await supabase.storage.from(bucketName).remove([storagePath]);
 
     return NextResponse.json(
       { ok: false, error: "Could not record evidence" },
@@ -214,12 +229,10 @@ async function handleEvidenceUpload(req: Request) {
     .single();
 
   if (signalError || !signalRow) {
-    console.error("evidence signal insert failed", signalError);
-
-    return NextResponse.json(
-      { ok: false, error: "Could not record signal" },
-      { status: 500 }
-    );
+    captureOperationalIssue("evidence_upload", "warning", "Evidence signal insert failed; upload remains recorded.", {
+      evidence_id: evidenceRow.id,
+      verification_case_id: verificationCaseId,
+    });
   }
 
   const auditMetadata = {
@@ -248,12 +261,10 @@ async function handleEvidenceUpload(req: Request) {
     .single();
 
   if (auditError || !auditRow) {
-    console.error("evidence audit insert failed", auditError);
-
-    return NextResponse.json(
-      { ok: false, error: "Could not record audit event" },
-      { status: 500 }
-    );
+    captureOperationalIssue("evidence_upload", "warning", "Evidence audit insert failed; upload remains recorded.", {
+      evidence_id: evidenceRow.id,
+      verification_case_id: verificationCaseId,
+    });
   }
 
   await createNotification(supabase, {
@@ -268,8 +279,8 @@ async function handleEvidenceUpload(req: Request) {
   return NextResponse.json({
     ok: true,
     evidence_id: evidenceRow.id,
-    signal_id: signalRow.id,
-    audit_id: auditRow.id,
+    signal_id: signalRow?.id ?? null,
+    audit_id: auditRow?.id ?? null,
   });
 }
 
@@ -277,7 +288,9 @@ export async function POST(req: Request) {
   try {
     return await handleEvidenceUpload(req);
   } catch (error) {
-    console.error("Evidence upload route failed.", error);
+    captureOperationalIssue("evidence_upload", "error", "Evidence upload route failed.", {
+      error_name: error instanceof Error ? error.name : "unknown",
+    });
 
     return NextResponse.json(
       { ok: false, error: "Evidence upload is temporarily unavailable" },
