@@ -179,7 +179,7 @@ export default async function PermissionsFirewallPage() {
             ],
             [
               "Step-Up Verification",
-              "When the firewall returns step_up_required, Cyber Sentinels requests stronger proof before permission.",
+              "When the firewall returns step_up_required, Cyber Sentinels requests stronger evidence and governance context before permission.",
             ],
             [
               "API Key Access",

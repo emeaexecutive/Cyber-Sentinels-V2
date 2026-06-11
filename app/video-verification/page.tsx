@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 const stages = [
-  "Liveness verification",
-  "Deepfake video detection",
-  "Candidate verification",
-  "Verified humans",
+  "Session continuity",
+  "Synthetic media signals",
+  "Candidate provenance",
+  "Human governance",
 ];
 
 export default function VideoVerificationPage() {
@@ -24,9 +24,9 @@ export default function VideoVerificationPage() {
         </h1>
 
         <p className="mt-6 max-w-3xl text-zinc-400">
-          The platform combines liveness verification, fake image detection,
-          cloned voice detection, deepfake video detection and audit logs into a
-          Trust Passport workflow built for proof before permission.
+          The platform combines liveness, media-risk indicators, provenance,
+          evidence completeness, audit logs and governance review into a Trust
+          Passport workflow built for explainable operational review.
         </p>
 
         <section className="mt-10 grid gap-4 md:grid-cols-4">
@@ -37,8 +37,8 @@ export default function VideoVerificationPage() {
             >
               <h2 className="text-lg font-semibold">{stage}</h2>
               <p className="mt-3 text-sm text-zinc-500">
-                Feed risk scores into the signals feed, clearances and
-                audit-ready records for verified humans and hiring reviews.
+                Feed review signals into timelines, evidence chains,
+                verification receipts and human-governed hiring reviews.
               </p>
             </div>
           ))}

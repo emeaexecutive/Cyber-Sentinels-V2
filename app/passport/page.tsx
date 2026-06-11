@@ -284,7 +284,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
 
               <div className="mt-4 grid gap-4 md:grid-cols-3">
                 <div className="rounded-2xl border border-zinc-800 bg-black p-5">
-                  <p className="text-zinc-500">Image Authenticity</p>
+                  <p className="text-zinc-500">Image Signal</p>
                   <p className="mt-3 text-xl font-bold">
                     {passport.image_authenticity_score ?? 0}%
                   </p>
@@ -487,7 +487,7 @@ export default async function PassportPage({ searchParams }: PassportPageProps) 
             type="number"
             min="0"
             max="100"
-            placeholder="Image authenticity score e.g. 88"
+            placeholder="Image signal score e.g. 88"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 

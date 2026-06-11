@@ -29,6 +29,7 @@ async function handleProvenanceVerification(req: Request) {
   const mediaLabel = text(formData, "media_label");
   const factors = provenanceTrustFactors();
   const trustScore = trustScoreFromFactors(factors);
+  const orchestrationStatus = trustScore >= 70 ? "review_ready" : "needs_governance_review";
   const reportId = crypto.randomUUID();
   const actor = user.email ?? user.id;
   const metadata = {
@@ -38,6 +39,9 @@ async function handleProvenanceVerification(req: Request) {
     media_type: text(formData, "media_type") || "image",
     factors,
     source: "api.provenance.verify",
+    orchestration_status: orchestrationStatus,
+    warning:
+      "Detection and provenance are signals. Trust requires evidence, timeline, governance and human review.",
   };
 
   await createAuditLog(supabase, "provenance_verification_requested", actor, metadata);
@@ -49,7 +53,7 @@ async function handleProvenanceVerification(req: Request) {
       subject_id: reportId,
       action_status: trustScore >= 70 ? "pending" : "in_review",
       resolution_notes:
-        "Provenance review created. Human review should inspect source URL, metadata, watermark and upload-chain context before relying on authenticity status.",
+        "Provenance review created. Human review should inspect source URL, metadata, watermark, evidence chain, timeline context and governance state before relying on this workflow.",
     });
   });
 
@@ -68,25 +72,27 @@ async function handleProvenanceVerification(req: Request) {
     await createReceiptBundle(supabase, {
       subjectType: "media",
       subjectId: reportId,
-      receiptType: trustScore >= 70 ? "media_provenance_reviewed" : "media_provenance_needs_review",
-      verificationStatus: trustScore >= 70 ? "likely_authentic" : "needs_review",
+      receiptType: trustScore >= 70 ? "media_provenance_review_ready" : "media_provenance_needs_review",
+      verificationStatus: orchestrationStatus,
       confidenceLevel: trustScore >= 70 ? "High Trust" : "In Review",
       issuedBy: user.id,
       receiptSummary:
-        "Media provenance review was recorded with source, metadata, watermark and upload-chain context. This receipt does not prove authenticity by itself.",
+        "Media provenance review was recorded with source, metadata, watermark and upload-chain context. This receipt explains signals and does not prove authenticity by itself.",
       chainSummary:
-        "Provenance evidence chain links media review metadata, trust factors, audit activity, signals and governance review.",
+        "Provenance evidence chain links media review metadata, trust factors, audit activity, signals, timelines and governance review.",
       evidenceSnapshot: {
         report_id: reportId,
         media_label: mediaLabel,
         source_url: metadata.source_url,
         media_type: metadata.media_type,
         trust_score: trustScore,
-        authenticity: trustScore >= 70 ? "likely_authentic" : "needs_review",
+        orchestration_status: orchestrationStatus,
+        missing_signal_policy:
+          "Missing provenance or detection context should create a warning, not an authenticity assertion.",
         human_review: true,
       },
       evidence: [
-        { type: "media_review", id: reportId, status: trustScore >= 70 ? "likely_authentic" : "needs_review" },
+        { type: "media_review", id: reportId, status: orchestrationStatus },
         { type: "trust_factors", factors },
         { type: "audit_log", event_type: "provenance_verification_requested" },
         { type: "signal", event: "Provenance verification requested" },
@@ -99,7 +105,7 @@ async function handleProvenanceVerification(req: Request) {
       subject_type: "media",
       subject_id: reportId,
       replay_summary:
-        "Initial media replay captures provenance review request, trust factors, audit logging, signal generation and pending governance review.",
+        "Initial media replay captures provenance review request, trust factors, audit logging, signal generation, timeline context and pending human governance review.",
       generated_by: "api.provenance.verify",
     });
   });
@@ -109,7 +115,9 @@ async function handleProvenanceVerification(req: Request) {
     report_id: reportId,
     media_url: `/trust/media/${encodeURIComponent(reportId)}`,
     trust_score: trustScore,
-    authenticity: trustScore >= 70 ? "likely_authentic" : "needs_review",
+    orchestration_status: orchestrationStatus,
+    warning:
+      "Detection and provenance are signals. Trust requires orchestration through evidence, governance, timeline and human review.",
     factors,
   });
 }

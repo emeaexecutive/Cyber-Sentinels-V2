@@ -17,7 +17,9 @@ export default async function MediaTrustPage({ params }: { params: Promise<{ id:
             <div>
               <h1 className="text-4xl font-semibold">Media {id}</h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Public-safe authenticity view for provenance, synthetic watermark, metadata and upload-chain signals.
+                Public-safe signal view for provenance, synthetic watermark,
+                metadata and upload-chain context. Provenance is not sufficient
+                trust without evidence, governance, timeline and human review.
               </p>
             </div>
             <AuthenticityBadge score={score} />
@@ -31,4 +33,3 @@ export default async function MediaTrustPage({ params }: { params: Promise<{ id:
     </main>
   );
 }
-

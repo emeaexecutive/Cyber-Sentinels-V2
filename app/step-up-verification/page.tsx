@@ -89,7 +89,7 @@ export default async function StepUpVerificationPage() {
             Step-Up Verification&trade;
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            High-risk actions require stronger proof before permission.
+            High-risk actions require stronger evidence, context and review before permission.
           </p>
         </section>
 

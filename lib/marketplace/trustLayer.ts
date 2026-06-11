@@ -111,7 +111,7 @@ export const demoMarketplaceUseCases: MarketplaceUseCase[] = [
     title: "Fintech marketplace requests step-up verification",
     marketplace_type: "fintech_marketplace",
     trust_object: "verified_transaction_context",
-    summary: "High-risk transaction context requires stronger proof before permission.",
+    summary: "High-risk transaction context requires stronger evidence and governance review before permission.",
     recommended_flow: "permissions_firewall + step_up",
   },
   {

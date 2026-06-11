@@ -16,7 +16,7 @@ export default function ProvenanceVerificationPage() {
             <div>
               <h1 className="text-4xl font-semibold md:text-5xl">Verify Provenance</h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Review media authenticity with placeholder C2PA parsing, SynthID detection, metadata integrity and upload-chain checks.
+                Review provenance, metadata, watermark, evidence-chain and upload-continuity signals. Detection and provenance are signals; trust requires orchestration.
               </p>
             </div>
             <AuthenticityBadge score={score} />
@@ -33,7 +33,7 @@ export default function ProvenanceVerificationPage() {
               <option value="audio">Audio</option>
               <option value="document">Document</option>
             </select>
-            <button className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">Verify Provenance</button>
+            <button className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">Review Provenance Signals</button>
           </form>
           <div className="grid gap-5">
             <TrustScoreBadge score={score} />
@@ -41,11 +41,10 @@ export default function ProvenanceVerificationPage() {
           </div>
         </section>
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <h2 className="text-xl font-semibold">Explainable Authenticity Factors</h2>
+          <h2 className="text-xl font-semibold">Explainable Signal Factors</h2>
           <div className="mt-5"><ExplainableTrustFactors factors={factors} /></div>
         </section>
       </div>
     </main>
   );
 }
-

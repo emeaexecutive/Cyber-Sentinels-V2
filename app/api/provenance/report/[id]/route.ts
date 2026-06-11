@@ -37,6 +37,10 @@ export async function GET(_req: Request, context: { params: Promise<{ id: string
     ok: true,
     report_id: id,
     trust_score: trustScoreFromFactors(factors),
+    orchestration_status:
+      trustScoreFromFactors(factors) >= 70 ? "review_ready" : "needs_governance_review",
+    warning:
+      "Provenance is one signal. Review evidence, governance actions, timeline and replay before relying on the workflow.",
     factors,
     receipt: receipt ?? null,
     replay: replay ?? null,

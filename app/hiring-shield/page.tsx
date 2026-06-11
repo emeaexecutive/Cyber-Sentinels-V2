@@ -152,7 +152,7 @@ export default async function HiringShieldPage() {
           <input
             name="image_authenticity_score"
             type="number"
-            placeholder="Image authenticity score e.g. 88"
+            placeholder="Image signal score e.g. 88"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
@@ -357,7 +357,7 @@ export default async function HiringShieldPage() {
 
                 <div className="mt-5 grid gap-4 md:grid-cols-2">
                   <div>
-                    <p className="text-zinc-500">Image Authenticity</p>
+                    <p className="text-zinc-500">Image Signal</p>
                     <p className="mt-2 text-xl font-bold">
                       {report.image_authenticity_score ?? 0}%
                     </p>

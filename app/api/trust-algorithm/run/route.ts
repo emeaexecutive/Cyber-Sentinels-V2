@@ -358,6 +358,8 @@ export async function POST(req: Request) {
     score: result.score,
     trust_score: result.trust_score,
     confidence_level: result.confidence_level,
+    orchestration_summary:
+      "Signals support review; governance and evidence orchestration determine operational trust posture.",
     explanation: result.explanation,
     positive_signals: result.positive_signals,
     negative_signals: result.negative_signals,

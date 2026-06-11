@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { TimelineEvent, TrustFactor } from "@/lib/trusted-layer/phase1";
-import { authenticityLabel, riskFromScore } from "@/lib/trusted-layer/phase1";
+import { orchestrationLabel, riskFromScore } from "@/lib/trusted-layer/phase1";
 
 function scoreClass(score: number) {
   if (score >= 85) return "border-emerald-800 bg-emerald-950/20 text-emerald-200";
@@ -48,7 +48,7 @@ export function StatusBadge({ status }: { status: string }) {
 export function AuthenticityBadge({ score }: { score: number }) {
   return (
     <span className={`inline-flex rounded-full border px-3 py-1 text-xs ${scoreClass(score)}`}>
-      {authenticityLabel(score)}
+      {orchestrationLabel(score)}
     </span>
   );
 }

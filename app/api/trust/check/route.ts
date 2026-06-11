@@ -163,6 +163,34 @@ export async function POST(req: Request) {
       origin_trace_score: originTraceScore,
       risk_level: riskLevel,
       recommended_action: getRecommendedAction(riskLevel),
+      orchestration_summary:
+        "Detection and provenance are signals. Trust requires evidence, workflow integrity, governance review, timelines and human oversight.",
+      signal_contributors: {
+        provenance_signals: {
+          origin_trace_score: originTraceScore,
+          metadata_integrity: metadataIntegrity,
+          watermark_status: watermarkStatus,
+          c2pa_status: c2paStatus,
+          upload_chain_status: uploadChainStatus,
+        },
+        workflow_integrity: {
+          trust_timeline_score: trustTimelineScore,
+          review_outcome: "manual_review",
+        },
+        session_continuity: {
+          liveness_score: livenessScore,
+          voice_clone_risk: voiceCloneRisk,
+          video_signal_risk: videoDeepfakeRisk,
+        },
+        evidence_completeness: {
+          image_signal_score: imageAuthenticityScore,
+          attribution_confidence: attributionConfidence,
+        },
+        governance_review: {
+          human_review_required: true,
+          ai_decisioning: false,
+        },
+      },
     });
   } catch (error) {
     if (error instanceof Error && error.message === "Invalid input") {

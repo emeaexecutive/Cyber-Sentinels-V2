@@ -101,14 +101,14 @@ function buildExplanation(
 ) {
   if (negativeSignals.length || missingRequirements.length) {
     const reasons = [...missingRequirements, ...negativeSignals].slice(0, 3).join(", ");
-    return `This subject requires review because ${reasons}.`;
+    return `This subject requires human-governed trust orchestration because ${reasons}.`;
   }
 
   if (positiveSignals.length >= 4) {
-    return "This subject has a strong trust chain because evidence, decisions, signals and audit logs are present.";
+    return "This subject has a strong trust chain because evidence, governance decisions, signals, timelines and audit logs are present.";
   }
 
-  return "This subject has partial trust evidence and should remain visible for deterministic review.";
+  return "This subject has partial trust evidence and should remain visible for explainable governance review.";
 }
 
 function recommendedAction(
@@ -117,18 +117,18 @@ function recommendedAction(
   missingRequirements: string[]
 ) {
   if (score >= 80 && !negativeSignals.length && !missingRequirements.length) {
-    return "Maintain trust status and continue routine monitoring.";
+    return "Maintain trust status and continue routine human-governed monitoring.";
   }
 
   if (missingRequirements.includes("Evidence is missing")) {
-    return "Request evidence before increasing trust status.";
+    return "Request evidence before increasing operational trust status.";
   }
 
   if (negativeSignals.some((signal) => /rejected|denied|high-risk|suspicious|appeal/i.test(signal))) {
-    return "Escalate for human review before approving additional access.";
+    return "Escalate for human governance review before approving additional access.";
   }
 
-  return "Continue review and collect the missing trust-chain requirements.";
+  return "Continue review and collect the missing evidence, signal and governance requirements.";
 }
 
 export function calculateTrustAlgorithmV1({
@@ -183,6 +183,25 @@ export function calculateTrustAlgorithmV1({
     "approved",
     "verified",
   ]);
+  const timelineOrReplayExists = [...auditLogs, ...signals, ...trustEvents].some((row) =>
+    /timeline|replay|receipt|verification_receipt/i.test(
+      `${row.event_type ?? ""} ${row.event ?? ""} ${JSON.stringify(row.metadata ?? {})}`
+    )
+  );
+  const provenanceSignalExists = [subject?.provenance_status, subject?.origin_trace_score, ...signals].some(
+    (row) =>
+      String(row ?? "").trim() !== "" &&
+      /provenance|origin|metadata|watermark|c2pa|upload/i.test(
+        typeof row === "object" ? JSON.stringify(row) : String(row)
+      )
+  );
+  const governanceSignalExists =
+    approvedDecisionExists ||
+    [...auditLogs, ...signals, ...trustEvents].some((row) =>
+      /governance|human review|manual_review|reviewer|decision/i.test(
+        `${row.event_type ?? ""} ${row.event ?? ""} ${JSON.stringify(row.metadata ?? {})}`
+      )
+    );
   const rejectedDecisionExists = hasAny(decisionValues, [
     "deny",
     "denied",
@@ -228,7 +247,7 @@ export function calculateTrustAlgorithmV1({
 
   if (signalExists) {
     score += 5;
-    positiveSignals.push("Signals exist");
+    positiveSignals.push("Operational signals exist");
   }
 
   if (!unresolvedAppeal) {
@@ -238,7 +257,22 @@ export function calculateTrustAlgorithmV1({
 
   if (graphDataExists) {
     score += 5;
-    positiveSignals.push("Graph/relationship data exists");
+    positiveSignals.push("Workflow relationship data exists");
+  }
+
+  if (provenanceSignalExists) {
+    score += 5;
+    positiveSignals.push("Provenance signal present");
+  }
+
+  if (governanceSignalExists) {
+    score += 5;
+    positiveSignals.push("Governance or reviewer action present");
+  }
+
+  if (timelineOrReplayExists) {
+    score += 5;
+    positiveSignals.push("Timeline or replay history present");
   }
 
   if (rejectedDecisionExists) {
@@ -285,7 +319,19 @@ export function calculateTrustAlgorithmV1({
   }
 
   if (!signalExists) {
-    missingRequirements.push("Trust signals are missing");
+    missingRequirements.push("Operational trust signals are missing");
+  }
+
+  if (!provenanceSignalExists) {
+    missingRequirements.push("Provenance signal is missing");
+  }
+
+  if (!governanceSignalExists) {
+    missingRequirements.push("Governance review is missing");
+  }
+
+  if (!timelineOrReplayExists) {
+    missingRequirements.push("Timeline or replay history is missing");
   }
 
   const finalScore = clamp(score);

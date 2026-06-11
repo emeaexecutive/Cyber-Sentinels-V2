@@ -84,15 +84,34 @@ export function calculateTrustScoreV1({
   const signalEvents = signals.map((signal) => normalized(signal.event));
   const auditEvents = auditLogs.map((log) => normalized(log.event_type));
   const decisionValues = decisions.map((decision) => normalized(decision.decision));
+  const adminDecisionRecorded = auditEvents.includes("admin_decision_created");
+  const verificationCompleted = auditEvents.includes("verification_completed");
+  const decisionCompletedSignal = signalEvents.includes("decision completed");
+  const provenanceSignals = [
+    passport?.provenance_status,
+    passport?.c2pa_status,
+    passport?.origin_trace_score,
+    ...signalEvents.filter((event) => /provenance|origin|metadata|watermark/i.test(event)),
+  ].filter((value) => String(value ?? "").trim() !== "");
+  const sessionContinuitySignals = [
+    passport?.liveness_score,
+    passport?.voice_clone_risk,
+    passport?.video_deepfake_risk,
+    ...signalEvents.filter((event) => /session|liveness|voice|webcam|interview/i.test(event)),
+  ].filter((value) => String(value ?? "").trim() !== "");
+  const governanceReviewExists =
+    adminDecisionRecorded ||
+    auditEvents.some((event) => /governance|review|decision/.test(event)) ||
+    decisions.length > 0;
+  const trustHistoryExists =
+    auditLogs.length > 0 ||
+    signalEvents.some((event) => /history|timeline|receipt|replay/.test(event));
   const acceptedEvidenceExists = evidence.some((item) =>
     ["accepted", "clean", "approved"].includes(normalized(item.status ?? item.scan_status))
   );
   const rejectedEvidenceExists = evidence.some((item) =>
     ["rejected", "failed"].includes(normalized(item.status ?? item.scan_status))
   );
-  const adminDecisionRecorded = auditEvents.includes("admin_decision_created");
-  const verificationCompleted = auditEvents.includes("verification_completed");
-  const decisionCompletedSignal = signalEvents.includes("decision completed");
   const manualReviewRequired = signalEvents.includes("manual_review_required");
   const needsMoreEvidence =
     statuses.includes("escalated") ||
@@ -105,22 +124,37 @@ export function calculateTrustScoreV1({
 
   if (acceptedEvidenceExists) {
     score += 10;
-    reasonCodes.push("Evidence accepted");
+    reasonCodes.push("Evidence completeness signal");
   }
 
-  if (adminDecisionRecorded) {
+  if (governanceReviewExists) {
     score += 10;
-    reasonCodes.push("Admin decision recorded");
+    reasonCodes.push("Governance review recorded");
   }
 
   if (verificationCompleted) {
     score += 10;
-    reasonCodes.push("Verification completed");
+    reasonCodes.push("Workflow integrity confirmed");
   }
 
   if (decisionCompletedSignal) {
     score += 5;
-    reasonCodes.push("Decision completed signal");
+    reasonCodes.push("Reviewer action recorded");
+  }
+
+  if (provenanceSignals.length) {
+    score += 5;
+    reasonCodes.push("Provenance signal present");
+  }
+
+  if (sessionContinuitySignals.length) {
+    score += 5;
+    reasonCodes.push("Session continuity signal present");
+  }
+
+  if (trustHistoryExists) {
+    score += 5;
+    reasonCodes.push("Trust history available");
   }
 
   if (decisionValues.includes("deny")) {
@@ -129,20 +163,29 @@ export function calculateTrustScoreV1({
 
   if (rejectedEvidenceExists) {
     score -= 15;
+    reasonCodes.push("Evidence rejection signal");
   }
 
   if (needsMoreEvidence) {
     score -= 10;
-    reasonCodes.push("Needs more evidence");
+    reasonCodes.push("Evidence gap requires review");
   }
 
   if (manualReviewRequired) {
     score -= 10;
-    reasonCodes.push("Manual review required");
+    reasonCodes.push("Human escalation required");
   }
 
   if (!evidence.length) {
     reasonCodes.push("Evidence missing");
+  }
+
+  if (!provenanceSignals.length) {
+    reasonCodes.push("Provenance signal unavailable");
+  }
+
+  if (!governanceReviewExists) {
+    reasonCodes.push("Governance review pending");
   }
 
   const finalScore = clampScore(score);
@@ -160,15 +203,26 @@ export function getTrustScoreReasonTone(
   if (
     [
       "Evidence accepted",
-      "Admin decision recorded",
-      "Verification completed",
-      "Decision completed signal",
+      "Evidence completeness signal",
+      "Governance review recorded",
+      "Workflow integrity confirmed",
+      "Reviewer action recorded",
+      "Provenance signal present",
+      "Session continuity signal present",
+      "Trust history available",
     ].includes(reason)
   ) {
     return "positive";
   }
 
-  if (reason === "Evidence missing" || reason === "Needs more evidence") {
+  if (
+    [
+      "Evidence missing",
+      "Evidence gap requires review",
+      "Provenance signal unavailable",
+      "Governance review pending",
+    ].includes(reason)
+  ) {
     return "warning";
   }
 

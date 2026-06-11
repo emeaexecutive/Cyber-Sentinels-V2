@@ -4,9 +4,9 @@ const sections = [
   "Human Presence Index™",
   "Trust Passport",
   "AI Agent Passport",
-  "Video Deepfake Risk",
-  "Voice Clone Risk",
-  "Image Authenticity",
+  "Video Integrity Signal",
+  "Voice Consistency Signal",
+  "Image Review Signal",
   "Provenance / C2PA",
   "Origin Trace™",
   "Trust Timeline",
@@ -31,7 +31,8 @@ export default function RealityPassportPage() {
           </h1>
 
           <p className="mt-6 max-w-3xl text-zinc-400">
-            Reality is no longer assumed. It is verified.
+            Reality is no longer assumed. It is reviewed through signals,
+            evidence and governance.
           </p>
         </section>
 
@@ -43,7 +44,7 @@ export default function RealityPassportPage() {
             >
               <h2 className="text-xl font-semibold">{section}</h2>
               <p className="mt-3 text-sm text-zinc-500">
-                Evidence for authenticity, continuity and trust state across
+                Evidence, continuity signals and governance context across
                 humans, AI agents, media objects, documents, candidates,
                 companies and digital interactions.
               </p>

@@ -63,7 +63,7 @@ export default function TrustEmbedsPage() {
             Trust Embeds&trade;
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Carry proof before permission across the web.
+            Carry explainable trust context across the web.
           </p>
         </section>
 

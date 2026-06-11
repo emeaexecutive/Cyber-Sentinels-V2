@@ -79,9 +79,9 @@ export default function HomePage() {
             workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-300">
-            AI-assisted, human-governed operational trust infrastructure for
-            identity context, evidence, operational review, trust events and
-            audit visibility.
+            Cyber Sentinels provides explainable trust orchestration for
+            AI-era workflows: identity context, evidence, operational review,
+            trust events and audit visibility.
           </p>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-500">
             Built for organizations that need explainable verification and
@@ -89,9 +89,9 @@ export default function HomePage() {
             monitoring dashboards.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
-            Cyber Sentinels creates explainable verification receipts and
-            operational trust evidence chains as trust orchestration
-            infrastructure for accountable review.
+            Detection and provenance are signals. Trust requires orchestration
+            across evidence chains, governance, timelines, verification
+            receipts and replay.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
             Cyber Sentinels helps organizations operationalize explainable trust

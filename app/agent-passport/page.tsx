@@ -34,7 +34,7 @@ export default function AgentPassportPage() {
         <p className="mt-6 max-w-3xl text-zinc-400">
           Cyber Sentinels gives autonomous agents an AI trust infrastructure
           record with provenance, review status, clearances, audit logs and
-          proof before permission controls.
+          governance-before-permission controls.
         </p>
 
         <Link
@@ -52,9 +52,9 @@ export default function AgentPassportPage() {
             >
               <h2 className="text-xl font-semibold">{capability}</h2>
               <p className="mt-3 text-sm text-zinc-500">
-                Connect agent identity with verified humans, candidate
-                verification, deepfake video detection, fake image detection and
-                cloned voice detection signals.
+                Connect agent identity with owners, permissions, provenance,
+                evidence chains, operational signals and human governance
+                review.
               </p>
             </div>
           ))}

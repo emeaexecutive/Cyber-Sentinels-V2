@@ -16,12 +16,15 @@ export default function PlatformPage() {
             Platform
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Trust infrastructure for governed verification.
+            Explainable trust orchestration for AI-era workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels combines operational workflows, evidence-backed
-            verification, auditability and explainability into a focused early
-            platform.
+            Cyber Sentinels combines operational workflows, evidence chains,
+            provenance signals, governance review, auditability and
+            verification receipts into a focused early platform.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
+            Detection and provenance are signals. Trust requires orchestration.
           </p>
         </section>
 

@@ -24,6 +24,11 @@ export default function EnterprisePage() {
             Cyber Sentinels helps enterprise teams connect evidence, review,
             decisions and auditability into explainable trust workflows.
           </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
+            Detection and provenance are signals. Trust requires orchestration
+            through governance, timelines, evidence chains, verification
+            receipts and human review.
+          </p>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2">

@@ -19,12 +19,14 @@ type RunRow = {
 
 const additiveRules = [
   ["+15", "Verified passport"],
-  ["+10", "Accepted evidence exists"],
-  ["+10", "Admin decision allow/approved"],
+  ["+10", "Evidence completeness"],
+  ["+10", "Human governance decision"],
   ["+10", "Audit trail exists"],
-  ["+5", "Signals exist"],
+  ["+5", "Operational signals exist"],
   ["+5", "No unresolved appeal"],
-  ["+5", "Graph/relationship data exists"],
+  ["+5", "Workflow relationship data exists"],
+  ["+5", "Provenance signal present"],
+  ["+5", "Timeline or replay history present"],
 ];
 
 const subtractiveRules = [
@@ -45,8 +47,8 @@ const confidenceBands = [
 ];
 
 const examples = [
-  "This subject has a strong trust chain because evidence, decisions, signals and audit logs are present.",
-  "This subject requires review because evidence is missing and no admin decision exists.",
+  "This subject has a strong trust chain because evidence, governance decisions, signals, timelines and audit logs are present.",
+  "This subject requires human review because evidence, provenance or governance context is missing.",
 ];
 
 function formatDate(value: string | null) {
@@ -97,20 +99,21 @@ export default async function TrustAlgorithmPage() {
             Trust Algorithm V1
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-6xl">
-            Explainable trust scoring
+            Explainable trust orchestration
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
-            Deterministic rules calculate trust status from evidence,
-            verification, auditability, signals and unresolved risk. No
-            black-box AI scoring is used.
+            Deterministic rules combine provenance signals, workflow integrity,
+            session continuity, evidence completeness, governance review,
+            reviewer actions, escalation patterns and trust history. No
+            black-box AI decisioning is used.
           </p>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-3">
           <Panel title="Core Formula">
             <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-300">
-              Trust Score = evidence + verification + auditability + signals -
-              unresolved risk
+              Trust state = evidence + governance + timelines + signals +
+              reviewer context - unresolved risk
             </p>
             <p className="mt-4 text-sm text-zinc-500">
               Base score starts at 50 and clamps between 0 and 100.
