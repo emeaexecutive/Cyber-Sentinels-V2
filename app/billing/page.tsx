@@ -42,10 +42,6 @@ export default async function BillingPage({
     process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PRO_MONTHLY_PRICE_ID
   );
 
-  if (!isStripeBillingConfigured) {
-    console.log("Stripe billing not configured");
-  }
-
   const planName = await getUserPlan(supabase, user);
   const currentPlan = getPlan(planName);
   const { data: subscription } = await supabase
@@ -76,7 +72,7 @@ export default async function BillingPage({
           ) : null}
           {!isStripeBillingConfigured ? (
             <p className="mt-5 rounded-lg border border-amber-900 bg-amber-950/20 p-3 text-sm text-amber-100">
-              Billing not configured yet
+              Billing coming soon
             </p>
           ) : null}
         </section>
@@ -103,7 +99,7 @@ export default async function BillingPage({
           <h2 className="text-2xl font-semibold">Plan limits</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
-              <p className="text-sm text-zinc-500">Passports</p>
+              <p className="text-sm text-zinc-500">Verification workflows</p>
               <p className="mt-2 text-2xl font-semibold">
                 {currentPlan.passport_limit ?? "Custom"}
               </p>
@@ -143,7 +139,7 @@ export default async function BillingPage({
                 disabled
                 className="rounded-lg bg-zinc-800 px-4 py-3 text-sm font-semibold text-zinc-400"
               >
-                Billing not configured yet
+                Billing coming soon
               </button>
             )}
           </div>

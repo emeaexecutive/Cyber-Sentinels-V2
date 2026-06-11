@@ -35,7 +35,20 @@ export type RuntimeValidationLog = {
   created_at: string | null;
 };
 
-const publicPages = ["/", "/platform", "/pricing", "/enterprise", "/why-now", "/help", "/demo"];
+const publicPages = [
+  "/",
+  "/platform",
+  "/pricing",
+  "/enterprise",
+  "/enterprise-access",
+  "/enterprise/hiring-security",
+  "/why-now",
+  "/help",
+  "/demo",
+  "/security",
+  "/privacy",
+  "/terms",
+];
 const protectedRoutes = [
   "/back-office",
   "/admin/founder-control",
@@ -47,12 +60,29 @@ const protectedRoutes = [
 ];
 const requiredEnterpriseFields = ["name", "work_email", "company"];
 const workflowTables = [
+  ["Enterprise access", "enterprise_access_requests"],
   ["Trust cases", "trust_cases"],
   ["Workspaces", "trust_workspaces"],
+  ["Evidence files", "evidence_files"],
+  ["Audit logs", "audit_logs"],
+  ["Signals", "signals"],
   ["Governance tables", "governance_actions"],
   ["Timeline tables", "trust_timeline_events"],
+  ["Trust replay sessions", "trust_replay_sessions"],
   ["Notifications", "notifications"],
   ["Verification receipts", "verification_receipts"],
+  ["Evidence chains", "evidence_chains"],
+  ["AI agents", "ai_agents"],
+  ["Agent activity", "agent_activity"],
+  ["Candidate profiles", "candidate_profiles"],
+  ["Recruiter profiles", "recruiter_profiles"],
+  ["Interview sessions", "interview_sessions"],
+  ["Interview risk events", "interview_risk_events"],
+  ["Usage limits", "usage_limits"],
+  ["Billing customers", "billing_customers"],
+  ["Subscriptions", "subscriptions"],
+  ["Integration status", "integration_status"],
+  ["Runtime validation logs", "runtime_validation_logs"],
 ] as const;
 const requestTimeoutMs = 8000;
 

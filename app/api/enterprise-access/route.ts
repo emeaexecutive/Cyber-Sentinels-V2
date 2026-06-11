@@ -53,12 +53,6 @@ function logEnterpriseAccessSubmitError(error: unknown) {
   });
 }
 
-function logSubmittedFieldKeys(formData: FormData) {
-  console.warn("enterprise access submitted field keys", {
-    keys: [...formData.keys()].sort(),
-  });
-}
-
 function field(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();
 }
@@ -128,10 +122,6 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const payload = buildEnterpriseAccessPayload(formData);
-    logSubmittedFieldKeys(formData);
-    console.warn("enterprise access insert payload keys", {
-      keys: Object.keys(payload).sort(),
-    });
 
     if (!payload.name || !payload.work_email || !payload.company) {
       return enterpriseAccessErrorResponse("Additional information is required.", 400);

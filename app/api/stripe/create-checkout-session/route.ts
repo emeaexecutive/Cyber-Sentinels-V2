@@ -21,11 +21,9 @@ export async function POST(req: Request) {
     const priceId = process.env.STRIPE_PRO_MONTHLY_PRICE_ID;
 
     if (!stripeSecretKey || !priceId) {
-      console.log("Stripe billing not configured");
-
-      return NextResponse.json(
-        { ok: false, error: "Stripe price is not configured." },
-        { status: 503 }
+      return NextResponse.redirect(
+        new URL("/pro-waitlist?plan=professional&billing=coming-soon", req.url),
+        { status: 303 }
       );
     }
 

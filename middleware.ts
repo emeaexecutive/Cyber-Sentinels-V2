@@ -132,11 +132,6 @@ function clearAdminCookie(response: NextResponse) {
 }
 
 function redirectTo(req: NextRequest, path: string) {
-  console.log("Middleware redirect.", {
-    from: req.nextUrl.pathname,
-    to: path,
-  });
-
   return NextResponse.redirect(new URL(path, req.url));
 }
 
@@ -148,11 +143,6 @@ export async function middleware(req: NextRequest) {
   if (!protectsUser && !protectsAdmin) {
     return NextResponse.next();
   }
-
-  console.log(
-    "AUTH_GUARD_ROUTE_VERSION",
-    "missing-session-is-not-error-2026-06-10"
-  );
 
   let supabaseEnv;
 
@@ -206,12 +196,6 @@ export async function middleware(req: NextRequest) {
 
   if (!user) {
     const nextPath = `${pathname}${search}`;
-
-    if (!authError || isMissingAuthSessionError(authError)) {
-      console.log("Middleware redirect reason: Supabase session missing.", {
-        pathname,
-      });
-    }
 
     if (protectsAdmin) {
       return clearAdminCookie(

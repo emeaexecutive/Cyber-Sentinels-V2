@@ -37,10 +37,6 @@ export default function PricingPage() {
     process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PRO_MONTHLY_PRICE_ID
   );
 
-  if (!isStripeBillingConfigured) {
-    console.log("Stripe billing not configured");
-  }
-
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
@@ -78,7 +74,10 @@ export default function PricingPage() {
               (plan.tier !== "professional" || !isStripeBillingConfigured);
             const visibleCta = shouldUseWaitlist
               ? {
-                  label: cta.label,
+                  label:
+                    plan.tier === "professional" && !isStripeBillingConfigured
+                      ? "Billing coming soon"
+                      : "Join waitlist",
                   href: `/pro-waitlist?plan=${plan.tier}`,
                   form: false,
                 }

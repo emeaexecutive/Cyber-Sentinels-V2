@@ -73,8 +73,6 @@ type NavigationState = {
 };
 
 async function getNavigationState(): Promise<NavigationState> {
-  console.log("NAV_AUTH_ROUTE_VERSION", "get-session-not-get-user-2026-06-10");
-
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.getSession();

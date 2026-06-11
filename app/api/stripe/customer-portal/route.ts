@@ -18,11 +18,9 @@ export async function POST(req: Request) {
     }
 
     if (!process.env.STRIPE_SECRET_KEY) {
-      console.log("Stripe billing not configured");
-
-      return NextResponse.json(
-        { ok: false, error: "Billing portal is not configured." },
-        { status: 503 }
+      return NextResponse.redirect(
+        new URL("/pro-waitlist?billing=coming-soon", req.url),
+        { status: 303 }
       );
     }
 
