@@ -48,6 +48,18 @@ export async function createEvidenceChain(
   supabase: SupabaseClient,
   input: EvidenceChainInput
 ) {
+  const existing = await supabase
+    .from("evidence_chains")
+    .select("id")
+    .eq("subject_type", input.subjectType)
+    .eq("subject_id", input.subjectId)
+    .eq("chain_summary", input.chainSummary)
+    .limit(1);
+
+  if (existing.data?.[0]?.id) {
+    return existing;
+  }
+
   const result = await supabase.from("evidence_chains").insert({
     subject_type: input.subjectType,
     subject_id: input.subjectId,

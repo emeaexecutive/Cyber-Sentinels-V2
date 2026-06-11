@@ -15,19 +15,28 @@ type HealthCheck = {
   detail: string;
 };
 
+type StatusSeverity = "OK" | "WARNING" | "FAILURE";
+
 const statusTimeoutMs = 8000;
 const connectionFailureMessage =
   "Cyber Sentinels could not connect. Check Vercel Production environment variables.";
 const reachableStatuses = new Set([200, 401, 403]);
 
-function stateLabel(ok: boolean) {
-  return ok ? "OK" : "Check";
+function checkSeverity(check: HealthCheck): StatusSeverity {
+  if (check.ok) return "OK";
+  return check.requiredForOverall ? "FAILURE" : "WARNING";
 }
 
-function stateClass(ok: boolean) {
-  return ok
-    ? "border-emerald-800 bg-emerald-950/20 text-emerald-200"
-    : "border-amber-800 bg-amber-950/20 text-amber-200";
+function stateClass(severity: StatusSeverity) {
+  if (severity === "OK") {
+    return "border-emerald-800 bg-emerald-950/20 text-emerald-200";
+  }
+
+  if (severity === "FAILURE") {
+    return "border-red-800 bg-red-950/20 text-red-200";
+  }
+
+  return "border-amber-800 bg-amber-950/20 text-amber-200";
 }
 
 function operationalFailure(
@@ -313,7 +322,7 @@ export default async function StatusPage() {
                   {label}
                 </p>
                 <p className="mt-2 font-medium text-zinc-200">
-                  {value === "disabled" ? "Not configured yet" : value}
+                  {value === "disabled" ? "WARNING: not configured yet" : value}
                 </p>
               </div>
             ))}
@@ -321,31 +330,35 @@ export default async function StatusPage() {
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2">
-          {checks.map((check) => (
-            <article
-              key={check.label}
-              className="rounded-lg border border-zinc-800 bg-black p-5"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="font-semibold text-zinc-100">
-                    {check.label}
-                  </h2>
-                  <p className="mt-2 text-2xl font-semibold">{check.value}</p>
+          {checks.map((check) => {
+            const severity = checkSeverity(check);
+
+            return (
+              <article
+                key={check.label}
+                className="rounded-lg border border-zinc-800 bg-black p-5"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h2 className="font-semibold text-zinc-100">
+                      {check.label}
+                    </h2>
+                    <p className="mt-2 text-2xl font-semibold">{check.value}</p>
+                  </div>
+                  <span
+                    className={`rounded-full border px-3 py-1 text-xs ${stateClass(
+                      severity
+                    )}`}
+                  >
+                    {severity}
+                  </span>
                 </div>
-                <span
-                  className={`rounded-full border px-3 py-1 text-xs ${stateClass(
-                    check.ok
-                  )}`}
-                >
-                  {stateLabel(check.ok)}
-                </span>
-              </div>
-              <p className="mt-4 text-sm leading-6 text-zinc-500">
-                {check.detail}
-              </p>
-            </article>
-          ))}
+                <p className="mt-4 text-sm leading-6 text-zinc-500">
+                  {check.detail}
+                </p>
+              </article>
+            );
+          })}
         </section>
       </div>
     </main>

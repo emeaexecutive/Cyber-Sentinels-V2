@@ -62,6 +62,28 @@ export function subjectMatches(row: ReplayRow, subjectType: string, subjectId: s
   return values.includes(subjectId);
 }
 
+function timelineSubjectMatches(
+  event: TrustTimelineEvent,
+  subjectId: string | null
+) {
+  if (!subjectId) return true;
+
+  const metadata = rowMetadata(event);
+  const values = [
+    event.subject_id,
+    metadata.subject_id,
+    metadata.passport_id,
+    metadata.agent_id,
+    metadata.verification_case_id,
+    metadata.interview_session_id,
+    metadata.session_id,
+  ]
+    .filter(Boolean)
+    .map(String);
+
+  return values.includes(subjectId);
+}
+
 export function buildReplaySnapshot(input: {
   subjectType: string;
   subjectId: string | null;
@@ -83,11 +105,7 @@ export function buildReplaySnapshot(input: {
       event.created_at ? new Date(event.created_at).getTime() <= new Date(input.asOf).getTime() : false
     )
     .filter((event) => {
-      if (!input.subjectId) return true;
-      return (
-        event.subject_id === input.subjectId ||
-        event.subject_type?.toLowerCase() === input.subjectType.toLowerCase()
-      );
+      return timelineSubjectMatches(event, input.subjectId);
     });
   const evidence = filterRows(input.evidence);
   const signals = filterRows(input.signals);

@@ -28,6 +28,15 @@ const workflowSteps = [
   ],
 ];
 
+const wedges = [
+  "Hiring Security",
+  "Interview Integrity",
+  "Explainable Governance",
+  "Evidence Chains",
+  "Verification Receipts",
+  "Replayable Trust Timelines",
+];
+
 const audiences = [
   "Enterprise operations teams",
   "Trust and safety reviewers",
@@ -75,8 +84,7 @@ export default function HomePage() {
           </p>
           <PrivateBetaBadge className="mt-4" />
           <h1 className="mt-5 max-w-5xl text-5xl font-semibold leading-tight md:text-7xl">
-            Cyber Sentinels helps teams run evidence-backed verification
-            workflows.
+            Operational Trust Infrastructure for AI-era workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-300">
             Cyber Sentinels provides explainable trust orchestration for
@@ -98,6 +106,16 @@ export default function HomePage() {
             workflows and AI-era governance.
           </p>
           <PrivateBetaNotice className="mt-5 max-w-3xl" />
+          <div className="mt-6 flex max-w-4xl flex-wrap gap-2">
+            {wedges.map((wedge) => (
+              <span
+                key={wedge}
+                className="rounded-full border border-zinc-800 bg-black px-3 py-1 text-xs text-zinc-300"
+              >
+                {wedge}
+              </span>
+            ))}
+          </div>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/pricing"

@@ -10,13 +10,6 @@ import {
 } from "@/lib/supabase/server";
 
 async function logout(req: Request) {
-  console.error("auth logout called", {
-    method: req.method,
-    route: new URL(req.url).pathname,
-    referer: req.headers.get("referer"),
-    userAgent: req.headers.get("user-agent"),
-  });
-
   const supabase = await createClient();
 
   try {

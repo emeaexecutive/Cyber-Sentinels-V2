@@ -350,6 +350,7 @@ export default async function FounderControlPage() {
       : "",
     stripe?.status === "disabled" ? "Stripe is disabled" : "",
     openai?.status === "disabled" ? "OpenAI is disabled" : "",
+    worldId?.status === "disabled" ? "World ID is disabled" : "",
     failedApiTests.length ? `${failedApiTests.length} failed API test${failedApiTests.length === 1 ? "" : "s"}` : "",
     unresolvedLaunchBlockers.length
       ? `${unresolvedLaunchBlockers.length} unresolved launch blocker${unresolvedLaunchBlockers.length === 1 ? "" : "s"}`
@@ -412,6 +413,22 @@ export default async function FounderControlPage() {
               ["Launch notes", String(notes.length), "text-zinc-100"],
             ]}
           />
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              ["Deployment readiness", readiness.status, readiness.blockers.length ? "BLOCKED" : readiness.cautions.length ? "CAUTION" : "READY"],
+              ["Runtime validation", failedApiTests.length ? "API checks need review" : "Runtime checks linked", failedApiTests.length ? "CAUTION" : "READY"],
+              ["Workflow health", activationProgress >= 80 && !unresolvedEscalations.length ? "Operational flow ready" : "Workflow review needed", activationProgress >= 80 && !unresolvedEscalations.length ? "READY" : "CAUTION"],
+              ["Integration warnings", attentionItems.filter((item) => /disabled|missing|failed/i.test(item)).length ? "Warnings present" : "No warnings", attentionItems.filter((item) => /disabled|missing|failed/i.test(item)).length ? "CAUTION" : "READY"],
+            ].map(([label, value, state]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-sm font-medium text-zinc-200">{value}</p>
+                <span className={`mt-3 inline-flex rounded-full border px-3 py-1 text-xs ${statusTone(state)}`}>
+                  {state}
+                </span>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
