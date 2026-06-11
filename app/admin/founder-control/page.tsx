@@ -18,6 +18,7 @@ import {
 } from "@/lib/pilot-mode";
 import { createReadinessGateSnapshot } from "@/lib/readiness-gate/snapshot";
 import { createClient } from "@/lib/supabase/server";
+import { auditTrustIntegrity } from "@/lib/trust-integrity/repair";
 
 export const dynamic = "force-dynamic";
 
@@ -264,10 +265,12 @@ export default async function FounderControlPage() {
     receipts,
     notes,
     apiTestRuns,
+    runtimeValidationLogs,
     workspaces,
     trustCases,
     governanceRows,
     receiptRows,
+    trustIntegritySummary,
   ] = await Promise.all([
     createReadinessGateSnapshot(supabase),
     countTable(supabase, "enterprise_access_requests"),
@@ -288,10 +291,12 @@ export default async function FounderControlPage() {
     countTable(supabase, "verification_receipts"),
     fetchRows(supabase, "launch_control_notes", 40),
     fetchRows(supabase, "api_test_runs", 40),
+    fetchRows(supabase, "runtime_validation_logs", 12),
     fetchRows(supabase, "trust_workspaces", 120),
     fetchRows(supabase, "trust_cases", 200),
     fetchRows(supabase, "governance_actions", 200),
     fetchRows(supabase, "verification_receipts", 120),
+    auditTrustIntegrity().catch(() => null),
   ]);
 
   const enterpriseRows = await fetchRows(supabase, "enterprise_access_requests", 80);
@@ -332,6 +337,20 @@ export default async function FounderControlPage() {
       ["failed", "error", "blocked"].includes(String(row.action_status ?? "").toLowerCase())
     ),
   ];
+  const runtimeIncidents = runtimeValidationLogs.filter((row) =>
+    ["blocked", "failure", "fail"].includes(String(row.deployment_state ?? "").toLowerCase())
+  );
+  const runtimeWarnings = runtimeValidationLogs.filter((row) => {
+    const warnings = Array.isArray(row.warnings) ? row.warnings.length : 0;
+    return warnings > 0 || String(row.deployment_state ?? "").toLowerCase() === "caution";
+  });
+  const integrationWarnings = registry.filter((item) => item.status === "disabled" || item.status === "missing");
+  const trustIntegrityIssueCount = trustIntegritySummary
+    ? Object.values(trustIntegritySummary.issues).reduce((sum, value) => sum + value, 0)
+    : 0;
+  const escalationFrequency = trustCases.length
+    ? `${Math.round((unresolvedEscalations.length / trustCases.length) * 100)}%`
+    : "0%";
   const activationChecks = [
     ["First trust case", trustCases.length > 0],
     ["First evidence upload", evidenceFiles.count > 0],
@@ -360,7 +379,9 @@ export default async function FounderControlPage() {
     worldId?.status === "disabled" ? "World ID is disabled" : "",
     email?.status === "disabled" ? "Email delivery is disabled" : "",
     failedApiTests.length ? `${failedApiTests.length} failed API test${failedApiTests.length === 1 ? "" : "s"}` : "",
+    runtimeIncidents.length ? `${runtimeIncidents.length} runtime incident${runtimeIncidents.length === 1 ? "" : "s"}` : "",
     workflowFailures.length ? `${workflowFailures.length} workflow failure${workflowFailures.length === 1 ? "" : "s"}` : "",
+    trustIntegrityIssueCount ? `${trustIntegrityIssueCount} trust integrity anomal${trustIntegrityIssueCount === 1 ? "y" : "ies"}` : "",
     unresolvedLaunchBlockers.length
       ? `${unresolvedLaunchBlockers.length} unresolved launch blocker${unresolvedLaunchBlockers.length === 1 ? "" : "s"}`
       : "",
@@ -539,6 +560,33 @@ export default async function FounderControlPage() {
               ["Receipt generation", metricValue(receipts)],
               ["Workflow failures", String(workflowFailures.length), workflowFailures.length ? "text-red-200" : "text-emerald-200"],
               ["Unresolved escalations", String(unresolvedEscalations.length), unresolvedEscalations.length ? "text-amber-200" : "text-emerald-200"],
+            ]}
+          />
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Operational Telemetry</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
+                Lightweight workflow, runtime and governance indicators. No invasive analytics or personal behavior tracking.
+              </p>
+            </div>
+            <span className={`rounded-full border px-3 py-1 text-xs ${statusTone(runtimeIncidents.length || workflowFailures.length ? "CAUTION" : "READY")}`}>
+              {runtimeIncidents.length || workflowFailures.length ? "CAUTION" : "READY"}
+            </span>
+          </div>
+          <MetricGrid
+            items={[
+              ["Runtime incidents", String(runtimeIncidents.length), runtimeIncidents.length ? "text-amber-200" : "text-emerald-200"],
+              ["Runtime warnings", String(runtimeWarnings.length), runtimeWarnings.length ? "text-amber-200" : "text-emerald-200"],
+              ["API failures", String(failedApiTests.length), failedApiTests.length ? "text-amber-200" : "text-emerald-200"],
+              ["Onboarding progress", `${activationProgress}%`, activationProgress >= 80 ? "text-emerald-200" : "text-amber-200"],
+              ["Escalation frequency", escalationFrequency, unresolvedEscalations.length ? "text-amber-200" : "text-emerald-200"],
+              ["Integration warnings", String(integrationWarnings.length), integrationWarnings.length ? "text-amber-200" : "text-emerald-200"],
+              ["Replay review activity", metricValue(replaySessions)],
+              ["Receipts generated", metricValue(receipts)],
+              ["Trust integrity anomalies", String(trustIntegrityIssueCount), trustIntegrityIssueCount ? "text-amber-200" : "text-emerald-200"],
             ]}
           />
         </section>

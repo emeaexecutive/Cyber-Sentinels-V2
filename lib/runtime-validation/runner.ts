@@ -444,6 +444,93 @@ function providerChecks() {
   ];
 }
 
+async function telemetryChecks() {
+  if (!hasEnv("SUPABASE_SERVICE_ROLE_KEY")) {
+    return [
+      check(
+        "Operational Telemetry",
+        "Telemetry records readable",
+        "WARNING",
+        "Cannot verify telemetry records; SUPABASE_SERVICE_ROLE_KEY is not configured."
+      ),
+    ];
+  }
+
+  try {
+    const supabase = createServiceRoleClient();
+    const [{ data: apiRuns, error: apiError }, { data: runtimeLogs, error: runtimeError }] = await Promise.all([
+      supabase
+        .from("api_test_runs")
+        .select("id,test_name,status,created_at")
+        .order("created_at", { ascending: false })
+        .limit(40),
+      supabase
+        .from("runtime_validation_logs")
+        .select("id,deployment_state,health_percent,warnings,critical_blockers,created_at")
+        .order("created_at", { ascending: false })
+        .limit(12),
+    ]);
+
+    if (apiError || runtimeError) {
+      return [
+        check(
+          "Operational Telemetry",
+          "Telemetry records readable",
+          "WARNING",
+          "Operational telemetry records are temporarily unavailable."
+        ),
+      ];
+    }
+
+    const failedApiRuns = (apiRuns ?? []).filter((row) =>
+      ["failed", "error"].includes(String(row.status ?? "").toLowerCase())
+    );
+    const blockedRuntimeLogs = (runtimeLogs ?? []).filter((row) =>
+      ["BLOCKED", "FAILURE"].includes(String(row.deployment_state ?? "").toUpperCase())
+    );
+    const warningRuntimeLogs = (runtimeLogs ?? []).filter((row) => {
+      const warnings = Array.isArray(row.warnings) ? row.warnings.length : 0;
+      return warnings > 0 || String(row.deployment_state ?? "").toUpperCase() === "CAUTION";
+    });
+
+    return [
+      check(
+        "Operational Telemetry",
+        "Recent API test failures",
+        failedApiRuns.length ? "WARNING" : "PASS",
+        failedApiRuns.length
+          ? `${failedApiRuns.length} recent API test failure${failedApiRuns.length === 1 ? "" : "s"} need review.`
+          : "No recent API test failures are visible."
+      ),
+      check(
+        "Operational Telemetry",
+        "Runtime incident history",
+        blockedRuntimeLogs.length ? "WARNING" : "PASS",
+        blockedRuntimeLogs.length
+          ? `${blockedRuntimeLogs.length} recent runtime validation log${blockedRuntimeLogs.length === 1 ? "" : "s"} recorded blocked state.`
+          : "No recent blocked runtime validation logs are visible."
+      ),
+      check(
+        "Operational Telemetry",
+        "Runtime warning trend",
+        warningRuntimeLogs.length ? "WARNING" : "PASS",
+        warningRuntimeLogs.length
+          ? `${warningRuntimeLogs.length} recent runtime validation log${warningRuntimeLogs.length === 1 ? "" : "s"} include warnings or caution state.`
+          : "No recent runtime warning trend is visible."
+      ),
+    ];
+  } catch {
+    return [
+      check(
+        "Operational Telemetry",
+        "Telemetry records readable",
+        "WARNING",
+        "Operational telemetry checks are temporarily unavailable."
+      ),
+    ];
+  }
+}
+
 export async function runRuntimeValidation(baseUrl: string): Promise<RuntimeValidationSummary> {
   const [
     publicPageChecks,
@@ -452,6 +539,7 @@ export async function runRuntimeValidation(baseUrl: string): Promise<RuntimeVali
     supabaseChecks,
     adminProtectionChecks,
     workflowChecks,
+    telemetryStatusChecks,
   ] = await Promise.all([
     Promise.all(publicPages.map((path) => checkAppRoute(baseUrl, path))),
     authChecks(baseUrl),
@@ -459,6 +547,7 @@ export async function runRuntimeValidation(baseUrl: string): Promise<RuntimeVali
     supabaseRuntimeChecks(),
     Promise.all(protectedRoutes.map((path) => checkProtectedRoute(baseUrl, path))),
     workflowHealthChecks(),
+    telemetryChecks(),
   ]);
 
   const checks = [
@@ -469,6 +558,7 @@ export async function runRuntimeValidation(baseUrl: string): Promise<RuntimeVali
     ...adminProtectionChecks,
     ...providerChecks(),
     ...workflowChecks,
+    ...telemetryStatusChecks,
   ];
   const score = checks.reduce((sum, item) => {
     if (item.state === "PASS") return sum + 1;
