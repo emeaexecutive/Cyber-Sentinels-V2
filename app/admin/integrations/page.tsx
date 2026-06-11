@@ -134,7 +134,7 @@ export default async function AdminIntegrationsPage() {
               <h1 className="text-4xl font-semibold">API Integrity Registry</h1>
               <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-400">
                 Internal provider configuration registry for Supabase, Stripe,
-                OpenAI and World ID. Secret values are never displayed.
+                OpenAI, World ID and email delivery. Secret values are never displayed.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">

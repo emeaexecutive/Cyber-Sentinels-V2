@@ -241,6 +241,7 @@ export default async function FounderControlPage() {
   const stripe = integration("Stripe");
   const openai = integration("OpenAI");
   const worldId = integration("World ID");
+  const email = integration("Email");
   const supabaseHealth = integration("Supabase");
 
   const [
@@ -357,6 +358,7 @@ export default async function FounderControlPage() {
     stripe?.status === "disabled" ? "Stripe is disabled" : "",
     openai?.status === "disabled" ? "OpenAI is disabled" : "",
     worldId?.status === "disabled" ? "World ID is disabled" : "",
+    email?.status === "disabled" ? "Email delivery is disabled" : "",
     failedApiTests.length ? `${failedApiTests.length} failed API test${failedApiTests.length === 1 ? "" : "s"}` : "",
     workflowFailures.length ? `${workflowFailures.length} workflow failure${workflowFailures.length === 1 ? "" : "s"}` : "",
     unresolvedLaunchBlockers.length
@@ -543,13 +545,14 @@ export default async function FounderControlPage() {
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="text-xl font-semibold">Integration Health</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-6">
             {[
               ["Supabase", supabaseHealth?.status === "configured" ? "connected" : "missing"],
               ["Service Role", process.env.SUPABASE_SERVICE_ROLE_KEY ? "configured" : "missing"],
               ["Stripe", stripe?.status ?? "unknown"],
               ["OpenAI", openai?.status ?? "unknown"],
               ["World ID", worldId?.status ?? "unknown"],
+              ["Email", email?.status ?? "unknown"],
             ].map(([label, status]) => (
               <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">{label}</p>

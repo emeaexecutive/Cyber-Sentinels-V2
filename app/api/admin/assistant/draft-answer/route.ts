@@ -5,6 +5,7 @@ import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
 
 type DraftTarget = "trust_assistant" | "help";
+const openAIDraftTimeoutMs = 12_000;
 
 async function readPayload(req: Request) {
   const contentType = req.headers.get("content-type") ?? "";
@@ -66,8 +67,13 @@ function getArticleContext(
 }
 
 async function generateDraft(questionText: string, articleContext: string) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), openAIDraftTimeoutMs);
+
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
+    cache: "no-store",
+    signal: controller.signal,
     headers: {
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       "Content-Type": "application/json",
@@ -95,15 +101,19 @@ async function generateDraft(questionText: string, articleContext: string) {
         },
       ],
     }),
-  });
+  }).finally(() => clearTimeout(timeout));
 
   if (!response.ok) {
     throw new Error(`OpenAI draft request failed: ${response.status}`);
   }
 
-  const payload = (await response.json()) as {
+  const payload = (await response.json().catch(() => null)) as {
     choices?: Array<{ message?: { content?: string } }>;
-  };
+  } | null;
+
+  if (!payload) {
+    throw new Error("OpenAI draft request returned an invalid response.");
+  }
 
   return String(payload.choices?.[0]?.message?.content ?? "").trim();
 }
@@ -165,7 +175,20 @@ export async function POST(req: Request) {
   const actor = access.user.email ?? access.user.id;
   const now = new Date().toISOString();
   const articleContext = getArticleContext(articles);
-  const draft = await generateDraft(questionText, articleContext);
+  let draft = "";
+
+  try {
+    draft = await generateDraft(questionText, articleContext);
+  } catch (error) {
+    console.warn("AI answer draft unavailable.", error instanceof Error ? error.message : "Unknown provider error.");
+
+    return payload.json
+      ? NextResponse.json(
+          { ok: false, error: "AI drafting is temporarily unavailable." },
+          { status: 503 }
+        )
+      : redirectWithError(req, "draft_unavailable", target);
+  }
 
   if (!draft) {
     return payload.json

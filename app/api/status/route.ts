@@ -9,6 +9,7 @@ export function GET() {
     integrations.stripe,
     integrations.openai,
     integrations.worldId,
+    integrations.email,
   ].filter((status) => status === "disabled").length;
   const deploymentState =
     integrations.supabase === "connected"

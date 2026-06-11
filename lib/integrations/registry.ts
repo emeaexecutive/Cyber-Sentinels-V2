@@ -4,7 +4,8 @@ export type IntegrationProvider =
   | "Supabase"
   | "Stripe"
   | "OpenAI"
-  | "World ID";
+  | "World ID"
+  | "Email";
 
 export type IntegrationStatus =
   | "configured"
@@ -81,6 +82,15 @@ const definitions: IntegrationDefinition[] = [
     configuredNotes: "World ID action is present. Backend verification remains provider-bound.",
     missingNotes: "Not configured yet. World ID verification remains disabled or placeholder-only.",
   },
+  {
+    provider: "Email",
+    purpose: "Optional transactional email delivery for notifications and pilot communications.",
+    requiredEnv: ["RESEND_API_KEY"],
+    optional: true,
+    riskLevel: "medium",
+    configuredNotes: "Email provider variables are present. In-app notifications remain the source of record.",
+    missingNotes: "Not configured yet. Email delivery remains disabled; in-app notifications continue to operate.",
+  },
 ];
 
 function envPresent(name: string) {
@@ -130,6 +140,10 @@ export function summarizeIntegrationStatus() {
         : "disabled",
     worldId:
       registry.find((item) => item.provider === "World ID")?.status === "configured"
+        ? "configured"
+        : "disabled",
+    email:
+      registry.find((item) => item.provider === "Email")?.status === "configured"
         ? "configured"
         : "disabled",
   };

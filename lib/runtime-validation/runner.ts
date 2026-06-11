@@ -412,6 +412,7 @@ function providerChecks() {
   const stripe = provider("Stripe");
   const openai = provider("OpenAI");
   const worldId = provider("World ID");
+  const email = provider("Email");
 
   return [
     check(
@@ -431,6 +432,14 @@ function providerChecks() {
       "World ID configured or safely disabled",
       worldId?.status === "configured" ? "PASS" : "WARNING",
       worldId?.status === "configured" ? "World ID is configured." : "World ID not configured yet."
+    ),
+    check(
+      "Communications",
+      "Email configured or safely disabled",
+      email?.status === "configured" ? "PASS" : "WARNING",
+      email?.status === "configured"
+        ? "Email provider is configured."
+        : "Email provider not configured yet; in-app notifications remain operational."
     ),
   ];
 }

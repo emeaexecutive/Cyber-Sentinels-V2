@@ -27,6 +27,7 @@ function getRequestBaseUrl(host: string | null, proto: string | null) {
 }
 
 function stateLabel(state: ValidationState) {
+  if (state === "PASS") return "READY";
   return state === "FAIL" ? "FAILURE" : state;
 }
 
