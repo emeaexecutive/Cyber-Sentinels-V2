@@ -1,11 +1,11 @@
 const layers = [
-  ["Identity Layer", "Structured operational identity context for the subject being reviewed."],
-  ["Evidence", "Supporting records that make verification reviewable."],
-  ["Verification Workflows", "Governed review paths for sensitive outcomes."],
-  ["Auditability", "Traceable history for evidence, decisions and actions."],
-  ["Explainability", "Plain-language visibility into trust state and missing context."],
-  ["Governance", "Human oversight and escalation for high-risk workflows."],
-  ["Replay Timelines", "Operational history that can be reviewed after decisions are made."],
+  ["Hiring Security", "Verification workflows for candidate, recruiter and interview review."],
+  ["Evidence", "Supporting records that make hiring decisions reviewable."],
+  ["Verification Workflows", "Controlled review paths for sensitive outcomes."],
+  ["Audit Trails", "Traceable history for evidence, decisions and actions."],
+  ["Governance Review", "Human oversight and escalation for high-risk workflows."],
+  ["Verification Receipts", "Audit-ready records showing what was reviewed and when."],
+  ["Replay Timelines", "Workflow history that can be reviewed after decisions are made."],
 ];
 
 export default function PlatformPage() {
@@ -20,13 +20,13 @@ export default function PlatformPage() {
             Operational Trust Infrastructure for AI-era workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels combines operational workflows, evidence chains,
-            provenance signals, governance review, auditability and
-            verification receipts into a focused early platform.
+            Cyber Sentinels combines hiring security workflows, evidence,
+            governance review, audit trails and verification receipts into a
+            focused early platform.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-            Internal identity-layer capabilities can support verification
-            context, while Cyber Sentinels remains the customer-facing trust
+            Internal verification capabilities support identity assurance,
+            while Cyber Sentinels remains the customer-facing operational trust
             infrastructure.
           </p>
         </section>

@@ -3,16 +3,16 @@ import { PrivateBetaBadge } from "@/components/private-beta";
 
 const workflow = [
   [
-    "Operational workflow",
-    "Teams start with a trust case that defines the person, agent, workflow or hiring review being assessed.",
+    "Hiring workflow",
+    "Teams start with a review case for the candidate, recruiter or interview workflow being assessed.",
   ],
   [
-    "Trust orchestration",
-    "Evidence, signals, governance actions, timelines, relationships, receipts and replay are connected into one explainable flow.",
+    "Evidence review",
+    "Evidence, active flags, governance actions, receipts and replay are connected in one review path.",
   ],
   [
     "Interview integrity",
-    "Hiring workflows can review candidate provenance, recruiter verification and interview signals without claiming binary detection.",
+    "Hiring workflows can review candidate records, recruiter verification and interview evidence without claiming binary detection.",
   ],
   [
     "Governance process",
@@ -20,7 +20,7 @@ const workflow = [
   ],
   [
     "AI-assisted review",
-    "Operational summaries can highlight missing evidence, unresolved signals and bottlenecks while keeping source reasoning visible.",
+    "Operational summaries can highlight missing evidence, unresolved flags and bottlenecks while keeping source records visible.",
   ],
   [
     "Auditability",
@@ -29,7 +29,7 @@ const workflow = [
 ];
 
 const problemPoints = [
-  "Hiring, identity and operational workflows now face synthetic trust, weak provenance and fragmented review trails.",
+  "Hiring and operational workflows now face synthetic applicant risk and fragmented review trails.",
   "Teams need clear evidence and governance context before decisions, not another opaque score.",
   "Design partners need to see how trust work moves from intake to evidence, review, receipt and replay.",
 ];
@@ -44,12 +44,12 @@ export default function EnterpriseWalkthroughPage() {
           </p>
           <PrivateBetaBadge className="mt-4" />
           <h1 className="mt-5 max-w-4xl text-4xl font-semibold md:text-6xl">
-            AI-era trust work needs evidence, governance and memory.
+            AI-era hiring security needs evidence, governance and audit trails.
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels helps organizations operationalize explainable trust
-            workflows across hiring integrity, passports, governance reviews,
-            auditability and operational replay.
+            Cyber Sentinels helps organizations protect hiring integrity with
+            verification workflows, governance reviews, audit trails and
+            operational replay.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">
@@ -85,12 +85,11 @@ export default function EnterpriseWalkthroughPage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-6">
-          <h2 className="text-2xl font-semibold">Why explainability matters</h2>
+          <h2 className="text-2xl font-semibold">Why auditability matters</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels is trust orchestration infrastructure. It shows
-            what evidence existed, which signals were unresolved, what
-            governance action occurred, which receipt was issued and how the
-            workflow can be replayed later.
+            Cyber Sentinels shows what evidence existed, which flags were
+            unresolved, what governance action occurred, which receipt was
+            issued and how the workflow can be replayed later.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
             The system is designed for guided enterprise conversations and

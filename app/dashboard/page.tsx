@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShieldCheck, Bot, ClipboardCheck, FileWarning } from "lucide-react";
+import { ShieldCheck, ClipboardCheck, FileWarning, Activity } from "lucide-react";
 import { redirect } from "next/navigation";
 import { calculateTrustScore } from "@/lib/verification";
 import { createClient } from "@/lib/supabase/server";
@@ -7,9 +7,9 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 const passports = [
-  { name: "Executive Login", type: "human", worldVerified: true, domainVerified: true, contentProvenance: false, riskFlags: [] },
-  { name: "Research Agent", type: "agent", worldVerified: false, domainVerified: true, contentProvenance: true, riskFlags: [] },
-  { name: "Synthetic Interview Clip", type: "content", worldVerified: false, domainVerified: false, contentProvenance: true, riskFlags: ["voice mismatch"] }
+  { name: "Senior Finance Candidate", reviewType: "candidate", type: "human", worldVerified: true, domainVerified: true, contentProvenance: false, riskFlags: [] },
+  { name: "Recruiter Ownership Review", reviewType: "recruiter", type: "human", worldVerified: false, domainVerified: true, contentProvenance: true, riskFlags: [] },
+  { name: "Interview Evidence Review", reviewType: "interview", type: "content", worldVerified: false, domainVerified: false, contentProvenance: true, riskFlags: ["voice mismatch"] }
 ] as const;
 
 export default async function DashboardPage() {
@@ -28,36 +28,36 @@ export default async function DashboardPage() {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-sentinel-green">Cyber Sentinels</p>
-            <h1 className="mt-2 text-4xl font-semibold">Verification Workspace</h1>
+            <h1 className="mt-2 text-4xl font-semibold">Hiring Security Dashboard</h1>
           </div>
           <ShieldCheck className="h-10 w-10 text-sentinel-green" />
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <Metric title="Verification Workflows" value="148" icon={<ClipboardCheck />} />
-          <Metric title="Agent Passports" value="37" icon={<Bot />} />
-          <Metric title="Items In Review" value="4" icon={<FileWarning />} />
+          <Metric title="Active Flags" value="12" icon={<FileWarning />} />
+          <Metric title="Pending Reviews" value="4" icon={<ClipboardCheck />} />
+          <Metric title="Verification Progress" value="82%" icon={<Activity />} />
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {[
-            ["/enterprise/hiring-security", "Trusted Hiring"],
+            ["/enterprise/hiring-security", "Hiring Security"],
             ["/verify/candidate", "Candidate Verification"],
-            ["/passport", "Create Verification Workflow"],
+            ["/governance", "Governance Reviews"],
           ].map(([href, label]) => (
             <Link
               key={href}
               href={href}
               className="rounded-3xl border border-sentinel-line bg-white/[0.04] p-5 hover:border-sentinel-green"
             >
-              <p className="text-sm text-sentinel-muted">Operational Workflow</p>
+              <p className="text-sm text-sentinel-muted">Review Workflow</p>
               <p className="mt-2 text-xl font-semibold">{label}</p>
             </Link>
           ))}
         </div>
 
         <div className="mt-8 rounded-3xl border border-sentinel-line bg-sentinel-panel/80 p-5">
-          <h2 className="mb-4 text-xl font-semibold">Recent Trust Passports</h2>
+          <h2 className="mb-4 text-xl font-semibold">Recent Hiring Verification Workflows</h2>
           <div className="space-y-3">
             {passports.map((p) => {
               const score = calculateTrustScore(p);
@@ -68,15 +68,15 @@ export default async function DashboardPage() {
                     <p className="font-medium">{p.name}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-sentinel-muted">Type</p>
-                    <p className="capitalize">{p.type}</p>
+                    <p className="text-sm text-sentinel-muted">Review Type</p>
+                    <p className="capitalize">{p.reviewType}</p>
                   </div>
                   <div>
                     <p className="text-sm text-sentinel-muted">Verification Confidence</p>
                     <p className="text-sentinel-green">{score}/100</p>
                   </div>
                   <div>
-                    <p className="text-sm text-sentinel-muted">Risk Flags</p>
+                    <p className="text-sm text-sentinel-muted">Active Flags</p>
                     <p>{p.riskFlags.length}</p>
                   </div>
                 </div>

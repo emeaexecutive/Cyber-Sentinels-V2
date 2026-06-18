@@ -9,14 +9,12 @@ export type NavigationAccessLevel =
   | "admin";
 
 const publicLinks = [
-  ["/", "Home"],
-  ["/platform", "Platform"],
-  ["/enterprise", "Enterprise"],
   ["/enterprise/hiring-security", "Hiring Security"],
-  ["/enterprise/demo-stories", "Demo Stories"],
-  ["/why-now", "Why Now"],
-  ["/enterprise-access", "Request Access"],
-  ["/help", "Help"],
+  ["/platform", "Platform Overview"],
+  ["/pricing", "Pricing"],
+  ["/enterprise/demo-stories", "Demo"],
+  ["/governance", "Governance"],
+  ["/enterprise-access", "Request Demo"],
   ["/login", "Login"],
 ];
 

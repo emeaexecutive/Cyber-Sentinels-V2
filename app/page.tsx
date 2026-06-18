@@ -1,293 +1,283 @@
 import Link from "next/link";
 import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 
+const hiringRisks = [
+  [
+    "Synthetic applicant risk",
+    "Generated profiles, copied work histories and manipulated interview evidence can move through hiring faster than review teams can verify them.",
+  ],
+  [
+    "Interview integrity gaps",
+    "Recruiters need a clear record of who was reviewed, what evidence was used and which flags still need human attention.",
+  ],
+  [
+    "Audit pressure",
+    "When a hiring decision is challenged, teams need defensible records, reviewer actions and a replayable workflow history.",
+  ],
+];
+
+const hiringSecurity = [
+  [
+    "Candidate Verification",
+    "Create a review case for the candidate, recruiter and interview workflow before sensitive hiring decisions move forward.",
+  ],
+  [
+    "Interview Integrity",
+    "Track interview evidence, unresolved flags, reviewer notes and decision history in one operational view.",
+  ],
+  [
+    "Synthetic Applicant Defense",
+    "Surface missing evidence, unusual workflow activity and review gaps without claiming automatic lie detection.",
+  ],
+  [
+    "Governance & Audit Trails",
+    "Route sensitive cases to human review and preserve the decision record for security, legal and people teams.",
+  ],
+  [
+    "Verification Workflows",
+    "Move from request access to workspace, evidence upload, governance review, receipt and replay in a simple pilot path.",
+  ],
+];
+
 const workflowSteps = [
-  [
-    "Request Access",
-    "Start with a controlled enterprise or design-partner access request.",
-  ],
-  [
-    "Create Workspace",
-    "Create a workspace and first trust case for the workflow under review.",
-  ],
-  [
-    "Upload Evidence",
-    "Attach supporting records so review is grounded in concrete material.",
-  ],
-  [
-    "Trigger Governance",
-    "Route unresolved context into human-led governance review.",
-  ],
-  [
-    "Generate Receipt",
-    "Issue a verification receipt that explains status, evidence and review context.",
-  ],
-  [
-    "Review Replay",
-    "Replay the operational timeline so teams can understand what happened.",
-  ],
+  ["Request access", "Start a controlled pilot workspace for the hiring team."],
+  ["Create workspace", "Open a hiring security case for a role, candidate or interview workflow."],
+  ["Upload evidence", "Attach interview notes, documents, links, assessments or review records."],
+  ["Review flags", "See active flags, missing evidence and unresolved items before escalation."],
+  ["Trigger governance", "Send sensitive cases to a human reviewer with the context they need."],
+  ["Generate receipt", "Create an audit-ready receipt and replay the workflow history."],
 ];
 
-const wedges = [
-  "Hiring Security",
-  "Interview Integrity",
-  "Explainable Governance",
-  "Evidence Chains",
-  "Trust Freshness",
-  "Verification Receipts",
-  "Replayable Trust Timelines",
+const aiToolGaps = [
+  "They can summarize notes, but they do not verify the workflow.",
+  "They do not prove who reviewed what evidence and when.",
+  "They do not maintain hiring audit trails across teams.",
+  "They do not route sensitive decisions through governance review.",
 ];
 
-const audiences = [
-  "Enterprise operations teams",
-  "Trust and safety reviewers",
-  "Hiring and workforce verification teams",
-  "Governance and compliance leads",
+const dashboardFocus = [
+  "Active Flags",
+  "Audit Trails",
+  "Pending Reviews",
+  "Threat Activity",
+  "Verification Progress",
+  "Hiring Security Metrics",
 ];
 
-const principles = [
-  "Deployment-ready pilot paths",
-  "Operational readiness checks",
-  "Evidence-backed trust",
-  "Explainable trust freshness",
-  "Explainable verification",
-  "Human review where it matters",
-  "Governance visibility without invasive monitoring",
-];
-
-const narrative = [
-  [
-    "Problem",
-    "Synthetic trust, weak provenance and fragmented reviews make operational decisions harder to explain.",
-  ],
-  [
-    "Why Now",
-    "Hiring workflows, AI agents and identity-sensitive operations need reviewable evidence before teams act.",
-  ],
-  [
-    "How It Works",
-    "Create a case, attach evidence, review signals, record governance, preserve timeline, issue receipts and replay history.",
-  ],
-  [
-    "Explainability",
-    "Every workflow shows source context, missing requirements, reason codes and audit history.",
-  ],
-  [
-    "Governance",
-    "AI can assist with summaries, but humans remain responsible for approvals, escalations and decisions.",
-  ],
-];
-
-export default function HomePage() {
+export default function Home() {
   return (
-    <main className="min-h-screen bg-[#05070b] text-white">
-      <section className="border-b border-zinc-900 px-6 py-20 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Operational Trust Infrastructure
+    <main className="min-h-screen bg-[#05070b] text-zinc-100">
+      <section className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-14 md:px-8 md:py-16">
+        <div className="flex flex-wrap items-center gap-3">
+          <PrivateBetaBadge />
+          <span className="rounded-full border border-cyan-400/40 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-100">
+            Hiring Security
+          </span>
+        </div>
+
+        <div className="max-w-4xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-100">
+            Cyber Sentinels
           </p>
-          <PrivateBetaBadge className="mt-4" />
-          <h1 className="mt-5 max-w-5xl text-5xl font-semibold leading-tight md:text-7xl">
-            Operational Trust Infrastructure for AI-era workflows.
+          <h1 className="mt-4 text-4xl font-semibold leading-tight text-white md:text-6xl">
+            Protect enterprise hiring workflows against synthetic trust attacks.
           </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-300">
-            Cyber Sentinels is Operational Trust Infrastructure with
-            explainable trust posture workflows for hiring security, interview
-            integrity, AI agent governance and evidence-backed verification.
+          <p className="mt-5 text-xl font-medium leading-8 text-zinc-100">
+            Operational Trust Infrastructure for AI-era workflows.
           </p>
-          <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-500">
-            Built for enterprise operations, trust and safety, hiring,
-            compliance and governance teams that need decisions to be
-            reviewable, replayable and accountable.
+          <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-300">
+            Cyber Sentinels helps hiring, security and governance teams verify
+            candidates, review evidence, track flags, preserve audit trails and
+            explain sensitive hiring decisions without surveillance framing.
           </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
-            The timing matters because AI-assisted work, synthetic identity
-            risk and fragmented approvals are moving faster than traditional
-            review records.
-          </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
-            The difference is operational continuity: evidence chains, trust
-            freshness, human governance, verification receipts and replayable
-            timelines in one calm workflow.
-          </p>
-          <PrivateBetaNotice className="mt-5 max-w-3xl" />
-          <div className="mt-6 flex max-w-4xl flex-wrap gap-2">
-            {wedges.map((wedge) => (
-              <span
-                key={wedge}
-                className="rounded-full border border-zinc-800 bg-black px-3 py-1 text-xs text-zinc-300"
-              >
-                {wedge}
-              </span>
-            ))}
-          </div>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/pricing"
-              className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
-            >
-              View Pricing
-            </Link>
-            <Link
-              href="/enterprise-access"
-              className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-cyan-500"
-            >
-              Request Enterprise Access
-            </Link>
-            <Link
-              href="/enterprise/demo-stories"
-              className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-cyan-500"
-            >
-              View Demo Stories
-            </Link>
-          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/enterprise-access"
+            className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-200 focus:ring-offset-2 focus:ring-offset-[#05070b]"
+          >
+            Request Demo
+          </Link>
+          <Link
+            href="/enterprise/hiring-security"
+            className="rounded-md border border-zinc-600 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:border-zinc-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:ring-offset-2 focus:ring-offset-[#05070b]"
+          >
+            View Hiring Security
+          </Link>
+          <Link
+            href="/enterprise/demo-stories"
+            className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 transition hover:border-zinc-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:ring-offset-2 focus:ring-offset-[#05070b]"
+          >
+            View Demo Stories
+          </Link>
+        </div>
+
+        <PrivateBetaNotice className="max-w-3xl" />
+      </section>
+
+      <section className="border-y border-zinc-800 bg-zinc-950/70">
+        <div className="mx-auto grid max-w-6xl gap-4 px-6 py-10 md:grid-cols-3 md:px-8">
+          {hiringRisks.map(([title, body]) => (
+            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
+              <h2 className="text-lg font-semibold text-white">{title}</h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-300">{body}</p>
+            </article>
+          ))}
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-12 md:px-8">
-        <div className="grid gap-3 md:grid-cols-5">
-          {narrative.map(([title, copy]) => (
-            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
-              <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">{title}</p>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
+        <div className="max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
+            Hiring Security
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold text-white md:text-4xl">
+            Verification workflows for hiring integrity.
+          </h2>
+          <p className="mt-4 text-base leading-7 text-zinc-300">
+            The platform gives enterprise teams one place to review candidate
+            evidence, interview flags, governance actions, audit trails and
+            verification receipts.
+          </p>
+        </div>
+
+        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {hiringSecurity.map(([title, body]) => (
+            <article key={title} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h3 className="text-lg font-semibold text-white">{title}</h3>
+              <p className="mt-3 text-sm leading-6 text-zinc-300">{body}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-8 px-6 py-16 md:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+      <section className="bg-zinc-950/70">
+        <div className="mx-auto grid max-w-6xl gap-8 px-6 py-12 md:px-8 lg:grid-cols-[0.85fr_1.15fr]">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
+              Pilot Workflow
+            </p>
+            <h2 className="mt-3 text-3xl font-semibold text-white">
+              A first successful review in minutes.
+            </h2>
+            <p className="mt-4 text-base leading-7 text-zinc-300">
+              Cyber Sentinels is designed for a clear pilot path: open a
+              workspace, add evidence, review flags, route governance and
+              generate a verification receipt with replay history.
+            </p>
+          </div>
+          <div className="grid gap-3">
+            {workflowSteps.map(([title, body], index) => (
+              <article key={title} className="flex gap-4 rounded-lg border border-zinc-800 bg-black p-4">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-cyan-300/50 text-sm font-semibold text-cyan-100">
+                  {index + 1}
+                </span>
+                <div>
+                  <h3 className="font-semibold text-white">{title}</h3>
+                  <p className="mt-1 text-sm leading-6 text-zinc-300">{body}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-6xl gap-8 px-6 py-12 md:px-8 lg:grid-cols-2">
         <div>
-          <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-            Pilot Path
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
+            Why AI Tools Alone Are Not Enough
           </p>
-          <h2 className="mt-4 text-3xl font-semibold md:text-4xl">
-            First successful workflow in under 10 minutes.
+          <h2 className="mt-3 text-3xl font-semibold text-white">
+            ChatGPT and Claude help teams write. They do not run hiring security.
           </h2>
-          <p className="mt-4 text-sm leading-7 text-zinc-400">
-            The pilot path is intentionally short: access, workspace, evidence,
-            governance, receipt and replay.
+          <p className="mt-4 text-base leading-7 text-zinc-300">
+            Enterprise hiring needs identity assurance, governance, auditability,
+            workflow visibility, operational trust and evidence continuity.
+            Cyber Sentinels adds the operational layer around AI-assisted work.
           </p>
         </div>
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {workflowSteps.map(([title, copy], index) => (
-            <article
-              key={title}
-              className="rounded-lg border border-zinc-800 bg-black p-5"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">
-                  {String(index + 1).padStart(2, "0")}
-                </p>
-                {index < workflowSteps.length - 1 ? (
-                  <span className="text-zinc-600" aria-hidden="true">
-                    &rarr;
-                  </span>
-                ) : null}
-              </div>
-              <h3 className="mt-4 text-lg font-semibold text-zinc-100">
-                {title}
-              </h3>
-              <p className="mt-3 text-sm leading-6 text-zinc-500">{copy}</p>
-            </article>
+        <div className="grid gap-3">
+          {aiToolGaps.map((item) => (
+            <div key={item} className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 text-sm font-medium text-zinc-100">
+              {item}
+            </div>
           ))}
         </div>
       </section>
 
-      <section className="border-y border-zinc-900 bg-zinc-950 px-6 py-16 md:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2">
-          <div>
-            <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-              Who It Is For
+      <section className="border-y border-zinc-800 bg-zinc-950/70">
+        <div className="mx-auto max-w-6xl px-6 py-12 md:px-8">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
+              Dashboard Clarity
             </p>
-            <h2 className="mt-4 text-3xl font-semibold">
-              Teams that need trust to be operational, not abstract.
+            <h2 className="mt-3 text-3xl font-semibold text-white">
+              Operational views leaders can scan quickly.
             </h2>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {audiences.map((audience) => (
-                <div
-                  key={audience}
-                  className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-300"
-                >
-                  {audience}
-                </div>
-              ))}
-            </div>
+            <p className="mt-4 text-base leading-7 text-zinc-300">
+              Dashboards focus on review work, not visual noise. Teams can see
+              which hiring workflows need action, what evidence exists and where
+              governance review is pending.
+            </p>
           </div>
-          <div>
-            <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-              Trust Posture
-            </p>
-            <h2 className="mt-4 text-3xl font-semibold">
-            Clear enough for users. Structured enough for enterprise review.
-          </h2>
-            <p className="mt-4 text-sm leading-7 text-zinc-400">
-              Operational trust posture evolves over time and requires
-              explainable governance, review intervals and reverification when
-              confidence ages.
-            </p>
-            <div className="mt-6 grid gap-3">
-              {principles.map((principle) => (
-                <div
-                  key={principle}
-                  className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-300"
-                >
-                  {principle}
-                </div>
-              ))}
-            </div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {dashboardFocus.map((item) => (
+              <div key={item} className="rounded-lg border border-zinc-800 bg-black p-4 text-sm font-semibold text-zinc-100">
+                {item}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-16 md:px-8">
-        <div className="rounded-lg border border-zinc-800 bg-black p-6">
-          <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Operational Identity Context
+      <section className="mx-auto grid max-w-6xl gap-8 px-6 py-12 md:px-8 lg:grid-cols-[1fr_0.8fr]">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
+            Demo Ready
           </p>
-          <h2 className="mt-4 max-w-4xl text-3xl font-semibold md:text-4xl">
-            Internal identity-layer capabilities support the platform quietly.
+          <h2 className="mt-3 text-3xl font-semibold text-white">
+            See the hiring workflow from flag to receipt.
           </h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels may use internal identity-layer capabilities to
-            connect people, workspaces, evidence, agents and operational context
-            inside governed review workflows.
+          <p className="mt-4 text-base leading-7 text-zinc-300">
+            Use the founder demo routes, enterprise walkthrough and demo stories
+            to show how a hiring review moves from evidence upload to human
+            review, verification receipt and replay.
           </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
-            Public positioning should stay anchored on Cyber Sentinels and
-            Operational Trust Infrastructure. Internal trust-layer technology
-            supports verification context without becoming the external brand.
-          </p>
-          <Link
-            href="/agents"
-            className="mt-6 inline-flex rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
-          >
-            Explore AI Governance
-          </Link>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-6 py-16 md:px-8">
-        <div className="grid gap-6 rounded-lg border border-zinc-800 bg-black p-6 md:grid-cols-[1fr_auto] md:items-center">
-          <div>
-            <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-              Enterprise Readiness
-            </p>
-            <h2 className="mt-3 text-3xl font-semibold">
-              Start small, keep the audit path visible.
-            </h2>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-              Use Cyber Sentinels to create verification workflows, attach
-              evidence, review status and preserve governance visibility as the
-              workflow matures.
-            </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/demo"
+              className="rounded-md border border-zinc-600 px-4 py-2 text-sm font-semibold text-zinc-100 hover:border-zinc-300 hover:text-white"
+            >
+              Open Demo
+            </Link>
+            <Link
+              href="/enterprise/walkthrough"
+              className="rounded-md border border-zinc-600 px-4 py-2 text-sm font-semibold text-zinc-100 hover:border-zinc-300 hover:text-white"
+            >
+              Workflow Walkthrough
+            </Link>
           </div>
-          <Link
-            href="/enterprise"
-            className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
-          >
-            Explore Enterprise
-          </Link>
         </div>
+        <aside className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
+            Explainer Video Placement
+          </p>
+          <h3 className="mt-3 text-xl font-semibold text-white">
+            2-minute hiring security overview
+          </h3>
+          <p className="mt-3 text-sm leading-6 text-zinc-300">
+            Reserved for a short video that explains the problem, the review
+            workflow, the governance checkpoint and the final verification
+            receipt.
+          </p>
+          <Link
+            href="/enterprise-access"
+            className="mt-5 inline-flex rounded-md bg-cyan-300 px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-cyan-200"
+          >
+            Book a Call
+          </Link>
+        </aside>
       </section>
     </main>
   );

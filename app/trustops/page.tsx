@@ -57,7 +57,7 @@ function IntelligenceEventCard({ event }: { event: AnyOperationalRow }) {
       </div>
       <p className="mt-3 text-sm leading-6 text-zinc-500">
         {event.recommended_action ??
-          "Review related evidence, governance actions, signals and operational context."}
+          "Review related evidence, governance actions, flags and operational context."}
       </p>
       <div className="mt-4 grid gap-2 text-xs text-zinc-600 md:grid-cols-3">
         <p>Subject: {event.subject_type ?? "workflow"}</p>
@@ -65,7 +65,7 @@ function IntelligenceEventCard({ event }: { event: AnyOperationalRow }) {
         <p>{formatIntelligenceDate(event.created_at)}</p>
       </div>
       <p className="mt-3 text-xs leading-5 text-zinc-700">
-        Why: {String(metadata.why_it_exists ?? "This event exists to make workflow health and governance context explainable.")}
+        Why: {String(metadata.why_it_exists ?? "This event exists to make workflow health and governance review clear.")}
       </p>
     </article>
   );
@@ -163,21 +163,21 @@ export default async function TrustOpsPage() {
 
         <section className="mt-10 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            TrustOps Intelligence
+            Operational Review
           </p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
             <div>
               <h1 className="text-4xl font-semibold md:text-6xl">
-                Operational Trust Overview
+                Operational Trust Dashboard
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Explainable operational awareness across workspaces, governance
-                workflows, hiring integrity and trust operations. AI may
-                summarize context later, but humans decide.
+                Operational awareness across workspaces, governance reviews,
+                hiring integrity and review activity. AI may summarize context
+                later, but humans decide.
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-                Cyber Sentinels helps organizations operationalize explainable
-                trust workflows and AI-era governance.
+                Cyber Sentinels helps organizations track active flags, pending
+                reviews, audit trails and verification progress.
               </p>
             </div>
             <StatusBadge status={health.status} />
@@ -217,7 +217,7 @@ export default async function TrustOpsPage() {
                 <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
                   No operational intelligence events have been recorded yet.
                   They will appear as governance, hiring and agent workflows
-                  create explainable review signals.
+                  create review flags and audit activity.
                 </p>
               )}
             </div>
@@ -298,8 +298,8 @@ export default async function TrustOpsPage() {
                 </div>
               ))}
               <p className="text-sm leading-6 text-zinc-500">
-                Hiring intelligence is explainable only: review signal source,
-                evidence, provenance and governance state before any decision.
+                Hiring intelligence is review-only: inspect flags, evidence and
+                governance state before any decision.
               </p>
             </div>
           </section>
