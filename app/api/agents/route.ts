@@ -4,10 +4,25 @@ import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
 import { createReceiptBundle } from "@/lib/trust-receipts/receipts";
-import type { AgentIdentity } from "@/lib/ai-trust/types";
 
 function text(value: unknown, fallback = "") {
   return String(value ?? fallback).trim();
+}
+
+function score(value: unknown, fallback = 50) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.max(0, Math.min(100, Math.round(parsed))) : fallback;
+}
+
+function jsonArray(value: unknown, fallback: string[] = []) {
+  if (Array.isArray(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return fallback;
 }
 
 async function readPayload(req: Request) {
@@ -18,7 +33,6 @@ async function readPayload(req: Request) {
   }
 
   const formData = await req.formData();
-
   return Object.fromEntries(formData.entries()) as Record<string, unknown>;
 }
 
@@ -28,6 +42,10 @@ async function bestEffort(label: string, task: () => Promise<unknown>) {
   } catch (error) {
     console.warn(`${label} failed`, error);
   }
+}
+
+function idFrom(req: Request, body?: Record<string, unknown>) {
+  return text(body?.id) || new URL(req.url).searchParams.get("id") || "";
 }
 
 export async function GET() {
@@ -40,25 +58,26 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  let query = supabase.from("agents").select("*");
+  let query = supabase
+    .from("ai_agents")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(100);
 
   if (!isAdminAllowlisted(user.email)) {
     query = query.eq("owner_user_id", user.id);
   }
 
-  const result = await query
-    .order("created_at", { ascending: false })
-    .limit(100)
-    .returns<AgentIdentity[]>();
+  const result = await query;
 
   if (result.error) {
     return NextResponse.json(
-      { ok: false, error: "Could not retrieve agents" },
+      { ok: false, error: "Could not retrieve AI agents" },
       { status: 500 }
     );
   }
 
-  return NextResponse.json({ ok: true, agents: result.data ?? [] });
+  return NextResponse.json({ ok: true, agents: result.data ?? [], ai_agents: result.data ?? [] });
 }
 
 export async function POST(req: Request) {
@@ -72,46 +91,43 @@ export async function POST(req: Request) {
   }
 
   const payload = await readPayload(req);
-  const name = text(payload.name ?? payload.agent_name);
+  const agentName = text(payload.agent_name ?? payload.name);
 
-  if (!name) {
+  if (!agentName) {
     return NextResponse.json(
-      { ok: false, error: "Agent name is required" },
+      { ok: false, error: "agent_name is required" },
       { status: 400 }
     );
   }
 
   const actor = user.email ?? user.id;
   const insert = {
-    name,
-    agent_name: name,
+    agent_name: agentName,
+    owner_name: text(payload.owner_name, actor),
     owner_email: text(payload.owner_email, user.email ?? user.id),
     owner_user_id: user.id,
-    owner_name: actor,
-    purpose: text(payload.purpose ?? payload.declared_purpose, "AI trust workflow support"),
-    declared_purpose: text(payload.purpose ?? payload.declared_purpose, "AI trust workflow support"),
-    model_provider: text(payload.model_provider, "unknown"),
-    model_name: text(payload.model_name ?? payload.model_family, "unknown"),
-    model_family: text(payload.model_name ?? payload.model_family, "unknown"),
-    permission_scope: text(payload.permission_scope, "review_only"),
+    enterprise_id: text(payload.enterprise_id) || null,
+    agent_type: text(payload.agent_type, "enterprise_assistant"),
+    capabilities: jsonArray(payload.capabilities, ["workflow_review"]),
+    permissions: jsonArray(payload.permissions, ["review_only"]),
+    trust_score: score(payload.trust_score),
     status: text(payload.status, "pending"),
-    trust_score: Number(payload.trust_score ?? 50),
-    metadata: {
-      actor,
-      source: "api.agents",
-    },
+    verification_status: text(payload.verification_status ?? payload.status, "pending"),
+    declared_purpose: text(payload.declared_purpose ?? payload.purpose, "Enterprise trust and governance support"),
+    operational_scope: text(payload.operational_scope ?? payload.permission_scope, "review_only"),
+    last_activity_at: text(payload.last_activity_at) || null,
   };
 
   const { data: agent, error } = await supabase
-    .from("agents")
+    .from("ai_agents")
     .insert(insert)
     .select("*")
-    .single<AgentIdentity>();
+    .single();
 
   if (error || !agent) {
-    console.error("agent insert failed", error);
+    console.error("AI agent registry insert failed", error);
     return NextResponse.json(
-      { ok: false, error: "Could not create agent" },
+      { ok: false, error: "Could not create AI agent" },
       { status: 500 }
     );
   }
@@ -120,95 +136,175 @@ export async function POST(req: Request) {
     agent_id: agent.id,
     actor,
     owner_user_id: user.id,
+    registry: "ai_agents",
   };
 
-  const { data: trustEvent } = await supabase
-    .from("trust_events")
-    .insert({
+  await bestEffort("legacy agent mirror insert", async () => {
+    await supabase.from("agents").insert({
+      name: agentName,
+      agent_name: agentName,
+      owner_email: insert.owner_email,
+      owner_user_id: user.id,
+      owner_name: insert.owner_name,
+      purpose: insert.declared_purpose,
+      declared_purpose: insert.declared_purpose,
+      permission_scope: insert.operational_scope,
+      status: insert.status,
+      trust_score: insert.trust_score,
+      metadata: eventMetadata,
+    });
+  });
+
+  await bestEffort("AI agent trust event insert", async () => {
+    await supabase.from("trust_events").insert({
       actor_type: "agent",
       actor_id: agent.id,
-      actor_label: agent.name,
-      event_type: "agent_created",
+      actor_label: agent.agent_name,
+      event_type: "ai_agent_registered",
       event_source: "api.agents",
       risk_level: "low",
       agent_id: agent.id,
       metadata: eventMetadata,
-    })
-    .select("id,event_type")
-    .single();
-  await createAuditLog(supabase, "agent_created", actor, eventMetadata);
-  await createSignal(supabase, "Agent created", eventMetadata);
-  await createAuditLog(supabase, "trust_event_created", actor, {
-    ...eventMetadata,
-    trust_event_id: trustEvent?.id,
-    event_type: trustEvent?.event_type ?? "agent_created",
-  });
-  await createSignal(supabase, "Trust event created", {
-    ...eventMetadata,
-    trust_event_id: trustEvent?.id,
-    event_type: trustEvent?.event_type ?? "agent_created",
-  });
-
-  await bestEffort("agent governance action insert", async () => {
-    await supabase.from("governance_actions").insert({
-      subject_type: "agent",
-      subject_id: agent.id,
-      action_status: "pending",
-      resolution_notes:
-        "Agent identity created. Review declared purpose, permission scope and trust events before approving autonomous use.",
     });
   });
 
-  await bestEffort("agent trust case insert", async () => {
+  await bestEffort("AI agent provenance event insert", async () => {
+    await supabase.from("provenance_events").insert({
+      subject_type: "ai_agent",
+      subject_id: agent.id,
+      event_type: "ai_agent_registered",
+      event_title: "AI agent registered",
+      event_description: "Enterprise AI agent was registered for trust governance review.",
+      risk_level: "low",
+      created_by: actor,
+      metadata: eventMetadata,
+    });
+  });
+
+  await createAuditLog(supabase, "ai_agent_registered", actor, eventMetadata);
+  await createSignal(supabase, "AI agent registered", eventMetadata);
+
+  await bestEffort("AI agent governance action insert", async () => {
+    await supabase.from("governance_actions").insert({
+      subject_type: "ai_agent",
+      subject_id: agent.id,
+      action_status: "pending",
+      resolution_notes:
+        "AI agent registered. Review owner, capabilities, permissions and trust score before approving enterprise use.",
+    });
+  });
+
+  await bestEffort("AI agent trust case insert", async () => {
     await supabase.from("trust_cases").insert({
-      title: `Agent identity review: ${agent.name ?? name}`,
+      title: `AI agent review: ${agent.agent_name ?? agentName}`,
       description:
-        `Agent identity, governance scope, evidence context and operational activity require human review. Agent ID: ${agent.id}.`,
+        `AI agent capabilities, permissions and enterprise governance context require human review. Agent ID: ${agent.id}.`,
       status: "open",
       priority: "medium",
       created_by: user.id,
     });
   });
 
-  await bestEffort("agent receipt bundle insert", async () => {
+  await bestEffort("AI agent receipt bundle insert", async () => {
     await createReceiptBundle(supabase, {
-      subjectType: "agent",
+      subjectType: "ai_agent",
       subjectId: agent.id,
-      receiptType: "agent_identity_registered",
+      receiptType: "ai_agent_registered",
       verificationStatus: String(agent.status ?? "pending"),
       confidenceLevel: Number(agent.trust_score ?? 0) >= 70 ? "High Trust" : "In Review",
       issuedBy: user.id,
       receiptSummary:
-        "Agent identity was registered with declared purpose, permission scope and human governance context.",
+        "AI agent was registered with owner, capabilities, permissions and human governance context.",
       chainSummary:
-        "Agent evidence chain links identity metadata, trust events, audit activity, signals and governance review.",
+        "AI agent evidence chain links registry data, audit activity, flags and governance review.",
       evidenceSnapshot: {
         agent_id: agent.id,
-        name: agent.name,
-        declared_purpose: agent.purpose,
-        permission_scope: agent.permission_scope,
+        agent_name: agent.agent_name,
+        owner_email: agent.owner_email,
+        capabilities: agent.capabilities,
+        permissions: agent.permissions,
         status: agent.status,
         trust_score: agent.trust_score,
         human_review: true,
       },
       evidence: [
-        { type: "agent_identity", id: agent.id, status: agent.status },
-        { type: "trust_event", id: trustEvent?.id ?? null, event_type: trustEvent?.event_type ?? "agent_created" },
-        { type: "audit_log", event_type: "agent_created" },
-        { type: "signal", event: "Agent created" },
+        { type: "ai_agent", id: agent.id, status: agent.status },
+        { type: "audit_log", event_type: "ai_agent_registered" },
+        { type: "flag", event: "AI agent registered" },
       ],
     });
   });
 
-  await bestEffort("agent replay insert", async () => {
+  await bestEffort("AI agent replay insert", async () => {
     await supabase.from("trust_replay_sessions").insert({
-      subject_type: "agent",
+      subject_type: "ai_agent",
       subject_id: agent.id,
       replay_summary:
-        "Initial agent replay captures identity registration, trust event creation, audit logging, signal generation and pending governance review.",
+        "Initial AI agent replay captures registry creation, audit logging, flag generation and pending governance review.",
       generated_by: "api.agents",
     });
   });
 
   return NextResponse.json({ ok: true, agent }, { status: 201 });
+}
+
+export async function PATCH(req: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await readPayload(req);
+  const id = idFrom(req, body);
+  if (!id) return NextResponse.json({ ok: false, error: "id is required" }, { status: 400 });
+
+  const patch: Record<string, unknown> = {};
+  for (const key of [
+    "agent_name",
+    "owner_name",
+    "owner_email",
+    "enterprise_id",
+    "agent_type",
+    "status",
+    "verification_status",
+    "declared_purpose",
+    "operational_scope",
+    "last_activity_at",
+  ]) {
+    if (body[key] !== undefined) patch[key] = body[key];
+  }
+  if (body.capabilities !== undefined) patch.capabilities = jsonArray(body.capabilities);
+  if (body.permissions !== undefined) patch.permissions = jsonArray(body.permissions);
+  if (body.trust_score !== undefined) patch.trust_score = score(body.trust_score);
+
+  let query = supabase.from("ai_agents").update(patch).eq("id", id);
+  if (!isAdminAllowlisted(user.email)) query = query.eq("owner_user_id", user.id);
+
+  const { data, error } = await query.select("*").single();
+  if (error) return NextResponse.json({ ok: false, error: "Could not update AI agent" }, { status: 500 });
+  return NextResponse.json({ ok: true, agent: data });
+}
+
+export async function DELETE(req: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  const id = idFrom(req);
+  if (!id) return NextResponse.json({ ok: false, error: "id is required" }, { status: 400 });
+
+  let query = supabase.from("ai_agents").delete().eq("id", id);
+  if (!isAdminAllowlisted(user.email)) query = query.eq("owner_user_id", user.id);
+  const { error } = await query;
+  if (error) return NextResponse.json({ ok: false, error: "Could not delete AI agent" }, { status: 500 });
+  return NextResponse.json({ ok: true });
 }

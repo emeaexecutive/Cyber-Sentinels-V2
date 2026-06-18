@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { GovernanceOverview } from "@/components/governance-overview";
 import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
@@ -199,13 +200,28 @@ export default async function GovernancePage({
     );
   }
 
-  const [policies, actions, signals, evidence, auditLogs, workspaceMembers] = await Promise.all([
+  const [
+    policies,
+    actions,
+    signals,
+    evidence,
+    auditLogs,
+    workspaceMembers,
+    trustCertifications,
+    trustAlerts,
+    aiAgents,
+    provenanceEvents,
+  ] = await Promise.all([
     fetchRows<GovernancePolicyRow>(supabase, "governance_policies", 160),
     fetchRows<GovernanceActionRow>(supabase, "governance_actions", 200),
     fetchRows<AnyRow>(supabase, "signals", 100),
     fetchRows<AnyRow>(supabase, "evidence_files", 100),
     fetchRows<AnyRow>(supabase, "audit_logs", 100),
     fetchRows<AnyRow>(supabase, "workspace_members", 200),
+    fetchRows<AnyRow>(supabase, "trust_certifications", 200),
+    fetchRows<AnyRow>(supabase, "trust_alerts", 200),
+    fetchRows<AnyRow>(supabase, "ai_agents", 200),
+    fetchRows<AnyRow>(supabase, "provenance_events", 200),
   ]);
   const queue = buildGovernanceQueue(actions, policies);
   const metrics = governanceMetrics(actions);
@@ -292,6 +308,14 @@ export default async function GovernancePage({
             </div>
           ))}
         </section>
+
+        <GovernanceOverview
+          certifications={trustCertifications}
+          alerts={trustAlerts}
+          agents={aiAgents}
+          provenanceEvents={provenanceEvents}
+          auditEvents={auditLogs}
+        />
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
