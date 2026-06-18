@@ -11,9 +11,11 @@ export type NavigationAccessLevel =
 const publicLinks = [
   ["/", "Home"],
   ["/platform", "Platform"],
-  ["/pricing", "Pricing"],
   ["/enterprise", "Enterprise"],
+  ["/enterprise/hiring-security", "Hiring Security"],
+  ["/enterprise/demo-stories", "Demo Stories"],
   ["/why-now", "Why Now"],
+  ["/enterprise-access", "Request Access"],
   ["/help", "Help"],
   ["/login", "Login"],
 ];
@@ -24,6 +26,8 @@ const adminLinks = [
   ["/governance", "Governance"],
   ["/workspace", "Workspaces"],
   ["/trustops", "TrustOps"],
+  ["/enterprise/demo-stories", "Demo Stories"],
+  ["/enterprise/pilot-setup", "Pilot Setup"],
   ["/admin/launch-control", "Launch Control"],
 ];
 

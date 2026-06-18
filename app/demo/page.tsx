@@ -14,8 +14,8 @@ const demoSteps = [
   ],
   [
     "Generate Signals",
-    "Show sample signals such as missing provenance or a pending liveness step.",
-    "Signals explain review context; they do not make autonomous decisions.",
+    "Show sample signals such as missing provenance or unresolved identity context.",
+    "Signals explain review context; they do not make final decisions.",
   ],
   [
     "Governance Review",
@@ -50,8 +50,8 @@ const demoConcepts = [
     "Cyber Sentinels gives teams a governed way to create trust records, collect evidence, review outcomes and keep an audit trail.",
   ],
   [
-    "Trust Passport workflow",
-    "A Trust Passport is the user-facing record that shows verification status, evidence state and decision history.",
+    "Verification workflow",
+    "A verification workflow shows status, evidence state, review context and decision history.",
   ],
   [
     "Evidence upload concept",
@@ -66,8 +66,8 @@ const demoConcepts = [
     "Approvals, rejections and requests for more evidence are recorded with traceable audit history.",
   ],
   [
-    "Trust Graph concept",
-    "Trust relationships help explain how passports, evidence, decisions and audit events connect.",
+    "Evidence chain concept",
+    "Evidence chains help explain how cases, records, decisions and audit events connect.",
   ],
 ];
 
@@ -99,6 +99,12 @@ export default function DemoPage() {
               className="rounded-lg bg-white px-4 py-3 font-semibold text-black"
             >
               Start Enterprise Walkthrough
+            </Link>
+            <Link
+              href="/enterprise/demo-stories"
+              className="rounded-lg border border-cyan-800 px-4 py-3 text-cyan-100 hover:text-white"
+            >
+              View Demo Stories
             </Link>
             <Link
               href="/enterprise-access?intent=design_partner"

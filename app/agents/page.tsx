@@ -56,10 +56,10 @@ export default function AgentsPage() {
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-lg border border-zinc-800 bg-black p-6">
             <p className="text-sm uppercase tracking-[0.18em] text-zinc-500">
-              Future Direction
+              Expansion Wedge
             </p>
             <h2 className="mt-3 text-2xl font-semibold">
-              Future operational trust layer
+              Governed AI workflow layer
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-400">
               This is a strategic direction layer, not a full agent control

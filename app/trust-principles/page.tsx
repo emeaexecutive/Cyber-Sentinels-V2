@@ -30,7 +30,7 @@ export default function TrustPrinciplesPage() {
         },
         {
           title: "Responsible AI Assistance",
-          body: "AI may assist with drafting, summarization or operational analysis, but it should not autonomously approve or reject users for high-risk trust outcomes. Human governance, evidence verification and auditability remain central.",
+          body: "AI may assist with drafting, summarization or operational analysis, but it should not approve or reject users for high-risk trust outcomes. Human governance, evidence verification and auditability remain central.",
         },
         {
           title: "Trust Is Dynamic",
@@ -46,7 +46,7 @@ export default function TrustPrinciplesPage() {
         },
         {
           title: "Agent Swarm Registry™",
-          body: "Future infrastructure module — not yet active. This placeholder represents a possible future layer for governed registration and monitoring of autonomous agents or coordinated workflows.",
+          body: "Future infrastructure module — not yet active. This placeholder represents a possible future layer for governed registration and monitoring of AI agents or coordinated workflows.",
         },
         {
           title: "Behavior Galaxy™",

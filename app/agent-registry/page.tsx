@@ -77,7 +77,7 @@ export default async function AgentRegistryPage() {
             Agent Registry™
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Every autonomous agent needs a passport before permission.
+            Every AI agent needs accountable context before permission.
           </p>
           <Link
             href="/permissions-firewall"

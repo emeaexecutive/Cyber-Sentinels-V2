@@ -207,8 +207,8 @@ export default async function PilotSetupPage({
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Set up an isolated pilot workspace, invite reviewer contacts,
-            create the first trust case, then continue into evidence upload and
-            governance review.
+            create the first trust case, then continue into evidence upload,
+            governance review, receipt generation and replay.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
             {PILOT_MODE ? pilotModeNotice : "Pilot Mode is currently disabled."}
@@ -272,14 +272,12 @@ export default async function PilotSetupPage({
             <h2 className="text-xl font-semibold">10 Minute Path</h2>
             <div className="mt-5 grid gap-3 text-sm text-zinc-400">
               {[
-                ["Pilot access", "State is recorded as internal, invited, active or suspended for controlled onboarding."],
-                ["Current state", "Pilot workspace and first case will be created together."],
-                ["Next action", "Upload evidence after workspace creation."],
-                ["Reviewer status", "Creator is added as workspace admin; reviewer emails are recorded for controlled invitation."],
-                ["Governance state", "A pending governance review is opened for the first trust case."],
-                ["Evidence completeness", "Evidence starts incomplete until the first upload succeeds."],
-                ["Receipt availability", "Receipts appear after evidence and review context exist."],
-                ["Replay and timeline", "Timeline starts at case creation; replay becomes useful after review activity."],
+                ["Request access", "Enterprise or design-partner access is recorded before pilot activation."],
+                ["Create workspace", "Pilot workspace and first trust case are created together."],
+                ["Upload evidence", "Evidence starts incomplete until the first upload succeeds."],
+                ["Trigger governance", "A pending human governance review is opened for the first trust case."],
+                ["Generate verification receipt", "Receipts become meaningful after evidence and review context exist."],
+                ["Review replay", "Timeline starts at case creation; replay becomes useful after review activity."],
               ].map(([label, item], index) => (
                 <div key={item} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">

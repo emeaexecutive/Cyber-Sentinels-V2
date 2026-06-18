@@ -28,12 +28,12 @@ export default function AgentPassportPage() {
         </p>
 
         <h1 className="mt-6 max-w-4xl text-5xl font-bold">
-          AI agent passports for trust before autonomous access.
+          AI agent passports for governed workflow access.
         </h1>
 
         <p className="mt-6 max-w-3xl text-zinc-400">
-          Cyber Sentinels gives autonomous agents an AI trust infrastructure
-          record with provenance, review status, clearances, audit logs and
+          Cyber Sentinels gives AI agents an operational trust record with
+          provenance, review status, clearances, audit logs and
           governance-before-permission controls.
         </p>
 

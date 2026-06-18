@@ -3,28 +3,28 @@ import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 
 const workflowSteps = [
   [
-    "Identity",
-    "Define the person, team, agent or operational workflow being reviewed.",
+    "Request Access",
+    "Start with a controlled enterprise or design-partner access request.",
   ],
   [
-    "Evidence",
-    "Attach supporting records so the verification workflow is grounded in reviewable material.",
+    "Create Workspace",
+    "Create a workspace and first trust case for the workflow under review.",
   ],
   [
-    "Verification",
-    "Track the verification state without burying teams in technical noise.",
+    "Upload Evidence",
+    "Attach supporting records so review is grounded in concrete material.",
   ],
   [
-    "Trust Events",
-    "Record important changes as operational events that can be revisited later.",
+    "Trigger Governance",
+    "Route unresolved context into human-led governance review.",
   ],
   [
-    "Human Review",
-    "Escalate sensitive cases into accountable operational review.",
+    "Generate Receipt",
+    "Issue a verification receipt that explains status, evidence and review context.",
   ],
   [
-    "Audit Trail",
-    "Preserve the decision path for governance visibility and later review.",
+    "Review Replay",
+    "Replay the operational timeline so teams can understand what happened.",
   ],
 ];
 
@@ -45,10 +45,12 @@ const audiences = [
 ];
 
 const principles = [
+  "Deployment-ready pilot paths",
+  "Operational readiness checks",
   "Evidence-backed trust",
   "Explainable verification",
   "Human review where it matters",
-  "Governance visibility without invasive tracking",
+  "Governance visibility without invasive monitoring",
 ];
 
 const narrative = [
@@ -87,23 +89,24 @@ export default function HomePage() {
             Operational Trust Infrastructure for AI-era workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-300">
-            Cyber Sentinels provides explainable trust orchestration for
-            AI-era workflows: identity context, evidence, operational review,
-            trust events and audit visibility.
+            Cyber Sentinels is an enterprise-facing operational trust platform
+            for hiring security, interview integrity, AI agent governance and
+            evidence-backed verification workflows.
           </p>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-500">
-            Built for organizations that need explainable verification and
-            governance visibility without turning user workflows into noisy
-            monitoring dashboards.
+            Built for enterprise operations, trust and safety, hiring,
+            compliance and governance teams that need decisions to be
+            reviewable, replayable and accountable.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
-            Detection and provenance are signals. Trust requires orchestration
-            across evidence chains, governance, timelines, verification
-            receipts and replay.
+            The timing matters because AI-assisted work, synthetic identity
+            risk and fragmented approvals are moving faster than traditional
+            review records.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
-            Cyber Sentinels helps organizations operationalize explainable trust
-            workflows and AI-era governance.
+            The difference is operational memory: evidence chains, human
+            governance, verification receipts and replayable trust timelines in
+            one calm workflow.
           </p>
           <PrivateBetaNotice className="mt-5 max-w-3xl" />
           <div className="mt-6 flex max-w-4xl flex-wrap gap-2">
@@ -129,6 +132,12 @@ export default function HomePage() {
             >
               Request Enterprise Access
             </Link>
+            <Link
+              href="/enterprise/demo-stories"
+              className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-cyan-500"
+            >
+              View Demo Stories
+            </Link>
           </div>
         </div>
       </section>
@@ -147,14 +156,14 @@ export default function HomePage() {
       <section className="mx-auto grid max-w-6xl gap-8 px-6 py-16 md:px-8 lg:grid-cols-[0.8fr_1.2fr]">
         <div>
           <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-            How It Works
+            Pilot Path
           </p>
           <h2 className="mt-4 text-3xl font-semibold md:text-4xl">
-            One clear operational flow.
+            First successful workflow in under 10 minutes.
           </h2>
           <p className="mt-4 text-sm leading-7 text-zinc-400">
-            Cyber Sentinels organizes verification work into a simple path that
-            teams can understand quickly and review later.
+            The pilot path is intentionally short: access, workspace, evidence,
+            governance, receipt and replay.
           </p>
         </div>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -226,28 +235,26 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-6 py-16 md:px-8">
         <div className="rounded-lg border border-zinc-800 bg-black p-6">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Future Direction — AI Agent Identity
+            Operational Identity Context
           </p>
           <h2 className="mt-4 max-w-4xl text-3xl font-semibold md:text-4xl">
-            Exploring AI-native governance infrastructure.
+            Internal identity-layer capabilities support the platform quietly.
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            AI systems are evolving from passive assistants into operational
-            actors. Cyber Sentinels is exploring AI agent identity, signed
-            operational actions, provenance, governance visibility and
-            human-to-agent accountability as an early platform direction.
+            Cyber Sentinels may use internal identity-layer capabilities to
+            connect people, workspaces, evidence, agents and operational context
+            inside governed review workflows.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
-            Cyber Sentinels does not replace human governance or operational
-            accountability. The future direction is an operational trust layer
-            that keeps AI agents linked to organizations, owners and review
-            workflows.
+            Public positioning should stay anchored on Cyber Sentinels and
+            Operational Trust Infrastructure. Internal trust-layer technology
+            supports verification context without becoming the external brand.
           </p>
           <Link
             href="/agents"
             className="mt-6 inline-flex rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
           >
-            Explore AI Agent Identity
+            Explore AI Governance
           </Link>
         </div>
       </section>

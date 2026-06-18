@@ -7,7 +7,8 @@ const capabilities = [
   "Recruiter Verification",
   "Interview Integrity",
   "Hiring Security",
-  "Trusted Hiring Infrastructure",
+  "Evidence Chains",
+  "Replayable Trust Timelines",
   "Governed escalation workflows",
 ];
 
@@ -23,9 +24,9 @@ export default function HiringSecurityPage() {
             Hiring Security for explainable, human-governed review.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels helps enterprises verify the human behind the
-            interview, protect hiring workflows against synthetic trust attacks
-            and coordinate explainable review through existing trust cases,
+            Cyber Sentinels helps enterprises add operational identity context
+            to interviews, protect hiring workflows against synthetic trust
+            risk and coordinate explainable review through trust cases,
             governance actions, audit logs, timelines and replay.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
@@ -42,7 +43,7 @@ export default function HiringSecurityPage() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/dashboard/interview-risk" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">
-              Open Interview Risk Dashboard
+              Open Hiring Review Dashboard
             </Link>
             <Link href="/enterprise-access" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm text-cyan-100">
               Request Enterprise Access
@@ -55,9 +56,9 @@ export default function HiringSecurityPage() {
             <article key={capability} className="rounded-lg border border-zinc-800 bg-black p-5">
               <p className="text-sm font-medium text-zinc-100">{capability}</p>
               <p className="mt-2 text-sm leading-6 text-zinc-500">
-                Explainable controls, timeline events and placeholder signal
-                interfaces that can connect to specialist providers later
-                without claiming automated detection accuracy.
+                Explainable controls, timeline events and signal interfaces that
+                support human review without claiming automated detection
+                accuracy.
               </p>
             </article>
           ))}

@@ -1,10 +1,11 @@
 const layers = [
-  ["Identity", "Structured records for the subject being reviewed."],
+  ["Identity Layer", "Structured operational identity context for the subject being reviewed."],
   ["Evidence", "Supporting records that make verification reviewable."],
-  ["Verification", "Governed review paths for sensitive outcomes."],
+  ["Verification Workflows", "Governed review paths for sensitive outcomes."],
   ["Auditability", "Traceable history for evidence, decisions and actions."],
   ["Explainability", "Plain-language visibility into trust state and missing context."],
   ["Governance", "Human oversight and escalation for high-risk workflows."],
+  ["Replay Timelines", "Operational history that can be reviewed after decisions are made."],
 ];
 
 export default function PlatformPage() {
@@ -24,7 +25,9 @@ export default function PlatformPage() {
             verification receipts into a focused early platform.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-            Detection and provenance are signals. Trust requires orchestration.
+            Internal identity-layer capabilities can support verification
+            context, while Cyber Sentinels remains the customer-facing trust
+            infrastructure.
           </p>
         </section>
 

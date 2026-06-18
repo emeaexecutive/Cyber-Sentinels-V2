@@ -138,7 +138,7 @@ export default async function TrustReceiptPage({
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
                 Cyber Sentinels creates explainable verification receipts and
                 operational trust evidence chains. Receipts preserve review
-                context; they are not blockchain records or autonomous trust
+                context; they are not blockchain records or automatic trust
                 decisions.
               </p>
               <div className="mt-5 max-w-3xl">

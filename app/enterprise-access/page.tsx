@@ -40,13 +40,22 @@ export default async function EnterpriseAccessPage({
             Cyber Sentinels is evolving through operational collaboration and
             real-world workflow feedback.
           </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
+            Pilot onboarding is designed for a first successful workflow within
+            10 minutes: request access, create workspace, upload evidence,
+            trigger governance, generate a verification receipt and review
+            replay.
+          </p>
           <PrivateBetaNotice className="mt-4 max-w-3xl" />
           <div className="mt-6 grid gap-3 text-sm text-zinc-400 md:grid-cols-2">
             {[
-              "AI-assisted workflow approvals",
+              "Hiring Security",
+              "Enterprise Governance",
+              "Operational Trust",
+              "Evidence Chains",
+              "Replay Timelines",
               "Human review escalation",
               "Evidence-backed verification",
-              "Operational audit trails",
             ].map((item) => (
               <div
                 key={item}

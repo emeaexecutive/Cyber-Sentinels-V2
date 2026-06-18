@@ -2,8 +2,8 @@ import Link from "next/link";
 
 const sections = [
   [
-    "From software to autonomous systems",
-    "Software is no longer only a passive tool. AI copilots, machine-driven workflows and increasingly autonomous systems are beginning to participate in operational decisions.",
+    "From software to operational actors",
+    "Software is no longer only a passive tool. AI copilots, machine-driven workflows and agentic systems are beginning to participate in operational decisions.",
   ],
   [
     "The rise of AI agents",
@@ -19,7 +19,7 @@ const sections = [
   ],
   [
     "Accountability challenges",
-    "Autonomous workflows can make responsibility harder to trace. Trust infrastructure should preserve a clear record of evidence, review and decision history.",
+    "AI-assisted workflows can make responsibility harder to trace. Trust infrastructure should preserve a clear record of evidence, review and decision history.",
   ],
   [
     "Governance requirements",
@@ -40,7 +40,7 @@ export default function WhyNowPage() {
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Cyber Sentinels is built around a simple premise: as operations
-            become more autonomous, trust must become infrastructure.
+            become more AI-assisted, trust must become infrastructure.
           </p>
         </section>
 

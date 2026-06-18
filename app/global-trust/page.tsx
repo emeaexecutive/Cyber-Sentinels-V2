@@ -3,7 +3,7 @@ import Link from "next/link";
 const sections = [
   [
     "Global Trust Layer",
-    "Cyber Sentinels is global trust infrastructure for humans, AI agents, synthetic media, candidates, evidence, organisations and digital interactions.",
+    "Cyber Sentinels is operational trust infrastructure for hiring, AI workflows, evidence, organisations and governed digital interactions.",
   ],
   [
     "Secure Back Office",
@@ -22,12 +22,12 @@ const sections = [
     "External apps can request trust checks, decision guidance, passport summaries and evidence summaries through safe API foundations.",
   ],
   [
-    "Reality Passport™",
-    "Reality Passport packages authenticity, provenance and verification state into a reviewable trust record.",
+    "Verification Receipts",
+    "Verification receipts package evidence, provenance and review state into a reviewable trust record.",
   ],
   [
-    "Human Presence Index™",
-    "Human Presence Index scores liveness, behaviour, biometrics and synthetic risk before permission is granted.",
+    "Operational Identity Context",
+    "Identity context supports review without treating biometric or behavioral signals as standalone truth.",
   ],
   [
     "Origin Trace™",
@@ -92,8 +92,8 @@ export default function GlobalTrustPage() {
             Global Trust Infrastructure
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Trust decisions for a world of synthetic humans, autonomous agents
-            and reality-risk.
+            Evidence-backed trust workflows for hiring, AI operations and
+            enterprise governance.
           </p>
         </section>
 
