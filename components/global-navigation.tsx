@@ -46,7 +46,7 @@ function LogoutButton() {
     <form action="/api/auth/logout" method="POST">
       <button
         type="submit"
-        className="rounded-lg border border-zinc-800 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
+        className="rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white"
       >
         Logout
       </button>
@@ -61,7 +61,7 @@ function FlatLinks({ links }: { links: string[][] }) {
         <Link
           key={href}
           href={href}
-          className="rounded-lg border border-zinc-800 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
+          className="rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white"
         >
           {label}
         </Link>
@@ -85,7 +85,7 @@ export function GlobalNavigation({
           Cyber Sentinels
         </Link>
         <nav
-          className="flex flex-wrap items-center justify-end gap-2 text-xs text-zinc-300"
+          className="flex flex-wrap items-center justify-end gap-2 text-sm text-zinc-200"
         >
           {accessLevel === "public" ? (
             <FlatLinks links={publicLinks} />
@@ -96,7 +96,7 @@ export function GlobalNavigation({
               {accessLevel === "admin-unverified" ? (
                 <Link
                   href="/admin/access"
-                  className="rounded-lg border border-cyan-700 px-3 py-2 text-cyan-100 hover:border-cyan-400 hover:text-white"
+                  className="rounded-lg border border-cyan-700 px-3 py-2 font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
                 >
                   Admin
                 </Link>
@@ -108,13 +108,13 @@ export function GlobalNavigation({
             <>
               <Link
                 href="/"
-                className="rounded-lg border border-zinc-800 px-3 py-2 hover:border-cyan-500/70 hover:text-white"
+                className="rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white"
               >
                 Home
               </Link>
               <Link
                 href="/admin/access"
-                className="rounded-lg border border-cyan-700 px-3 py-2 text-cyan-100 hover:border-cyan-400 hover:text-white"
+                className="rounded-lg border border-cyan-700 px-3 py-2 font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
               >
                 Admin
               </Link>

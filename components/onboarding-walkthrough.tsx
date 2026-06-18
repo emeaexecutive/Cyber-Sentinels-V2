@@ -23,7 +23,7 @@ export function OnboardingHint({ area }: { area: WalkthroughArea }) {
       <p className="text-xs uppercase tracking-[0.18em] text-cyan-300">
         Walkthrough tip
       </p>
-      <p className="mt-2 text-sm leading-6 text-zinc-400">{copy[area]}</p>
+      <p className="mt-2 text-sm leading-6 text-zinc-300">{copy[area]}</p>
     </aside>
   );
 }

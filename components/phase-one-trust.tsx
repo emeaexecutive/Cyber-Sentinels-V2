@@ -64,7 +64,7 @@ export function VerificationTimeline({ events }: { events: TimelineEvent[] }) {
               {event.status}
             </span>
           </div>
-          <p className="mt-2 text-sm leading-6 text-zinc-500">{event.detail}</p>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">{event.detail}</p>
         </div>
       ))}
     </div>
@@ -79,7 +79,7 @@ export function ExplainableTrustFactors({ factors }: { factors: TrustFactor[] })
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="font-medium text-zinc-100">{factor.label}</p>
-              <p className="mt-2 text-sm leading-6 text-zinc-500">{factor.detail}</p>
+              <p className="mt-2 text-sm leading-6 text-zinc-400">{factor.detail}</p>
             </div>
             <span className={`rounded-full border px-2.5 py-1 text-xs ${scoreClass(factor.score)}`}>
               {factor.score}
@@ -110,7 +110,7 @@ export function AgentPassportCard({
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Agent passport</p>
           <h3 className="mt-2 text-xl font-semibold text-zinc-100">{name}</h3>
-          <p className="mt-2 text-sm leading-6 text-zinc-500">{purpose}</p>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">{purpose}</p>
         </div>
         <TrustScoreBadge score={score} />
       </div>
@@ -135,7 +135,7 @@ export function RecruiterDashboardCards() {
         <div key={label} className="rounded-lg border border-zinc-800 bg-black p-5">
           <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">{label}</p>
           <p className="mt-3 text-3xl font-semibold text-zinc-100">{value}</p>
-          <p className="mt-2 text-sm leading-6 text-zinc-500">{detail}</p>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">{detail}</p>
         </div>
       ))}
     </div>

@@ -7,6 +7,9 @@
 body {
   background: #050505;
   color: #f8f8f8;
+  font-size: 16px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 .grid-bg {
@@ -14,4 +17,70 @@ body {
     linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
   background-size: 42px 42px;
+}
+
+/*
+  Enterprise readability pass:
+  Keep the existing dark product language, but lift the lowest-contrast
+  metadata, helper copy and borders so dashboards remain legible on laptops
+  and lower-brightness displays.
+*/
+.text-zinc-600 {
+  color: #a1a1aa;
+}
+
+.text-zinc-500 {
+  color: #b8b8c2;
+}
+
+.text-zinc-400 {
+  color: #d4d4d8;
+}
+
+.text-zinc-300 {
+  color: #e4e4e7;
+}
+
+.border-zinc-900 {
+  border-color: #27272a;
+}
+
+.border-zinc-800 {
+  border-color: #3f3f46;
+}
+
+.text-xs {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+.text-sm {
+  line-height: 1.65;
+}
+
+input,
+select,
+textarea,
+button,
+a {
+  outline-offset: 3px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #67e8f9;
+  outline-offset: 3px;
+}
+
+::placeholder {
+  color: #a1a1aa;
+  opacity: 1;
+}
+
+.placeholder\:text-zinc-600::placeholder {
+  color: #a1a1aa;
+  opacity: 1;
 }
