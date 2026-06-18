@@ -3,6 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import { StatusBadge } from "@/components/phase-one-trust";
 import { createClient } from "@/lib/supabase/server";
+import {
+  buildTrustPosture,
+  latestCreatedAt,
+  trustPostureClass,
+} from "@/lib/trust-posture/posture";
 
 export const dynamic = "force-dynamic";
 
@@ -112,6 +117,16 @@ export default async function TrustReceiptPage({
   const openGovernance = (governanceActions ?? []).filter((action) =>
     ["pending", "in_review", "escalated"].includes(String(action.action_status ?? "pending"))
   );
+  const posture = buildTrustPosture({
+    lastVerifiedAt: receipt.issued_at,
+    lastGovernanceAt: latestCreatedAt(governanceActions ?? []),
+    lastEvidenceAt: latestCreatedAt(evidenceChains ?? []),
+    lastSignalAt: latestCreatedAt(timeline ?? []),
+    evidenceCount: (evidenceChains ?? []).length,
+    signalCount: (timeline ?? []).length,
+    unresolvedGovernanceCount: openGovernance.length,
+    confidenceLabel: receipt.confidence_level,
+  });
   const nextReceiptAction = openGovernance.length
     ? "Governance review is still pending. Check the open action before sharing a final outcome."
     : "Share the receipt or replay the workflow if more context is needed.";
@@ -164,6 +179,30 @@ export default async function TrustReceiptPage({
           <DetailRow label="Evidence exists" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} evidence chain(s)` : "No linked evidence chain yet"} />
           <DetailRow label="What is pending" value={openGovernance.length ? `${openGovernance.length} governance action(s)` : "No pending governance action"} />
           <DetailRow label="Requires action" value={openGovernance.length ? "Reviewer decision required" : "No action required"} />
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                Trust Freshness
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">{posture.label}</h2>
+              <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+                {posture.explanation}. {posture.nextReview}
+              </p>
+            </div>
+            <span className={`rounded-full border px-3 py-1 text-xs ${trustPostureClass(posture.state)}`}>
+              {posture.reverificationRecommended ? "Reverification recommended" : "Reviewable posture"}
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {posture.continuityChecks.map((check) => (
+              <div key={check} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-zinc-300">
+                {check}
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">

@@ -4,6 +4,11 @@ import {
   calculateTrustScoreV1,
   isRowLinkedToPassport,
 } from "@/lib/trust-score-engine";
+import {
+  buildTrustPosture,
+  latestCreatedAt,
+  trustPostureClass,
+} from "@/lib/trust-posture/posture";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +46,7 @@ const riskPillars = [
   ["Evidence Chain", "Attach documents, links and reviewer outcomes to the same trust record."],
   ["Interview Integrity", "Keep interview, assessment and review signals in the decision trail."],
   ["Employment Evidence", "Connect workforce claims to evidence before approval."],
-  ["Continuous Verification", "Monitor signals after hiring so trust can change with new evidence."],
+  ["Scheduled Reverification", "Review trust freshness at explainable checkpoints using existing workflow records."],
   ["Audit-Ready Decisions", "Every approval, rejection and escalation leaves a defensible trail."],
 ];
 
@@ -154,25 +159,47 @@ export default async function WorkforceTrustPage() {
     const passportDecisions = allDecisions.filter((row) =>
       isRowLinkedToPassport(row, passport.id, caseIds)
     );
+    const passportAuditLogs = allAuditLogs.filter((row) =>
+      isRowLinkedToPassport(row, passport.id, caseIds)
+    );
+    const passportSignals = allSignals.filter((row) =>
+      isRowLinkedToPassport(row, passport.id, caseIds)
+    );
     const trustScore = calculateTrustScoreV1({
       passport,
       evidence,
       decisions: passportDecisions,
-      auditLogs: allAuditLogs.filter((row) =>
-        isRowLinkedToPassport(row, passport.id, caseIds)
-      ),
-      signals: allSignals.filter((row) =>
-        isRowLinkedToPassport(row, passport.id, caseIds)
-      ),
+      auditLogs: passportAuditLogs,
+      signals: passportSignals,
+    });
+    const latestDecision = latestByCreatedAt(passportDecisions);
+    const openGovernanceCount = passportDecisions.filter((row) =>
+      ["pending", "in_review", "escalated"].includes(String(row.status ?? row.decision ?? ""))
+    ).length;
+    const posture = buildTrustPosture({
+      lastVerifiedAt: passport.verified ? passport.created_at : latestDecision?.created_at ?? passport.created_at,
+      lastGovernanceAt: latestDecision?.created_at,
+      lastEvidenceAt: latestCreatedAt(evidence),
+      lastSignalAt: latestCreatedAt(passportSignals),
+      evidenceCount: evidence.length,
+      signalCount: passportSignals.length,
+      unresolvedGovernanceCount: openGovernanceCount,
+      confidenceLabel: trustScore.confidenceLabel,
     });
 
     return {
       passport,
       evidenceCount: evidence.length,
-      latestDecision: latestByCreatedAt(passportDecisions),
+      latestDecision,
       trustScore,
+      posture,
     };
   });
+
+  const postureCounts = registryRows.reduce(
+    (counts, row) => ({ ...counts, [row.posture.state]: counts[row.posture.state] + 1 }),
+    { fresh: 0, checkpoint: 0, reverification_due: 0, governance_review: 0 }
+  );
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -189,7 +216,7 @@ export default async function WorkforceTrustPage() {
               <p className="mt-5 max-w-3xl text-base leading-7 text-zinc-300">
                 Trust does not end at hiring. Cyber Sentinels verifies identity,
                 evidence, signals and review history across the workforce
-                lifecycle.
+                lifecycle with explainable trust posture workflows.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -206,6 +233,43 @@ export default async function WorkforceTrustPage() {
                 View Trust Passports
               </Link>
             </div>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-sm uppercase tracking-[0.22em] text-zinc-500">
+                Trust Posture
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">
+                Operational trust posture evolves over time.
+              </h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+                Freshness indicators use existing verification, evidence,
+                signals and governance history. They are scheduled review
+                prompts, not automatic trust decisions.
+              </p>
+            </div>
+            <Link
+              href="/trust-replay"
+              className="rounded-lg border border-cyan-800 px-3 py-2 text-sm text-cyan-100 hover:border-cyan-400"
+            >
+              Review Replay
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["Fresh", postureCounts.fresh, "border-emerald-800 text-emerald-200"],
+              ["Review checkpoints", postureCounts.checkpoint, "border-cyan-800 text-cyan-100"],
+              ["Reverification due", postureCounts.reverification_due, "border-red-800 text-red-200"],
+              ["Governance review", postureCounts.governance_review, "border-amber-800 text-amber-200"],
+            ].map(([label, value, tone]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">{label}</p>
+                <p className={`mt-2 text-3xl font-semibold ${tone}`}>{value}</p>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -272,12 +336,12 @@ export default async function WorkforceTrustPage() {
             </Link>
           </div>
 
-          <div className="mt-5 hidden grid-cols-[1.2fr_0.7fr_0.9fr_0.8fr_0.7fr_1fr_1fr_auto] gap-4 border-b border-zinc-800 pb-3 text-xs uppercase tracking-[0.16em] text-zinc-500 xl:grid">
+          <div className="mt-5 hidden grid-cols-[1.2fr_0.7fr_0.9fr_0.8fr_0.8fr_1fr_1fr_auto] gap-4 border-b border-zinc-800 pb-3 text-xs uppercase tracking-[0.16em] text-zinc-500 xl:grid">
             <span>Name</span>
             <span>Type</span>
             <span>Status</span>
             <span>Trust</span>
-            <span>Evidence</span>
+            <span>Freshness</span>
             <span>Latest Decision</span>
             <span>Created</span>
             <span>Action</span>
@@ -285,10 +349,10 @@ export default async function WorkforceTrustPage() {
 
           <div className="mt-4 space-y-3">
             {registryRows.length ? (
-              registryRows.map(({ passport, evidenceCount, latestDecision, trustScore }) => (
+              registryRows.map(({ passport, latestDecision, trustScore, posture }) => (
                 <div
                   key={passport.id}
-                  className="grid gap-4 rounded-lg border border-zinc-800 bg-black p-4 xl:grid-cols-[1.2fr_0.7fr_0.9fr_0.8fr_0.7fr_1fr_1fr_auto] xl:items-center"
+                  className="grid gap-4 rounded-lg border border-zinc-800 bg-black p-4 xl:grid-cols-[1.2fr_0.7fr_0.9fr_0.8fr_0.8fr_1fr_1fr_auto] xl:items-center"
                 >
                   <div>
                     <p className="text-xs text-zinc-500 xl:hidden">Name</p>
@@ -321,9 +385,12 @@ export default async function WorkforceTrustPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500 xl:hidden">Evidence</p>
-                    <p className="text-sm font-semibold text-zinc-100">
-                      {evidenceCount}
+                    <p className="text-xs text-zinc-500 xl:hidden">Freshness</p>
+                    <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs ${trustPostureClass(posture.state)}`}>
+                      {posture.label}
+                    </span>
+                    <p className="mt-2 text-xs leading-5 text-zinc-500">
+                      {posture.ageDays === null ? "No review date" : `${posture.ageDays} days old`}
                     </p>
                   </div>
                   <div>

@@ -14,6 +14,7 @@ import {
   type GovernanceActionRow,
   type GovernancePolicyRow,
 } from "@/lib/operational-governance/governance";
+import { buildTrustPosture, trustPostureClass } from "@/lib/trust-posture/posture";
 
 export const dynamic = "force-dynamic";
 
@@ -221,6 +222,18 @@ export default async function GovernancePage({
       )
     )
     .slice(0, 6);
+  const postureItems = queue.map((action) => ({
+    action,
+    posture: buildTrustPosture({
+      lastVerifiedAt: action.resolved_at,
+      lastGovernanceAt: action.created_at,
+      evidenceCount: evidence.filter((row) => String(row.id ?? "").includes(String(action.subject_id ?? ""))).length,
+      signalCount: signals.filter((row) => String(row.subject_id ?? "") === String(action.subject_id ?? "")).length,
+      unresolvedGovernanceCount: ["pending", "in_review", "escalated"].includes(String(action.action_status ?? "pending")) ? 1 : 0,
+      confidenceLabel: action.action_status ?? "pending",
+    }),
+  }));
+  const reverificationDueCount = postureItems.filter((item) => item.posture.reverificationRecommended).length;
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -280,12 +293,31 @@ export default async function GovernancePage({
           ))}
         </section>
 
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Reverification Posture</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+                Governance review can trigger revalidation when confidence is
+                aging, evidence is incomplete, or an action remains unresolved.
+                These checkpoints explain why review is recommended without
+                adding background tracking.
+              </p>
+            </div>
+            <span className="rounded-full border border-amber-800 px-3 py-1 text-xs text-amber-200">
+              {reverificationDueCount} review prompt{reverificationDueCount === 1 ? "" : "s"}
+            </span>
+          </div>
+        </section>
+
         <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.8fr]">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Governance Queue</h2>
             <div className="mt-5 grid gap-3">
               {queue.length ? (
-                queue.map((action) => (
+                queue.map((action) => {
+                  const posture = postureItems.find((item) => item.action.id === action.id)?.posture;
+                  return (
                   <article key={action.id} className="rounded-lg border border-zinc-800 bg-black p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
@@ -306,6 +338,24 @@ export default async function GovernancePage({
                       </div>
                     </div>
                     <p className="mt-3 text-sm leading-6 text-zinc-400">{action.explanation}</p>
+                    {posture ? (
+                      <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                            Trust freshness
+                          </p>
+                          <span className={`rounded-full border px-2.5 py-1 text-xs ${trustPostureClass(posture.state)}`}>
+                            {posture.label}
+                          </span>
+                        </div>
+                        <p className="mt-2 text-sm leading-6 text-zinc-300">
+                          {posture.explanation}
+                        </p>
+                        <p className="mt-2 text-sm leading-6 text-zinc-400">
+                          {posture.nextReview}
+                        </p>
+                      </div>
+                    ) : null}
                     <div className="mt-4 grid gap-3 md:grid-cols-3">
                       <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
                         <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Why triggered</p>
@@ -396,7 +446,8 @@ export default async function GovernancePage({
                       ))}
                     </div>
                   </article>
-                ))
+                  );
+                })
               ) : (
                 <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
                   No governance actions are waiting for review.

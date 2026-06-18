@@ -33,6 +33,7 @@ const wedges = [
   "Interview Integrity",
   "Explainable Governance",
   "Evidence Chains",
+  "Trust Freshness",
   "Verification Receipts",
   "Replayable Trust Timelines",
 ];
@@ -48,6 +49,7 @@ const principles = [
   "Deployment-ready pilot paths",
   "Operational readiness checks",
   "Evidence-backed trust",
+  "Explainable trust freshness",
   "Explainable verification",
   "Human review where it matters",
   "Governance visibility without invasive monitoring",
@@ -89,9 +91,9 @@ export default function HomePage() {
             Operational Trust Infrastructure for AI-era workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-300">
-            Cyber Sentinels is an enterprise-facing operational trust platform
-            for hiring security, interview integrity, AI agent governance and
-            evidence-backed verification workflows.
+            Cyber Sentinels is Operational Trust Infrastructure with
+            explainable trust posture workflows for hiring security, interview
+            integrity, AI agent governance and evidence-backed verification.
           </p>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-500">
             Built for enterprise operations, trust and safety, hiring,
@@ -104,9 +106,9 @@ export default function HomePage() {
             review records.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
-            The difference is operational memory: evidence chains, human
-            governance, verification receipts and replayable trust timelines in
-            one calm workflow.
+            The difference is operational continuity: evidence chains, trust
+            freshness, human governance, verification receipts and replayable
+            timelines in one calm workflow.
           </p>
           <PrivateBetaNotice className="mt-5 max-w-3xl" />
           <div className="mt-6 flex max-w-4xl flex-wrap gap-2">
@@ -216,8 +218,13 @@ export default function HomePage() {
               Trust Posture
             </p>
             <h2 className="mt-4 text-3xl font-semibold">
-              Clear enough for users. Structured enough for enterprise review.
-            </h2>
+            Clear enough for users. Structured enough for enterprise review.
+          </h2>
+            <p className="mt-4 text-sm leading-7 text-zinc-400">
+              Operational trust posture evolves over time and requires
+              explainable governance, review intervals and reverification when
+              confidence ages.
+            </p>
             <div className="mt-6 grid gap-3">
               {principles.map((principle) => (
                 <div

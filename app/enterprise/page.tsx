@@ -6,6 +6,7 @@ const useCases = [
   "Operational Trust",
   "Demo Stories",
   "Verification Workflows",
+  "Trust Freshness",
   "Explainable Governance",
   "Verification Receipts",
   "Replayable Trust Timelines",
@@ -16,6 +17,7 @@ const useCases = [
 const trustSignals = [
   ["Deployment readiness", "Controlled private-beta access, readiness gates and operational health checks are visible before pilot activation."],
   ["Operational readiness", "Workspaces, cases, evidence, governance actions, receipts and replay are connected in one review path."],
+  ["Trust freshness", "Reverification reminders and review checkpoints explain when confidence should be refreshed."],
   ["Governance philosophy", "Cyber Sentinels supports accountable human review instead of black-box trust outcomes."],
   ["Explainability principles", "Receipts, reason codes, timelines and replay make review context understandable."],
   ["Human review principles", "Sensitive workflow outcomes stay tied to named review actions and audit history."],
@@ -34,13 +36,19 @@ export default function EnterprisePage() {
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Cyber Sentinels helps enterprise teams connect evidence, human
-            review, governance actions, verification receipts and replayable
-            timelines into explainable operational trust workflows.
+            review, trust freshness, governance actions, verification receipts
+            and replayable timelines into explainable operational trust posture
+            workflows.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
             Detection and provenance are signals. Trust requires orchestration
             through governance, timelines, evidence chains, verification
             receipts and human review.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
+            Operational trust posture evolves over time. Cyber Sentinels
+            supports reverification reminders, governance review intervals and
+            workflow continuity checks using existing operational records.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/enterprise/hiring-security" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">

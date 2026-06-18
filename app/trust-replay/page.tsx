@@ -15,6 +15,7 @@ import {
   normalizeStoredTimelineEvent,
   type TrustTimelineEvent,
 } from "@/lib/trust-timeline/provenance";
+import { trustPostureClass } from "@/lib/trust-posture/posture";
 
 export const dynamic = "force-dynamic";
 
@@ -361,6 +362,32 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
                 Save Replay Session
               </button>
             </form>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                Trust Freshness
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">
+                {snapshot.posture.label}
+              </h2>
+              <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+                {snapshot.posture.explanation}. {snapshot.posture.nextReview}
+              </p>
+            </div>
+            <span className={`rounded-full border px-3 py-1 text-xs ${trustPostureClass(snapshot.posture.state)}`}>
+              {snapshot.posture.reverificationRecommended ? "Reverification recommended" : "Current posture reviewable"}
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {snapshot.posture.continuityChecks.map((check) => (
+              <div key={check} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-zinc-300">
+                {check}
+              </div>
+            ))}
           </div>
         </section>
 

@@ -3,6 +3,7 @@ import {
   timelineCategory,
   type TrustTimelineEvent,
 } from "@/lib/trust-timeline/provenance";
+import { buildTrustPosture, latestCreatedAt, type TrustPosture } from "@/lib/trust-posture/posture";
 
 export type ReplayRow = Record<string, any>;
 
@@ -18,6 +19,7 @@ export type ReplaySnapshot = {
   relationships: ReplayRow[];
   aiSummaries: ReplayRow[];
   timelineEvents: TrustTimelineEvent[];
+  posture: TrustPosture;
 };
 
 export type ReplaySession = {
@@ -128,12 +130,26 @@ export function buildReplaySnapshot(input: {
   const auditLogs = filterRows(input.auditLogs);
   const relationships = filterRows(input.relationships);
   const aiSummaries = filterRows(input.aiSummaries);
+  const openGovernanceCount = decisions.filter((row) =>
+    ["pending", "in_review", "escalated"].includes(String(row.action_status ?? row.status ?? row.decision ?? ""))
+  ).length;
+  const posture = buildTrustPosture({
+    lastVerifiedAt: latestCreatedAt(decisions) ?? latestCreatedAt(input.timelineEvents),
+    lastGovernanceAt: latestCreatedAt(decisions),
+    lastEvidenceAt: latestCreatedAt(evidence),
+    lastSignalAt: latestCreatedAt(signals),
+    evidenceCount: evidence.length,
+    signalCount: signals.length,
+    unresolvedGovernanceCount: openGovernanceCount,
+    confidenceLabel: openGovernanceCount ? "governance pending" : "reviewable",
+  });
   const summary = [
     `Replay as of ${formatTimelineDate(input.asOf)}.`,
     `${evidence.length} evidence records existed.`,
     `${decisions.length} governance decisions were available.`,
     `${signals.length} signals and ${auditLogs.length} audit events were present.`,
     `${relationships.length} trust relationships were recorded.`,
+    `Trust freshness: ${posture.label}.`,
   ].join(" ");
 
   return {
@@ -148,6 +164,7 @@ export function buildReplaySnapshot(input: {
     relationships,
     aiSummaries,
     timelineEvents,
+    posture,
   };
 }
 
