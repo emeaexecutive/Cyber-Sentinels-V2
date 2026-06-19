@@ -1,0 +1,128 @@
+"use client";
+
+import Link from "next/link";
+import { FormEvent, useState } from "react";
+import { SessionSignalCards } from "@/components/session-integrity";
+import type { ExplainableSessionSignal } from "@/lib/session-integrity/model";
+
+type ReviewResult = {
+  ok?: boolean;
+  error?: string;
+  check_id?: string;
+  session_id?: string;
+  overall_status?: string;
+  summary?: string;
+  signals?: ExplainableSessionSignal[];
+};
+
+export default function VerifySessionPage() {
+  const [result, setResult] = useState<ReviewResult | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function submitReview(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+    setResult(null);
+    const form = new FormData(event.currentTarget);
+    const numberOrUndefined = (name: string) => {
+      const value = String(form.get(name) ?? "").trim();
+      return value === "" ? undefined : Number(value);
+    };
+
+    const response = await fetch("/api/session/integrity", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: form.get("session_id"),
+        identity_verification_state: form.get("identity_verification_state"),
+        liveness_state: form.get("liveness_state"),
+        deepfake_risk_score: numberOrUndefined("deepfake_risk_score"),
+        injection_risk_score: numberOrUndefined("injection_risk_score"),
+        channel_integrity_state: form.get("channel_integrity_state"),
+        session_anomaly_score: numberOrUndefined("session_anomaly_score"),
+        manual_review_required: form.get("manual_review_required") === "on",
+        evidence_source: "session_integrity_review_form",
+      }),
+    });
+
+    setResult((await response.json().catch(() => ({ error: "Request failed" }))) as ReviewResult);
+    setLoading(false);
+  }
+
+  return (
+    <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
+      <div className="mx-auto max-w-6xl">
+        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
+            Session Integrity Review
+          </p>
+          <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
+            Review session and channel integrity signals
+          </h1>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            Record liveness, deepfake risk, injection risk, channel integrity,
+            and session anomalies separately. No single check confirms identity
+            or trust, and verification flags remain subject to human review.
+          </p>
+        </section>
+
+        <form
+          onSubmit={submitReview}
+          className="mt-8 grid gap-5 rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:grid-cols-2"
+        >
+          <label className="grid gap-2 text-sm text-zinc-300 md:col-span-2">
+            Interview session ID
+            <input name="session_id" required className="rounded-lg border border-zinc-700 bg-black p-3 text-white" />
+          </label>
+          {[
+            ["identity_verification_state", "Identity verification state", ["pending", "verified", "needs_review"]],
+            ["liveness_state", "Liveness state", ["pending", "confirmed", "failed"]],
+            ["channel_integrity_state", "Channel integrity state", ["pending", "verified", "failed"]],
+          ].map(([name, label, options]) => (
+            <label key={String(name)} className="grid gap-2 text-sm text-zinc-300">
+              {String(label)}
+              <select name={String(name)} className="rounded-lg border border-zinc-700 bg-black p-3 text-white">
+                {(options as string[]).map((option) => <option key={option}>{option}</option>)}
+              </select>
+            </label>
+          ))}
+          {[
+            ["deepfake_risk_score", "Deepfake risk score"],
+            ["injection_risk_score", "Injection risk score"],
+            ["session_anomaly_score", "Session anomaly score"],
+          ].map(([name, label]) => (
+            <label key={name} className="grid gap-2 text-sm text-zinc-300">
+              {label} (0-100, optional)
+              <input name={name} type="number" min="0" max="100" className="rounded-lg border border-zinc-700 bg-black p-3 text-white" />
+            </label>
+          ))}
+          <label className="flex items-center gap-3 text-sm text-zinc-300 md:col-span-2">
+            <input type="checkbox" name="manual_review_required" className="h-4 w-4" />
+            Require manual review based on other evidence
+          </label>
+          <button disabled={loading} className="rounded-lg bg-white px-4 py-3 font-semibold text-black disabled:opacity-50 md:col-span-2">
+            {loading ? "Recording review..." : "Record session integrity review"}
+          </button>
+        </form>
+
+        {result ? (
+          <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+            <h2 className="text-2xl font-semibold">
+              {result.ok ? "Explainable review signals" : "Review could not be recorded"}
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-400">
+              {result.summary ?? result.error ?? "Unknown response"}
+            </p>
+            {result.signals?.length ? <div className="mt-6"><SessionSignalCards signals={result.signals} /></div> : null}
+            {result.ok && result.session_id ? (
+              <Link href={`/trust/session/${result.session_id}`} className="mt-5 inline-flex text-sm text-cyan-200 underline">
+                Open session trust review
+              </Link>
+            ) : null}
+          </section>
+        ) : null}
+      </div>
+    </main>
+  );
+}
+

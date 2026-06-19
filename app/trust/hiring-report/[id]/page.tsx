@@ -129,11 +129,35 @@ export default async function HiringReportPage({ params }: { params: Promise<{ i
   const fallbackScore = calculateHiringTrustScore({
     livenessUnresolved: true,
   });
+  const [{ data: integrityCheck }, { data: integritySignalRows }] = await Promise.all([
+    supabase
+      .from("session_integrity_checks")
+      .select("*")
+      .eq("interview_session_id", id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("verification_signals")
+      .select("*")
+      .eq("interview_session_id", id)
+      .order("created_at", { ascending: false }),
+  ]);
   const score = Number(latestScore?.score ?? fallbackScore.score);
   const reasons = (latestScore?.reasons as string[] | null) ?? fallbackScore.reasons;
   const signalRows = (signals ?? []) as SignalRow[];
   const eventRows = (riskEvents ?? []) as RiskEventRow[];
   const escalated = eventRows.filter((event) => event.escalation_required);
+  const integrityRows = (integritySignalRows ?? []).filter(
+    (row) => !integrityCheck?.id || row.session_integrity_check_id === integrityCheck.id
+  );
+  const integrityState = (category: string, fallback = "pending") => {
+    const row = integrityRows.find((item) => item.category === category);
+    if (!row) return fallback;
+    return row.risk_level === "low"
+      ? row.signal_status
+      : `${row.signal_status} / ${row.risk_level} risk`;
+  };
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -153,6 +177,38 @@ export default async function HiringReportPage({ params }: { params: Promise<{ i
               </p>
             </div>
             <StatusBadge status={String(latestScore?.risk_level ?? session.integrity_status ?? session.session_status ?? session.status ?? "pending")} />
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Session Integrity Review</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
+                Identity, live presence, media risk, injection risk, channel
+                integrity, and session anomalies are separate review states. No
+                single state proves candidate trust or authenticity.
+              </p>
+            </div>
+            <Link href={`/trust/session/${id}`} className="text-sm text-cyan-200 underline">
+              Open detailed session review
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["Identity verification state", candidate?.verification_status ?? integrityCheck?.identity_verification_state ?? "pending"],
+              ["Liveness state", integrityState("liveness_check")],
+              ["Deepfake risk state", integrityState("deepfake_risk")],
+              ["Injection risk state", integrityState("injection_risk")],
+              ["Channel integrity state", integrityState("device_channel_integrity")],
+              ["Session anomaly state", integrityState("session_anomaly")],
+              ["Human review decision", governanceActions?.[0]?.action_status ?? (integrityCheck?.manual_review_required ? "manual review required" : "pending")],
+            ].map(([label, value]) => (
+              <div key={String(label)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.14em] text-zinc-400">{label}</p>
+                <p className="mt-2 text-sm font-semibold text-zinc-100">{String(value).replaceAll("_", " ")}</p>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -208,7 +264,7 @@ export default async function HiringReportPage({ params }: { params: Promise<{ i
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Trust Signals</h2>
+            <h2 className="text-xl font-semibold">Verification Flags</h2>
             <div className="mt-5 grid gap-3">
               {eventRows.length ? eventRows.map((event) => (
                 <div key={event.id} className="rounded-lg border border-zinc-800 bg-black p-4">

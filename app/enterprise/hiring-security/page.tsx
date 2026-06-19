@@ -73,6 +73,24 @@ export default function HiringSecurityPage() {
           </div>
         </section>
 
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
+            Session Integrity Review
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold">
+            Identity and session integrity stay separate.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Liveness, deepfake risk, injection risk, channel integrity and
+            session anomalies are separate verification signals. A candidate
+            identity may be verified while channel integrity evidence or other
+            verification flags still require manual review.
+          </p>
+          <Link href="/dashboard/session-integrity" className="mt-5 inline-flex text-sm font-semibold text-cyan-200 underline">
+            Review session integrity
+          </Link>
+        </section>
+
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {capabilities.map(([title, body]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">

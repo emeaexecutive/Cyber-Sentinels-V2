@@ -37,7 +37,8 @@ export default async function HiringShieldPage() {
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Recruiter-friendly integrity review for candidate identity,
-            profile consistency, liveness checks and provenance context. The
+            profile consistency, liveness checks, session integrity and
+            channel evidence. These remain separate review states. The
             workflow supports fair review and governance escalation; it does
             not label candidates or make hiring decisions.
           </p>
@@ -138,7 +139,7 @@ export default async function HiringShieldPage() {
           <input
             name="liveness_score"
             type="number"
-            placeholder="Liveness verification score e.g. 86"
+            placeholder="Liveness signal score e.g. 86"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
@@ -159,7 +160,7 @@ export default async function HiringShieldPage() {
           <input
             name="video_deepfake_risk"
             type="number"
-            placeholder="Video provenance review signal e.g. 18"
+            placeholder="Deepfake risk signal e.g. 18"
             className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
           />
 
@@ -352,6 +353,30 @@ export default async function HiringShieldPage() {
                     <p className="mt-2 text-xl font-bold">
                       {report.video_deepfake_risk ?? 0}%
                     </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 rounded-lg border border-zinc-800 bg-black p-4">
+                  <h3 className="font-semibold text-zinc-100">Separate Verification States</h3>
+                  <p className="mt-2 text-sm leading-6 text-zinc-400">
+                    A liveness result does not prove identity or hiring trust.
+                    Session and channel states require their own evidence.
+                  </p>
+                  <div className="mt-4 grid gap-3 text-sm md:grid-cols-2 lg:grid-cols-4">
+                    {[
+                      ["Identity verification", report.review_status ?? "pending"],
+                      ["Liveness", `${report.liveness_score ?? 0}% signal`],
+                      ["Deepfake risk", `${report.video_deepfake_risk ?? 0}% risk`],
+                      ["Injection risk", "Not linked to this report"],
+                      ["Channel integrity", "Not linked to this report"],
+                      ["Session anomaly", "Not linked to this report"],
+                      ["Human review", report.human_review_required ? "Required" : "Pending reviewer decision"],
+                    ].map(([label, value]) => (
+                      <div key={String(label)} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                        <p className="text-zinc-400">{label}</p>
+                        <p className="mt-1 font-semibold text-zinc-100">{value}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
 

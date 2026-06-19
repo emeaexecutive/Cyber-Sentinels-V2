@@ -63,7 +63,7 @@ export default async function InterviewRiskDashboardPage() {
 
   if (!user) redirect("/login?next=/dashboard/interview-risk");
 
-  const [sessions, candidates, recruiters, riskEvents, riskSignals, governanceActions, intelligenceEvents] =
+  const [sessions, candidates, recruiters, riskEvents, riskSignals, governanceActions, intelligenceEvents, integrityChecks] =
     await Promise.all([
       fetchRows(supabase, "interview_sessions", 100),
       fetchRows(supabase, "candidate_profiles", 80),
@@ -72,6 +72,7 @@ export default async function InterviewRiskDashboardPage() {
       fetchRows(supabase, "interview_risk_signals", 120),
       fetchRows(supabase, "governance_actions", 80),
       fetchRows(supabase, "operational_intelligence_events", 100),
+      fetchRows(supabase, "session_integrity_checks", 100),
     ]);
 
   const sessionIds = new Set(sessions.map((session) => String(session.id)));
@@ -107,6 +108,7 @@ export default async function InterviewRiskDashboardPage() {
           {[
             ["/recruiter/dashboard", "Recruiter Queue"],
             ["/enterprise/hiring-security", "Hiring Security"],
+            ["/dashboard/session-integrity", "Session Integrity"],
             ["/governance", "Governance"],
             ["/timeline", "Timeline"],
           ].map(([href, label]) => (
@@ -143,6 +145,35 @@ export default async function InterviewRiskDashboardPage() {
               <p className="mt-2 text-2xl font-semibold text-zinc-100">{value}</p>
             </div>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Session Integrity Review</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
+                Candidate identity and liveness are not the same as session
+                integrity. A candidate may be verified while injection risk,
+                channel integrity evidence, or session anomalies still require
+                human review.
+              </p>
+            </div>
+            <Link href="/dashboard/session-integrity" className="text-sm text-cyan-200 underline">
+              Open session integrity dashboard
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {[
+              ["Session reviews", integrityChecks.length],
+              ["Manual review required", integrityChecks.filter((item) => item.manual_review_required).length],
+              ["Review pending", integrityChecks.filter((item) => item.overall_status === "pending").length],
+            ].map(([label, value]) => (
+              <div key={String(label)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-sm text-zinc-400">{label}</p>
+                <p className="mt-2 text-2xl font-semibold text-zinc-100">{value}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.9fr]">
