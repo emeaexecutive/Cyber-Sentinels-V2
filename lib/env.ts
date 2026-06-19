@@ -20,6 +20,16 @@ export const requiredEnvNames: RequiredEnvName[] = [
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
 ];
 
+type EnvLogState = typeof globalThis & {
+  __cyberSentinelsMissingEnvWarnings?: Set<string>;
+};
+
+function missingEnvWarnings() {
+  const state = globalThis as EnvLogState;
+  state.__cyberSentinelsMissingEnvWarnings ??= new Set<string>();
+  return state.__cyberSentinelsMissingEnvWarnings;
+}
+
 export function isProductionBuildPhase() {
   return process.env.NEXT_PHASE === "phase-production-build";
 }
@@ -33,10 +43,21 @@ export function logMissingEnv(context: string, missing: RequiredEnvName[]) {
     return;
   }
 
+  const warningKey = [...missing].sort().join(",");
+  const warnings = missingEnvWarnings();
+  if (warnings.has(warningKey)) {
+    return;
+  }
+  warnings.add(warningKey);
+
   console.error("Environment configuration missing.", {
     context,
     missing,
   });
+}
+
+export function hasPublicSupabaseEnv() {
+  return getMissingEnv(requiredEnvNames).length === 0;
 }
 
 export function isEnvConfigurationError(error: unknown) {
@@ -102,7 +123,6 @@ export function getPublicSupabaseEnv(context: string) {
 
   if (missing.length > 0) {
     logMissingEnv(context, missing);
-    logPublicEnvDiagnostics(context);
     throw new Error(
       `Missing required environment variables for ${context}: ${missing.join(", ")}`
     );

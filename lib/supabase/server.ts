@@ -2,8 +2,11 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { adminVerifiedCookieName } from "@/lib/admin-auth";
-import { getPublicSupabaseEnv } from "@/lib/env";
-import { assertServerEnv } from "@/lib/security";
+import {
+  getPublicSupabaseEnv,
+  hasPublicSupabaseEnv,
+  isProductionBuildPhase,
+} from "@/lib/env";
 
 type CookieToSet = {
   name: string;
@@ -90,7 +93,6 @@ async function withAuthTimeout<T>(task: () => Promise<T>): Promise<T> {
 }
 
 export async function createClient() {
-  assertServerEnv();
   const { supabaseUrl, supabaseAnonKey } = getPublicSupabaseEnv(
     "Supabase server client"
   );
@@ -144,4 +146,12 @@ export async function createClient() {
   }) as typeof supabase.auth.getUser;
 
   return supabase;
+}
+
+export async function createNavigationClient() {
+  if (isProductionBuildPhase() || !hasPublicSupabaseEnv()) {
+    return null;
+  }
+
+  return createClient();
 }

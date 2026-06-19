@@ -1,6 +1,10 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { getAdminEmailsEnv, getPublicSupabaseEnv } from "@/lib/env";
+import {
+  getAdminEmailsEnv,
+  getPublicSupabaseEnv,
+  hasPublicSupabaseEnv,
+} from "@/lib/env";
 import { isMissingAuthSessionError } from "@/lib/supabase/auth-errors";
 
 const adminVerifiedCookieName = "cyber_admin_verified";
@@ -144,12 +148,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  let supabaseEnv;
+  if (!hasPublicSupabaseEnv()) {
+    return NextResponse.next();
+  }
 
+  let supabaseEnv;
   try {
     supabaseEnv = getPublicSupabaseEnv("middleware Supabase client");
-  } catch (error) {
-    console.error("Middleware Supabase client unavailable.", error);
+  } catch {
     return NextResponse.next();
   }
 
