@@ -18,6 +18,18 @@ type IntegrationStatusRow = {
   checked_at: string | null;
 };
 
+type HopaeVerificationRow = {
+  verification_id: string;
+  status: string;
+  provider_id: string;
+  verification_model: string | null;
+  hopae_loa: number | null;
+  provenance: Record<string, unknown> | null;
+  provenance_confidence: boolean;
+  created_at: string;
+  completed_at: string | null;
+};
+
 function formatDate(value?: string | null) {
   if (!value) return "Not recorded";
   const date = new Date(value);
@@ -101,6 +113,37 @@ async function readRecentIntegrationRows() {
   }
 }
 
+async function readRecentHopaeVerifications() {
+  if (process.env.HOPAE_ENABLED?.trim().toLowerCase() !== "true") {
+    return [] as HopaeVerificationRow[];
+  }
+
+  try {
+    const supabase = createServiceRoleClient();
+    const { data, error } = await supabase
+      .from("hopae_verifications")
+      .select("verification_id, status, provider_id, verification_model, hopae_loa, provenance, provenance_confidence, created_at, completed_at")
+      .order("created_at", { ascending: false })
+      .limit(20)
+      .returns<HopaeVerificationRow[]>();
+    if (error) {
+      console.warn("Hopae verification status unavailable", error);
+      return [] as HopaeVerificationRow[];
+    }
+    return data ?? [];
+  } catch (error) {
+    console.warn("Hopae verification status unavailable", error);
+    return [] as HopaeVerificationRow[];
+  }
+}
+
+function provenanceSummary(provenance: Record<string, unknown> | null) {
+  if (!provenance || Object.keys(provenance).length === 0) return "Missing";
+  const credentials = provenance.credentials ?? provenance.credential ?? provenance.verifiableCredentials;
+  if (Array.isArray(credentials)) return `${credentials.length} credential${credentials.length === 1 ? "" : "s"}`;
+  return "Recorded";
+}
+
 export default async function AdminIntegrationsPage() {
   const supabase = await createClient();
   const access = await checkAdminAccess(supabase);
@@ -118,6 +161,7 @@ export default async function AdminIntegrationsPage() {
   const registry = getIntegrationRegistry();
   const insertedRows = await persistIntegrationSnapshot(registry);
   const recentRows = insertedRows.length ? insertedRows : await readRecentIntegrationRows();
+  const hopaeVerifications = await readRecentHopaeVerifications();
   const configuredCount = registry.filter((item) => item.status === "configured").length;
   const disabledCount = registry.filter((item) => item.status === "disabled").length;
   const missingCount = registry.filter((item) => item.status === "missing").length;
@@ -134,7 +178,7 @@ export default async function AdminIntegrationsPage() {
               <h1 className="text-4xl font-semibold">API Integrity Registry</h1>
               <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-400">
                 Internal provider configuration registry for Supabase, Stripe,
-                OpenAI, World ID and email delivery. Secret values are never displayed.
+                OpenAI, World ID, Hopae Connect and email delivery. Secret values are never displayed.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -209,6 +253,43 @@ export default async function AdminIntegrationsPage() {
               </p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-400">Upstream Identity Proof</p>
+          <h2 className="mt-2 text-xl font-semibold">Hopae Connect verifications</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
+            Verified identity is not the same as trusted behaviour. Cyber Sentinels combines upstream eID verification with provenance, behaviour, audit trails, AI-agent governance and enterprise escalation.
+          </p>
+          <p className="mt-2 text-sm text-amber-200">
+            A completed Hopae proof can strengthen identity assurance. It is not a final Cyber Sentinels Trust Score or an automatic approval.
+          </p>
+          <div className="mt-5 grid gap-3">
+            {hopaeVerifications.length ? hopaeVerifications.map((row) => (
+              <article key={row.verification_id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-medium text-zinc-100">{row.provider_id}</p>
+                    <p className="mt-1 font-mono text-xs text-zinc-600">{row.verification_id}</p>
+                  </div>
+                  <span className={`rounded-full border px-3 py-1 text-xs ${statusClass(row.status === "completed" ? "configured" : "disabled")}`}>
+                    {row.status}
+                  </span>
+                </div>
+                <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-5">
+                  <div><p className="text-xs uppercase text-zinc-600">LoA</p><p className="mt-1 text-zinc-300">{row.hopae_loa ?? "Not reported"}</p></div>
+                  <div><p className="text-xs uppercase text-zinc-600">Model</p><p className="mt-1 text-zinc-300">{row.verification_model ?? "Not reported"}</p></div>
+                  <div><p className="text-xs uppercase text-zinc-600">Provenance</p><p className="mt-1 text-zinc-300">{provenanceSummary(row.provenance)}{row.provenance_confidence ? " · confidence flag" : ""}</p></div>
+                  <div><p className="text-xs uppercase text-zinc-600">Created</p><p className="mt-1 text-zinc-300">{formatDate(row.created_at)}</p></div>
+                  <div><p className="text-xs uppercase text-zinc-600">Completed</p><p className="mt-1 text-zinc-300">{formatDate(row.completed_at)}</p></div>
+                </div>
+              </article>
+            )) : (
+              <p className="rounded-lg border border-zinc-800 bg-black p-5 text-sm text-zinc-500">
+                No Hopae upstream identity proofs recorded. The provider can remain safely disabled.
+              </p>
+            )}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

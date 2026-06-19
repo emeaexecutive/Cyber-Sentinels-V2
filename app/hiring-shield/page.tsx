@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { TrustReportBoundary } from "@/components/trust-report-boundary";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,7 @@ export default async function HiringShieldPage() {
             workflow supports fair review and governance escalation; it does
             not label candidates or make hiring decisions.
           </p>
+          <TrustReportBoundary />
         </section>
 
         <section className="mt-8 grid gap-3 md:grid-cols-4">

@@ -5,6 +5,7 @@ export type IntegrationProvider =
   | "Stripe"
   | "OpenAI"
   | "World ID"
+  | "Hopae Connect"
   | "Email";
 
 export type IntegrationStatus =
@@ -35,6 +36,7 @@ type IntegrationDefinition = {
   riskLevel: IntegrationRiskLevel;
   configuredNotes: string;
   missingNotes: string;
+  enabledWhen?: () => boolean;
 };
 
 const definitions: IntegrationDefinition[] = [
@@ -83,6 +85,16 @@ const definitions: IntegrationDefinition[] = [
     missingNotes: "Not configured yet. World ID verification remains disabled or placeholder-only.",
   },
   {
+    provider: "Hopae Connect",
+    purpose: "Optional upstream eID verification evidence for Cyber Sentinels governance.",
+    requiredEnv: ["HOPAE_CLIENT_ID", "HOPAE_CLIENT_SECRET", "HOPAE_WEBHOOK_SECRET"],
+    optional: true,
+    riskLevel: "medium",
+    enabledWhen: () => process.env.HOPAE_ENABLED?.trim().toLowerCase() === "true",
+    configuredNotes: "Hopae Connect is enabled for upstream identity proof. Cyber Sentinels remains the decision layer.",
+    missingNotes: "Safely disabled. Set HOPAE_ENABLED=true and configure server-side credentials to activate it.",
+  },
+  {
     provider: "Email",
     purpose: "Optional transactional email delivery for notifications and pilot communications.",
     requiredEnv: ["RESEND_API_KEY"],
@@ -101,7 +113,7 @@ export function getIntegrationRegistry(checkedAt = new Date().toISOString()) {
   return definitions.map((definition): IntegrationRegistryItem => {
     const presentEnv = definition.requiredEnv.filter(envPresent);
     const missingEnv = definition.requiredEnv.filter((name) => !envPresent(name));
-    const configured = missingEnv.length === 0;
+    const configured = missingEnv.length === 0 && (definition.enabledWhen?.() ?? true);
     const status: IntegrationStatus = configured
       ? "configured"
       : definition.optional
@@ -140,6 +152,10 @@ export function summarizeIntegrationStatus() {
         : "disabled",
     worldId:
       registry.find((item) => item.provider === "World ID")?.status === "configured"
+        ? "configured"
+        : "disabled",
+    hopae:
+      registry.find((item) => item.provider === "Hopae Connect")?.status === "configured"
         ? "configured"
         : "disabled",
     email:
