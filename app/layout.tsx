@@ -5,7 +5,7 @@ import {
   type NavigationAccessLevel,
 } from "@/components/global-navigation";
 import { hasAdminVerifiedCookie, isAdminAllowlisted } from "@/lib/admin-auth";
-import { createClient } from "@/lib/supabase/server";
+import { createNavigationClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -72,13 +72,32 @@ type NavigationState = {
   accessLevel: NavigationAccessLevel;
 };
 
+type NavigationLogState = typeof globalThis & {
+  __cyberSentinelsNavigationAuthWarningShown?: boolean;
+};
+
+function warnNavigationAuthUnavailable(error: unknown) {
+  const state = globalThis as NavigationLogState;
+  if (state.__cyberSentinelsNavigationAuthWarningShown) {
+    return;
+  }
+  state.__cyberSentinelsNavigationAuthWarningShown = true;
+  console.warn(
+    "Navigation auth status unavailable",
+    error instanceof Error ? error.message : "Unknown navigation auth error."
+  );
+}
+
 async function getNavigationState(): Promise<NavigationState> {
   try {
-    const supabase = await createClient();
+    const supabase = await createNavigationClient();
+    if (!supabase) {
+      return { accessLevel: "public" };
+    }
     const { data, error } = await supabase.auth.getSession();
 
     if (error) {
-      console.warn("Navigation auth status unavailable", error.message);
+      warnNavigationAuthUnavailable(error);
       return { accessLevel: "public" };
     }
 
@@ -98,10 +117,7 @@ async function getNavigationState(): Promise<NavigationState> {
 
     return { accessLevel: "user" };
   } catch (error) {
-    console.warn(
-      "Navigation auth status unavailable",
-      error instanceof Error ? error.message : "Unknown navigation auth error."
-    );
+    warnNavigationAuthUnavailable(error);
 
     return { accessLevel: "public" };
   }

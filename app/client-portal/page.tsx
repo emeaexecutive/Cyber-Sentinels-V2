@@ -14,6 +14,7 @@ import {
   type ClientOwnedFields,
 } from "@/lib/trust-engine/clientPortal";
 import { getPublicTrustFeed } from "@/lib/trust-feed/feed";
+import { TrustReportBoundary } from "@/components/trust-report-boundary";
 
 export const dynamic = "force-dynamic";
 
@@ -291,6 +292,7 @@ export default async function ClientPortalPage() {
         <section className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Candidate Trust Reports</h2>
+            <TrustReportBoundary />
             <div className="mt-5 space-y-3">
               {portalReports.map((report) => (
                 <div

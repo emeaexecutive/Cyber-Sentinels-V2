@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "test:hopae": "node --experimental-strip-types --test tests/hopae-assurance.test.mjs",
     "start": "next start"
   },
   "dependencies": {

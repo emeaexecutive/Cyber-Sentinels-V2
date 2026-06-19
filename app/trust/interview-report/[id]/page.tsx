@@ -1,5 +1,6 @@
 import { ExplainableTrustFactors, TrustScoreBadge } from "@/components/phase-one-trust";
 import { SessionSignalCards } from "@/components/session-integrity";
+import { TrustReportBoundary } from "@/components/trust-report-boundary";
 import { evaluateSessionIntegrity } from "@/lib/session-integrity/model";
 import { placeholderLivenessCheck, placeholderVoiceMismatchCheck, placeholderWebcamIntegrityCheck, trustScoreFromFactors } from "@/lib/trusted-layer/phase1";
 
@@ -29,6 +30,7 @@ export default async function InterviewReportPage({ params }: { params: Promise<
             deepfake risk, injection risk, channel integrity, and session
             anomalies remain separate inputs to human review.
           </p>
+          <TrustReportBoundary />
         </section>
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="text-2xl font-semibold">Session Integrity Signals</h2>

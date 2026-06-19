@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ExplainableTrustFactors, StatusBadge, TrustScoreBadge, VerificationTimeline } from "@/components/phase-one-trust";
+import { TrustReportBoundary } from "@/components/trust-report-boundary";
 import {
   calculateHiringTrustScore,
   confidenceLevel,
@@ -175,6 +176,7 @@ export default async function HiringReportPage({ params }: { params: Promise<{ i
                 evidence chain and an operational summary. Placeholder signals
                 do not claim detection accuracy.
               </p>
+              <TrustReportBoundary />
             </div>
             <StatusBadge status={String(latestScore?.risk_level ?? session.integrity_status ?? session.session_status ?? session.status ?? "pending")} />
           </div>
