@@ -16,6 +16,21 @@ const hiringRisks = [
   ],
 ];
 
+const productPillars = [
+  [
+    "Identity Verification",
+    "Verify humans, candidates, employees, vendors, and AI-generated identities using trust checks, liveness signals, and verification evidence.",
+  ],
+  [
+    "Trust Governance",
+    "Manage approvals, reviews, audit trails, and verification cases across regulated teams and enterprise workflows.",
+  ],
+  [
+    "AI Threat Defense",
+    "Detect synthetic actors, fake candidates, impersonation attempts, and unverified AI agents before they enter critical systems.",
+  ],
+];
+
 const hiringSecurity = [
   [
     "Candidate Verification",
@@ -40,12 +55,11 @@ const hiringSecurity = [
 ];
 
 const workflowSteps = [
-  ["Request access", "Start a controlled pilot workspace for the hiring team."],
-  ["Create workspace", "Open a hiring security case for a role, candidate or interview workflow."],
-  ["Upload evidence", "Attach interview notes, documents, links, assessments or review records."],
-  ["Review flags", "See active flags, missing evidence and unresolved items before escalation."],
-  ["Trigger governance", "Send sensitive cases to a human reviewer with the context they need."],
-  ["Generate receipt", "Create an audit-ready receipt and replay the workflow history."],
+  "Identity enters workflow",
+  "Verification checks run",
+  "Risk flags are generated",
+  "Governance review is triggered",
+  "Audit trail is stored",
 ];
 
 const aiToolGaps = [
@@ -80,15 +94,12 @@ export default function Home() {
             Cyber Sentinels
           </p>
           <h1 className="mt-4 text-4xl font-semibold leading-tight text-white md:text-6xl">
-            Protect enterprise hiring workflows against synthetic trust attacks.
+            Enterprise Trust Infrastructure for Humans and AI Agents
           </h1>
-          <p className="mt-5 text-xl font-medium leading-8 text-zinc-100">
-            Operational Trust Infrastructure for AI-era workflows.
-          </p>
           <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-300">
-            Cyber Sentinels helps hiring, security and governance teams verify
-            candidates, review evidence, track flags, preserve audit trails and
-            explain sensitive hiring decisions without surveillance framing.
+            Verify people, AI agents, and digital identities before they become
+            a threat. Cyber Sentinels combines identity assurance, deepfake risk
+            detection, governance workflows, and audit-ready trust trails.
           </p>
         </div>
 
@@ -97,19 +108,13 @@ export default function Home() {
             href="/enterprise-access"
             className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-200 focus:ring-offset-2 focus:ring-offset-[#05070b]"
           >
-            Request Demo
+            Explore Enterprise Trust
           </Link>
           <Link
-            href="/enterprise/hiring-security"
+            href="#trust-workflow"
             className="rounded-md border border-zinc-600 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:border-zinc-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:ring-offset-2 focus:ring-offset-[#05070b]"
           >
-            View Hiring Security
-          </Link>
-          <Link
-            href="/enterprise/demo-stories"
-            className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 transition hover:border-zinc-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:ring-offset-2 focus:ring-offset-[#05070b]"
-          >
-            View Demo Stories
+            View Trust Workflow
           </Link>
         </div>
 
@@ -117,6 +122,27 @@ export default function Home() {
       </section>
 
       <section className="border-y border-zinc-800 bg-zinc-950/70">
+        <div className="mx-auto max-w-6xl px-6 py-12 md:px-8">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
+              Enterprise Trust Platform
+            </p>
+            <h2 className="mt-3 text-3xl font-semibold text-white md:text-4xl">
+              One trust layer across identity, governance, and AI threats.
+            </h2>
+          </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {productPillars.map(([title, body]) => (
+              <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
+                <h3 className="text-lg font-semibold text-white">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-300">{body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section>
         <div className="mx-auto grid max-w-6xl gap-4 px-6 py-10 md:grid-cols-3 md:px-8">
           {hiringRisks.map(([title, body]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
@@ -152,30 +178,29 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-zinc-950/70">
+      <section id="trust-workflow" className="scroll-mt-20 bg-zinc-950/70">
         <div className="mx-auto grid max-w-6xl gap-8 px-6 py-12 md:px-8 lg:grid-cols-[0.85fr_1.15fr]">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
-              Pilot Workflow
+              Trust Workflow
             </p>
             <h2 className="mt-3 text-3xl font-semibold text-white">
-              A first successful review in minutes.
+              A clear path from identity entry to audit trail.
             </h2>
             <p className="mt-4 text-base leading-7 text-zinc-300">
-              Cyber Sentinels is designed for a clear pilot path: open a
-              workspace, add evidence, review flags, route governance and
-              generate a verification receipt with replay history.
+              Every identity follows a reviewable enterprise workflow, with
+              verification checks, risk flags, human governance, and a stored
+              record of what happened.
             </p>
           </div>
           <div className="grid gap-3">
-            {workflowSteps.map(([title, body], index) => (
-              <article key={title} className="flex gap-4 rounded-lg border border-zinc-800 bg-black p-4">
+            {workflowSteps.map((step, index) => (
+              <article key={step} className="flex gap-4 rounded-lg border border-zinc-800 bg-black p-4">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-cyan-300/50 text-sm font-semibold text-cyan-100">
                   {index + 1}
                 </span>
                 <div>
-                  <h3 className="font-semibold text-white">{title}</h3>
-                  <p className="mt-1 text-sm leading-6 text-zinc-300">{body}</p>
+                  <h3 className="font-semibold text-white">{step}</h3>
                 </div>
               </article>
             ))}

@@ -162,7 +162,7 @@ export default async function MissionControlPage() {
     ["Verifier Network", verifierNetwork || "READY"],
     ["Trust Feed", trustFeedItems.length],
     ["Critical alerts", snapshot.metrics.criticalAlerts],
-    ["Signals today", snapshot.metrics.signalsToday],
+    ["Flags today", snapshot.metrics.signalsToday],
     ["Average trust score", snapshot.metrics.averageTrustScore],
     ["Evidence pending scan", snapshot.metrics.evidencePendingScan],
     ["Human reviews", snapshot.metrics.humanReviews],
@@ -170,7 +170,7 @@ export default async function MissionControlPage() {
     ["Manual reviews", snapshot.metrics.manualReviews],
     ["Trust drift events", snapshot.metrics.trustDriftEvents],
     ["Reality Drift", snapshot.metrics.realityDriftEvents || "WATCH"],
-    ["HPG signals", snapshot.metrics.hpgSignals || "STABLE"],
+    ["Identity flags", snapshot.metrics.hpgSignals || "STABLE"],
     ["Clone Risk", snapshot.metrics.cloneRiskEvents || "WATCH"],
   ];
 

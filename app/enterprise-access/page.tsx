@@ -36,11 +36,11 @@ export default async function EnterpriseAccessPage({
             accountable: approvals, human review, evidence handling,
             auditability, AI governance or trust event visibility.
           </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Cyber Sentinels is evolving through operational collaboration and
             real-world workflow feedback.
           </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Pilot onboarding is designed for a first successful workflow within
             10 minutes: request access, create workspace, upload evidence,
             trigger governance, generate a verification receipt and review
@@ -214,12 +214,15 @@ export default async function EnterpriseAccessPage({
               placeholder="Use case"
               className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
             />
-            <textarea
-              name="message"
-              placeholder="Relevant workflow context, review requirements or feedback goals"
-              rows={5}
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            />
+            <label className="grid gap-2 text-sm font-medium text-zinc-300">
+              Requirements
+              <textarea
+                name="message"
+                placeholder="Relevant workflow context, review requirements or feedback goals"
+                rows={5}
+                className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+              />
+            </label>
             <button
               type="submit"
               className="rounded-xl bg-white p-4 font-semibold text-black hover:bg-cyan-100"

@@ -42,7 +42,7 @@ export default function PricingPage() {
       <div className="mx-auto max-w-6xl">
         <section>
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Pricing
+            Verification Plans
           </p>
           <PrivateBetaBadge className="mt-4" />
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-6xl">
@@ -53,7 +53,7 @@ export default function PricingPage() {
             workflows and trust graph visibility, or request enterprise access
             for governance tooling and operational collaboration.
           </p>
-          <p className="mt-3 text-sm text-zinc-500">
+          <p className="mt-3 text-sm text-zinc-400">
             Prices shown in EUR. Additional currencies may be supported later.
           </p>
           <PrivateBetaNotice className="mt-4 max-w-3xl" />
@@ -94,7 +94,7 @@ export default function PricingPage() {
               >
                 <h2 className="text-2xl font-semibold">{plan.name}</h2>
                 <p className="mt-4 text-4xl font-semibold">{plan.price}</p>
-                <p className="mt-1 text-sm text-zinc-500">{plan.cadence}</p>
+                <p className="mt-1 text-sm text-zinc-400">{plan.cadence}</p>
                 <p className="mt-5 text-sm leading-6 text-zinc-400">
                   {plan.description}
                 </p>

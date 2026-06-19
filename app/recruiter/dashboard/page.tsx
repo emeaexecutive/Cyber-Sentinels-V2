@@ -49,7 +49,7 @@ export default async function RecruiterDashboardPage() {
           </p>
           <h1 className="mt-4 text-4xl font-semibold">Trusted Hiring Queue</h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Create interview sessions, monitor placeholder integrity signals and
+            Create interview sessions, monitor placeholder integrity flags and
             open audit-ready hiring reports.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">

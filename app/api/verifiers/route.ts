@@ -7,11 +7,9 @@ import {
   normalizeVerifier,
   normalizeVerifiers,
   verifierCapabilities,
-  verifierStatuses,
   verifierTypes,
   type VerifierCapability,
   type VerifierRow,
-  type VerifierStatus,
   type VerifierType,
 } from "@/lib/verifier-network/verifiers";
 
@@ -41,15 +39,6 @@ function safeVerifierType(value: unknown): VerifierType {
   }
 
   return value as VerifierType;
-}
-
-function safeStatus(value: unknown): VerifierStatus {
-  if (typeof value !== "string") return "pending";
-  if (!verifierStatuses.includes(value as VerifierStatus)) {
-    throw new Error("Invalid input");
-  }
-
-  return value as VerifierStatus;
 }
 
 function safeCapabilities(value: unknown): VerifierCapability[] {
@@ -114,7 +103,7 @@ export async function POST(req: Request) {
       verifier_type: safeVerifierType(body.verifier_type),
       organisation: safeText(body.organisation, "Independent"),
       email: safeEmail(body.email, user.email ?? "verifier@example.com"),
-      status: safeStatus(body.status),
+      status: "pending",
       capabilities: safeCapabilities(body.capabilities),
       trust_score: 50,
       assigned_cases: 0,

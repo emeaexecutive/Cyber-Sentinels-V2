@@ -25,3 +25,11 @@ Run `supabase/migrations/001_initial_schema.sql` in the Supabase SQL editor.
 ## Product thesis
 
 Every AI agent, synthetic identity and high-risk digital interaction will need a trust passport before it receives permission.
+
+## Positioning Direction
+
+Cyber Sentinels is not just a fraud detection tool. It is enterprise trust infrastructure for the AI era.
+
+The platform focuses on verifying humans, AI agents, and digital identities across regulated workflows using identity assurance, governance reviews, risk flags, and audit-ready trust trails.
+
+Competitors may focus on scam or fraud detection. Cyber Sentinels should stay broader: persistent trust, identity governance, and human + AI agent verification.

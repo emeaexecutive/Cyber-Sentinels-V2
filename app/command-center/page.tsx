@@ -642,7 +642,7 @@ export default async function CommandCenterPage({
             <div>
               <h2 className="text-xl font-semibold">Trust Graph Explorer™</h2>
               <p className="mt-2 text-sm text-zinc-500">
-                Map identities, evidence, signals and decisions.
+                Map identities, evidence, flags and decisions.
               </p>
             </div>
             <Link
@@ -735,7 +735,7 @@ export default async function CommandCenterPage({
         </section>
 
         <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-xl font-semibold">Latest Signals</h2>
+          <h2 className="text-xl font-semibold">Latest Flags</h2>
 
           <div className="mt-6 space-y-3">
             {signals?.length ? (

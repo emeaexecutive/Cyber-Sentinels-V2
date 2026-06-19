@@ -1,8 +1,8 @@
 const copy = {
   workspace:
-    "Workspace groups trust cases, reviews, evidence and governance activity for one operational context. Start with the queue, then clear overdue actions.",
+    "Workspace groups verification cases, reviews, evidence and governance activity for one operational context. Start with the queue, then clear overdue actions.",
   trustCase:
-    "Trust cases organize status, reviewer, unresolved signals, linked evidence, governance actions and the next required step.",
+    "Verification cases organize status, reviewer, unresolved flags, linked evidence, governance actions and the next required step.",
   evidence:
     "Evidence uploaded successfully moves the workflow into governance review. Reviewers can approve, request more evidence or escalate.",
   governance:

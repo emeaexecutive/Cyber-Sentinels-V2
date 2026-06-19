@@ -32,13 +32,13 @@ type KnowledgeArticle = {
 };
 
 const faqs = [
-  ["What is a Trust Passport?", "A Trust Passport is a live record that connects a subject to identity, evidence, decisions, signals and audit history."],
+  ["What is a Trust Passport?", "A Trust Passport is a live record that connects a subject to identity, evidence, decisions, flags and audit history."],
   ["What is evidence?", "Evidence is supporting material such as uploaded files, URLs or records used to verify a claim."],
   ["What does verification mean?", "Verification means a claim has been reviewed against evidence and operational context."],
   ["What is a decision?", "A decision records approval, rejection, escalation or review outcome for a trust event."],
-  ["What are signals?", "Signals are activity events that help show how trust changes over time."],
+  ["What are flags?", "Flags highlight activity or risk that may need review as trust changes over time."],
   ["What is an audit trail?", "An audit trail is the record of who did what, when, and why it mattered."],
-  ["What is the Trust Graph?", "The Trust Graph shows how passports, evidence, decisions, signals and audit history connect."],
+  ["What is the Trust Graph?", "The Trust Graph shows how passports, evidence, decisions, flags and audit history connect."],
   ["What is Workforce Trust?", "Workforce Trust applies evidence-backed verification to candidates, contractors and teams."],
   ["What is Intent Verification?", "Intent Verification records why an action is being requested before it moves forward."],
   ["What is Autonomy Governance?", "Autonomy Governance defines what agents and workflows may observe, advise, approve or execute."],
@@ -157,8 +157,21 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
           </p>
         </section>
 
+        <section className="mt-8 rounded-lg border border-dashed border-cyan-800/70 bg-zinc-950 p-6">
+          <p className="text-sm uppercase tracking-[0.22em] text-cyan-200">
+            Explainer Video
+          </p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            Cyber Sentinels in two minutes
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            Video placeholder for a short walkthrough of identity verification,
+            risk flags, governance review, and audit-ready trust trails.
+          </p>
+        </section>
+
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-sm uppercase tracking-[0.22em] text-zinc-500">
+          <p className="text-sm uppercase tracking-[0.22em] text-zinc-400">
             Quick Questions
           </p>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
@@ -167,14 +180,14 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
                 <h2 className="text-base font-semibold text-zinc-100">
                   {question}
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-zinc-500">{answer}</p>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{answer}</p>
               </div>
             ))}
           </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-sm uppercase tracking-[0.22em] text-zinc-500">
+          <p className="text-sm uppercase tracking-[0.22em] text-zinc-400">
             Knowledge Base FAQs
           </p>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -185,19 +198,19 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
                   href={`/knowledge-base?article_id=${encodeURIComponent(article.id)}`}
                   className="rounded-lg border border-zinc-800 bg-black p-5 hover:border-cyan-800"
                 >
-                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-400">
                     {article.category ?? "Knowledge"}
                   </p>
                   <h2 className="mt-3 text-base font-semibold text-zinc-100">
                     {article.title}
                   </h2>
-                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-500">
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-400">
                     {article.summary ?? article.body}
                   </p>
                 </Link>
               ))
             ) : (
-              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500 md:col-span-2 xl:col-span-3">
+              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-400 md:col-span-2 xl:col-span-3">
                 Approved knowledge articles will appear here.
               </p>
             )}
@@ -205,7 +218,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-sm uppercase tracking-[0.22em] text-zinc-500">
+          <p className="text-sm uppercase tracking-[0.22em] text-zinc-400">
             Guided Workflow
           </p>
           <div className="mt-5 grid gap-4 md:grid-cols-3 xl:grid-cols-6">
@@ -215,7 +228,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
                 href={href}
                 className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-800"
               >
-                <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                <p className="text-xs uppercase tracking-[0.18em] text-zinc-400">
                   Step {step}
                 </p>
                 <h2 className="mt-4 font-semibold text-zinc-100">{label}</h2>
@@ -225,7 +238,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-sm uppercase tracking-[0.22em] text-zinc-500">
+          <p className="text-sm uppercase tracking-[0.22em] text-zinc-400">
             Your Questions
           </p>
           <h2 className="mt-2 text-2xl font-semibold">
@@ -251,7 +264,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
                       ? item.answer
                       : "Awaiting a reviewed answer."}
                   </p>
-                  <p className="mt-4 text-xs text-zinc-600">
+                  <p className="mt-4 text-xs text-zinc-400">
                     {item.status === "answered" && item.admin_answered_by
                       ? `Answered by ${item.admin_answered_by}`
                       : "Not answered yet"}
@@ -260,7 +273,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
                 </div>
               ))
             ) : (
-              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500 md:col-span-2">
+              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-400 md:col-span-2">
                 {user
                   ? "No submitted questions yet. Ask a question below to start a traceable help thread."
                   : "Sign in to view your submitted questions and reviewed answers."}
@@ -270,13 +283,13 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-sm uppercase tracking-[0.22em] text-zinc-500">
+          <p className="text-sm uppercase tracking-[0.22em] text-zinc-400">
             Ask a Question
           </p>
           <h2 className="mt-2 text-2xl font-semibold">
             Store a question for human review.
           </h2>
-          <p className="mt-3 text-sm text-zinc-500">
+          <p className="mt-3 text-sm text-zinc-400">
             AI answers will be added in a later release.
           </p>
           {params?.submitted === "1" ? (
@@ -293,7 +306,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
                   required
                   rows={5}
                   placeholder="Ask about passports, evidence, decisions, scores or graph relationships"
-                  className="rounded-lg border border-zinc-800 bg-black px-3 py-2 text-white placeholder:text-zinc-600"
+                  className="rounded-lg border border-zinc-800 bg-black px-3 py-2 text-white placeholder:text-zinc-400"
                 />
               </label>
               <button

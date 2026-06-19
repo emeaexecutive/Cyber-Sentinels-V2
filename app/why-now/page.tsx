@@ -2,28 +2,20 @@ import Link from "next/link";
 
 const sections = [
   [
-    "From software to operational actors",
-    "Software is no longer only a passive tool. AI copilots, machine-driven workflows and agentic systems are beginning to participate in operational decisions.",
+    "AI agents now act inside workflows",
+    "AI systems can screen candidates, handle data and recommend actions. Teams need to know which identity acted and what it was allowed to do.",
   ],
   [
-    "The rise of AI agents",
-    "As AI systems gain permissions, context and workflow responsibility, organizations need clearer ways to understand what acted, what evidence was used and where human oversight remains necessary.",
+    "Synthetic identities are easier to create",
+    "Fake candidates, impersonation attempts and generated credentials can reach enterprise teams before traditional checks expose them.",
   ],
   [
-    "Operational trust gaps",
-    "Identity, evidence, approval and accountability can fragment across tools. Without a trust layer, teams may struggle to explain why a decision happened.",
+    "Reviews are fragmented",
+    "Identity checks, evidence and approvals often sit in different tools. That makes urgent reviews slower and later audits harder to defend.",
   ],
   [
-    "Provenance problems",
-    "Synthetic media, copied credentials and weak source records make provenance a core operational concern rather than a niche security issue.",
-  ],
-  [
-    "Accountability challenges",
-    "AI-assisted workflows can make responsibility harder to trace. Trust infrastructure should preserve a clear record of evidence, review and decision history.",
-  ],
-  [
-    "Governance requirements",
-    "Human oversight, auditability and explainable workflows become foundational as organizations adopt AI-native operations.",
+    "Regulated teams need a decision record",
+    "Security, legal and operations teams need clear risk flags, named human reviews and an audit trail showing how each outcome was reached.",
   ],
 ];
 
@@ -59,10 +51,9 @@ export default function WhyNowPage() {
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <h2 className="text-2xl font-semibold">Why trust infrastructure matters</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Identity, permissions, auditability, provenance, explainability and
-            human oversight are becoming infrastructure layers for AI-native
-            operations. Cyber Sentinels is an early platform direction for that
-            shift.
+            Cyber Sentinels brings identity verification, risk flags, human
+            review and audit trails into one operational workflow before a
+            person or AI agent reaches a critical system.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link

@@ -283,26 +283,17 @@ export default function LoginPage() {
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-start">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs uppercase tracking-[0.22em] text-cyan-200">
-            User Account
+            Account Access
           </p>
           <h1 className="mt-3 text-4xl font-semibold">
-            Create your Cyber Sentinels account
+            Sign in or create an account
           </h1>
           <p className="mt-4 max-w-2xl leading-7 text-zinc-400">
-            Create account or sign in to create Trust Passports, upload
-            evidence and manage your verification securely.
+            Access verification workflows, evidence, and review progress.
           </p>
 
-          <div className="mt-6 grid gap-3 text-sm leading-6 text-zinc-400">
-            <p>Users create passports.</p>
-            <p>Users upload evidence.</p>
-            <p>Users track verification progress.</p>
-            <p>Admins review and approve or reject separately.</p>
-          </div>
-
-          <p className="mt-6 rounded-lg border border-zinc-800 bg-black p-3 text-xs text-zinc-500">
-            Admin access is separate and protected. Normal users continue into
-            the Trust Passport workflow, not Back Office.
+          <p className="mt-6 rounded-lg border border-zinc-800 bg-black p-3 text-xs text-zinc-400">
+            Admin access remains separate and protected.
           </p>
         </section>
 
@@ -383,7 +374,7 @@ export default function LoginPage() {
               <Link href="/" className="text-zinc-400 underline">
                 Back to homepage
               </Link>
-              <Link href="/admin/access" className="text-zinc-600 underline">
+              <Link href="/admin/access" className="text-zinc-400 underline">
                 Admin Access
               </Link>
             </div>

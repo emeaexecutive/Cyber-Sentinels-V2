@@ -65,7 +65,7 @@ function IntelligenceEventCard({ event }: { event: AnyOperationalRow }) {
         <p>{formatIntelligenceDate(event.created_at)}</p>
       </div>
       <p className="mt-3 text-xs leading-5 text-zinc-700">
-        Why: {String(metadata.why_it_exists ?? "This event exists to make workflow health and governance review clear.")}
+        Why: {String(metadata.why_it_exists ?? "This event exists to make review status and governance review clear.")}
       </p>
     </article>
   );
@@ -189,7 +189,7 @@ export default async function TrustOpsPage() {
             ["Unresolved risks", health.unresolvedRisks],
             ["Active escalations", health.activeEscalations],
             ["Pending reviews", health.pendingGovernance],
-            ["Workflow health", health.status],
+            ["Review status", health.status],
             ["Workspaces", workspaces.length],
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">

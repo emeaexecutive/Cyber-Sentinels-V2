@@ -106,11 +106,11 @@ export function buildTrustTrendSummaries(input: {
 
   return [
     {
-      title: "Workflow Health",
+      title: "Review Status",
       summary:
         cases.length > 0
-          ? `${cases.length} trust case${cases.length === 1 ? "" : "s"} are visible across operational workspaces.`
-          : "No trust cases are visible yet.",
+          ? `${cases.length} verification case${cases.length === 1 ? "" : "s"} are visible across operational workspaces.`
+          : "No verification cases are visible yet.",
     },
     {
       title: "Governance Load",
@@ -120,10 +120,10 @@ export function buildTrustTrendSummaries(input: {
           : "No governance action history is visible yet.",
     },
     {
-      title: "Provenance Activity",
+      title: "Audit Trail Activity",
       summary:
         timeline.length > 0
-          ? `${timeline.length} recent timeline event${timeline.length === 1 ? "" : "s"} preserve operational provenance.`
+          ? `${timeline.length} recent timeline event${timeline.length === 1 ? "" : "s"} preserve the audit trail.`
           : "Timeline activity will appear as workflows record evidence, decisions and intelligence events.",
     },
     {

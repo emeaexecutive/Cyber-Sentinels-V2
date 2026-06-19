@@ -125,7 +125,7 @@ export default async function InterviewRiskDashboardPage() {
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Operational review for candidate provenance, recruiter verification,
-            interview risk events and governance escalation. Signals are
+            interview risk events and governance escalation. Flags are
             placeholders for human review, not binary detection outcomes.
           </p>
         </section>
@@ -134,7 +134,7 @@ export default async function InterviewRiskDashboardPage() {
           {[
             ["Pending reviews", String(sessions.filter((item) => ["scheduled", "pending", "in_review"].includes(String(item.session_status ?? item.status ?? ""))).length)],
             ["Escalated sessions", String(escalatedSessions.length)],
-            ["Unresolved signals", String(unresolvedEvents.length + unresolvedSignals.length)],
+            ["Unresolved flags", String(unresolvedEvents.length + unresolvedSignals.length)],
             ["Candidates", String(candidates.length)],
             ["Governance actions", String(sessionGovernance.length)],
           ].map(([label, value]) => (
@@ -168,7 +168,7 @@ export default async function InterviewRiskDashboardPage() {
           </section>
 
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Unresolved Signals</h2>
+            <h2 className="text-xl font-semibold">Unresolved Flags</h2>
             <div className="mt-5 grid gap-3">
               {unresolvedEvents.length ? (
                 unresolvedEvents.slice(0, 10).map((event) => (

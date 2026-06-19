@@ -131,7 +131,7 @@ export function GovernanceOverview({
             Enterprise AI Trust & Governance
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Certification, alerting, AI agent registry and provenance activity
+            Certification, alerting, AI agent registry and audit trail activity
             in one operational review surface. Development mock data appears
             when the new governance tables are empty.
           </p>
