@@ -1,9 +1,10 @@
 import Link from "next/link";
 
 const shifts = [
+  ["From cybersecurity to operational trust", "Security protects infrastructure from compromise. Operational trust explains identity, session context, evidence, authority and accountable review."],
   ["From identity to context", "Knowing who entered a workflow is the beginning. Enterprises must also understand authority, provenance, behaviour and change over time."],
   ["From detection to governance", "A risk signal is not a verdict. It needs evidence, review ownership, escalation and a recorded human outcome."],
-  ["From logs to operational memory", "Auditability means reconstructing the sequence—not searching disconnected systems after trust has already failed."],
+  ["From logs to operational memory", "Auditability means reconstructing the sequence, not searching disconnected systems after trust has already failed."],
   ["From AI tools to AI actors", "Autonomous systems need identity, permissions, policy boundaries and human oversight just as consequential human workflows do."],
 ];
 

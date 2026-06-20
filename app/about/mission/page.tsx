@@ -40,8 +40,14 @@ export default function MissionPage() {
             <p>
               The missing layer was not another detector. It was an operational
               way to connect identity, provenance, evidence, behaviour, review
-              and accountability—then preserve that path for the people who had
+              and accountability, then preserve that path for the people who had
               to defend the decision later.
+            </p>
+            <p>
+              Cybersecurity remains essential. It secures networks, devices and
+              access. But it does not, by itself, preserve the operational context
+              behind a hiring review, a changing session or an AI-assisted action.
+              That is the trust infrastructure gap.
             </p>
           </div>
         </div>
@@ -50,7 +56,7 @@ export default function MissionPage() {
       <section className="mx-auto max-w-6xl px-6 py-20 md:px-8 md:py-24">
         <div className="max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-100">Why Cyber Sentinels exists</p>
-          <h2 className="mt-4 text-4xl font-semibold tracking-[-0.025em] text-white">Trust should be a process—not an assumption.</h2>
+          <h2 className="mt-4 text-4xl font-semibold tracking-[-0.025em] text-white">Trust should be a process, not an assumption.</h2>
           <p className="mt-5 text-base leading-8 text-zinc-300">
             We help enterprises turn uncertain trust questions into evidence-backed,
             human-governed workflows. The outcome is not perfect certainty. It is
@@ -70,7 +76,7 @@ export default function MissionPage() {
       <section className="border-t border-zinc-800 bg-black">
         <div className="mx-auto max-w-6xl px-6 py-20 md:px-8">
           <blockquote className="max-w-4xl text-3xl font-semibold leading-tight tracking-[-0.02em] text-white md:text-5xl">
-            “AI assists. Humans decide. Cyber Sentinels preserves the evidence of how.”
+            AI assists. Humans decide. Cyber Sentinels preserves the evidence of how.
           </blockquote>
           <div className="mt-10 flex flex-wrap gap-3">
             <Link href="/about/future-of-trust" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950">The Future of Trust</Link>

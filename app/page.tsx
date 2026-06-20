@@ -6,16 +6,16 @@ const quietBreaks = [
   ["Synthetic identities", "Profiles and credentials can be assembled faster than teams can verify their origin."],
   ["Autonomous systems", "AI agents can act across workflows before ownership and authority are clear."],
   ["Hiring fraud", "Identity, interview presence and evidence can separate inside a high-stakes decision."],
-  ["Operational trust collapse", "Evidence, review and accountability become fragmented when organizations need them most."],
+  ["Operational trust gaps", "Security controls can protect a system while evidence, review and accountability remain fragmented."],
 ];
 
 const enterpriseClarity = [
-  ["What we protect", "Hiring workflows, workforce identity, sensitive enterprise decisions and AI-agent activity."],
+  ["What we protect", "Hiring workflows, workforce identity, session integrity, sensitive enterprise decisions and governed AI-agent activity."],
   ["Who it is for", "Security, talent, risk, compliance and operations teams responsible for decisions that must stand up to scrutiny."],
   ["Why verification is not enough", "Identity is one signal. Trust also depends on provenance, behaviour, authority, evidence, governance and time."],
 ];
 
-const workflow = ["Verify the identity", "Review the evidence", "Govern the decision", "Retain the audit trail", "Replay what happened"];
+const workflow = ["Verify identity", "Review session evidence", "Govern the decision", "Issue the receipt", "Replay what happened"];
 
 export default function Home() {
   return (
@@ -61,7 +61,7 @@ export default function Home() {
             <p className="mt-5 text-base leading-8 text-zinc-300">
               The systems enterprises relied on were built for a world where
               identity, presence and action usually belonged to the same person.
-              AI changed that assumption—and trust became an operational problem.
+              AI changed that assumption, and trust became an operational problem.
             </p>
           </div>
           <div className="mt-10 grid gap-x-8 gap-y-7 md:grid-cols-2 lg:grid-cols-5">
@@ -82,8 +82,13 @@ export default function Home() {
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.025em] text-white">Identity can be verified. Trust still has to be earned.</h2>
             <p className="mt-5 text-base leading-8 text-zinc-300">
               Cyber Sentinels is the governance and auditability layer around
-              identity verification—not a replacement for it, and never an
+              identity verification, not a replacement for it, and never an
               automatic authority over people.
+            </p>
+            <p className="mt-5 border-t border-zinc-800 pt-5 text-sm leading-7 text-zinc-400">
+              Cybersecurity protects systems and access. Operational trust
+              explains who acted, what evidence existed, how a session changed,
+              who reviewed it and why the outcome can be defended.
             </p>
           </div>
           <div className="grid gap-4">
