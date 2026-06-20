@@ -46,8 +46,8 @@ export default async function DashboardPage() {
               Review active verification work, session-integrity flags, governance decisions, replay history and enterprise receipts.
             </p>
           </div>
-          <Link href="/demo-lab" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black">
-            Run 2-minute demo
+          <Link href="/demo" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black">
+            Run 90-second demo
           </Link>
         </header>
 

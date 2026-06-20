@@ -12,7 +12,7 @@ const publicLinks = [
   ["/enterprise/hiring-security", "Hiring Security"],
   ["/platform", "Platform Overview"],
   ["/pricing", "Pricing"],
-  ["/enterprise/demo-stories", "Demo"],
+  ["/demo", "Demo"],
   ["/governance", "Governance"],
   ["/enterprise-access", "Request Demo"],
   ["/login", "Login"],
@@ -24,7 +24,7 @@ const adminLinks = [
   ["/governance", "Governance"],
   ["/workspace", "Workspaces"],
   ["/trustops", "TrustOps"],
-  ["/enterprise/demo-stories", "Demo Stories"],
+  ["/demo", "Enterprise Demo"],
   ["/enterprise/pilot-setup", "Pilot Setup"],
   ["/admin/launch-control", "Launch Control"],
 ];
