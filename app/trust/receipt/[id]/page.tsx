@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import { StatusBadge } from "@/components/phase-one-trust";
+import { PrintReceiptButton } from "@/components/print-receipt-button";
 import { createClient } from "@/lib/supabase/server";
 import {
   buildTrustPosture,
@@ -70,6 +71,8 @@ export default async function TrustReceiptPage({
     { data: receiptRelationships },
     { data: subjectRelationships },
     { data: auditLogs },
+    { data: sessionIntegrity },
+    { data: riskEvents },
   ] = await Promise.all([
     supabase
       .from("evidence_chains")
@@ -110,6 +113,22 @@ export default async function TrustReceiptPage({
       .eq("event_type", "verification_receipt_issued")
       .order("created_at", { ascending: false })
       .limit(6),
+    receipt.subject_type === "interview_session"
+      ? supabase
+          .from("session_integrity_checks")
+          .select("*")
+          .eq("interview_session_id", receipt.subject_id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    receipt.subject_type === "interview_session"
+      ? supabase
+          .from("interview_risk_events")
+          .select("*")
+          .eq("interview_session_id", receipt.subject_id)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: [] }),
   ]);
 
   const snapshot = (receipt.evidence_snapshot ?? {}) as JsonRecord;
@@ -130,9 +149,31 @@ export default async function TrustReceiptPage({
   const nextReceiptAction = openGovernance.length
     ? "Governance review is still pending. Check the open action before sharing a final outcome."
     : "Share the receipt or replay the workflow if more context is needed.";
+  const injectionEvent = (riskEvents ?? []).find((event) =>
+    /injection/i.test(String(event.signal_type ?? ""))
+  );
+  const latestGovernance = governanceActions?.[0];
+  const identityState =
+    snapshot.identity_verification_state ??
+    sessionIntegrity?.identity_verification_state ??
+    receipt.verification_status ??
+    "pending";
+  const sessionIntegrityState =
+    snapshot.session_integrity_state ??
+    sessionIntegrity?.overall_status ??
+    sessionIntegrity?.integrity_status ??
+    "pending";
+  const injectionRiskState =
+    snapshot.injection_risk_state ??
+    injectionEvent?.risk_reason ??
+    (injectionEvent ? "review required" : "no recorded injection flag");
+  const governanceOutcome =
+    snapshot.governance_review_outcome ??
+    latestGovernance?.action_status ??
+    "pending human review";
 
   return (
-    <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
+    <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white print:bg-white print:px-0 print:py-0 print:text-black md:px-8">
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
@@ -163,8 +204,24 @@ export default async function TrustReceiptPage({
             <div className="flex flex-wrap gap-2">
               <StatusBadge status={receipt.verification_status ?? "pending"} />
               <StatusBadge status={receipt.confidence_level ?? "In Review"} />
+              <PrintReceiptButton />
             </div>
           </div>
+        </section>
+
+        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {[
+            ["Verification completed", receipt.verification_status ? "Recorded" : "Pending"],
+            ["Review completed", latestGovernance ? "Recorded" : "Pending"],
+            ["Replay available", "Available"],
+            ["Receipt generated", "Generated"],
+            ["Evidence retained", (evidenceChains ?? []).length ? "Retained" : "Pending"],
+          ].map(([title, state]) => (
+            <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white">
+              <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+              <p className={`mt-2 text-sm font-semibold ${state === "Pending" ? "text-amber-200 print:text-amber-700" : "text-emerald-200 print:text-emerald-700"}`}>{state}</p>
+            </div>
+          ))}
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -179,6 +236,32 @@ export default async function TrustReceiptPage({
           <DetailRow label="Evidence exists" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} evidence chain(s)` : "No linked evidence chain yet"} />
           <DetailRow label="What is pending" value={openGovernance.length ? `${openGovernance.length} governance action(s)` : "No pending governance action"} />
           <DetailRow label="Requires action" value={openGovernance.length ? "Reviewer decision required" : "No action required"} />
+        </section>
+
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-cyan-300 print:text-zinc-600">
+                Enterprise verification outcome
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">Reviewable verification record</h2>
+            </div>
+            <Link
+              href={`/replay/${receipt.subject_id}`}
+              className="text-sm text-cyan-200 underline print:hidden"
+            >
+              Open verification replay
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <DetailRow label="Identity verification state" value={identityState} />
+            <DetailRow label="Session integrity state" value={sessionIntegrityState} />
+            <DetailRow label="Injection risk state" value={injectionRiskState} />
+            <DetailRow label="Governance review outcome" value={governanceOutcome} />
+          </div>
+          <p className="mt-4 text-sm leading-6 text-zinc-400 print:text-zinc-700">
+            Evidence summary: {(evidenceChains ?? []).length} retained chain(s), {(timeline ?? []).length} timeline event(s), and {(auditLogs ?? []).length} audit reference(s). Reviewer actions remain visible below.
+          </p>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
@@ -365,6 +448,9 @@ export default async function TrustReceiptPage({
           ) : null}
           <Link href="/trust-graph" className="text-sm text-cyan-200 underline">
             Open trust graph
+          </Link>
+          <Link href={`/replay/${receipt.subject_id}`} className="text-sm text-cyan-200 underline">
+            Open verification replay
           </Link>
         </div>
       </div>

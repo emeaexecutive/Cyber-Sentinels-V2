@@ -398,14 +398,15 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             <div className="mt-5 grid gap-3">
               {sessions.length ? (
                 sessions.map((session) => (
-                  <div key={session.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <Link href={`/replay/${session.id}`} key={session.id} className="block rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-800">
                     <p className="text-sm leading-6 text-zinc-300">
                       {session.replay_summary ?? "Replay session"}
                     </p>
                     <p className="mt-3 text-xs text-zinc-600">
                       {session.generated_by ?? "user"} / {formatTimelineDate(session.created_at)}
                     </p>
-                  </div>
+                    <p className="mt-3 text-xs text-cyan-300">Open replay →</p>
+                  </Link>
                 ))
               ) : (
                 <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">

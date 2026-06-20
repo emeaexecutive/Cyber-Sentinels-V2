@@ -84,6 +84,10 @@ export async function generateDemoWorkflow(supabase: DemoClient) {
   await resetDemoWorkspace(supabase);
 
   const now = new Date().toISOString();
+  const demoTime = (minutes: number) =>
+    new Date(new Date(now).getTime() + minutes * 60_000).toISOString();
+  let replaySessionId: string | null = null;
+  let verificationReceiptId: string | null = null;
   const { data: workspace, error: workspaceError } = await supabase
     .from("trust_workspaces")
     .insert({
@@ -116,11 +120,11 @@ export async function generateDemoWorkflow(supabase: DemoClient) {
   const { data: candidate, error: candidateError } = await supabase
     .from("candidate_profiles")
     .insert({
-      full_name: "Maya Chen",
+      full_name: "Maya Chen (Synthetic Demo Candidate)",
       email: "maya.chen.demo@cybersentinels.local",
       role_applied_for: "Principal Security Engineer",
       company_name: "Northstar Demo Group",
-      verification_status: "in_review",
+      verification_status: "partial",
       provenance_status: "partial",
       risk_level: "needs_review",
       metadata: {
@@ -180,33 +184,45 @@ export async function generateDemoWorkflow(supabase: DemoClient) {
     await supabase.from("interview_risk_events").insert([
       {
         interview_session_id: session.id,
-        signal_type: "identity_conflict",
+        signal_type: "identity_verification_partial",
         signal_source: "guided_demo_sample",
         confidence_score: 62,
         risk_reason:
-          "Sample identity context is incomplete and requires human review before a hiring decision.",
-        escalation_required: true,
+          "Synthetic demo candidate supplied partial identity context. Human review is required before any hiring decision.",
+        escalation_required: false,
       },
       {
         interview_session_id: session.id,
-        signal_type: "liveness_pending",
+        signal_type: "interview_injection_risk",
         signal_source: "guided_demo_sample",
-        confidence_score: 20,
-        risk_reason: "Sample liveness step is pending; no detection accuracy is claimed.",
-        escalation_required: false,
+        confidence_score: 87,
+        risk_reason:
+          "Demo-only channel evidence indicates an interview injection attempt. The workflow is escalated for human review; no production detection claim is made.",
+        escalation_required: true,
       },
     ]);
   });
 
   await bestEffort("demo governance action", async () => {
-    await supabase.from("governance_actions").insert({
-      subject_type: "interview_session",
-      subject_id: session.id,
-      action_status: "in_review",
-      resolution_notes:
-        "Demo governance review: verify candidate provenance, inspect evidence and record a human decision.",
-      created_at: now,
-    });
+    await supabase.from("governance_actions").insert([
+      {
+        subject_type: "interview_session",
+        subject_id: session.id,
+        action_status: "escalated",
+        resolution_notes:
+          "Injection risk signal escalated. Reviewer must inspect session evidence before the workflow can continue.",
+        created_at: demoTime(3),
+      },
+      {
+        subject_type: "interview_session",
+        subject_id: session.id,
+        action_status: "rejected",
+        resolution_notes:
+          "Manual review completed. The suspicious interview session was blocked; no hiring judgment was made about the candidate.",
+        resolved_at: demoTime(5),
+        created_at: demoTime(4),
+      },
+    ]);
   });
 
   await bestEffort("demo timeline", async () => {
@@ -220,43 +236,89 @@ export async function generateDemoWorkflow(supabase: DemoClient) {
         actor_type: "guided_demo_mode",
         metadata: demoMetadata,
         severity: "info",
-        created_at: now,
+        created_at: demoTime(0),
       },
       {
         subject_type: "interview_session",
         subject_id: session.id,
-        event_type: "demo_hiring_integrity_review",
-        event_title: "Hiring integrity review started",
+        event_type: "demo_partial_verification",
+        event_title: "Partial identity verification recorded",
         event_summary:
-          "Sample interview workflow created with candidate, recruiter, governance and signal context.",
+          "The synthetic demo candidate completed only part of the identity verification workflow.",
         actor_type: "guided_demo_mode",
         metadata: demoMetadata,
         severity: "review",
-        created_at: now,
+        created_at: demoTime(1),
+      },
+      {
+        subject_type: "interview_session",
+        subject_id: session.id,
+        event_type: "demo_injection_risk_detected",
+        event_title: "Injection risk detected",
+        event_summary: "Demo channel evidence triggered an explainable injection-risk flag.",
+        actor_type: "guided_demo_mode",
+        metadata: demoMetadata,
+        severity: "review",
+        created_at: demoTime(2),
+      },
+      {
+        subject_type: "interview_session",
+        subject_id: session.id,
+        event_type: "demo_governance_escalation",
+        event_title: "Governance escalation opened",
+        event_summary: "The workflow paused and routed the evidence to a human reviewer.",
+        actor_type: "guided_demo_mode",
+        metadata: demoMetadata,
+        severity: "review",
+        created_at: demoTime(3),
+      },
+      {
+        subject_type: "interview_session",
+        subject_id: session.id,
+        event_type: "demo_manual_review_completed",
+        event_title: "Manual review completed",
+        event_summary: "A reviewer inspected identity, session and channel evidence and recorded an accountable action.",
+        actor_type: "human_governance",
+        metadata: demoMetadata,
+        severity: "info",
+        created_at: demoTime(4),
+      },
+      {
+        subject_type: "interview_session",
+        subject_id: session.id,
+        event_type: "demo_threat_blocked",
+        event_title: "Suspicious session blocked",
+        event_summary: "The interview workflow was stopped after human review. This is a session-security outcome, not a candidate trust verdict.",
+        actor_type: "human_governance",
+        metadata: demoMetadata,
+        severity: "info",
+        created_at: demoTime(5),
       },
     ]);
   });
 
   await bestEffort("demo replay", async () => {
-    await supabase.from("trust_replay_sessions").insert({
+    const { data, error } = await supabase.from("trust_replay_sessions").insert({
       subject_type: "interview_session",
       subject_id: session.id,
       replay_summary:
-        "Demo replay reconstructs sample candidate provenance, interview signals, governance review and receipt context.",
+        "Replay available: synthetic candidate, partial verification, injection risk, escalation, manual review and blocked session.",
       generated_by: "guided_demo_mode",
-      created_at: now,
-    });
+      created_at: demoTime(6),
+    }).select("id").single();
+    if (error) throw error;
+    replaySessionId = data?.id ?? null;
   });
 
   await bestEffort("demo trust receipt", async () => {
-    await supabase.from("verification_receipts").insert({
+    const { data, error } = await supabase.from("verification_receipts").insert({
       subject_type: "interview_session",
       subject_id: session.id,
-      receipt_type: "demo_interview_integrity_reviewed",
-      verification_status: "in_review",
-      confidence_level: "Verified with Review",
+      receipt_type: "hiring_security_session_review",
+      verification_status: "threat_blocked_after_review",
+      confidence_level: "Human reviewed",
       receipt_summary:
-        "Sample verification receipt showing how Cyber Sentinels explains evidence, signals and human governance context.",
+        "Manual review completed. A suspicious interview session was blocked after partial identity verification and an injection-risk escalation.",
       evidence_snapshot: {
         ...demoMetadata,
         workspace_id: workspace.id,
@@ -265,9 +327,17 @@ export async function generateDemoWorkflow(supabase: DemoClient) {
         recruiter_profile_id: recruiter.id,
         interview_session_id: session.id,
         human_review: true,
+        identity_verification_state: "partial",
+        session_integrity_state: "blocked_after_review",
+        injection_risk_state: "high_risk_signal_reviewed",
+        governance_review_outcome: "threat_blocked",
+        reviewer_action: "session_blocked_no_candidate_verdict",
+        audit_reference: "demo_manual_review_completed",
       },
-      issued_at: now,
-    });
+      issued_at: demoTime(7),
+    }).select("id").single();
+    if (error) throw error;
+    verificationReceiptId = data?.id ?? null;
   });
 
   await bestEffort("demo evidence chain", async () => {
@@ -326,5 +396,7 @@ export async function generateDemoWorkflow(supabase: DemoClient) {
     candidate_profile_id: candidate.id,
     recruiter_profile_id: recruiter.id,
     interview_session_id: session.id,
+    replay_session_id: replaySessionId,
+    verification_receipt_id: verificationReceiptId,
   };
 }

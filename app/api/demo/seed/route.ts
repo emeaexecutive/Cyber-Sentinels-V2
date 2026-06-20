@@ -278,6 +278,8 @@ export async function POST() {
         evidence_files: 1,
         guided_demo_workspace: guidedDemoRecords?.workspace_id ?? null,
         guided_demo_interview_session: guidedDemoRecords?.interview_session_id ?? null,
+        guided_demo_replay: guidedDemoRecords?.replay_session_id ?? null,
+        guided_demo_receipt: guidedDemoRecords?.verification_receipt_id ?? null,
       },
     });
   } catch {
