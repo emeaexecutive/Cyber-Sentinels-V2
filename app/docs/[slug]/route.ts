@@ -3,6 +3,9 @@ import path from "path";
 import { NextResponse } from "next/server";
 
 const allowedDocs = new Set([
+  "DEMO_VIDEO_SCRIPT.md",
+  "DEMO_VIDEO_STORYBOARD.md",
+  "PILOT_WALKTHROUGH_SCRIPT.md",
   "FOUNDER_DEMO_SCRIPT.md",
   "FOUNDER_OPERATIONAL_NARRATIVES.md",
   "FOUNDER_OPERATIONAL_RHYTHM.md",

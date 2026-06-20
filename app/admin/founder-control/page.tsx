@@ -422,6 +422,15 @@ export default async function FounderControlPage() {
               <a href="/docs/FOUNDER_DEMO_SCRIPT.md" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
                 Founder Demo Script
               </a>
+              <a href="/docs/DEMO_VIDEO_SCRIPT.md" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
+                Demo Video Script
+              </a>
+              <a href="/docs/DEMO_VIDEO_STORYBOARD.md" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
+                Storyboard
+              </a>
+              <a href="/docs/PILOT_WALKTHROUGH_SCRIPT.md" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
+                Pilot Walkthrough
+              </a>
               <Link href="/admin/api-tests" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
                 API Tests
               </Link>
