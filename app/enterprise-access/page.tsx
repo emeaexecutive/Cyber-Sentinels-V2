@@ -1,245 +1,53 @@
-import { FeedbackPrompt, PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
+import Link from "next/link";
+import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 
 export const dynamic = "force-dynamic";
 
-type EnterpriseAccessPageProps = {
-  searchParams?: Promise<{
-    success?: string;
-    error?: string;
-    intent?: string;
-  }>;
-};
-
-export default async function EnterpriseAccessPage({
-  searchParams,
-}: EnterpriseAccessPageProps) {
-  const params = await searchParams;
-  const success = params?.success === "true";
-  const error = params?.error;
-  const designPartnerIntent = params?.intent === "design_partner";
+export default async function EnterpriseAccessPage({ searchParams }: {
+  searchParams?: Promise<{ success?: string; error?: string; intent?: string }>;
+}) {
+  const query = searchParams ? await searchParams : {};
+  const designPartner = query.intent === "design_partner";
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
-      <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_460px] lg:items-start">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            Enterprise Access
-          </p>
+      <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_460px]">
+        <section className="border-b border-zinc-800 pb-10 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-10">
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Enterprise Access</p>
           <PrivateBetaBadge className="mt-4" />
-          <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            {designPartnerIntent
-              ? "Request Design Partner Access"
-              : "Request Cyber Sentinels Enterprise Access"}
-          </h1>
-          <p className="mt-4 max-w-3xl leading-7 text-zinc-400">
-            Tell us which operational workflow you want to make more
-            accountable: approvals, human review, evidence handling,
-            auditability, AI governance or trust event visibility.
-          </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels is evolving through operational collaboration and
-            real-world workflow feedback.
-          </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Pilot onboarding is designed for a first successful workflow within
-            10 minutes: request access, create workspace, upload evidence,
-            trigger governance, generate a verification receipt and review
-            replay.
-          </p>
-          <PrivateBetaNotice className="mt-4 max-w-3xl" />
-          <div className="mt-6 grid gap-3 text-sm text-zinc-400 md:grid-cols-2">
-            {[
-              "Hiring Security",
-              "Enterprise Governance",
-              "Operational Trust",
-              "Evidence Chains",
-              "Replay Timelines",
-              "Human review escalation",
-              "Evidence-backed verification",
-            ].map((item) => (
-              <div
-                key={item}
-                className="rounded-lg border border-zinc-800 bg-black p-4"
-              >
-                {item}
-              </div>
-            ))}
+          <h1 className="mt-4 text-4xl font-semibold md:text-5xl">{designPartner ? "Request Design Partner Access" : "Request Enterprise Access"}</h1>
+          <p className="mt-5 max-w-2xl leading-8 text-zinc-300">Tell us what you need to verify, which workflow is exposed and what human review or audit trail your team requires.</p>
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-400">Identity verification is one signal. Cyber Sentinels adds session integrity, evidence, governance and human review.</p>
+          <PrivateBetaNotice className="mt-6 max-w-2xl" />
+          <div className="mt-8 flex flex-wrap gap-3 text-sm">
+            <Link href="/demo" className="rounded-md border border-zinc-700 px-4 py-2">View Demo</Link>
+            <Link href="/demo/hiring-attack" className="rounded-md border border-cyan-900 px-4 py-2 text-cyan-200">Hiring Attack Demo</Link>
           </div>
         </section>
 
         <section className="rounded-lg border border-zinc-800 bg-black p-6">
-          {success ? (
-            <div className="rounded-lg border border-emerald-900 bg-emerald-950/30 p-4 text-sm text-emerald-100">
-              Thanks &mdash; your request has been received. We are currently
-              onboarding a limited number of early collaborators and operational
-              design partners.
-            </div>
-          ) : null}
-          {success ? <FeedbackPrompt className="mb-4 mt-4" /> : null}
-
-          {error === "required" ? (
-            <div className="mb-4 rounded-lg border border-amber-900 bg-amber-950/30 p-4 text-sm text-amber-100">
-              Please provide your name, work email and company.
-            </div>
-          ) : null}
-
-          {error === "submit_failed" ? (
-            <div className="mb-4 rounded-lg border border-red-900 bg-red-950/30 p-4 text-sm text-red-100">
-              We could not submit your request. Please try again or contact
-              support.
-            </div>
-          ) : null}
-
-          {error === "permission_denied" ? (
-            <div className="mb-4 rounded-lg border border-red-900 bg-red-950/30 p-4 text-sm text-red-100">
-              We could not submit your request. Please try again or contact
-              support.
-            </div>
-          ) : null}
-
-          {error === "service_unavailable" ? (
-            <div className="mb-4 rounded-lg border border-amber-900 bg-amber-950/30 p-4 text-sm text-amber-100">
-              Enterprise access requests are temporarily unavailable. The page
-              is still open, and no sign-in is required.
-            </div>
-          ) : null}
-
-          <form
-            action="/api/enterprise-access"
-            method="post"
-            className="grid gap-4"
-          >
-            <input
-              type="hidden"
-              name="design_partner_interest"
-              value={designPartnerIntent ? "true" : "false"}
-            />
-            <input
-              name="name"
-              placeholder="Name"
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            />
-            <input
-              name="work_email"
-              type="email"
-              placeholder="Work email"
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            />
-            <input
-              name="company"
-              placeholder="Company"
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            />
-            <input
-              name="role"
-              placeholder="Role"
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            />
-            <input
-              name="company_size"
-              placeholder="Company size"
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            />
-            <select
-              name="current_problem_category"
-              defaultValue=""
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            >
-              <option value="" disabled>
-                Operational trust challenge
-              </option>
-              <option value="auditability">
-                Lack of AI auditability
-              </option>
-              <option value="ownership">
-                Unclear ownership/accountability
-              </option>
-              <option value="human_review">
-                Human approval requirements
-              </option>
-              <option value="workflow_governance">
-                Workflow governance concerns
-              </option>
-              <option value="ai_identity">
-                AI identity and permissions
-              </option>
-              <option value="provenance">
-                Evidence and provenance tracking
-              </option>
-              <option value="compliance">
-                Compliance and operational oversight
-              </option>
-              <option value="trust_workflows">
-                Trust and verification workflows
-              </option>
-              <option value="trust_infrastructure">
-                Exploring trust infrastructure
-              </option>
-              <option value="other">Other</option>
-            </select>
-            <input
-              name="current_problem"
-              placeholder="Describe the operational trust problem"
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            />
-            <select
-              name="ai_usage_level"
-              defaultValue=""
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            >
-              <option value="" disabled>
-                AI maturity and oversight need
-              </option>
-              <option value="exploring_ai">
-                Exploring AI adoption
-              </option>
-              <option value="piloting_workflows">
-                Piloting AI-assisted workflows
-              </option>
-              <option value="operational_ai">
-                AI systems are operational internally
-              </option>
-              <option value="governance_required">
-                AI agents/workflows require governance
-              </option>
-              <option value="auditability_critical">
-                Operational auditability is becoming critical
-              </option>
-              <option value="trust_requirements">
-                Trust and oversight requirements are increasing
-              </option>
-            </select>
-            <input
-              name="use_case"
-              placeholder="Use case"
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            />
-            <label className="grid gap-2 text-sm font-medium text-zinc-300">
-              Requirements
-              <textarea
-                name="message"
-                placeholder="Relevant workflow context, review requirements or feedback goals"
-                rows={5}
-                className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-              />
+          {query.success ? <p className="mb-5 rounded-md border border-emerald-900 bg-emerald-950/20 p-4 text-sm text-emerald-100">Your request has been received. We will follow up about pilot fit and next steps.</p> : null}
+          {query.error ? <p className="mb-5 rounded-md border border-amber-900 bg-amber-950/20 p-4 text-sm text-amber-100">Please check the required fields and try again.</p> : null}
+          <form action="/api/enterprise-access" method="post" className="grid gap-4">
+            <input type="hidden" name="design_partner_interest" value={designPartner ? "true" : "false"} />
+            <label className="grid gap-2 text-sm text-zinc-300">Name<input required name="name" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
+            <label className="grid gap-2 text-sm text-zinc-300">Work email<input required name="work_email" type="email" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
+            <label className="grid gap-2 text-sm text-zinc-300">Company<input required name="company" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
+            <label className="grid gap-2 text-sm text-zinc-300">
+              AI, hiring or security concern
+              <select name="current_problem_category" defaultValue="" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white">
+                <option value="" disabled>Select the closest concern</option>
+                <option value="hiring_security">Synthetic applicants and hiring security</option>
+                <option value="session_integrity">Session integrity and injected feeds</option>
+                <option value="ai_identity">AI agents and digital identity</option>
+                <option value="auditability">Evidence and audit trails</option>
+                <option value="human_review">Governance and human review</option>
+                <option value="other">Other</option>
+              </select>
             </label>
-            <button
-              type="submit"
-              className="rounded-xl bg-white p-4 font-semibold text-black hover:bg-cyan-100"
-            >
-              {designPartnerIntent
-                ? "Request Design Partner Access"
-                : "Request Enterprise Access"}
-            </button>
+            <label className="grid gap-2 text-sm text-zinc-300">Requirements<textarea name="message" rows={5} placeholder="Workflow, evidence, review or pilot requirements" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
+            <button className="rounded-lg bg-white p-3 font-semibold text-black hover:bg-cyan-100">Request Enterprise Access</button>
           </form>
-          {!designPartnerIntent ? (
-            <a
-              href="/enterprise-access?intent=design_partner"
-              className="mt-4 inline-flex text-sm font-semibold text-cyan-200 hover:text-white"
-            >
-              Request Design Partner Access
-            </a>
-          ) : null}
         </section>
       </div>
     </main>

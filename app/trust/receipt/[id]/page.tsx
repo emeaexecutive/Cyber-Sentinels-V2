@@ -152,6 +152,9 @@ export default async function TrustReceiptPage({
   const injectionEvent = (riskEvents ?? []).find((event) =>
     /injection/i.test(String(event.signal_type ?? ""))
   );
+  const deepfakeEvent = (riskEvents ?? []).find((event) =>
+    /deepfake|synthetic_media/i.test(String(event.signal_type ?? ""))
+  );
   const latestGovernance = governanceActions?.[0];
   const identityState =
     snapshot.identity_verification_state ??
@@ -167,6 +170,10 @@ export default async function TrustReceiptPage({
     snapshot.injection_risk_state ??
     injectionEvent?.risk_reason ??
     (injectionEvent ? "review required" : "no recorded injection flag");
+  const deepfakeRiskState =
+    snapshot.deepfake_risk_state ??
+    deepfakeEvent?.risk_reason ??
+    (deepfakeEvent ? "review required" : "no recorded deepfake flag");
   const governanceOutcome =
     snapshot.governance_review_outcome ??
     latestGovernance?.action_status ??
@@ -253,9 +260,10 @@ export default async function TrustReceiptPage({
               Open verification replay
             </Link>
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
             <DetailRow label="Identity verification state" value={identityState} />
             <DetailRow label="Session integrity state" value={sessionIntegrityState} />
+            <DetailRow label="Deepfake risk state" value={deepfakeRiskState} />
             <DetailRow label="Injection risk state" value={injectionRiskState} />
             <DetailRow label="Governance review outcome" value={governanceOutcome} />
           </div>
