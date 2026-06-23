@@ -15,7 +15,7 @@ export default function DemoPage() {
         <section className="border-b border-zinc-800 pb-12">
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Enterprise Demo</p>
           <h1 className="mt-4 max-w-5xl text-4xl font-semibold tracking-tight md:text-6xl">
-            Organizations can no longer confidently verify who — or what — is entering critical workflows.
+            Organizations can no longer confidently verify who or what is entering critical workflows.
           </h1>
           <p className="mt-6 max-w-3xl leading-8 text-zinc-400">
             See how Cyber Sentinels connects verification workflows, session integrity,
@@ -29,13 +29,13 @@ export default function DemoPage() {
             <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">90-second walkthrough</p>
             <h2 className="mt-3 text-2xl font-semibold">Hiring Attack</h2>
             <p className="mt-3 text-sm leading-7 text-zinc-400">Follow a synthetic candidate from intake through injection-risk detection, governance escalation, session block and receipt.</p>
-            <p className="mt-5 text-sm font-semibold text-cyan-200">Start demo →</p>
+            <p className="mt-5 text-sm font-semibold text-cyan-200">Start demo</p>
           </Link>
           <Link href="/demo/session-integrity" className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 hover:border-cyan-500">
             <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">90-second walkthrough</p>
             <h2 className="mt-3 text-2xl font-semibold">Session Integrity</h2>
             <p className="mt-3 text-sm leading-7 text-zinc-400">See why identity verification alone is insufficient when channel evidence and session risk change after entry.</p>
-            <p className="mt-5 text-sm font-semibold text-cyan-200">Start demo →</p>
+            <p className="mt-5 text-sm font-semibold text-cyan-200">Start demo</p>
           </Link>
         </section>
 

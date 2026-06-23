@@ -516,6 +516,7 @@ function providerChecks() {
   const stripe = provider("Stripe");
   const openai = provider("OpenAI");
   const worldId = provider("World ID");
+  const hopae = provider("Hopae Connect");
   const email = provider("Email");
 
   return [
@@ -536,6 +537,12 @@ function providerChecks() {
       "World ID configured or safely disabled",
       worldId?.status === "configured" ? "PASS" : "WARNING",
       worldId?.status === "configured" ? "World ID is configured." : "World ID not configured yet."
+    ),
+    check(
+      "Identity Providers",
+      "Hopae Connect configured or safely disabled",
+      hopae?.status === "configured" ? "PASS" : "WARNING",
+      hopae?.status === "configured" ? "Hopae Connect is configured." : "Hopae Connect is optional and safely disabled."
     ),
     check(
       "Communications",
