@@ -6,11 +6,11 @@ export const dynamic = "force-dynamic";
 const capabilities = [
   [
     "Candidate Verification",
-    "Review candidate records, submitted evidence, profile details and hiring workflow status before a decision moves forward.",
+    "Review candidate records, submitted evidence, profile details and workflow status before a decision moves forward.",
   ],
   [
     "Interview Integrity",
-    "Keep interview notes, assessment records, flags and reviewer actions together for a clear operational review.",
+    "Keep interview notes, session-integrity checks, flags and reviewer actions together for a clear operational review.",
   ],
   [
     "Synthetic Applicant Defense",
@@ -57,11 +57,13 @@ const riskExamples = [
   ],
 ];
 const workflow = [
-  "Open a hiring security workspace.",
-  "Upload candidate, recruiter and interview evidence.",
-  "Review active flags and missing information.",
-  "Escalate the case for governance review when needed.",
-  "Generate a verification receipt and replay the audit trail.",
+  "Fake applicant enters the hiring workflow.",
+  "Verification begins across candidate, recruiter and interview context.",
+  "Session integrity fails because channel evidence changes.",
+  "Governance review opens with reviewer ownership.",
+  "Replay evidence is generated from recorded workflow state.",
+  "The threat is blocked by human-governed action.",
+  "A verification receipt is issued for audit review.",
 ];
 
 export default function HiringSecurityPage() {
@@ -79,9 +81,7 @@ export default function HiringSecurityPage() {
             Protect enterprise hiring workflows against synthetic trust attacks.
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-300">
-            Cyber Sentinels helps teams verify candidates, protect interview
-            integrity, review evidence, manage governance actions and preserve
-            audit trails for sensitive hiring decisions.
+            Hiring Security is the clearest entry point for Operational Trust Infrastructure: fake applicants, proxy interviews, AI-assisted hiring fraud and injected sessions become reviewable workflows with evidence, governance, replay and receipts.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
@@ -125,7 +125,7 @@ export default function HiringSecurityPage() {
             Hiring attacks become reviewable workflows.
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            The product does not ask teams to trust a black-box authenticity claim. It shows what changed, what evidence exists, whether liveness, deepfake risk and injection risk are separate concerns, who reviewed it and whether governance escalation is required.
+            The product does not ask teams to trust a black-box authenticity claim. It shows what changed, what evidence exists, whether liveness, deepfake risk and injection risk are separate concerns, who reviewed it, whether governance escalation is required and where replay evidence is available.
           </p>
           <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {riskExamples.map(([title, body]) => (
@@ -151,7 +151,7 @@ export default function HiringSecurityPage() {
               Pilot Workflow
             </p>
             <h2 className="mt-3 text-3xl font-semibold">
-              From evidence upload to verification receipt.
+              From fake applicant to verification receipt.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
               The hiring security pilot is intentionally simple so enterprise

@@ -2,14 +2,12 @@ import { InteractiveDemoScenario, type DemoScenarioStep } from "@/components/int
 
 const steps: DemoScenarioStep[] = [
   { title: "Synthetic candidate enters", state: "Intake recorded", explanation: "A clearly labelled synthetic applicant enters a remote hiring workflow with a convincing profile and incomplete provenance.", evidence: "Candidate profile, application source and declared identity context." },
-  { title: "Verification initiated", state: "Verification active", explanation: "Cyber Sentinels opens a verification workflow instead of treating the application as trusted by default.", evidence: "Verification request, workflow owner and initiation timestamp." },
-  { title: "Session checks triggered", state: "Checks running", explanation: "Identity, liveness, media risk, channel integrity and session anomalies remain separate review states.", evidence: "Session-check configuration and evidence-source references." },
-  { title: "Injection risk detected", state: "Flag raised", explanation: "The interview channel produces an injection-risk signal consistent with an externally supplied video feed.", evidence: "Signal category, source, confidence context and explanation." },
-  { title: "Governance review opened", state: "Review required", explanation: "The workflow pauses and routes the signal, identity context and session evidence to accountable human review.", evidence: "Governance action, reviewer assignment and escalation reason." },
-  { title: "Audit trail generated", state: "Audit available", explanation: "Every material workflow transition becomes visible in an ordered operational history.", evidence: "Timeline events, actor context and audit references linked to the session." },
-  { title: "Manual review escalated", state: "Human decision", explanation: "A reviewer examines the partial verification, session evidence and injection-risk flag before acting.", evidence: "Reviewer action, supporting evidence and resolution notes." },
+  { title: "Verification begins", state: "Verification active", explanation: "Cyber Sentinels opens a verification workflow instead of treating the application as trusted by default.", evidence: "Verification request, workflow owner and initiation timestamp." },
+  { title: "Session integrity fails", state: "Flag raised", explanation: "The interview channel produces an injection-risk signal consistent with an externally supplied video feed.", evidence: "Signal category, source, confidence context and channel evidence." },
+  { title: "Governance review opens", state: "Review required", explanation: "The workflow pauses and routes identity context, session evidence and the injection-risk signal to accountable human review.", evidence: "Governance action, reviewer assignment and escalation reason." },
+  { title: "Replay evidence generated", state: "Chronology ready", explanation: "Every material transition becomes visible in an ordered history that a reviewer can replay without rewriting events.", evidence: "Timeline events, actor context, signal records and audit references." },
   { title: "Threat blocked", state: "Session blocked", explanation: "The suspicious interview session is stopped without making an automated judgment about candidate worth.", evidence: "Block action, human authority, timestamp and operational rationale." },
-  { title: "Receipt issued", state: "Review complete", explanation: "An enterprise receipt summarizes what was verified, what failed, who reviewed it and where replay is available.", evidence: "Verification receipt, evidence summary, audit references and replay link." },
+  { title: "Verification receipt issued", state: "Review complete", explanation: "An enterprise receipt summarizes what was verified, what failed, who reviewed it and where replay is available.", evidence: "Verification receipt, evidence summary, audit references and replay link." },
 ];
 
 export default function HiringAttackDemoPage() {

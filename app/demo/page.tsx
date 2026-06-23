@@ -15,6 +15,16 @@ const proofLinks = [
   ["/dashboard/trust-posture", "Trust Posture", "Monitor context shifts and reverification due states."],
 ];
 
+const demoSequence = [
+  "Fake candidate enters workflow",
+  "Verification begins",
+  "Session integrity fails",
+  "Governance review opens",
+  "Replay evidence generated",
+  "Threat blocked",
+  "Verification receipt issued",
+];
+
 export default function DemoPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -25,7 +35,7 @@ export default function DemoPage() {
             A guided walkthrough for hiring security, session integrity and governance review.
           </h1>
           <p className="mt-6 max-w-3xl leading-8 text-zinc-200">
-            See how Cyber Sentinels connects verification workflows, session integrity, evidence, flags, human review, audit history, verification receipts and replay evidence.
+            In under 90 seconds, see how Cyber Sentinels connects verification workflows, session integrity, evidence, flags, human review, audit history, verification receipts and replay evidence.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href="/demo/hiring-attack" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-200">Start Hiring Security Demo</Link>
@@ -57,6 +67,19 @@ export default function DemoPage() {
               <p className="mt-2 text-sm leading-6 text-zinc-300">{copy}</p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-12 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Demo sequence</p>
+          <h2 className="mt-3 text-2xl font-semibold text-white">The full workflow at a glance.</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-7">
+            {demoSequence.map((step, index) => (
+              <div key={step} className="border-t border-zinc-700 pt-4">
+                <p className="text-xs font-semibold text-cyan-200">{index + 1}</p>
+                <p className="mt-2 text-sm font-semibold leading-5 text-zinc-100">{step}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-12 rounded-lg border border-zinc-800 bg-black p-6">
