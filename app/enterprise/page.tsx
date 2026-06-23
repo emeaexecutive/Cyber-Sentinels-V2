@@ -37,8 +37,11 @@ export default function EnterprisePage() {
             <Link href="/enterprise/demo-stories" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
               Demo Stories
             </Link>
-            <Link href="/enterprise/pilot-setup" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white">
-              Pilot Setup
+            <Link href="/enterprise/pilot" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white">
+              Enterprise Pilot
+            </Link>
+            <Link href="/design-partner" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white">
+              Become a Design Partner
             </Link>
           </div>
         </section>
@@ -77,10 +80,10 @@ export default function EnterprisePage() {
             Request Enterprise Access
           </Link>
           <Link
-            href="/enterprise/pilot-setup"
+            href="/enterprise/pilot"
             className="ml-3 mt-5 inline-flex rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400"
           >
-            Create Pilot Workspace
+            View Pilot Structure
           </Link>
         </section>
       </div>
