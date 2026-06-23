@@ -196,13 +196,11 @@ export default async function TrustReceiptPage({
                   "Explainable verification receipt recorded for operational governance review."}
               </p>
               <p className="mt-3 max-w-3xl rounded-lg border border-emerald-900 bg-black p-3 text-sm leading-6 text-emerald-100">
-                Verification receipt available. {nextReceiptAction}
+                Trust changed quietly. Verification receipt available. {nextReceiptAction}
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-                Cyber Sentinels creates explainable verification receipts and
-                operational trust evidence chains. Receipts preserve review
-                context; they are not blockchain records or automatic trust
-                decisions.
+                Cyber Sentinels creates printable, export-ready verification receipts and
+                operational trust evidence chains. Receipts preserve evidence summaries, audit references, reviewer actions and governance chronology; they are not blockchain records or automatic trust decisions.
               </p>
               <div className="mt-5 max-w-3xl">
                 <OnboardingHint area="receipt" />
@@ -212,6 +210,7 @@ export default async function TrustReceiptPage({
               <StatusBadge status={receipt.verification_status ?? "pending"} />
               <StatusBadge status={receipt.confidence_level ?? "In Review"} />
               <PrintReceiptButton />
+              <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-400 print:hidden">Save as PDF from print</span>
             </div>
           </div>
         </section>
@@ -252,6 +251,9 @@ export default async function TrustReceiptPage({
                 Enterprise verification outcome
               </p>
               <h2 className="mt-2 text-xl font-semibold">Reviewable verification record</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400 print:text-zinc-700">
+                Enterprise proof stays readable: what was checked, where the session changed, which evidence is attached, who reviewed the case and what remains pending.
+              </p>
             </div>
             <Link
               href={`/replay/${receipt.subject_id}`}
@@ -363,7 +365,7 @@ export default async function TrustReceiptPage({
           </section>
 
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Verification Timeline</h2>
+            <h2 className="text-xl font-semibold">Verification Chronology</h2>
             <div className="mt-5 grid gap-3">
               {(timeline ?? []).length ? (
                 (timeline ?? []).map((event) => (
@@ -382,7 +384,7 @@ export default async function TrustReceiptPage({
           </section>
 
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Governance State</h2>
+            <h2 className="text-xl font-semibold">Reviewer Actions</h2>
             <div className="mt-5 grid gap-3">
               {(governanceActions ?? []).length ? (
                 (governanceActions ?? []).map((action) => (
@@ -392,7 +394,7 @@ export default async function TrustReceiptPage({
                       <StatusBadge status={action.action_status ?? "pending"} />
                     </div>
                     <p className="mt-2 text-sm leading-6 text-zinc-500">
-                      {action.resolution_notes ?? "Human governance action remains reviewable."}
+                      {action.resolution_notes ?? action.action_type ?? "Human governance action remains reviewable."}
                     </p>
                   </article>
                 ))

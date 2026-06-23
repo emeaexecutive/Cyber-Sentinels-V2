@@ -30,6 +30,32 @@ const capabilities = [
   ],
 ];
 
+const riskExamples = [
+  [
+    "Synthetic applicants",
+    "A candidate profile looks complete, but submitted identity evidence, employment history and interview behavior do not line up. Cyber Sentinels separates identity confidence from session integrity so reviewers can request evidence before the process advances.",
+  ],
+  [
+    "Proxy interviews",
+    "The person in the interview may not match the verified candidate context. Reviewer notes, liveness checks, voice/video consistency and escalation history stay attached to the same hiring workflow.",
+  ],
+  [
+    "Injected interview feeds",
+    "A screen, camera or audio channel shows signs of manipulation. Injection risk becomes an active flag, not a hidden score, and the case can move into governance review.",
+  ],
+  [
+    "Session integrity failures",
+    "The meeting can continue as an interview record while the trust state changes. Teams see what failed, what remains usable, and what needs reverification.",
+  ],
+  [
+    "Voice/video mismatch",
+    "A mismatch between claimed identity, voice pattern, video continuity or device context is preserved as evidence for human review instead of becoming an automatic rejection.",
+  ],
+  [
+    "Governance escalation",
+    "High-risk signals open a reviewer-owned decision path with evidence, chronology, receipt and replay references available for audit.",
+  ],
+];
 const workflow = [
   "Open a hiring security workspace.",
   "Upload candidate, recruiter and interview evidence.",
@@ -91,6 +117,25 @@ export default function HiringSecurityPage() {
           </Link>
         </section>
 
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
+            Operational Examples
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold">
+            Hiring attacks become reviewable workflows.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            The product does not ask teams to trust a black-box authenticity claim. It shows what changed, what evidence exists, who reviewed it and whether governance escalation is required.
+          </p>
+          <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {riskExamples.map(([title, body]) => (
+              <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <h3 className="font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {capabilities.map(([title, body]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">

@@ -217,6 +217,8 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
     decisions,
     auditLogs,
     relationships,
+    sessionIntegrity,
+    riskEvents,
     sessions,
   ] = await Promise.all([
     fetchRows(supabase, "trust_timeline_events", "*", 200),
@@ -225,6 +227,8 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
     fetchRows(supabase, "decisions", "*", 120),
     fetchRows(supabase, "audit_logs", "*", 160),
     fetchRows(supabase, "trust_relationships", "*", 120),
+    fetchRows(supabase, "session_integrity_checks", "*", 120),
+    fetchRows(supabase, "interview_risk_events", "*", 120),
     fetchRows(supabase, "trust_replay_sessions", "*", 20) as Promise<ReplaySession[]>,
   ]);
   const aiSummaries = auditLogs.filter((row) =>
@@ -275,7 +279,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             point in time.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-            Replay is immutable and read-only. It never deletes historical trust
+            Trust changed quietly. Replay is immutable and read-only. It never deletes historical trust
             events, overwrites governance history, or mutates audit trails. AI
             may summarize replay context later, but AI does not rewrite
             operational history.
@@ -331,12 +335,13 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
           </form>
         </section>
 
-        <section className="mt-8 grid gap-3 md:grid-cols-4">
+        <section className="mt-8 grid gap-3 md:grid-cols-5">
           {[
             ["Evidence", snapshot.evidence.length],
             ["Decisions", snapshot.decisions.length],
             ["Signals", snapshot.signals.length],
             ["Relationships", snapshot.relationships.length],
+            ["Session Events", sessionIntegrity.length + riskEvents.length],
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-sm text-zinc-500">{label}</p>
@@ -382,7 +387,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
               {snapshot.posture.reverificationRecommended ? "Reverification recommended" : "Current posture reviewable"}
             </span>
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-4">
+          <div className="mt-5 grid gap-3 md:grid-cols-5">
             {snapshot.posture.continuityChecks.map((check) => (
               <div key={check} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-zinc-300">
                 {check}
@@ -393,6 +398,22 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           <TimelineReplay events={snapshot.timelineEvents} />
+          <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Replay Proof Chain</h2>
+            <div className="mt-5 grid gap-3">
+              {[
+                ["Verification chronology", snapshot.timelineEvents.length ? "Timeline events preserve the order of workflow changes." : "No timeline events in this replay window."],
+                ["Session events", sessionIntegrity.length + riskEvents.length ? "Session integrity and risk events are visible for review." : "No session events in this replay window."],
+                ["Escalation history", snapshot.decisions.length ? "Governance decisions and reviewer actions are preserved." : "No governance decisions in this replay window."],
+                ["Evidence chain", snapshot.evidence.length ? "Evidence records can be reviewed beside decisions and audit history." : "No evidence records in this replay window."],
+              ].map(([title, copy]) => (
+                <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <p className="font-medium text-zinc-100">{title}</p>
+                  <p className="mt-2 text-sm leading-6 text-zinc-500">{copy}</p>
+                </div>
+              ))}
+            </div>
+          </section>
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Replay Sessions</h2>
             <div className="mt-5 grid gap-3">
@@ -405,7 +426,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
                     <p className="mt-3 text-xs text-zinc-600">
                       {session.generated_by ?? "user"} / {formatTimelineDate(session.created_at)}
                     </p>
-                    <p className="mt-3 text-xs text-cyan-300">Open replay →</p>
+                    <p className="mt-3 text-xs text-cyan-300">Open replay &gt;</p>
                   </Link>
                 ))
               ) : (
@@ -432,6 +453,11 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             title="Signals"
             rows={snapshot.signals}
             empty="No signals existed in this replay window."
+          />
+          <ReplayList
+            title="Session Integrity"
+            rows={[...sessionIntegrity, ...riskEvents]}
+            empty="No session integrity or interview risk events existed in this replay window."
           />
           <ReplayList
             title="Audit History"
