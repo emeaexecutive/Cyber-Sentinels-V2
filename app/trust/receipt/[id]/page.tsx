@@ -274,6 +274,34 @@ export default async function TrustReceiptPage({
           </p>
         </section>
 
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5 print:border-zinc-300 print:bg-white">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-cyan-300 print:text-zinc-600">
+                Enterprise export checklist
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">Audit-friendly receipt package</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400 print:text-zinc-700">
+                Before sharing this receipt, confirm the reviewer action, evidence summary, replay reference and pending governance state are clear enough for security, talent and compliance stakeholders.
+              </p>
+            </div>
+            <PrintReceiptButton />
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["Governance-focused", latestGovernance ? "Reviewer action recorded" : "Reviewer action pending"],
+              ["Replay-linked", `Replay route: /replay/${receipt.subject_id}`],
+              ["Evidence summary", `${(evidenceChains ?? []).length} evidence chain(s), ${(timeline ?? []).length} timeline event(s)`],
+              ["Audit references", `${(auditLogs ?? []).length} receipt audit log(s)`],
+            ].map(([title, value]) => (
+              <div key={title} className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 print:border-zinc-300 print:bg-white">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-300 print:text-zinc-700">{value}</p>
+              </div>
+            ))}
+          </div>
+        </section>
         <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
