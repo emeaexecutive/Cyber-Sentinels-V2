@@ -60,9 +60,7 @@ export default function VerifySessionPage() {
             Review session and channel integrity signals
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Record liveness, deepfake risk, injection risk, channel integrity,
-            and session anomalies separately. No single check confirms identity
-            or trust, and verification flags remain subject to human review.
+            Record liveness, deepfake risk, injection risk, channel integrity and session anomalies separately. Identity verification is no longer enough, and every flag remains subject to human review.
           </p>
         </section>
 

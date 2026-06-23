@@ -27,9 +27,7 @@ export default async function SessionIntegrityDashboardPage() {
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">Session Integrity</p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">Session Integrity Review Dashboard</h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Review liveness, deepfake risk, injection risk, device and channel
-            integrity, and session anomaly flags as separate evidence. Human
-            reviewers retain the decision.
+            Identity verification is no longer enough. Review liveness, deepfake risk, injection risk, device and channel integrity, and session anomaly flags as separate evidence. Human reviewers retain the decision.
           </p>
           <Link href="/verify/session" className="mt-5 inline-flex rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">Record session review</Link>
         </section>

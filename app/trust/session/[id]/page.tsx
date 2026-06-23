@@ -48,9 +48,7 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">Session Trust Review</p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">{session.title ?? `Session ${id}`}</h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Identity verification and session integrity are separate review states.
-            A verified candidate can still have channel integrity evidence or
-            verification flags that require manual review.
+            Identity verification, liveness, deepfake risk, injection risk and session integrity are separate review states. A verified candidate can still have channel integrity evidence or verification flags that require manual review.
           </p>
         </section>
 
@@ -70,8 +68,7 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="text-2xl font-semibold">Separate verification signals</h2>
           <p className="mt-3 text-sm leading-6 text-zinc-400">
-            Each state is explainable and reviewable. Liveness alone does not
-            establish identity, hiring integrity, or overall trust.
+            Each state is explainable and reviewable. Liveness alone does not establish identity, hiring integrity, continuous trust posture or overall trust.
           </p>
           <div className="mt-5">
             {signals.length ? <SessionSignalCards signals={signals} /> : <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-400">No session integrity review has been recorded yet.</p>}

@@ -125,7 +125,7 @@ export default function HiringSecurityPage() {
             Hiring attacks become reviewable workflows.
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            The product does not ask teams to trust a black-box authenticity claim. It shows what changed, what evidence exists, who reviewed it and whether governance escalation is required.
+            The product does not ask teams to trust a black-box authenticity claim. It shows what changed, what evidence exists, whether liveness, deepfake risk and injection risk are separate concerns, who reviewed it and whether governance escalation is required.
           </p>
           <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {riskExamples.map(([title, body]) => (

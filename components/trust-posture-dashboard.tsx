@@ -69,9 +69,7 @@ export function TrustPostureDashboard({
                 {enterprise ? "Trust Posture Operations" : "Active Trust Posture"}
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Verification is a point-in-time record. This view keeps context
-                changes, session integrity, reverification and human governance
-                visible as operational trust evolves.
+                Identity verification is a point-in-time record. This view keeps context changes, session integrity, reverification and human governance visible as operational trust evolves across humans, machines and AI agents.
               </p>
             </div>
             <TrustPostureBadge value={snapshot.badge} />

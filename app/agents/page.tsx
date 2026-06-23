@@ -40,10 +40,7 @@ export default function AgentsPage() {
             AI Agent Identity
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
-            AI systems are evolving from passive assistants into operational
-            actors. Cyber Sentinels is exploring AI-native governance
-            infrastructure for agent identity, signed operational actions,
-            provenance and governance visibility.
+            AI systems are evolving from passive assistants into operational actors. Cyber Sentinels treats AI agent identity and authorization lineage as staged roadmap work tied to governance, provenance and accountable ownership.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
             Cyber Sentinels does not replace human governance or operational
@@ -62,10 +59,7 @@ export default function AgentsPage() {
               Governed AI workflow layer
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-400">
-              This is a strategic direction layer, not a full agent control
-              platform. The near-term goal is to prepare the
-              trust model for organization-owned agents, signed activity and
-              human-to-agent accountability.
+              This is a strategic direction layer, not a full agent control platform. The near-term goal is to align organization-owned agents, signed activity, authorization lineage and human-to-agent accountability without overbuilding runtime control.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {accountabilityLinks.map((item) => (

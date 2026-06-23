@@ -126,9 +126,7 @@ export default async function InterviewRiskDashboardPage() {
             Hiring Security Review Dashboard
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Operational review for candidate provenance, recruiter verification,
-            interview risk events and governance escalation. Flags are
-            placeholders for human review, not binary detection outcomes.
+            Operational review for synthetic applicants, proxy interviews, stolen identities, AI-assisted interview fraud, recruiter verification and governance escalation. Flags are placeholders for human review, not binary detection outcomes.
           </p>
         </section>
 
@@ -152,10 +150,7 @@ export default async function InterviewRiskDashboardPage() {
             <div>
               <h2 className="text-xl font-semibold">Session Integrity Review</h2>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
-                Candidate identity and liveness are not the same as session
-                integrity. A candidate may be verified while injection risk,
-                channel integrity evidence, or session anomalies still require
-                human review.
+                Candidate identity, liveness, deepfake risk and injection risk are not the same state. A candidate may be verified while channel integrity evidence or session anomalies still require human review.
               </p>
             </div>
             <Link href="/dashboard/session-integrity" className="text-sm text-cyan-200 underline">

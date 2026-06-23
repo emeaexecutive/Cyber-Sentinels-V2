@@ -32,10 +32,7 @@ export default async function AgentTrustPage({ params }: AgentTrustPageProps) {
             {readableId}
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            This page previews a future operational trust layer for
-            organization-owned AI agents. It is intentionally lightweight and
-            does not provide runtime control, delegated permissions or agent
-            execution.
+            This page previews a staged operational trust layer for organization-owned AI agents and authorization lineage. It is intentionally lightweight and does not provide runtime control, delegated permissions or agent execution.
           </p>
         </section>
 
@@ -62,9 +59,7 @@ export default async function AgentTrustPage({ params }: AgentTrustPageProps) {
           <div className="rounded-lg border border-zinc-800 bg-black p-6">
             <h2 className="text-2xl font-semibold">Operational Provenance</h2>
             <p className="mt-4 text-sm leading-7 text-zinc-400">
-              Future agent activity should be linked to signed operational
-              actions, evidence context, governance workflows and accountable
-              human ownership.
+              Future agent activity should be linked to signed operational actions, authorization lineage, evidence context, governance workflows and accountable human ownership.
             </p>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-black p-6">
