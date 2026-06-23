@@ -133,7 +133,7 @@ export async function POST(req: Request) {
     const turnstile = await verifyTurnstileToken(getTurnstileTokenFromForm(formData), getClientIp(req));
 
     if (!turnstile.ok) {
-      return enterpriseAccessErrorResponse("Bot protection check failed. Please refresh and try again.", 400);
+      return enterpriseAccessErrorResponse("Security check failed. Please try again.", 400);
     }
 
     const payload = buildEnterpriseAccessPayload(formData);

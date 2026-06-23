@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 
     if (!turnstile.ok) {
       return NextResponse.json(
-        { ok: false, error: "Bot protection check failed. Please refresh and try again." },
+        { ok: false, error: "Security check failed. Please try again." },
         { status: 400 }
       );
     }

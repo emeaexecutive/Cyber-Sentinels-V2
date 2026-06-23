@@ -17,7 +17,7 @@ Protected areas include:
 
 The `/verify-email` page explains:
 
-> Please verify your email address before continuing.
+> Please verify your email before continuing.
 
 ## Email Verification Copy
 
@@ -78,7 +78,7 @@ Protected public forms collect a Turnstile token when a public site key is confi
 
 Invalid or missing configured-provider tokens return a safe error message:
 
-> Bot protection check failed. Please refresh and try again.
+> Security check failed. Please try again.
 
 Provider error details and secrets are not exposed to users.
 
@@ -98,9 +98,9 @@ A persistent store can replace the fallback later without changing the public fo
 
 `/admin/runtime-validation` and `/admin/deployment-readiness` show:
 
-- Email verification configured
-- Turnstile configured / not configured
-- Public form protection status
-- Login/signup attempt throttling status
+- Email verification
+- Bot protection
+- Rate limiting
+- Public forms protected
 
 Missing Turnstile is a warning so pilot environments remain usable while production configuration is completed.

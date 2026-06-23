@@ -101,7 +101,7 @@ export default function LoginPage() {
 
   function allowAuthAttempt(action: string) {
     if (turnstileSiteKey && !turnstileToken) {
-      setMessage("Complete bot protection before continuing.");
+      setMessage("Security check failed. Please try again.");
       return false;
     }
 
@@ -119,7 +119,7 @@ export default function LoginPage() {
     window.localStorage.setItem(key, JSON.stringify({ count, resetAt: parsed.resetAt }));
 
     if (count > authAttemptLimit) {
-      setMessage("Too many account attempts. Please wait and try again.");
+      setMessage("Too many attempts. Please wait and try again.");
       return false;
     }
 
@@ -228,7 +228,7 @@ export default function LoginPage() {
       }
 
       setMessage(
-        "Account created. Please verify your email address before continuing to protected Cyber Sentinels workflows."
+        "Account created. Please verify your email before continuing."
       );
     } catch (error) {
       console.error("Supabase account creation failed.", error);

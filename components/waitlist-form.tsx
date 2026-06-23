@@ -60,7 +60,7 @@ export function WaitlistForm() {
         </div>
       ) : null}
       {status === "success" && <p className="mt-3 px-2 text-sm text-sentinel-green">You are on the Cyber Sentinels V2 waitlist.</p>}
-      {status === "error" && <p className="mt-3 px-2 text-sm text-red-300">We could not complete this request. Please refresh and try again.</p>}
+      {status === "error" && <p className="mt-3 px-2 text-sm text-red-300">Security check failed. Please try again.</p>}
     </form>
   );
 }

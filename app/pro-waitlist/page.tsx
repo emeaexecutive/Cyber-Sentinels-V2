@@ -1,3 +1,6 @@
+import { TurnstileField } from "@/components/turnstile-field";
+import { getTurnstileSiteKey } from "@/lib/bot-protection";
+
 export const dynamic = "force-dynamic";
 
 type ProWaitlistPageProps = {
@@ -11,19 +14,19 @@ type ProWaitlistPageProps = {
 const waitlistPlans = {
   starter: {
     name: "Starter",
-    price: "€9.99/month",
+    price: "EUR 9.99/month",
     useCase: "starter_waitlist",
     status: "starter_waitlist",
   },
   professional: {
     name: "Professional",
-    price: "€29.99/month",
+    price: "EUR 29.99/month",
     useCase: "professional_waitlist",
     status: "professional_waitlist",
   },
   premium: {
     name: "Premium",
-    price: "€39.99/month",
+    price: "EUR 39.99/month",
     useCase: "premium_waitlist",
     status: "premium_waitlist",
   },
@@ -35,6 +38,7 @@ export default async function ProWaitlistPage({
   const params = await searchParams;
   const success = params?.success === "true";
   const error = params?.error;
+  const turnstileSiteKey = getTurnstileSiteKey();
   const selectedPlan =
     params?.plan && params.plan in waitlistPlans
       ? waitlistPlans[params.plan as keyof typeof waitlistPlans]
@@ -68,8 +72,7 @@ export default async function ProWaitlistPage({
 
           {error ? (
             <div className="mb-4 rounded-lg border border-red-900 bg-red-950/30 p-4 text-sm text-red-100">
-              We could not submit your request. Please try again or contact
-              support.
+              Security check failed. Please try again.
             </div>
           ) : null}
 
@@ -110,6 +113,7 @@ export default async function ProWaitlistPage({
               rows={4}
               className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
             />
+            <TurnstileField siteKey={turnstileSiteKey} />
             <button
               type="submit"
               className="rounded-xl bg-white p-4 font-semibold text-black hover:bg-cyan-100"

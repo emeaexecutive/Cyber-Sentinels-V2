@@ -41,11 +41,17 @@ export function getTurnstileSiteKey() {
   return String(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? process.env.TURNSTILE_SITE_KEY ?? "").trim();
 }
 
+export function canBypassBotProtection() {
+  return process.env.NODE_ENV !== "production";
+}
+
 export async function verifyTurnstileToken(token: string | null | undefined, ip?: string | null) {
   const secret = String(process.env.TURNSTILE_SECRET_KEY ?? "").trim();
 
   if (!secret) {
-    return { ok: true, skipped: true, reason: "turnstile_not_configured" } as const;
+    return canBypassBotProtection()
+      ? ({ ok: true, skipped: true, reason: "turnstile_not_configured" } as const)
+      : ({ ok: false, skipped: false, reason: "turnstile_not_configured" } as const);
   }
 
   if (!token) {
@@ -99,7 +105,7 @@ export function checkRateLimit({ key, limit, windowMs }: RateLimitOptions) {
 
   if (bucket.count > limit) {
     return NextResponse.json(
-      { ok: false, error: "Too many requests. Please wait and try again." },
+      { ok: false, error: "Too many attempts. Please wait and try again." },
       { status: 429 }
     );
   }

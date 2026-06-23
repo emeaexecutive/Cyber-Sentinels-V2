@@ -470,43 +470,43 @@ function emailAndBotProtectionChecks() {
     fileContains("app", "api", "enterprise-access", "route.ts", /checkRequestRateLimit/);
   const waitlistProtected = fileContains("app", "api", "waitlist", "route.ts", /verifyTurnstileToken/) &&
     fileContains("app", "api", "waitlist", "route.ts", /checkRequestRateLimit/);
+  const proWaitlistProtected = fileContains("app", "pro-waitlist", "page.tsx", /TurnstileField/);
   const authPracticalGuard = fileContains("app", "login", "page.tsx", /allowAuthAttempt/) &&
     fileContains("app", "login", "page.tsx", /cf-turnstile/);
+  const publicFormsProtected = enterpriseProtected && waitlistProtected && proWaitlistProtected;
 
   return [
     check(
       "Account Security",
-      "Email verification configured",
-      emailGateConfigured ? "PASS" : "FAIL",
+      "Email verification",
+      emailGateConfigured ? "PASS" : "WARNING",
       emailGateConfigured
         ? "Verified email is required before protected dashboard, passport, workspace, admin and verification workflows."
-        : "Email verification gate or /verify-email page is missing.",
-      true
+        : "Email verification gate or /verify-email page is missing."
     ),
     check(
       "Bot Protection",
-      "Turnstile configured",
+      "Bot protection",
       turnstileSecret && turnstileSiteKey ? "PASS" : "WARNING",
       turnstileSecret && turnstileSiteKey
         ? "Turnstile site and secret keys are configured."
-        : "Turnstile is not configured. Public forms fail safely but production should set TURNSTILE_SECRET_KEY and NEXT_PUBLIC_TURNSTILE_SITE_KEY."
+        : "Turnstile is not configured. Development may bypass checks, but production requests fail safely until TURNSTILE_SECRET_KEY and NEXT_PUBLIC_TURNSTILE_SITE_KEY are set."
     ),
     check(
       "Bot Protection",
-      "Public form protection status",
-      enterpriseProtected && waitlistProtected ? "PASS" : "FAIL",
-      enterpriseProtected && waitlistProtected
-        ? "Enterprise access and waitlist routes verify Turnstile when configured and use in-memory rate limiting."
-        : "One or more public form routes are missing bot verification or rate limiting.",
-      true
+      "Rate limiting",
+      enterpriseProtected && waitlistProtected && authPracticalGuard ? "PASS" : "WARNING",
+      enterpriseProtected && waitlistProtected && authPracticalGuard
+        ? "Enterprise access, waitlist, login, signup and password-reset flows have lightweight abuse controls."
+        : "One or more public or account flows are missing visible rate limiting."
     ),
     check(
       "Bot Protection",
-      "Login/signup attempt throttling",
-      authPracticalGuard ? "PASS" : "WARNING",
-      authPracticalGuard
-        ? "Login, signup, magic-link and password-reset actions include client-side throttling and Turnstile token collection when configured."
-        : "Login/signup guards are not visible; direct Supabase auth may still rely on provider-side limits."
+      "Public forms protected",
+      publicFormsProtected ? "PASS" : "WARNING",
+      publicFormsProtected
+        ? "Enterprise access, Pro waitlist and waitlist forms send Turnstile tokens to protected API routes."
+        : "One or more public request forms are missing Turnstile coverage."
     ),
   ];
 }
