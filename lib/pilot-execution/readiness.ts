@@ -198,6 +198,14 @@ export function buildDeploymentReadinessReport(input: {
       message: hasEnv(name) ? "Configured." : `${name} not configured yet; dependent workflows should stay safely disabled.`,
     })),
   ];
+  const accountSecurityChecks = input.runtime.checks
+    .filter((check) => ["Account Security", "Bot Protection"].includes(check.category))
+    .map((check) => ({
+      label: check.label,
+      state: check.state === "PASS" ? "READY" as const : check.state === "WARNING" ? "CAUTION" as const : "BLOCKED" as const,
+      message: check.message,
+    }));
+
   const sections = [
     section("Runtime Validation", "Deployment health, routes and provider checks.", [
       {
@@ -207,6 +215,7 @@ export function buildDeploymentReadinessReport(input: {
       },
     ]),
     section("Environment Readiness", "Required and optional environment configuration.", envChecks),
+    section("Account And Form Security", "Email verification, Turnstile and public form protection before pilot rollout.", accountSecurityChecks),
     section("Workflow Readiness", "Trust cases, governance, receipts, replay and timeline continuity.", [
       {
         label: "Trust integrity",

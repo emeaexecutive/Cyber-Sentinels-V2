@@ -27,13 +27,20 @@ const userPagePrefixes = [
   "/appeals",
   "/feedback",
   "/recruiter/dashboard",
+  "/dashboard",
   "/dashboard/interview-risk",
   "/developers/api-keys",
   "/workspace",
   "/governance",
   "/agents",
   "/timeline",
+  "/trust",
   "/trust-replay",
+  "/verify/session",
+  "/verify/candidate",
+  "/verify/recruiter",
+  "/verify/provenance",
+  "/interview/session",
 ];
 
 const adminPagePrefixes = [
@@ -126,6 +133,11 @@ function isAllowlisted(email: string | null | undefined) {
   return allowlisted;
 }
 
+function isEmailVerified(user: unknown) {
+  const candidate = user as { email_confirmed_at?: string | null; confirmed_at?: string | null; email?: string | null };
+  return Boolean(candidate.email_confirmed_at || candidate.confirmed_at);
+}
+
 function clearAdminCookie(response: NextResponse) {
   response.cookies.set(adminVerifiedCookieName, "", {
     path: "/",
@@ -215,6 +227,13 @@ export async function middleware(req: NextRequest) {
     );
   }
 
+  if (!isEmailVerified(user)) {
+    const nextPath = `${pathname}${search}`;
+    return clearAdminCookie(
+      redirectTo(req, `/verify-email?next=${encodeURIComponent(nextPath)}`)
+    );
+  }
+
   if (protectsUser && !protectsAdmin) {
     return response;
   }
@@ -272,13 +291,20 @@ export const config = {
     "/appeals/:path*",
     "/feedback/:path*",
     "/recruiter/dashboard/:path*",
+    "/dashboard/:path*",
     "/dashboard/interview-risk/:path*",
     "/developers/api-keys/:path*",
     "/workspace/:path*",
     "/governance/:path*",
     "/agents/:path*",
     "/timeline/:path*",
+    "/trust/:path*",
     "/trust-replay/:path*",
+    "/verify/session/:path*",
+    "/verify/candidate/:path*",
+    "/verify/recruiter/:path*",
+    "/verify/provenance/:path*",
+    "/interview/session/:path*",
     "/back-office/:path*",
     "/admin/:path*",
     "/admin/api-tests/:path*",

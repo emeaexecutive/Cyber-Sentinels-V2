@@ -1,6 +1,6 @@
 import "server-only";
 
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { getIntegrationRegistry } from "@/lib/integrations/registry";
 import { captureOperationalIssue } from "@/lib/operational-monitoring";
@@ -108,6 +108,18 @@ function routeFileExists(...segments: string[]) {
 
 function hasEnv(name: string) {
   return Boolean(String(process.env[name] ?? "").trim());
+}
+
+function fileContains(...args: [...string[], RegExp]) {
+  const pattern = args[args.length - 1] as RegExp;
+  const segments = args.slice(0, -1) as string[];
+
+  try {
+    const content = readFileSync(join(process.cwd(), ...segments), "utf8");
+    return pattern.test(content);
+  } catch {
+    return false;
+  }
 }
 
 function getBaseUrl(baseUrl: string) {
@@ -446,6 +458,58 @@ async function workflowHealthChecks() {
   }
 }
 
+
+function emailAndBotProtectionChecks() {
+  const turnstileSecret = hasEnv("TURNSTILE_SECRET_KEY");
+  const turnstileSiteKey = hasEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY") || hasEnv("TURNSTILE_SITE_KEY");
+  const emailGateConfigured =
+    routeFileExists("verify-email", "page.tsx") &&
+    fileContains("middleware.ts", /email_confirmed_at|confirmed_at/) &&
+    fileContains("middleware.ts", /\/verify-email/);
+  const enterpriseProtected = fileContains("app", "api", "enterprise-access", "route.ts", /verifyTurnstileToken/) &&
+    fileContains("app", "api", "enterprise-access", "route.ts", /checkRequestRateLimit/);
+  const waitlistProtected = fileContains("app", "api", "waitlist", "route.ts", /verifyTurnstileToken/) &&
+    fileContains("app", "api", "waitlist", "route.ts", /checkRequestRateLimit/);
+  const authPracticalGuard = fileContains("app", "login", "page.tsx", /allowAuthAttempt/) &&
+    fileContains("app", "login", "page.tsx", /cf-turnstile/);
+
+  return [
+    check(
+      "Account Security",
+      "Email verification configured",
+      emailGateConfigured ? "PASS" : "FAIL",
+      emailGateConfigured
+        ? "Verified email is required before protected dashboard, passport, workspace, admin and verification workflows."
+        : "Email verification gate or /verify-email page is missing.",
+      true
+    ),
+    check(
+      "Bot Protection",
+      "Turnstile configured",
+      turnstileSecret && turnstileSiteKey ? "PASS" : "WARNING",
+      turnstileSecret && turnstileSiteKey
+        ? "Turnstile site and secret keys are configured."
+        : "Turnstile is not configured. Public forms fail safely but production should set TURNSTILE_SECRET_KEY and NEXT_PUBLIC_TURNSTILE_SITE_KEY."
+    ),
+    check(
+      "Bot Protection",
+      "Public form protection status",
+      enterpriseProtected && waitlistProtected ? "PASS" : "FAIL",
+      enterpriseProtected && waitlistProtected
+        ? "Enterprise access and waitlist routes verify Turnstile when configured and use in-memory rate limiting."
+        : "One or more public form routes are missing bot verification or rate limiting.",
+      true
+    ),
+    check(
+      "Bot Protection",
+      "Login/signup attempt throttling",
+      authPracticalGuard ? "PASS" : "WARNING",
+      authPracticalGuard
+        ? "Login, signup, magic-link and password-reset actions include client-side throttling and Turnstile token collection when configured."
+        : "Login/signup guards are not visible; direct Supabase auth may still rely on provider-side limits."
+    ),
+  ];
+}
 function providerChecks() {
   const registry = getIntegrationRegistry();
   const provider = (name: string) => registry.find((item) => item.provider === name);

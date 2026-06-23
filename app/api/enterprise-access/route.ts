@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import {
+  checkRequestRateLimit,
+  getClientIp,
+  getTurnstileTokenFromForm,
+  verifyTurnstileToken,
+} from "@/lib/bot-protection";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -107,6 +113,9 @@ function getEnterpriseInterestSignal(problemCategory: string) {
 
 export async function POST(req: Request) {
   try {
+    const rateLimited = checkRequestRateLimit(req, "/api/enterprise-access", 6, 60_000);
+    if (rateLimited) return rateLimited;
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -121,6 +130,12 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
+    const turnstile = await verifyTurnstileToken(getTurnstileTokenFromForm(formData), getClientIp(req));
+
+    if (!turnstile.ok) {
+      return enterpriseAccessErrorResponse("Bot protection check failed. Please refresh and try again.", 400);
+    }
+
     const payload = buildEnterpriseAccessPayload(formData);
 
     if (!payload.name || !payload.work_email || !payload.company) {

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Script from "next/script";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -11,6 +12,15 @@ const CONNECTION_FAILURE_MESSAGE =
   "Cyber Sentinels could not connect. Check Vercel Production environment variables.";
 const SESSION_START_KEY = "cyber_sentinels_session_started_at";
 const authTimeoutMs = 8000;
+const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
+const authAttemptWindowMs = 60_000;
+const authAttemptLimit = 8;
+
+declare global {
+  interface Window {
+    onCyberSentinelsLoginTurnstile?: (token: string) => void;
+  }
+}
 
 function isRateLimitError(message: string) {
   const normalizedMessage = message.toLowerCase();
@@ -55,6 +65,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [nextPath, setNextPath] = useState("/passport");
   const [loadingAction, setLoadingAction] = useState<
     "password" | "create-account" | "magic-link" | "reset" | null
@@ -62,6 +73,8 @@ export default function LoginPage() {
   const [showDevAuth, setShowDevAuth] = useState(false);
 
   useEffect(() => {
+    window.onCyberSentinelsLoginTurnstile = (token: string) => setTurnstileToken(token);
+
     setShowDevAuth(
       process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH === "true" &&
         window.location.hostname === "localhost"
@@ -85,6 +98,34 @@ export default function LoginPage() {
     }
   }, []);
 
+
+  function allowAuthAttempt(action: string) {
+    if (turnstileSiteKey && !turnstileToken) {
+      setMessage("Complete bot protection before continuing.");
+      return false;
+    }
+
+    const now = Date.now();
+    const key = `cyber_sentinels_auth_attempts_${action}`;
+    const stored = window.localStorage.getItem(key);
+    const parsed = stored ? JSON.parse(stored) as { count?: number; resetAt?: number } : null;
+
+    if (!parsed || !parsed.resetAt || parsed.resetAt < now) {
+      window.localStorage.setItem(key, JSON.stringify({ count: 1, resetAt: now + authAttemptWindowMs }));
+      return true;
+    }
+
+    const count = Number(parsed.count ?? 0) + 1;
+    window.localStorage.setItem(key, JSON.stringify({ count, resetAt: parsed.resetAt }));
+
+    if (count > authAttemptLimit) {
+      setMessage("Too many account attempts. Please wait and try again.");
+      return false;
+    }
+
+    return true;
+  }
+
   function getSupabaseClient() {
     try {
       return createClient();
@@ -107,6 +148,8 @@ export default function LoginPage() {
       setMessage("Please enter your password.");
       return;
     }
+
+    if (!allowAuthAttempt("password")) return;
 
     setMessage("");
     setLoadingAction("password");
@@ -154,6 +197,8 @@ export default function LoginPage() {
       return;
     }
 
+    if (!allowAuthAttempt("create-account")) return;
+
     setMessage("");
     setLoadingAction("create-account");
 
@@ -183,7 +228,7 @@ export default function LoginPage() {
       }
 
       setMessage(
-        "Account created. Check your email if confirmation is required, then continue to your passport workflow."
+        "Account created. Please verify your email address before continuing to protected Cyber Sentinels workflows."
       );
     } catch (error) {
       console.error("Supabase account creation failed.", error);
@@ -200,6 +245,8 @@ export default function LoginPage() {
       setMessage("Please enter your email address.");
       return;
     }
+
+    if (!allowAuthAttempt("magic-link")) return;
 
     setMessage("");
     setLoadingAction("magic-link");
@@ -244,6 +291,8 @@ export default function LoginPage() {
       setMessage("Please enter your email address.");
       return;
     }
+
+    if (!allowAuthAttempt("reset")) return;
 
     setMessage("");
     setLoadingAction("reset");
@@ -316,6 +365,13 @@ export default function LoginPage() {
               autoComplete="current-password"
               className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
             />
+
+            {turnstileSiteKey ? (
+              <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
+                <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+                <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-callback="onCyberSentinelsLoginTurnstile" />
+              </div>
+            ) : null}
 
             <button
               onClick={signInWithPassword}

@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
+import {
+  checkRequestRateLimit,
+  getClientIp,
+  getTurnstileTokenFromJson,
+  verifyTurnstileToken,
+} from "@/lib/bot-protection";
 import { recordTrustEvent } from "@/lib/database/events";
 import {
-  checkRateLimitPlaceholder,
   configurationError,
   getRequestRiskFields,
 } from "@/lib/security";
@@ -9,19 +14,22 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
   try {
-    // Security: public endpoint, so keep validation/rate limiting server-side.
-    const rateLimited = checkRateLimitPlaceholder({
-      route: "/api/waitlist",
-      req,
-      limit: 10,
-      windowMs: 60_000,
-    });
+    const rateLimited = checkRequestRateLimit(req, "/api/waitlist", 10, 60_000);
 
     if (rateLimited) {
       return rateLimited;
     }
 
     const body = await req.json();
+    const turnstile = await verifyTurnstileToken(getTurnstileTokenFromJson(body), getClientIp(req));
+
+    if (!turnstile.ok) {
+      return NextResponse.json(
+        { ok: false, error: "Bot protection check failed. Please refresh and try again." },
+        { status: 400 }
+      );
+    }
+
     const email = String(body.email || "").toLowerCase().trim();
     const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 

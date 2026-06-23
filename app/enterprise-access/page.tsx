@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
+import { TurnstileField } from "@/components/turnstile-field";
+import { getTurnstileSiteKey } from "@/lib/bot-protection";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +10,7 @@ export default async function EnterpriseAccessPage({ searchParams }: {
 }) {
   const query = searchParams ? await searchParams : {};
   const designPartner = query.intent === "design_partner";
+  const turnstileSiteKey = getTurnstileSiteKey();
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -46,6 +49,7 @@ export default async function EnterpriseAccessPage({ searchParams }: {
               </select>
             </label>
             <label className="grid gap-2 text-sm text-zinc-300">Requirements<textarea name="message" rows={5} placeholder="Workflow, evidence, review or pilot requirements" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
+            <TurnstileField siteKey={turnstileSiteKey} />
             <button className="rounded-lg bg-white p-3 font-semibold text-black hover:bg-cyan-100">Request Enterprise Access</button>
           </form>
         </section>

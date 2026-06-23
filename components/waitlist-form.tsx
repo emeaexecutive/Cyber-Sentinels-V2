@@ -1,10 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import Script from "next/script";
+import { useEffect, useState } from "react";
+
+declare global {
+  interface Window {
+    onCyberSentinelsWaitlistTurnstile?: (token: string) => void;
+  }
+}
+
+const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 export function WaitlistForm() {
   const [email, setEmail] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  useEffect(() => {
+    window.onCyberSentinelsWaitlistTurnstile = (token: string) => setTurnstileToken(token);
+    return () => {
+      delete window.onCyberSentinelsWaitlistTurnstile;
+    };
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -12,10 +29,13 @@ export function WaitlistForm() {
     const res = await fetch("/api/waitlist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email, turnstileToken })
     });
     setStatus(res.ok ? "success" : "error");
-    if (res.ok) setEmail("");
+    if (res.ok) {
+      setEmail("");
+      setTurnstileToken("");
+    }
   }
 
   return (
@@ -33,8 +53,14 @@ export function WaitlistForm() {
           {status === "loading" ? "Joining..." : "Join waitlist"}
         </button>
       </div>
+      {turnstileSiteKey ? (
+        <div className="mt-3">
+          <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+          <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-callback="onCyberSentinelsWaitlistTurnstile" />
+        </div>
+      ) : null}
       {status === "success" && <p className="mt-3 px-2 text-sm text-sentinel-green">You are on the Cyber Sentinels V2 waitlist.</p>}
-      {status === "error" && <p className="mt-3 px-2 text-sm text-red-300">Something went wrong. Check Supabase env vars or try again.</p>}
+      {status === "error" && <p className="mt-3 px-2 text-sm text-red-300">We could not complete this request. Please refresh and try again.</p>}
     </form>
   );
 }
