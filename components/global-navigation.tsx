@@ -13,6 +13,8 @@ const publicLinks = [
   ["/platform", "Platform Overview"],
   ["/pricing", "Pricing"],
   ["/demo", "Demo"],
+  ["/demo/hiring-attack", "Hiring Demo"],
+  ["/demo/session-integrity", "Session Demo"],
   ["/governance", "Governance"],
   ["/enterprise-access", "Request Demo"],
   ["/login", "Login"],
@@ -25,7 +27,9 @@ const adminLinks = [
   ["/workspace", "Workspaces"],
   ["/trustops", "TrustOps"],
   ["/demo", "Enterprise Demo"],
-  ["/enterprise/pilot-setup", "Pilot Setup"],
+  ["/demo/hiring-attack", "Hiring Demo"],
+  ["/demo/session-integrity", "Session Demo"],
+  ["/enterprise/pilot", "Pilot"],
   ["/admin/launch-control", "Launch Control"],
 ];
 
@@ -33,6 +37,7 @@ const userLinks = [
   ["/", "Home"],
   ["/platform", "Platform"],
   ["/pricing", "Pricing"],
+  ["/dashboard", "Dashboard"],
   ["/passports", "My Passports"],
   ["/passport", "New Workflow"],
   ["/notifications", "Notifications"],

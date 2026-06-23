@@ -43,9 +43,14 @@ const publicPages = [
   "/enterprise",
   "/enterprise-access",
   "/enterprise/hiring-security",
+  "/enterprise/pilot",
+  "/design-partner",
   "/why-now",
   "/help",
   "/demo",
+  "/demo/hiring-attack",
+  "/demo/session-integrity",
+  "/verify/session",
   "/security",
   "/privacy",
   "/terms",
@@ -56,7 +61,17 @@ const protectedRoutes = [
   "/admin/deployment-readiness",
   "/admin/runtime-validation",
   "/admin/trust-integrity",
+  "/dashboard",
   "/dashboard/session-integrity",
+  "/dashboard/trust-posture",
+  "/passport",
+  "/workspace",
+  "/verify/candidate",
+  "/verify/recruiter",
+  "/verify/provenance",
+  "/trust/receipt/demo",
+  "/replay/demo",
+  "/trust-replay",
   "/trustops",
   "/launch-control",
 ];
@@ -510,6 +525,49 @@ function emailAndBotProtectionChecks() {
     ),
   ];
 }
+function routeInventoryChecks() {
+  return [
+    check(
+      "Demo And Proof Routes",
+      "Demo overview route",
+      routeFileExists("demo", "page.tsx") ? "PASS" : "FAIL",
+      routeFileExists("demo", "page.tsx") ? "/demo route file is present." : "/demo route file is missing.",
+      true
+    ),
+    check(
+      "Demo And Proof Routes",
+      "Hiring attack demo route",
+      routeFileExists("demo", "hiring-attack", "page.tsx") ? "PASS" : "FAIL",
+      routeFileExists("demo", "hiring-attack", "page.tsx") ? "/demo/hiring-attack route file is present." : "/demo/hiring-attack route file is missing.",
+      true
+    ),
+    check(
+      "Demo And Proof Routes",
+      "Session integrity demo route",
+      routeFileExists("demo", "session-integrity", "page.tsx") ? "PASS" : "FAIL",
+      routeFileExists("demo", "session-integrity", "page.tsx") ? "/demo/session-integrity route file is present." : "/demo/session-integrity route file is missing.",
+      true
+    ),
+    check(
+      "Demo And Proof Routes",
+      "Replay route",
+      routeFileExists("replay", "[id]", "page.tsx") && routeFileExists("trust-replay", "page.tsx") ? "PASS" : "FAIL",
+      routeFileExists("replay", "[id]", "page.tsx") && routeFileExists("trust-replay", "page.tsx")
+        ? "Replay detail and replay overview routes are present."
+        : "Replay route files are missing.",
+      true
+    ),
+    check(
+      "Demo And Proof Routes",
+      "Verification receipt route",
+      routeFileExists("trust", "receipt", "[id]", "page.tsx") && routeFileExists("verification", "receipt", "[id]", "page.tsx") ? "PASS" : "FAIL",
+      routeFileExists("trust", "receipt", "[id]", "page.tsx") && routeFileExists("verification", "receipt", "[id]", "page.tsx")
+        ? "Trust receipt and verification receipt routes are present."
+        : "Verification receipt route files are missing.",
+      true
+    ),
+  ];
+}
 function providerChecks() {
   const registry = getIntegrationRegistry();
   const provider = (name: string) => registry.find((item) => item.provider === name);
@@ -652,6 +710,7 @@ export async function runRuntimeValidation(baseUrl: string): Promise<RuntimeVali
     adminProtectionChecks,
     workflowChecks,
     telemetryStatusChecks,
+    accountSecurityChecks,
   ] = await Promise.all([
     Promise.all(publicPages.map((path) => checkAppRoute(baseUrl, path))),
     authChecks(baseUrl),
@@ -661,6 +720,7 @@ export async function runRuntimeValidation(baseUrl: string): Promise<RuntimeVali
     Promise.all(protectedRoutes.map((path) => checkProtectedRoute(baseUrl, path))),
     workflowHealthChecks(),
     telemetryChecks(),
+    Promise.resolve(emailAndBotProtectionChecks()),
   ]);
 
   const checks = [
@@ -671,8 +731,10 @@ export async function runRuntimeValidation(baseUrl: string): Promise<RuntimeVali
     ...securityChecks,
     ...adminProtectionChecks,
     ...providerChecks(),
+    ...routeInventoryChecks(),
     ...workflowChecks,
     ...telemetryStatusChecks,
+    ...accountSecurityChecks,
   ];
   const score = checks.reduce((sum, item) => {
     if (item.state === "PASS") return sum + 1;

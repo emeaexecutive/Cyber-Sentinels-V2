@@ -17,14 +17,14 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/dashboard");
 
-  const [flags, reviews, workflows, governance, integrity, posture, recentEvents] = await Promise.all([
+  const [flags, reviews, workflows, governance, integrity, posture, receipts] = await Promise.all([
     supabase.from("interview_risk_events").select("*", { count: "exact", head: true }).eq("escalation_required", true),
     supabase.from("governance_actions").select("*", { count: "exact", head: true }).in("action_status", ["pending", "in_review", "escalated"]),
     supabase.from("interview_sessions").select("*", { count: "exact", head: true }),
     supabase.from("governance_actions").select("*", { count: "exact", head: true }),
     supabase.from("session_integrity_checks").select("*", { count: "exact", head: true }),
     supabase.from("passports").select("*", { count: "exact", head: true }),
-    supabase.from("trust_timeline_events").select("*", { count: "exact", head: true }),
+    supabase.from("verification_receipts").select("*", { count: "exact", head: true }),
   ]);
 
   const metrics = [
@@ -34,7 +34,7 @@ export default async function DashboardPage() {
     ["Governance Actions", governance.count ?? 0, ClipboardCheck],
     ["Session Integrity", integrity.count ?? 0, ScanSearch],
     ["Trust Posture", posture.count ?? 0, ShieldCheck],
-    ["Recent Events", recentEvents.count ?? 0, History],
+    ["Verification Receipts", receipts.count ?? 0, History],
   ] as const;
 
   return (
@@ -45,7 +45,7 @@ export default async function DashboardPage() {
             <p className="text-sm uppercase tracking-[0.3em] text-sentinel-green">Pilot Operations</p>
             <h1 className="mt-2 text-4xl font-semibold">Hiring Security Dashboard</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-sentinel-muted">
-              Trust changed quietly. Review active flags, pending reviews, verification workflows, governance actions, session integrity, trust posture and recent events without operational noise.
+              Trust changed quietly. Review active flags, pending reviews, session integrity, governance actions, verification workflows, trust posture and verification receipts without operational noise.
             </p>
           </div>
           <Link href="/demo" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black">
@@ -73,7 +73,7 @@ export default async function DashboardPage() {
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             {[
-              ["/dashboard/interview-risk", "1. Review active flags", "Inspect identity, injection and session-integrity signals."],
+              ["/dashboard/interview-risk", "1. Review active flags", "Inspect identity, injection and session-integrity flags."],
               ["/governance", "2. Record governance action", "Assign review ownership and preserve the human outcome."],
               ["/trust-replay", "3. Replay and evidence", "Reconstruct chronology and open generated receipts."],
               ["/dashboard/trust-posture", "4. Monitor trust posture", "Track context shifts, reverification due states and elevated operational risk."],
