@@ -151,11 +151,9 @@ create policy "admin manage agents"
   to authenticated
   using (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   )
   with check (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   );
 
 create policy "admin manage trust_events"
@@ -164,11 +162,9 @@ create policy "admin manage trust_events"
   to authenticated
   using (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   )
   with check (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   );
 
 create policy "admin manage agent_permissions"
@@ -177,9 +173,7 @@ create policy "admin manage agent_permissions"
   to authenticated
   using (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   )
   with check (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   );

@@ -35,9 +35,7 @@ create policy "admin manage knowledge_articles"
   to authenticated
   using (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   )
   with check (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   );

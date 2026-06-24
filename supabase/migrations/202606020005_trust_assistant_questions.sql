@@ -41,9 +41,7 @@ create policy "admin manage trust_assistant_questions"
   to authenticated
   using (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   )
   with check (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   );

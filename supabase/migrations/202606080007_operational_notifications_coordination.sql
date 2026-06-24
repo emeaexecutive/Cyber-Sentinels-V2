@@ -78,11 +78,9 @@ create policy "admin manage notifications"
   to authenticated
   using (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   )
   with check (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   );
 
 create or replace function public.notification_insert(

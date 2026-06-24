@@ -27,7 +27,6 @@ for select
 to authenticated
 using (
   coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-  or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
 );
 
 create policy "admin insert integration status"
@@ -36,5 +35,4 @@ for insert
 to authenticated
 with check (
   coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-  or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
 );

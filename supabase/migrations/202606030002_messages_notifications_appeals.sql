@@ -115,11 +115,9 @@ create policy "admin manage message_threads"
   to authenticated
   using (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   )
   with check (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   );
 
 create policy "admin manage message_events"
@@ -128,11 +126,9 @@ create policy "admin manage message_events"
   to authenticated
   using (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   )
   with check (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   );
 
 create policy "admin manage notifications"
@@ -141,11 +137,9 @@ create policy "admin manage notifications"
   to authenticated
   using (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   )
   with check (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   );
 
 create policy "admin manage appeals"
@@ -154,9 +148,7 @@ create policy "admin manage appeals"
   to authenticated
   using (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   )
   with check (
     coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin'
-    or coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '') = 'admin'
   );
