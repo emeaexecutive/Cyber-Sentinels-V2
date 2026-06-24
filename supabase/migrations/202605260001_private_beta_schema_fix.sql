@@ -108,7 +108,7 @@ create table if not exists teams (
 
 create table if not exists team_members (
   id uuid primary key default gen_random_uuid(),
-  team_id text references teams(id) on delete cascade,
+  team_id uuid references teams(id) on delete cascade,
   member_email text not null,
   role text default 'reviewer',
   invitation_status text default 'active',
