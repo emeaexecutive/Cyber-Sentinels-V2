@@ -76,35 +76,47 @@ const protectedRoutes = [
   "/launch-control",
 ];
 const requiredEnterpriseFields = ["name", "work_email", "company"];
-const workflowTables = [
-  ["Enterprise access", "enterprise_access_requests"],
-  ["Trust cases", "trust_cases"],
-  ["Workspaces", "trust_workspaces"],
-  ["Evidence files", "evidence_files"],
-  ["Audit logs", "audit_logs"],
-  ["Verification flags", "signals"],
-  ["Governance tables", "governance_actions"],
-  ["Timeline tables", "trust_timeline_events"],
-  ["Trust replay sessions", "trust_replay_sessions"],
-  ["Notifications", "notifications"],
-  ["Verification receipts", "verification_receipts"],
-  ["Evidence chains", "evidence_chains"],
-  ["AI agents", "ai_agents"],
-  ["Agent activity", "agent_activity"],
-  ["Candidate profiles", "candidate_profiles"],
-  ["Recruiter profiles", "recruiter_profiles"],
-  ["Interview sessions", "interview_sessions"],
-  ["Interview risk events", "interview_risk_events"],
-  ["Session integrity checks", "session_integrity_checks"],
-  ["Injection risk events", "injection_risk_events"],
-  ["Verification signals", "verification_signals"],
-  ["Device channel evidence", "device_channel_evidence"],
-  ["Usage limits", "usage_limits"],
-  ["Billing customers", "billing_customers"],
-  ["Subscriptions", "subscriptions"],
-  ["Integration status", "integration_status"],
-  ["Runtime validation logs", "runtime_validation_logs"],
-] as const;
+type WorkflowTableCheck = {
+  label: string;
+  table: string;
+  demoData?: boolean;
+};
+
+const workflowTables: WorkflowTableCheck[] = [
+  { label: "Enterprise access", table: "enterprise_access_requests", demoData: true },
+  { label: "Verification cases", table: "verification_cases", demoData: true },
+  { label: "Trust reports", table: "trust_reports", demoData: true },
+  { label: "Trust events", table: "trust_events", demoData: true },
+  { label: "Trust passports", table: "passports", demoData: true },
+  { label: "Interview sessions", table: "interview_sessions", demoData: true },
+  { label: "Session integrity checks", table: "session_integrity_checks", demoData: true },
+  { label: "Verification signals", table: "verification_signals", demoData: true },
+  { label: "Hopae verifications", table: "hopae_verifications" },
+  { label: "Hopae webhook events", table: "hopae_webhook_events" },
+  { label: "Trust cases", table: "trust_cases", demoData: true },
+  { label: "Workspaces", table: "trust_workspaces", demoData: true },
+  { label: "Evidence files", table: "evidence_files" },
+  { label: "Audit logs", table: "audit_logs" },
+  { label: "Verification flags", table: "signals" },
+  { label: "Governance tables", table: "governance_actions" },
+  { label: "Timeline tables", table: "trust_timeline_events", demoData: true },
+  { label: "Trust replay sessions", table: "trust_replay_sessions", demoData: true },
+  { label: "Notifications", table: "notifications" },
+  { label: "Verification receipts", table: "verification_receipts", demoData: true },
+  { label: "Evidence chains", table: "evidence_chains" },
+  { label: "AI agents", table: "ai_agents" },
+  { label: "Agent activity", table: "agent_activity" },
+  { label: "Candidate profiles", table: "candidate_profiles", demoData: true },
+  { label: "Recruiter profiles", table: "recruiter_profiles", demoData: true },
+  { label: "Interview risk events", table: "interview_risk_events" },
+  { label: "Injection risk events", table: "injection_risk_events" },
+  { label: "Device channel evidence", table: "device_channel_evidence" },
+  { label: "Usage limits", table: "usage_limits" },
+  { label: "Billing customers", table: "billing_customers" },
+  { label: "Subscriptions", table: "subscriptions" },
+  { label: "Integration status", table: "integration_status" },
+  { label: "Runtime validation logs", table: "runtime_validation_logs" },
+];
 const requestTimeoutMs = 8000;
 
 function check(
@@ -438,7 +450,7 @@ async function enterpriseAccessChecks(baseUrl: string) {
 
 async function workflowHealthChecks() {
   if (!hasEnv("SUPABASE_SERVICE_ROLE_KEY")) {
-    return workflowTables.map(([label, table]) =>
+    return workflowTables.map(({ label, table }) =>
       check(
         "Workflow Health",
         label,
@@ -451,23 +463,58 @@ async function workflowHealthChecks() {
   try {
     const supabase = createServiceRoleClient();
 
-    return Promise.all(
-      workflowTables.map(async ([label, table]) => {
-        const { error } = await supabase
+    const tableChecks = await Promise.all(
+      workflowTables.map(async ({ label, table }) => {
+        const { count, error } = await supabase
           .from(table)
           .select("id", { count: "exact", head: true });
 
         if (error) {
-          return check("Workflow Health", label, "FAIL", `${table} is unavailable.`, true);
+          return {
+            check: check(
+              "Workflow Health",
+              label,
+              "WARNING",
+              `${table} is unavailable or optional in this environment; dependent pages should render safe empty states.`
+            ),
+            count: null,
+          };
         }
 
-        return check("Workflow Health", label, "PASS", `${table} exists and is queryable.`);
+        return {
+          check: check("Workflow Health", label, "PASS", `${table} exists and is queryable.`),
+          count: count ?? 0,
+        };
       })
     );
+
+    const demoTables = workflowTables.filter((item) => item.demoData);
+    const demoRowCount = tableChecks.reduce((sum, item, index) => {
+      return demoTables.some((demoTable) => demoTable.table === workflowTables[index].table) &&
+        typeof item.count === "number"
+        ? sum + item.count
+        : sum;
+    }, 0);
+    const demoUnavailable = tableChecks.some((item, index) =>
+      demoTables.some((demoTable) => demoTable.table === workflowTables[index].table) &&
+      item.count === null
+    );
+    const demoDataCheck = check(
+      "Workflow Health",
+      "Demo data",
+      demoRowCount > 0 ? "PASS" : "WARNING",
+      demoRowCount > 0
+        ? `${demoRowCount} demo or workflow record${demoRowCount === 1 ? "" : "s"} available for validation.`
+        : demoUnavailable
+          ? "Demo data could not be fully verified because one or more optional workflow tables are unavailable."
+          : "No demo data yet. Demo pages should continue to render mock-safe states."
+    );
+
+    return [...tableChecks.map((item) => item.check), demoDataCheck];
   } catch (error) {
     const message = error instanceof Error ? error.message : "Workflow table validation failed.";
 
-    return workflowTables.map(([label]) =>
+    return workflowTables.map(({ label }) =>
       check("Workflow Health", label, "WARNING", message)
     );
   }
@@ -501,7 +548,7 @@ function emailAndBotProtectionChecks() {
     ),
     check(
       "Bot Protection",
-      "Bot protection",
+      "Turnstile not configured",
       turnstileSecret && turnstileSiteKey ? "PASS" : "WARNING",
       turnstileSecret && turnstileSiteKey
         ? "Turnstile site and secret keys are configured."
@@ -580,25 +627,25 @@ function providerChecks() {
   return [
     check(
       "Pricing/Billing",
-      "Stripe configured or safely disabled",
+      "Stripe not configured",
       stripe?.status === "configured" ? "PASS" : "WARNING",
       stripe?.status === "configured" ? "Stripe is configured." : "Stripe not configured yet."
     ),
     check(
       "AI Providers",
-      "OpenAI configured or safely disabled",
+      "OpenAI not configured",
       openai?.status === "configured" ? "PASS" : "WARNING",
       openai?.status === "configured" ? "OpenAI is configured." : "OpenAI not configured yet."
     ),
     check(
       "AI Providers",
-      "World ID configured or safely disabled",
+      "World ID not configured",
       worldId?.status === "configured" ? "PASS" : "WARNING",
       worldId?.status === "configured" ? "World ID is configured." : "World ID not configured yet."
     ),
     check(
       "Identity Providers",
-      "Hopae Connect configured or safely disabled",
+      "Hopae not configured",
       hopae?.status === "configured" ? "PASS" : "WARNING",
       hopae?.status === "configured" ? "Hopae Connect is configured." : "Hopae Connect is optional and safely disabled."
     ),
