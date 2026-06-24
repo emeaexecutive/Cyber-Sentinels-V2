@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 
 const subjectTypes = new Set(["human", "ai_agent", "workflow", "enterprise"]);
@@ -13,6 +14,10 @@ async function payload(req: Request) {
 
 function idFrom(req: Request, body?: Record<string, unknown>) {
   return text(body?.id) || new URL(req.url).searchParams.get("id") || "";
+}
+
+function ownerValues(user: { id: string; email?: string | null }) {
+  return [user.id, user.email].filter(Boolean) as string[];
 }
 
 export async function GET(req: Request) {
@@ -34,6 +39,7 @@ export async function GET(req: Request) {
   const subjectId = searchParams.get("subject_id");
   if (subjectType) query = query.eq("subject_type", subjectType);
   if (subjectId) query = query.eq("subject_id", subjectId);
+  if (!isAdminAllowlisted(user.email)) query = query.in("created_by", ownerValues(user));
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ ok: false, error: "Could not load provenance events" }, { status: 500 });
@@ -67,7 +73,7 @@ export async function POST(req: Request) {
     event_title: title,
     event_description: text(body.event_description ?? body.description) || null,
     risk_level: text(body.risk_level, "low"),
-    created_by: text(body.created_by, user.email ?? user.id),
+    created_by: user.id,
     metadata: body.metadata && typeof body.metadata === "object" && !Array.isArray(body.metadata) ? body.metadata : {},
   };
 
@@ -93,7 +99,10 @@ export async function PATCH(req: Request) {
     if (body[key] !== undefined) patch[key] = body[key];
   }
 
-  const { data, error } = await supabase.from("provenance_events").update(patch).eq("id", id).select("*").single();
+  let query = supabase.from("provenance_events").update(patch).eq("id", id);
+  if (!isAdminAllowlisted(user.email)) query = query.in("created_by", ownerValues(user));
+
+  const { data, error } = await query.select("*").single();
   if (error) return NextResponse.json({ ok: false, error: "Could not update provenance event" }, { status: 500 });
   return NextResponse.json({ ok: true, event: data });
 }
@@ -107,7 +116,10 @@ export async function DELETE(req: Request) {
   if (!user) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   const id = idFrom(req);
   if (!id) return NextResponse.json({ ok: false, error: "id is required" }, { status: 400 });
-  const { error } = await supabase.from("provenance_events").delete().eq("id", id);
+  let query = supabase.from("provenance_events").delete().eq("id", id);
+  if (!isAdminAllowlisted(user.email)) query = query.in("created_by", ownerValues(user));
+
+  const { error } = await query;
   if (error) return NextResponse.json({ ok: false, error: "Could not delete provenance event" }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
