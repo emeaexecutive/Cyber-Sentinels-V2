@@ -279,12 +279,8 @@ export default async function GovernancePage({
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
             Governance visibility for trust coordination.
           </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels coordinates trust across humans, AI agents,
-            enterprise workflows, and digital interactions. Governance makes
-            trust state changes, verification evidence, reviewer actions and
-            workflow authenticity status visible before operational decisions
-            advance.
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Governance Review keeps trust state changes, Verification Evidence, reviewer actions and workflow status visible before operational decisions advance.
           </p>
           <div className="mt-5 max-w-3xl">
             <OnboardingHint area="governance" />

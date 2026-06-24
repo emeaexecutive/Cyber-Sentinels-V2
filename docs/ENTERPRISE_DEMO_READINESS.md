@@ -2,7 +2,7 @@
 
 ## Pilot narrative
 
-Organizations can no longer confidently verify who — or what — is entering critical workflows.
+Organizations can no longer confidently verify which person, agent or session is entering critical workflows.
 
 Cyber Sentinels demonstrates a practical response: verify identity, inspect session evidence, surface flags, route risk to human review, retain the audit trail, block the compromised workflow and issue a verification receipt that can be replayed later.
 
@@ -97,7 +97,7 @@ Demo links are available from:
 - founder control;
 - enterprise-access page.
 
-The primary conversion action is **Request Enterprise Access**. The secondary action is **View Demo**.
+The primary conversion action is **Enterprise Access**. The secondary action is **Demo Overview**.
 
 ## Operator checklist
 

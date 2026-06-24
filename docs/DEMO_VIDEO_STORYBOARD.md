@@ -9,7 +9,7 @@ Use calm cuts, restrained motion and readable close-ups. Prefer a single purpose
 ### Scene 1 — Homepage | 0:00-0:10
 
 - **Route:** `/`
-- **Frame:** Hiring-security headline, short supporting copy and **View Demo** action.
+- **Frame:** Hiring-security headline, short supporting copy and **Hiring Security** action.
 - **Action:** Hold for two seconds, then open the demo.
 - **Narrative:** AI changed the conditions of trust in critical workflows.
 - **On-screen callout:** `Trust now requires evidence, governance and operational memory.`

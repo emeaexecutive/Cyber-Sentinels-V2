@@ -4,7 +4,7 @@
 
 Cyber Sentinels is Operational Trust Infrastructure for enterprise workflows.
 
-Cyber Sentinels coordinates trust across humans, AI agents, enterprise workflows, and digital interactions. It is not positioned as a broad cybersecurity platform or a replacement for existing controls.
+Cyber Sentinels connects identity, session context, Verification Evidence, Governance Review and Replay Evidence. It is not positioned as a broad cybersecurity platform or a replacement for existing controls.
 
 Traditional cybersecurity tools protect:
 
@@ -94,4 +94,4 @@ Organizations can no longer rely solely on device security and communication sec
 
 AI-generated impersonation, synthetic identities, injected video feeds, autonomous agents, and fragmented workflows have created a new operational trust problem.
 
-Cyber Sentinels verifies who - or what - can be trusted across enterprise workflows.
+Cyber Sentinels helps teams verify which people, agents, sessions and evidence can be trusted across enterprise workflows.

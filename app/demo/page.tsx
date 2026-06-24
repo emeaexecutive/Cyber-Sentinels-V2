@@ -9,7 +9,7 @@ const risks = [
 ];
 
 const proofLinks = [
-  ["/demo/hiring-attack", "Hiring Attack Demo", "Understand the synthetic-candidate problem in one sequence."],
+  ["/demo/hiring-attack", "Hiring Security", "Understand the synthetic-candidate problem in one sequence."],
   ["/demo/session-integrity", "Session Integrity Demo", "See how trust changes after verification begins."],
   ["/trust-replay", "Replay Evidence", "Open generated /replay/[id] records after demo data is seeded."],
   ["/dashboard", "Verification Receipts", "Review generated /verification/receipt/[id] proof from the operational dashboard."],
@@ -37,13 +37,13 @@ export default function DemoPage() {
           <p className="mt-6 max-w-3xl leading-8 text-zinc-200">
             In under 90 seconds, see what happened, what changed, what action occurred and what proof was retained.
           </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels coordinates trust across humans, AI agents, enterprise workflows, and digital interactions so teams can follow trust state changes, governance escalation events, reviewer actions and verification evidence.
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Follow the same operational path each time: Hiring Security, Session Integrity, Governance Review, Replay Evidence and Verification Evidence.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link href="/demo/hiring-attack" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-200">Start Hiring Security Demo</Link>
-            <Link href="/demo/session-integrity" className="rounded-md border border-zinc-600 px-5 py-3 text-sm font-semibold text-white hover:border-zinc-300">Open Session Integrity</Link>
-            <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">Request Enterprise Access</Link>
+            <Link href="/demo/hiring-attack" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-200">Hiring Security</Link>
+            <Link href="/demo/session-integrity" className="rounded-md border border-zinc-600 px-5 py-3 text-sm font-semibold text-white hover:border-zinc-300">Session Integrity</Link>
+            <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">Enterprise Access</Link>
           </div>
           <PrivateBetaNotice className="mt-6 max-w-3xl" />
         </section>
@@ -75,7 +75,7 @@ export default function DemoPage() {
         <section className="mt-12 grid gap-4 md:grid-cols-2">
           <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold text-white">Traditional cybersecurity tools protect</h2>
-            <p className="mt-3 text-sm leading-6 text-zinc-400">Networks, devices and communications.</p>
+            <p className="mt-3 text-sm leading-6 text-zinc-300">Networks, devices and communications.</p>
           </article>
           <article className="rounded-lg border border-cyan-900 bg-black p-5">
             <h2 className="text-xl font-semibold text-white">Cyber Sentinels protects</h2>

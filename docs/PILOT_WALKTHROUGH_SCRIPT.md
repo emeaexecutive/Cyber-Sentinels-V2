@@ -10,7 +10,7 @@ Lead with the operational problem, then show the evidence chain. Cyber Sentinels
 
 Open `/`.
 
-Say: "Organizations can no longer confidently verify who — or what — is entering critical workflows. Synthetic applicants, AI impersonation and injected media can cross controls designed for a more verifiable world."
+Say: "Organizations can no longer confidently verify which person, agent or session is entering critical workflows. Synthetic applicants, AI impersonation and injected media can cross controls designed for a more verifiable world."
 
 Then: "Cyber Sentinels is operational trust infrastructure. It connects verification, session evidence, governance and audit history so teams can act without pretending one signal is certainty."
 

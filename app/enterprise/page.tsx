@@ -33,11 +33,8 @@ export default function EnterprisePage() {
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
             Enterprise trust coordination for humans, AI agents, and critical workflows.
           </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels coordinates trust across humans, AI agents,
-            enterprise workflows, and digital interactions. Teams can verify
-            identities, review risk flags, govern sensitive decisions, and
-            preserve an audit-ready record across regulated operations.
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Cyber Sentinels connects identity, session context, Verification Evidence and Governance Review so teams can keep sensitive workflows explainable.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/enterprise/hiring-security" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
@@ -77,17 +74,17 @@ export default function EnterprisePage() {
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <h2 className="text-2xl font-semibold">Why operational trust infrastructure now</h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Organizations can no longer rely solely on device security and communication security. AI-generated impersonation, synthetic identities, injected video feeds, autonomous agents, and fragmented workflows have created a new operational trust problem.
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Device and communication security are still necessary, but they do not explain whether a workflow stayed trustworthy after verification began.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels verifies who - or what - can be trusted across enterprise workflows.
+            Cyber Sentinels helps teams verify which people, agents, sessions and evidence can be trusted across enterprise workflows.
           </p>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {coordinationControls.map(([title, copy]) => (
               <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <p className="text-sm font-semibold text-zinc-100">{title}</p>
-                <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-300">{copy}</p>
               </div>
             ))}
           </div>
@@ -95,7 +92,7 @@ export default function EnterprisePage() {
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <h2 className="text-2xl font-semibold">Pilot conversion path</h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels is onboarding design collaborators to validate
             evidence-backed verification, governance workflows and operational
             transparency in real environments.
@@ -104,13 +101,13 @@ export default function EnterprisePage() {
             href="/enterprise-access"
             className="mt-5 inline-flex rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
           >
-            Request Enterprise Access
+            Request Access
           </Link>
           <Link
             href="/enterprise/pilot"
             className="ml-3 mt-5 inline-flex rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400"
           >
-            View Pilot Structure
+            Pilot Structure
           </Link>
         </section>
       </div>

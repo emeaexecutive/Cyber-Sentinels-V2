@@ -61,18 +61,17 @@ export default function Home() {
             Protect enterprise workflows against synthetic identity attacks.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels coordinates trust across humans, AI agents, enterprise workflows, and digital interactions.
+            Cyber Sentinels keeps identity, session context, Verification Evidence, Governance Review and Replay Evidence connected.
           </p>
           <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
-            Existing cybersecurity tools detect threats. Cyber Sentinels verifies operational trust: what happened, what changed, who reviewed it and what verification evidence was created.
+            Cybersecurity detects threats. Cyber Sentinels preserves the trust record: what changed, who reviewed it and what Verification Evidence remains.
           </p>
         </div>
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link href="/enterprise-access" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-cyan-200">Request Enterprise Access</Link>
-          <Link href="/demo" className="rounded-md border border-zinc-500 px-5 py-3 text-sm font-semibold text-white hover:border-zinc-200">View Demo</Link>
-          <Link href="/demo/hiring-attack" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">Hiring Security Demo</Link>
-          <Link href="/demo/session-integrity" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">Session Integrity Demo</Link>
+          <Link href="/demo/hiring-attack" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">Hiring Security</Link>
+          <Link href="/demo/session-integrity" className="rounded-md border border-zinc-600 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-300">Session Integrity</Link>
         </div>
         <PrivateBetaNotice className="mt-7 max-w-3xl" />
       </section>
@@ -105,7 +104,7 @@ export default function Home() {
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Enterprise positioning</p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">Cyber Sentinels is the coordination layer above the stack you already trust.</h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Traditional cybersecurity tools protect networks, devices and communications. Cyber Sentinels protects operational trust, workflow integrity, session authenticity, identity accountability and verification evidence after those controls are in place.
+            Security controls protect the network. Cyber Sentinels keeps the workflow reviewable after identity, session and evidence signals start to shift.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -144,20 +143,17 @@ export default function Home() {
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Enterprise narrative</p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">A new operational trust problem.</h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Organizations can no longer rely solely on device security and communication security.
-          </p>
-          <p className="mt-4 text-sm leading-7 text-zinc-300">
-            AI-generated impersonation, synthetic identities, injected video feeds, autonomous agents, and fragmented workflows have created a new operational trust problem.
+            AI-generated impersonation, synthetic identities, injected feeds and autonomous agents can all enter workflows that still look normal to existing controls.
           </p>
           <p className="mt-4 text-sm leading-7 text-zinc-200">
-            Cyber Sentinels verifies who - or what - can be trusted across enterprise workflows.
+            Cyber Sentinels helps teams verify which people, agents, sessions and evidence can be trusted across enterprise workflows.
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {coordinationIndicators.map(([title, copy]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
               <h3 className="text-sm font-semibold text-white">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
+              <p className="mt-2 text-sm leading-6 text-zinc-300">{copy}</p>
             </article>
           ))}
         </div>

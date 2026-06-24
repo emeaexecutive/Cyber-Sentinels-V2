@@ -83,8 +83,8 @@ export default function HiringSecurityPage() {
           <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-300">
             Hiring Security is the clearest entry point for Operational Trust Infrastructure: fake applicants, proxy interviews, AI-assisted hiring fraud and injected sessions become reviewable workflows with verification evidence, governance, replay and receipts.
           </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels coordinates trust across humans, AI agents, enterprise workflows, and digital interactions so security, legal and people teams can see trust state changes, governance escalation events and reviewer actions in one operational chronology.
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Security, legal and people teams see trust state changes, Governance Review, reviewer actions and Replay Evidence in one operational chronology.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
@@ -128,13 +128,13 @@ export default function HiringSecurityPage() {
             Hiring attacks become reviewable workflows.
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            The product does not ask teams to trust a black-box authenticity claim. It shows what changed, what verification evidence exists, whether liveness, deepfake risk and injection risk are separate concerns, who reviewed it, whether governance escalation is required and where replay evidence is available.
+            The product avoids black-box authenticity claims. It shows what changed, what Verification Evidence exists, who reviewed it and where Replay Evidence is available.
           </p>
           <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {riskExamples.map(([title, body]) => (
               <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <h3 className="font-semibold text-zinc-100">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-zinc-400">{body}</p>
+                <p className="mt-3 text-sm leading-6 text-zinc-300">{body}</p>
               </article>
             ))}
           </div>

@@ -35,7 +35,7 @@ export default function DesignPartnerPage() {
           <p className="mt-6 max-w-3xl text-base leading-8 text-zinc-300">
             Trust changed quietly. AI changed identity risk, and verification alone is no longer enough for workflows where hiring access, sensitive systems and human review matter.
           </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels is for security, talent, risk and governance teams that need evidence, session integrity, replay timelines and verification receipts instead of unsupported trust claims.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
@@ -43,10 +43,10 @@ export default function DesignPartnerPage() {
               Request Pilot Access
             </Link>
             <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
-              Book Intro Call
+              Discuss Pilot Fit
             </Link>
             <Link href="/demo" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">
-              View Demo
+              Demo Overview
             </Link>
           </div>
         </div>
@@ -59,7 +59,7 @@ export default function DesignPartnerPage() {
           {risks.map(([title, copy]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
               <h3 className="text-lg font-semibold text-zinc-100">{title}</h3>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
+              <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
             </article>
           ))}
         </div>
@@ -70,15 +70,15 @@ export default function DesignPartnerPage() {
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Enterprise proof</p>
             <h2 className="mt-4 text-3xl font-semibold">Evidence that can survive a review meeting.</h2>
-            <p className="mt-4 text-sm leading-7 text-zinc-400">
-              The pilot is designed to show how a workflow moves from verification setup to governance review, replay evidence and trust receipts without becoming a opaque decision product.
+            <p className="mt-4 text-sm leading-7 text-zinc-300">
+              The pilot shows how a workflow moves from verification setup to Governance Review, Replay Evidence and trust receipts without becoming an opaque decision product.
             </p>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
             {proof.map(([title, copy]) => (
               <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <h3 className="font-semibold text-zinc-100">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-300">{copy}</p>
               </article>
             ))}
           </div>
@@ -101,7 +101,7 @@ export default function DesignPartnerPage() {
         <div className="rounded-lg border border-zinc-800 bg-black p-6">
           <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Who should apply</p>
           <h2 className="mt-4 text-2xl font-semibold">Teams with real review pressure.</h2>
-          <p className="mt-4 text-sm leading-7 text-zinc-400">
+          <p className="mt-4 text-sm leading-7 text-zinc-300">
             Ideal design partners are reviewing remote hiring workflows, sensitive verification workflows or AI-assisted operations where evidence, escalation and auditability already matter.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">

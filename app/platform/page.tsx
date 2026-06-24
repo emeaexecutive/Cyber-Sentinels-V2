@@ -18,15 +18,13 @@ export default function PlatformPage() {
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
             Operational Trust Infrastructure for AI-era workflows.
           </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels combines hiring security workflows, evidence,
             governance review, audit trails and verification receipts into a
             focused early platform.
           </p>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-            Existing cybersecurity tools detect threats. Cyber Sentinels verifies
-            operational trust across identity, workflow integrity, session
-            authenticity and operational accountability.
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
+            It keeps Hiring Security, Session Integrity, Verification Evidence, Governance Review and Replay Evidence in one reviewable path.
           </p>
         </section>
 
@@ -34,7 +32,7 @@ export default function PlatformPage() {
           {layers.map(([title, body]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
               <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">{body}</p>
+              <p className="mt-3 text-sm leading-6 text-zinc-300">{body}</p>
             </article>
           ))}
         </section>

@@ -8,13 +8,13 @@ Show an enterprise audience how Cyber Sentinels turns a suspicious hiring sessio
 
 ### 0:00-0:10 — AI changed trust
 
-**Screen:** Homepage. Hold on the hiring-security headline, then select **View Demo**.
+**Screen:** Homepage. Hold on the hiring-security headline, then select **Hiring Security**.
 
-**Voiceover:** "AI changed what organizations can create. It also changed what they can trust. A convincing identity, voice or video feed is no longer enough to establish who — or what — is entering a critical workflow."
+**Voiceover:** "AI changed what organizations can create. It also changed what they can trust. A convincing identity, voice or video feed is no longer enough to prove which person, agent or session is entering a critical workflow."
 
 ### 0:10-0:20 — A synthetic candidate enters
 
-**Screen:** `/demo`, then open **Hiring Attack**. Advance to **Synthetic candidate enters**.
+**Screen:** `/demo`, then open **Hiring Security**. Advance to **Synthetic candidate enters**.
 
 **Voiceover:** "Here, a synthetic candidate enters a remote hiring workflow with a credible profile but incomplete verification evidence. Cyber Sentinels opens a verification workflow instead of treating appearance as proof."
 

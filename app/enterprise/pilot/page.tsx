@@ -29,18 +29,18 @@ export default function EnterprisePilotPage() {
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels helps enterprise teams understand what happened, what evidence exists, which signals changed, who reviewed the workflow and how the outcome can be replayed later.
           </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
-            Trust changed quietly. AI changed identity risk, and operational trust infrastructure is emerging because verification alone cannot explain session drift, proxy interviews or injected feeds.
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Trust changed quietly. Verification alone cannot explain session drift, proxy interviews or injected feeds.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/enterprise-access?intent=pilot" className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
               Request Pilot Access
             </Link>
             <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
-              Book Intro Call
+              Discuss Pilot Fit
             </Link>
             <Link href="/demo" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">
-              View Demo
+              Demo Overview
             </Link>
           </div>
         </section>
@@ -49,7 +49,7 @@ export default function EnterprisePilotPage() {
           {structure.map(([title, copy]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
               <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>
-              <p className="mt-3 text-sm leading-7 text-zinc-400">{copy}</p>
+              <p className="mt-3 text-sm leading-7 text-zinc-300">{copy}</p>
             </article>
           ))}
         </section>
@@ -69,8 +69,8 @@ export default function EnterprisePilotPage() {
           <section className="rounded-lg border border-zinc-800 bg-black p-6">
             <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Enterprise proof</p>
             <h2 className="mt-3 text-3xl font-semibold">Show the review path, not a magic score.</h2>
-            <p className="mt-4 text-sm leading-7 text-zinc-400">
-              The pilot highlights operational auditability, replay timelines, verification receipts, governance chronology and session integrity review. It is built for practical conversations about fake applicants, proxy interviews, stolen identities, AI-assisted fraud and injected sessions.
+            <p className="mt-4 text-sm leading-7 text-zinc-300">
+              The pilot keeps Verification Evidence, Governance Review, Replay Evidence and Session Integrity visible for practical conversations about fake applicants, proxy interviews and injected sessions.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/admin/pilot-overview" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400">

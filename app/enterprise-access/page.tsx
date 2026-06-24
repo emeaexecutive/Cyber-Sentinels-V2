@@ -20,8 +20,7 @@ export default async function EnterpriseAccessPage({ searchParams }: {
           <PrivateBetaBadge className="mt-4" />
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">{designPartner ? "Request Design Partner Access" : "Request Enterprise Access"}</h1>
           <p className="mt-5 max-w-2xl leading-8 text-zinc-300">Tell us what you need to verify, which workflow is exposed and what human review or audit trail your team requires.</p>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-400">Cyber Sentinels is Operational Trust Infrastructure for enterprise workflows. It coordinates trust across humans, AI agents, enterprise workflows, and digital interactions.</p>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-400">Traditional cybersecurity tools protect networks, devices and communications. Cyber Sentinels protects operational trust, workflow integrity, session authenticity, identity accountability and verification evidence.</p>
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-300">Cyber Sentinels is Operational Trust Infrastructure for enterprise workflows that need Hiring Security, Session Integrity, Verification Evidence, Governance Review and Replay Evidence.</p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {[
               ["Trust state changes", "Workflow status remains visible as identity, session and evidence state changes."],
@@ -31,14 +30,14 @@ export default async function EnterpriseAccessPage({ searchParams }: {
             ].map(([title, copy]) => (
               <div key={title} className="rounded-lg border border-zinc-800 bg-black p-3">
                 <p className="text-xs font-semibold text-zinc-100">{title}</p>
-                <p className="mt-2 text-xs leading-5 text-zinc-500">{copy}</p>
+                <p className="mt-2 text-xs leading-5 text-zinc-300">{copy}</p>
               </div>
             ))}
           </div>
           <PrivateBetaNotice className="mt-6 max-w-2xl" />
           <div className="mt-8 flex flex-wrap gap-3 text-sm">
-            <Link href="/demo" className="rounded-md border border-zinc-700 px-4 py-2">View Demo</Link>
-            <Link href="/demo/hiring-attack" className="rounded-md border border-cyan-900 px-4 py-2 text-cyan-200">Hiring Attack Demo</Link>
+            <Link href="/demo" className="rounded-md border border-zinc-700 px-4 py-2">Demo Overview</Link>
+            <Link href="/demo/hiring-attack" className="rounded-md border border-cyan-900 px-4 py-2 text-cyan-200">Hiring Security</Link>
           </div>
         </section>
 
