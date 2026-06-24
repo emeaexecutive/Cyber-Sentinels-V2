@@ -3,6 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import { StatusBadge } from "@/components/phase-one-trust";
 import { PrintReceiptButton } from "@/components/print-receipt-button";
+import {
+  TrustJourneyVisualization,
+  type TrustJourneyEvent,
+  type TrustJourneyState,
+} from "@/components/trust-journey-visualization";
 import { createClient } from "@/lib/supabase/server";
 import {
   buildTrustPosture,
@@ -37,6 +42,18 @@ function DetailRow({ label: rowLabel, value }: { label: string; value: unknown }
       <p className="mt-2 text-sm text-zinc-300">{label(value)}</p>
     </div>
   );
+}
+
+function stateFromText(value: unknown): TrustJourneyState {
+  const text = String(value ?? "").toLowerCase();
+  if (text.includes("approved") || text.includes("verified") || text.includes("complete")) return "verified";
+  if (text.includes("receipt") || text.includes("issued")) return "trusted_workforce";
+  if (text.includes("replay")) return "replay_available";
+  if (text.includes("integrity") && (text.includes("fail") || text.includes("risk"))) return "session_integrity_failed";
+  if (text.includes("manual")) return "manual_review_required";
+  if (text.includes("governance") || text.includes("review") || text.includes("pending")) return "governance_review";
+  if (text.includes("risk") || text.includes("deepfake") || text.includes("injection")) return "elevated_risk";
+  return "verified";
 }
 
 export default async function TrustReceiptPage({
@@ -178,6 +195,69 @@ export default async function TrustReceiptPage({
     snapshot.governance_review_outcome ??
     latestGovernance?.action_status ??
     "pending human review";
+  const trustJourneyEvents: TrustJourneyEvent[] = [
+    {
+      id: "verification-initiated",
+      title: "Verification initiated",
+      description: `Workflow subject recorded as ${label(receipt.subject_type, "workflow subject")}.`,
+      occurredAt: receipt.created_at ?? receipt.issued_at,
+      state: "manual_review_required",
+      score: 52,
+    },
+    {
+      id: "human-presence",
+      title: "Human presence confirmed",
+      description: `Identity verification state: ${label(identityState, "pending")}.`,
+      occurredAt: sessionIntegrity?.created_at ?? receipt.created_at ?? receipt.issued_at,
+      state: stateFromText(identityState),
+      score: 68,
+    },
+    {
+      id: "session-integrity",
+      title: "Session integrity checks",
+      description: `Session integrity state: ${label(sessionIntegrityState, "pending")}.`,
+      occurredAt: sessionIntegrity?.created_at ?? receipt.issued_at,
+      state: stateFromText(sessionIntegrityState),
+      score: stateFromText(sessionIntegrityState) === "session_integrity_failed" ? 38 : 70,
+    },
+    {
+      id: "deepfake-analysis",
+      title: "Deepfake analysis",
+      description: `Deepfake risk state: ${label(deepfakeRiskState)}.`,
+      occurredAt: deepfakeEvent?.created_at ?? receipt.issued_at,
+      state: stateFromText(deepfakeRiskState),
+      score: deepfakeEvent ? 48 : 74,
+    },
+    {
+      id: "injection-risk",
+      title: "Injection risk events",
+      description: `Injection risk state: ${label(injectionRiskState)}.`,
+      occurredAt: injectionEvent?.created_at ?? receipt.issued_at,
+      state: stateFromText(injectionRiskState),
+      score: injectionEvent ? 42 : 76,
+    },
+    ...(governanceActions ?? []).map((action, index): TrustJourneyEvent => ({
+      id: `governance-${action.id ?? index}`,
+      title: "Governance review action",
+      description: label(action.resolution_notes ?? action.action_type ?? action.action_status, "Human governance review recorded."),
+      occurredAt: action.resolved_at ?? action.created_at,
+      state: stateFromText(action.action_status),
+      score: ["approved", "resolved"].includes(String(action.action_status ?? "")) ? 78 : 58,
+    })),
+    {
+      id: "receipt-issued",
+      title: "Receipt issuance",
+      description: "Verification receipt preserves the outcome, evidence summary, reviewer state and replay path.",
+      occurredAt: receipt.issued_at,
+      state: "trusted_workforce",
+      score: 88,
+    },
+  ];
+  const finalJourneyState: TrustJourneyState = openGovernance.length
+    ? "governance_review"
+    : injectionEvent
+      ? "replay_available"
+      : "trusted_workforce";
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white print:bg-white print:px-0 print:py-0 print:text-black md:px-8">
@@ -272,6 +352,15 @@ export default async function TrustReceiptPage({
             Evidence summary: {(evidenceChains ?? []).length} retained chain(s), {(timeline ?? []).length} timeline event(s), and {(auditLogs ?? []).length} audit reference(s). Reviewer actions remain visible below.
           </p>
         </section>
+
+        <div className="mt-8">
+          <TrustJourneyVisualization
+            title="Receipt trust progression"
+            description="Chronological verification story from initiation through presence, integrity checks, deepfake and injection review, governance action and receipt issuance."
+            events={trustJourneyEvents}
+            finalState={finalJourneyState}
+          />
+        </div>
 
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5 print:border-zinc-300 print:bg-white">

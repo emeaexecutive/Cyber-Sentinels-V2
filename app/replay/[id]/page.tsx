@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StatusBadge } from "@/components/phase-one-trust";
+import {
+  TrustJourneyVisualization,
+  type TrustJourneyEvent,
+  type TrustJourneyState,
+} from "@/components/trust-journey-visualization";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +27,32 @@ function label(value: unknown, fallback = "Not recorded") {
 
 function occurredAt(row: Row) {
   return String(row.created_at ?? row.issued_at ?? "");
+}
+
+function trustStateForEvent(event: Row): TrustJourneyState {
+  const combined = `${event.type ?? ""} ${event.title ?? ""} ${event.state ?? ""}`.toLowerCase();
+  if (combined.includes("receipt")) return "trusted_workforce";
+  if (combined.includes("replay")) return "replay_available";
+  if (combined.includes("approved") || combined.includes("resolved")) return "verified";
+  if (combined.includes("governance") || combined.includes("review")) return "governance_review";
+  if (combined.includes("manual")) return "manual_review_required";
+  if (combined.includes("injection") || combined.includes("integrity") || combined.includes("failed")) return "session_integrity_failed";
+  if (combined.includes("risk") || combined.includes("escalated")) return "elevated_risk";
+  return "verified";
+}
+
+function trustScoreForEvent(event: Row, index: number) {
+  const state = trustStateForEvent(event);
+  const baseByState: Record<TrustJourneyState, number> = {
+    verified: 74,
+    elevated_risk: 46,
+    governance_review: 58,
+    session_integrity_failed: 34,
+    manual_review_required: 52,
+    replay_available: 68,
+    trusted_workforce: 88,
+  };
+  return Math.max(20, Math.min(96, baseByState[state] + index * 2));
 }
 
 export default async function VerificationReplayPage({
@@ -114,6 +145,21 @@ export default async function VerificationReplayPage({
   const reviewCompleted = ["approved", "rejected", "resolved"].includes(
     String(latestGovernance?.action_status ?? "")
   );
+  const trustJourneyEvents: TrustJourneyEvent[] = chronology.map((event, index) => ({
+    id: event.id,
+    title: label(event.title, "Verification milestone"),
+    description: label(event.summary, "Trust state recorded for audit replay."),
+    occurredAt: occurredAt(event),
+    state: trustStateForEvent(event),
+    score: trustScoreForEvent(event, index),
+  }));
+  const finalJourneyState: TrustJourneyState = receipts?.length
+    ? "trusted_workforce"
+    : latestGovernance
+      ? "governance_review"
+      : injectionEvent
+        ? "session_integrity_failed"
+        : "replay_available";
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-10 text-white md:px-8">
@@ -172,6 +218,15 @@ export default async function VerificationReplayPage({
             </div>
           ))}
         </section>
+
+        <div className="mt-8">
+          <TrustJourneyVisualization
+            title="Verification replay progression"
+            description="Trust score progression, verification milestones, integrity failures, governance escalation and receipt outcome ordered as an operational audit replay."
+            events={trustJourneyEvents}
+            finalState={finalJourneyState}
+          />
+        </div>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">

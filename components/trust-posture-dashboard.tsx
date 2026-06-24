@@ -7,6 +7,11 @@ import {
   RefreshCw,
   ShieldAlert,
 } from "lucide-react";
+import {
+  TrustJourneyVisualization,
+  type TrustJourneyEvent,
+  type TrustJourneyState,
+} from "@/components/trust-journey-visualization";
 import type {
   TrustPostureDashboardSnapshot,
 } from "@/lib/trust-posture/dashboard";
@@ -41,6 +46,17 @@ function clean(value: unknown, fallback = "Not recorded") {
   return String(value).replaceAll("_", " ");
 }
 
+function journeyStateForPosture(value: unknown): TrustJourneyState {
+  const text = String(value ?? "").toLowerCase();
+  if (text.includes("trusted")) return "trusted_workforce";
+  if (text.includes("replay")) return "replay_available";
+  if (text.includes("governance") || text.includes("review")) return "governance_review";
+  if (text.includes("manual")) return "manual_review_required";
+  if (text.includes("integrity") || text.includes("session")) return "session_integrity_failed";
+  if (text.includes("risk") || text.includes("anomaly") || text.includes("changed")) return "elevated_risk";
+  return "verified";
+}
+
 export function TrustPostureDashboard({
   snapshot,
   enterprise = false,
@@ -55,6 +71,45 @@ export function TrustPostureDashboard({
     ["Elevated indicators", snapshot.metrics.elevatedIndicators, ShieldAlert],
     ["Recent trust events", snapshot.metrics.recentEvents, History],
   ] as const;
+  const journeyEvents: TrustJourneyEvent[] = [
+    {
+      id: "active-trust-level",
+      title: "Trust score progression",
+      description: snapshot.activeTrustLabel,
+      occurredAt: snapshot.summaries[0]?.updatedAt ?? snapshot.recentEvents[0]?.created_at,
+      state: snapshot.badge === "trusted" ? "trusted_workforce" : journeyStateForPosture(snapshot.badge),
+      score: snapshot.activeTrustLevel,
+    },
+    ...snapshot.recentEvents.slice(0, 5).map((row, index): TrustJourneyEvent => ({
+      id: `recent-${row.id ?? index}`,
+      title: clean(row.posture_label, "Verification milestone"),
+      description: clean(row.explanation, "Existing verification, session or timeline event retained for audit review."),
+      occurredAt: row.created_at,
+      state: journeyStateForPosture(`${row.posture_source ?? ""} ${row.posture_label ?? ""} ${row.explanation ?? ""}`),
+      score: snapshot.activeTrustLevel === null ? null : Math.max(25, Math.min(92, snapshot.activeTrustLevel - 10 + index * 3)),
+    })),
+    ...snapshot.reviewQueue.slice(0, 3).map((row, index): TrustJourneyEvent => ({
+      id: `review-${row.id ?? index}`,
+      title: row.posture_queue_type === "session" ? "Session integrity review" : "Governance escalation",
+      description: clean(row.resolution_notes ?? row.review_summary, "Human review remains required before the posture is current."),
+      occurredAt: row.created_at,
+      state: row.posture_queue_type === "session" ? "session_integrity_failed" : "governance_review",
+      score: 52,
+    })),
+    ...snapshot.elevatedRisk.slice(0, 3).map((row, index): TrustJourneyEvent => ({
+      id: `risk-${row.id ?? index}`,
+      title: clean(row.category, "Elevated risk indicator"),
+      description: clean(row.explanation, "Risk indicator retained for reviewer action."),
+      occurredAt: row.created_at,
+      state: row.requires_manual_review ? "manual_review_required" : "elevated_risk",
+      score: 44,
+    })),
+  ];
+  const finalJourneyState: TrustJourneyState = snapshot.reviewQueue.length
+    ? "governance_review"
+    : snapshot.elevatedRisk.length
+      ? "elevated_risk"
+      : "trusted_workforce";
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -102,6 +157,15 @@ export function TrustPostureDashboard({
               {snapshot.posture.explanation}. {snapshot.posture.nextReview}
             </p>
           </div>
+        </section>
+
+        <section className="mt-8">
+          <TrustJourneyVisualization
+            title="Trust posture journey"
+            description="Operational progression across active trust score, verification milestones, governance escalations, integrity failures, approvals and final workforce trust posture."
+            events={journeyEvents}
+            finalState={finalJourneyState}
+          />
         </section>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
