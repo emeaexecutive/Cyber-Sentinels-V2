@@ -16,7 +16,6 @@ const publicLinks = [
   ["/demo", "Demo"],
   ["/pricing", "Pricing"],
   ["/enterprise-access", "Enterprise Access"],
-  ["/login", "Login"],
 ];
 
 const adminLinks = [
