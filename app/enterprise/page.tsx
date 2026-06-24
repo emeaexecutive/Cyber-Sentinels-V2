@@ -2,17 +2,19 @@ import Link from "next/link";
 
 const useCases = [
   "Hiring Security",
-  "Enterprise Governance",
-  "Verification Workflows",
-  "AI Agent Verification",
-  "Audit-Ready Reviews",
-  "Human-Governed Decisions",
+  "Session Integrity",
+  "Governance Review",
+  "Verification Replay",
+  "Verification Receipts",
+  "Audit-Ready Decisions",
 ];
 
 const trustControls = [
-  ["Deployment readiness", "Controlled private-beta access, readiness gates and operational health checks are visible before pilot activation."],
-  ["Governed verification", "Cases, evidence, approvals and reviewer actions stay connected in one explainable workflow."],
-  ["Auditability", "Receipts and timelines preserve the context behind sensitive human and AI-agent decisions."],
+  ["Hiring Security", "Fake applicants, proxy interviews and AI-assisted fraud move into an evidence-backed review path instead of a generic alert queue."],
+  ["Session Integrity", "Liveness, deepfake risk, injection risk and channel integrity remain separate signals after verification begins."],
+  ["Governance Review", "High-risk workflow changes route to named reviewers with ownership, chronology and recorded action."],
+  ["Verification Replay", "Replay timelines reconstruct what happened before, during and after a workflow changed state."],
+  ["Verification Receipts", "Printable receipts summarize trust state, reviewer action, verification evidence and replay references."],
 ];
 
 const coordinationControls = [
@@ -34,20 +36,22 @@ export default function EnterprisePage() {
             Enterprise trust coordination for humans, AI agents, and critical workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels connects identity, session context, Verification Evidence and Governance Review so teams can keep sensitive workflows explainable.
+            Cyber Sentinels connects Hiring Security, Session Integrity,
+            Governance Review, Verification Replay and Verification Receipts so
+            teams can keep sensitive workflows explainable.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/enterprise/hiring-security" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
-              Hiring Security
+            <Link href="/demo" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
+              View Demo
             </Link>
-            <Link href="/enterprise/demo-stories" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
-              Demo Stories
+            <Link href="/enterprise-access" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
+              Request Enterprise Access
             </Link>
-            <Link href="/enterprise/pilot" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white">
-              Enterprise Pilot
-            </Link>
-            <Link href="/design-partner" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white">
+            <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white">
               Become a Design Partner
+            </Link>
+            <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white">
+              Book Intro Call
             </Link>
           </div>
         </section>
@@ -78,7 +82,9 @@ export default function EnterprisePage() {
             Device and communication security are still necessary, but they do not explain whether a workflow stayed trustworthy after verification began.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels helps teams verify which people, agents, sessions and evidence can be trusted across enterprise workflows.
+            Cyber Sentinels helps teams verify which people, sessions and
+            evidence can be reviewed across enterprise workflows, with human
+            authority preserved.
           </p>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {coordinationControls.map(([title, copy]) => (
@@ -97,18 +103,32 @@ export default function EnterprisePage() {
             evidence-backed verification, governance workflows and operational
             transparency in real environments.
           </p>
-          <Link
-            href="/enterprise-access"
-            className="mt-5 inline-flex rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
-          >
-            Request Access
-          </Link>
-          <Link
-            href="/enterprise/pilot"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400"
-          >
-            Pilot Structure
-          </Link>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link
+              href="/demo"
+              className="inline-flex rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
+            >
+              View Demo
+            </Link>
+            <Link
+              href="/enterprise-access"
+              className="inline-flex rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400"
+            >
+              Request Enterprise Access
+            </Link>
+            <Link
+              href="/enterprise-access?intent=design_partner"
+              className="inline-flex rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white"
+            >
+              Become a Design Partner
+            </Link>
+            <Link
+              href="/enterprise-access?intent=intro_call"
+              className="inline-flex rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white"
+            >
+              Book Intro Call
+            </Link>
+          </div>
         </section>
       </div>
     </main>

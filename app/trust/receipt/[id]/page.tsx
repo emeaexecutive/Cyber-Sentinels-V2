@@ -305,7 +305,10 @@ export default async function TrustReceiptPage({
                 Trust changed quietly. Verification receipt available. {nextReceiptAction}
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-                This receipt explains what happened, what was detected, what action occurred and what evidence was retained. It is not a blockchain record or an automatic trust decision.
+                This printable receipt explains what happened, what was detected,
+                what action occurred, which chronology is available and what
+                evidence was retained. It is not a blockchain record or an
+                automatic trust decision.
               </p>
               <div className="mt-5 max-w-3xl">
                 <OnboardingHint area="receipt" />
@@ -342,9 +345,10 @@ export default async function TrustReceiptPage({
           <DetailRow label="Reviewer State" value={receipt.issued_by ? "Human review recorded" : "System recorded"} />
         </section>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-3">
+        <section className="mt-8 grid gap-4 md:grid-cols-4">
           <DetailRow label="Trust State" value={label(receipt.verification_status ?? governanceOutcome, "reviewable")} />
           <DetailRow label="Reviewer Action" value={latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No reviewer action attached"} />
+          <DetailRow label="Verification Evidence" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} evidence chain(s)` : "Evidence pending"} />
           <DetailRow label="Replay Link" value={`/replay/${receipt.subject_id}`} />
         </section>
 

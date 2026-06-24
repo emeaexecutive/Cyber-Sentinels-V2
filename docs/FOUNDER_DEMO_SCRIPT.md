@@ -1,150 +1,126 @@
 # Founder Demo Script
 
-Cyber Sentinels should be presented as trust orchestration infrastructure: explainable, human-governed, operational, enterprise-safe and audit-oriented.
+Cyber Sentinels should be presented as operational trust infrastructure:
+explainable, human-governed, enterprise-safe and audit-ready.
 
-Core line: "Operational Trust Infrastructure for AI-era workflows."
+Core line: "Trust changed quietly."
 
-## 5 Minute Demo
+Closing line: "The future of AI is not only intelligence. It is trust."
 
-1. Open `/enterprise/demo-stories`.
-   - Say: "Cyber Sentinels helps enterprises turn unclear trust questions into evidence-backed workflows."
-   - Start with the Hiring Security story because it is concrete and urgent.
+## 90-Second Version
 
-2. Open `/enterprise/hiring-security`.
-   - Say: "The future of hiring is trust. We help teams verify the human behind the interview."
-   - Explain that this is not a binary detector. It is an operational review layer for candidate provenance, recruiter verification, interview integrity and human-governed decisions.
+1. Open `/demo`.
+   Say: "Cyber Sentinels protects enterprise workflows against synthetic identity attacks."
 
-3. Open `/demo`.
-   - Say: "This is the basic operational flow: trust case, evidence, signals, governance, timeline, receipt and replay."
-   - Point out that demo data is sample-only.
+2. Open `/demo/hiring-attack`.
+   Say: "A fake candidate enters the workflow. Verification begins, but the session still has to remain trustworthy."
 
-4. Open `/enterprise/walkthrough`.
-   - Say: "The broader platform is trust orchestration: evidence, governance and memory for AI-era workflows."
-   - Connect hiring security to operational trust and AI agent governance.
+3. Advance through the sequence.
+   Say: "Session integrity fails, governance review opens, replay evidence appears, a reviewer action is recorded and a verification receipt is issued."
 
-5. Open `/admin/founder-control`.
-   - Say: "The founder view tracks readiness, runtime validation, workflow health and blockers without invasive analytics."
-   - Close with the next step: design-partner access, pilot setup or first trust case.
+4. Open a receipt or explain the receipt state.
+   Say: "This is the record an enterprise team can review later: trust state, reviewer action, chronology, replay reference and verification evidence."
 
-## 15 Minute Enterprise Walkthrough
+5. Close with the CTA.
+   Say: "For a design partner pilot, we start with one workflow, one review path and one audit-ready receipt."
 
-1. Problem and timing.
-   - "AI-era workflows make it harder to know what evidence existed, who reviewed it and why a decision was made."
-   - "The risk is no longer only synthetic media. It is synthetic trust, weak provenance and fragmented governance memory."
+## 5-Minute Version
 
-2. Hiring security wedge.
-   - Open `/enterprise/demo-stories`.
-   - Start with Hiring Security and Interview Integrity.
-   - Say: "Protect enterprise hiring workflows against synthetic trust attacks."
-   - Explain candidate provenance, recruiter verification, interview integrity, evidence review and human decisioning.
+1. Start with the problem.
+   Say: "AI changed identity risk. A profile, face, voice or interview channel can look credible while the workflow evidence is incomplete."
 
-3. Trust orchestration.
-   - Open `/enterprise/walkthrough`.
-   - Show how a trust case becomes the container for evidence, signals, governance review, timeline, replay and receipts.
-   - Say: "The value is not one score. The value is an explainable operational chain."
+2. Show `/enterprise`.
+   Explain the five pillars:
+   - Hiring Security
+   - Session Integrity
+   - Governance Review
+   - Verification Replay
+   - Verification Receipts
 
-4. Workspace and pilot setup.
-   - Open `/enterprise/pilot-setup`.
-   - Create or describe an isolated pilot workspace and first trust case.
-   - Explain isolation: pilot workspace, pilot cases, pilot notifications, governance actions and demo data stay separate from other workflows.
+3. Show `/demo`.
+   Say: "This is the operational sequence we want enterprise teams to understand in one pass."
 
-5. Evidence and signals.
-   - Open `/evidence-upload` or the relevant sample case.
-   - Explain that evidence grounds the workflow in reviewable material.
-   - Explain that signals are operational context, not hidden judgments.
+4. Open `/demo/hiring-attack`.
+   Walk through the fake candidate flow:
+   - Fake candidate enters workflow.
+   - Verification begins.
+   - Session integrity fails.
+   - Governance review opens.
+   - Replay evidence appears.
+   - Reviewer action is recorded.
+   - Verification receipt is issued.
 
-6. AI-assisted human governance.
-   - Open `/governance`.
-   - Explain approve, reject, escalate, defer and request-more-evidence actions.
-   - Say: "AI assists. Humans decide. AI can summarize missing evidence, unresolved signals, workflow bottlenecks and operational history, but it does not approve, reject, suspend or autonomously escalate users."
+5. Open `/demo/session-integrity`.
+   Say: "Verification at entry is not enough. The session can change after the check, so liveness, deepfake risk, injection risk and channel integrity remain separate review signals."
 
-7. Replay and receipt explanation.
-   - Open `/trust-replay` and a receipt route when available.
-   - Say: "Replay does not rewrite history. It helps teams understand how the workflow evolved."
-   - Say: "Receipts provide audit-ready summaries of what supported a verification state."
-   - Avoid immutable-truth or blockchain language.
+6. Explain governance escalation.
+   Say: "Cyber Sentinels does not turn flags into automatic verdicts. It routes evidence to human governance with reviewer action and chronology."
 
-8. Founder control.
-   - Open `/admin/founder-control`.
-   - Show deployment readiness, runtime validation, activation checkpoints, integration warnings and unresolved blockers.
-   - Say: "This is how we keep founder-led pilots operationally honest."
+7. Explain replay.
+   Say: "Replay is the operational memory. It lets security, talent and compliance reconstruct what happened without relying on disconnected logs."
 
-## Hiring Security Wedge
+8. Explain the receipt.
+   Say: "The receipt is the portable audit record: trust state, evidence summary, reviewer action, replay reference and final outcome."
 
-Use this framing:
+9. Close with pilot readiness.
+   Say: "A pilot should prove one concrete workflow, produce one replayable chronology and issue one receipt that a stakeholder can understand."
 
-- "The future of hiring is trust."
-- "Verify the human behind the interview."
-- "Protect enterprise hiring workflows against synthetic trust attacks."
-- "This is not a binary detector. It is an operational review layer for candidate provenance, recruiter verification, interview integrity and human-governed decisions."
+## Enterprise Pain Points
 
-Walkthrough path:
+- Synthetic applicants can enter hiring workflows before evidence catches up.
+- Proxy interviews can separate the person being evaluated from the person in the session.
+- AI-assisted answers and injected feeds can make a compromised workflow look normal.
+- Verification tools can confirm an entry point without explaining what changed later.
+- Review teams often lack a single chronology connecting evidence, flags, action and outcome.
 
-1. `/enterprise/demo-stories`
-2. `/enterprise/hiring-security`
-3. `/dashboard/interview-risk`
-4. `/trust/hiring-report/[id]` when a sample session exists
-5. `/trust/receipt/[id]` when a sample receipt exists
+## Fake Candidate Flow
 
-## Trust Orchestration Explanation
+Use this sequence every time:
 
-Cyber Sentinels connects:
+1. Fake candidate enters workflow.
+2. Verification begins.
+3. Session integrity fails.
+4. Governance review opens.
+5. Replay evidence appears.
+6. Reviewer action is recorded.
+7. Verification receipt is issued.
 
-- Workspaces
-- Trust cases
-- Evidence
-- Signals
-- Governance actions
-- Audit logs
-- Timeline events
-- Relationships
-- Replay sessions
-- Verification receipts
+## Governance Escalation
 
 Use this wording:
 
-- "Cyber Sentinels is trust orchestration infrastructure."
-- "It shows what evidence existed, which signals were unresolved, what governance action occurred, which receipt was issued and how the workflow can be replayed later."
-- "The value is not one score. The value is an explainable operational chain."
-
-## Replay And Receipt Explanation
-
-Use this wording:
-
-- "Cyber Sentinels preserves operational chronology and explainable trust history."
-- "Timeline and replay help teams understand how evidence, signals and governance actions evolved."
-- "Replay does not rewrite history. It reconstructs the operational path."
-- "Receipts provide audit-ready summaries of what supported a verification state."
-
-Avoid:
-
-- "Immutable truth."
-- "Blockchain-backed proof" unless a real implementation supports that claim.
-- "The receipt proves the person is trustworthy."
-
-## AI-Assisted Human Governance Explanation
-
-Use this wording:
-
-- "AI assists. Humans decide."
-- "AI can summarize missing evidence, unresolved signals, workflow bottlenecks and operational history."
-- "AI does not approve, reject, suspend or autonomously escalate users."
-- "Sensitive workflows remain accountable to human governance."
+- "A flag is not a verdict."
+- "Human review remains visible."
+- "The platform records what was escalated, who reviewed it and what action was taken."
+- "The goal is accountable review, not automatic suspicion."
 
 Avoid:
 
 - "The AI decides trust."
-- "The AI detects everything."
-- "The AI is the authority."
+- "The system proves someone is safe."
+- "Perfect detection."
 
-## Founder Rule
+## Replay Explanation
 
-Cyber Sentinels must remain:
+Use this wording:
 
-- Explainable
-- Human-governed
-- Operational
-- Enterprise-safe
-- Audit-oriented
+- "Replay Evidence reconstructs the operational sequence."
+- "It shows identity context, session integrity changes, flags, reviewer action and trust state changes in order."
+- "Replay helps teams understand what happened without rewriting the past."
 
-Never position the product as opaque social scoring.
+## Verification Receipt Explanation
+
+Use this wording:
+
+- "Verification Receipts are audit-ready summaries of the workflow outcome."
+- "They show trust state, reviewer action, chronology, replay reference and verification evidence."
+- "They are designed for security, talent, compliance and executive review."
+
+## CTAs
+
+Use only these primary CTAs in launch conversations:
+
+- View Demo
+- Request Enterprise Access
+- Become a Design Partner
+- Book Intro Call

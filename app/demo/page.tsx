@@ -42,9 +42,9 @@ export default function DemoPage() {
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href="/demo/hiring-attack" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-200">View Demo</Link>
-            <Link href="/demo/session-integrity" className="rounded-md border border-zinc-600 px-5 py-3 text-sm font-semibold text-white hover:border-zinc-300">Session Integrity</Link>
             <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">Request Enterprise Access</Link>
             <Link href="/enterprise-access?intent=design_partner" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">Become a Design Partner</Link>
+            <Link href="/enterprise-access?intent=intro_call" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">Book Intro Call</Link>
           </div>
           <PrivateBetaNotice className="mt-6 max-w-3xl" />
         </section>
@@ -104,7 +104,7 @@ export default function DemoPage() {
               <h2 className="mt-3 text-2xl font-semibold text-white">Make the proof visible after the walkthrough.</h2>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-300">Use these surfaces to show the primary trust narrative: demo, Replay Evidence, Verification Receipt and Governance Review.</p>
             </div>
-            <Link href="/demo-lab" className="rounded-md border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-100 hover:border-zinc-400">Seed Demo Data</Link>
+            <Link href="/enterprise-access?intent=intro_call" className="rounded-md border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-100 hover:border-zinc-400">Book Intro Call</Link>
           </div>
           <div className="mt-6 grid gap-3 md:grid-cols-4">
             {proofLinks.map(([href, title, copy]) => (

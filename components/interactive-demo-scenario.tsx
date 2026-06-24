@@ -37,8 +37,8 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
       <div className="mx-auto max-w-6xl">
         <nav className="flex gap-4 text-sm text-zinc-300">
           <Link href="/demo">Demo overview</Link>
-          <Link href="/dashboard">Pilot dashboard</Link>
-          <Link href="/enterprise-access">Enterprise access</Link>
+          <Link href="/enterprise-access">Request Enterprise Access</Link>
+          <Link href="/enterprise-access?intent=intro_call">Book Intro Call</Link>
         </nav>
         <header className="mt-10 border-b border-zinc-800 pb-10">
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">{label} / 90-second walkthrough</p>
@@ -92,13 +92,14 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
             <p className="mt-5 text-sm text-zinc-300">Sample-only evidence. Signals inform human review; they do not decide candidate trust.</p>
             <div className="mt-8 flex flex-wrap justify-between gap-3">
               <button disabled={active === 0} onClick={() => setActive(active - 1)} className="rounded-md border border-zinc-700 px-4 py-2 text-sm disabled:opacity-30">Previous</button>
-              {!complete ? <button onClick={() => setActive(active + 1)} className="rounded-md bg-white px-5 py-2 text-sm font-semibold text-black">Continue</button> : nextScenario ? <Link href={nextScenario.href} className="rounded-md bg-cyan-300 px-5 py-2 text-sm font-semibold text-black">{nextScenario.label}</Link> : <Link href="/demo-lab" className="rounded-md bg-cyan-300 px-5 py-2 text-sm font-semibold text-black">Seed pilot workflow</Link>}
+              {!complete ? <button onClick={() => setActive(active + 1)} className="rounded-md bg-white px-5 py-2 text-sm font-semibold text-black">Continue</button> : nextScenario ? <Link href={nextScenario.href} className="rounded-md bg-cyan-300 px-5 py-2 text-sm font-semibold text-black">{nextScenario.label}</Link> : <Link href="/demo" className="rounded-md bg-cyan-300 px-5 py-2 text-sm font-semibold text-black">View Demo</Link>}
             </div>
             {complete ? (
               <div className="mt-5 flex flex-wrap gap-3 text-sm">
-                <Link href="/trust-replay" className="rounded-md border border-zinc-700 px-4 py-2 text-zinc-200 hover:border-zinc-400">Open Replay Evidence</Link>
-                <Link href="/dashboard" className="rounded-md border border-zinc-700 px-4 py-2 text-zinc-200 hover:border-zinc-400">View Verification Receipts</Link>
+                <Link href="/demo" className="rounded-md border border-zinc-700 px-4 py-2 text-zinc-200 hover:border-zinc-400">View Demo</Link>
                 <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-4 py-2 text-cyan-100 hover:border-cyan-400">Request Enterprise Access</Link>
+                <Link href="/enterprise-access?intent=design_partner" className="rounded-md border border-zinc-700 px-4 py-2 text-zinc-200 hover:border-zinc-400">Become a Design Partner</Link>
+                <Link href="/enterprise-access?intent=intro_call" className="rounded-md border border-zinc-700 px-4 py-2 text-zinc-200 hover:border-zinc-400">Book Intro Call</Link>
               </div>
             ) : null}
           </article>
