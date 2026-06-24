@@ -4,6 +4,7 @@ import { StatusBadge } from "@/components/phase-one-trust";
 import {
   TrustJourneyVisualization,
   type TrustJourneyEvent,
+  type TrustJourneyStage,
   type TrustJourneyState,
 } from "@/components/trust-journey-visualization";
 import { createClient } from "@/lib/supabase/server";
@@ -53,6 +54,21 @@ function trustScoreForEvent(event: Row, index: number) {
     trusted_workforce: 88,
   };
   return Math.max(20, Math.min(96, baseByState[state] + index * 2));
+}
+
+function stageForEvent(event: Row): TrustJourneyStage {
+  const text = `${event.type ?? ""} ${event.title ?? ""} ${event.summary ?? ""} ${event.state ?? ""}`.toLowerCase();
+  if (text.includes("receipt")) return "receipt_issued";
+  if (text.includes("approved") || text.includes("resolved") || text.includes("rejected") || text.includes("reviewer")) {
+    return "manual_review_completed";
+  }
+  if (text.includes("governance") || text.includes("escalated")) return "governance_review_opened";
+  if (text.includes("injection")) return "injection_risk_reviewed";
+  if (text.includes("session") || text.includes("integrity") || text.includes("channel")) return "session_integrity_checked";
+  if (text.includes("human") || text.includes("presence") || text.includes("liveness") || text.includes("identity")) {
+    return "human_presence_checked";
+  }
+  return "identity_submitted";
 }
 
 export default async function VerificationReplayPage({
@@ -147,17 +163,45 @@ export default async function VerificationReplayPage({
   const reviewCompleted = ["approved", "rejected", "resolved"].includes(
     String(latestGovernance?.action_status ?? "")
   );
-  const trustJourneyEvents: TrustJourneyEvent[] = chronology.map((event, index) => ({
+  const baselineJourneyEvents: TrustJourneyEvent[] = [
+    {
+      id: "baseline-verification-started",
+      title: "Verification started",
+      description: session?.title ?? "Verification workflow opened for replay.",
+      occurredAt: session?.created_at ?? requestedReplay?.created_at,
+      state: "manual_review_required",
+      stage: "identity_submitted",
+      evidenceLabel: "workflow record",
+      flag: label(session?.status ?? session?.session_status, "started"),
+      score: 52,
+    },
+    {
+      id: "baseline-replay-available",
+      title: "Replay available",
+      description: "Replay evidence is available for audit review.",
+      occurredAt: requestedReplay?.created_at ?? chronology.at(-1)?.created_at,
+      state: "replay_available",
+      stage: "manual_review_completed",
+      evidenceLabel: "replay evidence",
+      flag: "Replay Available",
+      score: 68,
+    },
+  ];
+  const trustJourneyEvents: TrustJourneyEvent[] = [
+    ...baselineJourneyEvents,
+    ...chronology.map((event, index) => ({
     id: event.id,
     title: label(event.title, "Verification milestone"),
     description: label(event.summary, "Trust state recorded for audit replay."),
     occurredAt: occurredAt(event),
     state: trustStateForEvent(event),
+    stage: stageForEvent(event),
     evidenceLabel: label(event.type, "evidence"),
     flag: label(event.state, "recorded"),
     reviewerAction: event.type === "governance" ? label(event.summary, "Human review recorded.") : null,
     score: trustScoreForEvent(event, index),
-  }));
+    })),
+  ];
   const finalJourneyState: TrustJourneyState = receipts?.length
     ? "trusted_workforce"
     : latestGovernance
@@ -231,7 +275,7 @@ export default async function VerificationReplayPage({
             events={trustJourneyEvents}
             finalState={finalJourneyState}
             proofState={{
-              currentVerificationState: label(session?.verification_status ?? session?.session_status ?? session?.integrity_status, "Reviewable"),
+              currentVerificationState: label(session?.verification_status ?? session?.session_status ?? session?.integrity_status, completed ? "Verified" : "Manual Review Required"),
               riskLevel: elevatedRiskEvent ? label(elevatedRiskEvent.risk_level ?? elevatedRiskEvent.signal_type, "Elevated") : "No elevated flag recorded",
               lastEvidenceEvent: latestEvidenceEvent ? `${label(latestEvidenceEvent.type)} / ${formatDate(latestEvidenceEvent.created_at)}` : "No evidence event recorded",
               reviewerAction: latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "Governance review pending",

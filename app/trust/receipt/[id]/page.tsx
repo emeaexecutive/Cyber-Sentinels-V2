@@ -281,6 +281,9 @@ export default async function TrustReceiptPage({
     : injectionEvent
       ? "replay_available"
       : "trusted_workforce";
+  const orderedTimeline = [...(timeline ?? [])].sort((left, right) =>
+    new Date(String(left.created_at ?? "")).getTime() - new Date(String(right.created_at ?? "")).getTime()
+  );
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white print:bg-white print:px-0 print:py-0 print:text-black md:px-8">
@@ -517,12 +520,20 @@ export default async function TrustReceiptPage({
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Verification Chronology</h2>
             <div className="mt-5 grid gap-3">
-              {(timeline ?? []).length ? (
-                (timeline ?? []).map((event) => (
-                  <article key={String(event.id)} className="rounded-lg border border-zinc-800 bg-black p-4">
-                    <p className="font-medium text-zinc-100">{event.event_title ?? event.event_type}</p>
-                    <p className="mt-2 text-sm leading-6 text-zinc-500">{event.event_summary ?? "Timeline event recorded."}</p>
-                    <p className="mt-2 text-xs text-zinc-600">{formatDate(event.created_at)}</p>
+              {orderedTimeline.length ? (
+                orderedTimeline.map((event, index) => (
+                  <article key={String(event.id)} className="grid gap-3 rounded-lg border border-zinc-800 bg-black p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs text-zinc-600">Step {index + 1}</p>
+                        <p className="mt-2 font-medium text-zinc-100">{event.event_title ?? event.event_type}</p>
+                      </div>
+                      <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs capitalize text-zinc-300">
+                        {label(event.severity ?? event.event_type, "recorded")}
+                      </span>
+                    </div>
+                    <p className="text-sm leading-6 text-zinc-500">{event.event_summary ?? "Timeline event recorded."}</p>
+                    <p className="text-xs text-zinc-600">{formatDate(event.created_at)}</p>
                   </article>
                 ))
               ) : (

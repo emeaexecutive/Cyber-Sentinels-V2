@@ -37,14 +37,14 @@ export type TrustProofState = {
   finalOutcome?: string | null;
 };
 
-const journeyStages: Array<{ id: TrustJourneyStage; label: string }> = [
-  { id: "identity_submitted", label: "Identity submitted" },
-  { id: "human_presence_checked", label: "Human presence checked" },
-  { id: "session_integrity_checked", label: "Session integrity checked" },
-  { id: "injection_risk_reviewed", label: "Injection risk reviewed" },
-  { id: "governance_review_opened", label: "Governance review opened" },
-  { id: "manual_review_completed", label: "Manual review completed" },
-  { id: "receipt_issued", label: "Receipt issued" },
+const journeyStages: Array<{ id: TrustJourneyStage; label: string; evidence: string }> = [
+  { id: "identity_submitted", label: "Verification started", evidence: "Identity submitted" },
+  { id: "human_presence_checked", label: "Human presence checked", evidence: "Presence evidence" },
+  { id: "session_integrity_checked", label: "Session integrity checked", evidence: "Integrity evidence" },
+  { id: "injection_risk_reviewed", label: "Injection risk events", evidence: "Flag review" },
+  { id: "governance_review_opened", label: "Governance escalation", evidence: "Governance review" },
+  { id: "manual_review_completed", label: "Reviewer actions", evidence: "Decision record" },
+  { id: "receipt_issued", label: "Receipt issued", evidence: "Receipt proof" },
 ];
 
 const stateDetails: Record<TrustJourneyState, { label: string; className: string; dotClassName: string }> = {
@@ -79,7 +79,7 @@ const stateDetails: Record<TrustJourneyState, { label: string; className: string
     dotClassName: "border-cyan-500 bg-cyan-300",
   },
   trusted_workforce: {
-    label: "Trusted Workforce",
+    label: "Verified",
     className: "border-emerald-900 text-emerald-100",
     dotClassName: "border-emerald-500 bg-emerald-300",
   },
@@ -176,6 +176,7 @@ export function TrustJourneyVisualization({
     ["Reviewer action", proofState?.reviewerAction ?? latestEvent?.reviewerAction],
     ["Final outcome", proofState?.finalOutcome ?? latestEvent?.description],
   ] as const;
+  const evidenceOrdered = orderedEvents.map((event) => inferStage(event));
 
   return (
     <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">
@@ -207,12 +208,16 @@ export function TrustJourneyVisualization({
         {journeyStages.map((stage, index) => {
           const value = stageState(stage.id, orderedEvents);
           const matchingEvent = orderedEvents.find((event) => inferStage(event) === stage.id);
+          const priorEventCount = evidenceOrdered.filter((id) => id === stage.id).length;
 
           return (
             <article key={stage.id} className={`rounded-lg border p-3 ${stageClass(value)} print:border-zinc-300 print:bg-white print:text-zinc-800`}>
               <p className="text-xs text-zinc-500 print:text-zinc-500">Stage {index + 1}</p>
               <h3 className="mt-2 text-sm font-semibold leading-5">{stage.label}</h3>
-              <p className="mt-3 text-xs capitalize text-zinc-500 print:text-zinc-600">{value}</p>
+              <p className="mt-2 text-xs leading-5 text-zinc-500 print:text-zinc-600">{stage.evidence}</p>
+              <p className="mt-3 text-xs capitalize text-zinc-500 print:text-zinc-600">
+                {value}{priorEventCount > 1 ? ` / ${priorEventCount} events` : ""}
+              </p>
               {matchingEvent ? (
                 <p className="mt-2 text-xs leading-5 text-zinc-400 print:text-zinc-600">
                   {formatDate(matchingEvent.occurredAt)}
@@ -227,9 +232,10 @@ export function TrustJourneyVisualization({
         {orderedEvents.length ? orderedEvents.map((event, index) => {
           const detail = stateDetails[event.state];
           return (
-            <article key={event.id} className="grid gap-3 rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white md:grid-cols-[110px_1fr_230px]">
+            <article key={event.id} className="grid gap-3 rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white md:grid-cols-[110px_1fr_240px]">
               <div>
                 <p className="text-xs text-zinc-600">Step {index + 1}</p>
+                <p className="mt-2 text-xs leading-5 text-zinc-500">{formatDate(event.occurredAt)}</p>
                 <div className={`mt-3 h-3 w-3 rounded-full border ${detail.dotClassName}`} />
               </div>
               <div>
@@ -238,9 +244,10 @@ export function TrustJourneyVisualization({
                   <TrustStateBadge state={event.state} />
                 </div>
                 <p className="mt-2 text-sm leading-6 text-zinc-400 print:text-zinc-700">{event.description}</p>
-                <p className="mt-2 text-xs text-zinc-600">{formatDate(event.occurredAt)}</p>
               </div>
               <div>
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">Journey stage</p>
+                <p className="mt-2 text-sm capitalize text-zinc-300 print:text-zinc-700">{clean(inferStage(event))}</p>
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">Evidence label</p>
                 <p className="mt-2 text-sm text-zinc-300 print:text-zinc-700">{clean(event.evidenceLabel ?? inferStage(event))}</p>
                 <p className="mt-3 text-xs uppercase tracking-[0.12em] text-zinc-600">Flag / reviewer action</p>

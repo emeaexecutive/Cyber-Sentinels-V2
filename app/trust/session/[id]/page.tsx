@@ -16,6 +16,14 @@ function clean(value: unknown, fallback = "Not recorded") {
   return String(value).replaceAll("_", " ");
 }
 
+function formatDate(value: unknown) {
+  if (!value) return "Not recorded";
+  const date = new Date(String(value));
+  return Number.isNaN(date.getTime())
+    ? "Not recorded"
+    : date.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+}
+
 function sessionState(value: unknown): TrustJourneyState {
   const text = String(value ?? "").toLowerCase();
   if (text.includes("approved") || text.includes("verified") || text.includes("passed")) return "verified";
@@ -67,61 +75,88 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
   const journeyEvents: TrustJourneyEvent[] = [
     {
       id: "verification-initiated",
-      title: "Verification initiated",
+      title: "Verification started",
       description: "Session trust review started for the interview workflow.",
       occurredAt: check?.created_at ?? session.created_at,
       state: "manual_review_required",
+      stage: "identity_submitted",
+      evidenceLabel: "session record",
+      flag: clean(session.status ?? session.session_status, "started"),
       score: 52,
     },
     {
       id: "human-presence",
-      title: "Human presence confirmed",
+      title: "Human presence checked",
       description: `Identity state: ${clean(check?.identity_verification_state ?? "pending")}.`,
       occurredAt: check?.created_at,
       state: sessionState(check?.identity_verification_state),
+      stage: "human_presence_checked",
+      evidenceLabel: "identity evidence",
+      flag: clean(check?.identity_verification_state, "pending"),
       score: 68,
     },
     {
       id: "session-integrity",
-      title: "Session integrity checks",
+      title: "Session integrity checked",
       description: `Overall integrity state: ${clean(check?.overall_status ?? check?.integrity_status ?? session.integrity_status ?? "pending")}.`,
       occurredAt: check?.created_at,
       state: sessionState(check?.overall_status ?? check?.integrity_status ?? session.integrity_status),
+      stage: "session_integrity_checked",
+      evidenceLabel: "session integrity",
+      flag: clean(check?.overall_status ?? check?.integrity_status ?? session.integrity_status, "pending"),
       score: check?.manual_review_required ? 44 : 72,
     },
     ...(signalRows ?? []).slice(0, 6).map((signal, index): TrustJourneyEvent => ({
       id: `signal-${signal.id ?? index}`,
-      title: clean(signal.category, "Verification signal"),
+      title: /injection/i.test(String(signal.category ?? "")) ? "Injection risk events" : clean(signal.category, "Verification signal"),
       description: clean(signal.explanation ?? signal.signal_status, "Signal retained for session review."),
       occurredAt: signal.created_at,
       state: signal.requires_manual_review ? "manual_review_required" : sessionState(signal.risk_level ?? signal.signal_status),
+      stage: /injection/i.test(String(signal.category ?? "")) ? "injection_risk_reviewed" : "session_integrity_checked",
+      evidenceLabel: clean(signal.category, "verification flag"),
+      flag: clean(signal.risk_level ?? signal.signal_status, "recorded"),
       score: signal.requires_manual_review ? 48 : 64,
     })),
     ...(riskEvents ?? []).slice(0, 4).map((event, index): TrustJourneyEvent => ({
       id: `risk-${event.id ?? index}`,
-      title: clean(event.signal_type, "Risk event"),
+      title: /injection/i.test(String(event.signal_type ?? "")) ? "Injection risk events" : clean(event.signal_type, "Risk event"),
       description: clean(event.risk_reason, "Risk event retained for human review."),
       occurredAt: event.created_at,
       state: sessionState(`${event.signal_type ?? ""} ${event.risk_reason ?? ""}`),
+      stage: /injection/i.test(String(event.signal_type ?? "")) ? "injection_risk_reviewed" : "session_integrity_checked",
+      evidenceLabel: "risk flag",
+      flag: event.escalation_required ? "Governance escalation" : clean(event.risk_level ?? event.signal_type, "recorded"),
       score: event.escalation_required ? 42 : 60,
     })),
     ...(governanceActions ?? []).map((action, index): TrustJourneyEvent => ({
       id: `governance-${index}`,
-      title: "Governance review action",
+      title: ["approved", "rejected", "resolved"].includes(String(action.action_status ?? "")) ? "Reviewer actions" : "Governance escalation",
       description: clean(action.resolution_notes ?? action.action_status, "Human governance review recorded."),
       occurredAt: action.resolved_at ?? action.created_at,
       state: sessionState(action.action_status),
+      stage: ["approved", "rejected", "resolved"].includes(String(action.action_status ?? "")) ? "manual_review_completed" : "governance_review_opened",
+      evidenceLabel: "governance review",
+      flag: clean(action.action_status, "pending"),
+      reviewerAction: clean(action.resolution_notes ?? action.action_status, "Human review recorded"),
       score: ["approved", "resolved"].includes(String(action.action_status ?? "")) ? 78 : 56,
     })),
     ...(receipt ? [{
       id: `receipt-${receipt.id}`,
-      title: "Receipt issuance",
+      title: "Receipt issued",
       description: clean(receipt.receipt_summary, "Verification receipt issued for the session."),
       occurredAt: receipt.issued_at,
       state: "trusted_workforce" as TrustJourneyState,
+      stage: "receipt_issued" as const,
+      evidenceLabel: "verification receipt",
+      flag: clean(receipt.verification_status, "issued"),
       score: 88,
     }] : []),
   ];
+  const chronology = [...journeyEvents].sort((left, right) => {
+    const leftTime = left.occurredAt ? new Date(left.occurredAt).getTime() : 0;
+    const rightTime = right.occurredAt ? new Date(right.occurredAt).getTime() : 0;
+    return leftTime - rightTime;
+  });
   const finalJourneyState: TrustJourneyState = receipt
     ? "trusted_workforce"
     : humanDecision
@@ -160,7 +195,39 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
             description="Chronological view of verification initiation, human presence, session integrity, risk signals, governance review and final session outcome."
             events={journeyEvents}
             finalState={finalJourneyState}
+            proofState={{
+              currentVerificationState: clean(check?.identity_verification_state ?? session.session_status, "Manual Review Required"),
+              riskLevel: (riskEvents ?? [])[0] ? clean((riskEvents ?? [])[0].risk_level ?? (riskEvents ?? [])[0].signal_type, "Elevated Risk") : "No elevated flag recorded",
+              lastEvidenceEvent: chronology.at(-1) ? `${chronology.at(-1)?.title} / ${formatDate(chronology.at(-1)?.occurredAt)}` : "No evidence event recorded",
+              reviewerAction: humanDecision ? clean(humanDecision.resolution_notes ?? humanDecision.action_status, "Reviewer action recorded") : "Governance review pending",
+              finalOutcome: receipt ? "Replay Available / Receipt issued" : clean(humanDecision?.action_status ?? (check?.manual_review_required ? "Manual Review Required" : "Verified")),
+            }}
           />
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-2xl font-semibold">Verification chronology</h2>
+            <span className="text-xs text-zinc-500">{chronology.length} ordered events</span>
+          </div>
+          <div className="mt-5 grid gap-3">
+            {chronology.map((event, index) => (
+              <article key={event.id} className="grid gap-3 rounded-lg border border-zinc-800 bg-black p-4 md:grid-cols-[110px_190px_1fr]">
+                <div>
+                  <p className="text-xs text-zinc-600">Step {index + 1}</p>
+                  <p className="mt-2 text-xs leading-5 text-zinc-500">{formatDate(event.occurredAt)}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.12em] text-cyan-300">{clean(event.stage, "evidence")}</p>
+                  <p className="mt-2 text-sm font-semibold">{clean(event.flag ?? event.evidenceLabel ?? event.state)}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-zinc-100">{event.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-zinc-500">{event.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
