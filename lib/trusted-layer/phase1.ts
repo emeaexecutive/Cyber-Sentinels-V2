@@ -34,7 +34,7 @@ export function riskFromScore(score: number) {
 }
 
 export function orchestrationLabel(score: number) {
-  if (score >= 85) return "Strong orchestration";
+  if (score >= 85) return "Strong review path";
   if (score >= 70) return "Review-ready";
   if (score >= 50) return "Needs governance review";
   return "High uncertainty";

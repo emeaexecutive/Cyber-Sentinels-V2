@@ -16,7 +16,7 @@ export default function ProvenanceVerificationPage() {
             <div>
               <h1 className="text-4xl font-semibold md:text-5xl">Verify Provenance</h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Review provenance, metadata, watermark, evidence-chain and upload-continuity signals. Detection and provenance are signals; trust requires orchestration.
+                Review provenance, metadata, watermark, evidence-chain and upload-continuity signals. Detection and provenance are signals; trust requires Verification Evidence, Governance Review and human review.
               </p>
             </div>
             <AuthenticityBadge score={score} />

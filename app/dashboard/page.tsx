@@ -29,9 +29,9 @@ export default async function DashboardPage() {
     ["Active Flags", flags.count ?? 0, FileWarning, "/dashboard/interview-risk"],
     ["Pending Reviews", reviews.count ?? 0, ClipboardCheck, "/governance"],
     ["Session Integrity", integrity.count ?? 0, ScanSearch, "/dashboard/session-integrity"],
-    ["Verification Receipts", receipts.count ?? 0, History, "/dashboard"],
-    ["Trust Posture", posture.count ?? 0, ShieldCheck, "/dashboard/trust-posture"],
     ["Governance Actions", governance.count ?? 0, ClipboardCheck, "/governance"],
+    ["Trust Posture", posture.count ?? 0, ShieldCheck, "/dashboard/trust-posture"],
+    ["Verification Receipts", receipts.count ?? 0, History, "/dashboard"],
   ] as const;
 
   return (
@@ -39,10 +39,10 @@ export default async function DashboardPage() {
       <section className="mx-auto max-w-7xl">
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-sentinel-green">Pilot Operations</p>
-            <h1 className="mt-2 text-4xl font-semibold">Hiring Security Dashboard</h1>
+            <p className="text-sm uppercase tracking-[0.3em] text-sentinel-green">Operational Trust</p>
+            <h1 className="mt-2 text-4xl font-semibold">Pilot Review Dashboard</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-sentinel-muted">
-              Trust changed quietly. Review Flags, Pending Reviews, Session Integrity, Verification Receipts, Trust Posture and Governance Actions without operational noise.
+              Review Active Flags, Pending Reviews, Session Integrity, Governance Actions, Trust Posture and Verification Receipts without operational noise.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -89,8 +89,8 @@ export default async function DashboardPage() {
             {[
               ["/dashboard/interview-risk", "1. Review Flags", "Inspect identity, injection and Session Integrity flags."],
               ["/governance", "2. Open Governance Review", "Assign review ownership and preserve the human outcome."],
-              ["/trust-replay", "3. Review Verification Chronology", "Reconstruct timestamps, flags, reviewer actions and Verification Evidence."],
-              ["/dashboard/trust-posture", "4. Check Trust Posture", "Confirm current state before sharing receipts or replay evidence."],
+              ["/trust-replay", "3. Review Verification Chronology", "Reconstruct timestamps, active Flags, reviewer actions and Verification Evidence."],
+              ["/dashboard/trust-posture", "4. Check Trust Posture", "Confirm current state before sharing Verification Receipts or Replay Evidence."],
             ].map(([href, title, copy]) => (
               <Link key={href} href={href} className="rounded-lg border border-sentinel-line bg-black/30 p-4 hover:border-sentinel-green">
                 <p className="font-semibold">{title}</p>

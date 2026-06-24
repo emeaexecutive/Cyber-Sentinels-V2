@@ -128,7 +128,7 @@ export function GovernanceOverview({
             Governance Overview
           </p>
           <h2 className="mt-3 text-2xl font-semibold text-zinc-100">
-            Operational Trust Coordination
+            Operational Trust Review
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             Certification, alerting, AI agent registry, verification evidence

@@ -4,7 +4,7 @@ const layers = [
   ["Pending Reviews", "Controlled review paths for sensitive outcomes."],
   ["Governance Review", "Human oversight and escalation for high-risk workflows."],
   ["Verification Receipts", "Audit-ready records showing what was reviewed and when."],
-  ["Replay Timelines", "Workflow history that can be reviewed after decisions are made."],
+  ["Verification Chronology", "Workflow history that can be reviewed after decisions are made."],
 ];
 
 export default function PlatformPage() {

@@ -22,7 +22,7 @@ export default function DeepfakeDetectionPage() {
         </p>
 
         <h1 className="mt-6 max-w-4xl text-5xl font-bold">
-          Detection and provenance are signals. Trust requires orchestration.
+          Detection and provenance are signals. Trust requires Verification Evidence and Governance Review.
         </h1>
 
         <p className="mt-6 max-w-3xl text-zinc-400">
