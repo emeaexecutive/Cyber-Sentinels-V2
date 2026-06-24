@@ -9,39 +9,33 @@ export type NavigationAccessLevel =
   | "admin";
 
 const publicLinks = [
+  ["/platform", "Platform"],
   ["/enterprise/hiring-security", "Hiring Security"],
-  ["/platform", "Platform Overview"],
-  ["/pricing", "Pricing"],
-  ["/demo", "Demo"],
-  ["/demo/hiring-attack", "Hiring Demo"],
-  ["/demo/session-integrity", "Session Demo"],
+  ["/demo/session-integrity", "Session Integrity"],
   ["/governance", "Governance"],
-  ["/enterprise-access", "Request Demo"],
+  ["/demo", "Demo"],
+  ["/enterprise-access", "Enterprise Access"],
+  ["/pricing", "Pricing"],
   ["/login", "Login"],
 ];
 
 const adminLinks = [
-  ["/back-office", "Back Office"],
-  ["/admin/founder-control", "Founder Control"],
+  ["/dashboard", "Dashboard"],
+  ["/dashboard/interview-risk", "Active Flags"],
+  ["/dashboard/session-integrity", "Session Integrity"],
   ["/governance", "Governance"],
-  ["/workspace", "Workspaces"],
-  ["/trustops", "TrustOps"],
-  ["/demo", "Enterprise Demo"],
-  ["/demo/hiring-attack", "Hiring Demo"],
-  ["/demo/session-integrity", "Session Demo"],
-  ["/enterprise/pilot", "Pilot"],
-  ["/admin/launch-control", "Launch Control"],
+  ["/demo", "Demo"],
+  ["/enterprise-access", "Enterprise Access"],
+  ["/admin/founder-control", "Founder Control"],
 ];
 
 const userLinks = [
-  ["/", "Home"],
-  ["/platform", "Platform"],
-  ["/pricing", "Pricing"],
   ["/dashboard", "Dashboard"],
-  ["/passports", "My Passports"],
-  ["/passport", "New Workflow"],
+  ["/dashboard/interview-risk", "Active Flags"],
+  ["/dashboard/session-integrity", "Session Integrity"],
+  ["/governance", "Governance"],
+  ["/demo", "Demo"],
   ["/notifications", "Notifications"],
-  ["/help", "Help"],
 ];
 
 function LogoutButton() {

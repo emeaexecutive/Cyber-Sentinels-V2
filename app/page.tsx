@@ -2,11 +2,10 @@ import Link from "next/link";
 import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 
 const priorities = [
-  ["Fake applicants", "Surface incomplete provenance, profile mismatches and identity uncertainty before a hiring workflow advances."],
-  ["Proxy interviews", "Keep candidate identity, recruiter context and live-session evidence connected for accountable review."],
-  ["AI-assisted hiring fraud", "Separate useful verification signals from unsupported authenticity claims or automated hiring decisions."],
-  ["Injected sessions", "Flag channel, device, media and liveness changes when trust shifts after the workflow starts."],
-  ["Replay evidence", "Preserve the sequence of evidence, flags, governance actions and receipts for audit-ready review."],
+  ["What happened", "A verified-looking applicant entered a remote hiring workflow and reached a live interview."],
+  ["What was detected", "Session evidence changed: channel, media and injection-risk signals no longer matched the verified context."],
+  ["What action occurred", "The workflow paused, a governance review opened and the risky session was blocked by human authority."],
+  ["What evidence was created", "Replay chronology, reviewer action, audit references and a verification receipt were retained."],
 ];
 
 const workflow = [
@@ -17,6 +16,12 @@ const workflow = [
   "Replay evidence is generated",
   "Threat is blocked",
   "Verification receipt is issued",
+];
+
+const operatingExamples = [
+  ["Hiring fraud", "Synthetic profile reaches interview; incomplete provenance and session changes are reviewed before access advances."],
+  ["Injected interview", "Candidate identity is checked at entry, then channel evidence changes during the call and triggers escalation."],
+  ["Governance review", "A named reviewer receives evidence, records the decision and leaves a receipt that security, talent and compliance can read."],
 ];
 
 const traditionalSecurity = [
@@ -49,10 +54,10 @@ export default function Home() {
             Protect enterprise workflows against synthetic identity attacks.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels helps organizations verify humans, AI agents and digital identities before they become operational threats.
+            Cyber Sentinels helps enterprise teams review hiring fraud, injected interview sessions and identity-risk workflows before they become operational decisions.
           </p>
           <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
-            Cyber Sentinels combines verification workflows, session integrity, governance review, replay evidence, audit trails and verification receipts so enterprise teams can see what happened and decide what happens next.
+            Existing cybersecurity tools detect threats. Cyber Sentinels verifies operational trust: what happened, what changed, who reviewed it and what evidence was created.
           </p>
         </div>
 
@@ -68,13 +73,13 @@ export default function Home() {
       <section className="border-y border-zinc-800 bg-zinc-950/80">
         <div className="mx-auto grid max-w-6xl gap-8 px-6 py-14 md:grid-cols-[0.85fr_1.15fr] md:px-8">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Cyber Sentinels verifies reality™</p>
-            <h2 className="mt-4 text-3xl font-semibold leading-tight text-white">Trust can no longer be assumed.</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Operational story</p>
+            <h2 className="mt-4 text-3xl font-semibold leading-tight text-white">A hiring session changes after verification.</h2>
             <p className="mt-4 leading-7 text-zinc-200">
-              In a world of AI agents, synthetic identities, deepfakes and automated workflows, trust can no longer be assumed.
+              A candidate can look verified at the start of a workflow while the interview channel changes later.
             </p>
             <p className="mt-4 leading-7 text-zinc-300">
-              Verification alone is a starting signal. Operational trust requires session integrity, governance accountability and replayable evidence when a workflow changes.
+              Cyber Sentinels makes that change reviewable: signal, escalation, reviewer action, replay evidence and receipt in one operational sequence.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -90,10 +95,10 @@ export default function Home() {
 
       <section className="mx-auto grid max-w-6xl gap-6 px-6 py-16 md:grid-cols-[0.9fr_1.1fr] md:px-8">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Why existing security is not enough</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Enterprise positioning</p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">Cyber Sentinels operates above the stack you already trust.</h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
-            It is not a replacement for Mimecast, CrowdStrike or Okta. Those systems remain essential. Cyber Sentinels adds Operational Trust Infrastructure for the workflows that happen after access, communication and endpoint controls are in place.
+            Traditional security protects devices, credentials and messages. Cyber Sentinels protects identity trust, workflow integrity, session authenticity and operational accountability after those controls are in place.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -109,6 +114,21 @@ export default function Home() {
               {cyberSentinelsProtects.map((item) => <li key={item}>- {item}</li>)}
             </ul>
           </article>
+        </div>
+      </section>
+
+      <section className="border-y border-zinc-800 bg-zinc-950/80">
+        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Operational examples</p>
+          <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">The product story is the review workflow.</h2>
+          <div className="mt-7 grid gap-4 md:grid-cols-3">
+            {operatingExamples.map(([title, copy]) => (
+              <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
+                <h3 className="text-lg font-semibold text-white">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

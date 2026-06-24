@@ -9,10 +9,10 @@ const risks = [
 ];
 
 const proofLinks = [
-  ["/dashboard/interview-risk", "Active Flags", "Review hiring and session-integrity flags."],
-  ["/governance", "Governance Review", "See reviewer ownership and decisions."],
-  ["/trust-replay", "Replay Evidence", "Walk the chronology from evidence to action."],
-  ["/dashboard/trust-posture", "Trust Posture", "Monitor context shifts and reverification due states."],
+  ["/demo/hiring-attack", "Hiring Attack Demo", "Understand the synthetic-candidate problem in one sequence."],
+  ["/demo/session-integrity", "Session Integrity Demo", "See how trust changes after verification begins."],
+  ["/trust-replay", "Replay Evidence", "Open generated /replay/[id] records after demo data is seeded."],
+  ["/dashboard", "Verification Receipts", "Review generated /verification/receipt/[id] proof from the operational dashboard."],
 ];
 
 const demoSequence = [
@@ -32,10 +32,10 @@ export default function DemoPage() {
         <section className="border-b border-zinc-800 pb-12">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">Enterprise Demo</p>
           <h1 className="mt-4 max-w-5xl text-4xl font-semibold tracking-tight md:text-6xl">
-            A guided walkthrough for hiring security, session integrity and governance review.
+            A guided walkthrough from injected interview to evidence-backed review.
           </h1>
           <p className="mt-6 max-w-3xl leading-8 text-zinc-200">
-            In under 90 seconds, see how Cyber Sentinels connects verification workflows, session integrity, evidence, flags, human review, audit history, verification receipts and replay evidence.
+            In under 90 seconds, see what happened, what changed, what action occurred and what proof was retained.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href="/demo/hiring-attack" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-200">Start Hiring Security Demo</Link>
@@ -71,7 +71,7 @@ export default function DemoPage() {
 
         <section className="mt-12 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Demo sequence</p>
-          <h2 className="mt-3 text-2xl font-semibold text-white">The full workflow at a glance.</h2>
+          <h2 className="mt-3 text-2xl font-semibold text-white">The full enterprise review sequence.</h2>
           <div className="mt-5 grid gap-3 md:grid-cols-7">
             {demoSequence.map((step, index) => (
               <div key={step} className="border-t border-zinc-700 pt-4">
@@ -86,8 +86,8 @@ export default function DemoPage() {
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Replayable proof</p>
-              <h2 className="mt-3 text-2xl font-semibold text-white">Show the workflow after the walkthrough.</h2>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-300">Use these surfaces to show flags, governance review, replay visibility and trust posture without changing the demo story.</p>
+              <h2 className="mt-3 text-2xl font-semibold text-white">Make the proof visible after the walkthrough.</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-300">Use these surfaces to show the primary trust narrative: demo, replay, receipt and governance escalation.</p>
             </div>
             <Link href="/demo-lab" className="rounded-md border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-100 hover:border-zinc-400">Seed Demo Data</Link>
           </div>

@@ -4,8 +4,6 @@ import {
   FileWarning,
   History,
   ScanSearch,
-  ShieldCheck,
-  Workflow,
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -17,24 +15,22 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/dashboard");
 
-  const [flags, reviews, workflows, governance, integrity, posture, receipts] = await Promise.all([
+  const [flags, reviews, governance, integrity, receipts, threatActivity] = await Promise.all([
     supabase.from("interview_risk_events").select("*", { count: "exact", head: true }).eq("escalation_required", true),
     supabase.from("governance_actions").select("*", { count: "exact", head: true }).in("action_status", ["pending", "in_review", "escalated"]),
-    supabase.from("interview_sessions").select("*", { count: "exact", head: true }),
     supabase.from("governance_actions").select("*", { count: "exact", head: true }),
     supabase.from("session_integrity_checks").select("*", { count: "exact", head: true }),
-    supabase.from("passports").select("*", { count: "exact", head: true }),
     supabase.from("verification_receipts").select("*", { count: "exact", head: true }),
+    supabase.from("interview_risk_events").select("*", { count: "exact", head: true }),
   ]);
 
   const metrics = [
     ["Active Flags", flags.count ?? 0, FileWarning],
     ["Pending Reviews", reviews.count ?? 0, ClipboardCheck],
-    ["Verification Workflows", workflows.count ?? 0, Workflow],
-    ["Governance Actions", governance.count ?? 0, ClipboardCheck],
     ["Session Integrity", integrity.count ?? 0, ScanSearch],
-    ["Trust Posture", posture.count ?? 0, ShieldCheck],
     ["Verification Receipts", receipts.count ?? 0, History],
+    ["Threat Activity", threatActivity.count ?? 0, FileWarning],
+    ["Governance Actions", governance.count ?? 0, ClipboardCheck],
   ] as const;
 
   return (
@@ -45,7 +41,7 @@ export default async function DashboardPage() {
             <p className="text-sm uppercase tracking-[0.3em] text-sentinel-green">Pilot Operations</p>
             <h1 className="mt-2 text-4xl font-semibold">Hiring Security Dashboard</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-sentinel-muted">
-              Trust changed quietly. Review active flags, pending reviews, session integrity, governance actions, verification workflows, trust posture and verification receipts without operational noise.
+              Trust changed quietly. Review active flags, pending reviews, session integrity, verification receipts, threat activity and governance actions without operational noise.
             </p>
           </div>
           <Link href="/demo" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black">
@@ -75,8 +71,8 @@ export default async function DashboardPage() {
             {[
               ["/dashboard/interview-risk", "1. Review active flags", "Inspect identity, injection and session-integrity flags."],
               ["/governance", "2. Record governance action", "Assign review ownership and preserve the human outcome."],
-              ["/trust-replay", "3. Replay and evidence", "Reconstruct chronology and open generated receipts."],
-              ["/dashboard/trust-posture", "4. Monitor trust posture", "Track context shifts, reverification due states and elevated operational risk."],
+              ["/trust-replay", "3. Replay evidence", "Reconstruct chronology and open generated /replay/[id] records."],
+              ["/dashboard/session-integrity", "4. Review receipts", "Use session integrity and generated receipts to explain the final outcome."],
             ].map(([href, title, copy]) => (
               <Link key={href} href={href} className="rounded-lg border border-sentinel-line bg-black/30 p-4 hover:border-sentinel-green">
                 <p className="font-semibold">{title}</p>

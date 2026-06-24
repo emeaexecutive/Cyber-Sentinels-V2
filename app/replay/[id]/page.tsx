@@ -130,7 +130,7 @@ export default async function VerificationReplayPage({
             <div>
               <h1 className="text-4xl font-semibold">{session?.title ?? "Verification workflow replay"}</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-                Read-only reconstruction of evidence, integrity signals, governance actions, reviewer history and verification receipts.
+                Read-only reconstruction of what happened, what changed, which governance action was taken and which evidence remains available.
               </p>
               <p className="mt-2 font-mono text-xs text-zinc-600">Subject {subjectType} / {subjectId}</p>
             </div>
@@ -158,6 +158,19 @@ export default async function VerificationReplayPage({
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"><p className="text-xs uppercase text-zinc-600">Injection risk</p><p className="mt-2 text-sm">{injectionEvent ? label(injectionEvent.signal_type) : "No recorded flag"}</p></div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"><p className="text-xs uppercase text-zinc-600">Governance outcome</p><p className="mt-2 text-sm">{label(latestGovernance?.action_status, "Pending")}</p></div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"><p className="text-xs uppercase text-zinc-600">Audit references</p><p className="mt-2 text-sm">{auditLogs.length}</p></div>
+        </section>
+
+        <section className="mt-8 grid gap-4 md:grid-cols-3">
+          {[
+            ["What happened", session?.title ?? "Workflow reached review."],
+            ["What was detected", injectionEvent ? label(injectionEvent.risk_reason ?? injectionEvent.signal_type) : "No injection-risk flag recorded for this subject."],
+            ["What action occurred", latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "Governance review remains pending."],
+          ].map(([title, value]) => (
+            <div key={title} className="rounded-lg border border-cyan-950 bg-black p-4">
+              <p className="text-xs uppercase tracking-[0.14em] text-cyan-300">{title}</p>
+              <p className="mt-3 text-sm leading-6 text-zinc-300">{value}</p>
+            </div>
+          ))}
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

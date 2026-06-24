@@ -199,8 +199,7 @@ export default async function TrustReceiptPage({
                 Trust changed quietly. Verification receipt available. {nextReceiptAction}
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-                Cyber Sentinels creates printable, export-ready verification receipts and
-                operational trust evidence chains. Receipts preserve evidence summaries, audit references, reviewer actions and governance chronology; they are not blockchain records or automatic trust decisions.
+                This receipt explains what happened, what was detected, what action occurred and what evidence was retained. It is not a blockchain record or an automatic trust decision.
               </p>
               <div className="mt-5 max-w-3xl">
                 <OnboardingHint area="receipt" />

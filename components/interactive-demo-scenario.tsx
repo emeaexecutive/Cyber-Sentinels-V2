@@ -8,6 +8,7 @@ export type DemoScenarioStep = {
   state: string;
   explanation: string;
   evidence: string;
+  action: string;
 };
 
 export function InteractiveDemoScenario({ label, title, summary, steps, nextScenario }: {
@@ -32,6 +33,14 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">{label} / 90-second walkthrough</p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-tight md:text-6xl">{title}</h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-200">{summary}</p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            {["What happened", "What changed", "What evidence remains"].map((item) => (
+              <div key={item} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">{item}</p>
+                <p className="mt-2 text-sm text-zinc-200">Step {active + 1}: {step.title}</p>
+              </div>
+            ))}
+          </div>
         </header>
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.72fr_1.28fr]">
           <aside className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
@@ -51,7 +60,10 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
               <span className="rounded-full border border-amber-800 px-3 py-1 text-xs text-amber-200">{step.state}</span>
             </div>
             <p className="mt-7 text-lg leading-8 text-zinc-300">{step.explanation}</p>
-            <div className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5"><p className="text-xs uppercase text-zinc-400">Evidence retained</p><p className="mt-3 text-sm leading-7 text-zinc-200">{step.evidence}</p></div>
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5"><p className="text-xs uppercase text-zinc-400">Evidence retained</p><p className="mt-3 text-sm leading-7 text-zinc-200">{step.evidence}</p></div>
+              <div className="rounded-lg border border-cyan-950 bg-zinc-950 p-5"><p className="text-xs uppercase text-zinc-400">Operational action</p><p className="mt-3 text-sm leading-7 text-zinc-200">{step.action}</p></div>
+            </div>
             <p className="mt-5 text-sm text-zinc-300">Sample-only evidence. Signals inform human review; they do not decide candidate trust.</p>
             <div className="mt-8 flex justify-between gap-3">
               <button disabled={active === 0} onClick={() => setActive(active - 1)} className="rounded-md border border-zinc-700 px-4 py-2 text-sm disabled:opacity-30">Previous</button>

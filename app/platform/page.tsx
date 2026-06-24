@@ -1,8 +1,7 @@
 const layers = [
   ["Hiring Security", "Verification workflows for candidate, recruiter and interview review."],
-  ["Evidence", "Supporting records that make hiring decisions reviewable."],
-  ["Verification Workflows", "Controlled review paths for sensitive outcomes."],
-  ["Audit Trails", "Traceable history for evidence, decisions and actions."],
+  ["Active Flags", "Identity, media, injection and session-integrity changes surfaced for review."],
+  ["Pending Reviews", "Controlled review paths for sensitive outcomes."],
   ["Governance Review", "Human oversight and escalation for high-risk workflows."],
   ["Verification Receipts", "Audit-ready records showing what was reviewed and when."],
   ["Replay Timelines", "Workflow history that can be reviewed after decisions are made."],
@@ -25,9 +24,9 @@ export default function PlatformPage() {
             focused early platform.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-            Internal verification capabilities support identity assurance,
-            while Cyber Sentinels remains the customer-facing operational trust
-            infrastructure.
+            Existing cybersecurity tools detect threats. Cyber Sentinels verifies
+            operational trust across identity, workflow integrity, session
+            authenticity and operational accountability.
           </p>
         </section>
 
