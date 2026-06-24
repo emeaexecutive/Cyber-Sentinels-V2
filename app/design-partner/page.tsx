@@ -36,17 +36,20 @@ export default function DesignPartnerPage() {
             Trust changed quietly. AI changed identity risk, and verification alone is no longer enough for workflows where hiring access, sensitive systems and human review matter.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels is for security, talent, risk and governance teams that need evidence, session integrity, replay timelines and verification receipts instead of unsupported trust claims.
+            Cyber Sentinels is for security, talent, risk and governance teams that need Verification Evidence, Session Integrity, Replay Evidence and Verification Receipts instead of unsupported trust claims.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/enterprise-access?intent=pilot" className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
-              Request Pilot Access
+              Request Enterprise Access
             </Link>
             <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
-              Discuss Pilot Fit
+              Book Intro Call
             </Link>
             <Link href="/demo" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">
-              Demo Overview
+              View Demo
+            </Link>
+            <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">
+              Become a Design Partner
             </Link>
           </div>
         </div>

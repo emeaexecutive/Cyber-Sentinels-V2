@@ -11,6 +11,16 @@ export type DemoScenarioStep = {
   action: string;
 };
 
+const proofPath = [
+  "Fake candidate enters workflow",
+  "Verification begins",
+  "Session Integrity fails",
+  "Governance Review opens",
+  "Replay Evidence appears",
+  "Reviewer action recorded",
+  "Verification receipt issued",
+];
+
 export function InteractiveDemoScenario({ label, title, summary, steps, nextScenario }: {
   label: string;
   title: string;
@@ -28,6 +38,7 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
         <nav className="flex gap-4 text-sm text-zinc-300">
           <Link href="/demo">Demo overview</Link>
           <Link href="/dashboard">Pilot dashboard</Link>
+          <Link href="/enterprise-access">Enterprise access</Link>
         </nav>
         <header className="mt-10 border-b border-zinc-800 pb-10">
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">{label} / 90-second walkthrough</p>
@@ -38,6 +49,20 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
               <div key={item} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">{item}</p>
                 <p className="mt-2 text-sm text-zinc-200">Step {active + 1}: {step.title}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 grid gap-2 md:grid-cols-7">
+            {proofPath.map((item, index) => (
+              <div
+                key={item}
+                className={
+                  "rounded-lg border p-3 " +
+                  (index === active ? "border-cyan-700 bg-cyan-950/20" : index < active ? "border-emerald-900 bg-emerald-950/10" : "border-zinc-800 bg-black")
+                }
+              >
+                <p className="text-xs font-semibold text-cyan-200">{index + 1}</p>
+                <p className="mt-2 text-xs leading-5 text-zinc-200">{item}</p>
               </div>
             ))}
           </div>
@@ -65,10 +90,17 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
               <div className="rounded-lg border border-cyan-950 bg-zinc-950 p-5"><p className="text-xs uppercase text-zinc-400">Operational action</p><p className="mt-3 text-sm leading-7 text-zinc-200">{step.action}</p></div>
             </div>
             <p className="mt-5 text-sm text-zinc-300">Sample-only evidence. Signals inform human review; they do not decide candidate trust.</p>
-            <div className="mt-8 flex justify-between gap-3">
+            <div className="mt-8 flex flex-wrap justify-between gap-3">
               <button disabled={active === 0} onClick={() => setActive(active - 1)} className="rounded-md border border-zinc-700 px-4 py-2 text-sm disabled:opacity-30">Previous</button>
               {!complete ? <button onClick={() => setActive(active + 1)} className="rounded-md bg-white px-5 py-2 text-sm font-semibold text-black">Continue</button> : nextScenario ? <Link href={nextScenario.href} className="rounded-md bg-cyan-300 px-5 py-2 text-sm font-semibold text-black">{nextScenario.label}</Link> : <Link href="/demo-lab" className="rounded-md bg-cyan-300 px-5 py-2 text-sm font-semibold text-black">Seed pilot workflow</Link>}
             </div>
+            {complete ? (
+              <div className="mt-5 flex flex-wrap gap-3 text-sm">
+                <Link href="/trust-replay" className="rounded-md border border-zinc-700 px-4 py-2 text-zinc-200 hover:border-zinc-400">Open Replay Evidence</Link>
+                <Link href="/dashboard" className="rounded-md border border-zinc-700 px-4 py-2 text-zinc-200 hover:border-zinc-400">View Verification Receipts</Link>
+                <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-4 py-2 text-cyan-100 hover:border-cyan-400">Request Enterprise Access</Link>
+              </div>
+            ) : null}
           </article>
         </section>
       </div>

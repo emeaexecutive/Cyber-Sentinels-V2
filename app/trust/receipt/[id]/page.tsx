@@ -342,6 +342,12 @@ export default async function TrustReceiptPage({
           <DetailRow label="Reviewer State" value={receipt.issued_by ? "Human review recorded" : "System recorded"} />
         </section>
 
+        <section className="mt-8 grid gap-4 md:grid-cols-3">
+          <DetailRow label="Trust State" value={label(receipt.verification_status ?? governanceOutcome, "reviewable")} />
+          <DetailRow label="Reviewer Action" value={latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No reviewer action attached"} />
+          <DetailRow label="Replay Link" value={`/replay/${receipt.subject_id}`} />
+        </section>
+
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           <DetailRow label="What was verified" value={label(receipt.subject_type, "Workflow subject")} />
           <DetailRow label="Evidence exists" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} evidence chain(s)` : "No linked evidence chain yet"} />
@@ -415,6 +421,7 @@ export default async function TrustReceiptPage({
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             {[
+              ["Printable", "Use print or save as PDF for the pilot record"],
               ["Governance-focused", latestGovernance ? "Reviewer action recorded" : "Reviewer action pending"],
               ["Replay-linked", `Replay route: /replay/${receipt.subject_id}`],
               ["Evidence summary", `${(evidenceChains ?? []).length} evidence chain(s), ${(timeline ?? []).length} timeline event(s)`],

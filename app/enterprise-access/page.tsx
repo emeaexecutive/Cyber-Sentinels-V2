@@ -10,7 +10,18 @@ export default async function EnterpriseAccessPage({ searchParams }: {
 }) {
   const query = searchParams ? await searchParams : {};
   const designPartner = query.intent === "design_partner";
+  const introCall = query.intent === "intro_call";
   const turnstileSiteKey = getTurnstileSiteKey();
+  const pageTitle = designPartner
+    ? "Become a Design Partner"
+    : introCall
+      ? "Book Intro Call"
+      : "Request Enterprise Access";
+  const buttonLabel = designPartner
+    ? "Become a Design Partner"
+    : introCall
+      ? "Book Intro Call"
+      : "Request Enterprise Access";
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -18,7 +29,7 @@ export default async function EnterpriseAccessPage({ searchParams }: {
         <section className="border-b border-zinc-800 pb-10 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-10">
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Enterprise Access</p>
           <PrivateBetaBadge className="mt-4" />
-          <h1 className="mt-4 text-4xl font-semibold md:text-5xl">{designPartner ? "Request Design Partner Access" : "Request Enterprise Access"}</h1>
+          <h1 className="mt-4 text-4xl font-semibold md:text-5xl">{pageTitle}</h1>
           <p className="mt-5 max-w-2xl leading-8 text-zinc-300">Tell us what you need to verify, which workflow is exposed and what human review or audit trail your team requires.</p>
           <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-300">Cyber Sentinels is Operational Trust Infrastructure for enterprise workflows that need Hiring Security, Session Integrity, Verification Evidence, Governance Review and Replay Evidence.</p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -36,8 +47,10 @@ export default async function EnterpriseAccessPage({ searchParams }: {
           </div>
           <PrivateBetaNotice className="mt-6 max-w-2xl" />
           <div className="mt-8 flex flex-wrap gap-3 text-sm">
-            <Link href="/demo" className="rounded-md border border-zinc-700 px-4 py-2">Demo Overview</Link>
+            <Link href="/demo" className="rounded-md border border-zinc-700 px-4 py-2">View Demo</Link>
             <Link href="/demo/hiring-attack" className="rounded-md border border-cyan-900 px-4 py-2 text-cyan-200">Hiring Security</Link>
+            <Link href="/enterprise-access?intent=design_partner" className="rounded-md border border-zinc-700 px-4 py-2">Become a Design Partner</Link>
+            <Link href="/enterprise-access?intent=intro_call" className="rounded-md border border-zinc-700 px-4 py-2">Book Intro Call</Link>
           </div>
         </section>
 
@@ -63,7 +76,7 @@ export default async function EnterpriseAccessPage({ searchParams }: {
             </label>
             <label className="grid gap-2 text-sm text-zinc-300">Requirements<textarea name="message" rows={5} placeholder="Workflow, verification evidence, review or pilot requirements" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
             <TurnstileField siteKey={turnstileSiteKey} />
-            <button className="rounded-lg bg-white p-3 font-semibold text-black hover:bg-cyan-100">Request Enterprise Access</button>
+            <button className="rounded-lg bg-white p-3 font-semibold text-black hover:bg-cyan-100">{buttonLabel}</button>
           </form>
         </section>
       </div>

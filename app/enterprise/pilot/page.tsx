@@ -34,13 +34,16 @@ export default function EnterprisePilotPage() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/enterprise-access?intent=pilot" className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
-              Request Pilot Access
+              Request Enterprise Access
             </Link>
             <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
-              Discuss Pilot Fit
+              Book Intro Call
             </Link>
             <Link href="/demo" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">
-              Demo Overview
+              View Demo
+            </Link>
+            <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">
+              Become a Design Partner
             </Link>
           </div>
         </section>
