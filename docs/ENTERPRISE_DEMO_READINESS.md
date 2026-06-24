@@ -12,7 +12,7 @@ The demo uses synthetic sample data. It does not claim perfect detection, make a
 
 Start at /demo, then open /demo/hiring-attack.
 
-1. **Synthetic candidate enters.** A sample applicant with incomplete provenance enters the hiring workflow.
+1. **Synthetic candidate enters.** A sample applicant with incomplete verification evidence enters the hiring workflow.
 2. **Verification is initiated.** A governed verification workflow is opened.
 3. **Session checks are triggered.** Identity, liveness, media risk, injection risk and channel integrity remain separate states.
 4. **Injection risk is detected.** An explainable flag is linked to retained session evidence.

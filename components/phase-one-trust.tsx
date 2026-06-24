@@ -146,7 +146,7 @@ export function AdminReviewQueuePlaceholder() {
   const rows = [
     ["Candidate liveness mismatch", "interview", "manual review"],
     ["Recruiter domain needs confirmation", "recruiter", "pending"],
-    ["Media provenance incomplete", "provenance", "evidence needed"],
+    ["Media verification evidence incomplete", "verification evidence", "evidence needed"],
   ];
 
   return (

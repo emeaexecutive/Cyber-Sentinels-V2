@@ -81,7 +81,10 @@ export default function HiringSecurityPage() {
             Protect enterprise hiring workflows against synthetic trust attacks.
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-300">
-            Hiring Security is the clearest entry point for Operational Trust Infrastructure: fake applicants, proxy interviews, AI-assisted hiring fraud and injected sessions become reviewable workflows with evidence, governance, replay and receipts.
+            Hiring Security is the clearest entry point for Operational Trust Infrastructure: fake applicants, proxy interviews, AI-assisted hiring fraud and injected sessions become reviewable workflows with verification evidence, governance, replay and receipts.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            Cyber Sentinels coordinates trust across humans, AI agents, enterprise workflows, and digital interactions so security, legal and people teams can see trust state changes, governance escalation events and reviewer actions in one operational chronology.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
@@ -125,7 +128,7 @@ export default function HiringSecurityPage() {
             Hiring attacks become reviewable workflows.
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            The product does not ask teams to trust a black-box authenticity claim. It shows what changed, what evidence exists, whether liveness, deepfake risk and injection risk are separate concerns, who reviewed it, whether governance escalation is required and where replay evidence is available.
+            The product does not ask teams to trust a black-box authenticity claim. It shows what changed, what verification evidence exists, whether liveness, deepfake risk and injection risk are separate concerns, who reviewed it, whether governance escalation is required and where replay evidence is available.
           </p>
           <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {riskExamples.map(([title, body]) => (

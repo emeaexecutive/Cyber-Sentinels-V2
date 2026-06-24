@@ -128,12 +128,12 @@ export function GovernanceOverview({
             Governance Overview
           </p>
           <h2 className="mt-3 text-2xl font-semibold text-zinc-100">
-            Enterprise AI Trust & Governance
+            Operational Trust Coordination
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Certification, alerting, AI agent registry and audit trail activity
-            in one operational review surface. Development mock data appears
-            when the new governance tables are empty.
+            Certification, alerting, AI agent registry, verification evidence
+            and audit trail activity in one operational review surface.
+            Development mock data appears when the governance tables are empty.
           </p>
         </div>
         <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">
@@ -250,7 +250,7 @@ export function GovernanceOverview({
         </article>
 
         <article className="rounded-lg border border-zinc-800 bg-black p-4">
-          <h3 className="font-semibold text-zinc-100">Recent Provenance Events</h3>
+          <h3 className="font-semibold text-zinc-100">Recent Verification Evidence</h3>
           <div className="mt-4 grid gap-3">
             {provenanceRows.slice(0, 5).map((event) => (
               <div key={String(event.id)} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
@@ -268,7 +268,7 @@ export function GovernanceOverview({
                   </span>
                 </div>
                 <p className="mt-2 text-xs leading-5 text-zinc-500">
-                  {event.event_description ?? "Timeline activity recorded for governance review."}
+                  {event.event_description ?? "Operational chronology recorded for governance review."}
                 </p>
               </div>
             ))}

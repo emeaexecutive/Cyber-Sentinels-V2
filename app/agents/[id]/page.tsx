@@ -464,9 +464,9 @@ export default async function AgentPassportPage({
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Provenance Timeline</h2>
+            <h2 className="text-xl font-semibold">Verification Chronology</h2>
             <p className="mt-2 text-sm leading-6 text-zinc-500">
-              Cyber Sentinels provides operational provenance and explainable
+              Cyber Sentinels provides operational chronology and explainable
               trust history for agent activity, governance actions, ownership
               context and operational events.
             </p>
@@ -478,7 +478,7 @@ export default async function AgentPassportPage({
               ) : (
                 <p className="rounded-lg border border-zinc-800 bg-black p-5 text-sm text-zinc-500">
                   No timeline events are available yet. Agent activity and
-                  governance records will appear here as provenance is recorded.
+                  governance records will appear here as verification evidence is recorded.
                 </p>
               )}
             </div>

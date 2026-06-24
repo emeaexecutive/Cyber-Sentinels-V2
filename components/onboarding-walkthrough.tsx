@@ -8,7 +8,7 @@ const copy = {
   governance:
     "Governance actions show why review was triggered, who owns it, what evidence supports it and whether escalation is required.",
   timeline:
-    "Timeline shows how trust changed over time as operational provenance, not a passive activity feed.",
+    "Timeline shows how trust changed over time as operational chronology, not a passive activity feed.",
   replay:
     "Replay reconstructs historical workflow state so teams can understand how decisions evolved.",
   receipt:

@@ -18,7 +18,7 @@ Then: "Cyber Sentinels is operational trust infrastructure. It connects verifica
 
 Open `/demo/hiring-attack` and move from candidate intake to injection-risk detection.
 
-Say: "A synthetic candidate enters with incomplete provenance. Verification begins, but identity is not treated as permanent proof. During the interview, channel evidence changes and an injection-risk flag is raised."
+Say: "A synthetic candidate enters with incomplete verification evidence. Verification begins, but identity is not treated as permanent proof. During the interview, channel evidence changes and an injection-risk flag is raised."
 
 Point out that identity, liveness, deepfake risk and injection risk remain separate, explainable states.
 

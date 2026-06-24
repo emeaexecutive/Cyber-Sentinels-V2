@@ -16,7 +16,7 @@ Show an enterprise audience how Cyber Sentinels turns a suspicious hiring sessio
 
 **Screen:** `/demo`, then open **Hiring Attack**. Advance to **Synthetic candidate enters**.
 
-**Voiceover:** "Here, a synthetic candidate enters a remote hiring workflow with a credible profile but incomplete provenance. Cyber Sentinels opens a verification workflow instead of treating appearance as proof."
+**Voiceover:** "Here, a synthetic candidate enters a remote hiring workflow with a credible profile but incomplete verification evidence. Cyber Sentinels opens a verification workflow instead of treating appearance as proof."
 
 ### 0:20-0:34 — Session integrity flags injection risk
 

@@ -48,7 +48,7 @@ Reviewed routes and APIs:
 - `/api/interview/report`
 - `/api/interview/liveness`
 
-Connected trust fabric:
+Connected trust coordination:
 
 - Trust cases: interview workflows have migration-level governance/trust-case hooks; creation also records audit and signals.
 - Evidence: candidate, recruiter and interview creation generate verification receipts and evidence chains.
@@ -82,7 +82,7 @@ Reviewed routes and APIs:
 - `/api/agents/activity`
 - `/api/agents/[id]`
 
-Connected trust fabric:
+Connected trust coordination:
 
 - Trust cases: agent registration now best-effort creates a valid trust case using existing columns.
 - Evidence: agent registration now creates an evidence chain through the existing receipt bundle helper.
@@ -110,7 +110,7 @@ Reviewed routes and APIs:
 - `/api/provenance/verify`
 - `/api/provenance/report/[id]`
 
-Connected trust fabric:
+Connected trust coordination:
 
 - Trust cases: provenance verification now best-effort creates a trust case using existing columns.
 - Evidence: provenance verification now creates an evidence chain through the existing receipt bundle helper.

@@ -136,13 +136,13 @@ export default async function TimelinePage({ searchParams }: TimelinePageProps) 
 
         <section className="mt-10 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            Operational provenance
+            Operational chronology
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
             Trust Timeline
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels provides operational provenance and explainable trust
+            Cyber Sentinels provides operational chronology and explainable trust
             history. Timeline events show how trust workflows evolve through
             evidence, review, signals, governance actions and agent activity.
           </p>

@@ -532,7 +532,7 @@ export default async function TrustReceiptPage({
                   <article key={String(relationship.id)} className="rounded-lg border border-zinc-800 bg-black p-4">
                     <p className="font-medium text-zinc-100">{label(relationship.relationship_type, "linked to")}</p>
                     <p className="mt-2 text-sm leading-6 text-zinc-500">
-                      {relationship.explanation ?? "Relationship preserved for explainable provenance."}
+                      {relationship.explanation ?? "Relationship preserved for explainable verification chronology."}
                     </p>
                   </article>
                 ))

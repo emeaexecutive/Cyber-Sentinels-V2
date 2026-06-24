@@ -19,24 +19,31 @@ const workflow = [
 ];
 
 const operatingExamples = [
-  ["Hiring fraud", "Synthetic profile reaches interview; incomplete provenance and session changes are reviewed before access advances."],
+  ["Hiring fraud", "Synthetic profile reaches interview; verification evidence and session changes are reviewed before access advances."],
   ["Injected interview", "Candidate identity is checked at entry, then channel evidence changes during the call and triggers escalation."],
   ["Governance review", "A named reviewer receives evidence, records the decision and leaves a receipt that security, talent and compliance can read."],
 ];
 
 const traditionalSecurity = [
+  "networks",
   "devices",
-  "endpoints",
-  "credentials",
   "communications",
 ];
 
 const cyberSentinelsProtects = [
-  "identity trust",
+  "operational trust",
   "workflow integrity",
   "session authenticity",
-  "governance accountability",
-  "replayable audit evidence",
+  "identity accountability",
+  "verification evidence",
+];
+
+const coordinationIndicators = [
+  ["Trust state changes", "Session context changed after verification."],
+  ["Governance escalation events", "Human review opened with an assigned owner."],
+  ["Verification evidence attached", "Replay, receipt and audit references are retained."],
+  ["Reviewer actions", "Approval, escalation or evidence request remains visible."],
+  ["Workflow authenticity status", "Operational trust is reviewable across the workflow."],
 ];
 
 export default function Home() {
@@ -54,10 +61,10 @@ export default function Home() {
             Protect enterprise workflows against synthetic identity attacks.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels helps enterprise teams review hiring fraud, injected interview sessions and identity-risk workflows before they become operational decisions.
+            Cyber Sentinels coordinates trust across humans, AI agents, enterprise workflows, and digital interactions.
           </p>
           <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
-            Existing cybersecurity tools detect threats. Cyber Sentinels verifies operational trust: what happened, what changed, who reviewed it and what evidence was created.
+            Existing cybersecurity tools detect threats. Cyber Sentinels verifies operational trust: what happened, what changed, who reviewed it and what verification evidence was created.
           </p>
         </div>
 
@@ -74,7 +81,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-6xl gap-8 px-6 py-14 md:grid-cols-[0.85fr_1.15fr] md:px-8">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Operational story</p>
-            <h2 className="mt-4 text-3xl font-semibold leading-tight text-white">A hiring session changes after verification.</h2>
+            <h2 className="mt-4 text-3xl font-semibold leading-tight text-white">Operational Trust Infrastructure for changing workflows.</h2>
             <p className="mt-4 leading-7 text-zinc-200">
               A candidate can look verified at the start of a workflow while the interview channel changes later.
             </p>
@@ -96,9 +103,9 @@ export default function Home() {
       <section className="mx-auto grid max-w-6xl gap-6 px-6 py-16 md:grid-cols-[0.9fr_1.1fr] md:px-8">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Enterprise positioning</p>
-          <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">Cyber Sentinels operates above the stack you already trust.</h2>
+          <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">Cyber Sentinels is the coordination layer above the stack you already trust.</h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Traditional security protects devices, credentials and messages. Cyber Sentinels protects identity trust, workflow integrity, session authenticity and operational accountability after those controls are in place.
+            Traditional cybersecurity tools protect networks, devices and communications. Cyber Sentinels protects operational trust, workflow integrity, session authenticity, identity accountability and verification evidence after those controls are in place.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -129,6 +136,30 @@ export default function Home() {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-6xl gap-6 px-6 py-16 md:grid-cols-[0.85fr_1.15fr] md:px-8">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Enterprise narrative</p>
+          <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">A new operational trust problem.</h2>
+          <p className="mt-4 text-sm leading-7 text-zinc-300">
+            Organizations can no longer rely solely on device security and communication security.
+          </p>
+          <p className="mt-4 text-sm leading-7 text-zinc-300">
+            AI-generated impersonation, synthetic identities, injected video feeds, autonomous agents, and fragmented workflows have created a new operational trust problem.
+          </p>
+          <p className="mt-4 text-sm leading-7 text-zinc-200">
+            Cyber Sentinels verifies who - or what - can be trusted across enterprise workflows.
+          </p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {coordinationIndicators.map(([title, copy]) => (
+            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+              <h3 className="text-sm font-semibold text-white">{title}</h3>
+              <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
+            </article>
+          ))}
         </div>
       </section>
 

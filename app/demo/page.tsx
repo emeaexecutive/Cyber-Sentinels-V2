@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PrivateBetaNotice } from "@/components/private-beta";
 
 const risks = [
-  ["Synthetic applicants", "Generated profiles and incomplete provenance can enter hiring workflows that were built for a more verifiable world."],
+  ["Synthetic applicants", "Generated profiles and incomplete verification evidence can enter hiring workflows that were built for a more verifiable world."],
   ["Proxy interviews", "The person in the session may not match the person being evaluated or granted access."],
   ["Injected video feeds", "Identity can be verified at entry while the interview channel changes later."],
   ["Governance gaps", "Flags without ownership, evidence or human review become operational risk."],
@@ -30,12 +30,15 @@ export default function DemoPage() {
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
         <section className="border-b border-zinc-800 pb-12">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">Enterprise Demo</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">Operational Trust Infrastructure Demo</p>
           <h1 className="mt-4 max-w-5xl text-4xl font-semibold tracking-tight md:text-6xl">
             A guided walkthrough from injected interview to evidence-backed review.
           </h1>
           <p className="mt-6 max-w-3xl leading-8 text-zinc-200">
             In under 90 seconds, see what happened, what changed, what action occurred and what proof was retained.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            Cyber Sentinels coordinates trust across humans, AI agents, enterprise workflows, and digital interactions so teams can follow trust state changes, governance escalation events, reviewer actions and verification evidence.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href="/demo/hiring-attack" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-200">Start Hiring Security Demo</Link>
@@ -67,6 +70,17 @@ export default function DemoPage() {
               <p className="mt-2 text-sm leading-6 text-zinc-300">{copy}</p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-12 grid gap-4 md:grid-cols-2">
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold text-white">Traditional cybersecurity tools protect</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-400">Networks, devices and communications.</p>
+          </article>
+          <article className="rounded-lg border border-cyan-900 bg-black p-5">
+            <h2 className="text-xl font-semibold text-white">Cyber Sentinels protects</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-300">Operational trust, workflow integrity, session authenticity, identity accountability and verification evidence.</p>
+          </article>
         </section>
 
         <section className="mt-12 rounded-lg border border-zinc-800 bg-zinc-950 p-6">

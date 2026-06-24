@@ -665,9 +665,9 @@ export default async function PassportViewerPage({
             )}
           </Panel>
 
-          <Panel title="Provenance Timeline">
+          <Panel title="Verification Chronology">
             <p className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 text-sm leading-6 text-zinc-500">
-              Cyber Sentinels provides operational provenance and explainable
+              Cyber Sentinels provides operational chronology and explainable
               trust history for evidence, review, trust changes, governance
               actions and audit events.
             </p>

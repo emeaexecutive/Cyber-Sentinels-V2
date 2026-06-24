@@ -274,15 +274,17 @@ export default async function GovernancePage({
 
         <section className="mt-10 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            Operational governance
+            Operational Trust Infrastructure
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Governance Engine
+            Governance visibility for trust coordination.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Explainable policies and human review actions across trust cases,
-            passports, signals and AI-assisted recommendations. AI may summarize
-            governance state, but humans approve, reject, escalate and resolve.
+            Cyber Sentinels coordinates trust across humans, AI agents,
+            enterprise workflows, and digital interactions. Governance makes
+            trust state changes, verification evidence, reviewer actions and
+            workflow authenticity status visible before operational decisions
+            advance.
           </p>
           <div className="mt-5 max-w-3xl">
             <OnboardingHint area="governance" />
@@ -294,6 +296,21 @@ export default async function GovernancePage({
             Governance action could not be completed. Check required fields and status values.
           </div>
         ) : null}
+
+        <section className="mt-8 grid gap-4 md:grid-cols-2">
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Traditional cybersecurity tools protect</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-400">
+              Networks, devices and communications.
+            </p>
+          </article>
+          <article className="rounded-lg border border-cyan-900 bg-black p-5">
+            <h2 className="text-xl font-semibold">Cyber Sentinels protects</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-300">
+              Operational trust, workflow integrity, session authenticity, identity accountability and verification evidence.
+            </p>
+          </article>
+        </section>
 
         <section className="mt-8 grid gap-3 md:grid-cols-4">
           {[
@@ -323,9 +340,9 @@ export default async function GovernancePage({
               <h2 className="text-xl font-semibold">Reverification Posture</h2>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
                 Governance review can trigger revalidation when confidence is
-                aging, evidence is incomplete, or an action remains unresolved.
-                These checkpoints explain why review is recommended without
-                adding background tracking.
+                aging, verification evidence is incomplete, or an action remains
+                unresolved. These checkpoints explain why review is recommended
+                without adding background tracking.
               </p>
             </div>
             <span className="rounded-full border border-amber-800 px-3 py-1 text-xs text-amber-200">
@@ -519,10 +536,10 @@ export default async function GovernancePage({
             </div>
           </section>
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Missing Evidence Workflows</h2>
+            <h2 className="text-xl font-semibold">Verification Evidence Workflows</h2>
             <div className="mt-5 grid gap-3">
               {missingEvidence.length ? missingEvidence.map((row) => <ReviewSignal key={String(row.id)} row={row} />) : (
-                <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">No missing evidence workflows are visible.</p>
+                <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">No verification evidence workflows are visible.</p>
               )}
             </div>
           </section>

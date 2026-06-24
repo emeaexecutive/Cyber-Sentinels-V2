@@ -111,7 +111,7 @@ Use this wording:
 
 Use this wording:
 
-- "Cyber Sentinels preserves operational provenance and explainable trust history."
+- "Cyber Sentinels preserves operational chronology and explainable trust history."
 - "Timeline and replay help teams understand how evidence, signals and governance actions evolved."
 - "Replay does not rewrite history. It reconstructs the operational path."
 - "Receipts provide audit-ready summaries of what supported a verification state."
