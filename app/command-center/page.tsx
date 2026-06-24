@@ -605,21 +605,21 @@ export default async function CommandCenterPage({
         <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-xl font-semibold">Trust Prediction Engine™</h2>
+              <h2 className="text-xl font-semibold">Trust Posture Review</h2>
               <p className="mt-2 text-sm text-zinc-500">
-                {prediction.trend}
+                Review current risk direction and recommended human action.
               </p>
             </div>
             <Link
-              href="/trust-prediction"
+              href="/dashboard/trust-posture"
               className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
             >
-              Open Prediction Engine
+              Open Trust Posture
             </Link>
           </div>
           <div className="mt-6 grid gap-3 md:grid-cols-3">
             <div className="rounded-xl border border-zinc-800 bg-black p-4">
-              <p className="text-sm text-zinc-500">Prediction Score</p>
+              <p className="text-sm text-zinc-500">Posture Score</p>
               <p className="mt-2 text-3xl font-bold">{prediction.score}</p>
             </div>
             <div className="rounded-xl border border-zinc-800 bg-black p-4">
@@ -694,7 +694,7 @@ export default async function CommandCenterPage({
             <div>
               <h2 className="text-xl font-semibold">Live Trust Radar Preview</h2>
               <p className="mt-2 text-sm text-zinc-500">
-                Signal detected across the trust layer.
+                Flag recorded across the trust workflow.
               </p>
             </div>
             <Link

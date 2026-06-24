@@ -4,6 +4,7 @@ import {
   FileWarning,
   History,
   ScanSearch,
+  ShieldCheck,
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -15,22 +16,22 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/dashboard");
 
-  const [flags, reviews, governance, integrity, receipts, threatActivity] = await Promise.all([
+  const [flags, reviews, governance, integrity, receipts, posture] = await Promise.all([
     supabase.from("interview_risk_events").select("*", { count: "exact", head: true }).eq("escalation_required", true),
     supabase.from("governance_actions").select("*", { count: "exact", head: true }).in("action_status", ["pending", "in_review", "escalated"]),
     supabase.from("governance_actions").select("*", { count: "exact", head: true }),
     supabase.from("session_integrity_checks").select("*", { count: "exact", head: true }),
     supabase.from("verification_receipts").select("*", { count: "exact", head: true }),
-    supabase.from("interview_risk_events").select("*", { count: "exact", head: true }),
+    supabase.from("verification_signals").select("*", { count: "exact", head: true }),
   ]);
 
   const metrics = [
-    ["Active Flags", flags.count ?? 0, FileWarning],
-    ["Pending Reviews", reviews.count ?? 0, ClipboardCheck],
-    ["Session Integrity", integrity.count ?? 0, ScanSearch],
-    ["Verification Receipts", receipts.count ?? 0, History],
-    ["Threat Activity", threatActivity.count ?? 0, FileWarning],
-    ["Governance Actions", governance.count ?? 0, ClipboardCheck],
+    ["Active Flags", flags.count ?? 0, FileWarning, "/dashboard/interview-risk"],
+    ["Pending Reviews", reviews.count ?? 0, ClipboardCheck, "/governance"],
+    ["Session Integrity", integrity.count ?? 0, ScanSearch, "/dashboard/session-integrity"],
+    ["Verification Receipts", receipts.count ?? 0, History, "/dashboard"],
+    ["Trust Posture", posture.count ?? 0, ShieldCheck, "/dashboard/trust-posture"],
+    ["Governance Actions", governance.count ?? 0, ClipboardCheck, "/governance"],
   ] as const;
 
   return (
@@ -41,21 +42,38 @@ export default async function DashboardPage() {
             <p className="text-sm uppercase tracking-[0.3em] text-sentinel-green">Pilot Operations</p>
             <h1 className="mt-2 text-4xl font-semibold">Hiring Security Dashboard</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-sentinel-muted">
-              Trust changed quietly. Review active flags, pending reviews, session integrity, verification receipts, threat activity and governance actions without operational noise.
+              Trust changed quietly. Review Flags, Pending Reviews, Session Integrity, Verification Receipts, Trust Posture and Governance Actions without operational noise.
             </p>
           </div>
-          <Link href="/demo" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black">
-            Run 90-second demo
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            {[
+              ["/demo", "Demo"],
+              ["/enterprise-access", "Enterprise Access"],
+              ["/enterprise/hiring-security", "Hiring Security"],
+              ["/pricing", "Pricing"],
+            ].map(([href, label], index) => (
+              <Link
+                key={href}
+                href={href}
+                className={`rounded-lg px-4 py-2 text-sm font-semibold ${
+                  index === 0
+                    ? "bg-white text-black"
+                    : "border border-sentinel-line text-sentinel-muted hover:border-sentinel-green hover:text-white"
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
         </header>
 
         <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {metrics.map(([title, value, Icon]) => (
-            <div key={title} className="rounded-lg border border-sentinel-line bg-white/[0.04] p-5">
+          {metrics.map(([title, value, Icon, href]) => (
+            <Link key={title} href={href} className="rounded-lg border border-sentinel-line bg-white/[0.04] p-5 hover:border-sentinel-green">
               <Icon className="h-6 w-6 text-sentinel-green" />
               <p className="mt-4 text-sm text-sentinel-muted">{title}</p>
               <p className="mt-1 text-3xl font-semibold">{value}</p>
-            </div>
+            </Link>
           ))}
         </section>
 
@@ -69,10 +87,10 @@ export default async function DashboardPage() {
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             {[
-              ["/dashboard/interview-risk", "1. Review active flags", "Inspect identity, injection and session-integrity flags."],
-              ["/governance", "2. Record governance action", "Assign review ownership and preserve the human outcome."],
-              ["/trust-replay", "3. Replay evidence", "Reconstruct chronology and open generated /replay/[id] records."],
-              ["/dashboard/session-integrity", "4. Review receipts", "Use session integrity and generated receipts to explain the final outcome."],
+              ["/dashboard/interview-risk", "1. Review Flags", "Inspect identity, injection and Session Integrity flags."],
+              ["/governance", "2. Open Governance Review", "Assign review ownership and preserve the human outcome."],
+              ["/trust-replay", "3. Review Verification Chronology", "Reconstruct timestamps, flags, reviewer actions and Verification Evidence."],
+              ["/dashboard/trust-posture", "4. Check Trust Posture", "Confirm current state before sharing receipts or replay evidence."],
             ].map(([href, title, copy]) => (
               <Link key={href} href={href} className="rounded-lg border border-sentinel-line bg-black/30 p-4 hover:border-sentinel-green">
                 <p className="font-semibold">{title}</p>

@@ -160,7 +160,7 @@ export default async function TrustGraphPage() {
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-400">
             Free access includes a basic Trust Passport view. Upgrade to Pro to
-            use graph visibility across evidence, review, signals and audit
+            use graph visibility across evidence, review, flags and audit
             history.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -269,8 +269,8 @@ export default async function TrustGraphPage() {
           <Link href="/back-office" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
             Back Office
           </Link>
-          <Link href="/trust-fabric" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
-            /trust-fabric
+          <Link href="/timeline" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
+            /timeline
           </Link>
         </nav>
 
@@ -284,7 +284,7 @@ export default async function TrustGraphPage() {
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
             V1 uses PostgreSQL relationship records and existing operational
             activity to show verification chains, evidence linkage, agent
-            ownership and signal context. AI may summarize these relationships
+            ownership and flag context. AI may summarize these relationships
             later, but it does not invent them.
           </p>
         </section>
@@ -322,7 +322,7 @@ export default async function TrustGraphPage() {
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             {[
               ["Evidence Linkage", relationshipTypeCounts.submitted_evidence ?? 0],
-              ["Signal Relationships", relationshipTypeCounts.generated_signal ?? 0],
+              ["Flag Relationships", relationshipTypeCounts.generated_signal ?? 0],
               ["Agent Ownership", relationshipTypeCounts.owned_by ?? 0],
               [
                 "Governance Links",
@@ -345,7 +345,7 @@ export default async function TrustGraphPage() {
               <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
                 No stored relationship records yet. Passport and agent pages can
                 still derive explainable relationships from evidence, audit
-                logs, decisions, signals and activity.
+                logs, decisions, flags and activity.
               </p>
             )}
           </div>
@@ -354,25 +354,25 @@ export default async function TrustGraphPage() {
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-semibold">Trust Fabric Connection</h2>
+              <h2 className="text-xl font-semibold">Verification Chronology Connection</h2>
               <p className="mt-2 text-sm text-zinc-500">
-                Graph nodes and edges feed the connective fabric used by
-                Reality OS, Prediction and Mission Control.
+                Graph nodes and edges feed the chronology used by Governance Review,
+                Trust Posture and Mission Control.
               </p>
             </div>
             <Link
-              href="/trust-fabric"
+              href="/timeline"
               className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
-              Open Trust Fabric
+              Open Verification Chronology
             </Link>
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             {[
-              ["Fabric Nodes", trustFabric.active_nodes],
-              ["Fabric Relationships", trustFabric.relationships],
-              ["Fabric Signals", trustFabric.signals],
-              ["Fabric Health", trustFabric.health],
+              ["Chronology Nodes", trustFabric.active_nodes],
+              ["Review Relationships", trustFabric.relationships],
+              ["Flags", trustFabric.signals],
+              ["Posture Health", trustFabric.health],
             ].map(([label, value]) => (
               <div
                 key={label}
@@ -422,7 +422,7 @@ export default async function TrustGraphPage() {
             edgeCounts={edgeCounts}
           />
           <GraphSection
-            title="Active Signals"
+            title="Active Flags"
             nodes={graphNodesByType(graph, ["signal", "audit_log"])}
             edgeCounts={edgeCounts}
           />
@@ -432,7 +432,7 @@ export default async function TrustGraphPage() {
             edgeCounts={edgeCounts}
           />
           <GraphSection
-            title="Origin / Provenance Links"
+            title="Verification Evidence Links"
             nodes={graphNodesByType(graph, ["origin_trace"])}
             edgeCounts={edgeCounts}
           />
@@ -442,7 +442,7 @@ export default async function TrustGraphPage() {
             edgeCounts={edgeCounts}
           />
           <GraphSection
-            title="LinkedIn / Professional Signals"
+            title="LinkedIn / Professional Flags"
             nodes={graphNodesByType(graph, ["linkedin_profile"])}
             edgeCounts={edgeCounts}
           />

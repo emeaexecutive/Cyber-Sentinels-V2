@@ -876,7 +876,7 @@ export default async function BackOfficePage({
       label: "Enterprise Interest",
       rows: interestSignals.rows,
       target: "interest_signals" as const,
-      empty: "No enterprise interest signals yet.",
+      empty: "No enterprise interest records yet.",
     },
     {
       label: "Feature Requests",
@@ -1110,7 +1110,7 @@ export default async function BackOfficePage({
     ],
     ["Decision recorded", decisions.count > 0],
     ["Audit trail written", auditLogs.count > 0],
-    ["Signals generated", signals.count > 0],
+    ["Flags generated", signals.count > 0],
     ["Trust Passport view available", passports.count > 0],
     [
       "Trust Graph available",
@@ -1132,7 +1132,7 @@ export default async function BackOfficePage({
     ["Trust Assistant", "/trust-assistant"],
     ["Knowledge Base", "/knowledge-base"],
     ["Help Center", "/help"],
-    ["Prediction Engine", "/trust-prediction"],
+    ["Trust Posture", "/dashboard/trust-posture"],
     ["Policy Engine", "/policy-engine"],
     ["API Docs", "/api-docs"],
     ["Developer Console", "/developer-console"],
@@ -1154,8 +1154,8 @@ export default async function BackOfficePage({
     ["Public Verification", "/verify"],
     ["Public Profiles", "/profile"],
     ["Trust Ledger", "/trust-ledger"],
-    ["Reality OS", "/reality-os"],
-    ["Trust Fabric", "/trust-fabric"],
+    ["Verification Chronology", "/timeline"],
+    ["Governance Review", "/governance"],
   ];
 
   return (
@@ -1196,7 +1196,7 @@ export default async function BackOfficePage({
               ["#evidence-review", "Evidence"],
               ["#decisions", "Decisions"],
               ["#audit-timeline", "Audit"],
-              ["#signal-timeline", "Signals"],
+              ["#signal-timeline", "Flags"],
               ["#help", "Help"],
               ["#feedback-signals", "Feedback"],
               ["#billing-readiness", "Billing"],
@@ -1265,7 +1265,7 @@ export default async function BackOfficePage({
             ],
             [
               "What is risky?",
-              `${radarSignals.filter((signal) => ["high", "critical"].includes(String(signal.severity).toLowerCase())).length} high-risk signals are visible in the latest operating data.`,
+              `${radarSignals.filter((signal) => ["high", "critical"].includes(String(signal.severity).toLowerCase())).length} high-risk flags are visible in the latest operating data.`,
               "#signal-timeline",
             ],
             [
@@ -1333,7 +1333,7 @@ export default async function BackOfficePage({
               href: "#audit-timeline",
             },
             {
-              label: "Signals",
+              label: "Flags",
               value: signals.count,
               available: signals.available,
               href: "#signal-timeline",
@@ -1400,7 +1400,7 @@ export default async function BackOfficePage({
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
-                Founder Signals
+                Founder Feedback
               </p>
               <h2 className="mt-2 text-xl font-semibold">
                 Early Market Learning
@@ -2192,7 +2192,7 @@ export default async function BackOfficePage({
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
-                  Feedback & Signals
+                  Feedback & Learning
                 </p>
                 <h2 className="mt-2 text-xl font-semibold">
                   Real-World Learning
@@ -2206,7 +2206,7 @@ export default async function BackOfficePage({
               </Link>
             </div>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-500">
-              Lightweight founder-led feedback signals from users, enterprise
+              Lightweight founder-led feedback from users, enterprise
               conversations and early validation. Cyber Sentinels is evolving
               through early operational feedback and design collaboration.
             </p>
@@ -2741,12 +2741,12 @@ export default async function BackOfficePage({
                 {signals.rows.length ? (
                   signals.rows.map((signal, index) => (
                     <div key={rowKey(signal, `signal-${index}`)} className="rounded-lg border border-zinc-800 p-4">
-                      <p className="text-zinc-300">{signal.event ?? "Signal recorded"}</p>
+                      <p className="text-zinc-300">{signal.event ?? "Flag recorded"}</p>
                       <p className="mt-2 text-xs text-zinc-600">{formatDate(signal.created_at)}</p>
                     </div>
                   ))
                 ) : (
-                  <EmptyState label="No critical signals." />
+                  <EmptyState label="No critical flags." />
                 )}
               </div>
             </div>
@@ -2860,11 +2860,11 @@ export default async function BackOfficePage({
             </div>
 
             <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-              <h3 className="text-lg font-semibold">Trust Fabric</h3>
+              <h3 className="text-lg font-semibold">Verification Chronology</h3>
               <div className="mt-5 grid gap-3 md:grid-cols-4">
                 {[
                   ["Active Nodes", trustFabric.active_nodes],
-                  ["Signals", trustFabric.signals],
+                  ["Flags", trustFabric.signals],
                   ["Relationships", trustFabric.relationships],
                   ["Health", trustFabric.health],
                 ].map(([label, value]) => (

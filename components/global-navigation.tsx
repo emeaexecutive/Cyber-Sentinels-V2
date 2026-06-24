@@ -14,8 +14,8 @@ const publicLinks = [
   ["/demo/session-integrity", "Session Integrity"],
   ["/governance", "Governance"],
   ["/demo", "Demo"],
-  ["/enterprise-access", "Enterprise Access"],
   ["/pricing", "Pricing"],
+  ["/enterprise-access", "Enterprise Access"],
   ["/login", "Login"],
 ];
 
@@ -25,6 +25,7 @@ const adminLinks = [
   ["/dashboard/session-integrity", "Session Integrity"],
   ["/governance", "Governance"],
   ["/demo", "Demo"],
+  ["/pricing", "Pricing"],
   ["/enterprise-access", "Enterprise Access"],
   ["/admin/founder-control", "Founder Control"],
 ];
@@ -35,7 +36,8 @@ const userLinks = [
   ["/dashboard/session-integrity", "Session Integrity"],
   ["/governance", "Governance"],
   ["/demo", "Demo"],
-  ["/notifications", "Notifications"],
+  ["/pricing", "Pricing"],
+  ["/enterprise-access", "Enterprise Access"],
 ];
 
 function LogoutButton() {

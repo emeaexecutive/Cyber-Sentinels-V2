@@ -3,7 +3,7 @@ import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 
 const priorities = [
   ["What happened", "A verified-looking applicant entered a remote hiring workflow and reached a live interview."],
-  ["What was detected", "Session evidence changed: channel, media and injection-risk signals no longer matched the verified context."],
+  ["What was detected", "Session evidence changed: channel, media and injection-risk flags no longer matched the verified context."],
   ["What action occurred", "The workflow paused, a governance review opened and the risky session was blocked by human authority."],
   ["What evidence was created", "Replay chronology, reviewer action, audit references and a verification receipt were retained."],
 ];
@@ -69,9 +69,10 @@ export default function Home() {
         </div>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/enterprise-access" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-cyan-200">Request Enterprise Access</Link>
-          <Link href="/demo/hiring-attack" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">Hiring Security</Link>
-          <Link href="/demo/session-integrity" className="rounded-md border border-zinc-600 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-300">Session Integrity</Link>
+          <Link href="/demo" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-cyan-200">View Demo</Link>
+          <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">Enterprise Access</Link>
+          <Link href="/enterprise/hiring-security" className="rounded-md border border-zinc-600 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-300">Hiring Security</Link>
+          <Link href="/pricing" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400">Pricing</Link>
         </div>
         <PrivateBetaNotice className="mt-7 max-w-3xl" />
       </section>
@@ -104,7 +105,7 @@ export default function Home() {
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Enterprise positioning</p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">Cyber Sentinels is the coordination layer above the stack you already trust.</h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Security controls protect the network. Cyber Sentinels keeps the workflow reviewable after identity, session and evidence signals start to shift.
+            Security controls protect the network. Cyber Sentinels keeps the workflow reviewable after identity, session and Verification Evidence starts to shift.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
