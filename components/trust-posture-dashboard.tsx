@@ -74,10 +74,13 @@ export function TrustPostureDashboard({
   const journeyEvents: TrustJourneyEvent[] = [
     {
       id: "active-trust-level",
-      title: "Trust score progression",
+      title: "Identity submitted",
       description: snapshot.activeTrustLabel,
       occurredAt: snapshot.summaries[0]?.updatedAt ?? snapshot.recentEvents[0]?.created_at,
       state: snapshot.badge === "trusted" ? "trusted_workforce" : journeyStateForPosture(snapshot.badge),
+      stage: "identity_submitted",
+      evidenceLabel: "active posture",
+      flag: snapshot.activeTrustLabel,
       score: snapshot.activeTrustLevel,
     },
     ...snapshot.recentEvents.slice(0, 5).map((row, index): TrustJourneyEvent => ({
@@ -86,22 +89,35 @@ export function TrustPostureDashboard({
       description: clean(row.explanation, "Existing verification, session or timeline event retained for audit review."),
       occurredAt: row.created_at,
       state: journeyStateForPosture(`${row.posture_source ?? ""} ${row.posture_label ?? ""} ${row.explanation ?? ""}`),
+      stage: String(row.posture_source ?? "").includes("session")
+        ? "session_integrity_checked"
+        : String(row.posture_source ?? "").includes("signal")
+          ? "injection_risk_reviewed"
+          : "human_presence_checked",
+      evidenceLabel: clean(row.posture_source, "timeline"),
+      flag: clean(row.posture_label, "recorded"),
       score: snapshot.activeTrustLevel === null ? null : Math.max(25, Math.min(92, snapshot.activeTrustLevel - 10 + index * 3)),
     })),
     ...snapshot.reviewQueue.slice(0, 3).map((row, index): TrustJourneyEvent => ({
       id: `review-${row.id ?? index}`,
-      title: row.posture_queue_type === "session" ? "Session integrity review" : "Governance escalation",
+      title: row.posture_queue_type === "session" ? "Session integrity checked" : "Governance review opened",
       description: clean(row.resolution_notes ?? row.review_summary, "Human review remains required before the posture is current."),
       occurredAt: row.created_at,
       state: row.posture_queue_type === "session" ? "session_integrity_failed" : "governance_review",
+      stage: row.posture_queue_type === "session" ? "session_integrity_checked" : "governance_review_opened",
+      evidenceLabel: row.posture_queue_type === "session" ? "session review" : "governance action",
+      reviewerAction: clean(row.resolution_notes ?? row.action_status, "review pending"),
       score: 52,
     })),
     ...snapshot.elevatedRisk.slice(0, 3).map((row, index): TrustJourneyEvent => ({
       id: `risk-${row.id ?? index}`,
-      title: clean(row.category, "Elevated risk indicator"),
+      title: String(row.category ?? "").includes("injection") ? "Injection risk reviewed" : clean(row.category, "Elevated risk indicator"),
       description: clean(row.explanation, "Risk indicator retained for reviewer action."),
       occurredAt: row.created_at,
       state: row.requires_manual_review ? "manual_review_required" : "elevated_risk",
+      stage: "injection_risk_reviewed",
+      evidenceLabel: clean(row.category, "risk flag"),
+      flag: clean(row.risk_level, "elevated"),
       score: 44,
     })),
   ];
@@ -144,11 +160,13 @@ export function TrustPostureDashboard({
 
         <section className="mt-8 grid gap-3 md:grid-cols-[1.2fr_2fr]">
           <div className="rounded-lg border border-zinc-800 bg-black p-5">
-            <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Active trust level</p>
-            <p className="mt-3 text-4xl font-semibold text-zinc-100">
-              {snapshot.activeTrustLevel === null ? "n/a" : `${snapshot.activeTrustLevel}/100`}
+            <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Current verification state</p>
+            <p className="mt-3 text-3xl font-semibold text-zinc-100">
+              {snapshot.activeTrustLabel}
             </p>
-            <p className="mt-2 text-sm text-cyan-200">{snapshot.activeTrustLabel}</p>
+            <p className="mt-2 text-sm text-cyan-200">
+              {snapshot.activeTrustLevel === null ? "No numeric posture recorded" : "Evidence-backed posture available"}
+            </p>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Reverification status</p>
@@ -162,9 +180,20 @@ export function TrustPostureDashboard({
         <section className="mt-8">
           <TrustJourneyVisualization
             title="Trust posture journey"
-            description="Operational progression across active trust score, verification milestones, governance escalations, integrity failures, approvals and final workforce trust posture."
+            description="Operational progression across verification milestones, Session Integrity, Governance Review, reviewer action and Replay Evidence."
             events={journeyEvents}
             finalState={finalJourneyState}
+            proofState={{
+              currentVerificationState: snapshot.activeTrustLabel,
+              riskLevel: snapshot.elevatedRisk.length ? clean(snapshot.elevatedRisk[0].risk_level, "elevated") : "No elevated flag visible",
+              lastEvidenceEvent: snapshot.recentEvents[0]
+                ? `${clean(snapshot.recentEvents[0].posture_label)} / ${formatDate(snapshot.recentEvents[0].created_at)}`
+                : "No recent event recorded",
+              reviewerAction: snapshot.reviewQueue[0]
+                ? clean(snapshot.reviewQueue[0].resolution_notes ?? snapshot.reviewQueue[0].action_status, "Review pending")
+                : "No open reviewer action",
+              finalOutcome: snapshot.reviewQueue.length ? "Review pending" : snapshot.badge,
+            }}
           />
         </section>
 

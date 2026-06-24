@@ -140,7 +140,9 @@ export default async function VerificationReplayPage({
   ].sort((a, b) => new Date(occurredAt(a)).getTime() - new Date(occurredAt(b)).getTime());
 
   const latestGovernance = governanceActions?.at(-1);
+  const latestEvidenceEvent = chronology.at(-1);
   const injectionEvent = (riskEvents ?? []).find((event) => /injection/i.test(String(event.signal_type ?? "")));
+  const elevatedRiskEvent = (riskEvents ?? []).find((event) => event.escalation_required || /risk|fail|injection/i.test(String(event.signal_type ?? "")));
   const completed = Boolean(receipts?.length);
   const reviewCompleted = ["approved", "rejected", "resolved"].includes(
     String(latestGovernance?.action_status ?? "")
@@ -151,6 +153,9 @@ export default async function VerificationReplayPage({
     description: label(event.summary, "Trust state recorded for audit replay."),
     occurredAt: occurredAt(event),
     state: trustStateForEvent(event),
+    evidenceLabel: label(event.type, "evidence"),
+    flag: label(event.state, "recorded"),
+    reviewerAction: event.type === "governance" ? label(event.summary, "Human review recorded.") : null,
     score: trustScoreForEvent(event, index),
   }));
   const finalJourneyState: TrustJourneyState = receipts?.length
@@ -222,9 +227,16 @@ export default async function VerificationReplayPage({
         <div className="mt-8">
           <TrustJourneyVisualization
             title="Operational Trust Infrastructure replay"
-            description="Trust score progression, verification milestones, integrity failures, governance escalation and receipt outcome ordered as an operational trust coordination replay."
+            description="Verification milestones, integrity checks, injection-risk review, governance action and receipt outcome ordered as audit replay."
             events={trustJourneyEvents}
             finalState={finalJourneyState}
+            proofState={{
+              currentVerificationState: label(session?.verification_status ?? session?.session_status ?? session?.integrity_status, "Reviewable"),
+              riskLevel: elevatedRiskEvent ? label(elevatedRiskEvent.risk_level ?? elevatedRiskEvent.signal_type, "Elevated") : "No elevated flag recorded",
+              lastEvidenceEvent: latestEvidenceEvent ? `${label(latestEvidenceEvent.type)} / ${formatDate(latestEvidenceEvent.created_at)}` : "No evidence event recorded",
+              reviewerAction: latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "Governance review pending",
+              finalOutcome: receipts?.[0] ? label(receipts[0].verification_status, "Receipt issued") : "Receipt pending",
+            }}
           />
         </div>
 

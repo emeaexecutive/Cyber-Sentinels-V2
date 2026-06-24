@@ -198,26 +198,35 @@ export default async function TrustReceiptPage({
   const trustJourneyEvents: TrustJourneyEvent[] = [
     {
       id: "verification-initiated",
-      title: "Verification initiated",
+      title: "Identity submitted",
       description: `Workflow subject recorded as ${label(receipt.subject_type, "workflow subject")}.`,
       occurredAt: receipt.created_at ?? receipt.issued_at,
       state: "manual_review_required",
+      stage: "identity_submitted",
+      evidenceLabel: "subject record",
+      flag: label(receipt.subject_type, "workflow subject"),
       score: 52,
     },
     {
       id: "human-presence",
-      title: "Human presence confirmed",
+      title: "Human presence checked",
       description: `Identity verification state: ${label(identityState, "pending")}.`,
       occurredAt: sessionIntegrity?.created_at ?? receipt.created_at ?? receipt.issued_at,
       state: stateFromText(identityState),
+      stage: "human_presence_checked",
+      evidenceLabel: "identity evidence",
+      flag: label(identityState, "pending"),
       score: 68,
     },
     {
       id: "session-integrity",
-      title: "Session integrity checks",
+      title: "Session integrity checked",
       description: `Session integrity state: ${label(sessionIntegrityState, "pending")}.`,
       occurredAt: sessionIntegrity?.created_at ?? receipt.issued_at,
       state: stateFromText(sessionIntegrityState),
+      stage: "session_integrity_checked",
+      evidenceLabel: "session integrity",
+      flag: label(sessionIntegrityState, "pending"),
       score: stateFromText(sessionIntegrityState) === "session_integrity_failed" ? 38 : 70,
     },
     {
@@ -230,26 +239,40 @@ export default async function TrustReceiptPage({
     },
     {
       id: "injection-risk",
-      title: "Injection risk events",
+      title: "Injection risk reviewed",
       description: `Injection risk state: ${label(injectionRiskState)}.`,
       occurredAt: injectionEvent?.created_at ?? receipt.issued_at,
       state: stateFromText(injectionRiskState),
+      stage: "injection_risk_reviewed",
+      evidenceLabel: "injection-risk flag",
+      flag: label(injectionRiskState),
       score: injectionEvent ? 42 : 76,
     },
     ...(governanceActions ?? []).map((action, index): TrustJourneyEvent => ({
       id: `governance-${action.id ?? index}`,
-      title: "Governance review action",
+      title: ["approved", "rejected", "resolved"].includes(String(action.action_status ?? ""))
+        ? "Manual review completed"
+        : "Governance review opened",
       description: label(action.resolution_notes ?? action.action_type ?? action.action_status, "Human governance review recorded."),
       occurredAt: action.resolved_at ?? action.created_at,
       state: stateFromText(action.action_status),
+      stage: ["approved", "rejected", "resolved"].includes(String(action.action_status ?? ""))
+        ? "manual_review_completed"
+        : "governance_review_opened",
+      evidenceLabel: "reviewer action",
+      flag: label(action.action_status, "pending"),
+      reviewerAction: label(action.resolution_notes ?? action.action_status, "Human review recorded"),
       score: ["approved", "resolved"].includes(String(action.action_status ?? "")) ? 78 : 58,
     })),
     {
       id: "receipt-issued",
-      title: "Receipt issuance",
+      title: "Receipt issued",
       description: "Verification receipt preserves the outcome, evidence summary, reviewer state and replay path.",
       occurredAt: receipt.issued_at,
       state: "trusted_workforce",
+      stage: "receipt_issued",
+      evidenceLabel: "verification receipt",
+      flag: label(receipt.verification_status, "issued"),
       score: 88,
     },
   ];
@@ -359,6 +382,17 @@ export default async function TrustReceiptPage({
             description="Chronological verification story from initiation through presence, integrity checks, deepfake and injection review, governance action and receipt issuance."
             events={trustJourneyEvents}
             finalState={finalJourneyState}
+            proofState={{
+              currentVerificationState: label(receipt.verification_status ?? identityState, "pending"),
+              riskLevel: injectionEvent
+                ? label(injectionEvent.risk_level ?? injectionRiskState, "elevated")
+                : label(receipt.confidence_level, "reviewable"),
+              lastEvidenceEvent: (timeline ?? [])[0]
+                ? `${label((timeline ?? [])[0].event_title ?? (timeline ?? [])[0].event_type)} / ${formatDate((timeline ?? [])[0].created_at)}`
+                : `Receipt issued / ${formatDate(receipt.issued_at)}`,
+              reviewerAction: latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No reviewer action attached",
+              finalOutcome: label(governanceOutcome ?? receipt.verification_status, "Receipt issued"),
+            }}
           />
         </div>
 
