@@ -99,7 +99,7 @@ alter table risk_scores add column if not exists score int;
 alter table risk_scores add column if not exists risk_level text default 'unclassified';
 
 create table if not exists teams (
-  id text primary key default gen_random_uuid()::text,
+  id uuid primary key default gen_random_uuid(),
   name text default 'Private Beta Team',
   owner_email text,
   team_clearance_tier text default 'private_beta',
