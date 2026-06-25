@@ -347,6 +347,29 @@ export default async function GovernancePage({
           </div>
         </section>
 
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Workflow continuity map</p>
+          <h2 className="mt-2 text-xl font-semibold">Governance actions change workflow trust state</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
+            A governance review is not an isolated task. Reviewer action updates workflow state,
+            informs receipt outcome, and becomes part of replay chronology alongside session integrity and verification evidence.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-5">
+            {[
+              ["Session integrity", `${signals.length} signal(s)`, "/dashboard/session-integrity"],
+              ["Operational evidence", `${evidence.length} evidence record(s)`, "/evidence-vault"],
+              ["Governance review", `${queue.length} queue item(s)`, "/dashboard/governance"],
+              ["Replay chronology", "Open replay explorer", "/trust-replay"],
+              ["Verification receipts", "Open receipt index", "/verification-receipts"],
+            ].map(([title, value, href]) => (
+              <Link key={title} href={href} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-700">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+                <p className="mt-2 text-sm font-semibold text-zinc-100">{value}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.8fr]">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Governance Queue</h2>
@@ -432,10 +455,25 @@ export default async function GovernancePage({
                       <p>Policy: {action.policy?.action_type ?? "human_review_required"}</p>
                       <p>Created: {formatGovernanceDate(action.created_at)}</p>
                     </div>
+                    <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                      <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Continuity effect</p>
+                      <p className="mt-2 text-sm leading-6 text-zinc-300">
+                        This governance action affects workflow trust state, appears in replay chronology,
+                        and should be checked before issuing or sharing a verification receipt.
+                      </p>
+                    </div>
                     <div className="mt-4 flex flex-wrap gap-3">
                       <Link href={subjectHref(action)} className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:text-white">
                         Related Record
                       </Link>
+                      <Link href={`/replay/${action.subject_id}`} className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:text-white">
+                        Replay Chronology
+                      </Link>
+                      {action.subject_type === "interview_session" ? (
+                        <Link href={`/trust/session/${action.subject_id}`} className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:text-white">
+                          Session Integrity
+                        </Link>
+                      ) : null}
                       <form action={updateAction} className="flex flex-wrap gap-2">
                         <input type="hidden" name="action_id" value={action.id} />
                         <input type="hidden" name="action_status" value={action.action_status ?? "pending"} />
@@ -540,9 +578,9 @@ export default async function GovernancePage({
             </div>
           </section>
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">AI Recommendations</h2>
+            <h2 className="text-xl font-semibold">Review Recommendations</h2>
             <p className="mt-2 text-sm leading-6 text-zinc-500">
-              AI assists with summaries and escalation suggestions. Humans decide.
+              Summaries and escalation suggestions support governance review. Humans decide.
             </p>
             <div className="mt-5 grid gap-3">
               {aiRecommendations.length ? aiRecommendations.map((row) => <ReviewSignal key={String(row.id)} row={row} />) : (

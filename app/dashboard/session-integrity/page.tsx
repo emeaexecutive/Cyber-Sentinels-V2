@@ -46,6 +46,29 @@ export default async function SessionIntegrityDashboardPage() {
           ))}
         </section>
 
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Workflow continuity map</p>
+          <h2 className="mt-2 text-xl font-semibold">Session integrity connects evidence to governance review</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
+            Session integrity events should not live as isolated flags. They link to verification evidence,
+            reviewer action, replay chronology and receipt outcome for the workflow under review.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-5">
+            {[
+              ["/dashboard/session-integrity", "Session integrity", `${rows.length} review(s)`],
+              ["/evidence-vault", "Operational evidence", "Review linked evidence"],
+              ["/dashboard/governance", "Governance review", `${manualReviews} manual review(s)`],
+              ["/trust-replay", "Replay chronology", "Open replay explorer"],
+              ["/verification-receipts", "Verification receipts", "Open receipt index"],
+            ].map(([href, title, value]) => (
+              <Link key={href} href={href} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-700">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+                <p className="mt-2 text-sm font-semibold text-zinc-100">{value}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-8">
           <DetectionEvidenceNote
             title="Dashboard review guidance"

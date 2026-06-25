@@ -343,6 +343,31 @@ export default async function TrustReceiptPage({
           ))}
         </section>
 
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300 print:text-zinc-600">
+            Workflow continuity map
+          </p>
+          <h2 className="mt-2 text-xl font-semibold">Receipt links replay, evidence and governance outcome</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400 print:text-zinc-700">
+            This receipt is the portable endpoint of the workflow chronology. It ties verification evidence,
+            session integrity, governance review, replay chronology and reviewer action to one workflow subject.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-5">
+            {[
+              ["Workflow subject", `${label(receipt.subject_type, "workflow")} / ${receipt.subject_id}`, receipt.subject_type === "interview_session" ? `/trust/session/${receipt.subject_id}` : `/verify/${receipt.subject_id}`],
+              ["Operational evidence", `${(evidenceChains ?? []).length} chain(s)`, "/evidence-vault"],
+              ["Governance review", label(governanceOutcome, "pending"), "/dashboard/governance"],
+              ["Replay chronology", `/replay/${receipt.subject_id}`, `/replay/${receipt.subject_id}`],
+              ["Verification outcome", label(receipt.verification_status, "pending"), `/verification/receipt/${id}`],
+            ].map(([title, value, href]) => (
+              <Link key={title} href={String(href)} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-700 print:border-zinc-300 print:bg-white">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+                <p className="mt-2 break-words text-sm font-semibold text-zinc-100 print:text-zinc-800">{value}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <DetailRow label="Subject" value={`${label(receipt.subject_type)} / ${receipt.subject_id}`} />
           <DetailRow label="Issued" value={formatDate(receipt.issued_at)} />
@@ -537,6 +562,9 @@ export default async function TrustReceiptPage({
                         </p>
                       ))}
                     </div>
+                    <p className="mt-3 text-xs leading-5 text-zinc-600">
+                      Continuity: this operational evidence supports the receipt outcome and replay chronology.
+                    </p>
                   </article>
                 ))
               ) : (

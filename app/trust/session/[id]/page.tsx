@@ -189,6 +189,29 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
           ))}
         </section>
 
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Workflow continuity map</p>
+          <h2 className="mt-2 text-xl font-semibold">Session integrity links evidence, governance and replay</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
+            This session view keeps integrity signals connected to operational evidence, governance review,
+            replay chronology and receipt outcome for the same interview workflow.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-5">
+            {[
+              ["Session integrity", clean(check?.overall_status ?? session.integrity_status, "pending"), `/trust/session/${id}`],
+              ["Verification evidence", `${signals.length} signal(s)`, "/evidence-vault"],
+              ["Governance review", clean(humanDecision?.action_status, check?.manual_review_required ? "required" : "pending"), "/dashboard/governance"],
+              ["Replay chronology", receipt ? "Receipt-linked replay" : "Replay pending", `/replay/${id}`],
+              ["Verification receipt", receipt ? clean(receipt.verification_status, "issued") : "Pending", receipt ? `/verification/receipt/${receipt.id}` : "/verification-receipts"],
+            ].map(([title, value, href]) => (
+              <Link key={title} href={String(href)} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-700">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+                <p className="mt-2 text-sm font-semibold text-zinc-100">{value}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-8">
           <TrustJourneyVisualization
             title="Session trust journey"
@@ -236,6 +259,9 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
                 <div>
                   <p className="font-medium text-zinc-100">{event.title}</p>
                   <p className="mt-2 text-sm leading-6 text-zinc-500">{event.description}</p>
+                  <p className="mt-3 text-xs text-zinc-600">
+                    Continuity: {event.stage === "governance_review_opened" || event.stage === "manual_review_completed" ? "governance review changes workflow and receipt state" : event.stage === "receipt_issued" ? "receipt preserves the final verification outcome" : "event remains available for replay chronology"}
+                  </p>
                 </div>
               </article>
             ))}

@@ -249,6 +249,29 @@ export default async function VerificationReplayPage({
           ))}
         </section>
 
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Workflow continuity map</p>
+          <h2 className="mt-2 text-xl font-semibold">Replay links governance, evidence and receipt outcome</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
+            This replay chronology connects the session integrity state, governance review, operational evidence,
+            verification outcome and receipt record for the same workflow subject.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-5">
+            {[
+              ["Session integrity", label(session?.integrity_status, "Reviewable"), `/trust/session/${subjectId}`],
+              ["Governance review", label(latestGovernance?.action_status, "Pending"), "/dashboard/governance"],
+              ["Operational evidence", `${evidenceChains?.length ?? 0} chain(s)`, "/evidence-vault"],
+              ["Replay chronology", `${chronology.length} event(s)`, `/replay/${id}`],
+              ["Verification receipt", receipts?.[0] ? label(receipts[0].verification_status, "Issued") : "Pending", receipts?.[0] ? `/verification/receipt/${receipts[0].id}` : "/verification-receipts"],
+            ].map(([title, value, href]) => (
+              <Link key={title} href={String(href)} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-700">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+                <p className="mt-2 text-sm font-semibold text-zinc-100">{value}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"><p className="text-xs uppercase text-zinc-600">Session integrity</p><p className="mt-2 text-sm">{label(session?.integrity_status, "Reviewable")}</p></div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"><p className="text-xs uppercase text-zinc-600">Injection risk</p><p className="mt-2 text-sm">{injectionEvent ? label(injectionEvent.signal_type) : "No recorded flag"}</p></div>
@@ -308,7 +331,13 @@ export default async function VerificationReplayPage({
               <article key={event.id} className="grid gap-3 rounded-lg border border-zinc-800 bg-black p-4 md:grid-cols-[110px_170px_1fr]">
                 <div><p className="text-xs text-zinc-600">Step {index + 1}</p><p className="mt-2 text-xs text-zinc-500">{formatDate(event.created_at)}</p></div>
                 <div><p className="text-xs uppercase tracking-[0.12em] text-cyan-300">{event.type}</p><p className="mt-2 text-sm font-semibold">{label(event.state)}</p></div>
-                <div><p className="font-medium">{label(event.title)}</p><p className="mt-2 text-sm leading-6 text-zinc-500">{event.summary}</p></div>
+                <div>
+                  <p className="font-medium">{label(event.title)}</p>
+                  <p className="mt-2 text-sm leading-6 text-zinc-500">{event.summary}</p>
+                  <p className="mt-3 text-xs text-zinc-600">
+                    Continuity: {event.type === "governance" ? "reviewer action affects workflow and receipt outcome" : event.type === "evidence" ? "evidence supports the replay chronology" : event.type === "receipt" ? "receipt preserves the final workflow state" : "event retained for governance review"}
+                  </p>
+                </div>
               </article>
             )) : <p className="rounded-lg border border-zinc-800 bg-black p-5 text-sm text-zinc-500">No replay evidence available yet.</p>}
           </div>
