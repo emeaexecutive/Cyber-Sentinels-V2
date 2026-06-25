@@ -24,7 +24,7 @@ create table if not exists public.subscriptions (
 
 create table if not exists public.usage_limits (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null unique,
+  user_id uuid references auth.users(id) on delete cascade,
   plan text not null default 'free',
   max_passports integer,
   max_evidence_uploads integer,
