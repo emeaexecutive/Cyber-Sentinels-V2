@@ -10,6 +10,8 @@ export type NavigationAccessLevel =
   | "admin-unverified"
   | "admin";
 
+type CloseMenus = () => void;
+
 const publicLinks = [
   ["/enterprise/hiring-security", "Hiring Security"],
   ["/demo/session-integrity", "Session Integrity"],
@@ -32,13 +34,20 @@ const userLinks = [
 const platformDropdownLinks = [
   ["/governance", "Governance"],
   ["/trust-replay", "Verification Replay"],
-  ["/dashboard", "Verification Receipts"],
+  ["/demo", "Verification Receipts"],
   ["/trust/posture", "Trust Posture"],
-  ["/ai-governance", "AI Agent Governance"],
-  ["/compliance-export", "Compliance"],
+  ["/agents", "AI Agent Governance"],
+  ["/transparency", "Compliance"],
 ];
 
 const enterpriseDropdownLinks = [
+  ["/enterprise-access", "Enterprise Access"],
+  ["/design-partner", "Design Partner"],
+  ["/enterprise/pilot", "Pilot Program"],
+  ["/enterprise", "Integrations"],
+];
+
+const adminEnterpriseDropdownLinks = [
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
   ["/enterprise/pilot", "Pilot Program"],
@@ -59,8 +68,6 @@ function LogoutButton({ onNavigate }: { onNavigate?: CloseMenus }) {
     </form>
   );
 }
-
-type CloseMenus = () => void;
 
 function FlatLinks({
   links,
@@ -146,10 +153,12 @@ function PrimaryNavigation({
   openDropdown,
   onToggleDropdown,
   onCloseDropdown,
+  enterpriseLinks = enterpriseDropdownLinks,
 }: {
   openDropdown: string | null;
   onToggleDropdown: (id: string) => void;
   onCloseDropdown: CloseMenus;
+  enterpriseLinks?: string[][];
 }) {
   return (
     <>
@@ -165,7 +174,7 @@ function PrimaryNavigation({
       <DropdownLinks
         id="enterprise"
         label="Enterprise"
-        links={enterpriseDropdownLinks}
+        links={enterpriseLinks}
         open={openDropdown === "enterprise"}
         onToggle={onToggleDropdown}
         onClose={onCloseDropdown}
@@ -194,8 +203,9 @@ export function GlobalNavigation({
   }, []);
 
   useEffect(() => {
-    closeMenus();
-  }, [closeMenus, pathname]);
+    setOpenDropdown(null);
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (!openDropdown) {
@@ -256,6 +266,7 @@ export function GlobalNavigation({
                 openDropdown={openDropdown}
                 onToggleDropdown={toggleDropdown}
                 onCloseDropdown={closeMenus}
+                enterpriseLinks={adminEnterpriseDropdownLinks}
               />
               <FlatLinks links={userLinks} onNavigate={closeMenus} />
               {accessLevel === "admin-unverified" ? (
