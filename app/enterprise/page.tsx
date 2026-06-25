@@ -1,14 +1,5 @@
 import Link from "next/link";
 
-const useCases = [
-  "Hiring Security",
-  "Session Integrity",
-  "Governance Review",
-  "Verification Replay",
-  "Verification Receipts",
-  "Audit-Ready Decisions",
-];
-
 const trustControls = [
   ["Hiring Security", "Fake applicants, proxy interviews and AI-assisted fraud move into an evidence-backed review path instead of a generic alert queue."],
   ["Session Integrity", "Liveness, deepfake risk, injection risk and channel integrity remain separate signals after verification begins."],
@@ -32,7 +23,7 @@ export default function EnterprisePage() {
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
             Operational Trust Infrastructure
           </p>
-          <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
+          <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
             Enterprise trust coordination for humans, AI agents, and critical workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
@@ -56,17 +47,10 @@ export default function EnterprisePage() {
           </div>
         </section>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-2">
-          {useCases.map((item) => (
-            <div key={item} className="rounded-lg border border-zinc-800 bg-black p-5">
-              <p className="text-sm text-zinc-300">{item}</p>
-            </div>
-          ))}
-        </section>
-
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-2xl font-semibold">Enterprise trust controls</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Enterprise workflow</p>
+          <h2 className="mt-3 text-2xl font-semibold">What the platform makes reviewable.</h2>
+          <div className="mt-6 grid gap-3 md:grid-cols-2">
             {trustControls.map(([title, copy]) => (
               <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <p className="text-sm font-semibold text-zinc-100">{title}</p>
@@ -99,36 +83,10 @@ export default function EnterprisePage() {
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <h2 className="text-2xl font-semibold">Pilot conversion path</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels is onboarding design collaborators to validate
-            evidence-backed verification, governance workflows and operational
-            transparency in real environments.
+            Start with one workflow, one reviewer path and one receipt that can
+            be discussed with security, talent, compliance and executive
+            stakeholders.
           </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link
-              href="/demo"
-              className="inline-flex rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
-            >
-              View Demo
-            </Link>
-            <Link
-              href="/enterprise-access"
-              className="inline-flex rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400"
-            >
-              Request Enterprise Access
-            </Link>
-            <Link
-              href="/enterprise-access?intent=design_partner"
-              className="inline-flex rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white"
-            >
-              Become a Design Partner
-            </Link>
-            <Link
-              href="/enterprise-access?intent=intro_call"
-              className="inline-flex rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white"
-            >
-              Book Intro Call
-            </Link>
-          </div>
         </section>
       </div>
     </main>
