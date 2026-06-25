@@ -83,6 +83,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
   const [nextPath, setNextPath] = useState("/passport");
@@ -217,6 +218,11 @@ export default function LoginPage() {
       return;
     }
 
+    if (password !== confirmPassword) {
+      setMessage("Passwords do not match.");
+      return;
+    }
+
     if (!allowAuthAttempt("create-account")) return;
 
     setMessage("");
@@ -247,9 +253,7 @@ export default function LoginPage() {
         return;
       }
 
-      setMessage(
-        "Account created. Please verify your email before continuing."
-      );
+      setMessage("Check your email to verify your account before continuing.");
     } catch (error) {
       console.error("Supabase account creation failed.", error);
       setMessage(error instanceof Error ? error.message : "Could not create account.");
@@ -394,6 +398,15 @@ export default function LoginPage() {
               type="password"
               placeholder="Password"
               autoComplete="current-password"
+              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+            />
+
+            <input
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              type="password"
+              placeholder="Confirm password"
+              autoComplete="new-password"
               className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
             />
 

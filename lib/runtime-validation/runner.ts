@@ -366,15 +366,28 @@ async function supabaseRuntimeChecks() {
 }
 
 async function authChecks(baseUrl: string) {
+  const siteUrl = String(process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
+  const base = getBaseUrl(baseUrl);
+  const callbackRouteExists = routeFileExists("auth", "callback", "route.ts");
   const checks: RuntimeValidationCheck[] = [
     check(
       "Auth System",
       "Callback route exists",
-      routeFileExists("auth", "callback", "route.ts") ? "PASS" : "FAIL",
-      routeFileExists("auth", "callback", "route.ts")
+      callbackRouteExists ? "PASS" : "FAIL",
+      callbackRouteExists
         ? "Callback route file is present."
         : "Callback route file is missing.",
       true
+    ),
+    check(
+      "Auth System",
+      "Site URL / redirect URL warning",
+      siteUrl ? (siteUrl === base ? "PASS" : "WARNING") : "WARNING",
+      siteUrl
+        ? siteUrl === base
+          ? `NEXT_PUBLIC_SITE_URL matches this runtime origin and should allow ${siteUrl}/auth/callback.`
+          : `NEXT_PUBLIC_SITE_URL is ${siteUrl}; verify Supabase Auth allows both ${siteUrl}/auth/callback and ${base}/auth/callback for this deployment.`
+        : `NEXT_PUBLIC_SITE_URL is missing. Configure it and add ${base}/auth/callback to Supabase Auth redirect URLs.`
     ),
   ];
 
@@ -382,12 +395,12 @@ async function authChecks(baseUrl: string) {
   const anonKey = String(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "");
 
   if (!supabaseUrl || !anonKey) {
-    checks.push(check("Auth System", "Supabase auth initialized", "FAIL", "Supabase public env vars are missing.", true));
+    checks.push(check("Auth System", "Supabase auth configured", "FAIL", "Supabase public env vars are missing.", true));
   } else {
     checks.push(
       await checkSupabaseEndpoint(
         "Auth System",
-        "Supabase auth initialized",
+        "Supabase auth configured",
         `${supabaseUrl}/auth/v1/settings`,
         { apikey: anonKey },
         true
@@ -536,6 +549,11 @@ function emailAndBotProtectionChecks() {
   const authPracticalGuard = fileContains("app", "login", "page.tsx", /allowAuthAttempt/) &&
     fileContains("app", "login", "page.tsx", /cf-turnstile/);
   const publicFormsProtected = enterpriseProtected && waitlistProtected && proWaitlistProtected;
+  const emailProviderConfigured = hasEnv("RESEND_API_KEY");
+  const signupRedirectConfigured =
+    fileContains("app", "login", "page.tsx", /emailRedirectTo:\s*`\$\{window\.location\.origin\}\/auth\/callback/) &&
+    fileContains("app", "verify-email", "page.tsx", /supabase\.auth\.resend/) &&
+    fileContains("app", "verify-email", "page.tsx", /\/auth\/callback/);
 
   return [
     check(
@@ -545,6 +563,22 @@ function emailAndBotProtectionChecks() {
       emailGateConfigured
         ? "Verified email is required before protected dashboard, passport, workspace, admin and verification workflows."
         : "Email verification gate or /verify-email page is missing."
+    ),
+    check(
+      "Account Security",
+      "Email verification expected",
+      emailGateConfigured && signupRedirectConfigured ? "PASS" : "WARNING",
+      emailGateConfigured && signupRedirectConfigured
+        ? "Signup and resend flows route through /auth/callback, and middleware blocks unverified users from protected workflows."
+        : "Signup redirect, resend verification, or middleware verification checks need review."
+    ),
+    check(
+      "Account Security",
+      "Email provider status",
+      emailProviderConfigured ? "PASS" : "WARNING",
+      emailProviderConfigured
+        ? "RESEND_API_KEY is configured for app-managed email delivery. Supabase Auth email settings still need dashboard confirmation."
+        : "No app email provider env detected. Supabase Auth can still send verification emails if SMTP/Auth email is configured in the Supabase dashboard."
     ),
     check(
       "Bot Protection",
