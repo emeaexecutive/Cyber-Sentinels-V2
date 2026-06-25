@@ -468,7 +468,7 @@ export default async function WorkspaceDetailPage({
         <nav className="flex flex-wrap gap-3">
           {[
             ["/workspace", "Workspaces"],
-            ["/governance", "Governance"],
+            ["/dashboard/governance", "Governance"],
             ["/verification-queue", "Verification Queue"],
             ["/timeline", "Timeline"],
             ["/trust-replay", "Replay"],

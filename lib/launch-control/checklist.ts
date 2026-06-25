@@ -148,8 +148,8 @@ export async function createLaunchControlSnapshot(
     fileContains("middleware.ts", /\/api\/admin/) &&
     fileContains("middleware.ts", /adminPagePrefixes/);
   const reviewerProtectionExists =
-    fileContains("middleware.ts", /\/governance/) &&
-    routeExists("app/governance/page.tsx");
+    fileContains("middleware.ts", /\/dashboard/) &&
+    routeExists("app/dashboard/governance/page.tsx");
   const workspaceProtectionExists =
     fileContains("middleware.ts", /\/workspace/) &&
     routeExists("app/workspace/page.tsx") &&

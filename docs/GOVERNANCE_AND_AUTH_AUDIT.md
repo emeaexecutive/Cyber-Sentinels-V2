@@ -30,18 +30,19 @@ These routes are intentionally public and do not expose authenticated enterprise
 - `/enterprise-access`
 - `/login`
 - `/verify-email`
+- `/governance`
 
-`/enterprise/governance`, `/dashboard/governance`, and `/admin/governance` do not exist in this checkout, so there is no extra governance page to expose accidentally.
+`/governance` is now a public informational route. Operational governance queues live under `/dashboard/governance`.
 
 ## Protected Governance Routes
 
-`/governance` is an authenticated workflow surface, not a public informational page.
+`/dashboard/governance` is an authenticated workflow surface, not a public informational page.
 
 Protection model:
 
-- `middleware.ts` includes `/governance` in protected user route prefixes.
-- `app/governance/page.tsx` calls `supabase.auth.getUser()` server-side.
-- Missing users redirect to `/login?next=/governance`.
+- `middleware.ts` includes `/dashboard` in protected user route prefixes.
+- `app/dashboard/governance/page.tsx` calls `supabase.auth.getUser()` server-side.
+- Missing users redirect to `/login?next=/dashboard/governance`.
 - Unverified users are blocked by middleware and redirected to `/verify-email?next=...`.
 - The page then requires reviewer capability: admin allowlist, workspace reviewer membership, or workspace ownership.
 - Users without reviewer access receive a safe "Reviewer access required" state, not workflow data.
@@ -122,7 +123,6 @@ Protected user prefixes include:
 - `/passports`
 - `/dashboard`
 - `/workspace`
-- `/governance`
 - `/trust`
 - `/trust-replay`
 - `/verify/session`

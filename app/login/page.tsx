@@ -40,6 +40,25 @@ function getSafeRedirect(path: string | null) {
   return path;
 }
 
+function getBoundaryCopy(path: string) {
+  if (path.startsWith("/admin") || path.startsWith("/back-office")) {
+    return "Admin and internal tooling require verified staff access before any operational controls are shown.";
+  }
+
+  if (
+    path.startsWith("/dashboard") ||
+    path.startsWith("/workspace") ||
+    path.startsWith("/passport") ||
+    path.startsWith("/trust") ||
+    path.startsWith("/replay") ||
+    path.startsWith("/verification/receipt")
+  ) {
+    return "This destination contains operational trust data, including verification evidence, reviewer actions or customer workflow records.";
+  }
+
+  return "Protected workflow pages require sign-in before evidence, reviews or receipts are shown.";
+}
+
 async function withAuthTimeout<T>(task: Promise<T>): Promise<T> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
 
@@ -71,6 +90,7 @@ export default function LoginPage() {
     "password" | "create-account" | "magic-link" | "reset" | null
   >(null);
   const [showDevAuth, setShowDevAuth] = useState(false);
+  const boundaryCopy = getBoundaryCopy(nextPath);
 
   useEffect(() => {
     window.onCyberSentinelsLoginTurnstile = (token: string) => setTurnstileToken(token);
@@ -344,6 +364,17 @@ export default function LoginPage() {
           <p className="mt-6 rounded-lg border border-zinc-800 bg-black p-3 text-xs text-zinc-400">
             Admin access remains separate and protected.
           </p>
+          <div className="mt-3 rounded-lg border border-zinc-800 bg-black p-4">
+            <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+              Protected operational area
+            </p>
+            <p className="mt-2 text-sm leading-6 text-zinc-300">
+              {boundaryCopy}
+            </p>
+            <p className="mt-2 text-xs text-zinc-500">
+              After sign-in, Cyber Sentinels returns you to {nextPath}.
+            </p>
+          </div>
         </section>
 
         <section className="rounded-lg border border-zinc-800 bg-black p-6">

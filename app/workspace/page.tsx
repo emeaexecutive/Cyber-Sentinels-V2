@@ -154,7 +154,7 @@ export default async function WorkspacePage({
           {[
             ["/", "Home"],
             ["/verification-queue", "Verification Queue"],
-            ["/governance", "Governance"],
+            ["/dashboard/governance", "Governance"],
             ["/timeline", "Timeline"],
             ["/trust-replay", "Replay"],
             ["/back-office", "Back Office"],

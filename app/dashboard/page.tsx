@@ -27,9 +27,9 @@ export default async function DashboardPage() {
 
   const metrics = [
     ["Active Flags", flags.count ?? 0, FileWarning, "/dashboard/interview-risk"],
-    ["Pending Reviews", reviews.count ?? 0, ClipboardCheck, "/governance"],
+    ["Pending Reviews", reviews.count ?? 0, ClipboardCheck, "/dashboard/governance"],
     ["Session Integrity", integrity.count ?? 0, ScanSearch, "/dashboard/session-integrity"],
-    ["Governance Actions", governance.count ?? 0, ClipboardCheck, "/governance"],
+    ["Governance Actions", governance.count ?? 0, ClipboardCheck, "/dashboard/governance"],
     ["Trust Posture", posture.count ?? 0, ShieldCheck, "/dashboard/trust-posture"],
     ["Verification Receipts", receipts.count ?? 0, History, "/dashboard"],
   ] as const;
@@ -88,7 +88,7 @@ export default async function DashboardPage() {
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             {[
               ["/dashboard/interview-risk", "1. Review Flags", "Inspect identity, injection and Session Integrity flags."],
-              ["/governance", "2. Open Governance Review", "Assign review ownership and preserve the human outcome."],
+              ["/dashboard/governance", "2. Open Governance Review", "Assign review ownership and preserve the human outcome."],
               ["/trust-replay", "3. Review Verification Chronology", "Reconstruct timestamps, active Flags, reviewer actions and Verification Evidence."],
               ["/dashboard/trust-posture", "4. Check Trust Posture", "Confirm current state before sharing Verification Receipts or Replay Evidence."],
             ].map(([href, title, copy]) => (

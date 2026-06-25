@@ -291,7 +291,7 @@ export default async function PilotSetupPage({
               <Link href="/evidence-upload" className="text-sm text-cyan-200 underline">
                 Evidence upload
               </Link>
-              <Link href="/governance" className="text-sm text-cyan-200 underline">
+              <Link href="/dashboard/governance" className="text-sm text-cyan-200 underline">
                 Governance queue
               </Link>
               <Link href="/timeline" className="text-sm text-cyan-200 underline">

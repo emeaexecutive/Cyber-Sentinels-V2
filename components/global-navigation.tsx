@@ -33,9 +33,9 @@ const userLinks = [
 
 const platformDropdownLinks = [
   ["/governance", "Governance"],
-  ["/trust-replay", "Verification Replay"],
-  ["/demo", "Verification Receipts"],
-  ["/trust/posture", "Trust Posture"],
+  ["/verification-replay", "Verification Replay"],
+  ["/verification-receipts", "Verification Receipts"],
+  ["/trust-posture", "Trust Posture"],
   ["/agents", "AI Agent Governance"],
   ["/transparency", "Compliance"],
 ];
@@ -266,7 +266,6 @@ export function GlobalNavigation({
                 openDropdown={openDropdown}
                 onToggleDropdown={toggleDropdown}
                 onCloseDropdown={closeMenus}
-                enterpriseLinks={adminEnterpriseDropdownLinks}
               />
               <FlatLinks links={userLinks} onNavigate={closeMenus} />
               {accessLevel === "admin-unverified" ? (
@@ -294,6 +293,7 @@ export function GlobalNavigation({
                 openDropdown={openDropdown}
                 onToggleDropdown={toggleDropdown}
                 onCloseDropdown={closeMenus}
+                enterpriseLinks={adminEnterpriseDropdownLinks}
               />
               <Link
                 href="/admin/access"

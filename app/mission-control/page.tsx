@@ -196,7 +196,7 @@ export default async function MissionControlPage() {
             ["/dashboard/session-integrity", "Session Integrity"],
             ["/dashboard/trust-posture", "Trust Posture"],
             ["/timeline", "Verification Chronology"],
-            ["/governance", "Governance Review"],
+            ["/dashboard/governance", "Governance Review"],
             ["/enterprise/hiring-security", "Hiring Security"],
             ["/demo", "Demo"],
             ["/verifier-network", "Verifier Network"],

@@ -1155,7 +1155,7 @@ export default async function BackOfficePage({
     ["Public Profiles", "/profile"],
     ["Trust Ledger", "/trust-ledger"],
     ["Verification Chronology", "/timeline"],
-    ["Governance Review", "/governance"],
+    ["Governance Review", "/dashboard/governance"],
   ];
 
   return (

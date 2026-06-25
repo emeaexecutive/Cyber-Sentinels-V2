@@ -146,7 +146,7 @@ export function TrustPostureDashboard({
             <TrustPostureBadge value={snapshot.badge} />
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/governance" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:border-cyan-400">
+            <Link href="/dashboard/governance" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:border-cyan-400">
               Governance Queue
             </Link>
             <Link href="/trust-replay" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">

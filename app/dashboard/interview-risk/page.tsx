@@ -109,7 +109,7 @@ export default async function InterviewRiskDashboardPage() {
             ["/recruiter/dashboard", "Recruiter Queue"],
             ["/enterprise/hiring-security", "Hiring Security"],
             ["/dashboard/session-integrity", "Session Integrity"],
-            ["/governance", "Governance"],
+            ["/dashboard/governance", "Governance"],
             ["/timeline", "Timeline"],
           ].map(([href, label]) => (
             <Link key={href} href={href} className="rounded-lg border border-zinc-800 px-3 py-2 text-zinc-300 hover:text-white">

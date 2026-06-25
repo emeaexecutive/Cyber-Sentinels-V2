@@ -145,7 +145,7 @@ export default async function TrustOpsPage() {
         <nav className="flex flex-wrap gap-3">
           {[
             ["/workspace", "Workspaces"],
-            ["/governance", "Governance"],
+            ["/dashboard/governance", "Governance"],
             ["/dashboard/interview-risk", "Interview Risk"],
             ["/timeline", "Timeline"],
             ["/trust-replay", "Replay"],
