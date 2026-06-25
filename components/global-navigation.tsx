@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export type NavigationAccessLevel =
   | "public"
@@ -57,13 +59,20 @@ function LogoutButton() {
   );
 }
 
-function FlatLinks({ links }: { links: string[][] }) {
+function FlatLinks({
+  links,
+  onNavigate,
+}: {
+  links: string[][];
+  onNavigate?: () => void;
+}) {
   return (
     <>
       {links.map(([href, label]) => (
         <Link
           key={href}
           href={href}
+          onClick={onNavigate}
           className="rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white"
         >
           {label}
@@ -74,42 +83,91 @@ function FlatLinks({ links }: { links: string[][] }) {
 }
 
 function DropdownLinks({
+  id,
   label,
   links,
+  open,
+  onToggle,
+  onClose,
 }: {
+  id: string;
   label: string;
   links: string[][];
+  open: boolean;
+  onToggle: (id: string) => void;
+  onClose: () => void;
 }) {
   return (
-    <details className="group relative">
-      <summary className="list-none rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white [&::-webkit-details-marker]:hidden">
+    <div className="relative">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        onClick={() => onToggle(id)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            onClose();
+          }
+        }}
+        className="rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white"
+      >
         <span className="inline-flex items-center gap-2">
           {label}
-          <span className="text-[10px] text-zinc-500 group-open:rotate-180">v</span>
+          <span className={`text-[10px] text-zinc-500 ${open ? "rotate-180" : ""}`}>v</span>
         </span>
-      </summary>
-      <div className="fixed left-4 right-4 top-16 z-50 grid gap-1 rounded-lg border border-zinc-800 bg-black p-2 shadow-2xl shadow-black/50 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-64">
-        {links.map(([href, itemLabel]) => (
-          <Link
-            key={href}
-            href={href}
-            className="rounded-md px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900 hover:text-white"
-          >
-            {itemLabel}
-          </Link>
-        ))}
-      </div>
-    </details>
+      </button>
+      {open ? (
+        <div
+          role="menu"
+          aria-label={`${label} navigation`}
+          className="fixed left-4 right-4 top-16 z-50 grid gap-1 rounded-lg border border-zinc-800 bg-black p-2 shadow-2xl shadow-black/50 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-64"
+        >
+          {links.map(([href, itemLabel]) => (
+            <Link
+              key={href}
+              href={href}
+              role="menuitem"
+              onClick={onClose}
+              className="rounded-md px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900 hover:text-white"
+            >
+              {itemLabel}
+            </Link>
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
-function PrimaryNavigation() {
+function PrimaryNavigation({
+  openDropdown,
+  onToggleDropdown,
+  onCloseDropdown,
+}: {
+  openDropdown: string | null;
+  onToggleDropdown: (id: string) => void;
+  onCloseDropdown: () => void;
+}) {
   return (
     <>
-      <DropdownLinks label="Platform" links={platformDropdownLinks} />
-      <FlatLinks links={publicLinks} />
-      <DropdownLinks label="Enterprise" links={enterpriseDropdownLinks} />
-      <FlatLinks links={pricingLink} />
+      <DropdownLinks
+        id="platform"
+        label="Platform"
+        links={platformDropdownLinks}
+        open={openDropdown === "platform"}
+        onToggle={onToggleDropdown}
+        onClose={onCloseDropdown}
+      />
+      <FlatLinks links={publicLinks} onNavigate={onCloseDropdown} />
+      <DropdownLinks
+        id="enterprise"
+        label="Enterprise"
+        links={enterpriseDropdownLinks}
+        open={openDropdown === "enterprise"}
+        onToggle={onToggleDropdown}
+        onClose={onCloseDropdown}
+      />
+      <FlatLinks links={pricingLink} onNavigate={onCloseDropdown} />
     </>
   );
 }
@@ -119,6 +177,51 @@ export function GlobalNavigation({
 }: {
   accessLevel: NavigationAccessLevel;
 }) {
+  const pathname = usePathname();
+  const navigationRef = useRef<HTMLElement | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const closeDropdown = useCallback(() => setOpenDropdown(null), []);
+  const toggleDropdown = useCallback((id: string) => {
+    setOpenDropdown((current) => (current === id ? null : id));
+  }, []);
+
+  useEffect(() => {
+    closeDropdown();
+  }, [closeDropdown, pathname]);
+
+  useEffect(() => {
+    if (!openDropdown) {
+      return;
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target;
+      if (
+        target instanceof Node &&
+        navigationRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      closeDropdown();
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        closeDropdown();
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [closeDropdown, openDropdown]);
+
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-900 bg-[#04070c]/95 text-white backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-8">
@@ -129,18 +232,28 @@ export function GlobalNavigation({
           Cyber Sentinels
         </Link>
         <nav
+          ref={navigationRef}
           className="flex flex-wrap items-center justify-end gap-2 text-sm text-zinc-200"
         >
           {accessLevel === "public" ? (
-            <PrimaryNavigation />
+            <PrimaryNavigation
+              openDropdown={openDropdown}
+              onToggleDropdown={toggleDropdown}
+              onCloseDropdown={closeDropdown}
+            />
           ) : null}
           {accessLevel === "user" || accessLevel === "admin-unverified" ? (
             <>
-              <PrimaryNavigation />
-              <FlatLinks links={userLinks} />
+              <PrimaryNavigation
+                openDropdown={openDropdown}
+                onToggleDropdown={toggleDropdown}
+                onCloseDropdown={closeDropdown}
+              />
+              <FlatLinks links={userLinks} onNavigate={closeDropdown} />
               {accessLevel === "admin-unverified" ? (
                 <Link
                   href="/admin/access"
+                  onClick={closeDropdown}
                   className="rounded-lg border border-cyan-700 px-3 py-2 font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
                 >
                   Admin
@@ -153,18 +266,24 @@ export function GlobalNavigation({
             <>
               <Link
                 href="/"
+                onClick={closeDropdown}
                 className="rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white"
               >
                 Home
               </Link>
-              <PrimaryNavigation />
+              <PrimaryNavigation
+                openDropdown={openDropdown}
+                onToggleDropdown={toggleDropdown}
+                onCloseDropdown={closeDropdown}
+              />
               <Link
                 href="/admin/access"
+                onClick={closeDropdown}
                 className="rounded-lg border border-cyan-700 px-3 py-2 font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
               >
                 Admin
               </Link>
-              <FlatLinks links={adminLinks} />
+              <FlatLinks links={adminLinks} onNavigate={closeDropdown} />
               <LogoutButton />
             </>
           ) : null}
