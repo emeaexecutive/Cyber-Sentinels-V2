@@ -46,11 +46,12 @@ const enterpriseDropdownLinks = [
   ["/admin/runtime-validation", "Runtime Validation"],
 ];
 
-function LogoutButton() {
+function LogoutButton({ onNavigate }: { onNavigate?: CloseMenus }) {
   return (
     <form action="/api/auth/logout" method="POST">
       <button
         type="submit"
+        onClick={onNavigate}
         className="rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white"
       >
         Logout
@@ -59,12 +60,14 @@ function LogoutButton() {
   );
 }
 
+type CloseMenus = () => void;
+
 function FlatLinks({
   links,
   onNavigate,
 }: {
   links: string[][];
-  onNavigate?: () => void;
+  onNavigate?: CloseMenus;
 }) {
   return (
     <>
@@ -95,7 +98,7 @@ function DropdownLinks({
   links: string[][];
   open: boolean;
   onToggle: (id: string) => void;
-  onClose: () => void;
+  onClose: CloseMenus;
 }) {
   return (
     <div className="relative">
@@ -146,7 +149,7 @@ function PrimaryNavigation({
 }: {
   openDropdown: string | null;
   onToggleDropdown: (id: string) => void;
-  onCloseDropdown: () => void;
+  onCloseDropdown: CloseMenus;
 }) {
   return (
     <>
@@ -180,15 +183,19 @@ export function GlobalNavigation({
   const pathname = usePathname();
   const navigationRef = useRef<HTMLElement | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [, setMobileMenuOpen] = useState(false);
 
-  const closeDropdown = useCallback(() => setOpenDropdown(null), []);
+  const closeMenus = useCallback(() => {
+    setOpenDropdown(null);
+    setMobileMenuOpen(false);
+  }, []);
   const toggleDropdown = useCallback((id: string) => {
     setOpenDropdown((current) => (current === id ? null : id));
   }, []);
 
   useEffect(() => {
-    closeDropdown();
-  }, [closeDropdown, pathname]);
+    closeMenus();
+  }, [closeMenus, pathname]);
 
   useEffect(() => {
     if (!openDropdown) {
@@ -204,12 +211,12 @@ export function GlobalNavigation({
         return;
       }
 
-      closeDropdown();
+      closeMenus();
     }
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        closeDropdown();
+        closeMenus();
       }
     }
 
@@ -220,13 +227,14 @@ export function GlobalNavigation({
       document.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [closeDropdown, openDropdown]);
+  }, [closeMenus, openDropdown]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-900 bg-[#04070c]/95 text-white backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-8">
         <Link
           href="/"
+          onClick={closeMenus}
           className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-100"
         >
           Cyber Sentinels
@@ -239,7 +247,7 @@ export function GlobalNavigation({
             <PrimaryNavigation
               openDropdown={openDropdown}
               onToggleDropdown={toggleDropdown}
-              onCloseDropdown={closeDropdown}
+              onCloseDropdown={closeMenus}
             />
           ) : null}
           {accessLevel === "user" || accessLevel === "admin-unverified" ? (
@@ -247,26 +255,26 @@ export function GlobalNavigation({
               <PrimaryNavigation
                 openDropdown={openDropdown}
                 onToggleDropdown={toggleDropdown}
-                onCloseDropdown={closeDropdown}
+                onCloseDropdown={closeMenus}
               />
-              <FlatLinks links={userLinks} onNavigate={closeDropdown} />
+              <FlatLinks links={userLinks} onNavigate={closeMenus} />
               {accessLevel === "admin-unverified" ? (
                 <Link
                   href="/admin/access"
-                  onClick={closeDropdown}
+                  onClick={closeMenus}
                   className="rounded-lg border border-cyan-700 px-3 py-2 font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
                 >
                   Admin
                 </Link>
               ) : null}
-              <LogoutButton />
+              <LogoutButton onNavigate={closeMenus} />
             </>
           ) : null}
           {accessLevel === "admin" ? (
             <>
               <Link
                 href="/"
-                onClick={closeDropdown}
+                onClick={closeMenus}
                 className="rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white"
               >
                 Home
@@ -274,17 +282,17 @@ export function GlobalNavigation({
               <PrimaryNavigation
                 openDropdown={openDropdown}
                 onToggleDropdown={toggleDropdown}
-                onCloseDropdown={closeDropdown}
+                onCloseDropdown={closeMenus}
               />
               <Link
                 href="/admin/access"
-                onClick={closeDropdown}
+                onClick={closeMenus}
                 className="rounded-lg border border-cyan-700 px-3 py-2 font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
               >
                 Admin
               </Link>
-              <FlatLinks links={adminLinks} onNavigate={closeDropdown} />
-              <LogoutButton />
+              <FlatLinks links={adminLinks} onNavigate={closeMenus} />
+              <LogoutButton onNavigate={closeMenus} />
             </>
           ) : null}
         </nav>
