@@ -550,11 +550,25 @@ function emailAndBotProtectionChecks() {
     fileContains("app", "login", "page.tsx", /cf-turnstile/);
   const publicFormsProtected = enterpriseProtected && waitlistProtected && proWaitlistProtected;
   const emailProviderConfigured = hasEnv("RESEND_API_KEY");
+  const authModesRender =
+    fileContains("app", "login", "page.tsx", /type AuthMode = "sign-in" \| "create-account" \| "magic-link" \| "forgot-password"/) &&
+    fileContains("app", "login", "page.tsx", /const \[authMode, setAuthMode\]/) &&
+    fileContains("app", "login", "page.tsx", /authModes\.map/) &&
+    fileContains("app", "login", "page.tsx", /aria-pressed=\{selected\}/);
   const signupConfirmationUx =
+    fileContains("app", "login", "page.tsx", /authMode === "create-account"/) &&
     fileContains("app", "login", "page.tsx", /confirmPassword/) &&
     fileContains("app", "login", "page.tsx", /Passwords do not match\./) &&
     fileContains("app", "login", "page.tsx", /canCreateAccount/) &&
     fileContains("app", "login", "page.tsx", /disabled=\{actionDisabled \|\| !canCreateAccount\}/);
+  const magicLinkModeConfigured =
+    fileContains("app", "login", "page.tsx", /authMode === "magic-link"/) &&
+    fileContains("app", "login", "page.tsx", /signInWithMagicLink/) &&
+    fileContains("app", "login", "page.tsx", /Check your email for a secure sign-in link\./);
+  const forgotPasswordModeConfigured =
+    fileContains("app", "login", "page.tsx", /authMode === "forgot-password"/) &&
+    fileContains("app", "login", "page.tsx", /sendPasswordResetEmail/) &&
+    fileContains("app", "login", "page.tsx", /Password reset instructions sent if the account exists\./);
   const signupSuccessGuidance =
     fileContains("app", "login", "page.tsx", /Check your email to verify your account before continuing\./) &&
     fileContains("app", "login", "page.tsx", /supabase\.auth\.resend/) &&
@@ -592,11 +606,35 @@ function emailAndBotProtectionChecks() {
     ),
     check(
       "Account Security",
+      "Auth modes render",
+      authModesRender ? "PASS" : "WARNING",
+      authModesRender
+        ? "Login renders explicit sign-in, create-account, magic-link and forgot-password modes."
+        : "Login is missing explicit auth mode controls."
+    ),
+    check(
+      "Account Security",
       "Signup confirmation UX",
       signupConfirmationUx ? "PASS" : "WARNING",
       signupConfirmationUx
         ? "Signup requires password confirmation, blocks mismatches, and disables account creation until the form is valid."
         : "Signup password confirmation or mismatch blocking needs review."
+    ),
+    check(
+      "Account Security",
+      "Magic link mode",
+      magicLinkModeConfigured ? "PASS" : "WARNING",
+      magicLinkModeConfigured
+        ? "Magic link mode shows an email-only flow and confirms secure link delivery."
+        : "Magic link mode or success message needs review."
+    ),
+    check(
+      "Account Security",
+      "Forgot password mode",
+      forgotPasswordModeConfigured ? "PASS" : "WARNING",
+      forgotPasswordModeConfigured
+        ? "Forgot password mode shows an email-only flow and avoids account enumeration in the success message."
+        : "Forgot password mode or account-safe success message needs review."
     ),
     check(
       "Account Security",

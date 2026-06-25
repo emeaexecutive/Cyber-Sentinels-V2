@@ -16,6 +16,15 @@ const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 const authAttemptWindowMs = 60_000;
 const authAttemptLimit = 8;
 
+type AuthMode = "sign-in" | "create-account" | "magic-link" | "forgot-password";
+
+const authModes: { id: AuthMode; label: string }[] = [
+  { id: "sign-in", label: "Sign in" },
+  { id: "create-account", label: "Create account" },
+  { id: "magic-link", label: "Magic link" },
+  { id: "forgot-password", label: "Forgot password" },
+];
+
 declare global {
   interface Window {
     onCyberSentinelsLoginTurnstile?: (token: string) => void;
@@ -81,6 +90,7 @@ async function withAuthTimeout<T>(task: Promise<T>): Promise<T> {
 
 export default function LoginPage() {
   const router = useRouter();
+  const [authMode, setAuthMode] = useState<AuthMode>("sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -94,13 +104,31 @@ export default function LoginPage() {
   const [showDevAuth, setShowDevAuth] = useState(false);
   const boundaryCopy = getBoundaryCopy(nextPath);
   const trimmedEmail = email.trim();
-  const passwordsMismatch = Boolean(confirmPassword) && password !== confirmPassword;
+  const passwordsMismatch =
+    authMode === "create-account" && Boolean(confirmPassword) && password !== confirmPassword;
   const canCreateAccount =
     Boolean(trimmedEmail) &&
     password.length >= 6 &&
     Boolean(confirmPassword) &&
     password === confirmPassword &&
     loadingAction === null;
+  const canSendEmailOnlyAction = Boolean(trimmedEmail) && loadingAction === null;
+  const modeTitle =
+    authMode === "sign-in"
+      ? "Sign in"
+      : authMode === "create-account"
+        ? "Create account"
+        : authMode === "magic-link"
+          ? "Use magic link"
+          : "Reset password";
+
+  function switchAuthMode(mode: AuthMode) {
+    setAuthMode(mode);
+    setMessage("");
+    setSignupSucceeded(false);
+    setPassword("");
+    setConfirmPassword("");
+  }
 
   useEffect(() => {
     window.onCyberSentinelsLoginTurnstile = (token: string) => setTurnstileToken(token);
@@ -358,7 +386,7 @@ export default function LoginPage() {
         return;
       }
 
-      setMessage("Magic link sent. Check your email.");
+      setMessage("Check your email for a secure sign-in link.");
     } catch (error) {
       console.error("Supabase magic-link sign-in failed.", error);
       setMessage(error instanceof Error ? error.message : "Could not send magic link.");
@@ -399,7 +427,7 @@ export default function LoginPage() {
         return;
       }
 
-      setMessage("Password reset email sent. Check your email.");
+      setMessage("Password reset instructions sent if the account exists.");
     } catch (error) {
       console.error("Supabase password reset email failed.", error);
       setMessage(
@@ -445,12 +473,32 @@ export default function LoginPage() {
         <section className="rounded-lg border border-zinc-800 bg-black p-6">
           <div className="grid gap-5">
             <div>
-              <h2 className="text-lg font-semibold text-zinc-100">
-                Account access
-              </h2>
+              <h2 className="text-lg font-semibold text-zinc-100">{modeTitle}</h2>
               <p className="mt-2 text-sm leading-6 text-zinc-500">
-                Sign in with your verified workspace email, or create an account and confirm it before entering protected workflows.
+                Sign in with your verified workspace email, or choose another secure account option.
               </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 rounded-xl border border-zinc-900 bg-zinc-950/60 p-2 sm:grid-cols-4">
+              {authModes.map((mode) => {
+                const selected = authMode === mode.id;
+
+                return (
+                  <button
+                    key={mode.id}
+                    onClick={() => switchAuthMode(mode.id)}
+                    type="button"
+                    aria-pressed={selected}
+                    className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                      selected
+                        ? "bg-white text-black"
+                        : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
+                    }`}
+                  >
+                    {mode.label}
+                  </button>
+                );
+              })}
             </div>
 
             <input
@@ -465,17 +513,19 @@ export default function LoginPage() {
               className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
             />
 
-            <input
-              value={password}
-              onChange={(event) => {
-                setPassword(event.target.value);
-                setSignupSucceeded(false);
-              }}
-              type="password"
-              placeholder="Password"
-              autoComplete="current-password"
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            />
+            {authMode === "sign-in" || authMode === "create-account" ? (
+              <input
+                value={password}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                  setSignupSucceeded(false);
+                }}
+                type="password"
+                placeholder="Password"
+                autoComplete={authMode === "create-account" ? "new-password" : "current-password"}
+                className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+              />
+            ) : null}
 
             {turnstileSiteKey ? (
               <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
@@ -484,46 +534,74 @@ export default function LoginPage() {
               </div>
             ) : null}
 
-            <button
-              onClick={signInWithPassword}
-              disabled={actionDisabled}
-              className="rounded-xl bg-white p-4 font-semibold text-black transition hover:bg-cyan-100 disabled:opacity-50"
-              type="button"
-            >
-              {loadingAction === "password" ? "Signing in..." : "Sign in"}
-            </button>
+            {authMode === "create-account" ? (
+              <div className="grid gap-3 rounded-xl border border-zinc-900 bg-zinc-950/50 p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                  New workspace access
+                </p>
+                <input
+                  value={confirmPassword}
+                  onChange={(event) => {
+                    setConfirmPassword(event.target.value);
+                    setSignupSucceeded(false);
+                  }}
+                  type="password"
+                  placeholder="Confirm password"
+                  autoComplete="new-password"
+                  className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+                />
+                {passwordsMismatch ? (
+                  <p className="text-sm text-red-300">Passwords do not match.</p>
+                ) : null}
+                <p className="text-xs leading-5 text-zinc-500">
+                  Account creation sends an email verification link before protected workflows are available.
+                </p>
+              </div>
+            ) : null}
 
-            <div className="grid gap-3 rounded-xl border border-zinc-900 bg-zinc-950/50 p-4">
-              <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
-                New workspace access
-              </p>
-              <input
-                value={confirmPassword}
-                onChange={(event) => {
-                  setConfirmPassword(event.target.value);
-                  setSignupSucceeded(false);
-                }}
-                type="password"
-                placeholder="Confirm password"
-                autoComplete="new-password"
-                className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
-              />
-              {passwordsMismatch ? (
-                <p className="text-sm text-red-300">Passwords do not match.</p>
-              ) : null}
-              <p className="text-xs leading-5 text-zinc-500">
-                Account creation sends an email verification link before protected workflows are available.
-              </p>
-            </div>
+            {authMode === "sign-in" ? (
+              <button
+                onClick={signInWithPassword}
+                disabled={actionDisabled}
+                className="rounded-xl bg-white p-4 font-semibold text-black transition hover:bg-cyan-100 disabled:opacity-50"
+                type="button"
+              >
+                {loadingAction === "password" ? "Signing in..." : "Sign in"}
+              </button>
+            ) : null}
 
-            <button
-              onClick={createAccountWithPassword}
-              disabled={actionDisabled || !canCreateAccount}
-              className="rounded-xl border border-zinc-700 p-4 font-semibold text-zinc-100 transition hover:border-cyan-800 hover:text-cyan-100 disabled:opacity-50"
-              type="button"
-            >
-              {loadingAction === "create-account" ? "Creating..." : "Create account"}
-            </button>
+            {authMode === "create-account" ? (
+              <button
+                onClick={createAccountWithPassword}
+                disabled={actionDisabled || !canCreateAccount}
+                className="rounded-xl bg-white p-4 font-semibold text-black transition hover:bg-cyan-100 disabled:opacity-50"
+                type="button"
+              >
+                {loadingAction === "create-account" ? "Creating..." : "Create account"}
+              </button>
+            ) : null}
+
+            {authMode === "magic-link" ? (
+              <button
+                onClick={signInWithMagicLink}
+                disabled={!canSendEmailOnlyAction}
+                className="rounded-xl bg-white p-4 font-semibold text-black transition hover:bg-cyan-100 disabled:opacity-50"
+                type="button"
+              >
+                {loadingAction === "magic-link" ? "Sending magic link..." : "Send magic link"}
+              </button>
+            ) : null}
+
+            {authMode === "forgot-password" ? (
+              <button
+                onClick={sendPasswordResetEmail}
+                disabled={!canSendEmailOnlyAction}
+                className="rounded-xl bg-white p-4 font-semibold text-black transition hover:bg-cyan-100 disabled:opacity-50"
+                type="button"
+              >
+                {loadingAction === "reset" ? "Sending reset..." : "Send password reset"}
+              </button>
+            ) : null}
 
             {signupSucceeded ? (
               <div className="rounded-xl border border-cyan-900 bg-cyan-950/20 p-4">
@@ -545,25 +623,47 @@ export default function LoginPage() {
               </div>
             ) : null}
 
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-900 pt-2 text-sm">
-              <button
-                onClick={signInWithMagicLink}
-                disabled={actionDisabled}
-                className="text-zinc-400 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
-                type="button"
-              >
-                {loadingAction === "magic-link" ? "Sending magic link..." : "Use magic link"}
-              </button>
+            {authMode === "sign-in" ? (
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-900 pt-2 text-sm">
+                <button
+                  onClick={() => switchAuthMode("create-account")}
+                  disabled={actionDisabled}
+                  className="text-zinc-400 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
+                  type="button"
+                >
+                  Create account
+                </button>
 
-              <button
-                onClick={sendPasswordResetEmail}
-                disabled={actionDisabled}
-                className="text-zinc-400 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
-                type="button"
-              >
-                {loadingAction === "reset" ? "Sending reset..." : "Forgot password?"}
-              </button>
-            </div>
+                <button
+                  onClick={() => switchAuthMode("magic-link")}
+                  disabled={actionDisabled}
+                  className="text-zinc-400 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
+                  type="button"
+                >
+                  Use magic link
+                </button>
+
+                <button
+                  onClick={() => switchAuthMode("forgot-password")}
+                  disabled={actionDisabled}
+                  className="text-zinc-400 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
+                  type="button"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            ) : (
+              <div className="border-t border-zinc-900 pt-2 text-sm">
+                <button
+                  onClick={() => switchAuthMode("sign-in")}
+                  disabled={actionDisabled}
+                  className="text-zinc-400 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
+                  type="button"
+                >
+                  Back to sign in
+                </button>
+              </div>
+            )}
 
             {message ? <p className="text-sm text-zinc-400">{message}</p> : null}
 
