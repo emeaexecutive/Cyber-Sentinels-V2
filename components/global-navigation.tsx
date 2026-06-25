@@ -36,14 +36,10 @@ const platformDropdownLinks = [
   ["/compliance-export", "Compliance"],
 ];
 
-const publicEnterpriseDropdownLinks = [
+const enterpriseDropdownLinks = [
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
   ["/enterprise/pilot", "Pilot Program"],
-];
-
-const adminEnterpriseDropdownLinks = [
-  ...publicEnterpriseDropdownLinks,
   ["/admin/integrations", "Integrations"],
   ["/admin/runtime-validation", "Runtime Validation"],
 ];
@@ -107,21 +103,12 @@ function DropdownLinks({
   );
 }
 
-function PrimaryNavigation({
-  accessLevel,
-}: {
-  accessLevel: NavigationAccessLevel;
-}) {
-  const enterpriseLinks =
-    accessLevel === "admin"
-      ? adminEnterpriseDropdownLinks
-      : publicEnterpriseDropdownLinks;
-
+function PrimaryNavigation() {
   return (
     <>
       <DropdownLinks label="Platform" links={platformDropdownLinks} />
       <FlatLinks links={publicLinks} />
-      <DropdownLinks label="Enterprise" links={enterpriseLinks} />
+      <DropdownLinks label="Enterprise" links={enterpriseDropdownLinks} />
       <FlatLinks links={pricingLink} />
     </>
   );
@@ -145,11 +132,11 @@ export function GlobalNavigation({
           className="flex flex-wrap items-center justify-end gap-2 text-sm text-zinc-200"
         >
           {accessLevel === "public" ? (
-            <PrimaryNavigation accessLevel={accessLevel} />
+            <PrimaryNavigation />
           ) : null}
           {accessLevel === "user" || accessLevel === "admin-unverified" ? (
             <>
-              <PrimaryNavigation accessLevel={accessLevel} />
+              <PrimaryNavigation />
               <FlatLinks links={userLinks} />
               {accessLevel === "admin-unverified" ? (
                 <Link
@@ -170,7 +157,7 @@ export function GlobalNavigation({
               >
                 Home
               </Link>
-              <PrimaryNavigation accessLevel={accessLevel} />
+              <PrimaryNavigation />
               <Link
                 href="/admin/access"
                 className="rounded-lg border border-cyan-700 px-3 py-2 font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"

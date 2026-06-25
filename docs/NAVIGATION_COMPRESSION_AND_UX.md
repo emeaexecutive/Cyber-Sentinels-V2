@@ -40,13 +40,11 @@ Enterprise groups pilot and buyer actions:
 - Enterprise Access
 - Design Partner
 - Pilot Program
-
-For verified admin sessions, the same group also exposes:
-
 - Integrations
 - Runtime Validation
 
-Admin-only destinations remain protected by the existing admin access model.
+Admin-only destinations remain protected by the existing admin access model even
+when they are linked from the Enterprise dropdown.
 
 ## De-Emphasized Experimental Routes
 
@@ -75,6 +73,5 @@ The following routes were not deleted and were not made public-primary:
 
 - No new routes, APIs or tables were added.
 - No auth, middleware, RLS or admin access logic was weakened.
-- Public dropdown links do not expose admin-only tooling.
-- Admin-only enterprise operations appear only for admin sessions and continue
-  to use existing protected routes.
+- Public dropdown links do not weaken route protection.
+- Admin-only enterprise operations continue to use existing protected routes.
