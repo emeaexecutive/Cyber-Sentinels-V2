@@ -35,11 +35,17 @@ create table if not exists public.usage_limits (
   updated_at timestamptz default now()
 );
 
+alter table public.usage_limits
+  add column if not exists user_id uuid references auth.users(id) on delete cascade;
+
 create index if not exists billing_customers_user_id_idx
 on public.billing_customers (user_id);
 
 create index if not exists subscriptions_user_id_idx
 on public.subscriptions (user_id);
+
+create unique index if not exists usage_limits_user_id_idx
+on public.usage_limits (user_id);
 
 create index if not exists subscriptions_stripe_customer_id_idx
 on public.subscriptions (stripe_customer_id);
