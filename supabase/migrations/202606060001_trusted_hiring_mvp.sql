@@ -160,6 +160,9 @@ for insert to authenticated with check (user_id = auth.uid());
 create policy "recruiter profiles owner update" on public.recruiter_profiles
 for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 
+drop policy if exists "interview sessions owner select"
+on public.interview_sessions;
+
 create policy "interview sessions owner select" on public.interview_sessions
 for select to authenticated using (user_id = auth.uid());
 create policy "interview sessions owner insert" on public.interview_sessions
