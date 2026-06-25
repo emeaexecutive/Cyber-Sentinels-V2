@@ -550,10 +550,28 @@ function emailAndBotProtectionChecks() {
     fileContains("app", "login", "page.tsx", /cf-turnstile/);
   const publicFormsProtected = enterpriseProtected && waitlistProtected && proWaitlistProtected;
   const emailProviderConfigured = hasEnv("RESEND_API_KEY");
+  const signupConfirmationUx =
+    fileContains("app", "login", "page.tsx", /confirmPassword/) &&
+    fileContains("app", "login", "page.tsx", /Passwords do not match\./) &&
+    fileContains("app", "login", "page.tsx", /canCreateAccount/) &&
+    fileContains("app", "login", "page.tsx", /disabled=\{actionDisabled \|\| !canCreateAccount\}/);
+  const signupSuccessGuidance =
+    fileContains("app", "login", "page.tsx", /Check your email to verify your account before continuing\./) &&
+    fileContains("app", "login", "page.tsx", /supabase\.auth\.resend/) &&
+    fileContains("app", "login", "page.tsx", /spam or junk/);
   const signupRedirectConfigured =
     fileContains("app", "login", "page.tsx", /emailRedirectTo:\s*`\$\{window\.location\.origin\}\/auth\/callback/) &&
     fileContains("app", "verify-email", "page.tsx", /supabase\.auth\.resend/) &&
     fileContains("app", "verify-email", "page.tsx", /\/auth\/callback/);
+  const verificationRedirectConfigured =
+    fileContains("app", "auth", "callback", "route.ts", /exchangeCodeForSession/) &&
+    fileContains("app", "auth", "callback", "route.ts", /NextResponse\.redirect\(new URL\(next, url\.origin\)\)/);
+  const adminAccessDiscoverableAndProtected =
+    fileContains("app", "login", "page.tsx", /Administrative access/) &&
+    fileContains("app", "layout.tsx", /Administrative access/) &&
+    fileContains("middleware.ts", /adminPagePrefixes/) &&
+    fileContains("middleware.ts", /\/admin/) &&
+    fileContains("lib", "admin-auth.ts", /requireAdminAccess|adminVerifiedCookieName/);
 
   return [
     check(
@@ -567,10 +585,34 @@ function emailAndBotProtectionChecks() {
     check(
       "Account Security",
       "Email verification expected",
-      emailGateConfigured && signupRedirectConfigured ? "PASS" : "WARNING",
-      emailGateConfigured && signupRedirectConfigured
-        ? "Signup and resend flows route through /auth/callback, and middleware blocks unverified users from protected workflows."
-        : "Signup redirect, resend verification, or middleware verification checks need review."
+      emailGateConfigured && signupRedirectConfigured && verificationRedirectConfigured ? "PASS" : "WARNING",
+      emailGateConfigured && signupRedirectConfigured && verificationRedirectConfigured
+        ? "Signup and resend flows route through /auth/callback, verification exchanges restore the intended redirect, and middleware blocks unverified users from protected workflows."
+        : "Signup redirect, resend verification, callback redirect, or middleware verification checks need review."
+    ),
+    check(
+      "Account Security",
+      "Signup confirmation UX",
+      signupConfirmationUx ? "PASS" : "WARNING",
+      signupConfirmationUx
+        ? "Signup requires password confirmation, blocks mismatches, and disables account creation until the form is valid."
+        : "Signup password confirmation or mismatch blocking needs review."
+    ),
+    check(
+      "Account Security",
+      "Signup success guidance",
+      signupSuccessGuidance ? "PASS" : "WARNING",
+      signupSuccessGuidance
+        ? "Signup success tells users to verify email, includes resend support, and reminds them to check spam or correct the email address."
+        : "Signup success state is missing verification guidance, resend support, or spam/correct-email reminders."
+    ),
+    check(
+      "Admin Protection",
+      "Administrative access entry",
+      adminAccessDiscoverableAndProtected ? "PASS" : "WARNING",
+      adminAccessDiscoverableAndProtected
+        ? "Administrative access is discoverable from subtle auth/footer links while protected admin routes still use middleware and admin verification helpers."
+        : "Administrative access discoverability or admin protection wiring needs review."
     ),
     check(
       "Account Security",

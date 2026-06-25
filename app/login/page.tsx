@@ -85,6 +85,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [signupSucceeded, setSignupSucceeded] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [nextPath, setNextPath] = useState("/passport");
   const [loadingAction, setLoadingAction] = useState<
@@ -92,6 +93,14 @@ export default function LoginPage() {
   >(null);
   const [showDevAuth, setShowDevAuth] = useState(false);
   const boundaryCopy = getBoundaryCopy(nextPath);
+  const trimmedEmail = email.trim();
+  const passwordsMismatch = Boolean(confirmPassword) && password !== confirmPassword;
+  const canCreateAccount =
+    Boolean(trimmedEmail) &&
+    password.length >= 6 &&
+    Boolean(confirmPassword) &&
+    password === confirmPassword &&
+    loadingAction === null;
 
   useEffect(() => {
     window.onCyberSentinelsLoginTurnstile = (token: string) => setTurnstileToken(token);
@@ -253,10 +262,60 @@ export default function LoginPage() {
         return;
       }
 
+      setSignupSucceeded(true);
       setMessage("Check your email to verify your account before continuing.");
     } catch (error) {
       console.error("Supabase account creation failed.", error);
       setMessage(error instanceof Error ? error.message : "Could not create account.");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
+
+  async function resendVerificationEmail() {
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setMessage("Please enter the email address you used to create your account.");
+      return;
+    }
+
+    if (!allowAuthAttempt("create-account")) return;
+
+    setMessage("");
+    setLoadingAction("create-account");
+
+    const supabase = getSupabaseClient();
+
+    if (!supabase) {
+      setLoadingAction(null);
+      return;
+    }
+
+    try {
+      const { error } = await withAuthTimeout(
+        supabase.auth.resend({
+          type: "signup",
+          email: trimmedEmail,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+              nextPath || "/passport"
+            )}`,
+          },
+        })
+      );
+
+      if (error) {
+        setMessage(error.message || "Could not resend the verification email.");
+        return;
+      }
+
+      setMessage("Verification email resent. Check your inbox and spam or junk folder.");
+    } catch (error) {
+      console.error("Supabase verification resend failed.", error);
+      setMessage(
+        error instanceof Error ? error.message : "Could not resend the verification email."
+      );
     } finally {
       setLoadingAction(null);
     }
@@ -396,7 +455,10 @@ export default function LoginPage() {
 
             <input
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                setSignupSucceeded(false);
+              }}
               type="email"
               placeholder="Email address"
               autoComplete="email"
@@ -405,7 +467,10 @@ export default function LoginPage() {
 
             <input
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                setSignupSucceeded(false);
+              }}
               type="password"
               placeholder="Password"
               autoComplete="current-password"
@@ -434,12 +499,18 @@ export default function LoginPage() {
               </p>
               <input
                 value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
+                onChange={(event) => {
+                  setConfirmPassword(event.target.value);
+                  setSignupSucceeded(false);
+                }}
                 type="password"
                 placeholder="Confirm password"
                 autoComplete="new-password"
                 className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
               />
+              {passwordsMismatch ? (
+                <p className="text-sm text-red-300">Passwords do not match.</p>
+              ) : null}
               <p className="text-xs leading-5 text-zinc-500">
                 Account creation sends an email verification link before protected workflows are available.
               </p>
@@ -447,12 +518,32 @@ export default function LoginPage() {
 
             <button
               onClick={createAccountWithPassword}
-              disabled={actionDisabled}
+              disabled={actionDisabled || !canCreateAccount}
               className="rounded-xl border border-zinc-700 p-4 font-semibold text-zinc-100 transition hover:border-cyan-800 hover:text-cyan-100 disabled:opacity-50"
               type="button"
             >
               {loadingAction === "create-account" ? "Creating..." : "Create account"}
             </button>
+
+            {signupSucceeded ? (
+              <div className="rounded-xl border border-cyan-900 bg-cyan-950/20 p-4">
+                <p className="text-sm font-semibold text-cyan-100">
+                  Check your email to verify your account before continuing.
+                </p>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">
+                  We sent the verification link to {trimmedEmail || "your email address"}.
+                  Check spam or junk mail, and make sure the email address is correct before requesting another link.
+                </p>
+                <button
+                  onClick={resendVerificationEmail}
+                  disabled={actionDisabled || !trimmedEmail}
+                  className="mt-4 rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-500 disabled:opacity-50"
+                  type="button"
+                >
+                  {loadingAction === "create-account" ? "Sending..." : "Resend verification"}
+                </button>
+              </div>
+            ) : null}
 
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-900 pt-2 text-sm">
               <button
@@ -494,6 +585,9 @@ export default function LoginPage() {
             <div className="flex flex-wrap justify-between gap-3 text-sm">
               <Link href="/" className="text-zinc-400 underline">
                 Back to homepage
+              </Link>
+              <Link href="/admin/access" className="text-zinc-500 underline underline-offset-4 hover:text-zinc-300">
+                Administrative access
               </Link>
             </div>
           </div>

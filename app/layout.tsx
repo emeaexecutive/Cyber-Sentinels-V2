@@ -57,6 +57,7 @@ const footerSections = [
       ["/regulatory", "Regulatory"],
       ["/accessibility", "Accessibility"],
       ["/modern-slavery", "Modern Slavery statement"],
+      ["/admin/access", "Administrative access"],
     ],
   },
   {
