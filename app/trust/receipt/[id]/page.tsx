@@ -165,7 +165,7 @@ export default async function TrustReceiptPage({
   });
   const nextReceiptAction = openGovernance.length
     ? "Governance review is still pending. Check the open action before sharing a final outcome."
-    : "Share the receipt or replay the workflow if more context is needed.";
+    : "No active governance escalations. Share the receipt or replay the workflow if more context is needed.";
   const injectionEvent = (riskEvents ?? []).find((event) =>
     /injection/i.test(String(event.signal_type ?? ""))
   );
@@ -199,7 +199,7 @@ export default async function TrustReceiptPage({
     {
       id: "verification-initiated",
       title: "Identity submitted",
-      description: `Workflow subject recorded as ${label(receipt.subject_type, "workflow subject")}.`,
+      description: `Workflow subject recorded as ${label(receipt.subject_type, "workflow subject")} with receipt context and timestamp.`,
       occurredAt: receipt.created_at ?? receipt.issued_at,
       state: "manual_review_required",
       stage: "identity_submitted",
@@ -267,7 +267,7 @@ export default async function TrustReceiptPage({
     {
       id: "receipt-issued",
       title: "Receipt issued",
-      description: "Verification receipt preserves the outcome, evidence summary, reviewer state and replay path.",
+      description: "Verification receipt preserves the outcome, evidence summary, reviewer attribution and replay path.",
       occurredAt: receipt.issued_at,
       state: "trusted_workforce",
       stage: "receipt_issued",
@@ -299,15 +299,15 @@ export default async function TrustReceiptPage({
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
                 {receipt.receipt_summary ??
-                  "Explainable verification receipt recorded for operational governance review."}
+                  "Audit-ready verification receipt recorded for operational governance review."}
               </p>
               <p className="mt-3 max-w-3xl rounded-lg border border-emerald-900 bg-black p-3 text-sm leading-6 text-emerald-100">
-                Trust changed quietly. Verification receipt available. {nextReceiptAction}
+                Verification receipt available. {nextReceiptAction}
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-                This printable receipt explains what happened, what was detected,
-                what action occurred, which chronology is available and what
-                evidence was retained. It is not a blockchain record or an
+                This printable receipt explains what happened, what was reviewed,
+                what action occurred, which chronology is available, who reviewed
+                the case and what evidence was retained. It is not a blockchain record or an
                 automatic trust decision.
               </p>
               <div className="mt-5 max-w-3xl">
@@ -342,20 +342,20 @@ export default async function TrustReceiptPage({
           <DetailRow label="Subject" value={`${label(receipt.subject_type)} / ${receipt.subject_id}`} />
           <DetailRow label="Issued" value={formatDate(receipt.issued_at)} />
           <DetailRow label="Expires" value={formatDate(receipt.expires_at)} />
-          <DetailRow label="Reviewer State" value={receipt.issued_by ? "Human review recorded" : "System recorded"} />
+          <DetailRow label="Reviewer State" value={receipt.issued_by ? `Recorded by ${label(receipt.issued_by)}` : "Reviewer attribution pending"} />
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           <DetailRow label="Trust State" value={label(receipt.verification_status ?? governanceOutcome, "reviewable")} />
-          <DetailRow label="Reviewer Action" value={latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No reviewer action attached"} />
-          <DetailRow label="Verification Evidence" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} evidence chain(s)` : "Evidence pending"} />
+          <DetailRow label="Reviewer Action" value={latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No reviewer action attached yet"} />
+          <DetailRow label="Verification Evidence" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} evidence chain(s)` : "No replay evidence available yet"} />
           <DetailRow label="Replay Link" value={`/replay/${receipt.subject_id}`} />
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           <DetailRow label="What was verified" value={label(receipt.subject_type, "Workflow subject")} />
           <DetailRow label="Evidence exists" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} evidence chain(s)` : "No linked evidence chain yet"} />
-          <DetailRow label="What is pending" value={openGovernance.length ? `${openGovernance.length} governance action(s)` : "No pending governance action"} />
+          <DetailRow label="What is pending" value={openGovernance.length ? `${openGovernance.length} governance action(s)` : "No active governance escalations"} />
           <DetailRow label="Requires action" value={openGovernance.length ? "Reviewer decision required" : "No action required"} />
         </section>
 
@@ -392,7 +392,7 @@ export default async function TrustReceiptPage({
         <div className="mt-8">
           <TrustJourneyVisualization
             title="Receipt trust progression"
-            description="Chronological verification story from initiation through presence, integrity checks, deepfake and injection review, governance action and receipt issuance."
+            description="Chronological verification story from initiation through presence, integrity checks, deepfake and injection review, reviewer action and receipt issuance."
             events={trustJourneyEvents}
             finalState={finalJourneyState}
             proofState={{
@@ -403,7 +403,7 @@ export default async function TrustReceiptPage({
               lastEvidenceEvent: (timeline ?? [])[0]
                 ? `${label((timeline ?? [])[0].event_title ?? (timeline ?? [])[0].event_type)} / ${formatDate((timeline ?? [])[0].created_at)}`
                 : `Receipt issued / ${formatDate(receipt.issued_at)}`,
-              reviewerAction: latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No reviewer action attached",
+              reviewerAction: latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No reviewer action attached yet",
               finalOutcome: label(governanceOutcome ?? receipt.verification_status, "Receipt issued"),
             }}
           />
@@ -496,7 +496,7 @@ export default async function TrustReceiptPage({
                 ))
               ) : (
                 <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
-                  No evidence snapshot was attached to this receipt.
+                  No evidence snapshot was attached to this receipt yet.
                 </p>
               )}
             </div>
@@ -522,7 +522,7 @@ export default async function TrustReceiptPage({
                 ))
               ) : (
                 <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
-                  No evidence chain is linked yet.
+                  No replay evidence available yet.
                 </p>
               )}
             </div>
@@ -549,7 +549,7 @@ export default async function TrustReceiptPage({
                 ))
               ) : (
                 <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
-                  No timeline events are visible yet.
+                  No replay evidence available yet.
                 </p>
               )}
             </div>
@@ -566,13 +566,13 @@ export default async function TrustReceiptPage({
                       <StatusBadge status={action.action_status ?? "pending"} />
                     </div>
                     <p className="mt-2 text-sm leading-6 text-zinc-500">
-                      {action.resolution_notes ?? action.action_type ?? "Human governance action remains reviewable."}
+                      {action.resolution_notes ?? action.action_type ?? "Reviewer action remains reviewable."}
                     </p>
                   </article>
                 ))
               ) : (
                 <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
-                  No governance action is attached to this subject yet.
+                  No active governance escalations.
                 </p>
               )}
             </div>
@@ -594,7 +594,7 @@ export default async function TrustReceiptPage({
                 ))
               ) : (
                 <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
-                  No trust relationships are visible yet.
+                  No linked operational relationships yet.
                 </p>
               )}
             </div>
@@ -615,7 +615,7 @@ export default async function TrustReceiptPage({
                 ))
               ) : (
                 <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
-                  Audit references will appear after receipt logging is available.
+                  No audit references are attached yet.
                 </p>
               )}
             </div>

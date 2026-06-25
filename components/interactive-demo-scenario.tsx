@@ -12,11 +12,11 @@ export type DemoScenarioStep = {
 };
 
 const proofPath = [
-  "Fake candidate enters workflow",
-  "Verification begins",
-  "Session Integrity fails",
-  "Governance Review opens",
-  "Replay Evidence appears",
+  "Candidate enters workflow",
+  "Verification record opens",
+  "Session anomaly recorded",
+  "Governance review assigned",
+  "Replay chronology available",
   "Reviewer action recorded",
   "Verification receipt issued",
 ];
@@ -45,7 +45,7 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-tight md:text-6xl">{title}</h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-200">{summary}</p>
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            {["What happened", "What changed", "What evidence remains"].map((item) => (
+            {["Operational event", "State transition", "Evidence retained"].map((item) => (
               <div key={item} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">{item}</p>
                 <p className="mt-2 text-sm text-zinc-200">Step {active + 1}: {step.title}</p>
@@ -89,7 +89,7 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
               <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5"><p className="text-xs uppercase text-zinc-400">Evidence retained</p><p className="mt-3 text-sm leading-7 text-zinc-200">{step.evidence}</p></div>
               <div className="rounded-lg border border-cyan-950 bg-zinc-950 p-5"><p className="text-xs uppercase text-zinc-400">Operational action</p><p className="mt-3 text-sm leading-7 text-zinc-200">{step.action}</p></div>
             </div>
-            <p className="mt-5 text-sm text-zinc-300">Sample-only evidence. Signals inform human review; they do not decide candidate trust.</p>
+            <p className="mt-5 text-sm text-zinc-300">Sample-only evidence. Flags support human review; they do not make hiring decisions or replace reviewer accountability.</p>
             <div className="mt-8 flex flex-wrap justify-between gap-3">
               <button disabled={active === 0} onClick={() => setActive(active - 1)} className="rounded-md border border-zinc-700 px-4 py-2 text-sm disabled:opacity-30">Previous</button>
               {!complete ? <button onClick={() => setActive(active + 1)} className="rounded-md bg-white px-5 py-2 text-sm font-semibold text-black">Continue</button> : nextScenario ? <Link href={nextScenario.href} className="rounded-md bg-cyan-300 px-5 py-2 text-sm font-semibold text-black">{nextScenario.label}</Link> : <Link href="/demo" className="rounded-md bg-cyan-300 px-5 py-2 text-sm font-semibold text-black">View Demo</Link>}

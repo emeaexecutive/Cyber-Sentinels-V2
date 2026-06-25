@@ -33,6 +33,7 @@ export default async function DashboardPage() {
     ["Trust Posture", posture.count ?? 0, ShieldCheck, "/dashboard/trust-posture"],
     ["Verification Receipts", receipts.count ?? 0, History, "/dashboard"],
   ] as const;
+  const noOperationalActivity = metrics.every(([, value]) => value === 0);
 
   return (
     <main className="min-h-screen bg-sentinel-black px-6 py-8 text-sentinel-white grid-bg">
@@ -77,6 +78,23 @@ export default async function DashboardPage() {
           ))}
         </section>
 
+        {noOperationalActivity ? (
+          <section className="mt-6 rounded-lg border border-sentinel-line bg-sentinel-panel/80 p-5">
+            <h2 className="text-xl font-semibold">No active operational review items</h2>
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              <p className="rounded-lg border border-sentinel-line bg-black/30 p-4 text-sm leading-6 text-sentinel-muted">
+                No active governance escalations.
+              </p>
+              <p className="rounded-lg border border-sentinel-line bg-black/30 p-4 text-sm leading-6 text-sentinel-muted">
+                No unresolved session integrity events.
+              </p>
+              <p className="rounded-lg border border-sentinel-line bg-black/30 p-4 text-sm leading-6 text-sentinel-muted">
+                No replay evidence available yet.
+              </p>
+            </div>
+          </section>
+        ) : null}
+
         <section className="mt-8 rounded-lg border border-sentinel-line bg-sentinel-panel/80 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -87,10 +105,10 @@ export default async function DashboardPage() {
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             {[
-              ["/dashboard/interview-risk", "1. Review Flags", "Inspect identity, injection and Session Integrity flags."],
-              ["/dashboard/governance", "2. Open Governance Review", "Assign review ownership and preserve the human outcome."],
-              ["/trust-replay", "3. Review Verification Chronology", "Reconstruct timestamps, active Flags, reviewer actions and Verification Evidence."],
-              ["/dashboard/trust-posture", "4. Check Trust Posture", "Confirm current state before sharing Verification Receipts or Replay Evidence."],
+              ["/dashboard/interview-risk", "1. Review Flags", "Inspect identity, injection and session integrity flags."],
+              ["/dashboard/governance", "2. Open Governance Review", "Assign review ownership, escalation reason and next action."],
+              ["/trust-replay", "3. Review Verification Chronology", "Reconstruct timestamps, active flags, reviewer actions and verification evidence."],
+              ["/dashboard/trust-posture", "4. Check Trust Posture", "Confirm current state before sharing verification receipts or replay evidence."],
             ].map(([href, title, copy]) => (
               <Link key={href} href={href} className="rounded-lg border border-sentinel-line bg-black/30 p-4 hover:border-sentinel-green">
                 <p className="font-semibold">{title}</p>

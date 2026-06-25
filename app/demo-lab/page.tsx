@@ -71,8 +71,8 @@ export default function DemoLabPage() {
             ["00:30", "Injection risk", "Show the retained channel flag and explain why the workflow pauses."],
             ["01:00", "Governance escalation", "Follow the evidence into accountable human review."],
             ["01:20", "Manual review", "Inspect the chronology and reviewer action without an automated candidate verdict."],
-            ["01:40", "Threat blocked", "Show the suspicious session outcome and preserved audit reference."],
-            ["02:00", "Replay and receipt", "Open the immutable replay view and printable enterprise receipt."],
+            ["01:40", "Risky session blocked", "Show the suspicious session outcome and preserved audit reference."],
+            ["02:00", "Replay and receipt", "Open the replay chronology and printable enterprise receipt."],
           ].map(([time, title, copy]) => (
             <article key={time} className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
               <p className="text-xs font-semibold text-cyan-300">{time}</p>

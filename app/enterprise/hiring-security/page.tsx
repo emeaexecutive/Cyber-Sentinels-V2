@@ -33,11 +33,11 @@ const capabilities = [
 const riskExamples = [
   [
     "Synthetic applicants",
-    "A candidate profile looks complete, but submitted identity evidence, employment history and interview behavior do not line up. Cyber Sentinels separates identity confidence from session integrity so reviewers can request evidence before the process advances.",
+    "A candidate profile looks complete, but the submitted identity evidence, employment history, verified email domain and interview behavior do not line up. Cyber Sentinels separates identity confidence from session integrity so reviewers can request evidence before the process advances.",
   ],
   [
     "Proxy interviews",
-    "The person in the interview may not match the verified candidate context. Reviewer notes, liveness checks, voice/video consistency and escalation history stay attached to the same hiring workflow.",
+    "The person in the interview may not match the verified candidate context. Reviewer notes, liveness checks, voice/video continuity, device context and escalation history stay attached to the same hiring workflow.",
   ],
   [
     "Injected interview feeds",
@@ -53,16 +53,16 @@ const riskExamples = [
   ],
   [
     "Governance escalation",
-    "High-risk signals open a reviewer-owned decision path with evidence, chronology, receipt and replay references available for audit.",
+    "High-risk flags open a reviewer-owned decision path with evidence, chronology, receipt and replay references available for audit.",
   ],
 ];
 const workflow = [
-  "Fake applicant enters the hiring workflow.",
-  "Verification begins across candidate, recruiter and interview context.",
-  "Session integrity fails because channel evidence changes.",
-  "Governance review opens with reviewer ownership.",
-  "Replay evidence is generated from recorded workflow state.",
-  "The threat is blocked by human-governed action.",
+  "Candidate intake is recorded with source, role and recruiter context.",
+  "Verification begins across candidate, recruiter and interview records.",
+  "Session integrity changes after device, voice/video or channel evidence shifts.",
+  "Governance review opens with reviewer ownership and escalation reason.",
+  "Replay chronology is generated from recorded workflow state.",
+  "The risky session is blocked by human-governed action.",
   "A verification receipt is issued for audit review.",
 ];
 
@@ -81,10 +81,10 @@ export default function HiringSecurityPage() {
             Protect enterprise hiring workflows against synthetic trust attacks.
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-300">
-            Hiring Security is the clearest entry point for Operational Trust Infrastructure: fake applicants, proxy interviews, AI-assisted hiring fraud and injected sessions become reviewable workflows with verification evidence, governance, replay and receipts.
+            Hiring Security is the clearest entry point for Operational Trust Infrastructure: fake applicants, proxy interviews, AI-assisted hiring fraud and injected sessions become reviewable workflows with verification evidence, reviewer ownership, replay and receipts.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Security, legal and people teams see trust state changes, Governance Review, reviewer actions and Replay Evidence in one operational chronology.
+            Security, legal and people teams see state changes, Governance Review, reviewer actions and Replay Evidence in one operational chronology.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
@@ -128,7 +128,7 @@ export default function HiringSecurityPage() {
             Hiring attacks become reviewable workflows.
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            The product avoids black-box authenticity claims. It shows what changed, what Verification Evidence exists, who reviewed it and where Replay Evidence is available.
+            The product avoids black-box authenticity claims. It shows what changed, what verification evidence exists, who reviewed it, why escalation occurred and where replay evidence is available.
           </p>
           <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {riskExamples.map(([title, body]) => (

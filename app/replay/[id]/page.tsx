@@ -125,7 +125,7 @@ export default async function VerificationReplayPage({
       id: `risk-${row.id}`,
       type: "signal",
       title: row.signal_type ?? "Integrity signal",
-      summary: row.risk_reason ?? "Signal retained for human review.",
+      summary: row.risk_reason ?? "Integrity flag retained for analyst review.",
       state: row.escalation_required ? "escalated" : "recorded",
       created_at: row.created_at,
     })),
@@ -133,7 +133,7 @@ export default async function VerificationReplayPage({
       id: `governance-${row.id}`,
       type: "governance",
       title: "Governance action",
-      summary: row.resolution_notes ?? "Human governance action recorded.",
+      summary: row.resolution_notes ?? "Reviewer action recorded for operational follow-up.",
       state: row.action_status ?? "pending",
       created_at: row.created_at,
     })),
@@ -141,7 +141,7 @@ export default async function VerificationReplayPage({
       id: `evidence-${row.id}`,
       type: "evidence",
       title: "Evidence retained",
-      summary: row.chain_summary ?? "Evidence chain preserved.",
+      summary: row.chain_summary ?? "Evidence chain preserved with timestamp and subject reference.",
       state: "retained",
       created_at: row.created_at,
     })),
@@ -149,7 +149,7 @@ export default async function VerificationReplayPage({
       id: `receipt-${row.id}`,
       type: "receipt",
       title: "Verification receipt generated",
-      summary: row.receipt_summary ?? "Enterprise verification receipt available.",
+      summary: row.receipt_summary ?? "Enterprise verification receipt available for audit review.",
       state: row.verification_status ?? "generated",
       created_at: row.issued_at,
     })),
@@ -167,7 +167,7 @@ export default async function VerificationReplayPage({
     {
       id: "baseline-verification-started",
       title: "Verification started",
-      description: session?.title ?? "Verification workflow opened for replay.",
+      description: session?.title ?? "Verification workflow opened for operational replay.",
       occurredAt: session?.created_at ?? requestedReplay?.created_at,
       state: "manual_review_required",
       stage: "identity_submitted",
@@ -178,7 +178,7 @@ export default async function VerificationReplayPage({
     {
       id: "baseline-replay-available",
       title: "Replay available",
-      description: "Replay evidence is available for audit review.",
+      description: "Replay chronology is available for analyst and audit review.",
       occurredAt: requestedReplay?.created_at ?? chronology.at(-1)?.created_at,
       state: "replay_available",
       stage: "manual_review_completed",
@@ -225,7 +225,7 @@ export default async function VerificationReplayPage({
             <div>
               <h1 className="text-4xl font-semibold">{session?.title ?? "Verification workflow replay"}</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-                Read-only reconstruction of what happened, what changed, which governance action was taken and which evidence remains available.
+                Read-only reconstruction of what happened, when state changed, which reviewer action was taken and which evidence remains available.
               </p>
               <p className="mt-2 font-mono text-xs text-zinc-600">Subject {subjectType} / {subjectId}</p>
             </div>
@@ -258,8 +258,8 @@ export default async function VerificationReplayPage({
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           {[
             ["What happened", session?.title ?? "Workflow reached review."],
-            ["What was detected", injectionEvent ? label(injectionEvent.risk_reason ?? injectionEvent.signal_type) : "No injection-risk flag recorded for this subject."],
-            ["What action occurred", latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "Governance review remains pending."],
+            ["What was detected", injectionEvent ? label(injectionEvent.risk_reason ?? injectionEvent.signal_type) : "No unresolved session integrity events."],
+            ["What action occurred", latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No active governance escalations."],
           ].map(([title, value]) => (
             <div key={title} className="rounded-lg border border-cyan-950 bg-black p-4">
               <p className="text-xs uppercase tracking-[0.14em] text-cyan-300">{title}</p>
@@ -271,7 +271,7 @@ export default async function VerificationReplayPage({
         <div className="mt-8">
           <TrustJourneyVisualization
             title="Operational Trust Infrastructure replay"
-            description="Verification milestones, integrity checks, injection-risk review, governance action and receipt outcome ordered as audit replay."
+            description="Verification milestones, integrity checks, injection-risk review, reviewer action and receipt outcome ordered as audit replay."
             events={trustJourneyEvents}
             finalState={finalJourneyState}
             proofState={{
@@ -296,18 +296,18 @@ export default async function VerificationReplayPage({
                 <div><p className="text-xs uppercase tracking-[0.12em] text-cyan-300">{event.type}</p><p className="mt-2 text-sm font-semibold">{label(event.state)}</p></div>
                 <div><p className="font-medium">{label(event.title)}</p><p className="mt-2 text-sm leading-6 text-zinc-500">{event.summary}</p></div>
               </article>
-            )) : <p className="rounded-lg border border-zinc-800 bg-black p-5 text-sm text-zinc-500">No replayable evidence has been recorded for this workflow yet.</p>}
+            )) : <p className="rounded-lg border border-zinc-800 bg-black p-5 text-sm text-zinc-500">No replay evidence available yet.</p>}
           </div>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Session review history</h2>
-            <div className="mt-4 grid gap-3">{(replaySessions ?? []).map((replay) => <div key={replay.id} className="rounded-lg border border-zinc-800 bg-black p-4"><p className="text-sm text-zinc-300">{replay.replay_summary}</p><p className="mt-2 text-xs text-zinc-600">{replay.generated_by ?? "system"} / {formatDate(replay.created_at)}</p></div>)}</div>
+            <div className="mt-4 grid gap-3">{(replaySessions ?? []).length ? (replaySessions ?? []).map((replay) => <div key={replay.id} className="rounded-lg border border-zinc-800 bg-black p-4"><p className="text-sm text-zinc-300">{replay.replay_summary}</p><p className="mt-2 text-xs text-zinc-600">{replay.generated_by ?? "system"} / {formatDate(replay.created_at)}</p></div>) : <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">No replay evidence available yet.</p>}</div>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Governance actions history</h2>
-            <div className="mt-4 grid gap-3">{(governanceActions ?? []).map((action) => <div key={action.id} className="rounded-lg border border-zinc-800 bg-black p-4"><StatusBadge status={action.action_status ?? "pending"} /><p className="mt-3 text-sm text-zinc-400">{action.resolution_notes ?? "Human review action recorded."}</p><p className="mt-2 text-xs text-zinc-600">{formatDate(action.resolved_at ?? action.created_at)}</p></div>)}</div>
+            <div className="mt-4 grid gap-3">{(governanceActions ?? []).length ? (governanceActions ?? []).map((action) => <div key={action.id} className="rounded-lg border border-zinc-800 bg-black p-4"><StatusBadge status={action.action_status ?? "pending"} /><p className="mt-3 text-sm text-zinc-400">{action.resolution_notes ?? "Reviewer action pending. Evidence remains available for analyst review."}</p><p className="mt-2 text-xs text-zinc-600">{formatDate(action.resolved_at ?? action.created_at)}</p></div>) : <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">No active governance escalations.</p>}</div>
           </div>
         </section>
       </div>
