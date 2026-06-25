@@ -113,6 +113,9 @@ create table if not exists public.admin_reviews (
   updated_at timestamptz default now()
 );
 
+alter table public.interview_sessions
+add column if not exists user_id uuid references auth.users(id) on delete set null;
+
 alter table public.candidate_profiles enable row level security;
 alter table public.recruiter_profiles enable row level security;
 alter table public.interview_sessions enable row level security;
