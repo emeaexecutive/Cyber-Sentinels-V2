@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { SessionIntegrityBadge } from "@/components/session-integrity";
+import { DetectionEvidenceNote, SessionIntegrityBadge } from "@/components/session-integrity";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +46,19 @@ export default async function SessionIntegrityDashboardPage() {
           ))}
         </section>
 
+        <section className="mt-8">
+          <DetectionEvidenceNote
+            title="Dashboard review guidance"
+            markers={[
+              "Why flagged: dashboard counts surface sessions where integrity, injection, liveness, media risk or channel evidence requires analyst attention.",
+              "Confidence explanation: elevated scores and badges identify review priority; they do not certify a person, session or media item by themselves.",
+              `Evidence markers: ${rows.length} review(s), ${manualReviews} manual review(s), ${channelFailures} channel failure(s), and ${injectionFlags} injection flag(s).`,
+              "Metadata/channel integrity summary: channel failures and session anomalies are reviewed alongside identity evidence, governance actions and receipt history.",
+            ]}
+            reportLanguage="Exportable investigation language should name the observed flag, supporting evidence, channel integrity state, reviewer queue status and final governance state."
+          />
+        </section>
+
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="text-2xl font-semibold">Recent session reviews</h2>
           <div className="mt-5 grid gap-3">
@@ -55,6 +68,9 @@ export default async function SessionIntegrityDashboardPage() {
                   <div>
                     <p className="font-medium text-zinc-100">Session {String(check.interview_session_id)}</p>
                     <p className="mt-2 text-sm text-zinc-400">Identity: {check.identity_verification_state ?? "pending"} / Session: {check.overall_status ?? "pending"}</p>
+                    <p className="mt-2 text-xs leading-5 text-zinc-500">
+                      Detection is one signal; open the session to review confidence context, evidence markers, channel integrity and governance outcome.
+                    </p>
                   </div>
                   <SessionIntegrityBadge label={check.manual_review_required ? "Manual Review Required" : "Session Review Pending"} />
                 </div>

@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import { StatusBadge } from "@/components/phase-one-trust";
 import { PrintReceiptButton } from "@/components/print-receipt-button";
+import { DetectionEvidenceNote } from "@/components/session-integrity";
 import {
   TrustJourneyVisualization,
   type TrustJourneyEvent,
@@ -310,6 +311,9 @@ export default async function TrustReceiptPage({
                 the case and what evidence was retained. It is not a blockchain record or an
                 automatic trust decision.
               </p>
+              <p className="mt-3 max-w-3xl rounded-lg border border-zinc-800 bg-black p-3 text-sm leading-6 text-zinc-300">
+                Detection is one signal. Session integrity, evidence and governance determine the final review state. This is not a standalone deepfake verdict.
+              </p>
               <div className="mt-5 max-w-3xl">
                 <OnboardingHint area="receipt" />
               </div>
@@ -387,6 +391,19 @@ export default async function TrustReceiptPage({
           <p className="mt-4 text-sm leading-6 text-zinc-400 print:text-zinc-700">
             Evidence summary: {(evidenceChains ?? []).length} retained chain(s), {(timeline ?? []).length} timeline event(s), and {(auditLogs ?? []).length} audit reference(s). Reviewer actions remain visible below.
           </p>
+        </section>
+
+        <section className="mt-8">
+          <DetectionEvidenceNote
+            title="Investigation-style detection evidence"
+            markers={[
+              `Why flagged: ${label(deepfakeEvent?.risk_reason ?? injectionEvent?.risk_reason ?? sessionIntegrityState, "No unresolved media or session integrity event is attached to this receipt.")}`,
+              `Confidence explanation: ${label(receipt.confidence_level, "In Review")} describes the receipt review state and evidence completeness, not certainty.`,
+              `Evidence markers: identity state ${label(identityState)}, session integrity ${label(sessionIntegrityState)}, media risk ${label(deepfakeRiskState)}, injection risk ${label(injectionRiskState)}.`,
+              `Metadata/channel integrity summary: ${label(snapshot.metadata_channel_integrity ?? sessionIntegrity?.metadata_channel_integrity ?? sessionIntegrityState, "No separate metadata/channel integrity summary recorded.")}`,
+            ]}
+            reportLanguage="Exportable report language: observed flag, confidence context, evidence markers, metadata or channel state, reviewer attribution, governance outcome and pending action."
+          />
         </section>
 
         <div className="mt-8">

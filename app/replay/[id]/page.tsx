@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StatusBadge } from "@/components/phase-one-trust";
+import { DetectionEvidenceNote } from "@/components/session-integrity";
 import {
   TrustJourneyVisualization,
   type TrustJourneyEvent,
@@ -253,6 +254,19 @@ export default async function VerificationReplayPage({
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"><p className="text-xs uppercase text-zinc-600">Injection risk</p><p className="mt-2 text-sm">{injectionEvent ? label(injectionEvent.signal_type) : "No recorded flag"}</p></div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"><p className="text-xs uppercase text-zinc-600">Governance outcome</p><p className="mt-2 text-sm">{label(latestGovernance?.action_status, "Pending")}</p></div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4"><p className="text-xs uppercase text-zinc-600">Audit references</p><p className="mt-2 text-sm">{auditLogs.length}</p></div>
+        </section>
+
+        <section className="mt-8">
+          <DetectionEvidenceNote
+            title="Replay evidence explanation"
+            markers={[
+              `Why flagged: ${elevatedRiskEvent ? label(elevatedRiskEvent.risk_reason ?? elevatedRiskEvent.signal_type) : "No unresolved session integrity event is present in this replay."}`,
+              "Confidence explanation: replay scores rank evidence strength and review urgency; they are not standalone media-authenticity conclusions.",
+              `Evidence markers: ${chronology.length} retained event(s), ${evidenceChains?.length ?? 0} evidence chain(s), ${riskEvents?.length ?? 0} risk event(s), and reviewer actions when present.`,
+              `Metadata/channel integrity summary: ${label(session?.integrity_status, "No channel integrity failure recorded")} with audit references preserved separately.`,
+            ]}
+            reportLanguage="Investigation export: list observed flags, retained evidence, channel or metadata state, governance action, reviewer notes and receipt status in chronological order."
+          />
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">

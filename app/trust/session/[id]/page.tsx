@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { SessionSignalCards } from "@/components/session-integrity";
+import { DetectionEvidenceNote, SessionSignalCards } from "@/components/session-integrity";
 import {
   TrustJourneyVisualization,
   type TrustJourneyEvent,
@@ -202,6 +202,18 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
               reviewerAction: humanDecision ? clean(humanDecision.resolution_notes ?? humanDecision.action_status, "Reviewer action recorded") : "Governance review pending",
               finalOutcome: receipt ? "Replay Available / Receipt issued" : clean(humanDecision?.action_status ?? (check?.manual_review_required ? "Manual Review Required" : "Verified")),
             }}
+          />
+        </section>
+
+        <section className="mt-8">
+          <DetectionEvidenceNote
+            markers={[
+              `Why flagged: ${clean((riskEvents ?? [])[0]?.risk_reason ?? check?.overall_status ?? session.integrity_status, "No unresolved session integrity event recorded.")}`,
+              "Confidence explanation: risk and review-priority scores describe the strength of available evidence and the need for review, not certainty.",
+              "Evidence markers: identity state, liveness context, media-risk signal, injection risk, device-channel state, timestamps and reviewer notes remain separate.",
+              `Metadata/channel integrity summary: ${signals.find((signal) => /channel|device/i.test(signal.category))?.explanation ?? "No unresolved metadata or device-channel integrity failure is attached to this session."}`,
+            ]}
+            reportLanguage="Export language: observed session anomaly, supporting evidence markers, metadata or channel integrity state, reviewer attribution and governance outcome. Detection is one signal, not the final session verdict."
           />
         </section>
 
