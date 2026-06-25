@@ -351,6 +351,8 @@ export default function LoginPage() {
     }
   }
 
+  const actionDisabled = loadingAction !== null;
+
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-start">
@@ -362,13 +364,13 @@ export default function LoginPage() {
             Sign in or create an account
           </h1>
           <p className="mt-4 max-w-2xl leading-7 text-zinc-400">
-            Access verification workflows, evidence, and review progress.
+            Access protected verification workflows, operational evidence and governance review systems.
+          </p>
+          <p className="mt-3 text-sm text-zinc-500">
+            Enterprise workspaces require verified email access.
           </p>
 
-          <p className="mt-6 rounded-lg border border-zinc-800 bg-black p-3 text-xs text-zinc-400">
-            Admin access remains separate and protected.
-          </p>
-          <div className="mt-3 rounded-lg border border-zinc-800 bg-black p-4">
+          <div className="mt-6 rounded-lg border border-zinc-800 bg-black p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
               Protected operational area
             </p>
@@ -382,7 +384,16 @@ export default function LoginPage() {
         </section>
 
         <section className="rounded-lg border border-zinc-800 bg-black p-6">
-          <div className="grid gap-4">
+          <div className="grid gap-5">
+            <div>
+              <h2 className="text-lg font-semibold text-zinc-100">
+                Account access
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-zinc-500">
+                Sign in with your verified workspace email, or create an account and confirm it before entering protected workflows.
+              </p>
+            </div>
+
             <input
               value={email}
               onChange={(event) => setEmail(event.target.value)}
@@ -401,15 +412,6 @@ export default function LoginPage() {
               className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
             />
 
-            <input
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              type="password"
-              placeholder="Confirm password"
-              autoComplete="new-password"
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            />
-
             {turnstileSiteKey ? (
               <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
                 <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
@@ -419,39 +421,58 @@ export default function LoginPage() {
 
             <button
               onClick={signInWithPassword}
-              disabled={loadingAction !== null}
-              className="rounded-xl bg-white p-4 font-semibold text-black disabled:opacity-50"
+              disabled={actionDisabled}
+              className="rounded-xl bg-white p-4 font-semibold text-black transition hover:bg-cyan-100 disabled:opacity-50"
               type="button"
             >
               {loadingAction === "password" ? "Signing in..." : "Sign in"}
             </button>
 
+            <div className="grid gap-3 rounded-xl border border-zinc-900 bg-zinc-950/50 p-4">
+              <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                New workspace access
+              </p>
+              <input
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                type="password"
+                placeholder="Confirm password"
+                autoComplete="new-password"
+                className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+              />
+              <p className="text-xs leading-5 text-zinc-500">
+                Account creation sends an email verification link before protected workflows are available.
+              </p>
+            </div>
+
             <button
               onClick={createAccountWithPassword}
-              disabled={loadingAction !== null}
-              className="rounded-xl border border-cyan-800 p-4 font-semibold text-cyan-100 disabled:opacity-50"
+              disabled={actionDisabled}
+              className="rounded-xl border border-zinc-700 p-4 font-semibold text-zinc-100 transition hover:border-cyan-800 hover:text-cyan-100 disabled:opacity-50"
               type="button"
             >
               {loadingAction === "create-account" ? "Creating..." : "Create account"}
             </button>
 
-            <button
-              onClick={signInWithMagicLink}
-              disabled={loadingAction !== null}
-              className="rounded-xl border border-zinc-700 p-4 font-semibold text-white disabled:opacity-50"
-              type="button"
-            >
-              {loadingAction === "magic-link" ? "Sending..." : "Send magic link"}
-            </button>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-900 pt-2 text-sm">
+              <button
+                onClick={signInWithMagicLink}
+                disabled={actionDisabled}
+                className="text-zinc-400 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
+                type="button"
+              >
+                {loadingAction === "magic-link" ? "Sending magic link..." : "Use magic link"}
+              </button>
 
-            <button
-              onClick={sendPasswordResetEmail}
-              disabled={loadingAction !== null}
-              className="rounded-xl border border-zinc-800 p-4 font-semibold text-zinc-200 disabled:opacity-50"
-              type="button"
-            >
-              {loadingAction === "reset" ? "Sending..." : "Send password reset"}
-            </button>
+              <button
+                onClick={sendPasswordResetEmail}
+                disabled={actionDisabled}
+                className="text-zinc-400 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
+                type="button"
+              >
+                {loadingAction === "reset" ? "Sending reset..." : "Forgot password?"}
+              </button>
+            </div>
 
             {message ? <p className="text-sm text-zinc-400">{message}</p> : null}
 
@@ -473,9 +494,6 @@ export default function LoginPage() {
             <div className="flex flex-wrap justify-between gap-3 text-sm">
               <Link href="/" className="text-zinc-400 underline">
                 Back to homepage
-              </Link>
-              <Link href="/admin/access" className="text-zinc-400 underline">
-                Admin Access
               </Link>
             </div>
           </div>
