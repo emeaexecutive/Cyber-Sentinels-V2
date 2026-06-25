@@ -553,8 +553,10 @@ function emailAndBotProtectionChecks() {
   const authModesRender =
     fileContains("app", "login", "page.tsx", /type AuthMode = "sign-in" \| "create-account" \| "magic-link" \| "forgot-password"/) &&
     fileContains("app", "login", "page.tsx", /const \[authMode, setAuthMode\]/) &&
-    fileContains("app", "login", "page.tsx", /authModes\.map/) &&
-    fileContains("app", "login", "page.tsx", /aria-pressed=\{selected\}/);
+    fileContains("app", "login", "page.tsx", /primaryAuthModes\.map/) &&
+    fileContains("app", "login", "page.tsx", /aria-pressed=\{selected\}/) &&
+    fileContains("app", "login", "page.tsx", /switchAuthMode\("magic-link"\)/) &&
+    fileContains("app", "login", "page.tsx", /switchAuthMode\("forgot-password"\)/);
   const signupConfirmationUx =
     fileContains("app", "login", "page.tsx", /authMode === "create-account"/) &&
     fileContains("app", "login", "page.tsx", /confirmPassword/) &&
@@ -568,7 +570,7 @@ function emailAndBotProtectionChecks() {
   const forgotPasswordModeConfigured =
     fileContains("app", "login", "page.tsx", /authMode === "forgot-password"/) &&
     fileContains("app", "login", "page.tsx", /sendPasswordResetEmail/) &&
-    fileContains("app", "login", "page.tsx", /Password reset instructions sent if the account exists\./);
+    fileContains("app", "login", "page.tsx", /If the account exists, password reset instructions have been sent\./);
   const signupSuccessGuidance =
     fileContains("app", "login", "page.tsx", /Check your email to verify your account before continuing\./) &&
     fileContains("app", "login", "page.tsx", /supabase\.auth\.resend/) &&
@@ -581,7 +583,7 @@ function emailAndBotProtectionChecks() {
     fileContains("app", "auth", "callback", "route.ts", /exchangeCodeForSession/) &&
     fileContains("app", "auth", "callback", "route.ts", /NextResponse\.redirect\(new URL\(next, url\.origin\)\)/);
   const adminAccessDiscoverableAndProtected =
-    fileContains("app", "login", "page.tsx", /Administrative access/) &&
+    !fileContains("app", "login", "page.tsx", /Administrative access/) &&
     fileContains("app", "layout.tsx", /Administrative access/) &&
     fileContains("middleware.ts", /adminPagePrefixes/) &&
     fileContains("middleware.ts", /\/admin/) &&
@@ -649,8 +651,8 @@ function emailAndBotProtectionChecks() {
       "Administrative access entry",
       adminAccessDiscoverableAndProtected ? "PASS" : "WARNING",
       adminAccessDiscoverableAndProtected
-        ? "Administrative access is discoverable from subtle auth/footer links while protected admin routes still use middleware and admin verification helpers."
-        : "Administrative access discoverability or admin protection wiring needs review."
+        ? "Administrative access is limited to the subtle footer link while protected admin routes still use middleware and admin verification helpers."
+        : "Administrative access footer placement or admin protection wiring needs review."
     ),
     check(
       "Account Security",

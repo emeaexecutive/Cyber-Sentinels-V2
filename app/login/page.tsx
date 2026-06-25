@@ -18,11 +18,9 @@ const authAttemptLimit = 8;
 
 type AuthMode = "sign-in" | "create-account" | "magic-link" | "forgot-password";
 
-const authModes: { id: AuthMode; label: string }[] = [
+const primaryAuthModes: { id: Extract<AuthMode, "sign-in" | "create-account">; label: string }[] = [
   { id: "sign-in", label: "Sign in" },
   { id: "create-account", label: "Create account" },
-  { id: "magic-link", label: "Magic link" },
-  { id: "forgot-password", label: "Forgot password" },
 ];
 
 declare global {
@@ -427,7 +425,7 @@ export default function LoginPage() {
         return;
       }
 
-      setMessage("Password reset instructions sent if the account exists.");
+      setMessage("If the account exists, password reset instructions have been sent.");
     } catch (error) {
       console.error("Supabase password reset email failed.", error);
       setMessage(
@@ -479,8 +477,8 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 rounded-xl border border-zinc-900 bg-zinc-950/60 p-2 sm:grid-cols-4">
-              {authModes.map((mode) => {
+            <div className="grid grid-cols-2 gap-2 rounded-xl border border-zinc-900 bg-zinc-950/60 p-2">
+              {primaryAuthModes.map((mode) => {
                 const selected = authMode === mode.id;
 
                 return (
@@ -501,30 +499,49 @@ export default function LoginPage() {
               })}
             </div>
 
-            <input
-              value={email}
-              onChange={(event) => {
-                setEmail(event.target.value);
-                setSignupSucceeded(false);
-              }}
-              type="email"
-              placeholder="Email address"
-              autoComplete="email"
-              className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-            />
+            {authMode === "magic-link" || authMode === "forgot-password" ? (
+              <div className="rounded-xl border border-zinc-900 bg-zinc-950/40 p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                  {authMode === "magic-link" ? "Email sign-in" : "Password recovery"}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">
+                  {authMode === "magic-link"
+                    ? "Send a secure sign-in link to your verified workspace email."
+                    : "Send password reset instructions without disclosing whether an account exists."}
+                </p>
+              </div>
+            ) : null}
 
-            {authMode === "sign-in" || authMode === "create-account" ? (
+            <label className="grid gap-2 text-sm font-medium text-zinc-300">
+              Email
               <input
-                value={password}
+                value={email}
                 onChange={(event) => {
-                  setPassword(event.target.value);
+                  setEmail(event.target.value);
                   setSignupSucceeded(false);
                 }}
-                type="password"
-                placeholder="Password"
-                autoComplete={authMode === "create-account" ? "new-password" : "current-password"}
+                type="email"
+                placeholder="name@company.com"
+                autoComplete="email"
                 className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
               />
+            </label>
+
+            {authMode === "sign-in" || authMode === "create-account" ? (
+              <label className="grid gap-2 text-sm font-medium text-zinc-300">
+                Password
+                <input
+                  value={password}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    setSignupSucceeded(false);
+                  }}
+                  type="password"
+                  placeholder="Password"
+                  autoComplete={authMode === "create-account" ? "new-password" : "current-password"}
+                  className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+                />
+              </label>
             ) : null}
 
             {turnstileSiteKey ? (
@@ -535,21 +552,24 @@ export default function LoginPage() {
             ) : null}
 
             {authMode === "create-account" ? (
-              <div className="grid gap-3 rounded-xl border border-zinc-900 bg-zinc-950/50 p-4">
+              <div className="grid gap-3 rounded-xl border border-cyan-900 bg-cyan-950/10 p-4">
                 <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
                   New workspace access
                 </p>
-                <input
-                  value={confirmPassword}
-                  onChange={(event) => {
-                    setConfirmPassword(event.target.value);
-                    setSignupSucceeded(false);
-                  }}
-                  type="password"
-                  placeholder="Confirm password"
-                  autoComplete="new-password"
-                  className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
-                />
+                <label className="grid gap-2 text-sm font-medium text-zinc-300">
+                  Confirm Password
+                  <input
+                    value={confirmPassword}
+                    onChange={(event) => {
+                      setConfirmPassword(event.target.value);
+                      setSignupSucceeded(false);
+                    }}
+                    type="password"
+                    placeholder="Confirm password"
+                    autoComplete="new-password"
+                    className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
+                  />
+                </label>
                 {passwordsMismatch ? (
                   <p className="text-sm text-red-300">Passwords do not match.</p>
                 ) : null}
@@ -623,8 +643,19 @@ export default function LoginPage() {
               </div>
             ) : null}
 
-            {authMode === "sign-in" ? (
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-900 pt-2 text-sm">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-900 pt-3 text-sm">
+              {authMode !== "sign-in" ? (
+                <button
+                  onClick={() => switchAuthMode("sign-in")}
+                  disabled={actionDisabled}
+                  className="font-medium text-zinc-300 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
+                  type="button"
+                >
+                  Back to sign in
+                </button>
+              ) : null}
+
+              {authMode !== "create-account" ? (
                 <button
                   onClick={() => switchAuthMode("create-account")}
                   disabled={actionDisabled}
@@ -633,7 +664,9 @@ export default function LoginPage() {
                 >
                   Create account
                 </button>
+              ) : null}
 
+              {authMode !== "magic-link" ? (
                 <button
                   onClick={() => switchAuthMode("magic-link")}
                   disabled={actionDisabled}
@@ -642,7 +675,9 @@ export default function LoginPage() {
                 >
                   Use magic link
                 </button>
+              ) : null}
 
+              {authMode !== "forgot-password" ? (
                 <button
                   onClick={() => switchAuthMode("forgot-password")}
                   disabled={actionDisabled}
@@ -651,19 +686,8 @@ export default function LoginPage() {
                 >
                   Forgot password?
                 </button>
-              </div>
-            ) : (
-              <div className="border-t border-zinc-900 pt-2 text-sm">
-                <button
-                  onClick={() => switchAuthMode("sign-in")}
-                  disabled={actionDisabled}
-                  className="text-zinc-400 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
-                  type="button"
-                >
-                  Back to sign in
-                </button>
-              </div>
-            )}
+              ) : null}
+            </div>
 
             {message ? <p className="text-sm text-zinc-400">{message}</p> : null}
 
@@ -685,9 +709,6 @@ export default function LoginPage() {
             <div className="flex flex-wrap justify-between gap-3 text-sm">
               <Link href="/" className="text-zinc-400 underline">
                 Back to homepage
-              </Link>
-              <Link href="/admin/access" className="text-zinc-500 underline underline-offset-4 hover:text-zinc-300">
-                Administrative access
               </Link>
             </div>
           </div>
