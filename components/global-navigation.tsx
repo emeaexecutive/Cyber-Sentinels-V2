@@ -33,10 +33,11 @@ const userLinks = [
 
 const platformDropdownLinks = [
   ["/governance", "Governance"],
+  ["/enterprise/hiring-security", "Workflow Trust"],
   ["/verification-replay", "Verification Replay"],
   ["/verification-receipts", "Verification Receipts"],
-  ["/trust-posture", "Trust Posture"],
-  ["/agents", "AI Agent Governance"],
+  ["/trust-posture", "Operational Posture"],
+  ["/agents", "Agent Governance"],
   ["/transparency", "Compliance"],
 ];
 

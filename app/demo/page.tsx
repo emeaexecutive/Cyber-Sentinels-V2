@@ -9,7 +9,7 @@ const risks = [
 ];
 
 const proofLinks = [
-  ["/demo/hiring-attack", "Hiring Security", "Understand the synthetic-candidate problem in one sequence."],
+  ["/demo/hiring-attack", "Hiring Security", "Understand the fake-candidate workflow in one sequence."],
   ["/demo/session-integrity", "Session Integrity Demo", "See how trust changes after verification begins."],
   ["/trust-replay", "Replay Evidence", "Open generated /replay/[id] records after demo data is seeded."],
   ["/dashboard", "Verification Receipts", "Review generated /verification/receipt/[id] proof from the operational dashboard."],
@@ -32,10 +32,10 @@ export default function DemoPage() {
         <section className="border-b border-zinc-800 pb-12">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">Operational Trust Infrastructure Demo</p>
           <h1 className="mt-4 max-w-5xl text-4xl font-semibold tracking-tight md:text-6xl">
-            A guided walkthrough from injected interview to evidence-backed review.
+            A guided walkthrough from fake candidate to governed workflow outcome.
           </h1>
           <p className="mt-6 max-w-3xl leading-8 text-zinc-200">
-            In under 90 seconds, see what happened, what changed, what action occurred and what proof was retained.
+            In under 90 seconds, see what entered the workflow, what changed during the session, what evidence was reviewed and which governance action determined the outcome.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Follow the same operational path each time: Hiring Security, Session Integrity, Governance Review, Replay Evidence and Verification Evidence.
@@ -53,13 +53,13 @@ export default function DemoPage() {
           <Link href="/demo/hiring-attack" className="rounded-lg border border-cyan-800 bg-zinc-950 p-6 hover:border-cyan-400">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">90-second walkthrough</p>
             <h2 className="mt-3 text-2xl font-semibold text-white">Hiring Security</h2>
-            <p className="mt-3 text-sm leading-7 text-zinc-300">Follow a synthetic candidate from intake through injection-risk detection, governance escalation, session block, replay and receipt.</p>
+            <p className="mt-3 text-sm leading-7 text-zinc-300">Follow a fake candidate from intake through a session integrity anomaly, governance escalation, replay evidence, verification receipt and workflow outcome.</p>
             <p className="mt-5 text-sm font-semibold text-cyan-200">Start walkthrough</p>
           </Link>
           <Link href="/demo/session-integrity" className="rounded-lg border border-zinc-700 bg-zinc-950 p-6 hover:border-cyan-400">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">90-second walkthrough</p>
             <h2 className="mt-3 text-2xl font-semibold text-white">Session Integrity</h2>
-            <p className="mt-3 text-sm leading-7 text-zinc-300">See why verification alone is insufficient when channel evidence and session risk change after entry.</p>
+            <p className="mt-3 text-sm leading-7 text-zinc-300">See why verification alone is insufficient when channel evidence, authorization context and session risk change after entry.</p>
             <p className="mt-5 text-sm font-semibold text-cyan-200">Start walkthrough</p>
           </Link>
         </section>
@@ -102,7 +102,7 @@ export default function DemoPage() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Replayable proof</p>
               <h2 className="mt-3 text-2xl font-semibold text-white">Make the proof visible after the walkthrough.</h2>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-300">Use these surfaces to show the primary trust narrative: demo, Replay Evidence, Verification Receipt and Governance Review.</p>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-300">Use these surfaces to show the primary workflow trust narrative: demo, Replay Evidence, Verification Receipt, Governance Review and final workflow outcome.</p>
             </div>
             <Link href="/enterprise-access?intent=intro_call" className="rounded-md border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-100 hover:border-zinc-400">Book Intro Call</Link>
           </div>

@@ -4,19 +4,19 @@ import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 const proofPath = [
   "Verification started",
   "Session Integrity checked",
-  "Flags reviewed",
+  "Evidence reviewed",
   "Governance Review opened",
   "Replay Evidence retained",
   "Verification receipt issued",
 ];
 
 const platformSurfaces = [
-  ["Active Flags", "Identity, media, injection and session changes that need review."],
-  ["Pending Reviews", "Open work that needs a named reviewer or decision."],
-  ["Session Integrity", "Liveness, channel, injection and deepfake risk kept separate."],
-  ["Governance Actions", "Human review decisions preserved for audit."],
-  ["Trust Posture", "Current workflow state without making binary trust claims."],
-  ["Verification Receipts", "Readable proof of what was checked, reviewed and retained."],
+  ["Evidence", "Identity, session, media, channel and reviewer records that can be inspected."],
+  ["Replay", "A chronological reconstruction of what changed, who acted and what evidence remains."],
+  ["Governance", "Named review ownership, escalation reasons and human authority for sensitive workflow decisions."],
+  ["Workflow Trust", "Current authorization and workflow state without binary or speculative trust claims."],
+  ["Session Integrity", "Liveness, channel, injection and media-risk signals kept separate for review."],
+  ["Verification Receipts", "Portable records of what was checked, reviewed, retained and resolved."],
 ];
 
 const entryPoints = [
@@ -39,16 +39,16 @@ export default function Home() {
 
         <div className="mt-12 max-w-5xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-100">
-            Operational Trust Infrastructure for AI-era workflows.
+            Operational Trust Infrastructure for enterprise workflows.
           </p>
           <h1 className="mt-5 text-4xl font-semibold leading-[1.05] text-white md:text-6xl">
-            Protect enterprise workflows against synthetic identity attacks.
+            Organizations can no longer reliably verify the people, sessions and workflows entering critical systems.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels keeps Hiring Security, Session Integrity, Verification Evidence, Governance Review and Replay Evidence in one reviewable path.
+            Cyber Sentinels provides operational trust infrastructure for hiring, verification and enterprise workflow governance.
           </p>
           <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
-            Use it to see what changed, who reviewed it and which proof remains before a sensitive workflow moves forward.
+            Use it to preserve evidence, replay what changed, assign governance ownership and issue workflow-linked verification receipts before sensitive access or decisions move forward.
           </p>
         </div>
 
@@ -76,10 +76,10 @@ export default function Home() {
               Proof workflow
             </p>
             <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-              From suspicious session to replayable proof.
+              From uncertain workflow entry to replayable accountability.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              The product story is intentionally simple: a risky workflow is flagged, reviewed by a human owner and preserved as Verification Evidence.
+              The product story is intentionally simple: a workflow is verified, evidence is reviewed, governance is assigned and the outcome is preserved as replayable operational proof.
             </p>
           </div>
           <div className="mt-7 grid gap-3 md:grid-cols-6">
@@ -99,7 +99,7 @@ export default function Home() {
             Platform focus
           </p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-            Six surfaces. One operational review path.
+            Governance, evidence, replay and workflow trust in one operational path.
           </h2>
         </div>
         <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3">

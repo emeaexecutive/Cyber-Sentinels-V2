@@ -308,8 +308,9 @@ export default async function TrustReceiptPage({
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
                 This printable receipt explains what happened, what was reviewed,
                 what action occurred, which chronology is available, who reviewed
-                the case and what evidence was retained. It is not a blockchain record or an
-                automatic trust decision.
+                the case and what evidence was retained. It is portable,
+                enterprise-safe and linked to the workflow it summarizes. It is
+                not a blockchain record or an automatic trust decision.
               </p>
               <p className="mt-3 max-w-3xl rounded-lg border border-zinc-800 bg-black p-3 text-sm leading-6 text-zinc-300">
                 Detection is one signal. Session integrity, evidence and governance determine the final review state. This is not a standalone deepfake verdict.
@@ -369,9 +370,9 @@ export default async function TrustReceiptPage({
               <p className="text-xs uppercase tracking-[0.16em] text-cyan-300 print:text-zinc-600">
                 Enterprise verification outcome
               </p>
-              <h2 className="mt-2 text-xl font-semibold">Reviewable verification record</h2>
+              <h2 className="mt-2 text-xl font-semibold">Workflow-linked verification record</h2>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400 print:text-zinc-700">
-                Enterprise proof stays readable: what was checked, where the session changed, which evidence is attached, who reviewed the case and what remains pending.
+                Enterprise proof stays readable: what was checked, where the workflow or session changed, which evidence is attached, who reviewed the case, what authorization concern was raised and what remains pending.
               </p>
             </div>
             <Link
@@ -433,9 +434,9 @@ export default async function TrustReceiptPage({
               <p className="text-xs uppercase tracking-[0.16em] text-cyan-300 print:text-zinc-600">
                 Enterprise export checklist
               </p>
-              <h2 className="mt-2 text-xl font-semibold">Audit-friendly receipt package</h2>
+              <h2 className="mt-2 text-xl font-semibold">Portable audit-grade receipt package</h2>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400 print:text-zinc-700">
-                Before sharing this receipt, confirm the reviewer action, evidence summary, replay reference and pending governance state are clear enough for security, talent and compliance stakeholders.
+                Before sharing this receipt, confirm the workflow link, reviewer action, evidence summary, replay reference and pending governance state are clear enough for security, talent and compliance stakeholders.
               </p>
             </div>
             <PrintReceiptButton />
@@ -443,6 +444,7 @@ export default async function TrustReceiptPage({
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             {[
               ["Printable", "Use print or save as PDF for the pilot record"],
+              ["Workflow-linked", `${label(receipt.subject_type, "workflow subject")} / ${receipt.subject_id}`],
               ["Governance-focused", latestGovernance ? "Reviewer action recorded" : "Reviewer action pending"],
               ["Replay-linked", `Replay route: /replay/${receipt.subject_id}`],
               ["Evidence summary", `${(evidenceChains ?? []).length} evidence chain(s), ${(timeline ?? []).length} timeline event(s)`],

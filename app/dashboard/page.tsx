@@ -30,7 +30,7 @@ export default async function DashboardPage() {
     ["Pending Reviews", reviews.count ?? 0, ClipboardCheck, "/dashboard/governance"],
     ["Session Integrity", integrity.count ?? 0, ScanSearch, "/dashboard/session-integrity"],
     ["Governance Actions", governance.count ?? 0, ClipboardCheck, "/dashboard/governance"],
-    ["Trust Posture", posture.count ?? 0, ShieldCheck, "/dashboard/trust-posture"],
+    ["Workflow Trust", posture.count ?? 0, ShieldCheck, "/dashboard/trust-posture"],
     ["Verification Receipts", receipts.count ?? 0, History, "/dashboard"],
   ] as const;
   const noOperationalActivity = metrics.every(([, value]) => value === 0);
@@ -40,10 +40,10 @@ export default async function DashboardPage() {
       <section className="mx-auto max-w-7xl">
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-sentinel-green">Operational Trust</p>
+            <p className="text-sm uppercase tracking-[0.3em] text-sentinel-green">Workflow Trust</p>
             <h1 className="mt-2 text-4xl font-semibold">Pilot Review Dashboard</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-sentinel-muted">
-              Review Active Flags, Pending Reviews, Session Integrity, Governance Actions, Trust Posture and Verification Receipts without operational noise.
+              Review Active Flags, Pending Reviews, Session Integrity, Governance Actions, Workflow Trust and Verification Receipts without operational noise.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -108,7 +108,7 @@ export default async function DashboardPage() {
               ["/dashboard/interview-risk", "1. Review Flags", "Inspect identity, injection and session integrity flags."],
               ["/dashboard/governance", "2. Open Governance Review", "Assign review ownership, escalation reason and next action."],
               ["/trust-replay", "3. Review Verification Chronology", "Reconstruct timestamps, active flags, reviewer actions and verification evidence."],
-              ["/dashboard/trust-posture", "4. Check Trust Posture", "Confirm current state before sharing verification receipts or replay evidence."],
+              ["/dashboard/trust-posture", "4. Check Workflow Trust", "Confirm current authorization and workflow state before sharing verification receipts or replay evidence."],
             ].map(([href, title, copy]) => (
               <Link key={href} href={href} className="rounded-lg border border-sentinel-line bg-black/30 p-4 hover:border-sentinel-green">
                 <p className="font-semibold">{title}</p>
