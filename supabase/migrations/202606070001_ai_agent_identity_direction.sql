@@ -25,6 +25,11 @@ create table if not exists public.agent_activity (
   created_at timestamptz not null default now()
 );
 
+alter table public.ai_agents add column if not exists owner_user_id uuid;
+alter table public.ai_agents add column if not exists owner_email text;
+alter table public.ai_agents add column if not exists created_at timestamptz default now();
+alter table public.agent_activity add column if not exists agent_id uuid references public.ai_agents(id) on delete cascade;
+
 create index if not exists ai_agents_owner_user_id_idx
 on public.ai_agents (owner_user_id);
 

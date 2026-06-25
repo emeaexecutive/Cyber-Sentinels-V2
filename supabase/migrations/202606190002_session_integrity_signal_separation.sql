@@ -68,6 +68,36 @@ create table if not exists public.device_channel_evidence (
   created_at timestamptz not null default now()
 );
 
+alter table public.session_integrity_checks
+  add column if not exists interview_session_id uuid references public.interview_sessions(id) on delete cascade;
+alter table public.session_integrity_checks
+  add column if not exists user_id uuid references auth.users(id) on delete set null default auth.uid();
+alter table public.session_integrity_checks
+  add column if not exists created_at timestamptz default now();
+
+alter table public.verification_signals
+  add column if not exists session_integrity_check_id uuid references public.session_integrity_checks(id) on delete cascade;
+alter table public.verification_signals
+  add column if not exists interview_session_id uuid references public.interview_sessions(id) on delete cascade;
+alter table public.verification_signals
+  add column if not exists category text;
+alter table public.verification_signals
+  add column if not exists created_at timestamptz default now();
+
+alter table public.injection_risk_events
+  add column if not exists session_integrity_check_id uuid references public.session_integrity_checks(id) on delete cascade;
+alter table public.injection_risk_events
+  add column if not exists interview_session_id uuid references public.interview_sessions(id) on delete cascade;
+alter table public.injection_risk_events
+  add column if not exists created_at timestamptz default now();
+
+alter table public.device_channel_evidence
+  add column if not exists session_integrity_check_id uuid references public.session_integrity_checks(id) on delete cascade;
+alter table public.device_channel_evidence
+  add column if not exists interview_session_id uuid references public.interview_sessions(id) on delete cascade;
+alter table public.device_channel_evidence
+  add column if not exists created_at timestamptz default now();
+
 create index if not exists session_integrity_checks_session_idx
   on public.session_integrity_checks (interview_session_id, created_at desc);
 create index if not exists verification_signals_session_idx

@@ -67,6 +67,11 @@ create table if not exists public.agent_permissions (
   created_at timestamptz default now()
 );
 
+alter table public.trust_events add column if not exists agent_id uuid;
+alter table public.trust_events add column if not exists metadata jsonb default '{}';
+alter table public.trust_events add column if not exists created_at timestamptz default now();
+alter table public.agent_permissions add column if not exists agent_id uuid;
+
 revoke all on table public.agents from anon;
 revoke all on table public.trust_events from anon;
 revoke all on table public.agent_permissions from anon;

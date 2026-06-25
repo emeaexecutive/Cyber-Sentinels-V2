@@ -69,12 +69,14 @@ create table if not exists public.trust_alerts (
 );
 
 alter table public.ai_agents add column if not exists owner_name text;
+alter table public.ai_agents add column if not exists owner_email text;
 alter table public.ai_agents add column if not exists enterprise_id uuid;
 alter table public.ai_agents add column if not exists agent_type text default 'enterprise_assistant';
 alter table public.ai_agents add column if not exists capabilities jsonb not null default '[]'::jsonb;
 alter table public.ai_agents add column if not exists permissions jsonb not null default '[]'::jsonb;
 alter table public.ai_agents add column if not exists trust_score integer not null default 50;
 alter table public.ai_agents add column if not exists status text not null default 'pending';
+alter table public.ai_agents add column if not exists created_at timestamptz default now();
 alter table public.ai_agents add column if not exists last_activity_at timestamptz;
 
 do $$
@@ -106,6 +108,32 @@ create table if not exists public.provenance_events (
     subject_type in ('human', 'ai_agent', 'workflow', 'enterprise')
   )
 );
+
+alter table public.trust_certifications
+  add column if not exists created_by uuid default auth.uid();
+alter table public.trust_certifications
+  add column if not exists certification_type text;
+alter table public.trust_certifications
+  add column if not exists status text default 'pending';
+alter table public.trust_certifications
+  add column if not exists subject_type text;
+alter table public.trust_certifications
+  add column if not exists subject_id uuid;
+alter table public.trust_certifications
+  add column if not exists created_at timestamptz default now();
+
+alter table public.trust_alerts
+  add column if not exists created_by uuid default auth.uid();
+alter table public.trust_alerts
+  add column if not exists alert_type text;
+alter table public.trust_alerts
+  add column if not exists status text default 'active';
+alter table public.trust_alerts
+  add column if not exists subject_type text;
+alter table public.trust_alerts
+  add column if not exists subject_id uuid;
+alter table public.trust_alerts
+  add column if not exists created_at timestamptz default now();
 
 create index if not exists trust_certifications_type_status_idx
   on public.trust_certifications (certification_type, status, created_at desc);

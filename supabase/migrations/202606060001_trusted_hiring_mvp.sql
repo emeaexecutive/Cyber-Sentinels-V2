@@ -113,7 +113,28 @@ create table if not exists public.admin_reviews (
   updated_at timestamptz default now()
 );
 
+alter table public.candidate_profiles
+add column if not exists user_id uuid references auth.users(id) on delete set null;
+
+alter table public.recruiter_profiles
+add column if not exists user_id uuid references auth.users(id) on delete set null;
+
 alter table public.interview_sessions
+add column if not exists user_id uuid references auth.users(id) on delete set null;
+
+alter table public.interview_risk_signals
+add column if not exists user_id uuid references auth.users(id) on delete set null;
+
+alter table public.liveness_checks
+add column if not exists user_id uuid references auth.users(id) on delete set null;
+
+alter table public.trust_scores
+add column if not exists user_id uuid references auth.users(id) on delete set null;
+
+alter table public.verification_events
+add column if not exists user_id uuid references auth.users(id) on delete set null;
+
+alter table public.admin_reviews
 add column if not exists user_id uuid references auth.users(id) on delete set null;
 
 alter table public.candidate_profiles enable row level security;
