@@ -263,6 +263,13 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
       "Governance actions",
     ],
   });
+  const replayValidationRows = [
+    ["What triggered", riskEvents.length ? "Session integrity or interview risk event" : signals.length ? "Workflow signal" : "No active trigger in this replay window"],
+    ["Why it triggered", riskEvents[0]?.risk_reason ?? signals[0]?.event ?? "Replay is showing available workflow evidence without an active risk trigger."],
+    ["Evidence used", `${snapshot.evidence.length} evidence record(s), ${snapshot.timelineEvents.length} timeline event(s), ${auditLogs.length} audit event(s)`],
+    ["Reviewer actions", snapshot.decisions.length ? `${snapshot.decisions.length} governance decision(s) preserved` : "No reviewer action in this replay window"],
+    ["Trust score changes", snapshot.timelineEvents.length ? "Timeline events preserve score movement when source records include score fields." : "No score movement recorded in this replay window"],
+  ];
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -422,6 +429,21 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             description="Replay keeps provider outputs as explainable verification evidence beside workflow events, decisions and audit history."
           />
         </div>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <h2 className="text-xl font-semibold">Replay Validation</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            Replay validation shows trigger, reason, evidence, reviewer action and trust score movement without claiming independent detection accuracy.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-5">
+            {replayValidationRows.map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-300">{String(value)}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           <TimelineReplay events={snapshot.timelineEvents} />

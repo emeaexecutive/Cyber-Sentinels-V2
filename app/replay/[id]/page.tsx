@@ -209,6 +209,19 @@ export default async function VerificationReplayPage({
       "Verification receipt",
     ],
   });
+  const replayScoreBefore = elevatedRiskEvent ? 74 : latestGovernance ? 62 : 52;
+  const replayScoreAfter = latestGovernance
+    ? trustScoreForEvent(
+        {
+          type: "governance",
+          title: "Governance action",
+          state: latestGovernance.action_status,
+        },
+        chronology.length
+      )
+    : elevatedRiskEvent
+      ? 42
+      : replayScoreBefore;
   const reviewCompleted = ["approved", "rejected", "resolved"].includes(
     String(latestGovernance?.action_status ?? "")
   );
@@ -363,6 +376,27 @@ export default async function VerificationReplayPage({
               <p className="mt-3 text-sm leading-6 text-zinc-300">{value}</p>
             </div>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <h2 className="text-xl font-semibold">Replay validation</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            This validation view explains what triggered, why it triggered, which evidence was used, what reviewer action occurred and how the trust score changed in this replay.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-5">
+            {[
+              ["What triggered", elevatedRiskEvent ? label(elevatedRiskEvent.signal_type, "Session integrity event") : latestGovernance ? "Governance review" : "Replay generated"],
+              ["Why it triggered", elevatedRiskEvent ? label(elevatedRiskEvent.risk_reason ?? elevatedRiskEvent.signal_type) : latestGovernance ? label(latestGovernance.escalation_reason ?? latestGovernance.action_type, "Reviewer action recorded") : "Replay requested for workflow evidence review"],
+              ["Evidence used", `${chronology.length} chronology event(s), ${evidenceChains?.length ?? 0} evidence chain(s), ${auditLogs.length} audit reference(s)`],
+              ["Reviewer actions", latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No reviewer action attached yet"],
+              ["Trust score changes", `${replayScoreBefore} -> ${replayScoreAfter} (${replayScoreAfter - replayScoreBefore >= 0 ? "+" : ""}${replayScoreAfter - replayScoreBefore})`],
+            ].map(([title, value]) => (
+              <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-300">{value}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <div className="mt-8">
