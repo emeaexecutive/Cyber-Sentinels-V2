@@ -16,6 +16,9 @@ export default function CandidateVerificationPage() {
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Verify candidate identity, profile consistency, liveness and interview-session integrity before a hiring decision moves forward.
           </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
+            Detection is one signal. Cyber Sentinels does not claim perfect real/fake detection. Final workflow trust state depends on provider evidence, governance review and replay.
+          </p>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.3fr]">

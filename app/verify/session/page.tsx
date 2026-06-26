@@ -62,6 +62,9 @@ export default function VerifySessionPage() {
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Record liveness, deepfake risk, injection risk, channel integrity and session anomalies separately. Identity verification is no longer enough, and every flag remains subject to human review.
           </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
+            Detection is one signal. Cyber Sentinels does not claim perfect real/fake detection. Final workflow trust state depends on provider evidence, governance review and replay.
+          </p>
         </section>
 
         <form

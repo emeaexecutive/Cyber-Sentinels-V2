@@ -206,6 +206,9 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Identity verification, liveness, deepfake risk, injection risk and session integrity are separate review states. A verified candidate can still have channel integrity evidence or verification flags that require manual review.
           </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
+            Detection is one signal. Cyber Sentinels does not claim perfect real/fake detection. Final workflow trust state depends on provider evidence, governance review and replay.
+          </p>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
+import { getVerificationProviderRegistry } from "@/lib/providers";
 import { createClient } from "@/lib/supabase/server";
 import { runValidationScenarios } from "@/lib/validation/signal-testing";
 
@@ -28,6 +29,10 @@ export default async function TestLabPage() {
   await requireAdminPageAccess(supabase, { path: "/admin/test-lab" });
 
   const results = runValidationScenarios();
+  const providers = getVerificationProviderRegistry();
+  const providerWarnings = providers.filter((provider) =>
+    ["safely_disabled", "placeholder", "future"].includes(provider.status)
+  );
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -43,7 +48,7 @@ export default async function TestLabPage() {
                 Controlled trust-signal scenarios.
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Run deterministic scenarios for identity confidence, provider-backed verification signals, session integrity, behavioral consistency, evidence completeness and governance review state. These are rule-based validation cases, not benchmark results.
+                Run deterministic scenarios for identity confidence, provider-backed verification signals, session integrity, behavioral consistency, evidence completeness and governance review state. These are rule-based validation cases, not benchmark results or live provider success claims.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -53,6 +58,33 @@ export default async function TestLabPage() {
               <Link href="/admin/verification-testbench" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
                 Verification testbench
               </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-4 lg:grid-cols-[1fr_1fr]">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Test coverage labels</h2>
+            <div className="mt-4 grid gap-3 text-sm text-zinc-400">
+              <p className="rounded-lg border border-zinc-800 bg-black p-3">
+                Real provider-backed tests: available only when a configured provider result is attached to workflow evidence. This lab does not call providers during rendering.
+              </p>
+              <p className="rounded-lg border border-zinc-800 bg-black p-3">
+                Simulated tests: controlled scenario inputs exercise rule-based scoring, replay chronology and governance escalation.
+              </p>
+              <p className="rounded-lg border border-zinc-800 bg-black p-3">
+                Failed provider tests: scenarios model failed or pending provider states so review paths can be inspected safely.
+              </p>
+            </div>
+          </div>
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Missing provider warnings</h2>
+            <div className="mt-4 grid gap-2">
+              {providerWarnings.map((provider) => (
+                <p key={provider.id} className="rounded-lg border border-zinc-800 bg-black p-3 text-sm leading-6 text-zinc-400">
+                  {provider.name}: {provider.status.replaceAll("_", " ")}. {provider.notes}
+                </p>
+              ))}
             </div>
           </div>
         </section>
