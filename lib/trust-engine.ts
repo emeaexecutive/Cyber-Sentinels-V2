@@ -59,6 +59,7 @@ export type WorkflowTrustState = {
   providerVerification: ProviderVerificationState;
   governanceReview: GovernanceReviewState;
   authorizationContinuity: "continuous" | "review_required" | "interrupted";
+  verificationOutcome: "pending" | "reviewable" | "verified" | "not_verified";
   dimensions: WorkflowTrustDimensions;
   updatedAt: string;
 };
@@ -79,8 +80,10 @@ export type WorkflowTrustTransition = {
   governanceAction: GovernanceAction | null;
   workflowTransition: string;
   authorizationContinuity: WorkflowTrustState["authorizationContinuity"];
+  verificationOutcome: WorkflowTrustState["verificationOutcome"];
   providerEvidenceUpdates: string[];
   signals: WorkflowTrustSignal[];
+  stateSnapshot: WorkflowTrustState;
 };
 
 export type EvolvingWorkflowTrust = {
@@ -165,6 +168,7 @@ export function createWorkflowTrustState(
       providerVerification: "none",
       governanceReview: "not_started",
       authorizationContinuity: "continuous",
+      verificationOutcome: "pending",
       dimensions: normalized,
       updatedAt,
     },
@@ -214,6 +218,7 @@ export function evolveWorkflowTrust(
   let workflowState = current.state.workflowState;
   let governanceReview = current.state.governanceReview;
   let authorizationContinuity = current.state.authorizationContinuity;
+  let verificationOutcome = current.state.verificationOutcome;
   const action = input.governanceAction ?? null;
 
   if (action) {
@@ -223,26 +228,31 @@ export function evolveWorkflowTrust(
       workflowState = "review_required";
       governanceReview = action.action === "open_review" ? "escalated" : "pending";
       authorizationContinuity = "review_required";
+      verificationOutcome = "pending";
     } else if (action.action === "approve") {
       workflowState = "approved";
       governanceReview = "approved";
       authorizationContinuity = "continuous";
+      verificationOutcome = "verified";
       dimensions.governanceReviewState = 90;
     } else if (action.action === "reject") {
       workflowState = "rejected";
       governanceReview = "rejected";
       authorizationContinuity = "interrupted";
+      verificationOutcome = "not_verified";
       dimensions.governanceReviewState = 15;
     } else {
       workflowState = "restricted";
       governanceReview = "escalated";
       authorizationContinuity = "interrupted";
+      verificationOutcome = "not_verified";
       dimensions.governanceReviewState = 30;
     }
   } else if (escalationTriggers.length) {
     workflowState = "review_required";
     governanceReview = "pending";
     authorizationContinuity = "review_required";
+    verificationOutcome = "reviewable";
   }
 
   const score = calculateScore(dimensions);
@@ -257,6 +267,7 @@ export function evolveWorkflowTrust(
     providerVerification: input.providerVerification ?? current.state.providerVerification,
     governanceReview,
     authorizationContinuity,
+    verificationOutcome,
     dimensions,
     updatedAt: occurredAt,
   };
@@ -276,8 +287,10 @@ export function evolveWorkflowTrust(
     governanceAction: action,
     workflowTransition: `${current.state.workflowState} to ${workflowState}`,
     authorizationContinuity,
+    verificationOutcome,
     providerEvidenceUpdates: providerUpdates,
     signals,
+    stateSnapshot: state,
   };
 
   return { state, chronology: [...current.chronology, transition] };

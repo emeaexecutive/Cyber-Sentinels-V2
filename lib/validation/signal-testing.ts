@@ -18,6 +18,14 @@ import {
   type WorkflowTrustTransition,
   type WorkflowTrustSignal,
 } from "@/lib/trust-engine";
+import {
+  addAuthorizationGrant,
+  compareHistoricalPosture,
+  createOperationalTrustMemory,
+  recordGovernedExecution,
+  rememberTrustEvolution,
+  type HistoricalPostureComparison,
+} from "@/lib/trust-memory";
 
 export type TestSignalCategory =
   | "identity_confidence"
@@ -90,6 +98,13 @@ export type ScenarioResult = {
   };
   providerValidation: ProviderValidation;
   trustChronology: WorkflowTrustTransition[];
+  trustMemoryValidation: {
+    entryCount: number;
+    evidenceContinuity: string[];
+    authorizationGrantCount: number;
+    governedExecutionOutcome: string;
+    historicalComparison: HistoricalPostureComparison | null;
+  };
 };
 
 function providerSignal(
@@ -487,7 +502,40 @@ export function runValidationScenario(scenario: ValidationScenario): ScenarioRes
       },
     ],
   });
-  const governedTrust = evolveWorkflowTrust(signaledTrust, {
+  const repeatedTrust = evolveWorkflowTrust(signaledTrust, {
+    providerVerification:
+      scenario.scenarioType === "failed_provider_verification"
+        ? "failed"
+        : providerSummary.providerVerificationState,
+    signals: [
+      {
+        id: `${scenario.id}-continuity-signal`,
+        type:
+          scenario.scenarioType === "incomplete_evidence_chain"
+            ? "replay_continuity"
+            : scenario.scenarioType === "failed_provider_verification"
+              ? "provider_verification_change"
+              : scenario.scenarioType === "governance_escalation"
+                ? "authorization_lineage"
+                : scenarioSignalType,
+        observedAt: "2026-01-01T10:03:00.000Z",
+        value: scenario.scenarioType === "verified_human" ? 4 : -10,
+        direction: scenario.scenarioType === "verified_human" ? "increase" : "decrease",
+        explanation:
+          scenario.scenarioType === "verified_human"
+            ? "Repeated evidence remained consistent across the workflow."
+            : "A repeated continuity event changed the historical operational trust posture.",
+        evidenceReferences: [
+          ...scenario.evidenceUsed,
+          scenario.scenarioType === "incomplete_evidence_chain"
+            ? "Replay divergence marker"
+            : "Continuity comparison",
+        ],
+        provider: scenario.providerValidation.provider,
+      },
+    ],
+  });
+  const governedTrust = evolveWorkflowTrust(repeatedTrust, {
     governanceAction: {
       action:
         scenario.input.governanceReview === "approved"
@@ -501,6 +549,42 @@ export function runValidationScenario(scenario: ValidationScenario): ScenarioRes
       occurredAt: "2026-01-01T10:05:00.000Z",
     },
   });
+  const grantId = `${scenario.id}-validation-grant`;
+  let trustMemory = createOperationalTrustMemory({
+    subjectType: scenario.scenarioType === "proxy_candidate_risk" ? "identity" : "workflow",
+    subjectId: scenario.id,
+    createdAt: observedAt,
+  });
+  trustMemory = addAuthorizationGrant(trustMemory, {
+    id: grantId,
+    principalId: "validation-governance-agent",
+    principalType: "agent",
+    delegatedBy: "Validation governance reviewer",
+    scope: ["prepare_replay_summary"],
+    purpose: "Prepare evidence chronology for named reviewer approval.",
+    grantedAt: observedAt,
+    expiresAt: "2026-01-01T11:00:00.000Z",
+    status: governedTrust.state.authorizationContinuity === "interrupted"
+      ? "review_required"
+      : "active",
+    evidenceReferences: scenario.evidenceUsed,
+  });
+  trustMemory = rememberTrustEvolution(trustMemory, governedTrust, [grantId]);
+  trustMemory = recordGovernedExecution(trustMemory, {
+    id: `${scenario.id}-validation-execution`,
+    workflowId: scenario.id,
+    actorId: "validation-governance-agent",
+    actorType: "agent",
+    authorizationGrantId: grantId,
+    action: "prepare_replay_summary",
+    requestedAt: "2026-01-01T10:06:00.000Z",
+    completedAt: "2026-01-01T10:06:01.000Z",
+    outcome: "completed",
+    explanation: "Prepared replay chronology under declared delegated authority.",
+    evidenceReferences: scenario.evidenceUsed,
+    reviewer: "Validation governance reviewer",
+  });
+  const historicalComparison = compareHistoricalPosture(trustMemory);
 
   return {
     scenario,
@@ -527,6 +611,15 @@ export function runValidationScenario(scenario: ValidationScenario): ScenarioRes
     },
     providerValidation: scenario.providerValidation,
     trustChronology: governedTrust.chronology,
+    trustMemoryValidation: {
+      entryCount: trustMemory.entries.length,
+      evidenceContinuity: [
+        ...new Set(trustMemory.entries.flatMap((entry) => entry.evidenceContinuity)),
+      ],
+      authorizationGrantCount: trustMemory.authorizationGrants.length,
+      governedExecutionOutcome: trustMemory.governedExecutions.at(-1)?.outcome ?? "not_recorded",
+      historicalComparison,
+    },
   };
 }
 

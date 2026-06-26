@@ -317,7 +317,9 @@ export default async function VerificationReplayPage({
             <div>
               <h1 className="text-4xl font-semibold">{session?.title ?? "Verification workflow replay"}</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-                Read-only reconstruction of what happened, when state changed, which reviewer decision was taken, which evidence chain remains available and what workflow outcome is ready for audit review.
+                Cyber Sentinels maintains persistent operational trust memory across enterprise workflows, identities
+                and autonomous systems. This read-only replay reconstructs state changes, reviewer decisions,
+                evidence continuity, authorization lineage and workflow outcomes.
               </p>
               <p className="mt-2 font-mono text-xs text-zinc-600">Subject {subjectType} / {subjectId}</p>
             </div>
@@ -341,8 +343,8 @@ export default async function VerificationReplayPage({
         </section>
 
         <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
-          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Workflow continuity map</p>
-          <h2 className="mt-2 text-xl font-semibold">Replay links governance, evidence, authorization and receipt outcome</h2>
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Canonical operational trust memory</p>
+          <h2 className="mt-2 text-xl font-semibold">Replay reconstructs governance, evidence, authorization and posture</h2>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
             This replay chronology connects the session integrity state, governance review, operational evidence,
             authorization history, verification outcome and receipt record for the same workflow subject.

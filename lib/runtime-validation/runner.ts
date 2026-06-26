@@ -734,6 +734,17 @@ function routeInventoryChecks() {
     ),
     check(
       "Demo And Proof Routes",
+      "Operational trust memory",
+      existsSync(join(process.cwd(), "lib", "trust-memory.ts")) &&
+        fileContains("lib", "trust-memory.ts", /rememberTrustEvolution/) &&
+        fileContains("lib", "trust-memory.ts", /recordGovernedExecution/) ? "PASS" : "FAIL",
+      existsSync(join(process.cwd(), "lib", "trust-memory.ts"))
+        ? "Trust memory, historical posture and governed execution foundations are present."
+        : "Operational trust memory model is missing.",
+      true
+    ),
+    check(
+      "Demo And Proof Routes",
       "Verification receipt route",
       routeFileExists("trust", "receipt", "[id]", "page.tsx") && routeFileExists("verification", "receipt", "[id]", "page.tsx") ? "PASS" : "FAIL",
       routeFileExists("trust", "receipt", "[id]", "page.tsx") && routeFileExists("verification", "receipt", "[id]", "page.tsx")

@@ -214,6 +214,37 @@ export default async function TestLabPage() {
                   ))}
                 </div>
               </section>
+
+              <section className="mt-4 rounded-lg border border-cyan-950 bg-black p-4">
+                <h3 className="text-sm font-semibold text-cyan-100">Operational trust memory validation</h3>
+                <p className="mt-2 text-xs leading-5 text-zinc-500">
+                  Repeated anomalies, provider degradation, replay continuity and authorization stability are
+                  compared across retained transitions. No hidden behavioral tracking is used.
+                </p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    ["Memory entries", String(result.trustMemoryValidation.entryCount)],
+                    ["Evidence continuity", `${result.trustMemoryValidation.evidenceContinuity.length} reference(s)`],
+                    ["Delegated authority", `${result.trustMemoryValidation.authorizationGrantCount} grant(s)`],
+                    ["Governed execution", result.trustMemoryValidation.governedExecutionOutcome],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                      <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+                      <p className="mt-2 text-sm text-zinc-200">{value}</p>
+                    </div>
+                  ))}
+                </div>
+                {result.trustMemoryValidation.historicalComparison ? (
+                  <p className="mt-4 text-sm leading-6 text-zinc-400">
+                    Historical posture: {result.trustMemoryValidation.historicalComparison.from.posture} at{" "}
+                    {result.trustMemoryValidation.historicalComparison.from.score} to{" "}
+                    {result.trustMemoryValidation.historicalComparison.to.posture} at{" "}
+                    {result.trustMemoryValidation.historicalComparison.to.score}. Governance interventions:{" "}
+                    {result.trustMemoryValidation.historicalComparison.governanceInterventions}. Authorization changed:{" "}
+                    {result.trustMemoryValidation.historicalComparison.authorizationChanged ? "yes" : "no"}.
+                  </p>
+                ) : null}
+              </section>
             </article>
           ))}
         </section>

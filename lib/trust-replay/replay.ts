@@ -20,6 +20,13 @@ export type ReplaySnapshot = {
   aiSummaries: ReplayRow[];
   timelineEvents: TrustTimelineEvent[];
   posture: TrustPosture;
+  canonicalMemory: {
+    chronologyCount: number;
+    evidenceContinuityCount: number;
+    governanceInterventionCount: number;
+    authorizationReferenceCount: number;
+    reconstructableAsOf: string;
+  };
 };
 
 export type ReplaySession = {
@@ -165,6 +172,13 @@ export function buildReplaySnapshot(input: {
     aiSummaries,
     timelineEvents,
     posture,
+    canonicalMemory: {
+      chronologyCount: timelineEvents.length + auditLogs.length,
+      evidenceContinuityCount: evidence.length,
+      governanceInterventionCount: decisions.length,
+      authorizationReferenceCount: relationships.length,
+      reconstructableAsOf: input.asOf,
+    },
   };
 }
 
