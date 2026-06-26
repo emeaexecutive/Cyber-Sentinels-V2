@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 const capabilities = [
   [
     "Candidate Verification",
-    "Review candidate records, submitted evidence, profile details and workflow status before a decision moves forward.",
+    "Review candidate records, submitted evidence, recruiter context, profile details and workflow status before a hiring or access decision moves forward.",
   ],
   [
     "Interview Integrity",
@@ -14,7 +14,7 @@ const capabilities = [
   ],
   [
     "Synthetic Applicant Defense",
-    "Surface missing evidence, suspicious workflow activity and unresolved review items without claiming automatic lie detection.",
+    "Surface missing evidence, suspicious workflow activity, proxy-interview indicators and unresolved review items without claiming automatic lie detection.",
   ],
   [
     "Recruiter Verification",
@@ -22,22 +22,26 @@ const capabilities = [
   ],
   [
     "Governance Reviews",
-    "Route high-risk cases to human reviewers with the evidence and context needed for a defensible decision.",
+    "Route high-risk hiring cases to human reviewers with escalation reason, session context and evidence needed for a defensible decision.",
   ],
   [
     "Audit Trails",
-    "Preserve review history, evidence updates, governance actions, receipts and replay timelines.",
+    "Preserve review history, evidence updates, governance actions, reviewer decisions, receipts and replay timelines.",
   ],
 ];
 
 const riskExamples = [
   [
     "Synthetic applicants",
-    "A candidate profile looks complete, but the submitted identity evidence, employment history, verified email domain and interview behavior do not line up. Cyber Sentinels separates identity confidence from session integrity so reviewers can request evidence before the process advances.",
+    "A candidate profile looks complete, but the submitted identity evidence, employment history, verified email domain and interview behavior do not line up. Cyber Sentinels treats the hiring funnel as a fraud frontline and separates identity confidence from session integrity so reviewers can request evidence before the process advances.",
   ],
   [
     "Proxy interviews",
-    "The person in the interview may not match the verified candidate context. Reviewer notes, liveness checks, voice/video continuity, device context and escalation history stay attached to the same hiring workflow.",
+    "The person in the interview may not match the verified candidate context. Reviewer notes, liveness checks, voice/video continuity, device context and escalation history stay attached to the same hiring workflow for governance review.",
+  ],
+  [
+    "AI-assisted interview fraud",
+    "A candidate may use generated answers, coached presence or manipulated media during a sensitive interview. Cyber Sentinels records observable session integrity anomalies and reviewer notes without turning them into unsupported detection claims.",
   ],
   [
     "Injected interview feeds",
@@ -45,7 +49,7 @@ const riskExamples = [
   ],
   [
     "Session integrity failures",
-    "The meeting can continue as an interview record while the trust state changes. Teams see what failed, what remains usable, and what needs reverification.",
+    "The meeting can continue as an interview record while the trust state changes. Teams see what failed, what remains usable, what needs reverification and whether governance escalation is required.",
   ],
   [
     "Voice/video mismatch",
@@ -84,7 +88,7 @@ export default function HiringSecurityPage() {
             Hiring Security is the clearest entry point for Operational Trust Infrastructure: fake applicants, proxy interviews, AI-assisted hiring fraud and injected sessions become reviewable workflows with verification evidence, reviewer ownership, replay and receipts.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Security, legal and people teams see state changes, Governance Review, reviewer actions and Replay Evidence in one operational chronology.
+            Fake candidates are not only recruiting noise. In sensitive roles they can become enterprise access risk. Security, legal and people teams see state changes, Governance Review, reviewer actions and Replay Evidence in one operational chronology.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
@@ -114,6 +118,9 @@ export default function HiringSecurityPage() {
             session anomalies are separate verification signals. A candidate
             identity may be verified while channel integrity evidence or other
             verification flags still require manual review.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
+            Session integrity anomalies are treated as review context, not automatic conclusions. Governance escalation records why the hiring workflow needs human review before the decision moves forward.
           </p>
           <Link href="/dashboard/session-integrity" className="mt-5 inline-flex text-sm font-semibold text-cyan-200 underline">
             Review session integrity
@@ -159,7 +166,9 @@ export default function HiringSecurityPage() {
             <p className="mt-4 text-sm leading-7 text-zinc-300">
               The hiring security pilot is intentionally simple so enterprise
               teams can complete a first review quickly and understand the
-              operational value without new architecture.
+              operational value without new architecture. The outcome is an
+              evidence chain, reviewer decision, replay chronology and
+              audit-ready report for the hiring workflow.
             </p>
             <PrivateBetaNotice className="mt-5" />
           </section>

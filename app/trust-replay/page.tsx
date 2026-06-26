@@ -278,6 +278,11 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             decisions, relationships, summaries and timeline events existed at a
             point in time.
           </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            Replay is the decision-layer chronology: it connects the evidence chain,
+            reviewer decision, workflow outcome and audit-ready report without
+            mutating the underlying records.
+          </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
             Trust changed quietly. Replay is immutable and read-only. It never deletes historical trust
             events, overwrites governance history, or mutates audit trails. AI
@@ -405,7 +410,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
                 ["Verification chronology", snapshot.timelineEvents.length ? "Timeline events preserve the order of workflow changes." : "No timeline events in this replay window."],
                 ["Session events", sessionIntegrity.length + riskEvents.length ? "Session integrity and risk events are visible for review." : "No session events in this replay window."],
                 ["Escalation history", snapshot.decisions.length ? "Governance decisions and reviewer actions are preserved." : "No governance decisions in this replay window."],
-                ["Evidence chain", snapshot.evidence.length ? "Evidence records can be reviewed beside decisions and audit history." : "No evidence records in this replay window."],
+                ["Evidence chain", snapshot.evidence.length ? "Evidence records can be reviewed beside decisions, replay chronology, workflow outcome and audit history." : "No evidence records in this replay window."],
               ].map(([title, copy]) => (
                 <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <p className="font-medium text-zinc-100">{title}</p>

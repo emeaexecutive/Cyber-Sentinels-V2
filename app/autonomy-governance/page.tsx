@@ -148,7 +148,9 @@ export default async function AutonomyGovernancePage({
                 observe, advise, approve or execute.
               </p>
               <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-500">
-                Autonomy requires governance.
+                Every autonomous action will need identity, authorization and evidence.
+                Roadmap language here stays focused on authorization lineage,
+                governed execution, signed activity and evidence chains.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -191,6 +193,9 @@ export default async function AutonomyGovernancePage({
               <h2 className="mt-2 text-2xl font-semibold">
                 Live control signals across delegated action.
               </h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-500">
+                The implemented surface records profiles, audit events and signals. Broader agent execution controls remain deferred until product, policy and data boundaries are ready.
+              </p>
             </div>
             {metricsUnavailable ? (
               <p className="text-sm text-amber-200">Some live metrics unavailable.</p>

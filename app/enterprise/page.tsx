@@ -1,11 +1,11 @@
 import Link from "next/link";
 
 const trustControls = [
-  ["Hiring Security", "Fake applicants, proxy interviews and AI-assisted fraud move into an evidence-backed review path instead of a generic alert queue."],
+  ["Hiring Security", "The hiring funnel is a fraud frontline where fake applicants, proxy interviews and AI-assisted fraud can become enterprise access risk."],
   ["Session Integrity", "Liveness, deepfake risk, injection risk and channel integrity remain separate signals after verification begins."],
   ["Governance Review", "High-risk workflow changes route to named reviewers with ownership, chronology and recorded action."],
   ["Verification Replay", "Replay timelines reconstruct what happened before, during and after a workflow changed state."],
-  ["Verification Receipts", "Printable receipts summarize trust state, reviewer action, verification evidence and replay references."],
+  ["Verification Receipts", "Printable receipts summarize trust state, reviewer decision, verification evidence, replay chronology and workflow outcome."],
 ];
 
 const coordinationControls = [
@@ -30,6 +30,9 @@ export default function EnterprisePage() {
             Cyber Sentinels connects Hiring Security, Session Integrity,
             Governance Review, Verification Replay and Verification Receipts so
             teams can keep sensitive workflows explainable.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            It protects the decision layer behind critical enterprise actions: the workflow, evidence, reviewer action and trust state that determine whether access, hiring or operational decisions should move forward.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
@@ -64,6 +67,9 @@ export default function EnterprisePage() {
           <h2 className="text-2xl font-semibold">Why operational trust infrastructure now</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Device and communication security are still necessary, but they do not explain whether a workflow stayed trustworthy after verification began.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Synthetic credibility, not just synthetic media, is becoming the attack surface. Enterprise teams need to review who entered a workflow, which evidence supports the decision, who acted and what outcome was recorded.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels helps teams verify which people, sessions and

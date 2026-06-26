@@ -337,10 +337,10 @@ export default async function TrustReceiptPage({
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
                 This printable receipt explains what happened, what was reviewed,
-                what action occurred, which chronology is available, who reviewed
+                what reviewer decision occurred, which replay chronology is available, who reviewed
                 the case and what evidence was retained. It is portable,
                 enterprise-safe and linked to the workflow it summarizes. It is
-                not a blockchain record or an automatic trust decision.
+                an audit-ready report, not a blockchain record or an automatic trust decision.
               </p>
               <p className="mt-3 max-w-3xl rounded-lg border border-zinc-800 bg-black p-3 text-sm leading-6 text-zinc-300">
                 Detection is one signal. Session integrity, evidence and governance determine the final review state. This is not a standalone deepfake verdict.
@@ -361,7 +361,7 @@ export default async function TrustReceiptPage({
         <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {[
             ["Verification completed", receipt.verification_status ? "Recorded" : "Pending"],
-            ["Review completed", latestGovernance ? "Recorded" : "Pending"],
+            ["Reviewer decision", latestGovernance ? "Recorded" : "Pending"],
             ["Replay available", "Available"],
             ["Receipt generated", "Generated"],
             ["Evidence retained", (evidenceChains ?? []).length ? "Retained" : "Pending"],
@@ -407,8 +407,8 @@ export default async function TrustReceiptPage({
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           <DetailRow label="Trust State" value={label(receipt.verification_status ?? governanceOutcome, "reviewable")} />
-          <DetailRow label="Reviewer Action" value={latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No reviewer action attached yet"} />
-          <DetailRow label="Verification Evidence" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} evidence chain(s)` : "No replay evidence available yet"} />
+          <DetailRow label="Reviewer Decision" value={latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No reviewer decision attached yet"} />
+          <DetailRow label="Evidence Chain" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} evidence chain(s)` : "No replay evidence available yet"} />
           <DetailRow label="Replay Link" value={`/replay/${receipt.subject_id}`} />
         </section>
 

@@ -2,9 +2,10 @@ import Link from "next/link";
 
 const receiptSections = [
   ["Trust state", "The outcome is stated plainly, including elevated risk or manual review states."],
-  ["Verification evidence", "Receipt language references evidence categories without exposing sensitive records publicly."],
-  ["Reviewer action", "Human decisions and rationale remain tied to the final outcome."],
-  ["Replay reference", "Receipts can point to protected replay evidence when an authorized reviewer needs detail."],
+  ["Verification evidence", "Receipt language references the evidence chain without exposing sensitive records publicly."],
+  ["Reviewer decision", "Human decisions and rationale remain tied to the final workflow outcome."],
+  ["Replay reference", "Receipts can point to protected replay chronology when an authorized reviewer needs detail."],
+  ["Audit-ready report", "The receipt provides a portable summary of what was checked, reviewed and resolved."],
 ];
 
 export default function VerificationReceiptsPage() {
@@ -19,7 +20,7 @@ export default function VerificationReceiptsPage() {
             Audit-ready receipts for verification outcomes.
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
-            Verification Receipts summarize what was checked, which state was reached and what reviewer action was recorded. Public pages explain the receipt model; specific receipts remain protected unless intentionally shared.
+            Verification Receipts summarize what was checked, which state was reached, what reviewer decision was recorded and which replay chronology supports the workflow outcome. Public pages explain the receipt model; specific receipts remain protected unless intentionally shared.
           </p>
         </section>
 
@@ -35,7 +36,7 @@ export default function VerificationReceiptsPage() {
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <h2 className="text-2xl font-semibold">Printable, governed and evidence-driven</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            A receipt is not a public data dump. It is a controlled summary that helps enterprise teams explain why a verification outcome was accepted, escalated or rejected.
+            A receipt is not a public data dump. It is a controlled, audit-ready report that helps enterprise teams explain why a verification outcome was accepted, escalated or rejected.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href="/demo" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-cyan-100">

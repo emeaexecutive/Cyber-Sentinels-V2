@@ -14,7 +14,7 @@ const platformSurfaces = [
   ["Evidence", "Identity, session, media, channel and reviewer records that can be inspected."],
   ["Replay", "A chronological reconstruction of what changed, who acted and what evidence remains."],
   ["Governance", "Named review ownership, escalation reasons and human authority for sensitive workflow decisions."],
-  ["Workflow Trust", "Current authorization and workflow state without binary or speculative trust claims."],
+  ["Workflow Trust", "Decision-layer trust across workflow state, authorization context, evidence and reviewer action."],
   ["Session Integrity", "Liveness, channel, injection and media-risk signals kept separate for review."],
   ["Verification Receipts", "Portable records of what was checked, reviewed, retained and resolved."],
 ];
@@ -39,7 +39,7 @@ export default function Home() {
 
         <div className="mt-12 max-w-5xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-100">
-            Operational Trust Infrastructure for enterprise workflows.
+            Enterprise workflow trust layer.
           </p>
           <h1 className="mt-5 text-4xl font-semibold leading-[1.05] text-white md:text-6xl">
             Organizations can no longer reliably verify the people, sessions and workflows entering critical systems.
@@ -48,7 +48,10 @@ export default function Home() {
             Cyber Sentinels provides operational trust infrastructure for hiring, verification and enterprise workflow governance.
           </p>
           <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
-            Use it to preserve evidence, replay what changed, assign governance ownership and issue workflow-linked verification receipts before sensitive access or decisions move forward.
+            Synthetic credibility, not just synthetic media, is becoming the attack surface.
+          </p>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
+            Cyber Sentinels protects the decision layer: the workflow, evidence, reviewer action and trust state behind critical enterprise decisions.
           </p>
         </div>
 
@@ -101,6 +104,9 @@ export default function Home() {
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
             Governance, evidence, replay and workflow trust in one operational path.
           </h2>
+          <p className="mt-4 text-sm leading-7 text-zinc-300">
+            Use Cyber Sentinels to preserve evidence, replay what changed, assign governance ownership and issue workflow-linked verification receipts before sensitive access or decisions move forward.
+          </p>
         </div>
         <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {platformSurfaces.map(([title, copy]) => (

@@ -19,6 +19,10 @@ const registryConcepts = [
     "Signed activity visibility",
     "Teams should be able to see what an agent claimed to do, when it happened and which workflow it belonged to.",
   ],
+  [
+    "Governed execution",
+    "Agent activity should carry identity, authorization, evidence and review context before sensitive actions are trusted.",
+  ],
 ];
 
 const accountabilityLinks = [
@@ -42,6 +46,9 @@ export default function AgentsPage() {
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
             AI systems are evolving from passive assistants into operational actors. Cyber Sentinels treats AI agent identity and authorization lineage as staged roadmap work tied to governance, provenance and accountable ownership.
           </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            Every autonomous action will need identity, authorization and evidence.
+          </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
             Cyber Sentinels does not replace human governance or operational
             accountability. Agent identity should strengthen review,
@@ -59,7 +66,7 @@ export default function AgentsPage() {
               Governed AI workflow layer
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-400">
-              This is a strategic direction layer, not a full agent control platform. The near-term goal is to align organization-owned agents, signed activity, authorization lineage and human-to-agent accountability without overbuilding runtime control.
+              This is a strategic direction layer, not a full agent control platform. The near-term goal is to align organization-owned agents, signed activity, authorization lineage, governed execution and human-to-agent accountability without overbuilding runtime control.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {accountabilityLinks.map((item) => (

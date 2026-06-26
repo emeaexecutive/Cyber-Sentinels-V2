@@ -270,7 +270,7 @@ export default async function VerificationReplayPage({
             <div>
               <h1 className="text-4xl font-semibold">{session?.title ?? "Verification workflow replay"}</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-                Read-only reconstruction of what happened, when state changed, which reviewer action was taken and which evidence remains available.
+                Read-only reconstruction of what happened, when state changed, which reviewer decision was taken, which evidence chain remains available and what workflow outcome is ready for audit review.
               </p>
               <p className="mt-2 font-mono text-xs text-zinc-600">Subject {subjectType} / {subjectId}</p>
             </div>
@@ -379,7 +379,7 @@ export default async function VerificationReplayPage({
                   <p className="font-medium">{label(event.title)}</p>
                   <p className="mt-2 text-sm leading-6 text-zinc-500">{label(event.summary, "Trust state recorded for audit replay.")}</p>
                   <p className="mt-3 text-xs text-zinc-600">
-                    Continuity: {event.type === "governance" ? "reviewer action affects workflow and receipt outcome" : event.type === "evidence" ? "evidence supports the replay chronology" : event.type === "receipt" ? "receipt preserves the final workflow state" : "event retained for governance review"}
+                    Continuity: {event.type === "governance" ? "reviewer decision affects workflow and receipt outcome" : event.type === "evidence" ? "evidence chain supports the replay chronology" : event.type === "receipt" ? "receipt preserves the final workflow state and audit-ready report" : "event retained for governance review"}
                   </p>
                 </div>
               </article>
