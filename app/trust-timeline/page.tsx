@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ProviderEvidencePanel } from "@/components/provider-evidence-panel";
+import { buildWorkflowProviderSignals } from "@/lib/providers";
 import { createClient } from "@/lib/supabase/server";
 import {
   calculateTimelineMetrics,
@@ -109,6 +111,20 @@ export default async function TrustTimelinePage() {
     trustReports,
   });
   const metrics = calculateTimelineMetrics(timeline);
+  const providerSignals = buildWorkflowProviderSignals({
+    providerVerificationState: timeline.some((event) => /verified/i.test(event.severity))
+      ? "verified"
+      : "pending",
+    identityConfidence: metrics.trustChanges ? 68 : 55,
+    sessionIntegrity: metrics.manualReviews ? 58 : 65,
+    riskFlags: metrics.manualReviews ? ["high_risk_context"] : [],
+    evidenceReferences: [
+      "Trust timeline",
+      "Provider signal",
+      "Verification evidence",
+      "Governance review",
+    ],
+  });
 
   return (
     <main className="min-h-screen bg-black p-6 text-white md:p-8">
@@ -168,6 +184,14 @@ export default async function TrustTimelinePage() {
             </Link>
           </div>
         </section>
+
+        <div className="mt-8">
+          <ProviderEvidencePanel
+            signals={providerSignals}
+            title="Provider signals in trust timeline"
+            description="Provider evidence can appear alongside trust score movement, manual review and replay history. It remains an external verification source, not final proof on its own."
+          />
+        </div>
 
         <section className="mt-10 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="text-2xl font-semibold">Historical Trust Memory</h2>

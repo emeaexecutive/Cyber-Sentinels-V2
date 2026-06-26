@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import { StatusBadge } from "@/components/phase-one-trust";
 import { PrintReceiptButton } from "@/components/print-receipt-button";
+import { ProviderEvidencePanel } from "@/components/provider-evidence-panel";
 import { DetectionEvidenceNote } from "@/components/session-integrity";
 import {
   TrustJourneyVisualization,
@@ -15,6 +16,7 @@ import {
   latestCreatedAt,
   trustPostureClass,
 } from "@/lib/trust-posture/posture";
+import { buildWorkflowProviderSignals } from "@/lib/providers";
 
 export const dynamic = "force-dynamic";
 
@@ -196,6 +198,19 @@ export default async function TrustReceiptPage({
     snapshot.governance_review_outcome ??
     latestGovernance?.action_status ??
     "pending human review";
+  const providerSignals = buildWorkflowProviderSignals({
+    evidenceSnapshot: snapshot,
+    providerVerificationState: receipt.verification_status,
+    identityConfidence: snapshot.identity_confidence ?? snapshot.identityConfidence,
+    sessionIntegrity: sessionIntegrityState,
+    riskFlags: injectionEvent ? ["injection_risk", "session_integrity_anomaly"] : [],
+    evidenceReferences: [
+      "Verification receipt",
+      "Evidence chain",
+      "Replay chronology",
+      "Governance review",
+    ],
+  });
   const trustJourneyEvents: TrustJourneyEvent[] = [
     {
       id: "verification-initiated",
@@ -448,6 +463,14 @@ export default async function TrustReceiptPage({
             Evidence summary: {(evidenceChains ?? []).length} retained chain(s), {(timeline ?? []).length} timeline event(s), and {(auditLogs ?? []).length} audit reference(s). Reviewer actions remain visible below.
           </p>
         </section>
+
+        <div className="mt-8">
+          <ProviderEvidencePanel
+            signals={providerSignals}
+            title="Provider signals attached to this receipt"
+            description="Provider signals are external verification evidence for reviewer context. Governance review determines the final workflow state."
+          />
+        </div>
 
         <section className="mt-8">
           <DetectionEvidenceNote

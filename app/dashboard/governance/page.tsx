@@ -2,7 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { GovernanceOverview } from "@/components/governance-overview";
 import { OnboardingHint } from "@/components/onboarding-walkthrough";
+import { ProviderEvidencePanel } from "@/components/provider-evidence-panel";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
+import { buildWorkflowProviderSignals, getVerificationProviderRegistry } from "@/lib/providers";
 import { createClient } from "@/lib/supabase/server";
 import {
   buildGovernanceQueue,
@@ -250,6 +252,21 @@ export default async function GovernancePage({
     }),
   }));
   const reverificationDueCount = postureItems.filter((item) => item.posture.reverificationRecommended).length;
+  const providerRegistry = getVerificationProviderRegistry();
+  const providerSignals = buildWorkflowProviderSignals({
+    providerVerificationState: providerRegistry.some((provider) => provider.status === "configured")
+      ? "pending"
+      : "none",
+    identityConfidence: providerRegistry.some((provider) => provider.status === "configured") ? 64 : 50,
+    sessionIntegrity: unresolvedSignals.length ? 55 : 66,
+    riskFlags: unresolvedSignals.length ? ["high_risk_context"] : [],
+    evidenceReferences: [
+      "Governance review",
+      "Verification evidence",
+      "Replay chronology",
+      "Workflow outcome",
+    ],
+  });
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -369,6 +386,14 @@ export default async function GovernancePage({
             ))}
           </div>
         </section>
+
+        <div className="mt-8">
+          <ProviderEvidencePanel
+            signals={providerSignals}
+            title="Provider signals for governance review"
+            description="Provider outputs are normalized into reviewable trust signals. They can influence trust scores and escalation recommendations, but human governance determines the workflow outcome."
+          />
+        </div>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.8fr]">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">

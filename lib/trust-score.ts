@@ -1,3 +1,5 @@
+import type { VerificationProviderSignal } from "@/lib/providers/types";
+
 export type ProviderVerificationState =
   | "none"
   | "pending"
@@ -27,6 +29,7 @@ export type TransparentTrustScoreInput = {
   governanceReview: GovernanceReviewState;
   riskFlags?: TrustScoreRiskFlag[];
   providerVerification?: ProviderVerificationState;
+  providerSignals?: VerificationProviderSignal[];
 };
 
 export type TransparentTrustScoreResult = {
@@ -79,6 +82,35 @@ const providerScore: Record<ProviderVerificationState, number> = {
   verified: 90,
   failed: 20,
 };
+
+function providerStateFromSignals(
+  signals: VerificationProviderSignal[] | undefined,
+  fallback: ProviderVerificationState
+) {
+  if (!signals?.length) return fallback;
+  if (signals.some((signal) => signal.providerVerificationState === "failed")) return "failed";
+  if (signals.some((signal) => signal.providerVerificationState === "verified")) return "verified";
+  if (signals.some((signal) => signal.providerVerificationState === "pending")) return "pending";
+  return fallback;
+}
+
+function providerConfidenceFromSignals(
+  signals: VerificationProviderSignal[] | undefined,
+  fallback: number
+) {
+  if (!signals?.length) return fallback;
+  const total = signals.reduce((sum, signal) => sum + signal.identityConfidence, 0);
+  return clampScore(total / signals.length);
+}
+
+function sessionIntegrityFromProviderSignals(
+  signals: VerificationProviderSignal[] | undefined,
+  fallback: number
+) {
+  if (!signals?.length) return fallback;
+  const total = signals.reduce((sum, signal) => sum + signal.sessionIntegrity, 0);
+  return clampScore(total / signals.length);
+}
 
 function clampScore(value: number) {
   if (!Number.isFinite(value)) return 0;
@@ -149,14 +181,27 @@ function evidenceGenerated(input: TransparentTrustScoreInput, flags: TrustScoreR
 export function calculateTransparentTrustScore(
   input: TransparentTrustScoreInput
 ): TransparentTrustScoreResult {
-  const flags = input.riskFlags ?? [];
+  const providerSignalFlags = input.providerSignals?.flatMap((signal) => signal.riskFlags) ?? [];
+  const flags = [...new Set([...(input.riskFlags ?? []), ...providerSignalFlags])];
   const governance = governanceScore[input.governanceReview] ?? governanceScore.pending;
-  const provider = providerScore[input.providerVerification ?? "none"];
+  const providerState = providerStateFromSignals(
+    input.providerSignals,
+    input.providerVerification ?? "none"
+  );
+  const provider = providerScore[providerState];
   const penalty = flags.reduce((total, flag) => total + (riskPenalty[flag] ?? 0), 0);
+  const identityConfidence = providerConfidenceFromSignals(
+    input.providerSignals,
+    clampScore(input.identityConfidence)
+  );
+  const sessionIntegrity = sessionIntegrityFromProviderSignals(
+    input.providerSignals,
+    clampScore(input.sessionIntegrity)
+  );
 
   const weightedScore =
-    clampScore(input.identityConfidence) * 0.24 +
-    clampScore(input.sessionIntegrity) * 0.24 +
+    identityConfidence * 0.24 +
+    sessionIntegrity * 0.24 +
     clampScore(input.evidenceCompleteness) * 0.2 +
     governance * 0.2 +
     provider * 0.12 -
@@ -172,8 +217,8 @@ export function calculateTransparentTrustScore(
     recommendedAction: recommendedAction(level, flags),
     evidenceGenerated: evidenceGenerated(input, flags),
     breakdown: {
-      identityConfidence: clampScore(input.identityConfidence),
-      sessionIntegrity: clampScore(input.sessionIntegrity),
+      identityConfidence,
+      sessionIntegrity,
       evidenceCompleteness: clampScore(input.evidenceCompleteness),
       governanceReview: governance,
       providerVerification: provider,

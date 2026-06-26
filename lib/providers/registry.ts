@@ -1,0 +1,127 @@
+import type {
+  VerificationProviderDefinition,
+  VerificationProviderId,
+} from "@/lib/providers/types";
+
+type ProviderBlueprint = {
+  id: VerificationProviderId;
+  name: string;
+  category: VerificationProviderDefinition["category"];
+  requiredEnv: string[];
+  statusWhenMissing: VerificationProviderDefinition["status"];
+  purpose: string;
+  evidenceReference: string;
+  configuredNotes: string;
+  missingNotes: string;
+  enabledWhen?: () => boolean;
+};
+
+const providerBlueprints: ProviderBlueprint[] = [
+  {
+    id: "world_id",
+    name: "World ID",
+    category: "proof_of_personhood",
+    requiredEnv: ["WORLD_ACTION"],
+    statusWhenMissing: "safely_disabled",
+    purpose: "Optional proof-of-personhood signal for supported verification workflows.",
+    evidenceReference: "World ID proof response and action context",
+    configuredNotes: "World ID action is configured. Provider exchange remains external and evidence-based.",
+    missingNotes: "World ID is not configured. Workflows continue without proof-of-personhood enrichment.",
+  },
+  {
+    id: "stripe_identity",
+    name: "Stripe Identity",
+    category: "identity",
+    requiredEnv: ["STRIPE_SECRET_KEY"],
+    statusWhenMissing: "safely_disabled",
+    purpose: "Optional identity verification source when Stripe Identity is enabled for a workflow.",
+    evidenceReference: "Stripe Identity verification session",
+    configuredNotes: "Stripe server key is present. Identity verification still requires workflow-specific setup.",
+    missingNotes: "Stripe Identity is not configured for verification workflows.",
+  },
+  {
+    id: "persona",
+    name: "Persona",
+    category: "future_adapter",
+    requiredEnv: ["PERSONA_API_KEY"],
+    statusWhenMissing: "future",
+    purpose: "Future identity verification adapter candidate.",
+    evidenceReference: "Persona inquiry or verification report",
+    configuredNotes: "Persona key is present, but adapter behavior should remain workflow-gated.",
+    missingNotes: "Persona remains a future adapter placeholder.",
+  },
+  {
+    id: "onfido",
+    name: "Onfido",
+    category: "future_adapter",
+    requiredEnv: ["ONFIDO_API_TOKEN"],
+    statusWhenMissing: "future",
+    purpose: "Future identity verification adapter candidate.",
+    evidenceReference: "Onfido applicant check or report",
+    configuredNotes: "Onfido token is present, but adapter behavior should remain workflow-gated.",
+    missingNotes: "Onfido remains a future adapter placeholder.",
+  },
+  {
+    id: "hopae_connect",
+    name: "Hopae Connect",
+    category: "identity",
+    requiredEnv: ["HOPAE_CLIENT_ID", "HOPAE_CLIENT_SECRET", "HOPAE_WEBHOOK_SECRET"],
+    statusWhenMissing: "safely_disabled",
+    enabledWhen: () => process.env.HOPAE_ENABLED?.trim().toLowerCase() === "true",
+    purpose: "Optional upstream eID verification evidence.",
+    evidenceReference: "Hopae normalized upstream identity proof",
+    configuredNotes: "Hopae Connect is enabled. Cyber Sentinels remains the governance layer.",
+    missingNotes: "Hopae Connect is safely disabled until server-side credentials and HOPAE_ENABLED are set.",
+  },
+  {
+    id: "cloudflare_turnstile",
+    name: "Cloudflare Turnstile",
+    category: "bot_protection",
+    requiredEnv: ["TURNSTILE_SECRET_KEY", "NEXT_PUBLIC_TURNSTILE_SITE_KEY"],
+    statusWhenMissing: "safely_disabled",
+    purpose: "Bot and abuse-resistance signal for public forms.",
+    evidenceReference: "Turnstile challenge verification result",
+    configuredNotes: "Turnstile variables are present. Form submissions can use provider challenge evidence.",
+    missingNotes: "Turnstile is safely disabled or warning-only outside configured production form checks.",
+  },
+  {
+    id: "fingerprint_device_risk",
+    name: "Fingerprint / device risk",
+    category: "device_risk",
+    requiredEnv: ["FINGERPRINT_SECRET_KEY"],
+    statusWhenMissing: "placeholder",
+    purpose: "Future device-risk enrichment for session integrity review.",
+    evidenceReference: "Device-risk event or visitor confidence signal",
+    configuredNotes: "Device-risk key is present. Treat output as a session integrity signal.",
+    missingNotes: "Device-risk provider remains a placeholder signal.",
+  },
+];
+
+function envPresent(name: string) {
+  return Boolean(String(process.env[name] ?? "").trim());
+}
+
+export function getVerificationProviderRegistry(): VerificationProviderDefinition[] {
+  return providerBlueprints.map((provider) => {
+    const presentEnv = provider.requiredEnv.filter(envPresent);
+    const missingEnv = provider.requiredEnv.filter((name) => !envPresent(name));
+    const enabled = missingEnv.length === 0 && (provider.enabledWhen?.() ?? true);
+
+    return {
+      id: provider.id,
+      name: provider.name,
+      category: provider.category,
+      status: enabled ? "configured" : provider.statusWhenMissing,
+      requiredEnv: provider.requiredEnv,
+      presentEnv,
+      missingEnv,
+      purpose: provider.purpose,
+      evidenceReference: provider.evidenceReference,
+      notes: enabled ? provider.configuredNotes : provider.missingNotes,
+    };
+  });
+}
+
+export function getVerificationProviderDefinition(id: VerificationProviderId) {
+  return getVerificationProviderRegistry().find((provider) => provider.id === id);
+}

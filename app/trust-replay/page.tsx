@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { OnboardingHint } from "@/components/onboarding-walkthrough";
+import { ProviderEvidencePanel } from "@/components/provider-evidence-panel";
 import { createClient } from "@/lib/supabase/server";
+import { buildWorkflowProviderSignals } from "@/lib/providers";
 import {
   buildReplaySnapshot,
   replayDefaultAsOf,
@@ -249,6 +251,18 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
     aiSummaries,
     timelineEvents,
   });
+  const providerSignals = buildWorkflowProviderSignals({
+    providerVerificationState: "pending",
+    identityConfidence: snapshot.evidence.length ? 68 : 45,
+    sessionIntegrity: sessionIntegrity.length || riskEvents.length ? 62 : 55,
+    riskFlags: riskEvents.length ? ["session_integrity_anomaly"] : [],
+    evidenceReferences: [
+      "Replay summary",
+      "Timeline reconstruction",
+      "Evidence chain",
+      "Governance actions",
+    ],
+  });
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -400,6 +414,14 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             ))}
           </div>
         </section>
+
+        <div className="mt-8">
+          <ProviderEvidencePanel
+            signals={providerSignals}
+            title="Provider signal context"
+            description="Replay keeps provider outputs as explainable verification evidence beside workflow events, decisions and audit history."
+          />
+        </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           <TimelineReplay events={snapshot.timelineEvents} />

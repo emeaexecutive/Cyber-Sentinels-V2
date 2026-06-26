@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StatusBadge } from "@/components/phase-one-trust";
+import { ProviderEvidencePanel } from "@/components/provider-evidence-panel";
 import { DetectionEvidenceNote } from "@/components/session-integrity";
 import {
   TrustJourneyVisualization,
@@ -8,6 +9,7 @@ import {
   type TrustJourneyStage,
   type TrustJourneyState,
 } from "@/components/trust-journey-visualization";
+import { buildWorkflowProviderSignals } from "@/lib/providers";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -193,6 +195,20 @@ export default async function VerificationReplayPage({
   const injectionEvent = (riskEvents ?? []).find((event) => /injection/i.test(String(event.signal_type ?? "")));
   const elevatedRiskEvent = (riskEvents ?? []).find((event) => event.escalation_required || /risk|fail|injection/i.test(String(event.signal_type ?? "")));
   const completed = Boolean(receipts?.length);
+  const latestReceiptSnapshot = (receipts?.[0]?.evidence_snapshot ?? {}) as Record<string, unknown>;
+  const providerSignals = buildWorkflowProviderSignals({
+    evidenceSnapshot: latestReceiptSnapshot,
+    providerVerificationState: receipts?.[0]?.verification_status ?? session?.verification_status,
+    identityConfidence: latestReceiptSnapshot.identity_confidence,
+    sessionIntegrity: session?.integrity_status,
+    riskFlags: elevatedRiskEvent ? ["session_integrity_anomaly"] : [],
+    evidenceReferences: [
+      "Replay chronology",
+      "Verification evidence",
+      "Governance review",
+      "Verification receipt",
+    ],
+  });
   const reviewCompleted = ["approved", "rejected", "resolved"].includes(
     String(latestGovernance?.action_status ?? "")
   );
@@ -348,6 +364,14 @@ export default async function VerificationReplayPage({
             </div>
           ))}
         </section>
+
+        <div className="mt-8">
+          <ProviderEvidencePanel
+            signals={providerSignals}
+            title="Provider signals in replay chronology"
+            description="External verification sources are shown as replayable workflow evidence. They support trust scores, receipts and governance review without replacing reviewer decisions."
+          />
+        </div>
 
         <div className="mt-8">
           <TrustJourneyVisualization
