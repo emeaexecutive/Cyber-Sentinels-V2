@@ -10,13 +10,14 @@ Provider logic should stay behind a small abstraction layer in `lib/providers/`.
 
 The app should avoid hardcoding vendor-specific logic across receipts, replay, governance and timeline surfaces. UI surfaces consume normalized provider signals:
 
-- provider name
-- provider verification state
-- identity confidence
-- session integrity
-- risk flags
-- governance recommendation
-- evidence references
+- `provider_name`
+- `verification_state`
+- `identity_confidence`
+- `session_confidence`
+- `provider_reference`
+- `evidence_summary`
+- `risk_flags`
+- `governance_recommendation`
 
 Provider secrets must remain server-side. Public and protected UI should only show status, evidence references and normalized review context.
 
@@ -43,6 +44,7 @@ Current abstraction support:
 | Hopae Connect | Upstream eID identity proof | Optional, enabled only with server credentials and `HOPAE_ENABLED=true` |
 | Cloudflare Turnstile | Bot-protection signal for forms | Optional provider signal, production forms fail safely when configured checks fail |
 | Persona | Future identity adapter | Placeholder adapter |
+| Entrust | Future identity and document-check adapter | Placeholder adapter |
 | Onfido | Future identity adapter | Placeholder adapter |
 | Fingerprint / device risk | Future device/session-risk signal | Placeholder adapter |
 
@@ -91,6 +93,7 @@ Future work should focus on provider-specific adapters behind the existing abstr
 - World ID server-side proof verification
 - Stripe Identity verification session lifecycle
 - Persona inquiry normalization
+- Entrust verification report normalization
 - Onfido check normalization
 - Hopae webhook normalization into receipt evidence
 - device-risk provider enrichment for session integrity

@@ -7,6 +7,7 @@ export type VerificationProviderId =
   | "world_id"
   | "stripe_identity"
   | "persona"
+  | "entrust"
   | "onfido"
   | "hopae_connect"
   | "cloudflare_turnstile"
@@ -51,6 +52,17 @@ export type VerificationProviderSignal = {
   summary: string;
 };
 
+export type NormalizedVerificationResponse = {
+  provider_name: string;
+  verification_state: ProviderVerificationState;
+  identity_confidence: number;
+  session_confidence: number;
+  provider_reference: string;
+  evidence_summary: string;
+  risk_flags: TrustScoreRiskFlag[];
+  governance_recommendation: string;
+};
+
 export type ProviderSignalInput = {
   providerId: VerificationProviderId;
   providerName?: string;
@@ -62,4 +74,5 @@ export type ProviderSignalInput = {
   governanceRecommendation?: string | null;
   evidenceReferences?: string[] | null;
   summary?: string | null;
+  providerReference?: string | null;
 };

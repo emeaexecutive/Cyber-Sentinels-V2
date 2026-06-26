@@ -467,8 +467,8 @@ export default async function TrustReceiptPage({
         <div className="mt-8">
           <ProviderEvidencePanel
             signals={providerSignals}
-            title="Provider signals attached to this receipt"
-            description="Provider signals are external verification evidence for reviewer context. Governance review determines the final workflow state."
+            title="Provider-backed verification signals attached to this receipt"
+            description="External verification evidence supports reviewer context. Governance review determines the final workflow state."
           />
         </div>
 

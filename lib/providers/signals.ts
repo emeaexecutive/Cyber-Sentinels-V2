@@ -4,6 +4,7 @@ import type {
 } from "@/lib/trust-score";
 import { getVerificationProviderDefinition } from "@/lib/providers/registry";
 import type {
+  NormalizedVerificationResponse,
   ProviderSignalInput,
   VerificationProviderId,
   VerificationProviderSignal,
@@ -15,6 +16,7 @@ const providerNames: Record<VerificationProviderId, string> = {
   world_id: "World ID",
   stripe_identity: "Stripe Identity",
   persona: "Persona",
+  entrust: "Entrust",
   onfido: "Onfido",
   hopae_connect: "Hopae Connect",
   cloudflare_turnstile: "Cloudflare Turnstile",
@@ -81,8 +83,9 @@ export function normalizeProviderSignal(input: ProviderSignalInput): Verificatio
   const providerState = normalizeProviderState(input.providerVerificationState);
   const riskFlags = normalizeRiskFlags(input.riskFlags);
   const evidenceReferences = references(input.evidenceReferences, [
+    text(input.providerReference, ""),
     definition?.evidenceReference ?? "External verification source",
-  ]);
+  ]).filter(Boolean);
 
   return {
     providerId: input.providerId,
@@ -103,6 +106,25 @@ export function normalizeProviderSignal(input: ProviderSignalInput): Verificatio
       input.summary,
       `${providerName} signal normalized as ${providerState} verification evidence.`
     ),
+  };
+}
+
+export function toNormalizedVerificationResponse(
+  signal: VerificationProviderSignal,
+  providerReference?: string
+): NormalizedVerificationResponse {
+  return {
+    provider_name: signal.providerName,
+    verification_state: signal.providerVerificationState,
+    identity_confidence: signal.identityConfidence,
+    session_confidence: signal.sessionIntegrity,
+    provider_reference:
+      providerReference ??
+      signal.evidenceReferences[0] ??
+      `${signal.providerName} evidence reference`,
+    evidence_summary: signal.summary,
+    risk_flags: signal.riskFlags,
+    governance_recommendation: signal.governanceRecommendation,
   };
 }
 

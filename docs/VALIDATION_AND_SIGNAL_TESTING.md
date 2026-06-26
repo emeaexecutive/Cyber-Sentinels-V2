@@ -7,13 +7,13 @@ Cyber Sentinels validation is designed to measure workflow trust signals without
 The admin validation lab tests controlled scenarios:
 
 - verified human
-- synthetic identity
-- VPN session
+- failed provider verification
+- VPN anomaly
 - injected session
-- proxy interview
-- missing evidence
-- failed provider signal
+- proxy candidate risk
+- mismatched device signal
 - governance escalation
+- incomplete evidence chain
 
 Each scenario reports:
 
@@ -35,6 +35,7 @@ Provider-backed evidence can include:
 - provider success or failure
 - verification latency
 - provider confidence
+- provider reference
 - missing provider evidence
 
 Provider evidence is a signal for workflow review. It does not approve, reject or authenticate a workflow by itself. Provider secrets are never shown in the validation UI.

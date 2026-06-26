@@ -8,6 +8,8 @@ import {
 import {
   normalizeProviderSignal,
   summarizeProviderSignals,
+  toNormalizedVerificationResponse,
+  type NormalizedVerificationResponse,
   type VerificationProviderSignal,
 } from "@/lib/providers";
 
@@ -32,13 +34,13 @@ export type ValidationScenario = {
   label: string;
   scenarioType:
     | "verified_human"
-    | "synthetic_identity"
-    | "vpn_session"
+    | "failed_provider_verification"
+    | "vpn_anomaly"
     | "injected_session"
-    | "proxy_interview"
-    | "missing_evidence"
-    | "failed_provider_signal"
-    | "governance_escalation";
+    | "proxy_candidate_risk"
+    | "mismatched_device_signal"
+    | "governance_escalation"
+    | "incomplete_evidence_chain";
   summary: string;
   input: Omit<TransparentTrustScoreInput, "providerSignals"> & {
     behavioralConsistency: number;
@@ -72,6 +74,7 @@ export type ScenarioResult = {
   escalationReasons: string[];
   workflowOutcome: string;
   evidenceGenerated: string[];
+  providerEvidence: NormalizedVerificationResponse[];
   replayValidation: {
     whatTriggered: string;
     whyTriggered: string;
@@ -100,8 +103,8 @@ function providerSignal(
     governanceRecommendation:
       "Use this provider signal as verification evidence; governance review determines the final workflow state.",
     evidenceReferences: [
-      "Provider signal",
-      "Verification evidence",
+      "Provider-backed verification signal",
+      "External verification evidence",
       "Replay chronology",
       "Governance review",
     ],
@@ -138,37 +141,37 @@ export const validationScenarios: ValidationScenario[] = [
     workflowOutcome: "Proceed with reviewable verification receipt.",
   },
   {
-    id: "synthetic-identity",
-    label: "Synthetic identity",
-    scenarioType: "synthetic_identity",
-    summary: "Identity confidence and behavior consistency are low enough to require review.",
+    id: "failed-provider-verification",
+    label: "Failed provider verification",
+    scenarioType: "failed_provider_verification",
+    summary: "External verification evidence returned a failed state and must be reviewed.",
     input: {
-      identityConfidence: 34,
-      sessionIntegrity: 62,
-      behavioralConsistency: 32,
-      evidenceCompleteness: 58,
+      identityConfidence: 62,
+      sessionIntegrity: 66,
+      behavioralConsistency: 60,
+      evidenceCompleteness: 72,
       governanceReview: "escalated",
-      providerVerification: "pending",
-      riskFlags: ["high_risk_context"],
+      providerVerification: "failed",
+      riskFlags: ["provider_failed"],
     },
-    providerSignals: [providerSignal("pending", 42, 62, ["high_risk_context"], "World ID")],
+    providerSignals: [providerSignal("failed", 42, 58, ["provider_failed"], "Stripe Identity")],
     providerValidation: {
-      provider: "World ID",
-      status: "pending",
-      latencyMs: 860,
+      provider: "Stripe Identity",
+      status: "failed",
+      latencyMs: 740,
       confidence: 42,
-      missingEvidence: ["Provider proof not completed"],
+      missingEvidence: ["Provider pass result"],
     },
-    expectedTrigger: "Synthetic identity review",
-    triggerReason: "Low identity confidence and incomplete provider evidence require governance review.",
-    evidenceUsed: ["Identity confidence score", "Provider pending state", "Behavioral consistency marker"],
-    reviewerAction: "Escalate identity evidence before workflow advances.",
-    workflowOutcome: "Governance review required.",
+    expectedTrigger: "Provider verification failed",
+    triggerReason: "External provider state returned failed or declined.",
+    evidenceUsed: ["Provider-backed verification signal", "Governance escalation reason", "Replay chronology"],
+    reviewerAction: "Escalate provider failure and prevent automatic approval.",
+    workflowOutcome: "Blocked pending governance review.",
   },
   {
-    id: "vpn-session",
-    label: "VPN session",
-    scenarioType: "vpn_session",
+    id: "vpn-anomaly",
+    label: "VPN anomaly",
+    scenarioType: "vpn_anomaly",
     summary: "Session integrity is reduced by network context while identity evidence remains reviewable.",
     input: {
       identityConfidence: 78,
@@ -187,9 +190,9 @@ export const validationScenarios: ValidationScenario[] = [
       confidence: 54,
       missingEvidence: [],
     },
-    expectedTrigger: "Session integrity review",
+    expectedTrigger: "VPN session anomaly",
     triggerReason: "Network context changed during the workflow.",
-    evidenceUsed: ["Device risk signal", "Session integrity marker", "Replay chronology"],
+    evidenceUsed: ["Session integrity signal", "Device risk signal", "Replay chronology"],
     reviewerAction: "Review session context before final approval.",
     workflowOutcome: "Continue with reviewer confirmation.",
   },
@@ -217,14 +220,14 @@ export const validationScenarios: ValidationScenario[] = [
     },
     expectedTrigger: "Injection risk",
     triggerReason: "Session integrity anomaly and injection risk were triggered.",
-    evidenceUsed: ["Session integrity event", "Injection-risk flag", "Provider signal"],
+    evidenceUsed: ["Session integrity signal", "Injection-risk flag", "Provider-backed verification signal"],
     reviewerAction: "Escalate before workflow outcome is issued.",
     workflowOutcome: "Blocked until governance review.",
   },
   {
-    id: "proxy-interview",
-    label: "Proxy interview",
-    scenarioType: "proxy_interview",
+    id: "proxy-candidate-risk",
+    label: "Proxy candidate risk",
+    scenarioType: "proxy_candidate_risk",
     summary: "Candidate context and interview behavior do not align cleanly.",
     input: {
       identityConfidence: 58,
@@ -250,60 +253,32 @@ export const validationScenarios: ValidationScenario[] = [
     workflowOutcome: "Governance review required.",
   },
   {
-    id: "missing-evidence",
-    label: "Missing evidence",
-    scenarioType: "missing_evidence",
-    summary: "Evidence completeness is too low for a final workflow outcome.",
+    id: "mismatched-device-signal",
+    label: "Mismatched device signal",
+    scenarioType: "mismatched_device_signal",
+    summary: "Device trust and session continuity diverge from the expected workflow context.",
     input: {
-      identityConfidence: 70,
-      sessionIntegrity: 72,
-      behavioralConsistency: 68,
-      evidenceCompleteness: 28,
-      governanceReview: "pending",
-      providerVerification: "none",
-      riskFlags: ["missing_evidence"],
-    },
-    providerSignals: [providerSignal("none", 70, 72, ["missing_evidence"], "External verification source")],
-    providerValidation: {
-      provider: "External verification source",
-      status: "none",
-      latencyMs: null,
-      confidence: null,
-      missingEvidence: ["Identity document", "Provider result", "Reviewer evidence note"],
-    },
-    expectedTrigger: "Missing evidence",
-    triggerReason: "Required verification evidence is absent or incomplete.",
-    evidenceUsed: ["Evidence completeness marker", "Missing provider evidence list"],
-    reviewerAction: "Request evidence before approving workflow outcome.",
-    workflowOutcome: "Pending evidence.",
-  },
-  {
-    id: "failed-provider-signal",
-    label: "Failed provider signal",
-    scenarioType: "failed_provider_signal",
-    summary: "Provider verification failed and must be reviewed as evidence.",
-    input: {
-      identityConfidence: 62,
-      sessionIntegrity: 66,
-      behavioralConsistency: 60,
-      evidenceCompleteness: 72,
+      identityConfidence: 74,
+      sessionIntegrity: 38,
+      behavioralConsistency: 64,
+      evidenceCompleteness: 74,
       governanceReview: "escalated",
-      providerVerification: "failed",
-      riskFlags: ["provider_failed"],
+      providerVerification: "pending",
+      riskFlags: ["session_integrity_anomaly", "high_risk_context"],
     },
-    providerSignals: [providerSignal("failed", 42, 58, ["provider_failed"], "Stripe Identity")],
+    providerSignals: [providerSignal("pending", 74, 38, ["session_integrity_anomaly"], "Fingerprint / device risk")],
     providerValidation: {
-      provider: "Stripe Identity",
-      status: "failed",
-      latencyMs: 740,
-      confidence: 42,
-      missingEvidence: ["Provider pass result"],
+      provider: "Fingerprint / device risk",
+      status: "pending",
+      latencyMs: 260,
+      confidence: 38,
+      missingEvidence: ["Device continuity confirmation"],
     },
-    expectedTrigger: "Provider failure",
-    triggerReason: "External provider state returned failed or declined.",
-    evidenceUsed: ["Provider failure signal", "Governance escalation reason", "Replay chronology"],
-    reviewerAction: "Escalate provider failure and prevent automatic approval.",
-    workflowOutcome: "Blocked pending governance review.",
+    expectedTrigger: "Mismatched device signal",
+    triggerReason: "Device confidence and session continuity do not match the expected workflow path.",
+    evidenceUsed: ["Session integrity signal", "Device-risk evidence", "Replay chronology"],
+    reviewerAction: "Escalate device mismatch for reviewer confirmation.",
+    workflowOutcome: "Governance review required.",
   },
   {
     id: "governance-escalation",
@@ -319,9 +294,9 @@ export const validationScenarios: ValidationScenario[] = [
       providerVerification: "pending",
       riskFlags: ["high_risk_context"],
     },
-    providerSignals: [providerSignal("pending", 68, 60, ["high_risk_context"], "Persona")],
+    providerSignals: [providerSignal("pending", 68, 60, ["high_risk_context"], "Entrust")],
     providerValidation: {
-      provider: "Persona",
+      provider: "Entrust",
       status: "pending",
       latencyMs: 980,
       confidence: 68,
@@ -332,6 +307,34 @@ export const validationScenarios: ValidationScenario[] = [
     evidenceUsed: ["Provider pending state", "Evidence completeness marker", "Risk flag summary"],
     reviewerAction: "Assign reviewer and record governance outcome.",
     workflowOutcome: "Escalated for human review.",
+  },
+  {
+    id: "incomplete-evidence-chain",
+    label: "Incomplete evidence chain",
+    scenarioType: "incomplete_evidence_chain",
+    summary: "Evidence completeness is too low for a final workflow outcome.",
+    input: {
+      identityConfidence: 70,
+      sessionIntegrity: 72,
+      behavioralConsistency: 68,
+      evidenceCompleteness: 28,
+      governanceReview: "pending",
+      providerVerification: "none",
+      riskFlags: ["missing_evidence"],
+    },
+    providerSignals: [providerSignal("none", 70, 72, ["missing_evidence"], "Persona")],
+    providerValidation: {
+      provider: "Persona",
+      status: "none",
+      latencyMs: null,
+      confidence: null,
+      missingEvidence: ["Identity document", "Provider result", "Reviewer evidence note"],
+    },
+    expectedTrigger: "Incomplete evidence chain",
+    triggerReason: "Required verification evidence is absent or incomplete.",
+    evidenceUsed: ["Evidence completeness marker", "Missing provider evidence list", "Receipt evidence"],
+    reviewerAction: "Request evidence before approving workflow outcome.",
+    workflowOutcome: "Pending evidence.",
   },
 ];
 
@@ -423,6 +426,9 @@ export function runValidationScenario(scenario: ValidationScenario): ScenarioRes
   });
   const scoreBefore = Math.max(0, Math.min(100, result.score + (scenario.input.riskFlags?.length ? 12 : 0)));
   const scoreDelta = result.score - scoreBefore;
+  const providerEvidence = scenario.providerSignals.map((signal) =>
+    toNormalizedVerificationResponse(signal)
+  );
 
   return {
     scenario,
@@ -439,6 +445,7 @@ export function runValidationScenario(scenario: ValidationScenario): ScenarioRes
     ],
     workflowOutcome: scenario.workflowOutcome,
     evidenceGenerated: result.evidenceGenerated,
+    providerEvidence,
     replayValidation: {
       whatTriggered: scenario.expectedTrigger,
       whyTriggered: scenario.triggerReason,

@@ -390,7 +390,7 @@ export default async function GovernancePage({
         <div className="mt-8">
           <ProviderEvidencePanel
             signals={providerSignals}
-            title="Provider signals for governance review"
+            title="Provider-backed verification signals for governance review"
             description="Provider outputs are normalized into reviewable trust signals. They can influence trust scores and escalation recommendations, but human governance determines the workflow outcome."
           />
         </div>

@@ -425,7 +425,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
         <div className="mt-8">
           <ProviderEvidencePanel
             signals={providerSignals}
-            title="Provider signal context"
+            title="Provider-backed verification signal context"
             description="Replay keeps provider outputs as explainable verification evidence beside workflow events, decisions and audit history."
           />
         </div>

@@ -402,8 +402,8 @@ export default async function VerificationReplayPage({
         <div className="mt-8">
           <ProviderEvidencePanel
             signals={providerSignals}
-            title="Provider signals in replay chronology"
-            description="External verification sources are shown as replayable workflow evidence. They support trust scores, receipts and governance review without replacing reviewer decisions."
+            title="Provider-backed verification signals in replay chronology"
+            description="External verification evidence is shown as replayable workflow evidence. Session integrity signals, trust scores, receipts and governance review stay connected without replacing reviewer decisions."
           />
         </div>
 

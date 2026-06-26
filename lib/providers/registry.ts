@@ -51,6 +51,17 @@ const providerBlueprints: ProviderBlueprint[] = [
     missingNotes: "Persona remains a future adapter placeholder.",
   },
   {
+    id: "entrust",
+    name: "Entrust",
+    category: "future_adapter",
+    requiredEnv: ["ENTRUST_API_KEY"],
+    statusWhenMissing: "future",
+    purpose: "Future identity verification and document-check adapter candidate.",
+    evidenceReference: "Entrust verification or identity-check report",
+    configuredNotes: "Entrust key is present, but adapter behavior should remain workflow-gated.",
+    missingNotes: "Entrust remains a future adapter placeholder.",
+  },
+  {
     id: "onfido",
     name: "Onfido",
     category: "future_adapter",

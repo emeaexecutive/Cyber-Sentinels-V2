@@ -49,7 +49,7 @@ export default async function TestResultsPage() {
                 Replayable signal-testing outcomes.
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Results show what triggered, why it triggered, what evidence was used, reviewer action and trust score movement. These are controlled scenarios, not accuracy benchmarks.
+                Results show what triggered, why it triggered, what evidence was used, provider-backed verification signals, reviewer action and trust score movement. These are controlled scenarios, not accuracy benchmarks.
               </p>
             </div>
             <Link href="/admin/test-lab" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white">
@@ -114,7 +114,7 @@ export default async function TestResultsPage() {
                 </section>
 
                 <section className="rounded-lg border border-zinc-800 bg-black p-4">
-                  <h3 className="text-sm font-semibold text-zinc-100">Provider validation</h3>
+                  <h3 className="text-sm font-semibold text-zinc-100">Provider-backed verification signal</h3>
                   <div className="mt-3 grid gap-2 text-sm text-zinc-400 md:grid-cols-2">
                     <p>Provider: {result.providerValidation.provider}</p>
                     <p>Status: {result.providerValidation.status}</p>
@@ -124,6 +124,17 @@ export default async function TestResultsPage() {
                   <p className="mt-3 text-sm leading-6 text-zinc-500">
                     Missing provider evidence: {result.providerValidation.missingEvidence.length ? result.providerValidation.missingEvidence.join(", ") : "none"}
                   </p>
+                  <div className="mt-4 grid gap-2">
+                    {result.providerEvidence.map((evidence) => (
+                      <div key={`${result.scenario.id}-${evidence.provider_name}`} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm leading-6 text-zinc-400">
+                        <p className="font-medium text-zinc-200">
+                          {evidence.provider_name}: {evidence.verification_state}
+                        </p>
+                        <p>{evidence.evidence_summary}</p>
+                        <p className="text-zinc-500">Reference: {evidence.provider_reference}</p>
+                      </div>
+                    ))}
+                  </div>
                 </section>
               </div>
             </article>

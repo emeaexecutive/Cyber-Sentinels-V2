@@ -188,7 +188,7 @@ export default async function TrustTimelinePage() {
         <div className="mt-8">
           <ProviderEvidencePanel
             signals={providerSignals}
-            title="Provider signals in trust timeline"
+            title="Provider-backed verification signals in trust chronology"
             description="Provider evidence can appear alongside trust score movement, manual review and replay history. It remains an external verification source, not final proof on its own."
           />
         </div>

@@ -9,8 +9,8 @@ function stateClass(state: string) {
 
 export function ProviderEvidencePanel({
   signals,
-  title = "Provider Evidence",
-  description = "External verification sources are normalized into explainable trust signals. They support workflow evidence, governance review, replay and receipts; they do not create final proof on their own.",
+  title = "Provider-backed verification signal",
+  description = "External verification evidence is normalized into explainable trust signals. It supports workflow evidence, governance review, replay and receipts; it does not create final proof on its own.",
 }: {
   signals: VerificationProviderSignal[];
   title?: string;
@@ -39,7 +39,7 @@ export function ProviderEvidencePanel({
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">
-                  Provider signal
+                  Provider-backed verification signal
                 </p>
                 <h3 className="mt-2 font-semibold text-zinc-100">
                   {signal.providerName}
@@ -61,14 +61,14 @@ export function ProviderEvidencePanel({
               </div>
               <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">
-                  Session integrity
+                  Session integrity signal
                 </p>
                 <p className="mt-2 text-sm text-zinc-200">{signal.sessionIntegrity}</p>
               </div>
             </div>
             <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
               <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">
-                Verification evidence
+                External verification evidence
               </p>
               <p className="mt-2 text-sm leading-6 text-zinc-300">
                 {signal.evidenceReferences.join(", ")}

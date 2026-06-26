@@ -41,9 +41,12 @@ export type TransparentTrustScoreResult = {
   breakdown: {
     identityConfidence: number;
     sessionIntegrity: number;
+    deviceIntegrity: number;
+    sessionContinuity: number;
     evidenceCompleteness: number;
     governanceReview: number;
     providerVerification: number;
+    workflowAnomalyPenalty: number;
     riskPenalty: number;
   };
 };
@@ -219,9 +222,12 @@ export function calculateTransparentTrustScore(
     breakdown: {
       identityConfidence,
       sessionIntegrity,
+      deviceIntegrity: sessionIntegrity,
+      sessionContinuity: sessionIntegrity,
       evidenceCompleteness: clampScore(input.evidenceCompleteness),
       governanceReview: governance,
       providerVerification: provider,
+      workflowAnomalyPenalty: penalty,
       riskPenalty: penalty,
     },
   };
