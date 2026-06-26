@@ -82,6 +82,10 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
       stage: "identity_submitted",
       evidenceLabel: "session record",
       flag: clean(session.status ?? session.session_status, "started"),
+      reviewer: "Workflow owner",
+      escalationReason: "Session trust review opened",
+      workflowReference: `interview_session/${id}`,
+      analystNote: "Initial session state retained for replay.",
       score: 52,
     },
     {
@@ -93,6 +97,10 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
       stage: "human_presence_checked",
       evidenceLabel: "identity evidence",
       flag: clean(check?.identity_verification_state, "pending"),
+      reviewer: "Identity verification reviewer",
+      escalationReason: "Identity evidence reviewed separately from session behavior",
+      workflowReference: `interview_session/${id}`,
+      analystNote: `Identity state recorded as ${clean(check?.identity_verification_state ?? "pending")}.`,
       score: 68,
     },
     {
@@ -104,6 +112,10 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
       stage: "session_integrity_checked",
       evidenceLabel: "session integrity",
       flag: clean(check?.overall_status ?? check?.integrity_status ?? session.integrity_status, "pending"),
+      reviewer: "Session integrity reviewer",
+      escalationReason: check?.manual_review_required ? "Manual review required by session integrity state" : "Session integrity checked",
+      workflowReference: `interview_session/${id}`,
+      analystNote: `Overall integrity state recorded as ${clean(check?.overall_status ?? check?.integrity_status ?? session.integrity_status ?? "pending")}.`,
       score: check?.manual_review_required ? 44 : 72,
     },
     ...(signalRows ?? []).slice(0, 6).map((signal, index): TrustJourneyEvent => ({
@@ -115,6 +127,12 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
       stage: /injection/i.test(String(signal.category ?? "")) ? "injection_risk_reviewed" : "session_integrity_checked",
       evidenceLabel: clean(signal.category, "verification flag"),
       flag: clean(signal.risk_level ?? signal.signal_status, "recorded"),
+      reviewer: signal.requires_manual_review ? "Trust operations analyst" : "Session integrity reviewer",
+      escalationReason: signal.requires_manual_review
+        ? "Signal requires manual governance review"
+        : "Signal retained for chronology",
+      workflowReference: `interview_session/${id}`,
+      analystNote: clean(signal.explanation ?? signal.signal_status, "Signal retained for session review."),
       score: signal.requires_manual_review ? 48 : 64,
     })),
     ...(riskEvents ?? []).slice(0, 4).map((event, index): TrustJourneyEvent => ({
@@ -126,6 +144,12 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
       stage: /injection/i.test(String(event.signal_type ?? "")) ? "injection_risk_reviewed" : "session_integrity_checked",
       evidenceLabel: "risk flag",
       flag: event.escalation_required ? "Governance escalation" : clean(event.risk_level ?? event.signal_type, "recorded"),
+      reviewer: event.escalation_required ? "Trust operations analyst" : "Session integrity reviewer",
+      escalationReason: event.escalation_required
+        ? clean(event.risk_reason ?? event.signal_type, "Risk event requires governance review")
+        : "Risk event retained for chronology",
+      workflowReference: `interview_session/${id}`,
+      analystNote: clean(event.risk_reason, "Risk event retained for human review."),
       score: event.escalation_required ? 42 : 60,
     })),
     ...(governanceActions ?? []).map((action, index): TrustJourneyEvent => ({
@@ -138,6 +162,10 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
       evidenceLabel: "governance review",
       flag: clean(action.action_status, "pending"),
       reviewerAction: clean(action.resolution_notes ?? action.action_status, "Human review recorded"),
+      reviewer: "Governance reviewer",
+      escalationReason: "Session integrity event routed to governance review",
+      workflowReference: `interview_session/${id}`,
+      analystNote: clean(action.resolution_notes ?? action.action_status, "Human governance review recorded."),
       score: ["approved", "resolved"].includes(String(action.action_status ?? "")) ? 78 : 56,
     })),
     ...(receipt ? [{
@@ -149,6 +177,10 @@ export default async function SessionTrustPage({ params }: { params: Promise<{ i
       stage: "receipt_issued" as const,
       evidenceLabel: "verification receipt",
       flag: clean(receipt.verification_status, "issued"),
+      reviewer: receipt.issued_by ?? "Receipt issuer",
+      escalationReason: "Session outcome preserved in receipt",
+      workflowReference: `interview_session/${id}`,
+      analystNote: clean(receipt.receipt_summary, "Verification receipt issued for the session."),
       score: 88,
     }] : []),
   ];

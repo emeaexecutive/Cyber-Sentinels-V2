@@ -36,10 +36,11 @@ const footerSections = [
     ],
   },
   {
-    title: "Governance",
+    title: "Security & Trust",
     links: [
       ["/help", "Help"],
-      ["/security", "Security"],
+      ["/security", "Security & Trust"],
+      ["/security#responsible-disclosure", "Responsible Disclosure"],
       ["/data-rights", "Data Rights"],
       ["/trust-principles", "Trust Principles"],
       ["/operational-principles", "Operational Principles"],
@@ -61,8 +62,12 @@ const footerSections = [
     ],
   },
   {
-    title: "Social",
+    title: "Contact",
     links: [
+      ["mailto:contact@cybersentinels.ai", "Company contact"],
+      ["mailto:security@cybersentinels.ai", "Security contact"],
+      ["mailto:trust@cybersentinels.ai", "Trust contact"],
+      ["mailto:abuse@cybersentinels.ai", "Report abuse"],
       ["https://www.linkedin.com", "LinkedIn"],
       ["https://x.com", "Twitter/X"],
     ],
@@ -166,6 +171,11 @@ export default async function RootLayout({
             </div>
             <div className="mx-auto mt-8 max-w-7xl border-t border-zinc-900 pt-6">
               <p>&copy;2026 Cyber Sentinels&trade;. All rights reserved.</p>
+              <p className="mt-3 max-w-3xl leading-6">
+                Cyber Sentinels maintains operational trust workflows with accountable
+                review, protected evidence handling and published contact paths for
+                security, trust, privacy and abuse reporting.
+              </p>
             </div>
           </footer>
         </div>

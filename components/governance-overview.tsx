@@ -48,6 +48,10 @@ function formatDate(value: unknown) {
   }).format(date);
 }
 
+function rowDetail(row: EnterpriseTrustRow, key: string, fallback: string) {
+  return label(row[key], fallback);
+}
+
 function certificationCount(rows: EnterpriseTrustRow[], type: string, status?: string) {
   return rows.filter((row) => {
     const typeMatches = row.certification_type === type;
@@ -172,6 +176,12 @@ export function GovernanceOverview({
                 <p className="mt-2 text-xs leading-5 text-zinc-500">
                   {alert.alert_description ?? "Review the alert context before changing workflow state."}
                 </p>
+                <div className="mt-3 grid gap-1 text-xs leading-5 text-zinc-500">
+                  <p>Owner: {rowDetail(alert, "owner_name", "Trust operations")}</p>
+                  <p>Escalation: {rowDetail(alert, "escalation_reason", "Review required before workflow state changes")}</p>
+                  <p>Workflow: {rowDetail(alert, "workflow_reference", "Workflow reference pending")}</p>
+                  <p>Analyst note: {rowDetail(alert, "analyst_notes", "Analyst note pending")}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -209,6 +219,9 @@ export function GovernanceOverview({
                       <span className={`rounded-full border px-2.5 py-1 text-xs ${statusClass(agent.status)}`}>
                         {label(agent.status, "pending")}
                       </span>
+                      <p className="mt-2 text-xs leading-5 text-zinc-500">
+                        {rowDetail(agent, "analyst_notes", "Operational owner review pending.")}
+                      </p>
                     </td>
                   </tr>
                 ))}
@@ -247,6 +260,17 @@ export function GovernanceOverview({
               </div>
             ))}
           </div>
+          <div className="mt-4 grid gap-3">
+            {certificationRows.slice(0, 3).map((certification) => (
+              <div key={String(certification.id)} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-xs leading-5 text-zinc-500">
+                <p className="font-medium text-zinc-200">{label(certification.certification_type, "Certification")} / {label(certification.status, "pending")}</p>
+                <p>Reviewed by: {rowDetail(certification, "reviewed_by", "Reviewer pending")}</p>
+                <p>Evidence reviewed: {rowDetail(certification, "evidence_reviewed", "Evidence summary pending")}</p>
+                <p>Workflow: {rowDetail(certification, "workflow_reference", "Workflow reference pending")}</p>
+                <p>Analyst notes: {rowDetail(certification, "analyst_notes", "Analyst note pending")}</p>
+              </div>
+            ))}
+          </div>
         </article>
 
         <article className="rounded-lg border border-zinc-800 bg-black p-4">
@@ -269,6 +293,9 @@ export function GovernanceOverview({
                 </div>
                 <p className="mt-2 text-xs leading-5 text-zinc-500">
                   {event.event_description ?? "Operational chronology recorded for governance review."}
+                </p>
+                <p className="mt-2 text-xs leading-5 text-zinc-600">
+                  Workflow reference: {rowDetail(event, "workflow_reference", "Workflow reference pending")} / Actor: {rowDetail(event, "created_by", "system")}
                 </p>
               </div>
             ))}

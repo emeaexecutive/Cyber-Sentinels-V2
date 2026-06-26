@@ -27,6 +27,10 @@ export type TrustJourneyEvent = {
   evidenceLabel?: string | null;
   flag?: string | null;
   reviewerAction?: string | null;
+  reviewer?: string | null;
+  escalationReason?: string | null;
+  workflowReference?: string | null;
+  analystNote?: string | null;
 };
 
 export type TrustProofState = {
@@ -244,6 +248,12 @@ export function TrustJourneyVisualization({
                   <TrustStateBadge state={event.state} />
                 </div>
                 <p className="mt-2 text-sm leading-6 text-zinc-400 print:text-zinc-700">{event.description}</p>
+                <div className="mt-3 grid gap-2 text-xs leading-5 text-zinc-500 print:text-zinc-600 md:grid-cols-2">
+                  <p>Reviewer: {clean(event.reviewer, "Pending assignment")}</p>
+                  <p>Escalation reason: {clean(event.escalationReason ?? event.flag, "Not escalated")}</p>
+                  <p>Workflow reference: {clean(event.workflowReference, "Workflow reference pending")}</p>
+                  <p>Analyst note: {clean(event.analystNote ?? event.reviewerAction, "No analyst note recorded")}</p>
+                </div>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">Journey stage</p>

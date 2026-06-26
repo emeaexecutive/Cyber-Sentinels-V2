@@ -41,7 +41,7 @@ export default function PrivacyPage() {
         },
         {
           title: "Contact",
-          body: "Privacy contacts, legal entity details and response timelines are placeholders until reviewed and approved by counsel.",
+          body: "Privacy requests should be routed to privacy@cybersentinels.ai. Security reports should use security@cybersentinels.ai, trust workflow questions should use trust@cybersentinels.ai and abuse reports should use abuse@cybersentinels.ai.",
         },
       ]}
       links={legalDraftLinks}

@@ -21,7 +21,11 @@ export default function TermsPage() {
         },
         {
           title: "Admin Decisions",
-          body: "Admin decisions should be based on evidence, policy and human review. The platform provides workflow support and does not replace organizational judgment.",
+          body: "Admin decisions should be based on verification evidence, policy, analyst notes and human review. The platform provides workflow support and does not replace organizational judgment.",
+        },
+        {
+          title: "Reporting Abuse",
+          body: "Suspected misuse, fraudulent evidence, unauthorized monitoring or attempts to bypass trust workflows should be reported to abuse@cybersentinels.ai with the relevant workflow reference and evidence summary.",
         },
         {
           title: "No Guaranteed Outcome",

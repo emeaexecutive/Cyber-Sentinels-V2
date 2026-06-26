@@ -5,8 +5,12 @@ export default function SecurityPage() {
   return (
     <LegalDraftPage
       title="Security and Online Safety"
-      subtitle="Cyber Sentinels is designed around evidence-backed verification, protected evidence handling and auditable human review."
+      subtitle="Cyber Sentinels is designed around evidence-backed verification, protected evidence handling, accountable governance review and auditable operational chronology."
       sections={[
+        {
+          title: "Security Contact",
+          body: "Security reports should be sent to security@cybersentinels.ai. Trust workflow questions should be routed to trust@cybersentinels.ai, and abuse reports should be sent to abuse@cybersentinels.ai.",
+        },
         {
           title: "Row Level Security",
           body: "Operational Supabase tables should use RLS policies and authenticated grants so direct data access is scoped to signed-in users and authorized workflows.",
@@ -22,6 +26,14 @@ export default function SecurityPage() {
         {
           title: "Admin Review",
           body: "Protected operational areas and sensitive APIs require authenticated sessions, admin allowlist checks and a verified admin cookie before sensitive actions can be performed.",
+        },
+        {
+          title: "Responsible Disclosure",
+          body: "Reports should include the affected route or API, reproduction steps, observed impact, screenshots or request IDs where safe, and contact details for follow-up. Do not access customer data, disrupt service, bypass rate limits or disclose findings publicly before review.",
+        },
+        {
+          title: "Operational Review Timeline",
+          body: "Security, abuse and trust reports should be acknowledged, triaged to an owner, reviewed against evidence and closed with a recorded outcome appropriate to severity and operational impact.",
         },
         {
           title: "Session Discipline",

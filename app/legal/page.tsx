@@ -5,7 +5,7 @@ export default function LegalPage() {
   return (
     <LegalDraftPage
       title="Legal Notices"
-      subtitle="General legal notices for Cyber Sentinels, including draft entity, jurisdiction and contact placeholders."
+      subtitle="General legal notices for Cyber Sentinels, including entity, jurisdiction, contact and operational-owner information that requires counsel review before production reliance."
       sections={[
         {
           title: "Service Notice",
@@ -16,8 +16,12 @@ export default function LegalPage() {
           body: "Governing law, venue, contracting entity and regional notices must be confirmed by counsel before production use.",
         },
         {
-          title: "Contact Placeholder",
-          body: "Legal and privacy contact addresses should be published after operational owners, mailbox routing and response obligations are confirmed.",
+          title: "Operational Contacts",
+          body: "Company: contact@cybersentinels.ai. Security: security@cybersentinels.ai. Trust operations: trust@cybersentinels.ai. Abuse reporting: abuse@cybersentinels.ai. Privacy and legal requests should use privacy@cybersentinels.ai and legal@cybersentinels.ai once counsel approves production routing.",
+        },
+        {
+          title: "Accountable Review",
+          body: "Enterprise workflows should identify the reviewer, evidence reviewed, escalation reason, workflow reference and outcome before a trust record is treated as complete.",
         },
         {
           title: "Intellectual Property",

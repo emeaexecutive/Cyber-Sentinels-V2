@@ -5,7 +5,8 @@ export const legalDraftLinks: Array<[string, string]> = [
   ["/legal", "Legal"],
   ["/regulatory", "Regulatory"],
   ["/accessibility", "Accessibility"],
-  ["/security", "Security"],
+  ["/security", "Security & Trust"],
+  ["/security#responsible-disclosure", "Responsible Disclosure"],
   ["/data-rights", "Data Rights"],
   ["/trust-principles", "Trust Principles"],
   ["/ai-governance", "AI Governance"],
@@ -27,6 +28,6 @@ export const commonLegalSections = [
   },
   {
     title: "Contact",
-    body: "Questions about privacy, security or data rights should be routed to the Cyber Sentinels privacy and security team for review.",
+    body: "Privacy, security, trust and abuse reports should be routed to the published Cyber Sentinels contact mailboxes so the right operational owner can review them.",
   },
 ];

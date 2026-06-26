@@ -13,6 +13,18 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 type Row = Record<string, any>;
+type ReplayChronologyEvent = {
+  id: string;
+  type: string;
+  title: unknown;
+  summary: unknown;
+  state: unknown;
+  created_at: unknown;
+  reviewer?: unknown;
+  escalationReason?: unknown;
+  workflowReference?: unknown;
+  analystNote?: unknown;
+};
 
 function formatDate(value: unknown) {
   if (!value) return "Not recorded";
@@ -113,7 +125,7 @@ export default async function VerificationReplayPage({
   const auditLogs = (auditRows ?? []).filter((row) =>
     JSON.stringify(row.metadata ?? {}).includes(subjectId)
   );
-  const chronology = [
+  const chronology: ReplayChronologyEvent[] = [
     ...(timeline ?? []).map((row) => ({
       id: `timeline-${row.id}`,
       type: "timeline",
@@ -129,6 +141,14 @@ export default async function VerificationReplayPage({
       summary: row.risk_reason ?? "Integrity flag retained for analyst review.",
       state: row.escalation_required ? "escalated" : "recorded",
       created_at: row.created_at,
+      reviewer: row.escalation_required ? "Trust operations analyst" : "Session integrity reviewer",
+      escalationReason: row.escalation_required
+        ? label(row.risk_reason ?? row.signal_type, "Session integrity flag requires governance review")
+        : "Recorded for chronology",
+      workflowReference: `interview_session/${subjectId}`,
+      analystNote: row.escalation_required
+        ? "Review channel evidence before the workflow advances."
+        : "No escalation required by this signal.",
     })),
     ...(governanceActions ?? []).map((row) => ({
       id: `governance-${row.id}`,
@@ -137,6 +157,10 @@ export default async function VerificationReplayPage({
       summary: row.resolution_notes ?? "Reviewer action recorded for operational follow-up.",
       state: row.action_status ?? "pending",
       created_at: row.created_at,
+      reviewer: row.assigned_to ?? row.resolved_by ?? row.created_by ?? "Trust operations reviewer",
+      escalationReason: row.escalation_reason ?? row.action_type ?? "Governance review opened",
+      workflowReference: `${row.subject_type ?? subjectType}/${row.subject_id ?? subjectId}`,
+      analystNote: row.resolution_notes ?? "Reviewer action pending.",
     })),
     ...(evidenceChains ?? []).map((row) => ({
       id: `evidence-${row.id}`,
@@ -145,6 +169,10 @@ export default async function VerificationReplayPage({
       summary: row.chain_summary ?? "Evidence chain preserved with timestamp and subject reference.",
       state: "retained",
       created_at: row.created_at,
+      reviewer: row.created_by ?? "Evidence reviewer",
+      escalationReason: "Evidence retained for workflow review",
+      workflowReference: `${row.subject_type ?? subjectType}/${row.subject_id ?? subjectId}`,
+      analystNote: row.chain_summary ?? "Evidence chain preserved with timestamp and subject reference.",
     })),
     ...(receipts ?? []).map((row) => ({
       id: `receipt-${row.id}`,
@@ -153,6 +181,10 @@ export default async function VerificationReplayPage({
       summary: row.receipt_summary ?? "Enterprise verification receipt available for audit review.",
       state: row.verification_status ?? "generated",
       created_at: row.issued_at,
+      reviewer: row.issued_by ?? "Receipt issuer",
+      escalationReason: "Workflow outcome preserved for receipt review",
+      workflowReference: `${row.subject_type ?? subjectType}/${row.subject_id ?? subjectId}`,
+      analystNote: row.receipt_summary ?? "Verification receipt available for audit review.",
     })),
   ].sort((a, b) => new Date(occurredAt(a)).getTime() - new Date(occurredAt(b)).getTime());
 
@@ -174,6 +206,10 @@ export default async function VerificationReplayPage({
       stage: "identity_submitted",
       evidenceLabel: "workflow record",
       flag: label(session?.status ?? session?.session_status, "started"),
+      reviewer: "Workflow owner",
+      escalationReason: "Verification workflow opened",
+      workflowReference: `${subjectType}/${subjectId}`,
+      analystNote: "Initial workflow state retained for replay.",
       score: 52,
     },
     {
@@ -185,6 +221,10 @@ export default async function VerificationReplayPage({
       stage: "manual_review_completed",
       evidenceLabel: "replay evidence",
       flag: "Replay Available",
+      reviewer: requestedReplay?.generated_by ?? "Trust operations reviewer",
+      escalationReason: "Chronology generated for governance review",
+      workflowReference: `${subjectType}/${subjectId}`,
+      analystNote: requestedReplay?.replay_summary ?? "Replay chronology is available for analyst and audit review.",
       score: 68,
     },
   ];
@@ -200,6 +240,10 @@ export default async function VerificationReplayPage({
     evidenceLabel: label(event.type, "evidence"),
     flag: label(event.state, "recorded"),
     reviewerAction: event.type === "governance" ? label(event.summary, "Human review recorded.") : null,
+    reviewer: label(event.reviewer, "Pending assignment"),
+    escalationReason: label(event.escalationReason ?? event.state, "Not escalated"),
+    workflowReference: label(event.workflowReference, `${subjectType}/${subjectId}`),
+    analystNote: label(event.analystNote ?? event.summary, "No analyst note recorded"),
     score: trustScoreForEvent(event, index),
     })),
   ];
@@ -333,7 +377,7 @@ export default async function VerificationReplayPage({
                 <div><p className="text-xs uppercase tracking-[0.12em] text-cyan-300">{event.type}</p><p className="mt-2 text-sm font-semibold">{label(event.state)}</p></div>
                 <div>
                   <p className="font-medium">{label(event.title)}</p>
-                  <p className="mt-2 text-sm leading-6 text-zinc-500">{event.summary}</p>
+                  <p className="mt-2 text-sm leading-6 text-zinc-500">{label(event.summary, "Trust state recorded for audit replay.")}</p>
                   <p className="mt-3 text-xs text-zinc-600">
                     Continuity: {event.type === "governance" ? "reviewer action affects workflow and receipt outcome" : event.type === "evidence" ? "evidence supports the replay chronology" : event.type === "receipt" ? "receipt preserves the final workflow state" : "event retained for governance review"}
                   </p>

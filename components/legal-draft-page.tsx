@@ -31,6 +31,7 @@ export function LegalDraftPage({
           {sections.map((section) => (
             <article
               key={section.title}
+              id={section.title === "Responsible Disclosure" ? "responsible-disclosure" : undefined}
               className="rounded-lg border border-zinc-800 bg-black p-5"
             >
               <h2 className="text-lg font-semibold text-zinc-100">
