@@ -15,6 +15,7 @@ const platformSurfaces = [
   ["Replay", "A chronological reconstruction of what changed, who acted and what evidence remains."],
   ["Governance", "Named review ownership, escalation reasons and human authority for sensitive workflow decisions."],
   ["Workflow Trust", "Decision-layer trust across workflow state, authorization context, evidence and reviewer action."],
+  ["Federated Signals", "Shared anomaly indicators and governance intelligence without centralized surveillance."],
   ["Session Integrity", "Liveness, channel, injection and media-risk signals kept separate for review."],
   ["Verification Receipts", "Portable records of what was checked, reviewed, retained and resolved."],
 ];
@@ -45,7 +46,7 @@ export default function Home() {
             Organizations can no longer reliably verify the people, sessions and workflows entering critical systems.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels provides persistent trust infrastructure for enterprise workflows, identities and autonomous systems.
+            Cyber Sentinels provides federated workflow trust infrastructure for enterprises, identities and autonomous systems.
           </p>
           <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
             Synthetic credibility, not just synthetic media, is becoming the attack surface.
@@ -54,7 +55,7 @@ export default function Home() {
             Cyber Sentinels protects the decision layer: the workflow, evidence, reviewer action and trust state behind critical enterprise decisions.
           </p>
           <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
-            Trust evolves over time through evidence continuity, governance review, replay chronology and operational trust posture.
+            Trust evolves over time through evidence continuity, governance review, replay chronology, authorization lineage and operational trust posture.
           </p>
         </div>
 

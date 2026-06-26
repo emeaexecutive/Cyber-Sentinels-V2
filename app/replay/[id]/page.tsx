@@ -342,10 +342,10 @@ export default async function VerificationReplayPage({
 
         <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Workflow continuity map</p>
-          <h2 className="mt-2 text-xl font-semibold">Replay links governance, evidence and receipt outcome</h2>
+          <h2 className="mt-2 text-xl font-semibold">Replay links governance, evidence, authorization and receipt outcome</h2>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
             This replay chronology connects the session integrity state, governance review, operational evidence,
-            verification outcome and receipt record for the same workflow subject.
+            authorization history, verification outcome and receipt record for the same workflow subject.
           </p>
           <div className="mt-5 grid gap-3 md:grid-cols-5">
             {[
@@ -361,6 +361,16 @@ export default async function VerificationReplayPage({
               </Link>
             ))}
           </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Federated signal continuity</p>
+          <h2 className="mt-2 text-xl font-semibold">Replayable workflow evidence can inform enterprise trust networks</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            Shared anomaly indicators, provider evidence, governance decisions and authorization changes are retained
+            as workflow context. They support governance intelligence and future federated trust signals without
+            creating centralized identity tracking.
+          </p>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">

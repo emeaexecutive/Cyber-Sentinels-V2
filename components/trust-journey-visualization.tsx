@@ -218,6 +218,17 @@ export function TrustJourneyVisualization({
         </p>
       </div>
 
+      <div className="mt-3 rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white">
+        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+          Federated workflow trust relationships
+        </p>
+        <p className="mt-2 text-sm leading-6 text-zinc-400 print:text-zinc-700">
+          Workflow, evidence, replay, governance outcome, authorization event and trust posture remain linked
+          as reviewable enterprise records. Shared anomaly indicators and federated trust signals are context for
+          governance intelligence, not centralized surveillance or social scoring.
+        </p>
+      </div>
+
       <div className="mt-6 grid gap-3 md:grid-cols-4">
         {proofItems.map(([label, value]) => (
           <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white">
@@ -229,7 +240,7 @@ export function TrustJourneyVisualization({
         ))}
       </div>
 
-      <div className="mt-6 grid gap-3 md:grid-cols-7">
+      <div className="mt-6 grid gap-3 md:grid-cols-4 lg:grid-cols-8">
         {journeyStages.map((stage, index) => {
           const value = stageState(stage.id, orderedEvents);
           const matchingEvent = orderedEvents.find((event) => inferStage(event) === stage.id);

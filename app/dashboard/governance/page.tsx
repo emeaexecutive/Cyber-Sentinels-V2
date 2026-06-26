@@ -410,6 +410,16 @@ export default async function GovernancePage({
           </div>
         </section>
 
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Federated governance intelligence</p>
+          <h2 className="mt-2 text-xl font-semibold">Anomaly indicators stay governed and replayable</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            Federated trust signals should emerge from workflow evidence, not hidden monitoring. Governance can
+            compare repeated anomaly patterns, provider evidence states and authorization outcomes while keeping
+            reviewer ownership and enterprise consent at the center.
+          </p>
+        </section>
+
         <div className="mt-8">
           <ProviderEvidencePanel
             signals={providerSignals}
