@@ -218,6 +218,10 @@ export default async function WorkforceTrustPage() {
                 evidence, signals and review history across the workforce
                 lifecycle with explainable trust posture workflows.
               </p>
+              <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-500">
+                Workforce trust posture evolves through consent-based enterprise records, reverification events,
+                session continuity, governance review and operational history. It is not surveillance or universal identity scoring.
+              </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -233,6 +237,30 @@ export default async function WorkforceTrustPage() {
                 View Trust Passports
               </Link>
             </div>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Trust continuity layer</p>
+          <h2 className="mt-2 text-xl font-semibold">Workforce trust evolves through replayable history</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            Workforce posture is a continuity view across identity evidence, employment context, session integrity,
+            governance decisions, reverification checkpoints and audit-ready receipts. It shows why state changed,
+            who reviewed it and what evidence remains available.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-5">
+            {[
+              ["Trust history", "Verification, evidence and review events stay connected."],
+              ["Reverification", "Freshness checks appear as explainable checkpoints."],
+              ["Session continuity", "Session and channel context stays separate from identity claims."],
+              ["Governance continuity", "Reviewer actions decide workflow state transitions."],
+              ["Operational posture", "Current state is derived from workflow evidence, not hidden monitoring."],
+            ].map(([title, copy]) => (
+              <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-sm font-semibold text-zinc-100">{title}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-500">{copy}</p>
+              </div>
+            ))}
           </div>
         </section>
 

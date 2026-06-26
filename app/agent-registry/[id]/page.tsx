@@ -90,6 +90,10 @@ export default async function AgentRegistryDetailPage({
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
             {agent.declared_purpose ?? "No declared purpose recorded."}
           </p>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-500">
+            Agent trust posture is a continuity record: declared identity, permission scope,
+            authorization changes, reviewer decisions and audit history remain linked for replay.
+          </p>
         </section>
 
         <section className="mt-8 grid gap-3 md:grid-cols-4">
@@ -141,6 +145,29 @@ export default async function AgentRegistryDetailPage({
                 <p className="text-sm text-zinc-500">No permissions granted.</p>
               )}
             </div>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Authorization lineage</p>
+          <h2 className="mt-2 text-xl font-semibold">Replayable agent trust history</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            Permission scope, policy status, verification events and revocation history form a lightweight evidence
+            network for governed autonomous action. This view does not add hidden tracking; it explains records the
+            enterprise has already chosen to govern.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["Identity", agent.agent_type],
+              ["Policy state", agent.policy_status ?? "pending_policy_review"],
+              ["Permissions", `${agent.permissions.length} scope(s)`],
+              ["Last verified", formatDate(agent.last_verified_at)],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-sm font-semibold text-zinc-100">{value}</p>
+              </div>
+            ))}
           </div>
         </section>
 

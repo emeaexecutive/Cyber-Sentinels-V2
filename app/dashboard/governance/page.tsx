@@ -297,7 +297,7 @@ export default async function GovernancePage({
             Governance visibility for trust coordination.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Governance Review keeps trust state changes, Verification Evidence, reviewer actions and workflow status visible before operational decisions advance.
+            Governance Review keeps trust state changes, Verification Evidence, reviewer actions, authorization lineage and workflow status visible before operational decisions advance.
           </p>
           <div className="mt-5 max-w-3xl">
             <OnboardingHint area="governance" />
@@ -383,6 +383,29 @@ export default async function GovernancePage({
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
                 <p className="mt-2 text-sm font-semibold text-zinc-100">{value}</p>
               </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Governance continuity</p>
+          <h2 className="mt-2 text-xl font-semibold">Reviewer interventions become trust-state transitions</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            Escalation ownership, reviewer attribution, authorization changes and audit chronology stay connected
+            to the workflow. Cyber Sentinels uses consented enterprise records and review actions; it does not add
+            hidden tracking or surveillance behavior.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["Reviewer attribution", "Assigned reviewers, resolution notes and timestamps are retained."],
+              ["Escalation ownership", "Open actions keep responsibility attached to the workflow."],
+              ["Trust-state transitions", "Pending, escalated, approved and resolved states remain replayable."],
+              ["Audit chronology", "Evidence, signals and review decisions form continuity for receipts and replay."],
+            ].map(([title, copy]) => (
+              <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-sm font-semibold text-zinc-100">{title}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-500">{copy}</p>
+              </div>
             ))}
           </div>
         </section>

@@ -12,6 +12,7 @@ export type TrustJourneyStage =
   | "human_presence_checked"
   | "session_integrity_checked"
   | "injection_risk_reviewed"
+  | "authorization_changed"
   | "governance_review_opened"
   | "manual_review_completed"
   | "receipt_issued";
@@ -37,6 +38,9 @@ export type TrustProofState = {
   currentVerificationState?: string | null;
   riskLevel?: string | null;
   lastEvidenceEvent?: string | null;
+  trustStateChange?: string | null;
+  authorizationLineage?: string | null;
+  evidenceContinuity?: string | null;
   reviewerAction?: string | null;
   finalOutcome?: string | null;
 };
@@ -46,6 +50,7 @@ const journeyStages: Array<{ id: TrustJourneyStage; label: string; evidence: str
   { id: "human_presence_checked", label: "Human presence checked", evidence: "Presence evidence" },
   { id: "session_integrity_checked", label: "Session integrity checked", evidence: "Integrity evidence" },
   { id: "injection_risk_reviewed", label: "Injection risk events", evidence: "Flag review" },
+  { id: "authorization_changed", label: "Authorization changes", evidence: "Lineage record" },
   { id: "governance_review_opened", label: "Governance escalation", evidence: "Governance review" },
   { id: "manual_review_completed", label: "Reviewer actions", evidence: "Decision record" },
   { id: "receipt_issued", label: "Receipt issued", evidence: "Receipt proof" },
@@ -114,6 +119,9 @@ function inferStage(event: TrustJourneyEvent): TrustJourneyStage {
   if (text.includes("manual") || text.includes("completed") || text.includes("approved") || text.includes("resolved")) {
     return "manual_review_completed";
   }
+  if (text.includes("authorization") || text.includes("permission") || text.includes("lineage") || text.includes("access")) {
+    return "authorization_changed";
+  }
   if (text.includes("governance") || text.includes("review opened")) return "governance_review_opened";
   if (text.includes("injection")) return "injection_risk_reviewed";
   if (text.includes("session") || text.includes("integrity")) return "session_integrity_checked";
@@ -177,6 +185,9 @@ export function TrustJourneyVisualization({
     ["Current verification state", proofState?.currentVerificationState ?? stateDetails[outcome].label],
     ["Risk level", proofState?.riskLevel ?? stateDetails[outcome].label],
     ["Last evidence event", proofState?.lastEvidenceEvent ?? latestEvent?.title],
+    ["Trust state change", proofState?.trustStateChange ?? latestEvent?.flag],
+    ["Authorization lineage", proofState?.authorizationLineage ?? latestEvent?.workflowReference],
+    ["Evidence continuity", proofState?.evidenceContinuity ?? latestEvent?.evidenceLabel],
     ["Reviewer action", proofState?.reviewerAction ?? latestEvent?.reviewerAction],
     ["Final outcome", proofState?.finalOutcome ?? latestEvent?.description],
   ] as const;
@@ -187,7 +198,7 @@ export function TrustJourneyVisualization({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-cyan-300 print:text-zinc-600">
-            Trust Journey
+            Trust Progression Timeline
           </p>
           <h2 className="mt-2 text-xl font-semibold">{title}</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400 print:text-zinc-700">
@@ -197,7 +208,17 @@ export function TrustJourneyVisualization({
         <TrustStateBadge state={outcome} />
       </div>
 
-      <div className="mt-6 grid gap-3 md:grid-cols-5">
+      <div className="mt-6 rounded-lg border border-cyan-950 bg-black p-4 print:border-zinc-300 print:bg-white">
+        <p className="text-xs uppercase tracking-[0.16em] text-cyan-300 print:text-zinc-600">
+          Evidence-chain continuity
+        </p>
+        <p className="mt-2 text-sm leading-6 text-zinc-400 print:text-zinc-700">
+          Trust evolves over time as verification events, provider-backed evidence, authorization changes,
+          reviewer interventions, governance escalations, replay chronology and workflow outcomes accumulate.
+        </p>
+      </div>
+
+      <div className="mt-6 grid gap-3 md:grid-cols-4">
         {proofItems.map(([label, value]) => (
           <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white">
             <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">{label}</p>

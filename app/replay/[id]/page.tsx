@@ -77,6 +77,9 @@ function stageForEvent(event: Row): TrustJourneyStage {
   if (text.includes("approved") || text.includes("resolved") || text.includes("rejected") || text.includes("reviewer")) {
     return "manual_review_completed";
   }
+  if (text.includes("authorization") || text.includes("permission") || text.includes("access") || text.includes("lineage")) {
+    return "authorization_changed";
+  }
   if (text.includes("governance") || text.includes("escalated")) return "governance_review_opened";
   if (text.includes("injection")) return "injection_risk_reviewed";
   if (text.includes("session") || text.includes("integrity") || text.includes("channel")) return "session_integrity_checked";
@@ -240,6 +243,21 @@ export default async function VerificationReplayPage({
       workflowReference: `${subjectType}/${subjectId}`,
       analystNote: "Initial workflow state retained for replay.",
       score: 52,
+    },
+    {
+      id: "baseline-authorization-lineage",
+      title: "Authorization lineage recorded",
+      description: "Workflow authority, reviewer action and evidence references remain connected before an outcome advances.",
+      occurredAt: latestGovernance?.created_at ?? session?.created_at ?? requestedReplay?.created_at,
+      state: latestGovernance ? "governance_review" : "manual_review_required",
+      stage: "authorization_changed",
+      evidenceLabel: "authorization lineage",
+      flag: label(latestGovernance?.action_status, "authority pending review"),
+      reviewer: latestGovernance?.assigned_to ?? "Workflow owner",
+      escalationReason: "Authorization state depends on evidence and governance review",
+      workflowReference: `${subjectType}/${subjectId}`,
+      analystNote: "Authorization changes are replayable evidence, not hidden tracking.",
+      score: latestGovernance ? 58 : 50,
     },
     {
       id: "baseline-replay-available",
@@ -417,6 +435,9 @@ export default async function VerificationReplayPage({
               currentVerificationState: label(session?.verification_status ?? session?.session_status ?? session?.integrity_status, completed ? "Verified" : "Manual Review Required"),
               riskLevel: elevatedRiskEvent ? label(elevatedRiskEvent.risk_level ?? elevatedRiskEvent.signal_type, "Elevated") : "No elevated flag recorded",
               lastEvidenceEvent: latestEvidenceEvent ? `${label(latestEvidenceEvent.type)} / ${formatDate(latestEvidenceEvent.created_at)}` : "No evidence event recorded",
+              trustStateChange: latestGovernance ? label(latestGovernance.action_status, "Governance review") : "Replay chronology retained",
+              authorizationLineage: `${subjectType}/${subjectId}`,
+              evidenceContinuity: `${chronology.length} chronology event(s), ${evidenceChains?.length ?? 0} evidence chain(s)`,
               reviewerAction: latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "Governance review pending",
               finalOutcome: receipts?.[0] ? label(receipts[0].verification_status, "Receipt issued") : "Receipt pending",
             }}

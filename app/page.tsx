@@ -45,13 +45,16 @@ export default function Home() {
             Organizations can no longer reliably verify the people, sessions and workflows entering critical systems.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels provides operational trust infrastructure for hiring, verification and enterprise workflow governance.
+            Cyber Sentinels provides persistent trust infrastructure for enterprise workflows, identities and autonomous systems.
           </p>
           <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
             Synthetic credibility, not just synthetic media, is becoming the attack surface.
           </p>
           <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
             Cyber Sentinels protects the decision layer: the workflow, evidence, reviewer action and trust state behind critical enterprise decisions.
+          </p>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
+            Trust evolves over time through evidence continuity, governance review, replay chronology and operational trust posture.
           </p>
         </div>
 
@@ -82,7 +85,7 @@ export default function Home() {
               From uncertain workflow entry to replayable accountability.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              The product story is intentionally simple: a workflow is verified, evidence is reviewed, governance is assigned and the outcome is preserved as replayable operational proof.
+              The product story is intentionally simple: a workflow is verified, evidence accumulates, governance is assigned, authorization changes are recorded and the outcome is preserved as replayable operational proof.
             </p>
           </div>
           <div className="mt-7 grid gap-3 md:grid-cols-6">
@@ -105,7 +108,7 @@ export default function Home() {
             Governance, evidence, replay and workflow trust in one operational path.
           </h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Use Cyber Sentinels to preserve evidence, replay what changed, assign governance ownership and issue workflow-linked verification receipts before sensitive access or decisions move forward.
+            Use Cyber Sentinels to preserve evidence, replay what changed, assign governance ownership, maintain authorization lineage and issue workflow-linked verification receipts before sensitive access or decisions move forward.
           </p>
         </div>
         <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3">

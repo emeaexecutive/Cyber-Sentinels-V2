@@ -82,6 +82,8 @@ export function TrustPostureDashboard({
       evidenceLabel: "active posture",
       flag: snapshot.activeTrustLabel,
       score: snapshot.activeTrustLevel,
+      workflowReference: "trust posture / active state",
+      analystNote: "Trust posture changes are derived from consented workflow records.",
     },
     ...snapshot.recentEvents.slice(0, 5).map((row, index): TrustJourneyEvent => ({
       id: `recent-${row.id ?? index}`,
@@ -97,6 +99,10 @@ export function TrustPostureDashboard({
       evidenceLabel: clean(row.posture_source, "timeline"),
       flag: clean(row.posture_label, "recorded"),
       score: snapshot.activeTrustLevel === null ? null : Math.max(25, Math.min(92, snapshot.activeTrustLevel - 10 + index * 3)),
+      reviewer: "Workflow reviewer",
+      escalationReason: clean(row.posture_label, "Trust state changed"),
+      workflowReference: clean(row.posture_source, "trust posture event"),
+      analystNote: "Event retained for replayable trust history.",
     })),
     ...snapshot.reviewQueue.slice(0, 3).map((row, index): TrustJourneyEvent => ({
       id: `review-${row.id ?? index}`,
@@ -108,6 +114,10 @@ export function TrustPostureDashboard({
       evidenceLabel: row.posture_queue_type === "session" ? "session review" : "governance action",
       reviewerAction: clean(row.resolution_notes ?? row.action_status, "review pending"),
       score: 52,
+      reviewer: "Governance reviewer",
+      escalationReason: "Review keeps trust-state transition accountable",
+      workflowReference: clean(row.posture_queue_type, "review queue"),
+      analystNote: "Reviewer intervention is part of governance continuity.",
     })),
     ...snapshot.elevatedRisk.slice(0, 3).map((row, index): TrustJourneyEvent => ({
       id: `risk-${row.id ?? index}`,
@@ -119,8 +129,27 @@ export function TrustPostureDashboard({
       evidenceLabel: clean(row.category, "risk flag"),
       flag: clean(row.risk_level, "elevated"),
       score: 44,
+      reviewer: "Trust operations reviewer",
+      escalationReason: clean(row.explanation, "Elevated signal requires review"),
+      workflowReference: clean(row.category, "risk event"),
+      analystNote: "Risk signal is review context, not surveillance.",
     })),
   ];
+  const authorizationEvent: TrustJourneyEvent = {
+    id: "authorization-lineage",
+    title: "Authorization lineage reviewed",
+    description: "Workflow access, reviewer ownership and evidence history stay connected as posture changes.",
+    occurredAt: snapshot.recentEvents[0]?.created_at ?? snapshot.summaries[0]?.updatedAt,
+    state: snapshot.reviewQueue.length ? "governance_review" : "verified",
+    stage: "authorization_changed",
+    evidenceLabel: "authorization lineage",
+    flag: snapshot.reviewQueue.length ? "review required" : "lineage current",
+    reviewer: snapshot.reviewQueue.length ? "Governance reviewer" : "Workflow owner",
+    escalationReason: "Authorization depends on evidence continuity and governance state",
+    workflowReference: "trust posture / authorization",
+    analystNote: "No hidden tracking; posture is derived from workflow records.",
+    score: snapshot.reviewQueue.length ? 56 : 72,
+  };
   const finalJourneyState: TrustJourneyState = snapshot.reviewQueue.length
     ? "governance_review"
     : snapshot.elevatedRisk.length
@@ -181,7 +210,7 @@ export function TrustPostureDashboard({
           <TrustJourneyVisualization
             title="Trust posture journey"
             description="Operational progression across verification milestones, Session Integrity, Governance Review, reviewer action and Replay Evidence."
-            events={journeyEvents}
+            events={[...journeyEvents, authorizationEvent]}
             finalState={finalJourneyState}
             proofState={{
               currentVerificationState: snapshot.activeTrustLabel,
@@ -189,6 +218,9 @@ export function TrustPostureDashboard({
               lastEvidenceEvent: snapshot.recentEvents[0]
                 ? `${clean(snapshot.recentEvents[0].posture_label)} / ${formatDate(snapshot.recentEvents[0].created_at)}`
                 : "No recent event recorded",
+              trustStateChange: snapshot.posture.label,
+              authorizationLineage: snapshot.reviewQueue.length ? "review-gated authorization" : "lineage current",
+              evidenceContinuity: `${snapshot.metrics.recentEvents} recent trust event(s)`,
               reviewerAction: snapshot.reviewQueue[0]
                 ? clean(snapshot.reviewQueue[0].resolution_notes ?? snapshot.reviewQueue[0].action_status, "Review pending")
                 : "No open reviewer action",

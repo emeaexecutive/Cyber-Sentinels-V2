@@ -77,7 +77,11 @@ export default async function AgentRegistryPage() {
             Agent Registry™
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Every AI agent needs accountable context before permission.
+            Every AI agent needs accountable context, authorization lineage and replayable activity evidence before permission.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-500">
+            Agent trust posture evolves through declared purpose, permission scope, verification events,
+            governed execution, signed activity and reviewer action. This is workflow governance, not hidden tracking.
           </p>
           <Link
             href="/permissions-firewall"
@@ -96,6 +100,29 @@ export default async function AgentRegistryPage() {
               Showing demo agents until the agents table contains records.
             </p>
           ) : null}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Agent continuity</p>
+          <h2 className="mt-2 text-xl font-semibold">Autonomous systems need persistent trust history</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            Agent posture links identity, authorization changes, workflow outcomes and audit events so reviewer
+            decisions can be replayed. Future trust graph work should connect relationships and evidence networks
+            without adding broad surveillance infrastructure.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {[
+              ["Authorization lineage", "Permission scope and policy state remain visible."],
+              ["Governed execution", "High-risk actions require evidence and review context."],
+              ["Signed activity", "Activity evidence should be attributable and replayable."],
+              ["Operational history", "Status, risk and revocation events stay linked to the agent record."],
+            ].map(([title, copy]) => (
+              <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-sm font-semibold text-zinc-100">{title}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-500">{copy}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 grid gap-3 md:grid-cols-6">

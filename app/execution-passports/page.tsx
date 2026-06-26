@@ -186,7 +186,7 @@ export default async function ExecutionPassportsPage({
                 intent and audit history before execution.
               </p>
               <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-500">
-                No high-risk execution without evidence.
+                No high-risk execution without evidence, authorization lineage, reviewer ownership and replayable operational history.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -204,6 +204,16 @@ export default async function ExecutionPassportsPage({
               </Link>
             </div>
           </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Authorization continuity</p>
+          <h2 className="mt-2 text-xl font-semibold">Execution trust changes over time</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            Execution passports connect intent, evidence, approval state, audit chronology and workflow outcome.
+            They form lightweight trust graph foundations by linking identities, actions and authorizations without
+            adding broad surveillance infrastructure.
+          </p>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
