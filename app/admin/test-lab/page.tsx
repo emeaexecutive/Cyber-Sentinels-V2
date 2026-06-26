@@ -183,6 +183,37 @@ export default async function TestLabPage() {
                   </div>
                 </section>
               </div>
+
+              <section className="mt-4 rounded-lg border border-zinc-800 bg-black p-4">
+                <h3 className="text-sm font-semibold text-zinc-100">Replayable workflow trust chronology</h3>
+                <p className="mt-2 text-xs leading-5 text-zinc-500">
+                  Every deterministic state change retains its score delta, reason, evidence, governance action,
+                  workflow transition and authorization continuity.
+                </p>
+                <div className="mt-4 grid gap-3">
+                  {result.trustChronology.map((transition) => (
+                    <div key={transition.id} className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-zinc-200">
+                          {transition.previousScore} to {transition.score} ({transition.scoreDelta >= 0 ? "+" : ""}{transition.scoreDelta})
+                        </p>
+                        <span className="text-xs uppercase tracking-[0.12em] text-cyan-300">{transition.workflowTransition}</span>
+                      </div>
+                      <p className="mt-3 text-sm leading-6 text-zinc-400">
+                        Why: {transition.whyChanged.join(" ")}
+                      </p>
+                      <p className="mt-2 text-xs leading-5 text-zinc-500">
+                        Evidence: {transition.evidenceContributed.join(", ") || "No evidence reference supplied"}
+                      </p>
+                      <p className="mt-2 text-xs leading-5 text-zinc-500">
+                        Governance: {transition.governanceAction
+                          ? `${transition.governanceAction.action} by ${transition.governanceAction.reviewer}`
+                          : "No governance action at this transition"} · Authorization: {transition.authorizationContinuity}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
             </article>
           ))}
         </section>

@@ -722,6 +722,18 @@ function routeInventoryChecks() {
     ),
     check(
       "Demo And Proof Routes",
+      "Multi-signal workflow trust engine",
+      routeFileExists("admin", "test-lab", "page.tsx") &&
+        existsSync(join(process.cwd(), "lib", "trust-engine.ts")) &&
+        fileContains("lib", "trust-engine.ts", /evolveWorkflowTrust/) ? "PASS" : "FAIL",
+      routeFileExists("admin", "test-lab", "page.tsx") &&
+        existsSync(join(process.cwd(), "lib", "trust-engine.ts"))
+        ? "Trust engine and protected validation lab are present."
+        : "Trust engine or protected validation lab is missing.",
+      true
+    ),
+    check(
+      "Demo And Proof Routes",
       "Verification receipt route",
       routeFileExists("trust", "receipt", "[id]", "page.tsx") && routeFileExists("verification", "receipt", "[id]", "page.tsx") ? "PASS" : "FAIL",
       routeFileExists("trust", "receipt", "[id]", "page.tsx") && routeFileExists("verification", "receipt", "[id]", "page.tsx")

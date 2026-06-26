@@ -12,6 +12,12 @@ import {
   type NormalizedVerificationResponse,
   type VerificationProviderSignal,
 } from "@/lib/providers";
+import {
+  createWorkflowTrustState,
+  evolveWorkflowTrust,
+  type WorkflowTrustTransition,
+  type WorkflowTrustSignal,
+} from "@/lib/trust-engine";
 
 export type TestSignalCategory =
   | "identity_confidence"
@@ -83,6 +89,7 @@ export type ScenarioResult = {
     trustScoreChange: string;
   };
   providerValidation: ProviderValidation;
+  trustChronology: WorkflowTrustTransition[];
 };
 
 function providerSignal(
@@ -429,6 +436,71 @@ export function runValidationScenario(scenario: ValidationScenario): ScenarioRes
   const providerEvidence = scenario.providerSignals.map((signal) =>
     toNormalizedVerificationResponse(signal)
   );
+  const observedAt = "2026-01-01T10:00:00.000Z";
+  const initialTrust = createWorkflowTrustState(
+    scenario.id,
+    {
+      identityConfidence: scenario.input.identityConfidence,
+      providerVerification: providerValue(providerSummary.providerVerificationState),
+      sessionIntegrity: Math.max(scenario.input.sessionIntegrity, 75),
+      behavioralConsistency: scenario.input.behavioralConsistency,
+      evidenceCompleteness: scenario.input.evidenceCompleteness,
+      authorizationLineage: 80,
+      governanceReviewState: 55,
+      replayContinuity: 85,
+      workflowAnomalies: 0,
+    },
+    observedAt
+  );
+  const scenarioSignalType: WorkflowTrustSignal["type"] =
+    scenario.scenarioType === "vpn_anomaly"
+      ? "vpn_anomaly"
+      : scenario.scenarioType === "mismatched_device_signal"
+        ? "device_continuity"
+        : scenario.scenarioType === "failed_provider_verification"
+          ? "provider_verification_change"
+          : scenario.scenarioType === "incomplete_evidence_chain"
+            ? "evidence_completeness"
+            : scenario.scenarioType === "verified_human"
+              ? "provider_verification"
+              : scenario.scenarioType === "governance_escalation"
+                ? "workflow_inconsistency"
+                : "session_interruption";
+  const signalValue =
+    scenarioSignalType === "workflow_inconsistency"
+      ? 45
+      : scenarioSignalType === "provider_verification"
+        ? 10
+        : -Math.max(8, Math.min(40, 75 - scenario.input.sessionIntegrity));
+  const signaledTrust = evolveWorkflowTrust(initialTrust, {
+    providerVerification: providerSummary.providerVerificationState,
+    signals: [
+      {
+        id: `${scenario.id}-signal`,
+        type: scenarioSignalType,
+        observedAt,
+        value: signalValue,
+        direction: signalValue < 0 ? "decrease" : "increase",
+        explanation: scenario.triggerReason,
+        evidenceReferences: scenario.evidenceUsed,
+        provider: scenario.providerValidation.provider,
+      },
+    ],
+  });
+  const governedTrust = evolveWorkflowTrust(signaledTrust, {
+    governanceAction: {
+      action:
+        scenario.input.governanceReview === "approved"
+          ? "approve"
+          : scenario.input.governanceReview === "rejected"
+            ? "reject"
+            : "open_review",
+      reviewer: "Validation governance reviewer",
+      reason: scenario.reviewerAction,
+      evidenceReferences: scenario.evidenceUsed,
+      occurredAt: "2026-01-01T10:05:00.000Z",
+    },
+  });
 
   return {
     scenario,
@@ -454,6 +526,7 @@ export function runValidationScenario(scenario: ValidationScenario): ScenarioRes
       trustScoreChange: `${scoreBefore} -> ${result.score} (${scoreDelta >= 0 ? "+" : ""}${scoreDelta})`,
     },
     providerValidation: scenario.providerValidation,
+    trustChronology: governedTrust.chronology,
   };
 }
 

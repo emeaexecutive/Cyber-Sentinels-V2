@@ -5,6 +5,13 @@ export const sessionSignalCategories = [
   "device_channel_integrity",
   "session_anomaly",
   "manual_review_required",
+  "ip_location_change",
+  "vpn_anomaly",
+  "device_continuity",
+  "browser_consistency",
+  "provider_verification_change",
+  "session_interruption",
+  "workflow_inconsistency",
 ] as const;
 
 export type SessionSignalCategory = (typeof sessionSignalCategories)[number];
@@ -29,6 +36,13 @@ export type SessionIntegrityInput = {
   manual_review_required?: boolean;
   evidence_source?: string;
   evidence_metadata?: Record<string, unknown>;
+  ip_location_changed?: boolean;
+  vpn_anomaly?: boolean;
+  device_continuity_state?: string;
+  browser_consistency_state?: string;
+  provider_verification_changed?: boolean;
+  session_interrupted?: boolean;
+  workflow_inconsistency_score?: number;
 };
 
 export type ExplainableSessionSignal = {
@@ -88,6 +102,13 @@ export function normalizeSessionIntegrityInput(
         ? body.evidence_source.trim().slice(0, 120)
         : "operator_input",
     evidence_metadata: metadata,
+    ip_location_changed: body.ip_location_changed === true,
+    vpn_anomaly: body.vpn_anomaly === true,
+    device_continuity_state: cleanState(body.device_continuity_state),
+    browser_consistency_state: cleanState(body.browser_consistency_state),
+    provider_verification_changed: body.provider_verification_changed === true,
+    session_interrupted: body.session_interrupted === true,
+    workflow_inconsistency_score: boundedScore(body.workflow_inconsistency_score) ?? undefined,
   };
 }
 
@@ -97,6 +118,9 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
   const deepfakeScore = boundedScore(input.deepfake_risk_score);
   const injectionScore = boundedScore(input.injection_risk_score);
   const anomalyScore = boundedScore(input.session_anomaly_score);
+  const workflowInconsistency = boundedScore(input.workflow_inconsistency_score);
+  const deviceContinuous = ["continuous", "consistent", "verified"].includes(cleanState(input.device_continuity_state));
+  const browserConsistent = ["consistent", "verified"].includes(cleanState(input.browser_consistency_state));
 
   const livenessConfirmed = ["confirmed", "passed", "live_presence_confirmed"].includes(liveness);
   const livenessFailed = ["failed", "not_confirmed"].includes(liveness);
@@ -110,6 +134,11 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
       livenessFailed ||
       channelFailed ||
       riskRequiresReview
+      || input.ip_location_changed
+      || input.vpn_anomaly
+      || input.provider_verification_changed
+      || input.session_interrupted
+      || (workflowInconsistency !== null && workflowInconsistency >= 35)
   );
 
   const signals: ExplainableSessionSignal[] = [
@@ -179,6 +208,80 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
           : "This score summarizes reviewable session anomalies without profiling behavior or making an automated decision.",
       badge: anomalyScore !== null && anomalyScore >= 35 ? "Manual Review Required" : "Session Review Pending",
       requires_manual_review: anomalyScore !== null && anomalyScore >= 35,
+    },
+    {
+      category: "ip_location_change",
+      label: "IP and location continuity",
+      status: input.ip_location_changed ? "elevated" : "clear",
+      risk_level: input.ip_location_changed ? "medium" : "low",
+      confidence_score: null,
+      explanation: input.ip_location_changed
+        ? "Network location changed during the workflow. This is a reviewable continuity signal, not proof of misuse."
+        : "No IP or location continuity change was reported.",
+      badge: input.ip_location_changed ? "Location Change" : "Continuity Clear",
+      requires_manual_review: Boolean(input.ip_location_changed),
+    },
+    {
+      category: "vpn_anomaly",
+      label: "VPN anomaly",
+      status: input.vpn_anomaly ? "elevated" : "clear",
+      risk_level: input.vpn_anomaly ? "medium" : "low",
+      confidence_score: null,
+      explanation: input.vpn_anomaly
+        ? "Network routing changed in a way that requires workflow review. VPN use alone does not establish malicious intent."
+        : "No VPN routing anomaly was reported.",
+      badge: input.vpn_anomaly ? "VPN Anomaly" : "Network Clear",
+      requires_manual_review: Boolean(input.vpn_anomaly),
+    },
+    {
+      category: "device_continuity",
+      label: "Device continuity",
+      status: deviceContinuous ? "verified" : "pending",
+      risk_level: deviceContinuous ? "low" : "unknown",
+      confidence_score: null,
+      explanation: deviceContinuous ? "Device continuity remained consistent." : "Device continuity is pending or changed and should be reviewed with other evidence.",
+      badge: deviceContinuous ? "Device Continuous" : "Device Review Pending",
+      requires_manual_review: false,
+    },
+    {
+      category: "browser_consistency",
+      label: "Browser consistency",
+      status: browserConsistent ? "verified" : "pending",
+      risk_level: browserConsistent ? "low" : "unknown",
+      confidence_score: null,
+      explanation: browserConsistent ? "Browser context remained consistent." : "Browser consistency evidence is incomplete or changed.",
+      badge: browserConsistent ? "Browser Consistent" : "Browser Review Pending",
+      requires_manual_review: false,
+    },
+    {
+      category: "provider_verification_change",
+      label: "Provider verification continuity",
+      status: input.provider_verification_changed ? "elevated" : "clear",
+      risk_level: input.provider_verification_changed ? "medium" : "low",
+      confidence_score: null,
+      explanation: input.provider_verification_changed ? "Provider verification state changed during the workflow and must remain visible in replay." : "Provider verification state remained continuous.",
+      badge: input.provider_verification_changed ? "Provider State Changed" : "Provider State Continuous",
+      requires_manual_review: Boolean(input.provider_verification_changed),
+    },
+    {
+      category: "session_interruption",
+      label: "Session interruption",
+      status: input.session_interrupted ? "elevated" : "clear",
+      risk_level: input.session_interrupted ? "medium" : "low",
+      confidence_score: null,
+      explanation: input.session_interrupted ? "The session was interrupted; authorization and device continuity require review before resumption." : "No session interruption was reported.",
+      badge: input.session_interrupted ? "Session Interrupted" : "Session Continuous",
+      requires_manual_review: Boolean(input.session_interrupted),
+    },
+    {
+      category: "workflow_inconsistency",
+      label: "Workflow inconsistency",
+      status: riskStatus(workflowInconsistency),
+      risk_level: riskFromScore(workflowInconsistency),
+      confidence_score: workflowInconsistency,
+      explanation: workflowInconsistency === null ? "No workflow inconsistency assessment is available." : "This rule-based signal identifies divergence from the expected workflow sequence for governance review.",
+      badge: workflowInconsistency !== null && workflowInconsistency >= 35 ? "Workflow Inconsistency" : "Workflow Review Pending",
+      requires_manual_review: workflowInconsistency !== null && workflowInconsistency >= 35,
     },
     {
       category: "manual_review_required",
