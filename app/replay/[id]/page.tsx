@@ -317,9 +317,9 @@ export default async function VerificationReplayPage({
             <div>
               <h1 className="text-4xl font-semibold">{session?.title ?? "Verification workflow replay"}</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-                Cyber Sentinels maintains persistent operational trust memory across enterprise workflows, identities
-                and autonomous systems. This read-only replay reconstructs state changes, reviewer decisions,
-                evidence continuity, authorization lineage and workflow outcomes.
+                Cyber Sentinels creates replayable operational trust memory across enterprise workflows.
+                This read-only record reconstructs provider evidence, signal changes, reviewer decisions,
+                trust-state transitions, authorization lineage and workflow outcomes.
               </p>
               <p className="mt-2 font-mono text-xs text-zinc-600">Subject {subjectType} / {subjectId}</p>
             </div>

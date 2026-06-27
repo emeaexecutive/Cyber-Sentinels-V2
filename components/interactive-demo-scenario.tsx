@@ -13,12 +13,13 @@ export type DemoScenarioStep = {
 
 const proofPath = [
   "Candidate enters workflow",
-  "Verification record opens",
+  "Session begins",
+  "Provider verification checked",
   "Session anomaly recorded",
   "Governance review assigned",
   "Replay chronology available",
-  "Reviewer action recorded",
   "Verification receipt issued",
+  "Trust posture updated",
 ];
 
 export function InteractiveDemoScenario({ label, title, summary, steps, nextScenario }: {
@@ -52,7 +53,7 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
               </div>
             ))}
           </div>
-          <div className="mt-6 grid gap-2 md:grid-cols-7">
+          <div className="mt-6 grid gap-2 md:grid-cols-4 lg:grid-cols-8">
             {proofPath.map((item, index) => (
               <div
                 key={item}

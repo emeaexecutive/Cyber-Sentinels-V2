@@ -17,12 +17,13 @@ const proofLinks = [
 
 const demoSequence = [
   "Fake candidate enters workflow",
-  "Verification begins",
-  "Session integrity fails",
-  "Governance review opens",
-  "Replay evidence appears",
-  "Reviewer action is recorded",
-  "Verification receipt issued",
+  "Interview session begins",
+  "Provider verification is checked",
+  "Session anomaly is detected",
+  "Governance escalation is triggered",
+  "Replay reconstructs the chronology",
+  "Verification receipt is generated",
+  "Trust posture is updated",
 ];
 
 export default function DemoPage() {
@@ -38,7 +39,7 @@ export default function DemoPage() {
             In under 90 seconds, see what entered the workflow, what changed during the session, what evidence was reviewed and which governance action determined the outcome.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Follow one path through hiring security, session integrity, governance, replay and a verification receipt.
+            Follow one path through provider verification, session integrity, governance, replay, receipt and evolving trust posture.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href="/demo/hiring-attack" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-200">View Demo</Link>
@@ -86,7 +87,7 @@ export default function DemoPage() {
         <section className="mt-12 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Demo sequence</p>
           <h2 className="mt-3 text-2xl font-semibold text-white">The full enterprise review sequence.</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-7">
+          <div className="mt-5 grid gap-3 md:grid-cols-4 lg:grid-cols-8">
             {demoSequence.map((step, index) => (
               <div key={step} className="border-t border-zinc-700 pt-4">
                 <p className="text-xs font-semibold text-cyan-200">{index + 1}</p>

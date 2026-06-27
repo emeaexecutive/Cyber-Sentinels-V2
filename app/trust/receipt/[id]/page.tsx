@@ -427,6 +427,20 @@ export default async function TrustReceiptPage({
           <DetailRow label="Replay Link" value={`/replay/${receipt.subject_id}`} />
         </section>
 
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-300 print:text-zinc-600">
+            Pilot review handoff
+          </p>
+          <h2 className="mt-2 text-xl font-semibold">Audit-grade outcome summary</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+            <DetailRow label="Workflow outcome" value={label(governanceOutcome ?? receipt.verification_status, "Reviewable")} />
+            <DetailRow label="Escalation summary" value={latestGovernance ? label(latestGovernance.escalation_reason ?? latestGovernance.action_type, "Governance review recorded") : "No escalation attached"} />
+            <DetailRow label="Evidence references" value={`${(evidenceChains ?? []).length} chain(s) / ${(auditLogs ?? []).length} audit reference(s)`} />
+            <DetailRow label="Replay reference" value={`/replay/${receipt.subject_id}`} />
+            <DetailRow label="Reviewer attribution" value={latestGovernance?.resolved_by ?? latestGovernance?.assigned_to ?? latestGovernance?.created_by ?? receipt.issued_by ?? "Pending assignment"} />
+          </div>
+        </section>
+
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           <DetailRow label="What was verified" value={label(receipt.subject_type, "Workflow subject")} />
           <DetailRow label="Evidence exists" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} evidence chain(s)` : "No linked evidence chain yet"} />

@@ -169,7 +169,10 @@ export function TrustPostureDashboard({
                 {enterprise ? "Trust Posture Operations" : "Active Trust Posture"}
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Identity verification is a point-in-time record. This view keeps context changes, session integrity, reverification and human governance visible as operational trust evolves across humans, machines and AI agents.
+                Identity verification is a point-in-time record. This view keeps provider evidence, session changes, reverification and human governance visible as workflow trust evolves.
+              </p>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
+                Cyber Sentinels creates replayable operational trust memory across enterprise workflows.
               </p>
             </div>
             <TrustPostureBadge value={snapshot.badge} />

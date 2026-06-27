@@ -33,6 +33,17 @@ export default async function TestLabPage() {
   const providerWarnings = providers.filter((provider) =>
     ["safely_disabled", "placeholder", "future"].includes(provider.status)
   );
+  const pilotCoverage = [
+    ["Trust degradation", "Repeated changes show how posture moves over time.", "vpn_anomaly"],
+    ["Provider failure", "Failed provider evidence opens a review path.", "failed_provider_verification"],
+    ["Injected session", "Channel and injection flags remain replayable.", "injected_session"],
+    ["Proxy interview", "Candidate and live-session context remain separate.", "proxy_candidate_risk"],
+    ["Governance intervention", "Named reviewer action affects the final posture.", "governance_escalation"],
+  ].map(([label, description, scenarioType]) => ({
+    label,
+    description,
+    ready: results.some((result) => result.scenario.scenarioType === scenarioType),
+  }));
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -62,6 +73,30 @@ export default async function TestLabPage() {
                 Verification testbench
               </Link>
             </div>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">
+            Enterprise pilot simulation matrix
+          </p>
+          <h2 className="mt-2 text-xl font-semibold">Operational scenarios ready for walkthrough</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
+            Each simulation shows the input signal, provider state, trust transition, governance response,
+            replay chronology and final workflow outcome. Results are deterministic product checks, not detection benchmarks.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            {pilotCoverage.map((item) => (
+              <div key={item.label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-sm font-semibold text-zinc-100">{item.label}</h3>
+                  <span className={`rounded-full border px-2 py-1 text-xs ${item.ready ? "border-emerald-800 text-emerald-200" : "border-amber-800 text-amber-200"}`}>
+                    {item.ready ? "Ready" : "Missing"}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{item.description}</p>
+              </div>
+            ))}
           </div>
         </section>
 
