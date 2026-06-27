@@ -60,6 +60,7 @@ const protectedRoutes = [
   "/admin/founder-control",
   "/admin/deployment-readiness",
   "/admin/runtime-validation",
+  "/admin/support",
   "/admin/trust-integrity",
   "/dashboard",
   "/dashboard/session-integrity",
@@ -116,6 +117,7 @@ const workflowTables: WorkflowTableCheck[] = [
   { label: "Subscriptions", table: "subscriptions" },
   { label: "Integration status", table: "integration_status" },
   { label: "Runtime validation logs", table: "runtime_validation_logs" },
+  { label: "Support issues", table: "support_issues" },
 ];
 const requestTimeoutMs = 8000;
 
@@ -750,6 +752,20 @@ function routeInventoryChecks() {
       routeFileExists("trust", "receipt", "[id]", "page.tsx") && routeFileExists("verification", "receipt", "[id]", "page.tsx")
         ? "Trust receipt and verification receipt routes are present."
         : "Verification receipt route files are missing.",
+      true
+    ),
+    check(
+      "Operational Support",
+      "Protected screenshot support workflow",
+      routeFileExists("admin", "support", "page.tsx") &&
+        routeFileExists("admin", "support", "[id]", "page.tsx") &&
+        routeFileExists("api", "support", "issues", "route.ts") &&
+        existsSync(join(process.cwd(), "components", "report-issue.tsx"))
+        ? "PASS"
+        : "FAIL",
+      routeFileExists("admin", "support", "page.tsx")
+        ? "Authenticated issue reporting and admin-only support review routes are present."
+        : "Screenshot support workflow files are missing.",
       true
     ),
   ];

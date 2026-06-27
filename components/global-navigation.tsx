@@ -23,6 +23,7 @@ const pricingLink = [["/pricing", "Pricing"]];
 const adminLinks = [
   ["/dashboard", "Dashboard"],
   ["/dashboard/interview-risk", "Active Flags"],
+  ["/admin/support", "Support Queue"],
   ["/admin/founder-control", "Founder Control"],
 ];
 

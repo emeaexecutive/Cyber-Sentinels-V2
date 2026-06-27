@@ -6,6 +6,7 @@ import {
 } from "@/components/global-navigation";
 import { hasAdminVerifiedCookie, isAdminAllowlisted } from "@/lib/admin-auth";
 import { createNavigationClient } from "@/lib/supabase/server";
+import { ReportIssue } from "@/components/report-issue";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -142,6 +143,7 @@ export default async function RootLayout({
         <div className="shell">
           <GlobalNavigation accessLevel={accessLevel} />
           {children}
+          {accessLevel !== "public" ? <ReportIssue authState={accessLevel} /> : null}
           <footer className="border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8">
             <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-4">
               {footerSections.map((section) => (
