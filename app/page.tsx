@@ -38,36 +38,36 @@ export default function Home() {
           </span>
         </div>
 
-        <div className="mt-12 max-w-5xl">
+        <div className="mt-12 max-w-4xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-100">
             Enterprise workflow trust layer.
           </p>
-          <h1 className="mt-5 text-4xl font-semibold leading-[1.08] text-white md:text-6xl">
-            Know what entered a critical workflow—and what changed next.
+          <h1 className="mt-5 text-4xl font-semibold leading-[1.1] text-white md:text-6xl">
+            See what entered a critical workflow, what changed and why trust shifted.
           </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels keeps workflow evidence, session integrity, reviewer action and trust state connected.
+          <p className="mt-6 max-w-3xl text-base leading-7 text-zinc-200 md:text-lg md:leading-8">
+            Cyber Sentinels keeps workflow evidence, session integrity, reviewer actions and trust state connected.
           </p>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
-            Teams can see how trust evolved, why governance intervened and which evidence supports the final outcome.
+          <p className="mt-3 max-w-3xl text-base leading-7 text-zinc-300">
+            Teams can understand how trust evolved, why governance intervened and which evidence supports the final outcome.
           </p>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link href="/demo" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-cyan-200">
             View Demo
           </Link>
-          <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
+          <Link href="/enterprise-access" className="rounded-md border border-cyan-500 bg-cyan-950/20 px-5 py-3 text-sm font-semibold text-cyan-50 hover:border-cyan-300">
             Request Enterprise Access
           </Link>
-          <Link href="/enterprise/hiring-security" className="rounded-md border border-zinc-600 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-300">
+          <Link href="/enterprise/hiring-security" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400 hover:text-white">
             Hiring Security
           </Link>
           <Link href="/pricing" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
             Pricing
           </Link>
         </div>
-        <PrivateBetaNotice className="mt-7 max-w-3xl" />
+        <PrivateBetaNotice className="mt-6 max-w-3xl" />
       </section>
 
       <section className="border-y border-zinc-800 bg-zinc-950/80">
