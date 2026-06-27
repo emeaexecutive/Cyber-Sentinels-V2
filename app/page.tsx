@@ -42,18 +42,15 @@ export default function Home() {
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-100">
             Enterprise workflow trust layer.
           </p>
-          <h1 className="mt-5 text-4xl font-semibold leading-[1.1] text-white md:text-6xl">
-            See what entered a critical workflow, what changed and why trust shifted.
+          <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
+            Operational trust for intelligent systems.
           </h1>
-          <p className="mt-6 max-w-3xl text-base leading-7 text-zinc-200 md:text-lg md:leading-8">
-            Cyber Sentinels keeps workflow evidence, session integrity, reviewer actions and trust state connected.
-          </p>
-          <p className="mt-3 max-w-3xl text-base leading-7 text-zinc-300">
-            Teams can understand how trust evolved, why governance intervened and which evidence supports the final outcome.
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-200 md:text-xl md:leading-9">
+            Understand identity, authenticity and trust across every workflow.
           </p>
         </div>
 
-        <div className="mt-8 flex flex-wrap items-center gap-3">
+        <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-3">
           <Link href="/demo" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-cyan-200">
             View Demo
           </Link>
