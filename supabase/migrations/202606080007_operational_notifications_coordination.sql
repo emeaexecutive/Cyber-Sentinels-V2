@@ -52,6 +52,9 @@ alter table public.notifications enable row level security;
 
 drop policy if exists "users manage own notifications" on public.notifications;
 drop policy if exists "admin manage notifications" on public.notifications;
+drop policy if exists "users read own notifications" on public.notifications;
+drop policy if exists "users update own notifications" on public.notifications;
+drop policy if exists "users create own notifications" on public.notifications;
 
 create policy "users read own notifications"
   on public.notifications

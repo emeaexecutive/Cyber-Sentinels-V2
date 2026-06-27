@@ -146,6 +146,31 @@ alter table public.trust_scores enable row level security;
 alter table public.verification_events enable row level security;
 alter table public.admin_reviews enable row level security;
 
+drop policy if exists "candidate profiles owner select" on public.candidate_profiles;
+drop policy if exists "candidate profiles owner insert" on public.candidate_profiles;
+drop policy if exists "candidate profiles owner update" on public.candidate_profiles;
+drop policy if exists "recruiter profiles owner select" on public.recruiter_profiles;
+drop policy if exists "recruiter profiles owner insert" on public.recruiter_profiles;
+drop policy if exists "recruiter profiles owner update" on public.recruiter_profiles;
+drop policy if exists "interview sessions owner select" on public.interview_sessions;
+drop policy if exists "interview sessions owner insert" on public.interview_sessions;
+drop policy if exists "interview sessions owner update" on public.interview_sessions;
+drop policy if exists "interview risk signals owner select" on public.interview_risk_signals;
+drop policy if exists "interview risk signals owner insert" on public.interview_risk_signals;
+drop policy if exists "interview risk signals owner update" on public.interview_risk_signals;
+drop policy if exists "liveness checks owner select" on public.liveness_checks;
+drop policy if exists "liveness checks owner insert" on public.liveness_checks;
+drop policy if exists "liveness checks owner update" on public.liveness_checks;
+drop policy if exists "trust scores owner select" on public.trust_scores;
+drop policy if exists "trust scores owner insert" on public.trust_scores;
+drop policy if exists "trust scores owner update" on public.trust_scores;
+drop policy if exists "verification events owner select" on public.verification_events;
+drop policy if exists "verification events owner insert" on public.verification_events;
+drop policy if exists "verification events owner update" on public.verification_events;
+drop policy if exists "admin reviews owner select" on public.admin_reviews;
+drop policy if exists "admin reviews owner insert" on public.admin_reviews;
+drop policy if exists "admin reviews owner update" on public.admin_reviews;
+
 create policy "candidate profiles owner select" on public.candidate_profiles
 for select to authenticated using (user_id = auth.uid());
 create policy "candidate profiles owner insert" on public.candidate_profiles
@@ -159,9 +184,6 @@ create policy "recruiter profiles owner insert" on public.recruiter_profiles
 for insert to authenticated with check (user_id = auth.uid());
 create policy "recruiter profiles owner update" on public.recruiter_profiles
 for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
-
-drop policy if exists "interview sessions owner select"
-on public.interview_sessions;
 
 create policy "interview sessions owner select" on public.interview_sessions
 for select to authenticated using (user_id = auth.uid());

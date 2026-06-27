@@ -35,6 +35,17 @@ drop policy if exists "authenticated manage trust_workspaces" on public.trust_wo
 drop policy if exists "authenticated manage workspace_members" on public.workspace_members;
 drop policy if exists "authenticated manage trust_cases" on public.trust_cases;
 drop policy if exists "authenticated manage trust_case_relationships" on public.trust_case_relationships;
+drop policy if exists "workspace owners and members read workspaces" on public.trust_workspaces;
+drop policy if exists "authenticated users create own workspaces" on public.trust_workspaces;
+drop policy if exists "workspace owners update workspaces" on public.trust_workspaces;
+drop policy if exists "workspace participants read members" on public.workspace_members;
+drop policy if exists "workspace owners and self add members" on public.workspace_members;
+drop policy if exists "workspace owners update members" on public.workspace_members;
+drop policy if exists "workspace members read trust cases" on public.trust_cases;
+drop policy if exists "workspace members create trust cases" on public.trust_cases;
+drop policy if exists "workspace reviewers update trust cases" on public.trust_cases;
+drop policy if exists "workspace members read case relationships" on public.trust_case_relationships;
+drop policy if exists "workspace reviewers create case relationships" on public.trust_case_relationships;
 
 create policy "workspace owners and members read workspaces"
   on public.trust_workspaces

@@ -16,6 +16,6 @@ begin
     set file_url = coalesce(file_url, evidence_url)
     where evidence_url is not null;
 
-    alter table public.evidence_files drop column evidence_url;
+    alter table public.evidence_files drop column if exists evidence_url;
   end if;
 end $$;

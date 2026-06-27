@@ -2,7 +2,18 @@
 -- Additive schema alignment for hiring workflows on existing trust architecture.
 
 alter table public.candidate_profiles add column if not exists provenance_status text default 'unknown';
-alter table public.candidate_profiles alter column risk_level set default 'unknown';
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'candidate_profiles'
+      and column_name = 'risk_level'
+  ) then
+    alter table public.candidate_profiles alter column risk_level set default 'unknown';
+  end if;
+end
+$$;
 
 alter table public.recruiter_profiles add column if not exists organization text;
 

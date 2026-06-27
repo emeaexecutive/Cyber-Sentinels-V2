@@ -327,6 +327,25 @@ alter table evidence_files enable row level security;
 alter table decisions enable row level security;
 alter table risk_scores enable row level security;
 
+drop policy if exists "Allow public waitlist inserts" on waitlist;
+drop policy if exists "Allow authenticated waitlist reads" on waitlist;
+drop policy if exists "Allow public audit inserts" on audit_logs;
+drop policy if exists "Allow authenticated audit reads" on audit_logs;
+drop policy if exists "Allow authenticated passport reads" on passports;
+drop policy if exists "Allow authenticated passport inserts" on passports;
+drop policy if exists "Allow authenticated passport updates" on passports;
+drop policy if exists "Allow authenticated trust report reads" on trust_reports;
+drop policy if exists "Allow authenticated trust report inserts" on trust_reports;
+drop policy if exists "Allow authenticated signal reads" on signals;
+drop policy if exists "Allow authenticated signal inserts" on signals;
+drop policy if exists "Allow authenticated verification case reads" on verification_cases;
+drop policy if exists "Allow authenticated verification case inserts" on verification_cases;
+drop policy if exists "Allow authenticated verification case updates" on verification_cases;
+drop policy if exists "Allow authenticated evidence reads" on evidence_files;
+drop policy if exists "Allow authenticated decision reads" on decisions;
+drop policy if exists "Allow authenticated decision inserts" on decisions;
+drop policy if exists "Allow authenticated risk score reads" on risk_scores;
+
 create policy "Allow public waitlist inserts" on waitlist
   for insert
   to anon
