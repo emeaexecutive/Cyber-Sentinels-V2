@@ -12,7 +12,7 @@ export default function GovernancePage() {
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
-          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-200">
             Governance
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
@@ -35,14 +35,14 @@ export default function GovernancePage() {
           {reviewSteps.map(([title, copy]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
               <h2 className="text-lg font-semibold text-zinc-100">{title}</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
+              <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
             </article>
           ))}
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <h2 className="text-2xl font-semibold">Public overview, protected operations</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
             This page explains the governance model without exposing customer data. Operational queues, reviewer assignments and evidence records remain inside authenticated dashboard workflows.
           </p>
           <Link href="/dashboard/governance" className="mt-5 inline-flex rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400">

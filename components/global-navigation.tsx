@@ -246,7 +246,7 @@ export function GlobalNavigation({
         <Link
           href="/"
           onClick={closeMenus}
-          className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-100"
+          className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-100"
         >
           Cyber Sentinels
         </Link>
@@ -255,11 +255,20 @@ export function GlobalNavigation({
           className="flex flex-wrap items-center justify-end gap-2 text-sm text-zinc-200"
         >
           {accessLevel === "public" ? (
-            <PrimaryNavigation
-              openDropdown={openDropdown}
-              onToggleDropdown={toggleDropdown}
-              onCloseDropdown={closeMenus}
-            />
+            <>
+              <PrimaryNavigation
+                openDropdown={openDropdown}
+                onToggleDropdown={toggleDropdown}
+                onCloseDropdown={closeMenus}
+              />
+              <Link
+                href="/login"
+                onClick={closeMenus}
+                className="rounded-lg bg-cyan-300 px-4 py-2 font-semibold text-zinc-950 hover:bg-cyan-200"
+              >
+                Sign in
+              </Link>
+            </>
           ) : null}
           {accessLevel === "user" || accessLevel === "admin-unverified" ? (
             <>

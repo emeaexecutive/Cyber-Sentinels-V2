@@ -442,16 +442,16 @@ export default function LoginPage() {
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-start">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.22em] text-cyan-200">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-200">
             Account Access
           </p>
           <h1 className="mt-3 text-4xl font-semibold">
             Sign in or create an account
           </h1>
-          <p className="mt-4 max-w-2xl leading-7 text-zinc-400">
+          <p className="mt-4 max-w-2xl leading-7 text-zinc-300">
             Access protected verification workflows, operational evidence and governance review systems.
           </p>
-          <p className="mt-3 text-sm text-zinc-500">
+          <p className="mt-3 text-sm text-zinc-400">
             Enterprise workspaces require verified email access.
           </p>
 
@@ -472,7 +472,7 @@ export default function LoginPage() {
           <div className="grid gap-5">
             <div>
               <h2 className="text-lg font-semibold text-zinc-100">{modeTitle}</h2>
-              <p className="mt-2 text-sm leading-6 text-zinc-500">
+              <p className="mt-2 text-sm leading-6 text-zinc-400">
                 Sign in with your verified workspace email, or choose another secure account option.
               </p>
             </div>
@@ -643,7 +643,7 @@ export default function LoginPage() {
               </div>
             ) : null}
 
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-900 pt-3 text-sm">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-800 pt-4 text-sm">
               {authMode !== "sign-in" ? (
                 <button
                   onClick={() => switchAuthMode("sign-in")}

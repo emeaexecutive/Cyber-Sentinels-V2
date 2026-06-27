@@ -30,7 +30,7 @@ export default function DemoPage() {
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
         <section className="border-b border-zinc-800 pb-12">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">Operational Trust Infrastructure Demo</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Workflow trust demo</p>
           <h1 className="mt-4 max-w-5xl text-4xl font-semibold tracking-tight md:text-6xl">
             A guided walkthrough from fake candidate to governed workflow outcome.
           </h1>
@@ -38,13 +38,12 @@ export default function DemoPage() {
             In under 90 seconds, see what entered the workflow, what changed during the session, what evidence was reviewed and which governance action determined the outcome.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Follow the same operational path each time: Hiring Security, Session Integrity, Governance Review, Replay Evidence and Verification Evidence.
+            Follow one path through hiring security, session integrity, governance, replay and a verification receipt.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href="/demo/hiring-attack" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-200">View Demo</Link>
             <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">Request Enterprise Access</Link>
             <Link href="/enterprise-access?intent=design_partner" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">Become a Design Partner</Link>
-            <Link href="/enterprise-access?intent=intro_call" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">Book Intro Call</Link>
           </div>
           <PrivateBetaNotice className="mt-6 max-w-3xl" />
         </section>

@@ -335,7 +335,7 @@ export default async function TrustReceiptPage({
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white print:bg-white print:px-0 print:py-0 print:text-black md:px-8">
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-200">
             Verification Receipt
           </p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-4">

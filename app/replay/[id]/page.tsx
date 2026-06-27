@@ -439,7 +439,7 @@ export default async function VerificationReplayPage({
 
         <div className="mt-8">
           <TrustJourneyVisualization
-            title="Operational Trust Infrastructure replay"
+            title="Workflow trust replay"
             description="Verification milestones, integrity checks, injection-risk review, reviewer action and receipt outcome ordered as audit replay."
             events={trustJourneyEvents}
             finalState={finalJourneyState}

@@ -21,10 +21,10 @@ export default function EnterprisePage() {
       <div className="mx-auto max-w-5xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            Operational Trust Infrastructure
+            Enterprise workflow trust
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Enterprise trust coordination for humans, AI agents, and critical workflows.
+            Accountable trust across critical enterprise workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels connects Hiring Security, Session Integrity,
@@ -32,7 +32,7 @@ export default function EnterprisePage() {
             teams can keep sensitive workflows explainable.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            It protects the decision layer behind critical enterprise actions: the workflow, evidence, reviewer action and trust state that determine whether access, hiring or operational decisions should move forward.
+            Review the evidence, ownership and trust state behind access, hiring and operational decisions.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
@@ -43,9 +43,6 @@ export default function EnterprisePage() {
             </Link>
             <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white">
               Become a Design Partner
-            </Link>
-            <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white">
-              Book Intro Call
             </Link>
           </div>
         </section>
@@ -64,17 +61,12 @@ export default function EnterprisePage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-2xl font-semibold">Why operational trust infrastructure now</h2>
+          <h2 className="text-2xl font-semibold">Why workflow trust matters now</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Device and communication security are still necessary, but they do not explain whether a workflow stayed trustworthy after verification began.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Synthetic credibility, not just synthetic media, is becoming the attack surface. Enterprise teams need to review who entered a workflow, which evidence supports the decision, who acted and what outcome was recorded.
-          </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels helps teams verify which people, sessions and
-            evidence can be reviewed across enterprise workflows, with human
-            authority preserved.
           </p>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {coordinationControls.map(([title, copy]) => (

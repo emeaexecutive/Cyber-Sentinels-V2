@@ -41,7 +41,7 @@ export default async function TestLabPage() {
           <p className="text-sm font-medium text-emerald-300">Admin Access Verified</p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
+              <p className="text-xs uppercase tracking-[0.16em] text-cyan-200">
                 Validation Test Lab
               </p>
               <h1 className="mt-3 text-4xl font-semibold">
@@ -50,7 +50,7 @@ export default async function TestLabPage() {
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
                 Run deterministic scenarios for identity confidence, provider-backed verification signals, session integrity, behavioral consistency, evidence completeness and governance review state. These are rule-based validation cases, not benchmark results or live provider success claims.
               </p>
-              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
                 Validation continuity checks whether provider evidence flows into replay, governance affects trust state, workflow outcomes update chronology and trust journeys evolve visibly.
               </p>
             </div>

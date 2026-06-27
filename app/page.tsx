@@ -42,20 +42,14 @@ export default function Home() {
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-100">
             Enterprise workflow trust layer.
           </p>
-          <h1 className="mt-5 text-4xl font-semibold leading-[1.05] text-white md:text-6xl">
-            Organizations can no longer reliably verify the people, sessions and workflows entering critical systems.
+          <h1 className="mt-5 text-4xl font-semibold leading-[1.08] text-white md:text-6xl">
+            Know what entered a critical workflow—and what changed next.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels provides federated workflow trust infrastructure for enterprises, identities and autonomous systems.
+            Cyber Sentinels keeps workflow evidence, session integrity, reviewer action and trust state connected.
           </p>
           <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
-            Synthetic credibility, not just synthetic media, is becoming the attack surface.
-          </p>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
-            Cyber Sentinels protects the decision layer: the workflow, evidence, reviewer action and trust state behind critical enterprise decisions.
-          </p>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">
-            Trust evolves over time through evidence continuity, governance review, replay chronology, authorization lineage and operational trust posture.
+            Teams can see how trust evolved, why governance intervened and which evidence supports the final outcome.
           </p>
         </div>
 
@@ -64,7 +58,7 @@ export default function Home() {
             View Demo
           </Link>
           <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
-            Enterprise Access
+            Request Enterprise Access
           </Link>
           <Link href="/enterprise/hiring-security" className="rounded-md border border-zinc-600 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-300">
             Hiring Security
@@ -86,7 +80,7 @@ export default function Home() {
               From uncertain workflow entry to replayable accountability.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              The product story is intentionally simple: a workflow is verified, evidence accumulates, governance is assigned, authorization changes are recorded and the outcome is preserved as replayable operational proof.
+              Verification begins, evidence accumulates, governance is assigned and the outcome is preserved for replay.
             </p>
           </div>
           <div className="mt-7 grid gap-3 md:grid-cols-6">
@@ -109,7 +103,7 @@ export default function Home() {
             Governance, evidence, replay and workflow trust in one operational path.
           </h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Use Cyber Sentinels to preserve evidence, replay what changed, assign governance ownership, maintain authorization lineage and issue workflow-linked verification receipts before sensitive access or decisions move forward.
+            Preserve evidence, replay what changed, assign review ownership and issue a verification receipt before sensitive decisions move forward.
           </p>
         </div>
         <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3">

@@ -85,23 +85,23 @@ export default function HiringSecurityPage() {
             Protect enterprise hiring workflows against synthetic trust attacks.
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-300">
-            Hiring Security is the clearest entry point for Operational Trust Infrastructure: fake applicants, proxy interviews, AI-assisted hiring fraud and injected sessions become reviewable workflows with verification evidence, reviewer ownership, replay and receipts.
+            Fake applicants, proxy interviews and injected sessions become reviewable workflows with evidence, named ownership, replay and receipts.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Fake candidates are not only recruiting noise. In sensitive roles they can become enterprise access risk. Security, legal and people teams see state changes, Governance Review, reviewer actions and Replay Evidence in one operational chronology.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href="/dashboard/interview-risk"
+              href="/demo/hiring-attack"
               className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-cyan-200"
             >
-              Open Hiring Review Dashboard
+              View Demo
             </Link>
             <Link
               href="/enterprise-access"
               className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400"
             >
-              Request Demo
+              Request Enterprise Access
             </Link>
           </div>
         </section>
@@ -164,11 +164,9 @@ export default function HiringSecurityPage() {
               From fake applicant to verification receipt.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              The hiring security pilot is intentionally simple so enterprise
-              teams can complete a first review quickly and understand the
-              operational value without new architecture. The outcome is an
-              evidence chain, reviewer decision, replay chronology and
-              audit-ready report for the hiring workflow.
+              Start with one reviewable workflow. The outcome is an evidence
+              chain, reviewer decision, replay chronology and audit-ready
+              hiring report.
             </p>
             <PrivateBetaNotice className="mt-5" />
           </section>
