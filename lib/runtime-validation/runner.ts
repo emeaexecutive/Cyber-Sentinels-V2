@@ -44,6 +44,7 @@ const publicPages = [
   "/enterprise-access",
   "/enterprise/hiring-security",
   "/enterprise/pilot",
+  "/investor",
   "/design-partner",
   "/why-now",
   "/help",
@@ -697,6 +698,15 @@ function routeInventoryChecks() {
       "Demo overview route",
       routeFileExists("demo", "page.tsx") ? "PASS" : "FAIL",
       routeFileExists("demo", "page.tsx") ? "/demo route file is present." : "/demo route file is missing.",
+      true
+    ),
+    check(
+      "Demo And Proof Routes",
+      "Investor overview route",
+      routeFileExists("investor", "page.tsx") ? "PASS" : "FAIL",
+      routeFileExists("investor", "page.tsx")
+        ? "/investor route file is present."
+        : "/investor route file is missing.",
       true
     ),
     check(

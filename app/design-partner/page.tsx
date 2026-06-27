@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EvidenceDisclaimer } from "@/components/evidence-disclaimer";
 
 const risks = [
   ["Fake applicants", "Convincing profiles can enter hiring workflows before evidence, identity context and interview behavior line up."],
@@ -17,10 +18,10 @@ const proof = [
 ];
 
 const pilotObjectives = [
-  "Validate a real hiring security or verification workflow.",
-  "Confirm which evidence and review steps enterprise teams need.",
-  "Test governance review language with security, talent and compliance stakeholders.",
-  "Produce a replayable workflow and verification receipt for discussion.",
+  "Test one real Hiring Security and Session Integrity workflow.",
+  "Validate which provider evidence is useful, missing or requires escalation.",
+  "Review the replay and verification receipt with security, talent and compliance stakeholders.",
+  "Provide operational feedback on ownership, policy language and evidence requirements.",
 ];
 
 export default function DesignPartnerPage() {
@@ -38,6 +39,7 @@ export default function DesignPartnerPage() {
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels is for security, talent, risk and governance teams that need Verification Evidence, Session Integrity, Replay Evidence and Verification Receipts instead of unsupported trust claims.
           </p>
+          <EvidenceDisclaimer className="mt-6 max-w-3xl" />
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/enterprise-access?intent=pilot" className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
               Request Enterprise Access

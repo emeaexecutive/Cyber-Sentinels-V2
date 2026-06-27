@@ -45,6 +45,7 @@ const platformDropdownLinks = [
 const enterpriseDropdownLinks = [
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
+  ["/investor", "Investor Overview"],
   ["/enterprise/pilot", "Pilot Program"],
   ["/enterprise", "Integrations"],
 ];
@@ -52,6 +53,7 @@ const enterpriseDropdownLinks = [
 const adminEnterpriseDropdownLinks = [
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
+  ["/investor", "Investor Overview"],
   ["/enterprise/pilot", "Pilot Program"],
   ["/admin/integrations", "Integrations"],
   ["/admin/runtime-validation", "Runtime Validation"],

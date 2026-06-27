@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 import { TurnstileField } from "@/components/turnstile-field";
 import { getTurnstileSiteKey } from "@/lib/bot-protection";
+import { EvidenceDisclaimer } from "@/components/evidence-disclaimer";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,18 @@ export default async function EnterpriseAccessPage({ searchParams }: {
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">{pageTitle}</h1>
           <p className="mt-5 max-w-2xl leading-8 text-zinc-300">Tell us what you need to verify, which workflow is exposed and what human review or audit trail your team requires.</p>
           <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-300">Cyber Sentinels is Operational Trust Infrastructure for enterprise workflows that need Hiring Security, Session Integrity, Verification Evidence, Governance Review and Replay Evidence.</p>
+          {designPartner ? (
+            <div className="mt-6 rounded-lg border border-cyan-950 bg-black p-4">
+              <p className="text-sm font-semibold text-cyan-100">Design partner pilot ask</p>
+              <ul className="mt-3 grid gap-2 text-sm leading-6 text-zinc-300">
+                <li>Test one hiring security workflow.</li>
+                <li>Validate provider evidence and failure states.</li>
+                <li>Review replay and verification receipt continuity.</li>
+                <li>Provide operational feedback on governance and ownership.</li>
+              </ul>
+            </div>
+          ) : null}
+          <EvidenceDisclaimer className="mt-6 max-w-2xl" />
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {[
               ["Trust state changes", "Workflow status remains visible as identity, session and evidence state changes."],
