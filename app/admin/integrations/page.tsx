@@ -183,6 +183,12 @@ export default async function AdminIntegrationsPage() {
             </div>
             <div className="flex flex-wrap gap-3">
               <Link
+                href="/admin/integrations/ats"
+                className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
+              >
+                ATS Integrations
+              </Link>
+              <Link
                 href="/admin/api-tests"
                 className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white"
               >

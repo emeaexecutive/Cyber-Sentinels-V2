@@ -876,6 +876,23 @@ function routeInventoryChecks() {
         : "Admin fake actor enforcement files are missing.",
       true
     ),
+    check(
+      "Operational Support",
+      "ATS integration readiness",
+      routeFileExists("admin", "integrations", "ats", "page.tsx") &&
+        routeFileExists("api", "integrations", "ats", "webhook", "route.ts") &&
+        routeFileExists("api", "integrations", "ats", "receipts", "[id]", "export", "route.ts") &&
+        existsSync(join(process.cwd(), "lib", "integrations", "ats", "types.ts")) &&
+        existsSync(join(process.cwd(), "lib", "integrations", "ats", "generic-provider.ts")) &&
+        fileContains("app", "api", "integrations", "ats", "webhook", "route.ts", /verifyATSWebhookSignature/) &&
+        fileContains("app", "api", "integrations", "ats", "receipts", "[id]", "export", "route.ts", /requireAdminApiAccess/)
+        ? "PASS"
+        : "FAIL",
+      routeFileExists("admin", "integrations", "ats", "page.tsx")
+        ? "Protected ATS status, signed webhooks and existing-receipt export foundations are present."
+        : "ATS integration readiness files are missing.",
+      true
+    ),
   ];
 }
 function providerChecks() {
