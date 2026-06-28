@@ -35,6 +35,7 @@ const userPagePrefixes = [
   "/timeline",
   "/trust",
   "/trust-replay",
+  "/trust-center",
   "/verify/session",
   "/verify/candidate",
   "/verify/recruiter",

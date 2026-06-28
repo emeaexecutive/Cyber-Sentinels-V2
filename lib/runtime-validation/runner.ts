@@ -75,6 +75,7 @@ const protectedRoutes = [
   "/trust/receipt/demo",
   "/replay/demo",
   "/trust-replay",
+  "/trust-center",
   "/trustops",
   "/launch-control",
 ];
@@ -702,6 +703,18 @@ function emailAndBotProtectionChecks() {
 }
 function routeInventoryChecks() {
   return [
+    check(
+      "Demo And Proof Routes",
+      "Operational Trust Center",
+      routeFileExists("trust-center", "page.tsx") &&
+        fileContains("middleware.ts", /"\/trust-center"/)
+        ? "PASS"
+        : "FAIL",
+      routeFileExists("trust-center", "page.tsx")
+        ? "Protected trust center route is present with existing workflow evidence integration."
+        : "/trust-center route file is missing.",
+      true
+    ),
     check(
       "Demo And Proof Routes",
       "Operational Trust API",
