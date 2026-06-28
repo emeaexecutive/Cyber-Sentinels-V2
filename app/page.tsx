@@ -12,9 +12,9 @@ const proofPath = [
 
 const platformSurfaces = [
   ["Evidence", "Identity, session, media, channel and reviewer records that can be inspected."],
-  ["Replay", "A chronological reconstruction of what changed, who acted and what evidence remains."],
-  ["Governance", "Named review ownership, escalation reasons and human authority for sensitive workflow decisions."],
-  ["Workflow Trust", "Decision-layer trust across workflow state, authorization context, evidence and reviewer action."],
+  ["Replay", "Canonical evidence chronology showing what changed, who acted and what evidence remains."],
+  ["Governance", "Named review ownership, escalation continuity and human authority for sensitive workflow decisions."],
+  ["Workflow Trust", "An evolving posture across workflow state, authorization context, evidence and reviewer action."],
   ["Federated Signals", "Shared anomaly indicators and governance intelligence without centralized surveillance."],
   ["Session Integrity", "Liveness, channel, injection and media-risk signals kept separate for review."],
   ["Verification Receipts", "Portable records of what was checked, reviewed, retained and resolved."],
@@ -77,7 +77,7 @@ export default function Home() {
               From uncertain workflow entry to replayable accountability.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              Verification begins, evidence accumulates, governance is assigned and the outcome is preserved for replay.
+              Verification begins, evidence accumulates, governance remains accountable and the outcome becomes replayable trust history.
             </p>
           </div>
           <div className="mt-7 grid gap-3 md:grid-cols-6">

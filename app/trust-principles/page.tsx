@@ -1,58 +1,61 @@
-import { LegalDraftPage } from "@/components/legal-draft-page";
-import { legalDraftLinks } from "@/lib/legal/draftPages";
+import Link from "next/link";
+
+const principles = [
+  ["01", "Trust must be explainable.", "Operators should understand what changed, why it changed and which evidence informed the outcome."],
+  ["02", "Trust must be replayable.", "Important workflow events, evidence and reviewer actions should remain available in chronological order."],
+  ["03", "Trust must evolve over time.", "Posture should reflect new evidence, session changes, authorization context and governance intervention."],
+  ["04", "Trust decisions require evidence.", "Provider signals and risk flags are review inputs; sensitive outcomes require traceable supporting records."],
+  ["05", "Governance must remain human-reviewable.", "Named reviewers, escalation reasons and decision rationale should remain visible before high-risk workflows advance."],
+  ["06", "Verification is probabilistic, not absolute.", "Verification reduces uncertainty. It does not create perfect certainty about identity, media or intent."],
+  ["07", "Operational trust should be auditable.", "Workflow outcomes should connect to evidence, authorization lineage, replay chronology and a portable receipt."],
+];
 
 export default function TrustPrinciplesPage() {
   return (
-    <LegalDraftPage
-      title="Trust Principles™"
-      subtitle="Cyber Sentinels is built around AI-assisted, evidence-backed and human-governed operational trust infrastructure."
-      links={legalDraftLinks}
-      sections={[
-        {
-          title: "Human Oversight",
-          body: "Important trust outcomes may involve human review, especially where risk, evidence quality or operational context requires judgment. Escalation paths, review workflows and appeal-style reviews may be used so trust assessments are not treated as purely automated conclusions.",
-        },
-        {
-          title: "Evidence-First Verification",
-          body: "Cyber Sentinels is designed around evidence-backed review. Signals can support a trust assessment, but signals alone should not determine high-risk outcomes. Evidence quality, evidence status and review history remain central to verification.",
-        },
-        {
-          title: "Explainability",
-          body: "Trust decisions should be understandable to the people operating and affected by them. The platform supports audit trails, status history and operational context so reviews can be explained without relying on opaque scoring alone.",
-        },
-        {
-          title: "Privacy-Aware Architecture",
-          body: "Cyber Sentinels favors minimal data collection, role-based access, private evidence handling, secure storage patterns and audit logging. Sensitive evidence should be handled with clear purpose, access limits and review controls.",
-        },
-        {
-          title: "Security by Design",
-          body: "The platform separates public, user and admin access. Authentication, role separation, admin protection, private evidence storage, row-level security and secure workflows are core operating assumptions for governed trust infrastructure.",
-        },
-        {
-          title: "Responsible AI Assistance",
-          body: "AI may assist with drafting, summarization or operational analysis, but it should not approve or reject users for high-risk trust outcomes. Human governance, evidence verification and auditability remain central.",
-        },
-        {
-          title: "Trust Is Dynamic",
-          body: "Trust changes over time. State verification, new evidence, behavior, decisions and audit history may change a trust assessment as conditions evolve.",
-        },
-        {
-          title: "Reality Signature™",
-          body: "Future infrastructure module — not yet active. This placeholder represents a possible future layer for structured authenticity signals and evidence-backed reality assertions.",
-        },
-        {
-          title: "Trust Timeline™",
-          body: "Future infrastructure module — not yet active. This placeholder represents a possible future layer for longitudinal trust state, evidence history and review events.",
-        },
-        {
-          title: "Agent Swarm Registry™",
-          body: "Future infrastructure module — not yet active. This placeholder represents a possible future layer for governed registration and monitoring of AI agents or coordinated workflows.",
-        },
-        {
-          title: "Behavior Galaxy™",
-          body: "Future infrastructure module — not yet active. This placeholder represents a possible future layer for behavior patterns, risk movement and relationship-aware trust assessment.",
-        },
-      ]}
-    />
+    <main className="min-h-screen bg-[#04070c] px-6 py-14 text-white md:px-8">
+      <div className="mx-auto max-w-5xl">
+        <section className="border-b border-zinc-800 pb-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">
+            Operational trust standards
+          </p>
+          <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-tight md:text-5xl">
+            Principles for accountable workflow trust.
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-8 text-zinc-300">
+            Cyber Sentinels treats trust as an evidence-backed operational state:
+            explainable, replayable, governed and specific to the workflow where a decision is made.
+          </p>
+        </section>
+
+        <section className="divide-y divide-zinc-800">
+          {principles.map(([number, title, description]) => (
+            <article key={number} className="grid gap-3 py-7 md:grid-cols-[72px_1fr]">
+              <p className="text-sm font-semibold text-cyan-200">{number}</p>
+              <div>
+                <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-7 text-zinc-300">{description}</p>
+              </div>
+            </article>
+          ))}
+        </section>
+
+        <section className="mt-8 border-t border-zinc-800 pt-8">
+          <h2 className="text-2xl font-semibold">Human authority remains central.</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
+            Cyber Sentinels does not create hidden monitoring, universal identity scores or automatic claims
+            of authenticity. Access remains role-bound, evidence remains purpose-specific and high-risk
+            workflow outcomes remain subject to accountable human review.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/demo" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
+              View workflow demo
+            </Link>
+            <Link href="/governance" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
+              Review governance model
+            </Link>
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }

@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 const reviewSteps = [
-  ["Flag raised", "Identity, session or workflow evidence indicates a review may be needed."],
-  ["Governance review opened", "A human reviewer receives the operational context and evidence labels."],
-  ["Decision recorded", "Reviewer action, rationale and outcome are preserved for audit review."],
-  ["Receipt updated", "The final state can be referenced from replay evidence or verification receipts."],
+  ["Evidence chain opened", "Identity, provider, session and workflow evidence remain linked to the review."],
+  ["Reviewer assigned", "A named human reviewer receives the escalation reason, current trust state and authorization context."],
+  ["Transition recorded", "Reviewer action, rationale and resulting trust-state change enter the replay chronology."],
+  ["Continuity preserved", "The final outcome remains connected across replay, evidence and the verification receipt."],
 ];
 
 export default function GovernancePage() {
@@ -19,7 +19,8 @@ export default function GovernancePage() {
             Human review for high-risk verification decisions.
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels keeps sensitive workflow decisions reviewable. Governance Review connects flags, session integrity, identity evidence and reviewer actions before an outcome is treated as operationally ready.
+            Cyber Sentinels keeps sensitive workflow decisions reviewable. Governance connects evidence chains,
+            escalation ownership, reviewer attribution and trust-state transitions before an outcome is treated as operationally ready.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-100">

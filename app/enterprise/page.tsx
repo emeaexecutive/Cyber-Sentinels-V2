@@ -4,7 +4,7 @@ const trustControls = [
   ["Hiring Security", "The hiring funnel is a fraud frontline where fake applicants, proxy interviews and AI-assisted fraud can become enterprise access risk."],
   ["Session Integrity", "Liveness, deepfake risk, injection risk and channel integrity remain separate signals after verification begins."],
   ["Governance Review", "High-risk workflow changes route to named reviewers with ownership, chronology and recorded action."],
-  ["Verification Replay", "Replay timelines reconstruct what happened before, during and after a workflow changed state."],
+  ["Verification Replay", "Canonical evidence chronology reconstructs what happened before, during and after a workflow changed state."],
   ["Verification Receipts", "Printable receipts summarize trust state, reviewer decision, verification evidence, replay chronology and workflow outcome."],
 ];
 
@@ -32,7 +32,7 @@ export default function EnterprisePage() {
             teams can keep sensitive workflows explainable.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Review the evidence, ownership and trust state behind access, hiring and operational decisions.
+            Maintain operational evidence, governance continuity and an evolving workflow trust posture behind access, hiring and operational decisions.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">

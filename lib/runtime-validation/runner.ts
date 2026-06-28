@@ -53,6 +53,7 @@ const publicPages = [
   "/demo/session-integrity",
   "/verify/session",
   "/security",
+  "/trust-principles",
   "/privacy",
   "/terms",
 ];
@@ -707,6 +708,18 @@ function routeInventoryChecks() {
       routeFileExists("investor", "page.tsx")
         ? "/investor route file is present."
         : "/investor route file is missing.",
+      true
+    ),
+    check(
+      "Demo And Proof Routes",
+      "Operational trust principles route",
+      routeFileExists("trust-principles", "page.tsx") &&
+        fileContains("app", "trust-principles", "page.tsx", /Trust must be replayable/)
+        ? "PASS"
+        : "FAIL",
+      routeFileExists("trust-principles", "page.tsx")
+        ? "Operational trust principles and replay standard are present."
+        : "/trust-principles route file is missing.",
       true
     ),
     check(
