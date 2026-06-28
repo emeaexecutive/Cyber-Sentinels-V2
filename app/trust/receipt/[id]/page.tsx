@@ -17,6 +17,10 @@ import {
   trustPostureClass,
 } from "@/lib/trust-posture/posture";
 import { buildWorkflowProviderSignals } from "@/lib/providers";
+import {
+  buildPortableTrustEvidence,
+  verifyReceiptContinuity,
+} from "@/lib/trust-receipts/verification";
 
 export const dynamic = "force-dynamic";
 
@@ -93,6 +97,7 @@ export default async function TrustReceiptPage({
     { data: auditLogs },
     { data: sessionIntegrity },
     { data: riskEvents },
+    { data: replaySessions },
   ] = await Promise.all([
     supabase
       .from("evidence_chains")
@@ -149,6 +154,12 @@ export default async function TrustReceiptPage({
           .eq("interview_session_id", receipt.subject_id)
           .order("created_at", { ascending: false })
       : Promise.resolve({ data: [] }),
+    supabase
+      .from("trust_replay_sessions")
+      .select("id,subject_type,subject_id,generated_by,created_at")
+      .eq("subject_type", receipt.subject_type)
+      .eq("subject_id", receipt.subject_id)
+      .order("created_at", { ascending: false }),
   ]);
 
   const snapshot = (receipt.evidence_snapshot ?? {}) as JsonRecord;
@@ -210,6 +221,23 @@ export default async function TrustReceiptPage({
       "Replay chronology",
       "Governance review",
     ],
+  });
+  const receiptVerification = verifyReceiptContinuity({
+    receipt,
+    timeline: timeline ?? [],
+    evidenceChains: evidenceChains ?? [],
+    governanceActions: governanceActions ?? [],
+    replaySessions: replaySessions ?? [],
+  });
+  const portableEvidence = buildPortableTrustEvidence({
+    receiptId: receipt.id,
+    subjectType: label(receipt.subject_type),
+    subjectId: String(receipt.subject_id),
+    providerSignalCount: providerSignals.length,
+    trustPosture: `${label(posture.state)} / ${posture.label}`,
+    governanceOutcome: label(governanceOutcome ?? receipt.verification_status, "Reviewable"),
+    authorizationRelationshipCount: relationships.length,
+    issuedAt: receipt.issued_at,
   });
   const trustJourneyEvents: TrustJourneyEvent[] = [
     {
@@ -388,6 +416,43 @@ export default async function TrustReceiptPage({
           ))}
         </section>
 
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-300 print:text-zinc-600">
+                Receipt verification
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">Operational continuity checks</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400 print:text-zinc-700">
+                Deterministic checks confirm required receipt fields and linked workflow records.
+                They do not claim cryptographic immutability or perfect authenticity.
+              </p>
+            </div>
+            <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+              receiptVerification.state === "verified"
+                ? "border-emerald-800 text-emerald-200 print:text-emerald-700"
+                : "border-amber-800 text-amber-200 print:text-amber-700"
+            }`}>
+              {receiptVerification.state === "verified" ? "Continuity verified" : "Review required"}
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            {receiptVerification.checks.map((check) => (
+              <div key={check.id} className="rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white">
+                <p className="text-sm font-semibold text-zinc-100 print:text-zinc-800">{check.label}</p>
+                <p className={`mt-2 text-xs font-semibold ${
+                  check.state === "verified"
+                    ? "text-emerald-200 print:text-emerald-700"
+                    : "text-amber-200 print:text-amber-700"
+                }`}>
+                  {check.state === "verified" ? "Verified" : "Review required"}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-zinc-400 print:text-zinc-700">{check.explanation}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">
           <p className="text-xs uppercase tracking-[0.16em] text-cyan-300 print:text-zinc-600">
             Workflow continuity map
@@ -429,15 +494,16 @@ export default async function TrustReceiptPage({
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-300 print:text-zinc-600">
-            Pilot review handoff
+            Portable trust evidence
           </p>
-          <h2 className="mt-2 text-xl font-semibold">Audit-grade outcome summary</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
-            <DetailRow label="Workflow outcome" value={label(governanceOutcome ?? receipt.verification_status, "Reviewable")} />
-            <DetailRow label="Escalation summary" value={latestGovernance ? label(latestGovernance.escalation_reason ?? latestGovernance.action_type, "Governance review recorded") : "No escalation attached"} />
-            <DetailRow label="Evidence references" value={`${(evidenceChains ?? []).length} chain(s) / ${(auditLogs ?? []).length} audit reference(s)`} />
-            <DetailRow label="Replay reference" value={`/replay/${receipt.subject_id}`} />
-            <DetailRow label="Reviewer attribution" value={latestGovernance?.resolved_by ?? latestGovernance?.assigned_to ?? latestGovernance?.created_by ?? receipt.issued_by ?? "Pending assignment"} />
+          <h2 className="mt-2 text-xl font-semibold">Reusable workflow trust summary</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <DetailRow label="Workflow reference" value={portableEvidence.workflowReference} />
+            <DetailRow label="Replay reference" value={portableEvidence.replayReference} />
+            <DetailRow label="Provider evidence summary" value={portableEvidence.providerEvidenceSummary} />
+            <DetailRow label="Trust posture snapshot" value={portableEvidence.trustPostureSnapshot} />
+            <DetailRow label="Governance outcome" value={portableEvidence.governanceOutcome} />
+            <DetailRow label="Authorization lineage" value={portableEvidence.authorizationLineageSummary} />
           </div>
         </section>
 

@@ -778,6 +778,20 @@ function routeInventoryChecks() {
       true
     ),
     check(
+      "Demo And Proof Routes",
+      "Portable receipt verification",
+      routeFileExists("verification-receipts", "page.tsx") &&
+        existsSync(join(process.cwd(), "lib", "trust-receipts", "verification.ts")) &&
+        fileContains("lib", "trust-receipts", "verification.ts", /verifyReceiptContinuity/) &&
+        fileContains("lib", "trust-receipts", "verification.ts", /buildPortableTrustEvidence/)
+        ? "PASS"
+        : "FAIL",
+      existsSync(join(process.cwd(), "lib", "trust-receipts", "verification.ts"))
+        ? "Portable receipt summary and deterministic continuity verification are present."
+        : "Portable receipt verification model is missing.",
+      true
+    ),
+    check(
       "Operational Support",
       "Protected screenshot support workflow",
       routeFileExists("admin", "support", "page.tsx") &&

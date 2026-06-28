@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ReceiptVerificationForm } from "@/components/receipt-verification-form";
 
 const receiptSections = [
   ["Trust state", "The outcome is stated plainly, including elevated risk or manual review states."],
@@ -21,6 +22,14 @@ export default function VerificationReceiptsPage() {
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
             Verification Receipts summarize what was checked, which state was reached, what reviewer decision was recorded and which replay chronology supports the workflow outcome. Public pages explain the receipt model; specific receipts remain protected unless intentionally shared.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
+            Cyber Sentinels creates portable operational trust evidence across enterprise workflows and intelligent systems.
+          </p>
+          <ReceiptVerificationForm />
+          <p className="mt-3 max-w-2xl text-xs leading-5 text-zinc-500">
+            Receipt lookup requires authenticated access. Verification checks linked workflow records;
+            it is not a blockchain or cryptographic authenticity claim.
           </p>
         </section>
 

@@ -343,7 +343,7 @@ export default async function VerificationReplayPage({
         </section>
 
         <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
-          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Canonical evidence chronology</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Canonical operational evidence chain</p>
           <h2 className="mt-2 text-xl font-semibold">The workflow reconstruction layer for operational trust memory</h2>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
             Replay is the authoritative chronology for this workflow. It connects session integrity, governance review, operational evidence,
