@@ -58,9 +58,11 @@ export default async function ATSIntegrationStatusPage() {
               </p>
               <h1 className="mt-3 text-4xl font-semibold">ATS Integration Status</h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Generic ATS adapters for candidate events, verification triggers,
-                replay references and trust receipt export. Status reflects server configuration,
-                not assumed provider connectivity.
+                Atlast runs hiring. Cyber Sentinels verifies trust inside hiring
+                workflows. This hiring trust, candidate provenance, interview
+                integrity and replay/evidence layer sits above ATS systems.
+                Status reflects verified server configuration, not assumed
+                provider connectivity.
               </p>
             </div>
             <Link
@@ -154,7 +156,7 @@ export default async function ATSIntegrationStatusPage() {
                 "Create or update a candidate verification workflow",
                 "Calculate contextual trust posture",
                 "Return recorded replay and receipt links",
-                "Export an existing verification receipt",
+                "Generate a verification receipt only from recorded evidence",
                 "Escalate offer-stage governance review",
               ].map((action) => (
                 <p key={action} className="rounded-lg border border-zinc-800 bg-black p-3 text-sm text-zinc-300">

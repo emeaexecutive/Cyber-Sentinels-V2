@@ -25,7 +25,7 @@ export type ATSProviderId =
   | "workday"
   | "ashby"
   | "smartrecruiters"
-  | "atlas";
+  | "atlast";
 
 export type ATSProviderCapability =
   | "candidate_events"
@@ -73,6 +73,17 @@ export type ATSWebhookEvent = {
   candidate?: ATSCandidateReference;
   interview?: ATSInterviewReference;
   metadata: Record<string, unknown>;
+};
+
+export type ATSPreparedAction = {
+  action:
+    | "create_verification_workflow"
+    | "calculate_trust_posture"
+    | "attach_replay_link"
+    | "generate_verification_receipt"
+    | "escalate_governance_review";
+  state: "completed" | "prepared" | "not_applicable";
+  detail: string;
 };
 
 export type ATSTrustReceiptExport = {

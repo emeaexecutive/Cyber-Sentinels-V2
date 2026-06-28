@@ -2,7 +2,10 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildTrustPosture } from "@/lib/trust-posture/posture";
-import type { ATSWebhookEvent } from "@/lib/integrations/ats/types";
+import type {
+  ATSPreparedAction,
+  ATSWebhookEvent,
+} from "@/lib/integrations/ats/types";
 
 type Row = Record<string, unknown>;
 
@@ -277,6 +280,42 @@ export async function processATSWebhookEvent(
   const replayUrl = replayId && origin ? `${origin}/replay/${replayId}` : null;
   const receiptUrl =
     receiptId && origin ? `${origin}/verification/receipt/${receiptId}` : null;
+  const preparedActions: ATSPreparedAction[] = [
+    {
+      action: "create_verification_workflow",
+      state: candidate ? "completed" : "prepared",
+      detail: candidate
+        ? "Candidate workflow is linked to the ATS event."
+        : "Ready when a valid candidate reference is received.",
+    },
+    {
+      action: "calculate_trust_posture",
+      state: "completed",
+      detail: "Contextual posture was calculated from recorded trust state.",
+    },
+    {
+      action: "attach_replay_link",
+      state: replayId ? "completed" : "prepared",
+      detail: replayId
+        ? "An existing replay is attached."
+        : "No replay exists yet; no placeholder link was created.",
+    },
+    {
+      action: "generate_verification_receipt",
+      state: receiptId ? "completed" : "prepared",
+      detail: receiptId
+        ? "An existing evidence-bound receipt is attached."
+        : "Receipt generation remains prepared until verification evidence exists.",
+    },
+    {
+      action: "escalate_governance_review",
+      state: event.eventType === "offer.created" ? "completed" : "not_applicable",
+      detail:
+        event.eventType === "offer.created"
+          ? "Offer-stage governance review was opened."
+          : "Escalation remains available when policy or event context requires it.",
+    },
+  ];
 
   const auditMetadata = {
     ats_provider: event.provider,
@@ -309,6 +348,7 @@ export async function processATSWebhookEvent(
       governanceEscalated: event.eventType === "offer.created",
     },
     trustPosture: posture,
+    preparedActions,
     links: {
       replayReference: replayId || null,
       replayUrl,

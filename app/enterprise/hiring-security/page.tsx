@@ -86,6 +86,12 @@ export default function HiringSecurityPage() {
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Fake candidates are not only recruiting noise. In sensitive roles they can become enterprise access risk. Security, legal and people teams see state changes, Governance Review, reviewer actions and Replay Evidence in one operational chronology.
           </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-cyan-100">
+            Atlast runs hiring. Cyber Sentinels verifies trust inside hiring
+            workflows. It provides the hiring trust, candidate provenance,
+            interview integrity and replay/evidence layer above ATS systems
+            without claiming a live provider connection.
+          </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/demo/hiring-attack"

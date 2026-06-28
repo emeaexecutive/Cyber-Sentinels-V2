@@ -1,6 +1,10 @@
 import "server-only";
 
 import { GenericATSProvider } from "@/lib/integrations/ats/generic-provider";
+import {
+  AtlastATSProvider,
+  getAtlastProviderDefinition,
+} from "@/lib/integrations/ats/atlast-provider";
 import type {
   ATSProviderDefinition,
   ATSProviderId,
@@ -60,14 +64,6 @@ const providerDefinitions: BaseDefinition[] = [
     webhookSecretEnv: "ATS_SMARTRECRUITERS_WEBHOOK_SECRET",
     capabilities: ["candidate_events", "interview_events", "offer_events", "verification_trigger", "receipt_export", "replay_link"],
   },
-  {
-    id: "atlas",
-    name: "ATLAST / Atlas",
-    credentialEnv: "ATS_ATLAS_API_KEY",
-    endpointEnv: "ATS_ATLAS_RECEIPT_ENDPOINT",
-    webhookSecretEnv: "ATS_ATLAS_WEBHOOK_SECRET",
-    capabilities: ["candidate_events", "interview_events", "offer_events", "verification_trigger", "receipt_export", "replay_link"],
-  },
 ];
 
 function present(name: string) {
@@ -80,9 +76,15 @@ function statusFor(definition: BaseDefinition): ATSProviderStatus {
   const credentialsPresent = present(definition.credentialEnv);
   const endpointConfigured = present(definition.endpointEnv);
   const webhookConfigured = present(definition.webhookSecretEnv);
+  const apiAccessVerified =
+    String(
+      process.env[`ATS_${definition.id.toUpperCase()}_API_VERIFIED`] ?? ""
+    )
+      .trim()
+      .toLowerCase() === "true";
 
   if (enabledValue === "false") return "Disabled";
-  if (credentialsPresent && endpointConfigured) return "Connected";
+  if (credentialsPresent && endpointConfigured && apiAccessVerified) return "Connected";
   if (webhookConfigured) return "Webhook configured";
   if (enabledValue === "true" && !credentialsPresent) {
     return "Awaiting API credentials";
@@ -91,12 +93,19 @@ function statusFor(definition: BaseDefinition): ATSProviderStatus {
 }
 
 export function getATSProviderDefinitions(): ATSProviderDefinition[] {
-  return providerDefinitions.map((definition) => {
+  const genericDefinitions = providerDefinitions.map((definition) => {
     const status = statusFor(definition);
     const credentialsPresent = present(definition.credentialEnv);
     const endpointConfigured = present(definition.endpointEnv);
     const webhookConfigured = present(definition.webhookSecretEnv);
-    const apiAccessVerified = credentialsPresent && endpointConfigured;
+    const apiAccessVerified =
+      credentialsPresent &&
+      endpointConfigured &&
+      String(
+        process.env[`ATS_${definition.id.toUpperCase()}_API_VERIFIED`] ?? ""
+      )
+        .trim()
+        .toLowerCase() === "true";
 
     return {
       ...definition,
@@ -114,14 +123,14 @@ export function getATSProviderDefinitions(): ATSProviderDefinition[] {
               ? "Provider enablement was requested, but required API credentials are absent."
               : status === "Disabled"
                 ? "Integration is explicitly disabled."
-                : definition.id === "atlas"
-                  ? "Adapter placeholder only. Activate after ATLAST/Atlas API access and documentation are verified."
-                  : "Generic adapter placeholder only. No live provider connection is claimed.",
+                : "Generic adapter placeholder only. No live provider connection is claimed.",
     };
   });
+  return [...genericDefinitions, getAtlastProviderDefinition()];
 }
 
 export function getATSProvider(id: string) {
+  if (id === "atlast") return new AtlastATSProvider();
   const definition = getATSProviderDefinitions().find(
     (candidate) => candidate.id === id
   );
@@ -129,6 +138,7 @@ export function getATSProvider(id: string) {
 }
 
 export function getATSProviderSecret(id: ATSProviderId) {
+  if (id === "atlast") return "";
   const definition = getATSProviderDefinitions().find(
     (candidate) => candidate.id === id
   );

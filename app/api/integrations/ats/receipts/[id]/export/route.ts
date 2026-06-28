@@ -17,7 +17,7 @@ export async function POST(
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
   const providerId =
     typeof body.provider === "string" ? body.provider.trim().toLowerCase() : "";
-  const provider = getATSProvider(providerId === "atlast" ? "atlas" : providerId);
+  const provider = getATSProvider(providerId);
   if (!provider) {
     return NextResponse.json({ error: "Unsupported ATS provider." }, { status: 400 });
   }

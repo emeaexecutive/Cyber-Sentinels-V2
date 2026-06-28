@@ -12,6 +12,7 @@ import { processATSWebhookEvent } from "@/lib/integrations/ats/workflow";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export const dynamic = "force-dynamic";
+const maxWebhookBytes = 1_000_000;
 
 export async function POST(request: Request) {
   const rateLimited = checkRequestRateLimit(
@@ -21,19 +22,30 @@ export async function POST(request: Request) {
     60_000
   );
   if (rateLimited) return rateLimited;
+  const contentLength = Number(request.headers.get("content-length") ?? "0");
+  if (Number.isFinite(contentLength) && contentLength > maxWebhookBytes) {
+    return NextResponse.json(
+      { error: "ATS webhook payload is too large." },
+      { status: 413 }
+    );
+  }
 
   const suppliedProvider = (
     request.headers.get("x-ats-provider") ?? ""
   ).trim().toLowerCase();
-  const providerId = (
-    suppliedProvider === "atlast" ? "atlas" : suppliedProvider
-  ) as ATSProviderId;
+  const providerId = suppliedProvider as ATSProviderId;
   const provider = getATSProvider(providerId);
   if (!provider) {
     return NextResponse.json({ error: "Unsupported ATS provider." }, { status: 400 });
   }
 
   const rawBody = await request.text();
+  if (Buffer.byteLength(rawBody, "utf8") > maxWebhookBytes) {
+    return NextResponse.json(
+      { error: "ATS webhook payload is too large." },
+      { status: 413 }
+    );
+  }
   const signature = request.headers.get("x-cyber-sentinels-signature") ?? "";
   const secret = getATSProviderSecret(providerId);
   if (!secret) {
@@ -81,12 +93,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("ATS webhook processing failed.", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "ATS webhook processing failed.",
-      },
+      { error: "ATS webhook could not be processed safely." },
       { status: 422 }
     );
   }

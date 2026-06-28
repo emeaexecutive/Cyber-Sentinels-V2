@@ -4,7 +4,7 @@
 
 Cyber Sentinels includes a generic ATS integration boundary for candidate events, verification workflow triggers, trust posture context, replay links and verification receipt export.
 
-This layer does not claim a live integration with Greenhouse, Lever, Workday, Ashby, SmartRecruiters or ATLAST/Atlas unless the required server configuration exists and provider-side behavior has been validated.
+This layer does not claim a live integration with Greenhouse, Lever, Workday, Ashby, SmartRecruiters or Atlast unless the required server configuration exists and provider-side behavior has been validated.
 
 ## Provider abstraction
 
@@ -22,7 +22,7 @@ The generic adapter prevents provider-specific assumptions from leaking into tru
 
 The admin page at `/admin/integrations/ats` uses five explicit states:
 
-- **Connected** — server-side credentials and a receipt endpoint are configured;
+- **Connected** — server-side credentials and a receipt endpoint are configured and API access has been explicitly verified;
 - **Webhook configured** — signed inbound events are configured, but outbound API access is not connected;
 - **Awaiting API credentials** — enablement was requested but credentials are absent;
 - **Placeholder** — only the generic adapter contract exists;
@@ -37,9 +37,11 @@ The admin page at `/admin/integrations/ats` uses five explicit states:
 - Workday
 - Ashby
 - SmartRecruiters
-- ATLAST / Atlas, only if documented API access exists
+- Atlast, currently a placeholder awaiting documented API access
 
-ATLAST and Atlas webhook identifiers are normalized to the internal `atlas` provider ID. The adapter remains a placeholder until real API access is verified.
+Atlast uses the internal `atlast` provider ID. The adapter remains a
+fail-closed placeholder until official API documentation and credentials are
+available and verified.
 
 ## Signed webhook receiver
 
@@ -105,8 +107,11 @@ Each provider uses server-only variables following this pattern:
 - `ATS_<PROVIDER>_API_KEY`
 - `ATS_<PROVIDER>_WEBHOOK_SECRET`
 - `ATS_<PROVIDER>_RECEIPT_ENDPOINT`
+- `ATS_<PROVIDER>_API_VERIFIED`
 
-Examples use `GREENHOUSE`, `LEVER`, `WORKDAY`, `ASHBY`, `SMARTRECRUITERS` and `ATLAS` as the provider segment.
+Examples use `GREENHOUSE`, `LEVER`, `WORKDAY`, `ASHBY`, `SMARTRECRUITERS` and
+`ATLAST` as the provider segment. Atlast variables are reserved for future use
+and are not activated by the placeholder adapter.
 
 Secret values are never displayed by the admin page, returned from APIs or written to audit metadata.
 
