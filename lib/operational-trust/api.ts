@@ -7,6 +7,7 @@ import {
   toNormalizedVerificationResponse,
 } from "@/lib/providers";
 import { buildTrustPosture, latestCreatedAt } from "@/lib/trust-posture/posture";
+import { evaluateTrustAssurance } from "@/lib/trust-assurance";
 import { createClient } from "@/lib/supabase/server";
 
 type Row = Record<string, any>;
@@ -99,6 +100,31 @@ export async function loadWorkflowTrust(supabase: any, subjectId: string, subjec
     unresolvedGovernanceCount: unresolved.length,
     confidenceLabel: currentReceipt?.confidence_level,
   });
+  const providerEvidence = safeProviderSummary(currentReceipt);
+  const chronologyText = timeline
+    .map((row: Row) => `${row.event_type ?? ""} ${row.event_title ?? ""} ${row.event_summary ?? ""}`)
+    .join(" ")
+    .toLowerCase();
+  const governanceApproved = governance.some((row: Row) =>
+    ["approved", "resolved"].includes(String(row.action_status))
+  );
+  const assurance = evaluateTrustAssurance({
+    basicEvidence: Boolean(currentReceipt || evidence.length || timeline.length),
+    sessionContinuity: /session|continuity/.test(chronologyText),
+    consentRecorded: /consent/.test(chronologyText),
+    providerBackedIdentity: providerEvidence.verificationState === "verified",
+    governanceApproved,
+    replayIntegrity: replay.length > 0 && timeline.length > 0 && evidence.length > 0,
+    authorizationContinuity: governanceApproved && unresolved.length === 0,
+    secureDeviceAttestation: /device_attestation|hardware_attestation|hardware-backed/.test(chronologyText),
+    evidenceQuality: Number(
+      currentReceipt?.evidence_snapshot?.assurance_evidence_quality ?? 0
+    ),
+    evidenceReferences: [
+      ...providerEvidence.evidenceReferences,
+      ...evidence.map((row: Row) => row.chain_summary).filter(Boolean),
+    ],
+  });
 
   return {
     workflow: {
@@ -114,13 +140,22 @@ export async function loadWorkflowTrust(supabase: any, subjectId: string, subjec
         ? `${unresolved.length} governance action(s) remain open.`
         : "No unresolved governance action is visible.",
     },
-    providerEvidence: safeProviderSummary(currentReceipt),
+    providerEvidence,
+    assurance,
     evidenceContinuity: evidence,
     chronology: timeline,
     governanceLineage: governance,
     replay: {
       reference: replay.at(-1)?.id ? `/api/replay/${replay.at(-1).id}` : `/replay/${subjectId}`,
       sessions: replay,
+      supportedEvidenceLineage: [
+        "provider_verification",
+        "session_integrity",
+        "device_continuity",
+        "behavioral_consistency",
+        "biometric_continuity_reference",
+        "governance_continuity",
+      ],
     },
     receipts: receipts.map(({ evidence_snapshot: _hidden, ...receipt }: Row) => ({
       ...receipt,

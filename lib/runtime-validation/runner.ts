@@ -706,11 +706,13 @@ function routeInventoryChecks() {
       "Demo And Proof Routes",
       "Operational Trust API",
       operationalTrustApiRoutes.every((segments) => routeFileExists(...segments)) &&
-        existsSync(join(process.cwd(), "lib", "sdk", "trust-client.ts"))
+        existsSync(join(process.cwd(), "lib", "sdk", "trust-client.ts")) &&
+        existsSync(join(process.cwd(), "lib", "trust-assurance", "levels.ts")) &&
+        existsSync(join(process.cwd(), "lib", "providers", "high-assurance.ts"))
         ? "PASS"
         : "FAIL",
       operationalTrustApiRoutes.every((segments) => routeFileExists(...segments))
-        ? "Authenticated posture, workflow, replay, receipt, governance and provider-status APIs are present."
+        ? "Authenticated trust APIs, assurance levels and reference-only high-assurance provider contracts are present."
         : "One or more Operational Trust API route files are missing.",
       true
     ),

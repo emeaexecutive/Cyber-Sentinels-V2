@@ -16,15 +16,19 @@ export default function PlatformPage() {
             Platform
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Operational Trust Infrastructure for AI-era workflows.
+            High-assurance operational trust for critical workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels combines hiring security workflows, evidence,
-            governance review, audit trails and verification receipts into a
-            focused early platform.
+            Cyber Sentinels orchestrates high-assurance operational trust
+            across workflows, identities and intelligent systems.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
             It keeps Hiring Security, Session Integrity, Verification Evidence, Governance Review and Replay Evidence in one reviewable path.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            Assurance is consent-based and evidence-gated. Biometric references
+            can support future verification, but never establish certainty or
+            replace human governance.
           </p>
         </section>
 

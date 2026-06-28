@@ -116,6 +116,9 @@ export default async function TestLabPage() {
               <p className="rounded-lg border border-zinc-800 bg-black p-3">
                 Unvalidated capabilities: provider placeholders and configured-but-unverified adapters are not counted as live evidence or accuracy benchmarks.
               </p>
+              <p className="rounded-lg border border-zinc-800 bg-black p-3">
+                Assurance levels: deterministic evidence gates describe workflow assurance, not biometric certainty or a universal identity score.
+              </p>
             </div>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">

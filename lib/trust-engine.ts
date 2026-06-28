@@ -21,6 +21,8 @@ export type WorkflowTrustSignalType =
   | "ip_location_change"
   | "vpn_anomaly"
   | "device_continuity"
+  | "biometric_continuity"
+  | "hardware_attestation"
   | "browser_consistency"
   | "provider_verification_change"
   | "session_interruption"
@@ -29,6 +31,7 @@ export type WorkflowTrustSignalType =
   | "evidence_completeness"
   | "authorization_lineage"
   | "governance_review"
+  | "governance_continuity"
   | "replay_continuity";
 
 export type WorkflowTrustSignal = {
@@ -109,6 +112,8 @@ const signalDimensions: Record<WorkflowTrustSignalType, keyof WorkflowTrustDimen
   ip_location_change: "sessionIntegrity",
   vpn_anomaly: "sessionIntegrity",
   device_continuity: "sessionIntegrity",
+  biometric_continuity: "sessionIntegrity",
+  hardware_attestation: "authorizationLineage",
   browser_consistency: "sessionIntegrity",
   provider_verification_change: "providerVerification",
   session_interruption: "sessionIntegrity",
@@ -117,6 +122,7 @@ const signalDimensions: Record<WorkflowTrustSignalType, keyof WorkflowTrustDimen
   evidence_completeness: "evidenceCompleteness",
   authorization_lineage: "authorizationLineage",
   governance_review: "governanceReviewState",
+  governance_continuity: "governanceReviewState",
   replay_continuity: "replayContinuity",
 };
 
