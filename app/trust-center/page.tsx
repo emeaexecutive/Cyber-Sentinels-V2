@@ -118,8 +118,8 @@ export default async function TrustCenterPage() {
                 Trust posture, workflow integrity and governance in one chronology.
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Review evolving workflow trust through recorded provider evidence, session changes,
-                reviewer actions, receipts and canonical replay. States remain contextual—not binary verdicts.
+                Review evolving trust posture through provider evidence, session changes,
+                reviewer actions, receipts and canonical operational replay.
               </p>
             </div>
             <State value={snapshot.badge} />
@@ -271,7 +271,7 @@ export default async function TrustCenterPage() {
         <section className="mt-8 rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-xl font-semibold">Canonical replay chronology</h2>
+              <h2 className="text-xl font-semibold">Canonical operational evidence</h2>
               <p className="mt-2 text-sm text-zinc-500">Trust changes, workflow transitions and receipt generation ordered from recorded events.</p>
             </div>
             <Link href="/trust-replay" className="text-sm text-cyan-200 hover:text-white">Open all replay</Link>

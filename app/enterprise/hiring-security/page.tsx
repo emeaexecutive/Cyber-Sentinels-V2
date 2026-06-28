@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +39,7 @@ const riskExamples = [
     "The person in the interview may not match the verified candidate context. Reviewer notes, liveness checks, voice/video continuity, device context and escalation history stay attached to the same hiring workflow for governance review.",
   ],
   [
-    "AI-assisted interview fraud",
+    "Assisted interview fraud",
     "A candidate may use generated answers, coached presence or manipulated media during a sensitive interview. Cyber Sentinels records observable session integrity anomalies and reviewer notes without turning them into unsupported detection claims.",
   ],
   [
@@ -75,9 +74,6 @@ export default function HiringSecurityPage() {
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <div className="mb-4">
-            <PrivateBetaBadge />
-          </div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-100">
             Hiring Security
           </p>
@@ -158,7 +154,7 @@ export default function HiringSecurityPage() {
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
-              Pilot Workflow
+              Workflow chronology
             </p>
             <h2 className="mt-3 text-3xl font-semibold">
               From fake applicant to verification receipt.
@@ -168,7 +164,6 @@ export default function HiringSecurityPage() {
               chain, reviewer decision, replay chronology and audit-ready
               hiring report.
             </p>
-            <PrivateBetaNotice className="mt-5" />
           </section>
           <section className="grid gap-3">
             {workflow.map((item, index) => (
@@ -192,7 +187,7 @@ export default function HiringSecurityPage() {
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels connects workspaces, review cases, evidence, active
             flags, governance reviews, audit trails, receipts and replay so a
-            hiring workflow can be reviewed without relying on unsupported AI
+            hiring workflow can be reviewed without unsupported certainty
             claims or invasive monitoring.
           </p>
         </section>

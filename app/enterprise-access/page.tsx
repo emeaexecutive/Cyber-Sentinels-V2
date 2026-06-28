@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 import { TurnstileField } from "@/components/turnstile-field";
 import { getTurnstileSiteKey } from "@/lib/bot-protection";
 import { EvidenceDisclaimer } from "@/components/evidence-disclaimer";
@@ -30,7 +29,6 @@ export default async function EnterpriseAccessPage({ searchParams }: {
       <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_460px]">
         <section className="border-b border-zinc-800 pb-10 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-10">
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Enterprise Access</p>
-          <PrivateBetaBadge className="mt-4" />
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">{pageTitle}</h1>
           <p className="mt-5 max-w-2xl leading-8 text-zinc-300">Tell us what you need to verify, which workflow is exposed and what human review or audit trail your team requires.</p>
           <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-300">Cyber Sentinels provides operational trust for enterprise workflows that need session integrity, verification evidence, governance review and replay.</p>
@@ -69,7 +67,6 @@ export default async function EnterpriseAccessPage({ searchParams }: {
               </div>
             ))}
           </div>
-          <PrivateBetaNotice className="mt-6 max-w-2xl" />
           <div className="mt-8 flex flex-wrap gap-3 text-sm">
             <Link href="/demo" className="brand-primary-action">View Demo</Link>
             <Link href="/demo/hiring-attack" className="rounded-md border border-cyan-900 px-4 py-2 text-cyan-200">Hiring Security</Link>

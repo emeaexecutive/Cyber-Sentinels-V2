@@ -642,7 +642,7 @@ export default async function GovernancePage({
             </p>
             <div className="mt-5 grid gap-3">
               {aiRecommendations.length ? aiRecommendations.map((row) => <ReviewSignal key={String(row.id)} row={row} />) : (
-                <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">No AI-assisted recommendations require review.</p>
+                <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">No automated recommendations require review.</p>
               )}
             </div>
           </section>

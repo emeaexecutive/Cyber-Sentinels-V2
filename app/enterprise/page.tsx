@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const trustControls = [
-  ["Hiring Security", "The hiring funnel is a fraud frontline where fake applicants, proxy interviews and AI-assisted fraud can become enterprise access risk."],
+  ["Hiring Security", "Fake applicants, proxy interviews and assisted fraud can turn hiring into enterprise access risk."],
   ["Session Integrity", "Liveness, deepfake risk, injection risk and channel integrity remain separate signals after verification begins."],
   ["Governance Review", "High-risk workflow changes route to named reviewers with ownership, chronology and recorded action."],
   ["Verification Replay", "Canonical evidence chronology reconstructs what happened before, during and after a workflow changed state."],
@@ -24,15 +24,11 @@ export default function EnterprisePage() {
             Enterprise workflow trust
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Accountable trust across critical enterprise workflows.
+            Operational trust for intelligent systems.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels connects Hiring Security, Session Integrity,
-            Governance Review, Verification Replay and Verification Receipts so
-            teams can keep sensitive workflows explainable.
-          </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Maintain operational evidence, governance continuity and an evolving workflow trust posture behind access, hiring and operational decisions.
+            Maintain evolving trust posture across hiring, identity and operational workflows
+            through provider-backed verification, governance continuity and replayable evidence.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">

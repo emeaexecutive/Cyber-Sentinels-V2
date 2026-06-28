@@ -518,9 +518,9 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             empty="No trust relationships existed in this replay window."
           />
           <ReplayList
-            title="AI-Assisted Operational Summaries"
+            title="Operational Summaries"
             rows={snapshot.aiSummaries}
-            empty="No AI-assisted summaries existed in this replay window."
+            empty="No operational summaries existed in this replay window."
           />
         </section>
       </div>

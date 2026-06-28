@@ -117,7 +117,7 @@ export function GovernanceOverview({
 
   const summaryCards = [
     ["Verified Humans", certificationCount(certificationRows, "verified_human", "verified")],
-    ["Verified AI Agents", verifiedAgents.length],
+    ["Verified Intelligent Systems", verifiedAgents.length],
     ["Pending Reviews", pendingReviews],
     ["Active Alerts", activeAlerts.length],
     ["Failed Verifications", failedCertifications.length],
@@ -135,8 +135,8 @@ export function GovernanceOverview({
             Operational Trust Review
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Certification, alerting, AI agent registry, verification evidence
-            and audit trail activity in one operational review surface.
+            Certification, alerting, system registry, verification evidence
+            and audit history in one governed review surface.
             Development mock data appears when the governance tables are empty.
           </p>
         </div>
@@ -188,7 +188,7 @@ export function GovernanceOverview({
         </article>
 
         <article className="rounded-lg border border-zinc-800 bg-black p-4">
-          <h3 className="font-semibold text-zinc-100">AI Agent Registry</h3>
+          <h3 className="font-semibold text-zinc-100">Intelligent System Registry</h3>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[620px] text-left text-sm">
               <thead className="text-xs uppercase tracking-[0.14em] text-zinc-500">
@@ -248,7 +248,7 @@ export function GovernanceOverview({
               ["Executive", "verified_executive"],
               ["Recruiter", "verified_recruiter"],
               ["Workflow", "verified_workflow"],
-              ["AI Agent", "verified_ai_agent"],
+              ["Intelligent system", "verified_ai_agent"],
               ["Enterprise", "verified_enterprise"],
             ].map(([title, type]) => (
               <div key={type} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">

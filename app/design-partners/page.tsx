@@ -3,10 +3,10 @@ import Link from "next/link";
 const collaborationAreas = [
   [
     "Why design partners matter",
-    "Early collaborators help test whether governed trust workflows are understandable, useful and operationally realistic before broader rollout.",
+    "Design partners test whether governed trust workflows are understandable, useful and operationally realistic.",
   ],
   [
-    "Early operational collaboration",
+    "Operational collaboration",
     "Cyber Sentinels is looking for teams with real approval, review, verification or audit workflows that need clearer accountability.",
   ],
   [
@@ -14,8 +14,8 @@ const collaborationAreas = [
     "The current focus is on how evidence, human review, trust events and decision records should move through enterprise operations.",
   ],
   [
-    "AI-native trust challenges",
-    "AI-assisted work introduces questions around provenance, permissions, escalation and visibility that need careful operational design.",
+    "Intelligent-system governance",
+    "Automated work introduces questions around provenance, permissions, escalation and visibility that require clear operational controls.",
   ],
   [
     "Feedback-driven platform evolution",
@@ -25,8 +25,8 @@ const collaborationAreas = [
 
 const workflowExamples = [
   [
-    "AI-assisted workflow approvals",
-    "A team uses AI to prepare an approval recommendation, then routes the final decision through accountable human review.",
+    "Assisted workflow approvals",
+    "A system prepares an approval recommendation, then routes the final decision through accountable human review.",
   ],
   [
     "Human review escalation",
@@ -54,7 +54,7 @@ const notCyberSentinels = [
   "Social scoring",
   "Operational oversight",
   "Black-box trust scoring",
-  "Uncontrolled AI governance",
+  "Uncontrolled automated governance",
   "Synthetic authority systems",
 ];
 
@@ -67,16 +67,15 @@ export default function DesignPartnersPage() {
             Design Partners
           </p>
           <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-tight md:text-6xl">
-            Early operational collaboration for governed trust workflows.
+            Operational collaboration for governed trust workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-zinc-300">
-            Cyber Sentinels is onboarding a small number of early collaborators
-            and operational design partners to explore evidence-backed
-            verification, human review and AI-native governance workflows.
+            Cyber Sentinels works with operational design partners on provider-backed
+            verification, accountable review and replayable governance workflows.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
-            Cyber Sentinels is evolving through operational collaboration and
-            real-world workflow feedback.
+            Each engagement centers on one workflow, its evidence requirements
+            and an accountable decision path.
           </p>
           <div className="mt-8">
             <Link

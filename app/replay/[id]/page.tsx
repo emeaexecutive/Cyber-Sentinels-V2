@@ -291,8 +291,7 @@ export default async function VerificationReplayPage({
             <div>
               <h1 className="text-4xl font-semibold">{session?.title ?? "Verification workflow replay"}</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-                Cyber Sentinels creates replayable operational trust memory across enterprise workflows.
-                This read-only record reconstructs provider evidence, signal changes, reviewer decisions,
+                This read-only replay reconstructs provider evidence, signal changes, reviewer decisions,
                 trust-state transitions, authorization lineage and workflow outcomes.
               </p>
               <p className="mt-2 font-mono text-xs text-zinc-600">Subject {subjectType} / {subjectId}</p>
@@ -318,7 +317,7 @@ export default async function VerificationReplayPage({
 
         <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Canonical operational evidence chain</p>
-          <h2 className="mt-2 text-xl font-semibold">The workflow reconstruction layer for operational trust memory</h2>
+          <h2 className="mt-2 text-xl font-semibold">Trust chronology and workflow reconstruction</h2>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
             Replay is the authoritative chronology for this workflow. It connects session integrity, governance review, operational evidence,
             authorization history, verification outcome and receipt record for the same workflow subject.
@@ -340,12 +339,11 @@ export default async function VerificationReplayPage({
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Federated signal continuity</p>
-          <h2 className="mt-2 text-xl font-semibold">Replayable workflow evidence can inform enterprise trust networks</h2>
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Evidence continuity</p>
+          <h2 className="mt-2 text-xl font-semibold">Replay supports accountable workflow decisions</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
             Shared anomaly indicators, provider evidence, governance decisions and authorization changes are retained
-            as workflow context. They support governance review across connected
-            workflows without creating centralized identity tracking.
+            as workflow context for governance review across connected workflows.
           </p>
         </section>
 

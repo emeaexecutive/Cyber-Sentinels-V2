@@ -16,11 +16,11 @@ export default function GovernancePage() {
             Governance
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Human review for high-risk verification decisions.
+            Governance continuity for sensitive workflow decisions.
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels keeps sensitive workflow decisions reviewable. Governance connects evidence chains,
-            escalation ownership, reviewer attribution and trust-state transitions before an outcome is treated as operationally ready.
+            Named reviewers connect evidence, escalation rationale and trust-state transitions
+            before a sensitive workflow advances.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">

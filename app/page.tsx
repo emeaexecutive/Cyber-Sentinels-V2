@@ -14,7 +14,7 @@ const platformSurfaces = [
   ["Replay", "Canonical evidence chronology showing what changed, who acted and what evidence remains."],
   ["Governance", "Named review ownership, escalation continuity and human authority for sensitive workflow decisions."],
   ["Workflow Trust", "An evolving posture across workflow state, authorization context, evidence and reviewer action."],
-  ["Federated Signals", "Shared anomaly indicators and governance intelligence without centralized surveillance."],
+  ["Provider Signals", "Normalized verification states and evidence references retained with their source."],
   ["Session Integrity", "Liveness, channel, injection and media-risk signals kept separate for review."],
   ["Verification Receipts", "Portable records of what was checked, reviewed, retained and resolved."],
 ];
@@ -69,7 +69,7 @@ export default function Home() {
               From uncertain workflow entry to replayable accountability.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              Verification begins, evidence accumulates, governance remains accountable and the outcome becomes replayable trust history.
+              Verification begins, evidence accumulates, reviewers act and replay preserves the final chronology.
             </p>
           </div>
           <div className="mt-7 grid gap-3 md:grid-cols-6">
@@ -89,7 +89,7 @@ export default function Home() {
             Platform focus
           </p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-            Governance, evidence, replay and workflow trust in one operational path.
+            Evidence, governance and replay in one operational path.
           </h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
             Preserve evidence, replay what changed, assign review ownership and issue a verification receipt before sensitive decisions move forward.

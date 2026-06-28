@@ -16,10 +16,11 @@ export default function VerificationReplayPage() {
             Verification Replay
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Replayable evidence for sensitive verification workflows.
+            Canonical operational evidence for sensitive workflows.
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
-            Verification Replay explains how Cyber Sentinels reconstructs identity, session integrity, injection risk and governance events into a reviewable chronology. Actual replay records remain protected operational data.
+            Replay reconstructs identity checks, session integrity, evidence and governance actions
+            as a reviewable trust chronology. Case records remain protected operational data.
           </p>
         </section>
 
@@ -33,7 +34,7 @@ export default function VerificationReplayPage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-2xl font-semibold">Protected by design</h2>
+          <h2 className="text-2xl font-semibold">Public model, protected evidence</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             Public visitors can understand the replay model here. Case-level replay timelines, subjects and reviewer notes require sign-in because they contain operational trust data.
           </p>

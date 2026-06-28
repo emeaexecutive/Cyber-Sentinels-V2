@@ -6,7 +6,7 @@ const risks = [
   ["Fake applicants", "Convincing profiles can enter hiring workflows before evidence, identity context and interview behavior line up."],
   ["Proxy interviews", "The person in the interview may not match the candidate context the team believes it is reviewing."],
   ["Stolen identities", "Identity evidence can be reused or misrepresented while the session itself still needs review."],
-  ["AI-assisted fraud", "Generated answers, synthetic media and automated coaching can make a workflow look cleaner than it is."],
+  ["Assisted fraud", "Generated answers, synthetic media and automated coaching can obscure workflow risk."],
   ["Injected sessions", "A verified entry point does not guarantee the camera, audio or screen channel remains trustworthy."],
 ];
 
@@ -38,7 +38,8 @@ export default function DesignPartnerPage() {
             Trust can change after verification. Operational pilots help teams review identity, session integrity, evidence and governance in one workflow.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels is for security, talent, risk and governance teams that need Verification Evidence, Session Integrity, Replay Evidence and Verification Receipts instead of unsupported trust claims.
+            Security, talent, risk and governance teams can review evidence, session integrity,
+            governance actions and replay without relying on unsupported trust claims.
           </p>
           <EvidenceDisclaimer className="mt-6 max-w-3xl" />
           <div className="mt-8 flex flex-wrap gap-3">
@@ -97,7 +98,8 @@ export default function DesignPartnerPage() {
             <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Enterprise proof</p>
             <h2 className="mt-4 text-3xl font-semibold">Evidence that can survive a review meeting.</h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              The pilot shows how a workflow moves from verification setup to Governance Review, Replay Evidence and trust receipts without becoming an opaque decision product.
+              The workflow moves from verification setup to governance review, canonical replay
+              and a receipt without becoming an opaque decision product.
             </p>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
@@ -128,7 +130,8 @@ export default function DesignPartnerPage() {
           <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Who should apply</p>
           <h2 className="mt-4 text-2xl font-semibold">Teams with real review pressure.</h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Ideal design partners are reviewing remote hiring workflows, sensitive verification workflows or AI-assisted operations where evidence, escalation and auditability already matter.
+            Ideal design partners are reviewing remote hiring, sensitive verification or
+            automated workflows where evidence, escalation and auditability already matter.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">

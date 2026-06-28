@@ -21,10 +21,8 @@ export default function VerificationReceiptsPage() {
             Audit-ready receipts for verification outcomes.
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
-            Verification Receipts summarize what was checked, which state was reached, what reviewer decision was recorded and which replay chronology supports the workflow outcome. Public pages explain the receipt model; specific receipts remain protected unless intentionally shared.
-          </p>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels creates portable operational trust evidence across enterprise workflows and intelligent systems.
+            Each receipt summarizes the evidence reviewed, resulting trust posture, governance
+            outcome and canonical replay reference. Specific receipts remain protected unless intentionally shared.
           </p>
           <ReceiptVerificationForm />
           <p className="mt-3 max-w-2xl text-xs leading-5 text-zinc-500">

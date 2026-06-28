@@ -31,11 +31,11 @@ export default function InvestorPage() {
             Investor overview
           </p>
           <h1 className="mt-5 max-w-5xl text-4xl font-semibold leading-tight md:text-6xl">
-            The enterprise workflow trust layer.
+            Operational trust for intelligent systems.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels makes identity evidence, session integrity, governance decisions,
-            replay and verification receipts part of one reviewable operational workflow.
+            Cyber Sentinels connects provider-backed verification, workflow integrity,
+            governance decisions and canonical replay in one auditable operating model.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             The initial wedge is Hiring Security and Session Integrity: workflows where synthetic
@@ -75,7 +75,7 @@ export default function InvestorPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Why now</p>
             <h2 className="mt-3 text-3xl font-semibold">Verification is becoming a continuous workflow problem.</h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              Remote hiring, synthetic media and AI-assisted operations increase the distance between
+              Remote hiring, synthetic media and automated operations increase the distance between
               a credential checked at entry and the person, session or system acting later.
             </p>
           </div>
