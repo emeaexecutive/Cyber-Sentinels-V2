@@ -857,6 +857,25 @@ function routeInventoryChecks() {
         : "Screenshot support workflow files are missing.",
       true
     ),
+    check(
+      "Operational Support",
+      "Admin fake actor enforcement",
+      routeFileExists("admin", "fake-actors", "page.tsx") &&
+        routeFileExists("admin", "fake-actors", "[id]", "page.tsx") &&
+        routeFileExists("api", "admin", "fake-actors", "route.ts") &&
+        routeFileExists("api", "admin", "fake-actors", "[id]", "block", "route.ts") &&
+        routeFileExists("api", "admin", "fake-actors", "[id]", "remove", "route.ts") &&
+        routeFileExists("api", "admin", "fake-actors", "[id]", "report", "route.ts") &&
+        routeFileExists("api", "admin", "fake-actors", "[id]", "false-positive", "route.ts") &&
+        fileContains("lib", "admin", "fake-actor-api.ts", /requireAdminApiAccess/) &&
+        fileContains("lib", "admin", "fake-actors.ts", /evidence_preserved: true/)
+        ? "PASS"
+        : "FAIL",
+      routeFileExists("admin", "fake-actors", "page.tsx")
+        ? "Admin-only actor review, governed enforcement and evidence preservation controls are present."
+        : "Admin fake actor enforcement files are missing.",
+      true
+    ),
   ];
 }
 function providerChecks() {
