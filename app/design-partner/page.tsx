@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { EvidenceDisclaimer } from "@/components/evidence-disclaimer";
+import { operationalPilotTemplates } from "@/lib/pilot-templates";
 
 const risks = [
   ["Fake applicants", "Convincing profiles can enter hiring workflows before evidence, identity context and interview behavior line up."],
@@ -34,7 +35,7 @@ export default function DesignPartnerPage() {
             Build operational trust workflows with serious enterprise teams.
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-zinc-300">
-            Trust changed quietly. AI changed identity risk, and verification alone is no longer enough for workflows where hiring access, sensitive systems and human review matter.
+            Trust can change after verification. Operational pilots help teams review identity, session integrity, evidence and governance in one workflow.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels is for security, talent, risk and governance teams that need Verification Evidence, Session Integrity, Replay Evidence and Verification Receipts instead of unsupported trust claims.
@@ -65,6 +66,26 @@ export default function DesignPartnerPage() {
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
               <h3 className="text-lg font-semibold text-zinc-100">{title}</h3>
               <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-14 md:px-8">
+        <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Supported pilot workflows</p>
+        <h2 className="mt-4 max-w-3xl text-3xl font-semibold">Start with one workflow and one accountable outcome.</h2>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+          Each template begins with a named workflow, shows how trust changes, records governance intervention,
+          reconstructs replay chronology and ends with a workflow-linked receipt.
+        </p>
+        <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {operationalPilotTemplates.map((template) => (
+            <article key={template.id} className="rounded-lg border border-zinc-800 bg-black p-5">
+              <h3 className="text-lg font-semibold text-zinc-100">{template.name}</h3>
+              <p className="mt-3 text-sm leading-6 text-zinc-300">{template.purpose}</p>
+              <p className="mt-3 text-xs leading-5 text-zinc-500">
+                Outcome: {template.finalOutcome}
+              </p>
             </article>
           ))}
         </div>

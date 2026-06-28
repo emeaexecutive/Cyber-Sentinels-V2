@@ -705,6 +705,20 @@ function routeInventoryChecks() {
   return [
     check(
       "Demo And Proof Routes",
+      "Operational pilot adoption",
+      routeFileExists("enterprise", "pilot-setup", "page.tsx") &&
+        routeFileExists("pilot", "getting-started", "page.tsx") &&
+        existsSync(join(process.cwd(), "lib", "pilot-templates.ts")) &&
+        fileContains("lib", "pilot-templates.ts", /governance_escalation/)
+        ? "PASS"
+        : "FAIL",
+      existsSync(join(process.cwd(), "lib", "pilot-templates.ts"))
+        ? "Pilot setup, onboarding guide and five operational workflow templates are present."
+        : "Operational pilot templates are missing.",
+      true
+    ),
+    check(
+      "Demo And Proof Routes",
       "Operational Trust Center",
       routeFileExists("trust-center", "page.tsx") &&
         fileContains("middleware.ts", /"\/trust-center"/) &&

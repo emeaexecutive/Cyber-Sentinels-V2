@@ -3,6 +3,7 @@ import { PrivateBetaBadge, PrivateBetaNotice } from "@/components/private-beta";
 import { TurnstileField } from "@/components/turnstile-field";
 import { getTurnstileSiteKey } from "@/lib/bot-protection";
 import { EvidenceDisclaimer } from "@/components/evidence-disclaimer";
+import { operationalPilotTemplates } from "@/lib/pilot-templates";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,7 @@ export default async function EnterpriseAccessPage({ searchParams }: {
           <PrivateBetaBadge className="mt-4" />
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">{pageTitle}</h1>
           <p className="mt-5 max-w-2xl leading-8 text-zinc-300">Tell us what you need to verify, which workflow is exposed and what human review or audit trail your team requires.</p>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-300">Cyber Sentinels is Operational Trust Infrastructure for enterprise workflows that need Hiring Security, Session Integrity, Verification Evidence, Governance Review and Replay Evidence.</p>
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-300">Cyber Sentinels provides operational trust for enterprise workflows that need session integrity, verification evidence, governance review and replay.</p>
           {designPartner ? (
             <div className="mt-6 rounded-lg border border-cyan-950 bg-black p-4">
               <p className="text-sm font-semibold text-cyan-100">Design partner pilot ask</p>
@@ -44,6 +45,16 @@ export default async function EnterpriseAccessPage({ searchParams }: {
               </ul>
             </div>
           ) : null}
+          <div className="mt-6 rounded-lg border border-zinc-800 bg-black p-4">
+            <p className="text-sm font-semibold text-zinc-100">Operational pilot expectations</p>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">
+              Select one workflow, identify its review owner, agree the evidence boundary,
+              review governance and replay together, then evaluate the final receipt with stakeholders.
+            </p>
+            <p className="mt-3 text-xs leading-5 text-zinc-500">
+              Supported: {operationalPilotTemplates.map((template) => template.name).join(" · ")}
+            </p>
+          </div>
           <EvidenceDisclaimer className="mt-6 max-w-2xl" />
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {[
@@ -76,12 +87,12 @@ export default async function EnterpriseAccessPage({ searchParams }: {
             <label className="grid gap-2 text-sm text-zinc-300">Work email<input required name="work_email" type="email" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
             <label className="grid gap-2 text-sm text-zinc-300">Company<input required name="company" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
             <label className="grid gap-2 text-sm text-zinc-300">
-              AI, hiring or operational trust concern
+              Hiring, identity or operational trust concern
               <select name="current_problem_category" defaultValue="" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white">
                 <option value="" disabled>Select the closest concern</option>
                 <option value="hiring_security">Synthetic applicants and hiring security</option>
                 <option value="session_integrity">Session integrity and injected feeds</option>
-                <option value="ai_identity">AI agents and digital identity</option>
+                <option value="ai_identity">Agent governance and digital identity</option>
                 <option value="auditability">Verification evidence and audit trails</option>
                 <option value="human_review">Governance and human review</option>
                 <option value="other">Other</option>
@@ -89,7 +100,7 @@ export default async function EnterpriseAccessPage({ searchParams }: {
             </label>
             <label className="grid gap-2 text-sm text-zinc-300">Requirements<textarea name="message" rows={5} placeholder="Workflow, verification evidence, review or pilot requirements" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
             <TurnstileField siteKey={turnstileSiteKey} />
-            <button className="rounded-lg bg-white p-3 font-semibold text-black hover:bg-cyan-100">{buttonLabel}</button>
+            <button className="brand-primary-action w-full p-3">{buttonLabel}</button>
           </form>
         </section>
       </div>

@@ -229,6 +229,9 @@ export default async function TrustReceiptPage({
     governanceActions: governanceActions ?? [],
     replaySessions: replaySessions ?? [],
   });
+  const replayHref = replaySessions?.[0]?.id
+    ? `/replay/${replaySessions[0].id}`
+    : null;
   const portableEvidence = buildPortableTrustEvidence({
     receiptId: receipt.id,
     subjectType: label(receipt.subject_type),
@@ -463,14 +466,25 @@ export default async function TrustReceiptPage({
               ["Workflow subject", `${label(receipt.subject_type, "workflow")} / ${receipt.subject_id}`, receipt.subject_type === "interview_session" ? `/trust/session/${receipt.subject_id}` : `/verify/${receipt.subject_id}`],
               ["Operational evidence", `${(evidenceChains ?? []).length} chain(s)`, "/evidence-vault"],
               ["Governance review", label(governanceOutcome, "pending"), "/dashboard/governance"],
-              ["Replay chronology", `/replay/${receipt.subject_id}`, `/replay/${receipt.subject_id}`],
+              ["Replay chronology", replayHref ?? "Not available", replayHref],
               ["Verification outcome", label(receipt.verification_status, "pending"), `/verification/receipt/${id}`],
-            ].map(([title, value, href]) => (
-              <Link key={title} href={String(href)} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-700 print:border-zinc-300 print:bg-white">
-                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
-                <p className="mt-2 break-words text-sm font-semibold text-zinc-100 print:text-zinc-800">{value}</p>
-              </Link>
-            ))}
+            ].map(([title, value, href]) => {
+              const content = (
+                <>
+                  <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+                  <p className="mt-2 break-words text-sm font-semibold text-zinc-100 print:text-zinc-800">{value}</p>
+                </>
+              );
+              return href ? (
+                <Link key={title} href={String(href)} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-700 print:border-zinc-300 print:bg-white">
+                  {content}
+                </Link>
+              ) : (
+                <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white">
+                  {content}
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -485,7 +499,7 @@ export default async function TrustReceiptPage({
           <DetailRow label="Trust State" value={label(receipt.verification_status ?? governanceOutcome, "reviewable")} />
           <DetailRow label="Reviewer Decision" value={latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No reviewer decision attached yet"} />
           <DetailRow label="Evidence Chain" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} evidence chain(s)` : "No replay evidence available yet"} />
-          <DetailRow label="Replay Link" value={`/replay/${receipt.subject_id}`} />
+          <DetailRow label="Replay Link" value={replayHref ?? "Not available"} />
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">
@@ -521,12 +535,13 @@ export default async function TrustReceiptPage({
                 Enterprise proof stays readable: what was checked, where the workflow or session changed, which evidence is attached, who reviewed the case, what authorization concern was raised and what remains pending.
               </p>
             </div>
-            <Link
-              href={`/replay/${receipt.subject_id}`}
-              className="text-sm text-cyan-200 underline print:hidden"
-            >
-              Open verification replay
-            </Link>
+            {replayHref ? (
+              <Link href={replayHref} className="text-sm text-cyan-200 underline print:hidden">
+                Open verification replay
+              </Link>
+            ) : (
+              <span className="text-sm text-zinc-500 print:hidden">Replay pending</span>
+            )}
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
             <DetailRow label="Identity verification state" value={identityState} />
@@ -600,7 +615,7 @@ export default async function TrustReceiptPage({
               ["Printable", "Use print or save as PDF for the pilot record"],
               ["Workflow-linked", `${label(receipt.subject_type, "workflow subject")} / ${receipt.subject_id}`],
               ["Governance-focused", latestGovernance ? "Reviewer action recorded" : "Reviewer action pending"],
-              ["Replay-linked", `Replay route: /replay/${receipt.subject_id}`],
+              ["Replay-linked", replayHref ? `Replay route: ${replayHref}` : "Replay pending"],
               ["Evidence summary", `${(evidenceChains ?? []).length} evidence chain(s), ${(timeline ?? []).length} timeline event(s)`],
               ["Audit references", `${(auditLogs ?? []).length} receipt audit log(s)`],
             ].map(([title, value]) => (
@@ -807,9 +822,11 @@ export default async function TrustReceiptPage({
           <Link href="/trust-graph" className="text-sm text-cyan-200 underline">
             Open trust graph
           </Link>
-          <Link href={`/replay/${receipt.subject_id}`} className="text-sm text-cyan-200 underline">
-            Open verification replay
-          </Link>
+          {replayHref ? (
+            <Link href={replayHref} className="text-sm text-cyan-200 underline">
+              Open verification replay
+            </Link>
+          ) : null}
         </div>
       </div>
     </main>

@@ -9,6 +9,7 @@ import {
   type PilotOrganizationState,
 } from "@/lib/pilot-mode";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { buildWorkflowProviderSignals } from "@/lib/providers";
 
 export type DeploymentReadinessState = "READY" | "CAUTION" | "BLOCKED";
 
@@ -32,6 +33,11 @@ export type PilotOperationalMetrics = {
   onboardingCompletion: number;
   pilotWorkspaces: number;
   pilotStateCounts: Record<PilotOrganizationState, number>;
+  workflowsReviewed: number;
+  escalationsTriggered: number;
+  trustContinuityMaintained: number;
+  replayReconstructionsCompleted: number;
+  providerBackedVerificationsCompleted: number;
 };
 
 export type DeploymentReadinessReport = {
@@ -122,6 +128,7 @@ export async function readPilotOperationalMetrics(): Promise<PilotOperationalMet
     receipts,
     replaySessions,
     auditLogs,
+    timelineEvents,
   ] = await Promise.all([
     readRows("trust_workspaces"),
     readRows("trust_cases"),
@@ -129,6 +136,7 @@ export async function readPilotOperationalMetrics(): Promise<PilotOperationalMet
     readRows("verification_receipts", "issued_at"),
     readRows("trust_replay_sessions"),
     readRows("audit_logs"),
+    readRows("trust_timeline_events"),
   ]);
   const pilotWorkspaceIds = new Set(workspaces.filter(isPilotWorkspace).map(rowId).filter(Boolean));
   const pilotStateCounts = pilotOrganizationStates.reduce(
@@ -150,6 +158,50 @@ export async function readPilotOperationalMetrics(): Promise<PilotOperationalMet
   ].length;
   const replayViews = auditLogs.filter((item) =>
     /replay.*view|trust_replay/i.test(stringValue(item.event_type))
+  ).length;
+  const completedWorkflowIds = new Set(
+    completedGovernance.map((item) => stringValue(item.subject_id)).filter(Boolean)
+  );
+  receipts.forEach((receipt) => {
+    const subjectId = stringValue(receipt.subject_id);
+    if (subjectId) completedWorkflowIds.add(subjectId);
+  });
+  const replaySubjectIds = new Set(
+    replaySessions.map((item) => stringValue(item.subject_id)).filter(Boolean)
+  );
+  const receiptSubjectIds = new Set(
+    receipts.map((item) => stringValue(item.subject_id)).filter(Boolean)
+  );
+  const timelineSubjectIds = new Set(
+    timelineEvents.map((item) => stringValue(item.subject_id)).filter(Boolean)
+  );
+  const trustContinuityMaintained = [...replaySubjectIds].filter(
+    (subjectId) => receiptSubjectIds.has(subjectId) && timelineSubjectIds.has(subjectId)
+  ).length;
+  const escalationReferences = new Set([
+    ...governanceActions
+      .filter((item) => stringValue(item.action_status) === "escalated")
+      .map((item) => rowId(item) || stringValue(item.subject_id)),
+    ...pilotCases
+      .filter((item) => stringValue(item.status) === "escalated")
+      .map((item) => rowId(item)),
+    ...timelineEvents
+      .filter((item) =>
+        /escalat/i.test(`${stringValue(item.event_type)} ${stringValue(item.event_title)}`)
+      )
+      .map((item) => rowId(item) || stringValue(item.subject_id)),
+  ].filter(Boolean));
+  const providerBackedVerificationsCompleted = receipts.filter((receipt) =>
+    buildWorkflowProviderSignals({
+      evidenceSnapshot:
+        receipt.evidence_snapshot && typeof receipt.evidence_snapshot === "object"
+          ? receipt.evidence_snapshot as Record<string, unknown>
+          : {},
+      providerVerificationState: receipt.verification_status,
+    }).some((signal) =>
+      signal.providerVerificationState === "verified" &&
+      signal.providerName !== "External verification source"
+    )
   ).length;
   const onboardingSteps = [
     workspaces.length > 0,
@@ -174,6 +226,11 @@ export async function readPilotOperationalMetrics(): Promise<PilotOperationalMet
     ),
     pilotWorkspaces: pilotWorkspaceIds.size,
     pilotStateCounts,
+    workflowsReviewed: completedWorkflowIds.size,
+    escalationsTriggered: escalationReferences.size,
+    trustContinuityMaintained,
+    replayReconstructionsCompleted: replaySessions.length,
+    providerBackedVerificationsCompleted,
   };
 }
 

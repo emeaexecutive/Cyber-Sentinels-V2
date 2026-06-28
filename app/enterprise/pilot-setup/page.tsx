@@ -13,6 +13,10 @@ import {
   PILOT_MODE,
 } from "@/lib/pilot-mode";
 import { createClient } from "@/lib/supabase/server";
+import {
+  getOperationalPilotTemplate,
+  operationalPilotTemplates,
+} from "@/lib/pilot-templates";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +33,7 @@ async function createPilotWorkspace(formData: FormData) {
   const organizationName = String(formData.get("organization_name") ?? "").trim();
   const reviewerEmails = String(formData.get("reviewer_emails") ?? "").trim();
   const pilotState = normalizePilotOrganizationState(formData.get("pilot_state"));
+  const pilotTemplate = getOperationalPilotTemplate(formData.get("pilot_template"));
   const caseTitle = String(formData.get("case_title") ?? "").trim();
   const caseDescription = String(formData.get("case_description") ?? "").trim();
   const reviewerEmailList = reviewerEmails
@@ -72,7 +77,7 @@ async function createPilotWorkspace(formData: FormData) {
       title: caseTitle,
       description:
         caseDescription ||
-        "First pilot trust case created during design-partner onboarding.",
+        pilotTemplate.purpose,
       status: "open",
       priority: "medium",
       created_by: user.id,
@@ -87,6 +92,18 @@ async function createPilotWorkspace(formData: FormData) {
       state: pilotState,
       workspaceId: workspace.id,
       trustCaseId: trustCase.id,
+    });
+    Object.assign(pilotMetadata, {
+      pilot_template: pilotTemplate.id,
+      pilot_template_name: pilotTemplate.name,
+      evidence_expected: pilotTemplate.evidenceExpected,
+      workflow_path: {
+        start: pilotTemplate.workflowStart,
+        trust_evolution: pilotTemplate.trustEvolution,
+        replay: pilotTemplate.replayChronology,
+        governance: pilotTemplate.governanceIntervention,
+        outcome: pilotTemplate.finalOutcome,
+      },
     });
     const { data: policies } = await supabase
       .from("governance_policies")
@@ -124,7 +141,7 @@ async function createPilotWorkspace(formData: FormData) {
       event_type: "pilot_workspace_initialized",
       event_title: "Pilot workspace initialized",
       event_summary:
-        "Pilot defaults, verification categories, governance templates, checklist and replay structure were seeded for controlled onboarding.",
+        `${pilotTemplate.name} pilot initialized. Workflow start, trust evolution, governance intervention, replay chronology and receipt outcome are ready for controlled onboarding.`,
       actor_type: "pilot_setup",
       actor_id: user.id,
       metadata: pilotMetadata,
@@ -135,7 +152,7 @@ async function createPilotWorkspace(formData: FormData) {
       subject_type: "trust_case",
       subject_id: trustCase.id,
       replay_summary:
-        "Seeded pilot replay path: case created, evidence upload, governance review, timeline generation, verification receipt and replay review. This sample structure guides operators without mutating workflow history.",
+        `${pilotTemplate.name} replay path: ${pilotTemplate.workflowStart} ${pilotTemplate.replayChronology} ${pilotTemplate.finalOutcome}`,
       generated_by: "pilot_setup_seed",
     });
 
@@ -173,6 +190,8 @@ async function createPilotWorkspace(formData: FormData) {
       reviewer_emails: reviewerEmailList,
       verification_categories: [...pilotVerificationCategories],
       governance_templates: pilotGovernanceTemplates.map((template) => template.name),
+      pilot_template: pilotTemplate.id,
+      pilot_template_name: pilotTemplate.name,
       operational_context:
         "Pilot setup created an isolated workspace and first trust case for design-partner onboarding.",
     },
@@ -237,6 +256,20 @@ export default async function PilotSetupPage({
                 placeholder="Reviewer emails, comma or line separated"
                 className="min-h-24 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white"
               />
+              <label className="grid gap-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
+                Pilot Workflow
+                <select
+                  name="pilot_template"
+                  defaultValue="hiring_security"
+                  className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm normal-case tracking-normal text-white"
+                >
+                  {operationalPilotTemplates.map((template) => (
+                    <option key={template.id} value={template.id}>
+                      {template.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label className="grid gap-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
                 Pilot State
                 <select

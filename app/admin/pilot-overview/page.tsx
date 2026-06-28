@@ -2,27 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
+import { readPilotOperationalMetrics } from "@/lib/pilot-execution/readiness";
 
 export const dynamic = "force-dynamic";
 
 type AnyRow = Record<string, any>;
-
-type CountResult = {
-  count: number;
-  available: boolean;
-};
-
-async function countTable(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  table: string
-): Promise<CountResult> {
-  const { count, error } = await supabase
-    .from(table)
-    .select("id", { count: "exact", head: true });
-
-  if (error) return { count: 0, available: false };
-  return { count: count ?? 0, available: true };
-}
 
 async function fetchRows(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -45,10 +29,6 @@ function formatDate(value?: string | null) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Not recorded";
   return date.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
-}
-
-function metricValue(result: CountResult) {
-  return result.available ? String(result.count) : "Unavailable";
 }
 
 function pilotLike(row: AnyRow) {
@@ -75,6 +55,7 @@ export default async function PilotOverviewPage() {
 
   await requireAdminPageAccess(supabase, { path: "/admin/pilot-overview" });
 
+  const operationalMetrics = await readPilotOperationalMetrics();
   const [
     workspaces,
     governanceActions,
@@ -82,9 +63,6 @@ export default async function PilotOverviewPage() {
     receipts,
     integrityChecks,
     riskEvents,
-    workspaceCount,
-    governanceCount,
-    receiptCount,
   ] = await Promise.all([
     fetchRows(supabase, "trust_workspaces", 80),
     fetchRows(supabase, "governance_actions", 80),
@@ -92,9 +70,6 @@ export default async function PilotOverviewPage() {
     fetchRows(supabase, "verification_receipts", 40, "issued_at"),
     fetchRows(supabase, "session_integrity_checks", 40),
     fetchRows(supabase, "interview_risk_events", 40),
-    countTable(supabase, "trust_workspaces"),
-    countTable(supabase, "governance_actions"),
-    countTable(supabase, "verification_receipts"),
   ]);
 
   const activePilots = workspaces.filter(pilotLike);
@@ -139,11 +114,11 @@ export default async function PilotOverviewPage() {
 
         <section className="mt-8 grid gap-4 md:grid-cols-5">
           {[
-            ["Active pilots", activePilots.length ? String(activePilots.length) : metricValue(workspaceCount)],
-            ["Recent reviews", governanceCount.available ? String(governanceCount.count) : String(recentReviews.length)],
-            ["Pending governance", String(pendingGovernance.length)],
-            ["Flagged sessions", String(flaggedSessions.length)],
-            ["Receipts generated", metricValue(receiptCount)],
+            ["Workflows reviewed", String(operationalMetrics.workflowsReviewed)],
+            ["Escalations triggered", String(operationalMetrics.escalationsTriggered)],
+            ["Continuity maintained", String(operationalMetrics.trustContinuityMaintained)],
+            ["Replay reconstructions", String(operationalMetrics.replayReconstructionsCompleted)],
+            ["Provider verifications", String(operationalMetrics.providerBackedVerificationsCompleted)],
           ].map(([label, value]) => (
             <article key={label} className="rounded-lg border border-zinc-800 bg-black p-5">
               <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">{label}</p>
@@ -151,6 +126,10 @@ export default async function PilotOverviewPage() {
             </article>
           ))}
         </section>
+
+        <p className="mt-3 text-xs leading-5 text-zinc-600">
+          Counts are derived from recorded workflow, governance, timeline, replay, receipt and normalized provider evidence. They are operational activity measures, not security-effectiveness claims.
+        </p>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_1fr]">
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
