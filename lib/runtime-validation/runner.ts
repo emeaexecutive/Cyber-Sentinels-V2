@@ -122,6 +122,13 @@ const workflowTables: WorkflowTableCheck[] = [
   { label: "Support issues", table: "support_issues" },
 ];
 const requestTimeoutMs = 8000;
+const operationalTrustApiRoutes = [
+  ["api", "trust", "posture", "route.ts"],
+  ["api", "replay", "[id]", "route.ts"],
+  ["api", "receipts", "[id]", "route.ts"],
+  ["api", "workflows", "[id]", "trust", "route.ts"],
+  ["api", "governance", "events", "route.ts"],
+];
 
 function check(
   category: string,
@@ -694,6 +701,18 @@ function emailAndBotProtectionChecks() {
 }
 function routeInventoryChecks() {
   return [
+    check(
+      "Demo And Proof Routes",
+      "Operational Trust API",
+      operationalTrustApiRoutes.every((segments) => routeFileExists(...segments)) &&
+        existsSync(join(process.cwd(), "lib", "sdk", "trust-client.ts"))
+        ? "PASS"
+        : "FAIL",
+      operationalTrustApiRoutes.every((segments) => routeFileExists(...segments))
+        ? "Authenticated posture, workflow, replay, receipt and governance APIs are present."
+        : "One or more Operational Trust API route files are missing.",
+      true
+    ),
     check(
       "Demo And Proof Routes",
       "Demo overview route",

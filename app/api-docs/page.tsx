@@ -2,6 +2,25 @@ import Link from "next/link";
 
 const examples = [
   {
+    method: "GET",
+    path: "/api/workflows/{id}/trust",
+    body: `{
+  "posture": { "state": "governance_review", "explanation": "..." },
+  "evidenceContinuity": [],
+  "governanceLineage": [],
+  "replay": { "reference": "/api/replay/{id}" }
+}`,
+  },
+  {
+    method: "GET",
+    path: "/api/receipts/{id}",
+    body: `{
+  "portableEvidence": { "schemaVersion": 1 },
+  "integrity": { "state": "verified", "checks": [] },
+  "replayReference": "/api/replay/{id}"
+}`,
+  },
+  {
     method: "POST",
     path: "/api/trust/check",
     body: `{
@@ -78,23 +97,26 @@ export default function ApiDocsPage() {
             Developer foundation
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Cyber Sentinels Trust API
+            Operational Trust API
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Trust checks for humans, AI agents, candidates, media and digital
-            interactions.
+            Cyber Sentinels provides operational trust infrastructure for
+            workflows, identities and intelligent systems. Authenticated APIs
+            connect replayable evidence, trust continuity, governance lineage
+            and provider orchestration without exposing raw provider data.
           </p>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <p className="leading-7 text-zinc-300">
-            Every API trust decision should create a signal and audit event when
-            used in production.
+            Read APIs preserve workflow trust posture and canonical replay
+            chronology. Future callbacks will notify integrated systems about
+            trust-state updates while human governance remains authoritative.
           </p>
           <p className="mt-3 text-sm text-zinc-500">
-            Trust API V1 includes API-key placeholder logic. Production usage
-            should add scoped keys, durable rate limits, request signing and
-            customer-level audit retention.
+            These foundations use the signed-in session and existing row-level
+            security. Scoped integration credentials, signed webhooks and
+            delivery retries remain future platform work.
           </p>
           <Link
             href="/developer-console"
