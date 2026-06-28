@@ -23,10 +23,10 @@ export default function GovernancePage() {
             escalation ownership, reviewer attribution and trust-state transitions before an outcome is treated as operationally ready.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/demo" className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
+            <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
               View Demo
             </Link>
-            <Link href="/enterprise-access" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-cyan-500 hover:text-white">
+            <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
               Request Enterprise Access
             </Link>
           </div>

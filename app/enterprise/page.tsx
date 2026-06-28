@@ -35,10 +35,10 @@ export default function EnterprisePage() {
             Maintain operational evidence, governance continuity and an evolving workflow trust posture behind access, hiring and operational decisions.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/demo" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
+            <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
               View Demo
             </Link>
-            <Link href="/enterprise-access" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
+            <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
               Request Enterprise Access
             </Link>
             <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white">

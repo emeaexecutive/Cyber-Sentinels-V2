@@ -93,13 +93,13 @@ export default function HiringSecurityPage() {
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/demo/hiring-attack"
-              className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-cyan-200"
+              className="brand-primary-action brand-action-large text-sm"
             >
               View Demo
             </Link>
             <Link
               href="/enterprise-access"
-              className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400"
+              className="brand-secondary-action brand-action-large text-sm"
             >
               Request Enterprise Access
             </Link>

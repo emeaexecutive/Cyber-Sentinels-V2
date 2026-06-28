@@ -42,10 +42,10 @@ export default function InvestorPage() {
             applicants, proxy interviews and injected sessions create immediate enterprise risk.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/demo/hiring-attack" className="rounded-lg bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-cyan-200">
+            <Link href="/demo/hiring-attack" className="brand-primary-action brand-action-large text-sm">
               View Demo
             </Link>
-            <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
+            <Link href="/enterprise-access?intent=design_partner" className="brand-secondary-action brand-action-large text-sm">
               Become a Design Partner
             </Link>
             <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
@@ -148,4 +148,3 @@ export default function InvestorPage() {
     </main>
   );
 }
-

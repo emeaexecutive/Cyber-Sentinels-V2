@@ -290,7 +290,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
             Operational governance memory
           </p>
-          <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
+          <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
             Trust Replay
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">

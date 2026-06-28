@@ -33,6 +33,7 @@ const userLinks = [
 ];
 
 const platformDropdownLinks = [
+  ["/trust-center", "Operational Trust Center"],
   ["/governance", "Governance"],
   ["/enterprise/hiring-security", "Workflow Trust"],
   ["/verification-replay", "Verification Replay"],
@@ -65,7 +66,7 @@ function LogoutButton({ onNavigate }: { onNavigate?: CloseMenus }) {
       <button
         type="submit"
         onClick={onNavigate}
-        className="rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white"
+        className="nav-control"
       >
         Logout
       </button>
@@ -87,7 +88,7 @@ function FlatLinks({
           key={href}
           href={href}
           onClick={onNavigate}
-          className="rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white"
+          className="nav-control"
         >
           {label}
         </Link>
@@ -123,7 +124,7 @@ function DropdownLinks({
             onClose();
           }
         }}
-        className="rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white"
+        className="nav-control"
       >
         <span className="inline-flex items-center gap-2">
           {label}
@@ -134,7 +135,9 @@ function DropdownLinks({
         <div
           role="menu"
           aria-label={`${label} navigation`}
-          className="fixed left-4 right-4 top-16 z-50 grid gap-1 rounded-lg border border-zinc-800 bg-black p-2 shadow-2xl shadow-black/50 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-64"
+          className={`absolute top-full z-50 mt-2 grid w-64 max-w-[calc(100vw-2rem)] gap-1 rounded-lg border border-zinc-800 bg-black p-2 shadow-2xl shadow-black/50 ${
+            id === "platform" ? "left-0" : "right-0"
+          }`}
         >
           {links.map(([href, itemLabel]) => (
             <Link
@@ -245,17 +248,18 @@ export function GlobalNavigation({
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-900 bg-[#04070c]/95 text-white backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-8">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3.5 md:px-8">
         <Link
           href="/"
           onClick={closeMenus}
-          className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-100"
+          className="brand-wordmark basis-full sm:basis-auto"
         >
           Cyber Sentinels
         </Link>
         <nav
           ref={navigationRef}
-          className="flex flex-wrap items-center justify-end gap-2 text-sm text-zinc-200"
+          aria-label="Primary navigation"
+          className="flex w-full min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm text-zinc-200 sm:w-auto sm:justify-end"
         >
           {accessLevel === "public" ? (
             <>
@@ -267,7 +271,7 @@ export function GlobalNavigation({
               <Link
                 href="/login"
                 onClick={closeMenus}
-                className="rounded-lg bg-cyan-300 px-4 py-2 font-semibold text-zinc-950 hover:bg-cyan-200"
+                className="brand-primary-action"
               >
                 Sign in
               </Link>
@@ -285,7 +289,7 @@ export function GlobalNavigation({
                 <Link
                   href="/admin/access"
                   onClick={closeMenus}
-                  className="rounded-lg border border-cyan-700 px-3 py-2 font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
+                  className="brand-secondary-action"
                 >
                   Admin
                 </Link>
@@ -298,7 +302,7 @@ export function GlobalNavigation({
               <Link
                 href="/"
                 onClick={closeMenus}
-                className="rounded-lg border border-zinc-800 px-3 py-2 font-medium text-zinc-200 hover:border-cyan-500/70 hover:text-white"
+                className="nav-control"
               >
                 Home
               </Link>
@@ -311,7 +315,7 @@ export function GlobalNavigation({
               <Link
                 href="/admin/access"
                 onClick={closeMenus}
-                className="rounded-lg border border-cyan-700 px-3 py-2 font-medium text-cyan-100 hover:border-cyan-400 hover:text-white"
+                className="brand-secondary-action"
               >
                 Admin
               </Link>

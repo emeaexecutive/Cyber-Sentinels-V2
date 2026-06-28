@@ -583,7 +583,7 @@ export default function LoginPage() {
               <button
                 onClick={signInWithPassword}
                 disabled={actionDisabled}
-                className="rounded-xl bg-white p-4 font-semibold text-black transition hover:bg-cyan-100 disabled:opacity-50"
+                className="brand-primary-action w-full p-4 disabled:opacity-50"
                 type="button"
               >
                 {loadingAction === "password" ? "Signing in..." : "Sign in"}
@@ -594,7 +594,7 @@ export default function LoginPage() {
               <button
                 onClick={createAccountWithPassword}
                 disabled={actionDisabled || !canCreateAccount}
-                className="rounded-xl bg-white p-4 font-semibold text-black transition hover:bg-cyan-100 disabled:opacity-50"
+                className="brand-secondary-action w-full p-4 disabled:opacity-50"
                 type="button"
               >
                 {loadingAction === "create-account" ? "Creating..." : "Create account"}
@@ -605,7 +605,7 @@ export default function LoginPage() {
               <button
                 onClick={signInWithMagicLink}
                 disabled={!canSendEmailOnlyAction}
-                className="rounded-xl bg-white p-4 font-semibold text-black transition hover:bg-cyan-100 disabled:opacity-50"
+                className="nav-control w-full justify-center p-4 disabled:opacity-50"
                 type="button"
               >
                 {loadingAction === "magic-link" ? "Sending magic link..." : "Send magic link"}
@@ -616,7 +616,7 @@ export default function LoginPage() {
               <button
                 onClick={sendPasswordResetEmail}
                 disabled={!canSendEmailOnlyAction}
-                className="rounded-xl bg-white p-4 font-semibold text-black transition hover:bg-cyan-100 disabled:opacity-50"
+                className="nav-control w-full justify-center p-4 disabled:opacity-50"
                 type="button"
               >
                 {loadingAction === "reset" ? "Sending reset..." : "Send password reset"}

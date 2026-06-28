@@ -33,13 +33,13 @@ export default function EnterprisePilotPage() {
             Trust changed quietly. Verification alone cannot explain session drift, proxy interviews or injected feeds.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/enterprise-access?intent=pilot" className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
+            <Link href="/enterprise-access?intent=pilot" className="brand-secondary-action brand-action-large text-sm">
               Request Enterprise Access
             </Link>
             <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
               Book Intro Call
             </Link>
-            <Link href="/demo" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">
+            <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
               View Demo
             </Link>
             <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">
@@ -76,10 +76,10 @@ export default function EnterprisePilotPage() {
               The pilot keeps Verification Evidence, Governance Review, Replay Evidence and Session Integrity visible for practical conversations about fake applicants, proxy interviews and injected sessions.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/demo" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
+              <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
                 View Demo
               </Link>
-              <Link href="/enterprise-access" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
+              <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
                 Request Enterprise Access
               </Link>
               <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400">

@@ -60,7 +60,7 @@ export default async function EnterpriseAccessPage({ searchParams }: {
           </div>
           <PrivateBetaNotice className="mt-6 max-w-2xl" />
           <div className="mt-8 flex flex-wrap gap-3 text-sm">
-            <Link href="/demo" className="rounded-md border border-zinc-700 px-4 py-2">View Demo</Link>
+            <Link href="/demo" className="brand-primary-action">View Demo</Link>
             <Link href="/demo/hiring-attack" className="rounded-md border border-cyan-900 px-4 py-2 text-cyan-200">Hiring Security</Link>
             <Link href="/enterprise-access?intent=design_partner" className="rounded-md border border-zinc-700 px-4 py-2">Become a Design Partner</Link>
             <Link href="/enterprise-access?intent=intro_call" className="rounded-md border border-zinc-700 px-4 py-2">Book Intro Call</Link>

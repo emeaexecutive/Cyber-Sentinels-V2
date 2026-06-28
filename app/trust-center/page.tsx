@@ -119,7 +119,7 @@ export default async function TrustCenterPage() {
             <State value={snapshot.badge} />
           </div>
           <nav className="mt-6 flex flex-wrap gap-3 text-sm">
-            <Link href="/trust-replay" className="rounded-lg border border-cyan-800 px-4 py-2 text-cyan-100 hover:border-cyan-500">
+            <Link href="/trust-replay" className="brand-primary-action">
               Open canonical replay
             </Link>
             <Link href="/dashboard/governance" className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:text-white">

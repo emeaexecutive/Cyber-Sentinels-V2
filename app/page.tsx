@@ -51,10 +51,10 @@ export default function Home() {
         </div>
 
         <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-3">
-          <Link href="/demo" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-cyan-200">
+          <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
             View Demo
           </Link>
-          <Link href="/enterprise-access" className="rounded-md border border-cyan-500 bg-cyan-950/20 px-5 py-3 text-sm font-semibold text-cyan-50 hover:border-cyan-300">
+          <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
             Request Enterprise Access
           </Link>
           <Link href="/enterprise/hiring-security" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400 hover:text-white">
