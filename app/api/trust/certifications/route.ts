@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 
 const certificationTypes = new Set([
@@ -38,13 +37,12 @@ export async function GET() {
 
   if (!user) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
 
-  let query = supabase
+  const query = supabase
     .from("trust_certifications")
     .select("*")
+    .eq("created_by", user.id)
     .order("created_at", { ascending: false })
     .limit(200);
-
-  if (!isAdminAllowlisted(user.email)) query = query.eq("created_by", user.id);
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ ok: false, error: "Could not load certifications" }, { status: 500 });
@@ -131,8 +129,7 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ ok: false, error: "Invalid status" }, { status: 400 });
   }
 
-  let query = supabase.from("trust_certifications").update(patch).eq("id", id);
-  if (!isAdminAllowlisted(user.email)) query = query.eq("created_by", user.id);
+  const query = supabase.from("trust_certifications").update(patch).eq("id", id).eq("created_by", user.id);
 
   const { data, error } = await query.select("*").single();
   if (error) return NextResponse.json({ ok: false, error: "Could not update certification" }, { status: 500 });
@@ -150,8 +147,7 @@ export async function DELETE(req: Request) {
   const id = idFrom(req);
   if (!id) return NextResponse.json({ ok: false, error: "id is required" }, { status: 400 });
 
-  let query = supabase.from("trust_certifications").delete().eq("id", id);
-  if (!isAdminAllowlisted(user.email)) query = query.eq("created_by", user.id);
+  const query = supabase.from("trust_certifications").delete().eq("id", id).eq("created_by", user.id);
 
   const { error } = await query;
   if (error) return NextResponse.json({ ok: false, error: "Could not delete certification" }, { status: 500 });

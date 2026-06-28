@@ -51,9 +51,10 @@ test("builds a stable versioned portable trust evidence summary", () => {
     governanceOutcome: "approved",
     authorizationRelationshipCount: 3,
     issuedAt: "2026-06-28T10:00:00.000Z",
+    replayReference: "/api/replay/replay-1",
   });
 
   assert.equal(portable.schemaVersion, 1);
-  assert.equal(portable.replayReference, `/replay/${subject.subject_id}`);
+  assert.equal(portable.replayReference, "/api/replay/replay-1");
   assert.equal(portable.providerEvidenceSummary, "2 normalized provider signal(s)");
 });

@@ -20,7 +20,9 @@ export function validateTrustApiKey(req: Request) {
   // Placeholder: production should require scoped API keys, rotation, quotas,
   // replay protection, and per-customer rate limits.
   if (!configuredKey) {
-    return { ok: true, mode: "placeholder" as const };
+    return process.env.NODE_ENV === "production"
+      ? { ok: false, error: "Trust API is not configured" }
+      : { ok: true, mode: "development_only" as const };
   }
 
   const headerKey =

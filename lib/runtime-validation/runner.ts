@@ -128,6 +128,7 @@ const operationalTrustApiRoutes = [
   ["api", "receipts", "[id]", "route.ts"],
   ["api", "workflows", "[id]", "trust", "route.ts"],
   ["api", "governance", "events", "route.ts"],
+  ["api", "providers", "route.ts"],
 ];
 
 function check(
@@ -709,7 +710,7 @@ function routeInventoryChecks() {
         ? "PASS"
         : "FAIL",
       operationalTrustApiRoutes.every((segments) => routeFileExists(...segments))
-        ? "Authenticated posture, workflow, replay, receipt and governance APIs are present."
+        ? "Authenticated posture, workflow, replay, receipt, governance and provider-status APIs are present."
         : "One or more Operational Trust API route files are missing.",
       true
     ),

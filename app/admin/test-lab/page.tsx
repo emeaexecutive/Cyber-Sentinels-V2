@@ -113,6 +113,9 @@ export default async function TestLabPage() {
               <p className="rounded-lg border border-zinc-800 bg-black p-3">
                 Failed provider tests: scenarios model failed or pending provider states so review paths can be inspected safely.
               </p>
+              <p className="rounded-lg border border-zinc-800 bg-black p-3">
+                Unvalidated capabilities: provider placeholders and configured-but-unverified adapters are not counted as live evidence or accuracy benchmarks.
+              </p>
             </div>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">

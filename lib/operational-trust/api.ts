@@ -1,7 +1,11 @@
 import "server-only";
 
 import { NextResponse } from "next/server";
-import { buildWorkflowProviderSignals, summarizeProviderSignals } from "@/lib/providers";
+import {
+  buildWorkflowProviderSignals,
+  summarizeProviderSignals,
+  toNormalizedVerificationResponse,
+} from "@/lib/providers";
 import { buildTrustPosture, latestCreatedAt } from "@/lib/trust-posture/posture";
 import { createClient } from "@/lib/supabase/server";
 
@@ -38,6 +42,7 @@ function safeProviderSummary(receipt: Row | null) {
       verificationState: signal.providerVerificationState,
       evidenceReferences: signal.evidenceReferences,
       summary: signal.summary,
+      normalizedOutput: toNormalizedVerificationResponse(signal),
     })),
     verificationState: summary.providerVerificationState,
     evidenceReferences: summary.evidenceReferences,
@@ -123,4 +128,3 @@ export async function loadWorkflowTrust(supabase: any, subjectId: string, subjec
     })),
   };
 }
-

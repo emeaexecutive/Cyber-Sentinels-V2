@@ -32,6 +32,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
       governanceOutcome: trust.governanceLineage.at(-1)?.action_status ?? "No intervention recorded",
       authorizationRelationshipCount: trust.governanceLineage.length,
       issuedAt: receipt.issued_at,
+      replayReference: trust.replay.sessions.length ? trust.replay.reference : null,
     });
     const { evidence_snapshot: _hidden, ...safeReceipt } = receipt;
     return Response.json({
@@ -46,4 +47,3 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     return apiError("Receipt evidence could not be loaded.", 500);
   }
 }
-

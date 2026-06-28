@@ -1,7 +1,7 @@
 import type {
   VerificationProviderDefinition,
   VerificationProviderId,
-} from "@/lib/providers/types";
+} from "./types.ts";
 
 type ProviderBlueprint = {
   id: VerificationProviderId;
@@ -14,6 +14,11 @@ type ProviderBlueprint = {
   configuredNotes: string;
   missingNotes: string;
   enabledWhen?: () => boolean;
+  implementationState: VerificationProviderDefinition["implementationState"];
+  usesMockData?: boolean;
+  authProtection: VerificationProviderDefinition["authProtection"];
+  replayIntegration?: VerificationProviderDefinition["replayIntegration"];
+  receiptIntegration?: VerificationProviderDefinition["receiptIntegration"];
 };
 
 const providerBlueprints: ProviderBlueprint[] = [
@@ -27,6 +32,8 @@ const providerBlueprints: ProviderBlueprint[] = [
     evidenceReference: "World ID proof response and action context",
     configuredNotes: "World ID action is configured. Provider exchange remains external and evidence-based.",
     missingNotes: "World ID is not configured. Workflows continue without proof-of-personhood enrichment.",
+    implementationState: "placeholder",
+    authProtection: "session",
   },
   {
     id: "stripe_identity",
@@ -38,6 +45,8 @@ const providerBlueprints: ProviderBlueprint[] = [
     evidenceReference: "Stripe Identity verification session",
     configuredNotes: "Stripe server key is present. Identity verification still requires workflow-specific setup.",
     missingNotes: "Stripe Identity is not configured for verification workflows.",
+    implementationState: "placeholder",
+    authProtection: "not_exposed",
   },
   {
     id: "persona",
@@ -49,6 +58,8 @@ const providerBlueprints: ProviderBlueprint[] = [
     evidenceReference: "Persona inquiry or verification report",
     configuredNotes: "Persona key is present, but adapter behavior should remain workflow-gated.",
     missingNotes: "Persona remains a future adapter placeholder.",
+    implementationState: "placeholder",
+    authProtection: "not_exposed",
   },
   {
     id: "entrust",
@@ -60,6 +71,8 @@ const providerBlueprints: ProviderBlueprint[] = [
     evidenceReference: "Entrust verification or identity-check report",
     configuredNotes: "Entrust key is present, but adapter behavior should remain workflow-gated.",
     missingNotes: "Entrust remains a future adapter placeholder.",
+    implementationState: "placeholder",
+    authProtection: "not_exposed",
   },
   {
     id: "onfido",
@@ -71,6 +84,8 @@ const providerBlueprints: ProviderBlueprint[] = [
     evidenceReference: "Onfido applicant check or report",
     configuredNotes: "Onfido token is present, but adapter behavior should remain workflow-gated.",
     missingNotes: "Onfido remains a future adapter placeholder.",
+    implementationState: "placeholder",
+    authProtection: "not_exposed",
   },
   {
     id: "hopae_connect",
@@ -83,6 +98,10 @@ const providerBlueprints: ProviderBlueprint[] = [
     evidenceReference: "Hopae normalized upstream identity proof",
     configuredNotes: "Hopae Connect is enabled. Cyber Sentinels remains the governance layer.",
     missingNotes: "Hopae Connect is safely disabled until server-side credentials and HOPAE_ENABLED are set.",
+    implementationState: "active",
+    authProtection: "server_form",
+    replayIntegration: "normalized_evidence",
+    receiptIntegration: "normalized_evidence",
   },
   {
     id: "cloudflare_turnstile",
@@ -94,6 +113,8 @@ const providerBlueprints: ProviderBlueprint[] = [
     evidenceReference: "Turnstile challenge verification result",
     configuredNotes: "Turnstile variables are present. Form submissions can use provider challenge evidence.",
     missingNotes: "Turnstile is safely disabled or warning-only outside configured production form checks.",
+    implementationState: "active",
+    authProtection: "server_form",
   },
   {
     id: "fingerprint_device_risk",
@@ -105,6 +126,8 @@ const providerBlueprints: ProviderBlueprint[] = [
     evidenceReference: "Device-risk event or visitor confidence signal",
     configuredNotes: "Device-risk key is present. Treat output as a session integrity signal.",
     missingNotes: "Device-risk provider remains a placeholder signal.",
+    implementationState: "placeholder",
+    authProtection: "not_exposed",
   },
 ];
 
@@ -117,6 +140,13 @@ export function getVerificationProviderRegistry(): VerificationProviderDefinitio
     const presentEnv = provider.requiredEnv.filter(envPresent);
     const missingEnv = provider.requiredEnv.filter((name) => !envPresent(name));
     const enabled = missingEnv.length === 0 && (provider.enabledWhen?.() ?? true);
+    const implementationState = enabled
+      ? provider.implementationState === "active"
+        ? "active"
+        : "configured_unverified"
+      : provider.statusWhenMissing === "safely_disabled"
+        ? "safely_disabled"
+        : "placeholder";
 
     return {
       id: provider.id,
@@ -129,6 +159,12 @@ export function getVerificationProviderRegistry(): VerificationProviderDefinitio
       purpose: provider.purpose,
       evidenceReference: provider.evidenceReference,
       notes: enabled ? provider.configuredNotes : provider.missingNotes,
+      implementationState,
+      usesMockData: provider.usesMockData ?? false,
+      safeFailure: true,
+      authProtection: provider.authProtection,
+      replayIntegration: provider.replayIntegration ?? "not_connected",
+      receiptIntegration: provider.receiptIntegration ?? "not_connected",
     };
   });
 }

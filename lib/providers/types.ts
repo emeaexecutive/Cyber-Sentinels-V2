@@ -26,6 +26,12 @@ export type VerificationProviderStatus =
   | "placeholder"
   | "future";
 
+export type ProviderImplementationState =
+  | "active"
+  | "configured_unverified"
+  | "placeholder"
+  | "safely_disabled";
+
 export type VerificationProviderDefinition = {
   id: VerificationProviderId;
   name: string;
@@ -37,6 +43,12 @@ export type VerificationProviderDefinition = {
   purpose: string;
   evidenceReference: string;
   notes: string;
+  implementationState: ProviderImplementationState;
+  usesMockData: boolean;
+  safeFailure: boolean;
+  authProtection: "session" | "server_form" | "not_exposed";
+  replayIntegration: "normalized_evidence" | "not_connected";
+  receiptIntegration: "normalized_evidence" | "not_connected";
 };
 
 export type VerificationProviderSignal = {
@@ -56,6 +68,7 @@ export type NormalizedVerificationResponse = {
   provider_name: string;
   verification_state: ProviderVerificationState;
   identity_confidence: number;
+  provider_signal: string;
   session_confidence: number;
   provider_reference: string;
   evidence_summary: string;

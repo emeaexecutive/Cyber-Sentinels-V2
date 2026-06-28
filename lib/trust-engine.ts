@@ -197,8 +197,15 @@ export function evolveWorkflowTrust(
     const previous = dimensions[dimension];
     const next =
       dimension === "workflowAnomalies"
-        ? clamp(signal.value)
-        : clamp(signal.direction === "neutral" ? signal.value : previous + signal.value);
+        ? clamp(Math.abs(signal.value))
+        : signal.direction === "neutral"
+          ? clamp(signal.value)
+          : clamp(
+              previous +
+                (signal.direction === "decrease"
+                  ? -Math.abs(signal.value)
+                  : Math.abs(signal.value))
+            );
     dimensions[dimension] = next;
     whatChanged.push(`${dimension}: ${previous} to ${next}`);
     whyChanged.push(signal.explanation);

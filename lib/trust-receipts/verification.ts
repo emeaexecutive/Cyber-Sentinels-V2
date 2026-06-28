@@ -43,12 +43,13 @@ export function buildPortableTrustEvidence(input: {
   governanceOutcome: string;
   authorizationRelationshipCount: number;
   issuedAt?: string | null;
+  replayReference?: string | null;
 }): PortableTrustEvidence {
   return {
     schemaVersion: 1,
     receiptId: input.receiptId,
     workflowReference: `${input.subjectType}/${input.subjectId}`,
-    replayReference: `/replay/${input.subjectId}`,
+    replayReference: input.replayReference ?? "not_available",
     providerEvidenceSummary: `${input.providerSignalCount} normalized provider signal(s)`,
     trustPostureSnapshot: input.trustPosture,
     governanceOutcome: input.governanceOutcome,

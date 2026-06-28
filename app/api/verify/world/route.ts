@@ -4,6 +4,7 @@ import {
   requireAuthenticatedUser,
 } from "@/lib/security";
 import { createClient } from "@/lib/supabase/server";
+import { getProviderAdapter } from "@/lib/providers";
 
 export async function POST(req: Request) {
   try {
@@ -21,8 +22,11 @@ export async function POST(req: Request) {
       proof &&
       typeof proof === "object" &&
       typeof proof.merkle_root === "string" &&
+      proof.merkle_root.length <= 256 &&
       typeof proof.nullifier_hash === "string" &&
-      typeof proof.proof === "string";
+      proof.nullifier_hash.length <= 256 &&
+      typeof proof.proof === "string" &&
+      proof.proof.length <= 16_384;
 
     if (!hasProof) {
       return NextResponse.json(
@@ -31,14 +35,23 @@ export async function POST(req: Request) {
       );
     }
 
-    // Placeholder: wire this to World ID backend verification after creating
-    // your World Developer Portal app. Never expose secret verification logic.
-    return NextResponse.json({
-      ok: true,
-      provider: "world-id",
-      actionConfigured: Boolean(process.env.WORLD_ACTION),
-      received: true,
+    const normalized = getProviderAdapter("world_id").normalizeResponse({
+      sourceType: "placeholder",
+      providerVerificationState: "none",
+      identityConfidence: 50,
+      sessionIntegrity: 50,
+      evidenceReferences: ["World ID proof received; provider exchange not connected"],
+      governanceRecommendation:
+        "Do not treat this proof as verified. Connect server-side World ID verification first.",
+      summary:
+        "World ID proof shape was accepted, but no provider verification exchange is implemented.",
     });
+
+    return NextResponse.json({
+      ok: false,
+      error: "World ID provider verification is not connected.",
+      provider: normalized,
+    }, { status: 501 });
   } catch (error) {
     console.error("World ID verification failed.", error);
 

@@ -2,13 +2,13 @@ import type {
   ProviderVerificationState,
   TrustScoreRiskFlag,
 } from "@/lib/trust-score";
-import { getVerificationProviderDefinition } from "@/lib/providers/registry";
+import { getVerificationProviderDefinition } from "./registry.ts";
 import type {
   NormalizedVerificationResponse,
   ProviderSignalInput,
   VerificationProviderId,
   VerificationProviderSignal,
-} from "@/lib/providers/types";
+} from "./types.ts";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -68,13 +68,31 @@ function normalizeRiskFlags(value: unknown): TrustScoreRiskFlag[] {
 }
 
 function text(value: unknown, fallback: string) {
-  if (typeof value === "string" && value.trim()) return value.trim();
+  if (typeof value === "string" && value.trim()) {
+    return value
+      .trim()
+      .slice(0, 500)
+      .replace(
+        /(secret|token|credential|authorization|api[_-]?key)\s*[:=]\s*\S+/gi,
+        "$1=[redacted]"
+      );
+  }
   return fallback;
 }
 
 function references(value: unknown, fallback: string[]) {
-  if (!Array.isArray(value)) return fallback;
-  return value.map((item) => String(item)).filter(Boolean);
+  const candidates = Array.isArray(value) ? value : fallback;
+  return candidates
+    .map((item) => String(item).trim().slice(0, 200))
+    .filter((item) => item && !/(secret|token|credential|authorization|api[_-]?key)\s*[:=]/i.test(item))
+    .slice(0, 20);
+}
+
+function providerId(value: unknown): VerificationProviderId {
+  const candidate = String(value ?? "");
+  return candidate in providerNames
+    ? (candidate as VerificationProviderId)
+    : "hopae_connect";
 }
 
 export function normalizeProviderSignal(input: ProviderSignalInput): VerificationProviderSignal {
@@ -91,8 +109,8 @@ export function normalizeProviderSignal(input: ProviderSignalInput): Verificatio
     providerId: input.providerId,
     providerName,
     sourceType: input.sourceType ?? "provider_signal",
-    identityConfidence: clamp(input.identityConfidence, providerState === "verified" ? 82 : 50),
-    sessionIntegrity: clamp(input.sessionIntegrity, providerState === "failed" ? 35 : 65),
+    identityConfidence: clamp(input.identityConfidence, 50),
+    sessionIntegrity: clamp(input.sessionIntegrity, 50),
     providerVerificationState: providerState,
     riskFlags: providerState === "failed" && !riskFlags.includes("provider_failed")
       ? [...riskFlags, "provider_failed"]
@@ -117,6 +135,7 @@ export function toNormalizedVerificationResponse(
     provider_name: signal.providerName,
     verification_state: signal.providerVerificationState,
     identity_confidence: signal.identityConfidence,
+    provider_signal: signal.providerVerificationState,
     session_confidence: signal.sessionIntegrity,
     provider_reference:
       providerReference ??
@@ -143,7 +162,7 @@ function parseSnapshotSignals(snapshot: JsonRecord): VerificationProviderSignal[
     .filter((item): item is JsonRecord => Boolean(item))
     .map((item) =>
       normalizeProviderSignal({
-        providerId: String(item.provider_id ?? item.providerId ?? "hopae_connect") as VerificationProviderId,
+        providerId: providerId(item.provider_id ?? item.providerId),
         providerName: text(item.provider_name ?? item.providerName, "External verification source"),
         sourceType: "provider_signal",
         identityConfidence: item.identity_confidence ?? item.identityConfidence,
@@ -182,7 +201,7 @@ export function buildWorkflowProviderSignals(input: {
     snapshot.provider_name ?? snapshot.providerName ?? snapshot.external_verification_source,
     "External verification source"
   );
-  const providerId = String(snapshot.provider_id ?? snapshot.providerId ?? "hopae_connect") as VerificationProviderId;
+  const normalizedProviderId = providerId(snapshot.provider_id ?? snapshot.providerId);
   const providerState =
     input.providerVerificationState ??
     snapshot.provider_verification_state ??
@@ -191,7 +210,7 @@ export function buildWorkflowProviderSignals(input: {
 
   return [
     normalizeProviderSignal({
-      providerId,
+      providerId: normalizedProviderId,
       providerName,
       sourceType: "workflow_context",
       identityConfidence:

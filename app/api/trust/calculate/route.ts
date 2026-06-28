@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { clampScore, trustScoreFromFactors, type TrustFactor } from "@/lib/trusted-layer/phase1";
+import { trustApiError, validateTrustApiKey } from "@/lib/api/trustResponses";
 
 export async function POST(req: Request) {
+  if (!validateTrustApiKey(req).ok) {
+    return trustApiError("Unauthorized", 401);
+  }
   const body = (await req.json().catch(() => ({}))) as {
     factors?: Array<{ label?: unknown; score?: unknown; detail?: unknown }>;
   };
