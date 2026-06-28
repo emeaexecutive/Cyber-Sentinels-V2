@@ -57,20 +57,6 @@ function trustStateForEvent(event: Row): TrustJourneyState {
   return "verified";
 }
 
-function trustScoreForEvent(event: Row, index: number) {
-  const state = trustStateForEvent(event);
-  const baseByState: Record<TrustJourneyState, number> = {
-    verified: 74,
-    elevated_risk: 46,
-    governance_review: 58,
-    session_integrity_failed: 34,
-    manual_review_required: 52,
-    replay_available: 68,
-    trusted_workforce: 88,
-  };
-  return Math.max(20, Math.min(96, baseByState[state] + index * 2));
-}
-
 function stageForEvent(event: Row): TrustJourneyStage {
   const text = `${event.type ?? ""} ${event.title ?? ""} ${event.summary ?? ""} ${event.state ?? ""}`.toLowerCase();
   if (text.includes("receipt")) return "receipt_issued";
@@ -212,19 +198,8 @@ export default async function VerificationReplayPage({
       "Verification receipt",
     ],
   });
-  const replayScoreBefore = elevatedRiskEvent ? 74 : latestGovernance ? 62 : 52;
-  const replayScoreAfter = latestGovernance
-    ? trustScoreForEvent(
-        {
-          type: "governance",
-          title: "Governance action",
-          state: latestGovernance.action_status,
-        },
-        chronology.length
-      )
-    : elevatedRiskEvent
-      ? 42
-      : replayScoreBefore;
+  const firstRecordedState = label(chronology[0]?.state, "Workflow opened");
+  const latestRecordedState = label(chronology.at(-1)?.state, firstRecordedState);
   const reviewCompleted = ["approved", "rejected", "resolved"].includes(
     String(latestGovernance?.action_status ?? "")
   );
@@ -242,7 +217,6 @@ export default async function VerificationReplayPage({
       escalationReason: "Verification workflow opened",
       workflowReference: `${subjectType}/${subjectId}`,
       analystNote: "Initial workflow state retained for replay.",
-      score: 52,
     },
     {
       id: "baseline-authorization-lineage",
@@ -257,7 +231,6 @@ export default async function VerificationReplayPage({
       escalationReason: "Authorization state depends on evidence and governance review",
       workflowReference: `${subjectType}/${subjectId}`,
       analystNote: "Authorization changes are replayable evidence, not hidden tracking.",
-      score: latestGovernance ? 58 : 50,
     },
     {
       id: "baseline-replay-available",
@@ -272,12 +245,11 @@ export default async function VerificationReplayPage({
       escalationReason: "Chronology generated for governance review",
       workflowReference: `${subjectType}/${subjectId}`,
       analystNote: requestedReplay?.replay_summary ?? "Replay chronology is available for analyst and audit review.",
-      score: 68,
     },
   ];
   const trustJourneyEvents: TrustJourneyEvent[] = [
     ...baselineJourneyEvents,
-    ...chronology.map((event, index) => ({
+    ...chronology.map((event) => ({
     id: event.id,
     title: label(event.title, "Verification milestone"),
     description: label(event.summary, "Trust state recorded for audit replay."),
@@ -291,7 +263,9 @@ export default async function VerificationReplayPage({
     escalationReason: label(event.escalationReason ?? event.state, "Not escalated"),
     workflowReference: label(event.workflowReference, `${subjectType}/${subjectId}`),
     analystNote: label(event.analystNote ?? event.summary, "No analyst note recorded"),
-    score: trustScoreForEvent(event, index),
+    score: Number.isFinite(Number((event as Row).score))
+      ? Number((event as Row).score)
+      : null,
     })),
   ];
   const finalJourneyState: TrustJourneyState = receipts?.length
@@ -370,8 +344,8 @@ export default async function VerificationReplayPage({
           <h2 className="mt-2 text-xl font-semibold">Replayable workflow evidence can inform enterprise trust networks</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
             Shared anomaly indicators, provider evidence, governance decisions and authorization changes are retained
-            as workflow context. They support governance intelligence and future federated trust signals without
-            creating centralized identity tracking.
+            as workflow context. They support governance review across connected
+            workflows without creating centralized identity tracking.
           </p>
         </section>
 
@@ -411,7 +385,7 @@ export default async function VerificationReplayPage({
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="text-xl font-semibold">Replay validation</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
-            This validation view explains what triggered, why it triggered, which evidence was used, what reviewer action occurred and how the trust score changed in this replay.
+            This validation view explains what triggered, why it triggered, which evidence was used, what reviewer action occurred and how the recorded trust state changed.
           </p>
           <div className="mt-5 grid gap-3 md:grid-cols-5">
             {[
@@ -419,7 +393,7 @@ export default async function VerificationReplayPage({
               ["Why it triggered", elevatedRiskEvent ? label(elevatedRiskEvent.risk_reason ?? elevatedRiskEvent.signal_type) : latestGovernance ? label(latestGovernance.escalation_reason ?? latestGovernance.action_type, "Reviewer action recorded") : "Replay requested for workflow evidence review"],
               ["Evidence used", `${chronology.length} chronology event(s), ${evidenceChains?.length ?? 0} evidence chain(s), ${auditLogs.length} audit reference(s)`],
               ["Reviewer actions", latestGovernance ? label(latestGovernance.resolution_notes ?? latestGovernance.action_status) : "No reviewer action attached yet"],
-              ["Trust score changes", `${replayScoreBefore} -> ${replayScoreAfter} (${replayScoreAfter - replayScoreBefore >= 0 ? "+" : ""}${replayScoreAfter - replayScoreBefore})`],
+              ["Trust-state change", `${firstRecordedState} -> ${latestRecordedState}`],
             ].map(([title, value]) => (
               <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>

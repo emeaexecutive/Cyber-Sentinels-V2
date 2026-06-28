@@ -1,4 +1,4 @@
-import { authenticatedTrustClient, apiError, loadWorkflowTrust, validReference } from "@/lib/operational-trust/api";
+import { authenticatedTrustClient, apiError, apiSuccess, loadWorkflowTrust, validReference } from "@/lib/operational-trust/api";
 import { buildPortableTrustEvidence, verifyReceiptContinuity } from "@/lib/trust-receipts/verification";
 
 export const dynamic = "force-dynamic";
@@ -35,13 +35,13 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
       replayReference: trust.replay.sessions.length ? trust.replay.reference : null,
     });
     const { evidence_snapshot: _hidden, ...safeReceipt } = receipt;
-    return Response.json({
+    return apiSuccess({
       receipt: safeReceipt,
       portableEvidence,
       integrity: verification,
       providerEvidence: trust.providerEvidence,
       governanceLineage: trust.governanceLineage,
-      replayReference: trust.replay.reference,
+      replayReference: trust.replay.sessions.length ? trust.replay.reference : null,
     });
   } catch {
     return apiError("Receipt evidence could not be loaded.", 500);

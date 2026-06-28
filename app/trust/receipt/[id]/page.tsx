@@ -238,6 +238,9 @@ export default async function TrustReceiptPage({
     governanceOutcome: label(governanceOutcome ?? receipt.verification_status, "Reviewable"),
     authorizationRelationshipCount: relationships.length,
     issuedAt: receipt.issued_at,
+    replayReference: replaySessions?.[0]?.id
+      ? `/api/replay/${replaySessions[0].id}`
+      : null,
   });
   const trustJourneyEvents: TrustJourneyEvent[] = [
     {
@@ -253,7 +256,6 @@ export default async function TrustReceiptPage({
       escalationReason: "Receipt subject linked to verification workflow",
       workflowReference: `${receipt.subject_type}/${receipt.subject_id}`,
       analystNote: "Subject and receipt context retained for audit review.",
-      score: 52,
     },
     {
       id: "human-presence",
@@ -268,7 +270,6 @@ export default async function TrustReceiptPage({
       escalationReason: "Identity evidence reviewed before receipt issuance",
       workflowReference: `${receipt.subject_type}/${receipt.subject_id}`,
       analystNote: `Identity verification state recorded as ${label(identityState, "pending")}.`,
-      score: 68,
     },
     {
       id: "session-integrity",
@@ -283,7 +284,6 @@ export default async function TrustReceiptPage({
       escalationReason: "Session evidence checked for workflow trust changes",
       workflowReference: `${receipt.subject_type}/${receipt.subject_id}`,
       analystNote: `Session integrity state recorded as ${label(sessionIntegrityState, "pending")}.`,
-      score: stateFromText(sessionIntegrityState) === "session_integrity_failed" ? 38 : 70,
     },
     {
       id: "deepfake-analysis",
@@ -297,7 +297,6 @@ export default async function TrustReceiptPage({
       escalationReason: deepfakeEvent ? "Media risk event attached to receipt" : "No media risk escalation recorded",
       workflowReference: `${receipt.subject_type}/${receipt.subject_id}`,
       analystNote: `Deepfake risk state recorded as ${label(deepfakeRiskState)}.`,
-      score: deepfakeEvent ? 48 : 74,
     },
     {
       id: "injection-risk",
@@ -312,7 +311,6 @@ export default async function TrustReceiptPage({
       escalationReason: injectionEvent ? "Injection risk reviewed before outcome" : "No injection escalation recorded",
       workflowReference: `${receipt.subject_type}/${receipt.subject_id}`,
       analystNote: `Injection risk state recorded as ${label(injectionRiskState)}.`,
-      score: injectionEvent ? 42 : 76,
     },
     ...(governanceActions ?? []).map((action, index): TrustJourneyEvent => ({
       id: `governance-${action.id ?? index}`,
@@ -332,7 +330,6 @@ export default async function TrustReceiptPage({
       escalationReason: action.escalation_reason ?? action.action_type ?? "Governance review opened",
       workflowReference: `${action.subject_type ?? receipt.subject_type}/${action.subject_id ?? receipt.subject_id}`,
       analystNote: action.resolution_notes ?? "Reviewer action pending.",
-      score: ["approved", "resolved"].includes(String(action.action_status ?? "")) ? 78 : 58,
     })),
     {
       id: "receipt-issued",
@@ -347,7 +344,6 @@ export default async function TrustReceiptPage({
       escalationReason: "Workflow outcome preserved in portable receipt",
       workflowReference: `${receipt.subject_type}/${receipt.subject_id}`,
       analystNote: receipt.receipt_summary ?? "Receipt issued for enterprise audit review.",
-      score: 88,
     },
   ];
   const finalJourneyState: TrustJourneyState = openGovernance.length
@@ -405,7 +401,7 @@ export default async function TrustReceiptPage({
           {[
             ["Verification completed", receipt.verification_status ? "Recorded" : "Pending"],
             ["Reviewer decision", latestGovernance ? "Recorded" : "Pending"],
-            ["Replay available", "Available"],
+            ["Replay available", (replaySessions ?? []).length ? "Available" : "Pending"],
             ["Receipt generated", "Generated"],
             ["Evidence retained", (evidenceChains ?? []).length ? "Retained" : "Pending"],
           ].map(([title, state]) => (

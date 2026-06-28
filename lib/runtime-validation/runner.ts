@@ -707,11 +707,12 @@ function routeInventoryChecks() {
       "Demo And Proof Routes",
       "Operational Trust Center",
       routeFileExists("trust-center", "page.tsx") &&
-        fileContains("middleware.ts", /"\/trust-center"/)
+        fileContains("middleware.ts", /"\/trust-center"/) &&
+        fileContains("app", "trust-center", "page.tsx", /"issued_at"/)
         ? "PASS"
         : "FAIL",
       routeFileExists("trust-center", "page.tsx")
-        ? "Protected trust center route is present with existing workflow evidence integration."
+        ? "Protected trust center route is present and receipt continuity uses the canonical issued_at timestamp."
         : "/trust-center route file is missing.",
       true
     ),
@@ -721,11 +722,13 @@ function routeInventoryChecks() {
       operationalTrustApiRoutes.every((segments) => routeFileExists(...segments)) &&
         existsSync(join(process.cwd(), "lib", "sdk", "trust-client.ts")) &&
         existsSync(join(process.cwd(), "lib", "trust-assurance", "levels.ts")) &&
-        existsSync(join(process.cwd(), "lib", "providers", "high-assurance.ts"))
+        existsSync(join(process.cwd(), "lib", "providers", "high-assurance.ts")) &&
+        fileContains("lib", "operational-trust", "api.ts", /schemaVersion: 1/) &&
+        fileContains("lib", "operational-trust", "api.ts", /generatedAt/)
         ? "PASS"
         : "FAIL",
       operationalTrustApiRoutes.every((segments) => routeFileExists(...segments))
-        ? "Authenticated trust APIs, assurance levels and reference-only high-assurance provider contracts are present."
+        ? "Authenticated trust APIs expose versioned metadata, bounded evidence, assurance levels and reference-only provider contracts."
         : "One or more Operational Trust API route files are missing.",
       true
     ),

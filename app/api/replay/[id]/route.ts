@@ -1,4 +1,4 @@
-import { authenticatedTrustClient, apiError, loadWorkflowTrust, validReference } from "@/lib/operational-trust/api";
+import { authenticatedTrustClient, apiError, apiSuccess, loadWorkflowTrust, validReference } from "@/lib/operational-trust/api";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
 
   try {
     const trust = await loadWorkflowTrust(auth.supabase, String(replay.subject_id), replay.subject_type ?? undefined);
-    return Response.json({
+    return apiSuccess({
       replay,
       canonicalEvidence: {
         chronology: trust.chronology,
@@ -32,4 +32,3 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     return apiError("Replay chronology could not be loaded.", 500);
   }
 }
-

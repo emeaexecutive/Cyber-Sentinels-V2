@@ -8,10 +8,17 @@ export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ ok: false, error: "Authentication required." }, { status: 401 });
+    return NextResponse.json({
+      schemaVersion: 1,
+      generatedAt: new Date().toISOString(),
+      ok: false,
+      error: "Authentication required.",
+    }, { status: 401 });
   }
 
   return NextResponse.json({
+    schemaVersion: 1,
+    generatedAt: new Date().toISOString(),
     ok: true,
     statusMeaning:
       "Active means code paths are connected and configuration is present; it is not a live health or accuracy claim.",

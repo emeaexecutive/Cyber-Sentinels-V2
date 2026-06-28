@@ -37,11 +37,17 @@ function State({ value }: { value: unknown }) {
   );
 }
 
-async function rows(supabase: Awaited<ReturnType<typeof createClient>>, table: string, fields: string, limit: number) {
+async function rows(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  table: string,
+  fields: string,
+  limit: number,
+  orderColumn = "created_at"
+) {
   const { data, error } = await supabase
     .from(table)
     .select(fields)
-    .order("created_at", { ascending: false })
+    .order(orderColumn, { ascending: false })
     .limit(limit)
     .returns<Row[]>();
   return error ? [] : data ?? [];
@@ -55,7 +61,7 @@ export default async function TrustCenterPage() {
   const [snapshot, replaySessions, receipts, governance] = await Promise.all([
     loadTrustPostureDashboard(supabase),
     rows(supabase, "trust_replay_sessions", "id,subject_type,subject_id,replay_summary,generated_by,created_at", 80),
-    rows(supabase, "verification_receipts", "id,subject_type,subject_id,verification_status,confidence_level,issued_at,receipt_summary,evidence_snapshot,created_at", 80),
+    rows(supabase, "verification_receipts", "id,subject_type,subject_id,verification_status,confidence_level,issued_at,receipt_summary,evidence_snapshot", 80, "issued_at"),
     rows(supabase, "governance_actions", "id,subject_type,subject_id,action_status,assigned_to,resolution_notes,resolved_at,created_at", 80),
   ]);
 
@@ -70,7 +76,7 @@ export default async function TrustCenterPage() {
       state: signal.providerVerificationState,
       summary: signal.summary,
       references: signal.evidenceReferences,
-      observedAt: receipt.issued_at ?? receipt.created_at,
+      observedAt: receipt.issued_at,
     }))
   );
   const replayBySubject = new Map(

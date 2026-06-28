@@ -154,7 +154,7 @@ function TimelineReplay({ events }: { events: TrustTimelineEvent[] }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold">Timeline Reconstruction</h2>
         <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400">
-          immutable replay
+          read-only chronology
         </span>
       </div>
       <div className="mt-5 grid gap-3">
@@ -305,10 +305,9 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             mutating the underlying records.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-            Trust changed quietly. Replay is immutable and read-only. It never deletes historical trust
-            events, overwrites governance history, or mutates audit trails. AI
-            may summarize replay context later, but AI does not rewrite
-            operational history.
+            Trust can change quietly. This view is read-only and preserves the
+            recorded chronology without rewriting governance history or audit
+            events. Summaries remain secondary to source evidence.
           </p>
           <div className="mt-5 max-w-3xl">
             <OnboardingHint area="replay" />

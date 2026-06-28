@@ -175,9 +175,9 @@ export function TrustJourneyVisualization({
       const rightTime = right.occurredAt ? new Date(right.occurredAt).getTime() : 0;
       return leftTime - rightTime;
     })
-    .map((event, index) => ({
+    .map((event) => ({
       ...event,
-      score: clampScore(event.score) ?? Math.max(25, Math.min(92, 58 + index * 6)),
+      score: clampScore(event.score),
     }));
   const outcome = finalState ?? orderedEvents.at(-1)?.state ?? "manual_review_required";
   const latestEvent = orderedEvents.at(-1);

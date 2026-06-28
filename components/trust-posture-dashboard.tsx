@@ -98,7 +98,9 @@ export function TrustPostureDashboard({
           : "human_presence_checked",
       evidenceLabel: clean(row.posture_source, "timeline"),
       flag: clean(row.posture_label, "recorded"),
-      score: snapshot.activeTrustLevel === null ? null : Math.max(25, Math.min(92, snapshot.activeTrustLevel - 10 + index * 3)),
+      score: Number.isFinite(Number(row.score ?? row.trust_score ?? row.confidence_score))
+        ? Number(row.score ?? row.trust_score ?? row.confidence_score)
+        : null,
       reviewer: "Workflow reviewer",
       escalationReason: clean(row.posture_label, "Trust state changed"),
       workflowReference: clean(row.posture_source, "trust posture event"),
@@ -113,7 +115,7 @@ export function TrustPostureDashboard({
       stage: row.posture_queue_type === "session" ? "session_integrity_checked" : "governance_review_opened",
       evidenceLabel: row.posture_queue_type === "session" ? "session review" : "governance action",
       reviewerAction: clean(row.resolution_notes ?? row.action_status, "review pending"),
-      score: 52,
+      score: null,
       reviewer: "Governance reviewer",
       escalationReason: "Review keeps trust-state transition accountable",
       workflowReference: clean(row.posture_queue_type, "review queue"),
@@ -128,7 +130,9 @@ export function TrustPostureDashboard({
       stage: "injection_risk_reviewed",
       evidenceLabel: clean(row.category, "risk flag"),
       flag: clean(row.risk_level, "elevated"),
-      score: 44,
+      score: Number.isFinite(Number(row.score ?? row.trust_score ?? row.confidence_score))
+        ? Number(row.score ?? row.trust_score ?? row.confidence_score)
+        : null,
       reviewer: "Trust operations reviewer",
       escalationReason: clean(row.explanation, "Elevated signal requires review"),
       workflowReference: clean(row.category, "risk event"),
@@ -148,7 +152,7 @@ export function TrustPostureDashboard({
     escalationReason: "Authorization depends on evidence continuity and governance state",
     workflowReference: "trust posture / authorization",
     analystNote: "No hidden tracking; posture is derived from workflow records.",
-    score: snapshot.reviewQueue.length ? 56 : 72,
+    score: null,
   };
   const finalJourneyState: TrustJourneyState = snapshot.reviewQueue.length
     ? "governance_review"

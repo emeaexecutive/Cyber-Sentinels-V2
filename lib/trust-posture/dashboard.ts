@@ -44,12 +44,13 @@ export type TrustPostureDashboardSnapshot = {
 async function fetchRows(
   supabase: SupabaseClient,
   table: string,
-  limit: number
+  limit: number,
+  orderColumn = "created_at"
 ) {
   const { data, error } = await supabase
     .from(table)
     .select("*")
-    .order("created_at", { ascending: false })
+    .order(orderColumn, { ascending: false })
     .limit(limit)
     .returns<AnyRow[]>();
 
@@ -91,7 +92,7 @@ export async function loadTrustPostureDashboard(
     fetchRows(supabase, "verification_signals", 300),
     fetchRows(supabase, "governance_actions", 160),
     fetchRows(supabase, "trust_timeline_events", 160),
-    fetchRows(supabase, "verification_receipts", 120),
+    fetchRows(supabase, "verification_receipts", 120, "issued_at"),
   ]);
 
   const scoredPassports = passports
@@ -114,9 +115,9 @@ export async function loadTrustPostureDashboard(
   const latestReceipt = receipts[0];
   const latestCheck = checks[0];
   const overallPosture = buildTrustPosture({
-    lastVerifiedAt: latestReceipt?.created_at ?? latestCheck?.created_at,
+    lastVerifiedAt: latestReceipt?.issued_at ?? latestCheck?.created_at,
     lastGovernanceAt: latestCreatedAt(governanceActions),
-    lastEvidenceAt: latestReceipt?.created_at,
+    lastEvidenceAt: latestReceipt?.issued_at,
     lastSignalAt: latestCreatedAt(verificationSignals),
     evidenceCount: receipts.length,
     signalCount: verificationSignals.length,

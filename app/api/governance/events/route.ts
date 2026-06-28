@@ -1,4 +1,4 @@
-import { authenticatedTrustClient, apiError, validReference } from "@/lib/operational-trust/api";
+import { authenticatedTrustClient, apiError, apiSuccess, validReference } from "@/lib/operational-trust/api";
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +8,10 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const workflowId = url.searchParams.get("workflow_id") ?? "";
   if (!validReference(workflowId)) return apiError("A valid workflow_id is required.", 400);
-  const limit = Math.min(Math.max(Number(url.searchParams.get("limit") ?? 50), 1), 100);
+  const requestedLimit = Number(url.searchParams.get("limit") ?? 50);
+  const limit = Number.isFinite(requestedLimit)
+    ? Math.min(Math.max(Math.trunc(requestedLimit), 1), 100)
+    : 50;
 
   const { data, error } = await auth.supabase
     .from("governance_actions")
@@ -18,10 +21,9 @@ export async function GET(request: Request) {
     .limit(limit);
   if (error) return apiError("Governance events could not be loaded.", 500);
 
-  return Response.json({
+  return apiSuccess({
     workflowReference: workflowId,
     humanReviewRemainsAuthoritative: true,
     events: data ?? [],
   });
 }
-

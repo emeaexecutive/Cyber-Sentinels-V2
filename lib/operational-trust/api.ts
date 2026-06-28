@@ -15,7 +15,17 @@ type Row = Record<string, any>;
 const openGovernanceStates = new Set(["pending", "in_review", "escalated"]);
 
 export function apiError(message: string, status: number) {
-  return NextResponse.json({ error: message }, { status });
+  return NextResponse.json(
+    { schemaVersion: 1, generatedAt: new Date().toISOString(), error: message },
+    { status }
+  );
+}
+
+export function apiSuccess<T extends Record<string, unknown>>(body: T, status = 200) {
+  return NextResponse.json(
+    { schemaVersion: 1, generatedAt: new Date().toISOString(), ...body },
+    { status }
+  );
 }
 
 export async function authenticatedTrustClient() {
@@ -146,7 +156,7 @@ export async function loadWorkflowTrust(supabase: any, subjectId: string, subjec
     chronology: timeline,
     governanceLineage: governance,
     replay: {
-      reference: replay.at(-1)?.id ? `/api/replay/${replay.at(-1).id}` : `/replay/${subjectId}`,
+      reference: replay.at(-1)?.id ? `/api/replay/${replay.at(-1).id}` : null,
       sessions: replay,
       supportedEvidenceLineage: [
         "provider_verification",

@@ -167,12 +167,13 @@ async function countTable(
 async function fetchRows(
   supabase: Awaited<ReturnType<typeof createClient>>,
   table: string,
-  limit = 50
+  limit = 50,
+  orderColumn = "created_at"
 ) {
   const { data, error } = await supabase
     .from(table)
     .select("*")
-    .order("created_at", { ascending: false })
+    .order(orderColumn, { ascending: false })
     .limit(limit)
     .returns<AnyRow[]>();
 
@@ -295,7 +296,7 @@ export default async function FounderControlPage() {
     fetchRows(supabase, "trust_workspaces", 120),
     fetchRows(supabase, "trust_cases", 200),
     fetchRows(supabase, "governance_actions", 200),
-    fetchRows(supabase, "verification_receipts", 120),
+    fetchRows(supabase, "verification_receipts", 120, "issued_at"),
     auditTrustIntegrity().catch(() => null),
   ]);
 

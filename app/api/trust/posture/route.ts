@@ -1,4 +1,4 @@
-import { authenticatedTrustClient, apiError, loadWorkflowTrust, validReference } from "@/lib/operational-trust/api";
+import { authenticatedTrustClient, apiError, apiSuccess, loadWorkflowTrust, validReference } from "@/lib/operational-trust/api";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   try {
     const trust = await loadWorkflowTrust(auth.supabase, workflowId, subjectType);
-    return Response.json({
+    return apiSuccess({
       workflow: trust.workflow,
       posture: trust.posture,
       explanation: trust.explanation,
@@ -23,4 +23,3 @@ export async function GET(request: Request) {
     return apiError("Trust posture could not be loaded.", 500);
   }
 }
-
