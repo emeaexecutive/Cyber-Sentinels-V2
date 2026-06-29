@@ -28,9 +28,11 @@ const footerSections = [
     links: [
       ["/about", "About us"],
       ["/platform", "Platform"],
+      ["/architecture", "Architecture"],
       ["/pricing", "Pricing"],
       ["/enterprise", "Enterprise"],
       ["/investor", "Investor overview"],
+      ["/funding", "Funding / Build Plan"],
       ["/enterprise-access", "Enterprise access"],
       ["/journal", "Founder journal"],
       ["/design-partners", "Design partners"],

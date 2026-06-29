@@ -33,6 +33,7 @@ const userLinks = [
 ];
 
 const platformDropdownLinks = [
+  ["/architecture", "Architecture"],
   ["/trust-center", "Operational Trust Center"],
   ["/governance", "Governance"],
   ["/enterprise/hiring-security", "Workflow Trust"],
@@ -47,6 +48,7 @@ const enterpriseDropdownLinks = [
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
   ["/investor", "Investor Overview"],
+  ["/funding", "Funding / Build Plan"],
   ["/enterprise/pilot", "Pilot Program"],
   ["/enterprise", "Integrations"],
 ];
@@ -55,6 +57,7 @@ const adminEnterpriseDropdownLinks = [
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
   ["/investor", "Investor Overview"],
+  ["/funding", "Funding / Build Plan"],
   ["/enterprise/pilot", "Pilot Program"],
   ["/admin/integrations", "Integrations"],
   ["/admin/runtime-validation", "Runtime Validation"],

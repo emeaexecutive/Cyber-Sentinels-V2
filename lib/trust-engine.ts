@@ -3,6 +3,21 @@ import type {
   ProviderVerificationState,
 } from "@/lib/trust-score";
 
+/**
+ * Product boundary for the workflow trust engine.
+ *
+ * This engine is explainable and deterministic. It combines application rules,
+ * normalized provider evidence, governance state, authorization lineage and
+ * replay continuity. It is not a biometric certainty system, a proprietary
+ * deepfake detector or a standalone authenticity verdict.
+ */
+export const WORKFLOW_TRUST_ENGINE_BOUNDARY = {
+  method: "deterministic_rules_and_provider_signals",
+  explainable: true,
+  biometricCertainty: false,
+  standaloneDeepfakeVerdict: false,
+} as const;
+
 export type WorkflowTrustDimensions = {
   identityConfidence: number;
   providerVerification: number;

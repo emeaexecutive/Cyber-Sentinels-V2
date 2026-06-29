@@ -1,5 +1,17 @@
 import type { VerificationProviderSignal } from "@/lib/providers/types";
 
+/**
+ * Machine-readable disclosure for every score produced by this module.
+ * Consumers should present the score as workflow review context, never as
+ * biometric certainty or an independent deepfake/authenticity verdict.
+ */
+export const TRUST_SCORE_BOUNDARY = {
+  method: "explainable_rules_and_normalized_provider_signals",
+  trainedModel: false,
+  biometricCertainty: false,
+  standaloneDeepfakeVerdict: false,
+} as const;
+
 export type ProviderVerificationState =
   | "none"
   | "pending"
@@ -238,6 +250,8 @@ export function calculateTrustScore(
   syntheticRisk: number,
   confidence: number
 ) {
+  // Legacy deterministic helper: profile inputs are rules-based review
+  // features, not outputs from a proprietary biometric or deepfake model.
   const score =
     profileConsistency * 0.45 +
     confidence * 0.45 -

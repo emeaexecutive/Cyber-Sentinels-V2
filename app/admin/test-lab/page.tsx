@@ -133,6 +133,18 @@ export default async function TestLabPage() {
           </div>
         </section>
 
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">
+            Proprietary AI boundary
+          </p>
+          <h2 className="mt-2 text-xl font-semibold">
+            Rule-based results are workflow evidence, not model accuracy.
+          </h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            This lab separates simulated tests, attached provider-backed evidence, deterministic rule results and unvalidated capabilities. A future proprietary model may be evaluated here only after representative data and benchmark criteria exist; it would remain one signal inside governance and replay.
+          </p>
+        </section>
+
         <section className="mt-8 grid gap-5">
           {results.map((result) => (
             <article key={result.scenario.id} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
@@ -171,7 +183,7 @@ export default async function TestLabPage() {
                 <section className="rounded-lg border border-zinc-800 bg-black p-4">
                   <h3 className="text-sm font-semibold text-zinc-100">Workflow outcome</h3>
                   <p className="mt-3 text-sm leading-6 text-zinc-300">{result.workflowOutcome}</p>
-                  <h3 className="mt-5 text-sm font-semibold text-zinc-100">Trust score calculation</h3>
+                  <h3 className="mt-5 text-sm font-semibold text-zinc-100">Rule-based trust score result</h3>
                   <p className="mt-3 text-sm leading-6 text-zinc-400">
                     {result.scoreBefore} to {result.scoreAfter} ({result.scoreDelta >= 0 ? "+" : ""}{result.scoreDelta})
                   </p>
