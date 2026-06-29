@@ -2,6 +2,11 @@ import Link from "next/link";
 import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
 import { scoreGraphHealth } from "@/lib/trust-graph/scoreGraphHealth";
+import {
+  analyzeTrustIntelligence,
+  type EvidenceIntelligenceCategory,
+  type EvidenceIntelligenceEvent,
+} from "@/lib/trust-intelligence";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +87,34 @@ function percent(value: number) {
 function average(values: number[]) {
   if (!values.length) return 0;
   return values.reduce((total, value) => total + value, 0) / values.length;
+}
+
+function evidenceReference(row: AnyRow, fallback: string) {
+  return String(
+    row.evidence_reference ??
+      row.provider_reference ??
+      row.receipt_id ??
+      row.replay_id ??
+      row.id ??
+      fallback
+  );
+}
+
+function operationalCategory(value: string): EvidenceIntelligenceCategory {
+  const text = value.toLowerCase();
+  if (/replay.*diverg|diverg.*replay|chronology.*inconsisten/.test(text)) {
+    return "replay_divergence";
+  }
+  if (/provider.*fail|provider.*chang|provider.*pending|verification.*instab/.test(text)) {
+    return "provider_instability";
+  }
+  if (/session.*interrupt|session.*continuity|injection|device.*mismatch/.test(text)) {
+    return "session_continuity_failure";
+  }
+  if (/workflow.*interrupt|workflow.*inconsisten/.test(text)) {
+    return "workflow_interruption";
+  }
+  return "repeated_anomaly";
 }
 
 async function fetchRows(table: string, limit = 200, orderColumn = "created_at") {
@@ -335,6 +368,82 @@ export default async function TrustIntelligencePage() {
       risk: "Critical",
     },
   ];
+  const intelligenceEvents: EvidenceIntelligenceEvent[] = [
+    ...signals
+      .filter((row) =>
+        /anomal|risk|fail|pending|interrupt|inconsisten|diverg|session|provider|injection|mismatch|escalat/i.test(
+          String(row.event ?? row.category ?? row.severity ?? "")
+        )
+      )
+      .map((row, index) => {
+      const source = String(row.event ?? row.category ?? row.severity ?? "Operational anomaly");
+      return {
+        id: `signal-${row.id ?? index}`,
+        workflowId: String(row.workflow_id ?? row.verification_case_id ?? row.passport_id ?? "shared-workflow"),
+        occurredAt: rowDate(row),
+        category: operationalCategory(source),
+        direction: /resolved|restored|recovered/i.test(source) ? "improving" as const : "degrading" as const,
+        trustScore: Number.isFinite(Number(row.trust_score ?? row.score))
+          ? Number(row.trust_score ?? row.score)
+          : null,
+        explanation: String(row.explanation ?? row.summary ?? source),
+        evidenceReferences: [evidenceReference(row, `signal-${index}`)],
+        governanceAction: row.reviewer_action ? String(row.reviewer_action) : null,
+        provider: row.provider_name ? String(row.provider_name) : null,
+      };
+      }),
+    ...decisions.map((row, index) => {
+      const action = String(row.decision ?? row.status ?? row.action_type ?? "Governance review");
+      return {
+        id: `governance-${row.id ?? index}`,
+        workflowId: String(row.workflow_id ?? row.verification_case_id ?? row.passport_id ?? "shared-workflow"),
+        occurredAt: rowDate(row),
+        category: "governance_intervention" as const,
+        direction: /approve|resolved|continue/i.test(action) ? "improving" as const : "stable" as const,
+        trustScore: Number.isFinite(Number(row.trust_score ?? row.score))
+          ? Number(row.trust_score ?? row.score)
+          : null,
+        explanation: String(row.reason ?? row.rationale ?? row.notes ?? `Governance action recorded: ${action}.`),
+        evidenceReferences: [evidenceReference(row, `decision-${index}`)],
+        governanceAction: `${action} by ${row.reviewer_name ?? row.reviewer_id ?? "named workflow reviewer"}`,
+      };
+    }),
+    ...stateChecks.map((row, index) => ({
+      id: `posture-${row.id ?? index}`,
+      workflowId: String(row.workflow_id ?? row.passport_id ?? "shared-workflow"),
+      occurredAt: rowDate(row),
+      category: "trust_posture_change" as const,
+      direction: /improv|restor|increase/i.test(String(row.risk_movement ?? row.trust_state ?? ""))
+        ? "improving" as const
+        : /degrad|elevat|decrease|restrict/i.test(String(row.risk_movement ?? row.trust_state ?? ""))
+          ? "degrading" as const
+          : "stable" as const,
+      trustScore: Number.isFinite(Number(row.trust_score ?? row.score))
+        ? Number(row.trust_score ?? row.score)
+        : null,
+      explanation: String(row.explanation ?? row.risk_movement ?? row.trust_state ?? "Trust posture state retained."),
+      evidenceReferences: [evidenceReference(row, `state-check-${index}`)],
+      governanceAction: row.governance_action ? String(row.governance_action) : null,
+    })),
+    ...auditLogs
+      .filter((row) =>
+        /replay.*diverg|diverg.*replay|chronology.*inconsisten/i.test(
+          String(row.event_type ?? row.action ?? row.description ?? "")
+        )
+      )
+      .map((row, index) => ({
+        id: `replay-${row.id ?? index}`,
+        workflowId: String(row.workflow_id ?? row.subject_id ?? "shared-workflow"),
+        occurredAt: rowDate(row),
+        category: "replay_divergence" as const,
+        direction: "degrading" as const,
+        trustScore: null,
+        explanation: String(row.description ?? row.event_type ?? "Replay divergence retained for review."),
+        evidenceReferences: [evidenceReference(row, `audit-${index}`)],
+        governanceAction: row.reviewer_action ? String(row.reviewer_action) : null,
+      })),
+  ].filter((event) => event.occurredAt);
+  const trustIntelligence = analyzeTrustIntelligence(intelligenceEvents);
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -347,7 +456,10 @@ export default async function TrustIntelligencePage() {
             Trust Intelligence Console
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-300">
-            Operational trust visibility.
+            Cyber Sentinels helps organizations understand operational trust continuity across workflows, identities and intelligent systems.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            Trends are derived from operational evidence, replayable governance, workflow integrity and provider-backed verification. They are review context, not automated accusations or truth detection.
           </p>
         </section>
 
@@ -363,6 +475,70 @@ export default async function TrustIntelligencePage() {
               <p className="mt-2 text-xs text-zinc-600">{card.detail}</p>
             </div>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">
+                Evidence learning
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">Trust behavior over time</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+                Explainable continuity indicators from retained workflow records. Empty or incomplete evidence remains visible instead of being inferred.
+              </p>
+            </div>
+            <p className="rounded-full border border-zinc-700 px-3 py-1.5 text-xs text-zinc-300">
+              {trustIntelligence.eventCount} evidence-linked event(s)
+            </p>
+          </div>
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {trustIntelligence.indicators.map((indicator) => (
+              <article key={indicator.id} className="rounded-lg border border-zinc-800 bg-black p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-semibold text-zinc-100">{indicator.label}</h3>
+                  <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs capitalize text-zinc-300">
+                    {indicator.direction.replaceAll("_", " ")}
+                  </span>
+                </div>
+                <div className="mt-4 flex items-end gap-2">
+                  <p className="text-3xl font-semibold text-zinc-100">{indicator.value}</p>
+                  <p className="pb-1 text-xs text-zinc-500">{indicator.unit}</p>
+                </div>
+                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-zinc-800">
+                  <div
+                    className="h-full rounded-full bg-cyan-400"
+                    style={{ width: `${indicator.unit === "events" ? Math.min(100, indicator.value * 12) : indicator.value}%` }}
+                  />
+                </div>
+                <dl className="mt-5 grid gap-3 text-sm leading-6">
+                  <div>
+                    <dt className="text-xs uppercase tracking-[0.12em] text-zinc-500">What changed</dt>
+                    <dd className="mt-1 text-zinc-300">{indicator.whatChanged}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs uppercase tracking-[0.12em] text-zinc-500">Why it matters</dt>
+                    <dd className="mt-1 text-zinc-300">{indicator.whyItMatters}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs uppercase tracking-[0.12em] text-zinc-500">Evidence</dt>
+                    <dd className="mt-1 text-zinc-400">
+                      {indicator.evidenceContributed.slice(0, 3).join(", ") || "Insufficient linked evidence"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs uppercase tracking-[0.12em] text-zinc-500">Governance</dt>
+                    <dd className="mt-1 text-zinc-400">
+                      {indicator.governanceActions.slice(0, 2).join(", ") || "No linked governance action"}
+                    </dd>
+                  </div>
+                </dl>
+              </article>
+            ))}
+          </div>
+          <p className="mt-5 border-t border-zinc-800 pt-4 text-xs leading-6 text-zinc-500">
+            {trustIntelligence.boundary}
+          </p>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_1fr]">

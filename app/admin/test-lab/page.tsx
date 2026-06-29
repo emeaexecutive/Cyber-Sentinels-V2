@@ -4,6 +4,10 @@ import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { getVerificationProviderRegistry } from "@/lib/providers";
 import { createClient } from "@/lib/supabase/server";
 import { runValidationScenarios } from "@/lib/validation/signal-testing";
+import {
+  evidenceIntelligenceSimulations,
+  runEvidenceIntelligenceSimulation,
+} from "@/lib/trust-intelligence";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +33,7 @@ export default async function TestLabPage() {
   await requireAdminPageAccess(supabase, { path: "/admin/test-lab" });
 
   const results = runValidationScenarios();
+  const intelligenceSimulation = runEvidenceIntelligenceSimulation();
   const providers = getVerificationProviderRegistry();
   const providerWarnings = providers.filter((provider) =>
     ["safely_disabled", "placeholder", "future"].includes(provider.status)
@@ -143,6 +148,53 @@ export default async function TestLabPage() {
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
             This lab separates simulated tests, attached provider-backed evidence, deterministic rule results and unvalidated capabilities. A future proprietary model may be evaluated here only after representative data and benchmark criteria exist; it would remain one signal inside governance and replay.
           </p>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">
+            Evidence intelligence simulations
+          </p>
+          <h2 className="mt-2 text-xl font-semibold">
+            Continuity patterns across a controlled workflow
+          </h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            These deterministic fixtures exercise repeated anomalies, replay inconsistency, trust degradation, governance intervention chains and provider instability. They validate explanation and chronology behavior, not detection accuracy.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            {[
+              ["Repeated anomalies", intelligenceSimulation.repeatedAnomalyCount],
+              ["Replay divergences", intelligenceSimulation.replayDivergenceCount],
+              ["Provider instability", intelligenceSimulation.providerInstabilityCount],
+              ["Session failures", intelligenceSimulation.sessionContinuityFailureCount],
+              ["Governance actions", intelligenceSimulation.governanceInterventionCount],
+            ].map(([label, value]) => (
+              <div key={String(label)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
+                <p className="mt-3 text-3xl font-semibold text-zinc-100">{value}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 grid gap-3 lg:grid-cols-2">
+            {evidenceIntelligenceSimulations.map((event) => (
+              <article key={event.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <h3 className="text-sm font-semibold capitalize text-zinc-100">
+                    {event.category.replaceAll("_", " ")}
+                  </h3>
+                  <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs capitalize text-zinc-300">
+                    {event.direction}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{event.explanation}</p>
+                <p className="mt-3 text-xs leading-5 text-zinc-500">
+                  Evidence: {event.evidenceReferences.join(", ")}
+                </p>
+                <p className="mt-2 text-xs leading-5 text-zinc-500">
+                  Governance: {event.governanceAction ?? "No governance action at this event"}
+                </p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 grid gap-5">
