@@ -53,6 +53,12 @@ export default async function EnterpriseControlPlanePage() {
             >
               Validate Policy Scenarios
             </Link>
+            <Link
+              href="/enterprise/readiness"
+              className="brand-secondary-action brand-action-large text-sm"
+            >
+              Review Deployment Readiness
+            </Link>
           </div>
         </section>
 

@@ -7,6 +7,10 @@ const receiptSections = [
   ["Reviewer decision", "Human decisions and rationale remain tied to the final workflow outcome."],
   ["Replay reference", "Receipts can point to protected replay chronology when an authorized reviewer needs detail."],
   ["Audit-ready report", "The receipt provides a portable summary of what was checked, reviewed and resolved."],
+  ["Workflow chronology", "Ordered events connect evidence, governance intervention and the resulting trust posture."],
+  ["Governance attribution", "Reviewer and workflow ownership remain visible when the source record contains them."],
+  ["Evidence references", "Stable references support authorized follow-up without turning a receipt into a public evidence dump."],
+  ["Trust posture history", "Reports preserve explainable trust transitions rather than presenting one opaque verdict."],
 ];
 
 export default function VerificationReceiptsPage() {
@@ -51,6 +55,9 @@ export default function VerificationReceiptsPage() {
             </Link>
             <Link href="/verification/receipt/demo" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
               Open protected receipt
+            </Link>
+            <Link href="/enterprise/compliance" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-200 hover:border-cyan-400">
+              Compliance readiness
             </Link>
           </div>
         </section>

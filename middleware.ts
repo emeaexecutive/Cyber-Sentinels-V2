@@ -55,6 +55,8 @@ const adminPagePrefixes = [
   "/admin/reviews",
   "/enterprise/control-plane",
   "/enterprise/auditability",
+  "/enterprise/readiness",
+  "/enterprise/compliance",
   "/verification-queue",
   "/evidence-vault",
   "/decision-engine",
