@@ -8,6 +8,7 @@ import {
   evidenceIntelligenceSimulations,
   runEvidenceIntelligenceSimulation,
 } from "@/lib/trust-intelligence";
+import { benchmarkSimulationObservations } from "@/lib/benchmarking/records";
 
 export const dynamic = "force-dynamic";
 
@@ -191,6 +192,46 @@ export default async function TestLabPage() {
                 </p>
                 <p className="mt-2 text-xs leading-5 text-zinc-500">
                   Governance: {event.governanceAction ?? "No governance action at this event"}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">
+                Benchmark simulation coverage
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">
+                Operational validation fixtures
+              </h2>
+              <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+                Controlled simulations cover synthetic candidate attempts, replay divergence, provider instability, governance escalation chains, injected sessions and session integrity failures. Fixtures validate routing and metrics, never accuracy.
+              </p>
+            </div>
+            <Link href="/admin/benchmarking" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white">
+              Open benchmarking
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {benchmarkSimulationObservations.map((observation) => (
+              <article key={observation.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <h3 className="text-sm font-semibold capitalize text-zinc-100">
+                    {observation.kind.replaceAll("_", " ")}
+                  </h3>
+                  <span className="rounded-full border border-amber-800 px-2.5 py-1 text-xs text-amber-200">
+                    simulated
+                  </span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{observation.explanation}</p>
+                <p className="mt-3 text-xs text-zinc-500">
+                  Evidence: {observation.evidenceReferences.join(", ")}
+                </p>
+                <p className="mt-2 text-xs text-zinc-500">
+                  Governance: {observation.governanceAction}
                 </p>
               </article>
             ))}
