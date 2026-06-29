@@ -54,6 +54,7 @@ const enterpriseDropdownLinks = [
 ];
 
 const adminEnterpriseDropdownLinks = [
+  ["/enterprise/control-plane", "Trust Control Plane"],
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
   ["/investor", "Investor Overview"],

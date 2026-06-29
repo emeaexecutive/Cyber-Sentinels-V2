@@ -270,6 +270,62 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
     ["Reviewer actions", snapshot.decisions.length ? `${snapshot.decisions.length} governance decision(s) preserved` : "No reviewer action in this replay window"],
     ["Trust score changes", snapshot.timelineEvents.length ? "Timeline events preserve score movement when source records include score fields." : "No score movement recorded in this replay window"],
   ];
+  const policyAudit = [...snapshot.auditLogs]
+    .reverse()
+    .find((row) => {
+      const metadata = rowMetadata(row);
+      return Boolean(
+        metadata.policy_id ||
+          metadata.policy_name ||
+          metadata.policy_route ||
+          metadata.replay_context
+      );
+    });
+  const policyMetadata = policyAudit ? rowMetadata(policyAudit) : {};
+  const replayContext =
+    policyMetadata.replay_context &&
+    typeof policyMetadata.replay_context === "object" &&
+    !Array.isArray(policyMetadata.replay_context)
+      ? (policyMetadata.replay_context as Record<string, unknown>)
+      : {};
+  const policyReplayRows = [
+    [
+      "Policy triggered",
+      String(
+        replayContext.policyTriggered ??
+          policyMetadata.policy_name ??
+          policyMetadata.policy_id ??
+          "No policy evaluation retained in this replay window"
+      ),
+    ],
+    [
+      "Why escalation occurred",
+      String(
+        replayContext.whyEscalated ??
+          "No replay-linked policy escalation reason was retained."
+      ),
+    ],
+    [
+      "Threshold that changed trust state",
+      Array.isArray(replayContext.thresholdChanges)
+        ? replayContext.thresholdChanges.map(String).join("; ")
+        : "No policy threshold transition was retained.",
+    ],
+    [
+      "Governance resolution",
+      snapshot.decisions.length
+        ? String(
+            snapshot.decisions.at(-1)?.resolution_notes ??
+              snapshot.decisions.at(-1)?.decision ??
+              snapshot.decisions.at(-1)?.action_status ??
+              "Governance action retained without resolution notes."
+          )
+        : String(
+            replayContext.resolutionRequired ??
+              "No governance resolution was recorded in this replay window."
+          ),
+    ],
+  ];
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -438,6 +494,21 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             {replayValidationRows.map(([label, value]) => (
               <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-300">{String(value)}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
+          <h2 className="text-xl font-semibold">Policy and Governance Replay</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            Canonical replay keeps the policy, threshold crossing, escalation reason and reviewer resolution connected to the operational evidence available at the time.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {policyReplayRows.map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
                 <p className="mt-2 text-sm leading-6 text-zinc-300">{String(value)}</p>
               </div>
             ))}
