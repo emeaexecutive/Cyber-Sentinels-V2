@@ -23,6 +23,7 @@ const pricingLink = [["/pricing", "Pricing"]];
 const adminLinks = [
   ["/dashboard", "Dashboard"],
   ["/dashboard/interview-risk", "Active Flags"],
+  ["/dashboard/access-governance", "Access Governance"],
   ["/admin/benchmarking", "Benchmarking"],
   ["/admin/support", "Support Queue"],
   ["/admin/founder-control", "Founder Control"],
@@ -31,6 +32,7 @@ const adminLinks = [
 const userLinks = [
   ["/dashboard", "Dashboard"],
   ["/dashboard/interview-risk", "Active Flags"],
+  ["/dashboard/access-governance", "Access Governance"],
   ["/dashboard/validation", "Validation"],
 ];
 
@@ -61,6 +63,7 @@ const adminEnterpriseDropdownLinks = [
   ["/enterprise/auditability", "Auditability"],
   ["/enterprise/readiness", "Deployment Readiness"],
   ["/enterprise/compliance", "Compliance Readiness"],
+  ["/enterprise/identity-governance", "Identity Governance"],
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
   ["/investor", "Investor Overview"],

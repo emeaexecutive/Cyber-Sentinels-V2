@@ -73,7 +73,7 @@ export async function loadWorkflowTrust(supabase: any, subjectId: string, subjec
         "id,subject_type,subject_id,receipt_type,verification_status,confidence_level,issued_by,issued_at,expires_at,receipt_summary,evidence_snapshot"
       )).order("issued_at", { ascending: false }).limit(10),
       applySubject(supabase.from("trust_timeline_events").select(
-        "id,subject_type,subject_id,event_type,event_title,event_summary,actor_type,actor_id,severity,created_at"
+        "id,subject_type,subject_id,event_type,event_title,event_summary,actor_type,actor_id,severity,metadata,created_at"
       )).order("created_at", { ascending: true }).limit(200),
       applySubject(supabase.from("evidence_chains").select(
         "id,subject_type,subject_id,chain_summary,created_at"
