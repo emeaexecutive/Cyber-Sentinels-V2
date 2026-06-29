@@ -58,6 +58,7 @@ const adminPagePrefixes = [
   "/enterprise/readiness",
   "/enterprise/compliance",
   "/enterprise/identity-governance",
+  "/enterprise/consortium",
   "/verification-queue",
   "/evidence-vault",
   "/decision-engine",

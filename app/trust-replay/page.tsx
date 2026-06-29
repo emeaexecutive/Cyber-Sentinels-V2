@@ -515,6 +515,26 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
           </div>
         </section>
 
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">
+                Aggregated advisory context
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">Replay remains the canonical evidence.</h2>
+              <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+                Privacy-preserving network indicators can provide category-level
+                context for replay anomalies, workflow threat patterns and provider
+                instability. They do not add identities, replace this chronology or
+                determine an outcome.
+              </p>
+            </div>
+            <Link href="/dashboard/network-risk" className="brand-secondary-action text-sm">
+              View Network Risk
+            </Link>
+          </div>
+        </section>
+
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           <TimelineReplay events={snapshot.timelineEvents} />
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">

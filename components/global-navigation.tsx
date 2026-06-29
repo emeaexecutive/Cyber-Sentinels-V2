@@ -24,6 +24,7 @@ const adminLinks = [
   ["/dashboard", "Dashboard"],
   ["/dashboard/interview-risk", "Active Flags"],
   ["/dashboard/access-governance", "Access Governance"],
+  ["/dashboard/network-risk", "Network Risk"],
   ["/admin/benchmarking", "Benchmarking"],
   ["/admin/support", "Support Queue"],
   ["/admin/founder-control", "Founder Control"],
@@ -33,6 +34,7 @@ const userLinks = [
   ["/dashboard", "Dashboard"],
   ["/dashboard/interview-risk", "Active Flags"],
   ["/dashboard/access-governance", "Access Governance"],
+  ["/dashboard/network-risk", "Network Risk"],
   ["/dashboard/validation", "Validation"],
 ];
 
@@ -64,6 +66,7 @@ const adminEnterpriseDropdownLinks = [
   ["/enterprise/readiness", "Deployment Readiness"],
   ["/enterprise/compliance", "Compliance Readiness"],
   ["/enterprise/identity-governance", "Identity Governance"],
+  ["/enterprise/consortium", "Consortium Intelligence"],
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
   ["/investor", "Investor Overview"],
