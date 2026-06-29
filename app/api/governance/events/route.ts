@@ -24,6 +24,17 @@ export async function GET(request: Request) {
   return apiSuccess({
     workflowReference: workflowId,
     humanReviewRemainsAuthoritative: true,
-    events: data ?? [],
+    governanceContinuity: "replay_linked",
+    events: (data ?? []).map((event) => ({
+      ...event,
+      reviewerAttribution: event.assigned_to ?? "Reviewer not assigned",
+      escalationOwner: event.assigned_to ?? "Owner not assigned",
+      resolutionSummary:
+        event.resolution_notes ?? "Resolution pending or not recorded",
+      evidenceReference: `governance:${event.id}`,
+      replayReference: `/trust-replay?subject_type=${encodeURIComponent(
+        event.subject_type ?? "workflow"
+      )}&subject_id=${encodeURIComponent(event.subject_id ?? workflowId)}`,
+    })),
   });
 }

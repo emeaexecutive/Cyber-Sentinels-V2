@@ -9,6 +9,7 @@ export default function EnterpriseLayout({ children }: { children: React.ReactNo
           <Link href="/enterprise" className="text-zinc-300 hover:text-white">Overview</Link>
           <Link href="/enterprise/pilot" className="text-zinc-300 hover:text-white">Pilot Program</Link>
           <Link href="/enterprise/control-plane" className="text-zinc-300 hover:text-white">Control Plane</Link>
+          <Link href="/enterprise/auditability" className="text-zinc-300 hover:text-white">Auditability</Link>
           <Link href="/design-partner" className="text-zinc-300 hover:text-white">Design Partner</Link>
           <Link href="/enterprise-access" className="brand-secondary-action ml-auto min-h-9 px-3 py-1.5 text-sm">Enterprise Access</Link>
         </nav>

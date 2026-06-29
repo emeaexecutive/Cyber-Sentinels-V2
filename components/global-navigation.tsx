@@ -36,6 +36,7 @@ const userLinks = [
 
 const platformDropdownLinks = [
   ["/architecture", "Architecture"],
+  ["/trust/transparency", "Trust Transparency"],
   ["/trust-center", "Operational Trust Center"],
   ["/governance", "Governance"],
   ["/enterprise/hiring-security", "Workflow Trust"],
@@ -57,6 +58,7 @@ const enterpriseDropdownLinks = [
 
 const adminEnterpriseDropdownLinks = [
   ["/enterprise/control-plane", "Trust Control Plane"],
+  ["/enterprise/auditability", "Auditability"],
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
   ["/investor", "Investor Overview"],

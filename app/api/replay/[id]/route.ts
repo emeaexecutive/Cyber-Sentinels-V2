@@ -1,4 +1,5 @@
 import { authenticatedTrustClient, apiError, apiSuccess, loadWorkflowTrust, validReference } from "@/lib/operational-trust/api";
+import { buildTrustTransparencyReport } from "@/lib/trust-transparency";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
 
   try {
     const trust = await loadWorkflowTrust(auth.supabase, String(replay.subject_id), replay.subject_type ?? undefined);
+    const transparency = buildTrustTransparencyReport(trust);
     return apiSuccess({
       replay,
       canonicalEvidence: {
@@ -27,6 +29,16 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
         providerEvidence: trust.providerEvidence,
         receipts: trust.receipts,
       },
+      explainability: {
+        whatChanged: transparency.decisionExplanation.whatChanged,
+        whyTrustShifted: transparency.decisionExplanation.whyTrustShifted,
+        evidenceReferences: transparency.decisionExplanation.evidenceContributed,
+        reviewerActions: transparency.decisionExplanation.governanceActions,
+        escalationPath: transparency.auditability.escalationPath,
+        policyAndAuthorizationLineage: transparency.auditability.authorizationLineage,
+        providerSignals: transparency.decisionExplanation.providerSignals,
+      },
+      auditBoundary: transparency.boundary,
     });
   } catch {
     return apiError("Replay chronology could not be loaded.", 500);
