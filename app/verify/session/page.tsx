@@ -29,24 +29,38 @@ export default function VerifySessionPage() {
       return value === "" ? undefined : Number(value);
     };
 
-    const response = await fetch("/api/session/integrity", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        session_id: form.get("session_id"),
-        identity_verification_state: form.get("identity_verification_state"),
-        liveness_state: form.get("liveness_state"),
-        deepfake_risk_score: numberOrUndefined("deepfake_risk_score"),
-        injection_risk_score: numberOrUndefined("injection_risk_score"),
-        channel_integrity_state: form.get("channel_integrity_state"),
-        session_anomaly_score: numberOrUndefined("session_anomaly_score"),
-        manual_review_required: form.get("manual_review_required") === "on",
-        evidence_source: "session_integrity_review_form",
-      }),
-    });
-
-    setResult((await response.json().catch(() => ({ error: "Request failed" }))) as ReviewResult);
-    setLoading(false);
+    try {
+      const response = await fetch("/api/session/integrity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: form.get("session_id"),
+          identity_verification_state: form.get("identity_verification_state"),
+          liveness_state: form.get("liveness_state"),
+          deepfake_risk_score: numberOrUndefined("deepfake_risk_score"),
+          injection_risk_score: numberOrUndefined("injection_risk_score"),
+          channel_integrity_state: form.get("channel_integrity_state"),
+          session_anomaly_score: numberOrUndefined("session_anomaly_score"),
+          manual_review_required: form.get("manual_review_required") === "on",
+          evidence_source: "session_integrity_review_form",
+        }),
+      });
+      const body = (await response.json().catch(() => ({
+        error: "Session Integrity response could not be read.",
+      }))) as ReviewResult;
+      setResult(response.ok ? body : {
+        ...body,
+        ok: false,
+        error: body.error ?? `Session Integrity request failed with HTTP ${response.status}.`,
+      });
+    } catch {
+      setResult({
+        ok: false,
+        error: "Session Integrity is temporarily unavailable. Retry without changing the workflow outcome.",
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

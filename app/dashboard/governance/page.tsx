@@ -377,9 +377,9 @@ export default async function GovernancePage({
             {[
               ["Session integrity", `${signals.length} signal(s)`, "/dashboard/session-integrity"],
               ["Operational evidence", `${evidence.length} evidence record(s)`, "/evidence-vault"],
-              ["Governance review", `${queue.length} queue item(s)`, "/dashboard/governance"],
-              ["Replay chronology", "Open replay explorer", "/trust-replay"],
-              ["Verification receipts", "Open receipt index", "/verification-receipts"],
+              ["Governance Review", `${queue.length} queue item(s)`, "/dashboard/governance"],
+              ["Replay Timeline", "Open replay explorer", "/trust-replay"],
+              ["Verification Receipt", "Open receipt index", "/verification-receipts"],
             ].map(([title, value, href]) => (
               <Link key={title} href={href} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-700">
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>

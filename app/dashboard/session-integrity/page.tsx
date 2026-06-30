@@ -10,7 +10,10 @@ export default async function SessionIntegrityDashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/dashboard/session-integrity");
 
-  const [{ data: checks }, { data: signals }] = await Promise.all([
+  const [
+    { data: checks, error: checksError },
+    { data: signals, error: signalsError },
+  ] = await Promise.all([
     supabase.from("session_integrity_checks").select("*").order("created_at", { ascending: false }).limit(100),
     supabase.from("verification_signals").select("*").order("created_at", { ascending: false }).limit(300),
   ]);
@@ -47,6 +50,13 @@ export default async function SessionIntegrityDashboardPage() {
           ))}
         </section>
 
+        {checksError || signalsError ? (
+          <p className="mt-6 rounded-lg border border-red-900 bg-red-950/20 p-4 text-sm text-red-100">
+            Session Integrity records could not be loaded completely. Counts may
+            be incomplete; retry before making a workflow decision.
+          </p>
+        ) : null}
+
         <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Workflow continuity map</p>
           <h2 className="mt-2 text-xl font-semibold">Session integrity connects evidence to governance review</h2>
@@ -58,9 +68,9 @@ export default async function SessionIntegrityDashboardPage() {
             {[
               ["/dashboard/session-integrity", "Session integrity", `${rows.length} review(s)`],
               ["/evidence-vault", "Operational evidence", "Review linked evidence"],
-              ["/dashboard/governance", "Governance review", `${manualReviews} manual review(s)`],
-              ["/trust-replay", "Replay chronology", "Open replay explorer"],
-              ["/verification-receipts", "Verification receipts", "Open receipt index"],
+              ["/dashboard/governance", "Governance Review", `${manualReviews} manual review(s)`],
+              ["/trust-replay", "Replay Timeline", "Open replay explorer"],
+              ["/verification-receipts", "Verification Receipt", "Open receipt index"],
             ].map(([href, title, value]) => (
               <Link key={href} href={href} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-700">
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>

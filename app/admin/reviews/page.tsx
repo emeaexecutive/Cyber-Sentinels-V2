@@ -14,7 +14,12 @@ type ReviewEvent = {
   created_at: string | null;
 };
 
-export default async function AdminReviewsPage() {
+export default async function AdminReviewsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ error?: string; updated?: string }>;
+}) {
+  const query = searchParams ? await searchParams : {};
   const supabase = await createClient();
   await requireAdminPageAccess(supabase, { path: "/admin/reviews" });
 
@@ -22,6 +27,7 @@ export default async function AdminReviewsPage() {
   const { data: events, error } = await adminSupabase
     .from("verification_events")
     .select("id,subject_type,status,risk_level,notes,created_at")
+    .in("status", ["pending", "needs_manual_review"])
     .order("created_at", { ascending: false })
     .limit(100);
 
@@ -32,9 +38,11 @@ export default async function AdminReviewsPage() {
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Admin Review Queue
+            Governance Review Queue
           </p>
-          <h1 className="mt-4 text-4xl font-semibold">Verification Events</h1>
+          <h1 className="mt-4 text-4xl font-semibold">
+            Verification Events Awaiting Review
+          </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Review pending candidate, recruiter and interview integrity events.
           </p>
@@ -43,6 +51,12 @@ export default async function AdminReviewsPage() {
         {error ? (
           <p className="mt-8 rounded-lg border border-red-900 bg-red-950/20 p-4 text-sm text-red-200">
             Admin review queue could not be loaded.
+          </p>
+        ) : null}
+        {query.error ? (
+          <p className="mt-8 rounded-lg border border-red-900 bg-red-950/20 p-4 text-sm text-red-200">
+            Governance Review was recorded, but the source verification event
+            could not be updated. Reconcile the event before treating the workflow as resolved.
           </p>
         ) : null}
 
@@ -59,6 +73,11 @@ export default async function AdminReviewsPage() {
               </div>
               <form action="/api/admin/reviews" method="post" className="mt-4 flex flex-wrap gap-3">
                 <input type="hidden" name="verification_event_id" value={event.id} />
+                <input
+                  name="notes"
+                  placeholder="Reviewer rationale or evidence note"
+                  className="min-w-0 flex-1 basis-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 sm:basis-72"
+                />
                 <button name="status" value="approved" className="rounded-lg border border-emerald-800 px-3 py-2 text-sm text-emerald-200">Approve</button>
                 <button name="status" value="needs_manual_review" className="rounded-lg border border-amber-800 px-3 py-2 text-sm text-amber-200">Needs Review</button>
                 <button name="status" value="rejected" className="rounded-lg border border-red-900 px-3 py-2 text-sm text-red-200">Reject</button>

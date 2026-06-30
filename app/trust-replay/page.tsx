@@ -152,7 +152,7 @@ function TimelineReplay({ events }: { events: TrustTimelineEvent[] }) {
   return (
     <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold">Timeline Reconstruction</h2>
+        <h2 className="text-xl font-semibold">Replay Timeline</h2>
         <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400">
           read-only chronology
         </span>
@@ -501,7 +501,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
         </section>
 
         <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
-          <h2 className="text-xl font-semibold">Policy and Governance Replay</h2>
+          <h2 className="text-xl font-semibold">Governance Review and Policy Replay</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
             Canonical replay keeps the policy, threshold crossing, escalation reason and reviewer resolution connected to the operational evidence available at the time.
           </p>

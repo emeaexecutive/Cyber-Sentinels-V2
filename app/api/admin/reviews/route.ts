@@ -84,10 +84,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "admin_review_failed" }, { status: 500 });
   }
 
-  await adminSupabase
+  const { error: eventUpdateError } = await adminSupabase
     .from("verification_events")
     .update({ status, notes: notes || null })
     .eq("id", verificationEventId);
+  if (eventUpdateError) {
+    console.error("verification event review status update failed", eventUpdateError);
+    if (!(req.headers.get("content-type") ?? "").includes("application/json")) {
+      return NextResponse.redirect(
+        new URL("/admin/reviews?error=event_update_failed", req.url),
+        { status: 303 }
+      );
+    }
+    return NextResponse.json(
+      { ok: false, error: "verification_event_update_failed", review_id: review.id },
+      { status: 500 }
+    );
+  }
 
   if (!(req.headers.get("content-type") ?? "").includes("application/json")) {
     return NextResponse.redirect(new URL("/admin/reviews", req.url), {

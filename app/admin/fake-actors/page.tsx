@@ -79,6 +79,12 @@ export default async function AdminFakeActorsPage({
               Admin action recorded. Evidence preserved and governance history updated.
             </p>
           ) : null}
+          {query.status === "failed" ? (
+            <p className="mt-5 rounded-lg border border-red-900 bg-red-950/20 p-4 text-sm text-red-100">
+              The governance action could not be recorded. No workflow state was
+              changed. Review the evidence and retry.
+            </p>
+          ) : null}
         </section>
 
         <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

@@ -80,12 +80,15 @@ export async function handleFakeActorActionRequest(
     });
   } catch (error) {
     console.error("Fake actor enforcement action failed.", error);
+    if (payload.redirectTo.startsWith("/admin/fake-actors")) {
+      const redirectUrl = new URL(payload.redirectTo, request.url);
+      redirectUrl.searchParams.set("action", action);
+      redirectUrl.searchParams.set("status", "failed");
+      return NextResponse.redirect(redirectUrl, { status: 303 });
+    }
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "The enforcement action could not be completed.",
+        error: "The enforcement action could not be completed safely.",
       },
       { status: 500 }
     );

@@ -222,7 +222,7 @@ export default async function TrustCenterPage() {
 
         <section className="mt-8 grid gap-6 xl:grid-cols-2">
           <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
-            <h2 className="text-xl font-semibold">Governance and authorization lineage</h2>
+            <h2 className="text-xl font-semibold">Governance Review and Authorization Lineage</h2>
             <p className="mt-2 text-sm text-zinc-500">Reviewer ownership, outcomes and evidence chronology remain connected.</p>
             <div className="mt-5 grid gap-3">
               {governance.length ? governance.slice(0, 8).map((action) => (

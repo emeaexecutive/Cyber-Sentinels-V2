@@ -56,6 +56,10 @@ export async function createEvidenceChain(
     .eq("chain_summary", input.chainSummary)
     .limit(1);
 
+  if (existing.error) {
+    console.warn("Evidence chain lookup failed", existing.error);
+    return existing;
+  }
   if (existing.data?.[0]?.id) {
     return existing;
   }
@@ -84,9 +88,13 @@ export async function createVerificationReceipt(
     .eq("subject_type", input.subjectType)
     .eq("subject_id", input.subjectId)
     .eq("receipt_type", input.receiptType)
-    .maybeSingle();
+    .limit(1);
 
-  if (existing.data?.id) {
+  if (existing.error) {
+    console.warn("Verification receipt lookup failed", existing.error);
+    return existing;
+  }
+  if (existing.data?.[0]?.id) {
     return existing;
   }
 
@@ -113,6 +121,7 @@ export async function createReceiptBundle(
   supabase: SupabaseClient,
   input: ReceiptInput & EvidenceChainInput
 ) {
-  await createEvidenceChain(supabase, input);
+  const evidenceResult = await createEvidenceChain(supabase, input);
+  if (evidenceResult.error) return evidenceResult;
   return createVerificationReceipt(supabase, input);
 }

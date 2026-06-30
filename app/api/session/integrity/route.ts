@@ -4,6 +4,7 @@ import {
   evaluateSessionIntegrity,
   normalizeSessionIntegrityInput,
 } from "@/lib/session-integrity/model";
+import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -100,6 +101,50 @@ export async function POST(req: Request) {
     console.error("session integrity signal persistence failed", persistenceError);
     return NextResponse.json(
       { ok: false, error: "integrity_signal_persistence_failed", check_id: check.id },
+      { status: 500 }
+    );
+  }
+
+  const [auditWrite, timelineWrite] = await Promise.all([
+    createAuditLog(
+      supabase,
+      "session_integrity_reviewed",
+      user.email ?? user.id,
+      {
+        session_id: input.session_id,
+        session_integrity_check_id: check.id,
+        overall_status: result.overall_status,
+        manual_review_required: result.manual_review_required,
+      }
+    ),
+    supabase.from("trust_timeline_events").insert({
+      subject_type: "interview_session",
+      subject_id: input.session_id,
+      event_type: "session_integrity_reviewed",
+      event_title: "Session Integrity reviewed",
+      event_summary: result.summary,
+      actor_type: "user",
+      actor_id: user.id,
+      severity: result.manual_review_required ? "warning" : "info",
+      metadata: {
+        session_integrity_check_id: check.id,
+        overall_status: result.overall_status,
+        manual_review_required: result.manual_review_required,
+        evidence_source: input.evidence_source ?? "operator_input",
+      },
+    }),
+  ]);
+  if (auditWrite.error || timelineWrite.error) {
+    console.error(
+      "session integrity continuity persistence failed",
+      auditWrite.error ?? timelineWrite.error
+    );
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "integrity_continuity_persistence_failed",
+        check_id: check.id,
+      },
       { status: 500 }
     );
   }

@@ -9,8 +9,26 @@ import {
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
 
-function text(formData: FormData, name: string) {
-  return String(formData.get(name) ?? "").trim();
+type CandidateInput = FormData | Record<string, unknown>;
+
+function text(input: CandidateInput, name: string) {
+  const value = input instanceof FormData ? input.get(name) : input[name];
+  return String(value ?? "").trim();
+}
+
+async function readInput(req: Request): Promise<CandidateInput> {
+  const contentType = req.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    const body = await req.json().catch(() => ({}));
+    return body && typeof body === "object" && !Array.isArray(body)
+      ? (body as Record<string, unknown>)
+      : {};
+  }
+  return req.formData();
+}
+
+function redirectTo(req: Request, path: string) {
+  return NextResponse.redirect(new URL(path, req.url), { status: 303 });
 }
 
 async function handleCandidateVerification(req: Request) {
@@ -19,21 +37,31 @@ async function handleCandidateVerification(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    return wantsRedirect
+      ? redirectTo(req, "/login?next=/verify/candidate")
+      : NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  const formData = await req.formData();
-  const candidateName = text(formData, "full_name") || text(formData, "candidate_name");
-  const email = text(formData, "email") || text(formData, "candidate_email");
-  const roleAppliedFor = text(formData, "role_applied_for") || text(formData, "role");
-  const companyName = text(formData, "company_name");
-  const verificationStatus = text(formData, "verification_status") || "pending";
-  const provenanceStatus = text(formData, "provenance_status") || "unknown";
-  const riskLevel = text(formData, "risk_level") || "unknown";
-  const notes = text(formData, "notes");
+  const input = await readInput(req);
+  const candidateName = text(input, "full_name") || text(input, "candidate_name");
+  const email = text(input, "email") || text(input, "candidate_email");
+  const roleAppliedFor = text(input, "role_applied_for") || text(input, "role");
+  const companyName = text(input, "company_name");
+  const requestedStatus = text(input, "verification_status") || "pending";
+  const verificationStatus = ["pending", "needs_manual_review"].includes(requestedStatus)
+    ? requestedStatus
+    : "needs_manual_review";
+  const provenanceStatus = text(input, "provenance_status") || "unknown";
+  const requestedRisk = text(input, "risk_level") || "pending";
+  const riskLevel = ["pending", "low", "moderate", "needs_review", "high"].includes(requestedRisk)
+    ? requestedRisk
+    : "needs_review";
+  const notes = text(input, "notes");
 
-  if (!candidateName || !email) {
-    return NextResponse.json({ ok: false, error: "Candidate name and email are required" }, { status: 400 });
+  if (!candidateName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return wantsRedirect
+      ? redirectTo(req, "/verify/candidate?error=missing_fields")
+      : NextResponse.json({ ok: false, error: "Candidate name and a valid email are required" }, { status: 400 });
   }
 
   const factors = candidateTrustFactors();
@@ -43,7 +71,7 @@ async function handleCandidateVerification(req: Request) {
     candidate_email: email,
     role: roleAppliedFor,
     company_name: companyName,
-    linkedin_url: text(formData, "linkedin_url"),
+    linkedin_url: text(input, "linkedin_url"),
     notes,
     provenance_status: provenanceStatus,
     factors,
@@ -72,7 +100,9 @@ async function handleCandidateVerification(req: Request) {
 
   if (profileError) {
     console.error("candidate profile upsert failed", profileError);
-    return NextResponse.json({ ok: false, error: "candidate_profile_failed" }, { status: 500 });
+    return wantsRedirect
+      ? redirectTo(req, "/verify/candidate?error=profile_failed")
+      : NextResponse.json({ ok: false, error: "candidate_profile_failed" }, { status: 500 });
   }
 
   const { data: report, error } = await supabase
@@ -112,13 +142,17 @@ async function handleCandidateVerification(req: Request) {
 
   if (eventError) {
     console.error("candidate verification event insert failed", eventError);
+    return wantsRedirect
+      ? redirectTo(req, "/verify/candidate?error=event_failed")
+      : NextResponse.json({ ok: false, error: "candidate_event_failed" }, { status: 500 });
   }
 
   await createAuditLog(supabase, "candidate_verification_requested", actor, metadata);
   await createSignal(supabase, "Candidate verification requested", metadata);
 
+  let receiptWarning = false;
   if (candidateProfile?.id) {
-    await createReceiptBundle(supabase, {
+    const receiptResult = await createReceiptBundle(supabase, {
       subjectType: "candidate",
       subjectId: candidateProfile.id,
       receiptType: verificationReceiptType(
@@ -152,13 +186,17 @@ async function handleCandidateVerification(req: Request) {
         { type: "signal", event: "Candidate verification requested" },
       ],
     });
+    receiptWarning = Boolean(receiptResult.error);
   }
 
   if (wantsRedirect) {
-    return NextResponse.redirect(
-      new URL(report?.id ? `/trust/interview-report/${report.id}` : "/verify/candidate", req.url),
-      { status: 303 }
-    );
+    if (receiptWarning) {
+      return redirectTo(req, "/verify/candidate?status=recorded&warning=receipt_unavailable");
+    }
+    if (!report?.id) {
+      return redirectTo(req, "/verify/candidate?status=recorded&warning=report_unavailable");
+    }
+    return redirectTo(req, `/trust/interview-report/${report.id}`);
   }
 
   return NextResponse.json({
@@ -167,18 +205,26 @@ async function handleCandidateVerification(req: Request) {
     report_id: report?.id ?? null,
     trust_score: trustScore,
     factors,
+    warning: receiptWarning
+      ? "verification_receipt_unavailable"
+      : report?.id
+        ? null
+        : "trust_report_unavailable",
   });
 }
 
 export async function POST(req: Request) {
+  const wantsRedirect = !(req.headers.get("content-type") ?? "").includes("application/json");
   try {
     return await handleCandidateVerification(req);
   } catch (error) {
     console.error("candidate verification route failed", error);
 
-    return NextResponse.json(
-      { ok: false, error: "Candidate verification is temporarily unavailable" },
-      { status: 503 }
-    );
+    return wantsRedirect
+      ? redirectTo(req, "/verify/candidate?error=temporarily_unavailable")
+      : NextResponse.json(
+          { ok: false, error: "Candidate verification is temporarily unavailable" },
+          { status: 503 }
+        );
   }
 }
