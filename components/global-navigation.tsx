@@ -51,6 +51,15 @@ const platformDropdownLinks = [
   ["/transparency", "Compliance"],
 ];
 
+const publicPlatformDropdownLinks = [
+  ["/architecture", "Architecture"],
+  ["/governance", "Governance"],
+  ["/enterprise/hiring-security", "Workflow Trust"],
+  ["/verification-replay", "Verification Replay"],
+  ["/verification-receipts", "Verification Receipts"],
+  ["/transparency", "Compliance"],
+];
+
 const enterpriseDropdownLinks = [
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
@@ -177,18 +186,20 @@ function PrimaryNavigation({
   onToggleDropdown,
   onCloseDropdown,
   enterpriseLinks = enterpriseDropdownLinks,
+  platformLinks = platformDropdownLinks,
 }: {
   openDropdown: string | null;
   onToggleDropdown: (id: string) => void;
   onCloseDropdown: CloseMenus;
   enterpriseLinks?: string[][];
+  platformLinks?: string[][];
 }) {
   return (
     <>
       <DropdownLinks
         id="platform"
         label="Platform"
-        links={platformDropdownLinks}
+        links={platformLinks}
         open={openDropdown === "platform"}
         onToggle={onToggleDropdown}
         onClose={onCloseDropdown}
@@ -283,6 +294,7 @@ export function GlobalNavigation({
                 openDropdown={openDropdown}
                 onToggleDropdown={toggleDropdown}
                 onCloseDropdown={closeMenus}
+                platformLinks={publicPlatformDropdownLinks}
               />
               <Link
                 href="/login"
