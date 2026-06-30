@@ -22,6 +22,7 @@ function adapter(id: VerificationProviderId): ProviderAdapter {
 }
 
 export const providerAdapters: Record<VerificationProviderId, ProviderAdapter> = {
+  external_unattributed: adapter("external_unattributed"),
   world_id: adapter("world_id"),
   stripe_identity: adapter("stripe_identity"),
   persona: adapter("persona"),

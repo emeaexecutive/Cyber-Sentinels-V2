@@ -4,6 +4,7 @@ import type {
 } from "@/lib/trust-score";
 
 export type VerificationProviderId =
+  | "external_unattributed"
   | "world_id"
   | "stripe_identity"
   | "persona"

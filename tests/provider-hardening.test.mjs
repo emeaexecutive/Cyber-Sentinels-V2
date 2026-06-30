@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  buildWorkflowProviderSignals,
   normalizeProviderSignal,
   toNormalizedVerificationResponse,
 } from "../lib/providers/signals.ts";
@@ -18,6 +19,20 @@ test("normalization does not invent high confidence for a verified provider stat
   assert.equal(signal.identityConfidence, 50);
   assert.equal(signal.sessionIntegrity, 50);
   assert.equal(toNormalizedVerificationResponse(signal).provider_signal, "verified");
+});
+
+test("unknown provider identifiers remain unattributed instead of being misassigned", () => {
+  const [signal] = buildWorkflowProviderSignals({
+    evidenceSnapshot: {
+      provider_id: "unrecognized-provider",
+      provider_name: "Unrecognized source",
+      verification_status: "pending",
+    },
+  });
+
+  assert.equal(signal.providerId, "external_unattributed");
+  assert.equal(signal.providerName, "Unrecognized source");
+  assert.equal(signal.providerVerificationState, "pending");
 });
 
 test("normalization filters credential-like evidence references", () => {

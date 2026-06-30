@@ -23,6 +23,20 @@ type ProviderBlueprint = {
 
 const providerBlueprints: ProviderBlueprint[] = [
   {
+    id: "external_unattributed",
+    name: "External verification source",
+    category: "future_adapter",
+    requiredEnv: [],
+    statusWhenMissing: "placeholder",
+    purpose: "Safe fallback for provider evidence without a recognized adapter identifier.",
+    evidenceReference: "Unattributed external verification reference",
+    configuredNotes: "Unattributed evidence remains a placeholder until a supported provider is identified.",
+    missingNotes: "Unattributed evidence remains a placeholder until a supported provider is identified.",
+    enabledWhen: () => false,
+    implementationState: "placeholder",
+    authProtection: "not_exposed",
+  },
+  {
     id: "world_id",
     name: "World ID",
     category: "proof_of_personhood",

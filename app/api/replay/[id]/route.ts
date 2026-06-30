@@ -9,12 +9,16 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
   const { id } = await context.params;
   if (!validReference(id)) return apiError("Invalid replay reference.", 400);
 
-  const { data: replay } = await auth.supabase
+  const { data: replay, error: replayError } = await auth.supabase
     .from("trust_replay_sessions")
     .select("id,subject_type,subject_id,replay_summary,generated_by,created_at")
     .eq("id", id)
     .maybeSingle();
+  if (replayError) return apiError("Replay lookup could not be completed.", 500);
   if (!replay) return apiError("Replay not found or access is not permitted.", 404);
+  if (!replay.subject_id) {
+    return apiError("Replay has no workflow subject reference.", 409);
+  }
 
   try {
     const trust = await loadWorkflowTrust(auth.supabase, String(replay.subject_id), replay.subject_type ?? undefined);

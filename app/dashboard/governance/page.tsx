@@ -45,7 +45,7 @@ async function createPolicy(formData: FormData) {
 
   if (!name || !triggerType) redirect("/dashboard/governance?policy_error=missing_fields");
 
-  await supabase.from("governance_policies").insert({
+  const { error } = await supabase.from("governance_policies").insert({
     workspace_id: workspaceId,
     name,
     description,
@@ -54,6 +54,7 @@ async function createPolicy(formData: FormData) {
     action_type: actionType,
     requires_human_review: true,
   });
+  if (error) redirect("/dashboard/governance?policy_error=write_failed");
 
   redirect("/dashboard/governance");
 }
@@ -77,7 +78,7 @@ async function updateAction(formData: FormData) {
     redirect("/dashboard/governance?action_error=invalid_status");
   }
 
-  await supabase
+  const { error } = await supabase
     .from("governance_actions")
     .update({
       action_status: status,
@@ -101,6 +102,7 @@ async function updateAction(formData: FormData) {
         : null,
     })
     .eq("id", actionId);
+  if (error) redirect("/dashboard/governance?action_error=write_failed");
 
   redirect("/dashboard/governance");
 }

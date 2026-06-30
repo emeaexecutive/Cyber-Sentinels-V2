@@ -13,6 +13,7 @@ import type {
 type JsonRecord = Record<string, unknown>;
 
 const providerNames: Record<VerificationProviderId, string> = {
+  external_unattributed: "External verification source",
   world_id: "World ID",
   stripe_identity: "Stripe Identity",
   persona: "Persona",
@@ -92,7 +93,7 @@ function providerId(value: unknown): VerificationProviderId {
   const candidate = String(value ?? "");
   return candidate in providerNames
     ? (candidate as VerificationProviderId)
-    : "hopae_connect";
+    : "external_unattributed";
 }
 
 export function normalizeProviderSignal(input: ProviderSignalInput): VerificationProviderSignal {
