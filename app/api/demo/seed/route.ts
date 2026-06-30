@@ -34,7 +34,7 @@ export async function POST() {
       {
         ok: false,
         error:
-          "Demo data seeding is disabled. Set ENABLE_DEMO_SEED=true only in local or private beta environments.",
+          "Demo data seeding is disabled. Set ENABLE_DEMO_SEED=true only in local or controlled test environments.",
       },
       { status: 403 },
     );

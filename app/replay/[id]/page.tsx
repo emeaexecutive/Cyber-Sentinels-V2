@@ -300,13 +300,14 @@ export default async function VerificationReplayPage({
           </div>
         </section>
 
-        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
           {[
             ["Verification completed", completed ? "Recorded" : "Pending"],
             ["Review completed", reviewCompleted ? "Recorded" : "Pending"],
             ["Replay available", "Available"],
             ["Receipt generated", receipts?.length ? "Available" : "Pending"],
             ["Evidence retained", evidenceChains?.length ? "Retained" : "Pending"],
+            ["Final trust state", latestRecordedState],
           ].map(([title, state]) => (
             <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>

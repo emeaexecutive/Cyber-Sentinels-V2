@@ -7,7 +7,7 @@ export function PrivateBetaBadge({ className = "" }: { className?: string }) {
     <span
       className={`inline-flex rounded-full border border-cyan-800 bg-cyan-950/20 px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-cyan-100 ${className}`}
     >
-      Private Beta
+      Controlled Preview
     </span>
   );
 }

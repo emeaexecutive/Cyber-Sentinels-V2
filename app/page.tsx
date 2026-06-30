@@ -38,8 +38,7 @@ export default function Home() {
             Operational trust for intelligent systems.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 md:text-xl md:leading-9">
-            Understand identity, authenticity and trust across enterprise workflows through
-            provider-backed verification, replayable evidence and governance continuity.
+            Understand identity, authenticity and trust across every workflow.
           </p>
         </div>
 

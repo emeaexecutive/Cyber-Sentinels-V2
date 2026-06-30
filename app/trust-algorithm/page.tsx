@@ -51,6 +51,16 @@ const examples = [
   "This subject requires human review because evidence, provenance or governance context is missing.",
 ];
 
+const engineDimensions = [
+  ["Identity", "Provider-backed identity evidence and declared verification state."],
+  ["Session integrity", "Continuity, channel and injection-risk context."],
+  ["Evidence", "Completeness, provenance and retained references."],
+  ["Authorization", "Access lineage, delegated authority and workflow scope."],
+  ["Behavior", "Explainable consistency signals over the authorized workflow."],
+  ["Governance", "Review status, named intervention and resolution context."],
+  ["Risk signals", "Operational flags that route review without becoming accusations."],
+];
+
 function formatDate(value: string | null) {
   if (!value) return "Not recorded";
   const date = new Date(value);
@@ -107,6 +117,22 @@ export default async function TrustAlgorithmPage() {
             reviewer actions, escalation patterns and trust history. No
             black-box AI decisioning is used.
           </p>
+        </section>
+
+        <section className="mt-8">
+          <h2 className="text-2xl font-semibold">Visible trust dimensions</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            Each dimension remains separately explainable. The engine combines
+            rules and provider evidence; it does not produce identity certainty.
+          </p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {engineDimensions.map(([title, copy]) => (
+              <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
+                <h3 className="font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-3">

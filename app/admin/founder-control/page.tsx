@@ -397,7 +397,7 @@ export default async function FounderControlPage() {
             <div>
               <h1 className="text-4xl font-semibold">Founder Control Room</h1>
               <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-400">
-                A calm founder-facing control room for private beta monitoring,
+                A calm founder-facing control room for controlled rollout monitoring,
                 design-partner learning and operational readiness.
               </p>
             </div>

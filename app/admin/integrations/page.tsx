@@ -2,6 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { getIntegrationRegistry, type IntegrationRegistryItem } from "@/lib/integrations/registry";
+import {
+  getVerificationProviderRegistry,
+  type VerificationProviderDefinition,
+} from "@/lib/providers";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { createClient } from "@/lib/supabase/server";
 
@@ -51,6 +55,20 @@ function statusClass(status: string) {
   }
 
   return "border-amber-800 bg-amber-950/20 text-amber-200";
+}
+
+function providerRuntimeState(provider: VerificationProviderDefinition) {
+  if (provider.usesMockData) return "simulated";
+  if (
+    provider.implementationState === "placeholder" ||
+    provider.implementationState === "configured_unverified"
+  ) {
+    return "placeholder";
+  }
+  if (provider.implementationState === "active" && provider.status === "configured") {
+    return "real";
+  }
+  return "disabled";
 }
 
 function riskClass(risk: string) {
@@ -159,6 +177,7 @@ export default async function AdminIntegrationsPage() {
   await requireAdminPageAccess(supabase, { path: "/admin/integrations" });
 
   const registry = getIntegrationRegistry();
+  const verificationProviders = getVerificationProviderRegistry();
   const insertedRows = await persistIntegrationSnapshot(registry);
   const recentRows = insertedRows.length ? insertedRows : await readRecentIntegrationRows();
   const hopaeVerifications = await readRecentHopaeVerifications();
@@ -259,6 +278,62 @@ export default async function AdminIntegrationsPage() {
               </p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">
+            Verification Provider Status
+          </p>
+          <h2 className="mt-2 text-xl font-semibold">Runtime state and credential readiness</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
+            “Real” means a supported code path is enabled and configured. It is
+            not a provider health, identity-certainty or accuracy claim. Secret
+            values are never displayed.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2 text-xs text-zinc-400">
+            {[
+              ["Real", "enabled supported path"],
+              ["Placeholder", "adapter is not validated for live use"],
+              ["Missing credentials", "required environment names are absent"],
+              ["Simulated", "controlled test data only"],
+              ["Disabled", "fails safely without provider evidence"],
+            ].map(([state, meaning]) => (
+              <span key={state} className="rounded-full border border-zinc-700 px-3 py-1.5">
+                <span className="font-semibold text-zinc-200">{state}:</span> {meaning}
+              </span>
+            ))}
+          </div>
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            {verificationProviders.map((provider) => {
+              const runtimeState = providerRuntimeState(provider);
+              return (
+                <article key={provider.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-semibold text-zinc-100">{provider.name}</h3>
+                      <p className="mt-1 text-xs capitalize text-zinc-600">
+                        {provider.category.replaceAll("_", " ")}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap justify-end gap-2">
+                      <span className={`rounded-full border px-2.5 py-1 text-xs capitalize ${statusClass(runtimeState === "real" ? "configured" : runtimeState === "disabled" ? "disabled" : "missing")}`}>
+                        {runtimeState}
+                      </span>
+                      <span className={`rounded-full border px-2.5 py-1 text-xs ${provider.missingEnv.length ? "border-amber-800 text-amber-200" : "border-emerald-800 text-emerald-200"}`}>
+                        {provider.missingEnv.length ? "Missing credentials" : "Credentials present"}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-zinc-400">{provider.notes}</p>
+                  <div className="mt-3 grid gap-1 text-xs text-zinc-600">
+                    <p>Missing environment names: {provider.missingEnv.join(", ") || "None"}</p>
+                    <p>Replay: {provider.replayIntegration.replaceAll("_", " ")}</p>
+                    <p>Receipts: {provider.receiptIntegration.replaceAll("_", " ")}</p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">

@@ -96,7 +96,7 @@ export default async function LaunchConsolePage() {
 
         <section className="mt-10">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            V1 private beta readiness
+            V1 launch readiness
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
             Launch Console&trade;
@@ -105,7 +105,7 @@ export default async function LaunchConsolePage() {
             Private beta readiness for the Cyber Sentinels trust layer.
           </p>
           <p className="mt-4 max-w-4xl leading-8 text-zinc-300">
-            Cyber Sentinels V1 is a private beta trust operations layer. It
+            Cyber Sentinels V1 is a controlled trust operations release. It
             combines Trust Passports, Human Presence, Origin Trace, Evidence,
             Policy, Decisions, Audit and Public Verification.
           </p>
@@ -211,7 +211,7 @@ export default async function LaunchConsolePage() {
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
           <Checklist
-            title="Private Beta Checklist"
+            title="Controlled Launch Checklist"
             items={readiness.privateBetaChecklist}
           />
           <Checklist title="Security Checklist" items={readiness.securityChecklist} />

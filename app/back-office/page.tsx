@@ -1222,7 +1222,7 @@ export default async function BackOfficePage({
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">
-                Private Beta
+                Controlled Rollout
               </p>
               <h2 className="mt-2 text-xl font-semibold">
                 Design Partner Learning Panel
