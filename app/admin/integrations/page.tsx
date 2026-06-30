@@ -42,11 +42,11 @@ function formatDate(value?: string | null) {
 }
 
 function statusClass(status: string) {
-  if (status === "configured") {
+  if (status === "configured" || status === "Live") {
     return "border-emerald-800 bg-emerald-950/20 text-emerald-200";
   }
 
-  if (status === "disabled") {
+  if (status === "disabled" || status === "Disabled") {
     return "border-zinc-700 bg-zinc-950 text-zinc-300";
   }
 
@@ -58,17 +58,12 @@ function statusClass(status: string) {
 }
 
 function providerRuntimeState(provider: VerificationProviderDefinition) {
-  if (provider.usesMockData) return "simulated";
-  if (
-    provider.implementationState === "placeholder" ||
-    provider.implementationState === "configured_unverified"
-  ) {
-    return "placeholder";
-  }
+  if (provider.usesMockData) return "Simulated";
   if (provider.implementationState === "active" && provider.status === "configured") {
-    return "real";
+    return "Live";
   }
-  return "disabled";
+  if (provider.missingEnv.length) return "Awaiting credentials";
+  return "Disabled";
 }
 
 function riskClass(risk: string) {
@@ -286,16 +281,15 @@ export default async function AdminIntegrationsPage() {
           </p>
           <h2 className="mt-2 text-xl font-semibold">Runtime state and credential readiness</h2>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
-            “Real” means a supported code path is enabled and configured. It is
+            “Live” means a supported code path is enabled and configured. It is
             not a provider health, identity-certainty or accuracy claim. Secret
             values are never displayed.
           </p>
           <div className="mt-4 flex flex-wrap gap-2 text-xs text-zinc-400">
             {[
-              ["Real", "enabled supported path"],
-              ["Placeholder", "adapter is not validated for live use"],
-              ["Missing credentials", "required environment names are absent"],
+              ["Live", "enabled supported path"],
               ["Simulated", "controlled test data only"],
+              ["Awaiting credentials", "required environment names are absent"],
               ["Disabled", "fails safely without provider evidence"],
             ].map(([state, meaning]) => (
               <span key={state} className="rounded-full border border-zinc-700 px-3 py-1.5">
@@ -316,7 +310,7 @@ export default async function AdminIntegrationsPage() {
                       </p>
                     </div>
                     <div className="flex flex-wrap justify-end gap-2">
-                      <span className={`rounded-full border px-2.5 py-1 text-xs capitalize ${statusClass(runtimeState === "real" ? "configured" : runtimeState === "disabled" ? "disabled" : "missing")}`}>
+                      <span className={`rounded-full border px-2.5 py-1 text-xs ${statusClass(runtimeState)}`}>
                         {runtimeState}
                       </span>
                       <span className={`rounded-full border px-2.5 py-1 text-xs ${provider.missingEnv.length ? "border-amber-800 text-amber-200" : "border-emerald-800 text-emerald-200"}`}>

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PrivateBetaNotice } from "@/components/private-beta";
 
 const risks = [
   ["Synthetic applicants", "Generated profiles and incomplete verification evidence can enter hiring workflows that were built for a more verifiable world."],
@@ -11,8 +10,8 @@ const risks = [
 const proofLinks = [
   ["/demo/hiring-attack", "Hiring Security", "Understand the fake-candidate workflow in one sequence."],
   ["/demo/session-integrity", "Session Integrity Demo", "See how trust changes after verification begins."],
-  ["/trust-replay", "Replay Evidence", "Open generated /replay/[id] records after demo data is seeded."],
-  ["/dashboard", "Verification Receipts", "Review generated /verification/receipt/[id] proof from the operational dashboard."],
+  ["/replay/demo", "Replay Evidence", "Inspect the controlled demonstration chronology."],
+  ["/verification/receipt/demo", "Verification Receipt", "Review the matching demonstration receipt."],
 ];
 
 const demoSequence = [
@@ -46,7 +45,6 @@ export default function DemoPage() {
             <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">Request Enterprise Access</Link>
             <Link href="/enterprise-access?intent=design_partner" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">Become a Design Partner</Link>
           </div>
-          <PrivateBetaNotice className="mt-6 max-w-3xl" />
         </section>
 
         <section className="mt-8 grid gap-5 md:grid-cols-2">

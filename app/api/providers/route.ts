@@ -5,15 +5,12 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 function runtimeState(provider: ReturnType<typeof getVerificationProviderRegistry>[number]) {
-  if (provider.usesMockData) return "simulated";
-  if (
-    provider.implementationState === "placeholder" ||
-    provider.implementationState === "configured_unverified"
-  ) return "placeholder";
+  if (provider.usesMockData) return "Simulated";
   if (provider.implementationState === "active" && provider.status === "configured") {
-    return "real";
+    return "Live";
   }
-  return "disabled";
+  if (provider.missingEnv.length) return "Awaiting credentials";
+  return "Disabled";
 }
 
 export async function GET() {
@@ -33,7 +30,7 @@ export async function GET() {
     generatedAt: new Date().toISOString(),
     ok: true,
     statusMeaning:
-      "Active means code paths are connected and configuration is present; it is not a live health or accuracy claim.",
+      "Live means a supported code path is enabled and configured; it is not a provider health or accuracy claim.",
     providers: getVerificationProviderRegistry().map((provider) => ({
       id: provider.id,
       name: provider.name,

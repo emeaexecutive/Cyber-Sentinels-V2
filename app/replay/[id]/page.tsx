@@ -75,12 +75,126 @@ function stageForEvent(event: Row): TrustJourneyStage {
   return "identity_submitted";
 }
 
+function DemoReplay() {
+  const events = [
+    {
+      time: "10:00",
+      title: "Candidate verification opened",
+      change: "Trust Posture moved from unknown to review required.",
+      evidence: "Synthetic candidate profile and consented demo workflow record.",
+      reviewer: "Workflow owner",
+      state: "Review required",
+    },
+    {
+      time: "10:03",
+      title: "Provider evidence attached",
+      change: "A simulated provider signal was added; no live verification is claimed.",
+      evidence: "Controlled provider-response fixture marked simulated.",
+      reviewer: "System chronology",
+      state: "Evidence pending review",
+    },
+    {
+      time: "10:06",
+      title: "Session Integrity changed",
+      change: "A controlled injected-session anomaly lowered workflow trust.",
+      evidence: "Simulated channel discontinuity and session-risk event.",
+      reviewer: "Session integrity reviewer",
+      state: "Elevated review",
+    },
+    {
+      time: "10:09",
+      title: "Governance Review completed",
+      change: "Workflow progression was restricted pending stronger evidence.",
+      evidence: "Evidence Chain, provider fixture and Session Integrity chronology.",
+      reviewer: "Morgan Lee · Trust Operations",
+      state: "Restricted",
+    },
+  ];
+
+  return (
+    <main className="min-h-screen bg-[#04070c] px-5 py-10 text-white sm:px-6 md:px-8">
+      <div className="mx-auto max-w-6xl">
+        <nav className="flex flex-wrap gap-3 text-sm">
+          <Link href="/demo" className="text-zinc-300 hover:text-white">Demo overview</Link>
+          <Link href="/enterprise/hiring-security" className="text-zinc-300 hover:text-white">Hiring Security</Link>
+          <Link href="/verification/receipt/demo" className="text-cyan-200">Open demo receipt</Link>
+        </nav>
+
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
+            Controlled demonstration · simulated evidence
+          </p>
+          <h1 className="mt-3 text-4xl font-semibold md:text-5xl">Hiring workflow replay</h1>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            A read-only chronology showing what happened, what changed, which evidence
+            existed, who reviewed it and the Trust Posture at each moment.
+          </p>
+        </section>
+
+        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["Final Trust Posture", "Restricted"],
+            ["Evidence Chain", "3 demo records"],
+            ["Governance Review", "Completed"],
+            ["Provider Status", "Simulated"],
+          ].map(([title, value]) => (
+            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>
+              <p className="mt-2 text-lg font-semibold text-zinc-100">{value}</p>
+            </article>
+          ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <h2 className="text-xl font-semibold">Replay Timeline</h2>
+          <div className="mt-5 grid gap-4">
+            {events.map((event) => (
+              <article key={event.time} className="grid gap-4 rounded-lg border border-zinc-800 bg-black p-4 md:grid-cols-[90px_1fr]">
+                <div>
+                  <p className="font-mono text-sm font-semibold text-cyan-200">{event.time}</p>
+                  <p className="mt-2 text-xs text-zinc-500">30 Jun 2026</p>
+                </div>
+                <div>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <h3 className="font-semibold text-zinc-100">{event.title}</h3>
+                    <span className="rounded-full border border-amber-800 px-2.5 py-1 text-xs text-amber-100">
+                      {event.state}
+                    </span>
+                  </div>
+                  <dl className="mt-4 grid gap-3 text-sm md:grid-cols-3">
+                    <div><dt className="text-zinc-400">What changed</dt><dd className="mt-1 leading-6 text-zinc-200">{event.change}</dd></div>
+                    <div><dt className="text-zinc-400">Evidence available</dt><dd className="mt-1 leading-6 text-zinc-200">{event.evidence}</dd></div>
+                    <div><dt className="text-zinc-400">Reviewer</dt><dd className="mt-1 leading-6 text-zinc-200">{event.reviewer}</dd></div>
+                  </dl>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-zinc-800 bg-black p-5">
+          <p className="max-w-3xl text-sm leading-6 text-zinc-300">
+            This demonstration uses synthetic records. It shows workflow behavior,
+            not provider accuracy, biometric certainty or an autonomous fraud verdict.
+          </p>
+          <Link href="/verification/receipt/demo" className="brand-primary-action">
+            View Verification Receipt
+          </Link>
+        </section>
+      </div>
+    </main>
+  );
+}
+
 export default async function VerificationReplayPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  if (id === "demo") {
+    return <DemoReplay />;
+  }
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/login?next=/replay/${encodeURIComponent(id)}`);

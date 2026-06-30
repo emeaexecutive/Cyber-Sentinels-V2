@@ -63,12 +63,88 @@ function stateFromText(value: unknown): TrustJourneyState {
   return "verified";
 }
 
+function DemoReceipt() {
+  return (
+    <main className="min-h-screen bg-[#04070c] px-5 py-10 text-white sm:px-6 md:px-8">
+      <div className="mx-auto max-w-5xl">
+        <nav className="flex flex-wrap gap-3 text-sm print:hidden">
+          <Link href="/demo" className="text-zinc-300 hover:text-white">Demo overview</Link>
+          <Link href="/replay/demo" className="text-cyan-200">Open Replay Timeline</Link>
+          <Link href="/enterprise/hiring-security" className="text-zinc-300 hover:text-white">Hiring Security</Link>
+        </nav>
+
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
+                Controlled demonstration · simulated evidence
+              </p>
+              <h1 className="mt-3 text-4xl font-semibold md:text-5xl">Verification Receipt</h1>
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+                A portable summary of the evidence, governance action and workflow
+                state retained for this synthetic hiring scenario.
+              </p>
+            </div>
+            <StatusBadge status="restricted" />
+          </div>
+        </section>
+
+        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["Receipt ID", "DEMO-RECEIPT-001"],
+            ["Issued", "30 Jun 2026 · 10:10"],
+            ["Trust Posture", "Restricted"],
+            ["Evidence Source", "Simulated"],
+          ].map(([title, value]) => (
+            <DetailRow key={title} label={title} value={value} />
+          ))}
+        </section>
+
+        <section className="mt-8 grid gap-5 lg:grid-cols-2">
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Evidence Chain</h2>
+            <ul className="mt-4 grid gap-3 text-sm leading-6 text-zinc-200">
+              <li className="rounded-lg border border-zinc-800 bg-black p-4">Synthetic candidate profile and consented workflow record.</li>
+              <li className="rounded-lg border border-zinc-800 bg-black p-4">Simulated provider-response fixture, explicitly not live.</li>
+              <li className="rounded-lg border border-zinc-800 bg-black p-4">Controlled Session Integrity anomaly and Replay Timeline.</li>
+            </ul>
+          </article>
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Governance Review</h2>
+            <dl className="mt-4 grid gap-3">
+              <DetailRow label="Reviewer" value="Morgan Lee · Trust Operations" />
+              <DetailRow label="Decision" value="Restrict workflow progression" />
+              <DetailRow label="Rationale" value="Session continuity changed after intake; stronger evidence is required before progression." />
+            </dl>
+          </article>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
+          <h2 className="text-xl font-semibold">Receipt boundary</h2>
+          <p className="mt-3 text-sm leading-7 text-zinc-300">
+            This demonstration receipt proves that a controlled workflow record was
+            retained and reviewed. It does not prove identity, guarantee authenticity,
+            establish biometric certainty or report live provider performance.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3 print:hidden">
+            <Link href="/replay/demo" className="brand-primary-action">Review Replay Timeline</Link>
+            <Link href="/enterprise-access" className="brand-secondary-action">Request Enterprise Access</Link>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
 export default async function TrustReceiptPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  if (id === "demo") {
+    return <DemoReceipt />;
+  }
   const supabase = await createClient();
   const {
     data: { user },
