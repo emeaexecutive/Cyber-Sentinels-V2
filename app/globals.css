@@ -42,10 +42,10 @@ p {
   width: fit-content;
   white-space: nowrap;
   color: #cffafe;
-  font-size: clamp(0.875rem, 1.3vw, 1rem);
-  font-weight: 750;
+  font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
 }
 

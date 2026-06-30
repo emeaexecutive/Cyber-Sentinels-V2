@@ -7,6 +7,12 @@ function stateClass(state: string) {
   return "border-zinc-700 text-zinc-300";
 }
 
+function sourceLabel(sourceType: VerificationProviderSignal["sourceType"]) {
+  if (sourceType === "provider_signal") return "Provider-backed verification signal";
+  if (sourceType === "placeholder") return "Placeholder provider signal";
+  return "Workflow evidence context";
+}
+
 export function ProviderEvidencePanel({
   signals,
   title = "Provider-backed verification signal",
@@ -34,12 +40,12 @@ export function ProviderEvidencePanel({
       </div>
 
       <div className="mt-5 grid gap-3 md:grid-cols-2">
-        {signals.map((signal) => (
+        {signals.length ? signals.map((signal) => (
           <article key={`${signal.providerId}-${signal.providerName}`} className="rounded-lg border border-zinc-800 bg-black p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">
-                  Provider-backed verification signal
+                  {sourceLabel(signal.sourceType)}
                 </p>
                 <h3 className="mt-2 font-semibold text-zinc-100">
                   {signal.providerName}
@@ -96,7 +102,13 @@ export function ProviderEvidencePanel({
               )}
             </div>
           </article>
-        ))}
+        )) : (
+          <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm leading-6 text-zinc-400 md:col-span-2">
+            No provider-backed verification evidence is attached to this workflow
+            window. Replay does not infer a live provider result from workflow
+            activity alone.
+          </p>
+        )}
       </div>
     </section>
   );

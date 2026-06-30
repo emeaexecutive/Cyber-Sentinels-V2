@@ -27,6 +27,7 @@ type TrustReplayPageProps = {
     subject_id?: string;
     as_of?: string;
     replay_saved?: string;
+    replay_error?: string;
   }>;
 };
 
@@ -47,7 +48,10 @@ async function fetchRows(
     .limit(limit)
     .returns<ReplayRow[]>();
 
-  return error ? [] : data ?? [];
+  return {
+    rows: error ? [] : data ?? [],
+    unavailable: Boolean(error),
+  };
 }
 
 async function createReplaySession(formData: FormData) {
@@ -62,12 +66,18 @@ async function createReplaySession(formData: FormData) {
     redirect("/login?next=/trust-replay");
   }
 
-  const subjectType = String(formData.get("subject_type") ?? "workflow");
+  const requestedSubjectType = String(formData.get("subject_type") ?? "workflow");
+  const subjectType = supportedSubjectTypes.includes(requestedSubjectType)
+    ? requestedSubjectType
+    : "workflow";
   const subjectId = String(formData.get("subject_id") ?? "").trim() || null;
-  const asOf = String(formData.get("as_of") ?? replayDefaultAsOf());
+  const requestedAsOf = String(formData.get("as_of") ?? replayDefaultAsOf());
+  const asOf = Number.isNaN(new Date(requestedAsOf).getTime())
+    ? replayDefaultAsOf()
+    : new Date(requestedAsOf).toISOString();
   const replaySummary = String(formData.get("replay_summary") ?? "").trim();
 
-  await supabase.from("trust_replay_sessions").insert({
+  const { error } = await supabase.from("trust_replay_sessions").insert({
     subject_type: subjectType === "all" ? "workflow" : subjectType,
     subject_id: subjectId,
     replay_summary:
@@ -79,10 +89,10 @@ async function createReplaySession(formData: FormData) {
   const params = new URLSearchParams({
     subject_type: subjectType,
     as_of: asOf,
-    replay_saved: "1",
   });
 
   if (subjectId) params.set("subject_id", subjectId);
+  params.set(error ? "replay_error" : "replay_saved", "1");
 
   redirect(`/trust-replay?${params.toString()}`);
 }
@@ -213,15 +223,15 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
     : replayDefaultAsOf();
 
   const [
-    timelineRows,
-    evidence,
-    signals,
-    decisions,
-    auditLogs,
-    relationships,
-    sessionIntegrity,
-    riskEvents,
-    sessions,
+    timelineResult,
+    evidenceResult,
+    signalResult,
+    decisionResult,
+    auditResult,
+    relationshipResult,
+    sessionIntegrityResult,
+    riskEventResult,
+    replaySessionResult,
   ] = await Promise.all([
     fetchRows(supabase, "trust_timeline_events", "*", 200),
     fetchRows(supabase, "evidence_files", "*", 120),
@@ -231,8 +241,29 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
     fetchRows(supabase, "trust_relationships", "*", 120),
     fetchRows(supabase, "session_integrity_checks", "*", 120),
     fetchRows(supabase, "interview_risk_events", "*", 120),
-    fetchRows(supabase, "trust_replay_sessions", "*", 20) as Promise<ReplaySession[]>,
+    fetchRows(supabase, "trust_replay_sessions", "*", 20),
   ]);
+  const timelineRows = timelineResult.rows;
+  const evidence = evidenceResult.rows;
+  const signals = signalResult.rows;
+  const decisions = decisionResult.rows;
+  const auditLogs = auditResult.rows;
+  const relationships = relationshipResult.rows;
+  const sessionIntegrity = sessionIntegrityResult.rows;
+  const riskEvents = riskEventResult.rows;
+  const sessions = replaySessionResult.rows as ReplaySession[];
+  const unavailableSources = [
+    ["Replay Timeline", timelineResult.unavailable],
+    ["Evidence Chain", evidenceResult.unavailable],
+    ["Signals", signalResult.unavailable],
+    ["Governance Review", decisionResult.unavailable],
+    ["Audit History", auditResult.unavailable],
+    ["Authorization Lineage", relationshipResult.unavailable],
+    ["Session Integrity", sessionIntegrityResult.unavailable || riskEventResult.unavailable],
+    ["Replay Sessions", replaySessionResult.unavailable],
+  ]
+    .filter(([, unavailable]) => unavailable)
+    .map(([label]) => label);
   const aiSummaries = auditLogs.filter((row) =>
     ["ai_summary_generated", "governance_recommendation_created", "anomaly_review_recommended"].includes(
       String(row.event_type ?? "")
@@ -251,18 +282,12 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
     aiSummaries,
     timelineEvents,
   });
-  const providerSignals = buildWorkflowProviderSignals({
-    providerVerificationState: "pending",
-    identityConfidence: snapshot.evidence.length ? 68 : 45,
-    sessionIntegrity: sessionIntegrity.length || riskEvents.length ? 62 : 55,
-    riskFlags: riskEvents.length ? ["session_integrity_anomaly"] : [],
-    evidenceReferences: [
-      "Replay summary",
-      "Timeline reconstruction",
-      "Evidence chain",
-      "Governance actions",
-    ],
-  });
+  const providerEvidence = snapshot.evidence
+    .map((row) => rowMetadata(row))
+    .find((metadata) => Array.isArray(metadata.provider_signals));
+  const providerSignals = providerEvidence
+    ? buildWorkflowProviderSignals({ evidenceSnapshot: providerEvidence })
+    : [];
   const replayValidationRows = [
     ["What triggered", riskEvents.length ? "Session integrity or interview risk event" : signals.length ? "Workflow signal" : "No active trigger in this replay window"],
     ["Why it triggered", riskEvents[0]?.risk_reason ?? signals[0]?.event ?? "Replay is showing available workflow evidence without an active risk trigger."],
@@ -375,6 +400,19 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             Replay session saved to operational memory.
           </div>
         ) : null}
+        {query.replay_error ? (
+          <div className="mt-6 rounded-lg border border-red-900 bg-red-950/20 p-4 text-sm text-red-100">
+            Replay could not be saved. The underlying evidence was not changed.
+            Retry after confirming the operational connection is available.
+          </div>
+        ) : null}
+        {unavailableSources.length ? (
+          <div className="mt-6 rounded-lg border border-amber-900 bg-amber-950/20 p-4 text-sm leading-6 text-amber-100">
+            Replay is incomplete because these sources could not be loaded:{" "}
+            {unavailableSources.join(", ")}. Empty counts must not be treated as
+            confirmed absence.
+          </div>
+        ) : null}
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
           <form className="grid gap-4 md:grid-cols-[1fr_2fr_2fr_auto]" action="/trust-replay">
@@ -416,17 +454,17 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
           </form>
         </section>
 
-        <section className="mt-8 grid gap-3 md:grid-cols-5">
+        <section aria-label="Replay operational snapshot" className="mt-8 grid gap-3 md:grid-cols-5">
           {[
-            ["Evidence", snapshot.evidence.length],
-            ["Decisions", snapshot.decisions.length],
-            ["Signals", snapshot.signals.length],
-            ["Relationships", snapshot.relationships.length],
-            ["Session Events", sessionIntegrity.length + riskEvents.length],
+            ["Trust Posture", snapshot.posture.label],
+            ["Evidence Chain", snapshot.evidence.length],
+            ["Governance Review", snapshot.decisions.length],
+            ["Authorization Lineage", snapshot.relationships.length],
+            ["Session Integrity", sessionIntegrity.length + riskEvents.length],
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-sm text-zinc-500">{label}</p>
-              <p className="mt-2 text-3xl font-semibold text-zinc-100">{value}</p>
+              <p className="mt-2 text-xl font-semibold text-zinc-100">{value}</p>
             </div>
           ))}
         </section>
