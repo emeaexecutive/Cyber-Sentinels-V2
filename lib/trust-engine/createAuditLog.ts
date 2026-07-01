@@ -11,6 +11,7 @@ export async function createAuditLog(
   const result = await supabase.from("audit_logs").insert({
     event_type: eventType,
     actor,
+    owner_email: actor.includes("@") ? actor : null,
     metadata: {
       ...metadata,
       actor,

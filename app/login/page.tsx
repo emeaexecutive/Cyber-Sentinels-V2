@@ -26,6 +26,9 @@ const primaryAuthModes: { id: Extract<AuthMode, "sign-in" | "create-account">; l
 declare global {
   interface Window {
     onCyberSentinelsLoginTurnstile?: (token: string) => void;
+    turnstile?: {
+      reset: () => void;
+    };
   }
 }
 
@@ -182,6 +185,39 @@ export default function LoginPage() {
     return true;
   }
 
+  async function verifyTurnstileForAuth() {
+    if (!turnstileSiteKey) return true;
+
+    try {
+      const response = await fetch("/api/auth/turnstile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ turnstileToken }),
+      });
+      const result = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+      };
+
+      setTurnstileToken("");
+      window.turnstile?.reset();
+
+      if (!response.ok || !result.ok) {
+        setMessage(
+          response.status === 429
+            ? "Too many security checks. Please wait and try again."
+            : result.error || "Security check failed. Please try again."
+        );
+        return false;
+      }
+
+      return true;
+    } catch {
+      setMessage("Security check is temporarily unavailable.");
+      return false;
+    }
+  }
+
   function getSupabaseClient() {
     try {
       return createClient();
@@ -209,6 +245,11 @@ export default function LoginPage() {
 
     setMessage("");
     setLoadingAction("password");
+
+    if (!(await verifyTurnstileForAuth())) {
+      setLoadingAction(null);
+      return;
+    }
 
     const supabase = getSupabaseClient();
 
@@ -263,6 +304,11 @@ export default function LoginPage() {
     setMessage("");
     setLoadingAction("create-account");
 
+    if (!(await verifyTurnstileForAuth())) {
+      setLoadingAction(null);
+      return;
+    }
+
     const supabase = getSupabaseClient();
 
     if (!supabase) {
@@ -310,6 +356,11 @@ export default function LoginPage() {
 
     setMessage("");
     setLoadingAction("create-account");
+
+    if (!(await verifyTurnstileForAuth())) {
+      setLoadingAction(null);
+      return;
+    }
 
     const supabase = getSupabaseClient();
 
@@ -360,6 +411,11 @@ export default function LoginPage() {
     setMessage("");
     setLoadingAction("magic-link");
 
+    if (!(await verifyTurnstileForAuth())) {
+      setLoadingAction(null);
+      return;
+    }
+
     const supabase = getSupabaseClient();
 
     if (!supabase) {
@@ -405,6 +461,11 @@ export default function LoginPage() {
 
     setMessage("");
     setLoadingAction("reset");
+
+    if (!(await verifyTurnstileForAuth())) {
+      setLoadingAction(null);
+      return;
+    }
 
     const supabase = getSupabaseClient();
 

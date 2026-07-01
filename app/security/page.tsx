@@ -13,7 +13,7 @@ export default function SecurityPage() {
         },
         {
           title: "Row Level Security",
-          body: "Operational Supabase tables should use RLS policies and authenticated grants so direct data access is scoped to signed-in users and authorized workflows.",
+          body: "Operational Supabase tables use RLS policies and authenticated grants so direct data access is scoped to record owners and authorized workflows.",
         },
         {
           title: "Private Evidence Storage",

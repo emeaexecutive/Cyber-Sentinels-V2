@@ -83,6 +83,9 @@ function matchesPrefix(pathname: string, prefixes: string[]) {
 }
 
 function isProtectedUserPath(pathname: string) {
+  if (pathname === "/trust") {
+    return false;
+  }
   return matchesPrefix(pathname, userPagePrefixes);
 }
 

@@ -108,6 +108,7 @@ async function handleCandidateVerification(req: Request) {
   const { data: report, error } = await supabase
     .from("trust_reports")
     .insert({
+      owner_email: user.email ?? null,
       candidate_name: candidateName,
       report_type: "candidate",
       media_type: "video",

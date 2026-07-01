@@ -280,6 +280,7 @@ export async function POST(req: Request) {
     const { data: passport, error } = await supabase
       .from("passports")
       .insert({
+        owner_email: userEmail,
         user_email: userEmail,
         subject_name: subjectName,
         subject_type: subjectType,
@@ -385,6 +386,7 @@ export async function POST(req: Request) {
       await supabase
         .from("verification_cases")
         .insert({
+          owner_email: userEmail,
           passport_id: passport.id,
           subject_name: subjectName,
           subject_type: subjectType,

@@ -21,12 +21,25 @@ Cyber Sentinels requires explicit environment configuration for Vercel and Supab
 
 ## Production
 
+The canonical production origin is:
+
+- `https://www.cybersentinels.com`
+
+Set both public URL variables to that exact HTTPS origin without a trailing
+slash:
+
+- `NEXT_PUBLIC_SITE_URL=https://www.cybersentinels.com`
+- `NEXT_PUBLIC_APP_URL=https://www.cybersentinels.com`
+
 Set all required variables in the Vercel Production environment:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_APP_URL`
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+- `TURNSTILE_SECRET_KEY`
 - `ADMIN_EMAILS`
 - `ADMIN_ACCESS_CODE`
 - `STRIPE_SECRET_KEY`
@@ -35,7 +48,11 @@ Set all required variables in the Vercel Production environment:
 
 Production Supabase configuration should include the production callback URL:
 
-- `${NEXT_PUBLIC_SITE_URL}/auth/callback`
+- `https://www.cybersentinels.com/auth/callback`
+
+Set the Supabase Site URL to `https://www.cybersentinels.com`. Keep preview
+callback origins separate and explicitly allowlisted; do not use a changing
+Vercel preview URL as the production Site URL.
 
 ## Preview
 

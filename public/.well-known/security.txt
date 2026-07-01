@@ -1,0 +1,6 @@
+Contact: mailto:security@cybersentinels.ai
+Contact: mailto:trust@cybersentinels.ai
+Canonical: https://www.cybersentinels.com/.well-known/security.txt
+Policy: https://www.cybersentinels.com/security
+Preferred-Languages: en
+Expires: 2027-07-01T00:00:00.000Z

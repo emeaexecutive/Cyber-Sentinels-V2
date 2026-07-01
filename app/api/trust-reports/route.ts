@@ -55,7 +55,8 @@ function getMissingColumn(error: unknown) {
 async function insertTrustReport(
   supabase: Awaited<ReturnType<typeof createClient>>,
   fullPayload: InsertPayload,
-  fallbackPayload: InsertPayload
+  fallbackPayload: InsertPayload,
+  ownerEmail: string
 ) {
   // Supabase schema must match this route for the extended insert. Private beta
   // deployments may lag migrations, so fall back to required/core fields.
@@ -96,6 +97,7 @@ async function insertTrustReport(
   const minimumInsert = await supabase
     .from("trust_reports")
     .insert({
+      owner_email: ownerEmail,
       candidate_name: fallbackPayload.candidate_name,
       profile_consistency: fallbackPayload.profile_consistency,
       synthetic_risk: fallbackPayload.synthetic_risk,
@@ -252,6 +254,7 @@ export async function POST(req: Request) {
     });
 
     const fullPayload = {
+      owner_email: user.email ?? user.id,
       candidate_name: candidateName,
       media_type: mediaType,
       human_presence_index: humanPresenceIndex,
@@ -282,6 +285,7 @@ export async function POST(req: Request) {
       ...requestRisk,
     };
     const fallbackPayload = {
+      owner_email: user.email ?? user.id,
       candidate_name: candidateName,
       profile_consistency: profileConsistency,
       synthetic_risk: syntheticRisk,
@@ -295,7 +299,8 @@ export async function POST(req: Request) {
     const { error } = await insertTrustReport(
       supabase,
       fullPayload,
-      fallbackPayload
+      fallbackPayload,
+      user.email ?? user.id
     );
 
     if (error) throw error;

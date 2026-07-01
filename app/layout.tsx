@@ -10,9 +10,13 @@ import { ReportIssue } from "@/components/report-issue";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.cybersentinels.com"),
   title: "Cyber Sentinels | Governed Trust Infrastructure",
   description:
     "Evidence-backed trust infrastructure for governed verification and operational transparency.",
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "32x32" },
@@ -44,6 +48,8 @@ const footerSections = [
     links: [
       ["/help", "Help"],
       ["/security", "Security & Trust"],
+      ["/trust", "Trust Center"],
+      ["/methodology", "Methodology"],
       ["/security#responsible-disclosure", "Responsible Disclosure"],
       ["/data-rights", "Data Rights"],
       ["/trust-principles", "Trust Principles"],
