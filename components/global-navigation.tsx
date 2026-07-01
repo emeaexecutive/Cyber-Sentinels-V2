@@ -12,75 +12,48 @@ export type NavigationAccessLevel =
 
 type CloseMenus = () => void;
 
-const publicLinks = [
+const publicFocusLinks = [
   ["/enterprise/hiring-security", "Hiring Security"],
-  ["/demo/session-integrity", "Session Integrity"],
-  ["/demo", "Demo"],
+  ["/trust", "Trust Center"],
 ];
 
-const pricingLink = [["/pricing", "Pricing"]];
-
-const adminLinks = [
-  ["/dashboard", "Dashboard"],
-  ["/dashboard/interview-risk", "Active Flags"],
-  ["/dashboard/access-governance", "Access Governance"],
-  ["/dashboard/network-risk", "Network Risk"],
-  ["/admin/benchmarking", "Benchmarking"],
-  ["/admin/support", "Support Queue"],
-  ["/admin/founder-control", "Founder Control"],
-];
-
-const userLinks = [
-  ["/dashboard", "Dashboard"],
-  ["/dashboard/interview-risk", "Active Flags"],
-  ["/dashboard/access-governance", "Access Governance"],
-  ["/dashboard/network-risk", "Network Risk"],
-  ["/dashboard/validation", "Validation"],
+const authenticatedFocusLinks = [
+  ["/enterprise/hiring-security", "Hiring Security"],
+  ["/trust-center", "Trust Center"],
 ];
 
 const platformDropdownLinks = [
-  ["/architecture", "Architecture"],
-  ["/trust/transparency", "Trust Transparency"],
-  ["/trust-center", "Operational Trust Center"],
-  ["/governance", "Governance"],
-  ["/enterprise/hiring-security", "Workflow Trust"],
-  ["/verification-replay", "Verification Replay"],
-  ["/verification-receipts", "Verification Receipts"],
-  ["/trust-posture", "Operational Posture"],
-  ["/agents", "Agent Governance"],
-  ["/transparency", "Compliance"],
+  ["/trust-center", "Operational Trust"],
+  ["/dashboard/trust-posture", "Trust Posture"],
+  ["/trust-replay", "Replay Timeline"],
+  ["/dashboard/governance", "Governance Review"],
+  ["/evidence-vault", "Evidence Chain"],
+  ["/dashboard/access-governance", "Authorization Lineage"],
+  ["/dashboard/session-integrity", "Session Integrity"],
+  ["/verification-receipts", "Verification Receipt"],
 ];
 
 const publicPlatformDropdownLinks = [
+  ["/platform", "Operational Trust"],
+  ["/methodology", "Trust Posture Methodology"],
+  ["/verification-replay", "Replay Timeline"],
+  ["/governance", "Governance Review"],
+  ["/verification-receipts", "Verification Receipt"],
   ["/architecture", "Architecture"],
-  ["/governance", "Governance"],
-  ["/enterprise/hiring-security", "Workflow Trust"],
-  ["/verification-replay", "Verification Replay"],
-  ["/verification-receipts", "Verification Receipts"],
-  ["/transparency", "Compliance"],
 ];
 
 const enterpriseDropdownLinks = [
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
-  ["/investor", "Investor Overview"],
-  ["/funding", "Funding / Build Plan"],
   ["/enterprise/pilot", "Pilot Program"],
   ["/enterprise", "Integrations"],
 ];
 
 const adminEnterpriseDropdownLinks = [
+  ["/enterprise-access", "Enterprise Access"],
   ["/enterprise/control-plane", "Trust Control Plane"],
   ["/enterprise/auditability", "Auditability"],
   ["/enterprise/readiness", "Deployment Readiness"],
-  ["/enterprise/compliance", "Compliance Readiness"],
-  ["/enterprise/identity-governance", "Identity Governance"],
-  ["/enterprise/consortium", "Consortium Intelligence"],
-  ["/enterprise-access", "Enterprise Access"],
-  ["/design-partner", "Design Partner"],
-  ["/investor", "Investor Overview"],
-  ["/funding", "Funding / Build Plan"],
-  ["/enterprise/pilot", "Pilot Program"],
   ["/admin/integrations", "Integrations"],
   ["/admin/runtime-validation", "Runtime Validation"],
 ];
@@ -187,12 +160,14 @@ function PrimaryNavigation({
   onCloseDropdown,
   enterpriseLinks = enterpriseDropdownLinks,
   platformLinks = platformDropdownLinks,
+  focusLinks = authenticatedFocusLinks,
 }: {
   openDropdown: string | null;
   onToggleDropdown: (id: string) => void;
   onCloseDropdown: CloseMenus;
   enterpriseLinks?: string[][];
   platformLinks?: string[][];
+  focusLinks?: string[][];
 }) {
   return (
     <>
@@ -204,7 +179,7 @@ function PrimaryNavigation({
         onToggle={onToggleDropdown}
         onClose={onCloseDropdown}
       />
-      <FlatLinks links={publicLinks} onNavigate={onCloseDropdown} />
+      <FlatLinks links={focusLinks} onNavigate={onCloseDropdown} />
       <DropdownLinks
         id="enterprise"
         label="Enterprise"
@@ -213,7 +188,9 @@ function PrimaryNavigation({
         onToggle={onToggleDropdown}
         onClose={onCloseDropdown}
       />
-      <FlatLinks links={pricingLink} onNavigate={onCloseDropdown} />
+      <Link href="/pricing" onClick={onCloseDropdown} className="nav-control">
+        Pricing
+      </Link>
     </>
   );
 }
@@ -295,13 +272,14 @@ export function GlobalNavigation({
                 onToggleDropdown={toggleDropdown}
                 onCloseDropdown={closeMenus}
                 platformLinks={publicPlatformDropdownLinks}
+                focusLinks={publicFocusLinks}
               />
               <Link
                 href="/login"
                 onClick={closeMenus}
                 className="brand-primary-action"
               >
-                Sign in
+                Access
               </Link>
             </>
           ) : null}
@@ -312,7 +290,9 @@ export function GlobalNavigation({
                 onToggleDropdown={toggleDropdown}
                 onCloseDropdown={closeMenus}
               />
-              <FlatLinks links={userLinks} onNavigate={closeMenus} />
+              <Link href="/dashboard" onClick={closeMenus} className="brand-primary-action">
+                Access
+              </Link>
               {accessLevel === "admin-unverified" ? (
                 <Link
                   href="/admin/access"
@@ -347,7 +327,9 @@ export function GlobalNavigation({
               >
                 Admin
               </Link>
-              <FlatLinks links={adminLinks} onNavigate={closeMenus} />
+              <Link href="/dashboard" onClick={closeMenus} className="brand-primary-action">
+                Access
+              </Link>
               <LogoutButton onNavigate={closeMenus} />
             </>
           ) : null}

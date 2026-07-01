@@ -179,8 +179,8 @@ export const demoHumanPresenceGenome: HumanPresenceGenomeDemo = {
   related_evidence: [
     "/evidence-vault",
     "/trust-timeline",
-    "/origin-dna",
-    "/reality-chain",
+    "/trust-replay",
+    "/dashboard/governance",
   ],
   presence_drift: "Low",
 };

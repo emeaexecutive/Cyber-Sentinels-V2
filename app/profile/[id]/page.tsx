@@ -40,7 +40,7 @@ export default async function PublicProfileDetailPage({
             ["/trust-embeds", "Trust Embeds"],
             ["/trust-seal-authority", "Trust Seals"],
             ["/trust-registry", "Trust Registry"],
-            ["/trust-ledger", "Trust Ledger"],
+            ["/verification-receipts", "Verification Receipts"],
             ["/passport", "Create Passport"],
           ].map(([href, label]) => (
             <Link

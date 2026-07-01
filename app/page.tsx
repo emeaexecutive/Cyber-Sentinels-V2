@@ -2,28 +2,24 @@ import Link from "next/link";
 
 const proofPath = [
   "Verification started",
-  "Session Integrity checked",
-  "Evidence reviewed",
-  "Governance Review opened",
-  "Replay Evidence retained",
-  "Verification receipt issued",
+  "Session Integrity",
+  "Evidence Chain",
+  "Governance Review",
+  "Replay Timeline",
+  "Verification Receipt",
 ];
 
 const platformSurfaces = [
-  ["Evidence", "Identity, session, media, channel and reviewer records that can be inspected."],
-  ["Replay", "Canonical evidence chronology showing what changed, who acted and what evidence remains."],
-  ["Governance", "Named review ownership, escalation continuity and human authority for sensitive workflow decisions."],
-  ["Workflow Trust", "An evolving posture across workflow state, authorization context, evidence and reviewer action."],
-  ["Provider Signals", "Normalized verification states and evidence references retained with their source."],
-  ["Session Integrity", "Liveness, channel, injection and media-risk signals kept separate for review."],
-  ["Verification Receipts", "Portable records of what was checked, reviewed, retained and resolved."],
+  ["Trust Posture", "An explainable Operational Trust state across identity, Session Integrity, evidence and Governance Review."],
+  ["Evidence Chain", "Provider, session, workflow and reviewer evidence retained with its source and chronology."],
+  ["Governance Review", "Named review ownership, escalation rationale and human authority for sensitive decisions."],
+  ["Replay Timeline", "What changed, when it changed, who reviewed it and which evidence supported the final state."],
 ];
 
 const entryPoints = [
   ["/demo", "View Demo", "See the workflow before setup."],
-  ["/enterprise-access", "Enterprise Access", "Define an operational workflow."],
   ["/enterprise/hiring-security", "Hiring Security", "Start with fake applicants and proxy interviews."],
-  ["/pricing", "Pricing", "Review the commercial path."],
+  ["/enterprise-access", "Enterprise Access", "Define an operational workflow."],
 ];
 
 export default function Home() {
@@ -47,13 +43,10 @@ export default function Home() {
             View Demo
           </Link>
           <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
-            Request Enterprise Access
+            Access
           </Link>
           <Link href="/enterprise/hiring-security" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400 hover:text-white">
             Hiring Security
-          </Link>
-          <Link href="/pricing" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
-            Pricing
           </Link>
         </div>
       </section>
@@ -120,7 +113,7 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="mt-6 grid gap-3 md:grid-cols-4">
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
             {entryPoints.map(([href, title, copy]) => (
               <Link key={href} href={href} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-500">
                 <p className="font-semibold text-zinc-100">{title}</p>

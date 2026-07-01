@@ -16,23 +16,13 @@ export const trustFabricNodeTypes = [
 
 export const connectedTrustSystems = [
   ["Trust Passport", "/passport"],
-  ["Reality Passport", "/reality-passport"],
-  ["Human Presence Index", "/human-presence-index"],
-  ["Human Presence Genome", "/human-presence-genome"],
-  ["Origin DNA", "/origin-dna"],
-  ["Reality Chain", "/reality-chain"],
-  ["Trust Timeline", "/trust-timeline"],
-  ["Trust Graph", "/trust-graph"],
-  ["Prediction Engine", "/trust-prediction"],
-  ["Permissions Firewall", "/permissions-firewall"],
-  ["Step-Up Verification", "/step-up-verification"],
-  ["Evidence Vault", "/evidence-vault"],
-  ["Decision Engine", "/decision-engine"],
-  ["Policy Engine", "/policy-engine"],
-  ["Revocation Engine", "/revocation-engine"],
-  ["Recovery Engine", "/trust-recovery"],
-  ["Agent Registry", "/agent-registry"],
-  ["Mission Control", "/mission-control"],
+  ["Trust Posture", "/dashboard/trust-posture"],
+  ["Replay Timeline", "/trust-replay"],
+  ["Governance Review", "/dashboard/governance"],
+  ["Evidence Chain", "/evidence-vault"],
+  ["Authorization Lineage", "/dashboard/access-governance"],
+  ["Session Integrity", "/dashboard/session-integrity"],
+  ["Verification Receipt", "/verification-receipts"],
 ] as const;
 
 export const trustFabricSignals = [
