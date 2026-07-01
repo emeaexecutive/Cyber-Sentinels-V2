@@ -15,6 +15,7 @@ export async function GET(request: Request) {
     const trust = await loadWorkflowTrust(auth.supabase, workflowId, subjectType);
     const transparency = buildTrustTransparencyReport(trust);
     return apiSuccess({
+      supportedSubjectTypes: ["human", "agent", "system"],
       workflow: trust.workflow,
       posture: trust.posture,
       explanation: trust.explanation,
@@ -28,6 +29,13 @@ export async function GET(request: Request) {
         authorizationLineage: transparency.auditability.authorizationLineage,
       },
       boundary: transparency.boundary,
+      postureSemantics: {
+        contextShiftAlerts: true,
+        governanceReviewState: trust.posture?.state ?? "not_recorded",
+        trustRecalculationReason:
+          trust.explanation ?? "Posture recalculated from current workflow evidence and governance context.",
+        automatedFinalDecision: false,
+      },
     });
   } catch {
     return apiError("Trust posture could not be loaded.", 500);

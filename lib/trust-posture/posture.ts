@@ -53,6 +53,8 @@ export type TrustPosture = {
   reverificationRecommended: boolean;
   continuityChecks: string[];
   explanation: string;
+  recalculationReason: string;
+  governanceReviewState: "clear" | "required";
 };
 
 const dayMs = 24 * 60 * 60 * 1000;
@@ -144,6 +146,15 @@ export function buildTrustPosture(input: TrustPostureInput): TrustPosture {
     reverificationRecommended: state === "reverification_due" || state === "governance_review",
     continuityChecks,
     explanation,
+    recalculationReason:
+      state === "governance_review"
+        ? "Open governance action changed the active posture."
+        : state === "reverification_due"
+          ? "Verification evidence is missing or outside the active review window."
+          : state === "checkpoint"
+            ? "Evidence age reached the scheduled review checkpoint."
+            : "Current evidence, signals, and governance state were recalculated.",
+    governanceReviewState: unresolvedGovernanceCount > 0 ? "required" : "clear",
   };
 }
 

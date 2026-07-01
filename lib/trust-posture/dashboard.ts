@@ -19,6 +19,7 @@ export type TrustPostureSummary = {
   level: string;
   badge: TrustPostureBadge;
   updatedAt: string | null;
+  subjectType: "human" | "agent" | "system";
 };
 
 export type TrustPostureDashboardSnapshot = {
@@ -86,6 +87,7 @@ export async function loadTrustPostureDashboard(
     governanceActions,
     timelineEvents,
     receipts,
+    agents,
   ] = await Promise.all([
     fetchRows(supabase, "passports", 100),
     fetchRows(supabase, "session_integrity_checks", 120),
@@ -93,6 +95,7 @@ export async function loadTrustPostureDashboard(
     fetchRows(supabase, "governance_actions", 160),
     fetchRows(supabase, "trust_timeline_events", 160),
     fetchRows(supabase, "verification_receipts", 120, "issued_at"),
+    fetchRows(supabase, "ai_agents", 100),
   ]);
 
   const scoredPassports = passports
@@ -153,6 +156,7 @@ export async function loadTrustPostureDashboard(
       level: trustScore === null ? "Not calculated" : `${trustScore}/100`,
       badge: passportBadge,
       updatedAt: passport.created_at ?? null,
+      subjectType: "human" as const,
     };
   });
   const sessionSummaries = checks.slice(0, 8).map((check) => {
@@ -173,8 +177,20 @@ export async function loadTrustPostureDashboard(
           ? "elevated_risk"
           : "trusted") as TrustPostureBadge,
       updatedAt: check.created_at ?? null,
+      subjectType: "system" as const,
     };
   });
+  const agentSummaries = agents.slice(0, 8).map((agent) => ({
+    id: String(agent.id),
+    subject: String(agent.verified_agent_name ?? agent.agent_name ?? "AI agent"),
+    context: String(agent.registry_status ?? agent.status ?? "pending review"),
+    level: numericScore(agent.trust_score) === null ? "Not calculated" : `${numericScore(agent.trust_score)}/100`,
+    badge: (["restricted", "revoked"].includes(String(agent.registry_status ?? agent.status))
+      ? "governance_review"
+      : "trusted") as TrustPostureBadge,
+    updatedAt: agent.last_activity_at ?? agent.updated_at ?? agent.created_at ?? null,
+    subjectType: "agent" as const,
+  }));
   const recentEvents: AnyRow[] = [
     ...timelineEvents.map((row): AnyRow => ({ ...row, posture_source: "timeline", posture_label: rowLabel(row) })),
     ...verificationSignals.map((row): AnyRow => ({ ...row, posture_source: "signal", posture_label: rowLabel(row) })),
@@ -197,7 +213,7 @@ export async function loadTrustPostureDashboard(
       elevatedIndicators: elevatedRisk.length,
       recentEvents: recentEvents.length,
     },
-    summaries: [...sessionSummaries, ...passportSummaries].slice(0, 12),
+    summaries: [...sessionSummaries, ...agentSummaries, ...passportSummaries].slice(0, 16),
     reviewQueue: [
       ...openGovernance.map((row) => ({ ...row, posture_queue_type: "governance" })),
       ...manualReviewChecks.map((row) => ({ ...row, posture_queue_type: "session" })),

@@ -439,7 +439,7 @@ export default async function TrustReceiptPage({
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-200">
-            Verification Receipt
+            Evidence Report
           </p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -458,7 +458,7 @@ export default async function TrustReceiptPage({
                 what reviewer decision occurred, which replay chronology is available, who reviewed
                 the case and what evidence was retained. It is portable,
                 enterprise-safe and linked to the workflow it summarizes. It is
-                an audit-ready report, not a blockchain record or an automatic trust decision.
+                an evidence report, not legal proof, a blockchain record or an automatic trust decision.
               </p>
               <p className="mt-3 max-w-3xl rounded-lg border border-zinc-800 bg-black p-3 text-sm leading-6 text-zinc-300">
                 Detection is one signal. Session integrity, evidence and governance determine the final review state. This is not a standalone deepfake verdict.
@@ -489,6 +489,48 @@ export default async function TrustReceiptPage({
               <p className={`mt-2 text-sm font-semibold ${state === "Pending" ? "text-amber-200 print:text-amber-700" : "text-emerald-200 print:text-emerald-700"}`}>{state}</p>
             </div>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-300 print:text-zinc-600">
+            Signed evidence summary
+          </p>
+          <h2 className="mt-2 text-xl font-semibold">Evidence report structure</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400 print:text-zinc-700">
+            The issuer, timestamps, retained references and continuity checks form a reviewable signed-summary structure.
+            A cryptographic signature is only asserted when a signature reference is present in the stored receipt.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <DetailRow label="Issuer / signer" value={receipt.issued_by ? label(receipt.issued_by) : "Signature attribution pending"} />
+            <DetailRow label="Chain-of-custody notes" value={(evidenceChains ?? []).length ? `${(evidenceChains ?? []).length} retained chain record(s)` : "Custody notes pending"} />
+            <DetailRow label="Provenance status" value={label(snapshot.provenance_status, "unverified")} />
+            <DetailRow label="Evidence timeline" value={`${orderedTimeline.length} chronological event(s)`} />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2 print:hidden">
+            <Link href={`/api/receipts/${id}`} className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:border-cyan-400">
+              Export JSON structure
+            </Link>
+            <span className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300">
+              PDF-ready via print
+            </span>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5 print:border-zinc-300 print:bg-white">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300 print:text-zinc-600">
+            Synthetic identity risk review
+          </p>
+          <h2 className="mt-2 text-xl font-semibold">Evidence-backed risk context</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+            <DetailRow label="Document risk" value={label(snapshot.document_risk, "Not assessed")} />
+            <DetailRow label="Identity conflict checks" value={label(snapshot.identity_conflict_status, "Not assessed")} />
+            <DetailRow label="Provenance status" value={label(snapshot.provenance_status, "Unverified")} />
+            <DetailRow label="Provider evidence" value={providerSignals.length ? `${providerSignals.length} normalized signal(s)` : "No provider evidence"} />
+            <DetailRow label="Escalation queue" value={openGovernance.length ? `${openGovernance.length} governance item(s)` : "No active escalation"} />
+          </div>
+          <p className="mt-4 text-sm leading-6 text-zinc-500">
+            These are review signals, not a confirmed-fraud finding. A reviewer must resolve conflicts using retained provider and governance evidence.
+          </p>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">

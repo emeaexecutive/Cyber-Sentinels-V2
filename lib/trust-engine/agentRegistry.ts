@@ -36,10 +36,18 @@ export type AgentRecord = {
   last_verified_at: string | null;
   status: AgentStatus;
   created_at: string | null;
+  verified_agent_name: string | null;
+  owner_organization: string | null;
+  registry_status: string;
+  identity_claims: Record<string, unknown>[];
+  trust_lineage: Record<string, unknown>[];
+  last_trust_recalculation_reason: string | null;
 };
 
 export type AgentRow = Partial<Omit<AgentRecord, "permissions">> & {
   permissions?: AgentPermissionScope[] | string[] | string | null;
+  identity_claims?: Record<string, unknown>[] | null;
+  trust_lineage?: Record<string, unknown>[] | null;
 };
 
 export const agentStatuses: AgentStatus[] = [
@@ -104,6 +112,12 @@ export const demoAgents: AgentRecord[] = [
     last_verified_at: new Date().toISOString(),
     status: "verified",
     created_at: new Date().toISOString(),
+    verified_agent_name: "Orion Research Agent",
+    owner_organization: "Cyber Sentinels",
+    registry_status: "verified",
+    identity_claims: [{ claim: "declared_purpose", status: "reviewed" }],
+    trust_lineage: [{ type: "owner", reference: "Cyber Sentinels" }],
+    last_trust_recalculation_reason: "Demo registry review fixture.",
   },
   {
     id: "demo-hiring-shield-screener",
@@ -122,6 +136,12 @@ export const demoAgents: AgentRecord[] = [
     last_verified_at: null,
     status: "under_review",
     created_at: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
+    verified_agent_name: null,
+    owner_organization: "Hiring Shield",
+    registry_status: "pending_review",
+    identity_claims: [],
+    trust_lineage: [],
+    last_trust_recalculation_reason: "Manual review required.",
   },
   {
     id: "demo-origin-trace-analyst",
@@ -140,6 +160,12 @@ export const demoAgents: AgentRecord[] = [
     last_verified_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
     status: "verified",
     created_at: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
+    verified_agent_name: "Origin Trace Analyst",
+    owner_organization: "Origin Trace",
+    registry_status: "verified",
+    identity_claims: [{ claim: "provenance_analysis", status: "reviewed" }],
+    trust_lineage: [{ type: "owner", reference: "Origin Trace" }],
+    last_trust_recalculation_reason: "Registry evidence refreshed.",
   },
   {
     id: "demo-evidence-vault-classifier",
@@ -158,6 +184,12 @@ export const demoAgents: AgentRecord[] = [
     last_verified_at: null,
     status: "restricted",
     created_at: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
+    verified_agent_name: null,
+    owner_organization: "Evidence Vault",
+    registry_status: "restricted",
+    identity_claims: [],
+    trust_lineage: [],
+    last_trust_recalculation_reason: "File scope restriction applied.",
   },
   {
     id: "demo-mission-control-observer",
@@ -176,6 +208,12 @@ export const demoAgents: AgentRecord[] = [
     last_verified_at: null,
     status: "under_review",
     created_at: new Date(Date.now() - 1000 * 60 * 240).toISOString(),
+    verified_agent_name: null,
+    owner_organization: "Mission Control",
+    registry_status: "pending_review",
+    identity_claims: [],
+    trust_lineage: [],
+    last_trust_recalculation_reason: "Autonomous action requires governance review.",
   },
 ];
 
@@ -227,6 +265,12 @@ export function normalizeAgent(row: AgentRow): AgentRecord {
     last_verified_at: row.last_verified_at ?? null,
     status: normalizeStatus(row.status),
     created_at: row.created_at ?? null,
+    verified_agent_name: row.verified_agent_name ?? null,
+    owner_organization: row.owner_organization ?? null,
+    registry_status: row.registry_status ?? row.status ?? "pending_review",
+    identity_claims: Array.isArray(row.identity_claims) ? row.identity_claims : [],
+    trust_lineage: Array.isArray(row.trust_lineage) ? row.trust_lineage : [],
+    last_trust_recalculation_reason: row.last_trust_recalculation_reason ?? null,
   };
 }
 

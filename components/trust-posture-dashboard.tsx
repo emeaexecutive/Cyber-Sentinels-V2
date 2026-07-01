@@ -207,9 +207,15 @@ export function TrustPostureDashboard({
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Reverification status</p>
             <h2 className="mt-3 text-xl font-semibold">{snapshot.posture.label}</h2>
-            <p className="mt-3 text-sm leading-6 text-zinc-400">
-              {snapshot.posture.explanation}. {snapshot.posture.nextReview}
-            </p>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">
+                {snapshot.posture.explanation}. {snapshot.posture.nextReview}
+              </p>
+              <p className="mt-3 text-sm leading-6 text-cyan-100">
+                Recalculation reason: {snapshot.posture.recalculationReason}
+              </p>
+              <p className="mt-2 text-xs uppercase tracking-[0.12em] text-zinc-500">
+                Governance review state: {snapshot.posture.governanceReviewState}
+              </p>
           </div>
         </section>
 

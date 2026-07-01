@@ -31,7 +31,7 @@ export default async function AgentRegistryPage() {
   const supabase = await createClient();
   const [{ data, error }, { data: signals }] = await Promise.all([
     supabase
-      .from("agents")
+      .from("ai_agents")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(50)

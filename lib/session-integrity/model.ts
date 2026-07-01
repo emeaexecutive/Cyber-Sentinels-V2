@@ -12,6 +12,9 @@ export const sessionSignalCategories = [
   "provider_verification_change",
   "session_interruption",
   "workflow_inconsistency",
+  "virtual_camera_risk",
+  "frame_integrity",
+  "device_attestation",
 ] as const;
 
 export type SessionSignalCategory = (typeof sessionSignalCategories)[number];
@@ -119,6 +122,9 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
   const injectionScore = boundedScore(input.injection_risk_score);
   const anomalyScore = boundedScore(input.session_anomaly_score);
   const workflowInconsistency = boundedScore(input.workflow_inconsistency_score);
+  const virtualCameraState = cleanState(input.evidence_metadata?.virtual_camera_risk);
+  const frameIntegrityState = cleanState(input.evidence_metadata?.frame_integrity);
+  const deviceAttestationState = cleanState(input.evidence_metadata?.device_attestation);
   const deviceContinuous = ["continuous", "consistent", "verified"].includes(cleanState(input.device_continuity_state));
   const browserConsistent = ["consistent", "verified"].includes(cleanState(input.browser_consistency_state));
 
@@ -282,6 +288,42 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
       explanation: workflowInconsistency === null ? "No workflow inconsistency assessment is available." : "This rule-based signal identifies divergence from the expected workflow sequence for governance review.",
       badge: workflowInconsistency !== null && workflowInconsistency >= 35 ? "Workflow Inconsistency" : "Workflow Review Pending",
       requires_manual_review: workflowInconsistency !== null && workflowInconsistency >= 35,
+    },
+    {
+      category: "virtual_camera_risk",
+      label: "Virtual camera risk",
+      status: "pending",
+      risk_level: "unknown",
+      confidence_score: null,
+      explanation: virtualCameraState === "pending"
+        ? "Placeholder only. No configured provider currently supplies a virtual-camera risk result."
+        : `Provider-supplied placeholder state recorded as ${virtualCameraState}; independent validation is still required.`,
+      badge: "Provider Signal Pending",
+      requires_manual_review: false,
+    },
+    {
+      category: "frame_integrity",
+      label: "Frame integrity",
+      status: "pending",
+      risk_level: "unknown",
+      confidence_score: null,
+      explanation: frameIntegrityState === "pending"
+        ? "Placeholder only. Frame-integrity validation requires a configured provider and retained evidence reference."
+        : `Provider-supplied placeholder state recorded as ${frameIntegrityState}; independent validation is still required.`,
+      badge: "Provider Signal Pending",
+      requires_manual_review: false,
+    },
+    {
+      category: "device_attestation",
+      label: "Device attestation",
+      status: "pending",
+      risk_level: "unknown",
+      confidence_score: null,
+      explanation: deviceAttestationState === "pending"
+        ? "Placeholder only. No device-attestation credential is configured for this workflow."
+        : `Provider-supplied placeholder state recorded as ${deviceAttestationState}; credential validation is still required.`,
+      badge: "Provider Credential Pending",
+      requires_manual_review: false,
     },
     {
       category: "manual_review_required",

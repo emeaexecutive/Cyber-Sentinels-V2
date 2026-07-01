@@ -34,7 +34,7 @@ export default async function AgentRegistryDetailPage({
   const supabase = await createClient();
   const [{ data, error }, { data: auditLogs }] = await Promise.all([
     supabase
-      .from("agents")
+      .from("ai_agents")
       .select("*")
       .eq("id", id)
       .limit(1)
@@ -118,6 +118,8 @@ export default async function AgentRegistryDetailPage({
             <h2 className="text-xl font-semibold">Identity</h2>
             <div className="mt-5 space-y-3 text-sm text-zinc-300">
               <p>Type: {agent.agent_type}</p>
+              <p>Verified agent name: {agent.verified_agent_name ?? "Pending verification"}</p>
+              <p>Owner organization: {agent.owner_organization ?? "n/a"}</p>
               <p>Owner: {agent.owner_name ?? "n/a"}</p>
               <p>Owner email: {agent.owner_email ?? "n/a"}</p>
               <p>
@@ -126,6 +128,7 @@ export default async function AgentRegistryDetailPage({
               </p>
               <p>Policy: {agent.policy_status ?? "pending_policy_review"}</p>
               <p>Last verified: {formatDate(agent.last_verified_at)}</p>
+              <p>Registry status: {agent.registry_status}</p>
             </div>
           </div>
 
@@ -145,6 +148,30 @@ export default async function AgentRegistryDetailPage({
                 <p className="text-sm text-zinc-500">No permissions granted.</p>
               )}
             </div>
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Identity Claims</h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-500">
+              Declared or provider-supported claims remain review context until evidence and governance state support them.
+            </p>
+            <pre className="mt-4 overflow-x-auto rounded-lg border border-zinc-800 bg-black p-4 text-xs text-zinc-300">
+              {JSON.stringify(agent.identity_claims, null, 2)}
+            </pre>
+          </div>
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Trust Lineage</h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-500">
+              Ownership, authorization, evidence and governance references explain how the current registry state was reached.
+            </p>
+            <pre className="mt-4 overflow-x-auto rounded-lg border border-zinc-800 bg-black p-4 text-xs text-zinc-300">
+              {JSON.stringify(agent.trust_lineage, null, 2)}
+            </pre>
+            <p className="mt-4 text-sm text-cyan-100">
+              Recalculation reason: {agent.last_trust_recalculation_reason ?? "Not recorded"}
+            </p>
           </div>
         </section>
 

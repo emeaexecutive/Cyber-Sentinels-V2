@@ -38,13 +38,13 @@ export default function AgentsPage() {
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Early Platform Direction
+            Governed Registry
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-6xl">
             AI Agent Identity
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
-            AI systems are evolving from passive assistants into operational actors. Cyber Sentinels treats AI agent identity and authorization lineage as staged roadmap work tied to governance, provenance and accountable ownership.
+            AI systems are evolving from passive assistants into operational actors. Cyber Sentinels links agent identity and authorization lineage to governance, provenance and accountable ownership.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Every autonomous action will need identity, authorization and evidence.
@@ -60,13 +60,13 @@ export default function AgentsPage() {
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-lg border border-zinc-800 bg-black p-6">
             <p className="text-sm uppercase tracking-[0.18em] text-zinc-500">
-              Expansion Wedge
+              Operational Boundary
             </p>
             <h2 className="mt-3 text-2xl font-semibold">
               Governed AI workflow layer
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-400">
-              This is a strategic direction layer, not a full agent control platform. The near-term goal is to align organization-owned agents, signed activity, authorization lineage, governed execution and human-to-agent accountability without overbuilding runtime control.
+              This is an identity and evidence layer, not a full agent control platform. It aligns organization-owned agents, activity records, authorization lineage, governed execution and human-to-agent accountability without claiming runtime control it does not provide.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {accountabilityLinks.map((item) => (
@@ -95,7 +95,7 @@ export default function AgentsPage() {
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm uppercase tracking-[0.18em] text-zinc-500">
-            Concept Preview
+            Registry Record
           </p>
           <div className="mt-4 grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
             <div>
@@ -103,8 +103,8 @@ export default function AgentsPage() {
                 Agent identity should remain linked to people and organizations.
               </h2>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-                A future agent profile can show owner, organization, declared
-                scope, verification status and signed activity visibility
+                An agent profile can show verified name, owner organization,
+                identity claims, declared scope, registry status and activity history
                 while keeping governance decisions tied to accountable owners.
               </p>
             </div>
@@ -112,7 +112,7 @@ export default function AgentsPage() {
               href="/trust/agent/example-agent"
               className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-100"
             >
-              View Concept Agent
+              View Agent Record
             </Link>
           </div>
         </section>

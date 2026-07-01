@@ -25,6 +25,16 @@ function jsonArray(value: unknown, fallback: string[] = []) {
   return fallback;
 }
 
+function jsonRecords(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.filter(
+      (item): item is Record<string, unknown> =>
+        Boolean(item) && typeof item === "object" && !Array.isArray(item)
+    );
+  }
+  return [];
+}
+
 async function readPayload(req: Request) {
   const contentType = req.headers.get("content-type") ?? "";
 
@@ -103,7 +113,9 @@ export async function POST(req: Request) {
   const actor = user.email ?? user.id;
   const insert = {
     agent_name: agentName,
+    verified_agent_name: text(payload.verified_agent_name) || null,
     owner_name: text(payload.owner_name, actor),
+    owner_organization: text(payload.owner_organization ?? payload.organization_name) || null,
     owner_email: text(payload.owner_email, user.email ?? user.id),
     owner_user_id: user.id,
     enterprise_id: text(payload.enterprise_id) || null,
@@ -112,6 +124,11 @@ export async function POST(req: Request) {
     permissions: jsonArray(payload.permissions, ["review_only"]),
     trust_score: score(payload.trust_score),
     status: text(payload.status, "pending"),
+    registry_status: text(payload.registry_status, "pending_review"),
+    identity_claims: jsonRecords(payload.identity_claims),
+    trust_lineage: jsonRecords(payload.trust_lineage),
+    last_trust_recalculation_reason:
+      text(payload.last_trust_recalculation_reason, "Initial registry review") || null,
     verification_status: text(payload.verification_status ?? payload.status, "pending"),
     declared_purpose: text(payload.declared_purpose ?? payload.purpose, "Enterprise trust and governance support"),
     operational_scope: text(payload.operational_scope ?? payload.permission_scope, "review_only"),
@@ -265,20 +282,26 @@ export async function PATCH(req: Request) {
   const patch: Record<string, unknown> = {};
   for (const key of [
     "agent_name",
+    "verified_agent_name",
     "owner_name",
+    "owner_organization",
     "owner_email",
     "enterprise_id",
     "agent_type",
     "status",
+    "registry_status",
     "verification_status",
     "declared_purpose",
     "operational_scope",
     "last_activity_at",
+    "last_trust_recalculation_reason",
   ]) {
     if (body[key] !== undefined) patch[key] = body[key];
   }
   if (body.capabilities !== undefined) patch.capabilities = jsonArray(body.capabilities);
   if (body.permissions !== undefined) patch.permissions = jsonArray(body.permissions);
+  if (body.identity_claims !== undefined) patch.identity_claims = jsonRecords(body.identity_claims);
+  if (body.trust_lineage !== undefined) patch.trust_lineage = jsonRecords(body.trust_lineage);
   if (body.trust_score !== undefined) patch.trust_score = score(body.trust_score);
 
   let query = supabase.from("ai_agents").update(patch).eq("id", id);
