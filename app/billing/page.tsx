@@ -72,7 +72,7 @@ export default async function BillingPage({
           ) : null}
           {!isStripeBillingConfigured ? (
             <p className="mt-5 rounded-lg border border-amber-900 bg-amber-950/20 p-3 text-sm text-amber-100">
-              Billing coming soon
+              Billing unavailable
             </p>
           ) : null}
         </section>
@@ -139,7 +139,7 @@ export default async function BillingPage({
                 disabled
                 className="rounded-lg bg-zinc-800 px-4 py-3 text-sm font-semibold text-zinc-400"
               >
-                Billing coming soon
+                Billing unavailable
               </button>
             )}
           </div>

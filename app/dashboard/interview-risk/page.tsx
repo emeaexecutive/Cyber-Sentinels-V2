@@ -129,7 +129,7 @@ export default async function InterviewRiskDashboardPage() {
             Operational review for synthetic applicants, proxy interviews, stolen identities, AI-assisted interview fraud, recruiter verification and governance escalation. Flags are placeholders for human review, not binary detection outcomes.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-            Detection is one signal. Governance review determines final workflow state. Cyber Sentinels does not claim perfect detection.
+            Detection is one signal. Governance review determines final workflow state. Cyber Sentinels does not produce a standalone detection verdict.
           </p>
         </section>
 

@@ -58,7 +58,7 @@ async function insertTrustReport(
   fallbackPayload: InsertPayload,
   ownerEmail: string
 ) {
-  // Supabase schema must match this route for the extended insert. Private beta
+  // Supabase schema must match this route for the extended insert. Deployment
   // deployments may lag migrations, so fall back to required/core fields.
   const extendedInsert = await supabase
     .from("trust_reports")

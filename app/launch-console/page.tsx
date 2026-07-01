@@ -102,7 +102,7 @@ export default async function LaunchConsolePage() {
             Launch Console&trade;
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Private beta readiness for the Cyber Sentinels trust layer.
+            Operational readiness for the Cyber Sentinels trust layer.
           </p>
           <p className="mt-4 max-w-4xl leading-8 text-zinc-300">
             Cyber Sentinels V1 is a controlled trust operations release. It

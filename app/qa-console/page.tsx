@@ -48,7 +48,7 @@ export default async function QaConsolePage() {
 
         <section className="mt-10">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Private beta QA
+            Internal QA
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
             QA Console

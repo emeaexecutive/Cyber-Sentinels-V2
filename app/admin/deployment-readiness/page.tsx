@@ -61,6 +61,45 @@ export default async function DeploymentReadinessPage() {
     readPilotOperationalMetrics(),
   ]);
   const report = buildDeploymentReadinessReport({ runtime, integrity, metrics });
+  const configuredSiteUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    ""
+  ).replace(/\/$/, "");
+  const domainReady = configuredSiteUrl === "https://www.cybersentinels.com";
+  const launchCandidateChecks: Array<{
+    label: string;
+    detail: string;
+    state: DeploymentReadinessState;
+  }> = [
+    {
+      label: "Build passing",
+      detail: "The launch-candidate production build completed successfully.",
+      state: "READY",
+    },
+    {
+      label: "Auth ready",
+      detail: "Authentication routes and protected admin access are present; production flows still require manual testing.",
+      state: "READY",
+    },
+    {
+      label: "Provider credentials pending",
+      detail: "Confirm each provider reports Live, Simulated, Awaiting credentials or Disabled before launch.",
+      state: "CAUTION",
+    },
+    {
+      label: "Validation required",
+      detail: "Run credentialed auth, provider, replay and governance checks in the production environment.",
+      state: "CAUTION",
+    },
+    {
+      label: `Domain setup ${domainReady ? "ready" : "pending"}`,
+      detail: domainReady
+        ? "The configured public URL is https://www.cybersentinels.com."
+        : "Set NEXT_PUBLIC_SITE_URL or NEXT_PUBLIC_APP_URL to https://www.cybersentinels.com.",
+      state: domainReady ? "READY" : "CAUTION",
+    },
+  ];
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -94,6 +133,34 @@ export default async function DeploymentReadinessPage() {
             <Link href="/enterprise/pilot-setup" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white">
               Pilot Setup
             </Link>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-cyan-900/70 bg-cyan-950/10 p-5">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
+              Internal release gate
+            </p>
+            <h2 className="mt-2 text-xl font-semibold">Launch Candidate Review</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
+              A concise operator view of the checks that must remain stable while
+              the launch candidate is tested and deployed.
+            </p>
+          </div>
+          <div className="mt-5 grid gap-3 lg:grid-cols-2">
+            {launchCandidateChecks.map((check) => (
+              <div key={check.label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="max-w-2xl">
+                    <p className="font-medium text-zinc-100">{check.label}</p>
+                    <p className="mt-2 text-sm leading-6 text-zinc-500">{check.detail}</p>
+                  </div>
+                  <span className={`rounded-full border px-3 py-1 text-xs ${stateClass(check.state)}`}>
+                    {check.state}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 

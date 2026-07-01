@@ -57,7 +57,7 @@ export default function DemoLabPage() {
     <main className="min-h-screen bg-black p-8 text-white">
       <section className="mx-auto max-w-4xl">
         <p className="text-sm uppercase tracking-[0.24em] text-yellow-300">
-          Private beta / development only.
+          Controlled demonstration environment.
         </p>
         <h1 className="mt-4 text-4xl font-bold">Demo Lab</h1>
         <p className="mt-4 text-zinc-400">

@@ -137,7 +137,7 @@ export default async function VerificationTestbenchPage() {
                 These safe demo cases exercise the transparent rule-based MVP scoring model. They do not create database records, call providers or claim biometric, liveness, voice clone or deepfake accuracy.
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-                Detection is one signal. Governance review determines final workflow state. Cyber Sentinels does not claim perfect detection.
+                Detection is one signal. Governance review determines final workflow state. Cyber Sentinels does not produce a standalone detection verdict.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
