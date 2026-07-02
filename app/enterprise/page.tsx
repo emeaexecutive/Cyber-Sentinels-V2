@@ -84,9 +84,9 @@ export default function EnterprisePage() {
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <h2 className="text-2xl font-semibold">Pilot conversion path</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Start with one workflow, one reviewer path and one receipt that can
-            be discussed with security, talent, compliance and executive
-            stakeholders.
+            Start with one workflow, one accountable reviewer path and one
+            replayable outcome that operations, compliance, security and
+            executive stakeholders can evaluate together.
           </p>
         </section>
       </div>

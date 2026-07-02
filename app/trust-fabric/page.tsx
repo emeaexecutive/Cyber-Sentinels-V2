@@ -34,11 +34,11 @@ export default function TrustFabricPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/reality-os", "Operational Trust Context"],
-            ["/trust-graph", "Trust Graph"],
-            ["/trust-timeline", "Trust Timeline"],
-            ["/evidence-vault", "Evidence Vault"],
-            ["/mission-control", "Mission Control"],
+            ["/reality-os", "Operational Trust"],
+            ["/trust-graph", "Authorization Lineage"],
+            ["/trust-timeline", "Replay Timeline"],
+            ["/evidence-vault", "Evidence Chain"],
+            ["/dashboard/governance", "Governance Review"],
           ].map(([href, label]) => (
             <Link
               key={href}
@@ -52,7 +52,7 @@ export default function TrustFabricPage() {
 
         <section className="mt-10">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Connected trust graph
+            Authorization continuity
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
             Authorization Lineage

@@ -35,11 +35,12 @@ export default function Home() {
             Operational trust for intelligent systems.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 md:text-xl md:leading-9">
-            Continuous trust across people, AI agents and enterprise workflows.
+            Trust is not a moment. It is a continuous operational state.
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
-            Keep identity, authorization and governance connected as operational
-            context changes—then replay why each outcome followed.
+            Protect people, AI agents and enterprise workflows by keeping
+            identity, authorization, evidence and governance connected—then
+            replay why each outcome followed.
           </p>
         </div>
 

@@ -29,13 +29,13 @@ export default function RealityTwinPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/synthetic-counterpart", "Synthetic Counterpart"],
-            ["/human-presence-genome", "Human Presence Genome"],
-            ["/origin-dna", "Origin DNA"],
-            ["/reality-chain", "Reality Chain"],
-            ["/trust-timeline", "Trust Timeline"],
-            ["/trust-graph", "Trust Graph"],
-            ["/mission-control", "Mission Control"],
+            ["/synthetic-counterpart", "Identity Duplication Risk"],
+            ["/human-presence-genome", "Presence Evidence"],
+            ["/origin-dna", "Identity Provenance"],
+            ["/reality-chain", "Evidence Chain"],
+            ["/trust-timeline", "Replay Timeline"],
+            ["/trust-graph", "Authorization Lineage"],
+            ["/trust-center", "Trust Center"],
           ].map(([href, label]) => (
             <Link
               key={href}
@@ -52,10 +52,11 @@ export default function RealityTwinPage() {
             Synthetic resilience model
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Reality Twin™
+            Identity Exposure Review
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Reality can be modeled. Synthetic reality can be anticipated.
+            Review identity exposure, evidence strength and impersonation risk
+            as bounded inputs to Trust Posture and Governance Review.
           </p>
         </section>
 

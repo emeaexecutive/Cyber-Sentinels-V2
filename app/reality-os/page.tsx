@@ -37,10 +37,10 @@ export default function RealityOSPage() {
           {[
             ["/", "Home"],
             ["/trust-fabric", "Authorization Lineage"],
-            ["/mission-control", "Mission Control"],
-            ["/trust-graph", "Trust Graph"],
-            ["/trust-prediction", "Prediction Engine"],
-            ["/permissions-firewall", "Permissions Firewall"],
+            ["/dashboard/governance", "Governance Review"],
+            ["/trust-graph", "Authorization Lineage"],
+            ["/trust-prediction", "Trust Posture Review"],
+            ["/permissions-firewall", "Operational Authorization"],
           ].map(([href, label]) => (
             <Link
               key={href}

@@ -37,7 +37,7 @@ const publicPlatformDropdownLinks = [
   ["/platform", "Operational Trust"],
   ["/verification-replay", "Replay Timeline"],
   ["/agents", "AI Agent Governance"],
-  ["/methodology", "Trust Posture Methodology"],
+  ["/methodology", "Persistent Trust Posture"],
   ["/governance", "Governance Review"],
   ["/verification-receipts", "Verification Receipt"],
 ];

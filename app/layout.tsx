@@ -11,9 +11,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.cybersentinels.com"),
-  title: "Cyber Sentinels | Governed Trust Infrastructure",
+  title: "Cyber Sentinels | Operational Trust Infrastructure",
   description:
-    "Evidence-backed trust infrastructure for governed verification and operational transparency.",
+    "Persistent Trust Posture, Replay Timeline and governed evidence continuity for humans, AI agents and enterprise workflows.",
   alternates: {
     canonical: "/",
   },
@@ -180,9 +180,9 @@ export default async function RootLayout({
             <div className="mx-auto mt-8 max-w-7xl border-t border-zinc-900 pt-6">
               <p>&copy;2026 Cyber Sentinels&trade;. All rights reserved.</p>
               <p className="mt-3 max-w-3xl leading-6">
-                Cyber Sentinels maintains operational trust workflows with accountable
-                review, protected evidence handling and published contact paths for
-                security, trust, privacy and abuse reporting.
+                Cyber Sentinels maintains Operational Trust through Persistent
+                Trust Posture, Replay Timeline, protected evidence handling and
+                accountable Governance Review.
               </p>
             </div>
           </footer>

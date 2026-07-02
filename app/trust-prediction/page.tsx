@@ -128,35 +128,34 @@ export default async function TrustPredictionPage() {
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:col-span-2">
-            <h2 className="text-xl font-semibold">Reality Drift Signal Input</h2>
+            <h2 className="text-xl font-semibold">Identity Context Input</h2>
             <p className="mt-4 text-sm leading-6 text-zinc-500">
-              Reality Drift events from Origin DNA and Reality Chain are treated
-              as forecast signals when origin confidence drops or transformation
-              history changes.
+              Identity provenance and Evidence Chain changes inform review when
+              confidence drops or transformation history changes.
             </p>
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:col-span-2">
-            <h2 className="text-xl font-semibold">HPG Signal Input</h2>
+            <h2 className="text-xl font-semibold">Presence Evidence Input</h2>
             <p className="mt-4 text-sm leading-6 text-zinc-500">
-              Human Presence Genome shifts are treated as prediction inputs when
-              behavioral stability drops or synthetic deviation rises.
+              Presence-evidence changes remain review inputs when behavioral
+              stability or Session Integrity changes.
             </p>
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:col-span-2">
             <h2 className="text-xl font-semibold">Clone Risk Signal Input</h2>
             <p className="mt-4 text-sm leading-6 text-zinc-500">
-              Reality Twin and Synthetic Counterpart signals increase forecast
-              pressure when identity exposure rises or clone risk escalates.
+              Identity exposure and duplication-risk signals inform review when
+              evidence changes or impersonation risk escalates.
             </p>
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:col-span-2">
             <h2 className="text-xl font-semibold">Authorization Lineage Activity</h2>
             <p className="mt-4 text-sm leading-6 text-zinc-500">
-              Fabric activity from signals, audit events and decisions is used
-              as prediction pressure when connected trust systems shift at once.
+              Authorization activity, audit events and decisions inform Trust
+              Posture when connected workflow context changes.
             </p>
           </div>
         </section>

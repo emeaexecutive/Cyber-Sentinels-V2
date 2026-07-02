@@ -48,15 +48,15 @@ export default async function PermissionsFirewallPage() {
           {[
             ["/", "Home"],
             ["/agent-registry", "Agent Registry"],
-            ["/developer-console", "Developer Console"],
-            ["/mission-control", "Mission Control"],
+            ["/developer-console", "Developer Tools"],
+            ["/dashboard/governance", "Governance Review"],
             ["/step-up-verification", "Step-Up Verification"],
-            ["/reality-chain", "Reality Chain"],
-            ["/human-presence-genome", "Human Presence Genome"],
-            ["/reality-twin", "Reality Twin"],
-            ["/revocation-engine", "Revocation Engine"],
-            ["/trust-recovery", "Trust Recovery"],
-            ["/back-office", "Back Office"],
+            ["/reality-chain", "Evidence Chain"],
+            ["/human-presence-genome", "Presence Evidence"],
+            ["/reality-twin", "Identity Exposure Review"],
+            ["/revocation-engine", "Revocation State"],
+            ["/trust-recovery", "Governance Recovery"],
+            ["/dashboard/access-governance", "Authorization Lineage"],
           ].map(([href, label]) => (
             <Link
               key={href}
@@ -194,16 +194,16 @@ export default async function PermissionsFirewallPage() {
               "Every request resolves to allow, deny, step-up, manual review or revoke.",
             ],
             [
-              "Reality Drift",
-              "High Reality Drift from Origin DNA or Reality Chain forces step-up before sensitive access.",
+              "Identity Context Shift",
+              "A material identity or evidence-context shift requires step-up before sensitive access.",
             ],
             [
-              "HPG Instability",
-              "Anomalous or critical Human Presence Genome states force step-up before high-risk actions.",
+              "Presence Evidence Change",
+              "Anomalous or critical presence evidence requires step-up before high-risk actions.",
             ],
             [
-              "Clone Risk",
-              "High synthetic clone risk from Reality Twin or Synthetic Counterpart forces step-up.",
+              "Identity Duplication Risk",
+              "Elevated duplication or impersonation evidence requires step-up and review.",
             ],
           ].map(([title, body]) => (
             <div

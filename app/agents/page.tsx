@@ -8,8 +8,8 @@ const registryConcepts = [
     "Agent identity should be connected to the organization responsible for its deployment.",
   ],
   [
-    "Verification status",
-    "Agent records can show whether ownership, purpose and operating scope have been reviewed.",
+    "Continuous Verification",
+    "Agent records show whether ownership, purpose and operating scope remain current as context changes.",
   ],
   [
     "Operational provenance",
@@ -34,11 +34,11 @@ const accountabilityLinks = [
 
 export default function AgentsPage() {
   return (
-    <main className="min-h-screen bg-[#05070b] px-6 py-12 text-white md:px-8">
+    <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Governed Registry
+        <section className="operational-panel p-6 md:p-8">
+          <p className="operational-eyebrow">
+            Governed operational identity
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-6xl">
             AI Agent Identity
@@ -49,8 +49,8 @@ export default function AgentsPage() {
             execution, Replay Timeline and accountable ownership.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Every consequential agent action needs identity, authorization,
-            evidence and a replayable operational record.
+            Agent Trust Posture is continuously evaluated through identity,
+            authorization, evidence and a replayable operational record.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
             Cyber Sentinels does not replace human governance or operational
@@ -61,7 +61,7 @@ export default function AgentsPage() {
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-lg border border-zinc-800 bg-black p-6">
+          <div className="operational-card p-6">
             <p className="text-sm uppercase tracking-[0.18em] text-zinc-500">
               Operational Boundary
             </p>
@@ -90,7 +90,7 @@ export default function AgentsPage() {
             {registryConcepts.map(([title, copy]) => (
               <article
                 key={title}
-                className="rounded-lg border border-zinc-800 bg-black p-5"
+                className="operational-card p-5"
               >
                 <h3 className="font-semibold text-zinc-100">{title}</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-500">{copy}</p>

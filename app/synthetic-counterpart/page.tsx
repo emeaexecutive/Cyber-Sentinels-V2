@@ -34,12 +34,12 @@ export default function SyntheticCounterpartPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/reality-twin", "Reality Twin"],
-            ["/human-presence-genome", "Human Presence Genome"],
-            ["/origin-dna", "Origin DNA"],
-            ["/reality-chain", "Reality Chain"],
-            ["/permissions-firewall", "Permissions Firewall"],
-            ["/mission-control", "Mission Control"],
+            ["/reality-twin", "Identity Exposure Review"],
+            ["/human-presence-genome", "Presence Evidence"],
+            ["/origin-dna", "Identity Provenance"],
+            ["/reality-chain", "Evidence Chain"],
+            ["/permissions-firewall", "Operational Authorization"],
+            ["/dashboard/governance", "Governance Review"],
           ].map(([href, label]) => (
             <Link
               key={href}
@@ -56,10 +56,11 @@ export default function SyntheticCounterpartPage() {
             Synthetic impersonation forecast
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Synthetic Counterpart Engine™
+            Identity Duplication Risk
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            The next attack may not steal identity. It may recreate it.
+            Review impersonation and duplication evidence as one bounded input
+            to Trust Posture, not as an automatic identity verdict.
           </p>
         </section>
 

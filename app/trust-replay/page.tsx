@@ -524,9 +524,10 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
         </div>
 
         <section className="operational-panel mt-8 p-5">
-          <h2 className="text-xl font-semibold">Replay Validation</h2>
+          <h2 className="text-xl font-semibold">Replay Integrity</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
-            Replay validation shows trigger, reason, evidence, reviewer action and trust score movement without claiming independent detection accuracy.
+            Replay shows the trigger, reason, evidence, reviewer action and
+            Trust Posture movement without claiming certainty beyond the record.
           </p>
           <div className="mt-5 grid gap-3 md:grid-cols-5">
             {replayValidationRows.map(([label, value]) => (
@@ -556,7 +557,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           <TimelineReplay events={snapshot.timelineEvents} />
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Replay Proof Chain</h2>
+            <h2 className="text-xl font-semibold">Continuity Record</h2>
             <div className="mt-5 grid gap-3">
               {[
                 ["Verification chronology", snapshot.timelineEvents.length ? "Timeline events preserve the order of workflow changes." : "No timeline events in this replay window."],
