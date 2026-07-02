@@ -60,13 +60,12 @@ const riskExamples = [
   ],
 ];
 const workflow = [
-  "Candidate intake is recorded with source, role and recruiter context.",
-  "Verification begins across candidate, recruiter and interview records.",
-  "Session integrity changes after device, voice/video or channel evidence shifts.",
-  "Governance review opens with reviewer ownership and escalation reason.",
-  "Replay chronology is generated from recorded workflow state.",
-  "The risky session is blocked by human-governed action.",
-  "A verification receipt is issued for audit review.",
+  "A candidate and hiring workflow enter the trusted process.",
+  "Identity, Session Integrity and evidence are checked.",
+  "Trust Posture changes when workflow evidence changes.",
+  "Governance Review assigns a named owner when risk appears.",
+  "Replay Timeline explains the event, evidence and intervention.",
+  "Verification Receipt preserves the final hiring outcome.",
 ];
 
 export default function HiringSecurityPage() {
@@ -78,30 +77,16 @@ export default function HiringSecurityPage() {
             Hiring Security
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight md:text-6xl">
-            Protect enterprise hiring workflows against synthetic trust attacks.
+            Replayable evidence for trusted hiring workflows.
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-300">
-            Fake applicants, proxy interviews and injected sessions become reviewable workflows with evidence, named ownership, replay and receipts.
-          </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Fake candidates are not only recruiting noise. In sensitive roles they can become enterprise access risk. Security, legal and people teams see Trust Posture changes, Governance Review, reviewer actions and the Replay Timeline in one operational chronology.
-          </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-cyan-100">
-            Atlast runs hiring. Cyber Sentinels verifies trust inside hiring
-            workflows. It provides the hiring trust, candidate provenance,
-            interview integrity and replay/evidence layer above ATS systems
-            without claiming a live provider connection.
+            Check candidate identity, Session Integrity and evidence; route risk
+            to Governance Review; replay what changed; preserve the outcome.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href="/verify/candidate"
-              className="brand-primary-action brand-action-large text-sm"
-            >
-              Start Pilot Workflow
-            </Link>
-            <Link
               href="/demo/hiring-attack"
-              className="brand-secondary-action brand-action-large text-sm"
+              className="brand-primary-action brand-action-large text-sm"
             >
               View Demo
             </Link>

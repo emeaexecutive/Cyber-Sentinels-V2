@@ -43,6 +43,14 @@ export function BenchmarkCard({
       <p className="mt-5 border-t border-zinc-800 pt-4 text-xs leading-5 text-zinc-500">
         {benchmark.boundary}
       </p>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs">
+        <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-zinc-300">
+          Provider-backed: not yet validated
+        </span>
+        <span className="rounded-full border border-amber-900 px-2.5 py-1 text-amber-200">
+          Validation required
+        </span>
+      </div>
     </article>
   );
 }

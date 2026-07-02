@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 const proofPath = [
-  "Verification started",
-  "Session Integrity",
-  "Evidence Chain",
-  "Governance Review",
-  "Replay Timeline",
-  "Verification Receipt",
+  "Person, agent or workflow enters",
+  "Identity, session and evidence checked",
+  "Trust changes over time",
+  "Governance intervenes",
+  "Replay explains why",
+  "Receipt preserves the outcome",
 ];
 
 const platformSurfaces = [
@@ -14,12 +14,6 @@ const platformSurfaces = [
   ["Evidence Chain", "Provider, session, workflow and reviewer evidence retained with its source and chronology."],
   ["Governance Review", "Named review ownership, escalation rationale and human authority for sensitive decisions."],
   ["Replay Timeline", "What changed, when it changed, who reviewed it and which evidence supported the final state."],
-];
-
-const entryPoints = [
-  ["/demo", "View Demo", "See the workflow before setup."],
-  ["/enterprise/hiring-security", "Hiring Security", "Start with fake applicants and proxy interviews."],
-  ["/enterprise-access", "Enterprise Access", "Define an operational workflow."],
 ];
 
 export default function Home() {
@@ -34,7 +28,7 @@ export default function Home() {
             Operational trust for intelligent systems.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 md:text-xl md:leading-9">
-            Understand identity, authenticity and trust across every workflow.
+            Replayable evidence for trusted workflows.
           </p>
         </div>
 
@@ -43,7 +37,7 @@ export default function Home() {
             View Demo
           </Link>
           <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
-            Access
+            Request Enterprise Access
           </Link>
           <Link href="/enterprise/hiring-security" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400 hover:text-white">
             Hiring Security
@@ -58,10 +52,10 @@ export default function Home() {
               Proof workflow
             </p>
             <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-              From uncertain workflow entry to replayable accountability.
+              Trust changes. Cyber Sentinels shows why.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              Verification begins, evidence accumulates, reviewers act and replay preserves the final chronology.
+              One path connects entry, evidence, Trust Posture, governance, Replay Timeline and final receipt.
             </p>
           </div>
           <div className="mt-7 grid gap-3 md:grid-cols-6">
@@ -97,32 +91,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-16 md:px-8">
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
-                Operational access
-              </p>
-              <h2 className="mt-3 text-3xl font-semibold text-white">
-                Start with the workflow that matches the operational need.
-              </h2>
-              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-                Review the platform through a guided workflow, enterprise access path,
-                hiring-security use case or commercial plan.
-              </p>
-            </div>
-          </div>
-          <div className="mt-6 grid gap-3 md:grid-cols-3">
-            {entryPoints.map(([href, title, copy]) => (
-              <Link key={href} href={href} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-500">
-                <p className="font-semibold text-zinc-100">{title}</p>
-                <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
     </main>
   );
 }

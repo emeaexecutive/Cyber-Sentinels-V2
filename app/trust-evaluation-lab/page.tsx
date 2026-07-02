@@ -25,12 +25,11 @@ export default function TrustEvaluationLabPage() {
             Trust Evaluation Lab
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-zinc-300">
-            Benchmarking humans, AI agents and enterprise workflows before they
-            are trusted.
+            Operational trust for intelligent systems.
           </p>
           <p className="mt-6 max-w-4xl border-l-2 border-cyan-700 pl-4 text-sm leading-7 text-zinc-300">
-            AI evaluation asks: did the model answer correctly? Cyber Sentinels
-            asks: should this human, agent, workflow or action be trusted?
+            Concept, simulated and prototype evaluations ask whether a human,
+            agent, workflow or action should be trusted. Provider-backed validation is required.
           </p>
         </section>
 
@@ -153,6 +152,9 @@ export default function TrustEvaluationLabPage() {
                       Provider state
                     </dt>
                     <dd className="mt-2 text-zinc-200">{scenario.providerState}</dd>
+                    <dd className="mt-1 text-xs text-zinc-500">
+                      Provider-backed: {scenario.providerState === "Simulated" ? "simulated structure" : "validation required"}
+                    </dd>
                   </div>
                 </dl>
                 <p className="mt-4 text-sm leading-6 text-zinc-400">
@@ -179,6 +181,9 @@ export default function TrustEvaluationLabPage() {
                 <p className="mt-3 text-xs leading-5 text-zinc-500">
                   {scenario.limitation}
                 </p>
+                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-amber-200">
+                  Validation required
+                </p>
                 <Link
                   href={`/replay/demo?scenario=${scenario.id}`}
                   className="mt-5 inline-flex text-sm font-semibold text-cyan-200 hover:text-white"
@@ -190,25 +195,6 @@ export default function TrustEvaluationLabPage() {
           </div>
         </section>
 
-        <section className="mt-12 flex flex-col gap-5 rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-zinc-100">
-              Evidence before claims
-            </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-              Evaluation results should become operational claims only after
-              representative data, documented conditions and accountable review.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/methodology" className="brand-secondary-action">
-              View methodology
-            </Link>
-            <Link href="/status/verification" className="brand-primary-action">
-              Verification maturity
-            </Link>
-          </div>
-        </section>
       </div>
     </main>
   );

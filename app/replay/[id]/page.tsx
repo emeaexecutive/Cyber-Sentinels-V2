@@ -107,8 +107,7 @@ function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
           </p>
           <h1 className="mt-3 text-4xl font-semibold md:text-5xl">{scenario.name} Replay Timeline</h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            A read-only chronology showing what happened, what changed, which evidence
-            existed, who reviewed it and the Trust Posture at each moment.
+            Event. Evidence. Trust change. Governance action. Final state.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
             {scenario.summary}
@@ -195,10 +194,9 @@ function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
                   </div>
                   <dl className="mt-4 grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-5">
                     <div><dt className="text-zinc-400">What happened</dt><dd className="mt-1 leading-6 text-zinc-200">{event.whatHappened}</dd></div>
-                    <div><dt className="text-zinc-400">Why trust changed</dt><dd className="mt-1 leading-6 text-zinc-200">{event.trustChange}</dd></div>
                     <div><dt className="text-zinc-400">Evidence available</dt><dd className="mt-1 leading-6 text-zinc-200">{event.evidence}</dd></div>
-                    <div><dt className="text-zinc-400">Governance action</dt><dd className="mt-1 leading-6 text-zinc-200">{event.governance}</dd></div>
-                    <div><dt className="text-zinc-400">Reviewer</dt><dd className="mt-1 leading-6 text-zinc-200">{event.reviewer}</dd></div>
+                    <div><dt className="text-zinc-400">Trust change</dt><dd className="mt-1 leading-6 text-zinc-200">{event.trustChange}</dd></div>
+                    <div><dt className="text-zinc-400">Governance action</dt><dd className="mt-1 leading-6 text-zinc-200">{event.governance} Reviewer: {event.reviewer}.</dd></div>
                     <div><dt className="text-zinc-400">Authorization Lineage</dt><dd className="mt-1 leading-6 text-zinc-200">{event.authorization}</dd></div>
                   </dl>
                 </div>

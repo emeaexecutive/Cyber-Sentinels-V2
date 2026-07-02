@@ -63,10 +63,8 @@ export default function DemoLabPage() {
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">Operational Trust Simulation Suite</h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Explore how trust changes across humans, AI agents, workflows,
-            evidence chains, governance actions and authorization events.
-            Scenarios are simulated, prototype, concept or placeholder records;
-            none are production benchmark results.
+            Trust changes. Cyber Sentinels shows why. Each scenario connects
+            evidence, governance, replay and outcome without presenting benchmark results.
           </p>
         </header>
 
@@ -76,9 +74,6 @@ export default function DemoLabPage() {
               <p className="text-xs uppercase tracking-[0.16em] text-cyan-200">Scenario library</p>
               <h2 className="mt-2 text-2xl font-semibold">Seven operational trust workflows</h2>
             </div>
-            <Link href="/trust-evaluation-lab" className="text-sm font-semibold text-cyan-200 hover:text-white">
-              Open Trust Evaluation Lab
-            </Link>
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {simulationScenarios.map((scenario) => (
@@ -114,12 +109,12 @@ export default function DemoLabPage() {
           <h2 className="mt-2 text-2xl font-semibold">Two-minute operational sequence</h2>
         <div className="mt-5 grid gap-3 md:grid-cols-3">
           {[
-            ["00:00", "Synthetic candidate", "Open a clearly labelled sample candidate with partial verification."],
-            ["00:30", "Injection risk", "Show the retained channel flag and explain why the workflow pauses."],
-            ["01:00", "Governance escalation", "Follow the evidence into accountable human review."],
-            ["01:20", "Manual review", "Inspect the chronology and reviewer action without an automated candidate verdict."],
-            ["01:40", "Risky session blocked", "Show the suspicious session outcome and preserved audit reference."],
-            ["02:00", "Replay and receipt", "Open the replay chronology and printable enterprise receipt."],
+            ["1", "Workflow enters", "A person, agent or workflow enters a trusted process."],
+            ["2", "Checks run", "Identity, Session Integrity and available evidence are checked."],
+            ["3", "Trust changes", "Trust Posture records what changed over time."],
+            ["4", "Governance acts", "A named reviewer intervenes when risk appears."],
+            ["5", "Replay explains", "Chronology connects the event, evidence and action."],
+            ["6", "Outcome preserved", "A receipt or report preserves the reviewed state."],
           ].map(([time, title, copy]) => (
             <article key={time} className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
               <p className="text-xs font-semibold text-cyan-300">{time}</p>

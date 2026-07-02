@@ -115,11 +115,11 @@ export default async function TrustCenterPage() {
           <div className="mt-4 flex flex-wrap items-start justify-between gap-6">
             <div>
               <h1 className="max-w-3xl text-4xl font-semibold leading-tight md:text-5xl">
-                Trust posture, workflow integrity and governance in one chronology.
+                Trust changes. Cyber Sentinels shows why.
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Review evolving trust posture through provider evidence, session changes,
-                reviewer actions, receipts and canonical operational replay.
+                Replayable evidence connects Trust Posture, provider evidence,
+                Session Integrity, Governance Review and final outcome.
               </p>
             </div>
             <State value={snapshot.badge} />
