@@ -15,7 +15,7 @@ export default function FutureOfTrustPage() {
         <nav className="text-sm text-zinc-400"><Link href="/" className="hover:text-white">Cyber Sentinels</Link> / Future of Trust</nav>
         <div className="mt-16 max-w-5xl">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-100">A founder narrative for operational trust</p>
-          <h1 className="mt-5 text-5xl font-semibold leading-[1.04] tracking-[-0.04em] text-white md:text-7xl">
+          <h1 className="mt-5 text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl">
             Trust changed quietly.
           </h1>
           <p className="mt-8 max-w-3xl text-lg leading-8 text-zinc-300">

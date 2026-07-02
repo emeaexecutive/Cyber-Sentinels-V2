@@ -89,7 +89,7 @@ export default async function EnterpriseReadinessPage() {
               <article key={item.label} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="font-semibold text-zinc-100">{item.label}</h3>
-                  <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase ${stateStyle[item.state]}`}>
+                  <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold uppercase ${stateStyle[item.state]}`}>
                     {item.state}
                   </span>
                 </div>
@@ -157,7 +157,7 @@ export default async function EnterpriseReadinessPage() {
               <article key={provider.name} className="rounded-lg border border-zinc-800 bg-black p-5">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="font-semibold text-zinc-100">{provider.name}</h3>
-                  <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-[11px] uppercase text-zinc-400">
+                  <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs uppercase text-zinc-400">
                     {provider.runtimeState}
                   </span>
                 </div>

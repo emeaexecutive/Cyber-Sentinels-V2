@@ -500,7 +500,7 @@ export default function LoginPage() {
   const actionDisabled = loadingAction !== null;
 
   return (
-    <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
+    <main className="min-h-screen bg-[#04070c] px-5 py-10 text-white sm:px-6 md:px-8 md:py-12">
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-start">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs uppercase tracking-[0.16em] text-cyan-200">

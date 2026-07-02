@@ -124,7 +124,7 @@ function DropdownLinks({
       >
         <span className="inline-flex items-center gap-2">
           {label}
-          <span className={`text-[10px] text-zinc-500 ${open ? "rotate-180" : ""}`}>v</span>
+          <span className={`text-xs text-zinc-500 ${open ? "rotate-180" : ""}`}>v</span>
         </span>
       </button>
       {open ? (

@@ -28,7 +28,11 @@ export default function Home() {
             Operational trust for intelligent systems.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 md:text-xl md:leading-9">
-            Replayable evidence for trusted workflows.
+            Understand identity, authenticity and trust across every workflow.
+          </p>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
+            When evidence or session context changes, Governance Review controls
+            the next action and Replay Timeline preserves why.
           </p>
         </div>
 

@@ -43,7 +43,7 @@ function SignalGrid({
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             {signal.sourceClasses.map((source) => (
-              <span key={source} className="rounded-full border border-zinc-800 px-2.5 py-1 text-[11px] capitalize text-zinc-500">
+              <span key={source} className="rounded-full border border-zinc-800 px-2.5 py-1 text-xs capitalize text-zinc-500">
                 {source}
               </span>
             ))}

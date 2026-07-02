@@ -276,10 +276,8 @@ export default async function GovernancePage({
         <nav className="flex flex-wrap gap-3">
           {[
             ["/workspace", "Workspace"],
-            ["/verification-queue", "Verification Queue"],
             ["/timeline", "Timeline"],
             ["/trust-replay", "Replay"],
-            ["/back-office", "Back Office"],
           ].map(([href, label]) => (
             <Link
               key={href}
@@ -293,13 +291,14 @@ export default async function GovernancePage({
 
         <section className="mt-10 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            Operational Trust Infrastructure
+            Governance Review
           </p>
-          <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Governance visibility for trust coordination.
+          <h1 className="mt-4 text-3xl font-semibold md:text-5xl">
+            Human review with evidence and clear ownership.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Governance Review keeps trust state changes, Verification Evidence, reviewer actions, authorization lineage and workflow status visible before operational decisions advance.
+            Review why a workflow escalated, which evidence exists, who owns the
+            decision and how the outcome changes Trust Posture.
           </p>
           <div className="mt-5 max-w-3xl">
             <OnboardingHint area="governance" />
@@ -312,27 +311,12 @@ export default async function GovernancePage({
           </div>
         ) : null}
 
-        <section className="mt-8 grid gap-4 md:grid-cols-2">
-          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Traditional cybersecurity tools protect</h2>
-            <p className="mt-3 text-sm leading-6 text-zinc-400">
-              Networks, devices and communications.
-            </p>
-          </article>
-          <article className="rounded-lg border border-cyan-900 bg-black p-5">
-            <h2 className="text-xl font-semibold">Cyber Sentinels protects</h2>
-            <p className="mt-3 text-sm leading-6 text-zinc-300">
-              Operational trust, workflow integrity, session authenticity, identity accountability and verification evidence.
-            </p>
-          </article>
-        </section>
-
         <section className="mt-8 grid gap-3 md:grid-cols-4">
           {[
             ["Pending Reviews", metrics.pending],
             ["Escalated", metrics.escalated],
             ["Unresolved Risks", metrics.unresolvedRisks],
-            ["Completion Rate", `${metrics.completionRate}%`],
+            ["Review Prompts", reverificationDueCount],
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-sm text-zinc-500">{label}</p>
@@ -352,12 +336,11 @@ export default async function GovernancePage({
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-semibold">Reverification Posture</h2>
+            <h2 className="text-xl font-semibold">Evidence refresh</h2>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-                Governance review can trigger revalidation when confidence is
-                aging, verification evidence is incomplete, or an action remains
-                unresolved. These checkpoints explain why review is recommended
-                without adding background tracking.
+                Review is recommended when evidence is aging, incomplete or
+                attached to an unresolved action. Each prompt remains explainable
+                and requires an operator decision.
               </p>
             </div>
             <span className="rounded-full border border-amber-800 px-3 py-1 text-xs text-amber-200">
@@ -376,7 +359,7 @@ export default async function GovernancePage({
           <div className="mt-5 grid gap-3 md:grid-cols-5">
             {[
               ["Session integrity", `${signals.length} signal(s)`, "/dashboard/session-integrity"],
-              ["Operational evidence", `${evidence.length} evidence record(s)`, "/evidence-vault"],
+              ["Evidence Chain", `${evidence.length} evidence record(s)`, "/verification-receipts"],
               ["Governance Review", `${queue.length} queue item(s)`, "/dashboard/governance"],
               ["Replay Timeline", "Open replay explorer", "/trust-replay"],
               ["Verification Receipt", "Open receipt index", "/verification-receipts"],

@@ -148,7 +148,7 @@ export default async function TrustTimelinePage() {
           <p className="text-sm uppercase tracking-[0.28em] text-teal-200">
             Trust is earned over time.
           </p>
-          <h1 className="mt-4 text-5xl font-semibold md:text-7xl">
+          <h1 className="mt-4 text-4xl font-semibold sm:text-5xl md:text-6xl">
             Replay Timeline
           </h1>
         </section>

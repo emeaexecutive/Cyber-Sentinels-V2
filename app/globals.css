@@ -57,7 +57,7 @@ p {
   display: inline-flex;
   align-items: center;
   min-height: 2.5rem;
-  border: 1px solid #3f3f46;
+  border: 1px solid #303038;
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
   color: #e4e4e7;
@@ -145,7 +145,7 @@ p {
 }
 
 .border-zinc-800 {
-  border-color: #3f3f46;
+  border-color: #35353d;
 }
 
 .text-xs {

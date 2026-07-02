@@ -95,7 +95,7 @@ export default async function TrustPredictionPage() {
             <p className="text-sm uppercase tracking-[0.28em] text-rose-200">
               Trust decay often starts before humans notice.
             </p>
-            <h1 className="mt-4 text-5xl font-semibold md:text-7xl">
+            <h1 className="mt-4 text-4xl font-semibold sm:text-5xl md:text-6xl">
               Trust Prediction Engine™
             </h1>
             {prediction.isDemo ? (

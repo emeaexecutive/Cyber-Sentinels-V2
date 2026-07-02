@@ -127,52 +127,23 @@ function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
           ))}
         </section>
 
-        <section className="mt-6 rounded-lg border border-zinc-800 bg-black p-5">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Evaluation question</p>
-              <p className="mt-2 text-sm leading-6 text-zinc-200">{scenario.evaluationQuestion}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Evidence continuity</p>
-              <p className="mt-2 text-sm leading-6 text-zinc-200">{scenario.evidenceContinuity}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Demonstration boundary</p>
-              <p className="mt-2 text-sm leading-6 text-zinc-200">{scenario.limitation}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Manual review</p>
-              <p className="mt-2 text-sm leading-6 text-zinc-200">{scenario.manualReviewIndicator}</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-6 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-xs uppercase tracking-[0.12em] text-cyan-200">Provider evidence summaries</p>
-          <div className="mt-3 grid gap-3 md:grid-cols-2">
-            {scenario.providerEvidenceSummaries.map((summary) => (
-              <p key={summary} className="rounded-lg border border-zinc-800 bg-black p-4 text-sm leading-6 text-zinc-300">
-                {summary}
-              </p>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-6 grid gap-3 md:grid-cols-2">
-          <article className="rounded-lg border border-zinc-800 bg-black p-5">
-            <p className="text-xs uppercase tracking-[0.12em] text-cyan-200">Operational notes</p>
-            <ul className="mt-3 grid gap-2 text-sm leading-6 text-zinc-300">
-              {scenario.governanceEvents.map((event) => (
-                <li key={event}>{event}</li>
-              ))}
-              <li>Reviewer attribution and the final authorization state remain part of this chronology.</li>
-            </ul>
-          </article>
-          <article className="rounded-lg border border-zinc-800 bg-black p-5">
-            <p className="text-xs uppercase tracking-[0.12em] text-cyan-200">False-positive handling</p>
-            <p className="mt-3 text-sm leading-6 text-zinc-300">{scenario.falsePositiveHandling}</p>
-          </article>
+        <section className="mt-6 grid gap-3 lg:grid-cols-3">
+          {[
+            [
+              "Evidence available",
+              `${scenario.providerEvidenceSummaries[0]} ${scenario.evidenceContinuity}`,
+            ],
+            [
+              "Governance action",
+              `${scenario.governanceEvents.at(-1)} ${scenario.manualReviewIndicator}`,
+            ],
+            ["Validation boundary", scenario.limitation],
+          ].map(([title, copy]) => (
+            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>
+              <p className="mt-2 text-sm leading-6 text-zinc-300">{copy}</p>
+            </article>
+          ))}
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
@@ -191,7 +162,7 @@ function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
                       {event.operationalState}
                     </span>
                   </div>
-                  <dl className="mt-4 grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-5">
+                  <dl className="mt-4 grid gap-4 text-sm lg:grid-cols-2">
                     <div><dt className="text-zinc-400">What happened</dt><dd className="mt-1 leading-6 text-zinc-200">{event.whatHappened}</dd></div>
                     <div><dt className="text-zinc-400">Evidence available</dt><dd className="mt-1 leading-6 text-zinc-200">{event.evidence}</dd></div>
                     <div><dt className="text-zinc-400">Trust change</dt><dd className="mt-1 leading-6 text-zinc-200">{event.trustChange}</dd></div>

@@ -42,6 +42,13 @@ export default function TrustEvaluationLabPage() {
             maturity stages. They do not represent published studies, production
             performance, accuracy measurements or independent validation.
           </p>
+          <div className="mt-4 flex flex-wrap gap-2 text-xs">
+            {["Concept", "Simulated", "Prototype", "Provider-backed: validation required"].map((label) => (
+              <span key={label} className="rounded-full border border-zinc-700 px-2.5 py-1 text-zinc-300">
+                {label}
+              </span>
+            ))}
+          </div>
         </section>
 
         <section className="mt-10" aria-labelledby="evaluation-areas">
@@ -173,10 +180,6 @@ export default function TrustEvaluationLabPage() {
                 </div>
                 <p className="mt-3 text-sm leading-6 text-amber-200">
                   {scenario.manualReviewIndicator}
-                </p>
-                <p className="mt-3 text-xs leading-5 text-zinc-400">
-                  <span className="font-medium text-zinc-300">False-positive handling:</span>{" "}
-                  {scenario.falsePositiveHandling}
                 </p>
                 <p className="mt-3 text-xs leading-5 text-zinc-500">
                   {scenario.limitation}

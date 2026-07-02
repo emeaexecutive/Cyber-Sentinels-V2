@@ -278,7 +278,7 @@ export default async function TrustGraphPage() {
           <p className="text-sm uppercase tracking-[0.28em] text-teal-200">
             Explainable relationships, not graph chaos.
           </p>
-          <h1 className="mt-4 text-5xl font-semibold md:text-7xl">
+          <h1 className="mt-4 text-4xl font-semibold sm:text-5xl md:text-6xl">
             Trust Graph Explorer
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">

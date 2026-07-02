@@ -13,7 +13,7 @@ export default function MissionPage() {
         <nav className="text-sm text-zinc-400"><Link href="/" className="hover:text-white">Cyber Sentinels</Link> / Mission</nav>
         <div className="mt-16 max-w-5xl">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-100">Our mission</p>
-          <h1 className="mt-5 text-5xl font-semibold leading-[1.05] tracking-[-0.035em] text-white md:text-7xl">
+          <h1 className="mt-5 text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl">
             Make trust explainable when the world is no longer easy to verify.
           </h1>
           <p className="mt-8 max-w-3xl text-lg leading-8 text-zinc-300">
