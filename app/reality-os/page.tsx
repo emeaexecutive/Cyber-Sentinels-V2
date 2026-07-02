@@ -27,7 +27,7 @@ export default function RealityOSPage() {
     ["Human Presence", os.human_presence],
     ["Synthetic Activity", os.synthetic_activity],
     ["Network Relationships", os.network_relationships],
-    ["Global Trust Activity", os.global_trust_activity],
+    ["Operational Trust Activity", os.global_trust_activity],
   ];
 
   return (
@@ -36,7 +36,7 @@ export default function RealityOSPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/trust-fabric", "Trust Fabric"],
+            ["/trust-fabric", "Authorization Lineage"],
             ["/mission-control", "Mission Control"],
             ["/trust-graph", "Trust Graph"],
             ["/trust-prediction", "Prediction Engine"],
@@ -54,21 +54,21 @@ export default function RealityOSPage() {
 
         <section className="mt-10">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Reality orchestration layer
+            Operational Trust context
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Reality OS&trade;
+            Operational Trust across connected workflows
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            The operating system for trust and reality.
+            Evidence, Session Integrity, Authorization Lineage and Governance Review remain connected.
           </p>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           {[
             ["Active Nodes", os.active_nodes],
-            ["Reality State", os.state],
-            ["Trust Fabric Health", os.trust_fabric_health],
+            ["Operational state", os.state],
+            ["Authorization continuity", os.trust_fabric_health],
             ["Signals", os.trust_signals],
           ].map(([label, value]) => (
             <div
@@ -83,7 +83,7 @@ export default function RealityOSPage() {
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Reality State</h2>
+            <h2 className="text-xl font-semibold">Operational state</h2>
             <span
               className={`mt-5 inline-flex rounded-full border px-3 py-1 text-sm ${stateClass(
                 os.state

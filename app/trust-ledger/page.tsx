@@ -19,7 +19,7 @@ function eventClass(eventType: string) {
 
 export default function TrustLedgerPage() {
   const sections = [
-    ["Ledger Overview", "Track how and why trust changed over time."],
+    ["Evidence Chain Overview", "Track how and why Trust Posture changed over time."],
     ["Recent Trust Changes", "Latest score, presence, origin and passport movements."],
     ["Score Changes", "Trust Score, HPI and Origin Trace movements."],
     ["Revocations", "Passport, agent and permission restrictions."],
@@ -35,7 +35,7 @@ export default function TrustLedgerPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/trust-timeline", "Trust Timeline"],
+            ["/trust-timeline", "Replay Timeline"],
             ["/back-office", "Back Office"],
             ["/mission-control", "Mission Control"],
             ["/client-portal", "Client Portal"],
@@ -53,19 +53,19 @@ export default function TrustLedgerPage() {
 
         <section className="mt-10">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Ledger-style trust memory
+            Evidence Chain history
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Trust Score Ledger&trade;
+            Evidence Chain and Trust Posture history
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Trust must have memory.
+            Retained evidence explains what changed, why it changed and who acted.
           </p>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           {[
-            ["Ledger Events", demoTrustLedgerEvents.length],
+            ["Evidence Events", demoTrustLedgerEvents.length],
             ["Score Changes", demoTrustLedgerEvents.filter((event) => /changed/.test(event.event_type)).length],
             ["Revocations", demoTrustLedgerEvents.filter((event) => /revoked|restricted|tampered/.test(event.event_type)).length],
             ["Recoveries", demoTrustLedgerEvents.filter((event) => /restored|recovery/.test(event.event_type)).length],

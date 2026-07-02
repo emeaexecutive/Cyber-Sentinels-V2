@@ -140,7 +140,7 @@ export default async function TrustTimelinePage() {
             Back Office
           </Link>
           <Link href="/trust-ledger" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
-            /trust-ledger
+            Evidence Chain History
           </Link>
         </nav>
 
@@ -149,7 +149,7 @@ export default async function TrustTimelinePage() {
             Trust is earned over time.
           </p>
           <h1 className="mt-4 text-5xl font-semibold md:text-7xl">
-            Trust Timeline™
+            Replay Timeline
           </h1>
         </section>
 
@@ -158,7 +158,7 @@ export default async function TrustTimelinePage() {
             ["Events Today", metrics.eventsToday],
             ["Trust Changes", metrics.trustChanges],
             ["Manual Reviews", metrics.manualReviews],
-            ["Reality Updates", metrics.realityUpdates],
+            ["Evidence Updates", metrics.realityUpdates],
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
               <p className="text-sm text-zinc-500">{label}</p>
@@ -170,17 +170,17 @@ export default async function TrustTimelinePage() {
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-semibold">Trust Score Ledger</h2>
+              <h2 className="text-xl font-semibold">Evidence Chain continuity</h2>
               <p className="mt-2 text-sm text-zinc-500">
-                Timeline events can be reconciled with ledger rows that explain
-                score changes, revocations, recoveries and evidence updates.
+                Replay events can be reconciled with retained records that explain
+                Trust Posture changes, revocations, recoveries and evidence updates.
               </p>
             </div>
             <Link
               href="/trust-ledger"
               className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
-              Open Ledger
+              Open Evidence Chain History
             </Link>
           </div>
         </section>

@@ -153,7 +153,7 @@ export default async function TrustPredictionPage() {
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:col-span-2">
-            <h2 className="text-xl font-semibold">Trust Fabric Activity</h2>
+            <h2 className="text-xl font-semibold">Authorization Lineage Activity</h2>
             <p className="mt-4 text-sm leading-6 text-zinc-500">
               Fabric activity from signals, audit events and decisions is used
               as prediction pressure when connected trust systems shift at once.

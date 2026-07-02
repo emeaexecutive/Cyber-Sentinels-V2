@@ -307,13 +307,6 @@ export function GlobalNavigation({
           ) : null}
           {accessLevel === "admin" ? (
             <>
-              <Link
-                href="/"
-                onClick={closeMenus}
-                className="nav-control"
-              >
-                Home
-              </Link>
               <PrimaryNavigation
                 openDropdown={openDropdown}
                 onToggleDropdown={toggleDropdown}

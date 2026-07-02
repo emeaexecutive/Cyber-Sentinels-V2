@@ -3,8 +3,8 @@ const layers = [
   ["Active Flags", "Identity, media, injection and session-integrity changes surfaced for review."],
   ["Pending Reviews", "Controlled review paths for sensitive outcomes."],
   ["Governance Review", "Human oversight and escalation for high-risk workflows."],
-  ["Verification Receipts", "Audit-ready records showing what was reviewed and when."],
-  ["Verification Chronology", "Workflow history that can be reviewed after decisions are made."],
+  ["Verification Receipt", "Audit-ready records showing what was reviewed and when."],
+  ["Replay Timeline", "Workflow history that can be reviewed after decisions are made."],
 ];
 
 export default function PlatformPage() {
@@ -23,11 +23,11 @@ export default function PlatformPage() {
             across workflows, identities and intelligent systems.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-            It keeps Hiring Security, Session Integrity, Verification Evidence, Governance Review and Replay Evidence in one reviewable path.
+            It keeps Hiring Security, Session Integrity, Evidence Chain, Governance Review and Replay Timeline in one reviewable path.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             Assurance is consent-based and evidence-gated. Biometric references
-            can support future verification, but never establish certainty or
+            can support configured verification, but never establish certainty or
             replace human governance.
           </p>
         </section>

@@ -25,7 +25,7 @@ export default function TrustFabricPage() {
     ["Human Presence", fabric.humans],
     ["Synthetic Activity", fabric.synthetic_activity],
     ["Network Relationships", fabric.relationships],
-    ["Global Trust Activity", fabric.global_activity],
+    ["Operational Trust Activity", fabric.global_activity],
   ];
 
   return (
@@ -34,7 +34,7 @@ export default function TrustFabricPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/reality-os", "Reality OS"],
+            ["/reality-os", "Operational Trust Context"],
             ["/trust-graph", "Trust Graph"],
             ["/trust-timeline", "Trust Timeline"],
             ["/evidence-vault", "Evidence Vault"],
@@ -55,10 +55,10 @@ export default function TrustFabricPage() {
             Connected trust graph
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Trust Fabric&trade;
+            Authorization Lineage
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Trust is built from connected evidence.
+            Connected evidence, permissions and relationships explain who could act and why.
           </p>
         </section>
 
@@ -68,7 +68,7 @@ export default function TrustFabricPage() {
             ["Humans", fabric.humans],
             ["Agents", fabric.agents],
             ["Signals", fabric.signals],
-            ["Trust Fabric Health", fabric.health],
+            ["Authorization continuity", fabric.health],
           ].map(([label, value]) => (
             <div
               key={label}
@@ -96,7 +96,7 @@ export default function TrustFabricPage() {
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Trust Fabric Health</h2>
+            <h2 className="text-xl font-semibold">Authorization continuity</h2>
             <span
               className={`mt-5 inline-flex rounded-full border px-3 py-1 text-sm ${healthClass(
                 fabric.health

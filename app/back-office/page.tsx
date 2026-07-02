@@ -1137,7 +1137,7 @@ export default async function BackOfficePage({
     ["API Docs", "/api-docs"],
     ["Developer Console", "/developer-console"],
     ["Billing / Clearances", "/billing"],
-    ["Global Infrastructure", "/global-trust"],
+    ["Operational Trust Infrastructure", "/global-trust"],
     ["QA Console", "/qa-console"],
     ["Agent Registry", "/agent-registry"],
     ["Permissions Firewall", "/permissions-firewall"],
@@ -1153,7 +1153,7 @@ export default async function BackOfficePage({
     ["Trust Badges", "/trust-badges"],
     ["Public Verification", "/verify"],
     ["Public Profiles", "/profile"],
-    ["Trust Ledger", "/trust-ledger"],
+    ["Evidence Chain History", "/trust-ledger"],
     ["Verification Chronology", "/timeline"],
     ["Governance Review", "/dashboard/governance"],
   ];

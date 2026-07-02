@@ -29,7 +29,7 @@ export default function PublicProfilesPage() {
             ["/trust-embeds", "Trust Embeds"],
             ["/trust-seal-authority", "Trust Seals"],
             ["/trust-registry", "Trust Registry"],
-            ["/trust-ledger", "Trust Ledger"],
+            ["/trust-ledger", "Evidence Chain History"],
             ["/passport", "Create Passport"],
           ].map(([href, label]) => (
             <Link
@@ -128,9 +128,9 @@ export default function PublicProfilesPage() {
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-semibold">Public-Safe Ledger Summary</h2>
+              <h2 className="text-xl font-semibold">Public-Safe Evidence Chain Summary</h2>
               <p className="mt-2 text-sm text-zinc-500">
-                Public profiles can show high-level ledger history without raw
+                Public profiles can show high-level Evidence Chain history without raw
                 private evidence, admin notes or internal risk scores.
               </p>
             </div>
@@ -138,7 +138,7 @@ export default function PublicProfilesPage() {
               href="/trust-ledger"
               className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
-              Open Trust Ledger
+              Open Evidence Chain History
             </Link>
           </div>
         </section>
@@ -212,7 +212,7 @@ export default function PublicProfilesPage() {
               href="/trust-feed"
               className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
-              Open Trust Feed
+              Open Operational Trust Activity
             </Link>
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2">

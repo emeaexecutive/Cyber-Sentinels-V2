@@ -6,25 +6,23 @@ export default function TrustOsPage() {
       <div className="mx-auto max-w-5xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            Trust OS
+            Operational Trust
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            A focused operating layer for trust workflows.
+            One evidence-backed path through operational trust workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Trust OS is the Cyber Sentinels product framing for evidence-backed
-            verification, governed review, auditability and explainable trust
-            relationships.
+            Cyber Sentinels connects verification, Evidence Chain, Governance
+            Review, Replay Timeline and explainable Trust Posture.
           </p>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-6">
-          <h2 className="text-2xl font-semibold">Not a generic product surface.</h2>
+          <h2 className="text-2xl font-semibold">A clear operational boundary.</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            The product surface is being refined around a small V1 spine:
-            Trust Passports, evidence workflows, review decisions, audit trails,
-            signals, notifications and appeals. Advanced concepts remain early
-            platform direction.
+            The route is retained for compatibility. The active product language
+            is Operational Trust: provider evidence, Session Integrity, named
+            reviewer decisions, Authorization Lineage and replayable outcomes.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
@@ -37,7 +35,7 @@ export default function TrustOsPage() {
               href="/timeline"
               className="rounded-lg border border-cyan-800 px-4 py-3 text-sm text-cyan-100 hover:text-white"
             >
-              Timeline
+              Replay Timeline
             </Link>
           </div>
         </section>

@@ -187,8 +187,8 @@ export default async function ClientPortalPage() {
             ["/trust-seal-authority", "Trust Seals"],
             ["/verify", "Public Verify"],
             ["/profile", "Public Profiles"],
-            ["/trust-feed", "Trust Feed"],
-            ["/trust-ledger", "Trust Ledger"],
+            ["/trust-feed", "Operational Trust Activity"],
+            ["/trust-ledger", "Evidence Chain History"],
             ["/billing", "Billing"],
             ["/developer-console", "Developer Console"],
           ].map(([href, label]) => (
@@ -375,21 +375,21 @@ export default async function ClientPortalPage() {
               href="/trust-feed"
               className="mt-5 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
-              Open Trust Feed
+              Open Operational Trust Activity
             </Link>
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">My Trust Ledger</h2>
+            <h2 className="text-xl font-semibold">My Evidence Chain History</h2>
             <p className="mt-2 text-sm text-zinc-500">
-              Ledger history for trust score changes, verification outcomes,
+              Retained history for Trust Posture changes, verification outcomes,
               recoveries and evidence updates will appear here.
             </p>
             <Link
               href="/trust-ledger"
               className="mt-5 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
-              Open Trust Ledger
+              Open Evidence Chain History
             </Link>
           </div>
 

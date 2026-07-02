@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const sections = [
   [
-    "Global Trust Layer",
+    "Operational Trust",
     "Cyber Sentinels is operational trust infrastructure for hiring, AI workflows, evidence, organisations and governed digital interactions.",
   ],
   [
@@ -38,19 +38,19 @@ const sections = [
     "The platform is moving toward audit-ready verification, regional deployment choices and exportable decision history.",
   ],
   [
-    "Enterprise-Grade Future Architecture",
-    "The V1 app stays lean while leaving clear paths for hardened compute, storage, queues, immutability and API governance.",
+    "Deployment boundary",
+    "Production assurance depends on configured providers, protected storage, runtime validation and approved governance controls.",
   ],
 ];
 
 const architecture = [
   "Supabase for V1 database/auth/storage",
   "Vercel for app deployment",
-  "Future secure compute layer for media analysis",
-  "Future dedicated evidence storage",
-  "Future queue workers for video/audio scanning",
-  "Future audit immutability layer",
-  "Future API gateway and rate limiting",
+  "Media analysis remains provider and deployment dependent",
+  "Evidence storage follows configured access and retention controls",
+  "Background processing requires deployed worker validation",
+  "Audit guarantees depend on deployed database controls",
+  "API protection depends on configured authentication and rate limits",
 ];
 
 const placeholders = [
@@ -89,7 +89,7 @@ export default function GlobalTrustPage() {
             Platform readiness
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Global Trust Infrastructure
+            Operational Trust Infrastructure
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
             Evidence-backed trust workflows for hiring, AI operations and

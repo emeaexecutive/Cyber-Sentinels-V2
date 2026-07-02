@@ -149,9 +149,9 @@ export default async function MissionControlPage() {
     human_presence_strength: snapshot.metrics.averageTrustScore || 84,
   });
   const metrics = [
-    ["Reality OS status", realityOS.state],
+    ["Operational Trust state", realityOS.state],
     ["Launch readiness", `${demoLaunchReadiness.score}%`],
-    ["Trust Ledger", demoTrustLedgerEvents.length],
+    ["Evidence Chain events", demoTrustLedgerEvents.length],
     ["Active verifications", snapshot.metrics.activeVerifications],
     ["Registered agents", agents.length],
     ["Permissions firewall", "ACTIVE"],
@@ -160,7 +160,7 @@ export default async function MissionControlPage() {
     ["Recovery Queue", recoveryQueue],
     ["Export Center", exportCenter || "READY"],
     ["Verifier Network", verifierNetwork || "READY"],
-    ["Trust Feed", trustFeedItems.length],
+    ["Operational Trust updates", trustFeedItems.length],
     ["Critical alerts", snapshot.metrics.criticalAlerts],
     ["Flags today", snapshot.metrics.signalsToday],
     ["Average trust score", snapshot.metrics.averageTrustScore],
@@ -200,9 +200,9 @@ export default async function MissionControlPage() {
             ["/enterprise/hiring-security", "Hiring Security"],
             ["/demo", "Demo"],
             ["/verifier-network", "Verifier Network"],
-            ["/trust-feed", "Trust Feed"],
-            ["/trust-ledger", "Trust Ledger"],
-            ["/global-trust", "Global Trust"],
+            ["/trust-feed", "Operational Trust Activity"],
+            ["/trust-ledger", "Evidence Chain History"],
+            ["/global-trust", "Operational Trust"],
           ].map(([href, label]) => (
             <Link
               key={href}
@@ -316,7 +316,7 @@ export default async function MissionControlPage() {
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-semibold">Trust Feed Preview</h2>
+              <h2 className="text-xl font-semibold">Operational Trust Activity</h2>
               <p className="mt-2 text-sm text-zinc-500">
                 Public-safe network activity across badges, profiles, agents and marketplaces.
               </p>
@@ -325,7 +325,7 @@ export default async function MissionControlPage() {
               href="/trust-feed"
               className="rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"
             >
-              Open Trust Feed
+              Open Operational Trust Activity
             </Link>
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2">

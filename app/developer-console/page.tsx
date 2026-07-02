@@ -104,7 +104,7 @@ export default async function DeveloperConsolePage() {
             ["/trust-embeds", "Trust Embeds"],
             ["/trust-registry", "Trust Registry"],
             ["/verify", "Public Verify"],
-            ["/global-trust", "Global Trust"],
+            ["/global-trust", "Operational Trust"],
             ["/back-office", "Back Office"],
             ["/command-center", "Command Center"],
           ].map(([href, label]) => (

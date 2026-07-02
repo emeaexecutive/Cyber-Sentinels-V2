@@ -15,7 +15,7 @@ export default function MarketplaceTrustPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/trust-feed", "Trust Feed"],
+            ["/trust-feed", "Operational Trust Activity"],
             ["/verify", "Public Verify"],
             ["/profile", "Public Profiles"],
             ["/trust-badges", "Trust Badges"],
@@ -45,7 +45,7 @@ export default function MarketplaceTrustPage() {
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
             Cyber Sentinels prepares external platforms to verify users,
             sellers, candidates, creators, agents, media and high-risk
-            interactions, with public-safe activity available through Trust Feed
+            interactions, with public-safe Operational Trust activity available
             integrations.
           </p>
         </section>

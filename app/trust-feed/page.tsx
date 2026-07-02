@@ -106,13 +106,13 @@ export default function TrustFeedPage() {
 
         <section className="mt-10">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Network activity
+            Operational Trust activity
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Trust Feed™
+            Operational Trust Activity
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Trust activity across the Cyber Sentinels network.
+            Public-safe verification and workflow updates with their recorded state.
           </p>
         </section>
 
@@ -133,7 +133,7 @@ export default function TrustFeedPage() {
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-          <FeedList title="Live Trust Activity" items={feed} />
+          <FeedList title="Recent Operational Trust Activity" items={feed} />
           <div className="space-y-6">
             <FeedList title="New Profiles" items={newProfiles} />
             <FeedList title="Recent Badges" items={recentBadges} />
@@ -149,7 +149,7 @@ export default function TrustFeedPage() {
 
         <section className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Feed Object Types</h2>
+            <h2 className="text-xl font-semibold">Recorded subject types</h2>
             <div className="mt-5 flex flex-wrap gap-2">
               {feedObjectTypes.map((type) => (
                 <code

@@ -4,14 +4,14 @@ const trustControls = [
   ["Hiring Security", "Fake applicants, proxy interviews and assisted fraud can turn hiring into enterprise access risk."],
   ["Session Integrity", "Liveness, deepfake risk, injection risk and channel integrity remain separate signals after verification begins."],
   ["Governance Review", "High-risk workflow changes route to named reviewers with ownership, chronology and recorded action."],
-  ["Verification Replay", "Canonical evidence chronology reconstructs what happened before, during and after a workflow changed state."],
-  ["Verification Receipts", "Printable receipts summarize trust state, reviewer decision, verification evidence, replay chronology and workflow outcome."],
+  ["Replay Timeline", "Canonical evidence chronology reconstructs what happened before, during and after a workflow changed state."],
+  ["Verification Receipt", "Printable receipts summarize Trust Posture, reviewer decision, Evidence Chain, Replay Timeline and workflow outcome."],
 ];
 
 const coordinationControls = [
-  ["Trust state changes", "Identity, session, evidence and reviewer states remain visible as workflows evolve."],
+  ["Trust Posture changes", "Identity, session, evidence and reviewer states remain visible as workflows evolve."],
   ["Governance escalation events", "High-risk workflow changes can move into human review with ownership."],
-  ["Verification evidence attached", "Receipts, replay and audit references stay connected to the workflow."],
+  ["Evidence Chain attached", "Verification Receipt, Replay Timeline and audit references stay connected to the workflow."],
   ["Workflow authenticity status", "Teams can see whether a workflow is verified, elevated risk or awaiting review."],
 ];
 
