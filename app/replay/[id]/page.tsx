@@ -140,7 +140,7 @@ function DemoReplay() {
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
             Controlled demonstration · simulated evidence
           </p>
-          <h1 className="mt-3 text-4xl font-semibold md:text-5xl">Hiring workflow replay</h1>
+          <h1 className="mt-3 text-4xl font-semibold md:text-5xl">Hiring Workflow Replay Timeline</h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             A read-only chronology showing what happened, what changed, which evidence
             existed, who reviewed it and the Trust Posture at each moment.
@@ -431,10 +431,10 @@ export default async function VerificationReplayPage({
         </nav>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">Verification Replay</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-300">Replay Timeline</p>
           <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-semibold">{session?.title ?? "Verification workflow replay"}</h1>
+              <h1 className="text-4xl font-semibold">{session?.title ?? "Workflow Replay Timeline"}</h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
                 This read-only replay reconstructs provider evidence, signal changes, reviewer decisions,
                 trust-state transitions, authorization lineage and workflow outcomes.
@@ -473,7 +473,7 @@ export default async function VerificationReplayPage({
               ["Session integrity", label(session?.integrity_status, "Reviewable"), `/trust/session/${subjectId}`],
               ["Governance review", label(latestGovernance?.action_status, "Pending"), "/dashboard/governance"],
               ["Operational evidence", `${evidenceChains?.length ?? 0} chain(s)`, "/evidence-vault"],
-              ["Replay chronology", `${chronology.length} event(s)`, `/replay/${id}`],
+              ["Replay Timeline", `${chronology.length} event(s)`, `/replay/${id}`],
               ["Verification receipt", receipts?.[0] ? label(receipts[0].verification_status, "Issued") : "Pending", receipts?.[0] ? `/verification/receipt/${receipts[0].id}` : "/verification-receipts"],
             ].map(([title, value, href]) => (
               <Link key={title} href={String(href)} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-700">

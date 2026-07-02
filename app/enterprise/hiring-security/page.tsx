@@ -84,7 +84,7 @@ export default function HiringSecurityPage() {
             Fake applicants, proxy interviews and injected sessions become reviewable workflows with evidence, named ownership, replay and receipts.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Fake candidates are not only recruiting noise. In sensitive roles they can become enterprise access risk. Security, legal and people teams see state changes, Governance Review, reviewer actions and Replay Evidence in one operational chronology.
+            Fake candidates are not only recruiting noise. In sensitive roles they can become enterprise access risk. Security, legal and people teams see Trust Posture changes, Governance Review, reviewer actions and the Replay Timeline in one operational chronology.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-cyan-100">
             Atlast runs hiring. Cyber Sentinels verifies trust inside hiring
@@ -94,8 +94,14 @@ export default function HiringSecurityPage() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href="/demo/hiring-attack"
+              href="/verify/candidate"
               className="brand-primary-action brand-action-large text-sm"
+            >
+              Start Pilot Workflow
+            </Link>
+            <Link
+              href="/demo/hiring-attack"
+              className="brand-secondary-action brand-action-large text-sm"
             >
               View Demo
             </Link>
@@ -166,9 +172,9 @@ export default function HiringSecurityPage() {
               From fake applicant to verification receipt.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              Start with one reviewable workflow. The outcome is an evidence
-              chain, reviewer decision, replay chronology and audit-ready
-              hiring report.
+              Start with one reviewable workflow. The outcome is an Evidence
+              Chain, reviewer decision, Replay Timeline and Verification
+              Receipt.
             </p>
           </section>
           <section className="grid gap-3">

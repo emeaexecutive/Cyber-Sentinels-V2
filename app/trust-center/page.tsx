@@ -126,13 +126,13 @@ export default async function TrustCenterPage() {
           </div>
           <nav className="mt-6 flex flex-wrap gap-3 text-sm">
             <Link href="/trust-replay" className="brand-primary-action">
-              Open canonical replay
+              Open Replay Timeline
             </Link>
             <Link href="/dashboard/governance" className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:text-white">
-              Governance
+              Open Governance Review
             </Link>
             <Link href="/dashboard/session-integrity" className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:text-white">
-              Session integrity
+              Open Session Integrity
             </Link>
           </nav>
         </section>
@@ -179,7 +179,7 @@ export default async function TrustCenterPage() {
                   </div>
                   {workflow.replay ? (
                     <Link href={`/replay/${workflow.replay.id}`} className="mt-4 inline-flex text-sm text-cyan-200 hover:text-white">
-                      Review evidence chronology
+                      Open Replay Timeline
                     </Link>
                   ) : null}
                 </article>
@@ -274,7 +274,7 @@ export default async function TrustCenterPage() {
               <h2 className="text-xl font-semibold">Canonical operational evidence</h2>
               <p className="mt-2 text-sm text-zinc-500">Trust changes, workflow transitions and receipt generation ordered from recorded events.</p>
             </div>
-            <Link href="/trust-replay" className="text-sm text-cyan-200 hover:text-white">Open all replay</Link>
+            <Link href="/trust-replay" className="text-sm text-cyan-200 hover:text-white">Open Replay Timeline</Link>
           </div>
           <div className="mt-5 grid gap-2">
             {snapshot.recentEvents.length ? snapshot.recentEvents.map((event, index) => {
