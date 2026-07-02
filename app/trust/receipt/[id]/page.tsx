@@ -45,7 +45,7 @@ function evidenceItems(value: unknown) {
 function DetailRow({ label: rowLabel, value }: { label: string; value: unknown }) {
   return (
     <div className="rounded-lg border border-zinc-800 bg-black p-4">
-      <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">{rowLabel}</p>
+      <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">{rowLabel}</p>
       <p className="mt-2 text-sm text-zinc-300">{label(value)}</p>
     </div>
   );
@@ -485,7 +485,7 @@ export default async function TrustReceiptPage({
             ["Evidence retained", (evidenceChains ?? []).length ? "Retained" : "Pending"],
           ].map(([title, state]) => (
             <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white">
-              <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>
               <p className={`mt-2 text-sm font-semibold ${state === "Pending" ? "text-amber-200 print:text-amber-700" : "text-emerald-200 print:text-emerald-700"}`}>{state}</p>
             </div>
           ))}
@@ -589,7 +589,7 @@ export default async function TrustReceiptPage({
             ].map(([title, value, href]) => {
               const content = (
                 <>
-                  <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+                  <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>
                   <p className="mt-2 break-words text-sm font-semibold text-zinc-100 print:text-zinc-800">{value}</p>
                 </>
               );
@@ -738,7 +738,7 @@ export default async function TrustReceiptPage({
               ["Audit references", `${(auditLogs ?? []).length} receipt audit log(s)`],
             ].map(([title, value]) => (
               <div key={title} className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 print:border-zinc-300 print:bg-white">
-                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>
                 <p className="mt-2 text-sm leading-6 text-zinc-300 print:text-zinc-700">{value}</p>
               </div>
             ))}

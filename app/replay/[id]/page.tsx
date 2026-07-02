@@ -439,7 +439,7 @@ export default async function VerificationReplayPage({
                 This read-only replay reconstructs provider evidence, signal changes, reviewer decisions,
                 trust-state transitions, authorization lineage and workflow outcomes.
               </p>
-              <p className="mt-2 font-mono text-xs text-zinc-600">Subject {subjectType} / {subjectId}</p>
+              <p className="mt-2 font-mono text-xs text-zinc-500">Subject {subjectType} / {subjectId}</p>
             </div>
             <StatusBadge status={latestGovernance?.action_status ?? session?.integrity_status ?? "reviewable"} />
           </div>
@@ -455,7 +455,7 @@ export default async function VerificationReplayPage({
             ["Final trust state", latestRecordedState],
           ].map(([title, state]) => (
             <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
-              <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>
               <p className={`mt-2 text-sm font-semibold ${operationalStateClass(state)}`}>{state}</p>
             </div>
           ))}
@@ -477,7 +477,7 @@ export default async function VerificationReplayPage({
               ["Verification receipt", receipts?.[0] ? label(receipts[0].verification_status, "Issued") : "Pending", receipts?.[0] ? `/verification/receipt/${receipts[0].id}` : "/verification-receipts"],
             ].map(([title, value, href]) => (
               <Link key={title} href={String(href)} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-700">
-                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>
                 <p className="mt-2 text-sm font-semibold text-zinc-100">{value}</p>
               </Link>
             ))}
@@ -540,7 +540,7 @@ export default async function VerificationReplayPage({
               ["Trust-state change", `${firstRecordedState} -> ${latestRecordedState}`],
             ].map(([title, value]) => (
               <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
-                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>
                 <p className="mt-2 text-sm leading-6 text-zinc-300">{value}</p>
               </div>
             ))}
@@ -582,12 +582,12 @@ export default async function VerificationReplayPage({
           <div className="mt-5 grid gap-3">
             {chronology.length ? chronology.map((event, index) => (
               <article key={event.id} className="grid gap-3 rounded-lg border border-zinc-800 bg-black p-4 md:grid-cols-[110px_170px_1fr]">
-                <div><p className="text-xs text-zinc-600">Step {index + 1}</p><p className="mt-2 text-xs text-zinc-500">{formatDate(event.created_at)}</p></div>
+                <div><p className="text-xs text-zinc-500">Step {index + 1}</p><p className="mt-2 text-xs text-zinc-500">{formatDate(event.created_at)}</p></div>
                 <div><p className="text-xs uppercase tracking-[0.12em] text-cyan-300">{event.type}</p><p className="mt-2 text-sm font-semibold">{label(event.state)}</p></div>
                 <div>
                   <p className="font-medium">{label(event.title)}</p>
                   <p className="mt-2 text-sm leading-6 text-zinc-500">{label(event.summary, "Trust state recorded for audit replay.")}</p>
-                  <p className="mt-3 text-xs text-zinc-600">
+                  <p className="mt-3 text-xs text-zinc-500">
                     Continuity: {event.type === "governance" ? "reviewer decision affects workflow and receipt outcome" : event.type === "evidence" ? "evidence chain supports the replay chronology" : event.type === "receipt" ? "receipt preserves the final workflow state and audit-ready report" : "event retained for governance review"}
                   </p>
                 </div>

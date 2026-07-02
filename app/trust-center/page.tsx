@@ -147,7 +147,7 @@ export default async function TrustCenterPage() {
             ["Continuity changes", snapshot.metrics.contextChanges],
           ].map(([label, value]) => (
             <article key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
-              <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
               <p className="mt-2 text-2xl font-semibold text-zinc-100">{String(value)}</p>
             </article>
           ))}
@@ -160,7 +160,7 @@ export default async function TrustCenterPage() {
                 <h2 className="text-xl font-semibold">Evolving workflow trust</h2>
                 <p className="mt-2 text-sm text-zinc-500">Recorded posture changes with replay and governance continuity.</p>
               </div>
-              <p className="text-xs text-zinc-600">{snapshot.posture.label}</p>
+              <p className="text-xs text-zinc-500">{snapshot.posture.label}</p>
             </div>
             <div className="mt-5 grid gap-3">
               {workflows.length ? workflows.map((workflow) => (
@@ -168,7 +168,7 @@ export default async function TrustCenterPage() {
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <p className="font-medium text-zinc-100">{workflow.subject}</p>
-                      <p className="mt-1 text-xs capitalize text-zinc-600">{workflow.context} · {when(workflow.updatedAt)}</p>
+                      <p className="mt-1 text-xs capitalize text-zinc-500">{workflow.context} · {when(workflow.updatedAt)}</p>
                     </div>
                     <State value={workflow.change} />
                   </div>
@@ -230,12 +230,12 @@ export default async function TrustCenterPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="font-medium capitalize text-zinc-100">{text(action.subject_type, "Workflow review")}</p>
-                      <p className="mt-1 text-xs text-zinc-600">Workflow {String(action.subject_id).slice(0, 12)}</p>
+                      <p className="mt-1 text-xs text-zinc-500">Workflow {String(action.subject_id).slice(0, 12)}</p>
                     </div>
                     <State value={action.action_status} />
                   </div>
                   <p className="mt-3 text-sm leading-6 text-zinc-400">{text(action.resolution_notes, "Reviewer action recorded; resolution notes pending.")}</p>
-                  <div className="mt-3 grid gap-1 text-xs text-zinc-600 sm:grid-cols-2">
+                  <div className="mt-3 grid gap-1 text-xs text-zinc-500 sm:grid-cols-2">
                     <p>Owner: {text(action.assigned_to, "Unassigned")}</p>
                     <p>{when(action.resolved_at ?? action.created_at)}</p>
                   </div>
@@ -255,7 +255,7 @@ export default async function TrustCenterPage() {
                     <State value={provider.state} />
                   </div>
                   <p className="mt-3 text-sm leading-6 text-zinc-400">{provider.summary}</p>
-                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-zinc-600">
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-zinc-500">
                     <Link href={`/trust/receipt/${provider.receiptId}`} className="text-cyan-200 hover:text-white">Receipt</Link>
                     {replayBySubject.get(provider.workflowId) ? (
                       <Link href={`/replay/${replayBySubject.get(provider.workflowId)?.id}`} className="text-cyan-200 hover:text-white">Replay</Link>
@@ -281,12 +281,12 @@ export default async function TrustCenterPage() {
               const replay = replayBySubject.get(String(event.subject_id ?? event.interview_session_id ?? ""));
               return (
                 <article key={`${event.posture_source}-${event.id ?? index}`} className="grid gap-2 rounded-lg border border-zinc-800 bg-black p-4 md:grid-cols-[0.55fr_2fr_auto] md:items-center">
-                  <span className="text-xs uppercase tracking-[0.12em] text-zinc-600">{text(event.posture_source)}</span>
+                  <span className="text-xs uppercase tracking-[0.12em] text-zinc-500">{text(event.posture_source)}</span>
                   <div>
                     <p className="text-sm font-medium capitalize text-zinc-200">{text(event.posture_label)}</p>
-                    <p className="mt-1 text-xs text-zinc-600">{text(event.event_summary ?? event.explanation, "Recorded workflow transition")}</p>
+                    <p className="mt-1 text-xs text-zinc-500">{text(event.event_summary ?? event.explanation, "Recorded workflow transition")}</p>
                   </div>
-                  <div className="text-xs text-zinc-600">
+                  <div className="text-xs text-zinc-500">
                     <p>{when(event.created_at)}</p>
                     {replay ? <Link href={`/replay/${replay.id}`} className="mt-1 inline-flex text-cyan-200 hover:text-white">Replay</Link> : null}
                   </div>
@@ -296,7 +296,7 @@ export default async function TrustCenterPage() {
           </div>
         </section>
 
-        <p className="mt-7 text-xs leading-5 text-zinc-600">
+        <p className="mt-7 text-xs leading-5 text-zinc-500">
           Operational posture is derived from authenticated workflow records. It is explainable review context, not surveillance or an automated identity verdict.
         </p>
       </div>
