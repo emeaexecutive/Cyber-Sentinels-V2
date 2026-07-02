@@ -49,6 +49,7 @@ const footerSections = [
       ["/help", "Help"],
       ["/security", "Security & Trust"],
       ["/trust", "Trust Center"],
+      ["/trust-evaluation-lab", "Trust Evaluation Lab"],
       ["/methodology", "Methodology"],
       ["/security#responsible-disclosure", "Responsible Disclosure"],
       ["/data-rights", "Data Rights"],
