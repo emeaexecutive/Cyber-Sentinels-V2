@@ -16,7 +16,7 @@ export default function HiringAttackDemoPage() {
       providerState={scenario.providerState}
       manualReviewIndicator={scenario.manualReviewIndicator}
       replayHref={`/replay/demo?scenario=${scenario.id}`}
-      nextScenario={{ href: "/demo/session-integrity", label: "Open Session Integrity" }}
+      nextScenario={{ href: "/verify/session", label: "Review Session Evidence" }}
     />
   );
 }

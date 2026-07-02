@@ -66,6 +66,10 @@ export default function VerifySessionPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
+        <nav className="flex flex-wrap gap-3 text-sm">
+          <Link href="/demo/hiring-attack" className="text-zinc-300 hover:text-white">Hiring scenario</Link>
+          <Link href="/replay/demo" className="text-cyan-200 hover:text-white">Continue to Replay Timeline</Link>
+        </nav>
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
             Session Integrity Review
@@ -80,6 +84,11 @@ export default function VerifySessionPage() {
             Detection is one signal. Cyber Sentinels does not claim perfect real/fake detection. Final workflow trust state depends on provider evidence, governance review and replay.
           </p>
         </section>
+        <div className="mt-6 flex justify-end">
+          <Link href="/replay/demo" className="brand-primary-action">
+            Continue to Replay Timeline
+          </Link>
+        </div>
 
         <nav className="mt-5 flex flex-wrap gap-3 text-sm">
           <Link href="/verify/candidate" className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:text-white">Candidate Verification</Link>

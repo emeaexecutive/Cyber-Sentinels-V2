@@ -125,6 +125,9 @@ export default async function TrustCenterPage() {
             <State value={snapshot.badge} />
           </div>
           <nav className="mt-6 flex flex-wrap gap-3 text-sm">
+            <Link href="/enterprise/hiring-security" className="brand-primary-action">
+              Explore Hiring Security
+            </Link>
             <Link href="/trust-replay" className="brand-primary-action">
               Open Replay Timeline
             </Link>

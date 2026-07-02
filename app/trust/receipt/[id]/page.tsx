@@ -128,6 +128,7 @@ function DemoReceipt() {
           </p>
           <div className="mt-5 flex flex-wrap gap-3 print:hidden">
             <Link href="/replay/demo" className="brand-primary-action">Review Replay Timeline</Link>
+            <Link href="/status/verification" className="brand-secondary-action">Review Provider Status</Link>
             <Link href="/enterprise-access" className="brand-secondary-action">Request Enterprise Access</Link>
           </div>
         </section>

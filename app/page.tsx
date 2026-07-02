@@ -37,8 +37,8 @@ export default function Home() {
         </div>
 
         <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-3">
-          <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
-            View Demo
+          <Link href="/trust-center" className="brand-primary-action brand-action-large text-sm">
+            Enter Trust Center
           </Link>
           <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
             Request Enterprise Access
