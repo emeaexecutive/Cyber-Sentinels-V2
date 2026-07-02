@@ -87,6 +87,10 @@ export default async function CandidateVerificationPage({
             <TrustScoreBadge score={score} />
             <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
               <h2 className="text-xl font-semibold">Replay Timeline Preview</h2>
+              <p className="mt-2 text-sm leading-6 text-zinc-500">
+                Controlled workflow preview showing how intake, evidence review,
+                Governance Review and an eventual operational outcome remain connected.
+              </p>
               <div className="mt-5">
                 <VerificationTimeline events={verificationTimeline("candidate")} />
               </div>

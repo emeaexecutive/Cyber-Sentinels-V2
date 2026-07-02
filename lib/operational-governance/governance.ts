@@ -93,6 +93,18 @@ export function governanceMetrics(actions: GovernanceActionRow[]) {
 }
 
 export function subjectHref(action: GovernanceActionRow) {
+  if (action.subject_type === "interview_session" && action.subject_id) {
+    return `/trust/session/${encodeURIComponent(action.subject_id)}`;
+  }
+
+  if (action.subject_type === "candidate") {
+    return "/verify/candidate";
+  }
+
+  if (action.subject_type === "recruiter") {
+    return "/verify/recruiter";
+  }
+
   if (action.subject_type === "passport" && action.subject_id) {
     return `/passports/${encodeURIComponent(action.subject_id)}`;
   }

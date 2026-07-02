@@ -12,9 +12,12 @@ function scoreClass(score: number) {
 export function TrustScoreBadge({ score }: { score: number }) {
   return (
     <div className={`rounded-lg border px-4 py-3 ${scoreClass(score)}`}>
-      <p className="text-xs uppercase tracking-[0.16em]">Trust score</p>
+      <p className="text-xs uppercase tracking-[0.16em]">Operational trust indicator</p>
       <p className="mt-2 text-3xl font-semibold">{score}</p>
-      <p className="mt-1 text-xs capitalize">{riskFromScore(score)} risk</p>
+      <p className="mt-1 text-xs">{orchestrationLabel(score)} · {riskFromScore(score)} review risk</p>
+      <p className="mt-2 text-xs leading-5 opacity-80">
+        Explainable evidence coverage for review; not certainty or an automated decision.
+      </p>
     </div>
   );
 }
@@ -82,7 +85,7 @@ export function ExplainableTrustFactors({ factors }: { factors: TrustFactor[] })
               <p className="mt-2 text-sm leading-6 text-zinc-400">{factor.detail}</p>
             </div>
             <span className={`rounded-full border px-2.5 py-1 text-xs ${scoreClass(factor.score)}`}>
-              {factor.score}
+              Evidence strength {factor.score}/100
             </span>
           </div>
         </div>

@@ -45,6 +45,14 @@ function occurredAt(row: Row) {
   return String(row.created_at ?? row.issued_at ?? "");
 }
 
+function operationalStateClass(value: unknown) {
+  const state = String(value ?? "").toLowerCase();
+  if (/failed|restricted|rejected|high|escalated/.test(state)) return "text-red-200";
+  if (/pending|review|required|elevated|stale/.test(state)) return "text-amber-200";
+  if (/recorded|available|retained|approved|resolved|verified|issued/.test(state)) return "text-emerald-200";
+  return "text-zinc-200";
+}
+
 function trustStateForEvent(event: Row): TrustJourneyState {
   const combined = `${event.type ?? ""} ${event.title ?? ""} ${event.state ?? ""}`.toLowerCase();
   if (combined.includes("receipt")) return "trusted_workforce";
@@ -448,7 +456,7 @@ export default async function VerificationReplayPage({
           ].map(([title, state]) => (
             <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{title}</p>
-              <p className={`mt-2 text-sm font-semibold ${state === "Pending" ? "text-amber-200" : "text-emerald-200"}`}>{state}</p>
+              <p className={`mt-2 text-sm font-semibold ${operationalStateClass(state)}`}>{state}</p>
             </div>
           ))}
         </section>

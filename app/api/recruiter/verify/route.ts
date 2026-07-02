@@ -26,7 +26,10 @@ async function handleRecruiterVerification(req: Request) {
   const workEmail = text(formData, "email") || text(formData, "work_email");
   const company = text(formData, "company_name") || text(formData, "company");
   const roleTitle = text(formData, "role_title") || text(formData, "role");
-  const verificationStatus = text(formData, "verification_status") || "pending";
+  const requestedStatus = text(formData, "verification_status") || "pending";
+  const verificationStatus = ["pending", "needs_manual_review"].includes(requestedStatus)
+    ? requestedStatus
+    : "needs_manual_review";
   const notes = text(formData, "notes");
 
   if (!fullName || !workEmail || !company) {
@@ -137,8 +140,10 @@ async function handleRecruiterVerification(req: Request) {
   return NextResponse.json({
     ok: true,
     recruiter_profile_id: recruiterProfile?.id ?? null,
-    recruiter_verified: domainScore >= 70,
+    recruiter_verified: false,
     trust_score: domainScore,
+    operational_state: verificationStatus,
+    governance_required: true,
     factors: [
       { label: "Work domain", score: domainScore, detail: "Placeholder domain and organization consistency check." },
       { label: "Role claim", score: 76, detail: "Placeholder recruiter role review for hiring workflow access." },

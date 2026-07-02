@@ -526,11 +526,13 @@ export default async function GovernancePage({
                       <Link href={subjectHref(action)} className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:text-white">
                         Related Record
                       </Link>
-                      <Link href={`/replay/${action.subject_id}`} className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:text-white">
-                        Replay Chronology
-                      </Link>
-                      {action.subject_type === "interview_session" ? (
-                        <Link href={`/trust/session/${action.subject_id}`} className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:text-white">
+                      {action.subject_id ? (
+                        <Link href={`/replay/${encodeURIComponent(action.subject_id)}`} className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:text-white">
+                          Replay Timeline
+                        </Link>
+                      ) : null}
+                      {action.subject_type === "interview_session" && action.subject_id ? (
+                        <Link href={`/trust/session/${encodeURIComponent(action.subject_id)}`} className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:text-white">
                           Session Integrity
                         </Link>
                       ) : null}
@@ -560,22 +562,44 @@ export default async function GovernancePage({
                           Assign Reviewer
                         </button>
                       </form>
-                      {["approved", "rejected", "escalated", "in_review", "resolved"].map((status) => (
-                        <form key={status} action={updateAction}>
+                      {[
+                        {
+                          status: "approved",
+                          label: "Approve Reviewed Outcome",
+                          note: "Human reviewer approved the operational outcome after reviewing the linked evidence.",
+                        },
+                        {
+                          status: "rejected",
+                          label: "Reject Reviewed Outcome",
+                          note: "Human reviewer rejected the operational outcome after reviewing the linked evidence.",
+                        },
+                        {
+                          status: "escalated",
+                          label: "Escalate Review",
+                          note: "Human reviewer escalated the case because additional authority or evidence is required.",
+                        },
+                        {
+                          status: "in_review",
+                          label: "Request Evidence / Defer",
+                          note: "Human reviewer requested more evidence or deferred the outcome.",
+                        },
+                        {
+                          status: "resolved",
+                          label: "Resolve as Explained / False Positive",
+                          note: "Human reviewer resolved the flag as explained context or a false positive after reviewing the evidence.",
+                        },
+                      ].map((reviewAction) => (
+                        <form key={reviewAction.status} action={updateAction}>
                           <input type="hidden" name="action_id" value={action.id} />
-                          <input type="hidden" name="action_status" value={status} />
+                          <input type="hidden" name="action_status" value={reviewAction.status} />
                           <input type="hidden" name="assigned_to" value={action.assigned_to ?? user.id} />
                           <input
                             type="hidden"
                             name="resolution_notes"
-                            value={
-                              status === "in_review"
-                                ? "More evidence requested or review deferred by human reviewer."
-                                : `Human reviewer marked governance action ${status}.`
-                            }
+                            value={reviewAction.note}
                           />
-                          <button className={`rounded-lg border px-3 py-2 text-sm ${governanceStatusClass(status)}`}>
-                            {status === "in_review" ? "Request More Evidence / Defer" : status}
+                          <button className={`rounded-lg border px-3 py-2 text-sm ${governanceStatusClass(reviewAction.status)}`}>
+                            {reviewAction.label}
                           </button>
                         </form>
                       ))}
@@ -585,7 +609,8 @@ export default async function GovernancePage({
                 })
               ) : (
                 <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
-                  No governance actions are waiting for review.
+                  No governance actions are waiting for review. New escalations appear
+                  here only after a workflow records a review trigger and evidence reference.
                 </p>
               )}
             </div>
@@ -644,7 +669,7 @@ export default async function GovernancePage({
             </p>
             <div className="mt-5 grid gap-3">
               {aiRecommendations.length ? aiRecommendations.map((row) => <ReviewSignal key={String(row.id)} row={row} />) : (
-                <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">No automated recommendations require review.</p>
+                <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">No review recommendations are waiting. Recommendations support human Governance Review and never decide an outcome.</p>
               )}
             </div>
           </section>

@@ -87,6 +87,21 @@ export default function VerifySessionPage() {
           <Link href="/trust-replay" className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:text-white">Replay Timeline</Link>
         </nav>
 
+        <section className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          {[
+            ["Liveness", "Whether a live presence challenge was completed; it does not establish identity by itself."],
+            ["Injection risk", "Whether the capture channel shows signs of a substituted or injected source."],
+            ["Deepfake risk", "Media-risk indicators that require evidence-aware review, never an automatic authenticity verdict."],
+            ["Device / channel integrity", "Continuity of the device, browser, capture path and session metadata."],
+            ["Manual review", "A named reviewer evaluates conflicting or incomplete evidence and records the operational outcome."],
+          ].map(([title, description]) => (
+            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+              <h2 className="text-sm font-semibold text-zinc-100">{title}</h2>
+              <p className="mt-2 text-xs leading-5 text-zinc-400">{description}</p>
+            </article>
+          ))}
+        </section>
+
         <form
           onSubmit={submitReview}
           className="mt-8 grid gap-5 rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:grid-cols-2"
