@@ -161,10 +161,10 @@ export function TrustPostureDashboard({
       : "trusted_workforce";
 
   return (
-    <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
+    <main className="operational-shell min-h-screen px-6 py-8 text-white md:px-8">
       <div className="mx-auto max-w-7xl">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
-          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
+        <section className="operational-panel p-6 md:p-8">
+          <p className="operational-eyebrow">
             {enterprise ? "Enterprise Trust Posture" : "Persistent Trust Posture"}
           </p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-5">
@@ -198,7 +198,7 @@ export function TrustPostureDashboard({
         </section>
 
         <section className="mt-8 grid gap-3 md:grid-cols-[1.2fr_2fr]">
-          <div className="rounded-lg border border-zinc-800 bg-black p-5">
+          <div className="operational-card p-5">
             <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Current verification state</p>
             <p className="mt-3 text-3xl font-semibold text-zinc-100">
               {snapshot.activeTrustLabel}
@@ -207,7 +207,7 @@ export function TrustPostureDashboard({
               {snapshot.activeTrustLevel === null ? "No numeric posture recorded" : "Evidence-backed posture available"}
             </p>
           </div>
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="operational-card p-5">
             <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Reverification status</p>
             <h2 className="mt-3 text-xl font-semibold">{snapshot.posture.label}</h2>
               <p className="mt-3 text-sm leading-6 text-zinc-400">
@@ -247,7 +247,7 @@ export function TrustPostureDashboard({
 
         <section className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           {metrics.map(([label, value, Icon]) => (
-            <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+            <div key={label} className="operational-card p-4">
               <Icon className="h-5 w-5 text-cyan-300" />
               <p className="mt-4 text-xs uppercase tracking-[0.14em] text-zinc-500">{label}</p>
               <p className="mt-2 text-3xl font-semibold">{value}</p>

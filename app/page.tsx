@@ -10,12 +10,10 @@ const proofPath = [
 ];
 
 const platformSurfaces = [
-  ["Persistent Trust Posture", "An explainable operational state that evolves as identity, authorization, evidence and workflow context change."],
-  ["Continuous Identity", "Human and machine identities remain connected to verification freshness, session context and accountable review."],
-  ["AI Agent Governance", "Agent identity, permission scope and governed execution stay visible throughout enterprise workflows."],
-  ["Authorization Lineage", "Grants, changes and revocations remain connected to the authority and evidence behind them."],
-  ["Governance Continuity", "Named review ownership and intervention history follow sensitive decisions across systems."],
-  ["Replayable Evidence", "What changed, when it changed and why the final outcome was allowed, restricted or escalated."],
+  ["Persistent Trust Posture", "An explainable state that evolves as identity, authorization, evidence and workflow context change."],
+  ["Human + AI Governance", "Human and agent identity, permission scope and accountable ownership stay visible throughout execution."],
+  ["Authorization + Review", "Authority changes and governance interventions remain connected to their evidence and rationale."],
+  ["Replay Timeline", "One chronology shows what changed, who intervened and why the final outcome followed."],
 ];
 
 const workflowDomains = [
@@ -27,21 +25,21 @@ const workflowDomains = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#05070b] text-zinc-100">
+    <main className="operational-shell min-h-screen text-zinc-100">
       <section className="mx-auto max-w-6xl px-6 pb-14 pt-12 md:px-8 md:pb-20 md:pt-20">
         <div className="max-w-4xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-100">
+          <p className="operational-eyebrow">
             Operational trust infrastructure.
           </p>
           <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
             Operational trust for intelligent systems.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 md:text-xl md:leading-9">
-            Understand identity, authenticity and trust across every workflow.
+            Continuous trust across people, AI agents and enterprise workflows.
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
-            Protect trust across humans, AI agents, enterprise workflows,
-            authorization events and governance actions—then replay why it changed.
+            Keep identity, authorization and governance connected as operational
+            context changes—then replay why each outcome followed.
           </p>
         </div>
 
@@ -61,7 +59,7 @@ export default function Home() {
       <section className="border-y border-zinc-800 bg-zinc-950/80">
         <div className="mx-auto max-w-6xl px-6 py-14 md:px-8">
           <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
+            <p className="operational-eyebrow">
               Proof workflow
             </p>
             <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
@@ -84,7 +82,7 @@ export default function Home() {
 
       <section className="mx-auto max-w-6xl px-6 py-16 md:px-8">
         <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">
+          <p className="operational-eyebrow">
             Platform focus
           </p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
@@ -94,9 +92,9 @@ export default function Home() {
             Maintain continuous trust posture, preserve authorization lineage and keep human governance connected to every sensitive outcome.
           </p>
         </div>
-        <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-7 grid gap-4 md:grid-cols-2">
           {platformSurfaces.map(([title, copy]) => (
-            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
+            <article key={title} className="operational-card p-5">
               <h3 className="text-lg font-semibold text-white">{title}</h3>
               <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
             </article>
@@ -106,13 +104,13 @@ export default function Home() {
 
       <section className="border-t border-zinc-800 bg-zinc-950/60">
         <div className="mx-auto max-w-6xl px-6 py-14 md:px-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Operational domains</p>
+          <p className="operational-eyebrow">Operational domains</p>
           <h2 className="mt-3 max-w-3xl text-3xl font-semibold leading-tight text-white">
             One trust layer, across human and machine activity.
           </h2>
           <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {workflowDomains.map(([title, copy]) => (
-              <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
+              <article key={title} className="operational-card p-5">
                 <h3 className="font-semibold text-white">{title}</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
               </article>

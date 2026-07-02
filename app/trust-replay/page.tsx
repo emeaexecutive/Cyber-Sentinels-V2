@@ -119,7 +119,7 @@ function ReplayList({
   empty: string;
 }) {
   return (
-    <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+    <section className="operational-panel p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold">{title}</h2>
         <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400">
@@ -160,20 +160,21 @@ function ReplayList({
 
 function TimelineReplay({ events }: { events: TrustTimelineEvent[] }) {
   return (
-    <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+    <section className="operational-panel p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold">Replay Timeline</h2>
         <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400">
           read-only chronology
         </span>
       </div>
-      <div className="mt-5 grid gap-3">
+      <div className="replay-timeline mt-5 grid gap-3">
         {events.length ? (
           events.slice(0, 20).map((event) => (
             <div
               key={event.id}
-              className="grid gap-3 rounded-lg border border-zinc-800 bg-black p-4 md:grid-cols-[160px_1fr]"
+              className="operational-card replay-event grid gap-3 p-4 md:grid-cols-[160px_1fr]"
             >
+              <span className="replay-marker" aria-hidden="true" />
               <div>
                 <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
                   {formatTimelineDate(event.created_at)}
@@ -353,22 +354,22 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
   ];
 
   return (
-    <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
+    <main className="operational-shell min-h-screen px-6 py-8 text-white md:px-8">
       <div className="mx-auto max-w-7xl">
         <nav className="flex flex-wrap gap-3">
-          <Link href="/" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
-            /
+          <Link href="/platform" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
+            Platform
           </Link>
           <Link href="/timeline" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
             Timeline
           </Link>
-          <Link href="/trust-graph" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
-            Trust Graph
+          <Link href="/dashboard/governance" className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white">
+            Governance Review
           </Link>
         </nav>
 
-        <section className="mt-10 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
+        <section className="operational-panel replay-signature mt-10 p-6 md:p-8">
+          <p className="operational-eyebrow">
             Operational governance memory
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
@@ -413,7 +414,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
           </div>
         ) : null}
 
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
+        <section className="operational-panel mt-8 p-5">
           <form className="grid gap-4 md:grid-cols-[1fr_2fr_2fr_auto]" action="/trust-replay">
             <label className="grid gap-2 text-sm text-zinc-400">
               Subject
@@ -461,7 +462,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             ["Authorization Lineage", snapshot.relationships.length],
             ["Session Integrity", sessionIntegrity.length + riskEvents.length],
           ].map(([label, value]) => (
-            <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+            <div key={label} className="operational-card p-4">
               <p className="text-sm text-zinc-500">{label}</p>
               <p className="mt-2 text-xl font-semibold text-zinc-100">{value}</p>
             </div>
@@ -522,7 +523,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
           />
         </div>
 
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+        <section className="operational-panel mt-8 p-5">
           <h2 className="text-xl font-semibold">Replay Validation</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
             Replay validation shows trigger, reason, evidence, reviewer action and trust score movement without claiming independent detection accuracy.
@@ -537,7 +538,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
           </div>
         </section>
 
-        <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
+        <section className="operational-panel mt-8 border-cyan-950 p-5">
           <h2 className="text-xl font-semibold">Governance Review and Policy Replay</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
             Canonical replay keeps the policy, threshold crossing, escalation reason and reviewer resolution connected to the operational evidence available at the time.
@@ -549,26 +550,6 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
                 <p className="mt-2 text-sm leading-6 text-zinc-300">{String(value)}</p>
               </div>
             ))}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">
-                Aggregated advisory context
-              </p>
-              <h2 className="mt-2 text-xl font-semibold">Replay remains the canonical evidence.</h2>
-              <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
-                Privacy-preserving network indicators can provide category-level
-                context for replay anomalies, workflow threat patterns and provider
-                instability. They do not add identities, replace this chronology or
-                determine an outcome.
-              </p>
-            </div>
-            <Link href="/dashboard/network-risk" className="brand-secondary-action text-sm">
-              View Network Risk
-            </Link>
           </div>
         </section>
 

@@ -194,11 +194,11 @@ export function TrustJourneyVisualization({
   const evidenceOrdered = orderedEvents.map((event) => inferStage(event));
 
   return (
-    <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">
+    <section className="operational-panel p-5 print:border-zinc-300 print:bg-white">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300 print:text-zinc-600">
-            Trust Progression Timeline
+          <p className="operational-eyebrow print:text-zinc-600">
+            Replay continuity
           </p>
           <h2 className="mt-2 text-xl font-semibold">{title}</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400 print:text-zinc-700">
@@ -208,30 +208,19 @@ export function TrustJourneyVisualization({
         <TrustStateBadge state={outcome} />
       </div>
 
-      <div className="mt-6 rounded-lg border border-cyan-950 bg-black p-4 print:border-zinc-300 print:bg-white">
-        <p className="text-xs uppercase tracking-[0.16em] text-cyan-300 print:text-zinc-600">
-          Evidence-chain continuity
+      <div className="replay-signature mt-6 rounded-lg border border-cyan-950 p-4 print:border-zinc-300 print:bg-white">
+        <p className="operational-eyebrow print:text-zinc-600">
+          Operational memory
         </p>
         <p className="mt-2 text-sm leading-6 text-zinc-400 print:text-zinc-700">
-          Trust evolves over time as verification events, provider-backed evidence, authorization changes,
-          reviewer interventions, governance escalations, replay chronology and workflow outcomes accumulate.
-        </p>
-      </div>
-
-      <div className="mt-3 rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white">
-        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
-          Federated workflow trust relationships
-        </p>
-        <p className="mt-2 text-sm leading-6 text-zinc-400 print:text-zinc-700">
-          Workflow, evidence, replay, governance outcome, authorization event and trust posture remain linked
-          as reviewable enterprise records. Shared anomaly indicators and federated trust signals are context for
-          governance intelligence, not centralized surveillance or social scoring.
+          Identity, evidence, authorization, governance action and outcome remain
+          connected in one replayable chronology as Trust Posture evolves.
         </p>
       </div>
 
       <div className="mt-6 grid gap-3 md:grid-cols-4">
         {proofItems.map(([label, value]) => (
-          <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white">
+          <div key={label} className="operational-card p-4 print:border-zinc-300 print:bg-white">
             <p className="text-xs uppercase tracking-[0.14em] text-zinc-600">{label}</p>
             <p className="mt-2 text-sm font-semibold leading-6 text-zinc-100 print:text-zinc-800">
               {clean(value)}
@@ -264,15 +253,14 @@ export function TrustJourneyVisualization({
         })}
       </div>
 
-      <div className="mt-6 grid gap-4">
+      <div className="replay-timeline mt-6 grid gap-4">
         {orderedEvents.length ? orderedEvents.map((event, index) => {
-          const detail = stateDetails[event.state];
           return (
-            <article key={event.id} className="grid gap-3 rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white md:grid-cols-[110px_1fr_240px]">
+            <article key={event.id} className="operational-card replay-event grid gap-3 p-4 print:border-zinc-300 print:bg-white md:grid-cols-[110px_1fr_240px]">
+              <span className="replay-marker" aria-hidden="true" />
               <div>
                 <p className="text-xs text-zinc-600">Step {index + 1}</p>
                 <p className="mt-2 text-xs leading-5 text-zinc-500">{formatDate(event.occurredAt)}</p>
-                <div className={`mt-3 h-3 w-3 rounded-full border ${detail.dotClassName}`} />
               </div>
               <div>
                 <div className="flex flex-wrap items-center gap-2">

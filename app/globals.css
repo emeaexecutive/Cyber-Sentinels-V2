@@ -2,10 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: dark; }
+:root {
+  color-scheme: dark;
+  --brand-canvas: #06080c;
+  --brand-surface: #0b0e14;
+  --brand-surface-raised: #10141b;
+  --brand-border: #303640;
+  --brand-border-strong: #47515e;
+  --brand-accent: #8ed9e3;
+}
 
 body {
-  background: #050505;
+  background: var(--brand-canvas);
   color: #f8f8f8;
   font-size: 16px;
   font-family:
@@ -82,6 +90,11 @@ p {
   font-weight: 650;
   line-height: 1.25rem;
   white-space: nowrap;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .brand-primary-action {
@@ -104,6 +117,11 @@ p {
 .brand-secondary-action:hover {
   border-color: #67e8f9;
   color: #fff;
+}
+
+.brand-primary-action:active,
+.brand-secondary-action:active {
+  transform: translateY(1px);
 }
 
 .brand-action-large {
@@ -146,6 +164,100 @@ p {
 
 .border-zinc-800 {
   border-color: #35353d;
+}
+
+.operational-shell {
+  background: var(--brand-canvas);
+}
+
+.operational-panel {
+  border: 1px solid var(--brand-border);
+  border-radius: 0.75rem;
+  background: var(--brand-surface);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.16);
+}
+
+.operational-card {
+  border: 1px solid var(--brand-border);
+  border-radius: 0.625rem;
+  background: var(--brand-surface-raised);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.operational-card:hover {
+  border-color: var(--brand-border-strong);
+}
+
+.operational-eyebrow {
+  color: var(--brand-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.25rem;
+  text-transform: uppercase;
+}
+
+.replay-signature {
+  position: relative;
+  overflow: hidden;
+  border-color: #35515a;
+  background:
+    linear-gradient(135deg, rgba(12, 35, 42, 0.48), transparent 56%),
+    var(--brand-surface);
+}
+
+.replay-signature::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(142, 217, 227, 0.7), transparent);
+}
+
+.replay-timeline {
+  position: relative;
+}
+
+.replay-timeline::before {
+  position: absolute;
+  top: 1.25rem;
+  bottom: 1.25rem;
+  left: 1.04rem;
+  width: 1px;
+  content: "";
+  background: linear-gradient(#4f6972, #2f3740);
+}
+
+.replay-event {
+  position: relative;
+  padding-left: 3rem;
+}
+
+.replay-marker {
+  position: absolute;
+  top: 1.35rem;
+  left: 0.75rem;
+  z-index: 1;
+  height: 0.625rem;
+  width: 0.625rem;
+  border: 2px solid var(--brand-canvas);
+  border-radius: 999px;
+  background: var(--brand-accent);
+  box-shadow: 0 0 0 1px #50717a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 .text-xs {
