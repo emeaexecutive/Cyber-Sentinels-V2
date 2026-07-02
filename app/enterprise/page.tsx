@@ -19,18 +19,19 @@ const coordinationControls = [
 
 export default function EnterprisePage() {
   return (
-    <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
+    <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-5xl">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            Enterprise workflow trust
+        <section className="operational-panel p-6 md:p-8">
+          <p className="operational-eyebrow">
+            Enterprise operational trust
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
             Operational trust for intelligent systems.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Maintain evolving trust posture across people, AI agents, authorization
-            and operational workflows through governance continuity and replayable evidence.
+            Maintain persistent Trust Posture across people, AI agents,
+            authorization and workflows—with governance memory and replayable
+            operational evidence.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
@@ -45,12 +46,12 @@ export default function EnterprisePage() {
           </div>
         </section>
 
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Enterprise trust infrastructure</p>
+        <section className="operational-panel mt-8 p-6">
+          <p className="operational-eyebrow">Enterprise trust infrastructure</p>
           <h2 className="mt-3 text-2xl font-semibold">What the platform makes reviewable.</h2>
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {trustControls.map(([title, copy]) => (
-              <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+              <div key={title} className="operational-card p-4">
                 <p className="text-sm font-semibold text-zinc-100">{title}</p>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
               </div>
@@ -58,17 +59,21 @@ export default function EnterprisePage() {
           </div>
         </section>
 
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-2xl font-semibold">Why workflow trust matters now</h2>
+        <section className="operational-panel mt-8 p-6">
+          <h2 className="text-2xl font-semibold">Trust must survive the workflow.</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Device and communication security remain necessary, but they do not explain whether identity, authorization or workflow execution stayed trustworthy after access began.
+            Access controls can establish a starting point. They do not explain
+            whether identity, authorization or execution remained trustworthy as
+            context changed.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Human and machine actors now share enterprise workflows. Teams need to review who or what acted, under which authority, which evidence supported the action and what outcome was recorded.
+            Human and AI-agent activity now shares operational workflows. Teams
+            need continuous evidence of who or what acted, under which authority,
+            who reviewed the change and what outcome was recorded.
           </p>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {coordinationControls.map(([title, copy]) => (
-              <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+              <div key={title} className="operational-card p-4">
                 <p className="text-sm font-semibold text-zinc-100">{title}</p>
                 <p className="mt-2 text-sm leading-6 text-zinc-300">{copy}</p>
               </div>

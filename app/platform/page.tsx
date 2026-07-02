@@ -11,33 +11,33 @@ const layers = [
 
 export default function PlatformPage() {
   return (
-    <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
+    <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-5xl">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            Platform
+        <section className="operational-panel p-6 md:p-8">
+          <p className="operational-eyebrow">
+            Operational trust infrastructure
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
             Persistent operational trust for humans, agents and workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels maintains continuous trust across identities,
-            intelligent systems, authorization events and enterprise workflows.
+            Cyber Sentinels is the operational trust layer for people, AI agents
+            and enterprise workflows.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-            Trust evolves as evidence, permissions and context change. Governance
-            and replay preserve why an action was allowed, restricted or escalated.
+            Trust changes over time. Persistent Trust Posture explains the current
+            state; Replay Timeline preserves the evidence, authority and Governance
+            Review that produced it.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Assurance is consent-based and evidence-gated. Biometric references
-            can support configured verification, but never establish certainty or
-            replace human governance.
+            The platform keeps workflow decisions explainable without replacing
+            accountable human authority or turning trust into a permanent score.
           </p>
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {layers.map(([title, body]) => (
-            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
+            <article key={title} className="operational-card p-5">
               <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>
               <p className="mt-3 text-sm leading-6 text-zinc-300">{body}</p>
             </article>

@@ -44,10 +44,13 @@ export default function AgentsPage() {
             AI Agent Identity
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
-            AI systems are evolving from passive assistants into operational actors. Cyber Sentinels links agent identity and authorization lineage to governance, provenance and accountable ownership.
+            AI agents participate in operational workflows. Cyber Sentinels links
+            agent identity and Authorization Lineage to Trust Posture, governed
+            execution, Replay Timeline and accountable ownership.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Every autonomous action will need identity, authorization and evidence.
+            Every consequential agent action needs identity, authorization,
+            evidence and a replayable operational record.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
             Cyber Sentinels does not replace human governance or operational
@@ -66,7 +69,10 @@ export default function AgentsPage() {
               Governed AI workflow layer
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-400">
-              This is an identity and evidence layer, not a full agent control platform. It aligns organization-owned agents, activity records, authorization lineage, governed execution and human-to-agent accountability without claiming runtime control it does not provide.
+              This is an operational trust layer, not a speculative agent-control
+              system. It aligns organization-owned agents, activity records,
+              Authorization Lineage, governed execution and human accountability
+              without claiming runtime control it does not provide.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {accountabilityLinks.map((item) => (

@@ -10,10 +10,10 @@ const proofPath = [
 ];
 
 const platformSurfaces = [
-  ["Persistent Trust Posture", "An explainable state that evolves as identity, authorization, evidence and workflow context change."],
-  ["Human + AI Governance", "Human and agent identity, permission scope and accountable ownership stay visible throughout execution."],
-  ["Authorization + Review", "Authority changes and governance interventions remain connected to their evidence and rationale."],
-  ["Replay Timeline", "One chronology shows what changed, who intervened and why the final outcome followed."],
+  ["Persistent Trust Posture", "The current, explainable state of identity, authorization, evidence and workflow context."],
+  ["Governed Workflows", "Human and agent activity stays inside visible authority, evidence and review boundaries."],
+  ["Governed Trust Continuity", "Authorization changes and reviewer interventions remain connected to their rationale."],
+  ["Replayable Operational Trust", "Replay Timeline preserves what changed, who intervened and why the outcome followed."],
 ];
 
 const workflowDomains = [
@@ -44,14 +44,14 @@ export default function Home() {
         </div>
 
         <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-3">
-          <Link href="/trust-center" className="brand-primary-action brand-action-large text-sm">
-            Enter Trust Center
+          <Link href="/verification-replay" className="brand-primary-action brand-action-large text-sm">
+            See Replay Timeline
           </Link>
           <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
             Request Enterprise Access
           </Link>
-          <Link href="/enterprise/hiring-security" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400 hover:text-white">
-            Hiring Security
+          <Link href="/trust-center" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400 hover:text-white">
+            Trust Center
           </Link>
         </div>
       </section>
@@ -66,7 +66,8 @@ export default function Home() {
               Trust changes. Cyber Sentinels shows why.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              One path connects entry, evidence, Trust Posture, governance, Replay Timeline and final receipt.
+              Trust changes over time. Replay connects entry, evidence, Trust
+              Posture, Governance Review and final outcome.
             </p>
           </div>
           <div className="mt-7 grid gap-3 md:grid-cols-6">
@@ -86,10 +87,11 @@ export default function Home() {
             Platform focus
           </p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-            Persistent trust across identity, authority and execution.
+            Governed trust continuity across identity, authority and execution.
           </h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Maintain continuous trust posture, preserve authorization lineage and keep human governance connected to every sensitive outcome.
+            Persistent Trust Posture shows what is true now. Replay Timeline
+            preserves the operational memory of how it became true.
           </p>
         </div>
         <div className="mt-7 grid gap-4 md:grid-cols-2">
