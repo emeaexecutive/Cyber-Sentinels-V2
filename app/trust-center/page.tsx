@@ -118,8 +118,8 @@ export default async function TrustCenterPage() {
                 Trust changes. Cyber Sentinels shows why.
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Replayable evidence connects Trust Posture, provider evidence,
-                Session Integrity, Governance Review and final outcome.
+                Persistent trust connects human and agent identity, authorization
+                lineage, workflow evidence, Governance Review and final outcome.
               </p>
             </div>
             <State value={snapshot.badge} />
@@ -160,8 +160,8 @@ export default async function TrustCenterPage() {
           <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="text-xl font-semibold">Evolving workflow trust</h2>
-                <p className="mt-2 text-sm text-zinc-500">Recorded posture changes with replay and governance continuity.</p>
+                <h2 className="text-xl font-semibold">Persistent operational trust</h2>
+                <p className="mt-2 text-sm text-zinc-500">Recorded posture changes across identity, authorization, replay and governance continuity.</p>
               </div>
               <p className="text-xs text-zinc-500">{snapshot.posture.label}</p>
             </div>
@@ -225,7 +225,7 @@ export default async function TrustCenterPage() {
 
         <section className="mt-8 grid gap-6 xl:grid-cols-2">
           <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
-            <h2 className="text-xl font-semibold">Governance Review and Authorization Lineage</h2>
+            <h2 className="text-xl font-semibold">Governance continuity and authorization lineage</h2>
             <p className="mt-2 text-sm text-zinc-500">Reviewer ownership, outcomes and evidence chronology remain connected.</p>
             <div className="mt-5 grid gap-3">
               {governance.length ? governance.slice(0, 8).map((action) => (
@@ -274,8 +274,8 @@ export default async function TrustCenterPage() {
         <section className="mt-8 rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-xl font-semibold">Canonical operational evidence</h2>
-              <p className="mt-2 text-sm text-zinc-500">Trust changes, workflow transitions and receipt generation ordered from recorded events.</p>
+              <h2 className="text-xl font-semibold">Replayable operational memory</h2>
+              <p className="mt-2 text-sm text-zinc-500">Identity, authorization, trust changes and outcomes ordered from recorded events.</p>
             </div>
             <Link href="/trust-replay" className="text-sm text-cyan-200 hover:text-white">Open Replay Timeline</Link>
           </div>

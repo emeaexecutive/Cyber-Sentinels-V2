@@ -31,16 +31,16 @@ const capabilities = [
 
 const riskExamples = [
   [
-    "Synthetic applicants",
-    "A candidate profile looks complete, but the submitted identity evidence, employment history, verified email domain and interview behavior do not line up. Cyber Sentinels treats the hiring funnel as a fraud frontline and separates identity confidence from session integrity so reviewers can request evidence before the process advances.",
+    "Identity continuity",
+    "Candidate identity, submitted evidence and workflow context can change in confidence over time. Cyber Sentinels keeps those changes visible so reviewers can request stronger evidence before the process advances.",
   ],
   [
     "Proxy interviews",
     "The person in the interview may not match the verified candidate context. Reviewer notes, liveness checks, voice/video continuity, device context and escalation history stay attached to the same hiring workflow for governance review.",
   ],
   [
-    "Assisted interview fraud",
-    "A candidate may use generated answers, coached presence or manipulated media during a sensitive interview. Cyber Sentinels records observable session integrity anomalies and reviewer notes without turning them into unsupported detection claims.",
+    "Session assistance and manipulation",
+    "Generated answers, coached presence or manipulated media can change session integrity. Cyber Sentinels records observable anomalies and reviewer notes without turning them into unsupported detection claims.",
   ],
   [
     "Injected interview feeds",
@@ -51,12 +51,8 @@ const riskExamples = [
     "The meeting can continue as an interview record while the trust state changes. Teams see what failed, what remains usable, what needs reverification and whether governance escalation is required.",
   ],
   [
-    "Voice/video mismatch",
-    "A mismatch between claimed identity, voice pattern, video continuity or device context is preserved as evidence for human review instead of becoming an automatic rejection.",
-  ],
-  [
-    "Governance escalation",
-    "High-risk flags open a reviewer-owned decision path with evidence, chronology, receipt and replay references available for audit.",
+    "Governed hiring decisions",
+    "High-risk changes open a reviewer-owned decision path with evidence, authorization context, chronology, receipt and replay references available for audit.",
   ],
 ];
 const workflow = [
@@ -80,8 +76,12 @@ export default function HiringSecurityPage() {
             Replayable evidence for trusted hiring workflows.
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-300">
-            Check candidate identity, Session Integrity and evidence; route risk
-            to Governance Review; replay what changed; preserve the outcome.
+            Apply Cyber Sentinels’ operational trust infrastructure to candidate
+            identity, Session Integrity, governed review and replayable hiring outcomes.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            Hiring Security is one major workflow domain within a broader platform
+            for continuous identity, authorization lineage and governance continuity.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
@@ -125,7 +125,7 @@ export default function HiringSecurityPage() {
             Operational Examples
           </p>
           <h2 className="mt-3 text-3xl font-semibold">
-            Hiring attacks become reviewable workflows.
+            Hiring risk becomes a governed workflow.
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             The product avoids black-box authenticity claims. It shows what changed, what verification evidence exists, who reviewed it, why escalation occurred and where replay evidence is available.
@@ -154,7 +154,7 @@ export default function HiringSecurityPage() {
               Workflow chronology
             </p>
             <h2 className="mt-3 text-3xl font-semibold">
-              From fake applicant to verification receipt.
+              From workflow entry to verification receipt.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
               Start with one reviewable workflow. The outcome is an Evidence

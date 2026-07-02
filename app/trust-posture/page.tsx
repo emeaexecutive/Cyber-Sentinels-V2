@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 const postureSignals = [
-  ["Current trust state", "A plain-language view of whether a workflow is verified, elevated risk or awaiting review."],
-  ["Last evidence event", "The latest meaningful verification, session or governance event behind the current state."],
-  ["Risk level", "A review-focused risk label, not a public score or automated trust promise."],
-  ["Reviewer action", "Human decisions and pending actions remain visible in operational views."],
+  ["Current trust state", "A plain-language view of whether a human, agent or workflow is verified, elevated risk or awaiting review."],
+  ["Identity continuity", "Verification freshness and context remain visible as a subject moves through enterprise workflows."],
+  ["Authorization continuity", "Permission changes and revocations remain connected to the authority and evidence behind them."],
+  ["Governance continuity", "Human decisions, interventions and pending actions remain visible over time."],
 ];
 
 export default function PublicTrustPosturePage() {
@@ -16,10 +16,12 @@ export default function PublicTrustPosturePage() {
             Trust Posture
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Continuous trust status for operational workflows.
+            Trust is a posture that evolves over time.
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
-            Trust posture shows how identity verification, session integrity, evidence changes and governance review combine into a current operational state. The public view explains the model; live posture data stays protected.
+            Trust posture connects continuous identity, agent activity, authorization
+            changes, workflow evidence and governance review into a current operational
+            state. The public view explains the model; live posture data stays protected.
           </p>
         </section>
 

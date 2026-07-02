@@ -1,10 +1,12 @@
 const layers = [
-  ["Hiring Security", "Verification workflows for candidate, recruiter and interview review."],
-  ["Active Flags", "Identity, media, injection and session-integrity changes surfaced for review."],
-  ["Pending Reviews", "Controlled review paths for sensitive outcomes."],
-  ["Governance Review", "Human oversight and escalation for high-risk workflows."],
-  ["Verification Receipt", "Audit-ready records showing what was reviewed and when."],
-  ["Replay Timeline", "Workflow history that can be reviewed after decisions are made."],
+  ["Persistent Trust Posture", "A current, explainable state across identity, evidence, authorization and governance history."],
+  ["Continuous Identity", "Verification freshness and context remain visible after initial access is granted."],
+  ["AI Agent Trust", "Registered agents carry declared purpose, permission scope, policy state and attributable activity."],
+  ["Authorization Lineage", "Enterprise grants, changes and revocations retain their authority, rationale and chronology."],
+  ["Governance Continuity", "Named human review and escalation remain attached to sensitive workflow transitions."],
+  ["Replayable Evidence", "Operational history reconstructs what entered, what changed, who intervened and the final outcome."],
+  ["Governed Execution", "High-impact human or agent actions advance within visible policy and evidence boundaries."],
+  ["Hiring Security", "One major workflow domain applying the same trust, governance and replay infrastructure."],
 ];
 
 export default function PlatformPage() {
@@ -16,14 +18,15 @@ export default function PlatformPage() {
             Platform
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            High-assurance operational trust for critical workflows.
+            Persistent operational trust for humans, agents and workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels orchestrates high-assurance operational trust
-            across workflows, identities and intelligent systems.
+            Cyber Sentinels maintains continuous trust across identities,
+            intelligent systems, authorization events and enterprise workflows.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-            It keeps Hiring Security, Session Integrity, Evidence Chain, Governance Review and Replay Timeline in one reviewable path.
+            Trust evolves as evidence, permissions and context change. Governance
+            and replay preserve why an action was allowed, restricted or escalated.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             Assurance is consent-based and evidence-gated. Biometric references
@@ -32,7 +35,7 @@ export default function PlatformPage() {
           </p>
         </section>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {layers.map(([title, body]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
               <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>

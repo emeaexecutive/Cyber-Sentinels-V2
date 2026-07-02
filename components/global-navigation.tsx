@@ -25,6 +25,7 @@ const authenticatedFocusLinks = [
 const platformDropdownLinks = [
   ["/trust-center", "Operational Trust"],
   ["/dashboard/trust-posture", "Trust Posture"],
+  ["/agent-registry", "AI Agent Registry"],
   ["/trust-replay", "Replay Timeline"],
   ["/dashboard/governance", "Governance Review"],
   ["/dashboard/access-governance", "Authorization Lineage"],
@@ -35,19 +36,21 @@ const platformDropdownLinks = [
 const publicPlatformDropdownLinks = [
   ["/platform", "Operational Trust"],
   ["/methodology", "Trust Posture Methodology"],
+  ["/agents", "AI Agent Governance"],
   ["/verification-replay", "Replay Timeline"],
   ["/governance", "Governance Review"],
   ["/verification-receipts", "Verification Receipt"],
 ];
 
 const enterpriseDropdownLinks = [
+  ["/enterprise", "Enterprise Trust"],
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
   ["/enterprise/pilot", "Pilot Program"],
-  ["/enterprise", "Integrations"],
 ];
 
 const adminEnterpriseDropdownLinks = [
+  ["/enterprise/identity-governance", "Identity Governance"],
   ["/enterprise-access", "Enterprise Access"],
   ["/enterprise/control-plane", "Trust Control Plane"],
   ["/enterprise/auditability", "Auditability"],

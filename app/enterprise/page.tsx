@@ -1,11 +1,13 @@
 import Link from "next/link";
 
 const trustControls = [
-  ["Hiring Security", "Fake applicants, proxy interviews and assisted fraud can turn hiring into enterprise access risk."],
-  ["Session Integrity", "Liveness, deepfake risk, injection risk and channel integrity remain separate signals after verification begins."],
-  ["Governance Review", "High-risk workflow changes route to named reviewers with ownership, chronology and recorded action."],
-  ["Replay Timeline", "Canonical evidence chronology reconstructs what happened before, during and after a workflow changed state."],
-  ["Verification Receipt", "Printable receipts summarize Trust Posture, reviewer decision, Evidence Chain, Replay Timeline and workflow outcome."],
+  ["Continuous Identity", "Human and machine identities retain verification freshness, context and accountable ownership after access begins."],
+  ["AI Agent Governance", "Agent purpose, permission scope, policy state and execution history stay reviewable."],
+  ["Enterprise Authorization", "Authorization grants, changes and revocations remain connected to their authority and rationale."],
+  ["Persistent Trust Posture", "Identity, workflow, evidence and governance state evolve without becoming a hidden universal score."],
+  ["Governance Continuity", "High-impact changes route to named reviewers with ownership, chronology and recorded action."],
+  ["Replayable Evidence", "Canonical chronology reconstructs what happened before, during and after a workflow changed state."],
+  ["Hiring Security", "The same platform controls apply to candidate, recruiter and interview integrity as one operational domain."],
 ];
 
 const coordinationControls = [
@@ -27,8 +29,8 @@ export default function EnterprisePage() {
             Operational trust for intelligent systems.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Maintain evolving trust posture across hiring, identity and operational workflows
-            through provider-backed verification, governance continuity and replayable evidence.
+            Maintain evolving trust posture across people, AI agents, authorization
+            and operational workflows through governance continuity and replayable evidence.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
@@ -44,7 +46,7 @@ export default function EnterprisePage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Enterprise workflow</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Enterprise trust infrastructure</p>
           <h2 className="mt-3 text-2xl font-semibold">What the platform makes reviewable.</h2>
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {trustControls.map(([title, copy]) => (
@@ -59,10 +61,10 @@ export default function EnterprisePage() {
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <h2 className="text-2xl font-semibold">Why workflow trust matters now</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Device and communication security are still necessary, but they do not explain whether a workflow stayed trustworthy after verification began.
+            Device and communication security remain necessary, but they do not explain whether identity, authorization or workflow execution stayed trustworthy after access began.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Synthetic credibility, not just synthetic media, is becoming the attack surface. Enterprise teams need to review who entered a workflow, which evidence supports the decision, who acted and what outcome was recorded.
+            Human and machine actors now share enterprise workflows. Teams need to review who or what acted, under which authority, which evidence supported the action and what outcome was recorded.
           </p>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {coordinationControls.map(([title, copy]) => (

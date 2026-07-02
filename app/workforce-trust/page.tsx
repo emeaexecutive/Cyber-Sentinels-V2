@@ -42,10 +42,10 @@ const metricTables = [
 ];
 
 const riskPillars = [
-  ["Identity Verification", "Validate candidates, contractors and workforce identities before access expands."],
+  ["Continuous Identity", "Validate employees, contractors and workforce identities before access expands and at meaningful checkpoints."],
   ["Evidence Chain", "Attach documents, links and reviewer outcomes to the same trust record."],
-  ["Interview Integrity", "Keep interview, assessment and review signals in the decision trail."],
-  ["Employment Evidence", "Connect workforce claims to evidence before approval."],
+  ["Authorization Continuity", "Keep workforce role, access and approval changes connected to accountable authority."],
+  ["Employment Evidence", "Connect workforce claims and operational context to evidence before approval."],
   ["Scheduled Reverification", "Review trust freshness at explainable checkpoints using existing workflow records."],
   ["Audit-Ready Decisions", "Every approval, rejection and escalation leaves a defensible trail."],
 ];

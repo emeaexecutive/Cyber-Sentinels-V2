@@ -10,10 +10,19 @@ const proofPath = [
 ];
 
 const platformSurfaces = [
-  ["Trust Posture", "An explainable Operational Trust state across identity, Session Integrity, evidence and Governance Review."],
-  ["Evidence Chain", "Provider, session, workflow and reviewer evidence retained with its source and chronology."],
-  ["Governance Review", "Named review ownership, escalation rationale and human authority for sensitive decisions."],
-  ["Replay Timeline", "What changed, when it changed, who reviewed it and which evidence supported the final state."],
+  ["Persistent Trust Posture", "An explainable operational state that evolves as identity, authorization, evidence and workflow context change."],
+  ["Continuous Identity", "Human and machine identities remain connected to verification freshness, session context and accountable review."],
+  ["AI Agent Governance", "Agent identity, permission scope and governed execution stay visible throughout enterprise workflows."],
+  ["Authorization Lineage", "Grants, changes and revocations remain connected to the authority and evidence behind them."],
+  ["Governance Continuity", "Named review ownership and intervention history follow sensitive decisions across systems."],
+  ["Replayable Evidence", "What changed, when it changed and why the final outcome was allowed, restricted or escalated."],
+];
+
+const workflowDomains = [
+  ["Human identity", "Continuous verification and reviewable trust posture."],
+  ["AI agents", "Registered identity, bounded permissions and governed execution."],
+  ["Enterprise workflows", "Evidence continuity from entry through final outcome."],
+  ["Hiring Security", "A major operational domain for identity, session and review integrity."],
 ];
 
 export default function Home() {
@@ -31,8 +40,8 @@ export default function Home() {
             Understand identity, authenticity and trust across every workflow.
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
-            When evidence or session context changes, Governance Review controls
-            the next action and Replay Timeline preserves why.
+            Protect trust across humans, AI agents, enterprise workflows,
+            authorization events and governance actions—then replay why it changed.
           </p>
         </div>
 
@@ -79,10 +88,10 @@ export default function Home() {
             Platform focus
           </p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-            Evidence, governance and replay in one operational path.
+            Persistent trust across identity, authority and execution.
           </h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Preserve evidence, replay what changed, assign review ownership and issue a verification receipt before sensitive decisions move forward.
+            Maintain continuous trust posture, preserve authorization lineage and keep human governance connected to every sensitive outcome.
           </p>
         </div>
         <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -92,6 +101,23 @@ export default function Home() {
               <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="border-t border-zinc-800 bg-zinc-950/60">
+        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-100">Operational domains</p>
+          <h2 className="mt-3 max-w-3xl text-3xl font-semibold leading-tight text-white">
+            One trust layer, across human and machine activity.
+          </h2>
+          <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {workflowDomains.map(([title, copy]) => (
+              <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
+                <h3 className="font-semibold text-white">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
