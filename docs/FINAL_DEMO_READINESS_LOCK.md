@@ -43,7 +43,7 @@ Provider status uses only:
 
 - Live
 - Simulated
-- Awaiting credentials
+- Awaiting Credentials
 - Disabled
 
 “Live” means a supported code path is enabled and configured. It is not a health, accuracy or identity-certainty claim.

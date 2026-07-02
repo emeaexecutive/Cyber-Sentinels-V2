@@ -31,8 +31,8 @@ const providerBlueprints: ProviderBlueprint[] = [
     statusWhenMissing: "placeholder",
     purpose: "Safe fallback for provider evidence without a recognized adapter identifier.",
     evidenceReference: "Unattributed external verification reference",
-    configuredNotes: "Unattributed evidence remains a placeholder until a supported provider is identified.",
-    missingNotes: "Unattributed evidence remains a placeholder until a supported provider is identified.",
+    configuredNotes: "Disabled until a supported provider identifier is attached.",
+    missingNotes: "Disabled until a supported provider identifier is attached.",
     enabledWhen: () => false,
     implementationState: "placeholder",
     authProtection: "not_exposed",
@@ -69,10 +69,10 @@ const providerBlueprints: ProviderBlueprint[] = [
     category: "future_adapter",
     requiredEnv: ["PERSONA_API_KEY"],
     statusWhenMissing: "future",
-    purpose: "Future identity verification adapter candidate.",
+    purpose: "Disabled identity verification adapter pending validated configuration.",
     evidenceReference: "Persona inquiry or verification report",
     configuredNotes: "Persona key is present, but adapter behavior should remain workflow-gated.",
-    missingNotes: "Persona remains a future adapter placeholder.",
+    missingNotes: "Persona is disabled until credentials and a validated workflow are configured.",
     implementationState: "placeholder",
     authProtection: "not_exposed",
   },
@@ -82,10 +82,10 @@ const providerBlueprints: ProviderBlueprint[] = [
     category: "future_adapter",
     requiredEnv: ["ENTRUST_API_KEY"],
     statusWhenMissing: "future",
-    purpose: "Future identity verification and document-check adapter candidate.",
+    purpose: "Disabled identity and document-check adapter pending validated configuration.",
     evidenceReference: "Entrust verification or identity-check report",
     configuredNotes: "Entrust key is present, but adapter behavior should remain workflow-gated.",
-    missingNotes: "Entrust remains a future adapter placeholder.",
+    missingNotes: "Entrust is disabled until credentials and a validated workflow are configured.",
     implementationState: "placeholder",
     authProtection: "not_exposed",
   },
@@ -95,10 +95,10 @@ const providerBlueprints: ProviderBlueprint[] = [
     category: "future_adapter",
     requiredEnv: ["ONFIDO_API_TOKEN"],
     statusWhenMissing: "future",
-    purpose: "Future identity verification adapter candidate.",
+    purpose: "Disabled identity verification adapter pending validated configuration.",
     evidenceReference: "Onfido applicant check or report",
     configuredNotes: "Onfido token is present, but adapter behavior should remain workflow-gated.",
-    missingNotes: "Onfido remains a future adapter placeholder.",
+    missingNotes: "Onfido is disabled until credentials and a validated workflow are configured.",
     implementationState: "placeholder",
     authProtection: "not_exposed",
   },
@@ -137,10 +137,10 @@ const providerBlueprints: ProviderBlueprint[] = [
     category: "device_risk",
     requiredEnv: ["FINGERPRINT_SECRET_KEY"],
     statusWhenMissing: "placeholder",
-    purpose: "Future device-risk enrichment for session integrity review.",
+    purpose: "Disabled device-risk enrichment pending validated configuration.",
     evidenceReference: "Device-risk event or visitor confidence signal",
     configuredNotes: "Device-risk key is present. Treat output as a session integrity signal.",
-    missingNotes: "Device-risk provider remains a placeholder signal.",
+    missingNotes: "Device-risk provider is disabled until credentials and a validated workflow are configured.",
     implementationState: "placeholder",
     authProtection: "not_exposed",
   },
@@ -196,7 +196,7 @@ export function providerRuntimeState(
     return "Live";
   }
   if (provider.requiredEnv.length > 0 && provider.missingEnv.length > 0) {
-    return "Awaiting credentials";
+    return "Awaiting Credentials";
   }
   return "Disabled";
 }

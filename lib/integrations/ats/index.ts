@@ -13,6 +13,12 @@ import type {
 
 export * from "@/lib/integrations/ats/types";
 
+export type ATSProviderRuntimeState =
+  | "Live"
+  | "Simulated"
+  | "Awaiting Credentials"
+  | "Disabled";
+
 type BaseDefinition = Omit<
   ATSProviderDefinition,
   | "status"
@@ -127,6 +133,19 @@ export function getATSProviderDefinitions(): ATSProviderDefinition[] {
     };
   });
   return [...genericDefinitions, getAtlastProviderDefinition()];
+}
+
+export function atsProviderRuntimeState(
+  provider: ATSProviderDefinition
+): ATSProviderRuntimeState {
+  if (provider.status === "Connected") return "Live";
+  if (
+    provider.status === "Awaiting API credentials" ||
+    provider.status === "Webhook configured"
+  ) {
+    return "Awaiting Credentials";
+  }
+  return "Disabled";
 }
 
 export function getATSProvider(id: string) {

@@ -30,7 +30,7 @@ export type VerificationProviderStatus =
 export type ProviderRuntimeState =
   | "Live"
   | "Simulated"
-  | "Awaiting credentials"
+  | "Awaiting Credentials"
   | "Disabled";
 
 export type ProviderImplementationState =

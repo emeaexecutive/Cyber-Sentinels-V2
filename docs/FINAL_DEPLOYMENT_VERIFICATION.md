@@ -46,7 +46,7 @@ All requested route sources exist and all routes were emitted by the production 
 ## Trust core status
 
 - The explainable, rules/provider-based trust engine is present and included in runtime validation.
-- Provider evidence states are normalized as **Live**, **Simulated**, **Awaiting credentials**, or **Disabled**.
+- Provider evidence states are normalized as **Live**, **Simulated**, **Awaiting Credentials**, or **Disabled**.
 - Replay Timeline, Governance Review, Evidence Chain, Authorization Lineage, Session Integrity, and Verification Receipt surfaces remain present.
 - Provider evidence is described as an input to governance, replay, and receipts rather than proof on its own.
 - No positive claims of guaranteed authenticity, universal fake detection, perfect identity certainty, or autonomous truth detection were found. References to biometric certainty are explicit limitations.
@@ -55,7 +55,7 @@ All requested route sources exist and all routes were emitted by the production 
 
 - **Live** means a supported code path is enabled and configured; it is not a provider health or accuracy claim.
 - **Simulated** means controlled test data only.
-- **Awaiting credentials** means required environment variables are absent.
+- **Awaiting Credentials** means required environment variables are absent.
 - **Disabled** means the integration fails safely without provider evidence.
 - Actual production provider availability depends on credentials and should be checked in the protected integration status page after deployment.
 

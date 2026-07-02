@@ -55,7 +55,7 @@ const validationRoadmap = [
   ["03", "Injected-session simulations", "Measure workflow behavior when channel, device or session-integrity signals change."],
   ["04", "Real user pilot tests", "Run consented pilot workflows with named operators and documented review protocols."],
   ["05", "False positive / false negative tracking", "Record reviewer-confirmed outcomes against defined thresholds and representative test sets."],
-  ["06", "External benchmark comparisons", "Compare providers and future signals using published datasets, versions and test conditions."],
+  ["06", "External benchmark comparisons", "Compare configured providers and evaluated signals using published datasets, versions and test conditions."],
   ["07", "Proprietary model research", "Begin only after suitable data, consent, governance and benchmark criteria exist."],
 ];
 
@@ -69,11 +69,11 @@ const ruleBasedMvp = [
 ];
 
 const providerBacked = [
-  ["World ID", "A protected endpoint accepts proof-shaped payloads and reports whether `WORLD_ACTION` is configured, but backend World ID verification is still a placeholder."],
+  ["World ID", "A protected endpoint accepts proof-shaped payloads and reports whether `WORLD_ACTION` is configured. The provider remains Disabled until backend verification is validated."],
   ["Stripe Identity", "Provider registry support exists. No live Stripe Identity session lifecycle is wired into candidate or session workflows today."],
-  ["Persona / Entrust / Onfido", "Placeholder adapters only. They normalize future evidence but do not perform provider verification today."],
+  ["Persona / Entrust / Onfido", "Disabled until credentials and validated provider workflows exist. No provider verification is claimed."],
   ["Cloudflare Turnstile", "Real bot-protection support exists for configured forms. It is a session/form integrity signal, not identity verification."],
-  ["Fingerprint / device trust", "Placeholder device-risk provider entry. Current session/device evidence is rule-based or operator-entered unless a provider signal is attached externally."],
+  ["Fingerprint / device trust", "Disabled until a provider workflow is configured. Current session/device evidence is rule-based or operator-entered unless a provider signal is attached externally."],
   ["Receipts and replay", "Can show normalized provider evidence when present in workflow snapshots. They do not fetch new provider results on their own."],
 ];
 
@@ -190,7 +190,7 @@ export default function VerificationStatusPage() {
                 Provider abstraction lets workflows normalize evidence while retaining source, state, limitations and review ownership.
               </p>
               <p className="rounded-lg border border-zinc-800 bg-black p-4">
-                Proprietary AI may be added later as another governed signal, but only after suitable data and external benchmarking exist.
+                Any detection model remains a governed input. It cannot replace evidence provenance, reviewer ownership or the recorded workflow outcome.
               </p>
             </div>
           </section>
@@ -236,7 +236,7 @@ export default function VerificationStatusPage() {
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
             <h2 className="text-2xl font-semibold text-white">Provider Integration Status</h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-              Status is derived from configured environment variables and the current provider registry. Missing optional providers are treated as safely disabled or future placeholders.
+              Status is derived from configured environment variables and the current provider registry. Every provider is shown as Live, Simulated, Awaiting Credentials or Disabled.
             </p>
             <div className="mt-5 grid gap-3 md:grid-cols-2">
               {providers.map((provider) => (

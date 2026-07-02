@@ -84,7 +84,7 @@ export default async function DeploymentReadinessPage() {
     },
     {
       label: "Provider credentials pending",
-      detail: "Confirm each provider reports Live, Simulated, Awaiting credentials or Disabled before launch.",
+      detail: "Confirm each provider reports Live, Simulated, Awaiting Credentials or Disabled before launch.",
       state: "CAUTION",
     },
     {

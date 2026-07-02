@@ -123,7 +123,7 @@ export default async function TestLabPage() {
                 Failed provider tests: scenarios model failed or pending provider states so review paths can be inspected safely.
               </p>
               <p className="rounded-lg border border-zinc-800 bg-black p-3">
-                Unvalidated capabilities: provider placeholders and configured-but-unverified adapters are not counted as live evidence or accuracy benchmarks.
+                Unvalidated capabilities: Disabled and configured-but-unverified adapters are not counted as Live evidence or accuracy benchmarks.
               </p>
               <p className="rounded-lg border border-zinc-800 bg-black p-3">
                 Assurance levels: deterministic evidence gates describe workflow assurance, not biometric certainty or a universal identity score.
@@ -150,7 +150,7 @@ export default async function TestLabPage() {
             Rule-based results are workflow evidence, not model accuracy.
           </h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
-            This lab separates simulated tests, attached provider-backed evidence, deterministic rule results and unvalidated capabilities. A future proprietary model may be evaluated here only after representative data and benchmark criteria exist; it would remain one signal inside governance and replay.
+            This lab separates Simulated tests, attached provider-backed evidence, deterministic rule results and unvalidated capabilities. Only validated evidence affects operational review, and Governance Review remains authoritative.
           </p>
         </section>
 

@@ -29,7 +29,7 @@ Operator-facing provider state is standardized to four labels:
 - `Live`: a supported code path is enabled and its required configuration is
   present. This is not an uptime, accuracy, or successful-verification claim.
 - `Simulated`: a controlled fixture or demo signal is in use.
-- `Awaiting credentials`: the adapter has declared credential requirements that
+- `Awaiting Credentials`: the adapter has declared credential requirements that
   are not present.
 - `Disabled`: the provider is not enabled for operational use.
 

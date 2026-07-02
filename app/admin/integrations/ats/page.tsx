@@ -3,21 +3,19 @@ import { redirect } from "next/navigation";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import {
   atsEventTypes,
+  atsProviderRuntimeState,
   getATSProviderDefinitions,
-  type ATSProviderStatus,
+  type ATSProviderRuntimeState,
 } from "@/lib/integrations/ats";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-function statusClass(status: ATSProviderStatus) {
-  if (status === "Connected") {
+function statusClass(status: ATSProviderRuntimeState) {
+  if (status === "Live") {
     return "border-emerald-800 bg-emerald-950/20 text-emerald-200";
   }
-  if (status === "Webhook configured") {
-    return "border-cyan-800 bg-cyan-950/20 text-cyan-100";
-  }
-  if (status === "Awaiting API credentials") {
+  if (status === "Awaiting Credentials") {
     return "border-amber-800 bg-amber-950/20 text-amber-100";
   }
   return "border-zinc-700 bg-black text-zinc-300";
@@ -38,13 +36,12 @@ export default async function ATSIntegrationStatusPage() {
     path: "/admin/integrations/ats",
   });
   const providers = getATSProviderDefinitions();
-  const connected = providers.filter((provider) => provider.status === "Connected").length;
-  const webhookReady = providers.filter(
-    (provider) => provider.status === "Webhook configured"
+  const runtimeStates = providers.map(atsProviderRuntimeState);
+  const live = runtimeStates.filter((state) => state === "Live").length;
+  const awaitingCredentials = runtimeStates.filter(
+    (state) => state === "Awaiting Credentials"
   ).length;
-  const placeholders = providers.filter(
-    (provider) => provider.status === "Placeholder"
-  ).length;
+  const disabled = runtimeStates.filter((state) => state === "Disabled").length;
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -77,9 +74,9 @@ export default async function ATSIntegrationStatusPage() {
         <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             ["ATS providers", providers.length],
-            ["Connected", connected],
-            ["Webhook configured", webhookReady],
-            ["Placeholders", placeholders],
+            ["Live", live],
+            ["Awaiting Credentials", awaitingCredentials],
+            ["Disabled", disabled],
           ].map(([label, value]) => (
             <article key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
@@ -89,7 +86,9 @@ export default async function ATSIntegrationStatusPage() {
         </section>
 
         <section className="mt-8 grid gap-4 lg:grid-cols-2">
-          {providers.map((provider) => (
+          {providers.map((provider) => {
+            const runtimeState = atsProviderRuntimeState(provider);
+            return (
             <article key={provider.id} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -98,8 +97,8 @@ export default async function ATSIntegrationStatusPage() {
                     Provider ID: {provider.id}
                   </p>
                 </div>
-                <span className={`rounded-full border px-3 py-1 text-xs ${statusClass(provider.status)}`}>
-                  {provider.status}
+                <span className={`rounded-full border px-3 py-1 text-xs ${statusClass(runtimeState)}`}>
+                  {runtimeState}
                 </span>
               </div>
               <p className="mt-4 text-sm leading-6 text-zinc-400">{provider.notes}</p>
@@ -130,7 +129,7 @@ export default async function ATSIntegrationStatusPage() {
                 {provider.webhookSecretEnv}. Values are never displayed.
               </p>
             </article>
-          ))}
+          )})}
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.9fr]">

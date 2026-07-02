@@ -280,7 +280,7 @@ export default async function AdminIntegrationsPage() {
             {[
               ["Live", "enabled supported path"],
               ["Simulated", "controlled test data only"],
-              ["Awaiting credentials", "required environment names are absent"],
+              ["Awaiting Credentials", "required environment names are absent"],
               ["Disabled", "fails safely without provider evidence"],
             ].map(([state, meaning]) => (
               <span key={state} className="rounded-full border border-zinc-700 px-3 py-1.5">

@@ -30,7 +30,7 @@ Provider presentation remains explicit:
 
 - **Live:** supported path enabled and configured; not an accuracy or health guarantee.
 - **Simulated:** controlled test data only.
-- **Awaiting credentials:** required environment values are absent.
+- **Awaiting Credentials:** required environment values are absent.
 - **Disabled:** fails safely without provider evidence.
 
 Production credentials and provider responses require manual runtime verification.
