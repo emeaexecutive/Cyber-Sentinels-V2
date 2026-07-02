@@ -478,18 +478,18 @@ export default async function GovernancePage({
                     ) : null}
                     <div className="mt-4 grid gap-3 md:grid-cols-3">
                       <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Why triggered</p>
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">Escalation explanation</p>
                         <p className="mt-2 text-sm leading-6 text-zinc-300">
-                          {action.policy?.trigger_type ?? "Operational review threshold reached."}
+                          {action.explanation || action.policy?.description || action.policy?.trigger_type || "Operational review threshold reached."}
                         </p>
                       </div>
                       <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Who reviewed</p>
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">Reviewer attribution</p>
                         <p className="mt-2 text-sm text-zinc-300">{reviewerLabel(action.assigned_to)}</p>
                       </div>
                       <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Current state</p>
-                        <p className="mt-2 text-sm text-zinc-300">{action.action_status ?? "pending"}</p>
+                        <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">Trust-state transition</p>
+                        <p className="mt-2 text-sm text-zinc-300">Review opened → {action.action_status ?? "pending"}</p>
                       </div>
                       <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
                         <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">Supporting evidence</p>

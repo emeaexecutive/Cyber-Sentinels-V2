@@ -5,6 +5,7 @@ import {
   trustEvaluationBenchmarks,
   trustEvaluationDomains,
 } from "@/lib/trustEvaluationBenchmarks";
+import { trustEvaluationScenarios } from "@/lib/trustEvaluationScenarios";
 
 export const metadata: Metadata = {
   title: "Trust Evaluation Lab | Cyber Sentinels",
@@ -98,6 +99,76 @@ export default function TrustEvaluationLabPage() {
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {trustEvaluationBenchmarks.map((benchmark) => (
               <BenchmarkCard key={benchmark.name} benchmark={benchmark} />
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-12" aria-labelledby="evaluation-scenarios">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
+              Evaluation scenarios
+            </p>
+            <h2 id="evaluation-scenarios" className="mt-3 text-3xl font-semibold">
+              Operational examples with explicit boundaries
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-zinc-400">
+              These reusable scenarios demonstrate workflow behavior and
+              explainability. Their labels distinguish simulations, concepts,
+              prototypes and placeholders from live enterprise evidence.
+            </p>
+          </div>
+          <div className="mt-6 grid gap-4 lg:grid-cols-2">
+            {trustEvaluationScenarios.map((scenario) => (
+              <article
+                key={scenario.id}
+                className="rounded-lg border border-zinc-800 bg-zinc-950 p-5"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">
+                      {scenario.category}
+                    </p>
+                    <h3 className="mt-2 text-xl font-semibold text-zinc-100">
+                      {scenario.name}
+                    </h3>
+                  </div>
+                  <span className="rounded-full border border-cyan-900 bg-cyan-950/40 px-2.5 py-1 text-xs font-medium text-cyan-200">
+                    {scenario.status}
+                  </span>
+                </div>
+                <p className="mt-4 text-sm leading-6 text-zinc-300">
+                  {scenario.summary}
+                </p>
+                <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
+                  <div className="rounded-lg border border-zinc-800 bg-black p-3">
+                    <dt className="text-xs uppercase tracking-[0.12em] text-zinc-500">
+                      Trust Posture
+                    </dt>
+                    <dd className="mt-2 text-zinc-200">
+                      {scenario.initialPosture} → {scenario.finalPosture}
+                    </dd>
+                  </div>
+                  <div className="rounded-lg border border-zinc-800 bg-black p-3">
+                    <dt className="text-xs uppercase tracking-[0.12em] text-zinc-500">
+                      Provider state
+                    </dt>
+                    <dd className="mt-2 text-zinc-200">{scenario.providerState}</dd>
+                  </div>
+                </dl>
+                <p className="mt-4 text-sm leading-6 text-zinc-400">
+                  <span className="font-medium text-zinc-200">Evaluation question:</span>{" "}
+                  {scenario.evaluationQuestion}
+                </p>
+                <p className="mt-3 text-xs leading-5 text-zinc-500">
+                  {scenario.limitation}
+                </p>
+                <Link
+                  href={`/replay/demo?scenario=${scenario.id}`}
+                  className="mt-5 inline-flex text-sm font-semibold text-cyan-200 hover:text-white"
+                >
+                  Open scenario Replay Timeline
+                </Link>
+              </article>
             ))}
           </div>
         </section>
