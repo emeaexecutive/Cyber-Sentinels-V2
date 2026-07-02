@@ -1,16 +1,22 @@
-import { InteractiveDemoScenario, type DemoScenarioStep } from "@/components/interactive-demo-scenario";
-
-const steps: DemoScenarioStep[] = [
-  { title: "Synthetic candidate enters", state: "Intake recorded", explanation: "A candidate enters the remote hiring workflow with a polished profile, a newly created email address and employment history that does not fully match the submitted identity evidence.", evidence: "Candidate profile, application source, declared identity context, recruiter owner, workflow CS-HIRE-1043 and intake timestamp.", action: "Keep the workflow reviewable instead of allowing silent progression." },
-  { title: "Interview session begins", state: "Session active", explanation: "Cyber Sentinels links the recruiter, candidate and live interview session before the case moves to panel review.", evidence: "Session reference, workflow owner, recruiter handoff, role context and initiation timestamp.", action: "Tie the candidate, recruiter and interview session to the same review path." },
-  { title: "Provider verification checked", state: "Evidence attached", explanation: "The provider response is attached to the workflow as evidence. It informs the review without becoming an automatic decision.", evidence: "Provider name, verification state, assurance context, evidence reference and response timestamp.", action: "Keep provider evidence visible and separate from the final governance outcome." },
-  { title: "Session integrity fails", state: "Flag raised", explanation: "During the interview, channel evidence changes: device context shifts, the video feed becomes inconsistent and the voice/video timing no longer matches the verified session context.", evidence: "Signal category, source, review-priority score, channel evidence, anomaly timestamp and confidence explanation.", action: "Raise an active flag and prevent the signal from becoming buried in logs." },
-  { title: "Governance review opens", state: "Review required", explanation: "The workflow pauses and routes identity context, session evidence and the injection-risk signal to Maya Chen in Trust Operations. The risky session is blocked while the candidate decision remains human-governed.", evidence: "Governance action, reviewer assignment, escalation reason, block action, evidence reviewed and analyst notes.", action: "Assign ownership, record the workflow decision and preserve the escalation reason." },
-  { title: "Replay evidence generated", state: "Chronology ready", explanation: "The reviewer can replay the ordered sequence: candidate intake, verification start, session anomaly, escalation, analyst notes and final action.", evidence: "Timeline events, actor context, signal records, reviewer notes, workflow references and audit references.", action: "Make the investigation readable for security, talent and compliance stakeholders." },
-  { title: "Verification receipt issued", state: "Review complete", explanation: "An enterprise receipt summarizes the mismatch, the session anomaly, the evidence reviewed by the analyst and the replay reference.", evidence: "Verification receipt, evidence summary, audit references, reviewer attribution, workflow outcome and replay link.", action: "Issue a concise record that can be shared after the incident review." },
-  { title: "Trust posture updated", state: "Posture current", explanation: "The final posture reflects the provider result, session degradation, governance intervention and retained receipt instead of presenting a static score.", evidence: "Previous posture, current posture, evidence continuity, governance outcome and replay-linked receipt.", action: "Carry the reviewed outcome forward as evolving operational trust memory." },
-];
+import { InteractiveDemoScenario } from "@/components/interactive-demo-scenario";
+import {
+  getSimulationScenario,
+  scenarioReplaySteps,
+} from "@/lib/simulationScenarios";
 
 export default function HiringAttackDemoPage() {
-  return <InteractiveDemoScenario label="Hiring Security" title="A synthetic applicant reaches the interview. The workflow does not have to guess." summary="Follow one operational chain from candidate intake through provider evidence, session review, replay, receipt and updated trust posture." steps={steps} nextScenario={{ href: "/demo/session-integrity", label: "Open Session Integrity" }} />;
+  const scenario = getSimulationScenario("proxy-candidate-interview");
+  return (
+    <InteractiveDemoScenario
+      label="Hiring Security"
+      title="A synthetic applicant reaches the interview. The workflow does not have to guess."
+      summary="Follow one simulated operational chain from candidate intake through provider evidence, Session Integrity, governance review and final Trust Posture."
+      steps={scenarioReplaySteps(scenario)}
+      status={scenario.status}
+      providerState={scenario.providerState}
+      manualReviewIndicator={scenario.manualReviewIndicator}
+      replayHref={`/replay/demo?scenario=${scenario.id}`}
+      nextScenario={{ href: "/demo/session-integrity", label: "Open Session Integrity" }}
+    />
+  );
 }

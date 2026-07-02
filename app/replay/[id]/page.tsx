@@ -12,10 +12,10 @@ import {
 import { buildWorkflowProviderSignals } from "@/lib/providers";
 import { createClient } from "@/lib/supabase/server";
 import {
-  getTrustEvaluationScenario,
-  trustEvaluationScenarios,
-  type TrustEvaluationScenario,
-} from "@/lib/trustEvaluationScenarios";
+  getSimulationScenario,
+  simulationScenarios,
+  type SimulationScenario,
+} from "@/lib/simulationScenarios";
 
 export const dynamic = "force-dynamic";
 
@@ -88,7 +88,7 @@ function stageForEvent(event: Row): TrustJourneyStage {
   return "identity_submitted";
 }
 
-function DemoReplay({ scenario }: { scenario: TrustEvaluationScenario }) {
+function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
   return (
     <main className="min-h-screen bg-[#04070c] px-5 py-10 text-white sm:px-6 md:px-8">
       <div className="mx-auto max-w-6xl">
@@ -118,7 +118,7 @@ function DemoReplay({ scenario }: { scenario: TrustEvaluationScenario }) {
         <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             ["Final Trust Posture", scenario.finalPosture],
-            ["Evidence Chain", `${scenario.events.length} scenario records`],
+            ["Evidence Chain", `${scenario.replayEvents.length} scenario records`],
             ["Governance Review", "Human decision recorded"],
             ["Provider Status", scenario.providerState],
           ].map(([title, value]) => (
@@ -130,7 +130,7 @@ function DemoReplay({ scenario }: { scenario: TrustEvaluationScenario }) {
         </section>
 
         <section className="mt-6 rounded-lg border border-zinc-800 bg-black p-5">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <div>
               <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Evaluation question</p>
               <p className="mt-2 text-sm leading-6 text-zinc-200">{scenario.evaluationQuestion}</p>
@@ -143,13 +143,44 @@ function DemoReplay({ scenario }: { scenario: TrustEvaluationScenario }) {
               <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Demonstration boundary</p>
               <p className="mt-2 text-sm leading-6 text-zinc-200">{scenario.limitation}</p>
             </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Manual review</p>
+              <p className="mt-2 text-sm leading-6 text-zinc-200">{scenario.manualReviewIndicator}</p>
+            </div>
           </div>
+        </section>
+
+        <section className="mt-6 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.12em] text-cyan-200">Provider evidence summaries</p>
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            {scenario.providerEvidenceSummaries.map((summary) => (
+              <p key={summary} className="rounded-lg border border-zinc-800 bg-black p-4 text-sm leading-6 text-zinc-300">
+                {summary}
+              </p>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-6 grid gap-3 md:grid-cols-2">
+          <article className="rounded-lg border border-zinc-800 bg-black p-5">
+            <p className="text-xs uppercase tracking-[0.12em] text-cyan-200">Operational notes</p>
+            <ul className="mt-3 grid gap-2 text-sm leading-6 text-zinc-300">
+              {scenario.governanceEvents.map((event) => (
+                <li key={event}>{event}</li>
+              ))}
+              <li>Reviewer attribution and the final authorization state remain part of this chronology.</li>
+            </ul>
+          </article>
+          <article className="rounded-lg border border-zinc-800 bg-black p-5">
+            <p className="text-xs uppercase tracking-[0.12em] text-cyan-200">False-positive handling</p>
+            <p className="mt-3 text-sm leading-6 text-zinc-300">{scenario.falsePositiveHandling}</p>
+          </article>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="text-xl font-semibold">Replay Timeline</h2>
           <div className="mt-5 grid gap-4">
-            {scenario.events.map((event) => (
+            {scenario.replayEvents.map((event) => (
               <article key={event.time} className="grid gap-4 rounded-lg border border-zinc-800 bg-black p-4 md:grid-cols-[90px_1fr]">
                 <div>
                   <p className="font-mono text-sm font-semibold text-cyan-200">{event.time}</p>
@@ -182,15 +213,15 @@ function DemoReplay({ scenario }: { scenario: TrustEvaluationScenario }) {
           </p>
           <h2 className="mt-2 text-xl font-semibold">{scenario.finalPosture}</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-300">
-            {scenario.events.at(-1)?.whatHappened} {scenario.evidenceContinuity}
-            {" "}The final action remains attributable to {scenario.events.at(-1)?.reviewer}.
+            {scenario.replayEvents.at(-1)?.whatHappened} {scenario.evidenceContinuity}
+            {" "}The final action remains attributable to {scenario.replayEvents.at(-1)?.reviewer}.
           </p>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="text-xl font-semibold">Other evaluation scenarios</h2>
           <div className="mt-4 flex flex-wrap gap-2">
-            {trustEvaluationScenarios.map((item) => (
+            {simulationScenarios.map((item) => (
               <Link
                 key={item.id}
                 href={`/replay/demo?scenario=${item.id}`}
@@ -237,7 +268,7 @@ export default async function VerificationReplayPage({
   const { id } = await params;
   if (id === "demo") {
     const query = searchParams ? await searchParams : {};
-    return <DemoReplay scenario={getTrustEvaluationScenario(query.scenario)} />;
+    return <DemoReplay scenario={getSimulationScenario(query.scenario)} />;
   }
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

@@ -5,7 +5,7 @@ import {
   trustEvaluationBenchmarks,
   trustEvaluationDomains,
 } from "@/lib/trustEvaluationBenchmarks";
-import { trustEvaluationScenarios } from "@/lib/trustEvaluationScenarios";
+import { simulationScenarios } from "@/lib/simulationScenarios";
 
 export const metadata: Metadata = {
   title: "Trust Evaluation Lab | Cyber Sentinels",
@@ -118,7 +118,7 @@ export default function TrustEvaluationLabPage() {
             </p>
           </div>
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
-            {trustEvaluationScenarios.map((scenario) => (
+            {simulationScenarios.map((scenario) => (
               <article
                 key={scenario.id}
                 className="rounded-lg border border-zinc-800 bg-zinc-950 p-5"
@@ -158,6 +158,23 @@ export default function TrustEvaluationLabPage() {
                 <p className="mt-4 text-sm leading-6 text-zinc-400">
                   <span className="font-medium text-zinc-200">Evaluation question:</span>{" "}
                   {scenario.evaluationQuestion}
+                </p>
+                <div className="mt-4 rounded-lg border border-zinc-800 bg-black p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">
+                    Provider evidence structure
+                  </p>
+                  <ul className="mt-2 grid gap-1 text-xs leading-5 text-zinc-300">
+                    {scenario.providerEvidenceSummaries.map((summary) => (
+                      <li key={summary}>{summary}</li>
+                    ))}
+                  </ul>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-amber-200">
+                  {scenario.manualReviewIndicator}
+                </p>
+                <p className="mt-3 text-xs leading-5 text-zinc-400">
+                  <span className="font-medium text-zinc-300">False-positive handling:</span>{" "}
+                  {scenario.falsePositiveHandling}
                 </p>
                 <p className="mt-3 text-xs leading-5 text-zinc-500">
                   {scenario.limitation}

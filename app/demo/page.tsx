@@ -32,7 +32,7 @@ export default function DemoPage() {
         <section className="border-b border-zinc-800 pb-12">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Workflow trust demo</p>
           <h1 className="mt-4 max-w-5xl text-4xl font-semibold tracking-tight md:text-6xl">
-            A guided walkthrough from fake candidate to governed workflow outcome.
+            A guided walkthrough from controlled identity conflict to governed workflow outcome.
           </h1>
           <p className="mt-6 max-w-3xl leading-8 text-zinc-200">
             In under 90 seconds, see what entered the workflow, what changed during the session, what evidence was reviewed and which governance action determined the outcome.
@@ -51,7 +51,7 @@ export default function DemoPage() {
           <Link href="/demo/hiring-attack" className="rounded-lg border border-cyan-800 bg-zinc-950 p-6 hover:border-cyan-400">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">90-second walkthrough</p>
             <h2 className="mt-3 text-2xl font-semibold text-white">Hiring Security</h2>
-            <p className="mt-3 text-sm leading-7 text-zinc-300">Follow a fake candidate from intake through a session integrity anomaly, governance escalation, replay evidence, verification receipt and workflow outcome.</p>
+            <p className="mt-3 text-sm leading-7 text-zinc-300">Follow a simulated candidate from intake through a Session Integrity anomaly, governance escalation, replay evidence, Verification Receipt and workflow outcome.</p>
             <p className="mt-5 text-sm font-semibold text-cyan-200">Start walkthrough</p>
           </Link>
           <Link href="/demo/session-integrity" className="rounded-lg border border-zinc-700 bg-zinc-950 p-6 hover:border-cyan-400">

@@ -1,16 +1,50 @@
-import { InteractiveDemoScenario, type DemoScenarioStep } from "@/components/interactive-demo-scenario";
+import { InteractiveDemoScenario } from "@/components/interactive-demo-scenario";
+import {
+  getSimulationScenario,
+  scenarioReplaySteps,
+} from "@/lib/simulationScenarios";
 
-const steps: DemoScenarioStep[] = [
-  { title: "Fake candidate enters workflow", state: "Observed", explanation: "A verified-looking candidate enters a governed remote interview session for a sensitive role.", evidence: "Session identity, start time, recruiter owner, role context, workflow CS-HIRE-1043 and channel metadata.", action: "Start from the operational workflow, not a generic alert queue." },
-  { title: "Interview session begins", state: "Session active", explanation: "The candidate, recruiter owner and live channel are connected to one workflow before trust changes.", evidence: "Session reference, start time, recruiter owner, role context, workflow CS-HIRE-1043 and channel metadata.", action: "Keep the live session linked to the governed workflow." },
-  { title: "Provider verification checked", state: "Partial match", explanation: "The provider result is linked to the session, but identity assurance and live-session integrity remain separate states.", evidence: "Provider result, assurance context, candidate-provided evidence, verified email record and workflow owner.", action: "Use provider evidence as review context, not a final verdict." },
-  { title: "Session integrity anomaly appears", state: "High risk", explanation: "A mid-interview anomaly appears: device context changes, the camera feed stutters at a handoff point and the audio cadence no longer aligns with prior evidence. Detection is one signal.", evidence: "Device-channel state, anomaly timestamp, injection risk, liveness context, media-risk marker, evidence source and confidence explanation.", action: "Escalate the changed session state before the interview outcome advances." },
-  { title: "Governance escalation opens", state: "Assigned", explanation: "Maya Chen in Trust Operations receives the session chronology, policy reason and evidence package instead of a hidden automated verdict.", evidence: "Assigned reviewer, policy context, authorization concern, open action, escalation reason and analyst note.", action: "Route the case to a named reviewer with policy context and evidence." },
-  { title: "Replay evidence generated", state: "Chronology ready", explanation: "The reviewer scans identity submission, session changes, risk events, reviewer notes and prior actions in order. This is not a standalone deepfake verdict.", evidence: "Replay timeline joining evidence, signals, actions, analyst notes, workflow references, metadata/channel integrity summary and audit history.", action: "Make the decision path readable without asking teams to reconstruct it manually." },
-  { title: "Verification receipt issued", state: "Issued", explanation: "The receipt records the blocked session outcome while keeping the candidate employment decision separate for the recruiting team.", evidence: "Portable receipt with identity, session integrity, injection, governance, reviewer, replay, workflow outcome and audit states.", action: "Create an audit-ready explanation of the human-governed workflow decision." },
-  { title: "Trust posture updated", state: "Posture current", explanation: "The posture moves from verified entry to reviewed session risk with the governance outcome and receipt preserved.", evidence: "Prior trust state, session-integrity change, reviewer action, replay reference and receipt status.", action: "Make trust evolution visible without implying universal or permanent scoring." },
+const signalSummary = [
+  {
+    label: "Liveness",
+    state: "Placeholder",
+    explanation: "No live liveness provider result is attached.",
+  },
+  {
+    label: "Injection risk",
+    state: "Simulated flag",
+    explanation: "Controlled channel discontinuity requires review.",
+  },
+  {
+    label: "Deepfake indicators",
+    state: "Not determined",
+    explanation: "No binary fake/not-fake conclusion is made.",
+  },
+  {
+    label: "Device / channel",
+    state: "Integrity changed",
+    explanation: "Prototype device and media context diverged.",
+  },
+  {
+    label: "Manual review",
+    state: "Required",
+    explanation: "A named reviewer determines the workflow outcome.",
+  },
 ];
 
 export default function SessionIntegrityDemoPage() {
-  return <InteractiveDemoScenario label="Session Integrity" title="Verification happened at entry. Workflow trust still changed during the session." summary="See why identity verification alone is insufficient and how Cyber Sentinels preserves evidence, governance, authorization context and operational memory. Session integrity, evidence and governance determine the final review state." steps={steps} />;
+  const scenario = getSimulationScenario("injected-verification-session");
+  return (
+    <InteractiveDemoScenario
+      label="Session Integrity"
+      title="Verification happened at entry. Workflow trust still changed during the session."
+      summary="Liveness, injection risk, deepfake indicators, device/channel integrity and manual review remain separate throughout this prototype workflow."
+      steps={scenarioReplaySteps(scenario)}
+      status={scenario.status}
+      providerState={scenario.providerState}
+      manualReviewIndicator={scenario.manualReviewIndicator}
+      replayHref={`/replay/demo?scenario=${scenario.id}`}
+      signalSummary={signalSummary}
+    />
+  );
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { simulationScenarios } from "@/lib/simulationScenarios";
 
 type SeedState = "idle" | "loading" | "success" | "error";
 
@@ -54,18 +55,64 @@ export default function DemoLabPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black p-8 text-white">
-      <section className="mx-auto max-w-4xl">
-        <p className="text-sm uppercase tracking-[0.24em] text-yellow-300">
-          Controlled demonstration environment.
-        </p>
-        <h1 className="mt-4 text-4xl font-bold">Demo Lab</h1>
-        <p className="mt-4 text-zinc-400">
-          Run a two-minute Hiring Security walkthrough from partial identity
-          verification to a human-reviewed session block.
-        </p>
+    <main className="min-h-screen bg-[#04070c] px-5 py-10 text-white sm:px-6 md:px-8">
+      <section className="mx-auto max-w-6xl">
+        <header className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
+            Controlled simulation environment
+          </p>
+          <h1 className="mt-4 text-4xl font-semibold md:text-5xl">Operational Trust Simulation Suite</h1>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Explore how trust changes across humans, AI agents, workflows,
+            evidence chains, governance actions and authorization events.
+            Scenarios are simulated, prototype, concept or placeholder records;
+            none are production benchmark results.
+          </p>
+        </header>
 
-        <div className="mt-8 grid gap-3 md:grid-cols-3">
+        <section className="mt-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-cyan-200">Scenario library</p>
+              <h2 className="mt-2 text-2xl font-semibold">Seven operational trust workflows</h2>
+            </div>
+            <Link href="/trust-evaluation-lab" className="text-sm font-semibold text-cyan-200 hover:text-white">
+              Open Trust Evaluation Lab
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {simulationScenarios.map((scenario) => (
+              <article key={scenario.id} className="rounded-lg border border-zinc-800 bg-black p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{scenario.riskType}</p>
+                    <h3 className="mt-2 text-lg font-semibold text-zinc-100">{scenario.name}</h3>
+                  </div>
+                  <span className="rounded-full border border-cyan-900 bg-cyan-950/30 px-2.5 py-1 text-xs text-cyan-100">
+                    {scenario.status}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{scenario.summary}</p>
+                <div className="mt-4 grid gap-2 text-xs text-zinc-300">
+                  <p>Trust Posture: {scenario.initialPosture} → {scenario.finalPosture}</p>
+                  <p>Provider: {scenario.providerState}</p>
+                  <p>{scenario.manualReviewIndicator}</p>
+                </div>
+                <Link
+                  href={`/replay/demo?scenario=${scenario.id}`}
+                  className="mt-5 inline-flex text-sm font-semibold text-cyan-200 hover:text-white"
+                >
+                  Open Replay Timeline
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-200">Guided hiring walkthrough</p>
+          <h2 className="mt-2 text-2xl font-semibold">Two-minute operational sequence</h2>
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
           {[
             ["00:00", "Synthetic candidate", "Open a clearly labelled sample candidate with partial verification."],
             ["00:30", "Injection risk", "Show the retained channel flag and explain why the workflow pauses."],
@@ -81,8 +128,9 @@ export default function DemoLabPage() {
             </article>
           ))}
         </div>
+        </section>
 
-        <div className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm font-semibold text-yellow-300">
             Sample operational progression only.
           </p>
@@ -128,7 +176,7 @@ export default function DemoLabPage() {
               </Link>
             </div>
           ) : null}
-        </div>
+        </section>
       </section>
     </main>
   );

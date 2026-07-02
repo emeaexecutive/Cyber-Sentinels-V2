@@ -11,23 +11,28 @@ export type DemoScenarioStep = {
   action: string;
 };
 
-const proofPath = [
-  "Candidate enters workflow",
-  "Session begins",
-  "Provider verification checked",
-  "Session anomaly recorded",
-  "Governance review assigned",
-  "Replay chronology available",
-  "Verification receipt issued",
-  "Trust posture updated",
-];
-
-export function InteractiveDemoScenario({ label, title, summary, steps, nextScenario }: {
+export function InteractiveDemoScenario({
+  label,
+  title,
+  summary,
+  steps,
+  nextScenario,
+  status = "Simulated",
+  providerState = "Simulated",
+  manualReviewIndicator = "Manual review required for the final operational outcome.",
+  replayHref,
+  signalSummary,
+}: {
   label: string;
   title: string;
   summary: string;
   steps: DemoScenarioStep[];
   nextScenario?: { href: string; label: string };
+  status?: string;
+  providerState?: string;
+  manualReviewIndicator?: string;
+  replayHref?: string;
+  signalSummary?: { label: string; state: string; explanation: string }[];
 }) {
   const [active, setActive] = useState(0);
   const step = steps[active];
@@ -42,9 +47,27 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
           <Link href="/enterprise-access?intent=intro_call">Book Intro Call</Link>
         </nav>
         <header className="mt-10 border-b border-zinc-800 pb-10">
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">{label} / 90-second walkthrough</p>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="uppercase tracking-[0.2em] text-cyan-200">{label} / 90-second walkthrough</span>
+            <span className="rounded-full border border-cyan-900 bg-cyan-950/30 px-2.5 py-1 text-cyan-100">{status}</span>
+            <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-zinc-300">Provider: {providerState}</span>
+          </div>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-tight md:text-6xl">{title}</h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-200">{summary}</p>
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-amber-200">
+            {manualReviewIndicator}
+          </p>
+          {signalSummary?.length ? (
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {signalSummary.map((signal) => (
+                <article key={signal.label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{signal.label}</p>
+                  <p className="mt-2 text-sm font-semibold text-zinc-100">{signal.state}</p>
+                  <p className="mt-2 text-xs leading-5 text-zinc-400">{signal.explanation}</p>
+                </article>
+              ))}
+            </div>
+          ) : null}
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {["Operational event", "State transition", "Evidence retained"].map((item) => (
               <div key={item} className="rounded-lg border border-zinc-800 bg-black p-4">
@@ -54,16 +77,16 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
             ))}
           </div>
           <div className="mt-6 grid gap-2 md:grid-cols-4 lg:grid-cols-8">
-            {proofPath.map((item, index) => (
+            {steps.map((item, index) => (
               <div
-                key={item}
+                key={item.title}
                 className={
                   "rounded-lg border p-3 " +
                   (index === active ? "border-cyan-700 bg-cyan-950/20" : index < active ? "border-emerald-900 bg-emerald-950/10" : "border-zinc-800 bg-black")
                 }
               >
                 <p className="text-xs font-semibold text-cyan-200">{index + 1}</p>
-                <p className="mt-2 text-xs leading-5 text-zinc-200">{item}</p>
+                <p className="mt-2 text-xs leading-5 text-zinc-200">{item.title}</p>
               </div>
             ))}
           </div>
@@ -105,6 +128,9 @@ export function InteractiveDemoScenario({ label, title, summary, steps, nextScen
                 <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-4 py-2 text-cyan-100 hover:border-cyan-400">Request Enterprise Access</Link>
                 <Link href="/enterprise-access?intent=design_partner" className="rounded-md border border-zinc-700 px-4 py-2 text-zinc-200 hover:border-zinc-400">Become a Design Partner</Link>
                 <Link href="/enterprise-access?intent=intro_call" className="rounded-md border border-zinc-700 px-4 py-2 text-zinc-200 hover:border-zinc-400">Book Intro Call</Link>
+                {replayHref ? (
+                  <Link href={replayHref} className="rounded-md border border-cyan-800 px-4 py-2 text-cyan-100 hover:border-cyan-400">Open Replay Timeline</Link>
+                ) : null}
               </div>
             ) : null}
           </article>
