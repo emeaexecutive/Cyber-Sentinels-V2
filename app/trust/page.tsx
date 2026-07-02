@@ -35,7 +35,7 @@ export default function TrustPage() {
         <div className="mt-8 flex flex-wrap gap-3">
           <Link href="/methodology" className="brand-primary-action">Review Methodology</Link>
           <Link href="/security" className="brand-secondary-action">Security</Link>
-          <Link href="/status" className="brand-secondary-action">System Status</Link>
+          <Link href="/security" className="brand-secondary-action">Security &amp; Trust</Link>
         </div>
       </div>
     </main>

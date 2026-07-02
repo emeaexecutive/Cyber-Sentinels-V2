@@ -13,7 +13,7 @@ export default function SecurityPage() {
         },
         {
           title: "Row Level Security",
-          body: "Operational Supabase tables use RLS policies and authenticated grants so direct data access is scoped to record owners and authorized workflows.",
+          body: "Operational data stores use row-level access policies and authenticated grants so records remain scoped to owners and authorized workflows.",
         },
         {
           title: "Private Evidence Storage",

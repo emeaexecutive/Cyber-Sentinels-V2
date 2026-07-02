@@ -16,23 +16,34 @@ type CookieToSet = {
 };
 
 const userPagePrefixes = [
+  "/agents",
+  "/billing",
+  "/clearances",
+  "/client-portal",
+  "/compliance-export",
   "/passport",
   "/passports",
   "/evidence-upload",
+  "/enterprise/pilot-setup",
   "/trust-assistant",
   "/knowledge-base",
   "/data-rights",
   "/messages",
   "/notifications",
+  "/pilot",
   "/appeals",
   "/feedback",
+  "/hiring-shield",
   "/recruiter/dashboard",
+  "/replay",
   "/dashboard",
   "/dashboard/interview-risk",
   "/developers/api-keys",
   "/workspace",
   "/agents/register",
   "/timeline",
+  "/team-access",
+  "/team-workspace",
   "/trust",
   "/trust-replay",
   "/trust-center",
@@ -40,6 +51,8 @@ const userPagePrefixes = [
   "/verify/candidate",
   "/verify/recruiter",
   "/verify/provenance",
+  "/verification/receipt",
+  "/verifier-network",
   "/interview/session",
 ];
 
@@ -76,6 +89,69 @@ const adminPagePrefixes = [
   "/launch-control",
 ];
 
+const internalToolingPrefixes = [
+  "/api-docs",
+  "/api/demo/seed",
+  "/api/providers",
+  "/api/status",
+  "/architecture",
+  "/command-center",
+  "/demo-lab",
+  "/developer-console",
+  "/developers",
+  "/dashboard/validation",
+  "/launch-console",
+  "/qa-console",
+  "/status",
+  "/api/ai-governance/analyze",
+  "/api/hpg/analyze",
+  "/api/origin/analyze",
+  "/api/reality-twin/analyze",
+  "/api/trust-algorithm/run",
+  "/api/trust-events",
+  "/api/trust-recovery",
+];
+
+const experimentalPagePrefixes = [
+  "/agent-passport",
+  "/agent-registry",
+  "/deepfake-detection",
+  "/global-trust",
+  "/human-presence-genome",
+  "/human-presence-index",
+  "/linkedin-verification",
+  "/marketplace-trust",
+  "/origin-dna",
+  "/origin-trace",
+  "/permissions-firewall",
+  "/policy-engine",
+  "/profile",
+  "/reality-chain",
+  "/reality-os",
+  "/reality-passport",
+  "/reality-twin",
+  "/revocation-engine",
+  "/synthetic-counterpart",
+  "/trust-algorithm",
+  "/trust-badges",
+  "/trust-embeds",
+  "/trust-evaluation-lab",
+  "/trust-fabric",
+  "/trust-feed",
+  "/trust-graph",
+  "/trust-graph-explorer",
+  "/trust-ledger",
+  "/trust-os",
+  "/trust-prediction",
+  "/trust-radar",
+  "/trust-recovery",
+  "/trust-registry",
+  "/trust-seal-authority",
+  "/trust-timeline",
+  "/video-verification",
+  "/step-up-verification",
+];
+
 function matchesPrefix(pathname: string, prefixes: string[]) {
   return prefixes.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
@@ -83,14 +159,23 @@ function matchesPrefix(pathname: string, prefixes: string[]) {
 }
 
 function isProtectedUserPath(pathname: string) {
-  if (pathname === "/trust") {
+  if (
+    pathname === "/trust" ||
+    pathname === "/replay/demo" ||
+    pathname === "/verification/receipt/demo"
+  ) {
     return false;
   }
   return matchesPrefix(pathname, userPagePrefixes);
 }
 
 function isProtectedAdminPath(pathname: string) {
-  return matchesPrefix(pathname, adminPagePrefixes) || pathname.startsWith("/api/admin/");
+  return (
+    matchesPrefix(pathname, adminPagePrefixes) ||
+    matchesPrefix(pathname, internalToolingPrefixes) ||
+    matchesPrefix(pathname, experimentalPagePrefixes) ||
+    pathname.startsWith("/api/admin/")
+  );
 }
 
 function isAdminAccessEndpoint(pathname: string) {
@@ -156,8 +241,20 @@ function clearAdminCookie(response: NextResponse) {
   return response;
 }
 
+function preventIndexing(response: NextResponse) {
+  response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  response.headers.set("Cache-Control", "private, no-store");
+  return response;
+}
+
 function redirectTo(req: NextRequest, path: string) {
-  return NextResponse.redirect(new URL(path, req.url));
+  return preventIndexing(NextResponse.redirect(new URL(path, req.url)));
+}
+
+function protectedSurfaceUnavailable() {
+  return preventIndexing(
+    new NextResponse("Protected surface unavailable.", { status: 503 })
+  );
 }
 
 export async function middleware(req: NextRequest) {
@@ -170,14 +267,14 @@ export async function middleware(req: NextRequest) {
   }
 
   if (!hasPublicSupabaseEnv()) {
-    return NextResponse.next();
+    return protectedSurfaceUnavailable();
   }
 
   let supabaseEnv;
   try {
     supabaseEnv = getPublicSupabaseEnv("middleware Supabase client");
   } catch {
-    return NextResponse.next();
+    return protectedSurfaceUnavailable();
   }
 
   let response = NextResponse.next({
@@ -185,6 +282,7 @@ export async function middleware(req: NextRequest) {
       headers: req.headers,
     },
   });
+  response = preventIndexing(response);
   const supabase = createServerClient(
     supabaseEnv.supabaseUrl,
     supabaseEnv.supabaseAnonKey,
@@ -254,7 +352,7 @@ export async function middleware(req: NextRequest) {
     }
 
     return clearAdminCookie(
-      redirectTo(req, "/command-center?message=admin_not_configured")
+      redirectTo(req, "/back-office?denied=1&reason=admin_not_configured")
     );
   }
 
@@ -267,7 +365,7 @@ export async function middleware(req: NextRequest) {
     }
 
     return clearAdminCookie(
-      redirectTo(req, "/command-center?message=admin_access_required")
+      redirectTo(req, "/back-office?denied=1&reason=admin_access_required")
     );
   }
 
@@ -289,54 +387,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/passport/:path*",
-    "/passports/:path*",
-    "/evidence-upload/:path*",
-    "/trust-assistant/:path*",
-    "/knowledge-base/:path*",
-    "/data-rights/:path*",
-    "/messages/:path*",
-    "/notifications/:path*",
-    "/appeals/:path*",
-    "/feedback/:path*",
-    "/recruiter/dashboard/:path*",
-    "/dashboard/:path*",
-    "/dashboard/interview-risk/:path*",
-    "/developers/api-keys/:path*",
-    "/workspace/:path*",
-    "/agents/register/:path*",
-    "/timeline/:path*",
-    "/trust/:path*",
-    "/trust-replay/:path*",
-    "/verify/session/:path*",
-    "/verify/candidate/:path*",
-    "/verify/recruiter/:path*",
-    "/verify/provenance/:path*",
-    "/interview/session/:path*",
-    "/back-office/:path*",
-    "/admin/:path*",
-    "/admin/api-tests/:path*",
-    "/admin/integrations/:path*",
-    "/admin/launch-control/:path*",
-    "/admin/readiness-gate/:path*",
-    "/admin/founder-control/:path*",
-    "/admin/agents/:path*",
-    "/admin/reviews/:path*",
-    "/verification-queue/:path*",
-    "/evidence-vault/:path*",
-    "/decision-engine/:path*",
-    "/trust-intelligence/:path*",
-    "/trust-graph-engine/:path*",
-    "/mission-control/:path*",
-    "/signals/:path*",
-    "/workforce-trust/:path*",
-    "/intent-verification/:path*",
-    "/autonomy-governance/:path*",
-    "/execution-passports/:path*",
-    "/state-verification/:path*",
-    "/trust-events/:path*",
-    "/trustops/:path*",
-    "/launch-control/:path*",
-    "/api/admin/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|favicon.png).*)",
   ],
 };

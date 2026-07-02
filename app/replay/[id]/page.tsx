@@ -94,7 +94,6 @@ function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
       <div className="mx-auto max-w-6xl">
         <nav className="flex flex-wrap gap-3 text-sm">
           <Link href="/demo" className="text-zinc-300 hover:text-white">Demo overview</Link>
-          <Link href="/trust-evaluation-lab" className="text-zinc-300 hover:text-white">Trust Lab</Link>
           <Link href="/enterprise/hiring-security" className="text-zinc-300 hover:text-white">Hiring Security</Link>
           {scenario.id === "proxy-candidate-interview" ? (
             <Link href="/verification/receipt/demo" className="text-cyan-200">Open demo receipt</Link>
@@ -246,8 +245,8 @@ function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
               View Verification Receipt
             </Link>
           ) : (
-            <Link href="/trust-evaluation-lab" className="brand-primary-action">
-              Return to Trust Lab
+            <Link href="/demo" className="brand-primary-action">
+              View Demo
             </Link>
           )}
         </section>

@@ -24,11 +24,9 @@ const authenticatedFocusLinks = [
 
 const platformDropdownLinks = [
   ["/trust-center", "Operational Trust"],
-  ["/trust-evaluation-lab", "Trust Lab"],
   ["/dashboard/trust-posture", "Trust Posture"],
   ["/trust-replay", "Replay Timeline"],
   ["/dashboard/governance", "Governance Review"],
-  ["/evidence-vault", "Evidence Chain"],
   ["/dashboard/access-governance", "Authorization Lineage"],
   ["/dashboard/session-integrity", "Session Integrity"],
   ["/verification-receipts", "Verification Receipt"],
@@ -36,12 +34,10 @@ const platformDropdownLinks = [
 
 const publicPlatformDropdownLinks = [
   ["/platform", "Operational Trust"],
-  ["/trust-evaluation-lab", "Trust Lab"],
   ["/methodology", "Trust Posture Methodology"],
   ["/verification-replay", "Replay Timeline"],
   ["/governance", "Governance Review"],
   ["/verification-receipts", "Verification Receipt"],
-  ["/architecture", "Architecture"],
 ];
 
 const enterpriseDropdownLinks = [

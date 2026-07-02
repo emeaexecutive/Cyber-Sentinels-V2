@@ -45,12 +45,12 @@ const faqs = [
 ];
 
 const workflowSteps = [
-  ["1", "Create Passport", "/passport"],
-  ["2", "Upload Evidence", "/evidence-upload"],
-  ["3", "Review Evidence", "/back-office#evidence-review"],
-  ["4", "Approve or Reject", "/back-office#verification-queue"],
-  ["5", "View Trust Passport", "/passports"],
-  ["6", "Open Trust Graph", "/trust-graph-engine"],
+  ["1", "View Demo", "/demo"],
+  ["2", "Candidate Verification", "/verify/candidate"],
+  ["3", "Session Integrity", "/verify/session"],
+  ["4", "Governance Review", "/dashboard/governance"],
+  ["5", "Replay Timeline", "/trust-replay"],
+  ["6", "Verification Receipts", "/verification-receipts"],
 ];
 
 async function submitHelpQuestion(formData: FormData) {

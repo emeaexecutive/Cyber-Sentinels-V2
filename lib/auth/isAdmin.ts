@@ -104,7 +104,7 @@ export async function requireAdminPageAccess(
       result.reason === "admin_not_configured"
         ? "admin_not_configured"
         : "admin_access_required";
-    redirect(`/command-center?message=${message}`);
+    redirect(`/back-office?denied=1&reason=${message}`);
   }
 
   await auditAdminAccess(supabase, "admin_access_verified", result.user.email ?? result.user.id, metadata);
@@ -153,7 +153,7 @@ export async function requireAdminApiAccess(
     reason: result.reason,
     response: NextResponse.redirect(
       new URL(
-        `/command-center?message=${
+        `/back-office?denied=1&reason=${
           result.reason === "admin_not_configured"
             ? "admin_not_configured"
             : "admin_access_required"

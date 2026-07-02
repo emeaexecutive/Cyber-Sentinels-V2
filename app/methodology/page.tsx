@@ -40,8 +40,8 @@ export default function MethodologyPage() {
             claims require representative benchmark data. Until then, provider
             outputs and rule-based indicators remain evidence for human review.
           </p>
-          <Link href="/status/verification" className="mt-5 inline-flex text-sm font-semibold text-cyan-200 hover:text-white">
-            View verification maturity
+          <Link href="/trust" className="mt-5 inline-flex text-sm font-semibold text-cyan-200 hover:text-white">
+            Trust Center
           </Link>
         </section>
       </div>

@@ -22,13 +22,8 @@ export default function VerifyPage() {
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/", "Home"],
-            ["/profile", "Public Profiles"],
-            ["/trust-badges", "Trust Badges"],
-            ["/trust-embeds", "Trust Embeds"],
-            ["/trust-seal-authority", "Trust Seals"],
-            ["/trust-registry", "Trust Registry"],
-            ["/marketplace-trust", "Marketplace Trust"],
-            ["/api-docs", "API Docs"],
+            ["/trust", "Trust Center"],
+            ["/verification-receipts", "Verification Receipts"],
           ].map(([href, label]) => (
             <Link
               key={href}
