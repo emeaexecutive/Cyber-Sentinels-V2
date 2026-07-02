@@ -30,16 +30,16 @@ export default async function EnterpriseAccessPage({ searchParams }: {
         <section className="border-b border-zinc-800 pb-10 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-10">
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Enterprise Access</p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">{pageTitle}</h1>
-          <p className="mt-5 max-w-2xl leading-8 text-zinc-300">Tell us what you need to verify, which workflow is exposed and what human review or audit trail your team requires.</p>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-300">Cyber Sentinels provides operational trust for enterprise workflows that need session integrity, verification evidence, governance review and replay.</p>
+          <p className="mt-5 max-w-2xl leading-8 text-zinc-300">Tell us which human, AI-agent or enterprise workflow needs continuous trust, accountable authorization and replayable governance.</p>
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-zinc-300">Cyber Sentinels provides persistent Operational Trust through Continuous Verification, Trust Posture, Evidence Chain, Authorization Lineage, Governance Review and Replay Timeline.</p>
           {designPartner ? (
             <div className="mt-6 rounded-lg border border-cyan-950 bg-black p-4">
               <p className="text-sm font-semibold text-cyan-100">Design partner pilot ask</p>
               <ul className="mt-3 grid gap-2 text-sm leading-6 text-zinc-300">
-                <li>Test one hiring security workflow.</li>
-                <li>Validate provider evidence and failure states.</li>
-                <li>Review replay and verification receipt continuity.</li>
-                <li>Provide operational feedback on governance and ownership.</li>
+                <li>Select one human, AI-agent or enterprise workflow.</li>
+                <li>Define its identity, evidence and authorization boundary.</li>
+                <li>Review Trust Posture shifts and Replay Timeline continuity.</li>
+                <li>Evaluate governance ownership and the final receipt.</li>
               </ul>
             </div>
           ) : null}
@@ -56,10 +56,10 @@ export default async function EnterpriseAccessPage({ searchParams }: {
           <EvidenceDisclaimer className="mt-6 max-w-2xl" />
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {[
-              ["Trust state changes", "Workflow status remains visible as identity, session and evidence state changes."],
-              ["Governance escalation events", "Human review is attached to the operational workflow, not buried in a separate queue."],
-              ["Verification evidence attached", "Replay, receipts and audit references preserve what was reviewed."],
-              ["Workflow authenticity status", "Teams can see whether the workflow is verified, at risk or awaiting review."],
+              ["Persistent Trust Posture", "Operational state remains visible as identity, authorization, session and evidence change."],
+              ["Governance escalation", "Human authority remains attached to the workflow transition and its rationale."],
+              ["Replay continuity", "Replay Timeline, receipts and audit references preserve what changed and why."],
+              ["Governed execution", "Teams can see whether human or agent activity is authorized, restricted or awaiting review."],
             ].map(([title, copy]) => (
               <div key={title} className="rounded-lg border border-zinc-800 bg-black p-3">
                 <p className="text-xs font-semibold text-zinc-100">{title}</p>
@@ -84,14 +84,14 @@ export default async function EnterpriseAccessPage({ searchParams }: {
             <label className="grid gap-2 text-sm text-zinc-300">Work email<input required name="work_email" type="email" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
             <label className="grid gap-2 text-sm text-zinc-300">Company<input required name="company" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
             <label className="grid gap-2 text-sm text-zinc-300">
-              Hiring, identity or operational trust concern
+              Operational trust concern
               <select name="current_problem_category" defaultValue="" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white">
                 <option value="" disabled>Select the closest concern</option>
-                <option value="hiring_security">Synthetic applicants and hiring security</option>
-                <option value="session_integrity">Session integrity and injected feeds</option>
-                <option value="ai_identity">Agent governance and digital identity</option>
-                <option value="auditability">Verification evidence and audit trails</option>
-                <option value="human_review">Governance and human review</option>
+                <option value="ai_identity">AI-agent governance and authorization</option>
+                <option value="auditability">Replay continuity and Evidence Chain</option>
+                <option value="human_review">Governance Review and escalation</option>
+                <option value="session_integrity">Continuous Verification and Session Integrity</option>
+                <option value="hiring_security">Hiring Security workflow</option>
                 <option value="other">Other</option>
               </select>
             </label>

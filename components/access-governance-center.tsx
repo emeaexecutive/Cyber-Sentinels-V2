@@ -37,8 +37,13 @@ export function AccessGovernanceCenter({
             Explainable authorization continuity.
           </h1>
           <p className="mt-5 max-w-4xl text-lg leading-8 text-zinc-200">
-            Review trust posture, authorization lineage, provider-backed evidence,
-            session integrity and replay-linked approvals before access is relied on.
+            Review Continuous Verification, Trust Posture, Authorization Lineage,
+            Evidence Chain and replay-linked Governance Review before access is relied on.
+          </p>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            Authorization is an evolving operational state. Grants, delegated
+            actions, posture shifts and revocations remain connected to the
+            evidence and accountable authority behind them.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/dashboard/governance" className="brand-primary-action brand-action-large text-sm">
@@ -162,7 +167,7 @@ export function AccessGovernanceCenter({
             ["Executive onboarding", "Elevated identity evidence and named approval before privileged onboarding."],
             ["Privileged workflow access", "Conditional access with policy thresholds, reviewer ownership and replay retention."],
             ["Sensitive AI-agent operations", "Delegated scope, accountable owner and governed execution evidence."],
-            ["High-risk interview workflows", "Session integrity and provider signals route to human review before reliance."],
+            ["Continuous workforce access", "Identity freshness, role changes and Session Integrity route to review before reliance."],
           ].map(([title, copy]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
               <h2 className="font-semibold text-zinc-100">{title}</h2>

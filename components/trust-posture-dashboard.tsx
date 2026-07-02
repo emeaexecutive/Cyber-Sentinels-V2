@@ -165,7 +165,7 @@ export function TrustPostureDashboard({
       <div className="mx-auto max-w-7xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            {enterprise ? "Enterprise Monitoring" : "Continuous Trust Posture"}
+            {enterprise ? "Enterprise Trust Posture" : "Persistent Trust Posture"}
           </p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-5">
             <div>
@@ -173,7 +173,10 @@ export function TrustPostureDashboard({
                 {enterprise ? "Trust Posture Operations" : "Active Trust Posture"}
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Identity verification is a point-in-time record. This view keeps provider evidence, session changes, reverification and human governance visible as workflow trust evolves.
+                Verification is a point-in-time event; trust is continuous. This
+                view keeps human and agent identity, authorization changes,
+                Session Integrity, reverification and Governance Review visible
+                as operational trust evolves.
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
                 Cyber Sentinels creates replayable operational trust memory across enterprise workflows.
@@ -222,7 +225,7 @@ export function TrustPostureDashboard({
         <section className="mt-8">
           <TrustJourneyVisualization
             title="Trust posture journey"
-            description="Operational progression across verification milestones, Session Integrity, Governance Review, reviewer action and Replay Evidence."
+            description="Operational progression across Continuous Verification, Authorization Lineage, Session Integrity, Governance Review and Replay Timeline."
             events={[...journeyEvents, authorizationEvent]}
             finalState={finalJourneyState}
             proofState={{
@@ -253,7 +256,7 @@ export function TrustPostureDashboard({
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <h2 className="text-xl font-semibold">Context And Trust Drift</h2>
+          <h2 className="text-xl font-semibold">Context and Trust Posture Shifts</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
             Explainable changes from existing verification, session and governance records.
           </p>
@@ -277,7 +280,7 @@ export function TrustPostureDashboard({
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="text-xl font-semibold">Trust Posture Summaries</h2>
-              <p className="mt-2 text-sm text-zinc-500">Current passport and session posture in one readable queue.</p>
+              <p className="mt-2 text-sm text-zinc-500">Current human, agent and workflow posture in one readable queue.</p>
             </div>
             <BadgeCheck className="h-5 w-5 text-cyan-300" />
           </div>
@@ -294,7 +297,7 @@ export function TrustPostureDashboard({
               </div>
             )) : (
               <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">
-                No passport or session posture records are available yet.
+                No human, agent or workflow posture records are available yet.
               </p>
             )}
           </div>
@@ -357,7 +360,7 @@ export function TrustPostureDashboard({
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="text-xl font-semibold">Recent Trust Events</h2>
-              <p className="mt-2 text-sm text-zinc-500">Verification, session and timeline activity ordered for audit review.</p>
+              <p className="mt-2 text-sm text-zinc-500">Identity, authorization, session and governance activity ordered for Replay Timeline review.</p>
             </div>
             <Link href="/trust-replay" className="text-sm text-cyan-200 hover:text-white">Open replay</Link>
           </div>

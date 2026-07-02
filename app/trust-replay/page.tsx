@@ -372,23 +372,22 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             Operational governance memory
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Trust Replay
+            Replay Timeline
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels preserves operational trust memory and explainable
-            governance history. Replay reconstructs what evidence, signals,
-            decisions, relationships, summaries and timeline events existed at a
-            point in time.
+            Replay is the platform-wide operational memory layer for humans,
+            AI agents, workflows, Authorization Lineage, Governance Review and
+            Trust Posture transitions.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Replay is the decision-layer chronology: it connects the evidence chain,
-            reviewer decision, workflow outcome and audit-ready report without
-            mutating the underlying records.
+            It reconstructs the Evidence Chain, authorization changes, reviewer
+            decisions, workflow outcome and audit history that existed at a point
+            in time without mutating the underlying records.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-            Trust can change quietly. This view is read-only and preserves the
-            recorded chronology without rewriting governance history or audit
-            events. Summaries remain secondary to source evidence.
+            Trust changes over time. Replay preserves governance memory and
+            operational continuity without rewriting source evidence. Summaries
+            remain secondary to the recorded chronology.
           </p>
           <div className="mt-5 max-w-3xl">
             <OnboardingHint area="replay" />

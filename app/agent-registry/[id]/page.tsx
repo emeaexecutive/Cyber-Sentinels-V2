@@ -67,8 +67,9 @@ export default async function AgentRegistryDetailPage({
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
             ["/agent-registry", "Agent Registry"],
-            ["/agent-passport", "Agent Passport"],
-            ["/mission-control", "Mission Control"],
+            ["/trust/posture", "Trust Posture"],
+            ["/trust-replay?subject_type=agent", "Replay Timeline"],
+            ["/dashboard/access-governance", "Authorization Lineage"],
           ].map(([href, label]) => (
             <Link
               key={href}
@@ -177,11 +178,12 @@ export default async function AgentRegistryDetailPage({
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Authorization lineage</p>
-          <h2 className="mt-2 text-xl font-semibold">Replayable agent trust history</h2>
+          <h2 className="mt-2 text-xl font-semibold">Persistent Agent Trust Posture</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
-            Permission scope, policy status, verification events and revocation history form a lightweight evidence
-            network for governed autonomous action. This view does not add hidden tracking; it explains records the
-            enterprise has already chosen to govern.
+            Permission scope, policy status, governed execution, verification
+            events and revocation history form the replayable operational memory
+            for this agent. This view explains records the enterprise has chosen
+            to govern; it does not add hidden tracking.
           </p>
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             {[

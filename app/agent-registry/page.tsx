@@ -52,12 +52,11 @@ export default async function AgentRegistryPage() {
       <div className="mx-auto max-w-7xl">
         <nav className="flex flex-wrap gap-3 text-sm">
           {[
-            ["/", "Home"],
-            ["/agent-passport", "Agent Passport"],
-            ["/permissions-firewall", "Permissions Firewall"],
-            ["/revocation-engine", "Revocation Engine"],
-            ["/mission-control", "Mission Control"],
-            ["/back-office", "Back Office"],
+            ["/platform", "Platform"],
+            ["/trust/posture", "Trust Posture"],
+            ["/trust-replay?subject_type=agent", "Replay Timeline"],
+            ["/dashboard/governance", "Governance Review"],
+            ["/dashboard/access-governance", "Authorization Lineage"],
           ].map(([href, label]) => (
             <Link
               key={href}
@@ -74,7 +73,7 @@ export default async function AgentRegistryPage() {
             Agent governance
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Agent Registry™
+            AI Agent Registry
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
             Every AI agent needs accountable context, authorization lineage and replayable activity evidence before permission.
@@ -87,13 +86,13 @@ export default async function AgentRegistryPage() {
             href="/permissions-firewall"
             className="mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
           >
-            Open Permissions Firewall™
+            Review Agent Permissions
           </Link>
           <Link
             href="/revocation-engine"
-            className="ml-3 mt-5 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
+            className="mt-3 inline-flex rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white sm:ml-3 sm:mt-5"
           >
-            Open Revocation Engine™
+            Review Revocation State
           </Link>
           {error || !data?.length ? (
             <p className="mt-3 text-sm text-zinc-600">
@@ -106,9 +105,9 @@ export default async function AgentRegistryPage() {
           <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Agent continuity</p>
           <h2 className="mt-2 text-xl font-semibold">Autonomous systems need persistent trust history</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
-            Agent posture links identity, authorization changes, workflow outcomes and audit events so reviewer
-            decisions can be replayed. Future trust graph work should connect relationships and evidence networks
-            without adding broad surveillance infrastructure.
+            Agent Trust Posture links identity, Authorization Lineage, governed
+            execution, workflow outcomes and audit events so reviewer decisions
+            remain available through Replay Timeline.
           </p>
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             {[
