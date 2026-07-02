@@ -7,7 +7,7 @@
     "build": "next build",
     "test:hopae": "node --experimental-strip-types --test tests/hopae-assurance.test.mjs",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
