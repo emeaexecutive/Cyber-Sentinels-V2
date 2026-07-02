@@ -158,7 +158,7 @@ export default async function EnterpriseReadinessPage() {
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="font-semibold text-zinc-100">{provider.name}</h3>
                   <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-[11px] uppercase text-zinc-400">
-                    {provider.configured ? "configured" : provider.implementationState.replaceAll("_", " ")}
+                    {provider.runtimeState}
                   </span>
                 </div>
                 <p className="mt-4 text-sm leading-6 text-zinc-400">{provider.evidence}</p>

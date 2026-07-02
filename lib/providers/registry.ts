@@ -1,6 +1,7 @@
 import type {
   VerificationProviderDefinition,
   VerificationProviderId,
+  ProviderRuntimeState,
 } from "./types.ts";
 
 type ProviderBlueprint = {
@@ -185,4 +186,17 @@ export function getVerificationProviderRegistry(): VerificationProviderDefinitio
 
 export function getVerificationProviderDefinition(id: VerificationProviderId) {
   return getVerificationProviderRegistry().find((provider) => provider.id === id);
+}
+
+export function providerRuntimeState(
+  provider: VerificationProviderDefinition
+): ProviderRuntimeState {
+  if (provider.usesMockData) return "Simulated";
+  if (provider.implementationState === "active" && provider.status === "configured") {
+    return "Live";
+  }
+  if (provider.requiredEnv.length > 0 && provider.missingEnv.length > 0) {
+    return "Awaiting credentials";
+  }
+  return "Disabled";
 }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ExplainableTrustFactors, TrustScoreBadge, VerificationTimeline } from "@/components/phase-one-trust";
 import { candidateTrustFactors, trustScoreFromFactors, verificationTimeline } from "@/lib/trusted-layer/phase1";
 
@@ -25,6 +26,12 @@ export default async function CandidateVerificationPage({
             Detection is one signal. Cyber Sentinels does not claim perfect real/fake detection. Final workflow trust state depends on provider evidence, governance review and replay.
           </p>
         </section>
+
+        <nav className="mt-5 flex flex-wrap gap-3 text-sm">
+          <Link href="/verify/session" className="brand-primary-action">Continue to Session Integrity</Link>
+          <Link href="/trust-center" className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:text-white">Open Operational Trust Center</Link>
+          <Link href="/dashboard/governance" className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:text-white">Open Governance Review</Link>
+        </nav>
 
         {query.status === "recorded" ? (
           <p className="mt-6 rounded-lg border border-emerald-900 bg-emerald-950/20 p-4 text-sm text-emerald-100">

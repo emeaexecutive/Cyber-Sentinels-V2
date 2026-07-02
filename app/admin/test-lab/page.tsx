@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
-import { getVerificationProviderRegistry } from "@/lib/providers";
+import {
+  getVerificationProviderRegistry,
+  providerRuntimeState,
+} from "@/lib/providers";
 import { createClient } from "@/lib/supabase/server";
 import { runValidationScenarios } from "@/lib/validation/signal-testing";
 import {
@@ -132,7 +135,7 @@ export default async function TestLabPage() {
             <div className="mt-4 grid gap-2">
               {providerWarnings.map((provider) => (
                 <p key={provider.id} className="rounded-lg border border-zinc-800 bg-black p-3 text-sm leading-6 text-zinc-400">
-                  {provider.name}: {provider.status.replaceAll("_", " ")}. {provider.notes}
+                  {provider.name}: {providerRuntimeState(provider)}. {provider.notes}
                 </p>
               ))}
             </div>

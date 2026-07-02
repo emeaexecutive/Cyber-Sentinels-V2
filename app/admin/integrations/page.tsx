@@ -4,7 +4,7 @@ import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { getIntegrationRegistry, type IntegrationRegistryItem } from "@/lib/integrations/registry";
 import {
   getVerificationProviderRegistry,
-  type VerificationProviderDefinition,
+  providerRuntimeState,
 } from "@/lib/providers";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { createClient } from "@/lib/supabase/server";
@@ -55,15 +55,6 @@ function statusClass(status: string) {
   }
 
   return "border-amber-800 bg-amber-950/20 text-amber-200";
-}
-
-function providerRuntimeState(provider: VerificationProviderDefinition) {
-  if (provider.usesMockData) return "Simulated";
-  if (provider.implementationState === "active" && provider.status === "configured") {
-    return "Live";
-  }
-  if (provider.missingEnv.length) return "Awaiting credentials";
-  return "Disabled";
 }
 
 function riskClass(risk: string) {

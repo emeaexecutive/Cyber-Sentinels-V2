@@ -27,6 +27,12 @@ export type VerificationProviderStatus =
   | "placeholder"
   | "future";
 
+export type ProviderRuntimeState =
+  | "Live"
+  | "Simulated"
+  | "Awaiting credentials"
+  | "Disabled";
+
 export type ProviderImplementationState =
   | "active"
   | "configured_unverified"

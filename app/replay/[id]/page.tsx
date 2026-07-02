@@ -83,6 +83,8 @@ function DemoReplay() {
       change: "Trust Posture moved from unknown to review required.",
       evidence: "Synthetic candidate profile and consented demo workflow record.",
       reviewer: "Workflow owner",
+      intervention: "No intervention. The workflow entered its required evidence-review stage.",
+      authorization: "Recruiter intake authority recorded.",
       state: "Review required",
     },
     {
@@ -91,6 +93,8 @@ function DemoReplay() {
       change: "A simulated provider signal was added; no live verification is claimed.",
       evidence: "Controlled provider-response fixture marked simulated.",
       reviewer: "System chronology",
+      intervention: "No intervention. Simulated evidence could not advance the workflow by itself.",
+      authorization: "Evidence attachment recorded; decision authority unchanged.",
       state: "Evidence pending review",
     },
     {
@@ -99,6 +103,8 @@ function DemoReplay() {
       change: "A controlled injected-session anomaly lowered workflow trust.",
       evidence: "Simulated channel discontinuity and session-risk event.",
       reviewer: "Session integrity reviewer",
+      intervention: "Governance intervened because the channel anomaly conflicted with the earlier session state.",
+      authorization: "Workflow progression authority moved to People Security review.",
       state: "Elevated review",
     },
     {
@@ -106,6 +112,8 @@ function DemoReplay() {
       title: "Governance Review completed",
       change: "Workflow progression was restricted pending stronger evidence.",
       evidence: "Evidence Chain, provider fixture and Session Integrity chronology.",
+      intervention: "The reviewer restricted progression until stronger identity and channel evidence is supplied.",
+      authorization: "Trust Operations recorded the restriction under named review authority.",
       reviewer: "Morgan Lee · Trust Operations",
       state: "Restricted",
     },
@@ -161,15 +169,30 @@ function DemoReplay() {
                       {event.state}
                     </span>
                   </div>
-                  <dl className="mt-4 grid gap-3 text-sm md:grid-cols-3">
+                  <dl className="mt-4 grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-5">
                     <div><dt className="text-zinc-400">What changed</dt><dd className="mt-1 leading-6 text-zinc-200">{event.change}</dd></div>
                     <div><dt className="text-zinc-400">Evidence available</dt><dd className="mt-1 leading-6 text-zinc-200">{event.evidence}</dd></div>
+                    <div><dt className="text-zinc-400">Why governance intervened</dt><dd className="mt-1 leading-6 text-zinc-200">{event.intervention}</dd></div>
                     <div><dt className="text-zinc-400">Reviewer</dt><dd className="mt-1 leading-6 text-zinc-200">{event.reviewer}</dd></div>
+                    <div><dt className="text-zinc-400">Authorization Lineage</dt><dd className="mt-1 leading-6 text-zinc-200">{event.authorization}</dd></div>
                   </dl>
                 </div>
               </article>
             ))}
           </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-amber-900 bg-amber-950/10 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-200">
+            Final operational state
+          </p>
+          <h2 className="mt-2 text-xl font-semibold">Restricted pending stronger evidence</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-300">
+            The interview record remains available, but the hiring workflow cannot advance
+            from this review. People Security owns the next decision, and the Evidence Chain,
+            reviewer attribution, Session Integrity change and simulated provider status remain
+            connected through this Replay Timeline and its Verification Receipt.
+          </p>
         </section>
 
         <section className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-zinc-800 bg-black p-5">

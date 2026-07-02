@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { getVerificationProviderRegistry } from "@/lib/providers";
+import {
+  getVerificationProviderRegistry,
+  providerRuntimeState,
+} from "@/lib/providers";
 
 export const dynamic = "force-dynamic";
 
@@ -241,7 +244,7 @@ export default function VerificationStatusPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <h3 className="text-sm font-semibold text-zinc-100">{provider.name}</h3>
                     <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300">
-                      {provider.status.replaceAll("_", " ")}
+                      {providerRuntimeState(provider)}
                     </span>
                   </div>
                   <p className="mt-2 text-sm leading-6 text-zinc-400">{provider.notes}</p>

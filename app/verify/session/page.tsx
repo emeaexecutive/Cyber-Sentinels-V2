@@ -81,6 +81,12 @@ export default function VerifySessionPage() {
           </p>
         </section>
 
+        <nav className="mt-5 flex flex-wrap gap-3 text-sm">
+          <Link href="/verify/candidate" className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:text-white">Candidate Verification</Link>
+          <Link href="/dashboard/governance" className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:text-white">Governance Review</Link>
+          <Link href="/trust-replay" className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:text-white">Replay Timeline</Link>
+        </nav>
+
         <form
           onSubmit={submitReview}
           className="mt-8 grid gap-5 rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:grid-cols-2"

@@ -3,7 +3,11 @@ import type {
   ReadinessGateSnapshot,
   ReadinessGateState,
 } from "@/lib/readiness-gate/snapshot";
-import type { VerificationProviderDefinition } from "@/lib/providers";
+import {
+  providerRuntimeState,
+  type ProviderRuntimeState,
+  type VerificationProviderDefinition,
+} from "@/lib/providers";
 
 export type EnterpriseReadinessItem = {
   label: string;
@@ -19,6 +23,7 @@ export type EnterpriseReadinessModel = {
   safeguards: EnterpriseReadinessItem[];
   providerStatus: Array<{
     name: string;
+    runtimeState: ProviderRuntimeState;
     implementationState: string;
     configured: boolean;
     replayIntegration: string;
@@ -109,6 +114,7 @@ export function buildEnterpriseReadinessModel(
     ],
     providerStatus: providers.map((provider) => ({
       name: provider.name,
+      runtimeState: providerRuntimeState(provider),
       implementationState: provider.implementationState,
       configured: provider.status === "configured",
       replayIntegration: provider.replayIntegration,
