@@ -5,6 +5,12 @@ import { hasOpenAIKey, getOperationalOpenAIModel } from "@/lib/ai/openai";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
+import {
+  evaluateAIProviderPolicy,
+  normalizeDataClassification,
+  providerPolicyAuditMetadata,
+  redactForAIProvider,
+} from "@/lib/ai/provider-policy";
 
 export const dynamic = "force-dynamic";
 
@@ -319,17 +325,6 @@ export async function POST(req: Request) {
     );
   }
 
-  if (!hasOpenAIKey()) {
-    if (wantsHtml(req)) {
-      return redirectBack(req, subjectType, subjectId, "missing_openai_key");
-    }
-
-    return NextResponse.json(
-      { ok: false, error: "OPENAI_API_KEY is not configured." },
-      { status: 503 }
-    );
-  }
-
   const supabase = await createClient();
   const {
     data: { user },
@@ -337,6 +332,52 @@ export async function POST(req: Request) {
 
   if (!user) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  const classification = normalizeDataClassification(payload.data_classification);
+  const policyDecision = evaluateAIProviderPolicy({ classification });
+  const policyMetadata = providerPolicyAuditMetadata(policyDecision);
+  const actor = user.email ?? user.id;
+  const governanceOverrideReason = text(payload.governance_override_reason);
+
+  if (governanceOverrideReason) {
+    await createAuditLog(supabase, "ai_provider_governance_override_requested", actor, {
+      subject_type: subjectType,
+      subject_id: subjectId,
+      override_reason_recorded: true,
+      override_authorized: isAdminAllowlisted(user.email),
+      override_bypassed_policy: false,
+      ...policyMetadata,
+    });
+  }
+
+  await createAuditLog(supabase, "ai_provider_policy_evaluated", actor, {
+    subject_type: subjectType,
+    subject_id: subjectId,
+    ...policyMetadata,
+  });
+
+  if (!policyDecision.allowed) {
+    await createAuditLog(supabase, "restricted_data_egress_blocked", actor, {
+      subject_type: subjectType,
+      subject_id: subjectId,
+      ...policyMetadata,
+    });
+    return NextResponse.json(
+      { ok: false, error: "AI provider use blocked by enterprise data policy." },
+      { status: 403 }
+    );
+  }
+
+  if (!hasOpenAIKey()) {
+    if (wantsHtml(req)) {
+      return redirectBack(req, subjectType, subjectId, "missing_openai_key");
+    }
+
+    return NextResponse.json(
+      { ok: false, error: "AI governance provider is not configured." },
+      { status: 503 }
+    );
   }
 
   const loaded =
@@ -352,11 +393,25 @@ export async function POST(req: Request) {
   }
 
   let analysis;
+  const governedContext = redactForAIProvider(loaded.context) as GovernanceContext;
+
+  await createAuditLog(supabase, "ai_provider_interaction_started", loaded.actor, {
+    subject_type: subjectType,
+    subject_id: subjectId,
+    redaction_applied: true,
+    ...policyMetadata,
+  });
 
   try {
-    analysis = await generateGovernanceAnalysis(loaded.context);
+    analysis = await generateGovernanceAnalysis(governedContext);
   } catch (error) {
     console.error("AI governance analysis failed", error);
+    await createAuditLog(supabase, "ai_provider_interaction_failed", loaded.actor, {
+      subject_type: subjectType,
+      subject_id: subjectId,
+      redaction_applied: true,
+      ...policyMetadata,
+    });
 
     if (wantsHtml(req)) {
       return redirectBack(req, subjectType, subjectId, "generation_failed");
@@ -371,12 +426,17 @@ export async function POST(req: Request) {
   const metadata = {
     subject_type: subjectType,
     subject_id: subjectId,
-    model: getOperationalOpenAIModel(),
-    analysis,
-    operational_context: loaded.context,
+    provider_model: getOperationalOpenAIModel(),
+    analysis_title: analysis.title,
+    recommendation_count: analysis.recommendations.length,
+    observation_count: analysis.observations.length,
     governance_boundary: analysis.governance_boundary,
+    redaction_applied: true,
+    operational_evidence_continuity: true,
+    ...policyMetadata,
   };
 
+  await createAuditLog(supabase, "ai_provider_interaction_completed", loaded.actor, metadata);
   await createAuditLog(supabase, eventType, loaded.actor, metadata);
   await createSignal(
     supabase,

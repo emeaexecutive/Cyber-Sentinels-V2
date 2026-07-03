@@ -65,6 +65,7 @@ export async function createOpenAIJsonResponse<T>({
       },
       body: JSON.stringify({
         model: getOperationalOpenAIModel(),
+        store: false,
         input: [
           {
             role: "developer",

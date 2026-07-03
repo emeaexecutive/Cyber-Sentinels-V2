@@ -36,6 +36,7 @@ const platformDropdownLinks = [
 const publicPlatformDropdownLinks = [
   ["/platform", "Platform Overview"],
   ["/verification-replay", "Replay Timeline"],
+  ["/trust/data-sovereignty", "Data Sovereignty"],
   ["/agents", "AI Agent Governance"],
   ["/methodology", "Persistent Trust Posture"],
   ["/governance", "Governance Review"],

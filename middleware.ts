@@ -161,6 +161,7 @@ function matchesPrefix(pathname: string, prefixes: string[]) {
 function isProtectedUserPath(pathname: string) {
   if (
     pathname === "/trust" ||
+    pathname === "/trust/data-sovereignty" ||
     pathname === "/replay/demo" ||
     pathname === "/verification/receipt/demo"
   ) {
