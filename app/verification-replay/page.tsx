@@ -20,6 +20,9 @@ export default function VerificationReplayPage() {
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
             The operational memory of every critical workflow.
           </h1>
+          <p className="mt-4 text-sm font-semibold text-cyan-100">
+            Mission-critical continuity for enterprise trust operations.
+          </p>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
             Replay reconstructs identity checks, session integrity, authorization
             history, evidence and governance actions as a reviewable trust

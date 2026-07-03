@@ -45,8 +45,8 @@ export default function Home() {
             authority, execution, evidence and governance connected.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-300">
-            We verify the actor, the workflow and the evidence behind critical
-            operations.
+            Cyber Sentinels helps enterprises understand, govern and verify
+            operational trust across humans, AI agents and workflows.
           </p>
         </div>
 

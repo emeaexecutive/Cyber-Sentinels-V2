@@ -37,8 +37,8 @@ export default function PlatformPage() {
             accountable human authority or turning trust into a permanent score.
           </p>
           <p className="mt-5 max-w-3xl border-l border-cyan-800 pl-4 text-base leading-7 text-zinc-200">
-            We verify the actor, the workflow and the evidence behind critical
-            operations.
+            Cyber Sentinels helps enterprises understand, govern and verify
+            operational trust across humans, AI agents and workflows.
           </p>
         </section>
 

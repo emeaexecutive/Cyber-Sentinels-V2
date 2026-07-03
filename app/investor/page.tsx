@@ -44,8 +44,8 @@ export default function InvestorPage() {
             applicants, proxy interviews and injected sessions create immediate enterprise risk.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-200">
-            We verify the actor, the workflow and the evidence behind critical
-            operations.
+            Cyber Sentinels helps enterprises understand, govern and verify
+            operational trust across humans, AI agents and workflows.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/demo/hiring-attack" className="brand-primary-action brand-action-large text-sm">

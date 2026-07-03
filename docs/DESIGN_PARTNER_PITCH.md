@@ -6,6 +6,8 @@ Cyber Sentinels works with a small number of enterprise design partners to evalu
 
 Cyber Sentinels is the operational trust infrastructure layer for humans, AI agents and enterprise workflows.
 
+Cyber Sentinels helps enterprises understand, govern and verify operational trust across humans, AI agents and workflows.
+
 We verify the actor, the workflow and the evidence behind critical operations.
 
 ## What the enterprise receives

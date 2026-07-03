@@ -47,17 +47,11 @@ export default function DesignPartnerPage() {
           </p>
           <EvidenceDisclaimer className="mt-6 max-w-3xl" />
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/enterprise-access?intent=pilot" className="brand-secondary-action brand-action-large text-sm">
-              Request Enterprise Access
+            <Link href="/enterprise-access?intent=design_partner" className="brand-primary-action brand-action-large text-sm">
+              Apply as a Design Partner
             </Link>
-            <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
-              Book Intro Call
-            </Link>
-            <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
-              View Demo
-            </Link>
-            <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">
-              Become a Design Partner
+            <Link href="/replay/demo?scenario=proxy-candidate-interview" className="brand-secondary-action brand-action-large text-sm">
+              Experience Replay
             </Link>
           </div>
         </div>
@@ -143,14 +137,11 @@ export default function DesignPartnerPage() {
             automated workflows where evidence, escalation and auditability already matter.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
-              View Demo
+            <Link href="/enterprise-access?intent=design_partner" className="brand-primary-action brand-action-large text-sm">
+              Apply as a Design Partner
             </Link>
-            <Link href="/enterprise-access?intent=design_partner" className="brand-secondary-action brand-action-large text-sm">
-              Become a Design Partner
-            </Link>
-            <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
-              Book Intro Call
+            <Link href="/replay/demo?scenario=proxy-candidate-interview" className="brand-secondary-action brand-action-large text-sm">
+              Experience Replay
             </Link>
           </div>
         </div>

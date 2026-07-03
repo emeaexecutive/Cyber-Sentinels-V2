@@ -71,6 +71,11 @@ export default function AgentsPage() {
             accountable to named owners and reviewable through runtime posture
             and Replayable Operational Memory.
           </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            Each runtime action should remain connected to declared purpose,
+            active authority, operational evidence, governance state and final
+            outcome.
+          </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
             Cyber Sentinels does not replace human governance or operational
             accountability. Agent identity should strengthen review,
