@@ -4,7 +4,7 @@ const replayFlow = [
   ["Verification started", "The workflow records when identity review began."],
   ["Evidence ordered", "Session, human presence and risk events are placed in chronology."],
   ["Governance action linked", "Reviewer decisions are tied back to the evidence that triggered review."],
-  ["Replay available", "A protected replay can reconstruct what happened without exposing data publicly."],
+  ["Replay preserved", "A protected operational memory retains authorization history, posture changes and governed outcomes without exposing data publicly."],
 ];
 
 export default function VerificationReplayPage() {
@@ -19,8 +19,10 @@ export default function VerificationReplayPage() {
             Canonical operational evidence for sensitive workflows.
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
-            Replay reconstructs identity checks, session integrity, evidence and governance actions
-            as a reviewable trust chronology. Case records remain protected operational data.
+            Replay reconstructs identity checks, session integrity, authorization
+            history, evidence and governance actions as a reviewable trust
+            chronology. It preserves workflow verification continuity after the
+            runtime session ends. Case records remain protected operational data.
           </p>
         </section>
 
@@ -34,7 +36,7 @@ export default function VerificationReplayPage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-2xl font-semibold">Public model, protected evidence</h2>
+          <h2 className="text-2xl font-semibold">Operational memory, protected evidence</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             Public visitors can understand the replay model here. Case-level replay timelines, subjects and reviewer notes require sign-in because they contain operational trust data.
           </p>

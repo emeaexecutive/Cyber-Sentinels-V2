@@ -118,9 +118,14 @@ export default async function TrustCenterPage() {
                 Trust changes. Cyber Sentinels shows why.
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                TrustOps connects human and agent identity, workflow verification,
-                Authorization Lineage, operational evidence, Governance Review
-                and final outcome.
+                TrustOps connects human and non-human identity, runtime posture,
+                workflow verification, Authorization Lineage, operational
+                evidence, Governance Review and final outcome.
+              </p>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
+                Continuous verification shows what changed now. Replay preserves
+                the governed operational memory of how it changed across people,
+                AI agents, service accounts and API actors.
               </p>
             </div>
             <State value={snapshot.badge} />

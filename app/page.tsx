@@ -18,7 +18,7 @@ const platformSurfaces = [
 
 const workflowDomains = [
   ["Human identity", "Continuous verification and reviewable trust posture."],
-  ["AI agents", "Registered identity, bounded permissions and governed execution."],
+  ["AI agents and NHI", "Registered agents, service accounts and API actors retain ownership, bounded authority and governed execution."],
   ["Enterprise workflows", "Evidence continuity from entry through final outcome."],
   ["Authorization events", "Grants, changes and revocations retain accountable lineage."],
   ["Governance actions", "Review, escalation and intervention remain attached to operational history."],
@@ -122,6 +122,12 @@ export default function Home() {
               </article>
             ))}
           </div>
+          <p className="mt-7 max-w-4xl text-sm leading-7 text-zinc-400">
+            Apply the same continuity model to claims, underwriting, customer
+            onboarding, hiring and high-impact workflow approvals: verify the
+            actor, preserve delegated authority, govern execution and retain the
+            operational chronology behind the decision.
+          </p>
         </div>
       </section>
 

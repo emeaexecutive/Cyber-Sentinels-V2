@@ -32,6 +32,13 @@ const accountabilityLinks = [
   "Operational accountability",
 ];
 
+const runtimeControls = [
+  ["Runtime posture", "Current identity, authorization, policy, evidence and anomaly state remains visible without collapsing trust into a universal score."],
+  ["Delegated authority", "Every sensitive action can be evaluated against the scope, owner and approval path under which it was executed."],
+  ["Posture changes", "New evidence, context shifts and governance interventions produce explainable state transitions."],
+  ["Replay continuity", "Activity, authorization changes and review decisions remain one operational history after execution ends."],
+];
+
 export default function AgentsPage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
@@ -41,7 +48,7 @@ export default function AgentsPage() {
             Governed operational identity
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-6xl">
-            AI Agent Identity
+            AI-Agent Runtime Trust
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
             AI agents participate in operational workflows. Cyber Sentinels links
@@ -60,6 +67,21 @@ export default function AgentsPage() {
             provenance and ownership clarity while keeping humans and
             organizations responsible for outcomes.
           </p>
+        </section>
+
+        <section className="mt-8">
+          <p className="operational-eyebrow">Runtime trust operations</p>
+          <h2 className="mt-3 max-w-3xl text-2xl font-semibold">
+            See risk, authority and governance as execution unfolds.
+          </h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            {runtimeControls.map(([title, copy]) => (
+              <article key={title} className="operational-card p-5">
+                <h3 className="font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-500">{copy}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">

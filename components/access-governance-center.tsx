@@ -34,16 +34,18 @@ export function AccessGovernanceCenter({
             {enterprise ? "Enterprise TrustOps · Identity Governance" : "Access Governance"}
           </p>
           <h1 className="mt-4 max-w-5xl text-4xl font-semibold md:text-6xl">
-            Explainable authorization continuity.
+            Operational identity and authorization continuity.
           </h1>
           <p className="mt-5 max-w-4xl text-lg leading-8 text-zinc-200">
             Review Continuous Verification, Trust Posture, Authorization Lineage,
             Evidence Chain and replay-linked Governance Review before access is relied on.
           </p>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
-            Authorization is an evolving operational state. Grants, delegated
-            actions, posture shifts and revocations remain connected to the
-            evidence, workflow outcome and accountable authority behind them.
+            Human identities, AI agents, service accounts and API actors share
+            operational workflows. Their grants, delegated actions, posture
+            shifts and revocations remain connected to evidence, workflow
+            outcomes and the accountable authority behind them. This is
+            operational trust governance, not standalone token management.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/dashboard/governance" className="brand-primary-action brand-action-large text-sm">
@@ -167,6 +169,7 @@ export function AccessGovernanceCenter({
             ["Executive onboarding", "Elevated identity evidence and named approval before privileged onboarding."],
             ["Privileged workflow access", "Conditional access with policy thresholds, reviewer ownership and replay retention."],
             ["Sensitive AI-agent operations", "Delegated scope, accountable owner and governed execution evidence."],
+            ["Service-account and API activity", "Non-human identity ownership, delegated authority and execution history remain reviewable."],
             ["Continuous workforce access", "Identity freshness, role changes and Session Integrity route to review before reliance."],
           ].map(([title, copy]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">

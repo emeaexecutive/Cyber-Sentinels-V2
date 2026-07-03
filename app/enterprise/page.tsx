@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const trustControls = [
   ["Continuous Identity", "Human and machine identities retain verification freshness, context and accountable ownership after access begins."],
-  ["AI Agent Governance", "Agent purpose, permission scope, policy state and execution history stay reviewable."],
+  ["AI Agent and NHI Governance", "Agent, service-account and API-actor purpose, ownership, delegated scope and execution history stay reviewable."],
   ["Enterprise Authorization", "Authorization grants, changes and revocations remain connected to their authority and rationale."],
   ["Persistent Trust Posture", "Identity, workflow, evidence and governance state evolve without becoming a hidden universal score."],
   ["Governance Continuity", "High-impact changes route to named reviewers with ownership, chronology and recorded action."],
@@ -16,6 +16,15 @@ const coordinationControls = [
   ["Governance escalation events", "High-risk workflow changes can move into human review with ownership."],
   ["Evidence Chain attached", "Verification Receipt, Replay Timeline and audit references stay connected to the workflow."],
   ["Workflow authenticity status", "Teams can see whether a workflow is verified, elevated risk or awaiting review."],
+];
+
+const regulatedWorkflows = [
+  ["Fintech operations", "Preserve identity, delegated authority and approval evidence across payment, account and exception workflows."],
+  ["Insurance claims", "Connect intake evidence, automation, adjuster review and governed outcome in one replayable chronology."],
+  ["Underwriting", "Keep data inputs, API actors, decision support, approvals and policy exceptions accountable over time."],
+  ["Enterprise onboarding", "Continuously verify human and non-human actors as access, evidence and responsibilities change."],
+  ["Hiring", "Link candidate identity, session integrity, reviewer action and verification receipts without replacing human judgment."],
+  ["Workflow approvals", "Retain who or what acted, under which authority, what changed and who approved the outcome."],
 ];
 
 export default function EnterprisePage() {
@@ -82,6 +91,27 @@ export default function EnterprisePage() {
                 <p className="text-sm font-semibold text-zinc-100">{title}</p>
                 <p className="mt-2 text-sm leading-6 text-zinc-300">{copy}</p>
               </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="operational-panel mt-8 p-6">
+          <p className="operational-eyebrow">Regulated workflow continuity</p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            Govern execution where operational decisions must remain explainable.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Cyber Sentinels applies layered trust assurance across identity,
+            authorization, runtime evidence, governance and replay. It does not
+            claim certainty; it preserves the evidence and intervention path
+            enterprises need to evaluate consequential workflows.
+          </p>
+          <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {regulatedWorkflows.map(([title, copy]) => (
+              <article key={title} className="operational-card p-4">
+                <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
+              </article>
             ))}
           </div>
         </section>

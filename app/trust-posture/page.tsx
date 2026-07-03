@@ -5,6 +5,8 @@ const postureSignals = [
   ["Identity continuity", "Verification freshness and context remain visible as a subject moves through enterprise workflows."],
   ["Authorization continuity", "Permission changes and revocations remain connected to the authority and evidence behind them."],
   ["Governance continuity", "Human decisions, interventions and pending actions remain visible over time."],
+  ["Runtime risk visibility", "Anomalies, evidence gaps and context shifts remain visible while an agent or workflow is executing."],
+  ["Replay continuity", "Prior posture, authorization and governance changes remain available as operational memory."],
 ];
 
 export default function PublicTrustPosturePage() {
@@ -21,7 +23,9 @@ export default function PublicTrustPosturePage() {
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
             Trust posture connects continuous identity, agent activity, authorization
             changes, workflow evidence and governance review into a current operational
-            state. The public view explains the model; live posture data stays protected.
+            state. Layered trust assurance continuously evaluates what changed
+            without presenting probabilistic signals as certainty. The public
+            view explains the model; live posture data stays protected.
           </p>
         </section>
 
