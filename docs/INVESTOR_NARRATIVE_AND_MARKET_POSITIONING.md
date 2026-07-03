@@ -24,6 +24,8 @@ Fintech operations, insurance claims, underwriting, onboarding, hiring and appro
 
 Cyber Sentinels is operational trust infrastructure for intelligent systems. It connects:
 
+Cyber Sentinels is the operational trust infrastructure layer for humans, AI agents and enterprise workflows.
+
 We verify the actor, the workflow and the evidence behind critical operations.
 
 - persistent Trust Posture;

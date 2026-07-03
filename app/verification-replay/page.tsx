@@ -27,8 +27,8 @@ export default function VerificationReplayPage() {
             runtime session ends. Case records remain protected operational data.
           </p>
           <p className="mt-5 max-w-3xl border-l border-cyan-800 pl-4 text-base leading-7 text-zinc-200">
-            Replay is the foundation: one governed chronology for the actor,
-            the workflow, the evidence, the authority and the outcome.
+            Replayable evidence for critical workflows. Operational memory for
+            enterprise trust.
           </p>
         </section>
 

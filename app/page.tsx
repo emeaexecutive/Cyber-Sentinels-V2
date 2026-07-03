@@ -40,9 +40,9 @@ export default function Home() {
             Trust is not a moment. It is a continuous operational state.
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels is the operational trust and verification layer for
-            intelligent systems. It keeps actors, workflows, evidence and
-            governance connected—then replays why each outcome followed.
+            Cyber Sentinels is the operational trust infrastructure layer for
+            humans, AI agents and enterprise workflows. It keeps identity,
+            authority, execution, evidence and governance connected.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-300">
             We verify the actor, the workflow and the evidence behind critical
@@ -70,11 +70,11 @@ export default function Home() {
               Proof workflow
             </p>
             <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-              Trust changes. Cyber Sentinels shows why.
+              Trust changes over time.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              We do not give enterprises another AI tool. We verify the work,
-              the actor and the evidence behind critical workflows.
+              Replayable evidence for critical workflows. One chronology shows
+              what changed, why trust shifted and which outcome followed.
             </p>
           </div>
           <div className="mt-7 grid gap-3 md:grid-cols-6">
@@ -94,7 +94,7 @@ export default function Home() {
             TrustOps platform
           </p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-            Governed trust continuity across identity, authority and execution.
+            Governed trust continuity for intelligent systems.
           </h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
             Persistent Trust Posture shows what is true now. Replay is the

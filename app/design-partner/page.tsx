@@ -66,6 +66,11 @@ export default function DesignPartnerPage() {
       <section className="mx-auto max-w-6xl px-6 py-14 md:px-8">
         <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Initial workflow wedge</p>
         <h2 className="mt-4 max-w-3xl text-3xl font-semibold">Start with a consequential workflow. Build a reusable trust foundation.</h2>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+          Hiring is an initial proving ground, not the category boundary. The
+          same continuity model applies to banking approvals, claims, regulated
+          onboarding, vendor access and AI-assisted operations.
+        </p>
         <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {risks.map(([title, copy]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">

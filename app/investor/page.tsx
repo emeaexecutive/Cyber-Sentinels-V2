@@ -35,8 +35,9 @@ export default function InvestorPage() {
             Operational trust for intelligent systems.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels connects provider-backed verification, workflow integrity,
-            governance decisions and canonical replay in one auditable operating model.
+            Cyber Sentinels is the operational trust infrastructure layer for
+            humans, AI agents and enterprise workflows—connecting persistent
+            posture, governed execution and replayable operational memory.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             The initial wedge is Hiring Security and Session Integrity: workflows where synthetic

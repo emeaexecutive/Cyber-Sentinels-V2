@@ -22,15 +22,15 @@ export default function PlatformPage() {
             Operational trust for intelligent systems.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels is the operational trust and verification layer for
-            intelligent systems: people, AI agents and enterprise workflows.
-            TrustOps verifies who acted, how the workflow changed and which
-            operational outcome the evidence supports.
+            Cyber Sentinels is the operational trust infrastructure layer for
+            humans, AI agents and enterprise workflows. TrustOps connects
+            persistent posture, governed execution, workflow verification and
+            operational accountability.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-            Trust changes over time. Persistent Trust Posture explains the current
-            state; Replay Timeline preserves the evidence, authority and Governance
-            Review that produced it.
+            Trust changes over time. Persistent Trust Posture explains the
+            current state. Replay provides operational memory for enterprise
+            trust.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             The platform keeps workflow decisions explainable without replacing

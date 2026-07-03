@@ -4,6 +4,8 @@
 
 Cyber Sentinels works with a small number of enterprise design partners to evaluate operational trust in one consequential workflow. The pilot is structured to test concrete evidence, governance and continuity requirements, not to promise certainty or replace existing identity, security or compliance systems.
 
+Cyber Sentinels is the operational trust infrastructure layer for humans, AI agents and enterprise workflows.
+
 We verify the actor, the workflow and the evidence behind critical operations.
 
 ## What the enterprise receives

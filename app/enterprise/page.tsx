@@ -43,9 +43,9 @@ export default function EnterprisePage() {
             Operational trust for intelligent systems.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Maintain persistent Trust Posture across people, AI agents,
-            authorization and workflows—with governance memory and replayable
-            operational evidence.
+            Maintain governed trust continuity across people, AI agents,
+            non-human identities and enterprise workflows—with persistent
+            posture and replayable operational memory.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-200">
             We verify the actor, the workflow and the evidence behind critical
