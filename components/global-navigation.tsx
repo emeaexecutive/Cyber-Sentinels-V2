@@ -23,7 +23,7 @@ const authenticatedFocusLinks = [
 ];
 
 const platformDropdownLinks = [
-  ["/trust-center", "Operational Trust"],
+  ["/trust-center", "Operational Trust Center"],
   ["/dashboard/trust-posture", "Trust Posture"],
   ["/trust-replay", "Replay Timeline"],
   ["/agent-registry", "AI Agent Registry"],
@@ -34,7 +34,7 @@ const platformDropdownLinks = [
 ];
 
 const publicPlatformDropdownLinks = [
-  ["/platform", "Operational Trust"],
+  ["/platform", "Platform Overview"],
   ["/verification-replay", "Replay Timeline"],
   ["/agents", "AI Agent Governance"],
   ["/methodology", "Persistent Trust Posture"],
@@ -43,7 +43,7 @@ const publicPlatformDropdownLinks = [
 ];
 
 const enterpriseDropdownLinks = [
-  ["/enterprise", "Enterprise Trust"],
+  ["/enterprise", "Enterprise Overview"],
   ["/enterprise-access", "Enterprise Access"],
   ["/design-partner", "Design Partner"],
   ["/enterprise/pilot", "Pilot Program"],

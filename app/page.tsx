@@ -20,6 +20,8 @@ const workflowDomains = [
   ["Human identity", "Continuous verification and reviewable trust posture."],
   ["AI agents", "Registered identity, bounded permissions and governed execution."],
   ["Enterprise workflows", "Evidence continuity from entry through final outcome."],
+  ["Authorization events", "Grants, changes and revocations retain accountable lineage."],
+  ["Governance actions", "Review, escalation and intervention remain attached to operational history."],
   ["Hiring Security", "A major operational domain for identity, session and review integrity."],
 ];
 
@@ -111,7 +113,7 @@ export default function Home() {
           <h2 className="mt-3 max-w-3xl text-3xl font-semibold leading-tight text-white">
             One trust layer, across human and machine activity.
           </h2>
-          <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {workflowDomains.map(([title, copy]) => (
               <article key={title} className="operational-card p-5">
                 <h3 className="font-semibold text-white">{title}</h3>

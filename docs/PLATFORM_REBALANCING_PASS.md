@@ -79,3 +79,15 @@ Avoid:
 ## Access and security
 
 This pass changes positioning and navigation only. Existing authentication, admin checks and row-level security remain unchanged. Protected Trust Center, identity-governance, registry and dashboard data stay protected.
+
+## Surface coverage
+
+- `/` presents humans, AI agents, enterprise workflows, authorization events, governance actions and Hiring Security as peer operational domains.
+- `/platform` explains persistent posture, continuous identity, agent trust, authorization lineage, governed execution and replay.
+- `/enterprise` frames human and AI-agent activity through enterprise authorization, accountable governance and replayable evidence.
+- `/trust-center` connects current posture to authorization lineage, governance continuity and operational memory.
+- `/agents` and `/agent-registry` expose accountable ownership, bounded permissions, agent posture and governed execution.
+- `/trust-posture`, `/enterprise/identity-governance` and `/workforce-trust` describe trust as an evolving state rather than a permanent decision.
+- `/enterprise/hiring-security` retains Hiring Security as a major application of the platform, not the platform boundary.
+
+No routes, tables, providers or speculative control systems were added.
