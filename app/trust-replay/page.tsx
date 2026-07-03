@@ -162,9 +162,9 @@ function TimelineReplay({ events }: { events: TrustTimelineEvent[] }) {
   return (
     <section className="operational-panel p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold">Replay Timeline</h2>
+          <h2 className="text-xl font-semibold">Replay Timeline</h2>
         <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-400">
-          read-only chronology
+          deterministic chronology
         </span>
       </div>
       <div className="replay-timeline mt-5 grid gap-3">

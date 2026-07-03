@@ -45,7 +45,10 @@ function sortByCreatedAt<T extends { created_at?: string | null }>(rows: T[]) {
     if (!Number.isFinite(left) && !Number.isFinite(right)) return 0;
     if (!Number.isFinite(left)) return 1;
     if (!Number.isFinite(right)) return -1;
-    return left - right;
+    if (left !== right) return left - right;
+    const leftId = String((a as ReplayRow).id ?? "");
+    const rightId = String((b as ReplayRow).id ?? "");
+    return leftId.localeCompare(rightId);
   });
 }
 
@@ -62,6 +65,13 @@ export function rowMetadata(row: ReplayRow) {
 }
 
 export function subjectMatches(row: ReplayRow, subjectType: string, subjectId: string | null) {
+  if (
+    subjectType !== "all" &&
+    row.subject_type &&
+    String(row.subject_type) !== subjectType
+  ) {
+    return false;
+  }
   if (!subjectId) return true;
   const metadata = rowMetadata(row);
   const values = [
@@ -84,8 +94,16 @@ export function subjectMatches(row: ReplayRow, subjectType: string, subjectId: s
 
 function timelineSubjectMatches(
   event: TrustTimelineEvent,
+  subjectType: string,
   subjectId: string | null
 ) {
+  if (
+    subjectType !== "all" &&
+    event.subject_type &&
+    String(event.subject_type) !== subjectType
+  ) {
+    return false;
+  }
   if (!subjectId) return true;
 
   const metadata = rowMetadata(event);
@@ -128,7 +146,7 @@ export function buildReplaySnapshot(input: {
         event.created_at ? new Date(event.created_at).getTime() <= new Date(input.asOf).getTime() : false
       )
       .filter((event) => {
-        return timelineSubjectMatches(event, input.subjectId);
+        return timelineSubjectMatches(event, input.subjectType, input.subjectId);
       })
   );
   const evidence = filterRows(input.evidence);

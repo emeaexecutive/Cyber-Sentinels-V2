@@ -13,6 +13,13 @@ import { createClient } from "@/lib/supabase/server";
 type Row = Record<string, any>;
 
 const openGovernanceStates = new Set(["pending", "in_review", "escalated"]);
+const operationalWindowLimits = {
+  receipts: 10,
+  chronology: 200,
+  evidence: 100,
+  governance: 100,
+  replay: 50,
+} as const;
 
 export function apiError(message: string, status: number) {
   return NextResponse.json(
@@ -71,19 +78,19 @@ export async function loadWorkflowTrust(supabase: any, subjectId: string, subjec
     await Promise.all([
       applySubject(supabase.from("verification_receipts").select(
         "id,subject_type,subject_id,receipt_type,verification_status,confidence_level,issued_by,issued_at,expires_at,receipt_summary,evidence_snapshot"
-      )).order("issued_at", { ascending: false }).limit(10),
+      )).order("issued_at", { ascending: false }).limit(operationalWindowLimits.receipts + 1),
       applySubject(supabase.from("trust_timeline_events").select(
         "id,subject_type,subject_id,event_type,event_title,event_summary,actor_type,actor_id,severity,metadata,created_at"
-      )).order("created_at", { ascending: true }).limit(200),
+      )).order("created_at", { ascending: false }).order("id", { ascending: false }).limit(operationalWindowLimits.chronology + 1),
       applySubject(supabase.from("evidence_chains").select(
         "id,subject_type,subject_id,chain_summary,created_at"
-      )).order("created_at", { ascending: true }).limit(100),
+      )).order("created_at", { ascending: false }).order("id", { ascending: false }).limit(operationalWindowLimits.evidence + 1),
       applySubject(supabase.from("governance_actions").select(
         "id,subject_type,subject_id,action_status,assigned_to,resolution_notes,resolved_at,created_at"
-      )).order("created_at", { ascending: true }).limit(100),
+      )).order("created_at", { ascending: false }).order("id", { ascending: false }).limit(operationalWindowLimits.governance + 1),
       applySubject(supabase.from("trust_replay_sessions").select(
         "id,subject_type,subject_id,replay_summary,generated_by,created_at"
-      )).order("created_at", { ascending: true }).limit(50),
+      )).order("created_at", { ascending: false }).order("id", { ascending: false }).limit(operationalWindowLimits.replay + 1),
     ]);
 
   const errors = [receiptsResult, timelineResult, evidenceResult, governanceResult, replayResult]
@@ -91,11 +98,18 @@ export async function loadWorkflowTrust(supabase: any, subjectId: string, subjec
     .filter(Boolean);
   if (errors.length) throw errors[0];
 
-  const receipts = receiptsResult.data ?? [];
-  const timeline = timelineResult.data ?? [];
-  const evidence = evidenceResult.data ?? [];
-  const governance = governanceResult.data ?? [];
-  const replay = replayResult.data ?? [];
+  const receiptRows = receiptsResult.data ?? [];
+  const timelineRows = timelineResult.data ?? [];
+  const evidenceRows = evidenceResult.data ?? [];
+  const governanceRows = governanceResult.data ?? [];
+  const replayRows = replayResult.data ?? [];
+  const receipts = receiptRows.slice(0, operationalWindowLimits.receipts);
+  // Queries load the newest bounded window for scale, then restore chronological
+  // presentation order so replay remains deterministic and operationally useful.
+  const timeline = timelineRows.slice(0, operationalWindowLimits.chronology).reverse();
+  const evidence = evidenceRows.slice(0, operationalWindowLimits.evidence).reverse();
+  const governance = governanceRows.slice(0, operationalWindowLimits.governance).reverse();
+  const replay = replayRows.slice(0, operationalWindowLimits.replay).reverse();
   const currentReceipt = receipts[0] ?? null;
   const unresolved = governance.filter((row: Row) =>
     openGovernanceStates.has(String(row.action_status))
@@ -158,6 +172,23 @@ export async function loadWorkflowTrust(supabase: any, subjectId: string, subjec
     replay: {
       reference: replay.at(-1)?.id ? `/api/replay/${replay.at(-1).id}` : null,
       sessions: replay,
+      operationalWindow: {
+        strategy: "latest_bounded_chronology",
+        chronologicalPresentation: true,
+        windows: {
+          receipts: { loaded: receipts.length, limit: operationalWindowLimits.receipts, hasMore: receiptRows.length > receipts.length },
+          chronology: { loaded: timeline.length, limit: operationalWindowLimits.chronology, hasMore: timelineRows.length > timeline.length },
+          evidence: { loaded: evidence.length, limit: operationalWindowLimits.evidence, hasMore: evidenceRows.length > evidence.length },
+          governance: { loaded: governance.length, limit: operationalWindowLimits.governance, hasMore: governanceRows.length > governance.length },
+          replay: { loaded: replay.length, limit: operationalWindowLimits.replay, hasMore: replayRows.length > replay.length },
+        },
+        continuationRequired:
+          receiptRows.length > receipts.length ||
+          timelineRows.length > timeline.length ||
+          evidenceRows.length > evidence.length ||
+          governanceRows.length > governance.length ||
+          replayRows.length > replay.length,
+      },
       supportedEvidenceLineage: [
         "provider_verification",
         "session_integrity",

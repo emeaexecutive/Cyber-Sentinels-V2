@@ -30,9 +30,9 @@ export default async function EnterpriseControlPlanePage() {
             Operational policy and governance routing.
           </h1>
           <p className="mt-5 max-w-4xl text-lg leading-8 text-zinc-200">
-            Configure explainable trust thresholds, reviewer ownership, provider
-            weighting and replay retention without replacing accountable human
-            decisions.
+            Govern enterprise-owned operational memory, explainable trust
+            thresholds, provider policy, reviewer ownership and replay
+            retention without replacing accountable human decisions.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
@@ -62,11 +62,12 @@ export default async function EnterpriseControlPlanePage() {
           </div>
         </section>
 
-        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {[
             ["Human-reviewable", "Every routed workflow retains named review ownership."],
             ["Explainable", "Every trigger exposes its threshold, observation and evidence."],
             ["Replay-linked", "Policy, reason, threshold and resolution context remain reconstructable."],
+            ["Enterprise-owned", "Workflow memory, provider use and operational evidence remain governed by enterprise policy."],
             ["Non-punitive", "The engine routes work; it does not accuse or impose automatic penalties."],
           ].map(([title, copy]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">

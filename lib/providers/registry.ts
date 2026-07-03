@@ -195,6 +195,9 @@ export function providerRuntimeState(
   if (provider.implementationState === "active" && provider.status === "configured") {
     return "Live";
   }
+  if (provider.implementationState === "configured_unverified") {
+    return "Configured / Validation Required";
+  }
   if (provider.requiredEnv.length > 0 && provider.missingEnv.length > 0) {
     return "Awaiting Credentials";
   }
