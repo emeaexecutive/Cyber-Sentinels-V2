@@ -19,6 +19,7 @@ We verify the actor, the workflow and the evidence behind critical operations.
 - A governance path with review triggers, named ownership and recorded actions.
 - Replay continuity showing chronology, posture changes, evidence and operational outcome.
 - A findings readout covering validated capabilities, evidence gaps, integration constraints and next-step options.
+- A provider-governance review covering classification, redaction, restricted-data boundaries and ownership of workflow memory.
 
 ## Pilot structure
 

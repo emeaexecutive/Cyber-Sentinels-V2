@@ -47,6 +47,10 @@ export default function InvestorPage() {
             Cyber Sentinels helps enterprises understand, govern and verify
             operational trust across humans, AI agents and workflows.
           </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            Enterprise AI sovereignty keeps provider choice, data policy,
+            workflow memory and operational IP under customer control.
+          </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/demo/hiring-attack" className="brand-primary-action brand-action-large text-sm">
               View Demo

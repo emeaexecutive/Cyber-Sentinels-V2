@@ -15,7 +15,7 @@ export default function VerificationReplayPage() {
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            Verification Replay
+            Replayable Operational Memory
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
             The operational memory of every critical workflow.

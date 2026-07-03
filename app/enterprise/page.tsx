@@ -8,7 +8,7 @@ const trustControls = [
   ["Governance Continuity", "High-impact changes route to named reviewers with ownership, chronology and recorded action."],
   ["Workflow Verification", "The actor, governed execution, operational evidence and outcome remain one reviewable record."],
   ["Replayable Evidence", "Canonical chronology reconstructs what happened before, during and after a workflow changed state."],
-  ["Hiring Security", "The same platform controls apply to candidate, recruiter and interview integrity as one operational domain."],
+  ["Enterprise AI Sovereignty", "Customer data, provider use, workflow memory and operational IP remain governed by enterprise policy."],
 ];
 
 const coordinationControls = [

@@ -7,7 +7,7 @@ const layers = [
   ["Governance Continuity", "Named human review and escalation remain attached to sensitive workflow transitions."],
   ["Governed Execution", "High-impact human or agent actions advance within visible policy and evidence boundaries."],
   ["Workflow Verification", "Actor, execution, evidence and outcome are evaluated as one governed operational record."],
-  ["Hiring Security", "One major workflow domain applying the same trust, governance and replay infrastructure."],
+  ["Enterprise AI Sovereignty", "Data classification, provider policy and protected operational memory keep AI interaction under enterprise control."],
 ];
 
 export default function PlatformPage() {

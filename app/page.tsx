@@ -22,7 +22,7 @@ const workflowDomains = [
   ["Enterprise workflows", "Evidence continuity from entry through final outcome."],
   ["Authorization events", "Grants, changes and revocations retain accountable lineage."],
   ["Governance actions", "Review, escalation and intervention remain attached to operational history."],
-  ["Hiring Security", "A major operational domain for identity, session and review integrity."],
+  ["Enterprise AI sovereignty", "Customer data, workflow memory and operational IP remain under governed enterprise control."],
 ];
 
 export default function Home() {
