@@ -106,7 +106,7 @@ export default function EnterprisePage() {
         <section className="operational-panel mt-8 p-6">
           <p className="operational-eyebrow">Regulated workflow continuity</p>
           <h2 className="mt-3 text-2xl font-semibold">
-            Govern execution where operational decisions must remain explainable.
+            Preserve trust continuity where operational decisions must remain explainable.
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels applies layered trust assurance across identity,

@@ -55,6 +55,13 @@ export type TrustPosture = {
   explanation: string;
   recalculationReason: string;
   governanceReviewState: "clear" | "required";
+  lifecyclePhase:
+    | "current"
+    | "decaying"
+    | "escalated"
+    | "recovered"
+    | "reverification_due";
+  lifecycleExplanation: string;
 };
 
 const dayMs = 24 * 60 * 60 * 1000;
@@ -137,6 +144,23 @@ export function buildTrustPosture(input: TrustPostureInput): TrustPosture {
     `${evidenceCount} evidence record${evidenceCount === 1 ? "" : "s"}`,
     `${unresolvedGovernanceCount} open governance item${unresolvedGovernanceCount === 1 ? "" : "s"}`,
   ].join("; ");
+  const lifecyclePhase: TrustPosture["lifecyclePhase"] =
+    state === "governance_review"
+      ? "escalated"
+      : state === "reverification_due"
+        ? "reverification_due"
+        : state === "checkpoint"
+          ? "decaying"
+          : input.lastGovernanceAt
+            ? "recovered"
+            : "current";
+  const lifecycleExplanation: Record<TrustPosture["lifecyclePhase"], string> = {
+    current: "Evidence remains inside the active verification window.",
+    decaying: "Evidence freshness reached a review checkpoint; posture remains usable with increasing review priority.",
+    escalated: "An unresolved governance action prevents posture from being treated as current.",
+    recovered: "A recorded governance review restored the workflow to a current evidence window.",
+    reverification_due: "Evidence is missing or outside the active window and must be refreshed before reliance.",
+  };
 
   return {
     state,
@@ -155,6 +179,8 @@ export function buildTrustPosture(input: TrustPostureInput): TrustPosture {
             ? "Evidence age reached the scheduled review checkpoint."
             : "Current evidence, signals, and governance state were recalculated.",
     governanceReviewState: unresolvedGovernanceCount > 0 ? "required" : "clear",
+    lifecyclePhase,
+    lifecycleExplanation: lifecycleExplanation[lifecyclePhase],
   };
 }
 

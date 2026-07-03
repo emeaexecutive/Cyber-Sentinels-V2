@@ -25,6 +25,14 @@ const badgeDetails: Record<TrustPostureBadgeType, { label: string; className: st
   governance_review: { label: "Governance Review", className: "border-amber-800 text-amber-100" },
 };
 
+const lifecycleStages = [
+  ["current", "Current", "Evidence and authority remain inside the active window."],
+  ["decaying", "Decaying", "Freshness reaches a checkpoint and review priority increases."],
+  ["escalated", "Escalated", "Risk or governance state interrupts ordinary reliance."],
+  ["recovered", "Recovered", "Recorded review or new evidence restores a current posture."],
+  ["reverification_due", "Re-verify", "Expired or missing evidence must be refreshed."],
+] as const;
+
 export function TrustPostureBadge({ value }: { value: TrustPostureBadgeType }) {
   const badge = badgeDetails[value];
   return (
@@ -219,6 +227,34 @@ export function TrustPostureDashboard({
               <p className="mt-2 text-xs uppercase tracking-[0.12em] text-zinc-500">
                 Governance review state: {snapshot.posture.governanceReviewState}
               </p>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="operational-eyebrow">Posture lifecycle</p>
+              <h2 className="mt-2 text-xl font-semibold capitalize">
+                Current phase: {snapshot.posture.lifecyclePhase.replaceAll("_", " ")}
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
+                {snapshot.posture.lifecycleExplanation}
+              </p>
+            </div>
+            <Link href="/trust-replay" className="text-sm font-semibold text-cyan-200 hover:text-white">
+              Review how posture changed
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 xl:grid-cols-5">
+            {lifecycleStages.map(([phase, title, explanation]) => {
+              const active = phase === snapshot.posture.lifecyclePhase;
+              return (
+                <article key={title} className={`min-w-0 p-4 ${active ? "bg-cyan-950/40" : "bg-black"}`}>
+                  <p className={`text-sm font-semibold ${active ? "text-cyan-100" : "text-zinc-200"}`}>{title}</p>
+                  <p className="mt-2 text-xs leading-5 text-zinc-500">{explanation}</p>
+                </article>
+              );
+            })}
           </div>
         </section>
 

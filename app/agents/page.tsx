@@ -41,6 +41,7 @@ const runtimeControls = [
   ["Delegated authority", "Every sensitive action can be evaluated against the scope, owner and approval path under which it was executed."],
   ["Posture changes", "New evidence, context shifts and governance interventions produce explainable state transitions."],
   ["Replay continuity", "Activity, authorization changes and review decisions remain one operational history after execution ends."],
+  ["Execution continuity", "Requested action, delegated scope, runtime evidence, intervention and outcome remain connected across the full operation."],
 ];
 
 export default function AgentsPage() {

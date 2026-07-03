@@ -31,6 +31,8 @@ export async function GET(request: Request) {
       boundary: transparency.boundary,
       postureSemantics: {
         contextShiftAlerts: true,
+        lifecyclePhase: trust.posture?.lifecyclePhase ?? "not_recorded",
+        lifecycleExplanation: trust.posture?.lifecycleExplanation ?? "No posture lifecycle is recorded.",
         governanceReviewState: trust.posture?.state ?? "not_recorded",
         trustRecalculationReason:
           trust.explanation ?? "Posture recalculated from current workflow evidence and governance context.",

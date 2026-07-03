@@ -5,6 +5,7 @@ const marketShifts = [
   ["Synthetic credibility", "Generated profiles, reused identity evidence and manipulated sessions can reach high-value workflows before fragmented controls expose the mismatch."],
   ["Point-in-time verification", "An identity check at entry does not explain whether the live session, authorization context or evidence remained trustworthy."],
   ["Governance fragmentation", "Provider results, review notes, decisions and audit evidence often sit in separate systems, weakening operational accountability."],
+  ["Agent and NHI accountability", "AI agents, service accounts and API actors can execute consequential work while ownership, delegated authority and replay remain fragmented."],
 ];
 
 const moat = [
@@ -63,7 +64,7 @@ export default function InvestorPage() {
       <section className="mx-auto max-w-6xl px-6 py-14 md:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Market problem</p>
         <h2 className="mt-3 max-w-3xl text-3xl font-semibold">Enterprise decisions now depend on evidence that changes mid-workflow.</h2>
-        <div className="mt-7 grid gap-4 md:grid-cols-3">
+        <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {marketShifts.map(([title, copy]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
               <h3 className="text-lg font-semibold">{title}</h3>

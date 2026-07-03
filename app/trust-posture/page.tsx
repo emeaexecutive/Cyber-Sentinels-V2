@@ -9,6 +9,14 @@ const postureSignals = [
   ["Replay continuity", "Prior posture, authorization and governance changes remain available as operational memory."],
 ];
 
+const postureLifecycle = [
+  ["Evolve", "New identity, session, authorization and workflow evidence changes the current posture."],
+  ["Decay", "Evidence freshness ages into a visible review checkpoint rather than silently remaining current."],
+  ["Escalate", "Risk shifts and unresolved governance actions interrupt ordinary reliance."],
+  ["Recover", "New evidence or an accountable governance resolution can restore a current posture."],
+  ["Re-verify", "Missing or expired evidence returns the actor or workflow to verification."],
+];
+
 export default function PublicTrustPosturePage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -36,6 +44,19 @@ export default function PublicTrustPosturePage() {
               <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Trust over time</p>
+          <h2 className="mt-3 text-2xl font-semibold">Posture evolves; Replay explains every transition.</h2>
+          <div className="mt-5 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-5">
+            {postureLifecycle.map(([title, copy]) => (
+              <article key={title} className="min-w-0 bg-black p-4">
+                <h3 className="font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-2 text-xs leading-5 text-zinc-500">{copy}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">

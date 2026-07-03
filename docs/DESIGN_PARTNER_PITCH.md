@@ -36,6 +36,7 @@ The best pilot has a clear operational owner, meaningful consequence, identifiab
 - Can the enterprise identify who or what acted and who owns that actor?
 - Can delegated authority be traced from grant through change or revocation?
 - Can runtime posture changes be explained from retained evidence?
+- Can posture decay, escalation, recovery and reverification be evaluated against agreed workflow policy?
 - Can governance intervention be assigned and reconstructed?
 - Can replay preserve workflow verification continuity after execution ends?
 - Can the result support practical review without presenting inference as certainty?
