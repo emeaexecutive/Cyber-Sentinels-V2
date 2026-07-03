@@ -23,6 +23,10 @@ const registryConcepts = [
     "Governed execution",
     "Agent activity should carry identity, authorization, evidence and review context before sensitive actions are trusted.",
   ],
+  [
+    "Operational accountability",
+    "Every agent remains attributable to an owner, declared purpose, delegated authority and reviewable outcome.",
+  ],
 ];
 
 const accountabilityLinks = [
@@ -60,6 +64,11 @@ export default function AgentsPage() {
             Agent Trust Posture is continuously evaluated through identity,
             authorization, operational evidence and a replayable execution
             history that keeps outcomes auditable.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            AI agents are governed operational entities: authorization-aware,
+            accountable to named owners and reviewable through runtime posture
+            and Replayable Operational Memory.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
             Cyber Sentinels does not replace human governance or operational

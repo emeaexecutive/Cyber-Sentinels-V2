@@ -1,10 +1,10 @@
 const layers = [
+  ["Replayable Operational Memory", "The foundational chronology of what entered, what changed, which authority acted, why posture shifted and how the workflow concluded."],
   ["Persistent Trust Posture", "A current, explainable state across identity, evidence, authorization and governance history."],
   ["Continuous Identity", "Verification freshness and context remain visible after initial access is granted."],
   ["AI Agent Trust", "Registered agents carry declared purpose, permission scope, policy state and attributable activity."],
   ["Authorization Lineage", "Enterprise grants, changes and revocations retain their authority, rationale and chronology."],
   ["Governance Continuity", "Named human review and escalation remain attached to sensitive workflow transitions."],
-  ["Replayable Evidence", "Operational history reconstructs what entered, what changed, who intervened and the final outcome."],
   ["Governed Execution", "High-impact human or agent actions advance within visible policy and evidence boundaries."],
   ["Workflow Verification", "Actor, execution, evidence and outcome are evaluated as one governed operational record."],
   ["Hiring Security", "One major workflow domain applying the same trust, governance and replay infrastructure."],
@@ -37,8 +37,8 @@ export default function PlatformPage() {
             accountable human authority or turning trust into a permanent score.
           </p>
           <p className="mt-5 max-w-3xl border-l border-cyan-800 pl-4 text-base leading-7 text-zinc-200">
-            We do not give enterprises another AI tool. We verify the actor, the
-            work and the evidence behind critical workflows.
+            We verify the actor, the workflow and the evidence behind critical
+            operations.
           </p>
         </section>
 

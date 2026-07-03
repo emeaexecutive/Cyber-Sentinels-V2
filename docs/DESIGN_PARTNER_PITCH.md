@@ -4,7 +4,7 @@
 
 Cyber Sentinels works with a small number of enterprise design partners to evaluate operational trust in one consequential workflow. The pilot is structured to test concrete evidence, governance and continuity requirements, not to promise certainty or replace existing identity, security or compliance systems.
 
-We do not give enterprises another AI tool. We verify the actor, the work and the evidence behind critical workflows.
+We verify the actor, the workflow and the evidence behind critical operations.
 
 ## What the enterprise receives
 

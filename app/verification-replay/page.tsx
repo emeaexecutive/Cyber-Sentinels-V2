@@ -18,7 +18,7 @@ export default function VerificationReplayPage() {
             Verification Replay
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Canonical operational evidence for sensitive workflows.
+            The operational memory of every critical workflow.
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
             Replay reconstructs identity checks, session integrity, authorization
@@ -27,8 +27,8 @@ export default function VerificationReplayPage() {
             runtime session ends. Case records remain protected operational data.
           </p>
           <p className="mt-5 max-w-3xl border-l border-cyan-800 pl-4 text-base leading-7 text-zinc-200">
-            Replay is the product moment: one governed chronology for the actor,
-            the work, the evidence and the outcome.
+            Replay is the foundation: one governed chronology for the actor,
+            the workflow, the evidence, the authority and the outcome.
           </p>
         </section>
 

@@ -22,6 +22,7 @@ const regulatedWorkflows = [
   ["Fintech operations", "Preserve identity, delegated authority and approval evidence across payment, account and exception workflows."],
   ["Banking approvals", "Keep initiator, service-account activity, policy checks and dual-control decisions in one governed chronology."],
   ["Insurance claims", "Connect intake evidence, automation, adjuster review and governed outcome in one replayable chronology."],
+  ["Healthcare operations", "Preserve identity, delegated access, clinical workflow evidence and accountable approvals across regulated operational handoffs."],
   ["Underwriting", "Keep data inputs, API actors, decision support, approvals and policy exceptions accountable over time."],
   ["Enterprise onboarding", "Continuously verify human and non-human actors as access, evidence and responsibilities change."],
   ["Vendor onboarding", "Connect third-party identity, API access, evidence collection, exceptions and accountable approval."],
@@ -45,6 +46,10 @@ export default function EnterprisePage() {
             Maintain persistent Trust Posture across people, AI agents,
             authorization and workflows—with governance memory and replayable
             operational evidence.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-200">
+            We verify the actor, the workflow and the evidence behind critical
+            operations.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             Verify the actor, the work and the evidence behind critical

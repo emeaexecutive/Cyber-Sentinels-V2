@@ -42,8 +42,8 @@ export default function DesignPartnerPage() {
             governance actions and replay without relying on unsupported trust claims.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-200">
-            We do not give enterprises another AI tool. We verify the actor, the
-            work and the evidence behind critical workflows.
+            We verify the actor, the workflow and the evidence behind critical
+            operations.
           </p>
           <EvidenceDisclaimer className="mt-6 max-w-3xl" />
           <div className="mt-8 flex flex-wrap gap-3">
@@ -64,8 +64,8 @@ export default function DesignPartnerPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-14 md:px-8">
-        <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Hiring security wedge</p>
-        <h2 className="mt-4 max-w-3xl text-3xl font-semibold">Practical risks design partners can help validate.</h2>
+        <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Initial workflow wedge</p>
+        <h2 className="mt-4 max-w-3xl text-3xl font-semibold">Start with a consequential workflow. Build a reusable trust foundation.</h2>
         <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {risks.map(([title, copy]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">

@@ -42,8 +42,8 @@ export default function InvestorPage() {
             applicants, proxy interviews and injected sessions create immediate enterprise risk.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-200">
-            We do not give enterprises another AI tool. We verify the actor, the
-            work and the evidence behind critical workflows.
+            We verify the actor, the workflow and the evidence behind critical
+            operations.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/demo/hiring-attack" className="brand-primary-action brand-action-large text-sm">
@@ -77,10 +77,12 @@ export default function InvestorPage() {
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Why now</p>
-            <h2 className="mt-3 text-3xl font-semibold">Verification is becoming a continuous workflow problem.</h2>
+            <h2 className="mt-3 text-3xl font-semibold">TrustOps is becoming an enterprise infrastructure category.</h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
               Remote hiring, synthetic media and automated operations increase the distance between
               a credential checked at entry and the person, session or system acting later.
+              Persistent posture, governed execution and replayable memory close
+              that continuity gap across human and machine activity.
             </p>
           </div>
           <div>

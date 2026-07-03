@@ -10,10 +10,10 @@ const proofPath = [
 ];
 
 const platformSurfaces = [
+  ["Replayable Operational Memory", "The foundational chronology of what entered, what changed, which authority acted, what evidence existed and why the outcome followed."],
   ["Persistent Trust Posture", "The current, explainable state of identity, authorization, evidence and workflow context."],
   ["Governed Workflows", "Human and agent activity stays inside visible authority, evidence and review boundaries."],
   ["Workflow Verification", "The actor, work performed, evidence and operational outcome remain connected."],
-  ["Replayable Operational Trust", "Replay Timeline preserves what changed, who intervened and why the outcome followed."],
 ];
 
 const workflowDomains = [
@@ -31,7 +31,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 pb-14 pt-12 md:px-8 md:pb-20 md:pt-20">
         <div className="max-w-4xl">
           <p className="operational-eyebrow">
-            Trust Operations infrastructure.
+            TrustOps infrastructure.
           </p>
           <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
             Operational trust for intelligent systems.
@@ -44,11 +44,15 @@ export default function Home() {
             intelligent systems. It keeps actors, workflows, evidence and
             governance connected—then replays why each outcome followed.
           </p>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-300">
+            We verify the actor, the workflow and the evidence behind critical
+            operations.
+          </p>
         </div>
 
         <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-3">
           <Link href="/verification-replay" className="brand-primary-action brand-action-large text-sm">
-            See Replay Timeline
+            Experience Replay
           </Link>
           <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
             Request Enterprise Access
@@ -93,9 +97,9 @@ export default function Home() {
             Governed trust continuity across identity, authority and execution.
           </h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Persistent Trust Posture shows what is true now. Replay Timeline
-            preserves the operational memory of how it became true, including
-            governed execution and the final operational outcome.
+            Persistent Trust Posture shows what is true now. Replay is the
+            operational memory of how it became true: chronology, authorization
+            changes, evidence continuity, governance action and final outcome.
           </p>
         </div>
         <div className="mt-7 grid gap-4 md:grid-cols-2">

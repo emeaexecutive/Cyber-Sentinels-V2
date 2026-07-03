@@ -24,7 +24,7 @@ Fintech operations, insurance claims, underwriting, onboarding, hiring and appro
 
 Cyber Sentinels is operational trust infrastructure for intelligent systems. It connects:
 
-We do not give enterprises another AI tool. We verify the actor, the work and the evidence behind critical workflows.
+We verify the actor, the workflow and the evidence behind critical operations.
 
 - persistent Trust Posture;
 - continuous verification;
@@ -64,3 +64,7 @@ Cyber Sentinels is differentiated by treating identity, runtime posture, workflo
 The practical entry point is a high-value workflow where identity, delegated execution, evidence and approval must remain reviewable. A design partner can evaluate one workflow end to end, establish measurable governance and replay requirements, and then extend the continuity model across adjacent workflows and non-human identities.
 
 The long-term opportunity is a unified TrustOps layer across enterprise actors and operational systems: infrastructure that helps organizations understand not only whether access was granted, but whether trust remained justified throughout execution.
+
+## Category ownership
+
+Cyber Sentinels is building toward a high-conviction infrastructure category, not a collection of detection tools. TrustOps becomes necessary as identity, security, governance and operations converge around intelligent workflows. Persistent Trust Posture is the live state; governed execution is the control model; Replayable Operational Memory is the durable system of record.
