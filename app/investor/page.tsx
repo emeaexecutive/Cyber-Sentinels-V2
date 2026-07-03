@@ -9,10 +9,10 @@ const marketShifts = [
 ];
 
 const moat = [
-  ["Governance", "Named review ownership, escalation rationale and human authority for sensitive workflow outcomes."],
-  ["Evidence", "Provider, session, workflow and reviewer records retained with their source and context."],
-  ["Replay", "A chronological reconstruction of what changed, who acted and which evidence supported the decision."],
-  ["Trust memory", "Workflow-specific posture that evolves through evidence continuity and governance intervention."],
+  ["Operational memory", "Each governed workflow adds replayable chronology, authorization history and evidence relationships that improve continuity."],
+  ["Unified trust model", "Humans, AI agents, non-human identities and workflows share one posture, governance and replay model."],
+  ["Governance embeddedness", "Reviewer ownership, escalation policy and operational accountability become part of how consequential work runs."],
+  ["Cross-workflow continuity", "A common evidence and authorization language can extend from one validated workflow into adjacent enterprise operations."],
 ];
 
 const boundaries = [
@@ -101,6 +101,11 @@ export default function InvestorPage() {
       <section className="mx-auto max-w-6xl px-6 py-14 md:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Defensibility</p>
         <h2 className="mt-3 text-3xl font-semibold">The moat is the operational memory around the decision.</h2>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+          Defensibility compounds through retained continuity and enterprise
+          operating practice—not through unsupported claims of proprietary AI
+          certainty.
+        </p>
         <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {moat.map(([title, copy]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">

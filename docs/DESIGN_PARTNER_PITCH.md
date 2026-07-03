@@ -50,3 +50,5 @@ The pilot does not certify that an identity, agent or workflow is universally tr
 ## A useful outcome
 
 A successful design partnership gives the enterprise a defensible view of how operational trust can be maintained across one real workflow, where current controls provide sufficient evidence, where continuity breaks, and whether Cyber Sentinels can close those gaps without creating another fragmented control layer.
+
+The partnership also tests whether one continuity model can carry into adjacent workflows. Reusable authorization, evidence, governance and replay patterns are more valuable than a one-off detection result.

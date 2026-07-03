@@ -43,7 +43,7 @@ export default function VerificationReplayPage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-2xl font-semibold">Operational memory, protected evidence</h2>
+          <h2 className="text-2xl font-semibold">Essential operational memory, protected evidence</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             Public visitors can understand the replay model here. Case-level replay timelines, subjects and reviewer notes require sign-in because they contain operational trust data.
           </p>
