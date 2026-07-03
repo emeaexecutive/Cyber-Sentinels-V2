@@ -16,6 +16,12 @@ function bodyObject(value: unknown): Record<string, unknown> {
     : {};
 }
 
+function boundedNumber(value: unknown, fallback: number, minimum = 0, maximum = 100) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(maximum, Math.max(minimum, parsed));
+}
+
 export async function GET(req: Request) {
   const supabase = await createClient();
   const access = await requireAdminApiAccess(req, supabase);
@@ -55,11 +61,11 @@ export async function POST(req: Request) {
   const input: PolicyEvaluationInput = {
     workflowId: String(source.workflowId ?? "governance-routing-preview"),
     workflowType: policy.workflowType,
-    trustScore: Number(source.trustScore ?? 65),
-    providerConfidence: Number(source.providerConfidence ?? 65),
-    sessionIntegrity: Number(source.sessionIntegrity ?? 65),
-    daysSinceLastEvidence: Number(source.daysSinceLastEvidence ?? 0),
-    anomalyCount: Number(source.anomalyCount ?? 0),
+    trustScore: boundedNumber(source.trustScore, 65),
+    providerConfidence: boundedNumber(source.providerConfidence, 65),
+    sessionIntegrity: boundedNumber(source.sessionIntegrity, 65),
+    daysSinceLastEvidence: boundedNumber(source.daysSinceLastEvidence, 0, 0, 3650),
+    anomalyCount: boundedNumber(source.anomalyCount, 0, 0, 1000),
     evidenceReferences: Array.isArray(source.evidenceReferences)
       ? source.evidenceReferences.map(String).slice(0, 20)
       : [],

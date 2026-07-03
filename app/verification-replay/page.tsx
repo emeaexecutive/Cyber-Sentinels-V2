@@ -1,10 +1,12 @@
 import Link from "next/link";
 
 const replayFlow = [
-  ["Verification started", "The workflow records when identity review began."],
-  ["Evidence ordered", "Session, human presence and risk events are placed in chronology."],
-  ["Governance action linked", "Reviewer decisions are tied back to the evidence that triggered review."],
-  ["Replay preserved", "A protected operational memory retains authorization history, posture changes and governed outcomes without exposing data publicly."],
+  ["01", "What entered", "The person, agent or workflow is recorded with its operating context."],
+  ["02", "What changed", "Identity, session, authorization and runtime posture changes are ordered in time."],
+  ["03", "Evidence available", "Provider, workflow and integrity evidence remains attached to its source."],
+  ["04", "Who or what approved", "Delegated authority and named governance actions remain attributable."],
+  ["05", "Why trust shifted", "Every posture transition stays connected to evidence and review rationale."],
+  ["06", "Final outcome", "The governed outcome and receipt close the chronology without claiming certainty."],
 ];
 
 export default function VerificationReplayPage() {
@@ -24,12 +26,17 @@ export default function VerificationReplayPage() {
             chronology. It preserves workflow verification continuity after the
             runtime session ends. Case records remain protected operational data.
           </p>
+          <p className="mt-5 max-w-3xl border-l border-cyan-800 pl-4 text-base leading-7 text-zinc-200">
+            Replay is the product moment: one governed chronology for the actor,
+            the work, the evidence and the outcome.
+          </p>
         </section>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {replayFlow.map(([title, copy]) => (
-            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
-              <h2 className="text-lg font-semibold text-zinc-100">{title}</h2>
+        <section className="mt-8 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 md:grid-cols-2 lg:grid-cols-3">
+          {replayFlow.map(([step, title, copy]) => (
+            <article key={title} className="min-w-0 bg-black p-5">
+              <p className="font-mono text-xs text-cyan-300">{step}</p>
+              <h2 className="mt-3 text-lg font-semibold text-zinc-100">{title}</h2>
               <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
             </article>
           ))}
@@ -41,8 +48,8 @@ export default function VerificationReplayPage() {
             Public visitors can understand the replay model here. Case-level replay timelines, subjects and reviewer notes require sign-in because they contain operational trust data.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/demo/hiring-attack" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-cyan-100">
-              View demo flow
+            <Link href="/replay/demo?scenario=proxy-candidate-interview" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-cyan-100">
+              Experience Replay
             </Link>
             <Link href="/trust-replay" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
               Open protected replay

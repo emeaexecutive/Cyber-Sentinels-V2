@@ -19,7 +19,7 @@ export default function PlatformPage() {
             Trust Operations platform
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Persistent operational trust for humans, agents and workflows.
+            Operational trust for intelligent systems.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels is the operational trust and verification layer for
@@ -35,6 +35,10 @@ export default function PlatformPage() {
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             The platform keeps workflow decisions explainable without replacing
             accountable human authority or turning trust into a permanent score.
+          </p>
+          <p className="mt-5 max-w-3xl border-l border-cyan-800 pl-4 text-base leading-7 text-zinc-200">
+            We do not give enterprises another AI tool. We verify the actor, the
+            work and the evidence behind critical workflows.
           </p>
         </section>
 

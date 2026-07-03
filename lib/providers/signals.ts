@@ -209,6 +209,26 @@ export function buildWorkflowProviderSignals(input: {
     snapshot.providerVerificationState ??
     snapshot.verification_status;
 
+  const hasProviderEvidence = Boolean(
+    input.providerVerificationState ||
+    input.identityConfidence !== undefined ||
+    input.sessionIntegrity !== undefined ||
+    input.riskFlags ||
+    input.evidenceReferences?.length ||
+    snapshot.provider_id ||
+    snapshot.providerId ||
+    snapshot.provider_name ||
+    snapshot.providerName ||
+    snapshot.external_verification_source ||
+    snapshot.provider_verification_state ||
+    snapshot.providerVerificationState ||
+    snapshot.verification_status
+  );
+
+  if (!hasProviderEvidence) {
+    return [];
+  }
+
   return [
     normalizeProviderSignal({
       providerId: normalizedProviderId,

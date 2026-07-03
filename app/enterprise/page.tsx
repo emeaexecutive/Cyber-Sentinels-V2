@@ -20,11 +20,14 @@ const coordinationControls = [
 
 const regulatedWorkflows = [
   ["Fintech operations", "Preserve identity, delegated authority and approval evidence across payment, account and exception workflows."],
+  ["Banking approvals", "Keep initiator, service-account activity, policy checks and dual-control decisions in one governed chronology."],
   ["Insurance claims", "Connect intake evidence, automation, adjuster review and governed outcome in one replayable chronology."],
   ["Underwriting", "Keep data inputs, API actors, decision support, approvals and policy exceptions accountable over time."],
   ["Enterprise onboarding", "Continuously verify human and non-human actors as access, evidence and responsibilities change."],
+  ["Vendor onboarding", "Connect third-party identity, API access, evidence collection, exceptions and accountable approval."],
   ["Hiring", "Link candidate identity, session integrity, reviewer action and verification receipts without replacing human judgment."],
   ["Workflow approvals", "Retain who or what acted, under which authority, what changed and who approved the outcome."],
+  ["AI-agent operations", "Evaluate runtime risk, delegated scope, evidence and intervention across agent-led work."],
 ];
 
 export default function EnterprisePage() {

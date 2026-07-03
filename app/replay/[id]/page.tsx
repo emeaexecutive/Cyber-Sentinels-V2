@@ -361,7 +361,7 @@ export default async function VerificationReplayPage({
     String(latestGovernance?.action_status ?? "")
   );
   const baselineJourneyEvents: TrustJourneyEvent[] = [
-    {
+    ...(session ? [{
       id: "baseline-verification-started",
       title: "Verification started",
       description: session?.title ?? "Verification workflow opened for operational replay.",
@@ -374,22 +374,22 @@ export default async function VerificationReplayPage({
       escalationReason: "Verification workflow opened",
       workflowReference: `${subjectType}/${subjectId}`,
       analystNote: "Initial workflow state retained for replay.",
-    },
-    {
+    } as TrustJourneyEvent] : []),
+    ...(latestGovernance ? [{
       id: "baseline-authorization-lineage",
       title: "Authorization lineage recorded",
       description: "Workflow authority, reviewer action and evidence references remain connected before an outcome advances.",
-      occurredAt: latestGovernance?.created_at ?? session?.created_at ?? requestedReplay?.created_at,
-      state: latestGovernance ? "governance_review" : "manual_review_required",
+      occurredAt: latestGovernance.created_at,
+      state: "governance_review",
       stage: "authorization_changed",
       evidenceLabel: "authorization lineage",
-      flag: label(latestGovernance?.action_status, "authority pending review"),
-      reviewer: latestGovernance?.assigned_to ?? "Workflow owner",
+      flag: label(latestGovernance.action_status, "authority pending review"),
+      reviewer: latestGovernance.assigned_to ?? "Workflow owner",
       escalationReason: "Authorization state depends on evidence and governance review",
       workflowReference: `${subjectType}/${subjectId}`,
       analystNote: "Authorization changes are replayable evidence, not hidden tracking.",
-    },
-    {
+    } as TrustJourneyEvent] : []),
+    ...(requestedReplay ? [{
       id: "baseline-replay-available",
       title: "Replay available",
       description: "Replay chronology is available for analyst and audit review.",
@@ -402,7 +402,7 @@ export default async function VerificationReplayPage({
       escalationReason: "Chronology generated for governance review",
       workflowReference: `${subjectType}/${subjectId}`,
       analystNote: requestedReplay?.replay_summary ?? "Replay chronology is available for analyst and audit review.",
-    },
+    } as TrustJourneyEvent] : []),
   ];
   const trustJourneyEvents: TrustJourneyEvent[] = [
     ...baselineJourneyEvents,

@@ -127,6 +127,10 @@ export default async function TrustCenterPage() {
                 the governed operational memory of how it changed across people,
                 AI agents, service accounts and API actors.
               </p>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
+                We do not give enterprises another AI tool. We verify the actor,
+                the work and the evidence behind critical workflows.
+              </p>
             </div>
             <State value={snapshot.badge} />
           </div>

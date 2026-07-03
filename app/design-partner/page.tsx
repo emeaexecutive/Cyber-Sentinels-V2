@@ -41,6 +41,10 @@ export default function DesignPartnerPage() {
             Security, talent, risk and governance teams can review evidence, session integrity,
             governance actions and replay without relying on unsupported trust claims.
           </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-200">
+            We do not give enterprises another AI tool. We verify the actor, the
+            work and the evidence behind critical workflows.
+          </p>
           <EvidenceDisclaimer className="mt-6 max-w-3xl" />
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/enterprise-access?intent=pilot" className="brand-secondary-action brand-action-large text-sm">

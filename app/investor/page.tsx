@@ -41,6 +41,10 @@ export default function InvestorPage() {
             The initial wedge is Hiring Security and Session Integrity: workflows where synthetic
             applicants, proxy interviews and injected sessions create immediate enterprise risk.
           </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-200">
+            We do not give enterprises another AI tool. We verify the actor, the
+            work and the evidence behind critical workflows.
+          </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/demo/hiring-attack" className="brand-primary-action brand-action-large text-sm">
               View Demo
