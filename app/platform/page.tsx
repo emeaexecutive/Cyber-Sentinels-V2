@@ -6,6 +6,7 @@ const layers = [
   ["Governance Continuity", "Named human review and escalation remain attached to sensitive workflow transitions."],
   ["Replayable Evidence", "Operational history reconstructs what entered, what changed, who intervened and the final outcome."],
   ["Governed Execution", "High-impact human or agent actions advance within visible policy and evidence boundaries."],
+  ["Workflow Verification", "Actor, execution, evidence and outcome are evaluated as one governed operational record."],
   ["Hiring Security", "One major workflow domain applying the same trust, governance and replay infrastructure."],
 ];
 
@@ -15,14 +16,16 @@ export default function PlatformPage() {
       <div className="mx-auto max-w-5xl">
         <section className="operational-panel p-6 md:p-8">
           <p className="operational-eyebrow">
-            Operational trust infrastructure
+            Trust Operations platform
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
             Persistent operational trust for humans, agents and workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels is the operational trust layer for people, AI agents
-            and enterprise workflows.
+            Cyber Sentinels is the operational trust and verification layer for
+            intelligent systems: people, AI agents and enterprise workflows.
+            TrustOps verifies who acted, how the workflow changed and which
+            operational outcome the evidence supports.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
             Trust changes over time. Persistent Trust Posture explains the current

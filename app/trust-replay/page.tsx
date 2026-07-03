@@ -370,20 +370,22 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
 
         <section className="operational-panel replay-signature mt-10 p-6 md:p-8">
           <p className="operational-eyebrow">
-            Replayable operational trust
+            TrustOps operational memory
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
             Operational memory for intelligent systems.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Replay Timeline is the signature Cyber Sentinels capability: one
-            enterprise chronology for humans, AI agents, workflows,
-            Authorization Lineage, Governance Review and Trust Posture transitions.
+            governed workflow chronology for humans, AI agents, operational
+            outcomes, Authorization Lineage, Governance Review and Trust Posture
+            transitions.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             It reconstructs the Evidence Chain, authorization changes, reviewer
-            decisions, workflow outcome and audit history that existed at a point
-            in time without mutating the underlying records.
+            decisions, governed execution history, workflow outcome and audit
+            context that existed at a point in time without mutating the
+            underlying records.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
             Trust changes over time. Replay preserves governance memory and

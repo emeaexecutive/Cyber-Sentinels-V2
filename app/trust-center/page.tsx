@@ -111,15 +111,16 @@ export default async function TrustCenterPage() {
     <main className="min-h-screen bg-[#04070c] px-5 py-8 text-white md:px-8">
       <div className="mx-auto max-w-7xl">
         <section className="rounded-xl border border-zinc-800 bg-zinc-950 p-6 md:p-8">
-          <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">Operational Trust Center</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">Trust Operations Center</p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-6">
             <div>
               <h1 className="max-w-3xl text-4xl font-semibold leading-tight md:text-5xl">
                 Trust changes. Cyber Sentinels shows why.
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Persistent trust connects human and agent identity, authorization
-                lineage, workflow evidence, Governance Review and final outcome.
+                TrustOps connects human and agent identity, workflow verification,
+                Authorization Lineage, operational evidence, Governance Review
+                and final outcome.
               </p>
             </div>
             <State value={snapshot.badge} />
@@ -160,8 +161,8 @@ export default async function TrustCenterPage() {
           <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="text-xl font-semibold">Persistent operational trust</h2>
-                <p className="mt-2 text-sm text-zinc-500">Recorded posture changes across identity, authorization, replay and governance continuity.</p>
+                <h2 className="text-xl font-semibold">Verified workflow outcomes</h2>
+                <p className="mt-2 text-sm text-zinc-500">Recorded posture changes across actor identity, execution, authorization, replay and governance continuity.</p>
               </div>
               <p className="text-xs text-zinc-500">{snapshot.posture.label}</p>
             </div>
@@ -275,7 +276,7 @@ export default async function TrustCenterPage() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="text-xl font-semibold">Replayable operational memory</h2>
-              <p className="mt-2 text-sm text-zinc-500">Identity, authorization, trust changes and outcomes ordered from recorded events.</p>
+              <p className="mt-2 text-sm text-zinc-500">Actor, workflow, authorization, governed execution and outcomes ordered from recorded evidence—not reduced to activity logs.</p>
             </div>
             <Link href="/trust-replay" className="text-sm text-cyan-200 hover:text-white">Open Replay Timeline</Link>
           </div>

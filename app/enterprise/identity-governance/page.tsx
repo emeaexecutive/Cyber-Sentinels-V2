@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Identity Governance | Cyber Sentinels",
-  description: "Explainable identity, workflow and intelligent-system authorization governance.",
+  description: "Trust Operations for explainable identity, workflow verification and intelligent-system authorization governance.",
 };
 
 export default async function EnterpriseIdentityGovernancePage() {

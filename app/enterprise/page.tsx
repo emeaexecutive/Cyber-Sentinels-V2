@@ -6,6 +6,7 @@ const trustControls = [
   ["Enterprise Authorization", "Authorization grants, changes and revocations remain connected to their authority and rationale."],
   ["Persistent Trust Posture", "Identity, workflow, evidence and governance state evolve without becoming a hidden universal score."],
   ["Governance Continuity", "High-impact changes route to named reviewers with ownership, chronology and recorded action."],
+  ["Workflow Verification", "The actor, governed execution, operational evidence and outcome remain one reviewable record."],
   ["Replayable Evidence", "Canonical chronology reconstructs what happened before, during and after a workflow changed state."],
   ["Hiring Security", "The same platform controls apply to candidate, recruiter and interview integrity as one operational domain."],
 ];
@@ -23,7 +24,7 @@ export default function EnterprisePage() {
       <div className="mx-auto max-w-5xl">
         <section className="operational-panel p-6 md:p-8">
           <p className="operational-eyebrow">
-            Enterprise operational trust
+            Enterprise Trust Operations
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
             Operational trust for intelligent systems.
@@ -32,6 +33,10 @@ export default function EnterprisePage() {
             Maintain persistent Trust Posture across people, AI agents,
             authorization and workflows—with governance memory and replayable
             operational evidence.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            Verify the actor, the work and the evidence behind critical
+            operational outcomes—not merely whether a point-in-time check passed.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
@@ -82,11 +87,17 @@ export default function EnterprisePage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-2xl font-semibold">Pilot conversion path</h2>
+          <h2 className="text-2xl font-semibold">TrustOps operating path</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Start with one workflow, one accountable reviewer path and one
             replayable outcome that operations, compliance, security and
             executive stakeholders can evaluate together.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
+            Over time, this foundation can support managed trust operations,
+            regulated workflow oversight and operational governance support.
+            These are directional operating models, not claims of a managed
+            service available today.
           </p>
         </section>
       </div>

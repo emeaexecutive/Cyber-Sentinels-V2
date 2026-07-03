@@ -12,7 +12,7 @@ const proofPath = [
 const platformSurfaces = [
   ["Persistent Trust Posture", "The current, explainable state of identity, authorization, evidence and workflow context."],
   ["Governed Workflows", "Human and agent activity stays inside visible authority, evidence and review boundaries."],
-  ["Governed Trust Continuity", "Authorization changes and reviewer interventions remain connected to their rationale."],
+  ["Workflow Verification", "The actor, work performed, evidence and operational outcome remain connected."],
   ["Replayable Operational Trust", "Replay Timeline preserves what changed, who intervened and why the outcome followed."],
 ];
 
@@ -31,7 +31,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 pb-14 pt-12 md:px-8 md:pb-20 md:pt-20">
         <div className="max-w-4xl">
           <p className="operational-eyebrow">
-            Operational trust infrastructure.
+            Trust Operations infrastructure.
           </p>
           <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
             Operational trust for intelligent systems.
@@ -40,9 +40,9 @@ export default function Home() {
             Trust is not a moment. It is a continuous operational state.
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
-            Protect people, AI agents and enterprise workflows by keeping
-            identity, authorization, evidence and governance connected—then
-            replay why each outcome followed.
+            Cyber Sentinels is the operational trust and verification layer for
+            intelligent systems. It keeps actors, workflows, evidence and
+            governance connected—then replays why each outcome followed.
           </p>
         </div>
 
@@ -69,8 +69,8 @@ export default function Home() {
               Trust changes. Cyber Sentinels shows why.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              Trust changes over time. Replay connects entry, evidence, Trust
-              Posture, Governance Review and final outcome.
+              We do not give enterprises another AI tool. We verify the work,
+              the actor and the evidence behind critical workflows.
             </p>
           </div>
           <div className="mt-7 grid gap-3 md:grid-cols-6">
@@ -87,14 +87,15 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 py-16 md:px-8">
         <div className="max-w-3xl">
           <p className="operational-eyebrow">
-            Platform focus
+            TrustOps platform
           </p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
             Governed trust continuity across identity, authority and execution.
           </h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
             Persistent Trust Posture shows what is true now. Replay Timeline
-            preserves the operational memory of how it became true.
+            preserves the operational memory of how it became true, including
+            governed execution and the final operational outcome.
           </p>
         </div>
         <div className="mt-7 grid gap-4 md:grid-cols-2">

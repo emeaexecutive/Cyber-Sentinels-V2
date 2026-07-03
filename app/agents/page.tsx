@@ -46,11 +46,13 @@ export default function AgentsPage() {
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
             AI agents participate in operational workflows. Cyber Sentinels links
             agent identity and Authorization Lineage to Trust Posture, governed
-            execution, Replay Timeline and accountable ownership.
+            execution, workflow verification, Replay Timeline and accountable
+            ownership.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Agent Trust Posture is continuously evaluated through identity,
-            authorization, evidence and a replayable operational record.
+            authorization, operational evidence and a replayable execution
+            history that keeps outcomes auditable.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
             Cyber Sentinels does not replace human governance or operational

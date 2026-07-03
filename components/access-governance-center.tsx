@@ -31,7 +31,7 @@ export function AccessGovernanceCenter({
       <div className="mx-auto max-w-7xl">
         <section className="grid-bg rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">
-            {enterprise ? "Enterprise Identity Governance Center" : "Access Governance"}
+            {enterprise ? "Enterprise TrustOps · Identity Governance" : "Access Governance"}
           </p>
           <h1 className="mt-4 max-w-5xl text-4xl font-semibold md:text-6xl">
             Explainable authorization continuity.
@@ -43,7 +43,7 @@ export function AccessGovernanceCenter({
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
             Authorization is an evolving operational state. Grants, delegated
             actions, posture shifts and revocations remain connected to the
-            evidence and accountable authority behind them.
+            evidence, workflow outcome and accountable authority behind them.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/dashboard/governance" className="brand-primary-action brand-action-large text-sm">
