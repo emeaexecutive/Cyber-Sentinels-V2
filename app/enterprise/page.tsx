@@ -52,19 +52,12 @@ export default function EnterprisePage() {
             We verify the actor, the workflow and the evidence behind critical
             operations.
           </p>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Verify the actor, the work and the evidence behind critical
-            operational outcomes—not merely whether a point-in-time check passed.
-          </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
               View Demo
             </Link>
             <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
               Request Enterprise Access
-            </Link>
-            <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white">
-              Become a Design Partner
             </Link>
           </div>
         </section>
@@ -146,12 +139,6 @@ export default function EnterprisePage() {
             Start with one workflow, one accountable reviewer path and one
             replayable outcome that operations, compliance, security and
             executive stakeholders can evaluate together.
-          </p>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-            Over time, this foundation can support managed trust operations,
-            regulated workflow oversight and operational governance support.
-            These are directional operating models, not claims of a managed
-            service available today.
           </p>
         </section>
       </div>

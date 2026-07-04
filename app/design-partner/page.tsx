@@ -140,9 +140,6 @@ export default function DesignPartnerPage() {
             <Link href="/enterprise-access?intent=design_partner" className="brand-primary-action brand-action-large text-sm">
               Apply as a Design Partner
             </Link>
-            <Link href="/replay/demo?scenario=proxy-candidate-interview" className="brand-secondary-action brand-action-large text-sm">
-              Experience Replay
-            </Link>
           </div>
         </div>
       </section>

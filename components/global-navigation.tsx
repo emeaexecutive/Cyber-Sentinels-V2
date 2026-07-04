@@ -36,11 +36,9 @@ const platformDropdownLinks = [
 const publicPlatformDropdownLinks = [
   ["/platform", "Platform Overview"],
   ["/verification-replay", "Replay / Operational Memory"],
-  ["/trust/data-sovereignty", "Data Sovereignty"],
-  ["/agents", "AI Agent Governance"],
   ["/methodology", "Persistent Trust Posture"],
   ["/governance", "Governance Review"],
-  ["/verification-receipts", "Verification Receipt"],
+  ["/trust/data-sovereignty", "AI & Data Sovereignty"],
 ];
 
 const enterpriseDropdownLinks = [

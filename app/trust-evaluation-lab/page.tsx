@@ -10,7 +10,7 @@ import { simulationScenarios } from "@/lib/simulationScenarios";
 export const metadata: Metadata = {
   title: "Trust Evaluation Lab | Cyber Sentinels",
   description:
-    "A concept framework for evaluating human, AI-agent and enterprise workflow trust before adoption.",
+    "A bounded framework for evaluating evidence, controls and governance behavior before operational adoption.",
 };
 
 export default function TrustEvaluationLabPage() {
@@ -28,8 +28,10 @@ export default function TrustEvaluationLabPage() {
             Operational trust for intelligent systems.
           </p>
           <p className="mt-6 max-w-4xl border-l-2 border-cyan-700 pl-4 text-sm leading-7 text-zinc-300">
-            Concept, simulated and prototype evaluations ask whether a human,
-            agent, workflow or action should be trusted. Provider-backed validation is required.
+            Concept, simulated and prototype evaluations test how identity,
+            evidence, authorization and governance controls behave. They do not
+            decide whether a person, agent or workflow is inherently trustworthy.
+            Provider-backed validation is required.
           </p>
         </section>
 
@@ -57,7 +59,7 @@ export default function TrustEvaluationLabPage() {
               Evaluation areas
             </p>
             <h2 id="evaluation-areas" className="mt-3 text-3xl font-semibold">
-              Trust questions before operational adoption
+              Control questions before operational adoption
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-400">
               Each area examines evidence continuity, operational context and

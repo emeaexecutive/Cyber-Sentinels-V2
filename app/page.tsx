@@ -43,11 +43,8 @@ export default function Home() {
           <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
             Cyber Sentinels is the operational trust infrastructure layer for
             humans, AI agents and enterprise workflows. It keeps identity,
-            authority, execution, evidence and governance connected.
-          </p>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels helps enterprises understand, govern and verify
-            operational trust across humans, AI agents and workflows.
+            authority, execution, evidence and governance connected so teams can
+            verify critical work and explain the outcome.
           </p>
         </div>
 
@@ -57,9 +54,6 @@ export default function Home() {
           </Link>
           <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
             Request Enterprise Access
-          </Link>
-          <Link href="/trust-center" className="rounded-md border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400 hover:text-white">
-            Trust Center
           </Link>
         </div>
       </section>

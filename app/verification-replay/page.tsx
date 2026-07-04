@@ -10,6 +10,14 @@ const replayFlow = [
   ["07", "Outcome", "The governed result and receipt close the chronology without claiming certainty."],
 ];
 
+const buyerQuestions = [
+  ["What happened?", "A time-ordered record connects the actor, workflow events and final outcome."],
+  ["Why did trust change?", "Each posture transition retains the signal, evidence or governance rationale that caused it."],
+  ["What evidence existed?", "Provider and workflow evidence remains linked to source, time and operational context."],
+  ["Who or what approved?", "Human reviewers, agents and delegated authority remain attributable through authorization lineage."],
+  ["What outcome resulted?", "The governed decision, unresolved conditions and receipt close the record."],
+];
+
 export default function VerificationReplayPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -44,6 +52,23 @@ export default function VerificationReplayPage() {
               <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">
+            Buyer value
+          </p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            One replay answers five operational questions.
+          </h2>
+          <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+            {buyerQuestions.map(([question, answer]) => (
+              <article key={question} className="min-w-0 rounded-lg border border-zinc-800 bg-black p-4">
+                <h3 className="text-sm font-semibold text-zinc-100">{question}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{answer}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
