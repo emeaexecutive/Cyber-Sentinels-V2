@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TrustOpsOperatingStack } from "@/components/trustops-operating-stack";
 
 const trustControls = [
   ["Continuous Identity", "Human and machine identities retain verification freshness, context and accountable ownership after access begins."],
@@ -78,6 +79,21 @@ export default function EnterprisePage() {
                 <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="operational-panel mt-8 p-6">
+          <p className="operational-eyebrow">Enterprise operating model</p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            One stack from actor identity to operational sovereignty.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Each layer contributes reviewable context to governed execution;
+            Replay preserves the chronology and Persistent Trust Posture shows
+            the current state.
+          </p>
+          <div className="mt-6">
+            <TrustOpsOperatingStack compact />
           </div>
         </section>
 

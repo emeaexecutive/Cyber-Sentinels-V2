@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { buildWorkflowProviderSignals } from "@/lib/providers";
 import { createClient } from "@/lib/supabase/server";
 import { loadTrustPostureDashboard } from "@/lib/trust-posture/dashboard";
+import { TrustOpsOperatingStack } from "@/components/trustops-operating-stack";
 
 export const dynamic = "force-dynamic";
 
@@ -148,6 +149,18 @@ export default async function TrustCenterPage() {
               Open Session Integrity
             </Link>
           </nav>
+        </section>
+
+        <section className="mt-8 rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
+          <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">
+            TrustOps operating stack
+          </p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            Current posture backed by connected operational layers.
+          </h2>
+          <div className="mt-5">
+            <TrustOpsOperatingStack compact />
+          </div>
         </section>
 
         <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">

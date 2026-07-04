@@ -1,12 +1,13 @@
 import Link from "next/link";
 
 const replayFlow = [
-  ["01", "What entered", "The person, agent or workflow is recorded with its operating context."],
-  ["02", "What changed", "Identity, session, authorization and runtime posture changes are ordered in time."],
-  ["03", "Evidence available", "Provider, workflow and integrity evidence remains attached to its source."],
-  ["04", "Who or what approved", "Delegated authority and named governance actions remain attributable."],
-  ["05", "Why trust shifted", "Every posture transition stays connected to evidence and review rationale."],
-  ["06", "Final outcome", "The governed outcome and receipt close the chronology without claiming certainty."],
+  ["01", "Actor", "The human, AI agent, service account or API actor is recorded with accountable ownership."],
+  ["02", "Workflow", "The operation, purpose and runtime context remain attached to the chronology."],
+  ["03", "Evidence", "Provider, workflow and integrity evidence remains connected to its source."],
+  ["04", "Authorization", "Delegated scope, grants, changes and revocations retain their lineage."],
+  ["05", "Governance", "Named review, intervention and approval actions remain attributable."],
+  ["06", "Trust change", "Every posture transition stays connected to evidence and review rationale."],
+  ["07", "Outcome", "The governed result and receipt close the chronology without claiming certainty."],
 ];
 
 export default function VerificationReplayPage() {
@@ -35,7 +36,7 @@ export default function VerificationReplayPage() {
           </p>
         </section>
 
-        <section className="mt-8 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 md:grid-cols-2 lg:grid-cols-3">
+        <section className="mt-8 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 md:grid-cols-2 xl:grid-cols-4">
           {replayFlow.map(([step, title, copy]) => (
             <article key={title} className="min-w-0 bg-black p-5">
               <p className="font-mono text-xs text-cyan-300">{step}</p>

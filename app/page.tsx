@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TrustOpsOperatingStack } from "@/components/trustops-operating-stack";
 
 const proofPath = [
   "Person, agent or workflow enters",
@@ -113,6 +114,22 @@ export default function Home() {
       </section>
 
       <section className="border-t border-zinc-800 bg-zinc-950/60">
+        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8">
+          <p className="operational-eyebrow">TrustOps operating stack</p>
+          <h2 className="mt-3 max-w-3xl text-3xl font-semibold leading-tight text-white">
+            Eight layers. One governed operational record.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Identity, runtime context, authority, evidence and governance remain
+            connected through Replay and continuously reflected in trust posture.
+          </p>
+          <div className="mt-7">
+            <TrustOpsOperatingStack compact />
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-zinc-800">
         <div className="mx-auto max-w-6xl px-6 py-14 md:px-8">
           <p className="operational-eyebrow">Operational domains</p>
           <h2 className="mt-3 max-w-3xl text-3xl font-semibold leading-tight text-white">

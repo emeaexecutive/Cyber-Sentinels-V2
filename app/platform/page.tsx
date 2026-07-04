@@ -1,14 +1,4 @@
-const layers = [
-  ["Replayable Operational Memory", "The foundational chronology of what entered, what changed, which authority acted, why posture shifted and how the workflow concluded."],
-  ["Persistent Trust Posture", "A current, explainable state across identity, evidence, authorization and governance history."],
-  ["Continuous Identity", "Verification freshness and context remain visible after initial access is granted."],
-  ["AI Agent Trust", "Registered agents carry declared purpose, permission scope, policy state and attributable activity."],
-  ["Authorization Lineage", "Enterprise grants, changes and revocations retain their authority, rationale and chronology."],
-  ["Governance Continuity", "Named human review and escalation remain attached to sensitive workflow transitions."],
-  ["Governed Execution", "High-impact human or agent actions advance within visible policy and evidence boundaries."],
-  ["Workflow Verification", "Actor, execution, evidence and outcome are evaluated as one governed operational record."],
-  ["Enterprise AI Sovereignty", "Data classification, provider policy and protected operational memory keep AI interaction under enterprise control."],
-];
+import { TrustOpsOperatingStack } from "@/components/trustops-operating-stack";
 
 export default function PlatformPage() {
   return (
@@ -42,13 +32,12 @@ export default function PlatformPage() {
           </p>
         </section>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {layers.map(([title, body]) => (
-            <article key={title} className="operational-card p-5">
-              <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-300">{body}</p>
-            </article>
-          ))}
+        <section className="mt-8">
+          <p className="operational-eyebrow">Eight connected layers</p>
+          <h2 className="mt-3 text-2xl font-semibold">The TrustOps operating stack.</h2>
+          <div className="mt-6">
+            <TrustOpsOperatingStack />
+          </div>
         </section>
       </div>
     </main>

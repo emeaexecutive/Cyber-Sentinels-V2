@@ -4,7 +4,7 @@ const principles = [
   ["Evidence before outcome", "Trust Posture is supported by inspectable evidence, not a hidden verdict."],
   ["Human governance", "Sensitive workflow changes remain reviewable, attributable and reversible where appropriate."],
   ["Replayable chronology", "Evidence, policy triggers, reviewer actions and authorization changes remain connected over time."],
-  ["Provider transparency", "Live, simulated, unavailable and disabled provider states are kept distinct."],
+  ["Provider transparency", "Live, Simulated, Awaiting Credentials and Disabled states remain explicit."],
 ];
 
 export default function TrustPage() {
@@ -34,7 +34,6 @@ export default function TrustPage() {
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link href="/methodology" className="brand-primary-action">Review Methodology</Link>
-          <Link href="/security" className="brand-secondary-action">Security</Link>
           <Link href="/security" className="brand-secondary-action">Security &amp; Trust</Link>
         </div>
       </div>
