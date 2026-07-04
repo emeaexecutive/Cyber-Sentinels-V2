@@ -28,10 +28,10 @@ export default function VerificationReplayPage() {
             TrustOps system memory
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Replay is the memory layer for operational trust.
+            Replay is the memory and accountability layer for enterprise operations.
           </h1>
           <p className="mt-4 text-sm font-semibold text-cyan-100">
-            Foundational continuity for enterprise trust operations.
+            Mission-critical continuity for enterprise trust operations.
           </p>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
             Replay reconstructs identity checks, session integrity, authorization

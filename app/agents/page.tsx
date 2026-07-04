@@ -42,10 +42,10 @@ export default function AgentsPage() {
       <div className="mx-auto max-w-6xl">
         <section className="operational-panel p-6 md:p-8">
           <p className="operational-eyebrow">
-            Governed operational identity
+            Governed AI operations
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-6xl">
-            AI-Agent Runtime Trust
+            Authorization-aware AI execution.
           </h1>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-400">
             AI agents participate in operational workflows. Cyber Sentinels links
@@ -85,10 +85,10 @@ export default function AgentsPage() {
               Governed AI workflow layer
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-400">
-              This is an operational trust layer, not a speculative agent-control
-              system. It aligns organization-owned agents, activity records,
-              Authorization Lineage, governed execution and human accountability
-              without claiming runtime control it does not provide.
+              Organization-owned agents, activity records, Authorization
+              Lineage, governed execution and human accountability remain
+              connected. Cyber Sentinels makes runtime trust reviewable without
+              claiming control that an underlying workflow system does not provide.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {accountabilityLinks.map((item) => (

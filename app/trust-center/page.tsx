@@ -112,7 +112,7 @@ export default async function TrustCenterPage() {
     <main className="min-h-screen bg-[#04070c] px-5 py-8 text-white md:px-8">
       <div className="mx-auto max-w-7xl">
         <section className="rounded-xl border border-zinc-800 bg-zinc-950 p-6 md:p-8">
-          <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">TrustOps operating system</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">Governed enterprise intelligence</p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-6">
             <div>
               <h1 className="max-w-3xl text-4xl font-semibold leading-tight md:text-5xl">
@@ -129,8 +129,8 @@ export default async function TrustCenterPage() {
                 AI agents, service accounts and API actors.
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-                Operational trust infrastructure for humans, AI agents and
-                enterprise workflows.
+                Cyber Sentinels governs operational trust across humans, AI
+                agents and enterprise workflows.
               </p>
             </div>
             <State value={snapshot.badge} />

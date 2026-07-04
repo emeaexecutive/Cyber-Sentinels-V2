@@ -38,7 +38,7 @@ export default function EnterprisePage() {
       <div className="mx-auto max-w-5xl">
         <section className="operational-panel p-6 md:p-8">
           <p className="operational-eyebrow">
-            Enterprise TrustOps operating system
+            Governed enterprise intelligence
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
             Govern trust across human and machine work.
@@ -51,6 +51,10 @@ export default function EnterprisePage() {
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-200">
             Cyber Sentinels is the operational trust operating system for
             intelligent enterprises.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            It governs operational trust across humans, AI agents and enterprise
+            workflows without replacing accountable decision-makers.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">

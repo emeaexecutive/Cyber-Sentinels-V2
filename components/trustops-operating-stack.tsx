@@ -2,9 +2,9 @@ export const trustOpsOperatingLayers = [
   ["Actor Identity", "Verify the human, AI agent, service account or API actor entering the workflow."],
   ["Session Integrity", "Keep runtime, channel and continuity signals visible without treating one signal as certainty."],
   ["Authorization Lineage", "Retain delegated scope, grants, changes and revocations with accountable authority."],
-  ["Evidence Chain", "Connect provider and workflow evidence to its source, time and operational context."],
+  ["Evidence Chain", "Connect provider and workflow evidence to its source, time, decision and operational context."],
   ["Governance Review", "Route material changes to named reviewers with rationale and recorded action."],
-  ["Replay Timeline", "Reconstruct actor, workflow, evidence, authorization, governance, trust change and outcome."],
+  ["Replay Timeline", "Reconstruct actor, workflow, evidence, authorization changes, governance, trust-state evolution and outcome."],
   ["Persistent Trust Posture", "Show how trust evolves, escalates, decays, recovers and re-verifies over time."],
   ["Enterprise AI Sovereignty", "Keep operational data, provider use, workflow memory and IP under enterprise policy."],
 ] as const;

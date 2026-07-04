@@ -32,7 +32,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 pb-14 pt-12 md:px-8 md:pb-20 md:pt-20">
         <div className="max-w-4xl">
           <p className="operational-eyebrow">
-            TrustOps operating system
+            Governed enterprise intelligence
           </p>
           <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
             The operational trust operating system for intelligent enterprises.
@@ -44,6 +44,10 @@ export default function Home() {
             Cyber Sentinels connects humans, AI agents and enterprise workflows
             through replayable memory, persistent posture, governed execution
             and enterprise-controlled evidence.
+          </p>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-300">
+            Cyber Sentinels governs operational trust across humans, AI agents
+            and enterprise workflows.
           </p>
         </div>
 

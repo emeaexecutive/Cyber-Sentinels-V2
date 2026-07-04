@@ -13,7 +13,7 @@ export default function PlatformPage() {
       <div className="mx-auto max-w-5xl">
         <section className="operational-panel p-6 md:p-8">
           <p className="operational-eyebrow">
-            TrustOps operating system
+            Governed enterprise intelligence
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
             The operational trust operating system for intelligent enterprises.
@@ -22,6 +22,10 @@ export default function PlatformPage() {
             Cyber Sentinels connects humans, AI agents and enterprise workflows
             through replayable operational memory, persistent posture, governed
             execution and enterprise AI sovereignty.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
+            Cyber Sentinels governs operational trust across humans, AI agents
+            and enterprise workflows.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
             Trust changes over time. Persistent Trust Posture explains the
@@ -48,6 +52,11 @@ export default function PlatformPage() {
               </article>
             ))}
           </div>
+          <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-500">
+            Governed enterprise intelligence means reviewable operational
+            context—not automated judgment. Evidence, authority, trust changes
+            and outcomes remain available to accountable decision-makers.
+          </p>
         </section>
 
         <section className="mt-8">
