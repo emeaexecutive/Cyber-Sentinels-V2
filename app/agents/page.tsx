@@ -8,20 +8,12 @@ const registryConcepts = [
     "Agent identity should be connected to the organization responsible for its deployment.",
   ],
   [
-    "Continuous Verification",
-    "Agent records show whether ownership, purpose and operating scope remain current as context changes.",
-  ],
-  [
-    "Operational provenance",
-    "Important actions should be traceable to signed activity, evidence and review context.",
-  ],
-  [
-    "Signed activity visibility",
-    "Teams should be able to see what an agent claimed to do, when it happened and which workflow it belonged to.",
-  ],
-  [
     "Governed execution",
     "Agent activity should carry identity, authorization, evidence and review context before sensitive actions are trusted.",
+  ],
+  [
+    "Replayable execution",
+    "Actions, evidence, authorization changes and reviewer intervention remain one operational chronology.",
   ],
   [
     "Operational accountability",
@@ -61,26 +53,11 @@ export default function AgentsPage() {
             execution, workflow verification, Replay Timeline and accountable
             ownership.
           </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Agent Trust Posture is continuously evaluated through identity,
-            authorization, operational evidence and a replayable execution
-            history that keeps outcomes auditable.
-          </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            AI agents are governed operational entities: authorization-aware,
-            accountable to named owners and reviewable through runtime posture
-            and Replayable Operational Memory.
-          </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Each runtime action should remain connected to declared purpose,
-            active authority, operational evidence, governance state and final
-            outcome.
-          </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
-            Cyber Sentinels does not replace human governance or operational
-            accountability. Agent identity should strengthen review,
-            provenance and ownership clarity while keeping humans and
-            organizations responsible for outcomes.
+            Each action remains connected to declared purpose, active authority,
+            evidence, governance state and final outcome. Named people and
+            organizations remain accountable; AI agents do not approve work
+            outside declared authority.
           </p>
         </section>
 
@@ -89,7 +66,7 @@ export default function AgentsPage() {
           <h2 className="mt-3 max-w-3xl text-2xl font-semibold">
             See risk, authority and governance as execution unfolds.
           </h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             {runtimeControls.map(([title, copy]) => (
               <article key={title} className="operational-card p-5">
                 <h3 className="font-semibold text-zinc-100">{title}</h3>

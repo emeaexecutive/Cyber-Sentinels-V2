@@ -22,6 +22,11 @@ export default function GovernancePage() {
             Named reviewers connect evidence, escalation rationale and trust-state transitions
             before a sensitive workflow advances.
           </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            Every governance action enters Replay Timeline with the actor,
+            workflow, authorization context, evidence, rationale and resulting
+            operational outcome.
+          </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
               View Demo
@@ -42,7 +47,7 @@ export default function GovernancePage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-2xl font-semibold">Public overview, protected operations</h2>
+          <h2 className="text-2xl font-semibold">One governance model, protected operations</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
             This page explains the governance model without exposing customer data. Operational queues, reviewer assignments and evidence records remain inside authenticated dashboard workflows.
           </p>

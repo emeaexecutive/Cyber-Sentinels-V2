@@ -8,6 +8,14 @@ const stages = [
   ["5", "Replay", "Preserve chronology, authorization lineage, evidence references and final workflow state."],
 ];
 
+const postureLifecycle = [
+  ["Evolve", "New evidence or context produces an explainable transition."],
+  ["Decay", "Evidence freshness or authority reaches a review checkpoint."],
+  ["Escalate", "Risk or policy routes the workflow to accountable governance."],
+  ["Recover", "Review or stronger evidence resolves the active condition."],
+  ["Re-verify", "Expired or changed evidence is refreshed before reliance continues."],
+];
+
 export default function MethodologyPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -20,6 +28,10 @@ export default function MethodologyPage() {
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
             The methodology is evidence-first, provider-aware and governance-led.
             It does not establish biometric certainty or guarantee fraud detection.
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            The same posture model applies to humans, AI agents, non-human
+            identities, workflows, approvals and runtime sessions.
           </p>
         </section>
 
@@ -34,14 +46,28 @@ export default function MethodologyPage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
+            Persistent posture lifecycle
+          </p>
+          <div className="mt-5 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-5">
+            {postureLifecycle.map(([state, explanation]) => (
+              <article key={state} className="min-w-0 bg-black p-4">
+                <h2 className="font-semibold text-zinc-100">{state}</h2>
+                <p className="mt-2 text-xs leading-5 text-zinc-500">{explanation}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="text-xl font-semibold">Validation boundary</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-300">
             Accuracy, false-positive, false-negative and adversarial-robustness
             claims require representative benchmark data. Until then, provider
             outputs and rule-based indicators remain evidence for human review.
           </p>
-          <Link href="/trust" className="mt-5 inline-flex text-sm font-semibold text-cyan-200 hover:text-white">
-            Trust Center
+          <Link href="/verification-replay" className="mt-5 inline-flex text-sm font-semibold text-cyan-200 hover:text-white">
+            Review Replay Timeline
           </Link>
         </section>
       </div>
