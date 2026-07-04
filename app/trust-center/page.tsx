@@ -125,12 +125,12 @@ export default async function TrustCenterPage() {
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
                 Continuous verification shows what changed now. Replay preserves
-                the system memory of how it changed across people,
+                the durable enterprise memory of how it changed across people,
                 AI agents, service accounts and API actors.
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-                Cyber Sentinels governs operational trust across humans, AI
-                agents and enterprise workflows.
+                Cyber Sentinels preserves operational trust continuity across
+                humans, AI agents and enterprise workflows.
               </p>
             </div>
             <State value={snapshot.badge} />
@@ -291,7 +291,7 @@ export default async function TrustCenterPage() {
         <section className="mt-8 rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-xl font-semibold">Replayable operational memory</h2>
+              <h2 className="text-xl font-semibold">Replayable enterprise memory</h2>
               <p className="mt-2 text-sm text-zinc-500">Actor, workflow, authorization, governed execution and outcomes ordered from recorded evidence—not reduced to activity logs.</p>
             </div>
             <Link href="/trust-replay" className="text-sm text-cyan-200 hover:text-white">Open Replay Timeline</Link>

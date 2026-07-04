@@ -25,7 +25,7 @@ const authenticatedFocusLinks = [
 const platformDropdownLinks = [
   ["/trust-center", "Operational Trust Center"],
   ["/dashboard/trust-posture", "Trust Posture"],
-  ["/trust-replay", "Replay / Operational Memory"],
+  ["/trust-replay", "Replay / Enterprise Memory"],
   ["/agent-registry", "AI Agent Registry"],
   ["/dashboard/governance", "Governance Review"],
   ["/dashboard/access-governance", "Authorization Lineage"],
@@ -35,7 +35,7 @@ const platformDropdownLinks = [
 
 const publicPlatformDropdownLinks = [
   ["/platform", "Platform Overview"],
-  ["/verification-replay", "Replay / Operational Memory"],
+  ["/verification-replay", "Replay / Enterprise Memory"],
   ["/methodology", "Persistent Trust Posture"],
   ["/governance", "Governance Review"],
   ["/trust/data-sovereignty", "AI & Data Sovereignty"],

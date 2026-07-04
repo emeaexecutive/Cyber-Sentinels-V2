@@ -46,8 +46,8 @@ export default function Home() {
             and enterprise-controlled evidence.
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels governs operational trust across humans, AI agents
-            and enterprise workflows.
+            Cyber Sentinels preserves operational trust continuity across
+            humans, AI agents and enterprise workflows.
           </p>
         </div>
 
@@ -96,7 +96,7 @@ export default function Home() {
           </h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
             Persistent Trust Posture shows what is true now. Replay is the
-            operational memory of how it became true: chronology, authorization
+            enterprise memory of how it became true: chronology, authorization
             changes, evidence continuity, governance action and final outcome.
           </p>
         </div>

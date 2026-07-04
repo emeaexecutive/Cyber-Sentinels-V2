@@ -26,7 +26,7 @@ const regulatedWorkflows = [
   ["Healthcare operations", "Preserve identity, delegated access, clinical workflow evidence and accountable approvals across regulated operational handoffs."],
   ["Underwriting", "Keep data inputs, API actors, decision support, approvals and policy exceptions accountable over time."],
   ["Enterprise onboarding", "Continuously verify human and non-human actors as access, evidence and responsibilities change."],
-  ["Vendor onboarding", "Connect third-party identity, API access, evidence collection, exceptions and accountable approval."],
+  ["Vendor access", "Connect third-party identity, API access, evidence collection, exceptions and accountable approval."],
   ["Hiring", "Link candidate identity, session integrity, reviewer action and verification receipts without replacing human judgment."],
   ["Workflow approvals", "Retain who or what acted, under which authority, what changed and who approved the outcome."],
   ["AI-agent operations", "Evaluate runtime risk, delegated scope, evidence and intervention across agent-led work."],
@@ -46,15 +46,16 @@ export default function EnterprisePage() {
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Maintain governed trust continuity across people, AI agents,
             non-human identities and enterprise workflows—with persistent
-            posture and replayable operational memory.
+            posture and replayable enterprise memory.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-200">
             Cyber Sentinels is the operational trust operating system for
             intelligent enterprises.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            It governs operational trust across humans, AI agents and enterprise
-            workflows without replacing accountable decision-makers.
+            It preserves operational trust continuity across humans, AI agents
+            and enterprise workflows without replacing accountable
+            decision-makers.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">

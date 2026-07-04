@@ -25,10 +25,10 @@ export default function VerificationReplayPage() {
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            TrustOps system memory
+            Replayable enterprise memory
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Replay is the memory and accountability layer for enterprise operations.
+            Replay is the enterprise memory system for operational trust.
           </h1>
           <p className="mt-4 text-sm font-semibold text-cyan-100">
             Mission-critical continuity for enterprise trust operations.
@@ -73,9 +73,12 @@ export default function VerificationReplayPage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-2xl font-semibold">Essential operational memory, protected evidence</h2>
+          <h2 className="text-2xl font-semibold">Durable enterprise memory, protected evidence</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Public visitors can understand the replay model here. Case-level replay timelines, subjects and reviewer notes require sign-in because they contain operational trust data.
+            Public visitors can understand the replay model here. Case-level
+            timelines, subjects and reviewer notes require sign-in because they
+            contain operational trust data. Retention follows enterprise policy;
+            Replay is not a provider-owned activity log.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href="/replay/demo?scenario=proxy-candidate-interview" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-cyan-100">

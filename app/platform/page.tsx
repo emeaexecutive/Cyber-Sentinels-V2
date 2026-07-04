@@ -1,7 +1,7 @@
 import { TrustOpsOperatingStack } from "@/components/trustops-operating-stack";
 
 const operatingModel = [
-  ["Memory", "Replay preserves who acted, what changed, which evidence existed, what governance occurred and which outcome followed."],
+  ["Memory", "Replay preserves who acted, what changed, which evidence existed, what governance occurred and which outcome followed as durable enterprise memory."],
   ["State", "Persistent Trust Posture shows the current explainable condition across actors, workflows, approvals and runtime sessions."],
   ["Control", "Governed execution keeps authorization, evidence and accountable human intervention connected to consequential work."],
   ["Sovereignty", "Enterprise policy controls operational memory, restricted data, provider use and workflow IP."],
@@ -24,13 +24,13 @@ export default function PlatformPage() {
             execution and enterprise AI sovereignty.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels governs operational trust across humans, AI agents
-            and enterprise workflows.
+            Cyber Sentinels preserves operational trust continuity across
+            humans, AI agents and enterprise workflows.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
             Trust changes over time. Persistent Trust Posture explains the
-            current state. Replay provides operational memory for enterprise
-            trust.
+            current state. Replay provides durable enterprise memory for
+            operational trust.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             The operating system coordinates trust continuity without replacing

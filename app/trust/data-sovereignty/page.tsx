@@ -23,12 +23,12 @@ export default function DataSovereigntyPage() {
         <section className="operational-panel p-6 md:p-8">
           <p className="operational-eyebrow">Enterprise AI sovereignty</p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Enterprise control over data, workflows and operational memory.
+            Enterprise control over data, workflows and durable operational memory.
           </h1>
           <p className="mt-5 max-w-4xl text-base leading-8 text-zinc-200">
-            Cyber Sentinels governs operational trust across humans, AI agents
-            and enterprise workflows—without surrendering customer data,
-            workflow memory or operational IP.
+            Cyber Sentinels preserves operational trust continuity across
+            humans, AI agents and enterprise workflows—without surrendering
+            customer data, enterprise memory or operational IP.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Governed orchestration keeps provider use subordinate to enterprise
@@ -75,7 +75,7 @@ export default function DataSovereigntyPage() {
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           {[
-            ["Customer-owned memory", "Replayable operational memory remains part of the enterprise trust record, not provider-owned training material."],
+            ["Customer-owned memory", "Replayable enterprise memory remains part of the customer-controlled trust record, not provider-owned training material or activity history."],
             ["Provider-agnostic governance", "Provider selection can change while classification, redaction, audit and evidence-continuity policy remains stable."],
             ["Governed provider orchestration", "AI interactions remain attached to workflow classification, provider-policy decisions, authorization and governance history."],
           ].map(([title, explanation]) => (
