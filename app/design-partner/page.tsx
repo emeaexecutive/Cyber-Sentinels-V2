@@ -3,11 +3,11 @@ import { EvidenceDisclaimer } from "@/components/evidence-disclaimer";
 import { operationalPilotTemplates } from "@/lib/pilot-templates";
 
 const risks = [
-  ["Fake applicants", "Convincing profiles can enter hiring workflows before evidence, identity context and interview behavior line up."],
-  ["Proxy interviews", "The person in the interview may not match the candidate context the team believes it is reviewing."],
-  ["Stolen identities", "Identity evidence can be reused or misrepresented while the session itself still needs review."],
-  ["Assisted fraud", "Generated answers, synthetic media and automated coaching can obscure workflow risk."],
-  ["Injected sessions", "A verified entry point does not guarantee the camera, audio or screen channel remains trustworthy."],
+  ["Identity mismatch", "The person, agent or service account acting later may not match the identity context verified at entry."],
+  ["Runtime drift", "Session, channel or operating context can change after a workflow begins."],
+  ["Authority changes", "Delegated scope, approvals and revocations can become detached from the work they governed."],
+  ["Evidence gaps", "Provider results, workflow evidence and reviewer notes can arrive at different times or remain fragmented."],
+  ["Automation handoffs", "AI-assisted work still needs accountable ownership, bounded authority and a reviewable outcome."],
 ];
 
 const proof = [
@@ -42,8 +42,8 @@ export default function DesignPartnerPage() {
             governance actions and replay without relying on unsupported trust claims.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-200">
-            We verify the actor, the workflow and the evidence behind critical
-            operations.
+            Operational trust infrastructure for humans, AI agents and
+            enterprise workflows.
           </p>
           <EvidenceDisclaimer className="mt-6 max-w-3xl" />
           <div className="mt-8 flex flex-wrap gap-3">

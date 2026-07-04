@@ -27,9 +27,9 @@ const badgeDetails: Record<TrustPostureBadgeType, { label: string; className: st
 
 const lifecycleStages = [
   ["current", "Current", "Evidence and authority remain inside the active window."],
-  ["decaying", "Decaying", "Freshness reaches a checkpoint and review priority increases."],
-  ["escalated", "Escalated", "Risk or governance state interrupts ordinary reliance."],
-  ["recovered", "Recovered", "Recorded review or new evidence restores a current posture."],
+  ["decaying", "Decay", "Freshness reaches a checkpoint and review priority increases."],
+  ["escalated", "Escalate", "Risk or governance state interrupts ordinary reliance."],
+  ["recovered", "Recover", "Recorded review or new evidence restores a current posture."],
   ["reverification_due", "Re-verify", "Expired or missing evidence must be refreshed."],
 ] as const;
 
@@ -182,9 +182,9 @@ export function TrustPostureDashboard({
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
                 Verification is a point-in-time event; trust is continuous. This
-                view keeps human and agent identity, authorization changes,
-                Session Integrity, reverification and Governance Review visible
-                as operational trust evolves.
+                view keeps posture changes across humans, AI agents, non-human
+                identities, workflows, approvals and runtime sessions visible
+                as evidence, authorization and Governance Review evolve.
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
                 Cyber Sentinels creates replayable operational trust memory across enterprise workflows.
@@ -316,7 +316,7 @@ export function TrustPostureDashboard({
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="text-xl font-semibold">Trust Posture Summaries</h2>
-              <p className="mt-2 text-sm text-zinc-500">Current human, agent and workflow posture in one readable queue.</p>
+              <p className="mt-2 text-sm text-zinc-500">Current human, AI-agent, non-human identity, workflow, approval and runtime-session posture in one readable queue.</p>
             </div>
             <BadgeCheck className="h-5 w-5 text-cyan-300" />
           </div>

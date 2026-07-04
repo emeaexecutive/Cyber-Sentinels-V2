@@ -26,13 +26,15 @@ export default function DataSovereigntyPage() {
             Enterprise control over data, workflows and operational memory.
           </h1>
           <p className="mt-5 max-w-4xl text-base leading-8 text-zinc-200">
-            Cyber Sentinels helps enterprises use AI without surrendering their
-            data, workflows, identity signals or operational IP.
+            Operational trust infrastructure for humans, AI agents and
+            enterprise workflows—without surrendering customer data, workflow
+            memory or operational IP.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Governed orchestration keeps provider use subordinate to enterprise
-            classification, redaction, retention and audit policy. Cyber
-            Sentinels is not positioned around dependency on one frontier model.
+            classification, redaction, retention and audit policy. Provider
+            choice remains replaceable while enterprise policy and evidence
+            continuity remain stable.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/enterprise-access" className="brand-primary-action brand-action-large text-sm">
@@ -75,7 +77,7 @@ export default function DataSovereigntyPage() {
           {[
             ["Customer-owned memory", "Replayable operational memory remains part of the enterprise trust record, not provider-owned training material."],
             ["Provider-agnostic governance", "Provider selection can change while classification, redaction, audit and evidence-continuity policy remains stable."],
-            ["Evidence-backed accountability", "AI interactions remain attached to workflow classification, provider-policy decisions and governance history."],
+            ["Governed provider orchestration", "AI interactions remain attached to workflow classification, provider-policy decisions, authorization and governance history."],
           ].map(([title, explanation]) => (
             <article key={title} className="operational-card p-5">
               <h2 className="text-lg font-semibold text-zinc-100">{title}</h2>

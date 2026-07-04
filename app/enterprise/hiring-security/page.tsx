@@ -83,6 +83,10 @@ export default function HiringSecurityPage() {
             Hiring Security is one major workflow domain within a broader platform
             for continuous identity, authorization lineage and governance continuity.
           </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-200">
+            Operational trust infrastructure for humans, AI agents and
+            enterprise workflows.
+          </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/demo/hiring-attack"

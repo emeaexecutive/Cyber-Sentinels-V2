@@ -49,8 +49,8 @@ export default function EnterprisePage() {
             posture and replayable operational memory.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-200">
-            We verify the actor, the workflow and the evidence behind critical
-            operations.
+            Operational trust infrastructure for humans, AI agents and
+            enterprise workflows.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">

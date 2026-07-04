@@ -129,24 +129,18 @@ export default async function TrustCenterPage() {
                 AI agents, service accounts and API actors.
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-                We do not give enterprises another AI tool. We verify the actor,
-                the work and the evidence behind critical workflows.
+                Operational trust infrastructure for humans, AI agents and
+                enterprise workflows.
               </p>
             </div>
             <State value={snapshot.badge} />
           </div>
           <nav className="mt-6 flex flex-wrap gap-3 text-sm">
-            <Link href="/enterprise/hiring-security" className="brand-primary-action">
-              Explore Hiring Security
-            </Link>
             <Link href="/trust-replay" className="brand-primary-action">
               Open Replay Timeline
             </Link>
             <Link href="/dashboard/governance" className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:text-white">
               Open Governance Review
-            </Link>
-            <Link href="/dashboard/session-integrity" className="rounded-lg border border-zinc-700 px-4 py-2 text-zinc-300 hover:text-white">
-              Open Session Integrity
             </Link>
           </nav>
         </section>

@@ -25,7 +25,8 @@ export default function TrustEvaluationLabPage() {
             Trust Evaluation Lab
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-zinc-300">
-            Operational trust for intelligent systems.
+            Operational trust infrastructure for humans, AI agents and
+            enterprise workflows.
           </p>
           <p className="mt-6 max-w-4xl border-l-2 border-cyan-700 pl-4 text-sm leading-7 text-zinc-300">
             Concept, simulated and prototype evaluations test how identity,

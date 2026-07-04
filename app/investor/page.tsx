@@ -55,11 +55,8 @@ export default function InvestorPage() {
             <Link href="/demo/hiring-attack" className="brand-primary-action brand-action-large text-sm">
               View Demo
             </Link>
-            <Link href="/enterprise-access?intent=design_partner" className="brand-secondary-action brand-action-large text-sm">
-              Become a Design Partner
-            </Link>
             <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
-              Book Intro Call
+              Discuss the Platform
             </Link>
           </div>
           <EvidenceDisclaimer className="mt-7 max-w-3xl" />
