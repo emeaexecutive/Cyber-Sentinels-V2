@@ -198,7 +198,7 @@ export function TrustJourneyVisualization({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="operational-eyebrow print:text-zinc-600">
-            Replay continuity
+            System memory
           </p>
           <h2 className="mt-2 text-xl font-semibold">{title}</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400 print:text-zinc-700">
@@ -210,7 +210,7 @@ export function TrustJourneyVisualization({
 
       <div className="replay-signature mt-6 rounded-lg border border-cyan-950 p-4 print:border-zinc-300 print:bg-white">
         <p className="operational-eyebrow print:text-zinc-600">
-          Operational memory
+          Replayable operational memory
         </p>
         <p className="mt-2 text-sm leading-6 text-zinc-400 print:text-zinc-700">
           Identity, evidence, authorization, governance action and outcome remain

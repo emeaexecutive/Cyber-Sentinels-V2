@@ -11,10 +11,11 @@ const replayFlow = [
 ];
 
 const buyerQuestions = [
-  ["What happened?", "A time-ordered record connects the actor, workflow events and final outcome."],
+  ["Who acted?", "Human, agent and service-account activity remains connected to accountable ownership and authority."],
+  ["What changed?", "A time-ordered record shows the workflow event and resulting trust-state transition."],
   ["Why did trust change?", "Each posture transition retains the signal, evidence or governance rationale that caused it."],
   ["What evidence existed?", "Provider and workflow evidence remains linked to source, time and operational context."],
-  ["Who or what approved?", "Human reviewers, agents and delegated authority remain attributable through authorization lineage."],
+  ["What governance occurred?", "Reviewers, approvals and interventions remain attributable through authorization lineage."],
   ["What outcome resulted?", "The governed decision, unresolved conditions and receipt close the record."],
 ];
 
@@ -24,13 +25,13 @@ export default function VerificationReplayPage() {
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            Replayable Operational Memory
+            TrustOps system memory
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            The operational memory of every critical workflow.
+            Replay is the memory layer for operational trust.
           </h1>
           <p className="mt-4 text-sm font-semibold text-cyan-100">
-            Mission-critical continuity for enterprise trust operations.
+            Foundational continuity for enterprise trust operations.
           </p>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
             Replay reconstructs identity checks, session integrity, authorization
@@ -59,9 +60,9 @@ export default function VerificationReplayPage() {
             Buyer value
           </p>
           <h2 className="mt-3 text-2xl font-semibold">
-            One replay answers five operational questions.
+            One replay answers six operational questions.
           </h2>
-          <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {buyerQuestions.map(([question, answer]) => (
               <article key={question} className="min-w-0 rounded-lg border border-zinc-800 bg-black p-4">
                 <h3 className="text-sm font-semibold text-zinc-100">{question}</h3>

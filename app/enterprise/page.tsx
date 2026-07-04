@@ -38,10 +38,10 @@ export default function EnterprisePage() {
       <div className="mx-auto max-w-5xl">
         <section className="operational-panel p-6 md:p-8">
           <p className="operational-eyebrow">
-            Enterprise Trust Operations
+            Enterprise TrustOps operating system
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Operational trust for intelligent systems.
+            Govern trust across human and machine work.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Maintain governed trust continuity across people, AI agents,
@@ -49,8 +49,8 @@ export default function EnterprisePage() {
             posture and replayable operational memory.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-200">
-            Operational trust infrastructure for humans, AI agents and
-            enterprise workflows.
+            Cyber Sentinels is the operational trust operating system for
+            intelligent enterprises.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
@@ -63,8 +63,8 @@ export default function EnterprisePage() {
         </section>
 
         <section className="operational-panel mt-8 p-6">
-          <p className="operational-eyebrow">Enterprise trust infrastructure</p>
-          <h2 className="mt-3 text-2xl font-semibold">What the platform makes reviewable.</h2>
+          <p className="operational-eyebrow">TrustOps operating system</p>
+          <h2 className="mt-3 text-2xl font-semibold">What the operating system makes reviewable.</h2>
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {trustControls.map(([title, copy]) => (
               <div key={title} className="operational-card p-4">

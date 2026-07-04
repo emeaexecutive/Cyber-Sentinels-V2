@@ -11,9 +11,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.cybersentinels.com"),
-  title: "Cyber Sentinels | Operational Trust Infrastructure",
+  title: "Cyber Sentinels | TrustOps Operating System",
   description:
-    "Persistent Trust Posture, Replay Timeline and governed evidence continuity for humans, AI agents and enterprise workflows.",
+    "The operational trust operating system for intelligent enterprises, with replayable memory, governed execution and persistent trust posture.",
   alternates: {
     canonical: "/",
   },

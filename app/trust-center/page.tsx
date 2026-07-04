@@ -112,11 +112,11 @@ export default async function TrustCenterPage() {
     <main className="min-h-screen bg-[#04070c] px-5 py-8 text-white md:px-8">
       <div className="mx-auto max-w-7xl">
         <section className="rounded-xl border border-zinc-800 bg-zinc-950 p-6 md:p-8">
-          <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">Trust Operations Center</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">TrustOps operating system</p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-6">
             <div>
               <h1 className="max-w-3xl text-4xl font-semibold leading-tight md:text-5xl">
-                Trust changes. Cyber Sentinels shows why.
+                Operate trust as workflows change.
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
                 TrustOps connects human and non-human identity, runtime posture,
@@ -125,7 +125,7 @@ export default async function TrustCenterPage() {
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
                 Continuous verification shows what changed now. Replay preserves
-                the governed operational memory of how it changed across people,
+                the system memory of how it changed across people,
                 AI agents, service accounts and API actors.
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
