@@ -2,28 +2,28 @@ import Link from "next/link";
 
 const principles = [
   [
-    "Evidence-first verification",
-    "Trust workflows should be grounded in reviewable evidence rather than unsupported assertions or opaque signals.",
+    "Operational continuity",
+    "Identity, runtime context, authority, evidence, governance and outcomes should remain connected as work changes over time.",
   ],
   [
-    "Human governance",
-    "Sensitive trust outcomes should preserve escalation, review and accountable decision-making.",
+    "Evidence-first execution",
+    "Consequential workflows should advance through reviewable evidence rather than unsupported assertions or opaque signals.",
   ],
   [
-    "Explainability",
-    "Users and operators should be able to understand what is complete, what is missing and why a review state changed.",
+    "Authorization continuity",
+    "Grants, delegated scope, changes and revocations should retain accountable lineage throughout the workflow.",
   ],
   [
-    "Auditability",
-    "Important actions should leave a traceable record across evidence, review, decisions, trust events and operational history.",
+    "Governed intervention",
+    "Material trust-state changes should preserve named ownership, escalation, review rationale and accountable decisions.",
   ],
   [
-    "Privacy-aware trust workflows",
-    "Evidence handling and verification workflows should minimize unnecessary exposure while preserving accountability.",
+    "Replayable accountability",
+    "Actors, evidence, authorization changes, governance actions and operational outcomes should remain reconstructable after runtime ends.",
   ],
   [
-    "Operational accountability",
-    "Trust infrastructure should help teams understand ownership, responsibility and review paths as systems become more autonomous.",
+    "Enterprise control",
+    "Operational memory, restricted data and provider use should remain governed by enterprise policy without unnecessary exposure.",
   ],
 ];
 
@@ -36,12 +36,12 @@ export default function OperationalPrinciplesPage() {
             Operational Principles
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Built around accountable trust workflows.
+            Trust continuity is an operating discipline.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels is designed to feel early but intentional:
-            evidence-backed, governed, explainable and careful about operational
-            trust.
+            Cyber Sentinels keeps consequential human, AI-agent and workflow
+            activity evidence-backed, governed, explainable and replayable from
+            entry through operational outcome.
           </p>
         </section>
 
@@ -62,9 +62,10 @@ export default function OperationalPrinciplesPage() {
             Human oversight remains central.
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels does not rely solely on autonomous AI decisions for
-            high-risk trust outcomes. Escalation, review, accountability and
-            operational governance remain part of the platform posture.
+            Cyber Sentinels does not delegate high-risk trust outcomes to an
+            opaque automated verdict. Escalation, review, evidence verification
+            and accountable decision authority remain part of the operating
+            model.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link

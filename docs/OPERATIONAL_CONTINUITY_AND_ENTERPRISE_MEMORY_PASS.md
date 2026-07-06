@@ -71,8 +71,10 @@ Provider-specific contractual, regional and retention guarantees require verific
 ## Remaining execution priorities
 
 - Test the operational-continuity statement in buyer and design-partner walkthroughs.
-- Validate whether “enterprise memory” is clearer than “operational memory” for target buyers.
+- Validate whether "enterprise memory" is clearer than "operational memory" for target buyers.
 - Replace controlled examples only with customer-approved operational evidence.
 - Continue simplifying protected dashboards around high-value operator decisions.
 - Verify deployed retention and provider controls before environment-specific claims.
+- Test long actor, workflow, authorization and evidence references across mobile replay and posture views.
+- Keep architecture, validation diagnostics and provider internals behind protected operator access.
 - Align packaging and pricing with durable enterprise memory and governed execution.

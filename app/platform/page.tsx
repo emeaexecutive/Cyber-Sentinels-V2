@@ -7,6 +7,14 @@ const operatingModel = [
   ["Sovereignty", "Enterprise policy controls operational memory, restricted data, provider use and workflow IP."],
 ];
 
+const executionContract = [
+  ["Enter", "Record the human, AI agent or non-human identity, workflow purpose and accountable owner."],
+  ["Authorize", "Confirm active scope and preserve the lineage behind grants, changes and revocations."],
+  ["Execute", "Keep runtime context and evidence attached as the workflow advances."],
+  ["Govern", "Escalate material trust changes to named reviewers with rationale and recorded action."],
+  ["Remember", "Close the workflow with a replayable outcome that remains part of enterprise memory."],
+];
+
 export default function PlatformPage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
@@ -20,7 +28,7 @@ export default function PlatformPage() {
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels connects humans, AI agents and enterprise workflows
-            through replayable operational memory, persistent posture, governed
+            through replayable enterprise memory, persistent posture, governed
             execution and enterprise AI sovereignty.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
@@ -28,15 +36,30 @@ export default function PlatformPage() {
             humans, AI agents and enterprise workflows.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-            Trust changes over time. Persistent Trust Posture explains the
-            current state. Replay provides durable enterprise memory for
-            operational trust.
+            Persistent Trust Posture explains what is true now. Replay preserves
+            the durable enterprise record of how it became true.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             The operating system coordinates trust continuity without replacing
             accountable human authority, workflow systems of record or existing
             security controls.
           </p>
+        </section>
+
+        <section className="mt-8 operational-panel p-6">
+          <p className="operational-eyebrow">Governed execution contract</p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            Continuity from actor entry to durable outcome.
+          </h2>
+          <div className="mt-6 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-5">
+            {executionContract.map(([title, copy], index) => (
+              <article key={title} className="min-w-0 bg-black p-4">
+                <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
+                <h3 className="mt-2 font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8">

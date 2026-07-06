@@ -19,6 +19,13 @@ const buyerQuestions = [
   ["What outcome resulted?", "The governed decision, unresolved conditions and receipt close the record."],
 ];
 
+const memoryProperties = [
+  ["Durable", "The chronology remains reviewable after a runtime session or provider interaction ends."],
+  ["Enterprise-owned", "Retention, access and permitted use remain governed by customer policy."],
+  ["Authorization-aware", "Every material action retains the authority and accountable ownership under which it occurred."],
+  ["Outcome-complete", "Resolved conditions, unresolved flags and the governed result remain attached to the record."],
+];
+
 export default function VerificationReplayPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -53,6 +60,23 @@ export default function VerificationReplayPage() {
               <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">
+            Enterprise memory properties
+          </p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            Built to preserve continuity, not just activity.
+          </h2>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {memoryProperties.map(([title, copy]) => (
+              <article key={title} className="min-w-0 rounded-lg border border-zinc-800 bg-black p-4">
+                <h3 className="font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
