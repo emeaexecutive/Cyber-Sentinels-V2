@@ -1,11 +1,13 @@
 import Link from "next/link";
 
 const replayPath = [
-  "Actor enters the workflow",
-  "Identity and authority are checked",
-  "Evidence and trust state evolve",
-  "Governance reviews exceptions",
-  "Replay explains the outcome",
+  ["Actor", "Human, agent or service account"],
+  ["Authority", "Purpose, scope and accountable owner"],
+  ["Evidence", "Source-linked operational context"],
+  ["Trust change", "Posture evolution over time"],
+  ["Governance", "Review, intervention and rationale"],
+  ["Outcome", "Governed result and unresolved conditions"],
+  ["Memory", "Replay retained under enterprise policy"],
 ];
 
 const buyerOutcomes = [
@@ -45,11 +47,11 @@ export default function Home() {
         <div className="max-w-5xl">
           <p className="operational-eyebrow">Cyber Sentinels</p>
           <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            Trust infrastructure for intelligent enterprises.
+            Operational trust infrastructure for intelligent systems.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 sm:text-xl sm:leading-9">
-            Understand identity, authenticity and trust across humans, AI
-            agents and enterprise workflows.
+            Govern trust across humans, AI agents, non-human identities and
+            enterprise workflows.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
             Cyber Sentinels connects verification, authorization, evidence and
@@ -109,15 +111,14 @@ export default function Home() {
             workflow history into reviewable operational memory.
           </p>
         </div>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {replayPath.map((step, index) => (
-            <article key={step} className="border-t border-zinc-700 pt-4">
+        <div className="mt-8 grid overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-7">
+          {replayPath.map(([title, copy], index) => (
+            <article key={title} className="min-w-0 bg-black p-4">
               <p className="text-xs font-semibold text-cyan-200">
                 0{index + 1}
               </p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-zinc-100">
-                {step}
-              </p>
+              <h3 className="mt-2 text-sm font-semibold leading-6 text-zinc-100">{title}</h3>
+              <p className="mt-2 text-xs leading-5 text-zinc-500">{copy}</p>
             </article>
           ))}
         </div>

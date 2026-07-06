@@ -52,14 +52,25 @@ export default function VerificationReplayPage() {
           </p>
         </section>
 
-        <section className="mt-8 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 md:grid-cols-2 xl:grid-cols-4">
-          {replayFlow.map(([step, title, copy]) => (
-            <article key={title} className="min-w-0 bg-black p-5">
-              <p className="font-mono text-xs text-cyan-300">{step}</p>
-              <h2 className="mt-3 text-lg font-semibold text-zinc-100">{title}</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
-            </article>
-          ))}
+        <section className="mt-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">
+            Canonical chronology
+          </p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            From accountable actor to retained outcome.
+          </h2>
+          <div className="mt-6 grid overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-7">
+            {replayFlow.map(([step, title, copy], index) => (
+              <article
+                key={title}
+                className={`min-w-0 bg-black p-5 ${index === replayFlow.length - 1 ? "ring-1 ring-inset ring-cyan-900" : ""}`}
+              >
+                <p className="font-mono text-xs text-cyan-300">{step}</p>
+                <h2 className="mt-3 text-lg font-semibold text-zinc-100">{title}</h2>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8">

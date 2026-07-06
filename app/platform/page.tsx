@@ -32,10 +32,6 @@ export default function PlatformPage() {
             execution and enterprise AI sovereignty.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels preserves operational trust continuity across
-            humans, AI agents and enterprise workflows.
-          </p>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
             Persistent Trust Posture explains what is true now. Replay preserves
             the durable enterprise record of how it became true.
           </p>

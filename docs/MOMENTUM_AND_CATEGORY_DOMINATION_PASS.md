@@ -96,6 +96,10 @@ The high-conviction narrative is an infrastructure company with:
 
 The moat is continuity and operating embeddedness, not route count or unsupported AI certainty.
 
+Replay is the primary proof surface for this thesis: it makes chronology,
+authorization lineage, evidence continuity, governance action and outcome
+legible in one enterprise-controlled record.
+
 ## Remaining execution priorities
 
 - Validate sovereignty controls and provider contracts with enterprise buyers.

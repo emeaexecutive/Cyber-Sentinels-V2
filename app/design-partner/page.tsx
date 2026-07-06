@@ -19,9 +19,9 @@ const proof = [
 ];
 
 const pilotObjectives = [
-  "Test one real Hiring Security and Session Integrity workflow.",
+  "Test one consequential workflow with a named owner and governed outcome.",
   "Validate which provider evidence is useful, missing or requires escalation.",
-  "Review the replay and verification receipt with security, talent and compliance stakeholders.",
+  "Review the replay and verification receipt with security, operations and governance stakeholders.",
   "Provide operational feedback on ownership, policy language and evidence requirements.",
 ];
 
