@@ -1,90 +1,105 @@
 # Enterprise Trust Layer Consolidation
 
+## Purpose
+
+Cyber Sentinels is an enterprise TrustOps layer for maintaining operational trust continuity across humans, AI agents, non-human identities, approvals, runtime sessions and consequential workflows.
+
+It does not replace systems of record, accountable decision-makers, identity providers or existing security controls. It connects their evidence, authority and interventions into a governed, replayable operational record.
+
 ## TrustOps operating model
 
-Cyber Sentinels is one operational trust layer for humans, AI agents, non-human identities and enterprise workflows.
+The operating model is:
 
-The operating model connects:
+- **Replay is memory.** It preserves how a workflow reached an outcome.
+- **Posture is state.** It explains what can currently be relied on and why.
+- **Governance is control.** It keeps material changes attributable to named owners and reviewers.
+- **Sovereignty is enterprise ownership.** It keeps operational memory, restricted data, provider policy and workflow IP under customer control.
 
-1. Actor Identity
-2. Session Integrity
-3. Authorization Lineage
-4. Evidence Chain
-5. Governance Review
-6. Replay Timeline
-7. Persistent Trust Posture
-8. Enterprise AI Sovereignty
-
-These are connected operating layers, not separate products. Together they preserve who or what acted, inside which workflow, under what authority, using which evidence, with which governance and to what outcome.
+The shared operating stack connects Actor Identity, Session Integrity, Authorization Lineage, Evidence Chain, Governance Review, Replay Timeline, Persistent Trust Posture and Enterprise AI Sovereignty.
 
 ## Replay philosophy
 
-Replay is the central operational memory system. It is not merely an activity log or visual timeline.
+Replay is the central operational memory system, not an activity-log viewer. Every reconstruction should preserve seven fields in one chronology:
 
-Replay reconstructs:
+1. actor;
+2. workflow;
+3. evidence;
+4. authorization;
+5. governance;
+6. trust-state transition; and
+7. operational outcome.
 
-- the actor and accountable owner;
-- workflow purpose and runtime context;
-- evidence available at each point;
-- authorization grants, changes and revocations;
-- governance escalation, reviewer and rationale;
-- trust-state transitions;
-- the final operational outcome and receipt.
-
-Replay makes posture explainable, governance attributable and workflow outcomes defensible.
+Recorded chronology remains primary. Generated summaries are secondary and must not overwrite source evidence. Public surfaces explain the model; case-level evidence and operational replay remain authenticated.
 
 ## Operational memory
 
-Operational memory preserves continuity after a session or workflow ends. It links records that are otherwise fragmented across identity, providers, workflow tools and review queues.
+Operational memory connects identity, authorization, runtime evidence, governance intervention and outcome after execution ends. This continuity allows security, risk, compliance and operations teams to review the same evidence-backed history without creating a parallel system of record.
 
-The enterprise owns this memory. Provider choice can change without breaking classification policy, authorization history, evidence continuity or replay chronology.
+Customer-owned memory remains governed by enterprise retention, classification and access policy. Provider activity logs are not a substitute for this durable trust record.
 
 ## Governed workflow execution
 
-Governed execution means consequential human and AI-assisted work remains inside declared ownership, authority, evidence and review boundaries.
+The governed execution contract is:
 
-An AI agent is an accountable operational identity, not an independent authority. Each action should remain connected to:
+1. **Enter:** record the human, AI agent or non-human identity, workflow purpose and accountable owner.
+2. **Authorize:** confirm active scope and retain the lineage behind grants, changes and revocations.
+3. **Execute:** keep runtime context and evidence attached while work advances.
+4. **Govern:** route material trust changes to named reviewers with rationale and recorded action.
+5. **Remember:** close with a replayable outcome that remains part of enterprise memory.
 
-- organization and named owner;
-- declared purpose;
-- active delegated scope;
-- runtime and workflow evidence;
-- governance state and intervention;
-- recorded outcome.
-
-The same accountability pattern applies to human approvals and non-human identities.
+Cyber Sentinels provides reviewable context and continuity. It does not grant an AI agent undeclared authority or turn automated analysis into an autonomous approval.
 
 ## AI sovereignty
 
-Enterprise AI sovereignty keeps operational memory, restricted data, provider use and workflow IP under customer policy.
+Enterprise AI sovereignty means:
 
-Cyber Sentinels expresses this through:
+- operational memory remains customer-controlled;
+- provider selection remains replaceable;
+- provider use remains subordinate to classification, redaction, retention and audit policy;
+- restricted data is protected from unapproved egress;
+- authorization and governance remain stable when providers change; and
+- people and organizations remain accountable for AI-assisted outcomes.
 
-- customer-owned replay and trust records;
-- classification-led restricted-data controls;
-- auditable redaction, retention and provider decisions;
-- provider-agnostic orchestration;
-- bounded agent authority;
-- governance records attached to AI-assisted outcomes.
+Provider-specific contractual, regional, training and retention guarantees must be verified before sensitive processing.
 
-Provider-specific contractual, regional and retention guarantees still require verification before sensitive processing.
+## Persistent Trust Posture
 
-## Persistent trust posture
+Persistent Trust Posture applies consistently to humans, AI agents, non-human identities, workflows, approvals and runtime sessions.
 
-Persistent Trust Posture is the current explainable state across humans, AI agents, non-human identities, workflows, approvals and runtime sessions.
+Posture can:
 
-Posture can evolve as evidence and context change, decay as evidence becomes stale, escalate into governance review, recover after accountable resolution and require reverification before reliance continues.
+- **evolve** when new evidence or context arrives;
+- **decay** when evidence freshness reaches a review checkpoint;
+- **escalate** when risk, authority or policy interrupts ordinary reliance;
+- **recover** after recorded review and sufficient new evidence; and
+- **re-verify** when material workflow change requires renewed assurance.
 
-Replay and posture are complementary:
+Every transition should retain what changed, why it changed, contributing evidence, authorization continuity and governance action. Posture is explainable operational context, not surveillance or a permanent identity verdict.
 
-- posture explains what is true now;
-- replay explains how it became true.
+## Continuous operational trust by workflow
+
+- **Fintech and banking:** retain initiator identity, machine activity, delegated authority, policy checks, approvals and exceptions.
+- **Insurance and claims:** connect intake evidence, automation, adjuster review and governed outcome.
+- **Healthcare:** preserve delegated access, workflow evidence and accountable approvals across regulated handoffs.
+- **Onboarding and access:** re-evaluate humans and non-human actors as identity, role, authority and evidence change.
+- **Hiring:** connect candidate identity, session integrity, reviewer intervention, replay and receipt without replacing human judgment.
+- **AI-assisted operations:** keep provider use, agent scope, runtime evidence, intervention and outcome accountable across the operation.
+
+The vertical changes; the trust continuity model remains the same.
+
+## Surface-area discipline
+
+- Reuse the existing public TrustOps, replay, governance, sovereignty and vertical pages.
+- Keep evidence records, reviewer queues, runtime validation and administrative controls authenticated.
+- Do not expose raw architecture, credentials, internal tooling or customer evidence on public routes.
+- Extend existing routes, components and data models before considering new surface area.
+- Preserve auth, RLS, email-verification and admin-access boundaries.
 
 ## Remaining execution priorities
 
-- Validate the operating model in live enterprise buyer and design-partner walkthroughs.
-- Replace controlled demonstrations only with customer-approved evidence.
-- Keep public navigation focused on buyer decisions rather than repository route inventory.
-- Continue reducing protected-dashboard density as production workflows identify operator priorities.
-- Verify provider sovereignty claims against deployed configuration and contracts.
-- Align packaging and pricing with the consolidated TrustOps layer.
+1. Validate the seven-field replay contract against live pilot records and incomplete-source states.
+2. Measure posture freshness, escalation ownership, recovery time and re-verification coverage without reducing trust to one universal score.
+3. Confirm provider classification, regional processing, retention and restricted-egress controls for each enterprise deployment.
+4. Test mobile replay and governance workflows with long actor, workflow and evidence references.
+5. Keep public navigation focused on Platform, Enterprise, Replay, Governance, Trust Posture and AI/Data Sovereignty while operational tools remain protected.
+6. Continue terminology audits so product surfaces use the shared TrustOps model rather than local synonyms.

@@ -456,19 +456,35 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
           </form>
         </section>
 
-        <section aria-label="Replay operational snapshot" className="mt-8 grid gap-3 md:grid-cols-5">
-          {[
-            ["Trust Posture", snapshot.posture.label],
-            ["Evidence Chain", snapshot.evidence.length],
-            ["Governance Review", snapshot.decisions.length],
-            ["Authorization Lineage", snapshot.relationships.length],
-            ["Session Integrity", sessionIntegrity.length + riskEvents.length],
-          ].map(([label, value]) => (
-            <div key={label} className="operational-card p-4">
-              <p className="text-sm text-zinc-500">{label}</p>
-              <p className="mt-2 text-xl font-semibold text-zinc-100">{value}</p>
+        <section aria-label="Replay operational contract" className="mt-8">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="operational-eyebrow">Replay contract</p>
+              <h2 className="mt-2 text-xl font-semibold">
+                One chronology. Seven accountable fields.
+              </h2>
             </div>
-          ))}
+            <p className="max-w-xl text-sm leading-6 text-zinc-500">
+              Every reconstruction keeps the participant, authority, evidence,
+              intervention, trust transition and outcome in the same reviewable record.
+            </p>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["Actor", subjectType === "all" ? "All recorded actors" : subjectType],
+              ["Workflow", subjectId ?? "Current replay window"],
+              ["Evidence", `${snapshot.evidence.length} linked record(s)`],
+              ["Authorization", `${snapshot.relationships.length} lineage record(s)`],
+              ["Governance", `${snapshot.decisions.length} review decision(s)`],
+              ["Trust-state transition", snapshot.posture.label],
+              ["Operational outcome", snapshot.timelineEvents.length ? "Chronology reconstructed" : "No recorded outcome"],
+            ].map(([label, value]) => (
+              <div key={label} className="operational-card p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
+                <p className="mt-2 break-words text-base font-semibold text-zinc-100">{value}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

@@ -15,6 +15,14 @@ const executionContract = [
   ["Remember", "Close the workflow with a replayable outcome that remains part of enterprise memory."],
 ];
 
+const postureLifecycle = [
+  ["Evolve", "New evidence or context produces an attributable trust-state transition."],
+  ["Decay", "Evidence freshness checkpoints increase review priority instead of implying permanent trust."],
+  ["Escalate", "Risk, authority or policy changes interrupt ordinary reliance and route accountable review."],
+  ["Recover", "Recorded intervention and sufficient new evidence restore a current posture."],
+  ["Re-verify", "Material workflow changes reopen verification before consequential execution continues."],
+];
+
 export default function PlatformPage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
@@ -74,6 +82,26 @@ export default function PlatformPage() {
             judgment. Evidence, authority, trust changes
             and outcomes remain available to accountable decision-makers.
           </p>
+        </section>
+
+        <section className="mt-8 operational-panel p-6">
+          <p className="operational-eyebrow">Persistent Trust Posture</p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            Trust remains current only while evidence and authority remain current.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            The same lifecycle applies to humans, AI agents, non-human identities,
+            workflows, approvals and runtime sessions. Posture is explainable
+            operational context, never a permanent identity verdict.
+          </p>
+          <div className="mt-6 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-5">
+            {postureLifecycle.map(([title, copy]) => (
+              <article key={title} className="min-w-0 bg-black p-4">
+                <h3 className="font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8">

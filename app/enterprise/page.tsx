@@ -10,8 +10,8 @@ const regulatedWorkflows = [
   ["Enterprise onboarding", "Continuously verify human and non-human actors as access, evidence and responsibilities change."],
   ["Vendor access", "Connect third-party identity, API access, evidence collection, exceptions and accountable approval."],
   ["Hiring", "Link candidate identity, session integrity, reviewer action and verification receipts without replacing human judgment."],
-  ["Workflow approvals", "Retain who or what acted, under which authority, what changed and who approved the outcome."],
-  ["AI-agent operations", "Evaluate runtime risk, delegated scope, evidence and intervention across agent-led work."],
+  ["Workflow approvals", "Retain who or what acted, under which authority, what changed and who approved the outcome across high-consequence decisions."],
+  ["AI-assisted operations", "Evaluate runtime risk, delegated scope, evidence and human intervention across provider-agnostic AI-assisted work."],
 ];
 
 export default function EnterprisePage() {
