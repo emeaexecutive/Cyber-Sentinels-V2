@@ -295,6 +295,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
     ["Evidence used", `${snapshot.evidence.length} evidence record(s), ${snapshot.timelineEvents.length} timeline event(s), ${auditLogs.length} audit event(s)`],
     ["Reviewer actions", snapshot.decisions.length ? `${snapshot.decisions.length} governance decision(s) preserved` : "No reviewer action in this replay window"],
     ["Accountable actors", snapshot.canonicalMemory.accountableActors.join(", ") || "No named reviewer or actor retained in this replay window"],
+    ["Detection source", snapshot.canonicalMemory.detectionSources.join(", ") || "No detection source retained in this replay window"],
     ["Operational outcome", snapshot.canonicalMemory.operationalOutcome],
     ["Trust score changes", snapshot.timelineEvents.length ? "Timeline events preserve score movement when source records include score fields." : "No score movement recorded in this replay window"],
   ];

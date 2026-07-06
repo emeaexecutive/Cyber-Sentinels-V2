@@ -40,6 +40,9 @@ export default function DataSovereigntyPage() {
             governance and replay contract across provider changes, so operational
             accountability does not become provider-dependent.
           </p>
+          <p className="mt-4 max-w-3xl text-base font-medium leading-7 text-cyan-200">
+            The enterprise controls the trust record.
+          </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/enterprise-access" className="brand-primary-action brand-action-large text-sm">
               Discuss Enterprise Controls
