@@ -10,7 +10,8 @@ export function createProviderAdapter(config: {
   providerName: string;
   env: readonly string[];
   supportedSignals: readonly string[];
-  endpointEnv?: string;
+  implementation?: "placeholder" | "simulated" | "live";
+  enabledEnv?: string;
 }): DetectionProvider {
   const credentialsPresent = () =>
     config.env.every((name) => Boolean(String(process.env[name] ?? "").trim()));
@@ -29,7 +30,12 @@ export function createProviderAdapter(config: {
     providerName: config.providerName,
     supportedSignals: config.supportedSignals,
     credentialsPresent,
-    status: () => (credentialsPresent() ? "disabled" : "awaiting_credentials"),
+    status: () => {
+      if (config.enabledEnv && process.env[config.enabledEnv] === "false") return "disabled";
+      if (config.implementation === "simulated") return "simulated";
+      if (config.implementation === "live" && credentialsPresent()) return "live";
+      return credentialsPresent() ? "disabled" : "awaiting_credentials";
+    },
     normalizeResult,
     async runDetection(testCase) {
       if (!credentialsPresent()) return awaitingCredentialsResult(config.providerName, testCase);

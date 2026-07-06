@@ -507,7 +507,7 @@ export default async function PassportViewerPage({
                 {value(latestTrustRun?.confidence_level, "Run the algorithm to classify this passport.")}
               </p>
               <p className="mt-2 text-xs text-zinc-500">
-                Trust Score Source: Heuristic Rules
+                Trust Score Source: Heuristic Baseline
               </p>
             </div>
             <form action="/api/trust-algorithm/run" method="POST">

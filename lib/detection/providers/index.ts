@@ -7,6 +7,8 @@ export { onfidoProvider } from "./onfido";
 export { veriffProvider } from "./veriff";
 export { worldIdProvider } from "./world-id";
 export { stripeIdentityProvider } from "./stripe-identity";
+export { c2paProvider } from "./c2pa";
+export { synthIdProvider } from "./synthid";
 export { mockProvider } from "./mock-provider";
 
 import { realityDefenderProvider } from "./reality-defender";
@@ -17,6 +19,8 @@ import { onfidoProvider } from "./onfido";
 import { veriffProvider } from "./veriff";
 import { worldIdProvider } from "./world-id";
 import { stripeIdentityProvider } from "./stripe-identity";
+import { c2paProvider } from "./c2pa";
+import { synthIdProvider } from "./synthid";
 
 export const detectionProviders = [
   realityDefenderProvider,
@@ -27,4 +31,6 @@ export const detectionProviders = [
   veriffProvider,
   worldIdProvider,
   stripeIdentityProvider,
+  c2paProvider,
+  synthIdProvider,
 ] as const;

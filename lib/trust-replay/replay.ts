@@ -34,6 +34,7 @@ export type ReplaySnapshot = {
     reconstructableAsOf: string;
     accountableActors: string[];
     operationalOutcome: string;
+    detectionSources: string[];
   };
 };
 
@@ -209,6 +210,12 @@ export function buildReplaySnapshot(input: {
   const governanceState = openGovernanceCount
     ? `${openGovernanceCount} governance reviews remain open`
     : `${decisions.length} governance decisions recorded`;
+  const detectionSources = [...new Set(
+    signals
+      .map((row) => row.detection_source ?? row.signal_source ?? rowMetadata(row).detection_source)
+      .filter(Boolean)
+      .map(String)
+  )];
 
   return {
     subject_type: input.subjectType,
@@ -237,6 +244,7 @@ export function buildReplaySnapshot(input: {
       reconstructableAsOf: input.asOf,
       accountableActors,
       operationalOutcome,
+      detectionSources,
     },
   };
 }

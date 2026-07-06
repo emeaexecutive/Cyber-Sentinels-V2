@@ -21,7 +21,7 @@ Cyber Sentinels currently provides deterministic workflow rules, normalized prov
 
 `GET /api/detection/status` and `/admin/detection-status` expose the same server-side inventory. The API is admin-protected and never returns secret values. Provider states use `Live`, `Awaiting Credentials` or `Disabled`. Credentials without an implemented adapter remain `Disabled`.
 
-The current trust-score source is `Heuristic Rules`, or `Provider API` when normalized provider signals contribute. Demo workflows must use `Demo Data`. `Real ML` is reserved for verified model inference and is currently inactive.
+The current trust-score source is `Heuristic Baseline`, or `Provider API` when normalized provider signals contribute. Demo workflows must use `Demo Data`. `Real ML` is reserved for verified model inference and is currently inactive.
 
 ## Enforcement guarantees
 

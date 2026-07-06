@@ -5,8 +5,8 @@ import type {
   ValidationResult,
 } from "../../validation/validation-case.ts";
 
-export type ProviderStatus = "live" | "awaiting_credentials" | "disabled";
-export type ProviderDisplayStatus = "Live" | "Awaiting Credentials" | "Disabled";
+export type ProviderStatus = "live" | "simulated" | "awaiting_credentials" | "disabled";
+export type ProviderDisplayStatus = "Live" | "Simulated" | "Awaiting Credentials" | "Disabled";
 export type ProviderRawResult = {
   outcome?: DetectionExpectedOutcome;
   confidence?: number;
@@ -44,6 +44,7 @@ export function assertProviderSafe(testCase: ValidationCase) {
 
 export function providerStatusLabel(status: ProviderStatus): ProviderDisplayStatus {
   if (status === "live") return "Live";
+  if (status === "simulated") return "Simulated";
   if (status === "awaiting_credentials") return "Awaiting Credentials";
   return "Disabled";
 }

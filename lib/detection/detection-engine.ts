@@ -17,7 +17,7 @@ export const detectionProviderRequirements = [
 
 export type DetectionSource =
   | "Provider API"
-  | "Heuristic Rules"
+  | "Heuristic Baseline"
   | "Demo Data"
   | "Real ML"
   | "Not Implemented"
@@ -78,7 +78,7 @@ export function classifyDetectionSource(input: {
 }): DetectionSource {
   if (input.realMl) return "Real ML";
   if (input.providerBacked) return "Provider API";
-  if (input.heuristic) return "Heuristic Rules";
+  if (input.heuristic) return "Heuristic Baseline";
   if (input.demo) return "Demo Data";
   return "Not Implemented";
 }
@@ -88,7 +88,7 @@ export function normalizeDetectionSource(value: unknown): DetectionSource {
   const canonical: DetectionSource[] = [
     "Real ML",
     "Provider API",
-    "Heuristic Rules",
+    "Heuristic Baseline",
     "Demo Data",
     "Awaiting Credentials",
     "Not Implemented",
@@ -96,7 +96,7 @@ export function normalizeDetectionSource(value: unknown): DetectionSource {
   if (canonical.includes(source as DetectionSource)) return source as DetectionSource;
   if (/demo|mock|sample|simulation|fixture/i.test(source)) return "Demo Data";
   if (/provider|world.?id|hopae|onfido|veriff|persona|entrust/i.test(source)) return "Provider API";
-  if (/rule|heuristic|operator|workflow|api\.|session_integrity_review_form/i.test(source)) return "Heuristic Rules";
+  if (/rule|heuristic|operator|workflow|api\.|session_integrity_review_form/i.test(source)) return "Heuristic Baseline";
   if (/placeholder|pending credential/i.test(source)) return "Awaiting Credentials";
   return "Not Implemented";
 }
@@ -170,13 +170,13 @@ export function getDetectionEngineStatus() {
     { id: "deepfake_image_video", name: "Deepfake image/video detection", status: "Not Implemented", implementation_type: "placeholder", source: "Not Implemented", warning: "No model inference or provider adapter is implemented." },
     { id: "synthetic_voice", name: "Synthetic voice detection", status: "Not Implemented", implementation_type: "placeholder", source: "Not Implemented", warning: "No voice-forensics inference or provider adapter is implemented." },
     { id: "forged_documents", name: "Forged document detection", status: "Not Implemented", implementation_type: "placeholder", source: "Not Implemented", warning: "Document provenance fields are review context, not forensic detection." },
-    { id: "session_injection", name: "Session and injection integrity", status: "Active", implementation_type: "heuristic", source: "Heuristic Rules" },
-    { id: "behavioral_anomalies", name: "Behavioral anomalies", status: "Review Only", implementation_type: "heuristic", source: "Heuristic Rules" },
+    { id: "session_injection", name: "Session and injection integrity", status: "Active", implementation_type: "heuristic", source: "Heuristic Baseline" },
+    { id: "behavioral_anomalies", name: "Behavioral anomalies", status: "Review Only", implementation_type: "heuristic", source: "Heuristic Baseline" },
     { id: "identity_verification", name: "Identity verification orchestration", status: providers.some((provider) => provider.active && provider.module === "identity_verification") ? "Active" : "Awaiting Credentials", implementation_type: "provider", source: "Provider API" },
-    { id: "agent_verification", name: "AI agent verification and governance", status: "Active", implementation_type: "workflow", source: "Heuristic Rules" },
-    { id: "provenance", name: "Provenance checks", status: "Review Only", implementation_type: "workflow", source: "Heuristic Rules" },
-    { id: "trust_score", name: "Trust score calculation", status: "Active", implementation_type: "heuristic", source: "Heuristic Rules" },
-    { id: "blocking", name: "Block, remove, escalate and preserve evidence", status: "Active", implementation_type: "workflow", source: "Heuristic Rules" },
+    { id: "agent_verification", name: "AI agent verification and governance", status: "Active", implementation_type: "workflow", source: "Heuristic Baseline" },
+    { id: "provenance", name: "Provenance checks", status: "Review Only", implementation_type: "workflow", source: "Heuristic Baseline" },
+    { id: "trust_score", name: "Trust score calculation", status: "Active", implementation_type: "heuristic", source: "Heuristic Baseline" },
+    { id: "blocking", name: "Block, remove, escalate and preserve evidence", status: "Active", implementation_type: "workflow", source: "Heuristic Baseline" },
   ];
 
   return {
@@ -192,7 +192,14 @@ export function getDetectionEngineStatus() {
     missing_providers: providers.filter((provider) => !provider.active),
     providers,
     detection_modules: modules,
-    trust_score_source: "Heuristic Rules" as DetectionSource,
+    ml_maturity: {
+      level: 2,
+      label: "Provider-ready foundation",
+      real_ml_active: false,
+      benchmark_validated: false,
+    },
+    next_required_action: "Add approved labelled validation cases, exercise a reviewed provider endpoint, and calibrate thresholds.",
+    trust_score_source: "Heuristic Baseline" as DetectionSource,
     trust_score_explanation: explainTrustScore({
       source: "heuristic_baseline",
       confidence: 0.5,

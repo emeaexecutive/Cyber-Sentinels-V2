@@ -12,14 +12,14 @@ Implemented providers can contribute normalized evidence when their adapter, cre
 
 ## Heuristic capability reality
 
-Deterministic rules currently identify reviewable workflow conditions such as session discontinuity, injection indicators, evidence gaps, provider-state changes, authorization discontinuity and suspicious agent behavior. These are labelled `Heuristic Rules`. They support routing and explanation, not real/fake conclusions. Controlled examples and fixtures are labelled `Demo Data`.
+Deterministic rules currently identify reviewable workflow conditions such as session discontinuity, injection indicators, evidence gaps, provider-state changes, authorization discontinuity and suspicious agent behavior. These are labelled `Heuristic Baseline`. They support routing and explanation, not real/fake conclusions. Controlled examples and fixtures are labelled `Demo Data`.
 
 ## Detection proof chain
 
 Production evidence should preserve:
 
 1. the observed event and timestamp;
-2. detection source: `Real ML`, `Provider API`, `Heuristic Rules`, `Demo Data`, `Awaiting Credentials` or `Not Implemented`;
+2. detection source: `Real ML`, `Provider API`, `Heuristic Baseline`, `Demo Data`, `Awaiting Credentials` or `Not Implemented`;
 3. evidence available at that time;
 4. the reason trust changed and the before/after state;
 5. the accountable reviewer or actor;

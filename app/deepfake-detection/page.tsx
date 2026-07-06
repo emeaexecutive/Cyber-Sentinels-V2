@@ -11,7 +11,7 @@ const checks = [
 const detectionReality = [
   ["Real ML", "Not Implemented"],
   ["Provider API", "Awaiting Credentials"],
-  ["Heuristic Rules", "Active for review"],
+  ["Heuristic Baseline", "Active for review"],
   ["Demo Data", "Clearly separated"],
 ] as const;
 

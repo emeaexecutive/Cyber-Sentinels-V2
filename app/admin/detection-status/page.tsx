@@ -29,7 +29,8 @@ export default async function DetectionStatusAdminPage() {
     ["Provider ML detection", status.provider_detection_enabled ? "Active" : "Awaiting Credentials"],
     ["Heuristic detection", status.heuristic_detection_enabled ? "Active" : "Inactive"],
     ["Demo/mock scoring", status.mock_data_present ? "Present" : "Absent"],
-    ["Validation dataset", status.validation_dataset_present ? "Present" : "Missing"],
+    ["Validation dataset", benchmark.caseCount ? "Present" : "Missing"],
+    ["Precision / recall", benchmark.caseCount ? "Available on run" : "Missing"],
     ["False positive tracking", status.false_positive_tracking_present ? "Present" : "Missing"],
     ["False negative tracking", status.false_negative_tracking_present ? "Present" : "Missing"],
   ] as const;

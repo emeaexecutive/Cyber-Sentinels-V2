@@ -209,6 +209,7 @@ export async function runValidationBenchmark(options: {
       providerAgreement: null,
       reviewerAgreement: calculateReviewerAgreement([], []),
       providerCoverage: 0,
+      detectionSourceCoverage: {} as Record<string, number>,
       falsePositiveCaseIds: [] as string[],
       falseNegativeCaseIds: [] as string[],
       audit: {
@@ -252,6 +253,12 @@ export async function runValidationBenchmark(options: {
     providerAgreement: usableProviderResults.length ? agreements / usableProviderResults.length : null,
     reviewerAgreement,
     providerCoverage: usableProviderResults.length / cases.length,
+    detectionSourceCoverage: Object.fromEntries(
+      [...new Set(results.map((result) => result.source))].map((source) => [
+        source,
+        results.filter((result) => result.source === source).length / cases.length,
+      ])
+    ),
     falsePositiveCaseIds: results
       .filter((result) => result.expected === "negative" && result.actual === "positive")
       .map((result) => result.caseId),

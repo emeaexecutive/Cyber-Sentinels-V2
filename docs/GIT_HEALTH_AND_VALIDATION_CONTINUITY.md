@@ -48,7 +48,7 @@ Before deletion, resolve the path and confirm it remains inside the intended rep
 - `docs/PRODUCT_ML_STRENGTH_AUDIT.md` states that proprietary detection ML, model artifacts and detection inference libraries are absent.
 - `docs/VALIDATION_DATASET_PLAN.md` states that the representative validation dataset is planned and not present.
 - `docs/TRUST_ENGINE_CALIBRATION.md` documents deterministic weighting, provider evidence, future bounded ML input, governance and replay.
-- Source truth remains explicit: `Real ML`, `Provider API`, `Heuristic Rules`, `Demo Data` and `Awaiting Credentials`.
+- Source truth remains explicit: `Real ML`, `Provider API`, `Heuristic Baseline`, `Demo Data` and `Awaiting Credentials`.
 - Real ML inference remains inactive. Trust scoring remains deterministic and explainable; provider results remain separate evidence, not final authenticity judgments.
 
 ## Remaining blockers
