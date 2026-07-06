@@ -26,6 +26,8 @@ export type ReplaySnapshot = {
     governanceInterventionCount: number;
     authorizationReferenceCount: number;
     reconstructableAsOf: string;
+    accountableActors: string[];
+    operationalOutcome: string;
   };
 };
 
@@ -177,6 +179,22 @@ export function buildReplaySnapshot(input: {
     `${relationships.length} trust relationships were recorded.`,
     `Trust freshness: ${posture.label}.`,
   ].join(" ");
+  const accountableActors = [...new Set(
+    [...decisions, ...auditLogs]
+      .map((row) => row.reviewer ?? row.reviewed_by ?? row.actor ?? row.actor_email ?? row.generated_by)
+      .filter(Boolean)
+      .map(String)
+  )];
+  const latestDecision = decisions.at(-1);
+  const operationalOutcome = String(
+    latestDecision?.resolution_notes ??
+      latestDecision?.decision ??
+      latestDecision?.action_status ??
+      latestDecision?.status ??
+      (openGovernanceCount
+        ? "Governance review remains open."
+        : "No final governance outcome was recorded.")
+  );
 
   return {
     subject_type: input.subjectType,
@@ -197,6 +215,8 @@ export function buildReplaySnapshot(input: {
       governanceInterventionCount: decisions.length,
       authorizationReferenceCount: relationships.length,
       reconstructableAsOf: input.asOf,
+      accountableActors,
+      operationalOutcome,
     },
   };
 }

@@ -294,6 +294,8 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
     ["Why it triggered", riskEvents[0]?.risk_reason ?? signals[0]?.event ?? "Replay is showing available workflow evidence without an active risk trigger."],
     ["Evidence used", `${snapshot.evidence.length} evidence record(s), ${snapshot.timelineEvents.length} timeline event(s), ${auditLogs.length} audit event(s)`],
     ["Reviewer actions", snapshot.decisions.length ? `${snapshot.decisions.length} governance decision(s) preserved` : "No reviewer action in this replay window"],
+    ["Accountable actors", snapshot.canonicalMemory.accountableActors.join(", ") || "No named reviewer or actor retained in this replay window"],
+    ["Operational outcome", snapshot.canonicalMemory.operationalOutcome],
     ["Trust score changes", snapshot.timelineEvents.length ? "Timeline events preserve score movement when source records include score fields." : "No score movement recorded in this replay window"],
   ];
   const policyAudit = [...snapshot.auditLogs]

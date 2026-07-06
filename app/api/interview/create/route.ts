@@ -87,7 +87,7 @@ async function handleInterviewCreate(req: Request) {
   const riskEventRows = interviewRiskSignalTypes.map((signalType) => ({
     interview_session_id: session.id,
     signal_type: signalType,
-    signal_source: "placeholder_interface",
+    signal_source: "Not Implemented",
     confidence_score: 0,
     risk_reason: hiringSignalExplanation(signalType),
     escalation_required: false,

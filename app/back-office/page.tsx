@@ -1544,7 +1544,7 @@ export default async function BackOfficePage({
                               {trustScore ? ` / ${trustScore.confidenceLabel}` : ""}
                             </p>
                             <p className="mt-1 text-xs text-zinc-600">
-                              Trust Score Source: {trustScore?.source ?? "Unknown"}
+                              Trust Score Source: {trustScore?.source ?? "Not Implemented"}
                             </p>
                           </div>
                           <StatusBadge status={item.verification_status ?? item.status} />

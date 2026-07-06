@@ -59,6 +59,24 @@ export function classifyDetectionSource(input: {
   return "Not Implemented";
 }
 
+export function normalizeDetectionSource(value: unknown): DetectionSource {
+  const source = String(value ?? "").trim();
+  const canonical: DetectionSource[] = [
+    "Real ML",
+    "Provider API",
+    "Heuristic Rules",
+    "Demo Data",
+    "Awaiting Credentials",
+    "Not Implemented",
+  ];
+  if (canonical.includes(source as DetectionSource)) return source as DetectionSource;
+  if (/demo|mock|sample|simulation|fixture/i.test(source)) return "Demo Data";
+  if (/provider|world.?id|hopae|onfido|veriff|persona|entrust/i.test(source)) return "Provider API";
+  if (/rule|heuristic|operator|workflow|api\.|session_integrity_review_form/i.test(source)) return "Heuristic Rules";
+  if (/placeholder|pending credential/i.test(source)) return "Awaiting Credentials";
+  return "Not Implemented";
+}
+
 export function calculateTrustScoreSource(input: {
   realMl?: boolean;
   providerSignals?: number;

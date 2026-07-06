@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { normalizeDetectionSource } from "@/lib/detection/detection-engine";
 import { intelligenceSeverityClass } from "@/lib/operational-intelligence/intelligence";
 import { confidenceLevel, hiringSignalExplanation } from "@/lib/trusted-layer/hiring";
 import { createClient } from "@/lib/supabase/server";
@@ -210,7 +211,7 @@ export default async function InterviewRiskDashboardPage() {
                       {event.risk_reason ?? hiringSignalExplanation(event.signal_type)}
                     </p>
                     <p className="mt-2 text-xs text-zinc-600">
-                      Source: {event.signal_source ?? "placeholder_interface"} / Confidence: {confidenceLevel(event.confidence_score)}
+                      Source: {normalizeDetectionSource(event.signal_source)} / Confidence: {confidenceLevel(event.confidence_score)}
                     </p>
                   </div>
                 ))

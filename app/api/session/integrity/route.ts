@@ -70,7 +70,7 @@ export async function POST(req: Request) {
     explanation: signal.explanation,
     badge_label: signal.badge,
     requires_manual_review: signal.requires_manual_review,
-    evidence: {},
+    evidence: { detection_source: signal.detection_source },
   }));
   const injectionSignal = result.signals.find((signal) => signal.category === "injection_risk");
   const channelSignal = result.signals.find(
@@ -115,6 +115,7 @@ export async function POST(req: Request) {
         session_integrity_check_id: check.id,
         overall_status: result.overall_status,
         manual_review_required: result.manual_review_required,
+        detection_sources: [...new Set(result.signals.map((signal) => signal.detection_source))],
       }
     ),
     supabase.from("trust_timeline_events").insert({
@@ -131,6 +132,7 @@ export async function POST(req: Request) {
         overall_status: result.overall_status,
         manual_review_required: result.manual_review_required,
         evidence_source: input.evidence_source ?? "operator_input",
+        detection_sources: [...new Set(result.signals.map((signal) => signal.detection_source))],
       },
     }),
   ]);

@@ -1,3 +1,5 @@
+import { normalizeDetectionSource, type DetectionSource } from "@/lib/detection/detection-engine";
+
 export const sessionSignalCategories = [
   "liveness_check",
   "deepfake_risk",
@@ -54,6 +56,7 @@ export type ExplainableSessionSignal = {
   status: SessionSignalStatus;
   risk_level: SessionSignalRisk;
   confidence_score: number | null;
+  detection_source: DetectionSource;
   explanation: string;
   badge: string;
   requires_manual_review: boolean;
@@ -147,7 +150,7 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
       || (workflowInconsistency !== null && workflowInconsistency >= 35)
   );
 
-  const signals: ExplainableSessionSignal[] = [
+  const rawSignals: Omit<ExplainableSessionSignal, "detection_source">[] = [
     {
       category: "liveness_check",
       label: "Liveness check",
@@ -338,6 +341,18 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
       requires_manual_review: manualReview,
     },
   ];
+
+  const requestedSource = normalizeDetectionSource(
+    input.evidence_metadata?.detection_source ?? input.evidence_source
+  );
+  const signals: ExplainableSessionSignal[] = rawSignals.map((signal) => ({
+    ...signal,
+    detection_source: ["virtual_camera_risk", "frame_integrity", "device_attestation"].includes(
+      signal.category
+    )
+      ? "Awaiting Credentials"
+      : requestedSource,
+  }));
 
   const overall_status = manualReview
     ? "needs_review"

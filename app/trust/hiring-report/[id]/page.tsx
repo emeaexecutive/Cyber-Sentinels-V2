@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ExplainableTrustFactors, StatusBadge, TrustScoreBadge, VerificationTimeline } from "@/components/phase-one-trust";
 import { TrustReportBoundary } from "@/components/trust-report-boundary";
+import { normalizeDetectionSource } from "@/lib/detection/detection-engine";
 import {
   calculateHiringTrustScore,
   confidenceLevel,
@@ -278,7 +279,7 @@ export default async function HiringReportPage({ params }: { params: Promise<{ i
                     {event.risk_reason ?? hiringSignalExplanation(event.signal_type)}
                   </p>
                   <div className="mt-3 grid gap-2 text-xs text-zinc-600 md:grid-cols-3">
-                    <p>Source: {event.signal_source ?? "placeholder_interface"}</p>
+                    <p>Source: {normalizeDetectionSource(event.signal_source)}</p>
                     <p>Confidence: {confidenceLevel(event.confidence_score)}</p>
                     <p>Escalation: {event.escalation_required ? "required" : "not required"}</p>
                   </div>

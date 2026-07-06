@@ -8,9 +8,9 @@ function stateClass(state: string) {
 }
 
 function sourceLabel(sourceType: VerificationProviderSignal["sourceType"]) {
-  if (sourceType === "provider_signal") return "Provider-backed verification signal";
-  if (sourceType === "placeholder") return "Placeholder provider signal";
-  return "Workflow evidence context";
+  if (sourceType === "provider_signal") return "Provider API";
+  if (sourceType === "placeholder") return "Awaiting Credentials";
+  return "Heuristic Rules";
 }
 
 export function ProviderEvidencePanel({

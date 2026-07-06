@@ -47,5 +47,9 @@ Cyber Sentinels helps enterprises use AI without surrendering their data, workfl
 - **Replay evidence:** reconstruct the evidence available at decision time, source-specific findings, authorization changes and accountable action.
 - **Data sovereignty:** apply deployment-specific residency, minimization, retention, deletion, subprocessor and cross-border controls to validation and production data.
 - **Human review:** regulated or adverse actions require documented authority, reason, appeal/correction paths and review of false-positive or false-negative outcomes.
+- **Insurance evidence:** underwriting, claims or fraud teams should receive source-attributed evidence and replay exports, never an unsupported authenticity verdict.
+- **Exportability:** replay and receipt exports must preserve timestamps, evidence references, provider/rule source, reviewer identity, governance action and operational outcome.
+- **Audit continuity:** provider failure, replacement or credential loss must not erase the customer-owned chronology or authorization record.
+- **Provider governance:** procurement approval, contract scope, runtime health, region, retention and model/provider changes require deployment-specific evidence before regulated use.
 
 Production readiness is deployment-specific. This document describes application controls visible in code, not certification, regulatory approval or a guarantee of provider performance.
