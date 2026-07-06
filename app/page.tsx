@@ -55,11 +55,11 @@ export default function Home() {
         <div className="max-w-5xl">
           <p className="operational-eyebrow">TrustOps operating system</p>
           <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            Govern operational trust across humans, AI agents and enterprise workflows.
+            Trust infrastructure for humans, AI agents and regulated workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 sm:text-xl sm:leading-9">
-            Cyber Sentinels preserves operational trust continuity across
-            humans, AI agents and enterprise workflows.
+            Govern operational trust continuity across people, non-human
+            identities and consequential enterprise decisions.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
             Replayable enterprise memory, governed execution, Authorization

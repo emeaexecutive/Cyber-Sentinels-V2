@@ -10,6 +10,8 @@ The current trust score is deterministic and explainable. It combines rule-deriv
 
 Calibration must use registered, ground-truthed cases and retain the exact rule, provider and future model version. Compare score movement and governance routing against expected outcomes, then measure precision, recall, false positives, false negatives, latency and reviewer agreement per category. Threshold changes need a documented reason, before/after benchmark and approval.
 
+Calibration is source-specific. `provider_api`, `baseline_model_assisted`, `heuristic_baseline`, `demo_data`, `awaiting_credentials` and `not_implemented` must not be collapsed into one accuracy figure. Demo data is excluded from production metrics; awaiting or unimplemented sources contribute no detection result.
+
 ## Future ML signal
 
 A validated ML model may become one bounded input to the existing dimensions. Its output must carry model/version, input provenance, execution timestamp, confidence semantics, operating threshold, latency and evidence reference. ML must not silently overwrite provider evidence, authorization state or reviewer outcomes.

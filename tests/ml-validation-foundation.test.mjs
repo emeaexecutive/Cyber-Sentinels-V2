@@ -89,3 +89,21 @@ test("replay and sovereignty contracts preserve operational continuity", async (
   assert.match(policy, /enterprise_owned_operational_memory: true/);
   assert.match(policy, /provider_interaction_tracking_required: true/);
 });
+
+test("session integrity separates emulator and tampered-app review signals", async () => {
+  const model = await readFile(new URL("../lib/session-integrity/model.ts", import.meta.url), "utf8");
+  assert.match(model, /category: "emulator_risk"/);
+  assert.match(model, /category: "tampered_app_risk"/);
+  assert.match(model, /does not prove tampering/);
+  assert.match(model, /not a forensic conclusion/);
+  assert.match(model, /requires_manual_review: emulatorFlagged/);
+  assert.match(model, /requires_manual_review: tamperedAppFlagged/);
+});
+
+test("control-plane positioning reuses existing routes and preserves ML boundaries", async () => {
+  const positioning = await readFile(new URL("../docs/AI_TRUST_CONTROL_PLANE_POSITIONING.md", import.meta.url), "utf8");
+  assert.match(positioning, /Trust infrastructure for humans, AI agents and regulated workflows/);
+  assert.match(positioning, /Named concepts do not require duplicate routes/);
+  assert.match(positioning, /baseline_model_assisted/);
+  assert.match(positioning, /not trained enterprise AI detection/);
+});

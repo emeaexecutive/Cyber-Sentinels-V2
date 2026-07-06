@@ -17,6 +17,8 @@ export const sessionSignalCategories = [
   "virtual_camera_risk",
   "frame_integrity",
   "device_attestation",
+  "emulator_risk",
+  "tampered_app_risk",
 ] as const;
 
 export type SessionSignalCategory = (typeof sessionSignalCategories)[number];
@@ -128,6 +130,10 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
   const virtualCameraState = cleanState(input.evidence_metadata?.virtual_camera_risk);
   const frameIntegrityState = cleanState(input.evidence_metadata?.frame_integrity);
   const deviceAttestationState = cleanState(input.evidence_metadata?.device_attestation);
+  const emulatorState = cleanState(input.evidence_metadata?.emulator_risk);
+  const tamperedAppState = cleanState(input.evidence_metadata?.tampered_app_risk);
+  const emulatorFlagged = ["flagged", "elevated", "detected", "failed"].includes(emulatorState);
+  const tamperedAppFlagged = ["flagged", "elevated", "detected", "failed"].includes(tamperedAppState);
   const deviceContinuous = ["continuous", "consistent", "verified"].includes(cleanState(input.device_continuity_state));
   const browserConsistent = ["consistent", "verified"].includes(cleanState(input.browser_consistency_state));
 
@@ -148,6 +154,8 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
       || input.provider_verification_changed
       || input.session_interrupted
       || (workflowInconsistency !== null && workflowInconsistency >= 35)
+      || emulatorFlagged
+      || tamperedAppFlagged
   );
 
   const rawSignals: Omit<ExplainableSessionSignal, "detection_source">[] = [
@@ -329,6 +337,30 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
       requires_manual_review: false,
     },
     {
+      category: "emulator_risk",
+      label: "Emulator risk",
+      status: emulatorFlagged ? "elevated" : "pending",
+      risk_level: emulatorFlagged ? "medium" : "unknown",
+      confidence_score: null,
+      explanation: emulatorFlagged
+        ? "An emulator indicator was supplied with session evidence. It requires manual review and does not prove tampering."
+        : "Emulator assessment is awaiting provider or device-attestation evidence.",
+      badge: emulatorFlagged ? "Manual Review Required" : "Provider Signal Pending",
+      requires_manual_review: emulatorFlagged,
+    },
+    {
+      category: "tampered_app_risk",
+      label: "Tampered app risk",
+      status: tamperedAppFlagged ? "elevated" : "pending",
+      risk_level: tamperedAppFlagged ? "medium" : "unknown",
+      confidence_score: null,
+      explanation: tamperedAppFlagged
+        ? "A tampered-app indicator was supplied with session evidence. It requires manual review and is not a forensic conclusion."
+        : "Tampered-app assessment is awaiting provider or device-attestation evidence.",
+      badge: tamperedAppFlagged ? "Manual Review Required" : "Provider Signal Pending",
+      requires_manual_review: tamperedAppFlagged,
+    },
+    {
       category: "manual_review_required",
       label: "Human review decision",
       status: manualReview ? "required" : "pending",
@@ -347,7 +379,7 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
   );
   const signals: ExplainableSessionSignal[] = rawSignals.map((signal) => ({
     ...signal,
-    detection_source: ["virtual_camera_risk", "frame_integrity", "device_attestation"].includes(
+    detection_source: ["virtual_camera_risk", "frame_integrity", "device_attestation", "emulator_risk", "tampered_app_risk"].includes(
       signal.category
     )
       ? "Awaiting Credentials"

@@ -34,6 +34,10 @@ const runtimeControls = [
   ["Posture changes", "New evidence, context shifts and governance interventions produce explainable state transitions."],
   ["Replay continuity", "Activity, authorization changes and review decisions remain one operational history after execution ends."],
   ["Execution continuity", "Requested action, delegated scope, runtime evidence, intervention and outcome remain connected across the full operation."],
+  ["Signed action receipts", "Consequential actions retain actor, authority, declared intent, constraints, evidence and outcome for verification."],
+  ["Kill-switch visibility", "Revocation and interruption state remain visible to reviewers; Cyber Sentinels does not imply control the runtime has not exposed."],
+  ["Blast-radius review", "Delegated scope, reachable systems and action sensitivity provide bounded review context rather than a universal risk score."],
+  ["Shadow-agent risk", "Unregistered or ownerless automation is routed for identity, authority and governance review before reliance."],
 ];
 
 const actionAccountability = [
@@ -92,7 +96,7 @@ export default function AgentsPage() {
           <h2 className="mt-3 max-w-3xl text-2xl font-semibold">
             See risk, authority and governance as execution unfolds.
           </h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {runtimeControls.map(([title, copy]) => (
               <article key={title} className="operational-card p-5">
                 <h3 className="font-semibold text-zinc-100">{title}</h3>

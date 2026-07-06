@@ -8,6 +8,8 @@ Reality Defender and Sensity cover media signals; Pindrop covers voice; a docume
 
 Build consented/public/synthetic positive and negative cohorts by signal family. Version labels and provenance, keep restricted data out, freeze evaluation splits, run each available source independently, and report confusion matrices, precision, recall, F1, confidence distribution, provider coverage and cross-source agreement. No result is a final authenticity verdict.
 
+Every export must retain its schema version, generation time, case identifiers, detection source, evidence, limitations, reviewer outcome, provider agreement and the exact false-positive/false-negative case identifiers. Provider and baseline outputs remain separate rather than being blended into an unexplained score.
+
 ## Measurement goals
 
 Initial goals are measurement quality, representative coverage and stable thresholds—not an invented accuracy number. Precision targets should be chosen with operators to control review burden; recall targets should reflect the cost of missed events. Report cohort size and uncertainty beside every metric.

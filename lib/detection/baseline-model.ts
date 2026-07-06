@@ -10,6 +10,7 @@ const WEIGHTS: Record<string, number> = {
   repeatedVerificationAttempts: 0.14,
   repeatedVerificationFailures: 0.14,
   deviceSessionMismatch: 0.18,
+  sessionInconsistency: 0.18,
   behavioralInconsistency: 0.16,
   impossibleSessionVelocity: 0.2,
   impossibleWorkflowVelocity: 0.2,
@@ -18,6 +19,8 @@ const WEIGHTS: Record<string, number> = {
   documentMismatch: 0.24,
   agentActionAnomaly: 0.2,
   agentRuntimeAnomaly: 0.2,
+  suspiciousRuntimeBehavior: 0.2,
+  authorizationAnomaly: 0.22,
 };
 
 export type BaselineScore = {
