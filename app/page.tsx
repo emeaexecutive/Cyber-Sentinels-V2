@@ -1,155 +1,155 @@
 import Link from "next/link";
-import { TrustOpsOperatingStack } from "@/components/trustops-operating-stack";
 
-const proofPath = [
-  "Person, agent or workflow enters",
-  "Identity, session and evidence checked",
-  "Trust changes over time",
-  "Governance intervenes",
-  "Replay explains why",
-  "Receipt preserves the outcome",
+const replayPath = [
+  "Actor enters the workflow",
+  "Identity and authority are checked",
+  "Evidence and trust state evolve",
+  "Governance reviews exceptions",
+  "Replay explains the outcome",
 ];
 
-const platformSurfaces = [
-  ["Replayable Operational Memory", "The foundational chronology of what entered, what changed, which authority acted, what evidence existed and why the outcome followed."],
-  ["Persistent Trust Posture", "The current, explainable state of identity, authorization, evidence and workflow context."],
-  ["Governed Workflows", "Human and agent activity stays inside visible authority, evidence and review boundaries."],
-  ["Workflow Verification", "The actor, work performed, evidence and operational outcome remain connected."],
+const buyerOutcomes = [
+  [
+    "Know who and what is acting",
+    "Verify human identity, register AI agents and preserve the authority behind every action.",
+  ],
+  [
+    "See trust change over time",
+    "Keep identity, session integrity, evidence and authorization connected throughout the workflow.",
+  ],
+  [
+    "Review and explain outcomes",
+    "Give governance teams a replayable chronology of what changed, who intervened and why the outcome followed.",
+  ],
 ];
 
-const workflowDomains = [
-  ["Human identity", "Continuous verification and reviewable trust posture."],
-  ["AI agents and NHI", "Registered agents, service accounts and API actors retain ownership, bounded authority and governed execution."],
-  ["Enterprise workflows", "Evidence continuity from entry through final outcome."],
-  ["Authorization events", "Grants, changes and revocations retain accountable lineage."],
-  ["Governance actions", "Review, escalation and intervention remain attached to operational history."],
-  ["Enterprise AI sovereignty", "Customer data, workflow memory and operational IP remain under governed enterprise control."],
+const governedActors = [
+  [
+    "Humans",
+    "Identity and session evidence remain connected to the work being performed.",
+  ],
+  [
+    "AI agents",
+    "Ownership, purpose, permissions and revocation stay visible and reviewable.",
+  ],
+  [
+    "Enterprise workflows",
+    "Evidence, governance and outcomes remain connected from entry to completion.",
+  ],
 ];
 
 export default function Home() {
   return (
     <main className="operational-shell min-h-screen text-zinc-100">
-      <section className="mx-auto max-w-6xl px-6 pb-14 pt-12 md:px-8 md:pb-20 md:pt-20">
-        <div className="max-w-4xl">
-          <p className="operational-eyebrow">
-            Governed enterprise intelligence
-          </p>
-          <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
-            Govern operational trust across humans, AI agents and enterprise workflows.
+      <section className="mx-auto max-w-6xl px-6 pb-16 pt-14 sm:pt-16 md:px-8 md:pb-24 md:pt-24">
+        <div className="max-w-5xl">
+          <p className="operational-eyebrow">Cyber Sentinels</p>
+          <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
+            Trust infrastructure for intelligent enterprises.
           </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 md:text-xl md:leading-9">
-            Trust is not a moment. It is a continuous operational state.
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 sm:text-xl sm:leading-9">
+            Understand identity, authenticity and trust across humans, AI
+            agents and enterprise workflows.
           </p>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels connects humans, AI agents and enterprise workflows
-            through replayable memory, persistent posture, governed execution
-            and enterprise-controlled evidence.
-          </p>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels governs operational trust continuity across
-            humans, AI agents and enterprise workflows.
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
+            Cyber Sentinels connects verification, authorization, evidence and
+            governance so enterprises can see what changed and act with
+            accountable context.
           </p>
         </div>
 
-        <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-3">
-          <Link href="/verification-replay" className="brand-primary-action brand-action-large text-sm">
-            Experience Replay
-          </Link>
-          <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
+        <div className="mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+          <Link
+            href="/enterprise-access"
+            className="brand-primary-action brand-action-large text-center text-sm"
+          >
             Request Enterprise Access
+          </Link>
+          <Link
+            href="/verification-replay"
+            className="brand-secondary-action brand-action-large text-center text-sm"
+          >
+            Explore Verification Replay
           </Link>
         </div>
       </section>
 
       <section className="border-y border-zinc-800 bg-zinc-950/80">
-        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8">
+        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8 md:py-16">
           <div className="max-w-3xl">
-            <p className="operational-eyebrow">
-              Proof workflow
-            </p>
+            <p className="operational-eyebrow">What Cyber Sentinels does</p>
             <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-              Trust changes over time.
+              Keep trust connected to the workflow.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
-              Replayable evidence for critical workflows. One chronology shows
-              what changed, why trust shifted and which outcome followed.
+              Built for enterprises governing consequential work across people,
+              AI agents and the systems they use together.
             </p>
           </div>
-          <div className="mt-7 grid gap-3 md:grid-cols-6">
-            {proofPath.map((step, index) => (
-              <div key={step} className="border-t border-zinc-700 pt-4">
-                <p className="text-xs font-semibold text-cyan-200">{index + 1}</p>
-                <p className="mt-2 text-sm font-semibold text-zinc-100">{step}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-6 py-16 md:px-8">
-        <div className="max-w-3xl">
-          <p className="operational-eyebrow">
-            TrustOps operating model
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-            Governed trust continuity for intelligent systems.
-          </h2>
-          <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Persistent Trust Posture shows what is true now. Replay is the
-            enterprise memory of how it became true: chronology, authorization
-            changes, evidence continuity, governance action and final outcome.
-          </p>
-        </div>
-        <div className="mt-7 grid gap-4 md:grid-cols-2">
-          {platformSurfaces.map(([title, copy]) => (
-            <article key={title} className="operational-card p-5">
-              <h3 className="text-lg font-semibold text-white">{title}</h3>
-              <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="border-t border-zinc-800 bg-zinc-950/60">
-        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8">
-          <p className="operational-eyebrow">TrustOps operating stack</p>
-          <h2 className="mt-3 max-w-3xl text-3xl font-semibold leading-tight text-white">
-            Eight layers. One governed operational record.
-          </h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Identity, runtime context, authority, evidence and governance remain
-            connected through Replay and continuously reflected in trust posture.
-          </p>
-          <div className="mt-7">
-            <TrustOpsOperatingStack compact />
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-zinc-800">
-        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8">
-          <p className="operational-eyebrow">Operational domains</p>
-          <h2 className="mt-3 max-w-3xl text-3xl font-semibold leading-tight text-white">
-            One trust layer, across human and machine activity.
-          </h2>
-          <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {workflowDomains.map(([title, copy]) => (
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {buyerOutcomes.map(([title, copy]) => (
               <article key={title} className="operational-card p-5">
-                <h3 className="font-semibold text-white">{title}</h3>
+                <h3 className="text-lg font-semibold text-white">{title}</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
               </article>
             ))}
           </div>
-          <p className="mt-7 max-w-4xl text-sm leading-7 text-zinc-400">
-            Apply the same continuity model across fintech, banking, insurance
-            and healthcare—from onboarding and claims to hiring, approvals and
-            AI-assisted operations. Verify the actor, preserve delegated
-            authority, govern execution and retain the operational chronology
-            behind each regulated decision.
-          </p>
         </div>
       </section>
 
+      <section className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-20">
+        <div className="max-w-3xl">
+          <p className="operational-eyebrow">Verification replay</p>
+          <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
+            One chronology. Every material trust change.
+          </h2>
+          <p className="mt-4 text-sm leading-7 text-zinc-300">
+            Replay preserves the evidence, authorization changes, trust-state
+            evolution and governance actions behind an outcome. It turns
+            workflow history into reviewable operational memory.
+          </p>
+        </div>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {replayPath.map((step, index) => (
+            <article key={step} className="border-t border-zinc-700 pt-4">
+              <p className="text-xs font-semibold text-cyan-200">
+                0{index + 1}
+              </p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-zinc-100">
+                {step}
+              </p>
+            </article>
+          ))}
+        </div>
+        <Link
+          href="/verification-replay"
+          className="mt-8 inline-flex text-sm font-semibold text-cyan-200 hover:text-cyan-100"
+        >
+          See how verification replay works →
+        </Link>
+      </section>
+
+      <section className="border-t border-zinc-800 bg-zinc-950/60">
+        <div className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-20">
+          <p className="operational-eyebrow">Continuous trust</p>
+          <h2 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-white md:text-4xl">
+            Trust is not a moment. It is a continuous operational state.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            A single check cannot explain a changing workflow. Cyber Sentinels
+            keeps identity, authority, evidence and governance connected as
+            human and machine activity unfolds.
+          </p>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {governedActors.map(([title, copy]) => (
+              <article key={title} className="operational-card p-5">
+                <h3 className="text-lg font-semibold text-white">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
