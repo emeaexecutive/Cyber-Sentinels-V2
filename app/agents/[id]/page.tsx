@@ -295,6 +295,9 @@ export default async function AgentPassportPage({
             </div>
           ))}
         </section>
+        <p className="mt-3 text-xs text-zinc-500">
+          Trust Score Source: Heuristic Rules. Provider evidence may inform review, but this is not a real-ML verdict.
+        </p>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-black p-5">
           <div className="flex flex-wrap items-start justify-between gap-4">

@@ -2,6 +2,7 @@ type TrustRow = Record<string, any>;
 
 export type TrustScoreResult = {
   score: number;
+  source: "Heuristic Rules";
   confidenceLabel: "High Trust" | "Verified with Review" | "In Review" | "Elevated Risk";
   reasonCodes: string[];
 };
@@ -192,6 +193,7 @@ export function calculateTrustScoreV1({
 
   return {
     score: finalScore,
+    source: "Heuristic Rules",
     confidenceLabel: getTrustConfidenceLabel(finalScore),
     reasonCodes,
   };

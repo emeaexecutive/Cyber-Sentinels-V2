@@ -46,6 +46,7 @@ export type TransparentTrustScoreInput = {
 
 export type TransparentTrustScoreResult = {
   score: number;
+  source: "Provider API" | "Heuristic Rules";
   level: "low" | "moderate" | "high" | "blocked";
   flagsTriggered: string[];
   recommendedAction: string;
@@ -227,6 +228,7 @@ export function calculateTransparentTrustScore(
 
   return {
     score,
+    source: input.providerSignals?.length ? "Provider API" : "Heuristic Rules",
     level,
     flagsTriggered: flags.map((flag) => riskFlagLabels[flag] ?? flag),
     recommendedAction: recommendedAction(level, flags),

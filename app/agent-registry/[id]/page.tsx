@@ -177,6 +177,30 @@ export default async function AgentRegistryDetailPage({
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Agent privacy governance</p>
+          <h2 className="mt-2 text-xl font-semibold">Purpose, access and human control</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            These states are derived from the existing registry and audit record.
+            Missing policy evidence remains visible instead of being inferred.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {[
+              ["Least privilege", agent.permissions.length ? "Scoped permissions recorded" : "No permissions granted"],
+              ["Memory retention", "Not declared — governance review required"],
+              ["Processing purpose", agent.declared_purpose ?? "Not declared"],
+              ["Human oversight", agent.policy_status ? "Policy state recorded" : "Review required"],
+              ["Kill switch", ["revoked", "disabled", "blocked"].includes(agent.status) ? "Engaged" : "Available through revocation"],
+              ["Data-access audit", auditLogs?.length ? `${auditLogs.length} recent event(s)` : "No events recorded"],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-sm font-semibold text-zinc-100">{value}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Authorization lineage</p>
           <h2 className="mt-2 text-xl font-semibold">Persistent Agent Trust Posture</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">

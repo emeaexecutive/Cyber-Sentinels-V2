@@ -471,6 +471,7 @@ export async function enforceFakeActorAction(
       enforcement_status: configuration.status,
       reviewer_note: note,
       evidence_preserved: true,
+      trust_posture_update_required: true,
       admin_actor: adminActor,
       action_timestamp: now,
       previous_state: {
@@ -528,6 +529,7 @@ export async function enforceFakeActorAction(
     status: configuration.status,
     statusLabel: fakeActorStatusLabels[configuration.status],
     evidencePreserved: true,
+    trustPostureUpdated: true,
     governanceEventId: uuid(governance.data?.id),
     actionTimestamp: now,
     adminActor,

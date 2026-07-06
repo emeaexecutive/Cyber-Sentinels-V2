@@ -15,6 +15,8 @@ export type AIProviderPolicy = {
   trainingAllowed: false;
   externalRetentionAllowed: false;
   piiRedactionRequired: true;
+  restrictedDataEgressAllowed: false;
+  enterpriseModeRequired: true;
   enterpriseControlEnabled: true;
   verifiedEnterpriseControls: boolean;
   allowedClassifications: DataClassification[];
@@ -32,6 +34,8 @@ const sensitiveKeyPattern =
   /(email|phone|address|name|subject[_-]?label|token|secret|credential|authorization|api[_-]?key|document|file[_-]?url|biometric|passport|evidence|recent_|permissions)/i;
 const emailPattern = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 const bearerPattern = /\b(Bearer\s+)?[A-Za-z0-9_-]{24,}\b/g;
+const passportPattern = /\b(?:passport|verification)[\s_-]?(?:id|number)?\s*[:#-]?\s*[A-Z0-9-]{6,}\b/gi;
+const secretAssignmentPattern = /\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*\S+/gi;
 
 export function normalizeDataClassification(value: unknown): DataClassification {
   const candidate = String(value ?? "").trim().toLowerCase();
@@ -51,6 +55,8 @@ export function getDefaultAIProviderPolicy(
     trainingAllowed: false,
     externalRetentionAllowed: false,
     piiRedactionRequired: true,
+    restrictedDataEgressAllowed: false,
+    enterpriseModeRequired: true,
     enterpriseControlEnabled: true,
     verifiedEnterpriseControls,
     allowedClassifications: verifiedEnterpriseControls
@@ -116,6 +122,8 @@ export function redactForAIProvider(value: unknown, key = ""): unknown {
   if (typeof value === "string") {
     return value
       .replace(emailPattern, "[redacted-email]")
+      .replace(passportPattern, "[redacted-verification-id]")
+      .replace(secretAssignmentPattern, "[redacted-secret]")
       .replace(bearerPattern, "[redacted-token]")
       .slice(0, 1000);
   }
@@ -132,6 +140,8 @@ export function providerPolicyAuditMetadata(decision: ProviderPolicyDecision) {
     training_allowed: decision.policy.trainingAllowed,
     external_retention_allowed: decision.policy.externalRetentionAllowed,
     pii_redaction_required: decision.policy.piiRedactionRequired,
+    restricted_data_egress_allowed: decision.policy.restrictedDataEgressAllowed,
+    enterprise_mode_required: decision.policy.enterpriseModeRequired,
     enterprise_control_enabled: decision.policy.enterpriseControlEnabled,
     verified_enterprise_controls: decision.policy.verifiedEnterpriseControls,
     restricted_data_egress_protected: true,

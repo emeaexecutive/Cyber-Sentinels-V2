@@ -26,9 +26,8 @@ export default function DataSovereigntyPage() {
             Enterprise control over data, workflows and durable operational memory.
           </h1>
           <p className="mt-5 max-w-4xl text-base leading-8 text-zinc-200">
-            Cyber Sentinels preserves operational trust continuity across
-            humans, AI agents and enterprise workflows—without surrendering
-            customer data, enterprise memory or operational IP.
+            Cyber Sentinels helps enterprises use AI without surrendering their
+            data, workflows, identity signals or operational IP.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Governed orchestration keeps provider use subordinate to enterprise
