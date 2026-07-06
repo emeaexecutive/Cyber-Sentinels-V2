@@ -18,6 +18,7 @@ export const detectionProviderRequirements = [
 export type DetectionSource =
   | "Provider API"
   | "Heuristic Baseline"
+  | "Runtime Intelligence"
   | "Demo Data"
   | "Real ML"
   | "Not Implemented"
@@ -89,12 +90,14 @@ export function normalizeDetectionSource(value: unknown): DetectionSource {
     "Real ML",
     "Provider API",
     "Heuristic Baseline",
+    "Runtime Intelligence",
     "Demo Data",
     "Awaiting Credentials",
     "Not Implemented",
   ];
   if (canonical.includes(source as DetectionSource)) return source as DetectionSource;
   if (/demo|mock|sample|simulation|fixture/i.test(source)) return "Demo Data";
+  if (/runtime.intelligence|runtime anomaly|trust drift/i.test(source)) return "Runtime Intelligence";
   if (/provider|world.?id|hopae|onfido|veriff|persona|entrust/i.test(source)) return "Provider API";
   if (/rule|heuristic|operator|workflow|api\.|session_integrity_review_form/i.test(source)) return "Heuristic Baseline";
   if (/placeholder|pending credential/i.test(source)) return "Awaiting Credentials";
@@ -172,6 +175,7 @@ export function getDetectionEngineStatus() {
     { id: "forged_documents", name: "Forged document detection", status: "Not Implemented", implementation_type: "placeholder", source: "Not Implemented", warning: "Document provenance fields are review context, not forensic detection." },
     { id: "session_injection", name: "Session and injection integrity", status: "Active", implementation_type: "heuristic", source: "Heuristic Baseline" },
     { id: "behavioral_anomalies", name: "Behavioral anomalies", status: "Review Only", implementation_type: "heuristic", source: "Heuristic Baseline" },
+    { id: "runtime_intelligence", name: "Runtime trust intelligence and signal fusion", status: "Review Only", implementation_type: "heuristic", source: "Runtime Intelligence", warning: "Deterministic runtime aggregation; weights and thresholds require benchmark validation." },
     { id: "identity_verification", name: "Identity verification orchestration", status: providers.some((provider) => provider.active && provider.module === "identity_verification") ? "Active" : "Awaiting Credentials", implementation_type: "provider", source: "Provider API" },
     { id: "agent_verification", name: "AI agent verification and governance", status: "Active", implementation_type: "workflow", source: "Heuristic Baseline" },
     { id: "provenance", name: "Provenance checks", status: "Review Only", implementation_type: "workflow", source: "Heuristic Baseline" },
@@ -184,6 +188,7 @@ export function getDetectionEngineStatus() {
     real_ml_enabled: false,
     provider_detection_enabled: providers.some((provider) => provider.active && ["deepfake_image_video", "synthetic_voice", "forged_documents"].includes(provider.module)),
     heuristic_detection_enabled: true,
+    runtime_intelligence_enabled: true,
     mock_data_present: true,
     validation_dataset_present: false,
     false_positive_tracking_present: true,
@@ -192,6 +197,15 @@ export function getDetectionEngineStatus() {
     missing_providers: providers.filter((provider) => !provider.active),
     providers,
     detection_modules: modules,
+    allowed_detection_sources: [
+      "Real ML",
+      "Provider API",
+      "Heuristic Baseline",
+      "Runtime Intelligence",
+      "Demo Data",
+      "Awaiting Credentials",
+      "Not Implemented",
+    ] as DetectionSource[],
     ml_maturity: {
       level: 2,
       label: "Provider-ready foundation",

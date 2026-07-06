@@ -23,7 +23,7 @@ test("heuristic output is explicitly labelled and never a final verdict", () => 
   const [signal] = runHeuristicDetection({ missingProvenance: true });
   assert.equal(signal.source, "Heuristic rule-based signal");
   assert.equal(signal.is_final_verdict, false);
-  assert.equal(calculateTrustScoreSource({ heuristicSignals: 1 }), "Heuristic Rules");
+  assert.equal(calculateTrustScoreSource({ heuristicSignals: 1 }), "Heuristic Baseline");
 });
 
 test("detection status endpoint is admin protected and returns engine status", async () => {

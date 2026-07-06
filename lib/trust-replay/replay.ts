@@ -35,6 +35,8 @@ export type ReplaySnapshot = {
     accountableActors: string[];
     operationalOutcome: string;
     detectionSources: string[];
+    runtimeAnomalies: string[];
+    providerResponses: string[];
   };
 };
 
@@ -216,6 +218,25 @@ export function buildReplaySnapshot(input: {
       .filter(Boolean)
       .map(String)
   )];
+  const runtimeAnomalies = [...new Set(
+    signals
+      .filter((row) =>
+        /runtime|anomaly|velocity|device|authorization/i.test(
+          String(row.signal_type ?? row.event_type ?? row.event ?? "")
+        )
+      )
+      .map((row) => String(row.signal_type ?? row.event_type ?? row.event))
+  )];
+  const providerResponses = [...new Set(
+    [...evidence, ...signals]
+      .map((row) => {
+        const metadata = rowMetadata(row);
+        const provider = row.provider_name ?? metadata.provider_name ?? metadata.provider;
+        const status = row.provider_status ?? metadata.provider_status ?? metadata.status;
+        return provider ? `${provider}: ${status ?? "response retained"}` : "";
+      })
+      .filter(Boolean)
+  )];
 
   return {
     subject_type: input.subjectType,
@@ -245,6 +266,8 @@ export function buildReplaySnapshot(input: {
       accountableActors,
       operationalOutcome,
       detectionSources,
+      runtimeAnomalies,
+      providerResponses,
     },
   };
 }

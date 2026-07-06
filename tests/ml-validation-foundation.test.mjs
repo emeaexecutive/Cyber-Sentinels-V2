@@ -11,6 +11,9 @@ import {
 import { realityDefenderProvider } from "../lib/detection/providers/reality-defender.ts";
 import { providerStatusLabel } from "../lib/detection/providers/types.ts";
 import { explainTrustScore } from "../lib/detection/detection-engine.ts";
+import { evaluateRuntimeTrust } from "../lib/runtime/runtime-trust-engine.ts";
+import { fuseTrustSignals } from "../lib/detection/signal-fusion.ts";
+import { buildExplainableTrustGraph } from "../lib/trust/trust-graph.ts";
 
 const positive = { caseId: "p", expected: "positive", actual: "positive", source: "heuristic_baseline", confidence: 0.8, evidence: [], limitations: [] };
 const negative = { caseId: "n", expected: "negative", actual: "negative", source: "heuristic_baseline", confidence: 0.8, evidence: [], limitations: [] };
@@ -106,4 +109,59 @@ test("control-plane positioning reuses existing routes and preserves ML boundari
   assert.match(positioning, /Named concepts do not require duplicate routes/);
   assert.match(positioning, /baseline_model_assisted/);
   assert.match(positioning, /not trained enterprise AI detection/);
+});
+
+test("runtime trust intelligence remains explainable and escalation-aware", () => {
+  const result = evaluateRuntimeTrust({
+    previousScore: 90,
+    signals: { authorizationAnomaly: true, impossibleVelocity: true },
+    evidenceReferences: ["event:1"],
+  });
+  assert.equal(result.source, "Runtime Intelligence");
+  assert.equal(result.escalationRequired, true);
+  assert.deepEqual(result.escalationReasons, ["impossibleVelocity", "authorizationAnomaly"]);
+  assert.ok(result.weightedSignals.every((signal) => signal.contribution > 0));
+  assert.match(result.limitations.join(" "), /not trained machine learning/i);
+});
+
+test("signal fusion returns bounded recommendations without certainty claims", () => {
+  const result = fuseTrustSignals({
+    signals: [
+      {
+        id: "runtime-1",
+        source: "Runtime Intelligence",
+        risk: 0.9,
+        confidence: 0.7,
+        evidence: ["authorization anomaly"],
+      },
+    ],
+  });
+  assert.equal(result.recommendation, "block");
+  assert.equal(result.confidenceBand, "medium");
+  assert.match(result.limitations.join(" "), /not a certainty/i);
+});
+
+test("explainable trust graph reports transitions and missing linkage", () => {
+  const graph = buildExplainableTrustGraph({
+    nodes: [{ id: "actor:1", type: "actor", label: "Agent" }],
+    edges: [{
+      id: "edge:1",
+      from: "actor:1",
+      to: "workflow:missing",
+      relation: "acted_in",
+      explanation: "Agent acted in workflow.",
+    }],
+    transitions: [{
+      id: "transition:1",
+      fromScore: 80,
+      toScore: 55,
+      reason: "Authorization changed.",
+      source: "Runtime Intelligence",
+      occurredAt: "2026-01-01T00:00:00.000Z",
+      evidenceReferences: ["event:1"],
+    }],
+  });
+  assert.equal(graph.linkageCoverage, 0);
+  assert.deepEqual(graph.missingLinks[0].missingNodeIds, ["workflow:missing"]);
+  assert.match(graph.explanation[0].change, /80 to 55/);
 });

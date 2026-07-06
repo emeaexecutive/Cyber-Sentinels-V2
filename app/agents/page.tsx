@@ -34,10 +34,12 @@ const runtimeControls = [
   ["Posture changes", "New evidence, context shifts and governance interventions produce explainable state transitions."],
   ["Replay continuity", "Activity, authorization changes and review decisions remain one operational history after execution ends."],
   ["Execution continuity", "Requested action, delegated scope, runtime evidence, intervention and outcome remain connected across the full operation."],
+  ["Memory scope", "Customer-owned operational memory remains bounded by workflow purpose, authorization and enterprise retention policy."],
   ["Signed action receipts", "Consequential actions retain actor, authority, declared intent, constraints, evidence and outcome for verification."],
   ["Kill-switch visibility", "Revocation and interruption state remain visible to reviewers; Cyber Sentinels does not imply control the runtime has not exposed."],
   ["Blast-radius review", "Delegated scope, reachable systems and action sensitivity provide bounded review context rather than a universal risk score."],
   ["Shadow-agent risk", "Unregistered or ownerless automation is routed for identity, authority and governance review before reliance."],
+  ["Unusual action patterns", "Unexpected action sequence, velocity or authorization use is preserved as explainable Runtime Intelligence for human review."],
 ];
 
 const actionAccountability = [

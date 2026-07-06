@@ -2,7 +2,9 @@ import type { DetectionSource } from "@/lib/detection/detection-engine";
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { baselineResult } from "../detection/baseline-model.ts";
+import { fuseTrustSignals } from "../detection/signal-fusion.ts";
 import type { DetectionProvider } from "../detection/providers/types.ts";
+import { evaluateRuntimeTrust, type RuntimeSignalKey } from "../runtime/runtime-trust-engine.ts";
 import type {
   ConfusionMatrix,
   PrecisionRecallMetrics,
@@ -108,7 +110,14 @@ export class BenchmarkHarness {
       falseNegatives: cases.filter((item) => item.falseNegative).length,
       reviewerAgreements: cases.filter((item) => item.reviewerOutcome === "agreed").length,
       reviewerOverrides: cases.filter((item) => item.reviewerOverride.applied).length,
+      reviewerDisagreements: cases.filter((item) => item.reviewerOutcome === "disagreed").length,
       providerBacked: cases.filter((item) => item.detectionSource === "Provider API").length,
+      escalationRate: cases.length
+        ? cases.filter((item) => ["escalated", "blocked"].includes(item.governanceOutcome)).length / cases.length
+        : null,
+      averageTrustDrift: cases.length
+        ? cases.reduce((total, item) => total + (item.trustScoreAfter - item.trustScoreBefore), 0) / cases.length
+        : null,
       byCategory: Object.fromEntries(
         [...new Set(cases.map((item) => item.category))].map((category) => [
           category,
@@ -170,6 +179,53 @@ export function calculateReviewerAgreement(
   };
 }
 
+function runtimeSignals(testCase: ValidationCase) {
+  const aliases: Record<RuntimeSignalKey, string[]> = {
+    deviceMismatch: ["deviceMismatch", "deviceSessionMismatch", "sessionInconsistency"],
+    impossibleVelocity: ["impossibleVelocity", "impossibleWorkflowVelocity", "impossibleSessionVelocity"],
+    suspiciousSessionChange: ["suspiciousSessionChange", "sessionAnomaly", "behavioralInconsistency"],
+    repeatedFailedVerification: ["repeatedFailedVerification", "repeatedVerificationFailures"],
+    provenanceConflict: ["provenanceConflict", "metadataMissing"],
+    agentRuntimeAnomaly: ["agentRuntimeAnomaly", "agentActionAnomaly", "suspiciousRuntimeBehavior"],
+    authorizationAnomaly: ["authorizationAnomaly"],
+    virtualCameraIndicator: ["virtualCameraIndicator"],
+    documentMismatch: ["documentMismatch", "documentConflict"],
+  };
+  return Object.fromEntries(
+    Object.entries(aliases).map(([key, names]) => [
+      key,
+      names.some((name) => testCase.signals[name] === true),
+    ])
+  ) as Partial<Record<RuntimeSignalKey, boolean>>;
+}
+
+function confidenceCalibration(results: ValidationResult[]) {
+  const bands = [
+    { id: "low", min: 0, max: 0.5 },
+    { id: "medium", min: 0.5, max: 0.8 },
+    { id: "high", min: 0.8, max: 1.01 },
+  ];
+  return Object.fromEntries(
+    bands.map((band) => {
+      const members = results.filter(
+        (result) => result.confidence >= band.min && result.confidence < band.max
+      );
+      return [
+        band.id,
+        {
+          caseCount: members.length,
+          averageConfidence: members.length
+            ? members.reduce((total, result) => total + result.confidence, 0) / members.length
+            : null,
+          observedAgreement: members.length
+            ? members.filter((result) => result.actual === result.expected).length / members.length
+            : null,
+        },
+      ];
+    })
+  );
+}
+
 export async function loadValidationCases(root = path.join(process.cwd(), "data", "validation")) {
   const cases: ValidationCase[] = [];
   async function visit(directory: string): Promise<void> {
@@ -210,6 +266,14 @@ export async function runValidationBenchmark(options: {
       reviewerAgreement: calculateReviewerAgreement([], []),
       providerCoverage: 0,
       detectionSourceCoverage: {} as Record<string, number>,
+      runtimeReplayValidation: [] as ValidationResult[],
+      signalFusionComparison: [] as Array<Record<string, unknown>>,
+      confidenceCalibration: confidenceCalibration([]),
+      escalationRate: null,
+      falsePositiveRate: null,
+      falseNegativeRate: null,
+      governanceOverrideTracking: { overrides: 0, reviewerDisagreements: 0 },
+      trustDriftTracking: { average: null, cases: [] as Array<Record<string, unknown>> },
       falsePositiveCaseIds: [] as string[],
       falseNegativeCaseIds: [] as string[],
       audit: {
@@ -238,6 +302,74 @@ export async function runValidationBenchmark(options: {
     return baseline?.actual === providerResult.actual;
   }).length;
   const reviewerAgreement = calculateReviewerAgreement(cases, heuristicResults);
+  const runtimeEvaluations = cases.map((testCase) => ({
+    testCase,
+    runtime: evaluateRuntimeTrust({
+      previousScore: 100,
+      signals: runtimeSignals(testCase),
+      evidenceReferences: testCase.sampleReference ? [testCase.sampleReference] : [],
+    }),
+  }));
+  const runtimeReplayValidation: ValidationResult[] = runtimeEvaluations.map(({ testCase, runtime }) => {
+    return {
+      caseId: testCase.id,
+      expected: testCase.expectedOutcome,
+      actual: runtime.score < 45 ? "positive" : runtime.score < 80 ? "review" : "negative",
+      source: "runtime_intelligence",
+      confidence: runtime.confidence,
+      evidence: runtime.weightedSignals.map((signal) => signal.key),
+      limitations: runtime.limitations,
+    };
+  });
+  const signalFusionComparison = cases.map((testCase) => {
+    const baseline = heuristicResults.find((result) => result.caseId === testCase.id)!;
+    const runtime = runtimeReplayValidation.find((result) => result.caseId === testCase.id)!;
+    const fusion = fuseTrustSignals({
+      signals: [
+        {
+          id: `${testCase.id}:baseline`,
+          source: "Heuristic Baseline",
+          risk: baseline.actual === "positive" ? 1 : baseline.actual === "review" ? 0.5 : 0,
+          confidence: baseline.confidence,
+          evidence: baseline.evidence,
+          limitations: baseline.limitations,
+        },
+        {
+          id: `${testCase.id}:runtime`,
+          source: "Runtime Intelligence",
+          risk: runtime.actual === "positive" ? 1 : runtime.actual === "review" ? 0.5 : 0,
+          confidence: runtime.confidence,
+          evidence: runtime.evidence,
+          limitations: runtime.limitations,
+        },
+      ],
+      reviewerOutcome:
+        testCase.reviewerOutcome === "positive"
+          ? "block"
+          : testCase.reviewerOutcome === "negative"
+            ? "allow"
+            : testCase.reviewerOutcome === "review"
+              ? "review"
+              : null,
+    });
+    return {
+      caseId: testCase.id,
+      expected: testCase.expectedOutcome,
+      recommendation: fusion.recommendation,
+      confidence: fusion.confidence,
+      evidenceSummary: fusion.evidenceSummary,
+      escalationReason: fusion.escalationReason,
+      limitations: fusion.limitations,
+    };
+  });
+  const positiveCases = results.filter((result) => result.expected === "positive").length;
+  const negativeCases = results.filter((result) => result.expected === "negative").length;
+  const falsePositiveCount = results.filter(
+    (result) => result.expected === "negative" && result.actual === "positive"
+  ).length;
+  const falseNegativeCount = results.filter(
+    (result) => result.expected === "positive" && result.actual === "negative"
+  ).length;
 
   return {
     caseCount: cases.length,
@@ -259,6 +391,42 @@ export async function runValidationBenchmark(options: {
         results.filter((result) => result.source === source).length / cases.length,
       ])
     ),
+    runtimeReplayValidation,
+    signalFusionComparison,
+    confidenceCalibration: confidenceCalibration(results),
+    escalationRate: signalFusionComparison.filter((item) =>
+      ["escalate", "block"].includes(String(item.recommendation))
+    ).length / cases.length,
+    falsePositiveRate: negativeCases ? falsePositiveCount / negativeCases : null,
+    falseNegativeRate: positiveCases ? falseNegativeCount / positiveCases : null,
+    governanceOverrideTracking: {
+      overrides: cases.filter((testCase) => Boolean(testCase.governanceOverride)).length,
+      reviewerDisagreements: reviewerAgreement.disagreements,
+      cases: cases
+        .filter((testCase) => Boolean(testCase.governanceOverride))
+        .map((testCase) => ({
+          caseId: testCase.id,
+          reviewerId: testCase.governanceOverride?.reviewerId,
+          reason: testCase.governanceOverride?.reason,
+          outcome: testCase.governanceOverride?.outcome,
+        })),
+    },
+    trustDriftTracking: {
+      average: runtimeEvaluations.length
+        ? runtimeEvaluations.reduce(
+            (total, evaluation) => total + evaluation.runtime.drift,
+            0
+          ) / runtimeEvaluations.length
+        : null,
+      cases: runtimeEvaluations.map(({ testCase, runtime }) => ({
+        caseId: testCase.id,
+        previousScore: runtime.previousScore,
+        score: runtime.score,
+        drift: runtime.drift,
+        posture: runtime.posture,
+        evidence: runtime.weightedSignals.map((signal) => signal.key),
+      })),
+    },
     falsePositiveCaseIds: results
       .filter((result) => result.expected === "negative" && result.actual === "positive")
       .map((result) => result.caseId),

@@ -13,6 +13,7 @@ export type DetectionSource =
   | "provider_api"
   | "heuristic_baseline"
   | "baseline_model_assisted"
+  | "runtime_intelligence"
   | "demo_data"
   | "not_implemented"
   | "awaiting_credentials";
@@ -27,6 +28,11 @@ export type ValidationCase = {
   sampleReference?: string;
   reviewerOutcome?: DetectionExpectedOutcome;
   reviewerId?: string;
+  governanceOverride?: {
+    outcome: DetectionExpectedOutcome;
+    reviewerId: string;
+    reason: string;
+  };
 };
 
 export type ValidationResult = {
