@@ -82,3 +82,16 @@ Configuration and validation caveats remain in provider notes rather than creati
 Public pages explain the category, operating model, evidence boundaries and enterprise outcomes. Case records, internal validation, founder controls, launch controls, test benches and raw architecture remain protected, de-indexed and absent from public navigation.
 
 The platform adds no public route for this operating model. Existing homepage, platform, enterprise, Trust Center, Replay, posture, governance and sovereignty surfaces remain the canonical product path.
+
+## Investor and demo readiness
+
+The shortest credible walkthrough follows one governed workflow:
+
+1. identify the human, AI agent or non-human actor and accountable owner;
+2. show the authorization and runtime boundary;
+3. attach source-linked evidence without claiming certainty;
+4. show posture changing as evidence or context changes;
+5. route a material change to named governance;
+6. replay the complete chronology and governed outcome.
+
+This sequence demonstrates durable infrastructure rather than a collection of features. Demo data and provider-shaped fixtures remain explicitly `Simulated`; only validated, configured operational paths may appear as `Live`.

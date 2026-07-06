@@ -266,13 +266,15 @@ export default async function TrustCenterPage() {
 
           <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
             <h2 className="text-xl font-semibold">Provider-backed evidence</h2>
-            <p className="mt-2 text-sm text-zinc-500">Normalized provider states linked to receipts and workflow replay.</p>
+            <p className="mt-2 text-sm text-zinc-500">Normalized provider evidence outcomes linked to receipts and workflow replay. Runtime availability remains a separate four-state control.</p>
             <div className="mt-5 grid gap-3">
               {providerEvidence.length ? providerEvidence.slice(0, 8).map((provider, index) => (
                 <article key={`${provider.receiptId}-${provider.providerName}-${index}`} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <p className="font-medium text-zinc-100">{provider.providerName}</p>
-                    <State value={provider.state} />
+                    <span className="text-xs text-zinc-400">
+                      Evidence outcome: <State value={provider.state} />
+                    </span>
                   </div>
                   <p className="mt-3 text-sm leading-6 text-zinc-400">{provider.summary}</p>
                   <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-zinc-500">

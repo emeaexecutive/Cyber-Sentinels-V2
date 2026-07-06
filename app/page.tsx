@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TrustOpsOperatingStack } from "@/components/trustops-operating-stack";
 
 const replayPath = [
   ["Actor", "Human, agent or service account"],
@@ -131,6 +132,23 @@ export default function Home() {
       </section>
 
       <section className="border-t border-zinc-800 bg-zinc-950/60">
+        <div className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-20">
+          <p className="operational-eyebrow">TrustOps operating stack</p>
+          <h2 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-white md:text-4xl">
+            Eight connected layers. One accountable workflow record.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Identity, runtime integrity, authority, evidence and governance stay
+            connected. Replay preserves the chronology; Persistent Trust
+            Posture explains the current state.
+          </p>
+          <div className="mt-8">
+            <TrustOpsOperatingStack compact />
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-zinc-800">
         <div className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-20">
           <p className="operational-eyebrow">Continuous trust</p>
           <h2 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-white md:text-4xl">
