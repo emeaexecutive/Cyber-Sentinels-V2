@@ -61,6 +61,20 @@ This makes replay useful for investigations, audit preparation, escalation revie
 - Describe humans and AI agents through ownership, authority, evidence and governance—not speculative autonomy.
 - Keep public navigation centered on platform, replay, posture, governance and sovereignty.
 - Use two primary actions on decision pages: experience the product or request enterprise access.
+- Lead platform and enterprise pages with the governed workflow outcome, then explain the operating model.
+- Keep protected dashboard links out of public vertical narratives; public pages explain value while case data remains authenticated.
+- Use Verification Replay, rather than a hiring-only scenario, as the primary cross-industry walkthrough.
+
+## Surface audit
+
+- **Homepage:** states the category, audience, continuity problem and two next actions without exposing internal controls.
+- **Platform:** explains the execution contract, durable memory, current posture, governance control and enterprise ownership.
+- **Enterprise:** uses the canonical eight-layer stack once, then shows regulated workflow applications without duplicating capability cards.
+- **Trust Center:** remains protected because it contains posture, evidence, governance and case-level replay data.
+- **Hiring Security:** presents hiring as one governed workflow and keeps operational dashboard entry behind authenticated navigation.
+- **Trust Evaluation Lab:** separates concepts, simulations and prototypes from provider-backed validation and avoids certainty claims.
+- **Investor:** leads with the platform-wide replay walkthrough while retaining hiring as the initial wedge.
+- **Design Partner:** frames pilots around one consequential workflow, named owners, evidence requirements and an accountable outcome.
 
 ## Remaining clarity gaps
 
@@ -69,3 +83,4 @@ This makes replay useful for investigations, audit preparation, escalation revie
 - Protected trust-center data will become more legible as real enterprise workflows replace sparse or demo records.
 - Vertical proof should expand only when customer evidence exists; avoid unsupported industry claims.
 - Pricing and packaging language should be checked against the final enterprise sales motion before launch.
+- The legacy singular and plural design-partner URLs still overlap; consolidate their navigation role only when route compatibility can be handled deliberately.

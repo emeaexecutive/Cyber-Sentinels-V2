@@ -20,11 +20,9 @@ export default function PlatformPage() {
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-5xl">
         <section className="operational-panel p-6 md:p-8">
-          <p className="operational-eyebrow">
-            Governed enterprise intelligence
-          </p>
+          <p className="operational-eyebrow">TrustOps platform</p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            The operational trust operating system for intelligent enterprises.
+            Govern consequential workflows from actor entry to reviewable outcome.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels connects humans, AI agents and enterprise workflows
@@ -36,7 +34,7 @@ export default function PlatformPage() {
             the durable enterprise record of how it became true.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            The operating system coordinates trust continuity without replacing
+            Cyber Sentinels adds a governed trust record without replacing
             accountable human authority, workflow systems of record or existing
             security controls.
           </p>
@@ -72,8 +70,8 @@ export default function PlatformPage() {
             ))}
           </div>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-500">
-            Governed enterprise intelligence means reviewable operational
-            context—not automated judgment. Evidence, authority, trust changes
+            TrustOps means reviewable operational context, not automated
+            judgment. Evidence, authority, trust changes
             and outcomes remain available to accountable decision-makers.
           </p>
         </section>

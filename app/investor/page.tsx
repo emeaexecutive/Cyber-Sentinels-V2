@@ -49,8 +49,8 @@ export default function InvestorPage() {
             workflow memory and operational IP under customer control.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/demo/hiring-attack" className="brand-primary-action brand-action-large text-sm">
-              View Demo
+            <Link href="/verification-replay" className="brand-primary-action brand-action-large text-sm">
+              Explore Verification Replay
             </Link>
             <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
               Discuss the Platform

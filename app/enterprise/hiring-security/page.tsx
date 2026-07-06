@@ -16,16 +16,8 @@ const capabilities = [
     "Surface missing evidence, suspicious workflow activity, proxy-interview indicators and unresolved review items without claiming automatic lie detection.",
   ],
   [
-    "Recruiter Verification",
-    "Help teams confirm recruiter ownership, hiring context and handoffs for sensitive roles.",
-  ],
-  [
     "Governance Reviews",
     "Route high-risk hiring cases to human reviewers with escalation reason, session context and evidence needed for a defensible decision.",
-  ],
-  [
-    "Audit Trails",
-    "Preserve review history, evidence updates, governance actions, reviewer decisions, receipts and replay timelines.",
   ],
 ];
 
@@ -43,16 +35,8 @@ const riskExamples = [
     "Generated answers, coached presence or manipulated media can change session integrity. Cyber Sentinels records observable anomalies and reviewer notes without turning them into unsupported detection claims.",
   ],
   [
-    "Injected interview feeds",
-    "A screen, camera or audio channel shows signs of manipulation. Injection risk becomes an active flag, not a hidden score, and the case can move into governance review.",
-  ],
-  [
     "Session integrity failures",
     "The meeting can continue as an interview record while the trust state changes. Teams see what failed, what remains usable, what needs reverification and whether governance escalation is required.",
-  ],
-  [
-    "Governed hiring decisions",
-    "High-risk changes open a reviewer-owned decision path with evidence, authorization context, chronology, receipt and replay references available for audit.",
   ],
 ];
 const workflow = [
@@ -119,9 +103,6 @@ export default function HiringSecurityPage() {
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
             Session integrity anomalies are treated as review context, not automatic conclusions. Governance escalation records why the hiring workflow needs human review before the decision moves forward.
           </p>
-          <Link href="/dashboard/session-integrity" className="mt-5 inline-flex text-sm font-semibold text-cyan-200 underline">
-            Review session integrity
-          </Link>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
