@@ -58,14 +58,13 @@ export default function Home() {
             Govern operational trust across humans, AI agents and enterprise workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 sm:text-xl sm:leading-9">
-            Keep humans, AI agents, non-human identities and consequential
-            workflows accountable as trust changes.
+            Cyber Sentinels preserves operational trust continuity across
+            humans, AI agents and enterprise workflows.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
-            Cyber Sentinels connects replayable operational memory, governed
-            execution, Authorization Lineage, evidence continuity, Persistent
-            Trust Posture and enterprise AI sovereignty into one accountable
-            operating model.
+            Replayable enterprise memory, governed execution, Authorization
+            Lineage, evidence continuity and Persistent Trust Posture keep
+            consequential work accountable as trust changes.
           </p>
         </div>
 

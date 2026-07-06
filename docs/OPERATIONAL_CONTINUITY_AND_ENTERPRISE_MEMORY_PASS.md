@@ -8,6 +8,8 @@ Operational continuity means identity, runtime context, delegated authority, evi
 
 The platform does not replace workflow systems, security controls or human authority. It makes the trust context around consequential work durable and reviewable.
 
+The operating discipline is simple: posture shows the current state, governed execution controls consequential action, and Replay preserves the evidence-backed memory of how each outcome was reached.
+
 ## Replay as enterprise memory
 
 Replay is the enterprise memory system for operational trust.
@@ -44,6 +46,8 @@ Authorization Lineage preserves the authority under which work occurred. Evidenc
 The same accountability model applies across fintech, banking, insurance, healthcare, onboarding, approvals, claims, vendor access, hiring, AI-assisted operations and regulated workflows.
 
 The vertical context changes, but the continuity chain remains stable: actor, workflow, authority, evidence, trust transition, governance and outcome.
+
+This common model lets regulated teams apply one accountability discipline to onboarding, claims, approvals, vendor access, hiring and AI-assisted operations without forcing those workflows into a new system of record.
 
 ## Persistent trust posture
 

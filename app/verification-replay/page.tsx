@@ -5,8 +5,8 @@ const replayFlow = [
   ["02", "Workflow", "The operation, purpose and runtime context remain attached to the chronology."],
   ["03", "Evidence", "Provider, workflow and integrity evidence remains connected to its source."],
   ["04", "Authorization", "Delegated scope, grants, changes and revocations retain their lineage."],
-  ["05", "Governance", "Named review, intervention and approval actions remain attributable."],
-  ["06", "Trust change", "Every posture transition stays connected to evidence and review rationale."],
+  ["05", "Trust change", "Every posture transition stays connected to evidence, authority and review rationale."],
+  ["06", "Governance", "Named review, intervention and approval actions remain attributable."],
   ["07", "Outcome", "The governed result and receipt close the chronology without claiming certainty."],
 ];
 
