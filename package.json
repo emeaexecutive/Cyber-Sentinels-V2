@@ -7,6 +7,7 @@
     "build": "next build",
     "test:hopae": "node --experimental-strip-types --test tests/hopae-assurance.test.mjs",
     "test:detection": "node --experimental-strip-types --test tests/detection-sovereignty.test.mjs",
+    "test:ml-validation": "node --experimental-strip-types --test tests/ml-validation-foundation.test.mjs",
     "start": "next start",
     "lint": "next build"
   },

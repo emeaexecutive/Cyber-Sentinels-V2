@@ -53,3 +53,7 @@ Cyber Sentinels helps enterprises use AI without surrendering their data, workfl
 - **Provider governance:** procurement approval, contract scope, runtime health, region, retention and model/provider changes require deployment-specific evidence before regulated use.
 
 Production readiness is deployment-specific. This document describes application controls visible in code, not certification, regulatory approval or a guarantee of provider performance.
+
+## Acceptable pilot scope
+
+An acceptable regulated pilot is decision-support only: approved synthetic, public or consented data; named operators; documented human review; audit and replay enabled; provider evidence separated from Cyber Sentinels scoring; restricted-data egress prohibited; and no adverse, eligibility, identity or financial decision made autonomously. Entry criteria include a versioned validation plan, precision/recall reporting with cohort counts, false-positive and false-negative review, provider/data-flow approval and an incident rollback owner. Unvalidated ML claims are prohibited.

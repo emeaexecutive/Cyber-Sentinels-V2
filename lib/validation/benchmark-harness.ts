@@ -1,4 +1,14 @@
 import type { DetectionSource } from "@/lib/detection/detection-engine";
+import { readFile, readdir } from "node:fs/promises";
+import path from "node:path";
+import { baselineResult } from "../detection/baseline-model.ts";
+import type { DetectionProvider } from "../detection/providers/types.ts";
+import type {
+  ConfusionMatrix,
+  PrecisionRecallMetrics,
+  ValidationCase,
+  ValidationResult,
+} from "./validation-case.ts";
 
 export type ExpectedOutcome = "allow" | "review" | "block" | "no_signal";
 export type ProviderStatus =
@@ -110,4 +120,107 @@ export class BenchmarkHarness {
 
 export function createBenchmarkHarness() {
   return new BenchmarkHarness();
+}
+
+export function calculateConfusionMatrix(results: ValidationResult[]): ConfusionMatrix {
+  return results.reduce<ConfusionMatrix>(
+    (matrix, result) => {
+      if (result.expected === "review" || result.actual === "review") matrix.reviewOnly += 1;
+      else if (result.expected === "positive" && result.actual === "positive") matrix.truePositives += 1;
+      else if (result.expected === "negative" && result.actual === "positive") matrix.falsePositives += 1;
+      else if (result.expected === "negative" && result.actual === "negative") matrix.trueNegatives += 1;
+      else if (result.expected === "positive" && result.actual === "negative") matrix.falseNegatives += 1;
+      return matrix;
+    },
+    { truePositives: 0, falsePositives: 0, trueNegatives: 0, falseNegatives: 0, reviewOnly: 0 }
+  );
+}
+
+export function calculatePrecisionRecall(matrix: ConfusionMatrix): PrecisionRecallMetrics {
+  const precisionDenominator = matrix.truePositives + matrix.falsePositives;
+  const recallDenominator = matrix.truePositives + matrix.falseNegatives;
+  const precision = precisionDenominator ? matrix.truePositives / precisionDenominator : null;
+  const recall = recallDenominator ? matrix.truePositives / recallDenominator : null;
+  const f1 =
+    precision !== null && recall !== null && precision + recall > 0
+      ? (2 * precision * recall) / (precision + recall)
+      : null;
+  return { precision, recall, f1 };
+}
+
+export async function loadValidationCases(root = path.join(process.cwd(), "data", "validation")) {
+  const cases: ValidationCase[] = [];
+  async function visit(directory: string): Promise<void> {
+    let entries;
+    try {
+      entries = await readdir(directory, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const target = path.join(directory, entry.name);
+      if (entry.isDirectory()) await visit(target);
+      else if (entry.name.endsWith(".json")) {
+        const parsed = JSON.parse(await readFile(target, "utf8")) as ValidationCase | ValidationCase[];
+        cases.push(...(Array.isArray(parsed) ? parsed : [parsed]));
+      }
+    }
+  }
+  await visit(root);
+  return cases;
+}
+
+export async function runValidationBenchmark(options: {
+  cases?: ValidationCase[];
+  providers?: readonly DetectionProvider[];
+} = {}) {
+  const cases = options.cases ?? (await loadValidationCases());
+  if (!cases.length) {
+    return {
+      caseCount: 0,
+      message: "No validation dataset available yet.",
+      detectionSourcesUsed: [] as string[],
+      results: [] as ValidationResult[],
+      confusionMatrix: calculateConfusionMatrix([]),
+      metrics: calculatePrecisionRecall(calculateConfusionMatrix([])),
+      confidenceDistribution: { low: 0, medium: 0, high: 0 },
+      providerAgreement: null,
+      providerCoverage: 0,
+      warnings: ["Metrics are unavailable until labelled validation cases are added."],
+    };
+  }
+
+  const heuristicResults = cases.map(baselineResult);
+  const providerResults = (
+    await Promise.all(
+      (options.providers ?? []).map(async (provider) =>
+        Promise.all(cases.map((testCase) => provider.runDetection(testCase)))
+      )
+    )
+  ).flat();
+  const usableProviderResults = providerResults.filter((result) => result.source === "provider_api");
+  const results = [...heuristicResults, ...usableProviderResults];
+  const confusionMatrix = calculateConfusionMatrix(results);
+  const agreements = usableProviderResults.filter((providerResult) => {
+    const baseline = heuristicResults.find((result) => result.caseId === providerResult.caseId);
+    return baseline?.actual === providerResult.actual;
+  }).length;
+
+  return {
+    caseCount: cases.length,
+    detectionSourcesUsed: [...new Set(results.map((result) => result.source))],
+    results,
+    confusionMatrix,
+    metrics: calculatePrecisionRecall(confusionMatrix),
+    confidenceDistribution: {
+      low: results.filter((result) => result.confidence < 0.5).length,
+      medium: results.filter((result) => result.confidence >= 0.5 && result.confidence < 0.8).length,
+      high: results.filter((result) => result.confidence >= 0.8).length,
+    },
+    providerAgreement: usableProviderResults.length ? agreements / usableProviderResults.length : null,
+    providerCoverage: usableProviderResults.length / cases.length,
+    warnings: usableProviderResults.length
+      ? ["Provider results are evidence inputs, not final authenticity decisions."]
+      : ["No live provider inference was used."],
+  };
 }

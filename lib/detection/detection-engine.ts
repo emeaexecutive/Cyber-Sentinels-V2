@@ -23,6 +23,30 @@ export type DetectionSource =
   | "Not Implemented"
   | "Awaiting Credentials";
 
+export type TrustScoreExplanation = {
+  source:
+    | "provider_api"
+    | "heuristic_baseline"
+    | "baseline_model_assisted"
+    | "demo_data"
+    | "not_implemented"
+    | "awaiting_credentials";
+  confidence: number;
+  evidence: string[];
+  limitations: string[];
+};
+
+export function explainTrustScore(input: TrustScoreExplanation): TrustScoreExplanation {
+  return {
+    ...input,
+    confidence: Math.max(0, Math.min(1, input.confidence)),
+    evidence: [...input.evidence],
+    limitations: input.limitations.length
+      ? [...input.limitations]
+      : ["Trust scores support governance review and are not final authenticity verdicts."],
+  };
+}
+
 export type HeuristicDetectionInput = {
   riskyIpOrDeviceChange?: boolean;
   impossibleSessionVelocity?: boolean;
@@ -169,6 +193,12 @@ export function getDetectionEngineStatus() {
     providers,
     detection_modules: modules,
     trust_score_source: "Heuristic Rules" as DetectionSource,
+    trust_score_explanation: explainTrustScore({
+      source: "heuristic_baseline",
+      confidence: 0.5,
+      evidence: ["Deterministic workflow and session-integrity signals"],
+      limitations: ["Not trained ML; thresholds require representative benchmark validation."],
+    }),
     warnings: [
       "No confirmed ML detection unless a verified model or implemented provider inference exists.",
       "Configured credentials do not prove that a provider adapter, health check or accuracy validation exists.",

@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { getDetectionEngineStatus } from "@/lib/detection/detection-engine";
 import { createClient } from "@/lib/supabase/server";
+import { detectionProviders } from "@/lib/detection/providers";
+import { runValidationBenchmark } from "@/lib/validation/benchmark-harness";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,12 @@ export default async function DetectionStatusAdminPage() {
   }
   await requireAdminPageAccess(supabase, { path: "/admin/detection-status" });
   const status = getDetectionEngineStatus();
+  const benchmark = await runValidationBenchmark();
+  const providerStates = detectionProviders.map((provider) => ({
+    name: provider.providerName,
+    status: provider.status(),
+    signals: provider.supportedSignals.join(", "),
+  }));
   const scorecard = [
     ["Real ML inference", status.real_ml_enabled ? "Active" : "Inactive"],
     ["Provider ML detection", status.provider_detection_enabled ? "Active" : "Awaiting Credentials"],
@@ -54,9 +62,56 @@ export default async function DetectionStatusAdminPage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">ML Capability Level</p>
+          <p className="mt-3 text-xl font-semibold text-zinc-100">Level 2 — Provider-ready foundation</p>
+          <p className="mt-2 text-sm text-zinc-500">Target: provider-backed and benchmark validated. The baseline is explainable scoring, not trained ML.</p>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Trust Score Source</p>
           <p className="mt-3 text-xl font-semibold text-zinc-100">{status.trust_score_source}</p>
-          <p className="mt-2 text-sm text-zinc-500">Deterministic workflow rules and normalized provider evidence; not proprietary ML.</p>
+          <p className="mt-2 text-sm text-zinc-500">Confidence: {Math.round(status.trust_score_explanation.confidence * 100)}%. Evidence: {status.trust_score_explanation.evidence.join(", ")}.</p>
+          <p className="mt-2 text-sm text-amber-200">{status.trust_score_explanation.limitations.join(" ")}</p>
+        </section>
+
+        <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="font-semibold text-zinc-100">Validation Dataset Status</h2>
+            <p className="mt-3 text-sm text-zinc-400">{benchmark.caseCount} labelled cases</p>
+            {!benchmark.caseCount && <p className="mt-2 text-sm text-amber-200">{benchmark.message}</p>}
+          </article>
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="font-semibold text-zinc-100">Precision / Recall Metrics</h2>
+            <p className="mt-3 text-sm text-zinc-400">Precision: {benchmark.metrics.precision ?? "Unavailable"} · Recall: {benchmark.metrics.recall ?? "Unavailable"} · F1: {benchmark.metrics.f1 ?? "Unavailable"}</p>
+          </article>
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="font-semibold text-zinc-100">Confusion Matrix</h2>
+            <p className="mt-3 text-sm text-zinc-400">TP {benchmark.confusionMatrix.truePositives} · FP {benchmark.confusionMatrix.falsePositives} · TN {benchmark.confusionMatrix.trueNegatives} · FN {benchmark.confusionMatrix.falseNegatives}</p>
+          </article>
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="font-semibold text-zinc-100">Detection Source Coverage</h2>
+            <p className="mt-3 text-sm text-zinc-400">{benchmark.detectionSourcesUsed.join(", ") || "No benchmark sources executed"}</p>
+          </article>
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="font-semibold text-zinc-100">Missing Provider Credentials</h2>
+            <p className="mt-3 text-sm text-zinc-400">{providerStates.filter((provider) => provider.status === "awaiting_credentials").map((provider) => provider.name).join(", ") || "None"}</p>
+          </article>
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="font-semibold text-zinc-100">Next Actions</h2>
+            <p className="mt-3 text-sm text-zinc-400">Add approved labelled cases, implement one reviewed provider endpoint, then calibrate thresholds.</p>
+          </article>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <h2 className="font-semibold text-zinc-100">Provider Detection Status</h2>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {providerStates.map((provider) => (
+              <div key={provider.name} className="rounded border border-zinc-800 p-3 text-sm">
+                <p className="text-zinc-200">{provider.name} · {provider.status.replaceAll("_", " ")}</p>
+                <p className="mt-1 text-zinc-500">{provider.signals}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 overflow-hidden rounded-lg border border-zinc-800">
