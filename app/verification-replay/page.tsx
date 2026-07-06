@@ -26,6 +26,13 @@ const memoryProperties = [
   ["Outcome-complete", "Resolved conditions, unresolved flags and the governed result remain attached to the record."],
 ];
 
+const scaleControls = [
+  ["Bounded reads", "Operational views load deterministic windows while preserving continuation state for deeper history."],
+  ["Stable chronology", "Timestamp and record identity provide repeatable ordering when events arrive together or out of order."],
+  ["Policy retention", "Retention duration, access and export remain controlled by enterprise policy and regulatory need."],
+  ["Provider continuity", "Normalized evidence references preserve the accountability chain when providers or orchestration paths change."],
+];
+
 export default function VerificationReplayPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -82,6 +89,23 @@ export default function VerificationReplayPage() {
           </h2>
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {memoryProperties.map(([title, copy]) => (
+              <article key={title} className="min-w-0 rounded-lg border border-zinc-800 bg-black p-4">
+                <h3 className="font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">
+            Resilient by design
+          </p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            Long-lived memory without an unbounded operational view.
+          </h2>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {scaleControls.map(([title, copy]) => (
               <article key={title} className="min-w-0 rounded-lg border border-zinc-800 bg-black p-4">
                 <h3 className="font-semibold text-zinc-100">{title}</h3>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>

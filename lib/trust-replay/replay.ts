@@ -159,7 +159,7 @@ export function buildReplaySnapshot(input: {
     ["pending", "in_review", "escalated"].includes(String(row.action_status ?? row.status ?? row.decision ?? ""))
   ).length;
   const posture = buildTrustPosture({
-    lastVerifiedAt: latestCreatedAt(decisions) ?? latestCreatedAt(input.timelineEvents),
+    lastVerifiedAt: latestCreatedAt(decisions) ?? latestCreatedAt(timelineEvents),
     lastGovernanceAt: latestCreatedAt(decisions),
     lastEvidenceAt: latestCreatedAt(evidence),
     lastSignalAt: latestCreatedAt(signals),
@@ -167,6 +167,7 @@ export function buildReplaySnapshot(input: {
     signalCount: signals.length,
     unresolvedGovernanceCount: openGovernanceCount,
     confidenceLabel: openGovernanceCount ? "governance pending" : "reviewable",
+    now: new Date(input.asOf),
   });
   const summary = [
     `Replay as of ${formatTimelineDate(input.asOf)}.`,

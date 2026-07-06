@@ -95,7 +95,15 @@ export function rememberTrustEvolution(
   const known = new Set(memory.entries.map((entry) => entry.transition.id));
   let entries = [...memory.entries];
 
-  for (const transition of evolution.chronology.filter((item) => !known.has(item.id))) {
+  const unseenTransitions = evolution.chronology
+    .filter((item) => !known.has(item.id))
+    .sort((left, right) => {
+      const timeDelta =
+        new Date(left.occurredAt).getTime() - new Date(right.occurredAt).getTime();
+      return timeDelta || left.id.localeCompare(right.id);
+    });
+
+  for (const transition of unseenTransitions) {
     const previousEntry = entries.at(-1) ?? null;
     entries.push({
       id: `${memory.memoryId}:entry:${entries.length + 1}`,
@@ -112,6 +120,18 @@ export function rememberTrustEvolution(
     });
   }
 
+  entries = entries
+    .sort((left, right) => {
+      const timeDelta =
+        new Date(left.recordedAt).getTime() - new Date(right.recordedAt).getTime();
+      return timeDelta || left.transition.id.localeCompare(right.transition.id);
+    })
+    .map((entry, index, chronology) => ({
+      ...entry,
+      sequence: index + 1,
+      previousEntryId: chronology[index - 1]?.id ?? null,
+    }));
+
   return {
     ...memory,
     entries,
@@ -125,7 +145,10 @@ export function addAuthorizationGrant(
 ): OperationalTrustMemory {
   return {
     ...memory,
-    updatedAt: grant.grantedAt,
+    updatedAt:
+      new Date(grant.grantedAt).getTime() > new Date(memory.updatedAt).getTime()
+        ? grant.grantedAt
+        : memory.updatedAt,
     authorizationGrants: [
       ...memory.authorizationGrants.filter((item) => item.id !== grant.id),
       grant,
@@ -140,8 +163,14 @@ export function recordGovernedExecution(
   const grant = memory.authorizationGrants.find(
     (item) => item.id === execution.authorizationGrantId
   );
+  const requestedAt = new Date(execution.requestedAt).getTime();
+  const grantExpired =
+    grant?.expiresAt != null &&
+    Number.isFinite(requestedAt) &&
+    new Date(grant.expiresAt).getTime() <= requestedAt;
   const authorized =
     grant?.status === "active" &&
+    !grantExpired &&
     grant.principalId === execution.actorId &&
     grant.scope.includes(execution.action);
   const normalized: GovernedExecutionRecord = authorized
@@ -149,15 +178,24 @@ export function recordGovernedExecution(
     : {
         ...execution,
         outcome: "denied",
-        explanation: grant
+        explanation: grantExpired
+          ? "Execution occurred after the delegated authority expired."
+          : grant
           ? "Execution did not match the active delegated authority scope."
           : "Execution has no replayable authorization grant.",
       };
 
   return {
     ...memory,
-    updatedAt: normalized.completedAt ?? normalized.requestedAt,
-    governedExecutions: [...memory.governedExecutions, normalized],
+    updatedAt:
+      new Date(normalized.completedAt ?? normalized.requestedAt).getTime() >
+      new Date(memory.updatedAt).getTime()
+        ? normalized.completedAt ?? normalized.requestedAt
+        : memory.updatedAt,
+    governedExecutions: [
+      ...memory.governedExecutions.filter((item) => item.id !== normalized.id),
+      normalized,
+    ],
   };
 }
 

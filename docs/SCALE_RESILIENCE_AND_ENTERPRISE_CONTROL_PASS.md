@@ -1,91 +1,81 @@
-# Scale, Resilience & Enterprise Control Pass
+# Scale, Resilience and Enterprise Control Pass
 
-## Strategic direction
+## Direction
 
-Cyber Sentinels is operational trust infrastructure for intelligent systems. Its durable role is to preserve governed trust continuity across humans, AI agents, non-human identities and enterprise workflows without turning evidence into artificial certainty.
+Cyber Sentinels should scale as an operational trust layer, not as a collection of dashboards or a speculative autonomy system. The durable model is:
 
-Enterprise resilience comes from a connected operating model:
+- Replay is enterprise-owned operational memory.
+- Persistent Trust Posture is explainable state.
+- Governance is accountable control.
+- Sovereignty is enterprise ownership of policy, data, provider use and workflow IP.
 
-- persistent trust posture shows the current reviewable state;
-- governed execution keeps authority and intervention accountable;
-- replay preserves operational memory;
-- provider governance keeps external dependencies visible and replaceable;
-- evidence continuity connects workflow entry to final outcome.
+This pass strengthens existing routes and models. It does not introduce a parallel system, expose protected records, or change authentication and RLS boundaries.
 
 ## Replay scalability philosophy
 
-Replay is a bounded, deterministic reconstruction of operational history—not an unbounded activity dump. The runtime now loads the newest operational window for each evidence domain and restores chronological presentation order. Equal-timestamp replay records use a stable identifier tie-break so repeated reconstruction produces the same sequence.
+Replay should preserve a canonical chronology while keeping operational reads bounded. Recent chronology, evidence, governance, receipts and replay sessions are loaded through explicit windows, returned in stable order and accompanied by continuation state. Deep retention belongs behind enterprise policy and purpose-specific retrieval rather than an unbounded page query.
 
-The replay contract exposes loaded records, window limits and continuation state for receipts, chronology, evidence, governance and replay sessions. A `limit + 1` retrieval detects additional history without requiring an expensive full count. When a workflow exceeds the active window, the API reports that continuation is required instead of implying the visible window is complete.
-
-This creates a practical path toward cursor-based archival retrieval without introducing a parallel replay system.
+Historical reconstruction must be deterministic. An as-of replay uses only records visible at that cutoff and evaluates posture against the cutoff clock. Timestamp ties are resolved by stable record identity. Late or retried events must not silently rewrite prior lineage.
 
 ## Operational memory direction
 
-Long-lived operational memory should preserve:
+Operational memory connects:
 
-- who or what entered the workflow;
-- the authority under which it acted;
-- what evidence existed at each material transition;
-- why posture changed, escalated, decayed, recovered or required reverification;
-- which governance action occurred and who owned it;
-- the final operational outcome and its receipt.
+1. accountable actor and owner;
+2. workflow purpose and runtime session;
+3. authorization grant, scope, change or revocation;
+4. evidence and provider references;
+5. trust-state transition and rationale;
+6. governance reviewer and intervention;
+7. operational outcome and receipt.
 
-Retention must remain policy-controlled. Active replay windows should be fast and deterministic; older history should remain addressable through governed continuation and archival policy rather than being silently discarded.
+Memory ingestion should remain idempotent, ordered and versionable. Existing trust-memory records deduplicate transitions and governed executions, retain previous-entry lineage, and reject execution outside an active, unexpired grant.
 
 ## Enterprise sovereignty direction
 
-Customer workflow memory, trust records, identity signals and operational evidence remain enterprise-controlled. Provider orchestration is an evidence input layer, not the owner of the trust record.
+The enterprise controls retention, access, permitted provider use, export and workflow IP. Provider-agnostic orchestration means a provider can change without severing evidence references, authorization history or accountable outcomes. It does not mean every provider is interchangeable or live.
 
-Provider states distinguish:
-
-- live, validated integrations;
-- configured providers still requiring validation;
-- providers awaiting credentials;
-- safely disabled providers;
-- controlled simulation.
-
-This avoids optimistic connectivity claims and makes provider replacement or restriction an enterprise governance decision.
+Public provider state remains constrained to `Live`, `Simulated`, `Awaiting Credentials` and `Disabled`. Missing credentials and unvalidated adapters fail closed; they do not fabricate evidence or silently downgrade assurance.
 
 ## Governed AI execution
 
-AI agents and non-human identities are governed operational entities. Each consequential action should retain accountable ownership, bounded authorization, runtime context, evidence references and replayable history. Human review remains authoritative for escalated or high-impact workflows.
+AI agents and other non-human identities are treated as accountable workflow actors with an enterprise owner, bounded purpose, delegated scope, runtime evidence and intervention path. Cyber Sentinels records governed context around execution; it does not claim autonomous judgment or replace accountable human authority.
 
-The platform does not claim autonomous truth detection or speculative machine certainty.
+Material changes should preserve the grant used, policy evaluated, evidence available, reviewer action and final result. Expired, revoked or mismatched authority must result in denial or review rather than permissive fallback.
 
 ## Workflow accountability
 
-The core accountability record answers:
+Every consequential replay should answer:
 
-1. Who or what acted?
-2. Under which authorization?
-3. What changed?
-4. Why did trust posture change?
-5. What evidence existed?
-6. What governance action occurred?
-7. What outcome resulted?
+- Who or what acted?
+- What changed?
+- Why did trust change?
+- What evidence existed at that time?
+- Which authorization permitted the action?
+- What governance occurred?
+- What operational outcome resulted?
 
-This model applies across banking approvals, fintech exceptions, insurance claims, healthcare handoffs, onboarding, vendor access and AI-assisted operations.
+The same chain applies across fintech exceptions, banking approvals, insurance claims, healthcare handoffs, enterprise onboarding, vendor access, AI-assisted operations and other regulated workflows.
 
 ## Infrastructure resilience
 
-This pass strengthens existing infrastructure by:
+Current resilience principles are:
 
-- querying the newest bounded operational windows instead of the oldest records;
-- restoring chronological display after bounded retrieval;
-- applying deterministic ordering for equal timestamps;
-- exposing window completeness rather than hiding truncation;
-- filtering replay by both subject type and subject identifier;
-- separating configured-but-unvalidated providers from disabled providers;
-- preserving authenticated APIs, protected control-plane access and existing RLS boundaries.
-
-No new public route, data table or provider dependency was introduced.
+- bounded, deterministic reads for replay and audit chronology;
+- parallel retrieval of independent evidence domains;
+- explicit continuation metadata when history exceeds an operational window;
+- as-of-safe posture recalculation;
+- idempotent memory and execution recording;
+- stable provider normalization with fail-closed states;
+- protected case-level replay, receipts and reviewer notes;
+- calm loading and empty states that distinguish unavailable evidence from verified absence.
 
 ## Remaining execution priorities
 
-- Add cursor-based continuation when production workflow volumes require history beyond the active replay window.
-- Define organization-level retention and legal-hold policy once the enterprise schema and RLS model are approved.
-- Add load tests using representative chronology, evidence and governance volumes.
-- Add provider health telemetry that records state transitions without exposing credentials or internal diagnostics.
-- Validate replay and control-plane hierarchy interactively in the deployed environment.
-- Continue simplifying public navigation while keeping operational controls authenticated and role-gated.
+1. Add cursor-based historical retrieval behind existing protected replay APIs when enterprise history exceeds current operational windows.
+2. Introduce approved archival and deletion policies per tenant, jurisdiction and workflow class before claiming long-term retention guarantees.
+3. Add database-level idempotency keys and sequence constraints for runtime events and governed executions.
+4. Validate provider adapters with contract tests, timeout budgets, retry policy and circuit-breaker telemetry before marking them `Live`.
+5. Add observability for ingestion lag, chronology gaps, posture recalculation failures and governance queue age.
+6. Exercise recovery through load, replay reconstruction, provider outage and partial-evidence drills.
+7. Keep public surfaces conceptual; expose operational diagnostics only through authenticated administrative controls.
