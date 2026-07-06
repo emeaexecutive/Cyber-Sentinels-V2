@@ -71,7 +71,7 @@ Provider-specific contractual, regional and retention guarantees require verific
 
 TrustOps is the operating discipline that connects actor identity, session integrity, authorization, evidence, governance, replay, posture and sovereignty.
 
-Across fintech, banking, insurance, healthcare, onboarding, approvals, claims, hiring, AI-assisted operations and regulated workflows, Cyber Sentinels preserves continuous workflow trust continuity.
+Across fintech, banking, insurance, healthcare, onboarding, approvals, claims, hiring, AI-assisted operations and regulated workflows, Cyber Sentinels preserves continuous workflow trust.
 
 ## Remaining execution priorities
 
@@ -80,4 +80,6 @@ Across fintech, banking, insurance, healthcare, onboarding, approvals, claims, h
 - Replace controlled examples only with customer-approved operational evidence.
 - Continue simplifying protected dashboards around operator decisions.
 - Verify environment-specific provider and sovereignty controls before stronger claims.
+- Test mobile replay and posture views with long actor, workflow and evidence references.
+- Keep internal validation, provider diagnostics and architecture details behind protected operator surfaces.
 - Align packaging and pricing with the governed TrustOps operating model.

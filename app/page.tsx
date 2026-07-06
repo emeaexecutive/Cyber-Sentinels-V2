@@ -35,7 +35,7 @@ export default function Home() {
             Governed enterprise intelligence
           </p>
           <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
-            The operational trust operating system for intelligent enterprises.
+            Govern operational trust across humans, AI agents and enterprise workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 md:text-xl md:leading-9">
             Trust is not a moment. It is a continuous operational state.
@@ -46,7 +46,7 @@ export default function Home() {
             and enterprise-controlled evidence.
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels preserves operational trust continuity across
+            Cyber Sentinels governs operational trust continuity across
             humans, AI agents and enterprise workflows.
           </p>
         </div>
@@ -141,10 +141,11 @@ export default function Home() {
             ))}
           </div>
           <p className="mt-7 max-w-4xl text-sm leading-7 text-zinc-400">
-            Apply the same continuity model to claims, underwriting, customer
-            onboarding, hiring and high-impact workflow approvals: verify the
-            actor, preserve delegated authority, govern execution and retain the
-            operational chronology behind the decision.
+            Apply the same continuity model across fintech, banking, insurance
+            and healthcare—from onboarding and claims to hiring, approvals and
+            AI-assisted operations. Verify the actor, preserve delegated
+            authority, govern execution and retain the operational chronology
+            behind each regulated decision.
           </p>
         </div>
       </section>

@@ -171,13 +171,15 @@ export default async function TrustOpsPage() {
                 Operational Trust Dashboard
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-                Operational awareness across workspaces, governance reviews,
-                hiring integrity and review activity. AI may summarize context
-                later, but humans decide.
+                Runtime trust visibility across human, AI-agent and workflow
+                activity. Review authorization, evidence, posture changes,
+                governance actions and operational outcomes in one protected
+                operating view.
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-                Cyber Sentinels helps organizations track active flags, pending
-                reviews, audit trails and verification progress.
+                Replay preserves the operational memory. Persistent Trust
+                Posture shows what requires attention now. Accountable people
+                retain decision authority.
               </p>
             </div>
             <StatusBadge status={health.status} />
@@ -202,7 +204,7 @@ export default async function TrustOpsPage() {
         <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.9fr]">
           <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-xl font-semibold">Recent Operational Intelligence</h2>
+              <h2 className="text-xl font-semibold">Governed Operations Requiring Attention</h2>
               <StatusBadge status={health.status} />
             </div>
             <p className="mt-3 text-sm leading-6 text-zinc-500">

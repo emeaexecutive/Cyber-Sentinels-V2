@@ -113,12 +113,14 @@ function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
           </p>
         </section>
 
-        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {[
+            ["Actor", "Human participant with accountable workflow ownership"],
+            ["Workflow", scenario.name],
             ["Final Trust Posture", scenario.finalPosture],
             ["Evidence Chain", `${scenario.replayEvents.length} scenario records`],
             ["Governance Review", "Human decision recorded"],
-            ["Provider Status", scenario.providerState],
+            ["Operational Outcome", scenario.replayEvents.at(-1)?.operationalState ?? "Recorded"],
           ].map(([title, value]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>

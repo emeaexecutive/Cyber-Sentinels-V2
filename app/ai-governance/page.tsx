@@ -5,12 +5,20 @@ export default function AiGovernancePage() {
   return (
     <LegalDraftPage
       title="AI Governance"
-      subtitle="Cyber Sentinels treats AI as an assistive capability inside evidence-backed, human-governed trust workflows."
+      subtitle="Cyber Sentinels governs AI execution inside authorization-aware, evidence-backed enterprise workflows."
       links={legalDraftLinks}
       sections={[
         {
-          title: "AI-Assisted Workflows",
-          body: "AI may be used to assist administrative workflows, draft explanations, summarize approved knowledge material or support operational review. AI assistance should remain bounded by approved sources, evidence context and human oversight.",
+          title: "Governed AI Execution",
+          body: "AI agents and assistive models operate within approved workflow purpose, delegated authority, provider policy and data-classification boundaries. Runtime actions remain attributable to accountable enterprise ownership.",
+        },
+        {
+          title: "Replayable AI Actions",
+          body: "AI-assisted actions should retain the actor, workflow, authorization state, evidence context, provider decision and operational outcome required for replay and review.",
+        },
+        {
+          title: "Runtime Trust Visibility",
+          body: "Trust posture can evolve, decay, escalate, recover or require reverification as runtime context, evidence and authorization change. Posture informs review; it is not an automated verdict.",
         },
         {
           title: "Human Review",
@@ -30,7 +38,11 @@ export default function AiGovernancePage() {
         },
         {
           title: "Governance-First Design",
-          body: "Cyber Sentinels is designed so AI assistance supports controlled workflows rather than replacing accountability. High-risk trust outcomes should involve escalation, evidence verification and review paths.",
+          body: "Cyber Sentinels keeps AI execution subordinate to enterprise policy and accountable people. High-risk outcomes require visible authorization, evidence verification, escalation and review paths.",
+        },
+        {
+          title: "Enterprise AI Sovereignty",
+          body: "Customer-owned operational memory, restricted-data controls and provider-agnostic governance keep enterprise policy stable when AI providers change. Provider-specific guarantees must be verified before sensitive processing.",
         },
         {
           title: "Appeals And Review Paths",
