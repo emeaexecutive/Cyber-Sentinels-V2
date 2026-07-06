@@ -6,7 +6,7 @@ Cyber Sentinels governs operational trust across humans, AI agents and enterpris
 
 Governed enterprise intelligence is the reviewable operational context around consequential work. It connects evidence, delegated authority, trust-state evolution, governance and outcomes so accountable people can understand and defend decisions.
 
-It is not autonomous judgment, a universal trust score or a replacement for workflow systems and human authority.
+It is not autonomous judgment, a universal trust score, a new AI system or a replacement for workflow systems and human authority.
 
 Within the TrustOps operating system:
 
@@ -31,6 +31,8 @@ Replay is foundational enterprise memory. It reconstructs:
 
 Replay is also the accountability layer because it preserves why a workflow advanced, paused, escalated, recovered or required reverification.
 
+Recorded chronology remains primary. Summaries must remain secondary to source evidence, and case-level memory must stay inside authenticated enterprise access.
+
 ## Workflow accountability
 
 Workflow verification answers six questions:
@@ -44,7 +46,19 @@ Workflow verification answers six questions:
 
 These questions remain stable across human and AI-assisted work. The result is evidence-backed accountability without unsupported certainty claims.
 
-## Persistent trust posture
+## Governed AI operations
+
+AI agents participate as authorization-aware operational identities. Consequential actions retain:
+
+1. the requested action and workflow purpose;
+2. active delegated scope and accountable ownership;
+3. runtime evidence, policy state and material anomalies;
+4. governance intervention and attributable human review; and
+5. the final outcome and unresolved conditions in Replay.
+
+Runtime visibility supports review and intervention. It does not imply hidden autonomy or authority that the underlying workflow has not granted.
+
+## Persistent Trust Posture
 
 Persistent Trust Posture supports humans, AI agents, non-human identities, workflows, approvals and runtime sessions.
 
@@ -72,6 +86,17 @@ Provider-specific contractual, regional and retention guarantees require verific
 TrustOps is the operating discipline that connects actor identity, session integrity, authorization, evidence, governance, replay, posture and sovereignty.
 
 Across fintech, banking, insurance, healthcare, onboarding, approvals, claims, hiring, AI-assisted operations and regulated workflows, Cyber Sentinels preserves continuous workflow trust.
+
+The vertical context changes, but the accountability contract remains actor, workflow, evidence, authorization, governance, trust transition and outcome.
+
+## UX and surface-area governance
+
+- Keep public hierarchy calm, evidence-first and centered on Platform, Replay, Posture, Governance, Enterprise and AI/Data Sovereignty.
+- Keep operational queues, case evidence, provider diagnostics, runtime validation and administrative controls authenticated.
+- Prefer bounded grids, short operational labels, readable chronology and mobile-safe wrapping.
+- Reuse the shared TrustOps vocabulary instead of experimental product names.
+- Avoid public architecture diagrams, route inventories, provider internals and science-fiction framing.
+- Preserve auth, RLS, email-verification and administrator gates.
 
 ## Remaining execution priorities
 

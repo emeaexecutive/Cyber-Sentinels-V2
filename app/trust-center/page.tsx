@@ -116,7 +116,7 @@ export default async function TrustCenterPage() {
           <div className="mt-4 flex flex-wrap items-start justify-between gap-6">
             <div>
               <h1 className="max-w-3xl text-4xl font-semibold leading-tight md:text-5xl">
-                Operate trust as workflows change.
+                Govern operational trust as workflows change.
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
                 TrustOps connects human and non-human identity, runtime posture,
@@ -129,8 +129,8 @@ export default async function TrustCenterPage() {
                 AI agents, service accounts and API actors.
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
-                Operational trust infrastructure for humans, AI agents and
-                enterprise workflows.
+                Governed enterprise intelligence means evidence-backed,
+                replayable context for accountable decisions—not autonomous judgment.
               </p>
             </div>
             <State value={snapshot.badge} />

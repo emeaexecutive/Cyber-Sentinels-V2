@@ -36,6 +36,14 @@ const runtimeControls = [
   ["Execution continuity", "Requested action, delegated scope, runtime evidence, intervention and outcome remain connected across the full operation."],
 ];
 
+const actionAccountability = [
+  ["Request", "The intended action and workflow purpose are recorded."],
+  ["Authority", "Active delegated scope and accountable ownership are checked."],
+  ["Runtime", "Evidence, policy state and material anomalies remain visible."],
+  ["Intervention", "Governance action and human review remain attributable."],
+  ["Outcome", "The final state and unresolved conditions enter Replay."],
+];
+
 export default function AgentsPage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
@@ -59,6 +67,24 @@ export default function AgentsPage() {
             organizations remain accountable; AI agents do not approve work
             outside declared authority.
           </p>
+        </section>
+
+        <section className="mt-8 operational-panel p-6">
+          <p className="operational-eyebrow">Replayable AI actions</p>
+          <h2 className="mt-3 max-w-3xl text-2xl font-semibold">
+            Every consequential action retains its accountability chain.
+          </h2>
+          <div className="mt-6 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-5">
+            {actionAccountability.map(([title, copy], index) => (
+              <article key={title} className="min-w-0 bg-black p-4">
+                <p className="font-mono text-xs text-cyan-300">
+                  {String(index + 1).padStart(2, "0")}
+                </p>
+                <h3 className="mt-2 font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-500">{copy}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8">

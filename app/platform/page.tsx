@@ -23,6 +23,15 @@ const postureLifecycle = [
   ["Re-verify", "Material workflow changes reopen verification before consequential execution continues."],
 ];
 
+const workflowVerificationQuestions = [
+  "Who acted?",
+  "What changed?",
+  "Why did trust change?",
+  "What evidence existed?",
+  "What governance occurred?",
+  "What outcome resulted?",
+];
+
 export default function PlatformPage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
@@ -60,6 +69,28 @@ export default function PlatformPage() {
                 <h3 className="mt-2 font-semibold text-zinc-100">{title}</h3>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
               </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 operational-panel p-6">
+          <p className="operational-eyebrow">Governed enterprise intelligence</p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            Reviewable operational context for consequential decisions.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            Governed intelligence is not an autonomous decision-maker. It is the
+            evidence-backed context that lets accountable teams verify a workflow,
+            understand trust-state transitions and govern human or AI-assisted execution.
+          </p>
+          <div className="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {workflowVerificationQuestions.map((question, index) => (
+              <div key={question} className="operational-card flex min-w-0 items-center gap-3 p-4">
+                <span className="font-mono text-xs text-cyan-300">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <p className="text-sm font-medium text-zinc-200">{question}</p>
+              </div>
             ))}
           </div>
         </section>

@@ -42,7 +42,7 @@ export default function VerificationReplayPage() {
             Replayable enterprise memory
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Replay is the enterprise memory system for operational trust.
+            Replay is the memory and accountability layer for enterprise operations.
           </h1>
           <p className="mt-4 text-sm font-semibold text-cyan-100">
             Mission-critical continuity for enterprise trust operations.
