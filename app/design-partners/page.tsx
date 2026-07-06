@@ -23,6 +23,15 @@ const collaborationAreas = [
   ],
 ];
 
+const executionRecord = [
+  ["Actor", "Who or what entered the workflow, with accountable ownership."],
+  ["Trust change", "Which evidence, runtime event or context shift changed posture."],
+  ["Evidence", "What existed at the time and where it came from."],
+  ["Authority", "Which grant, approval, change or revocation permitted action."],
+  ["Governance", "Who reviewed, intervened or approved, with recorded rationale."],
+  ["Outcome", "The governed result, unresolved conditions and replay-linked receipt."],
+];
+
 const workflowExamples = [
   [
     "Assisted workflow approvals",
@@ -52,7 +61,7 @@ const workflowExamples = [
 
 const notCyberSentinels = [
   "Social scoring",
-  "Operational oversight",
+  "Hidden operational surveillance",
   "Black-box trust scoring",
   "Uncontrolled automated governance",
   "Synthetic authority systems",
@@ -70,8 +79,8 @@ export default function DesignPartnersPage() {
             Operational collaboration for governed trust workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-zinc-300">
-            Cyber Sentinels works with operational design partners on provider-backed
-            verification, accountable review and replayable governance workflows.
+            Cyber Sentinels works with enterprise design partners on operational
+            trust infrastructure for humans, AI agents and enterprise workflows.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
             Each engagement centers on one workflow, its evidence requirements
@@ -85,6 +94,22 @@ export default function DesignPartnersPage() {
               Request Enterprise Access
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-14 md:px-8">
+        <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Governed execution record</p>
+        <h2 className="mt-4 max-w-3xl text-3xl font-semibold">
+          One pilot. Six questions every stakeholder can review.
+        </h2>
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {executionRecord.map(([title, copy], index) => (
+            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+              <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
+              <h3 className="mt-2 font-semibold text-zinc-100">{title}</h3>
+              <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
+            </article>
+          ))}
         </div>
       </section>
 

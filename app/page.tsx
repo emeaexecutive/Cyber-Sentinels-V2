@@ -48,7 +48,7 @@ export default function Home() {
         <div className="max-w-5xl">
           <p className="operational-eyebrow">Cyber Sentinels</p>
           <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            Operational trust infrastructure for intelligent systems.
+            Operational trust infrastructure for humans, AI agents and enterprise workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 sm:text-xl sm:leading-9">
             Govern trust across humans, AI agents, non-human identities and
@@ -159,6 +159,14 @@ export default function Home() {
             keeps identity, authority, evidence and governance connected as
             human and machine activity unfolds.
           </p>
+          <div className="mt-6 flex flex-wrap gap-2 text-xs text-zinc-300">
+            {["Escalate", "Decay", "Recover", "Re-verify"].map((state, index) => (
+              <span key={state} className="inline-flex items-center gap-2 rounded-full border border-zinc-700 px-3 py-1.5">
+                <span className="font-mono text-cyan-300">{String(index + 1).padStart(2, "0")}</span>
+                {state}
+              </span>
+            ))}
+          </div>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {governedActors.map(([title, copy]) => (
               <article key={title} className="operational-card p-5">

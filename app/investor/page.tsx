@@ -32,7 +32,7 @@ export default function InvestorPage() {
             Investor overview
           </p>
           <h1 className="mt-5 max-w-5xl text-4xl font-semibold leading-tight md:text-6xl">
-            Operational trust infrastructure for intelligent systems.
+            Operational trust infrastructure for humans, AI agents and enterprise workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
             Cyber Sentinels is the operational trust infrastructure layer for

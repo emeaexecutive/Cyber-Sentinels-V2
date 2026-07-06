@@ -29,8 +29,8 @@ export default function TrustEvaluationLabPage() {
             enterprise workflows.
           </p>
           <p className="mt-6 max-w-4xl border-l-2 border-cyan-700 pl-4 text-sm leading-7 text-zinc-300">
-            Concept, simulated and prototype evaluations test how identity,
-            evidence, authorization and governance controls behave. They do not
+            Bounded evaluations test how identity, evidence, authorization and
+            governance controls behave before operational adoption. They do not
             decide whether a person, agent or workflow is inherently trustworthy.
             Provider-backed validation is required.
           </p>
@@ -46,7 +46,7 @@ export default function TrustEvaluationLabPage() {
             performance, accuracy measurements or independent validation.
           </p>
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
-            {["Concept", "Simulated", "Prototype", "Provider-backed: validation required"].map((label) => (
+            {["Concept", "Simulated", "Prototype", "Provider validation required"].map((label) => (
               <span key={label} className="rounded-full border border-zinc-700 px-2.5 py-1 text-zinc-300">
                 {label}
               </span>
@@ -121,9 +121,9 @@ export default function TrustEvaluationLabPage() {
               Operational examples with explicit boundaries
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-400">
-              These reusable scenarios demonstrate workflow behavior and
-              explainability. Their labels distinguish simulations, concepts,
-              prototypes and placeholders from live enterprise evidence.
+              These scenarios demonstrate workflow behavior and explainability.
+              Maturity labels keep simulated or pre-production evidence clearly
+              separate from live enterprise evidence.
             </p>
           </div>
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
