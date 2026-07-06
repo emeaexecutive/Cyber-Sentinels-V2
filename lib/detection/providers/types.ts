@@ -6,6 +6,7 @@ import type {
 } from "../../validation/validation-case.ts";
 
 export type ProviderStatus = "live" | "awaiting_credentials" | "disabled";
+export type ProviderDisplayStatus = "Live" | "Awaiting Credentials" | "Disabled";
 export type ProviderRawResult = {
   outcome?: DetectionExpectedOutcome;
   confidence?: number;
@@ -39,4 +40,10 @@ export function assertProviderSafe(testCase: ValidationCase) {
   if (testCase.dataClassification === "restricted") {
     throw new Error("Restricted validation data must not enter provider calls.");
   }
+}
+
+export function providerStatusLabel(status: ProviderStatus): ProviderDisplayStatus {
+  if (status === "live") return "Live";
+  if (status === "awaiting_credentials") return "Awaiting Credentials";
+  return "Disabled";
 }

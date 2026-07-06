@@ -8,12 +8,16 @@ import type {
 const WEIGHTS: Record<string, number> = {
   metadataMissing: 0.12,
   repeatedVerificationAttempts: 0.14,
+  repeatedVerificationFailures: 0.14,
   deviceSessionMismatch: 0.18,
+  behavioralInconsistency: 0.16,
   impossibleSessionVelocity: 0.2,
+  impossibleWorkflowVelocity: 0.2,
   virtualCameraIndicator: 0.2,
   provenanceConflict: 0.22,
   documentMismatch: 0.24,
   agentActionAnomaly: 0.2,
+  agentRuntimeAnomaly: 0.2,
 };
 
 export type BaselineScore = {

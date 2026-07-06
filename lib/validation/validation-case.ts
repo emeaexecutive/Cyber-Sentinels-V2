@@ -25,6 +25,8 @@ export type ValidationCase = {
   signals: Record<string, boolean | number | string | null | undefined>;
   dataClassification?: "public" | "internal" | "confidential" | "restricted";
   sampleReference?: string;
+  reviewerOutcome?: DetectionExpectedOutcome;
+  reviewerId?: string;
 };
 
 export type ValidationResult = {
@@ -50,4 +52,11 @@ export type PrecisionRecallMetrics = {
   precision: number | null;
   recall: number | null;
   f1: number | null;
+};
+
+export type ReviewerAgreement = {
+  reviewedCases: number;
+  agreements: number;
+  disagreements: number;
+  agreementRate: number | null;
 };

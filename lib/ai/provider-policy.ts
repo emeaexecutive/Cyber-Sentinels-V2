@@ -145,5 +145,7 @@ export function providerPolicyAuditMetadata(decision: ProviderPolicyDecision) {
     enterprise_control_enabled: decision.policy.enterpriseControlEnabled,
     verified_enterprise_controls: decision.policy.verifiedEnterpriseControls,
     restricted_data_egress_protected: true,
+    enterprise_owned_operational_memory: true,
+    provider_interaction_tracking_required: true,
   };
 }

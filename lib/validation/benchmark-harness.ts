@@ -6,6 +6,7 @@ import type { DetectionProvider } from "../detection/providers/types.ts";
 import type {
   ConfusionMatrix,
   PrecisionRecallMetrics,
+  ReviewerAgreement,
   ValidationCase,
   ValidationResult,
 } from "./validation-case.ts";
@@ -148,6 +149,27 @@ export function calculatePrecisionRecall(matrix: ConfusionMatrix): PrecisionReca
   return { precision, recall, f1 };
 }
 
+export function calculateReviewerAgreement(
+  cases: ValidationCase[],
+  results: ValidationResult[]
+): ReviewerAgreement {
+  const reviewed = cases.filter((testCase) => testCase.reviewerOutcome);
+  const agreements = reviewed.filter((testCase) =>
+    results.some(
+      (result) =>
+        result.caseId === testCase.id &&
+        result.source === "heuristic_baseline" &&
+        result.actual === testCase.reviewerOutcome
+    )
+  ).length;
+  return {
+    reviewedCases: reviewed.length,
+    agreements,
+    disagreements: reviewed.length - agreements,
+    agreementRate: reviewed.length ? agreements / reviewed.length : null,
+  };
+}
+
 export async function loadValidationCases(root = path.join(process.cwd(), "data", "validation")) {
   const cases: ValidationCase[] = [];
   async function visit(directory: string): Promise<void> {
@@ -185,7 +207,16 @@ export async function runValidationBenchmark(options: {
       metrics: calculatePrecisionRecall(calculateConfusionMatrix([])),
       confidenceDistribution: { low: 0, medium: 0, high: 0 },
       providerAgreement: null,
+      reviewerAgreement: calculateReviewerAgreement([], []),
       providerCoverage: 0,
+      falsePositiveCaseIds: [] as string[],
+      falseNegativeCaseIds: [] as string[],
+      audit: {
+        schemaVersion: 1,
+        generatedAt: new Date().toISOString(),
+        caseIds: [] as string[],
+        sourcePolicy: "Source-specific results remain separate; review outcomes are non-final evidence.",
+      },
       warnings: ["Metrics are unavailable until labelled validation cases are added."],
     };
   }
@@ -205,6 +236,7 @@ export async function runValidationBenchmark(options: {
     const baseline = heuristicResults.find((result) => result.caseId === providerResult.caseId);
     return baseline?.actual === providerResult.actual;
   }).length;
+  const reviewerAgreement = calculateReviewerAgreement(cases, heuristicResults);
 
   return {
     caseCount: cases.length,
@@ -218,9 +250,28 @@ export async function runValidationBenchmark(options: {
       high: results.filter((result) => result.confidence >= 0.8).length,
     },
     providerAgreement: usableProviderResults.length ? agreements / usableProviderResults.length : null,
+    reviewerAgreement,
     providerCoverage: usableProviderResults.length / cases.length,
+    falsePositiveCaseIds: results
+      .filter((result) => result.expected === "negative" && result.actual === "positive")
+      .map((result) => result.caseId),
+    falseNegativeCaseIds: results
+      .filter((result) => result.expected === "positive" && result.actual === "negative")
+      .map((result) => result.caseId),
+    audit: {
+      schemaVersion: 1,
+      generatedAt: new Date().toISOString(),
+      caseIds: cases.map((testCase) => testCase.id),
+      sourcePolicy: "Source-specific results remain separate; review outcomes are non-final evidence.",
+    },
     warnings: usableProviderResults.length
       ? ["Provider results are evidence inputs, not final authenticity decisions."]
       : ["No live provider inference was used."],
   };
+}
+
+export function exportValidationBenchmark(
+  benchmark: Awaited<ReturnType<typeof runValidationBenchmark>>
+) {
+  return JSON.stringify(benchmark, null, 2);
 }

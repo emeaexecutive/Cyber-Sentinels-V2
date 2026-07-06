@@ -3,6 +3,7 @@ import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { getDetectionEngineStatus } from "@/lib/detection/detection-engine";
 import { createClient } from "@/lib/supabase/server";
 import { detectionProviders } from "@/lib/detection/providers";
+import { providerStatusLabel } from "@/lib/detection/providers";
 import { runValidationBenchmark } from "@/lib/validation/benchmark-harness";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,7 @@ export default async function DetectionStatusAdminPage() {
   const providerStates = detectionProviders.map((provider) => ({
     name: provider.providerName,
     status: provider.status(),
+    displayStatus: providerStatusLabel(provider.status()),
     signals: provider.supportedSignals.join(", "),
   }));
   const scorecard = [
@@ -83,6 +85,7 @@ export default async function DetectionStatusAdminPage() {
           <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="font-semibold text-zinc-100">Precision / Recall Metrics</h2>
             <p className="mt-3 text-sm text-zinc-400">Precision: {benchmark.metrics.precision ?? "Unavailable"} · Recall: {benchmark.metrics.recall ?? "Unavailable"} · F1: {benchmark.metrics.f1 ?? "Unavailable"}</p>
+            <p className="mt-2 text-xs text-zinc-500">Reviewer agreement: {benchmark.reviewerAgreement.agreementRate ?? "Unavailable"} · Provider agreement: {benchmark.providerAgreement ?? "Unavailable"}</p>
           </article>
           <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="font-semibold text-zinc-100">Confusion Matrix</h2>
@@ -107,7 +110,7 @@ export default async function DetectionStatusAdminPage() {
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {providerStates.map((provider) => (
               <div key={provider.name} className="rounded border border-zinc-800 p-3 text-sm">
-                <p className="text-zinc-200">{provider.name} · {provider.status.replaceAll("_", " ")}</p>
+                <p className="text-zinc-200">{provider.name} · {provider.displayStatus}</p>
                 <p className="mt-1 text-zinc-500">{provider.signals}</p>
               </div>
             ))}

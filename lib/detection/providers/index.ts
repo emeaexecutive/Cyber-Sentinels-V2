@@ -1,4 +1,4 @@
-export { type DetectionProvider, type ProviderStatus } from "./types";
+export { providerStatusLabel, type DetectionProvider, type ProviderStatus } from "./types";
 export { realityDefenderProvider } from "./reality-defender";
 export { sensityProvider } from "./sensity";
 export { pindropProvider } from "./pindrop";

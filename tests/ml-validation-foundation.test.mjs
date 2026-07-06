@@ -4,9 +4,12 @@ import { readFile } from "node:fs/promises";
 import {
   calculateConfusionMatrix,
   calculatePrecisionRecall,
+  calculateReviewerAgreement,
+  exportValidationBenchmark,
   runValidationBenchmark,
 } from "../lib/validation/benchmark-harness.ts";
 import { realityDefenderProvider } from "../lib/detection/providers/reality-defender.ts";
+import { providerStatusLabel } from "../lib/detection/providers/types.ts";
 import { explainTrustScore } from "../lib/detection/detection-engine.ts";
 
 const positive = { caseId: "p", expected: "positive", actual: "positive", source: "heuristic_baseline", confidence: 0.8, evidence: [], limitations: [] };
@@ -29,11 +32,25 @@ test("confusion matrix and precision recall are calculated", () => {
   assert.deepEqual(calculatePrecisionRecall(matrix), { precision: 0.5, recall: 0.5, f1: 0.5 });
 });
 
+test("reviewer agreement and benchmark export remain auditable", async () => {
+  const cases = [
+    { id: "reviewed", label: "suspicious", expectedOutcome: "positive", reviewerOutcome: "positive", reviewerId: "reviewer-1", description: "controlled anomaly", signals: { provenanceConflict: true, impossibleWorkflowVelocity: true, agentRuntimeAnomaly: true } },
+  ];
+  const benchmark = await runValidationBenchmark({ cases });
+  const agreement = calculateReviewerAgreement(cases, benchmark.results);
+  assert.deepEqual(agreement, { reviewedCases: 1, agreements: 1, disagreements: 0, agreementRate: 1 });
+  const exported = JSON.parse(exportValidationBenchmark(benchmark));
+  assert.equal(exported.audit.schemaVersion, 1);
+  assert.deepEqual(exported.audit.caseIds, ["reviewed"]);
+  assert.deepEqual(exported.falseNegativeCaseIds, []);
+});
+
 test("missing credentials return awaiting_credentials without a provider call", async () => {
   const previous = process.env.REALITY_DEFENDER_API_KEY;
   delete process.env.REALITY_DEFENDER_API_KEY;
   const result = await realityDefenderProvider.runDetection({ id: "case", label: "deepfake", expectedOutcome: "positive", description: "test", signals: {} });
   assert.equal(result.source, "awaiting_credentials");
+  assert.equal(providerStatusLabel(realityDefenderProvider.status()), "Awaiting Credentials");
   if (previous) process.env.REALITY_DEFENDER_API_KEY = previous;
 });
 
@@ -61,4 +78,14 @@ test("status and adapter source do not claim real ML", async () => {
   assert.match(status, /realMlInferenceActive: false/);
   assert.match(baseline, /not trained machine learning/i);
   assert.doesNotMatch(baseline, /trained ML/);
+});
+
+test("replay and sovereignty contracts preserve operational continuity", async () => {
+  const replay = await readFile(new URL("../lib/trust-replay/replay.ts", import.meta.url), "utf8");
+  const policy = await readFile(new URL("../lib/ai/provider-policy.ts", import.meta.url), "utf8");
+  for (const field of ["actor", "workflow", "evidenceState", "trustEvolution", "authorizationLineage", "governanceState", "operationalOutcome"]) {
+    assert.match(replay, new RegExp(field));
+  }
+  assert.match(policy, /enterprise_owned_operational_memory: true/);
+  assert.match(policy, /provider_interaction_tracking_required: true/);
 });

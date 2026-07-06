@@ -21,6 +21,12 @@ export type ReplaySnapshot = {
   timelineEvents: TrustTimelineEvent[];
   posture: TrustPosture;
   canonicalMemory: {
+    actor: string;
+    workflow: string;
+    evidenceState: string;
+    trustEvolution: string;
+    authorizationLineage: string;
+    governanceState: string;
     chronologyCount: number;
     evidenceContinuityCount: number;
     governanceInterventionCount: number;
@@ -195,6 +201,14 @@ export function buildReplaySnapshot(input: {
         ? "Governance review remains open."
         : "No final governance outcome was recorded.")
   );
+  const actor = accountableActors.join(", ") || "No accountable actor recorded";
+  const workflow = `${input.subjectType}:${input.subjectId ?? "all"}`;
+  const evidenceState = `${evidence.length} evidence records and ${signals.length} signal records preserved`;
+  const trustEvolution = `${timelineEvents.length} timeline events reconstruct trust as ${posture.label}`;
+  const authorizationLineage = `${relationships.length} relationship or authorization references preserved`;
+  const governanceState = openGovernanceCount
+    ? `${openGovernanceCount} governance reviews remain open`
+    : `${decisions.length} governance decisions recorded`;
 
   return {
     subject_type: input.subjectType,
@@ -210,6 +224,12 @@ export function buildReplaySnapshot(input: {
     timelineEvents,
     posture,
     canonicalMemory: {
+      actor,
+      workflow,
+      evidenceState,
+      trustEvolution,
+      authorizationLineage,
+      governanceState,
       chronologyCount: timelineEvents.length + auditLogs.length,
       evidenceContinuityCount: evidence.length,
       governanceInterventionCount: decisions.length,
