@@ -15,7 +15,13 @@ export const detectionProviderRequirements = [
   { id: "turnstile", name: "Cloudflare Turnstile", env: ["TURNSTILE_SECRET_KEY"], module: "bot_protection" },
 ] as const;
 
-export type DetectionSource = "Provider API" | "Heuristic Rules" | "Demo Data" | "Real ML" | "Unknown";
+export type DetectionSource =
+  | "Provider API"
+  | "Heuristic Rules"
+  | "Demo Data"
+  | "Real ML"
+  | "Not Implemented"
+  | "Awaiting Credentials";
 
 export type HeuristicDetectionInput = {
   riskyIpOrDeviceChange?: boolean;
@@ -50,7 +56,7 @@ export function classifyDetectionSource(input: {
   if (input.providerBacked) return "Provider API";
   if (input.heuristic) return "Heuristic Rules";
   if (input.demo) return "Demo Data";
-  return "Unknown";
+  return "Not Implemented";
 }
 
 export function calculateTrustScoreSource(input: {
@@ -119,9 +125,9 @@ export function getDetectionEngineStatus() {
   });
 
   const modules: DetectionModuleStatus[] = [
-    { id: "deepfake_image_video", name: "Deepfake image/video detection", status: "Not Implemented", implementation_type: "placeholder", source: "Unknown", warning: "No model inference or provider adapter is implemented." },
-    { id: "synthetic_voice", name: "Synthetic voice detection", status: "Not Implemented", implementation_type: "placeholder", source: "Unknown", warning: "No voice-forensics inference or provider adapter is implemented." },
-    { id: "forged_documents", name: "Forged document detection", status: "Not Implemented", implementation_type: "placeholder", source: "Unknown", warning: "Document provenance fields are review context, not forensic detection." },
+    { id: "deepfake_image_video", name: "Deepfake image/video detection", status: "Not Implemented", implementation_type: "placeholder", source: "Not Implemented", warning: "No model inference or provider adapter is implemented." },
+    { id: "synthetic_voice", name: "Synthetic voice detection", status: "Not Implemented", implementation_type: "placeholder", source: "Not Implemented", warning: "No voice-forensics inference or provider adapter is implemented." },
+    { id: "forged_documents", name: "Forged document detection", status: "Not Implemented", implementation_type: "placeholder", source: "Not Implemented", warning: "Document provenance fields are review context, not forensic detection." },
     { id: "session_injection", name: "Session and injection integrity", status: "Active", implementation_type: "heuristic", source: "Heuristic Rules" },
     { id: "behavioral_anomalies", name: "Behavioral anomalies", status: "Review Only", implementation_type: "heuristic", source: "Heuristic Rules" },
     { id: "identity_verification", name: "Identity verification orchestration", status: providers.some((provider) => provider.active && provider.module === "identity_verification") ? "Active" : "Awaiting Credentials", implementation_type: "provider", source: "Provider API" },
@@ -137,6 +143,9 @@ export function getDetectionEngineStatus() {
     provider_detection_enabled: providers.some((provider) => provider.active && ["deepfake_image_video", "synthetic_voice", "forged_documents"].includes(provider.module)),
     heuristic_detection_enabled: true,
     mock_data_present: true,
+    validation_dataset_present: false,
+    false_positive_tracking_present: true,
+    false_negative_tracking_present: true,
     active_providers: providers.filter((provider) => provider.active),
     missing_providers: providers.filter((provider) => !provider.active),
     providers,

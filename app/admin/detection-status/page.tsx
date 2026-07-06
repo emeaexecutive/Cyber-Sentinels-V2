@@ -14,11 +14,14 @@ export default async function DetectionStatusAdminPage() {
   }
   await requireAdminPageAccess(supabase, { path: "/admin/detection-status" });
   const status = getDetectionEngineStatus();
-  const cards = [
-    ["Real ML", status.real_ml_enabled, status.real_ml_enabled ? "Active" : "Inactive"],
-    ["Provider Detection APIs", status.provider_detection_enabled, status.provider_detection_enabled ? "Active" : "Inactive"],
-    ["Heuristic Rules", status.heuristic_detection_enabled, status.heuristic_detection_enabled ? "Active" : "Inactive"],
-    ["Demo Data", status.mock_data_present, status.mock_data_present ? "Present" : "Not Present"],
+  const scorecard = [
+    ["Real ML inference", status.real_ml_enabled ? "Active" : "Inactive"],
+    ["Provider ML detection", status.provider_detection_enabled ? "Active" : "Awaiting Credentials"],
+    ["Heuristic detection", status.heuristic_detection_enabled ? "Active" : "Inactive"],
+    ["Demo/mock scoring", status.mock_data_present ? "Present" : "Absent"],
+    ["Validation dataset", status.validation_dataset_present ? "Present" : "Missing"],
+    ["False positive tracking", status.false_positive_tracking_present ? "Present" : "Missing"],
+    ["False negative tracking", status.false_negative_tracking_present ? "Present" : "Missing"],
   ] as const;
 
   return (
@@ -37,13 +40,17 @@ export default async function DetectionStatusAdminPage() {
           </p>
         </section>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-4">
-          {cards.map(([label, active, value]) => (
-            <article key={label} className="rounded-lg border border-zinc-800 bg-black p-5">
-              <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">{label}</p>
-              <p className={`mt-3 text-xl font-semibold ${active ? "text-emerald-200" : "text-amber-200"}`}>{value}</p>
-            </article>
-          ))}
+        <section className="mt-8">
+          <h2 className="text-xl font-semibold text-zinc-100">ML Strength Scorecard</h2>
+          <p className="mt-2 text-sm text-zinc-500">Implementation and validation readiness; no accuracy is inferred from these states.</p>
+          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {scorecard.map(([label, value]) => (
+              <article key={label} className="rounded-lg border border-zinc-800 bg-black p-5">
+                <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">{label}</p>
+                <p className={`mt-3 text-xl font-semibold ${["Active", "Present"].includes(value) ? "text-emerald-200" : "text-amber-200"}`}>{value}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

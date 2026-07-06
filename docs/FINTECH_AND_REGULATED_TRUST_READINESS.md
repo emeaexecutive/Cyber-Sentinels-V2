@@ -38,4 +38,14 @@ Cyber Sentinels helps enterprises use AI without surrendering their data, workfl
 6. Complete privacy impact, threat-model, penetration, business-continuity and jurisdiction-specific legal reviews.
 7. Confirm human accountability for adverse or regulated decisions and prohibit autonomous final decisions where policy or law requires review.
 
+## ML and detection assurance
+
+- **ML status transparency:** real ML inference is inactive until executed, versioned model code or a verified provider adapter exists. General-purpose AI assistance is not detection ML.
+- **No unvalidated AI claims:** no fake/authentic, biometric, document, voice or media conclusion and no accuracy metric may be presented without representative validation.
+- **Provider evidence separation:** retain provider identity, execution status and evidence reference separately from Cyber Sentinels rules, trust scores and the final governance outcome.
+- **Auditability:** retain rule/model/provider version, score movement, thresholds, evidence references, reviewer action and correction history.
+- **Replay evidence:** reconstruct the evidence available at decision time, source-specific findings, authorization changes and accountable action.
+- **Data sovereignty:** apply deployment-specific residency, minimization, retention, deletion, subprocessor and cross-border controls to validation and production data.
+- **Human review:** regulated or adverse actions require documented authority, reason, appeal/correction paths and review of false-positive or false-negative outcomes.
+
 Production readiness is deployment-specific. This document describes application controls visible in code, not certification, regulatory approval or a guarantee of provider performance.
