@@ -35,6 +35,11 @@ export default function DataSovereigntyPage() {
             choice remains replaceable while enterprise policy and evidence
             continuity remain stable.
           </p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            Enterprise-controlled AI operations preserve the same authorization,
+            governance and replay contract across provider changes, so operational
+            accountability does not become provider-dependent.
+          </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/enterprise-access" className="brand-primary-action brand-action-large text-sm">
               Discuss Enterprise Controls

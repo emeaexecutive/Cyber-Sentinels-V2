@@ -30,7 +30,7 @@ export default function PlatformPage() {
         <section className="operational-panel p-6 md:p-8">
           <p className="operational-eyebrow">TrustOps platform</p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            Govern consequential workflows from actor entry to reviewable outcome.
+            The trust operating system for governed enterprise workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels connects humans, AI agents and enterprise workflows

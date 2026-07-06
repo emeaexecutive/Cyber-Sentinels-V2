@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.cybersentinels.com"),
   title: "Cyber Sentinels | TrustOps Operating System",
   description:
-    "Cyber Sentinels preserves operational trust continuity across humans, AI agents and enterprise workflows with replayable enterprise memory.",
+    "The operational trust operating system for intelligent enterprises, connecting replayable memory, governed execution, persistent posture and AI sovereignty.",
   alternates: {
     canonical: "/",
   },
@@ -177,9 +177,9 @@ export default async function RootLayout({
             <div className="mx-auto mt-8 max-w-7xl border-t border-zinc-900 pt-6">
               <p>&copy;2026 Cyber Sentinels&trade;. All rights reserved.</p>
               <p className="mt-3 max-w-3xl leading-6">
-                Cyber Sentinels maintains Operational Trust through Persistent
-                Trust Posture, Replay Timeline, protected evidence handling and
-                accountable Governance Review.
+                The Cyber Sentinels TrustOps operating system connects Persistent
+                Trust Posture, Replay Timeline, protected evidence, Authorization
+                Lineage and accountable Governance Review.
               </p>
             </div>
           </footer>

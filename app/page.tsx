@@ -41,23 +41,30 @@ const governedActors = [
   ],
 ];
 
+const operatingSystemModel = [
+  ["Memory", "Replay retains the evidence-backed chronology behind every material outcome."],
+  ["State", "Persistent Trust Posture explains what is currently reliable and why."],
+  ["Control", "Governed execution keeps authority, intervention and decisions accountable."],
+  ["Ownership", "Enterprise AI sovereignty keeps memory, data and provider policy under customer control."],
+];
+
 export default function Home() {
   return (
     <main className="operational-shell min-h-screen text-zinc-100">
       <section className="mx-auto max-w-6xl px-6 pb-16 pt-14 sm:pt-16 md:px-8 md:pb-24 md:pt-24">
         <div className="max-w-5xl">
-          <p className="operational-eyebrow">Cyber Sentinels</p>
+          <p className="operational-eyebrow">TrustOps operating system</p>
           <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            Operational trust infrastructure for humans, AI agents and enterprise workflows.
+            The operational trust operating system for intelligent enterprises.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 sm:text-xl sm:leading-9">
-            Govern trust across humans, AI agents, non-human identities and
-            enterprise workflows.
+            Keep humans, AI agents, non-human identities and consequential
+            workflows accountable as trust changes.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
-            Cyber Sentinels connects verification, authorization, evidence and
-            governance so enterprises can see what changed and act with
-            accountable context.
+            Cyber Sentinels connects replayable operational memory, governed
+            execution, Authorization Lineage, evidence continuity, Persistent
+            Trust Posture and enterprise AI sovereignty.
           </p>
         </div>
 
@@ -74,6 +81,30 @@ export default function Home() {
           >
             Explore Verification Replay
           </Link>
+        </div>
+      </section>
+
+      <section className="border-y border-zinc-800 bg-black">
+        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8 md:py-16">
+          <div className="max-w-3xl">
+            <p className="operational-eyebrow">One operating model</p>
+            <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
+              Memory, state, control and enterprise ownership.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-zinc-400">
+              An operating system here means connected, reviewable trust context
+              across existing enterprise workflows—not autonomous judgment or a
+              replacement for accountable systems of record.
+            </p>
+          </div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {operatingSystemModel.map(([title, copy]) => (
+              <article key={title} className="operational-card p-5">
+                <h3 className="font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

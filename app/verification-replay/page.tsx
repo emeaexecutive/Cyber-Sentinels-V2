@@ -37,7 +37,7 @@ export default function VerificationReplayPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
+        <section className="rounded-lg border border-cyan-950 bg-[linear-gradient(145deg,rgba(8,47,73,0.18),rgba(9,9,11,0.96)_45%)] p-6 shadow-2xl shadow-black/30 md:p-8">
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
             Replayable enterprise memory
           </p>
@@ -53,9 +53,9 @@ export default function VerificationReplayPage() {
             chronology. It preserves workflow verification continuity after the
             runtime session ends. Case records remain protected operational data.
           </p>
-          <p className="mt-5 max-w-3xl border-l border-cyan-800 pl-4 text-base leading-7 text-zinc-200">
-            Replayable evidence for critical workflows. Operational memory for
-            enterprise trust.
+          <p className="mt-5 max-w-3xl border-l border-cyan-700 pl-4 text-base leading-7 text-zinc-200">
+            The memory layer of the TrustOps operating system: replayable
+            evidence for critical workflows and durable context for enterprise trust.
           </p>
         </section>
 
