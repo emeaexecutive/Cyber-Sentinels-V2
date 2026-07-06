@@ -19,7 +19,7 @@ The Enterprise Trust Fabric is the continuity model connecting identity, runtime
 
 ## Replay as operational memory
 
-Replay binds the Trust Fabric into durable enterprise memory.
+Replay is the operational memory fabric of the enterprise. It binds the Trust Fabric into a durable, customer-controlled chronology rather than a provider activity log.
 
 It reconstructs:
 
@@ -56,7 +56,9 @@ Posture can evolve, decay, escalate, recover and require reverification as opera
 
 ## Enterprise AI sovereignty
 
-Enterprise AI sovereignty keeps replayable memory, restricted data, provider use and workflow IP under customer policy.
+Enterprise AI sovereignty keeps customer-owned operational memory, restricted data, provider orchestration and workflow IP under customer policy.
+
+Provider-agnostic orchestration means the enterprise controls which providers may participate in a workflow, which data they may receive and which evidence they must return. It does not imply that providers are interchangeable or that contractual and regional controls can be skipped.
 
 Provider choice can change without breaking:
 
@@ -81,4 +83,6 @@ The vertical context changes. The accountability chain remains: actor, workflow,
 - Replace controlled examples only with customer-approved operational evidence.
 - Continue reducing duplicate public category routes through canonical destinations.
 - Verify deployed provider and retention controls before environment-specific sovereignty claims.
+- Validate posture decay, recovery and reverification behavior across human, agent, workflow, approval and runtime-session examples.
+- Keep replay views bounded and calm as operational histories grow, while preserving deterministic continuation and export.
 - Align packaging and pricing with continuous trust governance and replayable memory.

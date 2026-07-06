@@ -42,7 +42,7 @@ export default function VerificationReplayPage() {
             Replayable enterprise memory
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Replay is the memory and accountability layer for enterprise operations.
+            Replay is the operational memory fabric for enterprise trust.
           </h1>
           <p className="mt-4 text-sm font-semibold text-cyan-100">
             Mission-critical continuity for enterprise trust operations.
@@ -54,8 +54,8 @@ export default function VerificationReplayPage() {
             runtime session ends. Case records remain protected operational data.
           </p>
           <p className="mt-5 max-w-3xl border-l border-cyan-700 pl-4 text-base leading-7 text-zinc-200">
-            The memory layer of the TrustOps operating system: replayable
-            evidence for critical workflows and durable context for enterprise trust.
+            The memory fabric of TrustOps: replayable evidence for critical
+            workflows and durable context for enterprise trust.
           </p>
         </section>
 
@@ -137,7 +137,8 @@ export default function VerificationReplayPage() {
             Public visitors can understand the replay model here. Case-level
             timelines, subjects and reviewer notes require sign-in because they
             contain operational trust data. Retention follows enterprise policy;
-            Replay is not a provider-owned activity log.
+            Replay is customer-owned operational memory, not a provider-owned
+            activity log.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href="/replay/demo?scenario=proxy-candidate-interview" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-cyan-100">

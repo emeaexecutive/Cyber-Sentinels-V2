@@ -65,7 +65,7 @@ export default function TrustFabricPage() {
         <section className="mt-8 operational-panel p-6">
           <p className="operational-eyebrow">Continuity path</p>
           <h2 className="mt-3 text-2xl font-semibold">
-            Replay binds the fabric into enterprise memory.
+            Replay binds the fabric into durable operational memory.
           </h2>
           <div className="mt-6 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-4">
             {continuityPath.map(([title, copy], index) => (
@@ -98,10 +98,11 @@ export default function TrustFabricPage() {
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="text-xl font-semibold">Enterprise-controlled continuity</h2>
           <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
-            Replayable memory, restricted data, provider use and workflow IP
-            remain governed by enterprise policy. Provider choice can change
-            without breaking authorization history, evidence continuity or the
-            accountable operational record.
+            Customer-owned operational memory, restricted data, provider
+            orchestration and workflow IP remain governed by enterprise policy.
+            Provider choice can change without breaking authorization history,
+            evidence continuity, governance chronology or the accountable
+            operational record.
           </p>
         </section>
       </div>

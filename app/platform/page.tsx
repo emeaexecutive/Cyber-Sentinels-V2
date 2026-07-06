@@ -4,7 +4,7 @@ const operatingModel = [
   ["Memory", "Replay preserves who acted, what changed, which evidence existed, what governance occurred and which outcome followed as durable enterprise memory."],
   ["State", "Persistent Trust Posture shows the current explainable condition across actors, workflows, approvals and runtime sessions."],
   ["Control", "Governed execution keeps authorization, evidence and accountable human intervention connected to consequential work."],
-  ["Sovereignty", "Enterprise policy controls operational memory, restricted data, provider use and workflow IP."],
+  ["Sovereignty", "Enterprise policy controls customer-owned memory, restricted data, provider orchestration and workflow IP."],
 ];
 
 const executionContract = [
