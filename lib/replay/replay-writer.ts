@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { publishTrustEvent } from "@/lib/events/event-bus";
+import { publishTrustEvent } from "../events/event-bus.ts";
 
 export type ReplayWriteJob = {
   subjectType: string;
@@ -16,6 +16,7 @@ export type ReplayWriteJob = {
 const queue: ReplayWriteJob[] = [];
 
 export async function writeReplayEvent(supabase: SupabaseClient, job: ReplayWriteJob) {
+  const idempotencyKey = `${job.subjectType}:${job.subjectId}:${job.eventType}:${job.actorId}`;
   queue.push(job);
   const batch = queue.splice(0, 10);
   const result = await supabase.from("trust_timeline_events").insert(
@@ -30,13 +31,18 @@ export async function writeReplayEvent(supabase: SupabaseClient, job: ReplayWrit
       severity: item.severity,
       metadata: {
         ...item.metadata,
+        replay_event_id: `${item.subjectType}:${item.subjectId}:${item.eventType}:${item.actorId}`,
         replay_writer: "append_only",
         evidence_integrity_preserved: true,
       },
     }))
   );
   if (result.error) console.warn("Replay write failed", result.error);
-  publishTrustEvent("replay.created", { subject_id: job.subjectId, event_type: job.eventType }, { replaySafe: true });
+  publishTrustEvent(
+    "replay.created",
+    { subject_id: job.subjectId, event_type: job.eventType },
+    { replaySafe: true, eventId: `replay:${idempotencyKey}` }
+  );
   return result;
 }
 

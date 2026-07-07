@@ -12,15 +12,28 @@ export type ReviewedOutcomeRecord = {
   caseId: string;
   expected: DetectionExpectedOutcome;
   actual: DetectionExpectedOutcome | "not_run";
+  originalSystemDecision: DetectionExpectedOutcome | "not_run";
   reviewedOutcome: DetectionExpectedOutcome | null;
+  reviewerDecision: DetectionExpectedOutcome | null;
   reviewerId: string | null;
   reviewerNotes: string | null;
+  overrideReason: string | null;
+  falsePositive: boolean;
+  falseNegative: boolean;
+  confirmedEscalation: boolean;
+  evidenceQuality: "missing" | "partial" | "sufficient" | "reviewed";
   outcomeType: ReviewedOutcomeType;
   escalationOutcome: ValidationCase["datasetMetadata"] extends { governanceOutcome?: infer T } ? T | null : string | null;
   governanceOverride: ValidationCase["governanceOverride"] | null;
   replayLinkage: {
     sampleReference: string | null;
     evidenceReferences: string[];
+  };
+  replayLink: string | null;
+  calibrationImpact: {
+    shouldUpdateThreshold: boolean;
+    shouldAddProviderComparison: boolean;
+    notes: string[];
   };
 };
 
@@ -45,19 +58,50 @@ export function buildReviewedOutcomeRecords(
       caseResults.find((result) => result.source === "runtime_intelligence") ??
       caseResults[0];
     const actual = primary?.actual ?? "not_run";
+    const outcomeType = classify(testCase.expectedOutcome, actual);
+    const evidenceReferences = caseResults.flatMap((result) => result.evidence);
+    const reviewerDecision = testCase.reviewerOutcome ?? testCase.governanceOverride?.outcome ?? null;
+    const confirmedEscalation = ["escalated", "blocked", "more_evidence_required"].includes(
+      String(testCase.datasetMetadata?.governanceOutcome ?? "")
+    );
+    const evidenceQuality =
+      testCase.reviewerId || testCase.datasetMetadata?.reviewer
+        ? "reviewed"
+        : evidenceReferences.length >= 2 || testCase.sampleReference
+          ? "sufficient"
+          : evidenceReferences.length
+            ? "partial"
+            : "missing";
     return {
       caseId: testCase.id,
       expected: testCase.expectedOutcome,
       actual,
-      reviewedOutcome: testCase.reviewerOutcome ?? null,
+      originalSystemDecision: actual,
+      reviewedOutcome: reviewerDecision,
+      reviewerDecision,
       reviewerId: testCase.reviewerId ?? testCase.datasetMetadata?.reviewer ?? null,
       reviewerNotes: testCase.reviewerNotes ?? testCase.datasetMetadata?.notes ?? null,
-      outcomeType: classify(testCase.expectedOutcome, actual),
+      overrideReason: testCase.governanceOverride?.reason ?? null,
+      falsePositive: outcomeType === "false_positive",
+      falseNegative: outcomeType === "false_negative",
+      confirmedEscalation,
+      evidenceQuality,
+      outcomeType,
       escalationOutcome: testCase.datasetMetadata?.governanceOutcome ?? null,
       governanceOverride: testCase.governanceOverride ?? null,
       replayLinkage: {
         sampleReference: testCase.sampleReference ?? null,
-        evidenceReferences: caseResults.flatMap((result) => result.evidence),
+        evidenceReferences,
+      },
+      replayLink: testCase.sampleReference ? `/trust-replay?sample=${encodeURIComponent(testCase.sampleReference)}` : null,
+      calibrationImpact: {
+        shouldUpdateThreshold: ["false_positive", "false_negative"].includes(outcomeType),
+        shouldAddProviderComparison: !caseResults.some((result) => result.source === "provider_api"),
+        notes: [
+          outcomeType === "false_positive" ? "Review threshold and specificity for this category." : null,
+          outcomeType === "false_negative" ? "Review recall and missing-signal coverage for this category." : null,
+          evidenceQuality === "missing" ? "Add evidence references before using this record for calibration." : null,
+        ].filter((item): item is string => Boolean(item)),
       },
     };
   });
@@ -76,7 +120,9 @@ export function summarizeReviewedOutcomes(records: ReviewedOutcomeRecord[]) {
     falseNegatives: count("false_negative"),
     reviewOnly: count("review_only"),
     escalated: escalated.length,
+    confirmedEscalations: records.filter((record) => record.confirmedEscalation).length,
     governanceOverrides: records.filter((record) => Boolean(record.governanceOverride)).length,
+    calibrationImpacting: records.filter((record) => record.calibrationImpact.shouldUpdateThreshold).length,
     replayLinked: records.filter(
       (record) => record.replayLinkage.sampleReference || record.replayLinkage.evidenceReferences.length
     ).length,

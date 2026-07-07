@@ -18,6 +18,14 @@ export type DetectionProvider = {
   status: () => ProviderStatus;
   supportedSignals: readonly string[];
   credentialsPresent: () => boolean;
+  healthCheck: () => Promise<{
+    providerName: string;
+    status: ProviderDisplayStatus;
+    credentialsPresent: boolean;
+    sourceLabel: DetectionSource;
+    latencyMs: number;
+    limitations: string[];
+  }>;
   runDetection: (testCase: ValidationCase) => Promise<ValidationResult>;
   normalizeResult: (testCase: ValidationCase, raw: ProviderRawResult) => ValidationResult;
 };

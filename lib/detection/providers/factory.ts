@@ -4,6 +4,7 @@ import {
   type DetectionProvider,
   type ProviderRawResult,
 } from "./types.ts";
+import { recordRuntimeProfileSample } from "../../performance/runtime-profiler.ts";
 import type { ValidationCase } from "../../validation/validation-case.ts";
 
 export function createProviderAdapter(config: {
@@ -38,6 +39,41 @@ export function createProviderAdapter(config: {
     providerName: config.providerName,
     supportedSignals: config.supportedSignals,
     credentialsPresent,
+    async healthCheck() {
+      const started = Date.now();
+      const status = this.status();
+      const sourceLabel =
+        status === "live"
+          ? "provider_api"
+          : status === "awaiting_credentials"
+            ? "awaiting_credentials"
+            : "not_implemented";
+      const latencyMs = Math.max(0, Date.now() - started);
+      recordRuntimeProfileSample({
+        stage: "provider",
+        label: `${config.providerName} health check`,
+        latencyMs,
+        outcome: status === "live" || status === "simulated" ? "ok" : "failed",
+      });
+      return {
+        providerName: config.providerName,
+        status:
+          status === "live"
+            ? "Live"
+            : status === "simulated"
+              ? "Simulated"
+              : status === "awaiting_credentials"
+                ? "Awaiting Credentials"
+                : "Disabled",
+        credentialsPresent: credentialsPresent(),
+        sourceLabel,
+        latencyMs,
+        limitations:
+          status === "live"
+            ? ["Provider credentials are present; benchmark validation and human review remain required."]
+            : [`${config.providerName} is ${status.replaceAll("_", " ")}.`],
+      };
+    },
     status: () => {
       if (config.enabledEnv && process.env[config.enabledEnv] === "false") return "disabled";
       if (config.implementation === "simulated") return "simulated";
@@ -46,10 +82,26 @@ export function createProviderAdapter(config: {
     },
     normalizeResult,
     async runDetection(testCase) {
-      if (!credentialsPresent()) return awaitingCredentialsResult(config.providerName, testCase);
+      const started = Date.now();
+      if (!credentialsPresent()) {
+        const result = awaitingCredentialsResult(config.providerName, testCase);
+        recordRuntimeProfileSample({
+          stage: "provider",
+          label: config.providerName,
+          latencyMs: Date.now() - started,
+          outcome: "failed",
+        });
+        return result;
+      }
       assertProviderSafe(testCase);
       // Credentials alone never imply a working integration. Network execution is
       // enabled only when a reviewed endpoint-specific implementation is supplied.
+      recordRuntimeProfileSample({
+        stage: "provider",
+        label: config.providerName,
+        latencyMs: Date.now() - started,
+        outcome: "failed",
+      });
       return {
         ...normalizeResult(testCase, {}),
         source: "not_implemented",

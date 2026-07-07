@@ -7,6 +7,7 @@ import type { DetectionProvider } from "../detection/providers/types.ts";
 import { buildReviewedOutcomeRecords, summarizeReviewedOutcomes } from "../governance/reviewed-outcomes.ts";
 import { evaluateRuntimeTrust, type RuntimeSignalKey } from "../runtime/runtime-trust-engine.ts";
 import { evaluateIntentRisk } from "../trust/intent-risk.ts";
+import { calculateDatasetReadiness, inspectDatasetRegistry } from "./dataset-registry.ts";
 import type {
   ConfusionMatrix,
   PrecisionRecallMetrics,
@@ -48,6 +49,8 @@ export type ReviewerOverride = {
   previousOutcome?: ExpectedOutcome;
   finalOutcome?: ExpectedOutcome;
 };
+
+export const MINIMUM_CALIBRATION_SAMPLE_THRESHOLD = 30;
 
 export type BenchmarkTestCase = {
   id: string;
@@ -158,6 +161,40 @@ export function calculatePrecisionRecall(matrix: ConfusionMatrix): PrecisionReca
       ? (2 * precision * recall) / (precision + recall)
       : null;
   return { precision, recall, f1 };
+}
+
+function calculateRates(matrix: ConfusionMatrix) {
+  const falsePositiveDenominator = matrix.falsePositives + matrix.trueNegatives;
+  const falseNegativeDenominator = matrix.falseNegatives + matrix.truePositives;
+  return {
+    falsePositiveRate: falsePositiveDenominator ? matrix.falsePositives / falsePositiveDenominator : null,
+    falseNegativeRate: falseNegativeDenominator ? matrix.falseNegatives / falseNegativeDenominator : null,
+  };
+}
+
+function metricsByCategory(cases: ValidationCase[], results: ValidationResult[]) {
+  const categories = [...new Set(cases.map((testCase) => String(testCase.datasetMetadata?.source ?? testCase.label)))];
+  return Object.fromEntries(
+    categories.map((category) => {
+      const caseIds = new Set(
+        cases
+          .filter((testCase) => String(testCase.datasetMetadata?.source ?? testCase.label) === category)
+          .map((testCase) => testCase.id)
+      );
+      const categoryResults = results.filter((result) => caseIds.has(result.caseId));
+      const matrix = calculateConfusionMatrix(categoryResults);
+      return [
+        category,
+        {
+          caseCount: caseIds.size,
+          resultCount: categoryResults.length,
+          confusionMatrix: matrix,
+          metrics: calculatePrecisionRecall(matrix),
+          ...calculateRates(matrix),
+        },
+      ];
+    })
+  );
 }
 
 export function calculateReviewerAgreement(
@@ -280,14 +317,23 @@ export async function runValidationBenchmark(options: {
   providers?: readonly DetectionProvider[];
 } = {}) {
   const cases = options.cases ?? (await loadValidationCases());
+  const registry = await inspectDatasetRegistry();
+  const datasetReadiness = calculateDatasetReadiness({ cases, registry });
   if (!cases.length) {
     return {
       caseCount: 0,
       message: "No validation dataset available yet.",
+      calibrationStatus: {
+        complete: false,
+        minimumSampleThreshold: MINIMUM_CALIBRATION_SAMPLE_THRESHOLD,
+        message: "Calibration not complete - insufficient validated data.",
+      },
+      datasetReadiness,
       detectionSourcesUsed: [] as string[],
       results: [] as ValidationResult[],
       confusionMatrix: calculateConfusionMatrix([]),
       metrics: calculatePrecisionRecall(calculateConfusionMatrix([])),
+      perCategoryMetrics: {},
       confidenceDistribution: { low: 0, medium: 0, high: 0 },
       providerAgreement: null,
       reviewerAgreement: calculateReviewerAgreement([], []),
@@ -331,6 +377,8 @@ export async function runValidationBenchmark(options: {
   const usableProviderResults = providerResults.filter((result) => result.source === "provider_api");
   const results = [...heuristicResults, ...usableProviderResults];
   const confusionMatrix = calculateConfusionMatrix(results);
+  const rawMetrics = calculatePrecisionRecall(confusionMatrix);
+  const rates = calculateRates(confusionMatrix);
   const agreements = usableProviderResults.filter((providerResult) => {
     const baseline = heuristicResults.find((result) => result.caseId === providerResult.caseId);
     return baseline?.actual === providerResult.actual;
@@ -431,10 +479,20 @@ export async function runValidationBenchmark(options: {
 
   return {
     caseCount: cases.length,
+    calibrationStatus: {
+      complete: cases.length >= MINIMUM_CALIBRATION_SAMPLE_THRESHOLD,
+      minimumSampleThreshold: MINIMUM_CALIBRATION_SAMPLE_THRESHOLD,
+      message:
+        cases.length >= MINIMUM_CALIBRATION_SAMPLE_THRESHOLD
+          ? "Calibration sample threshold met; metrics remain dataset-scoped."
+          : "Calibration not complete - insufficient validated data.",
+    },
+    datasetReadiness,
     detectionSourcesUsed: [...new Set(results.map((result) => result.source))],
     results,
     confusionMatrix,
-    metrics: calculatePrecisionRecall(confusionMatrix),
+    metrics: rawMetrics,
+    perCategoryMetrics: metricsByCategory(cases, results),
     confidenceDistribution: {
       low: results.filter((result) => result.confidence < 0.5).length,
       medium: results.filter((result) => result.confidence >= 0.5 && result.confidence < 0.8).length,
@@ -455,8 +513,8 @@ export async function runValidationBenchmark(options: {
     escalationRate: signalFusionComparison.filter((item) =>
       ["escalate", "block"].includes(String(item.recommendation))
     ).length / cases.length,
-    falsePositiveRate: negativeCases ? falsePositiveCount / negativeCases : null,
-    falseNegativeRate: positiveCases ? falseNegativeCount / positiveCases : null,
+    falsePositiveRate: rates.falsePositiveRate ?? (negativeCases ? falsePositiveCount / negativeCases : null),
+    falseNegativeRate: rates.falseNegativeRate ?? (positiveCases ? falseNegativeCount / positiveCases : null),
     governanceOverrideTracking: {
       overrides: cases.filter((testCase) => Boolean(testCase.governanceOverride)).length,
       reviewerDisagreements: reviewerAgreement.disagreements,
@@ -505,8 +563,18 @@ export async function runValidationBenchmark(options: {
       sourcePolicy: "Source-specific results remain separate; review outcomes are non-final evidence.",
     },
     warnings: usableProviderResults.length
-      ? ["Provider results are evidence inputs, not final authenticity decisions."]
-      : ["No live provider inference was used."],
+      ? [
+          "Provider results are evidence inputs, not final authenticity decisions.",
+          ...(cases.length < MINIMUM_CALIBRATION_SAMPLE_THRESHOLD
+            ? ["Calibration not complete - insufficient validated data."]
+            : []),
+        ]
+      : [
+          "No live provider inference was used.",
+          ...(cases.length < MINIMUM_CALIBRATION_SAMPLE_THRESHOLD
+            ? ["Calibration not complete - insufficient validated data."]
+            : []),
+        ],
   };
 }
 

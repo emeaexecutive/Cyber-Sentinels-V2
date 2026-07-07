@@ -25,15 +25,20 @@ export default function DemoPage() {
             Replayable evidence for trusted workflows.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link href="/demo/hiring-attack" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-200">View Demo</Link>
+            <Link href="/demo/trust-execution-flow" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-200">View Demo</Link>
             <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">Request Enterprise Access</Link>
           </div>
         </section>
 
-        <section className="mt-8 grid gap-5 md:grid-cols-2">
-          <Link href="/demo/hiring-attack" className="rounded-lg border border-cyan-800 bg-zinc-950 p-6 hover:border-cyan-400">
+        <section className="mt-8 grid gap-5 md:grid-cols-3">
+          <Link href="/demo/trust-execution-flow" className="rounded-lg border border-cyan-800 bg-zinc-950 p-6 hover:border-cyan-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">TrustOps execution</p>
+            <h2 className="mt-3 text-2xl font-semibold text-white">Humans, agents and approvals</h2>
+            <p className="mt-3 text-sm leading-7 text-zinc-300">Follow a governed workflow through runtime evidence, provider degradation, trust calculation, queueing, replay and governance hooks.</p>
+          </Link>
+          <Link href="/demo/hiring-attack" className="rounded-lg border border-zinc-700 bg-zinc-950 p-6 hover:border-cyan-400">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">90-second walkthrough</p>
-            <h2 className="mt-3 text-2xl font-semibold text-white">Hiring Security</h2>
+            <h2 className="mt-3 text-2xl font-semibold text-white">Enterprise Access / Hiring Security</h2>
             <p className="mt-3 text-sm leading-7 text-zinc-300">Follow a simulated candidate from intake through a Session Integrity anomaly, governance escalation, replay evidence, Verification Receipt and workflow outcome.</p>
           </Link>
           <Link href="/demo/session-integrity" className="rounded-lg border border-zinc-700 bg-zinc-950 p-6 hover:border-cyan-400">
@@ -63,7 +68,7 @@ export default function DemoPage() {
           </div>
           <div className="flex flex-wrap gap-3">
             <Link href="/trust" className="brand-secondary-action">Trust Center</Link>
-            <Link href="/enterprise/hiring-security" className="brand-primary-action">Hiring Security</Link>
+            <Link href="/platform" className="brand-primary-action">TrustOps Platform</Link>
           </div>
         </section>
       </div>

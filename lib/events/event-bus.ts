@@ -36,10 +36,10 @@ export function subscribeTrustEvent(name: TrustRuntimeEventName, handler: TrustR
 export function publishTrustEvent<TPayload extends Record<string, unknown>>(
   name: TrustRuntimeEventName,
   payload: TPayload,
-  options: { replaySafe?: boolean } = {}
+  options: { replaySafe?: boolean; eventId?: string } = {}
 ) {
   const event: TrustRuntimeEvent<TPayload> = {
-    id: crypto.randomUUID(),
+    id: options.eventId ?? crypto.randomUUID(),
     name,
     payload,
     created_at: new Date().toISOString(),

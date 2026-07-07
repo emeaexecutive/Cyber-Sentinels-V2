@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
+import { existsSync } from "node:fs";
+import path from "node:path";
 import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
 import { canonicalDetectionSources, getDetectionEngineStatus } from "@/lib/detection/detection-engine";
+import { detectionProviders } from "@/lib/detection/providers";
 import { createClient } from "@/lib/supabase/server";
-import { loadValidationCases } from "@/lib/validation/benchmark-harness";
-import { evaluateMlReadiness, mlReadinessLevels } from "@/lib/validation/ml-readiness";
+import { runValidationBenchmark } from "@/lib/validation/benchmark-harness";
+import { buildMlReadinessScoreboard, evaluateMlReadiness, mlReadinessLevels } from "@/lib/validation/ml-readiness";
 
 export const dynamic = "force-dynamic";
 
@@ -12,14 +15,30 @@ export async function GET(request: Request) {
   const admin = await requireAdminApiAccess(request, supabase);
   if (!admin.ok) return admin.response;
 
-  const [cases, status] = await Promise.all([
-    loadValidationCases(),
+  const [benchmark, status] = await Promise.all([
+    runValidationBenchmark(),
     Promise.resolve(getDetectionEngineStatus()),
   ]);
-  const validationDatasetPresent = cases.length > 0;
-  const precisionAvailable = validationDatasetPresent;
-  const recallAvailable = validationDatasetPresent;
-  const f1Available = validationDatasetPresent;
+  const validationDatasetPresent = benchmark.caseCount > 0;
+  const precisionAvailable = benchmark.calibrationStatus.complete && benchmark.metrics.precision !== null;
+  const recallAvailable = benchmark.calibrationStatus.complete && benchmark.metrics.recall !== null;
+  const f1Available = benchmark.calibrationStatus.complete && benchmark.metrics.f1 !== null;
+  const root = process.cwd();
+  const readinessAreas = buildMlReadinessScoreboard({
+    datasetReadinessPercent: benchmark.datasetReadiness.currentPercent,
+    datasetEvidence: benchmark.datasetReadiness.evidence,
+    datasetBlocker: benchmark.datasetReadiness.blocker,
+    calibrationComplete: benchmark.calibrationStatus.complete,
+    calibrationMessage: benchmark.calibrationStatus.message,
+    providerDetectionActive: status.provider_detection_enabled,
+    providerCount: detectionProviders.length,
+    reviewedOutcomeCount: benchmark.reviewedOutcomeSummary.reviewed,
+    runtimeProfilingActive: existsSync(path.join(root, "lib", "performance", "runtime-profiler.ts")),
+    loadTestPresent: existsSync(path.join(root, "tests", "load", "trust-execution-load.test.mjs")),
+    queryPlanPresent: existsSync(path.join(root, "docs", "QUERY_OPTIMIZATION_PLAN.md")),
+    queueOptimizationPresent: existsSync(path.join(root, "lib", "governance", "governance-queue.ts")),
+    proprietaryModelBenchmarked: false,
+  });
 
   return NextResponse.json(
     {
@@ -38,14 +57,17 @@ export async function GET(request: Request) {
         enterprisePilotValidated: false,
         proprietaryModelBenchmarked: false,
       }),
-      benchmark_case_count: cases.length,
-      validation_dataset_message: cases.length ? null : "No validation dataset available yet.",
+      benchmark_case_count: benchmark.caseCount,
+      validation_dataset_message: benchmark.caseCount ? null : "No validation dataset available yet.",
+      calibration_status: benchmark.calibrationStatus,
+      dataset_readiness: benchmark.datasetReadiness,
+      readiness_areas: readinessAreas,
       source_labels: canonicalDetectionSources,
       metric_readiness: {
         confusion_matrix: validationDatasetPresent ? "available_on_run" : "awaiting_labelled_dataset",
-        precision: precisionAvailable ? "available_on_run" : "awaiting_labelled_dataset",
-        recall: recallAvailable ? "available_on_run" : "awaiting_labelled_dataset",
-        f1: f1Available ? "available_on_run" : "awaiting_labelled_dataset",
+        precision: precisionAvailable ? "available_on_run" : "Calibration not complete - insufficient validated data.",
+        recall: recallAvailable ? "available_on_run" : "Calibration not complete - insufficient validated data.",
+        f1: f1Available ? "available_on_run" : "Calibration not complete - insufficient validated data.",
         false_positive_tracking: status.false_positive_tracking_present,
         false_negative_tracking: status.false_negative_tracking_present,
         reviewer_agreement: validationDatasetPresent ? "available_on_run" : "awaiting_reviewed_cases",

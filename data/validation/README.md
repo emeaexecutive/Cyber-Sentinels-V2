@@ -58,3 +58,20 @@ The scaffold supports these validation buckets:
 - governance-reviewed outcomes.
 
 See `dataset-metadata.schema.json` for the metadata contract used by future labelled cases.
+
+## Dataset registry
+
+The canonical readiness registry is `lib/validation/dataset-registry.ts`. It tracks:
+
+- dataset name;
+- category;
+- source;
+- label quality;
+- reviewer status;
+- consent status;
+- synthetic/public/internal origin;
+- `usableForBenchmark`;
+- provider coverage; and
+- risk diversity.
+
+Registry entries are not benchmark evidence by themselves. A dataset becomes benchmark-usable only when approved JSON cases include source/license or consent metadata, reviewer attribution, label confidence, provider comparison status and governance outcome.

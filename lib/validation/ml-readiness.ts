@@ -31,6 +31,14 @@ export type MlReadinessInput = {
   proprietaryModelBenchmarked?: boolean;
 };
 
+export type MlReadinessArea = {
+  area: string;
+  currentPercent: number;
+  evidence: string;
+  blocker: string;
+  nextAction: string;
+};
+
 export function evaluateMlReadiness(input: MlReadinessInput) {
   let currentLevel: MlReadinessLevel["level"] = 1;
   if (input.providerDetectionActive || !input.realMlActive) currentLevel = 2;
@@ -82,4 +90,86 @@ export function evaluateMlReadiness(input: MlReadinessInput) {
       "Provider or model output remains review evidence until validated against enterprise workflow data.",
     ],
   };
+}
+
+export function buildMlReadinessScoreboard(input: {
+  datasetReadinessPercent: number;
+  datasetEvidence: string;
+  datasetBlocker: string;
+  calibrationComplete: boolean;
+  calibrationMessage: string;
+  providerDetectionActive: boolean;
+  providerCount: number;
+  reviewedOutcomeCount: number;
+  runtimeProfilingActive: boolean;
+  loadTestPresent: boolean;
+  queryPlanPresent: boolean;
+  queueOptimizationPresent: boolean;
+  proprietaryModelBenchmarked: boolean;
+}): MlReadinessArea[] {
+  return [
+    {
+      area: "Dataset readiness",
+      currentPercent: input.datasetReadinessPercent,
+      evidence: input.datasetEvidence,
+      blocker: input.datasetBlocker,
+      nextAction: "Add approved public or consented validation cases across media, session, document, NHI and regulated workflow categories.",
+    },
+    {
+      area: "Precision/recall calibration",
+      currentPercent: input.calibrationComplete ? 85 : 35,
+      evidence: input.calibrationMessage,
+      blocker: input.calibrationComplete ? "Dataset-scoped metrics still require ongoing reviewer audit." : "Calibration not complete - insufficient validated data.",
+      nextAction: "Reach the minimum validated sample threshold and compare source-specific results by category.",
+    },
+    {
+      area: "Provider integrations",
+      currentPercent: input.providerDetectionActive ? 70 : 45,
+      evidence: `${input.providerCount} provider adapter(s) expose credential checks, status labels and normalized results.`,
+      blocker: input.providerDetectionActive ? "Provider outputs still need benchmark validation." : "No reviewed live provider inference is active.",
+      nextAction: "Implement and review one endpoint-specific provider call with timeout handling, audit metadata and restricted-data exclusion.",
+    },
+    {
+      area: "Reviewed outcomes",
+      currentPercent: input.reviewedOutcomeCount ? 60 : 30,
+      evidence: `${input.reviewedOutcomeCount} reviewed outcome record(s) available from validation runs.`,
+      blocker: input.reviewedOutcomeCount ? "Needs more adjudicated false-positive and false-negative examples." : "No reviewed validation cases are present.",
+      nextAction: "Route human review decisions into reviewed outcome records with override reason and replay evidence.",
+    },
+    {
+      area: "Runtime profiling",
+      currentPercent: input.runtimeProfilingActive ? 65 : 25,
+      evidence: input.runtimeProfilingActive ? "In-process runtime profiler reports provider, replay and governance queue timing." : "Runtime profiler not active.",
+      blocker: "In-process telemetry is not production APM.",
+      nextAction: "Persist profile samples and compare p50/p95 latency under real pilot traffic.",
+    },
+    {
+      area: "Load testing",
+      currentPercent: input.loadTestPresent ? 55 : 20,
+      evidence: input.loadTestPresent ? "Local load test script exists and avoids paid providers." : "No production load test script found.",
+      blocker: "500-decision path remains a placeholder until seeded data and CI timing budgets are approved.",
+      nextAction: "Run 10 and 100 decision simulations in CI and add a staged 500-decision profile.",
+    },
+    {
+      area: "Query optimization",
+      currentPercent: input.queryPlanPresent ? 60 : 25,
+      evidence: input.queryPlanPresent ? "Query optimization plan documents safe index candidates." : "No query optimization plan found.",
+      blocker: "No risky migration should ship without observed query plans.",
+      nextAction: "Capture slow-query evidence for replay, governance, provider logs and benchmark result reads before migrations.",
+    },
+    {
+      area: "Queue optimization",
+      currentPercent: input.queueOptimizationPresent ? 65 : 30,
+      evidence: input.queueOptimizationPresent ? "Replay and governance queues use non-blocking in-process paths with bounded snapshots." : "Queue isolation not documented.",
+      blocker: "In-process queues are not durable production workers.",
+      nextAction: "Add durable idempotent queue storage after pilot traffic proves event volume and retry needs.",
+    },
+    {
+      area: "Proprietary inference maturity",
+      currentPercent: input.proprietaryModelBenchmarked ? 55 : 15,
+      evidence: input.proprietaryModelBenchmarked ? "A proprietary model-assisted benchmark is recorded." : "No proprietary model benchmark is recorded.",
+      blocker: "Do not claim first-party ML detection until model inference is trained, benchmarked and reviewed.",
+      nextAction: "Define first-party inference scope only after labelled data, evaluation protocol and reviewer adjudication are ready.",
+    },
+  ];
 }

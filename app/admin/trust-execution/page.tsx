@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { getRecentTrustEvents } from "@/lib/events/event-bus";
 import { getGovernanceQueueSnapshot } from "@/lib/governance/governance-queue";
+import { getRuntimeProfileSnapshot } from "@/lib/performance/runtime-profiler";
 import { orchestrateProviders } from "@/lib/providers/provider-orchestrator";
 import { pendingReplayJobs } from "@/lib/replay/replay-writer";
 import { createClient } from "@/lib/supabase/server";
@@ -39,6 +40,7 @@ export default async function TrustExecutionAdminPage() {
   const providerSnapshot = await orchestrateProviders({ timeoutMs: 200 });
   const recentRuntimeEvents = getRecentTrustEvents(12);
   const governanceQueue = getGovernanceQueueSnapshot(8);
+  const runtimeProfile = getRuntimeProfileSnapshot(providerSnapshot);
   const providerDegraded = providerSnapshot.filter((provider) => provider.state !== "Live").length;
   const providerMaxLatency = providerSnapshot.length
     ? Math.max(...providerSnapshot.map((provider) => provider.latency_ms))
@@ -84,6 +86,20 @@ export default async function TrustExecutionAdminPage() {
           ))}
         </section>
 
+        <section className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            ["Slowest provider", runtimeProfile.slowestProvider ? `${runtimeProfile.slowestProvider.label} (${runtimeProfile.slowestProvider.latencyMs}ms)` : "No provider sample"],
+            ["Slowest workflow stage", runtimeProfile.slowestWorkflowStage ? `${runtimeProfile.slowestWorkflowStage.stage.replaceAll("_", " ")} (${runtimeProfile.slowestWorkflowStage.latencyMs}ms)` : "No stage sample"],
+            ["Timeouts / failures", `${runtimeProfile.timeoutCount} timeout(s), ${runtimeProfile.failedProviderCount} failed provider(s)`],
+            ["Avg decision time", `${runtimeProfile.averageDecisionTimeMs}ms avg / cache ${runtimeProfile.cache.hits}:${runtimeProfile.cache.misses}`],
+          ].map(([label, value]) => (
+            <article key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-zinc-100">{value}</p>
+            </article>
+          ))}
+        </section>
+
         <section className="mt-8 grid gap-5 lg:grid-cols-3">
           <article className="operational-panel p-5 lg:col-span-2">
             <div className="flex items-center justify-between gap-4">
@@ -123,6 +139,20 @@ export default async function TrustExecutionAdminPage() {
               ))}
             </div>
           </article>
+        </section>
+
+        <section className="mt-8 operational-panel p-5">
+          <p className="operational-eyebrow">Runtime profiling</p>
+          <h2 className="mt-2 text-2xl font-semibold">Execution-stage latency</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+            {Object.entries(runtimeProfile.stageAverages).map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label.replace(/([A-Z])/g, " $1")}</p>
+                <p className="mt-2 text-xl font-semibold text-zinc-100">{value}ms</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-xs leading-5 text-zinc-500">{runtimeProfile.boundary}</p>
         </section>
 
         <section className="mt-8 operational-panel p-5">

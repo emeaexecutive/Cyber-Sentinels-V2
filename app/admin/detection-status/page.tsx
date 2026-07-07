@@ -1,11 +1,13 @@
 import { redirect } from "next/navigation";
+import { existsSync } from "node:fs";
+import path from "node:path";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { getDetectionEngineStatus } from "@/lib/detection/detection-engine";
 import { createClient } from "@/lib/supabase/server";
 import { detectionProviders } from "@/lib/detection/providers";
 import { providerStatusLabel } from "@/lib/detection/providers";
 import { runValidationBenchmark } from "@/lib/validation/benchmark-harness";
-import { evaluateMlReadiness, mlReadinessLevels } from "@/lib/validation/ml-readiness";
+import { buildMlReadinessScoreboard, evaluateMlReadiness, mlReadinessLevels } from "@/lib/validation/ml-readiness";
 
 export const dynamic = "force-dynamic";
 
@@ -39,13 +41,29 @@ export default async function DetectionStatusAdminPage() {
     realMlActive: status.real_ml_enabled,
     providerDetectionActive: status.provider_detection_enabled,
     validationDatasetPresent: benchmark.caseCount > 0,
-    precisionAvailable: benchmark.metrics.precision !== null,
-    recallAvailable: benchmark.metrics.recall !== null,
-    f1Available: benchmark.metrics.f1 !== null,
+    precisionAvailable: benchmark.calibrationStatus.complete && benchmark.metrics.precision !== null,
+    recallAvailable: benchmark.calibrationStatus.complete && benchmark.metrics.recall !== null,
+    f1Available: benchmark.calibrationStatus.complete && benchmark.metrics.f1 !== null,
     falsePositiveTracking: status.false_positive_tracking_present,
     falseNegativeTracking: status.false_negative_tracking_present,
     humanReviewEnabled: true,
     enterprisePilotValidated: false,
+    proprietaryModelBenchmarked: false,
+  });
+  const root = process.cwd();
+  const readinessAreas = buildMlReadinessScoreboard({
+    datasetReadinessPercent: benchmark.datasetReadiness.currentPercent,
+    datasetEvidence: benchmark.datasetReadiness.evidence,
+    datasetBlocker: benchmark.datasetReadiness.blocker,
+    calibrationComplete: benchmark.calibrationStatus.complete,
+    calibrationMessage: benchmark.calibrationStatus.message,
+    providerDetectionActive: status.provider_detection_enabled,
+    providerCount: detectionProviders.length,
+    reviewedOutcomeCount: benchmark.reviewedOutcomeSummary.reviewed,
+    runtimeProfilingActive: existsSync(path.join(root, "lib", "performance", "runtime-profiler.ts")),
+    loadTestPresent: existsSync(path.join(root, "tests", "load", "trust-execution-load.test.mjs")),
+    queryPlanPresent: existsSync(path.join(root, "docs", "QUERY_OPTIMIZATION_PLAN.md")),
+    queueOptimizationPresent: true,
     proprietaryModelBenchmarked: false,
   });
 
@@ -127,6 +145,26 @@ export default async function DetectionStatusAdminPage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">85% readiness acceleration</p>
+          <h2 className="mt-3 text-xl font-semibold text-zinc-100">Evidence, blockers and next action by readiness area</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {readinessAreas.map((area) => (
+              <article key={area.area} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="text-sm font-semibold text-zinc-100">{area.area}</h3>
+                  <span className={`rounded-full border px-2 py-1 text-xs ${area.currentPercent >= 85 ? "border-emerald-900 text-emerald-200" : area.currentPercent >= 60 ? "border-amber-900 text-amber-200" : "border-red-900 text-red-200"}`}>
+                    {area.currentPercent}%
+                  </span>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-zinc-400">{area.evidence}</p>
+                <p className="mt-3 text-xs leading-5 text-amber-200">Blocker: {area.blocker}</p>
+                <p className="mt-3 border-t border-zinc-800 pt-3 text-xs leading-5 text-zinc-500">Next: {area.nextAction}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">ML Capability Level</p>
           <p className="mt-3 text-xl font-semibold text-zinc-100">
             Level {benchmark.benchmarkMaturity.level} - {benchmark.benchmarkMaturity.label}
@@ -138,7 +176,7 @@ export default async function DetectionStatusAdminPage() {
           <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Detection truth labels</p>
           <h2 className="mt-3 text-xl font-semibold text-zinc-100">Source taxonomy and boundaries</h2>
           <p className="mt-2 text-sm leading-6 text-zinc-500">
-            These are the only allowed labels for ML and detection surfaces. Provider state is tracked separately as Live, Simulated, Awaiting Credentials, Timeout, Failed or Disabled.
+            These are the only allowed labels for ML and detection surfaces. Provider-facing state is tracked separately as Live, Simulated, Awaiting Credentials or Disabled; timeout and failure are internal runtime telemetry.
           </p>
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {status.source_taxonomy.map((item) => (
@@ -162,11 +200,13 @@ export default async function DetectionStatusAdminPage() {
             <h2 className="font-semibold text-zinc-100">Validation Dataset Status</h2>
             <p className="mt-3 text-sm text-zinc-400">{benchmark.caseCount} labelled cases</p>
             {!benchmark.caseCount && <p className="mt-2 text-sm text-amber-200">{benchmark.message}</p>}
+            <p className="mt-2 text-xs text-zinc-500">Dataset readiness: {benchmark.datasetReadiness.currentPercent}%</p>
           </article>
           <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="font-semibold text-zinc-100">Precision / Recall Metrics</h2>
             <p className="mt-3 text-sm text-zinc-400">Precision: {benchmark.metrics.precision ?? "Unavailable"} / Recall: {benchmark.metrics.recall ?? "Unavailable"} / F1: {benchmark.metrics.f1 ?? "Unavailable"}</p>
             <p className="mt-2 text-xs text-zinc-500">Reviewer agreement: {benchmark.reviewerAgreement.agreementRate ?? "Unavailable"} / Provider agreement: {benchmark.providerAgreement ?? "Unavailable"}</p>
+            <p className="mt-2 text-xs text-amber-200">{benchmark.calibrationStatus.message}</p>
           </article>
           <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="font-semibold text-zinc-100">Confusion Matrix</h2>
