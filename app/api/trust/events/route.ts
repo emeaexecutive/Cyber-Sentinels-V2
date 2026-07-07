@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     actor_id: String(body.actor_id ?? user.id).slice(0, 120),
     actor_type: ["human", "agent", "NHI", "workflow"].includes(String(body.actor_type)) ? (String(body.actor_type) as any) : "human",
     workflow_id: String(body.workflow_id ?? crypto.randomUUID()).slice(0, 120),
-    decision: ["allow", "step_up", "review", "escalate", "block", "insufficient evidence"].includes(String(body.decision)) ? (String(body.decision) as any) : "review",
+    decision: ["allow", "step_up", "review", "escalate", "block", "insufficient_evidence", "insufficient evidence"].includes(String(body.decision)) ? (String(body.decision) as any) : "review",
     source: "Runtime Intelligence",
     evidence_refs: Array.isArray(body.evidence_refs) ? body.evidence_refs.map(String).slice(0, 20) : [],
   }, user.email ?? user.id);

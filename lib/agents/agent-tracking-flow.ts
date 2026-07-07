@@ -56,7 +56,7 @@ export function buildAgentTrackingFlow(input: AgentTrackingInput) {
       ? "blocked"
       : decision.decision === "escalate"
         ? "escalated"
-        : decision.decision === "review" || decision.decision === "step_up" || decision.decision === "insufficient evidence"
+        : decision.decision === "review" || decision.decision === "step_up" || decision.decision === "insufficient_evidence"
           ? "review"
           : "complete";
   const steps: AgentTrackingStep[] = [

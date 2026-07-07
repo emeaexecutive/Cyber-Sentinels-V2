@@ -79,12 +79,18 @@ const paths = [
 ];
 
 const flow = [
-  ["Actor enters workflow", "Actor Identity"],
-  ["Detection signals collected", "ML Signal / Provider Signal / Heuristic Signal"],
-  ["Trust algorithm calculates posture", "Trust Algorithm"],
-  ["Decision engine selects action", "Governance Decision"],
-  ["Workflow executor acts", "Workflow Automation"],
-  ["Governance and replay record outcome", "Replay Event"],
+  ["Signal collection", "Actor, workflow, runtime and declared intent enter the pipeline."],
+  ["Parallel checks", "Providers, heuristic baseline, provenance, session and intent run in timeout windows."],
+  ["Signal fusion", "Partial provider availability is normalized without waiting on every source."],
+  ["Trust calculation", "Trust Algorithm computes posture and limitations."],
+  ["Fast decision", "Decision Engine returns allow, step_up, review, escalate, block or insufficient_evidence."],
+  ["Async side effects", "Replay, audit, receipts and governance queues are written after the immediate response when safe."],
+];
+
+const runtimeStages = [
+  ["0-50ms", "Workflow received", "optimistic UI shows evaluating signals"],
+  ["50-300ms", "Parallel signal runner", "provider timeout isolation and heuristic fallback"],
+  ["300ms+", "Governance fabric", "replay writer and queue hooks preserve evidence"],
 ];
 
 const decisionClass: Record<string, string> = {
@@ -93,6 +99,7 @@ const decisionClass: Record<string, string> = {
   review: "border-amber-800 text-amber-200",
   escalate: "border-orange-800 text-orange-200",
   block: "border-red-800 text-red-200",
+  insufficient_evidence: "border-zinc-700 text-zinc-300",
   "insufficient evidence": "border-zinc-700 text-zinc-300",
 };
 
@@ -126,6 +133,16 @@ export default function TrustExecutionFlowDemoPage() {
           ))}
         </section>
 
+        <section className="mt-8 grid gap-5 lg:grid-cols-3">
+          {runtimeStages.map(([time, title, detail]) => (
+            <article key={title} className="operational-panel p-5">
+              <p className="font-mono text-xs text-cyan-300">{time}</p>
+              <h2 className="mt-3 text-xl font-semibold">{title}</h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-500">{detail}</p>
+            </article>
+          ))}
+        </section>
+
         <section className="mt-8 grid gap-5">
           {paths.map((path) => (
             <article key={path.label} className="operational-panel p-5">
@@ -153,7 +170,12 @@ export default function TrustExecutionFlowDemoPage() {
               </div>
               <p className="mt-5 text-sm leading-7 text-zinc-500">
                 Sources: {path.algorithm.source_labels.join(", ")}. Evidence: {path.algorithm.evidence_refs.join(", ") || "demo evidence only"}.
+                Replay remains append-only; governance and receipt work can be queued after the immediate decision response.
               </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link href="/trust-replay" className="text-sm font-semibold text-cyan-200 hover:text-cyan-100">View Replay</Link>
+                <Link href="/admin/trust-execution" className="text-sm font-semibold text-cyan-200 hover:text-cyan-100">View Runtime Events</Link>
+              </div>
             </article>
           ))}
         </section>

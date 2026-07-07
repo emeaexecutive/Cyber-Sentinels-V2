@@ -1,6 +1,6 @@
 import type { DetectionSource } from "@/lib/detection/detection-engine";
 
-export type TrustDecision = "allow" | "step_up" | "review" | "escalate" | "block" | "insufficient evidence";
+export type TrustDecision = "allow" | "step_up" | "review" | "escalate" | "block" | "insufficient_evidence" | "insufficient evidence";
 
 export type TrustDecisionInput = {
   identityConfidence?: number | null;
@@ -42,7 +42,7 @@ export function evaluateTrustDecision(input: TrustDecisionInput) {
   const priorEscalated = (input.governanceHistory ?? []).includes("escalated");
   const risk = risks.length ? risks.reduce((total, value) => total + value, 0) / risks.length : null;
 
-  let decision: TrustDecision = "insufficient evidence";
+  let decision: TrustDecision = "insufficient_evidence";
   if (risk !== null) {
     decision =
       priorBlocked || risk >= 0.8
@@ -60,7 +60,7 @@ export function evaluateTrustDecision(input: TrustDecisionInput) {
     ? input.sourceLabels
     : (["Heuristic Baseline", "Runtime Intelligence"] as DetectionSource[]);
   const reason =
-    decision === "insufficient evidence"
+    decision === "insufficient_evidence"
       ? "No sufficient evidence was supplied for a decision."
       : decision === "block"
         ? "Critical risk or prior blocking evidence requires the action to stop while evidence is preserved."

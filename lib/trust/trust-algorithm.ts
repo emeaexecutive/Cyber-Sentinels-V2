@@ -106,6 +106,7 @@ export function runTrustAlgorithm(input: TrustAlgorithmInput) {
     review: "Open governance review with preserved evidence.",
     escalate: "Route to high-risk governance queue.",
     block: "Block action while preserving evidence and replay context.",
+    insufficient_evidence: "Pause workflow and request more evidence.",
     "insufficient evidence": "Pause workflow and request more evidence.",
   };
 

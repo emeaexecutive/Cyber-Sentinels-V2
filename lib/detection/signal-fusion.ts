@@ -15,7 +15,7 @@ export type FusionSignal = {
   confidence: number;
   evidence: string[];
   limitations?: string[];
-  providerStatus?: "Live" | "Simulated" | "Awaiting Credentials" | "Disabled";
+  providerStatus?: "Live" | "Simulated" | "Awaiting Credentials" | "Timeout" | "Failed" | "Disabled";
   escalationReason?: string;
 };
 
@@ -24,7 +24,7 @@ export type TrustRecommendation =
   | "review"
   | "escalate"
   | "block"
-  | "insufficient evidence";
+  | "insufficient_evidence";
 
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 
@@ -100,7 +100,7 @@ export function fuseTrustSignals(input: {
     : clamp(agreementAdjustedRisk + Math.min(0.15, priorEscalations * 0.05));
   let recommendation: TrustRecommendation =
     governedRisk == null
-      ? "insufficient evidence"
+      ? "insufficient_evidence"
       : governedRisk >= 0.85
         ? "block"
         : governedRisk >= 0.6
@@ -156,7 +156,7 @@ export function fuseTrustSignals(input: {
     escalationRecommendation:
       recommendation === "block" || recommendation === "escalate"
         ? "Route to a named governance reviewer before execution continues."
-        : recommendation === "insufficient evidence"
+        : recommendation === "insufficient_evidence"
           ? "Collect additional evidence before relying on this recommendation."
           : "Retain evidence and continue under configured workflow policy.",
     escalationReason:

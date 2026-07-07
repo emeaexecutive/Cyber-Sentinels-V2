@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { runTrustAlgorithm } from "@/lib/trust/trust-algorithm";
-import { executeTrustWorkflow } from "@/lib/workflows/trust-workflow-executor";
+import { runTrustExecutionPipeline } from "@/lib/runtime/trust-execution-pipeline";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +25,13 @@ export async function POST(request: Request) {
     ? (String(body.actor_type) as "human" | "agent" | "NHI" | "workflow")
     : "workflow";
   const evidenceRefs = Array.isArray(body.evidence_refs) ? body.evidence_refs.map(String).slice(0, 20) : [];
-  const algorithm = runTrustAlgorithm({
+  const pipeline = await runTrustExecutionPipeline(supabase, {
+    actorId,
+    actorType,
+    workflowId,
+    subjectType: String(body.subject_type ?? "workflow"),
+    reviewerActor: user.email ?? user.id,
+    timeoutMs: numberValue(body, "timeout_ms") ?? 300,
     identityConfidence: numberValue(body, "identity_confidence"),
     proofOfHuman: body.proof_of_human === "verified" || body.proof_of_human === "failed" ? body.proof_of_human : "unknown",
     agentIdentity: body.agent_identity === "verified" ? "verified" : body.agent_identity === "unverified" ? "unverified" : "unknown",
@@ -44,15 +49,6 @@ export async function POST(request: Request) {
     governanceHistory: [],
     evidenceRefs,
   });
-  const execution = await executeTrustWorkflow(supabase, {
-    actorId,
-    actorType,
-    workflowId,
-    subjectType: String(body.subject_type ?? "workflow"),
-    evidenceRefs,
-    algorithm,
-    reviewerActor: user.email ?? user.id,
-  });
 
-  return NextResponse.json({ ok: true, algorithm, execution }, { headers: { "cache-control": "no-store" } });
+  return NextResponse.json(pipeline, { headers: { "cache-control": "no-store" } });
 }

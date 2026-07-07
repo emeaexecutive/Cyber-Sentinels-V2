@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
+import { getRecentTrustEvents } from "@/lib/events/event-bus";
+import { getGovernanceQueueSnapshot } from "@/lib/governance/governance-queue";
+import { orchestrateProviders } from "@/lib/providers/provider-orchestrator";
+import { pendingReplayJobs } from "@/lib/replay/replay-writer";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +36,9 @@ export default async function TrustExecutionAdminPage() {
     .limit(30)
     .returns<ReplayRow[]>();
   const rows = data ?? [];
+  const providerSnapshot = await orchestrateProviders({ timeoutMs: 200 });
+  const recentRuntimeEvents = getRecentTrustEvents(12);
+  const governanceQueue = getGovernanceQueueSnapshot(8);
   const count = (needle: string) => rows.filter((row) => String(row.metadata?.decision ?? row.event_type).includes(needle)).length;
   const summary = [
     ["Recent trust decisions", rows.length],
@@ -40,6 +47,7 @@ export default async function TrustExecutionAdminPage() {
     ["Escalations", count("escalate")],
     ["Step-up requests", count("step_up")],
     ["Evidence preserved", rows.filter((row) => row.metadata?.evidence_preserved === true).length],
+    ["Replay writes queued", pendingReplayJobs()],
   ];
 
   return (
@@ -58,13 +66,77 @@ export default async function TrustExecutionAdminPage() {
           </Link>
         </section>
 
-        <section className="mt-8 grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+        <section className="mt-8 grid gap-3 md:grid-cols-3 xl:grid-cols-7">
           {summary.map(([label, value]) => (
             <article key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
               <p className="mt-2 text-3xl font-semibold text-zinc-100">{value}</p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8 grid gap-5 lg:grid-cols-3">
+          <article className="operational-panel p-5 lg:col-span-2">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="operational-eyebrow">Provider orchestration</p>
+                <h2 className="mt-2 text-2xl font-semibold">Latency and degradation</h2>
+              </div>
+              <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">
+                timeout window 200ms
+              </span>
+            </div>
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {providerSnapshot.slice(0, 6).map((provider) => (
+                <div key={provider.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-sm font-semibold text-zinc-100">{provider.name}</p>
+                    <span className="rounded-full border border-zinc-700 px-2 py-1 text-xs text-zinc-300">{provider.state}</span>
+                  </div>
+                  <p className="mt-2 text-xs text-zinc-500">{provider.latency_ms}ms latency · weight {provider.weight}</p>
+                  <p className="mt-2 text-xs leading-5 text-zinc-500">{provider.limitations[0]}</p>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="operational-panel p-5">
+            <p className="operational-eyebrow">Async governance</p>
+            <h2 className="mt-2 text-2xl font-semibold">Non-blocking queues</h2>
+            <div className="mt-5 space-y-3">
+              {(governanceQueue.length ? governanceQueue : [
+                { id: "empty-review", queue: "review", subject_id: "No pending review job", decision: "review", reason: "Queue is empty in this runtime.", evidence_refs: [] },
+              ]).map((job) => (
+                <div key={job.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <p className="text-sm font-semibold text-zinc-100">{job.queue}</p>
+                  <p className="mt-2 text-xs leading-5 text-zinc-500">{job.reason}</p>
+                </div>
+              ))}
+            </div>
+          </article>
+        </section>
+
+        <section className="mt-8 operational-panel p-5">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="operational-eyebrow">Runtime event stream</p>
+              <h2 className="mt-2 text-2xl font-semibold">Staged trust updates</h2>
+            </div>
+            <span className="rounded-full border border-cyan-900 px-3 py-1 text-xs text-cyan-200">in-process snapshot</span>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {(recentRuntimeEvents.length ? recentRuntimeEvents : [
+              { id: "placeholder-signal", name: "signal.received", created_at: "awaiting runtime event", payload: { state: "No live event retained in this process." } },
+              { id: "placeholder-provider", name: "provider.timeout", created_at: "awaiting runtime event", payload: { state: "Provider timeouts are isolated from the decision path." } },
+              { id: "placeholder-replay", name: "replay.created", created_at: "awaiting runtime event", payload: { state: "Replay writes are append-only when generated." } },
+            ]).map((event) => (
+              <div key={event.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="font-mono text-xs text-cyan-300">{event.name}</p>
+                <p className="mt-2 text-xs text-zinc-500">{event.created_at}</p>
+                <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-500">{JSON.stringify(event.payload)}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 overflow-hidden rounded-lg border border-zinc-800">

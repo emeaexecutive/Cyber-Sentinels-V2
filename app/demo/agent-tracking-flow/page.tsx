@@ -44,6 +44,7 @@ const decisionClass: Record<string, string> = {
   review: "border-cyan-800 text-cyan-100",
   escalate: "border-amber-800 text-amber-200",
   block: "border-red-800 text-red-200",
+  insufficient_evidence: "border-zinc-700 text-zinc-300",
   "insufficient evidence": "border-zinc-700 text-zinc-300",
 };
 
