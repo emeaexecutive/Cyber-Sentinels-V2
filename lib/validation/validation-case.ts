@@ -26,8 +26,18 @@ export type ValidationCase = {
   signals: Record<string, boolean | number | string | null | undefined>;
   dataClassification?: "public" | "internal" | "confidential" | "restricted";
   sampleReference?: string;
+  datasetMetadata?: {
+    label: ValidationLabel;
+    source: "synthetic" | "consented_test" | "public_benchmark" | "internal_fixture";
+    reviewer?: string;
+    confidence?: number;
+    providerAgreement?: "agreed" | "disagreed" | "not_compared" | "awaiting_credentials";
+    governanceOutcome?: "approved" | "escalated" | "blocked" | "more_evidence_required" | "pending";
+    notes?: string;
+  };
   reviewerOutcome?: DetectionExpectedOutcome;
   reviewerId?: string;
+  reviewerNotes?: string;
   governanceOverride?: {
     outcome: DetectionExpectedOutcome;
     reviewerId: string;
@@ -51,6 +61,14 @@ export type ValidationResult = {
   evidence: string[];
   limitations: string[];
   providerName?: string;
+  providerAudit?: {
+    providerName: string;
+    state: "provider_api" | "not_implemented" | "awaiting_credentials";
+    credentialsChecked: boolean;
+    providerCallMade: boolean;
+    degradedMode: boolean;
+    latencyMs?: number;
+  };
 };
 
 export type ConfusionMatrix = {

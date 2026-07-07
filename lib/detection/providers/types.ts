@@ -34,6 +34,14 @@ export const awaitingCredentialsResult = (
   evidence: [],
   limitations: [`${providerName} credentials are not configured; no provider call was made.`],
   providerName,
+  providerAudit: {
+    providerName,
+    state: "awaiting_credentials",
+    credentialsChecked: true,
+    providerCallMade: false,
+    degradedMode: true,
+    latencyMs: 0,
+  },
 });
 
 export function assertProviderSafe(testCase: ValidationCase) {

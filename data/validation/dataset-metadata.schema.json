@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Metadata contract for approved Cyber Sentinels validation cases. This file is not a labelled dataset and contains no production data.",
+  "requiredCaseFields": [
+    "id",
+    "label",
+    "expectedOutcome",
+    "description",
+    "signals",
+    "dataClassification",
+    "datasetMetadata"
+  ],
+  "datasetMetadata": {
+    "required": [
+      "label",
+      "source",
+      "reviewer",
+      "confidence",
+      "providerAgreement",
+      "governanceOutcome"
+    ],
+    "allowedLabels": [
+      "real",
+      "synthetic",
+      "deepfake",
+      "forged",
+      "injected",
+      "suspicious",
+      "clean",
+      "unknown"
+    ],
+    "allowedSources": [
+      "synthetic",
+      "consented_test",
+      "public_benchmark",
+      "internal_fixture"
+    ],
+    "allowedProviderAgreement": [
+      "agreed",
+      "disagreed",
+      "not_compared",
+      "awaiting_credentials"
+    ],
+    "allowedGovernanceOutcomes": [
+      "approved",
+      "escalated",
+      "blocked",
+      "more_evidence_required",
+      "pending"
+    ],
+    "confidenceRange": {
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "supportedBuckets": [
+    "real-human-sessions",
+    "synthetic-face-samples",
+    "deepfake-video-samples",
+    "virtual-camera-samples",
+    "forged-document-samples",
+    "synthetic-voice-samples",
+    "injected-session-samples",
+    "ai-agent-risk-events",
+    "clean-agent-actions",
+    "normal-workflow-approvals"
+  ],
+  "prohibitedData": [
+    "customer PII",
+    "production identity documents",
+    "raw production audio or video",
+    "secrets",
+    "tokens",
+    "unredacted provider payloads",
+    "restricted data"
+  ]
+}

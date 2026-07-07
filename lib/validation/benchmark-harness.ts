@@ -4,6 +4,7 @@ import path from "node:path";
 import { baselineResult } from "../detection/baseline-model.ts";
 import { fuseTrustSignals } from "../detection/signal-fusion.ts";
 import type { DetectionProvider } from "../detection/providers/types.ts";
+import { buildReviewedOutcomeRecords, summarizeReviewedOutcomes } from "../governance/reviewed-outcomes.ts";
 import { evaluateRuntimeTrust, type RuntimeSignalKey } from "../runtime/runtime-trust-engine.ts";
 import { evaluateIntentRisk } from "../trust/intent-risk.ts";
 import type {
@@ -299,6 +300,8 @@ export async function runValidationBenchmark(options: {
       falsePositiveRate: null,
       falseNegativeRate: null,
       governanceOverrideTracking: { overrides: 0, reviewerDisagreements: 0 },
+      reviewedOutcomeSummary: summarizeReviewedOutcomes([]),
+      reviewedOutcomes: [],
       trustDriftTracking: { average: null, cases: [] as Array<Record<string, unknown>> },
       falsePositiveCaseIds: [] as string[],
       falseNegativeCaseIds: [] as string[],
@@ -333,6 +336,8 @@ export async function runValidationBenchmark(options: {
     return baseline?.actual === providerResult.actual;
   }).length;
   const reviewerAgreement = calculateReviewerAgreement(cases, heuristicResults);
+  const reviewedOutcomes = buildReviewedOutcomeRecords(cases, results);
+  const reviewedOutcomeSummary = summarizeReviewedOutcomes(reviewedOutcomes);
   const providerAgreementScore = usableProviderResults.length ? agreements / usableProviderResults.length : null;
   const runtimeEvaluations = cases.map((testCase) => ({
     testCase,
@@ -464,6 +469,8 @@ export async function runValidationBenchmark(options: {
           outcome: testCase.governanceOverride?.outcome,
         })),
     },
+    reviewedOutcomeSummary,
+    reviewedOutcomes,
     trustDriftTracking: {
       average: runtimeEvaluations.length
         ? runtimeEvaluations.reduce(

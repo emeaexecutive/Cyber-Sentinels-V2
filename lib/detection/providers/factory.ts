@@ -24,6 +24,14 @@ export function createProviderAdapter(config: {
     evidence: raw.evidence ?? [],
     limitations: ["Provider evidence requires benchmark validation and human review."],
     providerName: config.providerName,
+    providerAudit: {
+      providerName: config.providerName,
+      state: "provider_api" as const,
+      credentialsChecked: true,
+      providerCallMade: true,
+      degradedMode: false,
+      latencyMs: 0,
+    },
   });
 
   return {
@@ -46,6 +54,14 @@ export function createProviderAdapter(config: {
         ...normalizeResult(testCase, {}),
         source: "not_implemented",
         limitations: [`${config.providerName} credentials exist, but live detection is not implemented.`],
+        providerAudit: {
+          providerName: config.providerName,
+          state: "not_implemented" as const,
+          credentialsChecked: true,
+          providerCallMade: false,
+          degradedMode: true,
+          latencyMs: 0,
+        },
       };
     },
   };
