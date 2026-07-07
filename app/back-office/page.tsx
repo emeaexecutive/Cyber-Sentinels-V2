@@ -19,12 +19,19 @@ import {
   getTrustScoreReasonTone,
   isRowLinkedToPassport,
 } from "@/lib/trust-score-engine";
+import { getDetectionEngineStatus } from "@/lib/detection/detection-engine";
+import { getRecentTrustEvents } from "@/lib/events/event-bus";
+import { getGovernanceQueueSnapshot } from "@/lib/governance/governance-queue";
+import { orchestrateProviders } from "@/lib/providers/provider-orchestrator";
+import { pendingReplayJobs } from "@/lib/replay/replay-writer";
 import { scoreGraphHealth } from "@/lib/trust-graph/scoreGraphHealth";
 import {
   predictTrustRisk,
   type PredictionInputDecision,
 } from "@/lib/trust-engine/predictions";
 import { evaluateTrustFabric } from "@/lib/trust-engine/trustFabric";
+import { runValidationBenchmark } from "@/lib/validation/benchmark-harness";
+import { evaluateMlReadiness } from "@/lib/validation/ml-readiness";
 
 export const dynamic = "force-dynamic";
 
@@ -717,9 +724,13 @@ export default async function BackOfficePage({
 
   const [
     waitlist,
+    candidateProfiles,
+    recruiterProfiles,
     verificationCases,
     passports,
     trustReports,
+    replayEvents,
+    governanceEvents,
     signals,
     auditLogs,
     evidenceFiles,
@@ -746,9 +757,13 @@ export default async function BackOfficePage({
     trustGraphEdges,
   ] = await Promise.all([
     fetchTable<AnyRow>(supabase, "waitlist"),
+    fetchTable<AnyRow>(supabase, "candidate_profiles"),
+    fetchTable<AnyRow>(supabase, "recruiter_profiles"),
     fetchTable<AnyRow>(supabase, "verification_cases"),
     fetchTable<AnyRow>(supabase, "passports"),
     fetchTable<AnyRow>(supabase, "trust_reports"),
+    fetchTable<AnyRow>(supabase, "trust_timeline_events"),
+    fetchTable<AnyRow>(supabase, "governance_reviews"),
     fetchTable<AnyRow>(supabase, "signals"),
     fetchTable<AnyRow>(supabase, "audit_logs"),
     fetchTable<AnyRow>(supabase, "evidence_files", "created_at", 100),
@@ -774,6 +789,26 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "trust_graph_nodes", "created_at", 20),
     fetchTable<AnyRow>(supabase, "trust_graph_edges", "created_at", 20),
   ]);
+  const [providerSnapshot, validationBenchmark] = await Promise.all([
+    orchestrateProviders({ timeoutMs: 200, includeDisabled: true }),
+    runValidationBenchmark(),
+  ]);
+  const detectionStatus = getDetectionEngineStatus();
+  const mlReadiness = evaluateMlReadiness({
+    realMlActive: detectionStatus.real_ml_enabled,
+    providerDetectionActive: detectionStatus.provider_detection_enabled,
+    validationDatasetPresent: validationBenchmark.caseCount > 0,
+    precisionAvailable: validationBenchmark.metrics.precision !== null,
+    recallAvailable: validationBenchmark.metrics.recall !== null,
+    f1Available: validationBenchmark.metrics.f1 !== null,
+    falsePositiveTracking: detectionStatus.false_positive_tracking_present,
+    falseNegativeTracking: detectionStatus.false_negative_tracking_present,
+    humanReviewEnabled: true,
+    enterprisePilotValidated: false,
+    proprietaryModelBenchmarked: false,
+  });
+  const runtimeTrustEvents = getRecentTrustEvents(8);
+  const governanceQueue = getGovernanceQueueSnapshot(8);
 
   const messageEventsByThread = new Map<string, AnyRow[]>();
 
@@ -1117,6 +1152,57 @@ export default async function BackOfficePage({
       trustGraphNodes.count > 0 || trustGraphEdges.count > 0,
     ],
   ] as const;
+  const safeCoverageSummary = [
+    {
+      label: "Users / Profiles",
+      value: candidateProfiles.count + recruiterProfiles.count,
+      detail:
+        "Candidate and recruiter profile counts only. Supabase Auth users, passwords and session data are not displayed.",
+      available: candidateProfiles.available || recruiterProfiles.available,
+    },
+    {
+      label: "Trust Reports",
+      value: trustReports.count,
+      detail: "Recent report summaries are listed below without provider secrets.",
+      available: trustReports.available,
+    },
+    {
+      label: "Verification Cases",
+      value: verificationCases.count,
+      detail: "Case status, evidence count and reviewed decisions are visible to verified admins.",
+      available: verificationCases.available,
+    },
+    {
+      label: "Replay Events",
+      value: replayEvents.count,
+      detail: `${pendingReplayJobs()} replay write job(s) pending in this process.`,
+      available: replayEvents.available,
+    },
+    {
+      label: "Governance Reviews",
+      value: governanceEvents.count + governanceQueue.length,
+      detail: `${governanceQueue.length} in-process governance queue item(s) visible.`,
+      available: governanceEvents.available || governanceQueue.length > 0,
+    },
+    {
+      label: "Provider Status",
+      value: providerSnapshot.filter((provider) => provider.state === "Live").length,
+      detail: `${providerSnapshot.length} provider adapter state(s) summarized; credentials and tokens remain hidden.`,
+      available: true,
+    },
+    {
+      label: "ML / Detection Status",
+      value: `Level ${mlReadiness.current_level}`,
+      detail: `${detectionStatus.real_ml_enabled ? "Real ML active" : "No first-party ML inference claimed"}; ${validationBenchmark.caseCount} labelled benchmark case(s).`,
+      available: true,
+    },
+    {
+      label: "Trust Execution Events",
+      value: runtimeTrustEvents.length,
+      detail: "In-process event bus snapshot for trust execution, replay and governance hooks.",
+      available: true,
+    },
+  ];
 
   const moduleLinks = [
     ["Mission Control", "/mission-control"],
@@ -1358,6 +1444,62 @@ export default async function BackOfficePage({
             </Link>
           ))}
           </div>
+        </section>
+
+        <section className="mt-6 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-zinc-600">
+                Safe Database Coverage
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">
+                Back-office visibility without secret exposure
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs">
+              <Link
+                href="/admin/detection-status"
+                className="rounded-lg border border-cyan-800 px-3 py-2 text-cyan-100 hover:text-white"
+              >
+                Detection status
+              </Link>
+              <Link
+                href="/admin/trust-execution"
+                className="rounded-lg border border-cyan-800 px-3 py-2 text-cyan-100 hover:text-white"
+              >
+                Trust execution
+              </Link>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {safeCoverageSummary.map((item) => (
+              <article
+                key={item.label}
+                className="rounded-lg border border-zinc-800 bg-black p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">
+                    {item.label}
+                  </p>
+                  {!item.available ? (
+                    <span className="rounded-full border border-amber-800 px-2 py-1 text-[11px] text-amber-200">
+                      unavailable
+                    </span>
+                  ) : null}
+                </div>
+                <p className="mt-3 text-2xl font-semibold text-zinc-100">
+                  {item.value}
+                </p>
+                <p className="mt-3 text-sm leading-6 text-zinc-500">
+                  {item.detail}
+                </p>
+              </article>
+            ))}
+          </div>
+          <p className="mt-4 text-xs leading-6 text-zinc-600">
+            Provider keys, bearer tokens, Supabase service role secrets and raw
+            external credentials are not rendered in this panel.
+          </p>
         </section>
 
         <section className="mt-6 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

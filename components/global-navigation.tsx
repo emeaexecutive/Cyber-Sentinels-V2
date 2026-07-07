@@ -299,7 +299,7 @@ export function GlobalNavigation({
                   onClick={closeMenus}
                   className="brand-secondary-action"
                 >
-                  Admin
+                  Operations
                 </Link>
               ) : null}
               <LogoutButton onNavigate={closeMenus} />
@@ -318,7 +318,7 @@ export function GlobalNavigation({
                 onClick={closeMenus}
                 className="brand-secondary-action"
               >
-                Admin
+                Operations
               </Link>
               <Link href="/dashboard" onClick={closeMenus} className="brand-primary-action">
                 Access
