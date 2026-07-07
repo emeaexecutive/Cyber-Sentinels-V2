@@ -37,6 +37,9 @@ export type ReplaySnapshot = {
     detectionSources: string[];
     runtimeAnomalies: string[];
     providerResponses: string[];
+    declaredIntents: string[];
+    governanceActions: string[];
+    trustStateChanges: string[];
   };
 };
 
@@ -237,6 +240,30 @@ export function buildReplaySnapshot(input: {
       })
       .filter(Boolean)
   )];
+  const declaredIntents = [...new Set(
+    [...signals, ...auditLogs, ...decisions]
+      .map((row) => {
+        const metadata = rowMetadata(row);
+        return row.declared_intent ?? metadata.declared_intent ?? metadata.intent ?? metadata.purpose;
+      })
+      .filter(Boolean)
+      .map(String)
+  )];
+  const governanceActions = [...new Set(
+    decisions
+      .map((row) => row.action_status ?? row.decision ?? row.status ?? row.resolution_notes)
+      .filter(Boolean)
+      .map(String)
+  )];
+  const trustStateChanges = [...new Set(
+    timelineEvents
+      .map((event) => {
+        const metadata = rowMetadata(event);
+        return metadata.trust_state_change ?? metadata.posture ?? event.event_type;
+      })
+      .filter(Boolean)
+      .map(String)
+  )];
 
   return {
     subject_type: input.subjectType,
@@ -268,6 +295,9 @@ export function buildReplaySnapshot(input: {
       detectionSources,
       runtimeAnomalies,
       providerResponses,
+      declaredIntents,
+      governanceActions,
+      trustStateChanges,
     },
   };
 }

@@ -4,6 +4,7 @@ import { provenanceTrustFactors, trustScoreFromFactors } from "@/lib/trusted-lay
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
 import { createReceiptBundle } from "@/lib/trust-receipts/receipts";
+import { evaluateProvenanceConfidence } from "@/lib/trust/provenance-confidence";
 
 function text(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();
@@ -29,6 +30,12 @@ async function handleProvenanceVerification(req: Request) {
   const mediaLabel = text(formData, "media_label");
   const factors = provenanceTrustFactors();
   const trustScore = trustScoreFromFactors(factors);
+  const provenanceConfidence = evaluateProvenanceConfidence({
+    c2pa: "placeholder",
+    synthId: "placeholder",
+    aiDisclosure: text(formData, "ai_disclosure") === "declared" ? "declared" : "unknown",
+    evidenceTimelineCount: factors.length,
+  });
   const orchestrationStatus = trustScore >= 70 ? "review_ready" : "needs_governance_review";
   const reportId = crypto.randomUUID();
   const actor = user.email ?? user.id;
@@ -38,6 +45,7 @@ async function handleProvenanceVerification(req: Request) {
     source_url: text(formData, "source_url"),
     media_type: text(formData, "media_type") || "image",
     factors,
+    provenance_confidence: provenanceConfidence,
     source: "api.provenance.verify",
     orchestration_status: orchestrationStatus,
     warning:
@@ -89,6 +97,7 @@ async function handleProvenanceVerification(req: Request) {
         orchestration_status: orchestrationStatus,
         missing_signal_policy:
           "Missing provenance or detection context should create a warning, not an authenticity assertion.",
+        provenance_confidence: provenanceConfidence,
         human_review: true,
       },
       evidence: [
@@ -119,6 +128,7 @@ async function handleProvenanceVerification(req: Request) {
     warning:
       "Detection and provenance are signals. Trust requires orchestration through evidence, governance, timeline and human review.",
     factors,
+    provenance_confidence: provenanceConfidence,
   });
 }
 

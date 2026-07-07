@@ -39,6 +39,10 @@ const governedActors = [
     "Enterprise workflows",
     "Evidence, governance and outcomes remain connected from entry to completion.",
   ],
+  [
+    "Documents and media",
+    "Provenance, disclosure, evidence timeline and review state remain separate from authenticity claims.",
+  ],
 ];
 
 const operatingSystemModel = [
@@ -59,7 +63,8 @@ export default function Home() {
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 sm:text-xl sm:leading-9">
             Govern operational trust continuity across people, non-human
-            identities and consequential enterprise decisions.
+            identities, live sessions, documents, media and consequential
+            enterprise decisions.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
             Replayable enterprise memory, governed execution, Authorization
@@ -117,10 +122,11 @@ export default function Home() {
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-300">
               Built for enterprises governing consequential work across people,
-              AI agents and the systems they use together.
+              AI agents, non-human identities, live sessions, documents and the
+              systems they use together.
             </p>
           </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
+          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {buyerOutcomes.map(([title, copy]) => (
               <article key={title} className="operational-card p-5">
                 <h3 className="text-lg font-semibold text-white">{title}</h3>

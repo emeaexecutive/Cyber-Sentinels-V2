@@ -5,6 +5,7 @@ import { baselineResult } from "../detection/baseline-model.ts";
 import { fuseTrustSignals } from "../detection/signal-fusion.ts";
 import type { DetectionProvider } from "../detection/providers/types.ts";
 import { evaluateRuntimeTrust, type RuntimeSignalKey } from "../runtime/runtime-trust-engine.ts";
+import { evaluateIntentRisk } from "../trust/intent-risk.ts";
 import type {
   ConfusionMatrix,
   PrecisionRecallMetrics,
@@ -355,6 +356,19 @@ export async function runValidationBenchmark(options: {
   const signalFusionComparison = cases.map((testCase) => {
     const baseline = heuristicResults.find((result) => result.caseId === testCase.id)!;
     const runtime = runtimeReplayValidation.find((result) => result.caseId === testCase.id)!;
+    const intentRisk = evaluateIntentRisk({
+      actorType: testCase.intent?.actorType ?? (testCase.signals.suspiciousAgentRuntimeBehavior ? "agent" : "workflow"),
+      actionType: testCase.intent?.actionType ?? String(testCase.signals.actionType ?? "workflow_action"),
+      declaredIntent: testCase.intent?.declaredIntent ?? String(testCase.signals.declaredIntent ?? "Validation case replay"),
+      expectedPermission: testCase.intent?.expectedPermission ?? String(testCase.signals.expectedPermission ?? "declared_scope"),
+      actualPermission: testCase.intent?.actualPermission ?? String(testCase.signals.actualPermission ?? "declared_scope"),
+      dataSensitivity: testCase.dataClassification,
+      workflowCriticality: testCase.signals.workflowCriticality === "critical" ? "critical" : "medium",
+      anomalyReason: runtime.evidence.join(", "),
+      delegatedAuthorityActive: testCase.signals.delegatedAuthorityActive !== false,
+      humanOwnerPresent: testCase.signals.humanOwnerPresent !== false,
+      actionBeforeExecution: true,
+    });
     const fusion = fuseTrustSignals({
       signals: [
         {
@@ -383,12 +397,19 @@ export async function runValidationBenchmark(options: {
             ? "review"
             : null,
       providerAgreement: providerAgreementScore,
+      intentRisk,
+      sessionIntegrityRisk: runtime.actual === "positive" ? 1 : runtime.actual === "review" ? 0.5 : 0,
     });
     return {
       caseId: testCase.id,
       expected: testCase.expectedOutcome,
       recommendation: fusion.recommendation,
       confidence: fusion.confidence,
+      intentRisk: {
+        riskScore: intentRisk.riskScore,
+        riskBand: intentRisk.riskBand,
+        recommendation: intentRisk.recommendation,
+      },
       evidenceSummary: fusion.evidenceSummary,
       escalationReason: fusion.escalationReason,
       limitations: fusion.limitations,

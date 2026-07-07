@@ -19,6 +19,7 @@ export const sessionSignalCategories = [
   "device_attestation",
   "emulator_risk",
   "tampered_app_risk",
+  "impersonation_risk",
 ] as const;
 
 export type SessionSignalCategory = (typeof sessionSignalCategories)[number];
@@ -50,6 +51,9 @@ export type SessionIntegrityInput = {
   provider_verification_changed?: boolean;
   session_interrupted?: boolean;
   workflow_inconsistency_score?: number;
+  impersonation_risk_score?: number;
+  provider_status?: DetectionSource;
+  trust_score_source?: DetectionSource;
 };
 
 export type ExplainableSessionSignal = {
@@ -117,6 +121,9 @@ export function normalizeSessionIntegrityInput(
     provider_verification_changed: body.provider_verification_changed === true,
     session_interrupted: body.session_interrupted === true,
     workflow_inconsistency_score: boundedScore(body.workflow_inconsistency_score) ?? undefined,
+    impersonation_risk_score: boundedScore(body.impersonation_risk_score) ?? undefined,
+    provider_status: normalizeDetectionSource(body.provider_status),
+    trust_score_source: normalizeDetectionSource(body.trust_score_source),
   };
 }
 
@@ -127,6 +134,7 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
   const injectionScore = boundedScore(input.injection_risk_score);
   const anomalyScore = boundedScore(input.session_anomaly_score);
   const workflowInconsistency = boundedScore(input.workflow_inconsistency_score);
+  const impersonationScore = boundedScore(input.impersonation_risk_score);
   const virtualCameraState = cleanState(input.evidence_metadata?.virtual_camera_risk);
   const frameIntegrityState = cleanState(input.evidence_metadata?.frame_integrity);
   const deviceAttestationState = cleanState(input.evidence_metadata?.device_attestation);
@@ -154,6 +162,7 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
       || input.provider_verification_changed
       || input.session_interrupted
       || (workflowInconsistency !== null && workflowInconsistency >= 35)
+      || (impersonationScore !== null && impersonationScore >= 35)
       || emulatorFlagged
       || tamperedAppFlagged
   );
@@ -361,6 +370,19 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
       requires_manual_review: tamperedAppFlagged,
     },
     {
+      category: "impersonation_risk",
+      label: "Impersonation risk",
+      status: riskStatus(impersonationScore),
+      risk_level: riskFromScore(impersonationScore),
+      confidence_score: impersonationScore,
+      explanation:
+        impersonationScore === null
+          ? "Impersonation risk has not been assessed. No identity conclusion is made."
+          : "This is a review signal combining identity, liveness and channel context; it is not proof of impersonation.",
+      badge: impersonationScore !== null && impersonationScore >= 35 ? "Impersonation Review" : "Session Review Pending",
+      requires_manual_review: impersonationScore !== null && impersonationScore >= 35,
+    },
+    {
       category: "manual_review_required",
       label: "Human review decision",
       status: manualReview ? "required" : "pending",
@@ -396,6 +418,20 @@ export function evaluateSessionIntegrity(input: SessionIntegrityInput) {
     overall_status,
     manual_review_required: manualReview,
     signals,
+    provider_status: input.provider_status ?? requestedSource,
+    trust_score_source: input.trust_score_source ?? requestedSource,
+    live_video_trust: {
+      liveness: livenessConfirmed ? "confirmed" : livenessFailed ? "failed" : "pending",
+      deepfakeRisk: riskFromScore(deepfakeScore),
+      injectionRisk: riskFromScore(injectionScore),
+      virtualCameraRisk: virtualCameraState,
+      emulatorRisk: emulatorFlagged ? "elevated" : "pending",
+      tamperedAppRisk: tamperedAppFlagged ? "elevated" : "pending",
+      frameIntegrity: frameIntegrityState,
+      deviceChannelIntegrity: channelVerified ? "verified" : channelFailed ? "failed" : "pending",
+      impersonationRisk: riskFromScore(impersonationScore),
+      manualEscalation: manualReview,
+    },
     summary:
       "Liveness, deepfake risk, injection risk, channel integrity, and session anomaly risk are separate explainable signals. No single signal proves identity or trust.",
   };

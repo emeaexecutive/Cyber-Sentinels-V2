@@ -33,6 +33,13 @@ export type ValidationCase = {
     reviewerId: string;
     reason: string;
   };
+  intent?: {
+    actorType?: "human" | "agent" | "NHI" | "workflow";
+    actionType?: string;
+    declaredIntent?: string;
+    expectedPermission?: string;
+    actualPermission?: string;
+  };
 };
 
 export type ValidationResult = {

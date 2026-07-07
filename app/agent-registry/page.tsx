@@ -132,6 +132,8 @@ export default async function AgentRegistryPage() {
             ["Restricted", summary.restricted],
             ["Revoked", summary.revoked],
             ["High Risk", summary.highRisk],
+            ["Shadow / Orphaned", summary.shadow + summary.orphaned],
+            ["Kill Switch Ready", summary.killSwitchEnabled],
           ].map(([label, value]) => (
             <div
               key={label}
@@ -188,12 +190,43 @@ export default async function AgentRegistryPage() {
                     {agent.origin_trace_score ?? "n/a"} / Policy{" "}
                     {agent.policy_status ?? "pending"}
                   </p>
+                  <div className="mt-4 grid gap-2 text-xs text-zinc-500 md:grid-cols-2">
+                    <p>Owner: {agent.human_owner ?? agent.owner_name ?? "not assigned"}</p>
+                    <p>Authority: {agent.delegated_authority ?? "pending review"}</p>
+                    <p>Receipt: {agent.signed_action_receipt ?? "not recorded"}</p>
+                    <p>Kill switch: {agent.kill_switch_status ?? "unknown"}</p>
+                    <p>NHI posture: {agent.nhi_status ?? "discovered"}</p>
+                    <p>Blast radius: {agent.blast_radius ?? agent.access_scope ?? "not scoped"}</p>
+                  </div>
                 </Link>
               ))}
             </div>
           </div>
 
           <div className="space-y-6">
+            <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h2 className="text-xl font-semibold">Action Accountability</h2>
+              <div className="mt-5 space-y-3">
+                {agents.slice(0, 5).map((agent) => (
+                  <div
+                    key={`accountability-${agent.id}`}
+                    className="rounded-lg border border-zinc-800 bg-black p-3"
+                  >
+                    <p className="text-sm text-zinc-300">{agent.agent_name}</p>
+                    <p className="mt-2 text-xs leading-5 text-zinc-600">
+                      {agent.human_owner ?? "No human owner recorded"} supervises{" "}
+                      {agent.delegated_authority ?? "pending authority"}; escalation owner:{" "}
+                      {agent.escalation_owner ?? "not assigned"}.
+                    </p>
+                    <p className="mt-2 text-xs leading-5 text-zinc-600">
+                      Governance: {agent.governance_review_state ?? "pending"} / Runtime:{" "}
+                      {agent.runtime_escalation ?? "no active escalation"}.
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
               <h2 className="text-xl font-semibold">Permission Scopes</h2>
               <div className="mt-5 flex flex-wrap gap-2">

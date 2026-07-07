@@ -43,12 +43,14 @@ export default function EnterprisePage() {
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Maintain governed trust continuity across people, AI agents,
-            non-human identities and enterprise workflows—with persistent
-            posture and replayable enterprise memory.
+            non-human identities, live sessions, documents, media and regulated
+            enterprise workflows—with persistent posture and replayable
+            enterprise memory.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             Security, risk, compliance and operations teams get one reviewable
-            record without replacing accountable decision-makers or systems of record.
+            AI Trust Control Plane without replacing accountable decision-makers
+            or systems of record.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/demo" className="brand-primary-action brand-action-large text-sm">

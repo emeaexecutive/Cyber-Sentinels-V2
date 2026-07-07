@@ -296,6 +296,9 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
     ["Reviewer actions", snapshot.decisions.length ? `${snapshot.decisions.length} governance decision(s) preserved` : "No reviewer action in this replay window"],
     ["Accountable actors", snapshot.canonicalMemory.accountableActors.join(", ") || "No named reviewer or actor retained in this replay window"],
     ["Detection source", snapshot.canonicalMemory.detectionSources.join(", ") || "No detection source retained in this replay window"],
+    ["Declared intent", snapshot.canonicalMemory.declaredIntents.join(", ") || "No declared intent retained in this replay window"],
+    ["Authorization lineage", snapshot.canonicalMemory.authorizationLineage],
+    ["Governance action", snapshot.canonicalMemory.governanceActions.join(", ") || snapshot.canonicalMemory.governanceState],
     ["Provider responses", snapshot.canonicalMemory.providerResponses.join(", ") || "No provider response retained in this replay window"],
     ["Runtime anomalies", snapshot.canonicalMemory.runtimeAnomalies.join(", ") || "No runtime anomaly retained in this replay window"],
     ["Operational outcome", snapshot.canonicalMemory.operationalOutcome],
@@ -481,7 +484,7 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
               ["Evidence", `${snapshot.evidence.length} linked record(s)`],
               ["Authorization", `${snapshot.relationships.length} lineage record(s)`],
               ["Governance", `${snapshot.decisions.length} review decision(s)`],
-              ["Trust-state transition", snapshot.posture.label],
+              ["Trust-state transition", snapshot.canonicalMemory.trustStateChanges.slice(0, 2).join(", ") || snapshot.posture.label],
               ["Operational outcome", snapshot.timelineEvents.length ? "Chronology reconstructed" : "No recorded outcome"],
             ].map(([label, value]) => (
               <div key={label} className="operational-card p-4">

@@ -42,6 +42,23 @@ export type AgentRecord = {
   identity_claims: Record<string, unknown>[];
   trust_lineage: Record<string, unknown>[];
   last_trust_recalculation_reason: string | null;
+  human_owner?: string | null;
+  supervising_admin?: string | null;
+  delegated_authority?: string | null;
+  signed_action_receipt?: string | null;
+  authority_expires_at?: string | null;
+  revoked_at?: string | null;
+  kill_switch_status?: "enabled" | "disabled" | "pending" | "unknown";
+  escalation_owner?: string | null;
+  decision_log?: string[];
+  governance_review_state?: "approved" | "review" | "escalated" | "blocked" | "pending";
+  nhi_status?: "discovered" | "approved" | "shadow";
+  credential_type?: string | null;
+  access_scope?: string | null;
+  orphaned?: boolean;
+  runtime_escalation?: string | null;
+  last_activity_at?: string | null;
+  blast_radius?: string | null;
 };
 
 export type AgentRow = Partial<Omit<AgentRecord, "permissions">> & {
@@ -243,6 +260,12 @@ function normalizePermissions(
   );
 }
 
+function normalizeStringArray(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map(String).filter(Boolean);
+  if (typeof value === "string" && value.trim()) return [value.trim()];
+  return [];
+}
+
 export function normalizeAgent(row: AgentRow): AgentRecord {
   return {
     id: String(row.id ?? "agent-placeholder"),
@@ -271,6 +294,39 @@ export function normalizeAgent(row: AgentRow): AgentRecord {
     identity_claims: Array.isArray(row.identity_claims) ? row.identity_claims : [],
     trust_lineage: Array.isArray(row.trust_lineage) ? row.trust_lineage : [],
     last_trust_recalculation_reason: row.last_trust_recalculation_reason ?? null,
+    human_owner: String(row.human_owner ?? row.owner_name ?? "").trim() || null,
+    supervising_admin: String(row.supervising_admin ?? "").trim() || null,
+    delegated_authority: String(row.delegated_authority ?? row.policy_status ?? "").trim() || null,
+    signed_action_receipt: String(row.signed_action_receipt ?? "").trim() || null,
+    authority_expires_at: row.authority_expires_at ?? null,
+    revoked_at: row.revoked_at ?? null,
+    kill_switch_status: ["enabled", "disabled", "pending"].includes(String(row.kill_switch_status))
+      ? (String(row.kill_switch_status) as AgentRecord["kill_switch_status"])
+      : "unknown",
+    escalation_owner: String(row.escalation_owner ?? row.owner_name ?? "").trim() || null,
+    decision_log: normalizeStringArray(row.decision_log),
+    governance_review_state: ["approved", "review", "escalated", "blocked", "pending"].includes(String(row.governance_review_state))
+      ? (String(row.governance_review_state) as AgentRecord["governance_review_state"])
+      : row.status === "revoked"
+        ? "blocked"
+        : row.status === "under_review"
+          ? "review"
+          : row.status === "verified"
+            ? "approved"
+            : "pending",
+    nhi_status: ["discovered", "approved", "shadow"].includes(String(row.nhi_status))
+      ? (String(row.nhi_status) as AgentRecord["nhi_status"])
+      : row.status === "verified"
+        ? "approved"
+        : row.owner_name || row.owner_email
+          ? "discovered"
+          : "shadow",
+    credential_type: String(row.credential_type ?? "").trim() || null,
+    access_scope: String(row.access_scope ?? "").trim() || null,
+    orphaned: row.orphaned === true || (!row.owner_name && !row.owner_email),
+    runtime_escalation: String(row.runtime_escalation ?? "").trim() || null,
+    last_activity_at: row.last_activity_at ?? row.last_verified_at ?? row.created_at ?? null,
+    blast_radius: String(row.blast_radius ?? "").trim() || null,
   };
 }
 
@@ -290,5 +346,8 @@ export function getAgentRegistrySummary(agents: AgentRecord[]) {
     highRisk: agents.filter((agent) =>
       ["high", "critical"].includes(agent.risk_level)
     ).length,
+    shadow: agents.filter((agent) => agent.nhi_status === "shadow").length,
+    orphaned: agents.filter((agent) => agent.orphaned).length,
+    killSwitchEnabled: agents.filter((agent) => agent.kill_switch_status === "enabled").length,
   };
 }
