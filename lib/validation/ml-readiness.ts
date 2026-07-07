@@ -79,6 +79,7 @@ export function evaluateMlReadiness(input: MlReadinessInput) {
       "Provider API",
       "Heuristic Baseline",
       "Runtime Intelligence",
+      "Governance Review",
       "Real ML",
       "Demo Data",
       "Awaiting Credentials",

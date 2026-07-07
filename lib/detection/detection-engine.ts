@@ -19,6 +19,7 @@ export type DetectionSource =
   | "Provider API"
   | "Heuristic Baseline"
   | "Runtime Intelligence"
+  | "Governance Review"
   | "Demo Data"
   | "Real ML"
   | "Not Implemented"
@@ -91,6 +92,7 @@ export function normalizeDetectionSource(value: unknown): DetectionSource {
     "Provider API",
     "Heuristic Baseline",
     "Runtime Intelligence",
+    "Governance Review",
     "Demo Data",
     "Awaiting Credentials",
     "Not Implemented",
@@ -98,6 +100,7 @@ export function normalizeDetectionSource(value: unknown): DetectionSource {
   if (canonical.includes(source as DetectionSource)) return source as DetectionSource;
   if (/demo|mock|sample|simulation|fixture/i.test(source)) return "Demo Data";
   if (/runtime.intelligence|runtime anomaly|trust drift/i.test(source)) return "Runtime Intelligence";
+  if (/governance|reviewer|manual.review/i.test(source)) return "Governance Review";
   if (/provider|world.?id|hopae|onfido|veriff|persona|entrust/i.test(source)) return "Provider API";
   if (/rule|heuristic|operator|workflow|api\.|session_integrity_review_form/i.test(source)) return "Heuristic Baseline";
   if (/placeholder|pending credential/i.test(source)) return "Awaiting Credentials";
@@ -202,6 +205,7 @@ export function getDetectionEngineStatus() {
       "Provider API",
       "Heuristic Baseline",
       "Runtime Intelligence",
+      "Governance Review",
       "Demo Data",
       "Awaiting Credentials",
       "Not Implemented",

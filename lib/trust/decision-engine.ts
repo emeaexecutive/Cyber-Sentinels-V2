@@ -1,6 +1,6 @@
 import type { DetectionSource } from "@/lib/detection/detection-engine";
 
-export type TrustDecision = "allow" | "review" | "escalate" | "block" | "insufficient evidence";
+export type TrustDecision = "allow" | "step_up" | "review" | "escalate" | "block" | "insufficient evidence";
 
 export type TrustDecisionInput = {
   identityConfidence?: number | null;
@@ -10,6 +10,7 @@ export type TrustDecisionInput = {
   permissionScope?: "matched" | "overbroad" | "mismatch" | "unknown" | null;
   sessionIntegrity?: number | null;
   provenanceConfidence?: number | null;
+  proofOfHuman?: "verified" | "failed" | "unknown" | null;
   providerSignals?: number | null;
   heuristicBaseline?: number | null;
   runtimeAnomalies?: number | null;
@@ -32,6 +33,7 @@ export function evaluateTrustDecision(input: TrustDecisionInput) {
     input.permissionScope === "mismatch" ? 0.8 : input.permissionScope === "overbroad" ? 0.55 : input.permissionScope === "matched" ? 0.1 : null,
     toRisk(input.sessionIntegrity),
     toRisk(input.provenanceConfidence),
+    input.proofOfHuman === "failed" ? 0.75 : input.proofOfHuman === "unknown" ? 0.45 : input.proofOfHuman === "verified" ? 0.05 : null,
     toRisk(input.providerSignals),
     toRisk(input.heuristicBaseline),
     typeof input.runtimeAnomalies === "number" ? clamp01(input.runtimeAnomalies) : null,
@@ -47,7 +49,9 @@ export function evaluateTrustDecision(input: TrustDecisionInput) {
         ? "block"
         : priorEscalated || risk >= 0.6
           ? "escalate"
-          : risk >= 0.35
+          : risk >= 0.45
+            ? "step_up"
+            : risk >= 0.3
             ? "review"
             : "allow";
   }
@@ -62,6 +66,8 @@ export function evaluateTrustDecision(input: TrustDecisionInput) {
         ? "Critical risk or prior blocking evidence requires the action to stop while evidence is preserved."
         : decision === "escalate"
           ? "Risk crossed governance escalation threshold."
+          : decision === "step_up"
+            ? "Evidence requires stronger verification before execution continues."
           : decision === "review"
             ? "Evidence supports human review before execution continues."
             : "Available evidence supports allow under current policy.";
@@ -74,6 +80,7 @@ export function evaluateTrustDecision(input: TrustDecisionInput) {
       `Identity confidence: ${input.identityConfidence ?? "not supplied"}`,
       `Agent ownership: ${input.agentOwnership ?? "not supplied"}`,
       `Human authority: ${input.humanAuthority ?? "not supplied"}`,
+      `Proof of human: ${input.proofOfHuman ?? "not supplied"}`,
       `Permission scope: ${input.permissionScope ?? "not supplied"}`,
       `Intent risk: ${input.intentRisk ?? "not supplied"}`,
       `Runtime anomalies: ${input.runtimeAnomalies ?? "not supplied"}`,
