@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { detectionProviders } from "@/lib/detection/providers";
 import { providerStatusLabel } from "@/lib/detection/providers";
 import { runValidationBenchmark } from "@/lib/validation/benchmark-harness";
+import { evaluateMlReadiness, mlReadinessLevels } from "@/lib/validation/ml-readiness";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,19 @@ export default async function DetectionStatusAdminPage() {
     ["False positive tracking", status.false_positive_tracking_present ? "Present" : "Missing"],
     ["False negative tracking", status.false_negative_tracking_present ? "Present" : "Missing"],
   ] as const;
+  const mlReadiness = evaluateMlReadiness({
+    realMlActive: status.real_ml_enabled,
+    providerDetectionActive: status.provider_detection_enabled,
+    validationDatasetPresent: benchmark.caseCount > 0,
+    precisionAvailable: benchmark.metrics.precision !== null,
+    recallAvailable: benchmark.metrics.recall !== null,
+    f1Available: benchmark.metrics.f1 !== null,
+    falsePositiveTracking: status.false_positive_tracking_present,
+    falseNegativeTracking: status.false_negative_tracking_present,
+    humanReviewEnabled: true,
+    enterprisePilotValidated: false,
+    proprietaryModelBenchmarked: false,
+  });
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -61,6 +75,54 @@ export default async function DetectionStatusAdminPage() {
                 <p className={`mt-3 text-xl font-semibold ${["Active", "Present"].includes(value) ? "text-emerald-200" : "text-amber-200"}`}>{value}</p>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">ML Completion Readiness</p>
+          <div className="mt-4 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
+            <div className="rounded-lg border border-zinc-800 bg-black p-5">
+              <p className="text-sm text-zinc-500">Current platform level</p>
+              <p className="mt-3 text-4xl font-semibold text-cyan-100">Level {mlReadiness.current_level}</p>
+              <p className="mt-2 text-lg font-medium text-zinc-100">{mlReadiness.current_label}</p>
+              <p className="mt-4 text-sm leading-7 text-zinc-500">
+                {mlReadiness.target_65_80_maturity}
+              </p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {[
+                ["Works today", "Heuristic Baseline, Runtime Intelligence, source-labelled provider readiness, replay evidence and human review."],
+                ["Heuristic", "Session integrity, provenance confidence, intent risk and signal fusion remain deterministic review aids."],
+                ["Provider-backed", status.provider_detection_enabled ? "Provider-backed detection is active." : "No media/document provider inference is active yet."],
+                ["Not implemented", "Production-grade first-party ML detection and proprietary model benchmarks are not claimed."],
+                ["Missing data", benchmark.caseCount ? `${benchmark.caseCount} labelled case(s) available.` : "No validation dataset available yet."],
+                ["65-80% maturity", "Needs labelled datasets, source-specific precision/recall/F1, reviewed false positives/negatives and enterprise pilot evidence."],
+              ].map(([label, copy]) => (
+                <article key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <p className="text-sm font-semibold text-zinc-100">{label}</p>
+                  <p className="mt-2 text-sm leading-6 text-zinc-500">{copy}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+          <div className="mt-5 grid gap-2 md:grid-cols-4">
+            {mlReadinessLevels.map((level) => (
+              <div
+                key={level.level}
+                className={`rounded-lg border p-3 ${level.level <= mlReadiness.current_level ? "border-cyan-900 bg-cyan-950/20" : "border-zinc-800 bg-black"}`}
+              >
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Level {level.level}</p>
+                <p className="mt-1 text-sm font-medium text-zinc-100">{level.title}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 rounded-lg border border-amber-900 bg-amber-950/20 p-4">
+            <p className="text-sm font-semibold text-amber-100">Blockers to next level</p>
+            <ul className="mt-3 grid gap-2 text-sm leading-6 text-amber-100">
+              {mlReadiness.blockers_to_next_level.slice(0, 4).map((blocker) => (
+                <li key={blocker}>{blocker}</li>
+              ))}
+            </ul>
           </div>
         </section>
 

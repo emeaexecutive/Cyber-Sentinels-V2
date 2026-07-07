@@ -217,6 +217,56 @@ export async function POST(
       actor,
       ...requestRisk,
     };
+    const replayDecision =
+      parsed.decision === "allow"
+        ? "allow"
+        : parsed.decision === "deny"
+          ? "block"
+          : status === "escalated"
+            ? "escalate"
+            : "review";
+    const replayReason =
+      replayDecision === "allow"
+        ? "Admin allowed the action with evidence retained."
+        : replayDecision === "block"
+          ? "Admin blocked the action; evidence is preserved and no source data is silently deleted."
+          : replayDecision === "escalate"
+            ? "Admin escalated the action to governance review."
+            : "Admin kept the action in manual review.";
+    const replayInsert = await supabase.from("trust_timeline_events").insert({
+      subject_type: verificationCase.subject_type ?? "verification_case",
+      subject_id: id,
+      event_type: `decision_${replayDecision}`,
+      event_title: `Decision ${replayDecision}`,
+      event_summary: replayReason,
+      actor_type: "admin",
+      actor_id: user.id,
+      severity:
+        replayDecision === "block"
+          ? "critical"
+          : replayDecision === "escalate"
+            ? "warning"
+            : "info",
+      metadata: {
+        ...graphMetadata,
+        replay_decision: replayDecision,
+        allow_block_escalate_reason: replayReason,
+        trust_score_source: "Heuristic Baseline",
+        detection_source: "Heuristic Baseline",
+        evidence_preserved: true,
+        silent_delete_performed: false,
+        reviewer_admin_actor: actor,
+        governance_action: status,
+        final_outcome: status,
+      },
+    });
+
+    if (replayInsert.error) {
+      return NextResponse.json(
+        { ok: false, error: "Could not record replay decision event" },
+        { status: 500 }
+      );
+    }
 
     if (status === "in_review") {
       const reviewStartedInsert = await createAuditLog(

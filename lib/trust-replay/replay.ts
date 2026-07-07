@@ -40,6 +40,12 @@ export type ReplaySnapshot = {
     declaredIntents: string[];
     governanceActions: string[];
     trustStateChanges: string[];
+    humanOwners: string[];
+    permissionScopes: string[];
+    trustScoreSources: string[];
+    runtimeSignals: string[];
+    decisionReasons: string[];
+    finalOutcomes: string[];
   };
 };
 
@@ -264,6 +270,23 @@ export function buildReplaySnapshot(input: {
       .filter(Boolean)
       .map(String)
   )];
+  const allReplayRows = [...evidence, ...signals, ...decisions, ...auditLogs, ...timelineEvents];
+  const metadataValues = (keys: string[]) => [...new Set(
+    allReplayRows
+      .map((row) => {
+        const record = row as ReplayRow;
+        const metadata = rowMetadata(row);
+        return keys.map((key) => record[key] ?? metadata[key]).find(Boolean);
+      })
+      .filter(Boolean)
+      .map(String)
+  )];
+  const humanOwners = metadataValues(["human_owner", "owner", "owner_name", "supervising_admin"]);
+  const permissionScopes = metadataValues(["permission_scope", "access_scope", "expected_permission"]);
+  const trustScoreSources = metadataValues(["trust_score_source"]);
+  const runtimeSignals = metadataValues(["runtime_signal", "runtime_anomaly", "signal_type", "event_type"]);
+  const decisionReasons = metadataValues(["allow_block_escalate_reason", "decision_reason", "reason"]);
+  const finalOutcomes = metadataValues(["final_outcome", "operational_outcome", "status"]);
 
   return {
     subject_type: input.subjectType,
@@ -298,6 +321,12 @@ export function buildReplaySnapshot(input: {
       declaredIntents,
       governanceActions,
       trustStateChanges,
+      humanOwners,
+      permissionScopes,
+      trustScoreSources,
+      runtimeSignals,
+      decisionReasons,
+      finalOutcomes,
     },
   };
 }
