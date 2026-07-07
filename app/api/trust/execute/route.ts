@@ -48,6 +48,7 @@ export async function POST(request: Request) {
     previousTrustPosture: String(body.previous_trust_posture ?? "fresh") as any,
     governanceHistory: [],
     evidenceRefs,
+    evidenceLastSeenAt: typeof body.evidence_last_seen_at === "string" ? body.evidence_last_seen_at : null,
   });
 
   return NextResponse.json(pipeline, { headers: { "cache-control": "no-store" } });

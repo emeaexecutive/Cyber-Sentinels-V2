@@ -18,6 +18,11 @@ export type TrustWorkflowExecutionInput = {
     reasons: string[];
     source_labels: string[];
     limitations?: string[];
+    signal_weights?: Record<string, number>;
+    trust_decay?: Record<string, unknown>;
+    runtime_posture_shift?: string;
+    governance_weighting?: Record<string, unknown>;
+    reviewer_override_applied?: boolean;
     next_action: string;
   };
   reviewerActor?: string | null;
@@ -65,6 +70,11 @@ export async function executeTrustWorkflow(
     source_labels: input.algorithm.source_labels,
     reasons: input.algorithm.reasons,
     limitations: [...(input.algorithm.limitations ?? [])],
+    signal_weights: input.algorithm.signal_weights ?? null,
+    trust_decay: input.algorithm.trust_decay ?? null,
+    runtime_posture_shift: input.algorithm.runtime_posture_shift ?? null,
+    governance_weighting: input.algorithm.governance_weighting ?? null,
+    reviewer_override_applied: input.algorithm.reviewer_override_applied === true,
     why_allowed_reviewed_or_blocked: input.algorithm.reasons.join(" "),
     evidence_preserved: true,
     silent_delete_performed: false,

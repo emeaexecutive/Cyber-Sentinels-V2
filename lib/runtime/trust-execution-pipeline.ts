@@ -49,7 +49,21 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
     decision: algorithm.decision,
     evidenceRefs: algorithm.evidence_refs,
   });
-  setTrustCache("provider_state", input.workflowId, signalRunner.providerResults, { ttlMs: 45_000 });
+  const providerLatencySummary = {
+    timeout_ms: input.timeoutMs ?? 300,
+    provider_count: signalRunner.providerResults.length,
+    max_latency_ms: signalRunner.providerResults.length
+      ? Math.max(...signalRunner.providerResults.map((provider) => provider.latency_ms))
+      : 0,
+    degraded_count: signalRunner.providerResults.filter((provider) => provider.state !== "Live").length,
+    states: [...new Set(signalRunner.providerResults.map((provider) => provider.state))],
+    timeout_or_failed: signalRunner.timeoutOrFailedProviders,
+  };
+  setTrustCache("provider_state", input.workflowId, {
+    providers: signalRunner.providerResults,
+    latency_summary: providerLatencySummary,
+    written_at: new Date().toISOString(),
+  }, { ttlMs: 45_000 });
   const execution = await executeTrustWorkflow(supabase, {
     actorId: input.actorId,
     actorType: input.actorType,
@@ -98,6 +112,7 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
       "Notification/Event Hooks",
     ],
     partial_provider_availability: signalRunner.providerResults.some((provider) => provider.state !== "Live"),
+    provider_latency_summary: providerLatencySummary,
     signal_runner: signalRunner,
     fusion,
     algorithm,

@@ -39,6 +39,10 @@ export default async function TrustExecutionAdminPage() {
   const providerSnapshot = await orchestrateProviders({ timeoutMs: 200 });
   const recentRuntimeEvents = getRecentTrustEvents(12);
   const governanceQueue = getGovernanceQueueSnapshot(8);
+  const providerDegraded = providerSnapshot.filter((provider) => provider.state !== "Live").length;
+  const providerMaxLatency = providerSnapshot.length
+    ? Math.max(...providerSnapshot.map((provider) => provider.latency_ms))
+    : 0;
   const count = (needle: string) => rows.filter((row) => String(row.metadata?.decision ?? row.event_type).includes(needle)).length;
   const summary = [
     ["Recent trust decisions", rows.length],
@@ -88,7 +92,7 @@ export default async function TrustExecutionAdminPage() {
                 <h2 className="mt-2 text-2xl font-semibold">Latency and degradation</h2>
               </div>
               <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">
-                timeout window 200ms
+                {providerDegraded} degraded / max {providerMaxLatency}ms
               </span>
             </div>
             <div className="mt-5 grid gap-3 md:grid-cols-2">
