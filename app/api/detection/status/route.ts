@@ -18,6 +18,7 @@ export async function GET(request: Request) {
     ...status,
     validation_dataset_present: cases.length > 0,
     precision_recall_available: cases.length > 0,
+    validation_dataset_message: cases.length ? null : "No validation dataset available yet.",
     benchmark_case_count: cases.length,
     next_required_action: cases.length
       ? "Run reviewed provider benchmarks and calibrate thresholds by workflow."

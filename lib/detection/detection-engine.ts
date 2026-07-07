@@ -25,6 +25,17 @@ export type DetectionSource =
   | "Not Implemented"
   | "Awaiting Credentials";
 
+export const canonicalDetectionSources = [
+  "Real ML",
+  "Provider API",
+  "Heuristic Baseline",
+  "Runtime Intelligence",
+  "Governance Review",
+  "Demo Data",
+  "Awaiting Credentials",
+  "Not Implemented",
+] as const satisfies readonly DetectionSource[];
+
 export type TrustScoreExplanation = {
   source:
     | "provider_api"
@@ -87,17 +98,7 @@ export function classifyDetectionSource(input: {
 
 export function normalizeDetectionSource(value: unknown): DetectionSource {
   const source = String(value ?? "").trim();
-  const canonical: DetectionSource[] = [
-    "Real ML",
-    "Provider API",
-    "Heuristic Baseline",
-    "Runtime Intelligence",
-    "Governance Review",
-    "Demo Data",
-    "Awaiting Credentials",
-    "Not Implemented",
-  ];
-  if (canonical.includes(source as DetectionSource)) return source as DetectionSource;
+  if (canonicalDetectionSources.includes(source as DetectionSource)) return source as DetectionSource;
   if (/demo|mock|sample|simulation|fixture/i.test(source)) return "Demo Data";
   if (/runtime.intelligence|runtime anomaly|trust drift/i.test(source)) return "Runtime Intelligence";
   if (/governance|reviewer|manual.review/i.test(source)) return "Governance Review";
@@ -200,16 +201,27 @@ export function getDetectionEngineStatus() {
     missing_providers: providers.filter((provider) => !provider.active),
     providers,
     detection_modules: modules,
-    allowed_detection_sources: [
-      "Real ML",
-      "Provider API",
-      "Heuristic Baseline",
-      "Runtime Intelligence",
-      "Governance Review",
-      "Demo Data",
-      "Awaiting Credentials",
-      "Not Implemented",
-    ] as DetectionSource[],
+    allowed_detection_sources: canonicalDetectionSources,
+    source_taxonomy: canonicalDetectionSources.map((source) => ({
+      source,
+      allowed: true,
+      boundary:
+        source === "Real ML"
+          ? "Only valid when a verified model is implemented, executed and benchmarked."
+          : source === "Provider API"
+            ? "External provider output is evidence for review, not an automatic authenticity verdict."
+            : source === "Heuristic Baseline"
+              ? "Deterministic rule and workflow signals; not trained ML."
+              : source === "Runtime Intelligence"
+                ? "Live workflow, session, provider and behavior context aggregated for governed execution."
+                : source === "Governance Review"
+                  ? "Named reviewer action and rationale remain authoritative for escalations."
+                  : source === "Demo Data"
+                    ? "Controlled or simulated records only; never production detection."
+                    : source === "Awaiting Credentials"
+                      ? "Adapter or provider path cannot produce evidence until required credentials are configured."
+                      : "Capability is absent or intentionally disabled.",
+    })),
     ml_maturity: {
       level: 2,
       label: "Provider-ready foundation",

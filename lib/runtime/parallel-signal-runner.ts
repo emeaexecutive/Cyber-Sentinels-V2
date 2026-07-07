@@ -2,6 +2,7 @@ import { runHeuristicDetection } from "@/lib/detection/detection-engine";
 import type { FusionSignal } from "@/lib/detection/signal-fusion";
 import { publishTrustEvent } from "@/lib/events/event-bus";
 import { orchestrateProviders } from "@/lib/providers/provider-orchestrator";
+import type { OrchestratedProviderState } from "@/lib/providers/provider-orchestrator";
 
 export type ParallelSignalRunnerInput = {
   timeoutMs?: number;
@@ -34,6 +35,13 @@ async function timed<TValue>(label: string, timeoutMs: number, work: () => Promi
   } finally {
     if (timer) clearTimeout(timer);
   }
+}
+
+function sourceForProviderState(state: OrchestratedProviderState) {
+  if (state === "Live") return "Provider API";
+  if (state === "Simulated") return "Demo Data";
+  if (state === "Awaiting Credentials") return "Awaiting Credentials";
+  return "Not Implemented";
 }
 
 export async function runParallelSignalChecks(input: ParallelSignalRunnerInput) {
@@ -72,7 +80,7 @@ export async function runParallelSignalChecks(input: ParallelSignalRunnerInput) 
         if (provider.state === "Failed") publishTrustEvent("provider.failed", { provider_id: provider.id, latency_ms: provider.latency_ms });
         return {
           id: provider.id,
-          source: provider.state === "Live" ? "Provider API" : provider.state === "Awaiting Credentials" ? "Awaiting Credentials" : "Not Implemented",
+          source: sourceForProviderState(provider.state),
           risk: 1 - provider.confidence,
           confidence: provider.confidence * provider.weight,
           evidence: provider.evidence,
@@ -118,5 +126,10 @@ export async function runParallelSignalChecks(input: ParallelSignalRunnerInput) 
     partialConfidence: Number(
       ([providers, heuristic, provenance, runtime, session, intent].filter((check) => check.ok).length / 6).toFixed(2)
     ),
+    timeoutOrFailedProviders: providers.ok
+      ? providers.value
+          .filter((provider) => provider.state === "Timeout" || provider.state === "Failed")
+          .map((provider) => ({ id: provider.id, name: provider.name, state: provider.state, latency_ms: provider.latency_ms }))
+      : [{ id: "provider_checks", name: "Provider checks", state: "Failed", latency_ms: providers.latency_ms }],
   };
 }

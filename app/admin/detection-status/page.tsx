@@ -135,6 +135,22 @@ export default async function DetectionStatusAdminPage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Detection truth labels</p>
+          <h2 className="mt-3 text-xl font-semibold text-zinc-100">Source taxonomy and boundaries</h2>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">
+            These are the only allowed labels for ML and detection surfaces. Provider state is tracked separately as Live, Simulated, Awaiting Credentials, Timeout, Failed or Disabled.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {status.source_taxonomy.map((item) => (
+              <article key={item.source} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-sm font-semibold text-zinc-100">{item.source}</p>
+                <p className="mt-2 text-xs leading-5 text-zinc-500">{item.boundary}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Trust Score Source</p>
           <p className="mt-3 text-xl font-semibold text-zinc-100">{status.trust_score_source}</p>
           <p className="mt-2 text-sm text-zinc-500">Confidence: {Math.round(status.trust_score_explanation.confidence * 100)}%. Evidence: {status.trust_score_explanation.evidence.join(", ")}.</p>

@@ -61,6 +61,11 @@ export default async function TrustExecutionAdminPage() {
             replay links and detection source labels. Empty rows mean no retained
             execution events are visible, not that no risk exists.
           </p>
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-500">
+            Each retained decision should identify who or what acted, under whose authority,
+            what resource was touched, why the action was allowed, reviewed or blocked,
+            and which replay evidence exists.
+          </p>
           <Link href="/demo/trust-execution-flow" className="mt-5 inline-flex text-sm font-semibold text-cyan-200 hover:text-cyan-100">
             Open execution demo
           </Link>
@@ -148,6 +153,7 @@ export default async function TrustExecutionAdminPage() {
                   <th className="px-4 py-3">Action</th>
                   <th className="px-4 py-3">Confidence</th>
                   <th className="px-4 py-3">Sources</th>
+                  <th className="px-4 py-3">Authority</th>
                   <th className="px-4 py-3">Replay</th>
                 </tr>
               </thead>
@@ -158,6 +164,7 @@ export default async function TrustExecutionAdminPage() {
                     <td className="px-4 py-4 text-zinc-400">{String(row.metadata?.action_executed ?? row.event_summary ?? "not recorded")}</td>
                     <td className="px-4 py-4 text-zinc-400">{String(row.metadata?.confidence_band ?? "not recorded")}</td>
                     <td className="px-4 py-4 text-zinc-400">{Array.isArray(row.metadata?.source_labels) ? row.metadata.source_labels.join(", ") : "not recorded"}</td>
+                    <td className="px-4 py-4 text-zinc-400">{String(row.metadata?.authority_actor ?? row.metadata?.actor_id ?? "not recorded")}</td>
                     <td className="px-4 py-4">
                       <Link href={`/trust-replay?subject_id=${encodeURIComponent(row.subject_id ?? "")}`} className="text-cyan-200 hover:text-cyan-100">
                         View Replay
@@ -165,7 +172,7 @@ export default async function TrustExecutionAdminPage() {
                     </td>
                   </tr>
                 )) : (
-                  <tr><td className="px-4 py-6 text-zinc-500" colSpan={5}>No trust execution events retained yet.</td></tr>
+                  <tr><td className="px-4 py-6 text-zinc-500" colSpan={6}>No trust execution events retained yet.</td></tr>
                 )}
               </tbody>
             </table>

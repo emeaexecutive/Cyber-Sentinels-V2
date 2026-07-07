@@ -45,10 +45,30 @@ export async function recordAuthReplayEvent(
   const metadata = {
     actor_id: input.user.id,
     actor_email: input.user.email ?? null,
+    actor_type: "human",
+    authority_actor: input.user.email ?? input.user.id,
     auth_event_type: input.eventType,
     decision,
+    action_reason:
+      decision === "block"
+        ? "Authentication event reached a blocking session-risk state."
+        : decision === "step_up"
+          ? "Authentication event requires step-up verification before workflow access continues."
+          : decision === "review"
+            ? "Authentication event requires governed review because session context changed."
+            : "Authentication event retained for session continuity.",
     trust_posture: input.trustPosture ?? geoSession?.posture ?? "unknown",
     geo_session: geoSession,
+    session_risk: geoSession
+      ? {
+          decision: geoSession.decision,
+          posture: geoSession.posture,
+          geo_mismatch: geoSession.geo_mismatch,
+          new_device: geoSession.new_device,
+          source_labels: geoSession.source_labels,
+        }
+      : null,
+    governance_review_required: decision === "review" || decision === "step_up" || decision === "block",
     replay_writer: "auth_replay_events",
     secrets_included: false,
     ...input.metadata,

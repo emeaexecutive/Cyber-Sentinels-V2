@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
 import { detectionProviders } from "@/lib/detection/providers";
+import { canonicalDetectionSources, getDetectionEngineStatus } from "@/lib/detection/detection-engine";
 import { loadValidationCases } from "@/lib/validation/benchmark-harness";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +13,7 @@ export async function GET(request: Request) {
   if (!admin.ok) return admin.response;
 
   const cases = await loadValidationCases();
+  const status = getDetectionEngineStatus();
   const providerStates = detectionProviders.map((provider) => ({
     providerName: provider.providerName,
     status: provider.status(),
@@ -27,6 +29,20 @@ export async function GET(request: Request) {
     providerMlStatus: providerMlActive ? "Live" : providerAwaitingCredentials ? "Awaiting Credentials" : "Disabled",
     baselineModelActive: true,
     baselineLabel: "Heuristic Baseline / baseline_model_assisted",
+    allowedDetectionSources: canonicalDetectionSources,
+    sourceTaxonomy: status.source_taxonomy,
+    validationDatasetMessage: cases.length ? null : "No validation dataset available yet.",
+    benchmarkReadiness: {
+      confusionMatrix: cases.length ? "available_on_run" : "awaiting_labelled_dataset",
+      precision: cases.length ? "available_on_run" : "awaiting_labelled_dataset",
+      recall: cases.length ? "available_on_run" : "awaiting_labelled_dataset",
+      f1: cases.length ? "available_on_run" : "awaiting_labelled_dataset",
+      falsePositiveTracking: true,
+      falseNegativeTracking: true,
+      reviewerAgreement: cases.length ? "available_on_run" : "awaiting_reviewed_cases",
+      providerAgreement: providerMlActive && cases.length ? "available_on_run" : "awaiting_live_provider_and_dataset",
+      confidenceCalibration: cases.length ? "available_on_run" : "awaiting_labelled_dataset",
+    },
     intentAwareTrustScoring: {
       active: true,
       source: "Heuristic Baseline",
@@ -50,6 +66,7 @@ export async function GET(request: Request) {
       "No trained first-party ML inference is active.",
       "Credentials alone do not establish a live provider integration.",
       "Precision, recall and F1 remain unavailable without labelled validation cases.",
+      "Provider timeouts, failures and missing credentials are recorded as degraded evidence states, not silent allow signals.",
     ],
     providers: providerStates,
   }, { headers: { "cache-control": "no-store" } });

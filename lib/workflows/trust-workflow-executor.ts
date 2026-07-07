@@ -44,16 +44,31 @@ export async function executeTrustWorkflow(
   const metadata = {
     actor_id: input.actorId,
     actor_type: input.actorType,
+    authority_actor: actor,
+    human_authority: input.reviewerActor ? "named_reviewer" : input.actorType === "human" ? "self_asserted_user" : "workflow_policy",
     workflow_id: input.workflowId,
+    subject_type: subjectType,
+    touched_resource: `${subjectType}:${input.workflowId}`,
     decision,
     action_executed: actionByDecision[decision],
+    action_reason: input.algorithm.next_action,
     evidence_refs: evidenceRefs,
+    evidence_chain: evidenceRefs.map((ref) => ({
+      ref,
+      retained: true,
+      source: input.algorithm.source_labels,
+    })),
     trust_score: input.algorithm.trust_score,
+    trust_score_source: input.algorithm.source_labels,
     confidence_band: input.algorithm.confidence_band,
     source_labels: input.algorithm.source_labels,
     reasons: input.algorithm.reasons,
+    why_allowed_reviewed_or_blocked: input.algorithm.reasons.join(" "),
     evidence_preserved: true,
     silent_delete_performed: false,
+    replay_record_required: true,
+    governance_review_required: ["review", "step_up", "escalate", "block", "insufficient_evidence", "insufficient evidence"].includes(decision),
+    final_outcome: actionByDecision[decision],
   };
 
   const sideEffects = async () => {
