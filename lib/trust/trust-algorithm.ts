@@ -81,7 +81,6 @@ export function runTrustAlgorithm(input: TrustAlgorithmInput) {
         input.providerSignals == null ? "Awaiting Credentials" : "Provider API",
         "Heuristic Baseline",
         "Runtime Intelligence",
-        "Governance Review",
       ] as DetectionSource[]);
   const decisionResult = evaluateTrustDecision({
     identityConfidence: identity,

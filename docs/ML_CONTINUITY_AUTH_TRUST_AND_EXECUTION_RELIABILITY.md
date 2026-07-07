@@ -10,7 +10,6 @@ The current implementation is a provider-ready and heuristic-backed foundation. 
 - `Provider API`
 - `Heuristic Baseline`
 - `Runtime Intelligence`
-- `Governance Review`
 - `Demo Data`
 - `Awaiting Credentials`
 - `Not Implemented`

@@ -475,6 +475,35 @@ export default async function VerificationReplayPage({
           ))}
         </section>
 
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Forensic trust record</p>
+          <h2 className="mt-2 text-xl font-semibold">Replay answers the operational audit questions</h2>
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
+            This view keeps detection and provider evidence separate from reviewer action. Missing provenance is not proof of fake, and present provenance is not proof of real; provenance remains one reviewable signal.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              ["Actor", label(session?.candidate_email ?? session?.created_by ?? latestGovernance?.created_by, "Workflow actor not recorded")],
+              ["Workflow", `${subjectType}/${subjectId}`],
+              ["Declared intent", label((latestReceiptSnapshot as Row).declared_intent ?? (latestReceiptSnapshot as Row).intent, "Not recorded")],
+              ["Identity evidence", providerSignals.length ? `${providerSignals.length} provider signal(s)` : "Awaiting Credentials"],
+              ["Detection source", providerSignals.map((signal) => signal.sourceType).join(", ") || "Heuristic Baseline"],
+              ["Provider result", providerSignals.map((signal) => signal.providerVerificationState).join(", ") || "Awaiting Credentials"],
+              ["Trust algorithm output", label((latestReceiptSnapshot as Row).decision ?? session?.integrity_status, "Reviewable")],
+              ["Authorization lineage", `${subjectType}/${subjectId}`],
+              ["Governance action", label(latestGovernance?.action_status, "Pending")],
+              ["Execution action", label((latestReceiptSnapshot as Row).action_executed ?? latestGovernance?.action_type, "No execution action recorded")],
+              ["Final outcome", receipts?.[0] ? label(receipts[0].verification_status, "Receipt issued") : "Pending"],
+              ["Evidence chain", `${evidenceChains?.length ?? 0} retained chain(s)`],
+            ].map(([title, value]) => (
+              <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-200">{value}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Canonical operational evidence chain</p>
           <h2 className="mt-2 text-xl font-semibold">Trust chronology and workflow reconstruction</h2>

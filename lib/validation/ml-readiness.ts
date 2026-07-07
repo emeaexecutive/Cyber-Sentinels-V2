@@ -1,4 +1,4 @@
-import type { DetectionSource } from "@/lib/detection/detection-engine";
+import { canonicalDetectionSources, type DetectionSource } from "@/lib/detection/detection-engine";
 
 export type MlReadinessLevel = {
   level: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -75,16 +75,7 @@ export function evaluateMlReadiness(input: MlReadinessInput) {
         ? "Approaching validation maturity; pilot and reviewer adjudication remain gating evidence."
         : "Requires labelled data, provider/model comparison and human-reviewed error analysis.",
     blockers_to_next_level: blockers,
-    source_labels: [
-      "Provider API",
-      "Heuristic Baseline",
-      "Runtime Intelligence",
-      "Governance Review",
-      "Real ML",
-      "Demo Data",
-      "Awaiting Credentials",
-      "Not Implemented",
-    ] as DetectionSource[],
+    source_labels: canonicalDetectionSources as readonly DetectionSource[],
     limitations: [
       "Readiness is capability evidence, not production accuracy.",
       "No benchmark metric is reported without approved labelled validation cases.",

@@ -3,7 +3,6 @@ export type FusionSignalSource =
   | "Provider API"
   | "Heuristic Baseline"
   | "Runtime Intelligence"
-  | "Governance Review"
   | "Demo Data"
   | "Awaiting Credentials"
   | "Not Implemented";

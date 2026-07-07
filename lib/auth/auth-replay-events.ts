@@ -1,6 +1,7 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { writeReplayEvent } from "@/lib/replay/replay-writer";
+import { publishTrustEvent } from "@/lib/events/event-bus";
 import { evaluateGeoSessionIntelligence, geoSessionInputFromHeaders } from "@/lib/runtime/geo-session-intelligence";
 
 export type AuthReplayEventType =
@@ -75,6 +76,17 @@ export async function recordAuthReplayEvent(
   };
 
   await createAuditLog(supabase, `auth_${input.eventType}`, actor, metadata);
+  publishTrustEvent(
+    "auth.trust_event",
+    {
+      actor_id: input.user.id,
+      auth_event_type: input.eventType,
+      decision,
+      trust_posture: metadata.trust_posture,
+      governance_review_required: metadata.governance_review_required,
+    },
+    { replaySafe: true }
+  );
 
   return writeReplayEvent(supabase, {
     subjectType: "auth_session",

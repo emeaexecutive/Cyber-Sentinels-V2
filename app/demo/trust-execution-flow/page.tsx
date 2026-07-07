@@ -17,7 +17,7 @@ const paths = [
       runtimeBehavior: 0.08,
       heuristicBaseline: 0.82,
       evidenceRefs: ["receipt-demo-allow", "session-integrity-clear"],
-      sourceLabels: ["Heuristic Baseline", "Runtime Intelligence", "Governance Review"],
+      sourceLabels: ["Heuristic Baseline", "Runtime Intelligence"],
     }),
   },
   {

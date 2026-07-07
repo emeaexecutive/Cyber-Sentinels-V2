@@ -17,6 +17,7 @@ export type TrustWorkflowExecutionInput = {
     confidence_band: string;
     reasons: string[];
     source_labels: string[];
+    limitations?: string[];
     next_action: string;
   };
   reviewerActor?: string | null;
@@ -63,6 +64,7 @@ export async function executeTrustWorkflow(
     confidence_band: input.algorithm.confidence_band,
     source_labels: input.algorithm.source_labels,
     reasons: input.algorithm.reasons,
+    limitations: [...(input.algorithm.limitations ?? [])],
     why_allowed_reviewed_or_blocked: input.algorithm.reasons.join(" "),
     evidence_preserved: true,
     silent_delete_performed: false,

@@ -7,6 +7,8 @@ import {
   geoSessionInputFromHeaders,
 } from "@/lib/runtime/geo-session-intelligence";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
+import { publishTrustEvent } from "@/lib/events/event-bus";
+import { setTrustCache } from "@/lib/cache/trust-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +55,19 @@ export async function POST(request: Request) {
     replay_event_required: result.replay_event_required,
     geo_session: geoSession,
   });
+  setTrustCache("session_integrity", user.id, {
+    decision: result.decision,
+    trust_inputs: result.trust_inputs,
+    geo_session: geoSession,
+    source_labels: result.source_labels,
+    updated_at: new Date().toISOString(),
+  }, { ttlMs: 10 * 60 * 1000, replaySafe: true });
+  publishTrustEvent("session.risk_updated", {
+    actor_id: user.id,
+    decision: result.decision,
+    trust_posture: result.trust_inputs.trust_posture,
+    geo_decision: geoSession.decision,
+  }, { replaySafe: true });
 
   if (result.replay_event_required || geoSession.geo_mismatch) {
     await recordAuthReplayEvent(supabase, {

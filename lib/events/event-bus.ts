@@ -9,7 +9,9 @@ export type TrustRuntimeEventName =
   | "governance.created"
   | "provider.timeout"
   | "provider.failed"
-  | "stepup.required";
+  | "stepup.required"
+  | "auth.trust_event"
+  | "session.risk_updated";
 
 export type TrustRuntimeEvent<TPayload extends Record<string, unknown> = Record<string, unknown>> = {
   id: string;

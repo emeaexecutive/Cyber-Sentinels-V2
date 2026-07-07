@@ -19,7 +19,6 @@ export type DetectionSource =
   | "Provider API"
   | "Heuristic Baseline"
   | "Runtime Intelligence"
-  | "Governance Review"
   | "Demo Data"
   | "Real ML"
   | "Not Implemented"
@@ -30,7 +29,6 @@ export const canonicalDetectionSources = [
   "Provider API",
   "Heuristic Baseline",
   "Runtime Intelligence",
-  "Governance Review",
   "Demo Data",
   "Awaiting Credentials",
   "Not Implemented",
@@ -101,7 +99,7 @@ export function normalizeDetectionSource(value: unknown): DetectionSource {
   if (canonicalDetectionSources.includes(source as DetectionSource)) return source as DetectionSource;
   if (/demo|mock|sample|simulation|fixture/i.test(source)) return "Demo Data";
   if (/runtime.intelligence|runtime anomaly|trust drift/i.test(source)) return "Runtime Intelligence";
-  if (/governance|reviewer|manual.review/i.test(source)) return "Governance Review";
+  if (/governance|reviewer|manual.review/i.test(source)) return "Heuristic Baseline";
   if (/provider|world.?id|hopae|onfido|veriff|persona|entrust/i.test(source)) return "Provider API";
   if (/rule|heuristic|operator|workflow|api\.|session_integrity_review_form/i.test(source)) return "Heuristic Baseline";
   if (/placeholder|pending credential/i.test(source)) return "Awaiting Credentials";
@@ -214,13 +212,11 @@ export function getDetectionEngineStatus() {
               ? "Deterministic rule and workflow signals; not trained ML."
               : source === "Runtime Intelligence"
                 ? "Live workflow, session, provider and behavior context aggregated for governed execution."
-                : source === "Governance Review"
-                  ? "Named reviewer action and rationale remain authoritative for escalations."
-                  : source === "Demo Data"
-                    ? "Controlled or simulated records only; never production detection."
-                    : source === "Awaiting Credentials"
-                      ? "Adapter or provider path cannot produce evidence until required credentials are configured."
-                      : "Capability is absent or intentionally disabled.",
+                : source === "Demo Data"
+                  ? "Controlled or simulated records only; never production detection."
+                  : source === "Awaiting Credentials"
+                    ? "Adapter or provider path cannot produce evidence until required credentials are configured."
+                    : "Capability is absent or intentionally disabled.",
     })),
     ml_maturity: {
       level: 2,
