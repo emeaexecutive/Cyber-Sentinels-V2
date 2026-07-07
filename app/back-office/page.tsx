@@ -1215,6 +1215,8 @@ export default async function BackOfficePage({
     ["Trust History", "/trust-timeline"],
     ["Trust Graph", "/trust-graph-engine"],
     ["Trust Intelligence", "/trust-intelligence"],
+    ["Session Security", "/dashboard/session-security"],
+    ["Provider Status", "/admin/provider-status"],
     ["Trust Assistant", "/trust-assistant"],
     ["Knowledge Base", "/knowledge-base"],
     ["Help Center", "/help"],

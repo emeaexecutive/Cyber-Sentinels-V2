@@ -8,9 +8,23 @@ import {
   createClient,
   isInvalidRefreshTokenError,
 } from "@/lib/supabase/server";
+import { recordAuthReplayEvent } from "@/lib/auth/auth-replay-events";
 
 async function logout(req: Request) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    await recordAuthReplayEvent(supabase, {
+      user,
+      eventType: "logout",
+      request: req,
+      decision: "allow",
+      trustPosture: "session_closed",
+    });
+  }
 
   try {
     const { error } = await supabase.auth.signOut();

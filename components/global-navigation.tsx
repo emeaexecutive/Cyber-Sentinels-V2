@@ -30,6 +30,7 @@ const platformDropdownLinks = [
   ["/dashboard/governance", "Governance Review"],
   ["/dashboard/access-governance", "Authorization Lineage"],
   ["/dashboard/session-integrity", "Session Integrity"],
+  ["/dashboard/session-security", "Session Security"],
   ["/verification-receipts", "Verification Receipt"],
 ];
 
@@ -55,6 +56,7 @@ const adminEnterpriseDropdownLinks = [
   ["/enterprise/auditability", "Auditability"],
   ["/enterprise/readiness", "Deployment Readiness"],
   ["/admin/integrations", "Integrations"],
+  ["/admin/provider-status", "Provider Status"],
   ["/admin/runtime-validation", "Runtime Validation"],
 ];
 

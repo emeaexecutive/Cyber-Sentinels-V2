@@ -11,6 +11,7 @@ const RATE_LIMIT_MESSAGE =
 const CONNECTION_FAILURE_MESSAGE =
   "Cyber Sentinels could not connect. Check Vercel Production environment variables.";
 const SESSION_START_KEY = "cyber_sentinels_session_started_at";
+const REMEMBER_SESSION_KEY = "cyber_sentinels_remember_session";
 const authTimeoutMs = 8000;
 const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 const authAttemptWindowMs = 60_000;
@@ -95,7 +96,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [rememberSession, setRememberSession] = useState(true);
   const [message, setMessage] = useState("");
+  const [sessionRestoreState, setSessionRestoreState] = useState<
+    "checking" | "restored" | "signed-out" | "unavailable"
+  >("checking");
   const [signupSucceeded, setSignupSucceeded] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [nextPath, setNextPath] = useState("/passport");
@@ -140,12 +147,16 @@ export default function LoginPage() {
     );
 
     const searchParams = new URLSearchParams(window.location.search);
+    const resolvedNextPath = getSafeRedirect(searchParams.get("next"));
 
-    setNextPath(getSafeRedirect(searchParams.get("next")));
+    setNextPath(resolvedNextPath);
+    setRememberSession(window.localStorage.getItem(REMEMBER_SESSION_KEY) !== "false");
 
     if (searchParams.get("expired") === "1") {
       window.localStorage.removeItem(SESSION_START_KEY);
       setMessage("Session expired for security. Please sign in again.");
+      setSessionRestoreState("signed-out");
+      return;
     }
 
     if (searchParams.get("error") === "missing_verification_code") {
@@ -155,7 +166,41 @@ export default function LoginPage() {
     if (searchParams.get("error") === "verification_failed") {
       setMessage("We could not complete email verification. Please request a new link or sign in with your password.");
     }
-  }, []);
+
+    const supabase = getSupabaseClient();
+
+    if (!supabase) {
+      setSessionRestoreState("unavailable");
+      return;
+    }
+
+    let active = true;
+
+    withAuthTimeout(supabase.auth.getSession())
+      .then(async ({ data }) => {
+        if (!active) return;
+
+        if (data.session?.user) {
+          setSessionRestoreState("restored");
+          window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
+          await recordAuthEvent("session_restoration", {
+            restored_to: resolvedNextPath,
+          });
+          router.replace(resolvedNextPath);
+          return;
+        }
+
+        setSessionRestoreState("signed-out");
+      })
+      .catch((error) => {
+        console.error("Supabase session restoration failed.", error);
+        if (active) setSessionRestoreState("unavailable");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
 
   function allowAuthAttempt(action: string) {
@@ -228,6 +273,26 @@ export default function LoginPage() {
     }
   }
 
+  async function recordAuthEvent(eventType: string, context: Record<string, unknown> = {}) {
+    try {
+      await fetch("/api/auth/replay-event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event_type: eventType,
+          decision: "allow",
+          context: {
+            next_path: nextPath,
+            remember_session: rememberSession,
+            ...context,
+          },
+        }),
+      });
+    } catch (error) {
+      console.warn("Auth replay event could not be recorded.", error);
+    }
+  }
+
   async function signInWithPassword() {
     const trimmedEmail = email.trim();
 
@@ -272,6 +337,8 @@ export default function LoginPage() {
       }
 
       window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
+      window.localStorage.setItem(REMEMBER_SESSION_KEY, rememberSession ? "true" : "false");
+      await recordAuthEvent("login", { method: "password" });
       router.push(nextPath);
     } catch (error) {
       console.error("Supabase password sign-in failed.", error);
@@ -536,6 +603,25 @@ export default function LoginPage() {
               <p className="mt-2 text-sm leading-6 text-zinc-400">
                 Sign in with your verified workspace email, or choose another secure account option.
               </p>
+              <div className="mt-4 rounded-xl border border-zinc-900 bg-zinc-950/50 p-3">
+                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
+                  Session continuity
+                </p>
+                <p className="mt-2 text-sm text-zinc-400">
+                  {sessionRestoreState === "checking"
+                    ? "Checking for a trusted session..."
+                    : sessionRestoreState === "restored"
+                      ? "Trusted session restored."
+                      : sessionRestoreState === "unavailable"
+                        ? "Session restoration is unavailable; sign in again."
+                        : "No active session found."}
+                </p>
+                {sessionRestoreState === "checking" ? (
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-zinc-900">
+                    <div className="h-full w-1/2 rounded-full bg-cyan-400/70" />
+                  </div>
+                ) : null}
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2 rounded-xl border border-zinc-900 bg-zinc-950/60 p-2">
@@ -591,17 +677,44 @@ export default function LoginPage() {
             {authMode === "sign-in" || authMode === "create-account" ? (
               <label className="grid gap-2 text-sm font-medium text-zinc-300">
                 Password
+                <span className="flex overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
+                  <input
+                    value={password}
+                    onChange={(event) => {
+                      setPassword(event.target.value);
+                      setSignupSucceeded(false);
+                    }}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    autoComplete={authMode === "create-account" ? "new-password" : "current-password"}
+                    className="min-w-0 flex-1 bg-transparent p-4 text-white outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((current) => !current)}
+                    className="border-l border-zinc-800 px-4 text-xs font-semibold text-zinc-400 hover:text-white"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </span>
+              </label>
+            ) : null}
+
+            {authMode === "sign-in" ? (
+              <label className="flex items-start gap-3 rounded-xl border border-zinc-900 bg-zinc-950/50 p-4 text-sm text-zinc-300">
                 <input
-                  value={password}
-                  onChange={(event) => {
-                    setPassword(event.target.value);
-                    setSignupSucceeded(false);
-                  }}
-                  type="password"
-                  placeholder="Password"
-                  autoComplete={authMode === "create-account" ? "new-password" : "current-password"}
-                  className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
+                  checked={rememberSession}
+                  onChange={(event) => setRememberSession(event.target.checked)}
+                  type="checkbox"
+                  className="mt-1"
                 />
+                <span>
+                  <span className="font-medium text-zinc-100">Remember this browser</span>
+                  <span className="mt-1 block text-xs leading-5 text-zinc-500">
+                    Restore trusted sessions automatically when Supabase session cookies remain valid.
+                  </span>
+                </span>
               </label>
             ) : null}
 
@@ -619,17 +732,27 @@ export default function LoginPage() {
                 </p>
                 <label className="grid gap-2 text-sm font-medium text-zinc-300">
                   Confirm Password
-                  <input
-                    value={confirmPassword}
-                    onChange={(event) => {
-                      setConfirmPassword(event.target.value);
-                      setSignupSucceeded(false);
-                    }}
-                    type="password"
-                    placeholder="Confirm password"
-                    autoComplete="new-password"
-                    className="rounded-xl border border-zinc-800 bg-black p-4 text-white"
-                  />
+                  <span className="flex overflow-hidden rounded-xl border border-zinc-800 bg-black">
+                    <input
+                      value={confirmPassword}
+                      onChange={(event) => {
+                        setConfirmPassword(event.target.value);
+                        setSignupSucceeded(false);
+                      }}
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm password"
+                      autoComplete="new-password"
+                      className="min-w-0 flex-1 bg-transparent p-4 text-white outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((current) => !current)}
+                      className="border-l border-zinc-800 px-4 text-xs font-semibold text-zinc-400 hover:text-white"
+                      aria-label={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"}
+                    >
+                      {showConfirmPassword ? "Hide" : "Show"}
+                    </button>
+                  </span>
                 </label>
                 {passwordsMismatch ? (
                   <p className="text-sm text-red-300">Passwords do not match.</p>
