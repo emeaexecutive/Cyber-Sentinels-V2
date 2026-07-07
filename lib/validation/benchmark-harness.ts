@@ -226,6 +226,31 @@ function confidenceCalibration(results: ValidationResult[]) {
   );
 }
 
+function benchmarkMaturity(input: {
+  caseCount: number;
+  providerResultCount: number;
+  reviewerReviewedCases: number;
+}) {
+  const hasDataset = input.caseCount > 0;
+  const hasProviderComparison = input.providerResultCount > 0;
+  const hasReviewerReview = input.reviewerReviewedCases > 0;
+  return {
+    level: hasDataset && hasProviderComparison && hasReviewerReview ? 3 : hasDataset ? 2 : 1,
+    label: hasDataset
+      ? hasProviderComparison
+        ? "Provider comparison and calibration in progress"
+        : "Labelled validation baseline available"
+      : "Validation dataset required",
+    runtimeReplayValidation: hasDataset ? "available_on_run" : "unavailable_until_cases_exist",
+    signalFusionComparison: hasDataset ? "available_on_run" : "unavailable_until_cases_exist",
+    confidenceCalibration: hasDataset ? "available_on_run" : "unavailable_until_cases_exist",
+    governanceOverrideTracking: hasDataset ? "available_on_run" : "unavailable_until_cases_exist",
+    reviewerDisagreementTracking: hasReviewerReview ? "available_on_run" : "awaiting_reviewed_cases",
+    trustDriftTracking: hasDataset ? "available_on_run" : "unavailable_until_cases_exist",
+    boundary: "Benchmark metrics are scoped to approved labelled cases and must not be generalized beyond the dataset.",
+  };
+}
+
 export async function loadValidationCases(root = path.join(process.cwd(), "data", "validation")) {
   const cases: ValidationCase[] = [];
   async function visit(directory: string): Promise<void> {
@@ -276,6 +301,11 @@ export async function runValidationBenchmark(options: {
       trustDriftTracking: { average: null, cases: [] as Array<Record<string, unknown>> },
       falsePositiveCaseIds: [] as string[],
       falseNegativeCaseIds: [] as string[],
+      benchmarkMaturity: benchmarkMaturity({
+        caseCount: 0,
+        providerResultCount: 0,
+        reviewerReviewedCases: 0,
+      }),
       audit: {
         schemaVersion: 1,
         generatedAt: new Date().toISOString(),
@@ -302,6 +332,7 @@ export async function runValidationBenchmark(options: {
     return baseline?.actual === providerResult.actual;
   }).length;
   const reviewerAgreement = calculateReviewerAgreement(cases, heuristicResults);
+  const providerAgreementScore = usableProviderResults.length ? agreements / usableProviderResults.length : null;
   const runtimeEvaluations = cases.map((testCase) => ({
     testCase,
     runtime: evaluateRuntimeTrust({
@@ -349,8 +380,9 @@ export async function runValidationBenchmark(options: {
           : testCase.reviewerOutcome === "negative"
             ? "allow"
             : testCase.reviewerOutcome === "review"
-              ? "review"
-              : null,
+            ? "review"
+            : null,
+      providerAgreement: providerAgreementScore,
     });
     return {
       caseId: testCase.id,
@@ -433,6 +465,11 @@ export async function runValidationBenchmark(options: {
     falseNegativeCaseIds: results
       .filter((result) => result.expected === "positive" && result.actual === "negative")
       .map((result) => result.caseId),
+    benchmarkMaturity: benchmarkMaturity({
+      caseCount: cases.length,
+      providerResultCount: usableProviderResults.length,
+      reviewerReviewedCases: reviewerAgreement.reviewedCases,
+    }),
     audit: {
       schemaVersion: 1,
       generatedAt: new Date().toISOString(),

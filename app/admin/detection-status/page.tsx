@@ -66,7 +66,9 @@ export default async function DetectionStatusAdminPage() {
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">ML Capability Level</p>
-          <p className="mt-3 text-xl font-semibold text-zinc-100">Level 2 — Provider-ready foundation</p>
+          <p className="mt-3 text-xl font-semibold text-zinc-100">
+            Level {benchmark.benchmarkMaturity.level} - {benchmark.benchmarkMaturity.label}
+          </p>
           <p className="mt-2 text-sm text-zinc-500">Target: provider-backed and benchmark validated. The baseline is explainable scoring, not trained ML.</p>
         </section>
 
@@ -85,12 +87,12 @@ export default async function DetectionStatusAdminPage() {
           </article>
           <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="font-semibold text-zinc-100">Precision / Recall Metrics</h2>
-            <p className="mt-3 text-sm text-zinc-400">Precision: {benchmark.metrics.precision ?? "Unavailable"} · Recall: {benchmark.metrics.recall ?? "Unavailable"} · F1: {benchmark.metrics.f1 ?? "Unavailable"}</p>
-            <p className="mt-2 text-xs text-zinc-500">Reviewer agreement: {benchmark.reviewerAgreement.agreementRate ?? "Unavailable"} · Provider agreement: {benchmark.providerAgreement ?? "Unavailable"}</p>
+            <p className="mt-3 text-sm text-zinc-400">Precision: {benchmark.metrics.precision ?? "Unavailable"} / Recall: {benchmark.metrics.recall ?? "Unavailable"} / F1: {benchmark.metrics.f1 ?? "Unavailable"}</p>
+            <p className="mt-2 text-xs text-zinc-500">Reviewer agreement: {benchmark.reviewerAgreement.agreementRate ?? "Unavailable"} / Provider agreement: {benchmark.providerAgreement ?? "Unavailable"}</p>
           </article>
           <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="font-semibold text-zinc-100">Confusion Matrix</h2>
-            <p className="mt-3 text-sm text-zinc-400">TP {benchmark.confusionMatrix.truePositives} · FP {benchmark.confusionMatrix.falsePositives} · TN {benchmark.confusionMatrix.trueNegatives} · FN {benchmark.confusionMatrix.falseNegatives}</p>
+            <p className="mt-3 text-sm text-zinc-400">TP {benchmark.confusionMatrix.truePositives} / FP {benchmark.confusionMatrix.falsePositives} / TN {benchmark.confusionMatrix.trueNegatives} / FN {benchmark.confusionMatrix.falseNegatives}</p>
           </article>
           <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="font-semibold text-zinc-100">Detection Source Coverage</h2>
@@ -104,6 +106,27 @@ export default async function DetectionStatusAdminPage() {
             <h2 className="font-semibold text-zinc-100">Next Actions</h2>
             <p className="mt-3 text-sm text-zinc-400">Add approved labelled cases, implement one reviewed provider endpoint, then calibrate thresholds.</p>
           </article>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Runtime Intelligence</p>
+          <h2 className="mt-3 text-xl font-semibold text-zinc-100">Replay, fusion and calibration coverage</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              ["Runtime replay validation", benchmark.benchmarkMaturity.runtimeReplayValidation],
+              ["Signal-fusion comparison", benchmark.benchmarkMaturity.signalFusionComparison],
+              ["Confidence calibration", benchmark.benchmarkMaturity.confidenceCalibration],
+              ["Trust drift tracking", benchmark.benchmarkMaturity.trustDriftTracking],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
+                <p className="mt-2 text-sm font-semibold text-zinc-100">{value.replaceAll("_", " ")}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-5 border-t border-zinc-800 pt-4 text-xs leading-6 text-zinc-500">
+            {benchmark.benchmarkMaturity.boundary}
+          </p>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
