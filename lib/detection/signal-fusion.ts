@@ -38,6 +38,11 @@ export function fuseTrustSignals(input: {
   sessionIntegrityRisk?: number | null;
   provenanceConfidence?: number | null;
   agentPostureRisk?: number | null;
+  agentBehaviorRisk?: number | null;
+  credentialExposureRisk?: number | null;
+  nhiOwnershipRisk?: number | null;
+  permissionBoundaryRisk?: number | null;
+  reviewedOutcomeRisk?: number | null;
   governanceHistory?: Array<"approved" | "review" | "escalated" | "blocked">;
   reviewerOutcome?: "allow" | "review" | "escalate" | "block" | null;
   providerAgreement?: number | null;
@@ -67,7 +72,21 @@ export function fuseTrustSignals(input: {
   const intentRisk = input.intentRisk == null ? null : clamp(input.intentRisk.riskScore / 100);
   const sessionIntegrityRisk = input.sessionIntegrityRisk == null ? null : clamp(input.sessionIntegrityRisk);
   const agentPostureRisk = input.agentPostureRisk == null ? null : clamp(input.agentPostureRisk);
-  const contextualRisks = [intentRisk, sessionIntegrityRisk, agentPostureRisk].filter(
+  const agentBehaviorRisk = input.agentBehaviorRisk == null ? null : clamp(input.agentBehaviorRisk);
+  const credentialExposureRisk = input.credentialExposureRisk == null ? null : clamp(input.credentialExposureRisk);
+  const nhiOwnershipRisk = input.nhiOwnershipRisk == null ? null : clamp(input.nhiOwnershipRisk);
+  const permissionBoundaryRisk = input.permissionBoundaryRisk == null ? null : clamp(input.permissionBoundaryRisk);
+  const reviewedOutcomeRisk = input.reviewedOutcomeRisk == null ? null : clamp(input.reviewedOutcomeRisk);
+  const contextualRisks = [
+    intentRisk,
+    sessionIntegrityRisk,
+    agentPostureRisk,
+    agentBehaviorRisk,
+    credentialExposureRisk,
+    nhiOwnershipRisk,
+    permissionBoundaryRisk,
+    reviewedOutcomeRisk,
+  ].filter(
     (value): value is number => value !== null
   );
   const contextualRisk = contextualRisks.length
@@ -150,6 +169,11 @@ export function fuseTrustSignals(input: {
       sessionIntegrityRisk,
       provenanceRisk,
       agentPostureRisk,
+      agentBehaviorRisk,
+      credentialExposureRisk,
+      nhiOwnershipRisk,
+      permissionBoundaryRisk,
+      reviewedOutcomeRisk,
     },
     sourceTransparency,
     escalationRecommendation:
@@ -175,6 +199,12 @@ export function fuseTrustSignals(input: {
       input.intentRisk == null
         ? "No intent-risk assessment was supplied."
         : "Intent-aware trust scoring is heuristic and must not be described as confirmed ML.",
+      input.credentialExposureRisk == null
+        ? "No credential-exposure risk assessment was supplied."
+        : "Credential-exposure risk is heuristic runtime evidence, not confirmed compromise.",
+      input.agentBehaviorRisk == null
+        ? "No agent-behavior risk assessment was supplied."
+        : "Agent behavior risk is explainable and governance-reviewable, not autonomous attribution.",
       ...new Set(input.signals.flatMap((signal) => signal.limitations ?? [])),
     ],
   };

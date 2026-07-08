@@ -29,6 +29,10 @@ export default function DataSovereigntyPage() {
             Cyber Sentinels helps enterprises use AI without surrendering their
             data, workflows, identity signals or operational IP.
           </p>
+          <p className="mt-4 max-w-4xl text-sm leading-7 text-zinc-300">
+            Cyber Sentinels gives enterprises control over AI providers,
+            operational memory, identity signals and workflow evidence.
+          </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
             Governed orchestration keeps provider use subordinate to enterprise
             classification, redaction, retention and audit policy. Provider

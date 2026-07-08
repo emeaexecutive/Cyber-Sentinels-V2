@@ -4,6 +4,7 @@ import { createReceiptBundle } from "@/lib/trust-receipts/receipts";
 import { trackTrustEvent } from "@/lib/tracking/trust-event-tracker";
 import type { TrustAlgorithmDecision } from "@/lib/trust/trust-algorithm";
 import { writeReplayEvent } from "@/lib/replay/replay-writer";
+import { enqueueGovernanceJob } from "@/lib/governance/governance-queue";
 
 export type TrustWorkflowExecutionInput = {
   actorId: string;
@@ -27,6 +28,15 @@ export type TrustWorkflowExecutionInput = {
   };
   reviewerActor?: string | null;
   asyncSideEffects?: boolean;
+  agenticRuntime?: {
+    permission_boundary?: string | null;
+    credential_exposure_risk?: string | null;
+    suspicious_behavior_events?: string[];
+    kill_switch_status?: "not_recommended" | "review_kill_switch" | "kill_switch_recommended" | "kill_switch_activated_placeholder";
+    accessed_resources?: string[];
+    human_owner?: string | null;
+    delegated_authority?: string | null;
+  };
 };
 
 const actionByDecision: Record<TrustAlgorithmDecision, string> = {
@@ -47,6 +57,13 @@ export async function executeTrustWorkflow(
   const actor = input.reviewerActor ?? "trust-workflow-executor";
   const subjectType = input.subjectType ?? "workflow";
   const evidenceRefs = [...(input.evidenceRefs ?? [])];
+  const killSwitchStatus =
+    input.agenticRuntime?.kill_switch_status ??
+    (decision === "block"
+      ? "kill_switch_recommended"
+      : decision === "escalate"
+        ? "review_kill_switch"
+        : "not_recommended");
   const metadata = {
     actor_id: input.actorId,
     actor_type: input.actorType,
@@ -55,6 +72,12 @@ export async function executeTrustWorkflow(
     workflow_id: input.workflowId,
     subject_type: subjectType,
     touched_resource: `${subjectType}:${input.workflowId}`,
+    accessed_resources: input.agenticRuntime?.accessed_resources ?? [`${subjectType}:${input.workflowId}`],
+    human_owner: input.agenticRuntime?.human_owner ?? null,
+    delegated_authority: input.agenticRuntime?.delegated_authority ?? null,
+    permission_boundary: input.agenticRuntime?.permission_boundary ?? null,
+    credential_exposure_risk: input.agenticRuntime?.credential_exposure_risk ?? null,
+    suspicious_behavior_events: input.agenticRuntime?.suspicious_behavior_events ?? [],
     decision,
     action_executed: actionByDecision[decision],
     action_reason: input.algorithm.next_action,
@@ -80,6 +103,10 @@ export async function executeTrustWorkflow(
     silent_delete_performed: false,
     replay_record_required: true,
     governance_review_required: ["review", "step_up", "escalate", "block", "insufficient_evidence", "insufficient evidence"].includes(decision),
+    kill_switch_status: killSwitchStatus,
+    kill_switch_recommended: killSwitchStatus === "kill_switch_recommended" || killSwitchStatus === "review_kill_switch",
+    kill_switch_activated_placeholder: killSwitchStatus === "kill_switch_activated_placeholder",
+    kill_switch_boundary: "No destructive action is performed by this executor. Blocks and kill-switch recommendations preserve evidence, audit, replay and governance state.",
     final_outcome: actionByDecision[decision],
   };
 
@@ -118,6 +145,17 @@ export async function executeTrustWorkflow(
       metadata,
     }, actor);
 
+    if (metadata.governance_review_required) {
+      enqueueGovernanceJob({
+        queue: decision === "block" || decision === "escalate" ? "escalation" : "review",
+        subject_id: input.workflowId,
+        decision,
+        reason: input.algorithm.next_action,
+        evidence_refs: evidenceRefs,
+        idempotency_key: `workflow:${input.workflowId}:${decision}:${metadata.kill_switch_status}`,
+      });
+    }
+
     if (decision === "allow" || decision === "block") {
       await createReceiptBundle(supabase, {
         subjectType,
@@ -144,6 +182,7 @@ export async function executeTrustWorkflow(
     ok: true,
     decision,
     action_executed: actionByDecision[decision],
+    kill_switch_status: killSwitchStatus,
     evidence_preserved: true,
     replay_event_written: !input.asyncSideEffects,
     replay_write_scheduled: Boolean(input.asyncSideEffects),

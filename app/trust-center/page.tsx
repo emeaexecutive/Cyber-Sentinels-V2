@@ -130,7 +130,12 @@ export default async function TrustCenterPage() {
               </p>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
                 Governed enterprise intelligence means evidence-backed,
-                replayable context for accountable decisions—not autonomous judgment.
+                replayable context for accountable decisions, not autonomous judgment.
+              </p>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+                Cyber Sentinels verifies who or what acted, under whose
+                authority, what was accessed, and why the action was allowed,
+                reviewed or blocked.
               </p>
             </div>
             <State value={snapshot.badge} />
@@ -143,6 +148,31 @@ export default async function TrustCenterPage() {
               Open Governance Review
             </Link>
           </nav>
+        </section>
+
+        <section className="mt-8 rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
+          <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">
+            Agentic Threat Runtime Control
+          </p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            Govern AI agents as runtime actors.
+          </h2>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-500">
+            Agentic risk includes credential sweeps, sensitive-data discovery,
+            risky tool use, unauthorized access attempts and workflow abuse.
+            Cyber Sentinels connects agent identity, human ownership,
+            delegated authority, permission boundaries, runtime behavior,
+            replay and governance review.
+          </p>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-zinc-400">
+            Cyber Sentinels gives enterprises control over AI providers,
+            operational memory, identity signals and workflow evidence.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3 text-sm">
+            <Link href="/enterprise/agent-governance" className="text-cyan-200 hover:text-white">Agent Governance</Link>
+            <Link href="/dashboard/agent-risk" className="text-cyan-200 hover:text-white">Agent Risk Dashboard</Link>
+            <Link href="/trust/data-sovereignty" className="text-cyan-200 hover:text-white">AI Sovereignty</Link>
+          </div>
         </section>
 
         <section className="mt-8 rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
@@ -294,7 +324,7 @@ export default async function TrustCenterPage() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="text-xl font-semibold">Replayable enterprise memory</h2>
-              <p className="mt-2 text-sm text-zinc-500">Actor, workflow, authorization, governed execution and outcomes ordered from recorded evidence—not reduced to activity logs.</p>
+              <p className="mt-2 text-sm text-zinc-500">Actor, workflow, authorization, governed execution and outcomes ordered from recorded evidence, not reduced to activity logs.</p>
             </div>
             <Link href="/trust-replay" className="text-sm text-cyan-200 hover:text-white">Open Replay Timeline</Link>
           </div>

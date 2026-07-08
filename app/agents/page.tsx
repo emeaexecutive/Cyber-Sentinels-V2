@@ -67,6 +67,11 @@ export default function AgentsPage() {
             execution, workflow verification, Replay Timeline and accountable
             ownership.
           </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            Agentic Threat Runtime Control keeps who or what acted, under whose
+            authority, what was accessed, and why the action was allowed,
+            reviewed or blocked in one replayable record.
+          </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Each action remains connected to declared purpose, active authority,
             evidence, governance state and final outcome. Named people and

@@ -46,6 +46,11 @@ export type ReplaySnapshot = {
     runtimeSignals: string[];
     decisionReasons: string[];
     finalOutcomes: string[];
+    agents: string[];
+    accessedResources: string[];
+    credentialRisks: string[];
+    suspiciousBehaviorEvents: string[];
+    killSwitchStates: string[];
   };
 };
 
@@ -287,6 +292,11 @@ export function buildReplaySnapshot(input: {
   const runtimeSignals = metadataValues(["runtime_signal", "runtime_anomaly", "signal_type", "event_type"]);
   const decisionReasons = metadataValues(["allow_block_escalate_reason", "decision_reason", "reason"]);
   const finalOutcomes = metadataValues(["final_outcome", "operational_outcome", "status"]);
+  const agents = metadataValues(["agent", "agent_id", "actor_id", "linked_agent"]);
+  const accessedResources = metadataValues(["accessed_resource", "touched_resource"]);
+  const credentialRisks = metadataValues(["credential_exposure_risk", "credential_api_key_risk", "credential_risk"]);
+  const suspiciousBehaviorEvents = metadataValues(["suspicious_behavior_event", "suspicious_behavior_events", "agent_behavior_event"]);
+  const killSwitchStates = metadataValues(["kill_switch_status", "kill_switch_state"]);
 
   return {
     subject_type: input.subjectType,
@@ -327,6 +337,11 @@ export function buildReplaySnapshot(input: {
       runtimeSignals,
       decisionReasons,
       finalOutcomes,
+      agents,
+      accessedResources,
+      credentialRisks,
+      suspiciousBehaviorEvents,
+      killSwitchStates,
     },
   };
 }
