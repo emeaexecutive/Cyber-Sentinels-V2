@@ -18,6 +18,41 @@ export default async function ValidationDashboardPage() {
   const observations = await loadBenchmarkObservations(supabase);
   const metrics = buildValidationMetrics(observations);
   const summary = buildBenchmarkSummary(observations);
+  const validationReadiness = [
+    {
+      label: "Implemented",
+      items: [
+        "Validation dashboard",
+        "Benchmark dashboard",
+        "Provider comparison table",
+        "Replay and governance coverage metrics",
+      ],
+    },
+    {
+      label: "Measured",
+      items: [
+        `${observations.length} retained observation(s) in this window`,
+        `${summary.replayContinuityScore}% replay continuity score`,
+        `${summary.governanceResponseCoverage}% governance response coverage`,
+      ],
+    },
+    {
+      label: "Planned",
+      items: [
+        "Dataset dashboard with versioned registry",
+        "Reviewed outcomes dashboard",
+        "Calibration dashboard by workflow and provider",
+      ],
+    },
+    {
+      label: "Awaiting Data",
+      items: [
+        "Ground-truth labels from design-partner workflows",
+        "Provider-backed outcomes with reviewer adjudication",
+        "Precision, recall and calibration claims for published cohorts",
+      ],
+    },
+  ];
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -46,6 +81,19 @@ export default async function ValidationDashboardPage() {
               Trust Center
             </Link>
           </div>
+        </section>
+
+        <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {validationReadiness.map((lane) => (
+            <article key={lane.label} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+              <h2 className="text-lg font-semibold text-zinc-100">{lane.label}</h2>
+              <ul className="mt-4 grid gap-2 text-sm leading-6 text-zinc-400">
+                {lane.items.map((item) => (
+                  <li key={item} className="border-t border-zinc-800 pt-2">{item}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
         </section>
 
         <section className="mt-8">

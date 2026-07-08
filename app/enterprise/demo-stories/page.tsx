@@ -3,37 +3,40 @@ import { PrivateBetaBadge } from "@/components/private-beta";
 
 const stories = [
   {
-    title: "Hiring Security & Interview Integrity",
+    title: "Workflow A: Enterprise AI Agent",
     problem:
-      "Hiring teams face synthetic trust attacks, weak candidate provenance, manipulated interview presence and scattered review records.",
+      "Enterprises need to know which AI agent acted, who owns it, what authority it had and how its runtime behavior was governed.",
     workflow:
-      "Cyber Sentinels organizes candidate provenance, recruiter verification, interview integrity signals, evidence, human review and receipts into one explainable hiring workflow.",
+      "Cyber Sentinels registers the agent, links accountable ownership, records delegated authority, monitors runtime behavior, updates trust posture and preserves replay plus governance evidence.",
     flow:
-      "A recruiter opens a hiring security case, attaches interview evidence, reviews candidate and recruiter context, escalates unresolved signals, records the decision and issues a receipt for later review.",
+      "Register -> Assign Owner -> Assign Authority -> Runtime Monitoring -> Trust Score -> Replay Timeline -> Governance Decision.",
     matters:
-      "The enterprise can defend the hiring decision with an evidence chain and replayable timeline instead of relying on a binary detector or fragmented notes.",
+      "AI-agent activity becomes attributable, reviewable and revocable without pretending the platform controls every external runtime.",
+    href: "/demo/agent-tracking-flow",
   },
   {
-    title: "Operational Trust & Governance",
+    title: "Workflow B: Human Identity",
     problem:
-      "Enterprise trust decisions often live across tickets, dashboards, files and chat threads, making it hard to explain what happened or why a workflow was approved.",
+      "Human verification is not enough when session integrity, authority and evidence can change after entry.",
     workflow:
-      "Cyber Sentinels turns trust work into a governed operational flow: case, evidence, signals, governance action, audit log, timeline, receipt and replay.",
+      "Cyber Sentinels connects identity verification, session integrity, continuous trust, replay, evidence and final decision into one governed record.",
     flow:
-      "An operator creates a trust case, adds supporting evidence, reviews unresolved signals, requests more evidence, records a human governance action and preserves the decision path.",
+      "Verification -> Session Integrity -> Continuous Trust -> Replay -> Evidence -> Decision.",
     matters:
-      "Teams get operational memory for trust decisions, clearer accountability and a calmer path from uncertainty to reviewable action.",
+      "CIOs and CISOs can see whether trust stayed reliable through the workflow, not only whether an entry check passed.",
+    href: "/demo/session-integrity",
   },
   {
-    title: "AI Agent Governance",
+    title: "Workflow C: Executive Deepfake",
     problem:
-      "AI agents are beginning to act inside workflows, but enterprises need to know who owns the agent, what it was allowed to do and how its activity was reviewed.",
+      "Executive impersonation requires media provenance, provider analysis, governance and reportable evidence without overstating detection certainty.",
     workflow:
-      "Cyber Sentinels links agent identity, operating context, permissions, evidence, human governance and replayable activity records.",
+      "Cyber Sentinels captures submitted media, collects evidence, records provider analysis state, evaluates trust, routes governance and produces a report.",
     flow:
-      "A team registers an agent, links it to an owner and workspace, reviews a sensitive action, records human approval or escalation and preserves a receipt for the workflow.",
+      "Media Submitted -> Evidence Collection -> Provider Analysis -> Trust Engine -> Governance -> Report.",
     matters:
-      "AI-assisted operations become explainable and governable. AI can summarize and surface gaps, while humans remain responsible for decisions.",
+      "Security and executive teams receive a clear trust report with limitations, provider state and reviewer accountability.",
+    href: "/verification-replay",
   },
 ];
 
@@ -92,6 +95,11 @@ export default function EnterpriseDemoStoriesPage() {
                       </p>
                     </div>
                   ))}
+                </div>
+                <div className="mt-5">
+                  <Link href={story.href} className="brand-primary-action brand-action-large text-sm">
+                    Open demo path
+                  </Link>
                 </div>
               </article>
             );

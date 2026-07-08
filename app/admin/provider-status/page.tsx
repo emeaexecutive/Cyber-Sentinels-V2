@@ -10,10 +10,19 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 function statusTone(state: string) {
-  if (state === "Live") return "border-emerald-800 text-emerald-200";
-  if (state === "Simulated") return "border-cyan-800 text-cyan-200";
+  if (state === "Live" || state === "Connected") return "border-emerald-800 text-emerald-200";
+  if (state === "Simulated" || state === "Configured") return "border-cyan-800 text-cyan-200";
   if (state === "Awaiting Credentials") return "border-amber-800 text-amber-200";
+  if (state === "Offline") return "border-red-800 text-red-200";
   return "border-zinc-700 text-zinc-300";
+}
+
+function providerOperationalState(runtimeState: string) {
+  if (runtimeState === "Live") return "Connected";
+  if (runtimeState === "Simulated") return "Configured";
+  if (runtimeState === "Awaiting Credentials") return "Awaiting Credentials";
+  if (runtimeState === "Disabled") return "Unsupported";
+  return "Offline";
 }
 
 export default async function ProviderStatusAdminPage() {
@@ -108,8 +117,8 @@ export default async function ProviderStatusAdminPage() {
                     <p className="font-medium text-zinc-100">{provider.name}</p>
                     <p className="mt-1 text-xs text-zinc-600">{provider.category.replaceAll("_", " ")}</p>
                   </div>
-                  <span className={`rounded-full border px-2.5 py-1 text-xs ${statusTone(provider.runtimeState)}`}>
-                    {provider.runtimeState}
+                  <span className={`rounded-full border px-2.5 py-1 text-xs ${statusTone(providerOperationalState(provider.runtimeState))}`}>
+                    {providerOperationalState(provider.runtimeState)}
                   </span>
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-zinc-500">
@@ -132,6 +141,7 @@ export default async function ProviderStatusAdminPage() {
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {registry.map((provider) => {
               const runtimeState = providerRuntimeState(provider);
+              const operationalState = providerOperationalState(runtimeState);
               return (
                 <article key={provider.id} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <div className="flex items-start justify-between gap-3">
@@ -139,7 +149,7 @@ export default async function ProviderStatusAdminPage() {
                       <p className="font-medium text-zinc-100">{provider.name}</p>
                       <p className="mt-1 text-xs text-zinc-600">{provider.category.replaceAll("_", " ")}</p>
                     </div>
-                    <span className={`rounded-full border px-2.5 py-1 text-xs ${statusTone(runtimeState)}`}>{runtimeState}</span>
+                    <span className={`rounded-full border px-2.5 py-1 text-xs ${statusTone(operationalState)}`}>{operationalState}</span>
                   </div>
                   <p className="mt-3 text-sm leading-6 text-zinc-400">{provider.notes}</p>
                   <p className="mt-3 text-xs text-zinc-600">

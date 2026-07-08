@@ -100,6 +100,57 @@ export default async function DeploymentReadinessPage() {
       state: domainReady ? "READY" : "CAUTION",
     },
   ];
+  const enterpriseHealthChecks: Array<{
+    label: string;
+    detail: string;
+    state: DeploymentReadinessState;
+  }> = [
+    {
+      label: "Platform Health",
+      detail: `${report.readinessPercent}% readiness across runtime, integrity and pilot evidence.`,
+      state: report.state,
+    },
+    {
+      label: "Provider Health",
+      detail: "Provider paths remain explicit about Connected, Configured, Awaiting Credentials, Offline and Unsupported states.",
+      state: "CAUTION",
+    },
+    {
+      label: "Trust Engine",
+      detail: "Trust execution routes and protected decision surfaces are present.",
+      state: "READY",
+    },
+    {
+      label: "Replay Engine",
+      detail: `${report.metrics.replaySessionsViewed} replay session view(s) recorded in pilot metrics.`,
+      state: report.metrics.replaySessionsViewed > 0 ? "READY" : "CAUTION",
+    },
+    {
+      label: "Governance",
+      detail: `${report.metrics.governanceReviewsCompleted} completed review(s), ${report.metrics.unresolvedEscalations} unresolved escalation(s).`,
+      state: report.metrics.unresolvedEscalations > 0 ? "CAUTION" : "READY",
+    },
+    {
+      label: "Validation",
+      detail: "Validation and benchmark dashboards are protected and separate live evidence from simulations.",
+      state: "CAUTION",
+    },
+    {
+      label: "Performance",
+      detail: "Runtime profiling exists as in-process readiness telemetry; production APM remains outstanding.",
+      state: "CAUTION",
+    },
+    {
+      label: "Security",
+      detail: "Auth, admin allowlist, protected routes and integrity checks are part of the readiness gate.",
+      state: report.blockers.length ? "BLOCKED" : "READY",
+    },
+    {
+      label: "Outstanding Risks",
+      detail: `${report.blockers.length} blocker(s) and ${report.warnings.length} warning(s) require operator review.`,
+      state: report.blockers.length ? "BLOCKED" : report.warnings.length ? "CAUTION" : "READY",
+    },
+  ];
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -133,6 +184,35 @@ export default async function DeploymentReadinessPage() {
             <Link href="/enterprise/pilot-setup" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white">
               Pilot Setup
             </Link>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
+              Enterprise health dashboard
+            </p>
+            <h2 className="mt-2 text-xl font-semibold">One-screen readiness view</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
+              Traffic-light view for design-partner review. Green means ready
+              for controlled pilot evidence, amber means measured but incomplete,
+              and red means blocked until resolved.
+            </p>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {enterpriseHealthChecks.map((check) => (
+              <article key={check.label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="max-w-xl">
+                    <p className="font-medium text-zinc-100">{check.label}</p>
+                    <p className="mt-2 text-sm leading-6 text-zinc-500">{check.detail}</p>
+                  </div>
+                  <span className={`rounded-full border px-3 py-1 text-xs ${stateClass(check.state)}`}>
+                    {check.state}
+                  </span>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
 
