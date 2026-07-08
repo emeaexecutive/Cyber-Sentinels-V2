@@ -1,5 +1,6 @@
 export type TrustGraphNodeType =
   | "human"
+  | "authority"
   | "ai_agent"
   | "machine_identity"
   | "credential"
@@ -7,6 +8,7 @@ export type TrustGraphNodeType =
   | "evidence"
   | "governance"
   | "replay"
+  | "trust_posture"
   | "provider";
 
 export type TrustGraphNode = {
@@ -21,12 +23,16 @@ export type TrustGraphEdge = {
   target: string;
   relationship:
     | "owns"
+    | "holds_authority"
     | "delegates_to"
+    | "authorizes"
     | "uses_credential"
     | "executes"
     | "produces_evidence"
     | "reviewed_by"
     | "preserved_in"
+    | "restores"
+    | "updates_posture"
     | "supplied_by"
     | "governs";
   evidence_refs: string[];
@@ -55,6 +61,7 @@ function pushEdge(edges: TrustGraphEdge[], edge: TrustGraphEdge) {
 
 export function buildTrustGraph(input: {
   humans?: Array<Record<string, unknown>>;
+  authorities?: Array<Record<string, unknown>>;
   agents?: Array<Record<string, unknown>>;
   machineIdentities?: Array<Record<string, unknown>>;
   credentials?: Array<Record<string, unknown>>;
@@ -62,18 +69,47 @@ export function buildTrustGraph(input: {
   evidence?: Array<Record<string, unknown>>;
   governance?: Array<Record<string, unknown>>;
   replays?: Array<Record<string, unknown>>;
+  trustPostures?: Array<Record<string, unknown>>;
   providers?: Array<Record<string, unknown>>;
 }): TrustGraph {
   const nodes = new Map<string, TrustGraphNode>();
   const edges: TrustGraphEdge[] = [];
 
   for (const human of input.humans ?? []) {
-    pushNode(nodes, {
+    const humanNode = pushNode(nodes, {
       id: nodeId("human", human.id ?? human.email),
       type: "human",
       label: String(human.email ?? human.name ?? human.id ?? "Human"),
       metadata: human,
     });
+    const authorityId = human.authority_id ?? human.role ?? human.email;
+    if (authorityId) {
+      const authorityNode = pushNode(nodes, {
+        id: nodeId("authority", authorityId),
+        type: "authority",
+        label: String(human.authority_label ?? human.role ?? "Authority"),
+        metadata: { source: "human_record", authority_id: authorityId },
+      });
+      pushEdge(edges, { source: humanNode, target: authorityNode, relationship: "holds_authority", evidence_refs: [] });
+    }
+  }
+
+  for (const authority of input.authorities ?? []) {
+    const authorityNode = pushNode(nodes, {
+      id: nodeId("authority", authority.id ?? authority.name),
+      type: "authority",
+      label: String(authority.name ?? authority.id ?? "Authority"),
+      metadata: authority,
+    });
+    const owner = authority.human_id ?? authority.owner_email;
+    if (owner) {
+      pushEdge(edges, {
+        source: nodeId("human", owner),
+        target: authorityNode,
+        relationship: "holds_authority",
+        evidence_refs: authority.id ? [String(authority.id)] : [],
+      });
+    }
   }
 
   for (const agent of input.agents ?? []) {
@@ -91,6 +127,15 @@ export function buildTrustGraph(input: {
         label: String(owner),
       });
       pushEdge(edges, { source: ownerNode, target: agentNode, relationship: "owns", evidence_refs: [] });
+    }
+    const authorityId = agent.authority_id ?? agent.delegated_authority;
+    if (authorityId) {
+      pushEdge(edges, {
+        source: nodeId("authority", authorityId),
+        target: agentNode,
+        relationship: "delegates_to",
+        evidence_refs: agent.id ? [String(agent.id)] : [],
+      });
     }
   }
 
@@ -119,6 +164,15 @@ export function buildTrustGraph(input: {
         evidence_refs: credential.id ? [String(credential.id)] : [],
       });
     }
+    const machineId = credential.machine_identity_id ?? credential.subject_id;
+    if (machineId) {
+      pushEdge(edges, {
+        source: nodeId("machine_identity", machineId),
+        target: credentialNode,
+        relationship: "uses_credential",
+        evidence_refs: credential.id ? [String(credential.id)] : [],
+      });
+    }
   }
 
   for (const workflow of input.workflows ?? []) {
@@ -135,6 +189,15 @@ export function buildTrustGraph(input: {
         source: nodeId(actorType as TrustGraphNodeType, actorId),
         target: workflowNode,
         relationship: "executes",
+        evidence_refs: workflow.id ? [String(workflow.id)] : [],
+      });
+    }
+    const credentialId = workflow.credential_id;
+    if (credentialId) {
+      pushEdge(edges, {
+        source: nodeId("credential", credentialId),
+        target: workflowNode,
+        relationship: "authorizes",
         evidence_refs: workflow.id ? [String(workflow.id)] : [],
       });
     }
@@ -174,6 +237,15 @@ export function buildTrustGraph(input: {
         evidence_refs: governance.id ? [String(governance.id)] : [],
       });
     }
+    const postureId = governance.trust_posture_id ?? governance.subject_id;
+    if (postureId) {
+      pushEdge(edges, {
+        source: governanceNode,
+        target: nodeId("trust_posture", postureId),
+        relationship: "restores",
+        evidence_refs: governance.id ? [String(governance.id)] : [],
+      });
+    }
   }
 
   for (const replay of input.replays ?? []) {
@@ -190,6 +262,24 @@ export function buildTrustGraph(input: {
         target: replayNode,
         relationship: "preserved_in",
         evidence_refs: replay.id ? [String(replay.id)] : [],
+      });
+    }
+  }
+
+  for (const posture of input.trustPostures ?? []) {
+    const postureNode = pushNode(nodes, {
+      id: nodeId("trust_posture", posture.id ?? posture.subject_id ?? posture.workflow_id),
+      type: "trust_posture",
+      label: String(posture.label ?? posture.state ?? "Trust posture"),
+      metadata: posture,
+    });
+    const replayId = posture.replay_id ?? posture.replay_reference;
+    if (replayId) {
+      pushEdge(edges, {
+        source: nodeId("replay", replayId),
+        target: postureNode,
+        relationship: "updates_posture",
+        evidence_refs: [String(replayId)],
       });
     }
   }
@@ -226,5 +316,29 @@ export function queryTrustGraph(graph: TrustGraph, id: string) {
     node: graph.nodes.find((node) => node.id === id) ?? null,
     neighbors: graph.nodes.filter((node) => neighborIds.has(node.id) && node.id !== id),
     edges: connectedEdges,
+  };
+}
+
+export function explainTrustGraph(graph: TrustGraph, id: string) {
+  const query = queryTrustGraph(graph, id);
+  const evidenceRefs = [...new Set(query.edges.flatMap((edge) => edge.evidence_refs))].filter(Boolean);
+  const pathSummary = query.edges.map((edge) => {
+    const source = graph.nodes.find((node) => node.id === edge.source)?.label ?? edge.source;
+    const target = graph.nodes.find((node) => node.id === edge.target)?.label ?? edge.target;
+    return `${source} ${edge.relationship.replace(/_/g, " ")} ${target}`;
+  });
+
+  return {
+    question: "Why is this trusted?",
+    node: query.node,
+    answer: query.node
+      ? "Trust is explained by connected authority, actor, credential, workflow, evidence, replay, governance and posture records."
+      : "No graph node was found for this trust query.",
+    pathSummary,
+    evidenceRefs,
+    limitations: [
+      "The graph explains relationships between existing records; it does not create new trust facts.",
+      "Missing evidence or governance edges should be treated as a review prompt, not proof of trust.",
+    ],
   };
 }

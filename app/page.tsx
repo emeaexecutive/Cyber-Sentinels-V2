@@ -57,9 +57,9 @@ export default function Home() {
     <main className="operational-shell min-h-screen text-zinc-100">
       <section className="mx-auto max-w-6xl px-6 pb-16 pt-14 sm:pt-16 md:px-8 md:pb-24 md:pt-24">
         <div className="max-w-5xl">
-          <p className="operational-eyebrow">TrustOps operating system</p>
+          <p className="operational-eyebrow">AI Trust Infrastructure</p>
           <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            The operational trust control plane for humans, AI agents, machine identities and regulated workflows.
+            The Trust Intelligence layer for humans, AI agents, machine identities and regulated workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 sm:text-xl sm:leading-9">
             Continuously verify who or what acted, under whose authority, what changed, and why each action was allowed, reviewed or blocked.
@@ -90,12 +90,12 @@ export default function Home() {
       <section className="border-y border-zinc-800 bg-black">
         <div className="mx-auto max-w-6xl px-6 py-14 md:px-8 md:py-16">
           <div className="max-w-3xl">
-            <p className="operational-eyebrow">One operating model</p>
+            <p className="operational-eyebrow">One intelligence model</p>
             <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
               Memory, state, control and enterprise ownership.
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-400">
-              An operating system here means connected, reviewable trust context
+              Trust Intelligence here means connected, reviewable trust context
               across existing enterprise workflows—not autonomous judgment or a
               replacement for accountable systems of record.
             </p>
@@ -162,7 +162,7 @@ export default function Home() {
           href="/verification-replay"
           className="mt-8 inline-flex text-sm font-semibold text-cyan-200 hover:text-cyan-100"
         >
-          See how verification replay works →
+          See how verification replay works
         </Link>
       </section>
 

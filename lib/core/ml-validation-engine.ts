@@ -29,6 +29,30 @@ export async function runMlValidationEngine(
     enterprisePilotValidated: false,
     proprietaryModelBenchmarked: false,
   });
+  const providerComparison = {
+    providerAgreement: benchmark.providerAgreement,
+    providerCoverage: benchmark.providerCoverage,
+    detectionSourceCoverage: benchmark.detectionSourceCoverage,
+    boundary: "Provider comparison is a validation input and does not create an authenticity verdict.",
+  };
+  const benchmarkVersioning = {
+    schemaVersion: benchmark.audit.schemaVersion,
+    generatedAt: benchmark.audit.generatedAt,
+    caseCount: benchmark.caseCount,
+    sourcePolicy: benchmark.audit.sourcePolicy,
+  };
+  const calibrationHistory = {
+    current: benchmark.calibrationStatus,
+    confidenceCalibration: benchmark.confidenceCalibration,
+    minimumSampleThreshold: 30,
+    boundary: "Calibration history records readiness; it is not a public performance claim.",
+  };
+  const confidenceDrift = {
+    trustDriftTracking: benchmark.trustDriftTracking,
+    falsePositiveRate: benchmark.falsePositiveRate,
+    falseNegativeRate: benchmark.falseNegativeRate,
+    boundary: "Drift and error rates stay null or scoped until reviewed outcomes support them.",
+  };
 
   return {
     engine: "ml_validation_engine" as const,
@@ -37,6 +61,12 @@ export async function runMlValidationEngine(
     entity_identity: entity,
     providerReadiness,
     readiness,
+    datasetReadiness: benchmark.datasetReadiness,
+    reviewedOutcomes: benchmark.reviewedOutcomeSummary,
+    providerComparison,
+    benchmarkVersioning,
+    calibrationHistory,
+    confidenceDrift,
     source_separation: {
       real_ml: status.real_ml_enabled,
       provider_outputs: status.provider_detection_enabled,

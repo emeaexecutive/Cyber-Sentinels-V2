@@ -37,9 +37,9 @@ export default function PlatformPage() {
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-5xl">
         <section className="operational-panel p-6 md:p-8">
-          <p className="operational-eyebrow">TrustOps platform</p>
+          <p className="operational-eyebrow">Trust Intelligence platform</p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            The trust operating system for governed enterprise workflows.
+            AI Trust Infrastructure for governed enterprise workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Cyber Sentinels connects humans, AI agents, machine identities and
@@ -74,7 +74,7 @@ export default function PlatformPage() {
         </section>
 
         <section className="mt-8 operational-panel p-6">
-          <p className="operational-eyebrow">Governed enterprise intelligence</p>
+          <p className="operational-eyebrow">Governed Trust Intelligence</p>
           <h2 className="mt-3 text-2xl font-semibold">
             Reviewable operational context for consequential decisions.
           </h2>
@@ -96,7 +96,7 @@ export default function PlatformPage() {
         </section>
 
         <section className="mt-8">
-          <p className="operational-eyebrow">One operating model</p>
+          <p className="operational-eyebrow">One intelligence model</p>
           <h2 className="mt-3 text-2xl font-semibold">
             Memory, state, control and enterprise ownership.
           </h2>
