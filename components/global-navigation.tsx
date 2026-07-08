@@ -12,34 +12,20 @@ export type NavigationAccessLevel =
 
 type CloseMenus = () => void;
 
-const publicFocusLinks = [
-  ["/enterprise/hiring-security", "Hiring Security"],
-  ["/trust", "Trust Center"],
-];
-
-const authenticatedFocusLinks = [
-  ["/enterprise/hiring-security", "Hiring Security"],
-  ["/trust-center", "Trust Center"],
-];
-
 const platformDropdownLinks = [
-  ["/trust-center", "Operational Trust Center"],
-  ["/dashboard/trust-posture", "Trust Posture"],
-  ["/trust-replay", "Replay / Enterprise Memory"],
-  ["/agent-registry", "AI Agent Registry"],
-  ["/dashboard/governance", "Governance Review"],
-  ["/dashboard/access-governance", "Authorization Lineage"],
-  ["/dashboard/session-integrity", "Session Integrity"],
-  ["/dashboard/session-security", "Session Security"],
-  ["/verification-receipts", "Verification Receipt"],
-];
-
-const publicPlatformDropdownLinks = [
   ["/platform", "Platform Overview"],
+  ["/trust-center", "Operational Trust Center"],
   ["/verification-replay", "Replay / Enterprise Memory"],
   ["/methodology", "Persistent Trust Posture"],
   ["/governance", "Governance Review"],
   ["/trust/data-sovereignty", "AI & Data Sovereignty"],
+];
+
+const solutionsDropdownLinks = [
+  ["/enterprise/hiring-security", "Hiring Security"],
+  ["/enterprise/agent-governance", "AI Agent Governance"],
+  ["/verification-replay", "Replay & Evidence"],
+  ["/trust/data-sovereignty", "AI Sovereignty"],
 ];
 
 const enterpriseDropdownLinks = [
@@ -60,6 +46,24 @@ const adminEnterpriseDropdownLinks = [
   ["/admin/runtime-validation", "Runtime Validation"],
 ];
 
+const developerDropdownLinks = [
+  ["/developers", "Developer Overview"],
+  ["/developers/docs", "API Documentation"],
+  ["/developers/authentication", "Authentication"],
+];
+
+const authenticatedDeveloperDropdownLinks = [
+  ...developerDropdownLinks,
+  ["/developers/api-keys", "API Keys"],
+];
+
+const resourceDropdownLinks = [
+  ["/demo", "Enterprise Demos"],
+  ["/help", "Help"],
+  ["/security", "Security"],
+  ["/about", "About"],
+];
+
 function LogoutButton({ onNavigate }: { onNavigate?: CloseMenus }) {
   return (
     <form action="/api/auth/logout" method="POST">
@@ -71,29 +75,6 @@ function LogoutButton({ onNavigate }: { onNavigate?: CloseMenus }) {
         Logout
       </button>
     </form>
-  );
-}
-
-function FlatLinks({
-  links,
-  onNavigate,
-}: {
-  links: string[][];
-  onNavigate?: CloseMenus;
-}) {
-  return (
-    <>
-      {links.map(([href, label]) => (
-        <Link
-          key={href}
-          href={href}
-          onClick={onNavigate}
-          className="nav-control"
-        >
-          {label}
-        </Link>
-      ))}
-    </>
   );
 }
 
@@ -162,14 +143,14 @@ function PrimaryNavigation({
   onCloseDropdown,
   enterpriseLinks = enterpriseDropdownLinks,
   platformLinks = platformDropdownLinks,
-  focusLinks = authenticatedFocusLinks,
+  developerLinks = developerDropdownLinks,
 }: {
   openDropdown: string | null;
   onToggleDropdown: (id: string) => void;
   onCloseDropdown: CloseMenus;
   enterpriseLinks?: string[][];
   platformLinks?: string[][];
-  focusLinks?: string[][];
+  developerLinks?: string[][];
 }) {
   return (
     <>
@@ -181,7 +162,14 @@ function PrimaryNavigation({
         onToggle={onToggleDropdown}
         onClose={onCloseDropdown}
       />
-      <FlatLinks links={focusLinks} onNavigate={onCloseDropdown} />
+      <DropdownLinks
+        id="solutions"
+        label="Solutions"
+        links={solutionsDropdownLinks}
+        open={openDropdown === "solutions"}
+        onToggle={onToggleDropdown}
+        onClose={onCloseDropdown}
+      />
       <DropdownLinks
         id="enterprise"
         label="Enterprise"
@@ -190,8 +178,27 @@ function PrimaryNavigation({
         onToggle={onToggleDropdown}
         onClose={onCloseDropdown}
       />
+      <DropdownLinks
+        id="developers"
+        label="Developers"
+        links={developerLinks}
+        open={openDropdown === "developers"}
+        onToggle={onToggleDropdown}
+        onClose={onCloseDropdown}
+      />
       <Link href="/pricing" onClick={onCloseDropdown} className="nav-control">
         Pricing
+      </Link>
+      <DropdownLinks
+        id="resources"
+        label="Resources"
+        links={resourceDropdownLinks}
+        open={openDropdown === "resources"}
+        onToggle={onToggleDropdown}
+        onClose={onCloseDropdown}
+      />
+      <Link href="/trust" onClick={onCloseDropdown} className="nav-control">
+        Trust Center
       </Link>
     </>
   );
@@ -273,15 +280,13 @@ export function GlobalNavigation({
                 openDropdown={openDropdown}
                 onToggleDropdown={toggleDropdown}
                 onCloseDropdown={closeMenus}
-                platformLinks={publicPlatformDropdownLinks}
-                focusLinks={publicFocusLinks}
               />
               <Link
                 href="/login"
                 onClick={closeMenus}
                 className="brand-primary-action"
               >
-                Access
+                Login
               </Link>
             </>
           ) : null}
@@ -291,6 +296,7 @@ export function GlobalNavigation({
                 openDropdown={openDropdown}
                 onToggleDropdown={toggleDropdown}
                 onCloseDropdown={closeMenus}
+                developerLinks={authenticatedDeveloperDropdownLinks}
               />
               <Link href="/dashboard" onClick={closeMenus} className="brand-primary-action">
                 Access
@@ -314,6 +320,7 @@ export function GlobalNavigation({
                 onToggleDropdown={toggleDropdown}
                 onCloseDropdown={closeMenus}
                 enterpriseLinks={adminEnterpriseDropdownLinks}
+                developerLinks={authenticatedDeveloperDropdownLinks}
               />
               <Link
                 href="/admin/access"

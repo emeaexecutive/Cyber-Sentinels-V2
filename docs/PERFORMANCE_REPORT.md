@@ -35,3 +35,24 @@ Enterprise Readiness Mode treats performance as reliability evidence. The curren
 ## Performance Gate
 
 No enterprise merge should add blocking provider calls, public dashboard aggregation or synchronous replay writes to the request path unless it includes timeout behavior, degraded-state behavior, replay evidence and validation.
+
+## 2026-07-08 Enterprise Consolidation Update
+
+The consolidation pass keeps the existing profiler posture and adds the following production-readiness priorities:
+
+| Component | Risk | Optimization path |
+| --- | --- | --- |
+| Trust Engine | Synchronous trust calculation can block UX. | Cache stable inputs, parallelize independent signals, emit staged runtime states. |
+| Decision Engine | Policy and evidence reads can duplicate work. | Normalize decision inputs and reuse trust execution context. |
+| Replay Engine | Timeline assembly can be read-heavy. | Index by subject/session, lazy-load timeline detail, cache immutable receipt metadata. |
+| Provider calls | External latency and credential states vary. | Use provider orchestration, timeouts, fail-closed states, and parallel execution where review-safe. |
+| Queue workers | Side effects can slow immediate decisions. | Prefer async replay/audit/receipt side effects after immediate trust response. |
+| Dashboard | Many widgets can over-fetch. | Lazy-load panels, memoize summaries, and query only visible modules. |
+
+Performance principles for enterprise readiness:
+
+- Keep auditability even when optimizing latency.
+- Prefer parallel signal execution over blocking serial provider calls.
+- Cache only stable evidence and configuration; do not cache mutable governance decisions without invalidation.
+- Use noindex/protected internal pages to reduce public render pressure.
+- Treat 401/403 protected responses as valid reachability signals in operational checks.

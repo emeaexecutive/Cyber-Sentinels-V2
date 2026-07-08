@@ -157,3 +157,26 @@ Cyber Sentinels is **launch-demo ready** for a controlled V1 demo if the story s
 
 It is **not yet ready for unrestricted production use** until older RLS policies are tightened to owner/admin access at the database layer.
 
+
+## 2026-07-08 Enterprise Consolidation Update
+
+The consolidation pass preserves the prior V1 findings and adds this security hardening frame:
+
+| Area | Current posture | Hardening action |
+| --- | --- | --- |
+| Auth | Supabase auth, email verification, protected route middleware. | Keep public navigation auth build-safe and verify session handling after nav/auth edits. |
+| RLS | Existing Supabase policies should remain intact. | Do not weaken RLS; use migration-safe dedupe for policy conflicts. |
+| MFA readiness | Admin step-up/back-office flow exists conceptually. | Document MFA requirement for production admin and enterprise SSO. |
+| Step-up auth | Admin verification cookie and back-office denial paths protect admin tools. | Preserve denial reasons and noindex headers. |
+| Audit logging | Replay, receipt, trust events and admin actions are audit candidates. | Ensure lightweight metadata only; avoid secret or sensitive payload logging. |
+| Secret management | Provider credentials must be env-bound. | Never expose credentials in UI, logs, docs, or client bundles. |
+| Rate limiting | Public intake, support, waitlist, auth and provider endpoints need controls. | Keep Turnstile and rate limiting on public abuse-prone routes. |
+| Turnstile | Auth/session protection path exists. | Re-test after any login or enterprise-access form changes. |
+| Provider credentials | Credentials cannot be treated as proof of live capability. | Require endpoint test, signed evidence, and reviewed status before Live. |
+
+Non-negotiables:
+
+- Admin/internal tooling stays hidden from public navigation.
+- Protected routes stay noindex and private/no-store.
+- Public pages do not reveal internal provider keys, testbench behavior, seed endpoints, or repair operations.
+- Security docs should name gaps plainly instead of converting them into marketing claims.
