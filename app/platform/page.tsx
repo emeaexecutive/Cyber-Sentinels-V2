@@ -23,6 +23,14 @@ const postureLifecycle = [
   ["Re-verify", "Material workflow changes reopen verification before consequential execution continues."],
 ];
 
+const trustEngines = [
+  ["Trust Engine", "Evaluates actor identity, authority, evidence, posture and confidence boundaries."],
+  ["Runtime Engine", "Observes execution state, permission scope, provider status and material trust changes."],
+  ["Replay Engine", "Stores operational memory so teams can reconstruct who or what acted and why."],
+  ["Governance Engine", "Routes escalation, review, intervention, approvals, blocks and reviewer rationale."],
+  ["Validation Engine", "Maintains datasets, reviewed outcomes, calibration, precision and recall readiness."],
+];
+
 const workflowVerificationQuestions = [
   "Who acted?",
   "What changed?",
@@ -67,6 +75,30 @@ export default function PlatformPage() {
               <article key={title} className="min-w-0 bg-black p-4">
                 <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
                 <h3 className="mt-2 font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 operational-panel p-6">
+          <p className="operational-eyebrow">Five engine platform</p>
+          <h2 className="mt-3 text-2xl font-semibold">
+            Every capability belongs to a trust engine.
+          </h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Cyber Sentinels is organized around Trust Engine, Runtime Engine,
+            Replay Engine, Governance Engine and Validation Engine. This keeps
+            public storytelling, enterprise workflows, admin operations and
+            developer integrations aligned to one product architecture.
+          </p>
+          <div className="mt-6 grid gap-3 md:grid-cols-5">
+            {trustEngines.map(([title, copy], index) => (
+              <article key={title} className="operational-card p-4">
+                <p className="font-mono text-xs text-cyan-300">
+                  {String(index + 1).padStart(2, "0")}
+                </p>
+                <h3 className="mt-3 font-semibold text-zinc-100">{title}</h3>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
               </article>
             ))}

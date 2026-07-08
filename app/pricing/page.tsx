@@ -6,9 +6,9 @@ export const dynamic = "force-dynamic";
 
 const features: Record<string, string[]> = {
   free: ["1 verification workflow", "Basic evidence uploads", "Verification receipt preview"],
-  starter: ["Up to 5 verification workflows", "Evidence and audit trail", "Hiring security review"],
+  starter: ["Up to 5 trust workflows", "Evidence and audit trail", "Enterprise workflow review"],
   professional: ["Up to 15 verification workflows", "Session integrity reviews", "Governance, receipts and replay"],
-  enterprise: ["Custom workflow volume", "Human review and admin controls", "API access and pilot support"],
+  enterprise: ["Custom workflow volume", "Five-engine TrustOps controls", "API access and pilot support"],
 };
 
 export default function PricingPage() {
@@ -19,10 +19,10 @@ export default function PricingPage() {
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
         <header className="max-w-4xl">
-          <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">Verification Plans</p>
+          <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">TrustOps plans</p>
           <PrivateBetaBadge className="mt-4" />
-          <h1 className="mt-4 text-4xl font-semibold md:text-6xl">Simple plans for verification workflows.</h1>
-          <p className="mt-5 max-w-3xl leading-8 text-zinc-400">Start with evidence-backed verification, then add session integrity, governance, human review, receipts and replay as your pilot grows.</p>
+          <h1 className="mt-4 text-4xl font-semibold md:text-6xl">Simple plans for operational trust workflows.</h1>
+          <p className="mt-5 max-w-3xl leading-8 text-zinc-400">Start with evidence-backed trust workflows, then add runtime checks, governance, human review, receipts, replay and validation as your pilot grows.</p>
         </header>
         <section className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan) => {

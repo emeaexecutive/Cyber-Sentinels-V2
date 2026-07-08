@@ -137,6 +137,11 @@ export default async function TrustCenterPage() {
                 authority, what was accessed, and why the action was allowed,
                 reviewed or blocked.
               </p>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
+                The Trust Engine, Runtime Engine, Replay Engine, Governance
+                Engine and Validation Engine keep that record consistent from
+                signal collection through reviewed outcome.
+              </p>
             </div>
             <State value={snapshot.badge} />
           </div>

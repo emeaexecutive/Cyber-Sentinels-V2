@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 const demoSequence = [
-  "Person, agent or workflow enters",
-  "Identity, session and evidence checked",
-  "Trust changes over time",
-  "Governance intervenes",
-  "Replay explains why",
-  "Receipt preserves the outcome",
+  "Actor enters",
+  "Trust Engine evaluates evidence",
+  "Runtime Engine watches execution",
+  "Replay Engine records chronology",
+  "Governance Engine routes review",
+  "Validation Engine preserves outcome learning",
 ];
 
 export default function DemoPage() {

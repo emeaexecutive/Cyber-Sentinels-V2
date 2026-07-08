@@ -52,6 +52,14 @@ const operatingSystemModel = [
   ["Ownership", "Enterprise AI sovereignty keeps memory, data and provider policy under customer control."],
 ];
 
+const trustEngines = [
+  ["Trust Engine", "Evaluates actor, authority, evidence and posture context."],
+  ["Runtime Engine", "Monitors execution, permission scope and material trust changes."],
+  ["Replay Engine", "Preserves the chronology of who or what acted, what changed and why."],
+  ["Governance Engine", "Routes review, escalation, intervention and accountable decisions."],
+  ["Validation Engine", "Connects datasets, reviewed outcomes and calibration evidence."],
+];
+
 export default function Home() {
   return (
     <main className="operational-shell min-h-screen text-zinc-100">
@@ -96,7 +104,7 @@ export default function Home() {
             </h2>
             <p className="mt-4 text-sm leading-7 text-zinc-400">
               Trust Intelligence here means connected, reviewable trust context
-              across existing enterprise workflows—not autonomous judgment or a
+              across existing enterprise workflows, not autonomous judgment or a
               replacement for accountable systems of record.
             </p>
           </div>
@@ -129,6 +137,34 @@ export default function Home() {
               <article key={title} className="operational-card p-5">
                 <h3 className="text-lg font-semibold text-white">{title}</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-zinc-800 bg-black">
+        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8 md:py-16">
+          <div className="max-w-3xl">
+            <p className="operational-eyebrow">Five trust engines</p>
+            <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
+              One platform organized around trust, runtime, replay, governance and validation.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-zinc-300">
+              Every workflow feature connects to one of five engines so teams
+              can understand where evidence is evaluated, where execution is
+              watched, where memory is preserved, where review happens and
+              where outcomes are validated.
+            </p>
+          </div>
+          <div className="mt-8 grid gap-3 md:grid-cols-5">
+            {trustEngines.map(([title, copy], index) => (
+              <article key={title} className="operational-card p-5">
+                <p className="font-mono text-xs text-cyan-300">
+                  {String(index + 1).padStart(2, "0")}
+                </p>
+                <h3 className="mt-3 font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
               </article>
             ))}
           </div>
