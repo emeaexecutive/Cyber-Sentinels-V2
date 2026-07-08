@@ -4,13 +4,13 @@ import { redirect } from "next/navigation";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
+import { mlValidationEngine } from "@/lib/core/ml-validation-engine";
 import { buildProviderReadinessChecklist, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
 import {
   createReadinessGateSnapshot,
   type ReadinessGateState,
 } from "@/lib/readiness-gate/snapshot";
 import { createClient } from "@/lib/supabase/server";
-import { runValidationBenchmark } from "@/lib/validation/benchmark-harness";
 import { buildMlReadinessScoreboard } from "@/lib/validation/ml-readiness";
 
 export const dynamic = "force-dynamic";
@@ -112,11 +112,12 @@ export default async function AdminReadinessGatePage() {
 
   await requireAdminPageAccess(supabase, { path: "/admin/readiness-gate" });
 
-  const [snapshot, notes, benchmark] = await Promise.all([
+  const [snapshot, notes, validation] = await Promise.all([
     createReadinessGateSnapshot(supabase),
     readReadinessNotes(supabase),
-    runValidationBenchmark(),
+    mlValidationEngine.runMlValidationEngine(),
   ]);
+  const benchmark = validation.benchmark;
   const checks = snapshot.sections.flatMap((section) => section.checks);
   const readyCount = checks.filter((item) => item.state === "ready").length;
   const providerReadiness = summarizeProviderReadiness(buildProviderReadinessChecklist());

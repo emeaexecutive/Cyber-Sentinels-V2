@@ -9,7 +9,8 @@
     "test:detection": "node --experimental-strip-types --test tests/detection-sovereignty.test.mjs",
     "test:ml-validation": "node --experimental-strip-types --test tests/ml-validation-foundation.test.mjs",
     "start": "next start",
-    "lint": "next build"
+    "lint": "next build",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

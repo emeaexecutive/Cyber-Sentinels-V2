@@ -1,9 +1,9 @@
 import "server-only";
 
 import type { createClient } from "@/lib/supabase/server";
+import { replayEngine } from "@/lib/core/replay-engine";
 import { buildWorkflowProviderSignals } from "@/lib/providers";
 import { loadTrustPostureDashboard } from "@/lib/trust-posture/dashboard";
-import { buildTrustTransparencyReport } from "@/lib/trust-transparency";
 
 type Row = Record<string, any>;
 type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
@@ -122,7 +122,7 @@ export type AccessGovernanceOverview = Awaited<
 export function buildWorkflowAccessDecision(trust: Awaited<ReturnType<
   typeof import("@/lib/operational-trust/api").loadWorkflowTrust
 >>) {
-  const report = buildTrustTransparencyReport(trust);
+  const { report } = replayEngine.buildReplayTransparencyReport(trust);
   const openGovernance = trust.governanceLineage.filter((action: Row) =>
     ["pending", "in_review", "escalated"].includes(String(action.action_status))
   );

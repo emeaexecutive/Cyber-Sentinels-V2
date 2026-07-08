@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
+import { governanceEngine } from "@/lib/core/governance-engine";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import {
-  defaultTrustPolicies,
-  evaluateTrustPolicy,
   POLICY_ENGINE_BOUNDARY,
   type PolicyEvaluationInput,
 } from "@/lib/policy-engine";
@@ -49,7 +48,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     ok: true,
-    policies: defaultTrustPolicies,
+    policies: governanceEngine.listGovernancePolicies(),
     boundary: POLICY_ENGINE_BOUNDARY,
     persistence: "templates_and_preview_only",
     humanReviewRemainsAuthoritative: true,
@@ -62,14 +61,14 @@ export async function POST(req: Request) {
   if (!access.ok) return access.response;
   const body = objectValue(await req.json().catch(() => ({})));
   const policyId = String(body.policyId ?? "");
-  const policy = defaultTrustPolicies.find((item) => item.id === policyId);
+  const policy = governanceEngine.listGovernancePolicies().find((item) => item.id === policyId);
   if (!policy) {
     return NextResponse.json(
       { ok: false, error: "known_policy_id_required" },
       { status: 400 }
     );
   }
-  const result = evaluateTrustPolicy(policy, evaluationInput(body.input));
+  const result = governanceEngine.evaluateGovernancePolicy(policy, evaluationInput(body.input));
   await createAuditLog(
     supabase,
     result.auditContext.eventType,

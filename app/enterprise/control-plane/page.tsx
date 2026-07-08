@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EnterpriseTrustControlPlane } from "@/components/enterprise-trust-control-plane";
 import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
-import { defaultTrustPolicies, POLICY_ENGINE_BOUNDARY } from "@/lib/policy-engine";
+import { governanceEngine } from "@/lib/core/governance-engine";
+import { POLICY_ENGINE_BOUNDARY } from "@/lib/policy-engine";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -78,7 +79,7 @@ export default async function EnterpriseControlPlanePage() {
         </section>
 
         <section className="mt-8">
-          <EnterpriseTrustControlPlane initialPolicies={defaultTrustPolicies} />
+          <EnterpriseTrustControlPlane initialPolicies={governanceEngine.listGovernancePolicies()} />
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

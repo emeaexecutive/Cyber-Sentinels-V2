@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
+import { governanceEngine } from "@/lib/core/governance-engine";
 import {
-  defaultTrustPolicies,
   validateTrustPolicy,
   type TrustPolicy,
 } from "@/lib/policy-engine";
@@ -29,7 +29,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     ok: true,
-    thresholds: defaultTrustPolicies.map((policy) => ({
+    thresholds: governanceEngine.listGovernancePolicies().map((policy) => ({
       policyId: policy.id,
       escalationThreshold: policy.escalationThreshold,
       highAssuranceThreshold: policy.highAssuranceThreshold,
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   const access = await requireAdminApiAccess(req, supabase);
   if (!access.ok) return access.response;
   const body = objectValue(await req.json().catch(() => ({})));
-  const policy = defaultTrustPolicies.find(
+  const policy = governanceEngine.listGovernancePolicies().find(
     (item) => item.id === String(body.policyId ?? "")
   );
   if (!policy) {

@@ -1,5 +1,5 @@
 import { authenticatedTrustClient, apiError, apiSuccess, loadWorkflowTrust, validReference } from "@/lib/operational-trust/api";
-import { buildTrustTransparencyReport } from "@/lib/trust-transparency";
+import { replayEngine } from "@/lib/core/replay-engine";
 
 export const dynamic = "force-dynamic";
 
@@ -22,27 +22,27 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
 
   try {
     const trust = await loadWorkflowTrust(auth.supabase, String(replay.subject_id), replay.subject_type ?? undefined);
-    const transparency = buildTrustTransparencyReport(trust);
+    const memory = replayEngine.buildReplayEvidenceMemory(trust);
     return apiSuccess({
       replay,
       canonicalEvidence: {
-        chronology: trust.chronology,
-        evidenceContinuity: trust.evidenceContinuity,
-        governanceLineage: trust.governanceLineage,
-        trustPosture: trust.posture,
-        providerEvidence: trust.providerEvidence,
-        receipts: trust.receipts,
+        chronology: memory.chronology,
+        evidenceContinuity: memory.evidenceContinuity,
+        governanceLineage: memory.governanceLineage,
+        trustPosture: memory.trustPosture,
+        providerEvidence: memory.providerEvidence,
+        receipts: memory.receipts,
       },
       explainability: {
-        whatChanged: transparency.decisionExplanation.whatChanged,
-        whyTrustShifted: transparency.decisionExplanation.whyTrustShifted,
-        evidenceReferences: transparency.decisionExplanation.evidenceContributed,
-        reviewerActions: transparency.decisionExplanation.governanceActions,
-        escalationPath: transparency.auditability.escalationPath,
-        policyAndAuthorizationLineage: transparency.auditability.authorizationLineage,
-        providerSignals: transparency.decisionExplanation.providerSignals,
+        whatChanged: memory.explainability.whatChanged,
+        whyTrustShifted: memory.explainability.whyTrustShifted,
+        evidenceReferences: memory.explainability.evidenceContributed,
+        reviewerActions: memory.explainability.governanceActions,
+        escalationPath: memory.auditability.escalationPath,
+        policyAndAuthorizationLineage: memory.auditability.authorizationLineage,
+        providerSignals: memory.explainability.providerSignals,
       },
-      auditBoundary: transparency.boundary,
+      auditBoundary: memory.auditBoundary,
     });
   } catch {
     return apiError("Replay chronology could not be loaded.", 500);

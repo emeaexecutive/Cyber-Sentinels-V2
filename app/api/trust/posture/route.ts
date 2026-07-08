@@ -1,5 +1,5 @@
 import { authenticatedTrustClient, apiError, apiSuccess, loadWorkflowTrust, validReference } from "@/lib/operational-trust/api";
-import { buildTrustTransparencyReport } from "@/lib/trust-transparency";
+import { replayEngine } from "@/lib/core/replay-engine";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
   try {
     const trust = await loadWorkflowTrust(auth.supabase, workflowId, subjectType);
-    const transparency = buildTrustTransparencyReport(trust);
+    const memory = replayEngine.buildReplayEvidenceMemory(trust);
     return apiSuccess({
       supportedSubjectTypes: ["human", "agent", "system"],
       workflow: trust.workflow,
@@ -22,13 +22,13 @@ export async function GET(request: Request) {
       providerEvidence: trust.providerEvidence,
       replayReference: trust.replay.reference,
       transparency: {
-        whatChanged: transparency.decisionExplanation.whatChanged,
-        whyTrustShifted: transparency.decisionExplanation.whyTrustShifted,
-        evidenceReferences: transparency.decisionExplanation.evidenceContributed,
-        governanceActions: transparency.decisionExplanation.governanceActions,
-        authorizationLineage: transparency.auditability.authorizationLineage,
+        whatChanged: memory.explainability.whatChanged,
+        whyTrustShifted: memory.explainability.whyTrustShifted,
+        evidenceReferences: memory.explainability.evidenceContributed,
+        governanceActions: memory.explainability.governanceActions,
+        authorizationLineage: memory.auditability.authorizationLineage,
       },
-      boundary: transparency.boundary,
+      boundary: memory.auditBoundary,
       postureSemantics: {
         contextShiftAlerts: true,
         lifecyclePhase: trust.posture?.lifecyclePhase ?? "not_recorded",

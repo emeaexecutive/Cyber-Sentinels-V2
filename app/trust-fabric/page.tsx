@@ -30,8 +30,8 @@ export default function TrustFabricPage() {
             Continuous trust across every operational handoff.
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-200">
-            Cyber Sentinels continuously governs operational trust across humans,
-            AI agents and enterprise workflows.
+            Cyber Sentinels is trust infrastructure for humans, AI agents,
+            machine identities and regulated workflows.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             The Trust Fabric keeps identity, runtime context, authorization,

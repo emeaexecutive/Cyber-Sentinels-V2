@@ -4,7 +4,7 @@ Last reviewed: 2026-07-06
 
 ## Category line
 
-**Trust infrastructure for humans, AI agents and regulated workflows.**
+**Trust infrastructure for humans, AI agents, machine identities and regulated workflows.**
 
 Cyber Sentinels is a decision-layer trust control plane. It keeps identity, Session Integrity, Authorization Lineage, Evidence Chain, Governance Review, Replay Timeline and Persistent Trust Posture connected as consequential work changes. It does not replace systems of record, accountable decision-makers or specialist detection providers.
 

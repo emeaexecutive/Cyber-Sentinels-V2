@@ -64,6 +64,24 @@ export type TrustPosture = {
   lifecycleExplanation: string;
 };
 
+export type ContinuousTrustEvolution =
+  | "trust_increase"
+  | "trust_decay"
+  | "step_up_trigger"
+  | "recovery"
+  | "governance_restore"
+  | "replay_linked";
+
+export type ContinuousTrustEvolutionInput = {
+  previousScore?: number | null;
+  currentScore: number;
+  posture: TrustPosture;
+  replayLinked?: boolean;
+  stepUpTriggered?: boolean;
+  recoveredByGovernance?: boolean;
+  evidenceAgeDays?: number | null;
+};
+
 const dayMs = 24 * 60 * 60 * 1000;
 const checkpointDays = 45;
 const reverificationDays = 90;
@@ -189,6 +207,35 @@ export function trustPostureClass(state: TrustFreshnessState) {
   if (state === "checkpoint") return "border-cyan-800 text-cyan-100";
   if (state === "governance_review") return "border-amber-800 text-amber-200";
   return "border-red-800 text-red-200";
+}
+
+export function evolveContinuousTrustPosture(
+  input: ContinuousTrustEvolutionInput
+) {
+  const previousScore = input.previousScore ?? null;
+  const delta = previousScore === null ? 0 : input.currentScore - previousScore;
+  const events: ContinuousTrustEvolution[] = [];
+
+  if (delta >= 5) events.push("trust_increase");
+  if (delta <= -5 || input.posture.lifecyclePhase === "decaying") events.push("trust_decay");
+  if (input.stepUpTriggered || input.posture.reverificationRecommended) events.push("step_up_trigger");
+  if (input.posture.lifecyclePhase === "recovered") events.push("recovery");
+  if (input.recoveredByGovernance) events.push("governance_restore");
+  if (input.replayLinked) events.push("replay_linked");
+
+  return {
+    previousScore,
+    currentScore: input.currentScore,
+    delta,
+    events: [...new Set(events)],
+    postureState: input.posture.state,
+    lifecyclePhase: input.posture.lifecyclePhase,
+    nextReview: input.posture.nextReview,
+    explanation:
+      events.length > 0
+        ? "Trust posture evolved from score, freshness, governance and replay linkage."
+        : "Trust posture remains stable in the current evidence window.",
+  };
 }
 
 function riskRank(value: unknown) {

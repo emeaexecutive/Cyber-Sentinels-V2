@@ -42,9 +42,9 @@ export default function PlatformPage() {
             The trust operating system for governed enterprise workflows.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels connects humans, AI agents and enterprise workflows
-            through replayable enterprise memory, persistent posture, governed
-            execution and enterprise AI sovereignty.
+            Cyber Sentinels connects humans, AI agents, machine identities and
+            regulated workflows through replayable enterprise memory, persistent
+            posture, governed execution and enterprise AI sovereignty.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-300">
             Persistent Trust Posture explains what is true now. Replay preserves

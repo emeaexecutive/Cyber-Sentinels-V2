@@ -80,7 +80,8 @@ export default function DesignPartnersPage() {
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-zinc-300">
             Cyber Sentinels works with enterprise design partners on operational
-            trust infrastructure for humans, AI agents and enterprise workflows.
+            trust infrastructure for humans, AI agents, machine identities and
+            regulated workflows.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-500">
             Each engagement centers on one workflow, its evidence requirements

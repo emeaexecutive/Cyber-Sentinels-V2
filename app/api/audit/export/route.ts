@@ -4,10 +4,8 @@ import {
   loadWorkflowTrust,
   validReference,
 } from "@/lib/operational-trust/api";
-import {
-  buildTrustTransparencyReport,
-  trustTransparencyText,
-} from "@/lib/trust-transparency";
+import { replayEngine } from "@/lib/core/replay-engine";
+import { trustTransparencyText } from "@/lib/trust-transparency";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +26,7 @@ export async function GET(request: Request) {
       workflowId,
       subjectType
     );
-    const report = buildTrustTransparencyReport(trust);
+    const { report } = replayEngine.buildReplayTransparencyReport(trust);
     const filename = `cyber-sentinels-audit-${workflowId}.${format === "text" ? "txt" : "json"}`;
     const body =
       format === "text"

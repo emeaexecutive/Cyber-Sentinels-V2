@@ -5,7 +5,7 @@ import {
   loadWorkflowTrust,
   validReference,
 } from "@/lib/operational-trust/api";
-import { buildTrustTransparencyReport } from "@/lib/trust-transparency";
+import { replayEngine } from "@/lib/core/replay-engine";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       workflowId,
       subjectType
     );
-    const report = buildTrustTransparencyReport(trust);
+    const { report } = replayEngine.buildReplayTransparencyReport(trust);
     return apiSuccess({
       workflow: report.workflow,
       auditability: report.auditability,

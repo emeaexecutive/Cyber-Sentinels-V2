@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
+import { governanceEngine } from "@/lib/core/governance-engine";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
-import {
-  defaultTrustPolicies,
-  evaluateTrustPolicy,
-  type PolicyEvaluationInput,
-} from "@/lib/policy-engine";
+import { type PolicyEvaluationInput } from "@/lib/policy-engine";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +26,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     ok: true,
-    routes: defaultTrustPolicies.map((policy) => ({
+    routes: governanceEngine.listGovernancePolicies().map((policy) => ({
       policyId: policy.id,
       policyName: policy.name,
       workflowType: policy.workflowType,
@@ -48,7 +45,7 @@ export async function POST(req: Request) {
   const access = await requireAdminApiAccess(req, supabase);
   if (!access.ok) return access.response;
   const body = bodyObject(await req.json().catch(() => ({})));
-  const policy = defaultTrustPolicies.find(
+  const policy = governanceEngine.listGovernancePolicies().find(
     (item) => item.id === String(body.policyId ?? "")
   );
   if (!policy) {
@@ -70,7 +67,7 @@ export async function POST(req: Request) {
       ? source.evidenceReferences.map(String).slice(0, 20)
       : [],
   };
-  const result = evaluateTrustPolicy(policy, input);
+  const result = governanceEngine.evaluateGovernancePolicy(policy, input);
   await createAuditLog(
     supabase,
     "governance_routing_evaluated",

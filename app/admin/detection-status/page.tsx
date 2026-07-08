@@ -2,12 +2,12 @@ import { redirect } from "next/navigation";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
+import { mlValidationEngine } from "@/lib/core/ml-validation-engine";
 import { getDetectionEngineStatus } from "@/lib/detection/detection-engine";
 import { createClient } from "@/lib/supabase/server";
 import { detectionProviders } from "@/lib/detection/providers";
 import { providerStatusLabel } from "@/lib/detection/providers";
 import { buildProviderReadinessChecklist, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
-import { runValidationBenchmark } from "@/lib/validation/benchmark-harness";
 import { buildMlReadinessScoreboard, evaluateMlReadiness, mlReadinessLevels } from "@/lib/validation/ml-readiness";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +21,8 @@ export default async function DetectionStatusAdminPage() {
   }
   await requireAdminPageAccess(supabase, { path: "/admin/detection-status" });
   const status = getDetectionEngineStatus();
-  const benchmark = await runValidationBenchmark();
+  const validation = await mlValidationEngine.runMlValidationEngine();
+  const benchmark = validation.benchmark;
   const providerReadinessChecks = buildProviderReadinessChecklist();
   const providerReadiness = summarizeProviderReadiness(providerReadinessChecks);
   const providerStates = detectionProviders.map((provider) => ({

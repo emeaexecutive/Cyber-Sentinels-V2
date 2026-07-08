@@ -32,12 +32,13 @@ export default function InvestorPage() {
             Investor overview
           </p>
           <h1 className="mt-5 max-w-5xl text-4xl font-semibold leading-tight md:text-6xl">
-            Operational trust infrastructure for humans, AI agents and enterprise workflows.
+            Trust infrastructure for humans, AI agents, machine identities and regulated workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
             Cyber Sentinels is the operational trust infrastructure layer for
-            humans, AI agents and enterprise workflows—connecting persistent
-            posture, governed execution and replayable operational memory.
+            humans, AI agents, machine identities and regulated workflows,
+            connecting persistent posture, governed execution and replayable
+            operational memory.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             The initial wedge is Hiring Security and Session Integrity. The

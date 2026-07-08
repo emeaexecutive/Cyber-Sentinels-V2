@@ -20,6 +20,7 @@ import {
   isRowLinkedToPassport,
 } from "@/lib/trust-score-engine";
 import { getDetectionEngineStatus } from "@/lib/detection/detection-engine";
+import { mlValidationEngine } from "@/lib/core/ml-validation-engine";
 import { getRecentTrustEvents } from "@/lib/events/event-bus";
 import { getGovernanceQueueSnapshot } from "@/lib/governance/governance-queue";
 import { orchestrateProviders } from "@/lib/providers/provider-orchestrator";
@@ -30,7 +31,6 @@ import {
   type PredictionInputDecision,
 } from "@/lib/trust-engine/predictions";
 import { evaluateTrustFabric } from "@/lib/trust-engine/trustFabric";
-import { runValidationBenchmark } from "@/lib/validation/benchmark-harness";
 import { evaluateMlReadiness } from "@/lib/validation/ml-readiness";
 
 export const dynamic = "force-dynamic";
@@ -789,10 +789,11 @@ export default async function BackOfficePage({
     fetchTable<AnyRow>(supabase, "trust_graph_nodes", "created_at", 20),
     fetchTable<AnyRow>(supabase, "trust_graph_edges", "created_at", 20),
   ]);
-  const [providerSnapshot, validationBenchmark] = await Promise.all([
+  const [providerSnapshot, validation] = await Promise.all([
     orchestrateProviders({ timeoutMs: 200, includeDisabled: true }),
-    runValidationBenchmark(),
+    mlValidationEngine.runMlValidationEngine(),
   ]);
+  const validationBenchmark = validation.benchmark;
   const detectionStatus = getDetectionEngineStatus();
   const mlReadiness = evaluateMlReadiness({
     realMlActive: detectionStatus.real_ml_enabled,

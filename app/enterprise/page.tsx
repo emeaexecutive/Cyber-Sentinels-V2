@@ -23,7 +23,7 @@ const enterpriseTrustQuestions = [
   {
     title: "Who is accountable when AI agents act autonomously?",
     body: "AI agents increasingly access systems, trigger workflows, approve actions, move data and interact with customers, employees and suppliers. Cyber Sentinels preserves which human or AI agent acted, whether it was authorised, what workflow it touched, what changed, whether runtime behaviour crossed a review boundary, who reviewed the action and whether the event can be investigated later.",
-    support: "The accountability layer between humans, AI agents and enterprise workflows.",
+    support: "The accountability layer between humans, AI agents, machine identities and regulated workflows.",
   },
   {
     title: "Why can’t the big platforms just build this?",
@@ -43,9 +43,8 @@ export default function EnterprisePage() {
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             Maintain governed trust continuity across people, AI agents,
-            non-human identities, live sessions, documents, media and regulated
-            enterprise workflows—with persistent posture and replayable
-            enterprise memory.
+            machine identities, live sessions, documents, media and regulated
+            workflows with persistent posture and replayable enterprise memory.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
             Security, risk, compliance and operations teams get one reviewable

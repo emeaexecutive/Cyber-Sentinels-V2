@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { runTrustExecutionPipeline } from "@/lib/runtime/trust-execution-pipeline";
+import { runtimeEngine } from "@/lib/core/runtime-engine";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     ? (String(body.actor_type) as "human" | "agent" | "NHI" | "workflow")
     : "workflow";
   const evidenceRefs = Array.isArray(body.evidence_refs) ? body.evidence_refs.map(String).slice(0, 20) : [];
-  const pipeline = await runTrustExecutionPipeline(supabase, {
+  const pipeline = await runtimeEngine.executeRuntimeWorkflow(supabase, {
     actorId,
     actorType,
     workflowId,

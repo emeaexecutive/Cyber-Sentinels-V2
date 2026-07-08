@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
+import { trustEngine } from "@/lib/core/trust-engine";
 import { createClient } from "@/lib/supabase/server";
 import {
-  calculateTrustAlgorithmV1,
   type TrustAlgorithmRow,
   type TrustAlgorithmSubjectType,
 } from "@/lib/trust-algorithm";
@@ -304,7 +304,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const result = calculateTrustAlgorithmV1(context.input);
+  const result = trustEngine.calculateLegacyTrustPosture(context.input);
   const metadata = {
     subject_type: subjectType,
     subject_id: subjectId,

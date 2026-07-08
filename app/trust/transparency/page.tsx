@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { TrustTransparencyReportView } from "@/components/trust-transparency-report";
+import { replayEngine } from "@/lib/core/replay-engine";
 import {
   loadWorkflowTrust,
   validReference,
 } from "@/lib/operational-trust/api";
 import { createClient } from "@/lib/supabase/server";
 import {
-  buildTrustTransparencyReport,
   TRUST_SCORING_TRANSPARENCY,
 } from "@/lib/trust-transparency";
 
@@ -36,7 +36,7 @@ export default async function TrustTransparencyPage({
     workflowId && validReference(workflowId)
       ? await loadWorkflowTrust(supabase, workflowId, subjectType).catch(() => null)
       : null;
-  const report = trust ? buildTrustTransparencyReport(trust) : null;
+  const report = trust ? replayEngine.buildReplayTransparencyReport(trust).report : null;
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
