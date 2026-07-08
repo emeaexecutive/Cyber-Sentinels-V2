@@ -352,3 +352,36 @@ export function explainTrustGraph(graph: TrustGraph, id: string) {
     ],
   };
 }
+
+export function traceTrustRelationship(graph: TrustGraph, fromId: string, toId: string, maxDepth = 8) {
+  const queue: Array<{ nodeId: string; path: TrustGraphEdge[] }> = [{ nodeId: fromId, path: [] }];
+  const visited = new Set<string>();
+
+  while (queue.length) {
+    const current = queue.shift()!;
+    if (current.nodeId === toId) {
+      return {
+        found: true,
+        depth: current.path.length,
+        path: current.path,
+        explanation: current.path.map((edge) => `${edge.source} ${edge.relationship} ${edge.target}`),
+        boundary: "Relationship tracing explains connected records; it does not assert trust without evidence.",
+      };
+    }
+    if (visited.has(current.nodeId) || current.path.length >= maxDepth) continue;
+    visited.add(current.nodeId);
+
+    for (const edge of graph.edges.filter((item) => item.source === current.nodeId || item.target === current.nodeId)) {
+      const next = edge.source === current.nodeId ? edge.target : edge.source;
+      if (!visited.has(next)) queue.push({ nodeId: next, path: [...current.path, edge] });
+    }
+  }
+
+  return {
+    found: false,
+    depth: null,
+    path: [] as TrustGraphEdge[],
+    explanation: [] as string[],
+    boundary: "No relationship path was found inside the configured trace depth.",
+  };
+}

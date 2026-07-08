@@ -30,6 +30,16 @@ export type ReviewedOutcomeRecord = {
     evidenceReferences: string[];
   };
   replayLink: string | null;
+  reviewLifecycle: "unreviewed" | "needs_review" | "reviewed" | "overridden" | "calibration_candidate";
+  reviewConfidence: number;
+  governanceOutcome: string | null;
+  calibrationContribution: {
+    eligible: boolean;
+    reason: string;
+    contributesToFalsePositiveRate: boolean;
+    contributesToFalseNegativeRate: boolean;
+    contributesToReviewerAgreement: boolean;
+  };
   calibrationImpact: {
     shouldUpdateThreshold: boolean;
     shouldAddProviderComparison: boolean;
@@ -71,7 +81,26 @@ export function buildReviewedOutcomeRecords(
           ? "sufficient"
           : evidenceReferences.length
             ? "partial"
-            : "missing";
+          : "missing";
+    const reviewLifecycle: ReviewedOutcomeRecord["reviewLifecycle"] = testCase.governanceOverride
+      ? "overridden"
+      : reviewerDecision
+        ? ["false_positive", "false_negative"].includes(outcomeType)
+          ? "calibration_candidate"
+          : "reviewed"
+        : outcomeType === "review_only"
+          ? "needs_review"
+          : "unreviewed";
+    const reviewConfidence = Number(
+      Math.min(
+        0.95,
+        (typeof testCase.datasetMetadata?.confidence === "number" ? testCase.datasetMetadata.confidence : 0.35) +
+          (reviewerDecision ? 0.2 : 0) +
+          (testCase.governanceOverride ? 0.15 : 0) +
+          (evidenceQuality === "reviewed" ? 0.15 : evidenceQuality === "sufficient" ? 0.1 : 0)
+      ).toFixed(2)
+    );
+    const calibrationEligible = Boolean(reviewerDecision && evidenceQuality !== "missing");
     return {
       caseId: testCase.id,
       expected: testCase.expectedOutcome,
@@ -88,12 +117,24 @@ export function buildReviewedOutcomeRecords(
       evidenceQuality,
       outcomeType,
       escalationOutcome: testCase.datasetMetadata?.governanceOutcome ?? null,
+      governanceOutcome: testCase.datasetMetadata?.governanceOutcome ?? null,
       governanceOverride: testCase.governanceOverride ?? null,
       replayLinkage: {
         sampleReference: testCase.sampleReference ?? null,
         evidenceReferences,
       },
       replayLink: testCase.sampleReference ? `/trust-replay?sample=${encodeURIComponent(testCase.sampleReference)}` : null,
+      reviewLifecycle,
+      reviewConfidence,
+      calibrationContribution: {
+        eligible: calibrationEligible,
+        reason: calibrationEligible
+          ? "Reviewed outcome has enough evidence to contribute to dataset-scoped calibration."
+          : "Reviewed decision or evidence references are missing.",
+        contributesToFalsePositiveRate: outcomeType === "false_positive" && calibrationEligible,
+        contributesToFalseNegativeRate: outcomeType === "false_negative" && calibrationEligible,
+        contributesToReviewerAgreement: Boolean(reviewerDecision),
+      },
       calibrationImpact: {
         shouldUpdateThreshold: ["false_positive", "false_negative"].includes(outcomeType),
         shouldAddProviderComparison: !caseResults.some((result) => result.source === "provider_api"),
@@ -116,6 +157,13 @@ export function summarizeReviewedOutcomes(records: ReviewedOutcomeRecord[]) {
   return {
     total: records.length,
     reviewed: reviewed.length,
+    reviewLifecycle: {
+      unreviewed: records.filter((record) => record.reviewLifecycle === "unreviewed").length,
+      needsReview: records.filter((record) => record.reviewLifecycle === "needs_review").length,
+      reviewed: records.filter((record) => record.reviewLifecycle === "reviewed").length,
+      overridden: records.filter((record) => record.reviewLifecycle === "overridden").length,
+      calibrationCandidate: records.filter((record) => record.reviewLifecycle === "calibration_candidate").length,
+    },
     falsePositives: count("false_positive"),
     falseNegatives: count("false_negative"),
     reviewOnly: count("review_only"),
@@ -123,6 +171,10 @@ export function summarizeReviewedOutcomes(records: ReviewedOutcomeRecord[]) {
     confirmedEscalations: records.filter((record) => record.confirmedEscalation).length,
     governanceOverrides: records.filter((record) => Boolean(record.governanceOverride)).length,
     calibrationImpacting: records.filter((record) => record.calibrationImpact.shouldUpdateThreshold).length,
+    calibrationContributing: records.filter((record) => record.calibrationContribution.eligible).length,
+    averageReviewConfidence: reviewed.length
+      ? Number((reviewed.reduce((total, record) => total + record.reviewConfidence, 0) / reviewed.length).toFixed(2))
+      : null,
     replayLinked: records.filter(
       (record) => record.replayLinkage.sampleReference || record.replayLinkage.evidenceReferences.length
     ).length,

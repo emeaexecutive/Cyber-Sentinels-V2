@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { fuseTrustSignals } from "@/lib/detection/signal-fusion";
 import { publishTrustEvent } from "@/lib/events/event-bus";
 import { enqueueGovernanceJob } from "@/lib/governance/governance-queue";
+import { recordRuntimeProfile } from "@/lib/performance/runtime-profiler";
 import { setTrustCache } from "@/lib/cache/trust-cache";
 import { runParallelSignalChecks } from "@/lib/runtime/parallel-signal-runner";
 import { updateRuntimeTrustPosture } from "@/lib/runtime/trust-posture-engine";
@@ -29,6 +30,18 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
     runtimeBehavior: input.runtimeBehavior,
     heuristicBaseline: input.heuristicBaseline,
   });
+  recordRuntimeProfile({
+    stage: "provider_latency",
+    latencyMs: signalRunner.providerResults.length
+      ? Math.max(...signalRunner.providerResults.map((provider) => provider.latencyMs ?? provider.latency_ms))
+      : Date.now() - started,
+    ok: signalRunner.timeoutOrFailedProviders.length === 0,
+    degraded: signalRunner.providerResults.some((provider) => provider.state !== "Live"),
+    metadata: {
+      provider_count: signalRunner.providerResults.length,
+      timeout_or_failed: signalRunner.timeoutOrFailedProviders.length,
+    },
+  });
   const fusion = fuseTrustSignals({
     signals: signalRunner.signals,
     intentRisk: signalRunner.intentRisk,
@@ -42,6 +55,16 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
     providerSignals: input.providerSignals ?? signalRunner.partialConfidence,
     heuristicBaseline: input.heuristicBaseline ?? fusion.confidence,
     sourceLabels: [...new Set(["Runtime Intelligence", ...fusion.sources])] as TrustAlgorithmInput["sourceLabels"],
+  });
+  recordRuntimeProfile({
+    stage: "trust_latency",
+    latencyMs: Date.now() - started,
+    ok: true,
+    degraded: algorithm.decision !== "allow",
+    metadata: {
+      decision: algorithm.decision,
+      confidence_band: algorithm.confidence_band,
+    },
   });
   const posture = updateRuntimeTrustPosture({
     subjectId: input.workflowId,
@@ -64,6 +87,16 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
     latency_summary: providerLatencySummary,
     written_at: new Date().toISOString(),
   }, { ttlMs: 45_000 });
+  recordRuntimeProfile({
+    stage: "cache_efficiency",
+    latencyMs: 1,
+    ok: true,
+    degraded: false,
+    metadata: {
+      cache_key: "provider_state",
+      ttl_ms: 45_000,
+    },
+  });
   const execution = await executeTrustWorkflow(supabase, {
     actorId: input.actorId,
     actorType: input.actorType,
@@ -74,6 +107,26 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
     reviewerActor: input.reviewerActor,
     asyncSideEffects: true,
   });
+  recordRuntimeProfile({
+    stage: "workflow_latency",
+    latencyMs: Date.now() - started,
+    ok: true,
+    degraded: algorithm.decision === "review" || algorithm.decision === "step_up" || algorithm.decision === "escalate" || algorithm.decision === "block",
+    metadata: {
+      workflow_id: input.workflowId,
+      async_side_effects: true,
+    },
+  });
+  recordRuntimeProfile({
+    stage: "replay_latency",
+    latencyMs: Date.now() - started,
+    ok: true,
+    degraded: false,
+    metadata: {
+      async_replay_persistence: true,
+      evidence_refs: algorithm.evidence_refs.length,
+    },
+  });
   if (algorithm.decision === "review" || algorithm.decision === "step_up" || algorithm.decision === "escalate" || algorithm.decision === "block") {
     enqueueGovernanceJob({
       queue: algorithm.decision === "escalate" || algorithm.decision === "block" ? "escalation" : "review",
@@ -81,6 +134,16 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
       decision: algorithm.decision,
       reason: algorithm.next_action,
       evidence_refs: algorithm.evidence_refs,
+    });
+    recordRuntimeProfile({
+      stage: "queue_latency",
+      latencyMs: 1,
+      ok: true,
+      degraded: algorithm.decision === "escalate" || algorithm.decision === "block",
+      metadata: {
+        queue: algorithm.decision === "escalate" || algorithm.decision === "block" ? "escalation" : "review",
+        decision: algorithm.decision,
+      },
     });
   }
   publishTrustEvent(
@@ -118,5 +181,9 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
     algorithm,
     posture,
     execution,
+    performance_profile: {
+      profiling: "in_process",
+      boundary: "Runtime profile samples are readiness telemetry and not production APM.",
+    },
   };
 }

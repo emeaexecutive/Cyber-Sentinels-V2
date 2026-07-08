@@ -18,7 +18,14 @@ export type ProviderReadinessCheck = {
   productionModeAvailable: boolean;
   normalizedResultImplemented: boolean;
   timeoutHandlingImplemented: boolean;
+  retryLogicImplemented: boolean;
   auditLoggingImplemented: boolean;
+  health: "healthy" | "degraded" | "blocked";
+  latency: {
+    measured: boolean;
+    p95Ms: number | null;
+    timeoutMs: number;
+  };
   evidence: string;
   blocker: string;
   nextAction: string;
@@ -64,7 +71,14 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
         productionModeAvailable,
         normalizedResultImplemented: true,
         timeoutHandlingImplemented: true,
+        retryLogicImplemented: false,
         auditLoggingImplemented: true,
+        health: productionModeAvailable ? "degraded" : credentialPresent ? "degraded" : "blocked",
+        latency: {
+          measured: false,
+          p95Ms: null,
+          timeoutMs: 250,
+        },
         evidence: `${provider.providerName} exposes credential checks, health check, normalized results and supported signals: ${provider.supportedSignals.join(", ")}.`,
         blocker: productionModeAvailable
           ? "Live provider output still needs benchmark and reviewer validation before accuracy claims."
@@ -92,7 +106,14 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
       productionModeAvailable,
       normalizedResultImplemented: provider.replayIntegration === "normalized_evidence" || provider.receiptIntegration === "normalized_evidence",
       timeoutHandlingImplemented: provider.implementationState === "active",
+      retryLogicImplemented: false,
       auditLoggingImplemented: provider.replayIntegration === "normalized_evidence",
+      health: productionModeAvailable ? "degraded" : configured ? "degraded" : "blocked",
+      latency: {
+        measured: false,
+        p95Ms: null,
+        timeoutMs: 250,
+      },
       evidence: `${provider.name} registry state is ${runtimeState}; auth protection is ${provider.authProtection}; replay integration is ${provider.replayIntegration}.`,
       blocker: productionModeAvailable
         ? "Provider remains workflow-gated and must be reviewed against pilot evidence."
@@ -120,6 +141,8 @@ export function summarizeProviderReadiness(checks = buildProviderReadinessCheckl
       item.timeoutHandlingImplemented &&
       item.auditLoggingImplemented
   ).length;
+  const retryReady = checks.filter((item) => item.retryLogicImplemented).length;
+  const latencyMeasured = checks.filter((item) => item.latency.measured).length;
   return {
     total: checks.length,
     live,
@@ -127,6 +150,8 @@ export function summarizeProviderReadiness(checks = buildProviderReadinessCheckl
     simulated: checks.filter((item) => item.runtimeState === "Simulated").length,
     disabled: checks.filter((item) => item.runtimeState === "Disabled").length,
     normalized,
+    retryReady,
+    latencyMeasured,
     productionReady,
     currentPercent: checks.length ? Math.round(((normalized + productionReady) / (checks.length * 2)) * 85) : 0,
     evidence: `${checks.length} provider readiness check(s), ${normalized} with normalized evidence/result handling, ${productionReady} production-ready reviewed path(s).`,

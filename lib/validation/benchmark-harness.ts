@@ -8,6 +8,7 @@ import { buildReviewedOutcomeRecords, summarizeReviewedOutcomes } from "../gover
 import { evaluateRuntimeTrust, type RuntimeSignalKey } from "../runtime/runtime-trust-engine.ts";
 import { evaluateIntentRisk } from "../trust/intent-risk.ts";
 import { evaluateCalibrationReadiness } from "./calibration-engine.ts";
+import { buildDatasetCoverageReport } from "./dataset-manager.ts";
 import { calculateDatasetReadiness, inspectDatasetRegistry } from "./dataset-registry.ts";
 import type {
   ConfusionMatrix,
@@ -291,6 +292,27 @@ function benchmarkMaturity(input: {
   };
 }
 
+function rocPlaceholders() {
+  return {
+    available: false,
+    auc: null as number | null,
+    curve: [] as Array<{ threshold: number; truePositiveRate: number; falsePositiveRate: number }>,
+    blocker: "ROC/AUC requires threshold sweeps across a reviewed dataset; no synthetic curve is generated.",
+  };
+}
+
+function benchmarkHistory(input: { caseCount: number; datasetVersion: string; reviewedOutcomeCount: number }) {
+  return {
+    version: "benchmark-v1",
+    datasetVersion: input.datasetVersion,
+    caseCount: input.caseCount,
+    reviewedOutcomeCount: input.reviewedOutcomeCount,
+    generatedAt: new Date().toISOString(),
+    previousVersions: [] as string[],
+    boundary: "Benchmark history records comparable runs only; it does not imply production accuracy.",
+  };
+}
+
 export async function loadValidationCases(root = path.join(process.cwd(), "data", "validation")) {
   const cases: ValidationCase[] = [];
   async function visit(directory: string): Promise<void> {
@@ -320,6 +342,7 @@ export async function runValidationBenchmark(options: {
   const cases = options.cases ?? (await loadValidationCases());
   const registry = await inspectDatasetRegistry();
   const datasetReadiness = calculateDatasetReadiness({ cases, registry });
+  const datasetCoverageReport = buildDatasetCoverageReport(cases);
   if (!cases.length) {
     const emptyConfusionMatrix = calculateConfusionMatrix([]);
     const emptyMetrics = calculatePrecisionRecall(emptyConfusionMatrix);
@@ -338,6 +361,8 @@ export async function runValidationBenchmark(options: {
       message: "Validation incomplete — insufficient reviewed dataset.",
       calibrationStatus,
       datasetReadiness,
+      datasetCoverageReport,
+      roc: rocPlaceholders(),
       detectionSourcesUsed: [] as string[],
       results: [] as ValidationResult[],
       confusionMatrix: emptyConfusionMatrix,
@@ -364,6 +389,11 @@ export async function runValidationBenchmark(options: {
         caseCount: 0,
         providerResultCount: 0,
         reviewerReviewedCases: 0,
+      }),
+      benchmarkHistory: benchmarkHistory({
+        caseCount: 0,
+        datasetVersion: datasetCoverageReport.datasetVersion,
+        reviewedOutcomeCount: 0,
       }),
       audit: {
         schemaVersion: 1,
@@ -502,6 +532,8 @@ export async function runValidationBenchmark(options: {
     caseCount: cases.length,
     calibrationStatus,
     datasetReadiness,
+    datasetCoverageReport,
+    roc: rocPlaceholders(),
     detectionSourcesUsed: [...new Set(results.map((result) => result.source))],
     results,
     confusionMatrix,
@@ -569,6 +601,11 @@ export async function runValidationBenchmark(options: {
       caseCount: cases.length,
       providerResultCount: usableProviderResults.length,
       reviewerReviewedCases: reviewerAgreement.reviewedCases,
+    }),
+    benchmarkHistory: benchmarkHistory({
+      caseCount: cases.length,
+      datasetVersion: datasetCoverageReport.datasetVersion,
+      reviewedOutcomeCount: reviewedOutcomeSummary.reviewed,
     }),
     audit: {
       schemaVersion: 1,
