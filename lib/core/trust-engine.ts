@@ -1,4 +1,5 @@
 import { fuseTrustSignals, type FusionSignal } from "@/lib/detection/signal-fusion";
+import { normalizeEntityIdentity, type EntityIdentityInput } from "@/lib/core/entity-identity";
 import { buildTrustPosture, evolveContinuousTrustPosture, type TrustPostureInput } from "@/lib/trust-posture/posture";
 import { calculateTrustAlgorithmV1, type TrustAlgorithmInput as LegacyTrustAlgorithmInput } from "@/lib/trust-algorithm";
 import { evaluateTrustDecision } from "@/lib/trust/decision-engine";
@@ -21,9 +22,11 @@ export type CanonicalTrustInput = TrustAlgorithmInput & {
   replayLinked?: boolean;
   stepUpTriggered?: boolean;
   recoveredByGovernance?: boolean;
+  entity?: EntityIdentityInput;
 };
 
 export function calculateTrustPosture(input: CanonicalTrustInput) {
+  const entity = input.entity ? normalizeEntityIdentity(input.entity) : null;
   const fusion = input.signals
     ? fuseTrustSignals({
         signals: input.signals,
@@ -86,6 +89,7 @@ export function calculateTrustPosture(input: CanonicalTrustInput) {
     confidence_band: algorithm.confidence_band,
     posture,
     continuous_posture: continuousPosture,
+    entity_identity: entity,
     fusion,
     algorithm,
     decision_engine: decision,

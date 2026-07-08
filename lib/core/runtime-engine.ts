@@ -1,4 +1,5 @@
 import { evaluateAgentRuntimeControl, type AgentRuntimeControlInput } from "@/lib/agents/agent-runtime-control";
+import { normalizeEntityIdentity, type EntityIdentityInput } from "@/lib/core/entity-identity";
 import { evaluateRuntimeTrust, type RuntimeTrustInput } from "@/lib/runtime/runtime-trust-engine";
 import { runTrustExecutionPipeline, type TrustExecutionPipelineInput } from "@/lib/runtime/trust-execution-pipeline";
 import { evaluateIntentRisk, type IntentRiskInput } from "@/lib/trust/intent-risk";
@@ -8,9 +9,11 @@ export type RuntimeEngineInput = {
   session?: RuntimeTrustInput;
   agent?: AgentRuntimeControlInput;
   intent?: IntentRiskInput;
+  entity?: EntityIdentityInput;
 };
 
 export function evaluateRuntime(input: RuntimeEngineInput) {
+  const entity = input.entity ? normalizeEntityIdentity(input.entity) : null;
   const session = input.session ? evaluateRuntimeTrust(input.session) : null;
   const agent = input.agent ? evaluateAgentRuntimeControl(input.agent) : null;
   const intent = input.intent ? evaluateIntentRisk(input.intent) : null;
@@ -25,6 +28,7 @@ export function evaluateRuntime(input: RuntimeEngineInput) {
     session,
     agent,
     intent,
+    entity_identity: entity,
     runtimeRiskEvents: [...new Set(runtimeRiskEvents)],
     source_labels: ["Heuristic Baseline", "Runtime Intelligence"] as const,
     limitations: [
@@ -36,9 +40,14 @@ export function evaluateRuntime(input: RuntimeEngineInput) {
 
 export function executeRuntimeWorkflow(
   supabase: SupabaseClient,
-  input: TrustExecutionPipelineInput
+  input: TrustExecutionPipelineInput,
+  context?: { entity?: EntityIdentityInput }
 ) {
-  return runTrustExecutionPipeline(supabase, input);
+  const entity = context?.entity ? normalizeEntityIdentity(context.entity) : null;
+  return runTrustExecutionPipeline(supabase, input).then((result) => ({
+    ...result,
+    entity_identity: entity,
+  }));
 }
 
 export const runtimeEngine = {

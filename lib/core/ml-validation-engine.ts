@@ -1,10 +1,15 @@
+import { normalizeEntityIdentity, type EntityIdentityInput } from "@/lib/core/entity-identity";
 import { getDetectionEngineStatus } from "@/lib/detection/detection-engine";
 import { detectionProviders } from "@/lib/detection/providers";
 import { buildProviderReadinessChecklist, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
 import { runValidationBenchmark } from "@/lib/validation/benchmark-harness";
 import { buildMlReadinessScoreboard, evaluateMlReadiness } from "@/lib/validation/ml-readiness";
 
-export async function runMlValidationEngine(options: Parameters<typeof runValidationBenchmark>[0] = {}) {
+export async function runMlValidationEngine(
+  options: Parameters<typeof runValidationBenchmark>[0] = {},
+  context?: { entity?: EntityIdentityInput }
+) {
+  const entity = context?.entity ? normalizeEntityIdentity(context.entity) : null;
   const benchmark = await runValidationBenchmark(options);
   const status = getDetectionEngineStatus();
   const providerReadiness = summarizeProviderReadiness(buildProviderReadinessChecklist());
@@ -29,6 +34,7 @@ export async function runMlValidationEngine(options: Parameters<typeof runValida
     engine: "ml_validation_engine" as const,
     benchmark,
     status,
+    entity_identity: entity,
     providerReadiness,
     readiness,
     source_separation: {

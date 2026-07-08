@@ -25,6 +25,14 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     const memory = replayEngine.buildReplayEvidenceMemory(trust);
     return apiSuccess({
       replay,
+      entity: {
+        type: memory.entity_decision_surface.entity_type,
+        authority: memory.entity_decision_surface.authority,
+        evidence: memory.entity_decision_surface.evidence,
+        trustPosture: memory.entity_decision_surface.trust_posture,
+        decision: memory.entity_decision_surface.decision,
+        outcome: memory.entity_decision_surface.outcome,
+      },
       canonicalEvidence: {
         chronology: memory.chronology,
         evidenceContinuity: memory.evidenceContinuity,

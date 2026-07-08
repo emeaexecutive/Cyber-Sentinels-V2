@@ -59,12 +59,10 @@ export default function Home() {
         <div className="max-w-5xl">
           <p className="operational-eyebrow">TrustOps operating system</p>
           <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            Trust infrastructure for humans, AI agents, machine identities and regulated workflows.
+            The operational trust control plane for humans, AI agents, machine identities and regulated workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 sm:text-xl sm:leading-9">
-            Govern operational trust continuity across people, non-human
-            identities, live sessions, documents, media and consequential
-            enterprise decisions.
+            Continuously verify who or what acted, under whose authority, what changed, and why each action was allowed, reviewed or blocked.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
             Replayable enterprise memory, governed execution, Authorization

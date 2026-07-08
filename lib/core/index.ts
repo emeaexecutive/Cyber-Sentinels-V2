@@ -4,3 +4,4 @@ export * from "@/lib/core/replay-engine";
 export * from "@/lib/core/governance-engine";
 export * from "@/lib/core/ml-validation-engine";
 export * from "@/lib/core/trust-graph";
+export * from "@/lib/core/entity-identity";
