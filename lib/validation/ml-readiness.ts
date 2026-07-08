@@ -37,6 +37,7 @@ export type MlReadinessArea = {
   evidence: string;
   blocker: string;
   nextAction: string;
+  ownerRole: string;
 };
 
 export function evaluateMlReadiness(input: MlReadinessInput) {
@@ -114,6 +115,7 @@ export function buildMlReadinessScoreboard(input: {
       evidence: input.datasetEvidence,
       blocker: input.datasetBlocker,
       nextAction: "Add approved public or consented validation cases across media, session, document, NHI and regulated workflow categories.",
+      ownerRole: "ML validation lead",
     },
     {
       area: "Precision/recall calibration",
@@ -121,6 +123,7 @@ export function buildMlReadinessScoreboard(input: {
       evidence: input.calibrationMessage,
       blocker: input.calibrationComplete ? "Dataset-scoped metrics still require ongoing reviewer audit." : "Calibration not complete - insufficient validated data.",
       nextAction: "Reach the minimum validated sample threshold and compare source-specific results by category.",
+      ownerRole: "ML validation lead",
     },
     {
       area: "Provider integrations",
@@ -128,6 +131,7 @@ export function buildMlReadinessScoreboard(input: {
       evidence: `${input.providerCount} provider adapter(s) expose credential checks, status labels and normalized results.`,
       blocker: input.providerDetectionActive ? "Provider outputs still need benchmark validation." : "No reviewed live provider inference is active.",
       nextAction: "Implement and review one endpoint-specific provider call with timeout handling, audit metadata and restricted-data exclusion.",
+      ownerRole: "Provider integration owner",
     },
     {
       area: "Reviewed outcomes",
@@ -135,6 +139,7 @@ export function buildMlReadinessScoreboard(input: {
       evidence: `${input.reviewedOutcomeCount} reviewed outcome record(s) available from validation runs.`,
       blocker: input.reviewedOutcomeCount ? "Needs more adjudicated false-positive and false-negative examples." : "No reviewed validation cases are present.",
       nextAction: "Route human review decisions into reviewed outcome records with override reason and replay evidence.",
+      ownerRole: "Governance reviewer",
     },
     {
       area: "Runtime profiling",
@@ -142,6 +147,7 @@ export function buildMlReadinessScoreboard(input: {
       evidence: input.runtimeProfilingActive ? "In-process runtime profiler reports provider, replay and governance queue timing." : "Runtime profiler not active.",
       blocker: "In-process telemetry is not production APM.",
       nextAction: "Persist profile samples and compare p50/p95 latency under real pilot traffic.",
+      ownerRole: "Platform engineer",
     },
     {
       area: "Load testing",
@@ -149,6 +155,7 @@ export function buildMlReadinessScoreboard(input: {
       evidence: input.loadTestPresent ? "Local load test script exists and avoids paid providers." : "No production load test script found.",
       blocker: "500-decision path remains a placeholder until seeded data and CI timing budgets are approved.",
       nextAction: "Run 10 and 100 decision simulations in CI and add a staged 500-decision profile.",
+      ownerRole: "Platform engineer",
     },
     {
       area: "Query optimization",
@@ -156,6 +163,7 @@ export function buildMlReadinessScoreboard(input: {
       evidence: input.queryPlanPresent ? "Query optimization plan documents safe index candidates." : "No query optimization plan found.",
       blocker: "No risky migration should ship without observed query plans.",
       nextAction: "Capture slow-query evidence for replay, governance, provider logs and benchmark result reads before migrations.",
+      ownerRole: "Database owner",
     },
     {
       area: "Queue optimization",
@@ -163,6 +171,7 @@ export function buildMlReadinessScoreboard(input: {
       evidence: input.queueOptimizationPresent ? "Replay and governance queues use non-blocking in-process paths with bounded snapshots." : "Queue isolation not documented.",
       blocker: "In-process queues are not durable production workers.",
       nextAction: "Add durable idempotent queue storage after pilot traffic proves event volume and retry needs.",
+      ownerRole: "Workflow execution owner",
     },
     {
       area: "Proprietary inference maturity",
@@ -170,6 +179,7 @@ export function buildMlReadinessScoreboard(input: {
       evidence: input.proprietaryModelBenchmarked ? "A proprietary model-assisted benchmark is recorded." : "No proprietary model benchmark is recorded.",
       blocker: "Do not claim first-party ML detection until model inference is trained, benchmarked and reviewed.",
       nextAction: "Define first-party inference scope only after labelled data, evaluation protocol and reviewer adjudication are ready.",
+      ownerRole: "Founder / ML owner",
     },
   ];
 }

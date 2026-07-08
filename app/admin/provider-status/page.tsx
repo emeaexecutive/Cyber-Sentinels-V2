@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { getMfaStatus } from "@/lib/auth/mfa";
 import { getVerificationProviderRegistry, providerRuntimeState } from "@/lib/providers";
+import { buildProviderReadinessChecklist, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
 import { orchestrateProviders } from "@/lib/providers/provider-orchestrator";
 import { evaluateGeoSessionIntelligence } from "@/lib/runtime/geo-session-intelligence";
 import { createClient } from "@/lib/supabase/server";
@@ -25,6 +26,8 @@ export default async function ProviderStatusAdminPage() {
   await requireAdminPageAccess(supabase, { path: "/admin/provider-status" });
 
   const registry = getVerificationProviderRegistry();
+  const providerReadinessChecks = buildProviderReadinessChecklist();
+  const providerReadiness = summarizeProviderReadiness(providerReadinessChecks);
   const providerSnapshot = await orchestrateProviders({ timeoutMs: 220, includeDisabled: true });
   const mfa = getMfaStatus();
   const geo = evaluateGeoSessionIntelligence({ currentCountry: "unknown", currentDevice: "server runtime" });
@@ -89,6 +92,39 @@ export default async function ProviderStatusAdminPage() {
               <p className="mt-3 text-sm leading-6 text-zinc-400">{row.notes}</p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Readiness checklist</p>
+          <h2 className="mt-3 text-xl font-semibold">Provider integration gates</h2>
+          <p className="mt-3 text-sm leading-6 text-zinc-500">
+            {providerReadiness.evidence} {providerReadiness.nextAction}
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {providerReadinessChecks.map((provider) => (
+              <article key={provider.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-medium text-zinc-100">{provider.name}</p>
+                    <p className="mt-1 text-xs text-zinc-600">{provider.category.replaceAll("_", " ")}</p>
+                  </div>
+                  <span className={`rounded-full border px-2.5 py-1 text-xs ${statusTone(provider.runtimeState)}`}>
+                    {provider.runtimeState}
+                  </span>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-zinc-500">
+                  <p>Credentials: {provider.credentialPresent ? "present" : "missing"}</p>
+                  <p>Health check: {provider.healthCheckAvailable ? "yes" : "no"}</p>
+                  <p>Test mode: {provider.testModeAvailable ? "yes" : "no"}</p>
+                  <p>Production: {provider.productionModeAvailable ? "yes" : "no"}</p>
+                  <p>Normalized: {provider.normalizedResultImplemented ? "yes" : "no"}</p>
+                  <p>Timeouts: {provider.timeoutHandlingImplemented ? "yes" : "no"}</p>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-zinc-500">{provider.evidence}</p>
+                <p className="mt-3 text-xs leading-5 text-amber-200">Blocker: {provider.blocker}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

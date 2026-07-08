@@ -6,6 +6,7 @@ import { getDetectionEngineStatus } from "@/lib/detection/detection-engine";
 import { createClient } from "@/lib/supabase/server";
 import { detectionProviders } from "@/lib/detection/providers";
 import { providerStatusLabel } from "@/lib/detection/providers";
+import { buildProviderReadinessChecklist, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
 import { runValidationBenchmark } from "@/lib/validation/benchmark-harness";
 import { buildMlReadinessScoreboard, evaluateMlReadiness, mlReadinessLevels } from "@/lib/validation/ml-readiness";
 
@@ -21,6 +22,8 @@ export default async function DetectionStatusAdminPage() {
   await requireAdminPageAccess(supabase, { path: "/admin/detection-status" });
   const status = getDetectionEngineStatus();
   const benchmark = await runValidationBenchmark();
+  const providerReadinessChecks = buildProviderReadinessChecklist();
+  const providerReadiness = summarizeProviderReadiness(providerReadinessChecks);
   const providerStates = detectionProviders.map((provider) => ({
     name: provider.providerName,
     status: provider.status(),
@@ -57,12 +60,14 @@ export default async function DetectionStatusAdminPage() {
     datasetBlocker: benchmark.datasetReadiness.blocker,
     calibrationComplete: benchmark.calibrationStatus.complete,
     calibrationMessage: benchmark.calibrationStatus.message,
-    providerDetectionActive: status.provider_detection_enabled,
-    providerCount: detectionProviders.length,
+    providerDetectionActive: providerReadiness.productionReady > 0 || status.provider_detection_enabled,
+    providerCount: providerReadiness.total,
     reviewedOutcomeCount: benchmark.reviewedOutcomeSummary.reviewed,
     runtimeProfilingActive: existsSync(path.join(root, "lib", "performance", "runtime-profiler.ts")),
     loadTestPresent: existsSync(path.join(root, "tests", "load", "trust-execution-load.test.mjs")),
-    queryPlanPresent: existsSync(path.join(root, "docs", "QUERY_OPTIMIZATION_PLAN.md")),
+    queryPlanPresent:
+      existsSync(path.join(root, "docs", "QUERY_AND_QUEUE_OPTIMIZATION.md")) ||
+      existsSync(path.join(root, "docs", "QUERY_OPTIMIZATION_PLAN.md")),
     queueOptimizationPresent: true,
     proprietaryModelBenchmarked: false,
   });
@@ -159,6 +164,7 @@ export default async function DetectionStatusAdminPage() {
                 <p className="mt-3 text-xs leading-5 text-zinc-400">{area.evidence}</p>
                 <p className="mt-3 text-xs leading-5 text-amber-200">Blocker: {area.blocker}</p>
                 <p className="mt-3 border-t border-zinc-800 pt-3 text-xs leading-5 text-zinc-500">Next: {area.nextAction}</p>
+                <p className="mt-2 text-xs leading-5 text-zinc-600">Owner: {area.ownerRole}</p>
               </article>
             ))}
           </div>
@@ -248,11 +254,36 @@ export default async function DetectionStatusAdminPage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Provider readiness</p>
+          <h2 className="mt-3 text-xl font-semibold text-zinc-100">Integration gates and blockers</h2>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">
+            {providerReadiness.evidence} {providerReadiness.blocker}
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {providerReadinessChecks.slice(0, 9).map((provider) => (
+              <article key={provider.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-100">{provider.name}</p>
+                    <p className="mt-1 text-xs text-zinc-600">{provider.category.replaceAll("_", " ")}</p>
+                  </div>
+                  <span className="rounded-full border border-zinc-700 px-2 py-1 text-xs text-zinc-300">
+                    {provider.runtimeState}
+                  </span>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-zinc-500">{provider.evidence}</p>
+                <p className="mt-3 text-xs leading-5 text-amber-200">Blocker: {provider.blocker}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="font-semibold text-zinc-100">Provider Detection Status</h2>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {providerStates.map((provider) => (
               <div key={provider.name} className="rounded border border-zinc-800 p-3 text-sm">
-                <p className="text-zinc-200">{provider.name} · {provider.displayStatus}</p>
+                <p className="text-zinc-200">{provider.name} / {provider.displayStatus}</p>
                 <p className="mt-1 text-zinc-500">{provider.signals}</p>
               </div>
             ))}

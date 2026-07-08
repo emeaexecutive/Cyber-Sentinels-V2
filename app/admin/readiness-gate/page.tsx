@@ -1,12 +1,17 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { existsSync } from "node:fs";
+import path from "node:path";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
+import { buildProviderReadinessChecklist, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
 import {
   createReadinessGateSnapshot,
   type ReadinessGateState,
 } from "@/lib/readiness-gate/snapshot";
 import { createClient } from "@/lib/supabase/server";
+import { runValidationBenchmark } from "@/lib/validation/benchmark-harness";
+import { buildMlReadinessScoreboard } from "@/lib/validation/ml-readiness";
 
 export const dynamic = "force-dynamic";
 
@@ -107,12 +112,32 @@ export default async function AdminReadinessGatePage() {
 
   await requireAdminPageAccess(supabase, { path: "/admin/readiness-gate" });
 
-  const [snapshot, notes] = await Promise.all([
+  const [snapshot, notes, benchmark] = await Promise.all([
     createReadinessGateSnapshot(supabase),
     readReadinessNotes(supabase),
+    runValidationBenchmark(),
   ]);
   const checks = snapshot.sections.flatMap((section) => section.checks);
   const readyCount = checks.filter((item) => item.state === "ready").length;
+  const providerReadiness = summarizeProviderReadiness(buildProviderReadinessChecklist());
+  const root = process.cwd();
+  const investorReadinessAreas = buildMlReadinessScoreboard({
+    datasetReadinessPercent: benchmark.datasetReadiness.currentPercent,
+    datasetEvidence: benchmark.datasetReadiness.evidence,
+    datasetBlocker: benchmark.datasetReadiness.blocker,
+    calibrationComplete: benchmark.calibrationStatus.complete,
+    calibrationMessage: benchmark.calibrationStatus.message,
+    providerDetectionActive: providerReadiness.productionReady > 0,
+    providerCount: providerReadiness.total,
+    reviewedOutcomeCount: benchmark.reviewedOutcomeSummary.reviewed,
+    runtimeProfilingActive: existsSync(path.join(root, "lib", "performance", "runtime-profiler.ts")),
+    loadTestPresent: existsSync(path.join(root, "tests", "load", "trust-execution-load.test.mjs")),
+    queryPlanPresent:
+      existsSync(path.join(root, "docs", "QUERY_AND_QUEUE_OPTIMIZATION.md")) ||
+      existsSync(path.join(root, "docs", "QUERY_OPTIMIZATION_PLAN.md")),
+    queueOptimizationPresent: true,
+    proprietaryModelBenchmarked: false,
+  });
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -185,6 +210,29 @@ export default async function AdminReadinessGatePage() {
         </section>
 
         <section className="mt-8 grid gap-6">
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <h2 className="text-xl font-semibold">Investor Readiness Categories</h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-500">
+              Evidence, blockers, next action and owner-role placeholders for the ML and TrustOps maturity path. Percentages are readiness indicators, not accuracy claims.
+            </p>
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {investorReadinessAreas.map((area) => (
+                <div key={area.area} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <p className="font-medium text-zinc-100">{area.area}</p>
+                    <span className={`rounded-full border px-3 py-1 text-xs ${area.currentPercent >= 85 ? "border-emerald-800 text-emerald-200" : area.currentPercent >= 60 ? "border-amber-800 text-amber-200" : "border-red-800 text-red-200"}`}>
+                      {area.currentPercent}%
+                    </span>
+                  </div>
+                  <p className="mt-3 text-xs leading-5 text-zinc-500">{area.evidence}</p>
+                  <p className="mt-3 text-xs leading-5 text-amber-200">Blocker: {area.blocker}</p>
+                  <p className="mt-3 border-t border-zinc-800 pt-3 text-xs leading-5 text-zinc-500">Next: {area.nextAction}</p>
+                  <p className="mt-2 text-xs leading-5 text-zinc-600">Owner: {area.ownerRole}</p>
+                </div>
+              ))}
+            </div>
+          </article>
+
           {snapshot.sections.map((section) => (
             <article key={section.title} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
               <h2 className="text-xl font-semibold">{section.title}</h2>

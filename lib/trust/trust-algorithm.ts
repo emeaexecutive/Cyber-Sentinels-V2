@@ -3,6 +3,48 @@ import { evaluateTrustDecision, type TrustDecision } from "@/lib/trust/decision-
 
 export type TrustAlgorithmDecision = TrustDecision;
 
+export type TrustAlgorithmTuning = {
+  identityWeight: number;
+  sessionIntegrityWeight: number;
+  deviceChannelWeight: number;
+  provenanceWeight: number;
+  providerWeight: number;
+  heuristicWeight: number;
+  injectionWeight: number;
+  documentWeight: number;
+  intentWeight: number;
+  agentRuntimeWeight: number;
+  reviewerOverrideWeight: number;
+  confidenceThreshold: number;
+  escalationThreshold: number;
+  restrictionThreshold: number;
+  decayCheckpointDays: number;
+  decayReverificationDays: number;
+  decayCheckpointPenalty: number;
+  decayReverificationPenalty: number;
+};
+
+export const trustAlgorithmTuningDefaults: TrustAlgorithmTuning = {
+  identityWeight: 0.14,
+  sessionIntegrityWeight: 0.12,
+  deviceChannelWeight: 0.1,
+  provenanceWeight: 0.09,
+  providerWeight: 0.1,
+  heuristicWeight: 0.12,
+  injectionWeight: 0.08,
+  documentWeight: 0.07,
+  intentWeight: 0.1,
+  agentRuntimeWeight: 0.08,
+  reviewerOverrideWeight: 1,
+  confidenceThreshold: 80,
+  escalationThreshold: 65,
+  restrictionThreshold: 45,
+  decayCheckpointDays: 45,
+  decayReverificationDays: 90,
+  decayCheckpointPenalty: 0.08,
+  decayReverificationPenalty: 0.16,
+};
+
 export type TrustAlgorithmInput = {
   identityConfidence?: number | null;
   proofOfHuman?: "verified" | "failed" | "unknown" | null;
@@ -24,6 +66,7 @@ export type TrustAlgorithmInput = {
   evidenceLastSeenAt?: string | null;
   now?: Date;
   sourceLabels?: DetectionSource[];
+  tuning?: Partial<TrustAlgorithmTuning>;
 };
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
@@ -46,6 +89,7 @@ function evidenceAgeDays(input: Pick<TrustAlgorithmInput, "evidenceLastSeenAt" |
 }
 
 export function runTrustAlgorithm(input: TrustAlgorithmInput) {
+  const tuning = { ...trustAlgorithmTuningDefaults, ...(input.tuning ?? {}) };
   const identity = confidenceToScore(input.identityConfidence);
   const session = confidenceToScore(input.sessionIntegrity);
   const device = confidenceToScore(input.deviceChannelIntegrity);
@@ -58,10 +102,10 @@ export function runTrustAlgorithm(input: TrustAlgorithmInput) {
   const runtime = riskToConfidence(input.runtimeBehavior);
   const ageDays = evidenceAgeDays(input);
   const trustDecayPenalty =
-    input.previousTrustPosture === "reverification_due" || (ageDays !== null && ageDays >= 90)
-      ? 0.16
-      : input.previousTrustPosture === "checkpoint" || (ageDays !== null && ageDays >= 45)
-        ? 0.08
+    input.previousTrustPosture === "reverification_due" || (ageDays !== null && ageDays >= tuning.decayReverificationDays)
+      ? tuning.decayReverificationPenalty
+      : input.previousTrustPosture === "checkpoint" || (ageDays !== null && ageDays >= tuning.decayCheckpointDays)
+        ? tuning.decayCheckpointPenalty
         : 0;
   const governanceWeight = (input.governanceHistory ?? []).includes("blocked")
     ? 0.25
@@ -79,41 +123,42 @@ export function runTrustAlgorithm(input: TrustAlgorithmInput) {
           ? "decaying_evidence"
           : "stable";
   const signalWeights = {
-    identity: Number((identity * 0.14).toFixed(3)),
-    session: Number((session * 0.12).toFixed(3)),
-    device: Number((device * 0.1).toFixed(3)),
-    provenance: Number((provenance * 0.09).toFixed(3)),
-    provider: Number((provider * 0.1).toFixed(3)),
-    heuristic: Number((heuristic * 0.12).toFixed(3)),
-    injection: Number((injection * 0.08).toFixed(3)),
-    document: Number((document * 0.07).toFixed(3)),
-    intent: Number((intent * 0.1).toFixed(3)),
-    runtime: Number((runtime * 0.08).toFixed(3)),
+    identity: Number((identity * tuning.identityWeight).toFixed(3)),
+    session: Number((session * tuning.sessionIntegrityWeight).toFixed(3)),
+    device: Number((device * tuning.deviceChannelWeight).toFixed(3)),
+    provenance: Number((provenance * tuning.provenanceWeight).toFixed(3)),
+    provider: Number((provider * tuning.providerWeight).toFixed(3)),
+    heuristic: Number((heuristic * tuning.heuristicWeight).toFixed(3)),
+    injection: Number((injection * tuning.injectionWeight).toFixed(3)),
+    document: Number((document * tuning.documentWeight).toFixed(3)),
+    intent: Number((intent * tuning.intentWeight).toFixed(3)),
+    runtime: Number((runtime * tuning.agentRuntimeWeight).toFixed(3)),
     governancePenalty: Number(governanceWeight.toFixed(3)),
     trustDecayPenalty: Number(trustDecayPenalty.toFixed(3)),
+    reviewerOverride: Number((input.reviewerOutcome ? tuning.reviewerOverrideWeight : 0).toFixed(3)),
   };
   const rawScore =
-    (identity * 0.14 +
-      session * 0.12 +
-      device * 0.1 +
-      provenance * 0.09 +
-      provider * 0.1 +
-      heuristic * 0.12 +
-      injection * 0.08 +
-      document * 0.07 +
-      intent * 0.1 +
-      runtime * 0.08 -
+    (identity * tuning.identityWeight +
+      session * tuning.sessionIntegrityWeight +
+      device * tuning.deviceChannelWeight +
+      provenance * tuning.provenanceWeight +
+      provider * tuning.providerWeight +
+      heuristic * tuning.heuristicWeight +
+      injection * tuning.injectionWeight +
+      document * tuning.documentWeight +
+      intent * tuning.intentWeight +
+      runtime * tuning.agentRuntimeWeight -
       governanceWeight -
       trustDecayPenalty) *
     100;
   const trustScore = Math.max(0, Math.min(100, Math.round(rawScore)));
-  const confidenceBand = trustScore >= 80 ? "high" : trustScore >= 55 ? "medium" : "low";
+  const confidenceBand = trustScore >= tuning.confidenceThreshold ? "high" : trustScore >= 55 ? "medium" : "low";
   const trustLevel =
-    trustScore >= 80
+    trustScore >= tuning.confidenceThreshold
       ? "trusted"
-      : trustScore >= 65
+      : trustScore >= tuning.escalationThreshold
         ? "reviewable"
-        : trustScore >= 45
+        : trustScore >= tuning.restrictionThreshold
           ? "elevated"
           : "restricted";
   const sourceLabels = input.sourceLabels?.length
@@ -182,6 +227,7 @@ export function runTrustAlgorithm(input: TrustAlgorithmInput) {
     governance_weighting: {
       penalty: Number(governanceWeight.toFixed(3)),
       history: [...(input.governanceHistory ?? [])],
+      reviewer_override_weight: input.reviewerOutcome ? tuning.reviewerOverrideWeight : 0,
     },
     reviewer_override_applied: Boolean(reviewerDecision),
     limitations: [

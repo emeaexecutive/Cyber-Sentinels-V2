@@ -7,6 +7,7 @@ import type { DetectionProvider } from "../detection/providers/types.ts";
 import { buildReviewedOutcomeRecords, summarizeReviewedOutcomes } from "../governance/reviewed-outcomes.ts";
 import { evaluateRuntimeTrust, type RuntimeSignalKey } from "../runtime/runtime-trust-engine.ts";
 import { evaluateIntentRisk } from "../trust/intent-risk.ts";
+import { evaluateCalibrationReadiness } from "./calibration-engine.ts";
 import { calculateDatasetReadiness, inspectDatasetRegistry } from "./dataset-registry.ts";
 import type {
   ConfusionMatrix,
@@ -320,19 +321,27 @@ export async function runValidationBenchmark(options: {
   const registry = await inspectDatasetRegistry();
   const datasetReadiness = calculateDatasetReadiness({ cases, registry });
   if (!cases.length) {
+    const emptyConfusionMatrix = calculateConfusionMatrix([]);
+    const emptyMetrics = calculatePrecisionRecall(emptyConfusionMatrix);
+    const calibrationStatus = evaluateCalibrationReadiness({
+      sampleCount: 0,
+      minimumSampleThreshold: MINIMUM_CALIBRATION_SAMPLE_THRESHOLD,
+      metrics: emptyMetrics,
+      confusionMatrix: emptyConfusionMatrix,
+      reviewedOutcomeCount: 0,
+      providerAgreement: null,
+      perCategoryCount: 0,
+      confidenceBandCount: 0,
+    });
     return {
       caseCount: 0,
       message: "No validation dataset available yet.",
-      calibrationStatus: {
-        complete: false,
-        minimumSampleThreshold: MINIMUM_CALIBRATION_SAMPLE_THRESHOLD,
-        message: "Calibration not complete - insufficient validated data.",
-      },
+      calibrationStatus,
       datasetReadiness,
       detectionSourcesUsed: [] as string[],
       results: [] as ValidationResult[],
-      confusionMatrix: calculateConfusionMatrix([]),
-      metrics: calculatePrecisionRecall(calculateConfusionMatrix([])),
+      confusionMatrix: emptyConfusionMatrix,
+      metrics: emptyMetrics,
       perCategoryMetrics: {},
       confidenceDistribution: { low: 0, medium: 0, high: 0 },
       providerAgreement: null,
@@ -387,6 +396,18 @@ export async function runValidationBenchmark(options: {
   const reviewedOutcomes = buildReviewedOutcomeRecords(cases, results);
   const reviewedOutcomeSummary = summarizeReviewedOutcomes(reviewedOutcomes);
   const providerAgreementScore = usableProviderResults.length ? agreements / usableProviderResults.length : null;
+  const perCategoryMetrics = metricsByCategory(cases, results);
+  const confidenceCalibrationBands = confidenceCalibration(results);
+  const calibrationStatus = evaluateCalibrationReadiness({
+    sampleCount: cases.length,
+    minimumSampleThreshold: MINIMUM_CALIBRATION_SAMPLE_THRESHOLD,
+    metrics: rawMetrics,
+    confusionMatrix,
+    reviewedOutcomeCount: reviewedOutcomeSummary.reviewed,
+    providerAgreement: providerAgreementScore,
+    perCategoryCount: Object.keys(perCategoryMetrics).length,
+    confidenceBandCount: Object.values(confidenceCalibrationBands).filter((band) => band.caseCount > 0).length,
+  });
   const runtimeEvaluations = cases.map((testCase) => ({
     testCase,
     runtime: evaluateRuntimeTrust({
@@ -479,26 +500,19 @@ export async function runValidationBenchmark(options: {
 
   return {
     caseCount: cases.length,
-    calibrationStatus: {
-      complete: cases.length >= MINIMUM_CALIBRATION_SAMPLE_THRESHOLD,
-      minimumSampleThreshold: MINIMUM_CALIBRATION_SAMPLE_THRESHOLD,
-      message:
-        cases.length >= MINIMUM_CALIBRATION_SAMPLE_THRESHOLD
-          ? "Calibration sample threshold met; metrics remain dataset-scoped."
-          : "Calibration not complete - insufficient validated data.",
-    },
+    calibrationStatus,
     datasetReadiness,
     detectionSourcesUsed: [...new Set(results.map((result) => result.source))],
     results,
     confusionMatrix,
     metrics: rawMetrics,
-    perCategoryMetrics: metricsByCategory(cases, results),
+    perCategoryMetrics,
     confidenceDistribution: {
       low: results.filter((result) => result.confidence < 0.5).length,
       medium: results.filter((result) => result.confidence >= 0.5 && result.confidence < 0.8).length,
       high: results.filter((result) => result.confidence >= 0.8).length,
     },
-    providerAgreement: usableProviderResults.length ? agreements / usableProviderResults.length : null,
+    providerAgreement: providerAgreementScore,
     reviewerAgreement,
     providerCoverage: usableProviderResults.length / cases.length,
     detectionSourceCoverage: Object.fromEntries(
@@ -509,7 +523,7 @@ export async function runValidationBenchmark(options: {
     ),
     runtimeReplayValidation,
     signalFusionComparison,
-    confidenceCalibration: confidenceCalibration(results),
+    confidenceCalibration: confidenceCalibrationBands,
     escalationRate: signalFusionComparison.filter((item) =>
       ["escalate", "block"].includes(String(item.recommendation))
     ).length / cases.length,
@@ -566,13 +580,13 @@ export async function runValidationBenchmark(options: {
       ? [
           "Provider results are evidence inputs, not final authenticity decisions.",
           ...(cases.length < MINIMUM_CALIBRATION_SAMPLE_THRESHOLD
-            ? ["Calibration not complete - insufficient validated data."]
+            ? ["Calibration incomplete - insufficient validated data."]
             : []),
         ]
       : [
           "No live provider inference was used.",
           ...(cases.length < MINIMUM_CALIBRATION_SAMPLE_THRESHOLD
-            ? ["Calibration not complete - insufficient validated data."]
+            ? ["Calibration incomplete - insufficient validated data."]
             : []),
         ],
   };

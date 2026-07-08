@@ -1,12 +1,12 @@
 export const trustOpsOperatingLayers = [
-  ["Actor Identity", "Verify the human, AI agent, service account or API actor entering the workflow."],
-  ["Session Integrity", "Keep runtime, channel and continuity signals visible without treating one signal as certainty."],
-  ["Authorization Lineage", "Retain delegated scope, grants, changes and revocations with accountable authority."],
-  ["Evidence Chain", "Connect provider and workflow evidence to its source, time, decision and operational context."],
-  ["Governance Review", "Route material changes to named reviewers with rationale and recorded action."],
+  ["Actor Identity", "Bind each human, AI agent, service account, API actor or workflow subject to accountable context."],
+  ["Session Integrity", "Keep runtime, channel and continuity signals visible without treating any single check as certainty."],
+  ["Authorization Lineage", "Retain delegated scope, grants, changes, revocations and policy authority across the workflow."],
+  ["Evidence Chain", "Connect provider and workflow evidence to source, time, decision, reviewer and operational context."],
+  ["Governance Review", "Route material changes to accountable reviewers with rationale, decision state and recorded action."],
   ["Replay Timeline", "Preserve actor, workflow, evidence, authorization, governance, trust-state evolution and outcome as operational memory."],
   ["Persistent Trust Posture", "Show how humans, agents, workflows, approvals and sessions evolve, decay, escalate, recover and re-verify."],
-  ["Enterprise AI Sovereignty", "Keep customer-owned memory, restricted data, provider orchestration and workflow IP under enterprise policy."],
+  ["Enterprise AI Sovereignty", "Keep customer-owned memory, restricted data, provider orchestration, agent actions and workflow IP under enterprise policy."],
 ] as const;
 
 export function TrustOpsOperatingStack({
