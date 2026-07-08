@@ -54,7 +54,7 @@ export function evaluateMlReadiness(input: MlReadinessInput) {
 
   const blockers = [
     !input.providerDetectionActive ? "No reviewed provider-backed detection is active for media/document forensics." : null,
-    !input.validationDatasetPresent ? "No validation dataset available yet." : null,
+    !input.validationDatasetPresent ? "Validation incomplete — insufficient reviewed dataset." : null,
     !(input.precisionAvailable && input.recallAvailable && input.f1Available)
       ? "Precision, recall and F1 require approved labelled cases and source-specific benchmark results."
       : null,

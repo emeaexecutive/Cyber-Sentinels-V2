@@ -53,9 +53,11 @@ export async function runMlValidationEngine(
     falseNegativeRate: benchmark.falseNegativeRate,
     boundary: "Drift and error rates stay null or scoped until reviewed outcomes support them.",
   };
+  const validationIncomplete = !benchmark.calibrationStatus.complete || benchmark.reviewedOutcomeSummary.reviewed === 0;
 
   return {
     engine: "ml_validation_engine" as const,
+    message: validationIncomplete ? "Validation incomplete — insufficient reviewed dataset." : "Validation dataset has reviewed calibration evidence.",
     benchmark,
     status,
     entity_identity: entity,
@@ -74,6 +76,7 @@ export async function runMlValidationEngine(
       boundary: "Real ML, Provider API, Heuristic Baseline, Awaiting Credentials and Not Implemented remain separate states.",
     },
     limitations: [
+      ...(validationIncomplete ? ["Validation incomplete — insufficient reviewed dataset."] : []),
       "No precision, recall or F1 claim is valid unless calibrationStatus.complete is true.",
       "Provider comparison is evidence, not a substitute for reviewed outcomes.",
       "Heuristic logic must not be described as trained first-party ML.",

@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     baselineLabel: "Heuristic Baseline / baseline_model_assisted",
     allowedDetectionSources: canonicalDetectionSources,
     sourceTaxonomy: status.source_taxonomy,
-    validationDatasetMessage: cases.length ? null : "No validation dataset available yet.",
+    validationDatasetMessage: cases.length ? null : "Validation incomplete — insufficient reviewed dataset.",
     benchmarkReadiness: {
       confusionMatrix: cases.length ? "available_on_run" : "awaiting_labelled_dataset",
       precision: cases.length ? "available_on_run" : "awaiting_labelled_dataset",

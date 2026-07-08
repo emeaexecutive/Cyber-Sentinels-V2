@@ -6,15 +6,20 @@ export type OrchestratedProviderState = "Live" | "Simulated" | "Awaiting Credent
 export type ProviderOrchestrationResult = {
   id: string;
   name: string;
+  providerName: string;
   status: OrchestratedProviderState;
   state: OrchestratedProviderState;
   latency_ms: number;
+  latencyMs: number;
   latency: number;
   weight: number;
   confidence: number;
+  supportedSignals: string[];
   evidence: string[];
   limitations: string[];
   normalizedEvidence: NormalizedTrustEvidence[];
+  rawResultAvailable: false;
+  credentialState: "present" | "missing" | "not_required";
 };
 
 const providerWeights: Record<string, number> = {
@@ -57,18 +62,27 @@ export async function orchestrateProviders(options: { timeoutMs?: number; includ
           const state = normalizeState(provider);
           const live = state === "Live";
           const evidence = live ? [provider.evidenceReference] : [];
+          const latencyMs = Math.max(1, Date.now() - started);
           const limitations = live
             ? ["Provider is configured; output remains one governed signal."]
             : [`Provider state is ${state}; do not treat as production detection.`];
+          const credentialState = provider.requiredEnv.length === 0
+            ? "not_required"
+            : provider.missingEnv.length
+              ? "missing"
+              : "present";
           return {
             id: provider.id,
             name: provider.name,
+            providerName: provider.name,
             status: state,
             state,
-            latency_ms: Math.max(1, Date.now() - started),
-            latency: Math.max(1, Date.now() - started),
+            latency_ms: latencyMs,
+            latencyMs,
+            latency: latencyMs,
             weight: providerWeights[provider.id] ?? 0.35,
             confidence: live ? 0.85 : state === "Simulated" ? 0.45 : 0.15,
+            supportedSignals: [provider.category, provider.purpose],
             evidence,
             limitations,
             normalizedEvidence: [
@@ -80,14 +94,18 @@ export async function orchestrateProviders(options: { timeoutMs?: number; includ
                 evidence,
                 limitations,
                 trustEngineReference: "provider_orchestrator",
+                workflowReference: "provider_orchestration",
                 metadata: {
                   provider_id: provider.id,
                   provider_status: state,
+                  credential_state: credentialState,
                   auth_protection: provider.authProtection,
                   replay_integration: provider.replayIntegration,
                 },
               }),
             ],
+            rawResultAvailable: false,
+            credentialState,
           };
         }),
         timeoutMs
@@ -101,12 +119,15 @@ export async function orchestrateProviders(options: { timeoutMs?: number; includ
     return {
       id: provider.id,
       name: provider.name,
+      providerName: provider.name,
       status: result.reason instanceof Error && result.reason.message === "provider_timeout" ? "Timeout" : "Failed",
       state: result.reason instanceof Error && result.reason.message === "provider_timeout" ? "Timeout" : "Failed",
       latency_ms: timeoutMs,
+      latencyMs: timeoutMs,
       latency: timeoutMs,
       weight: providerWeights[provider.id] ?? 0.35,
       confidence: 0,
+      supportedSignals: [provider.category, provider.purpose],
       evidence: [],
       limitations: ["Provider did not return in the runtime window and was isolated from the decision path."],
       normalizedEvidence: [
@@ -117,9 +138,12 @@ export async function orchestrateProviders(options: { timeoutMs?: number; includ
           confidence: 0,
           limitations: ["Provider did not return in the runtime window and was isolated from the decision path."],
           trustEngineReference: "provider_orchestrator",
+          workflowReference: "provider_orchestration",
           metadata: { provider_id: provider.id },
         }),
       ],
+      rawResultAvailable: false,
+      credentialState: provider.requiredEnv.length === 0 ? "not_required" : provider.missingEnv.length ? "missing" : "present",
     };
   });
 }

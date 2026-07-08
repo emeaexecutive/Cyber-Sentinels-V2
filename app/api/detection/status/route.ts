@@ -18,11 +18,11 @@ export async function GET(request: Request) {
     ...status,
     validation_dataset_present: cases.length > 0,
     precision_recall_available: cases.length > 0,
-    validation_dataset_message: cases.length ? null : "No validation dataset available yet.",
+    validation_dataset_message: cases.length ? null : "Validation incomplete — insufficient reviewed dataset.",
     benchmark_case_count: cases.length,
     next_required_action: cases.length
       ? "Run reviewed provider benchmarks and calibrate thresholds by workflow."
-      : "No validation dataset available yet. Add approved labelled cases before reporting accuracy.",
+      : "Validation incomplete — insufficient reviewed dataset. Add approved labelled cases before reporting accuracy.",
   }, {
     headers: { "cache-control": "no-store" },
   });

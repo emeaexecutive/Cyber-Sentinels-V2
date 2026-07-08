@@ -88,6 +88,17 @@ export function calculateTrustPosture(input: CanonicalTrustInput) {
     governance_restore: continuousPosture.events.includes("governance_restore"),
     step_up_authentication: continuousPosture.events.includes("step_up_trigger"),
     runtime_anomalies: (input.runtimeBehavior ?? 0) >= 0.45,
+    provider_changes: input.providerAgreement !== null && input.providerAgreement !== undefined,
+    reviewed_outcomes: input.reviewedOutcomeRisk !== null && input.reviewedOutcomeRisk !== undefined,
+  };
+  const postureUpdate = {
+    reason:
+      "Trust posture evolved from score movement, evidence freshness, provider agreement, reviewed outcomes, runtime anomalies, replay linkage and governance state.",
+    evidence_references: algorithm.evidence_refs,
+    source_labels: algorithm.source_labels,
+    confidence_band: algorithm.confidence_band,
+    limitations: algorithm.limitations,
+    replay_event_required: !input.replayLinked,
   };
 
   return {
@@ -102,9 +113,9 @@ export function calculateTrustPosture(input: CanonicalTrustInput) {
       model: "continuous",
       binary_trust: false,
       actions: postureActions,
-      reason:
-        "Trust posture evolves through score movement, evidence freshness, runtime anomalies, replay linkage, step-up authentication and governance restore events.",
+      ...postureUpdate,
     },
+    posture_update: postureUpdate,
     entity_identity: entity,
     fusion,
     algorithm,

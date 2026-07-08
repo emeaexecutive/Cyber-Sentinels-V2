@@ -2,7 +2,7 @@
 
 Cyber Sentinels is the operational Trust Intelligence layer for regulated enterprise workflows. It connects humans, AI agents, machine identities, credentials, evidence, replay and governance into one explainable trust record.
 
-It is not an AI detector. Detection can be one signal, but Cyber Sentinels does not turn a provider result, heuristic result or model output into an unsupported truth claim. Real ML, Provider API, Heuristic Baseline, Awaiting Credentials and Not Implemented remain separate source states.
+It is not just an AI detector. Detection can be one signal, but Cyber Sentinels does not turn a provider result, heuristic result or model output into an unsupported truth claim. Real ML, Provider API, Heuristic Baseline, Awaiting Credentials and Not Implemented remain separate source states.
 
 It is not an IAM platform. IAM systems grant and enforce access. Cyber Sentinels records the authority lineage around consequential work: who or what acted, under whose authority, what evidence existed, what changed and whether governance review restored, reduced or escalated trust.
 

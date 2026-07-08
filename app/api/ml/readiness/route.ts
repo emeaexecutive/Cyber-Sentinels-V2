@@ -41,7 +41,7 @@ export async function GET(request: Request) {
       ...validation.readiness,
       source_separation: validation.source_separation,
       benchmark_case_count: benchmark.caseCount,
-      validation_dataset_message: benchmark.caseCount ? null : "No validation dataset available yet.",
+      validation_dataset_message: benchmark.caseCount ? null : "Validation incomplete — insufficient reviewed dataset.",
       calibration_status: benchmark.calibrationStatus,
       dataset_readiness: benchmark.datasetReadiness,
       readiness_areas: readinessAreas,

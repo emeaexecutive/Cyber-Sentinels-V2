@@ -322,6 +322,8 @@ export function queryTrustGraph(graph: TrustGraph, id: string) {
 export function explainTrustGraph(graph: TrustGraph, id: string) {
   const query = queryTrustGraph(graph, id);
   const evidenceRefs = [...new Set(query.edges.flatMap((edge) => edge.evidence_refs))].filter(Boolean);
+  const relatedNodes = [query.node, ...query.neighbors].filter((node): node is TrustGraphNode => Boolean(node));
+  const byType = (type: TrustGraphNodeType) => relatedNodes.filter((node) => node.type === type).map((node) => node.label);
   const pathSummary = query.edges.map((edge) => {
     const source = graph.nodes.find((node) => node.id === edge.source)?.label ?? edge.source;
     const target = graph.nodes.find((node) => node.id === edge.target)?.label ?? edge.target;
@@ -334,6 +336,14 @@ export function explainTrustGraph(graph: TrustGraph, id: string) {
     answer: query.node
       ? "Trust is explained by connected authority, actor, credential, workflow, evidence, replay, governance and posture records."
       : "No graph node was found for this trust query.",
+    whoOrWhatActed: [...byType("human"), ...byType("ai_agent"), ...byType("machine_identity")],
+    underWhoseAuthority: byType("authority"),
+    credentialOrMachineIdentity: [...byType("credential"), ...byType("machine_identity")],
+    workflowTouched: byType("workflow"),
+    evidenceExists: byType("evidence"),
+    governanceAction: byType("governance"),
+    replayRecords: byType("replay"),
+    trustPosture: byType("trust_posture"),
     pathSummary,
     evidenceRefs,
     limitations: [

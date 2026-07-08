@@ -335,7 +335,7 @@ export async function runValidationBenchmark(options: {
     });
     return {
       caseCount: 0,
-      message: "No validation dataset available yet.",
+      message: "Validation incomplete — insufficient reviewed dataset.",
       calibrationStatus,
       datasetReadiness,
       detectionSourcesUsed: [] as string[],

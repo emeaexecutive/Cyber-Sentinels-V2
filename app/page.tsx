@@ -59,7 +59,7 @@ export default function Home() {
         <div className="max-w-5xl">
           <p className="operational-eyebrow">AI Trust Infrastructure</p>
           <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            The Trust Intelligence layer for humans, AI agents, machine identities and regulated workflows.
+            The operational trust control plane for humans, AI agents, machine identities and regulated workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 sm:text-xl sm:leading-9">
             Continuously verify who or what acted, under whose authority, what changed, and why each action was allowed, reviewed or blocked.
