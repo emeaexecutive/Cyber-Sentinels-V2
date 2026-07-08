@@ -2,12 +2,22 @@
 
 Provider readiness is evidence for controlled operation, not proof of detection accuracy. Credentials alone do not make a provider live.
 
+ERM priority order for real integrations:
+
+1. World ID
+2. Stripe Identity
+3. Veriff
+4. Reality Defender
+5. Sensity
+6. C2PA verification
+
 | Area | Current State | Evidence | Gap | Next Action |
 | --- | --- | --- | --- | --- |
 | Credential state | Provider readiness reports credential presence and runtime state. | `lib/providers/provider-readiness.ts`, `lib/providers/provider-orchestrator.ts`. | Missing credentials or configured-but-unreviewed adapters remain degraded or disabled. | Keep states constrained to Live, Simulated, Awaiting Credentials, Timeout, Failed and Disabled. |
 | Health | Readiness now includes healthy/degraded/blocked health labels. | Provider checks mark live/configured/missing states without implying production accuracy. | No durable provider health history exists yet. | Persist health snapshots only after pilot provider traffic exists. |
 | Latency | Provider orchestration returns `latencyMs`; readiness exposes p95 placeholders. | Runtime pipeline records provider latency samples through `runtime-profiler`. | p95 is not measured until enough samples exist. | Record provider p50/p95 under pilot workflows. |
-| Supported signals | Provider result includes `supportedSignals`. | Orchestrator includes category and purpose; detection providers expose supported signals. | Verification providers need more granular signal taxonomy. | Normalize supported signals per provider adapter before enabling live output. |
+| Supported features | Provider readiness exposes `supportedFeatures`. | Orchestrator includes category and purpose; detection providers expose supported signals. | Verification providers need more granular signal taxonomy. | Normalize supported features per provider adapter before enabling live output. |
+| Limitations | Provider readiness exposes limitations as first-class output. | Each provider states credential, workflow, benchmark and data-handling boundaries. | Limitations need reviewer confirmation for live workflows. | Keep limitations visible in replay, receipts and admin readiness views. |
 | Normalized output | Provider result includes normalized evidence and limitations. | `normalizedEvidence`, source, confidence, workflow reference and credential state. | Raw provider payloads are intentionally not exposed. | Keep raw result unavailable by default unless protected audit storage is approved. |
 | Timeout handling | Provider calls are isolated with timeouts. | `orchestrateProviders` and parallel signal runner. | Timeout samples are not yet reviewed at scale. | Compare timeout rates under pilot traffic. |
 | Retry logic | Explicitly not marked mature. | Provider readiness reports `retryLogicImplemented: false`. | Retrying external identity/media providers can increase latency and duplicate cost. | Add idempotent retry only for reviewed providers with documented retry policy. |

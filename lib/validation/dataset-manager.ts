@@ -1,5 +1,5 @@
-import { datasetRegistry, type DatasetRegistryEntry } from "@/lib/validation/dataset-registry";
-import type { ValidationCase } from "@/lib/validation/validation-case";
+import { datasetRegistry, type DatasetRegistryEntry } from "./dataset-registry.ts";
+import type { ValidationCase } from "./validation-case.ts";
 
 export type DatasetReviewStatus = "not_reviewed" | "review_pending" | "reviewed" | "adjudicated";
 

@@ -20,7 +20,7 @@ const negative = { caseId: "n", expected: "negative", actual: "negative", source
 
 test("benchmark returns explicit no-dataset warning", async () => {
   const result = await runValidationBenchmark({ cases: [] });
-  assert.equal(result.message, "No validation dataset available yet.");
+  assert.equal(result.message, "Validation incomplete — insufficient reviewed dataset.");
   assert.equal(result.metrics.precision, null);
 });
 
@@ -105,7 +105,7 @@ test("session integrity separates emulator and tampered-app review signals", asy
 
 test("control-plane positioning reuses existing routes and preserves ML boundaries", async () => {
   const positioning = await readFile(new URL("../docs/AI_TRUST_CONTROL_PLANE_POSITIONING.md", import.meta.url), "utf8");
-  assert.match(positioning, /Trust infrastructure for humans, AI agents and regulated workflows/);
+  assert.match(positioning, /Trust infrastructure for humans, AI agents, machine identities and regulated workflows/);
   assert.match(positioning, /Named concepts do not require duplicate routes/);
   assert.match(positioning, /baseline_model_assisted/);
   assert.match(positioning, /not trained enterprise AI detection/);

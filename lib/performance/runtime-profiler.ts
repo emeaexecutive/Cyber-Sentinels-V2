@@ -88,6 +88,22 @@ export function getRuntimeProfileSamples(limit = 30) {
   return samples.slice(0, limit);
 }
 
+export function getSlowestRuntimeOperations(limit = 10) {
+  return [...samples]
+    .sort((left, right) => right.latencyMs - left.latencyMs)
+    .slice(0, limit)
+    .map((sample, index) => ({
+      rank: index + 1,
+      stage: sample.stage,
+      latencyMs: sample.latencyMs,
+      degraded: sample.degraded,
+      ok: sample.ok,
+      recordedAt: sample.recordedAt,
+      label: typeof sample.metadata.label === "string" ? sample.metadata.label : sample.stage,
+      metadata: sample.metadata,
+    }));
+}
+
 function average(stage: RuntimeProfileStage) {
   const scoped = samples.filter((sample) => sample.stage === stage);
   if (!scoped.length) return 0;
@@ -134,6 +150,7 @@ export function getRuntimeProfileSnapshot(
       queueLatency: average("queue_latency"),
       cacheEfficiency: average("cache_efficiency"),
     } satisfies Record<string, number>,
+    slowestOperations: getSlowestRuntimeOperations(10),
     boundary: "In-process profile samples support readiness review; they are not production APM.",
   };
 }

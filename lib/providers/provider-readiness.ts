@@ -26,6 +26,8 @@ export type ProviderReadinessCheck = {
     p95Ms: number | null;
     timeoutMs: number;
   };
+  supportedFeatures: readonly string[];
+  limitations: readonly string[];
   evidence: string;
   blocker: string;
   nextAction: string;
@@ -79,6 +81,12 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
           p95Ms: null,
           timeoutMs: 250,
         },
+        supportedFeatures: provider.supportedSignals,
+        limitations: [
+          "Credentials do not prove live inference.",
+          "Provider output requires reviewed dataset comparison before accuracy claims.",
+          "Raw provider payloads are not exposed outside protected audit handling.",
+        ],
         evidence: `${provider.providerName} exposes credential checks, health check, normalized results and supported signals: ${provider.supportedSignals.join(", ")}.`,
         blocker: productionModeAvailable
           ? "Live provider output still needs benchmark and reviewer validation before accuracy claims."
@@ -114,6 +122,16 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
         p95Ms: null,
         timeoutMs: 250,
       },
+      supportedFeatures: [
+        provider.category,
+        provider.purpose,
+        provider.evidenceReference,
+      ],
+      limitations: [
+        "Credential presence does not equal production readiness.",
+        "Provider evidence must stay workflow-gated, replay-linked and governance-reviewable.",
+        provider.notes,
+      ],
       evidence: `${provider.name} registry state is ${runtimeState}; auth protection is ${provider.authProtection}; replay integration is ${provider.replayIntegration}.`,
       blocker: productionModeAvailable
         ? "Provider remains workflow-gated and must be reviewed against pilot evidence."
