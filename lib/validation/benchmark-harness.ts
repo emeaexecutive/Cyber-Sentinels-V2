@@ -10,6 +10,13 @@ import { evaluateIntentRisk } from "../trust/intent-risk.ts";
 import { evaluateCalibrationReadiness } from "./calibration-engine.ts";
 import { buildDatasetCoverageReport } from "./dataset-manager.ts";
 import { calculateDatasetReadiness, inspectDatasetRegistry } from "./dataset-registry.ts";
+import {
+  buildGroundTruthDatasetRegistry,
+  computeGroundTruthValidation,
+  summarizeDatasetRegistry,
+  summarizeGroundTruth,
+  type GroundTruthRecord,
+} from "./ground-truth";
 import type {
   ConfusionMatrix,
   PrecisionRecallMetrics,
@@ -313,6 +320,67 @@ function benchmarkHistory(input: { caseCount: number; datasetVersion: string; re
   };
 }
 
+function groundTruthRecordsFromCases(
+  cases: ValidationCase[],
+  results: ValidationResult[]
+): GroundTruthRecord[] {
+  return cases.map((testCase) => {
+    const primary =
+      results.find((result) => result.caseId === testCase.id && result.source === "heuristic_baseline") ??
+      results.find((result) => result.caseId === testCase.id) ??
+      null;
+    const reviewedOutcome = testCase.reviewerOutcome ?? testCase.governanceOverride?.outcome ?? null;
+    const reviewStatus = reviewedOutcome
+      ? "reviewed"
+      : testCase.reviewerId || testCase.datasetMetadata?.reviewer
+        ? "in_review"
+        : "unreviewed";
+    const providerAgreement =
+      testCase.datasetMetadata?.providerAgreement === "agreed"
+        ? 1
+        : testCase.datasetMetadata?.providerAgreement === "disagreed"
+          ? 0
+          : null;
+    const humanAgreement =
+      reviewedOutcome && primary
+        ? reviewedOutcome === primary.actual
+          ? 1
+          : 0
+        : null;
+
+    return {
+      groundTruthId: `gt:${testCase.id}`,
+      datasetId: String(testCase.datasetMetadata?.source ?? "unregistered"),
+      reviewStatus,
+      reviewSource: testCase.governanceOverride
+        ? "internal_audit"
+        : testCase.datasetMetadata?.source === "public_benchmark"
+          ? "benchmark_panel"
+          : testCase.datasetMetadata?.source === "synthetic"
+            ? "synthetic_fixture"
+            : "human_reviewer",
+      reviewConfidence: Math.min(1, Math.max(0, testCase.datasetMetadata?.confidence ?? (reviewedOutcome ? 0.7 : 0.35))),
+      labelVersion: "label-v1",
+      datasetVersion: testCase.datasetMetadata?.source ? `${testCase.datasetMetadata.source}:v1` : "unregistered:v0",
+      providerAgreement,
+      humanAgreement,
+      confidence: Math.min(1, Math.max(0, primary?.confidence ?? testCase.datasetMetadata?.confidence ?? 0.35)),
+      expectedOutcome: testCase.expectedOutcome,
+      systemOutcome: primary?.actual ?? null,
+      reviewedOutcome,
+      weighting: reviewedOutcome ? 1 : 0,
+      trustPosture:
+        testCase.governanceOverride || reviewedOutcome
+          ? testCase.expectedOutcome === "positive"
+            ? "weaken"
+            : testCase.expectedOutcome === "review"
+              ? "investigate"
+              : "strengthen"
+          : "hold",
+    };
+  });
+}
+
 export async function loadValidationCases(root = path.join(process.cwd(), "data", "validation")) {
   const cases: ValidationCase[] = [];
   async function visit(directory: string): Promise<void> {
@@ -343,6 +411,11 @@ export async function runValidationBenchmark(options: {
   const registry = await inspectDatasetRegistry();
   const datasetReadiness = calculateDatasetReadiness({ cases, registry });
   const datasetCoverageReport = buildDatasetCoverageReport(cases);
+  const groundTruthDatasetRegistry = buildGroundTruthDatasetRegistry();
+  const groundTruthRecords = groundTruthRecordsFromCases(cases, []);
+  const groundTruthSummary = summarizeGroundTruth(groundTruthRecords);
+  const groundTruthValidation = computeGroundTruthValidation(groundTruthRecords);
+  const groundTruthDatasetSummary = summarizeDatasetRegistry(groundTruthDatasetRegistry);
   if (!cases.length) {
     const emptyConfusionMatrix = calculateConfusionMatrix([]);
     const emptyMetrics = calculatePrecisionRecall(emptyConfusionMatrix);
@@ -382,6 +455,13 @@ export async function runValidationBenchmark(options: {
       governanceOverrideTracking: { overrides: 0, reviewerDisagreements: 0 },
       reviewedOutcomeSummary: summarizeReviewedOutcomes([]),
       reviewedOutcomes: [],
+      groundTruth: {
+        records: groundTruthRecords,
+        summary: groundTruthSummary,
+        validation: groundTruthValidation,
+        datasetRegistry: groundTruthDatasetRegistry,
+        datasetSummary: groundTruthDatasetSummary,
+      },
       trustDriftTracking: { average: null, cases: [] as Array<Record<string, unknown>> },
       falsePositiveCaseIds: [] as string[],
       falseNegativeCaseIds: [] as string[],
@@ -425,6 +505,9 @@ export async function runValidationBenchmark(options: {
   const reviewerAgreement = calculateReviewerAgreement(cases, heuristicResults);
   const reviewedOutcomes = buildReviewedOutcomeRecords(cases, results);
   const reviewedOutcomeSummary = summarizeReviewedOutcomes(reviewedOutcomes);
+  const finalGroundTruthRecords = groundTruthRecordsFromCases(cases, results);
+  const finalGroundTruthSummary = summarizeGroundTruth(finalGroundTruthRecords);
+  const finalGroundTruthValidation = computeGroundTruthValidation(finalGroundTruthRecords);
   const providerAgreementScore = usableProviderResults.length ? agreements / usableProviderResults.length : null;
   const perCategoryMetrics = metricsByCategory(cases, results);
   const confidenceCalibrationBands = confidenceCalibration(results);
@@ -575,6 +658,13 @@ export async function runValidationBenchmark(options: {
     },
     reviewedOutcomeSummary,
     reviewedOutcomes,
+    groundTruth: {
+      records: finalGroundTruthRecords,
+      summary: finalGroundTruthSummary,
+      validation: finalGroundTruthValidation,
+      datasetRegistry: groundTruthDatasetRegistry,
+      datasetSummary: groundTruthDatasetSummary,
+    },
     trustDriftTracking: {
       average: runtimeEvaluations.length
         ? runtimeEvaluations.reduce(

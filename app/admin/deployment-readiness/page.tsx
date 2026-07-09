@@ -10,6 +10,12 @@ import {
 import { runRuntimeValidation } from "@/lib/runtime-validation/runner";
 import { createClient } from "@/lib/supabase/server";
 import { auditTrustIntegrity } from "@/lib/trust-integrity/repair";
+import {
+  buildGroundTruthDatasetRegistry,
+  computeGroundTruthValidation,
+  summarizeDatasetRegistry,
+  summarizeGroundTruth,
+} from "@/lib/validation/ground-truth";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +40,11 @@ function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Not recorded";
   return date.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+}
+
+function formatMetric(value: number | null) {
+  if (value === null) return "Awaiting data";
+  return `${Math.round(value * 100)}%`;
 }
 
 export default async function DeploymentReadinessPage() {
@@ -61,6 +72,10 @@ export default async function DeploymentReadinessPage() {
     readPilotOperationalMetrics(),
   ]);
   const report = buildDeploymentReadinessReport({ runtime, integrity, metrics });
+  const groundTruthRegistry = buildGroundTruthDatasetRegistry();
+  const groundTruthSummary = summarizeGroundTruth([]);
+  const groundTruthValidation = computeGroundTruthValidation([]);
+  const datasetSummary = summarizeDatasetRegistry(groundTruthRegistry);
   const configuredSiteUrl = (
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
@@ -132,7 +147,7 @@ export default async function DeploymentReadinessPage() {
     },
     {
       label: "Validation",
-      detail: "Validation and benchmark dashboards are protected and separate live evidence from simulations.",
+      detail: `${groundTruthValidation.reviewedSamples}/${groundTruthValidation.minimumReviewedSamples} reviewed ground-truth sample(s) available for metric computation.`,
       state: "CAUTION",
     },
     {
@@ -150,6 +165,16 @@ export default async function DeploymentReadinessPage() {
       detail: `${report.blockers.length} blocker(s) and ${report.warnings.length} warning(s) require operator review.`,
       state: report.blockers.length ? "BLOCKED" : report.warnings.length ? "CAUTION" : "READY",
     },
+  ];
+  const validationHealth = [
+    ["Ground Truth Coverage", formatMetric(groundTruthSummary.groundTruthCoverage)],
+    ["Benchmark Coverage", formatMetric(datasetSummary.benchmarkCoverage)],
+    ["Calibration", formatMetric(groundTruthValidation.calibration.value)],
+    ["Precision", formatMetric(groundTruthValidation.precision.value)],
+    ["Recall", formatMetric(groundTruthValidation.recall.value)],
+    ["Reviewed Outcomes", String(groundTruthValidation.reviewedOutcomes.total)],
+    ["Provider Agreement", formatMetric(groundTruthValidation.providerAgreement.value)],
+    ["Confidence", formatMetric(groundTruthValidation.confidence.value)],
   ];
 
   return (
@@ -214,6 +239,36 @@ export default async function DeploymentReadinessPage() {
               </article>
             ))}
           </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
+                Validation Health
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">Ground truth readiness</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
+                Admin-only view of reviewed sample coverage, benchmark eligibility
+                and metric readiness. Precision, recall and calibration remain
+                unavailable until the reviewed sample threshold is met.
+              </p>
+            </div>
+            <span className={`rounded-full border px-3 py-1 text-xs ${stateClass("CAUTION")}`}>
+              CAUTION
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            {validationHealth.map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-lg font-semibold text-zinc-100">{value}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-xs leading-6 text-zinc-500">
+            {groundTruthValidation.message} {groundTruthValidation.precision.reason}
+          </p>
         </section>
 
         <section className="mt-8 rounded-lg border border-cyan-900/70 bg-cyan-950/10 p-5">
