@@ -1,4 +1,5 @@
 import type { DetectionExpectedOutcome, ValidationCase, ValidationResult } from "@/lib/validation/validation-case";
+import { trustMemoryEventFromReviewedOutcome, type TrustMemoryEvent } from "@/lib/trust-memory/trust-memory";
 
 export type ReviewedOutcomeType =
   | "true_positive"
@@ -179,4 +180,22 @@ export function summarizeReviewedOutcomes(records: ReviewedOutcomeRecord[]) {
       (record) => record.replayLinkage.sampleReference || record.replayLinkage.evidenceReferences.length
     ).length,
   };
+}
+
+export function reviewedOutcomesToTrustMemoryEvents(records: ReviewedOutcomeRecord[]): TrustMemoryEvent[] {
+  return records
+    .filter(
+      (record) =>
+        record.reviewedOutcome ||
+        record.reviewerId ||
+        record.governanceOverride ||
+        record.falsePositive ||
+        record.falseNegative ||
+        record.confirmedEscalation
+    )
+    .map((record, index) =>
+      trustMemoryEventFromReviewedOutcome(record, {
+        createdAt: new Date(Date.UTC(2026, 6, 10, 9, index, 0)).toISOString(),
+      })
+    );
 }
