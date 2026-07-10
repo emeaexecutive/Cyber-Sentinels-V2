@@ -14,18 +14,18 @@ type CloseMenus = () => void;
 
 const platformDropdownLinks = [
   ["/platform", "Platform Overview"],
-  ["/trust-center", "Operational Trust Center"],
-  ["/verification-replay", "Replay / Enterprise Memory"],
+  ["/trust-os", "Trust Memory"],
+  ["/trust-posture", "Runtime Trust"],
   ["/methodology", "Persistent Trust Posture"],
   ["/governance", "Governance Review"],
-  ["/trust/data-sovereignty", "AI & Data Sovereignty"],
 ];
 
 const solutionsDropdownLinks = [
+  ["/solutions", "Solutions Overview"],
   ["/enterprise/hiring-security", "Hiring Security"],
   ["/enterprise/agent-governance", "AI Agent Governance"],
-  ["/verification-replay", "Replay & Evidence"],
-  ["/trust/data-sovereignty", "AI Sovereignty"],
+  ["/workforce-trust", "Workforce Trust"],
+  ["/marketplace-trust", "Marketplace Trust"],
 ];
 
 const enterpriseDropdownLinks = [
@@ -61,7 +61,7 @@ const resourceDropdownLinks = [
   ["/demo", "Enterprise Demos"],
   ["/help", "Help"],
   ["/security", "Security"],
-  ["/about", "About"],
+  ["/methodology", "Methodology"],
 ];
 
 function LogoutButton({ onNavigate }: { onNavigate?: CloseMenus }) {
@@ -170,6 +170,9 @@ function PrimaryNavigation({
         onToggle={onToggleDropdown}
         onClose={onCloseDropdown}
       />
+      <Link href="/trust" onClick={onCloseDropdown} className="nav-control">
+        Trust Center
+      </Link>
       <DropdownLinks
         id="enterprise"
         label="Enterprise"
@@ -197,9 +200,6 @@ function PrimaryNavigation({
         onToggle={onToggleDropdown}
         onClose={onCloseDropdown}
       />
-      <Link href="/trust" onClick={onCloseDropdown} className="nav-control">
-        Trust Center
-      </Link>
     </>
   );
 }

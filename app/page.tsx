@@ -1,117 +1,66 @@
 import Link from "next/link";
-import { TrustOpsOperatingStack } from "@/components/trustops-operating-stack";
 
-const replayPath = [
-  ["Actor", "Human, agent or service account"],
-  ["Authority", "Purpose, scope and accountable owner"],
-  ["Evidence", "Source-linked operational context"],
-  ["Trust change", "Posture evolution over time"],
-  ["Governance", "Review, intervention and rationale"],
-  ["Outcome", "Governed result and unresolved conditions"],
-  ["Memory", "Replay retained under enterprise policy"],
-];
-
-const buyerOutcomes = [
+const homepageAnswers = [
   [
-    "Know who and what is acting",
-    "Verify human identity, register AI agents and preserve the authority behind every action.",
+    "Who are we?",
+    "Cyber Sentinels builds operational trust infrastructure for enterprises governing humans, AI agents, machine identities and regulated workflows.",
   ],
   [
-    "See trust change over time",
-    "Keep identity, session integrity, evidence and authorization connected throughout the workflow.",
+    "What do we do?",
+    "We keep actor identity, authority, evidence, runtime state, governance review and replayable outcomes connected as work changes.",
   ],
   [
-    "Review and explain outcomes",
-    "Give governance teams a replayable chronology of what changed, who intervened and why the outcome followed.",
+    "Why now?",
+    "AI agents, synthetic media, delegated automation and fragmented workflow tools have made one-time verification too thin for consequential operations.",
+  ],
+  [
+    "Why trust us?",
+    "The platform is evidence-backed, replayable, governance-aware and explicit about capability boundaries. It does not claim perfect identity certainty or autonomous truth detection.",
+  ],
+  [
+    "Why different?",
+    "Cyber Sentinels is the independent trust record across providers, workflows and reviewers, not another model, dashboard or disconnected point check.",
   ],
 ];
 
-const governedActors = [
-  [
-    "Humans",
-    "Identity and session evidence remain connected to the work being performed.",
-  ],
-  [
-    "AI agents",
-    "Ownership, purpose, permissions and revocation stay visible and reviewable.",
-  ],
-  [
-    "Enterprise workflows",
-    "Evidence, governance and outcomes remain connected from entry to completion.",
-  ],
-  [
-    "Documents and media",
-    "Provenance, disclosure, evidence timeline and review state remain separate from authenticity claims.",
-  ],
-];
-
-const operatingSystemModel = [
-  ["Memory", "Replay retains the evidence-backed chronology behind every material outcome."],
-  ["State", "Persistent Trust Posture explains what is currently reliable and why."],
-  ["Control", "Governed execution keeps authority, intervention and decisions accountable."],
-  ["Ownership", "Enterprise AI sovereignty keeps memory, data and provider policy under customer control."],
-];
-
-const trustEngines = [
-  ["Trust Engine", "Evaluates actor, authority, evidence and posture context."],
-  ["Runtime Engine", "Monitors execution, permission scope and material trust changes."],
-  ["Replay Engine", "Preserves the chronology of who or what acted, what changed and why."],
-  ["Governance Engine", "Routes review, escalation, intervention and accountable decisions."],
-  ["Validation Engine", "Connects datasets, reviewed outcomes and calibration evidence."],
+const deeperLinks = [
+  ["Platform", "/platform", "Architecture, Trust Memory, Runtime Trust and Governance."],
+  ["Solutions", "/solutions", "Business problems by workflow domain."],
+  ["Trust Center", "/trust", "Replay, AI sovereignty, evidence and trust principles."],
+  ["Enterprise", "/enterprise", "Enterprise readiness, pilot fit and buying questions."],
 ];
 
 export default function Home() {
   return (
     <main className="operational-shell min-h-screen text-zinc-100">
-      <section className="mx-auto max-w-6xl px-6 pb-16 pt-14 sm:pt-16 md:px-8 md:pb-24 md:pt-24">
+      <section className="mx-auto max-w-6xl px-6 pb-14 pt-14 md:px-8 md:pb-20 md:pt-24">
         <div className="max-w-5xl">
           <p className="operational-eyebrow">AI Trust Infrastructure</p>
-          <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            The operational trust control plane for humans, AI agents, machine identities and regulated workflows.
+          <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl">
+            The independent trust record for enterprise AI and regulated workflows.
           </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200 sm:text-xl sm:leading-9">
-            Continuously verify who or what acted, under whose authority, what changed, and why each action was allowed, reviewed or blocked.
-          </p>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
-            Replayable enterprise memory, governed execution, Authorization
-            Lineage, evidence continuity and Persistent Trust Posture keep
-            consequential work accountable as trust changes.
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
+            Cyber Sentinels shows who or what acted, under whose authority, what changed, what evidence existed and why the outcome was allowed, reviewed or blocked.
           </p>
         </div>
 
         <div className="mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-          <Link
-            href="/enterprise-access"
-            className="brand-primary-action brand-action-large text-center text-sm"
-          >
+          <Link href="/enterprise-access" className="brand-primary-action brand-action-large text-center text-sm">
             Request Enterprise Access
           </Link>
-          <Link
-            href="/verification-replay"
-            className="brand-secondary-action brand-action-large text-center text-sm"
-          >
-            Explore Verification Replay
+          <Link href="/platform" className="brand-secondary-action brand-action-large text-center text-sm">
+            Explore Platform
           </Link>
         </div>
       </section>
 
       <section className="border-y border-zinc-800 bg-black">
-        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8 md:py-16">
-          <div className="max-w-3xl">
-            <p className="operational-eyebrow">One intelligence model</p>
-            <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-              Memory, state, control and enterprise ownership.
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-zinc-400">
-              Trust Intelligence here means connected, reviewable trust context
-              across existing enterprise workflows, not autonomous judgment or a
-              replacement for accountable systems of record.
-            </p>
-          </div>
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {operatingSystemModel.map(([title, copy]) => (
+        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8">
+          <p className="operational-eyebrow">The short answer</p>
+          <div className="mt-6 grid gap-3 md:grid-cols-5">
+            {homepageAnswers.map(([title, copy]) => (
               <article key={title} className="operational-card p-5">
-                <h3 className="font-semibold text-zinc-100">{title}</h3>
+                <h2 className="text-base font-semibold text-white">{title}</h2>
                 <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
               </article>
             ))}
@@ -119,133 +68,23 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-y border-zinc-800 bg-zinc-950/80">
-        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8 md:py-16">
-          <div className="max-w-3xl">
-            <p className="operational-eyebrow">What Cyber Sentinels does</p>
-            <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-              Keep trust connected to the workflow.
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-zinc-300">
-              Built for enterprises governing consequential work across people,
-              AI agents, non-human identities, live sessions, documents and the
-              systems they use together.
-            </p>
-          </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {buyerOutcomes.map(([title, copy]) => (
-              <article key={title} className="operational-card p-5">
-                <h3 className="text-lg font-semibold text-white">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-800 bg-black">
-        <div className="mx-auto max-w-6xl px-6 py-14 md:px-8 md:py-16">
-          <div className="max-w-3xl">
-            <p className="operational-eyebrow">Five trust engines</p>
-            <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-              One platform organized around trust, runtime, replay, governance and validation.
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-zinc-300">
-              Every workflow feature connects to one of five engines so teams
-              can understand where evidence is evaluated, where execution is
-              watched, where memory is preserved, where review happens and
-              where outcomes are validated.
-            </p>
-          </div>
-          <div className="mt-8 grid gap-3 md:grid-cols-5">
-            {trustEngines.map(([title, copy], index) => (
-              <article key={title} className="operational-card p-5">
-                <p className="font-mono text-xs text-cyan-300">
-                  {String(index + 1).padStart(2, "0")}
-                </p>
-                <h3 className="mt-3 font-semibold text-zinc-100">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-20">
+      <section className="mx-auto max-w-6xl px-6 py-14 md:px-8 md:py-16">
         <div className="max-w-3xl">
-          <p className="operational-eyebrow">Verification replay</p>
+          <p className="operational-eyebrow">Where to go next</p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-white">
-            One chronology. Every material trust change.
+            Every detail has a clear home.
           </h2>
-          <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Replay preserves the evidence, authorization changes, trust-state
-            evolution and governance actions behind an outcome. It turns
-            workflow history into reviewable operational memory.
+          <p className="mt-4 text-sm leading-7 text-zinc-400">
+            The homepage gives the enterprise story. Platform explains architecture. Trust Center owns replay and sovereignty. Solutions stay focused on business problems.
           </p>
         </div>
-        <div className="mt-8 grid overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-7">
-          {replayPath.map(([title, copy], index) => (
-            <article key={title} className="min-w-0 bg-black p-4">
-              <p className="text-xs font-semibold text-cyan-200">
-                0{index + 1}
-              </p>
-              <h3 className="mt-2 text-sm font-semibold leading-6 text-zinc-100">{title}</h3>
-              <p className="mt-2 text-xs leading-5 text-zinc-500">{copy}</p>
-            </article>
+        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {deeperLinks.map(([title, href, copy]) => (
+            <Link key={href} href={href} className="operational-card block p-5 hover:border-cyan-800">
+              <h3 className="text-lg font-semibold text-zinc-100">{title}</h3>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
+            </Link>
           ))}
-        </div>
-        <Link
-          href="/verification-replay"
-          className="mt-8 inline-flex text-sm font-semibold text-cyan-200 hover:text-cyan-100"
-        >
-          See how verification replay works
-        </Link>
-      </section>
-
-      <section className="border-t border-zinc-800 bg-zinc-950/60">
-        <div className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-20">
-          <p className="operational-eyebrow">TrustOps operating stack</p>
-          <h2 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-white md:text-4xl">
-            Eight connected layers. One accountable workflow record.
-          </h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Identity, runtime integrity, authority, evidence and governance stay
-            connected. Replay preserves the chronology; Persistent Trust
-            Posture explains the current state.
-          </p>
-          <div className="mt-8">
-            <TrustOpsOperatingStack compact />
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-zinc-800">
-        <div className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-20">
-          <p className="operational-eyebrow">Continuous trust</p>
-          <h2 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-white md:text-4xl">
-            Trust is not a moment. It is a continuous operational state.
-          </h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            A single check cannot explain a changing workflow. Cyber Sentinels
-            keeps identity, authority, evidence and governance connected as
-            human and machine activity unfolds.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2 text-xs text-zinc-300">
-            {["Escalate", "Decay", "Recover", "Re-verify"].map((state, index) => (
-              <span key={state} className="inline-flex items-center gap-2 rounded-full border border-zinc-700 px-3 py-1.5">
-                <span className="font-mono text-cyan-300">{String(index + 1).padStart(2, "0")}</span>
-                {state}
-              </span>
-            ))}
-          </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {governedActors.map(([title, copy]) => (
-              <article key={title} className="operational-card p-5">
-                <h3 className="text-lg font-semibold text-white">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-zinc-300">{copy}</p>
-              </article>
-            ))}
-          </div>
         </div>
       </section>
     </main>
