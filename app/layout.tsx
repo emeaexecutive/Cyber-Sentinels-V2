@@ -11,9 +11,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.cybersentinels.com"),
-  title: "Cyber Sentinels | TrustOps Operating System",
+  title: "Cyber Sentinels | Operational Trust Control Plane",
   description:
-    "The operational trust operating system for intelligent enterprises, connecting replayable memory, governed execution, persistent posture and AI sovereignty.",
+    "The operational trust control plane for humans, AI agents, machine identities and regulated workflows.",
   alternates: {
     canonical: "/",
   },
@@ -28,52 +28,68 @@ export const metadata: Metadata = {
 
 const footerSections = [
   {
+    title: "Platform",
+    links: [
+      ["/platform", "Trust Control Plane"],
+      ["/platform#runtime-engine", "Runtime Trust"],
+      ["/platform#authorization-gateway", "Authorization"],
+      ["/platform#evidence-graph", "Evidence Graph"],
+      ["/trust#trust-memory", "Trust Memory\u2122"],
+    ],
+  },
+  {
+    title: "Trust",
+    links: [
+      ["/trust", "Trust Center"],
+      ["/verification-replay", "Replay"],
+      ["/governance", "Governance"],
+      ["/trust#provenance", "Provenance"],
+      ["/trust/data-sovereignty", "AI Sovereignty"],
+      ["/trust#ml-validation", "Validation Transparency"],
+    ],
+  },
+  {
+    title: "Solutions",
+    links: [
+      ["/enterprise/agent-governance", "AI Agents"],
+      ["/solutions#machine-identity-trust", "Machine Identities"],
+      ["/solutions#financial-services", "Financial Services"],
+      ["/solutions#insurance", "Insurance"],
+      ["/solutions#executive-protection", "Executive Protection"],
+      ["/enterprise/hiring-security", "Hiring Security"],
+    ],
+  },
+  {
+    title: "Developers",
+    links: [
+      ["/developers/docs", "API Docs"],
+      ["/developers/authentication", "Authentication"],
+      ["/developers/docs#webhooks", "Webhooks"],
+      ["/developers/docs#integrations", "Integrations"],
+      ["/developers/api-keys", "Developer Console"],
+    ],
+  },
+  {
     title: "Company",
     links: [
-      ["/about", "About us"],
-      ["/platform", "Platform"],
-      ["/pricing", "Pricing"],
-      ["/enterprise", "Enterprise"],
-      ["/investor", "Investor overview"],
-      ["/enterprise-access", "Enterprise access"],
-      ["/design-partner", "Design partners"],
+      ["/about", "About"],
+      ["/about/mission", "Mission"],
+      ["/our-people", "Our People"],
       ["/careers", "Careers"],
+      ["/enterprise-access", "Contact / Enterprise Access"],
     ],
   },
   {
-    title: "Security & Trust",
+    title: "Legal & Support",
     links: [
       ["/help", "Help"],
-      ["/security", "Security & Trust"],
-      ["/trust", "Trust Center"],
-      ["/methodology", "Methodology"],
-      ["/security#responsible-disclosure", "Responsible Disclosure"],
-      ["/trust/data-sovereignty", "AI & Data Sovereignty"],
-      ["/data-rights", "Data Rights"],
-      ["/transparency", "Transparency"],
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      ["/privacy", "Privacy"],
-      ["/cookies", "Cookies"],
-      ["/terms", "Terms"],
-      ["/legal", "Legal"],
-      ["/regulatory", "Regulatory"],
       ["/accessibility", "Accessibility"],
-      ["/modern-slavery", "Modern Slavery statement"],
-    ],
-  },
-  {
-    title: "Contact",
-    links: [
-      ["mailto:contact@cybersentinels.ai", "Company contact"],
-      ["mailto:security@cybersentinels.ai", "Security contact"],
-      ["mailto:trust@cybersentinels.ai", "Trust contact"],
-      ["mailto:abuse@cybersentinels.ai", "Report abuse"],
-      ["https://www.linkedin.com", "LinkedIn"],
-      ["https://x.com", "Twitter/X"],
+      ["/privacy", "Privacy"],
+      ["/terms", "Terms"],
+      ["/cookies", "Cookies"],
+      ["/legal", "Legal"],
+      ["/security", "Security"],
+      ["/status", "Status"],
     ],
   },
 ];
@@ -148,7 +164,7 @@ export default async function RootLayout({
           {children}
           {accessLevel !== "public" ? <ReportIssue authState={accessLevel} /> : null}
           <footer className="border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8">
-            <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-4">
+            <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               {footerSections.map((section) => (
                 <nav key={section.title}>
                   <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-300">
@@ -177,9 +193,8 @@ export default async function RootLayout({
             <div className="mx-auto mt-8 max-w-7xl border-t border-zinc-900 pt-6">
               <p>&copy;2026 Cyber Sentinels&trade;. All rights reserved.</p>
               <p className="mt-3 max-w-3xl leading-6">
-                The Cyber Sentinels TrustOps operating system connects Persistent
-                Trust Posture, Replay Timeline, protected evidence, Authorization
-                Lineage and accountable Governance Review.
+                Cyber Sentinels connects identity, authority, runtime risk,
+                enforcement, replay and governance in one operational trust record.
               </p>
             </div>
           </footer>

@@ -98,7 +98,6 @@ const internalToolingPrefixes = [
   "/command-center",
   "/demo-lab",
   "/developer-console",
-  "/developers",
   "/dashboard/validation",
   "/launch-console",
   "/qa-console",

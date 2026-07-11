@@ -14,25 +14,51 @@ type CloseMenus = () => void;
 
 const platformDropdownLinks = [
   ["/platform", "Platform Overview"],
-  ["/trust-os", "Trust Memory"],
-  ["/trust-posture", "Runtime Trust"],
-  ["/methodology", "Persistent Trust Posture"],
-  ["/governance", "Governance Review"],
+  ["/platform#trust-engine", "Trust Engine"],
+  ["/platform#runtime-engine", "Runtime Engine"],
+  ["/platform#authorization-gateway", "Authorization Gateway"],
+  ["/platform#replay-engine", "Replay Engine"],
+  ["/platform#governance-engine", "Governance Engine"],
+  ["/platform#validation-engine", "Validation Engine"],
+  ["/platform#evidence-graph", "Evidence Graph"],
+  ["/trust#trust-memory", "Trust Memory\u2122"],
 ];
 
 const solutionsDropdownLinks = [
   ["/solutions", "Solutions Overview"],
-  ["/enterprise/hiring-security", "Hiring Security"],
   ["/enterprise/agent-governance", "AI Agent Governance"],
-  ["/workforce-trust", "Workforce Trust"],
-  ["/marketplace-trust", "Marketplace Trust"],
+  ["/solutions#machine-identity-trust", "Machine Identity Trust"],
+  ["/solutions#regulated-workflows", "Regulated Workflows"],
+  ["/solutions#financial-services", "Financial Services"],
+  ["/solutions#insurance", "Insurance"],
+  ["/solutions#executive-protection", "Executive Protection"],
+  ["/solutions#live-session-trust", "Live Session Trust"],
+  ["/enterprise/hiring-security", "Hiring Security"],
+];
+
+const trustDropdownLinks = [
+  ["/trust", "Trust Center"],
+  ["/trust#trust-posture", "Trust Posture"],
+  ["/trust#trust-memory", "Trust Memory\u2122"],
+  ["/verification-replay", "Replay"],
+  ["/trust#evidence-audit", "Evidence & Audit"],
+  ["/governance", "Governance"],
+  ["/trust#provenance", "Provenance"],
+  ["/trust/data-sovereignty", "Data & AI Sovereignty"],
+  ["/trust#ml-validation", "ML & Validation Transparency"],
 ];
 
 const enterpriseDropdownLinks = [
   ["/enterprise", "Enterprise Overview"],
-  ["/enterprise-access", "Enterprise Access"],
-  ["/design-partner", "Design Partner"],
-  ["/enterprise/pilot", "Pilot Program"],
+  ["/enterprise#deployment", "Deployment"],
+  ["/security", "Security"],
+  ["/enterprise#compliance", "Compliance"],
+  ["/enterprise#sso-scim", "SSO / SCIM"],
+  ["/enterprise#data-residency", "Data Residency"],
+  ["/enterprise/pilot", "Pilot Programme"],
+  ["/enterprise#support", "Enterprise Support"],
+  ["/enterprise#architecture", "Architecture"],
+  ["/enterprise#procurement", "Procurement / Legal Readiness"],
 ];
 
 const adminEnterpriseDropdownLinks = [
@@ -59,9 +85,9 @@ const authenticatedDeveloperDropdownLinks = [
 
 const resourceDropdownLinks = [
   ["/demo", "Enterprise Demos"],
-  ["/help", "Help"],
-  ["/security", "Security"],
   ["/methodology", "Methodology"],
+  ["/trust-principles", "Trust Principles"],
+  ["/investor", "Investor Overview"],
 ];
 
 function LogoutButton({ onNavigate }: { onNavigate?: CloseMenus }) {
@@ -118,6 +144,7 @@ function DropdownLinks({
           aria-label={`${label} navigation`}
           className={`absolute top-full z-50 mt-2 grid w-64 max-w-[calc(100vw-2rem)] gap-1 rounded-lg border border-zinc-800 bg-black p-2 shadow-2xl shadow-black/50 ${
             id === "platform" ? "left-0" : "right-0"
+          } ${id === "trust" ? "sm:w-[34rem] sm:grid-cols-2" : ""
           }`}
         >
           {links.map(([href, itemLabel]) => (
@@ -170,9 +197,14 @@ function PrimaryNavigation({
         onToggle={onToggleDropdown}
         onClose={onCloseDropdown}
       />
-      <Link href="/trust" onClick={onCloseDropdown} className="nav-control">
-        Trust Center
-      </Link>
+      <DropdownLinks
+        id="trust"
+        label="Trust"
+        links={trustDropdownLinks}
+        open={openDropdown === "trust"}
+        onToggle={onToggleDropdown}
+        onClose={onCloseDropdown}
+      />
       <DropdownLinks
         id="enterprise"
         label="Enterprise"
@@ -212,7 +244,7 @@ export function GlobalNavigation({
   const pathname = usePathname();
   const navigationRef = useRef<HTMLElement | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [, setMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const closeMenus = useCallback(() => {
     setOpenDropdown(null);
@@ -265,14 +297,24 @@ export function GlobalNavigation({
         <Link
           href="/"
           onClick={closeMenus}
-          className="brand-wordmark basis-full sm:basis-auto"
+          className="brand-wordmark"
         >
           Cyber Sentinels
         </Link>
+        <button
+          type="button"
+          aria-expanded={mobileMenuOpen}
+          aria-controls="primary-navigation"
+          onClick={() => setMobileMenuOpen((current) => !current)}
+          className="nav-control sm:hidden"
+        >
+          {mobileMenuOpen ? "Close" : "Menu"}
+        </button>
         <nav
+          id="primary-navigation"
           ref={navigationRef}
           aria-label="Primary navigation"
-          className="flex w-full min-w-0 flex-wrap items-center gap-x-2 gap-y-2 text-sm text-zinc-200 sm:w-auto sm:justify-end"
+          className={`${mobileMenuOpen ? "flex" : "hidden"} w-full min-w-0 flex-col items-stretch gap-2 text-sm text-zinc-200 sm:flex sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end`}
         >
           {accessLevel === "public" ? (
             <>

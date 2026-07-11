@@ -2,25 +2,32 @@ import Link from "next/link";
 
 const homepageAnswers = [
   [
-    "Who are we?",
-    "Cyber Sentinels builds operational trust infrastructure for enterprises governing humans, AI agents, machine identities and regulated workflows.",
+    "What is it?",
+    "An independent operational trust layer across systems, providers and accountable reviewers.",
   ],
   [
-    "What do we do?",
-    "We keep actor identity, authority, evidence, runtime state, governance review and replayable outcomes connected as work changes.",
+    "Who is it for?",
+    "Security, risk, compliance and operations teams governing consequential human and machine activity.",
   ],
   [
-    "Why now?",
-    "AI agents, synthetic media, delegated automation and fragmented workflow tools have made one-time verification too thin for consequential operations.",
+    "What problem does it solve?",
+    "It closes the gap between a one-time check and the evidence, authority and risk that change during execution.",
   ],
   [
-    "Why trust us?",
-    "The platform is evidence-backed, replayable, governance-aware and explicit about capability boundaries. It does not claim perfect identity certainty or autonomous truth detection.",
+    "Why is it different?",
+    "It preserves why an action advanced, changed or stopped without claiming autonomous truth or perfect certainty.",
   ],
-  [
-    "Why different?",
-    "Cyber Sentinels is the independent trust record across providers, workflows and reviewers, not another model, dashboard or disconnected point check.",
-  ],
+];
+
+const platformFlow = [
+  "Identity",
+  "Authority",
+  "Runtime Risk",
+  "Decision",
+  "Enforcement",
+  "Replay",
+  "Governance",
+  "Trust Memory\u2122",
 ];
 
 const deeperLinks = [
@@ -37,10 +44,10 @@ export default function Home() {
         <div className="max-w-5xl">
           <p className="operational-eyebrow">Enterprise Trust Infrastructure</p>
           <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl">
-            The operational trust control plane for enterprise AI and regulated workflows.
+            The operational trust control plane for humans, AI agents, machine identities and regulated workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels is an independent trust decision layer that shows who or what acted, under whose authority, what changed, what evidence existed and why the outcome was allowed, reviewed or blocked.
+            Continuously verify who or what acted, under whose authority, what changed, and why each action was allowed, reviewed or blocked.
           </p>
         </div>
 
@@ -57,7 +64,7 @@ export default function Home() {
       <section className="border-y border-zinc-800 bg-black">
         <div className="mx-auto max-w-6xl px-6 py-14 md:px-8">
           <p className="operational-eyebrow">The short answer</p>
-          <div className="mt-6 grid gap-3 md:grid-cols-5">
+          <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             {homepageAnswers.map(([title, copy]) => (
               <article key={title} className="operational-card p-5">
                 <h2 className="text-base font-semibold text-white">{title}</h2>
@@ -65,6 +72,19 @@ export default function Home() {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-14 md:px-8">
+        <p className="operational-eyebrow">How it works</p>
+        <h2 className="mt-3 text-3xl font-semibold text-white">One governed flow from actor to durable memory.</h2>
+        <div className="mt-7 grid overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-8">
+          {platformFlow.map((step, index) => (
+            <div key={step} className="min-w-0 bg-black p-4">
+              <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
+              <p className="mt-2 text-sm font-semibold text-zinc-100">{step}</p>
+            </div>
+          ))}
         </div>
       </section>
 

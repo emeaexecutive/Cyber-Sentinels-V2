@@ -2,18 +2,16 @@ import Link from "next/link";
 import { TrustOpsOperatingStack } from "@/components/trustops-operating-stack";
 
 const canonicalConcepts = [
-  ["Trust Memory", "The durable platform memory that connects actors, evidence, authority, review and outcomes across workflow history."],
-  ["Runtime Trust", "The current execution state for a human, agent, machine identity or workflow as evidence and authority change."],
-  ["Governance", "The accountable review path for escalation, intervention, approval, blocking and recorded rationale."],
-  ["Persistent Trust Posture", "The explainable current condition produced by evidence freshness, authorization state and governance outcomes."],
+  ["Authorization Gateway", "Verifies declared purpose, delegated scope, accountable ownership and policy before consequential execution."],
+  ["Evidence Graph", "Connects actors, authority, provider evidence, runtime changes, decisions and outcomes without flattening source boundaries."],
 ];
 
 const engines = [
-  ["Trust Engine", "Evaluates identity, authority, evidence and confidence boundaries."],
-  ["Runtime Engine", "Observes execution state, permission scope and provider availability."],
-  ["Replay Engine", "Preserves the chronology as operational memory."],
-  ["Governance Engine", "Routes accountable review, escalation and intervention."],
-  ["Validation Engine", "Keeps benchmark, reviewed-sample and calibration evidence explicit."],
+  ["trust-engine", "Trust Engine", "Evaluates identity, authority, evidence and confidence boundaries."],
+  ["runtime-engine", "Runtime Engine", "Observes execution state, permission scope and provider availability."],
+  ["replay-engine", "Replay Engine", "Preserves the chronology as operational memory."],
+  ["governance-engine", "Governance Engine", "Routes accountable review, escalation and intervention."],
+  ["validation-engine", "Validation Engine", "Keeps benchmark, reviewed-sample and calibration evidence explicit."],
 ];
 
 const executionContract = [
@@ -34,16 +32,16 @@ export default function PlatformPage() {
             The architecture home for Cyber Sentinels trust infrastructure.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Platform owns the core architecture: Trust Memory, Runtime Trust, Governance, Persistent Trust Posture and the five-engine execution model.
+            Platform explains how the Trust Engine, Runtime Engine, Authorization Gateway, Replay Engine, Governance Engine, Validation Engine and Evidence Graph work together.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Solution pages describe business problems. Trust Center explains replay, provider boundaries and public trust principles. Platform explains how the system is organized.
+            Solution pages describe where the platform is used. Trust Center is the canonical home for Trust Memory\u2122, replay, evidence boundaries, sovereignty and validation transparency.
           </p>
         </section>
 
         <section className="mt-8 grid gap-3 md:grid-cols-2">
           {canonicalConcepts.map(([title, copy]) => (
-            <article key={title} className="operational-card p-5">
+            <article id={title === "Authorization Gateway" ? "authorization-gateway" : "evidence-graph"} key={title} className="scroll-mt-28 operational-card p-5">
               <h2 className="text-lg font-semibold text-zinc-100">{title}</h2>
               <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
             </article>
@@ -70,8 +68,8 @@ export default function PlatformPage() {
           <p className="operational-eyebrow">Five engines</p>
           <h2 className="mt-3 text-2xl font-semibold">One product model for trust execution.</h2>
           <div className="mt-6 grid gap-3 md:grid-cols-5">
-            {engines.map(([title, copy], index) => (
-              <article key={title} className="operational-card p-4">
+            {engines.map(([id, title, copy], index) => (
+              <article id={id} key={title} className="scroll-mt-28 operational-card p-4">
                 <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
                 <h3 className="mt-3 font-semibold text-zinc-100">{title}</h3>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">{copy}</p>
@@ -87,6 +85,7 @@ export default function PlatformPage() {
             <TrustOpsOperatingStack />
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/trust#trust-memory" className="brand-secondary-action">Trust Memory\u2122</Link>
             <Link href="/trust" className="brand-secondary-action">Trust Center</Link>
             <Link href="/developers" className="brand-secondary-action">Developers</Link>
           </div>

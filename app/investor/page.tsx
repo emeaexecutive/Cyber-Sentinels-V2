@@ -50,6 +50,9 @@ export default function InvestorPage() {
             workflow memory and operational IP under customer control.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/trust#trust-memory" className="brand-secondary-action brand-action-large text-sm">
+              Trust Memory\u2122
+            </Link>
             <Link href="/verification-replay" className="brand-primary-action brand-action-large text-sm">
               Explore Verification Replay
             </Link>

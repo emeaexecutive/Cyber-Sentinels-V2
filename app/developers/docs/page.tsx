@@ -26,6 +26,20 @@ export default function DeveloperDocsPage() {
             </Link>
           ))}
         </section>
+        <section className="mt-8 grid gap-4 md:grid-cols-2">
+          <article id="webhooks" className="scroll-mt-28 rounded-lg border border-zinc-800 bg-black p-5">
+            <h2 className="text-xl font-semibold text-zinc-100">Webhooks</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-500">
+              Deliver signed trust and workflow events to approved endpoints with replay-safe identifiers and auditable delivery handling.
+            </p>
+          </article>
+          <article id="integrations" className="scroll-mt-28 rounded-lg border border-zinc-800 bg-black p-5">
+            <h2 className="text-xl font-semibold text-zinc-100">Integrations</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-500">
+              Connect systems of record through scoped authentication, declared purpose and evidence-aware workflow contracts.
+            </p>
+          </article>
+        </section>
       </div>
     </main>
   );

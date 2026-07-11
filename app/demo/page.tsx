@@ -67,6 +67,7 @@ export default function DemoPage() {
             <h2 className="mt-3 text-2xl font-semibold text-white">Event. Evidence. Trust change. Governance. Outcome.</h2>
           </div>
           <div className="flex flex-wrap gap-3">
+            <Link href="/trust#trust-memory" className="brand-secondary-action">Trust Memory\u2122</Link>
             <Link href="/trust" className="brand-secondary-action">Trust Center</Link>
             <Link href="/platform" className="brand-primary-action">TrustOps Platform</Link>
           </div>

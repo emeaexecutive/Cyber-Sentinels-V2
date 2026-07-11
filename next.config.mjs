@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      { source: "/about-us", destination: "/about", permanent: true },
+      { source: "/design-partners", destination: "/design-partner", permanent: true },
+      { source: "/modern-slavery-statement", destination: "/modern-slavery", permanent: true },
+    ];
+  },
   async headers() {
     const securityHeaders = [
       {
