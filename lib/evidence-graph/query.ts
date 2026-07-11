@@ -3,7 +3,7 @@ import type {
   EvidenceGraphNode,
   EvidenceGraphRelationship,
   EvidenceGraphRelationshipType,
-} from "@/lib/evidence-graph/evidence-graph";
+} from "./evidence-graph.ts";
 
 function node(graph: EvidenceGraph, id: string) {
   return graph.nodes.find((item) => item.id === id) ?? null;

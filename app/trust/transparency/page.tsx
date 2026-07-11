@@ -1,15 +1,29 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { DecisionIntelligenceTimeline } from "@/components/decision-intelligence-timeline";
+import { EnterpriseDecisionCard } from "@/components/enterprise-decision-card";
+import { TrustExplanationCard } from "@/components/trust-explanation-card";
+import { TrustExplanationTimeline } from "@/components/trust-explanation-timeline";
 import { TrustTransparencyReportView } from "@/components/trust-transparency-report";
+import { buildDecisionIntelligence } from "@/lib/core/decision-intelligence";
 import { replayEngine } from "@/lib/core/replay-engine";
+import { buildEvidenceGraph, buildEvidenceGraphDemo } from "@/lib/evidence-graph/evidence-graph";
+import { reviewedOutcomesToTrustMemoryEvents } from "@/lib/governance/reviewed-outcomes";
 import {
   loadWorkflowTrust,
   validReference,
 } from "@/lib/operational-trust/api";
 import { createClient } from "@/lib/supabase/server";
 import {
+  buildDemoTrustExplanation,
+  buildTrustExplanation,
+} from "@/lib/trust-explanation/explanation";
+import {
   TRUST_SCORING_TRANSPARENCY,
 } from "@/lib/trust-transparency";
+import type { ReplaySession } from "@/lib/trust-replay/replay";
+import { loadValidationCases, runValidationBenchmark } from "@/lib/validation/benchmark-harness";
+import { buildProviderReadinessChecklist } from "@/lib/providers/provider-readiness";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +31,7 @@ type PageProps = {
   searchParams?: Promise<{
     workflow_id?: string;
     subject_type?: string;
+    demo?: string;
   }>;
 };
 
@@ -32,11 +47,75 @@ export default async function TrustTransparencyPage({
 
   const workflowId = String(query.workflow_id ?? "").trim();
   const subjectType = String(query.subject_type ?? "workflow").trim();
+  const showDemo = query.demo === "1";
   const trust =
-    workflowId && validReference(workflowId)
+    !showDemo && workflowId && validReference(workflowId)
       ? await loadWorkflowTrust(supabase, workflowId, subjectType).catch(() => null)
       : null;
   const report = trust ? replayEngine.buildReplayTransparencyReport(trust).report : null;
+  const cases = await loadValidationCases().catch(() => []);
+  const benchmark = await runValidationBenchmark({ cases }).catch(() => null);
+  const reviewedOutcomes = benchmark?.reviewedOutcomes ?? [];
+  const trustMemoryEvents = reviewedOutcomesToTrustMemoryEvents(reviewedOutcomes);
+  const explanation = report && trust
+    ? buildTrustExplanation({
+        workflow: report.workflow,
+        decision: String(trust.governanceLineage.at(-1)?.action_status ?? "").toLowerCase().includes("block")
+          ? "BLOCK"
+          : trust.posture.state === "governance_review"
+            ? "ESCALATE"
+            : trust.governanceLineage.length
+              ? "REVIEW"
+              : "ALLOW",
+        reason: report.decisionExplanation.whyTrustShifted,
+        confidence: 0.7,
+        evidence: report.decisionExplanation.evidenceContributed,
+        providers: report.decisionExplanation.providerSignals,
+        runtimeSignals: trust.chronology.map((row: any) => String(row.event_summary ?? row.event_type ?? "Runtime signal recorded")).slice(0, 12),
+        governancePolicy: {
+          policyId: "workflow-governance-policy",
+          policyName: "Workflow governance policy",
+          outcome: String(trust.governanceLineage.at(-1)?.action_status ?? "not recorded"),
+          rationale: String(trust.governanceLineage.at(-1)?.resolution_notes ?? trust.explanation.governanceImpact),
+        },
+        reviewedOutcomes,
+        trustMemoryEvents,
+        evidenceGraph: buildEvidenceGraph({
+          workflows: [{ id: trust.workflow.subjectId, workflow_type: trust.workflow.subjectType }],
+          evidence: trust.evidenceContinuity,
+          replaySessions: trust.replay.sessions.map((session: any): ReplaySession => ({
+            id: String(session.id),
+            subject_type: session.subject_type ?? null,
+            subject_id: session.subject_id ?? null,
+            replay_summary: session.replay_summary ?? null,
+            generated_by: session.generated_by ?? null,
+            created_at: session.created_at ?? null,
+          })),
+          governanceReviews: trust.governanceLineage,
+          trustMemoryEvents,
+          providerSignals: trust.providerEvidence.providers.map((provider: any) => ({
+            providerId: provider.providerId,
+            providerName: provider.providerName,
+            sourceType: "workflow_context",
+            identityConfidence: 70,
+            sessionIntegrity: 70,
+            providerVerificationState: provider.verificationState,
+            riskFlags: [],
+            governanceRecommendation: "Use provider evidence as review context.",
+            evidenceReferences: provider.evidenceReferences,
+            summary: provider.summary,
+          })),
+        }),
+        replayReference: report.auditability.replayReference,
+        transparencyReport: report,
+      })
+    : buildDemoTrustExplanation(buildEvidenceGraphDemo());
+  const decisionIntelligence = buildDecisionIntelligence({
+    explanation,
+    providerReadiness: buildProviderReadinessChecklist(),
+    reviewedOutcomes,
+    trustMemoryEvents,
+  });
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -60,6 +139,9 @@ export default async function TrustTransparencyPage({
             </Link>
             <Link href="/verification-receipts" className="brand-secondary-action brand-action-large text-sm">
               Verification Receipts
+            </Link>
+            <Link href="/trust/transparency?demo=1" className="brand-secondary-action brand-action-large text-sm">
+              Demo Explanation
             </Link>
           </div>
         </section>
@@ -112,14 +194,23 @@ export default async function TrustTransparencyPage({
         </section>
 
         <section className="mt-8">
-          {report ? (
-            <TrustTransparencyReportView report={report} />
+          {report || showDemo ? (
+            <div className="grid gap-6">
+              <EnterpriseDecisionCard intelligence={decisionIntelligence} />
+              <DecisionIntelligenceTimeline intelligence={decisionIntelligence} />
+              <TrustExplanationCard explanation={explanation} />
+              <TrustExplanationTimeline explanation={explanation} />
+              {report ? <TrustTransparencyReportView report={report} /> : null}
+            </div>
           ) : (
             <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
               <h2 className="text-xl font-semibold">No workflow selected</h2>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
                 Enter an accessible workflow reference to reconstruct its evidence continuity, provider signals, governance history and trust-state explanation. No sample decision is fabricated when records are absent.
               </p>
+              <Link href="/trust/transparency?demo=1" className="mt-5 inline-flex rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
+                Open demo explanation
+              </Link>
             </div>
           )}
         </section>

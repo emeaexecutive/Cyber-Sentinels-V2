@@ -6,7 +6,12 @@ import {
   ScanSearch,
 } from "lucide-react";
 import { redirect } from "next/navigation";
+import { EnterpriseDecisionCard } from "@/components/enterprise-decision-card";
+import { buildDecisionIntelligence } from "@/lib/core/decision-intelligence";
+import { buildEvidenceGraphDemo } from "@/lib/evidence-graph/evidence-graph";
+import { buildProviderReadinessChecklist } from "@/lib/providers/provider-readiness";
 import { createClient } from "@/lib/supabase/server";
+import { buildDemoTrustExplanation } from "@/lib/trust-explanation/explanation";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +34,11 @@ export default async function DashboardPage() {
     ["Verification Receipts", receipts.count ?? 0, History, "/verification-receipts"],
   ] as const;
   const noOperationalActivity = metrics.every(([, value]) => value === 0);
+  const demoExplanation = buildDemoTrustExplanation(buildEvidenceGraphDemo());
+  const demoDecision = buildDecisionIntelligence({
+    explanation: demoExplanation,
+    providerReadiness: buildProviderReadinessChecklist(),
+  });
 
   return (
     <main className="min-h-screen bg-sentinel-black px-5 py-8 text-sentinel-white sm:px-6 md:px-8">
@@ -81,6 +91,19 @@ export default async function DashboardPage() {
             </p>
           </section>
         ) : null}
+
+        <section className="mt-8">
+          <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.16em] text-sentinel-green">Decision Intelligence Demo</p>
+              <h2 className="mt-2 text-xl font-semibold">Enterprise decision card</h2>
+            </div>
+            <Link href="/trust/transparency?demo=1" className="text-sm font-semibold text-cyan-200 hover:text-white">
+              Open explanation
+            </Link>
+          </div>
+          <EnterpriseDecisionCard intelligence={demoDecision} />
+        </section>
 
         <section className="mt-8 rounded-lg border border-sentinel-line bg-sentinel-panel/80 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
