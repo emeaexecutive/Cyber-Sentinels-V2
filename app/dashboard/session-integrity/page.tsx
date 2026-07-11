@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { DecisionSummary } from "@/components/executive-summary";
 import { DetectionEvidenceNote, SessionIntegrityBadge } from "@/components/session-integrity";
 import { createClient } from "@/lib/supabase/server";
 
@@ -35,6 +36,17 @@ export default async function SessionIntegrityDashboardPage() {
           </p>
           <Link href="/verify/session" className="mt-5 inline-flex rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">Record session review</Link>
         </section>
+
+        <div className="mt-6">
+          <DecisionSummary items={[
+            { label: "Current posture", value: manualReviews ? "Session decisions require human review" : "No manual session review is queued" },
+            { label: "Current risks", value: `${channelFailures} channel failure(s); ${injectionFlags} injection flag(s)` },
+            { label: "Recommended action", value: manualReviews ? "Open the oldest manual review" : "Monitor session evidence" },
+            { label: "Evidence available", value: `${rows.length} session review(s); ${signalRows.length} signal(s)` },
+            { label: "Confidence", value: "Evidence markers are review priority, not certification" },
+            { label: "Responsible owner", value: "Session integrity reviewer" },
+          ]} />
+        </div>
 
         <section className="mt-8 grid gap-3 md:grid-cols-4">
           {[

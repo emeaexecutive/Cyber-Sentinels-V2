@@ -1,34 +1,29 @@
 import Link from "next/link";
+import { ExecutiveSummary } from "@/components/executive-summary";
 
 const demoSequence = [
-  "Actor enters",
-  "Trust Engine evaluates evidence",
-  "Runtime Engine watches execution",
-  "Replay Engine records chronology",
-  "Governance Engine routes review",
-  "Validation Engine preserves outcome learning",
+  "Identity",
+  "Authority",
+  "Runtime",
+  "Decision",
+  "Replay",
+  "Governance",
+  "Trust Memory\u2122",
+  "Evidence Graph",
+  "Outcome",
 ];
 
 export default function DemoPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
-        <section className="border-b border-zinc-800 pb-12">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Workflow trust demo</p>
-          <h1 className="mt-4 max-w-5xl text-4xl font-semibold tracking-tight md:text-6xl">
-            Trust changes. Cyber Sentinels shows why.
-          </h1>
-          <p className="mt-6 max-w-3xl leading-8 text-zinc-200">
-            In under 90 seconds, follow one trusted workflow from entry to evidence, governance, replay and receipt.
-          </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Replayable evidence for trusted workflows.
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Link href="/demo/trust-execution-flow" className="rounded-md bg-cyan-300 px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-200">View Demo</Link>
-            <Link href="/enterprise-access" className="rounded-md border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">Request Enterprise Access</Link>
-          </div>
-        </section>
+        <ExecutiveSummary
+          eyebrow="Guided Enterprise Demo"
+          title="Follow one decision from identity to provable outcome."
+          bullets={["See identity and authority established before execution.", "Watch runtime change trigger an explainable decision.", "Follow ownership through governance and Replay.", "Close with Trust Memory\u2122, Evidence Graph and outcome proof."]}
+          primary={{ href: "/demo/trust-execution-flow", label: "Start Guided Demo" }}
+          secondary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
+        />
 
         <section className="mt-8 grid gap-5 md:grid-cols-3">
           <Link href="/demo/trust-execution-flow" className="rounded-lg border border-cyan-800 bg-zinc-950 p-6 hover:border-cyan-400">
@@ -51,7 +46,7 @@ export default function DemoPage() {
         <section className="mt-12 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Demo sequence</p>
           <h2 className="mt-3 text-2xl font-semibold text-white">One operational story.</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-3 lg:grid-cols-6">
+          <div className="mt-5 grid gap-3 md:grid-cols-3 lg:grid-cols-9">
             {demoSequence.map((step, index) => (
               <div key={step} className="border-t border-zinc-700 pt-4">
                 <p className="text-xs font-semibold text-cyan-200">{index + 1}</p>

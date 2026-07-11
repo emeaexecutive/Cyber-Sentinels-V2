@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExecutiveSummary } from "@/components/executive-summary";
 
 const enterpriseQuestions = [
   ["Can trust decisions be explained later?", "Yes: evidence, reviewer action, authorization context and outcome history remain connected for review."],
@@ -27,23 +28,13 @@ export default function EnterprisePage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-5xl">
-        <section className="operational-panel p-6 md:p-8">
-          <p className="operational-eyebrow">Enterprise</p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Enterprise clarity for governed human and machine work.
-          </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels helps enterprise teams explain high-consequence workflow outcomes when identity, authority, evidence and AI-assisted activity change over time.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/enterprise-access" className="brand-primary-action brand-action-large text-sm">
-              Request Enterprise Access
-            </Link>
-            <Link href="/solutions" className="brand-secondary-action brand-action-large text-sm">
-              View Solutions
-            </Link>
-          </div>
-        </section>
+        <ExecutiveSummary
+          eyebrow="Enterprise"
+          title="Make consequential workflow decisions explainable, owned and provable."
+          bullets={["Give security, risk, compliance and operations one decision record.", "Assign every escalation and approval to a responsible owner.", "Pilot beside existing systems without broad platform replacement.", "Retain evidence, authority and review context for audit."]}
+          primary={{ href: "/enterprise/pilot", label: "Start Pilot" }}
+          secondary={{ href: "/platform", label: "View Architecture" }}
+        />
 
         <section className="mt-8 grid gap-4 lg:grid-cols-3">
           {enterpriseQuestions.map(([title, body]) => (

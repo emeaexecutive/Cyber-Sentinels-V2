@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExecutiveSummary } from "@/components/executive-summary";
 import { mlValidationEngine } from "@/lib/core/ml-validation-engine";
 import { getDetectionEngineStatus } from "@/lib/detection/detection-engine";
 
@@ -35,35 +36,30 @@ export default async function TrustPage() {
   const caseCount = benchmark?.caseCount ?? 0;
   const reviewedOutcomeCount = benchmark?.reviewedOutcomeSummary.reviewed ?? 0;
   const mlStatus = [
-    ["Real ML", detection.real_ml_enabled ? "Active and verified" : "Not implemented"],
-    ["Provider-backed detection", detection.provider_detection_enabled ? "Active" : "Awaiting credentials"],
-    ["Heuristic baseline", detection.heuristic_detection_enabled ? "Active - deterministic rules" : "Disabled"],
-    ["Runtime intelligence", detection.runtime_intelligence_enabled ? "Active - governed context" : "Disabled"],
-    ["Validation dataset status", caseCount ? `${caseCount} labelled case(s)` : "Awaiting data"],
-    ["Precision status", metricStatus(calibrationComplete && benchmark?.metrics.precision !== null)],
-    ["Recall status", metricStatus(calibrationComplete && benchmark?.metrics.recall !== null)],
-    ["F1 status", metricStatus(calibrationComplete && benchmark?.metrics.f1 !== null)],
-    ["Reviewed outcomes", reviewedOutcomeCount ? String(reviewedOutcomeCount) : "Awaiting data"],
-    ["Calibration status", calibrationComplete ? "Dataset-scoped; ongoing review required" : "Validation incomplete - insufficient reviewed dataset."],
-    ["Awaiting credentials", `${detection.missing_providers.length} provider configuration(s)`],
-    ["Not implemented", `${detection.detection_modules.filter((module) => module.status === "Not Implemented").length} detection module(s)`],
+    ["Real ML", detection.real_ml_enabled ? "Active and verified" : "Not implemented", detection.real_ml_enabled ? "Measured" : "Awaiting validation"],
+    ["Provider-backed detection", detection.provider_detection_enabled ? "Active" : "Awaiting credentials", "Provider supplied"],
+    ["Heuristic baseline", detection.heuristic_detection_enabled ? "Active - deterministic rules" : "Disabled", "Estimated"],
+    ["Runtime intelligence", detection.runtime_intelligence_enabled ? "Active - governed context" : "Disabled", "Estimated"],
+    ["Validation dataset status", caseCount ? `${caseCount} labelled case(s)` : "Awaiting data", caseCount ? "Measured" : "Awaiting validation"],
+    ["Precision status", metricStatus(calibrationComplete && benchmark?.metrics.precision !== null), calibrationComplete ? "Measured" : "Awaiting validation"],
+    ["Recall status", metricStatus(calibrationComplete && benchmark?.metrics.recall !== null), calibrationComplete ? "Measured" : "Awaiting validation"],
+    ["F1 status", metricStatus(calibrationComplete && benchmark?.metrics.f1 !== null), calibrationComplete ? "Measured" : "Awaiting validation"],
+    ["Reviewed outcomes", reviewedOutcomeCount ? String(reviewedOutcomeCount) : "Awaiting data", reviewedOutcomeCount ? "Human reviewed" : "Awaiting validation"],
+    ["Calibration status", calibrationComplete ? "Dataset-scoped; ongoing review required" : "Validation incomplete - insufficient reviewed dataset.", calibrationComplete ? "Human reviewed" : "Awaiting validation"],
+    ["Awaiting credentials", `${detection.missing_providers.length} provider configuration(s)`, "Provider supplied"],
+    ["Not implemented", `${detection.detection_modules.filter((module) => module.status === "Not Implemented").length} detection module(s)`, "Awaiting validation"],
   ];
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Trust Center</p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            The authoritative home for trust evidence, memory and capability boundaries.
-          </h1>
-          <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
-            Understand where trust evidence lives, how decisions remain governed and which capabilities are measured, provider-backed, heuristic or awaiting validation.
-          </p>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
-            Case-level timelines, reviewer notes and operational dashboards remain protected customer trust data.
-          </p>
-        </section>
+        <ExecutiveSummary
+          eyebrow="Trust Center"
+          title="Understand the evidence, ownership and confidence behind every trust decision."
+          bullets={["See whether evidence is measured, estimated, provider supplied or awaiting validation.", "Know which human owner reviewed or must act next.", "Trace changes through Replay and Trust Memory\u2122.", "Prove the outcome without exposing protected customer records."]}
+          primary={{ href: "/enterprise-access?intent=trust-team", label: "Talk to Trust Team" }}
+          secondary={{ href: "/trust-principles", label: "Read Trust Framework" }}
+        />
 
         <section id="trust-posture" className="mt-8 scroll-mt-28 rounded-lg border border-zinc-800 bg-black p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Trust Posture</p>
@@ -108,11 +104,19 @@ export default async function TrustPage() {
           <p className="mt-4 max-w-4xl text-sm leading-7 text-zinc-300">
             ML contributes evidence. Cyber Sentinels combines evidence, policy, authority, runtime context and governance before making a trust decision.
           </p>
+          <div className="mt-5 flex flex-wrap gap-2" aria-label="ML evidence classes">
+            {["Measured", "Estimated", "Awaiting validation", "Provider supplied", "Human reviewed"].map((classification) => (
+              <span key={classification} className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-cyan-200">
+                {classification}
+              </span>
+            ))}
+          </div>
           <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {mlStatus.map(([label, state]) => (
+            {mlStatus.map(([label, state, classification]) => (
               <article key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
                 <p className="mt-2 text-sm font-semibold text-zinc-100">{state}</p>
+                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">{classification}</p>
               </article>
             ))}
           </div>

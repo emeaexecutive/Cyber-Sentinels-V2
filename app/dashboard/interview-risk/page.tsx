@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DecisionSummary } from "@/components/executive-summary";
 import { redirect } from "next/navigation";
 import { normalizeDetectionSource } from "@/lib/detection/detection-engine";
 import { intelligenceSeverityClass } from "@/lib/operational-intelligence/intelligence";
@@ -133,6 +134,17 @@ export default async function InterviewRiskDashboardPage() {
             Detection is one signal. Governance review determines final workflow state. Cyber Sentinels does not produce a standalone detection verdict.
           </p>
         </section>
+
+        <div className="mt-6">
+          <DecisionSummary items={[
+            { label: "Current posture", value: escalatedSessions.length ? "Hiring workflows require review" : "No escalated hiring session" },
+            { label: "Current risks", value: `${unresolvedEvents.length + unresolvedSignals.length} unresolved flag(s)` },
+            { label: "Recommended action", value: escalatedSessions.length ? "Assign the oldest escalated session" : "Review pending session evidence" },
+            { label: "Evidence available", value: `${integrityChecks.length} integrity check(s); ${hiringIntelligenceEvents.length} intelligence event(s)` },
+            { label: "Confidence", value: "Flags support review; they are not binary detection outcomes" },
+            { label: "Responsible owner", value: "Assigned recruiter and governance reviewer" },
+          ]} />
+        </div>
 
         <section className="mt-8 grid gap-3 md:grid-cols-5">
           {[

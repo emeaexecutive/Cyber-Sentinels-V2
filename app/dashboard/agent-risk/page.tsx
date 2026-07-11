@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { DecisionSummary } from "@/components/executive-summary";
 import { evaluateAgentRuntimeControl } from "@/lib/agents/agent-runtime-control";
 import type { AgentIdentity, AgentPermission, TrustEvent } from "@/lib/ai-trust/types";
 import { createClient } from "@/lib/supabase/server";
@@ -79,6 +80,17 @@ export default async function AgentRiskDashboardPage() {
             heuristic runtime evidence unless source-labelled provider evidence exists.
           </p>
         </section>
+
+        <div className="mt-6">
+          <DecisionSummary items={[
+            { label: "Current posture", value: controls.some((item) => item.decision !== "allow") ? "Agent activity requires review" : "No elevated agent decision is visible" },
+            { label: "Current risks", value: `${controls.filter((item) => item.decision !== "allow").length} agent(s) outside allow posture` },
+            { label: "Recommended action", value: controls.some((item) => item.kill_switch.recommended) ? "Review kill-switch recommendations before further execution" : "Review authority and permission scope" },
+            { label: "Evidence available", value: `${controls.reduce((total, item) => total + item.evidence_refs.length, 0)} linked evidence reference(s)` },
+            { label: "Confidence", value: "Heuristic runtime evidence unless explicitly provider supplied" },
+            { label: "Responsible owner", value: controls.some((item) => !item.agent.human_owner) ? "Owner assignment required" : "Named human agent owner" },
+          ]} />
+        </div>
 
         <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           {[

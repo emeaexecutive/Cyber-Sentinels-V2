@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ValidationBenchmarkDashboard } from "@/components/validation-benchmark-dashboard";
+import { DecisionSummary } from "@/components/executive-summary";
 import { buildBenchmarkSummary } from "@/lib/benchmarking";
 import { loadBenchmarkObservations } from "@/lib/benchmarking/server";
 import { createClient } from "@/lib/supabase/server";
@@ -82,6 +83,17 @@ export default async function ValidationDashboardPage() {
             </Link>
           </div>
         </section>
+
+        <div className="mt-6">
+          <DecisionSummary items={[
+            { label: "Current posture", value: observations.length ? "Measured workflow observations available" : "Awaiting validation data" },
+            { label: "Current risks", value: observations.length ? "Cohort remains limited to retained observations" : "No reviewed cohort supports accuracy claims" },
+            { label: "Recommended action", value: "Collect human-reviewed outcomes before publishing model metrics" },
+            { label: "Evidence available", value: `${observations.length} measured observation(s)` },
+            { label: "Confidence", value: "Measured where shown; provider supplied and estimated states remain separate" },
+            { label: "Responsible owner", value: "Validation governance reviewer" },
+          ]} />
+        </div>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {validationReadiness.map((lane) => (

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PrivateBetaBadge } from "@/components/private-beta";
+import { ExecutiveSummary } from "@/components/executive-summary";
 import { clearancePlans } from "@/lib/billing/plans";
 
 export const dynamic = "force-dynamic";
@@ -18,17 +18,18 @@ export default function PricingPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
-        <header className="max-w-4xl">
-          <p className="text-sm uppercase tracking-[0.2em] text-cyan-200">TrustOps plans</p>
-          <PrivateBetaBadge className="mt-4" />
-          <h1 className="mt-4 text-4xl font-semibold md:text-6xl">Simple plans for operational trust workflows.</h1>
-          <p className="mt-5 max-w-3xl leading-8 text-zinc-400">Start with evidence-backed trust workflows, then add runtime checks, governance, human review, receipts, replay and validation as your pilot grows.</p>
-        </header>
+        <ExecutiveSummary
+          eyebrow="Plans"
+          title="Start with one decision workflow and expand when the evidence proves value."
+          bullets={["Use the smallest plan that supports the current workflow.", "Add governance and Replay as decision risk grows.", "Keep enterprise scope and support explicit before deployment.", "Treat pilot evidence as the basis for expansion."]}
+          primary={{ href: "/enterprise/pilot", label: "Start Pilot" }}
+          secondary={{ href: "/platform", label: "View Architecture" }}
+        />
         <section className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan) => {
             const professionalCheckout = plan.tier === "professional" && billingReady;
             const href = plan.tier === "enterprise" ? "/enterprise-access" : plan.tier === "free" ? "/login?next=/passport" : "/pro-waitlist?plan=" + plan.tier;
-            const label = plan.tier === "enterprise" ? "Request Enterprise Access" : plan.tier === "free" ? "Start Free" : professionalCheckout ? "Start Professional" : "Join Waitlist";
+            const label = plan.tier === "enterprise" ? "Start Pilot" : plan.tier === "free" ? "Start Free" : professionalCheckout ? "Start Professional" : "Join Waitlist";
             return (
               <article key={plan.tier} className={"rounded-lg border p-6 " + (plan.tier === "professional" ? "border-cyan-700 bg-cyan-950/10" : "border-zinc-800 bg-black")}>
                 <h2 className="text-2xl font-semibold">{plan.name}</h2>

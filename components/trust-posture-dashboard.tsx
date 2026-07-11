@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DecisionSummary } from "@/components/executive-summary";
 import {
   Activity,
   BadgeCheck,
@@ -204,6 +205,17 @@ export function TrustPostureDashboard({
             </Link>
           </div>
         </section>
+
+        <div className="mt-6">
+          <DecisionSummary items={[
+            { label: "Current posture", value: snapshot.posture.label },
+            { label: "Current risks", value: `${snapshot.elevatedRisk.length} elevated risk(s); ${snapshot.reviewQueue.length} review item(s)` },
+            { label: "Recommended action", value: snapshot.reviewQueue.length ? "Open Governance Queue and assign review" : snapshot.posture.nextReview },
+            { label: "Evidence available", value: `${snapshot.recentEvents.length} recent trust event(s)` },
+            { label: "Confidence", value: snapshot.activeTrustLevel === null ? "No numeric posture recorded" : "Evidence-backed posture available" },
+            { label: "Responsible owner", value: snapshot.reviewQueue.length ? "Governance reviewer" : "Workflow owner" },
+          ]} />
+        </div>
 
         <section className="mt-8 grid gap-3 md:grid-cols-[1.2fr_2fr]">
           <div className="operational-card p-5">

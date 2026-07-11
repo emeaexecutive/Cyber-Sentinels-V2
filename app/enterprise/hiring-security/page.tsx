@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExecutiveSummary } from "@/components/executive-summary";
 
 export const dynamic = "force-dynamic";
 
@@ -20,25 +21,13 @@ export default function HiringSecurityPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-100">
-            Hiring Security
-          </p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight md:text-6xl">
-            Trusted hiring review when candidate confidence changes.
-          </h1>
-          <p className="mt-5 max-w-3xl text-base leading-8 text-zinc-300">
-            Cyber Sentinels helps teams review synthetic applicant risk, proxy interviews, session anomalies and unresolved evidence without replacing human hiring judgment.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/demo/hiring-attack" className="brand-primary-action brand-action-large text-sm">
-              View Demo
-            </Link>
-            <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
-              Request Enterprise Access
-            </Link>
-          </div>
-        </section>
+        <ExecutiveSummary
+          eyebrow="Hiring Security"
+          title="Reach defensible hiring decisions when candidate confidence changes."
+          bullets={["Surface synthetic applicant, proxy interview and session-integrity risk.", "Keep hiring judgment with accountable human reviewers.", "Connect evidence, review rationale and the final outcome.", "Replay what changed when a decision is challenged."]}
+          primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
+          secondary={{ href: "/demo/hiring-attack", label: "View Guided Scenario" }}
+        />
 
         <section className="mt-8 grid gap-3 md:grid-cols-2">
           {hiringProblems.map(([title, body]) => (

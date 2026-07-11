@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExecutiveSummary } from "@/components/executive-summary";
 
 const buildCards = [
   ["AI Agent Verification", "Register agents, owners, model context and permission scope before operational use."],
@@ -31,29 +32,13 @@ export default function DevelopersPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-7xl">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            Developer Platform
-          </p>
-          <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Cyber Sentinels Developer Platform™
-          </h1>
-          <p className="mt-5 max-w-4xl text-lg leading-8 text-zinc-300">
-            Embed governed trust infrastructure into AI systems, operational
-            workflows and verification pipelines.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/developers/docs" className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black">
-              View APIs
-            </Link>
-            <Link href="/developers/api-keys" className="rounded-lg border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:text-white">
-              Generate API Key
-            </Link>
-            <Link href="/developers/authentication" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-300 hover:text-white">
-              Read Documentation
-            </Link>
-          </div>
-        </section>
+        <ExecutiveSummary
+          eyebrow="Developers"
+          title="Embed accountable trust decisions into existing enterprise workflows."
+          bullets={["Submit structured identity, authority and runtime context.", "Receive explainable decisions with evidence references.", "Route sensitive outcomes into human governance.", "Keep keys scoped, server-side and revocable."]}
+          primary={{ href: "/developers/docs", label: "Read API Docs" }}
+          secondary={{ href: "/developers/authentication", label: "View Authentication" }}
+        />
 
         <section className="mt-10">
           <p className="text-sm uppercase tracking-[0.2em] text-zinc-500">

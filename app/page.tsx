@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExecutiveSummary } from "@/components/executive-summary";
 
 const homepageAnswers = [
   [
@@ -41,24 +42,13 @@ export default function Home() {
   return (
     <main className="operational-shell min-h-screen text-zinc-100">
       <section className="mx-auto max-w-6xl px-6 pb-14 pt-14 md:px-8 md:pb-20 md:pt-24">
-        <div className="max-w-5xl">
-          <p className="operational-eyebrow">Enterprise Trust Infrastructure</p>
-          <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl">
-            The operational trust control plane for humans, AI agents, machine identities and regulated workflows.
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Continuously verify who or what acted, under whose authority, what changed, and why each action was allowed, reviewed or blocked.
-          </p>
-        </div>
-
-        <div className="mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-          <Link href="/enterprise-access" className="brand-primary-action brand-action-large text-center text-sm">
-            Request Enterprise Access
-          </Link>
-          <Link href="/platform" className="brand-secondary-action brand-action-large text-center text-sm">
-            Explore Platform
-          </Link>
-        </div>
+        <ExecutiveSummary
+          eyebrow="Enterprise Trust Infrastructure"
+          title="The operational trust control plane for humans, AI agents, machine identities and regulated workflows."
+          bullets={["Know who or what acted and under whose authority.", "See material runtime risk before sensitive work continues.", "Route uncertain outcomes to an accountable owner.", "Prove each decision through evidence, replay and governance."]}
+          primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
+          secondary={{ href: "/platform", label: "View Architecture" }}
+        />
       </section>
 
       <section className="border-y border-zinc-800 bg-black">

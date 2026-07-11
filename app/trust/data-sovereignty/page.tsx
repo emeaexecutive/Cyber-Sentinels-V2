@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExecutiveSummary } from "@/components/executive-summary";
 
 const sovereigntyStates = [
   ["AI Training", "Disabled", "Provider policy does not permit customer workflow data to be used for training."],
@@ -20,42 +21,13 @@ export default function DataSovereigntyPage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
-        <section className="operational-panel p-6 md:p-8">
-          <p className="operational-eyebrow">Enterprise AI sovereignty</p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Enterprise control over data, workflows and durable operational memory.
-          </h1>
-          <p className="mt-5 max-w-4xl text-base leading-8 text-zinc-200">
-            Cyber Sentinels helps enterprises use AI without surrendering their
-            data, workflows, identity signals or operational IP.
-          </p>
-          <p className="mt-4 max-w-4xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels gives enterprises control over AI providers,
-            operational memory, identity signals and workflow evidence.
-          </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Governed orchestration keeps provider use subordinate to enterprise
-            classification, redaction, retention and audit policy. Provider
-            choice remains replaceable while enterprise policy and evidence
-            continuity remain stable.
-          </p>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Enterprise-controlled AI operations preserve the same authorization,
-            governance and replay contract across provider changes, so operational
-            accountability does not become provider-dependent.
-          </p>
-          <p className="mt-4 max-w-3xl text-base font-medium leading-7 text-cyan-200">
-            The enterprise controls the trust record.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/enterprise-access" className="brand-primary-action brand-action-large text-sm">
-              Discuss Enterprise Controls
-            </Link>
-            <Link href="/verification-replay" className="brand-secondary-action brand-action-large text-sm">
-              Review Operational Memory
-            </Link>
-          </div>
-        </section>
+        <ExecutiveSummary
+          eyebrow="Data & AI Sovereignty"
+          title="Keep provider use, data policy and the enterprise trust record under customer control."
+          bullets={["Classify data before any provider interaction.", "Block restricted data from external processing.", "Preserve the same authority and audit contract across provider changes.", "Verify regional, retention and contractual guarantees per deployment."]}
+          primary={{ href: "/enterprise-access?intent=trust-team", label: "Talk to Trust Team" }}
+          secondary={{ href: "/trust-principles", label: "Read Trust Framework" }}
+        />
 
         <section className="mt-8">
           <p className="operational-eyebrow">Default enterprise posture</p>

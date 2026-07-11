@@ -14,13 +14,13 @@ type CloseMenus = () => void;
 
 const platformDropdownLinks = [
   ["/platform", "Platform Overview"],
-  ["/platform#trust-engine", "Trust Engine"],
-  ["/platform#runtime-engine", "Runtime Engine"],
-  ["/platform#authorization-gateway", "Authorization Gateway"],
-  ["/platform#replay-engine", "Replay Engine"],
-  ["/platform#governance-engine", "Governance Engine"],
-  ["/platform#validation-engine", "Validation Engine"],
-  ["/platform#evidence-graph", "Evidence Graph"],
+  ["/platform#trust-engine", "Trust Decision Intelligence"],
+  ["/platform#runtime-engine", "Continuous Trust Monitoring"],
+  ["/platform#authorization-gateway", "Authority Control"],
+  ["/platform#replay-engine", "Decision Replay"],
+  ["/platform#governance-engine", "Human Governance"],
+  ["/platform#validation-engine", "Validation Readiness"],
+  ["/platform#evidence-graph", "Evidence Relationships"],
   ["/trust#trust-memory", "Trust Memory\u2122"],
 ];
 

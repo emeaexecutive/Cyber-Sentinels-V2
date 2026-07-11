@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { GovernanceOverview } from "@/components/governance-overview";
+import { DecisionSummary } from "@/components/executive-summary";
 import { OnboardingHint } from "@/components/onboarding-walkthrough";
 import { ProviderEvidencePanel } from "@/components/provider-evidence-panel";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
@@ -304,6 +305,17 @@ export default async function GovernancePage({
             <OnboardingHint area="governance" />
           </div>
         </section>
+
+        <div className="mt-6">
+          <DecisionSummary items={[
+            { label: "Current posture", value: metrics.pending || metrics.escalated ? "Governance decisions are waiting" : "No queued governance decision" },
+            { label: "Current risks", value: `${metrics.unresolvedRisks} unresolved risk(s); ${metrics.escalated} escalated` },
+            { label: "Recommended action", value: metrics.pending ? "Assign the oldest pending review" : "Review evidence freshness prompts" },
+            { label: "Evidence available", value: `${evidence.length} evidence record(s); ${signals.length} signal(s)` },
+            { label: "Confidence", value: "Decision support only; human review remains authoritative" },
+            { label: "Responsible owner", value: "Assigned workspace reviewer or administrator" },
+          ]} />
+        </div>
 
         {query.policy_error || query.action_error ? (
           <div className="mt-6 rounded-lg border border-red-900 bg-red-950/20 p-4 text-sm text-red-100">

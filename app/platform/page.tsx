@@ -1,17 +1,18 @@
 import Link from "next/link";
+import { ExecutiveSummary } from "@/components/executive-summary";
 import { TrustOpsOperatingStack } from "@/components/trustops-operating-stack";
 
 const canonicalConcepts = [
-  ["Authorization Gateway", "Verifies declared purpose, delegated scope, accountable ownership and policy before consequential execution."],
-  ["Evidence Graph", "Connects actors, authority, provider evidence, runtime changes, decisions and outcomes without flattening source boundaries."],
+  ["Authority Control", "Verifies declared purpose, delegated scope, accountable ownership and policy before consequential execution."],
+  ["Evidence Relationships", "Connects actors, authority, provider evidence, runtime changes, decisions and outcomes without flattening source boundaries."],
 ];
 
 const engines = [
-  ["trust-engine", "Trust Engine", "Evaluates identity, authority, evidence and confidence boundaries."],
-  ["runtime-engine", "Runtime Engine", "Observes execution state, permission scope and provider availability."],
-  ["replay-engine", "Replay Engine", "Preserves the chronology as operational memory."],
-  ["governance-engine", "Governance Engine", "Routes accountable review, escalation and intervention."],
-  ["validation-engine", "Validation Engine", "Keeps benchmark, reviewed-sample and calibration evidence explicit."],
+  ["trust-engine", "Trust Decision Intelligence", "Evaluates identity, authority, evidence and confidence boundaries."],
+  ["runtime-engine", "Continuous Trust Monitoring", "Observes execution state, permission scope and provider availability."],
+  ["replay-engine", "Decision Replay", "Preserves the chronology as operational memory."],
+  ["governance-engine", "Human Governance", "Routes accountable review, escalation and intervention."],
+  ["validation-engine", "Validation Readiness", "Keeps benchmark, reviewed-sample and calibration evidence explicit."],
 ];
 
 const executionContract = [
@@ -26,22 +27,17 @@ export default function PlatformPage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-5xl">
-        <section className="operational-panel p-6 md:p-8">
-          <p className="operational-eyebrow">Platform</p>
-          <h1 className="mt-4 text-4xl font-semibold md:text-5xl">
-            The architecture home for Cyber Sentinels trust infrastructure.
-          </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Platform explains how the Trust Engine, Runtime Engine, Authorization Gateway, Replay Engine, Governance Engine, Validation Engine and Evidence Graph work together.
-          </p>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Solution pages describe where the platform is used. Trust Center is the canonical home for Trust Memory\u2122, replay, evidence boundaries, sovereignty and validation transparency.
-          </p>
-        </section>
+        <ExecutiveSummary
+          eyebrow="Platform"
+          title="Turn changing identity, authority and runtime risk into an accountable enterprise decision."
+          bullets={["Trust Decision Intelligence evaluates evidence and authority.", "Continuous Trust Monitoring detects material change during execution.", "Governance assigns the next action to a responsible owner.", "Replay and Trust Memory\u2122 preserve proof of the outcome."]}
+          primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
+          secondary={{ href: "/trust", label: "Read Trust Framework" }}
+        />
 
         <section className="mt-8 grid gap-3 md:grid-cols-2">
           {canonicalConcepts.map(([title, copy]) => (
-            <article id={title === "Authorization Gateway" ? "authorization-gateway" : "evidence-graph"} key={title} className="scroll-mt-28 operational-card p-5">
+            <article id={title === "Authority Control" ? "authorization-gateway" : "evidence-graph"} key={title} className="scroll-mt-28 operational-card p-5">
               <h2 className="text-lg font-semibold text-zinc-100">{title}</h2>
               <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
             </article>
@@ -65,8 +61,8 @@ export default function PlatformPage() {
         </section>
 
         <section className="mt-8 operational-panel p-6">
-          <p className="operational-eyebrow">Five engines</p>
-          <h2 className="mt-3 text-2xl font-semibold">One product model for trust execution.</h2>
+          <p className="operational-eyebrow">Decision capabilities</p>
+          <h2 className="mt-3 text-2xl font-semibold">One operating model for accountable decisions.</h2>
           <div className="mt-6 grid gap-3 md:grid-cols-5">
             {engines.map(([id, title, copy], index) => (
               <article id={id} key={title} className="scroll-mt-28 operational-card p-4">

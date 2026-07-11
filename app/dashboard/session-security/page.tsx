@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { DecisionSummary } from "@/components/executive-summary";
 import { getMfaStatus, getTrustedDeviceStatus } from "@/lib/auth/mfa";
 import { evaluateGeoSessionIntelligence } from "@/lib/runtime/geo-session-intelligence";
 import { createClient } from "@/lib/supabase/server";
@@ -90,6 +91,17 @@ export default async function SessionSecurityPage({
             </p>
           ) : null}
         </section>
+
+        <div className="mt-6">
+          <DecisionSummary items={[
+            { label: "Current posture", value: String(geoSession.posture).replaceAll("_", " ") },
+            { label: "Current risks", value: `${suspiciousEvents.length} suspicious auth event(s)` },
+            { label: "Recommended action", value: suspiciousEvents.length ? "Trigger step-up authentication and review history" : "Complete MFA and trusted-device configuration" },
+            { label: "Evidence available", value: `${(auditRows ?? []).length} audit event(s); ${(replayRows ?? []).length} replay event(s)` },
+            { label: "Confidence", value: "Geo and device signals are estimated until provider supplied" },
+            { label: "Responsible owner", value: "Account owner and security reviewer" },
+          ]} />
+        </div>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[

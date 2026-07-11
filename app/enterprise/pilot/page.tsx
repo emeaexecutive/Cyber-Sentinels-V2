@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExecutiveSummary } from "@/components/executive-summary";
 
 const structure = [
   ["Onboarding", "Confirm pilot scope, users, sample data, review owners and the first workflow to show."],
@@ -21,32 +22,13 @@ export default function EnterprisePilotPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">Enterprise Pilot</p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-6xl">
-            A controlled pilot for hiring security, session integrity and governance review.
-          </h1>
-          <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels helps enterprise teams understand what happened, what evidence exists, which signals changed, who reviewed the workflow and how the outcome can be replayed later.
-          </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Trust changed quietly. Verification alone cannot explain session drift, proxy interviews or injected feeds.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/enterprise-access?intent=pilot" className="brand-secondary-action brand-action-large text-sm">
-              Request Enterprise Access
-            </Link>
-            <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-cyan-800 px-5 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
-              Book Intro Call
-            </Link>
-            <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
-              View Demo
-            </Link>
-            <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-100 hover:border-zinc-400">
-              Become a Design Partner
-            </Link>
-          </div>
-        </section>
+        <ExecutiveSummary
+          eyebrow="Enterprise Pilot"
+          title="Prove one accountable decision workflow before expanding."
+          bullets={["Select one consequential workflow and responsible owner.", "Agree identity, authority and evidence boundaries.", "Exercise runtime change, governance, Replay and receipt.", "Close with measurable acceptance evidence and next-step ownership."]}
+          primary={{ href: "/enterprise-access?intent=pilot", label: "Start Pilot" }}
+          secondary={{ href: "/demo", label: "View Guided Demo" }}
+        />
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {structure.map(([title, copy]) => (
@@ -76,18 +58,8 @@ export default function EnterprisePilotPage() {
               The pilot keeps Verification Evidence, Governance Review, Replay Evidence and Session Integrity visible for practical conversations about fake applicants, proxy interviews and injected sessions.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
-                View Demo
-              </Link>
-              <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
-                Request Enterprise Access
-              </Link>
-              <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
-                Become a Design Partner
-              </Link>
-              <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
-                Book Intro Call
-              </Link>
+              <Link href="/enterprise-access?intent=pilot" className="brand-primary-action brand-action-large text-sm">Start Pilot</Link>
+              <Link href="/trust" className="brand-secondary-action brand-action-large text-sm">Read Trust Framework</Link>
             </div>
           </section>
         </section>

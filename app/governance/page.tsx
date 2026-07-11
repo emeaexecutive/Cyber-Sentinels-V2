@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExecutiveSummary } from "@/components/executive-summary";
 
 const reviewSteps = [
   ["Evidence chain opened", "Identity, provider, session and workflow evidence remain linked to the review."],
@@ -11,31 +12,13 @@ export default function GovernancePage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
-          <p className="text-xs uppercase tracking-[0.16em] text-cyan-200">
-            Governance
-          </p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Governance continuity for sensitive workflow decisions.
-          </h1>
-          <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
-            Named reviewers connect evidence, escalation rationale and trust-state transitions
-            before a sensitive workflow advances.
-          </p>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Every governance action enters Replay Timeline with the actor,
-            workflow, authorization context, evidence, rationale and resulting
-            operational outcome.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
-              View Demo
-            </Link>
-            <Link href="/enterprise-access" className="brand-secondary-action brand-action-large text-sm">
-              Request Enterprise Access
-            </Link>
-          </div>
-        </section>
+        <ExecutiveSummary
+          eyebrow="Governance"
+          title="Give every sensitive decision a responsible owner and reviewable rationale."
+          bullets={["Open the evidence chain before a workflow advances.", "Assign escalation and review to a named owner.", "Record the action, rationale and resulting trust change.", "Preserve proof through Replay and the final receipt."]}
+          primary={{ href: "/enterprise-access?intent=trust-team", label: "Talk to Trust Team" }}
+          secondary={{ href: "/trust-principles", label: "Read Trust Framework" }}
+        />
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {reviewSteps.map(([title, copy]) => (

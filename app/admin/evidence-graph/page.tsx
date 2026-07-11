@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { DecisionSummary } from "@/components/executive-summary";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { buildEvidenceGraph, buildEvidenceGraphDemo, type EvidenceGraphNodeType } from "@/lib/evidence-graph/evidence-graph";
 import { runEvidenceGraphQueries } from "@/lib/evidence-graph/query";
@@ -29,8 +30,9 @@ const filterOptions: Array<[string, string, EvidenceGraphNodeType | "all"]> = [
   ["All", "All", "all"],
   ["Human", "Human", "human"],
   ["AI Agent", "AI Agent", "ai_agent"],
+  ["Machine Identity", "Machine Identity", "machine_identity"],
   ["Workflow", "Workflow", "workflow"],
-  ["Credential", "Credential", "credential"],
+  ["Evidence", "Evidence", "evidence"],
   ["Trust Memory", "Trust Memory", "trust_memory_event"],
   ["Replay", "Replay", "replay_event"],
   ["Governance", "Governance", "governance_review"],
@@ -142,6 +144,17 @@ export default async function AdminEvidenceGraphPage({
           </div>
         </section>
 
+        <div className="mt-6">
+          <DecisionSummary items={[
+            { label: "Current posture", value: queries.explainTrust.answer === "YES" ? "Decision relationships are explainable" : "Relationship evidence is incomplete" },
+            { label: "Current risks", value: queries.explainTrust.answer === "YES" ? "No graph-level blocker identified" : "Missing relationship evidence requires review" },
+            { label: "Recommended action", value: queries.explainTrust.answer === "YES" ? "Review the shortest evidence path" : "Attach missing evidence or governance context" },
+            { label: "Evidence available", value: `${graph.nodes.filter((node) => node.type === "evidence").length} evidence node(s); ${visibleRelationships.length} visible relationship(s)` },
+            { label: "Confidence", value: "Relationship confidence is source-specific, not an authenticity score" },
+            { label: "Responsible owner", value: "Trust operations reviewer" },
+          ]} />
+        </div>
+
         <section className="mt-6 flex flex-wrap gap-2">
           {filterOptions.map(([label, text, value]) => (
             <Link
@@ -172,7 +185,7 @@ export default async function AdminEvidenceGraphPage({
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Enterprise Graph</h2>
             <div className="mt-5 grid gap-3">
-              {visibleNodes.slice(0, 16).map((node) => (
+              {visibleNodes.slice(0, 10).map((node) => (
                 <article key={node.id} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -191,7 +204,7 @@ export default async function AdminEvidenceGraphPage({
             <h2 className="text-xl font-semibold">Why Trusted</h2>
             <p className="mt-3 text-sm leading-7 text-zinc-400">{queries.explainTrust.explanation}</p>
             <div className="mt-5 grid gap-3">
-              {visibleRelationships.slice(0, 14).map((edge) => {
+              {visibleRelationships.slice(0, 8).map((edge) => {
                 const from = graph.nodes.find((node) => node.id === edge.from);
                 const to = graph.nodes.find((node) => node.id === edge.to);
                 return (
@@ -212,7 +225,7 @@ export default async function AdminEvidenceGraphPage({
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <h2 className="text-xl font-semibold">Demo: Human to Decision</h2>
           <div className="mt-5 grid gap-2 md:grid-cols-8">
-            {["Human", "AI Agent", "Workflow", "Provider Evidence", "Replay", "Governance", "Trust Memory", "Decision"].map((step, index) => (
+            {["People", "AI Agents", "Machine Identities", "Workflows", "Evidence", "Governance", "Trust Memory\u2122", "Outcome"].map((step, index) => (
               <div key={step} className="rounded-lg border border-zinc-800 bg-black p-3">
                 <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
                 <p className="mt-2 text-sm font-semibold text-zinc-100">{step}</p>

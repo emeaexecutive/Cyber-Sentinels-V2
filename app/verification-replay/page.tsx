@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExecutiveSummary } from "@/components/executive-summary";
 
 const replayFlow = [
   ["01", "Actor", "The human, AI agent, service account or API actor is recorded with accountable ownership."],
@@ -37,27 +38,13 @@ export default function VerificationReplayPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
-        <section className="rounded-lg border border-cyan-950 bg-[linear-gradient(145deg,rgba(8,47,73,0.18),rgba(9,9,11,0.96)_45%)] p-6 shadow-2xl shadow-black/30 md:p-8">
-          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">
-            Replayable enterprise memory
-          </p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Replay is the operational memory fabric for enterprise trust.
-          </h1>
-          <p className="mt-4 text-sm font-semibold text-cyan-100">
-            Mission-critical continuity for enterprise trust operations.
-          </p>
-          <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
-            Replay reconstructs identity checks, session integrity, authorization
-            history, evidence and governance actions as a reviewable trust
-            chronology. It preserves workflow verification continuity after the
-            runtime session ends. Case records remain protected operational data.
-          </p>
-          <p className="mt-5 max-w-3xl border-l border-cyan-700 pl-4 text-base leading-7 text-zinc-200">
-            The memory fabric of TrustOps: replayable evidence for critical
-            workflows and durable context for enterprise trust.
-          </p>
-        </section>
+        <ExecutiveSummary
+          eyebrow="Replay"
+          title="Reconstruct what happened, who owned it and why the outcome was allowed."
+          bullets={["Follow identity, authority and runtime change in time order.", "Keep evidence linked to its source and decision context.", "See named governance actions and unresolved conditions.", "Use the chronology as proof without exposing raw customer records."]}
+          primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
+          secondary={{ href: "/trust#trust-memory", label: "Read Trust Framework" }}
+        />
 
         <section className="mt-8">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">

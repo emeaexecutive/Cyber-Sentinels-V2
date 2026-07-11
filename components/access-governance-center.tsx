@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DecisionSummary } from "@/components/executive-summary";
 import type { AccessGovernanceOverview } from "@/lib/access-governance";
 
 function label(value: unknown) {
@@ -59,6 +60,17 @@ export function AccessGovernanceCenter({
             </Link>
           </div>
         </section>
+
+        <div className="mt-6">
+          <DecisionSummary items={[
+            { label: "Current posture", value: overview.posture.label },
+            { label: "Current risks", value: `${overview.metrics.governanceEscalations} governance escalation(s)` },
+            { label: "Recommended action", value: overview.metrics.governanceEscalations ? "Assign access review ownership" : "Review authorization freshness" },
+            { label: "Evidence available", value: `${overview.metrics.authorizationEvents} authorization event(s); ${overview.metrics.replayLinked} replay-linked` },
+            { label: "Confidence", value: "Access state is evidence-backed; empty records do not imply authorization" },
+            { label: "Responsible owner", value: "Workflow owner and access governance reviewer" },
+          ]} />
+        </div>
 
         <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {[

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DecisionSummary } from "@/components/executive-summary";
 import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { reviewedOutcomesToTrustMemoryEvents } from "@/lib/governance/reviewed-outcomes";
 import { createClient } from "@/lib/supabase/server";
@@ -17,6 +18,15 @@ const tone: Record<string, string> = {
   blocked: "border-red-900 text-red-200",
   insufficient_evidence: "border-zinc-700 text-zinc-300",
 };
+
+function memoryState(change: string) {
+  if (["recovered", "restored"].includes(change)) return "Trust restored";
+  if (change === "decayed") return "Trust decayed";
+  if (["escalated", "insufficient_evidence"].includes(change)) return "Trust challenged";
+  if (["decreased", "blocked"].includes(change)) return "Trust lost";
+  if (change === "increased") return "Trust gained";
+  return "Trust confirmed";
+}
 
 export default async function AdminTrustMemoryPage() {
   const supabase = await createClient();
@@ -49,6 +59,17 @@ export default async function AdminTrustMemoryPage() {
             </Link>
           </div>
         </section>
+
+        <div className="mt-6">
+          <DecisionSummary items={[
+            { label: "Current posture", value: events.length ? memoryState(events[0].trust_change) : "No trust change recorded" },
+            { label: "Current risks", value: `${events.filter((event) => ["decreased", "decayed", "escalated", "blocked"].includes(event.trust_change)).length} challenged or adverse change(s)` },
+            { label: "Recommended action", value: events.some((event) => !event.reviewed_outcome_ref) ? "Review unconfirmed trust changes" : "Continue outcome monitoring" },
+            { label: "Evidence available", value: `${evidenceCount} linked reference(s)` },
+            { label: "Confidence", value: "Memory deltas are explainable history, not autonomous certainty" },
+            { label: "Responsible owner", value: "Governance reviewer" },
+          ]} />
+        </div>
 
         <section className="mt-8 grid gap-3 md:grid-cols-4">
           {[
@@ -87,55 +108,27 @@ export default async function AdminTrustMemoryPage() {
           </article>
         </section>
 
-        <section className="mt-8 overflow-hidden rounded-lg border border-zinc-800">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-zinc-800 text-left text-sm">
-              <thead className="bg-zinc-950 text-xs uppercase tracking-[0.12em] text-zinc-500">
-                <tr>
-                  <th className="px-4 py-3">Actor</th>
-                  <th className="px-4 py-3">Workflow</th>
-                  <th className="px-4 py-3">Change</th>
-                  <th className="px-4 py-3">Evidence</th>
-                  <th className="px-4 py-3">Replay</th>
-                  <th className="px-4 py-3">Governance</th>
-                  <th className="px-4 py-3">Reviewed Impact</th>
-                  <th className="px-4 py-3">Confidence</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-800 bg-black">
-                {events.map((event) => (
-                  <tr key={event.id}>
-                    <td className="px-4 py-4">
-                      <p className="font-medium text-zinc-100">{event.actor_id}</p>
-                      <p className="mt-1 text-xs text-zinc-500">{event.actor_type.replace("_", " ")}</p>
-                    </td>
-                    <td className="px-4 py-4 text-zinc-400">{event.workflow_id}</td>
-                    <td className="px-4 py-4">
-                      <span className={`rounded-full border px-2 py-1 text-xs ${tone[event.trust_change]}`}>
-                        {event.trust_change.replace("_", " ")} {event.trust_delta > 0 ? "+" : ""}{event.trust_delta}
-                      </span>
-                      <p className="mt-2 max-w-xs text-xs leading-5 text-zinc-500">{event.reason}</p>
-                    </td>
-                    <td className="px-4 py-4 text-zinc-400">{event.evidence_refs.length}</td>
-                    <td className="px-4 py-4">
-                      {event.replay_refs[0] ? (
-                        <Link href={event.replay_refs[0]} className="text-cyan-200 hover:text-cyan-100">
-                          Replay
-                        </Link>
-                      ) : (
-                        <span className="text-zinc-600">None</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 text-zinc-400">{event.governance_refs[0] ?? "None"}</td>
-                    <td className="px-4 py-4 text-zinc-400">{event.reviewed_outcome_ref ?? "No review outcome"}</td>
-                    <td className="px-4 py-4 text-zinc-400">
-                      {event.confidence_before} to {event.confidence_after}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <section className="mt-8 border-l border-zinc-800 pl-5">
+          {events.map((event, index) => (
+            <article key={event.id} className="relative pb-6">
+              <span className="absolute -left-[1.52rem] top-1 h-3 w-3 rounded-full border border-cyan-500 bg-black" />
+              <div className="rounded-lg border border-zinc-800 bg-black p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Decision event {index + 1}</p>
+                    <h2 className="mt-2 text-lg font-semibold text-zinc-100">{event.explanation.summary}</h2>
+                  </div>
+                  <span className={`rounded-full border px-3 py-1 text-xs ${tone[event.trust_change]}`}>{memoryState(event.trust_change)}</span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{event.reason}</p>
+                <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-zinc-500">
+                  <span>{event.evidence_refs.length} evidence reference(s)</span>
+                  <span>{event.reviewed_outcome_ref ? "Human reviewed" : "Governance context retained"}</span>
+                  {event.replay_refs[0] ? <Link href={event.replay_refs[0]} className="text-cyan-200 hover:text-white">Open Replay</Link> : null}
+                </div>
+              </div>
+            </article>
+          ))}
         </section>
       </div>
     </main>

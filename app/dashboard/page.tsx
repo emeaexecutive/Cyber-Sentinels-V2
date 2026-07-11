@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { EnterpriseDecisionCard } from "@/components/enterprise-decision-card";
+import { DecisionSummary } from "@/components/executive-summary";
 import { buildDecisionIntelligence } from "@/lib/core/decision-intelligence";
 import { buildEvidenceGraphDemo } from "@/lib/evidence-graph/evidence-graph";
 import { buildProviderReadinessChecklist } from "@/lib/providers/provider-readiness";
@@ -48,9 +49,8 @@ export default async function DashboardPage() {
             <p className="text-xs uppercase tracking-[0.16em] text-sentinel-green">Operational Trust</p>
             <h1 className="mt-2 text-3xl font-semibold md:text-4xl">Review Dashboard</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-sentinel-muted">
-              Review Trust Engine flags, Runtime Engine session context,
-              Governance Engine actions and Replay Engine outcomes in one
-              operational path.
+              Review current posture, risk, evidence, ownership and the next
+              accountable action in one operational path.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -72,6 +72,17 @@ export default async function DashboardPage() {
             ))}
           </div>
         </header>
+
+        <div className="mt-6">
+          <DecisionSummary items={[
+            { label: "Current posture", value: noOperationalActivity ? "No active operational review items" : "Review activity requires attention" },
+            { label: "Current risks", value: `${flags.count ?? 0} active flag(s); ${reviews.count ?? 0} pending review(s)` },
+            { label: "Recommended action", value: reviews.count ? "Open Governance Review and assign the next action" : "Monitor for new trust changes" },
+            { label: "Evidence available", value: `${integrity.count ?? 0} integrity check(s); ${receipts.count ?? 0} receipt(s)` },
+            { label: "Confidence", value: "Evidence-backed per case; no portfolio certainty claim" },
+            { label: "Responsible owner", value: reviews.count ? "Assigned governance reviewer" : "Workflow owner" },
+          ]} />
+        </div>
 
         <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {metrics.map(([title, value, Icon, href]) => (
@@ -110,7 +121,7 @@ export default async function DashboardPage() {
             <div>
               <h2 className="text-xl font-semibold">Pilot review path</h2>
               <p className="mt-2 text-sm text-sentinel-muted">
-                Operator surfaces map the five-engine platform into one review path.
+                Operator surfaces connect risk, ownership, evidence and outcome in one review path.
               </p>
             </div>
             <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">Evidence-first workflow</span>

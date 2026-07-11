@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DecisionSummary } from "@/components/executive-summary";
 import type { NetworkIntelligenceSummary } from "@/lib/network-intelligence";
 
 function trendClass(trend: NetworkIntelligenceSummary["signals"][number]["trend"]) {
@@ -90,6 +91,17 @@ export function NetworkIntelligenceDashboard({
             </Link>
           </div>
         </section>
+
+        <div className="mt-6">
+          <DecisionSummary items={[
+            { label: "Current posture", value: live.observationCount ? "Aggregated operational evidence available" : "No cohort meets the reporting threshold" },
+            { label: "Current risks", value: `${live.signals.filter((signal) => signal.trend === "increasing").length} increasing pattern(s)` },
+            { label: "Recommended action", value: "Review increasing patterns against local workflow evidence" },
+            { label: "Evidence available", value: `${live.observationCount} aggregated observation(s)` },
+            { label: "Confidence", value: "Measured aggregates; small cohorts suppressed; simulations separate" },
+            { label: "Responsible owner", value: "Network risk and governance reviewer" },
+          ]} />
+        </div>
 
         <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
