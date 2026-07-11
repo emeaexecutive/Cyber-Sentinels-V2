@@ -37,7 +37,7 @@ export default function PlatformPage() {
             Platform owns the core architecture: Trust Memory, Runtime Trust, Governance, Persistent Trust Posture and the five-engine execution model.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Solution pages describe business problems. Trust Center explains replay, sovereignty and public trust principles. Platform explains how the system is organized.
+            Solution pages describe business problems. Trust Center explains replay, provider boundaries and public trust principles. Platform explains how the system is organized.
           </p>
         </section>
 

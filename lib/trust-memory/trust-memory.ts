@@ -40,6 +40,16 @@ export type TrustMemoryEvent = {
   confidence_before: number;
   confidence_after: number;
   explanation: TrustChangeExplanation;
+  enterprise_operational_memory?: {
+    ownership_status: "customer_owned" | "shared_provider_context" | "not_recorded";
+    provider_visibility: "none" | "metadata_only" | "provider_visible";
+    customer_ownership: boolean;
+    local_retention: "enabled" | "planned" | "not_recorded";
+    provider_dependency: "none" | "low" | "medium" | "high";
+    trust_evolution: string;
+    confidence_evolution: string;
+    review_evolution: string;
+  };
   created_at: string;
 };
 
@@ -150,7 +160,7 @@ export function buildTrustMemorySnapshot(events: TrustMemoryEvent[]): TrustMemor
     summaries: summarizeTrustEvolution(ordered),
     generated_at: new Date().toISOString(),
     boundary:
-      "Trust Memory records explainable trust evolution from reviewed evidence. It does not claim autonomous learning, legal finality or first-party ML accuracy.",
+      "Trust Memory is Enterprise Operational Memory for explainable trust, confidence, provider and review evolution. It does not claim autonomous learning, legal finality or first-party ML accuracy.",
   };
 }
 

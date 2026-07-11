@@ -1,12 +1,13 @@
 import Link from "next/link";
+import { demoAgentPassportV2 } from "@/lib/core/agent-passport-v2";
 
 const capabilities = [
-  "AI Agent Passport",
-  "Verified Agent",
-  "Trust Passport",
-  "Signals feed",
-  "Clearances",
-  "Audit logs",
+  "Passport v2 JSON export",
+  "Future VC adapter",
+  "Future JWT/JWS adapter",
+  "Delegation limits",
+  "Revocation status",
+  "Human oversight",
 ];
 
 export default function AgentPassportPage() {
@@ -32,9 +33,10 @@ export default function AgentPassportPage() {
         </h1>
 
         <p className="mt-6 max-w-3xl text-zinc-400">
-          Cyber Sentinels gives AI agents an operational trust record with
-          provenance, review status, clearances, audit logs and
-          governance-before-permission controls.
+          Cyber Sentinels gives AI agents a standards-ready operational trust
+          record with versioning, export formats, delegated authority,
+          human oversight, revocation state and governance-before-permission
+          controls.
         </p>
 
         <Link
@@ -58,6 +60,26 @@ export default function AgentPassportPage() {
               </p>
             </div>
           ))}
+        </section>
+
+        <section className="mt-10 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Agent Passport v2</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {[
+              ["Version", demoAgentPassportV2.passportVersion],
+              ["Credential", demoAgentPassportV2.credentialFormat],
+              ["Governance", demoAgentPassportV2.governanceStatus],
+              ["Oversight", demoAgentPassportV2.humanOversightStatus],
+              ["Revocation", demoAgentPassportV2.revocationStatus],
+              ["Jurisdiction", demoAgentPassportV2.jurisdiction],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-sm font-semibold text-zinc-100">{String(value).replaceAll("_", " ")}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-5 text-sm leading-6 text-zinc-500">{demoAgentPassportV2.boundary}</p>
         </section>
       </div>
     </main>

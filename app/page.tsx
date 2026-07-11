@@ -26,7 +26,7 @@ const homepageAnswers = [
 const deeperLinks = [
   ["Platform", "/platform", "Architecture, Trust Memory, Runtime Trust and Governance."],
   ["Solutions", "/solutions", "Business problems by workflow domain."],
-  ["Trust Center", "/trust", "Replay, AI sovereignty, evidence and trust principles."],
+  ["Trust Center", "/trust", "Replay, evidence, provider boundaries and trust principles."],
   ["Enterprise", "/enterprise", "Enterprise readiness, pilot fit and buying questions."],
 ];
 
@@ -35,12 +35,12 @@ export default function Home() {
     <main className="operational-shell min-h-screen text-zinc-100">
       <section className="mx-auto max-w-6xl px-6 pb-14 pt-14 md:px-8 md:pb-20 md:pt-24">
         <div className="max-w-5xl">
-          <p className="operational-eyebrow">AI Trust Infrastructure</p>
+          <p className="operational-eyebrow">Enterprise Trust Infrastructure</p>
           <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl">
-            The independent trust record for enterprise AI and regulated workflows.
+            The operational trust control plane for enterprise AI and regulated workflows.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels shows who or what acted, under whose authority, what changed, what evidence existed and why the outcome was allowed, reviewed or blocked.
+            Cyber Sentinels is an independent trust decision layer that shows who or what acted, under whose authority, what changed, what evidence existed and why the outcome was allowed, reviewed or blocked.
           </p>
         </div>
 
@@ -75,7 +75,7 @@ export default function Home() {
             Every detail has a clear home.
           </h2>
           <p className="mt-4 text-sm leading-7 text-zinc-400">
-            The homepage gives the enterprise story. Platform explains architecture. Trust Center owns replay and sovereignty. Solutions stay focused on business problems.
+            The homepage gives the enterprise story. Platform explains architecture. Trust Center owns replay, evidence boundaries and provider transparency. Solutions stay focused on business problems.
           </p>
         </div>
         <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">

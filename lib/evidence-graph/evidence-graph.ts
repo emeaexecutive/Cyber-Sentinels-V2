@@ -5,11 +5,14 @@ import { createTrustMemoryEvent, type TrustMemoryEvent } from "@/lib/trust-memor
 
 export type EvidenceGraphNodeType =
   | "human"
+  | "organization"
   | "ai_agent"
   | "machine_identity"
   | "credential"
   | "provider"
   | "workflow"
+  | "authorization"
+  | "execution"
   | "evidence"
   | "replay_event"
   | "governance_review"
@@ -28,7 +31,9 @@ export type EvidenceGraphRelationshipType =
   | "approved"
   | "blocked"
   | "restored"
-  | "supports";
+  | "supports"
+  | "authorizes"
+  | "executes";
 
 export type EvidenceGraphNode = {
   id: string;
@@ -59,11 +64,14 @@ export type EvidenceGraph = {
 
 export type EvidenceGraphBuildInput = {
   humans?: Array<Record<string, unknown>>;
+  organizations?: Array<Record<string, unknown>>;
   aiAgents?: Array<Record<string, unknown>>;
   machineIdentities?: Array<Record<string, unknown>>;
   credentials?: Array<Record<string, unknown>>;
   providers?: Array<Record<string, unknown>>;
   workflows?: Array<Record<string, unknown>>;
+  authorizations?: Array<Record<string, unknown>>;
+  executions?: Array<Record<string, unknown>>;
   evidence?: Array<Record<string, unknown>>;
   replayEvents?: Array<Record<string, unknown>>;
   replaySessions?: ReplaySession[];
@@ -147,11 +155,12 @@ export class EvidenceGraphBuilder {
       nodes: [...this.nodes.values()],
       relationships: [...this.relationships.values()],
       generatedAt: now(),
-      boundary: "Evidence Graph Alpha explains relationships between existing records. It does not expose secrets, raw provider payloads or create a new system of record.",
+      boundary: "Evidence Graph explains standards-ready relationships between existing records. It does not expose secrets, raw provider payloads, draft-standard dependencies or a new system of record.",
       acceptanceCriteria: [
         "Explain why trust was granted, reviewed, blocked or restored.",
         "Keep evidence, replay, governance and Trust Memory connected.",
         "Normalize provider results before graph inclusion.",
+        "Keep authorization and execution relationships explainable before runtime action.",
         "Return safe admin-only graph data.",
       ],
     };
@@ -365,12 +374,33 @@ export function buildEvidenceGraph(input: EvidenceGraphBuildInput = {}) {
   const builder = new EvidenceGraphBuilder();
 
   for (const human of input.humans ?? []) {
-    builder.addNode({
+    const humanNode = builder.addNode({
       id: nodeId("human", human.id ?? human.email),
       type: "human",
       label: cleanText(human.email ?? human.name ?? human.id, "Human"),
       summary: "Human identity node.",
       metadata: human,
+    });
+    const organization = human.organization_id ?? human.organization ?? human.org_id;
+    if (organization) {
+      const orgNode = builder.addNode({
+        id: nodeId("organization", organization),
+        type: "organization",
+        label: cleanText(organization, "Organization"),
+        summary: "Organization that owns or governs the human identity.",
+        metadata: {},
+      });
+      link(builder, orgNode, humanNode, "owns", "organization_record", { timestamp: human.created_at, confidence: 0.8 });
+    }
+  }
+
+  for (const organization of input.organizations ?? []) {
+    builder.addNode({
+      id: nodeId("organization", organization.id ?? organization.name),
+      type: "organization",
+      label: cleanText(organization.name ?? organization.id, "Organization"),
+      summary: "Organization node for ownership and governance context.",
+      metadata: organization,
     });
   }
 
@@ -383,6 +413,7 @@ export function buildEvidenceGraph(input: EvidenceGraphBuildInput = {}) {
       metadata: agent,
     });
     const owner = agent.owner_email ?? agent.owner_user_id ?? agent.human_owner;
+    const organization = agent.owner_organization ?? agent.organization_id ?? agent.organization;
     if (owner) {
       const humanNode = builder.addNode({
         id: nodeId("human", owner),
@@ -393,6 +424,42 @@ export function buildEvidenceGraph(input: EvidenceGraphBuildInput = {}) {
       });
       link(builder, humanNode, agentNode, "owns", "ai_agent_record", { timestamp: agent.created_at, confidence: 0.8 });
     }
+    if (organization) {
+      const orgNode = builder.addNode({
+        id: nodeId("organization", organization),
+        type: "organization",
+        label: cleanText(organization, "Organization"),
+        summary: "Organization owner inferred from agent record.",
+        metadata: {},
+      });
+      link(builder, orgNode, agentNode, "owns", "ai_agent_record", { timestamp: agent.created_at, confidence: 0.8 });
+    }
+  }
+
+  for (const machine of input.machineIdentities ?? []) {
+    const machineNode = builder.addNode({
+      id: nodeId("machine_identity", machine.id ?? machine.subject_id ?? machine.service_account),
+      type: "machine_identity",
+      label: cleanText(machine.service_account ?? machine.name ?? machine.id, "Machine Identity"),
+      summary: "Machine identity with credential lineage and workflow context.",
+      metadata: machine,
+    });
+    const agentId = machine.linked_agent_id ?? machine.linkedAiAgent;
+    const workflowId = machine.linked_workflow_id ?? machine.linkedWorkflow;
+    if (agentId) link(builder, nodeId("ai_agent", agentId), machineNode, "uses", "machine_identity_record", { timestamp: machine.created_at, confidence: 0.75 });
+    if (workflowId) link(builder, machineNode, nodeId("workflow", workflowId), "supports", "machine_identity_record", { timestamp: machine.created_at, confidence: 0.75 });
+  }
+
+  for (const credential of input.credentials ?? []) {
+    const credentialNode = builder.addNode({
+      id: nodeId("credential", credential.id ?? credential.credential_id ?? credential.credentialId),
+      type: "credential",
+      label: cleanText(credential.kind ?? credential.credential_kind ?? credential.id, "Credential"),
+      summary: "Credential reference with secret material excluded.",
+      metadata: credential,
+    });
+    const machineId = credential.machine_identity_id ?? credential.machineIdentityId ?? credential.subject_id;
+    if (machineId) link(builder, nodeId("machine_identity", machineId), credentialNode, "uses", "credential_record", { timestamp: credential.created_at, confidence: 0.8 });
   }
 
   for (const workflow of input.workflows ?? []) {
@@ -403,6 +470,37 @@ export function buildEvidenceGraph(input: EvidenceGraphBuildInput = {}) {
       summary: "Workflow node.",
       metadata: workflow,
     });
+  }
+
+  for (const authorization of input.authorizations ?? []) {
+    const authorizationNode = builder.addNode({
+      id: nodeId("authorization", authorization.id ?? authorization.authorization_id),
+      type: "authorization",
+      label: cleanText(authorization.decision ?? authorization.status, "Authorization"),
+      summary: cleanText(authorization.reason, "Authorization gateway decision retained."),
+      metadata: authorization,
+    });
+    const actorId = authorization.actor_id ?? authorization.subject_id;
+    const actorType = String(authorization.actor_type ?? "ai_agent") as EvidenceGraphNodeType;
+    const workflowId = authorization.workflow_id;
+    if (actorId && ["human", "ai_agent", "machine_identity"].includes(actorType)) {
+      link(builder, nodeId(actorType, actorId), authorizationNode, "authorizes", "authorization_gateway", { timestamp: authorization.created_at, confidence: authorization.confidence ?? 0.8, replayReference: authorization.replay_reference });
+    }
+    if (workflowId) link(builder, authorizationNode, nodeId("workflow", workflowId), "supports", "authorization_gateway", { timestamp: authorization.created_at, confidence: authorization.confidence ?? 0.8, replayReference: authorization.replay_reference });
+  }
+
+  for (const execution of input.executions ?? []) {
+    const executionNode = builder.addNode({
+      id: nodeId("execution", execution.id ?? execution.execution_id),
+      type: "execution",
+      label: cleanText(execution.status ?? execution.outcome, "Execution"),
+      summary: cleanText(execution.summary, "Execution receipt retained."),
+      metadata: execution,
+    });
+    const authorizationId = execution.authorization_id ?? execution.authorizationId;
+    const workflowId = execution.workflow_id;
+    if (authorizationId) link(builder, nodeId("authorization", authorizationId), executionNode, "executes", "trust_enforcement", { timestamp: execution.created_at, confidence: execution.confidence ?? 0.8, replayReference: execution.replay_reference });
+    if (workflowId) link(builder, executionNode, nodeId("workflow", workflowId), "generated", "trust_enforcement", { timestamp: execution.created_at, confidence: execution.confidence ?? 0.8, replayReference: execution.replay_reference });
   }
 
   for (const evidence of input.evidence ?? []) {
@@ -451,8 +549,14 @@ export function buildEvidenceGraph(input: EvidenceGraphBuildInput = {}) {
 export function buildEvidenceGraphDemo() {
   const createdAt = "2026-07-10T12:00:00.000Z";
   return buildEvidenceGraph({
+    organizations: [{ id: "example-enterprise", name: "Example Enterprise", created_at: createdAt }],
+    humans: [{ id: "ciso@example.com", email: "ciso@example.com", organization: "example-enterprise", created_at: createdAt }],
     aiAgents: [{ id: "agent-contract-review", name: "Contract Review Agent", owner_email: "ciso@example.com", created_at: createdAt }],
+    machineIdentities: [{ id: "machine-ats-webhook-prod", service_account: "ATS webhook service account", linked_agent_id: "agent-contract-review", linked_workflow_id: "workflow-vendor-access", created_at: createdAt }],
+    credentials: [{ id: "credential-oauth-client-ats-prod", credential_kind: "oauth_client", machine_identity_id: "machine-ats-webhook-prod", created_at: createdAt }],
     workflows: [{ id: "workflow-vendor-access", workflow_type: "Vendor access review", created_at: createdAt }],
+    authorizations: [{ id: "authorization-demo-001", actor_type: "ai_agent", actor_id: "agent-contract-review", workflow_id: "workflow-vendor-access", decision: "APPROVAL REQUIRED", reason: "Delegated action required governance approval.", replay_reference: "replay-demo-001", created_at: createdAt }],
+    executions: [{ id: "execution-demo-001", authorization_id: "authorization-demo-001", workflow_id: "workflow-vendor-access", status: "receipt_created", summary: "Execution held until governance approval and replay receipt.", replay_reference: "replay-demo-001", created_at: createdAt }],
     evidence: [{ id: "evidence-provider-hopae", subject_id: "workflow-vendor-access", evidence_type: "Provider Evidence", confidence: 0.82, created_at: createdAt }],
     providers: [{ provider_id: "hopae_connect", provider_name: "Hopae Connect", verification_status: "verified", confidence: 82, evidence_references: ["evidence-provider-hopae", "replay-demo-001"] }],
     replaySessions: [{ id: "replay-demo-001", subject_type: "workflow", subject_id: "workflow-vendor-access", replay_summary: "Replay preserved actor, authority, provider evidence and review sequence.", generated_by: "system", created_at: createdAt }],

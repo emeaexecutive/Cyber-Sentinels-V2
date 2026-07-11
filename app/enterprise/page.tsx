@@ -61,7 +61,7 @@ export default function EnterprisePage() {
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <h2 className="text-2xl font-semibold">Need the architecture?</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Platform owns the product model. Trust Center owns replay, AI sovereignty and public trust boundaries.
+            Platform owns the product model. Trust Center owns replay, provider transparency and public trust boundaries.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href="/platform" className="brand-secondary-action">Platform</Link>

@@ -28,6 +28,13 @@ export type ProviderReadinessCheck = {
   };
   supportedFeatures: readonly string[];
   limitations: readonly string[];
+  sovereignty: {
+    deploymentMode: "cloud" | "hybrid" | "self-hosted";
+    restrictedDataSupport: "supported" | "limited" | "not_supported";
+    customerOwnedMemoryCompatible: boolean;
+    providerShutdownRisk: "low" | "medium" | "high";
+    exportSupport: "full" | "partial" | "not_available";
+  };
   evidence: string;
   blocker: string;
   nextAction: string;
@@ -87,6 +94,13 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
           "Provider output requires reviewed dataset comparison before accuracy claims.",
           "Raw provider payloads are not exposed outside protected audit handling.",
         ],
+        sovereignty: {
+          deploymentMode: "cloud",
+          restrictedDataSupport: "limited",
+          customerOwnedMemoryCompatible: true,
+          providerShutdownRisk: productionModeAvailable ? "medium" : "high",
+          exportSupport: "partial",
+        },
         evidence: `${provider.providerName} exposes credential checks, health check, normalized results and supported signals: ${provider.supportedSignals.join(", ")}.`,
         blocker: productionModeAvailable
           ? "Live provider output still needs benchmark and reviewer validation before accuracy claims."
@@ -132,6 +146,13 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
         "Provider evidence must stay workflow-gated, replay-linked and governance-reviewable.",
         provider.notes,
       ],
+      sovereignty: {
+        deploymentMode: provider.category === "bot_protection" || provider.category === "device_risk" ? "hybrid" : "cloud",
+        restrictedDataSupport: provider.authProtection === "not_exposed" ? "not_supported" : "limited",
+        customerOwnedMemoryCompatible: provider.replayIntegration === "normalized_evidence",
+        providerShutdownRisk: productionModeAvailable ? "medium" : "high",
+        exportSupport: provider.receiptIntegration === "normalized_evidence" ? "partial" : "not_available",
+      },
       evidence: `${provider.name} registry state is ${runtimeState}; auth protection is ${provider.authProtection}; replay integration is ${provider.replayIntegration}.`,
       blocker: productionModeAvailable
         ? "Provider remains workflow-gated and must be reviewed against pilot evidence."
