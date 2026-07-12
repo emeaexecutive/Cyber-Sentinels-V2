@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 import { clearancePlans } from "@/lib/billing/plans";
+
+export const metadata: Metadata = {
+  title: "Pricing | Cyber Sentinels",
+  description: "Pricing and enterprise access for governed operational trust workflows.",
+  alternates: { canonical: "/pricing" },
+};
 
 export const dynamic = "force-dynamic";
 

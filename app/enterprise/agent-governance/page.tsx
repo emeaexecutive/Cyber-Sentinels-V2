@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "AI Agent Governance | Cyber Sentinels",
+  description: "Govern agent purpose, delegated authority, runtime change and accountable ownership.",
+  alternates: { canonical: "/enterprise/agent-governance" },
+};
 
 const agentProblems = [
   ["Unclear ownership", "Teams need to know which human or business owner is accountable when an agent acts."],

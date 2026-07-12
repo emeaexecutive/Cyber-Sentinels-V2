@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 
@@ -91,3 +92,8 @@ export default function EnterprisePage() {
     </main>
   );
 }
+export const metadata: Metadata = {
+  title: "Enterprise | Cyber Sentinels",
+  description: "Deployment, security, compliance, data residency, pilot adoption and enterprise support.",
+  alternates: { canonical: "/enterprise" },
+};

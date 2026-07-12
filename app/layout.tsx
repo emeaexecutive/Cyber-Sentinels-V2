@@ -14,9 +14,6 @@ export const metadata: Metadata = {
   title: "Cyber Sentinels | Operational Trust Control Plane",
   description:
     "The operational trust control plane for humans, AI agents, machine identities and regulated workflows.",
-  alternates: {
-    canonical: "/",
-  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "32x32" },
@@ -30,10 +27,10 @@ const footerSections = [
   {
     title: "Platform",
     links: [
-      ["/platform", "Trust Control Plane"],
+      ["/platform", "Platform Overview"],
+      ["/platform#trust-engine", "Trust Engine"],
       ["/platform#runtime-engine", "Runtime Trust"],
       ["/platform#authorization-gateway", "Authorization"],
-      ["/platform#evidence-graph", "Evidence Graph"],
       ["/trust#trust-memory", "Trust Memory\u2122"],
     ],
   },
@@ -42,6 +39,7 @@ const footerSections = [
     links: [
       ["/trust", "Trust Center"],
       ["/verification-replay", "Replay"],
+      ["/trust#evidence-audit", "Evidence"],
       ["/governance", "Governance"],
       ["/trust#provenance", "Provenance"],
       ["/trust/data-sovereignty", "AI Sovereignty"],
@@ -53,6 +51,7 @@ const footerSections = [
     links: [
       ["/enterprise/agent-governance", "AI Agents"],
       ["/solutions#machine-identity-trust", "Machine Identities"],
+      ["/solutions#regulated-workflows", "Regulated Workflows"],
       ["/solutions#financial-services", "Financial Services"],
       ["/solutions#insurance", "Insurance"],
       ["/solutions#executive-protection", "Executive Protection"],
@@ -62,6 +61,7 @@ const footerSections = [
   {
     title: "Developers",
     links: [
+      ["/developers", "Developer Overview"],
       ["/developers/docs", "API Docs"],
       ["/developers/authentication", "Authentication"],
       ["/developers/docs#webhooks", "Webhooks"],
@@ -74,9 +74,9 @@ const footerSections = [
     links: [
       ["/about", "About"],
       ["/about/mission", "Mission"],
-      ["/our-people", "Our People"],
       ["/careers", "Careers"],
-      ["/enterprise-access", "Contact / Enterprise Access"],
+      ["/enterprise-access", "Contact"],
+      ["/media-centre", "Media Centre"],
     ],
   },
   {
@@ -87,7 +87,6 @@ const footerSections = [
       ["/privacy", "Privacy"],
       ["/terms", "Terms"],
       ["/cookies", "Cookies"],
-      ["/legal", "Legal"],
       ["/security", "Security"],
       ["/status", "Status"],
     ],

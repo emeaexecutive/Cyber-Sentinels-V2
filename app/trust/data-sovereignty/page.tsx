@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 
@@ -81,3 +82,8 @@ export default function DataSovereigntyPage() {
     </main>
   );
 }
+export const metadata: Metadata = {
+  title: "AI and Data Sovereignty | Cyber Sentinels",
+  description: "Enterprise data control, provider boundaries, retention and deployment transparency.",
+  alternates: { canonical: "/trust/data-sovereignty" },
+};

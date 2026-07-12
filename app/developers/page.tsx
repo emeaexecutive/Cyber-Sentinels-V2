@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 
@@ -122,3 +123,8 @@ export default function DevelopersPage() {
     </main>
   );
 }
+export const metadata: Metadata = {
+  title: "Developers | Cyber Sentinels",
+  description: "APIs, authentication, webhooks and integration paths for operational trust.",
+  alternates: { canonical: "/developers" },
+};

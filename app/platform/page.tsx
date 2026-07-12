@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 import { TrustOpsOperatingStack } from "@/components/trustops-operating-stack";
@@ -90,3 +91,8 @@ export default function PlatformPage() {
     </main>
   );
 }
+export const metadata: Metadata = {
+  title: "Platform | Cyber Sentinels",
+  description: "Architecture for operational trust, authorization, enforcement, evidence, governance and Trust Memory.",
+  alternates: { canonical: "/platform" },
+};

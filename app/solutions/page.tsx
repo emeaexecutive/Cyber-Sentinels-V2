@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 
@@ -45,6 +46,12 @@ const solutionAreas = [
     "Track how identity, channel evidence and authorization context change after a session begins.",
     "/demo/session-integrity",
     "live-session-trust",
+  ],
+  [
+    "Identity and Onboarding",
+    "Resolve identity evidence, accountable ownership and access conditions before sensitive onboarding completes.",
+    "/enterprise-access?solution=identity-onboarding",
+    "identity-onboarding",
   ],
   [
     "Hiring Security",
@@ -99,3 +106,8 @@ export default function SolutionsPage() {
     </main>
   );
 }
+export const metadata: Metadata = {
+  title: "Enterprise Solutions | Cyber Sentinels",
+  description: "Operational trust solutions for AI operations, critical interactions and regulated business workflows.",
+  alternates: { canonical: "/solutions" },
+};

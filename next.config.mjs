@@ -6,6 +6,7 @@ const nextConfig = {
       { source: "/about-us", destination: "/about", permanent: true },
       { source: "/design-partners", destination: "/design-partner", permanent: true },
       { source: "/modern-slavery-statement", destination: "/modern-slavery", permanent: true },
+      { source: "/trust-posture", destination: "/trust#trust-posture", permanent: true },
     ];
   },
   async headers() {

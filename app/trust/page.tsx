@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 import { mlValidationEngine } from "@/lib/core/ml-validation-engine";
@@ -140,7 +141,7 @@ export default async function TrustPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Operating principles</p>
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             {trustPrinciples.map(([title, copy]) => (
-              <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
+              <article id={title === "Provider transparency" ? "provider-transparency" : undefined} key={title} className="scroll-mt-28 rounded-lg border border-zinc-800 bg-black p-4">
                 <h2 className="text-sm font-semibold text-zinc-100">{title}</h2>
                 <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
               </article>
@@ -157,3 +158,8 @@ export default async function TrustPage() {
     </main>
   );
 }
+export const metadata: Metadata = {
+  title: "Trust Center | Cyber Sentinels",
+  description: "Public assurance for evidence, Replay, Trust Memory, provenance, providers and ML validation.",
+  alternates: { canonical: "/trust" },
+};

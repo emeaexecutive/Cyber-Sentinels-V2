@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 
@@ -140,3 +141,8 @@ export default function VerificationReplayPage() {
     </main>
   );
 }
+export const metadata: Metadata = {
+  title: "Verification Replay | Cyber Sentinels",
+  description: "Reconstruct actor, authority, evidence, change, governance and outcome chronology.",
+  alternates: { canonical: "/verification-replay" },
+};

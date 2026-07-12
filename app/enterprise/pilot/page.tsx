@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 
@@ -67,3 +68,8 @@ export default function EnterprisePilotPage() {
     </main>
   );
 }
+export const metadata: Metadata = {
+  title: "Enterprise Pilot Programme | Cyber Sentinels",
+  description: "Pilot one consequential workflow with controlled deployment, governance and Replay evidence.",
+  alternates: { canonical: "/enterprise/pilot" },
+};

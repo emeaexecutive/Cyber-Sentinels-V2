@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
+
+export const metadata: Metadata = {
+  title: "Hiring Security | Cyber Sentinels",
+  description: "A governed solution for synthetic applicant, proxy interview and session-integrity risk.",
+  alternates: { canonical: "/enterprise/hiring-security" },
+};
 
 export const dynamic = "force-dynamic";
 

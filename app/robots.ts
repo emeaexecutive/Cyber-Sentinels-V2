@@ -1,4 +1,10 @@
 import type { MetadataRoute } from "next";
+import {
+  archivedRoutePrefixes,
+  internalRoutePrefixes,
+  protectedRoutePrefixes,
+  redirectedPublicRoutes,
+} from "@/lib/navigation/route-visibility";
 
 const protectedPaths = [
   "/admin/",
@@ -13,7 +19,6 @@ const protectedPaths = [
   "/dashboard/",
   "/demo-lab",
   "/developer-console",
-  "/developers/",
   "/evidence-vault",
   "/launch-console",
   "/launch-control",
@@ -72,8 +77,16 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: [...protectedPaths, ...experimentalPaths],
+      disallow: [
+        ...protectedPaths,
+        ...experimentalPaths,
+        ...protectedRoutePrefixes,
+        ...internalRoutePrefixes,
+        ...archivedRoutePrefixes,
+        ...redirectedPublicRoutes.map(({ route }) => route),
+      ],
     },
+    sitemap: "https://www.cybersentinels.com/sitemap.xml",
     host: "https://www.cybersentinels.com",
   };
 }
