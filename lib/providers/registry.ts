@@ -193,7 +193,7 @@ export function providerRuntimeState(
 ): ProviderRuntimeState {
   if (provider.usesMockData) return "Simulated";
   if (provider.implementationState === "active" && provider.status === "configured") {
-    return "Live";
+    return "Test Mode";
   }
   if (provider.implementationState === "configured_unverified") {
     return "Disabled";

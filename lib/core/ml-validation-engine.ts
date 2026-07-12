@@ -57,7 +57,7 @@ export async function runMlValidationEngine(
 
   return {
     engine: "ml_validation_engine" as const,
-    message: validationIncomplete ? "Validation incomplete — insufficient reviewed dataset." : "Validation dataset has reviewed calibration evidence.",
+    message: validationIncomplete ? "Calibration incomplete — insufficient reviewed ground truth." : "Validation dataset has reviewed calibration evidence.",
     benchmark,
     status,
     entity_identity: entity,
@@ -79,7 +79,7 @@ export async function runMlValidationEngine(
       boundary: "Real ML, Provider API, Heuristic Baseline, Awaiting Credentials and Not Implemented remain separate states.",
     },
     limitations: [
-      ...(validationIncomplete ? ["Validation incomplete — insufficient reviewed dataset."] : []),
+      ...(validationIncomplete ? ["Calibration incomplete — insufficient reviewed ground truth."] : []),
       "No precision, recall or F1 claim is valid unless calibrationStatus.complete is true.",
       "Provider comparison is evidence, not a substitute for reviewed outcomes.",
       "Heuristic logic must not be described as trained first-party ML.",

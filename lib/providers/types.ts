@@ -29,9 +29,14 @@ export type VerificationProviderStatus =
 
 export type ProviderRuntimeState =
   | "Live"
+  | "Test Mode"
   | "Simulated"
   | "Awaiting Credentials"
-  | "Disabled";
+  | "Degraded"
+  | "Timeout"
+  | "Failed"
+  | "Disabled"
+  | "Unsupported";
 
 export type ProviderImplementationState =
   | "active"

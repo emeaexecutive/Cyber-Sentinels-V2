@@ -14,6 +14,8 @@ export type CalibrationReadinessStatus = {
   providerComparisonReady: boolean;
   perCategoryReady: boolean;
   confidenceCalibrationReady: boolean;
+  groundTruthQualityReady: boolean;
+  versioningReady: boolean;
   currentPercent: number;
   message: string;
   evidence: string;
@@ -30,6 +32,10 @@ export function evaluateCalibrationReadiness(input: {
   providerAgreement: number | null;
   perCategoryCount: number;
   confidenceBandCount: number;
+  groundTruthQuality?: number | null;
+  minimumGroundTruthQuality?: number;
+  datasetVersion?: string | null;
+  benchmarkVersion?: string | null;
 }): CalibrationReadinessStatus {
   const thresholdMet = input.sampleCount >= input.minimumSampleThreshold;
   const precisionReady = thresholdMet && input.metrics.precision !== null;
@@ -39,13 +45,19 @@ export function evaluateCalibrationReadiness(input: {
   const providerComparisonReady = input.providerAgreement !== null;
   const perCategoryReady = thresholdMet && input.perCategoryCount > 0;
   const confidenceCalibrationReady = thresholdMet && input.confidenceBandCount > 0;
+  const groundTruthQualityReady =
+    typeof input.groundTruthQuality === "number" &&
+    input.groundTruthQuality >= (input.minimumGroundTruthQuality ?? 0.75);
+  const versioningReady = Boolean(input.datasetVersion && input.benchmarkVersion);
   const complete =
     thresholdMet &&
     precisionReady &&
     recallReady &&
     f1Ready &&
     perCategoryReady &&
-    confidenceCalibrationReady;
+    confidenceCalibrationReady &&
+    groundTruthQualityReady &&
+    versioningReady;
   const currentPercent = Math.min(
     85,
     Math.round(
@@ -71,16 +83,18 @@ export function evaluateCalibrationReadiness(input: {
     providerComparisonReady,
     perCategoryReady,
     confidenceCalibrationReady,
+    groundTruthQualityReady,
+    versioningReady,
     currentPercent,
     message: complete
       ? "Calibration sample threshold met; metrics remain dataset-scoped."
-      : "Calibration incomplete - insufficient validated data.",
+      : "Calibration incomplete — insufficient reviewed ground truth.",
     evidence: complete
       ? `${input.sampleCount} approved case(s) support dataset-scoped precision, recall and F1 reporting.`
       : `${input.sampleCount}/${input.minimumSampleThreshold} approved case(s) available for calibration.`,
     blocker: complete
       ? "Calibration still requires ongoing reviewer audit before production claims."
-      : "Minimum reviewed sample threshold, source-specific metrics or category coverage is not met.",
+      : "Minimum reviewed samples, ground-truth quality, versioning, source metrics or category coverage is not met.",
     nextAction:
       "Add approved labelled cases, reviewer adjudication and provider comparison results before reporting accuracy-like claims.",
   };

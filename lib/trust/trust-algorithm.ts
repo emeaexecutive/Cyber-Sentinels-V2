@@ -1,5 +1,5 @@
-import type { DetectionSource } from "@/lib/detection/detection-engine";
-import { evaluateTrustDecision, type TrustDecision } from "@/lib/trust/decision-engine";
+import type { DetectionSource } from "../detection/detection-engine.ts";
+import { evaluateTrustDecision, type TrustDecision } from "./decision-engine.ts";
 
 export type TrustAlgorithmDecision = TrustDecision;
 

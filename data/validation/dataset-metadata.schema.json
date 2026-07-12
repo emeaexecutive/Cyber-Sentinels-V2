@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "purpose": "Metadata contract for approved Cyber Sentinels validation cases. This file is not a labelled dataset and contains no production data.",
   "requiredCaseFields": [
     "id",
@@ -17,7 +17,10 @@
       "reviewer",
       "confidence",
       "providerAgreement",
-      "governanceOutcome"
+      "governanceOutcome",
+      "reviewTimestamp",
+      "datasetVersion",
+      "benchmarkVersion"
     ],
     "allowedLabels": [
       "real",
@@ -63,7 +66,9 @@
     "injected-session-samples",
     "ai-agent-risk-events",
     "clean-agent-actions",
-    "normal-workflow-approvals"
+    "normal-workflow-approvals",
+    "machine-identity-misuse",
+    "risky-regulated-workflows"
   ],
   "prohibitedData": [
     "customer PII",

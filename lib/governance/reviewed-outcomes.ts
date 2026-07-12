@@ -1,5 +1,5 @@
-import type { DetectionExpectedOutcome, ValidationCase, ValidationResult } from "@/lib/validation/validation-case";
-import { trustMemoryEventFromReviewedOutcome, type TrustMemoryEvent } from "@/lib/trust-memory/trust-memory";
+import type { DetectionExpectedOutcome, ValidationCase, ValidationResult } from "../validation/validation-case.ts";
+import { trustMemoryEventFromReviewedOutcome, type TrustMemoryEvent } from "../trust-memory/trust-memory.ts";
 
 export type ReviewedOutcomeType =
   | "true_positive"
@@ -17,6 +17,7 @@ export type ReviewedOutcomeRecord = {
   reviewedOutcome: DetectionExpectedOutcome | null;
   reviewerDecision: DetectionExpectedOutcome | null;
   reviewerId: string | null;
+  reviewTimestamp: string | null;
   reviewerNotes: string | null;
   overrideReason: string | null;
   falsePositive: boolean;
@@ -33,6 +34,11 @@ export type ReviewedOutcomeRecord = {
   replayLink: string | null;
   reviewLifecycle: "unreviewed" | "needs_review" | "reviewed" | "overridden" | "calibration_candidate";
   reviewConfidence: number;
+  confidence: number;
+  finalDecision: DetectionExpectedOutcome | null;
+  calibrationEligibility: { eligible: boolean; reason: string };
+  replayReference: string | null;
+  trustMemoryReference: string | null;
   governanceOutcome: string | null;
   calibrationContribution: {
     eligible: boolean;
@@ -101,7 +107,15 @@ export function buildReviewedOutcomeRecords(
           (evidenceQuality === "reviewed" ? 0.15 : evidenceQuality === "sufficient" ? 0.1 : 0)
       ).toFixed(2)
     );
-    const calibrationEligible = Boolean(reviewerDecision && evidenceQuality !== "missing");
+    const reviewerId = testCase.reviewerId ?? testCase.datasetMetadata?.reviewer ?? null;
+    const reviewTimestamp = testCase.datasetMetadata?.reviewTimestamp ?? null;
+    const overrideNeedsReason = reviewerDecision !== null && reviewerDecision !== actual;
+    const calibrationEligible = Boolean(
+      reviewerDecision && reviewerId && reviewTimestamp && evidenceQuality !== "missing" &&
+      (!overrideNeedsReason || testCase.governanceOverride?.reason)
+    );
+    const replayReference = testCase.sampleReference ? `/trust-replay?sample=${encodeURIComponent(testCase.sampleReference)}` : null;
+    const trustMemoryReference = calibrationEligible ? `trust-memory:reviewed-outcome:${testCase.id}` : null;
     return {
       caseId: testCase.id,
       expected: testCase.expectedOutcome,
@@ -109,7 +123,8 @@ export function buildReviewedOutcomeRecords(
       originalSystemDecision: actual,
       reviewedOutcome: reviewerDecision,
       reviewerDecision,
-      reviewerId: testCase.reviewerId ?? testCase.datasetMetadata?.reviewer ?? null,
+      reviewerId,
+      reviewTimestamp,
       reviewerNotes: testCase.reviewerNotes ?? testCase.datasetMetadata?.notes ?? null,
       overrideReason: testCase.governanceOverride?.reason ?? null,
       falsePositive: outcomeType === "false_positive",
@@ -124,9 +139,19 @@ export function buildReviewedOutcomeRecords(
         sampleReference: testCase.sampleReference ?? null,
         evidenceReferences,
       },
-      replayLink: testCase.sampleReference ? `/trust-replay?sample=${encodeURIComponent(testCase.sampleReference)}` : null,
+      replayLink: replayReference,
       reviewLifecycle,
       reviewConfidence,
+      confidence: reviewConfidence,
+      finalDecision: reviewerDecision,
+      calibrationEligibility: {
+        eligible: calibrationEligible,
+        reason: calibrationEligible
+          ? "Attributed, timestamped review with evidence and required override reason."
+          : "Reviewer identity, review timestamp, evidence or override reason is missing.",
+      },
+      replayReference,
+      trustMemoryReference,
       calibrationContribution: {
         eligible: calibrationEligible,
         reason: calibrationEligible
@@ -147,6 +172,25 @@ export function buildReviewedOutcomeRecords(
       },
     };
   });
+}
+
+export function buildReviewedOutcomeFeedback(records: ReviewedOutcomeRecord[]) {
+  const eligible = records.filter((record) => record.calibrationEligibility.eligible);
+  return {
+    benchmarkHistory: eligible.map((record) => ({ caseId: record.caseId, outcomeType: record.outcomeType, confidence: record.confidence })),
+    calibrationHistory: eligible.map((record) => ({ caseId: record.caseId, finalDecision: record.finalDecision, reviewedAt: record.reviewTimestamp })),
+    falsePositiveAnalysis: eligible.filter((record) => record.falsePositive).map((record) => record.caseId),
+    falseNegativeAnalysis: eligible.filter((record) => record.falseNegative).map((record) => record.caseId),
+    policyTuningRecommendations: eligible
+      .filter((record) => record.calibrationImpact.shouldUpdateThreshold)
+      .map((record) => ({ caseId: record.caseId, recommendation: record.calibrationImpact.notes })),
+    providerComparison: eligible.filter((record) => record.calibrationImpact.shouldAddProviderComparison).map((record) => record.caseId),
+    trustMemoryReferences: eligible.map((record) => record.trustMemoryReference).filter(Boolean),
+    confidenceEvolution: eligible.map((record) => ({ caseId: record.caseId, confidence: record.confidence })),
+    automaticRetraining: false,
+    automaticPolicyMutation: false,
+    boundary: "Reviewed outcomes generate attributable recommendations and history only; they never retrain models or silently change production policy.",
+  };
 }
 
 export function summarizeReviewedOutcomes(records: ReviewedOutcomeRecord[]) {

@@ -1,91 +1,41 @@
 import Link from "next/link";
-import { runTrustAlgorithm } from "@/lib/trust/trust-algorithm";
+import { buildRegulatedAiAgentDemo } from "@/lib/core/trust-lifecycle-orchestrator";
 
 export const dynamic = "force-dynamic";
 
 const paths = [
   {
     label: "Allowed",
-    actor: "Verified analyst",
-    algorithm: runTrustAlgorithm({
-      identityConfidence: 0.92,
-      proofOfHuman: "verified",
-      sessionIntegrity: 0.9,
-      deviceChannelIntegrity: 0.88,
-      provenanceConfidence: 0.76,
-      intentRisk: 18,
-      runtimeBehavior: 0.08,
-      heuristicBaseline: 0.82,
-      evidenceRefs: ["receipt-demo-allow", "session-integrity-clear"],
-      sourceLabels: ["Heuristic Baseline", "Runtime Intelligence"],
-    }),
-  },
-  {
-    label: "Step-up required",
-    actor: "Known agent with changed session",
-    algorithm: runTrustAlgorithm({
-      identityConfidence: 0.74,
-      proofOfHuman: "unknown",
-      agentIdentity: "verified",
-      nhiOwnership: "known",
-      sessionIntegrity: 0.55,
-      injectionRisk: 0.38,
-      deviceChannelIntegrity: 0.52,
-      provenanceConfidence: 0.5,
-      intentRisk: 42,
-      runtimeBehavior: 0.42,
-      heuristicBaseline: 0.66,
-      evidenceRefs: ["runtime-change", "device-channel-review"],
-    }),
+    actor: "Regulated finance agent within scope",
+    result: buildRegulatedAiAgentDemo("allow"),
   },
   {
     label: "Governance review",
-    actor: "Agent requesting overbroad scope",
-    algorithm: runTrustAlgorithm({
-      identityConfidence: 0.68,
-      proofOfHuman: "verified",
-      agentIdentity: "verified",
-      nhiOwnership: "known",
-      sessionIntegrity: 0.62,
-      injectionRisk: 0.28,
-      deviceChannelIntegrity: 0.62,
-      provenanceConfidence: 0.45,
-      intentRisk: 64,
-      runtimeBehavior: 0.52,
-      heuristicBaseline: 0.6,
-      evidenceRefs: ["permission-overbroad", "intent-review"],
-    }),
+    actor: "Regulated finance agent requiring accountable review",
+    result: buildRegulatedAiAgentDemo("review"),
   },
   {
     label: "Blocked",
-    actor: "Orphaned automation",
-    algorithm: runTrustAlgorithm({
-      identityConfidence: 0.38,
-      proofOfHuman: "failed",
-      agentIdentity: "unknown",
-      nhiOwnership: "orphaned",
-      sessionIntegrity: 0.36,
-      injectionRisk: 0.82,
-      deviceChannelIntegrity: 0.3,
-      provenanceConfidence: 0.2,
-      documentRisk: 0.7,
-      intentRisk: 92,
-      runtimeBehavior: 0.88,
-      heuristicBaseline: 0.42,
-      governanceHistory: ["blocked"],
-      evidenceRefs: ["orphaned-nhi", "restricted-export-attempt"],
-    }),
+    actor: "Agent outside delegated financial authority",
+    result: buildRegulatedAiAgentDemo("block"),
   },
 ];
 
 const flow = [
-  ["Platform starts", "The application and protected operator surfaces load."],
-  ["Health checks pass", "The operator confirms application, provider, queue and configuration health in the admin snapshot."],
-  ["Trust decision generated", "A deterministic demo input produces an allow, review, escalate or block outcome."],
-  ["Replay stored", "The protected workflow confirms the append-only replay write and reports any retry state."],
-  ["Trust Memory updated", "The reviewed outcome appears as a trust-state transition, not a raw database row."],
-  ["Evidence Graph updated", "The decision remains connected to actor, authority, evidence and governance relationships."],
-  ["Dashboard refreshed", "Health, Risk, Actions and Evidence reflect the retained operational state."],
+  ["Agent passport", "The registered AI agent and lifecycle posture are resolved."],
+  ["Ownership", "The responsible human and organization are identified."],
+  ["Machine identity", "Credential lineage and machine identity are checked."],
+  ["Authority", "Delegated purpose and action scope are evaluated externally."],
+  ["Signals", "Provider states and runtime signals retain source labels."],
+  ["Posture", "The Trust Engine calculates bounded workflow posture."],
+  ["Decision", "Authorization produces an explainable lifecycle decision."],
+  ["Enforcement", "The action is allowed, held for review or blocked."],
+  ["Receipt", "An execution receipt records the policy and enforcement result."],
+  ["Replay", "Append-only chronology receives a lifecycle reference."],
+  ["Evidence Graph", "Actor, authority, execution and evidence relationships update."],
+  ["Governance", "Review status and next accountable action are recorded."],
+  ["Trust Memory™", "Trust evolution retains reasons and source references."],
+  ["Enterprise report", "Source reality, limitations and outcome remain visible."],
 ];
 
 const decisionClass: Record<string, string> = {
@@ -143,16 +93,16 @@ export default function TrustExecutionFlowDemoPage() {
                   <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">{path.actor}</p>
                   <h2 className="mt-2 text-2xl font-semibold">{path.label}</h2>
                 </div>
-                <span className={`rounded-full border px-3 py-1 text-sm ${decisionClass[path.algorithm.decision]}`}>
-                  {path.algorithm.decision}
+                <span className={`rounded-full border px-3 py-1 text-sm ${decisionClass[path.result.trust_decision]}`}>
+                  {path.result.trust_decision}
                 </span>
               </div>
               <div className="mt-5 grid gap-3 md:grid-cols-4">
                 {[
-                  ["Trust score", path.algorithm.trust_score],
-                  ["Trust level", path.algorithm.trust_level],
-                  ["Confidence band", path.algorithm.confidence_band],
-                  ["Next action", path.algorithm.next_action],
+                  ["Current posture", path.result.trust_posture],
+                  ["Enforcement", path.result.enforcement_action],
+                  ["Confidence band", path.result.confidence_band],
+                  ["Next action", path.result.next_required_action],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
                     <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
@@ -161,8 +111,12 @@ export default function TrustExecutionFlowDemoPage() {
                 ))}
               </div>
               <p className="mt-5 text-sm leading-7 text-zinc-500">
-                Sources: {path.algorithm.source_labels.join(", ")}. Evidence: {path.algorithm.evidence_refs.join(", ") || "demo evidence only"}.
-                Replay remains append-only; governance and receipt work can be queued after the immediate decision response.
+                Provider reality: {path.result.provider_reality.map((provider) => `${provider.provider} (${provider.state})`).join(", ")}.
+                Evidence: {path.result.evidence_references.join(", ") || "demo evidence only"}.
+                Replay: {path.result.replay_reference ?? "write unavailable"}. Trust Memory™: {path.result.trust_memory_reference ?? "write unavailable"}.
+              </p>
+              <p className="mt-3 text-sm leading-7 text-amber-200">
+                Limitations: {path.result.limitations.join(" ")}
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link href="/trust-replay" className="text-sm font-semibold text-cyan-200 hover:text-cyan-100">View Replay</Link>

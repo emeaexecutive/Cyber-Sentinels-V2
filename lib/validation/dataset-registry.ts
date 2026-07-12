@@ -12,9 +12,13 @@ export type DatasetCategory =
   | "injected_session"
   | "ai_agent_risk"
   | "clean_agent_action"
-  | "normal_workflow";
+  | "normal_workflow"
+  | "machine_identity_misuse"
+  | "risky_regulated_workflow";
 
 export type DatasetRegistryEntry = {
+  datasetId: string;
+  datasetVersion: string;
   name: string;
   directory: string;
   category: DatasetCategory;
@@ -26,9 +30,32 @@ export type DatasetRegistryEntry = {
   usableForBenchmark: boolean;
   providerCoverage: readonly string[];
   riskDiversity: readonly string[];
+  provenanceSource: string;
+  licenceStatus: "not_applicable" | "review_required" | "approved" | "unknown";
+  dataSensitivity: "public" | "internal" | "confidential" | "restricted";
+  groundTruthMethod: "none" | "synthetic_label" | "single_review" | "multi_review" | "adjudicated";
+  reviewerCount: number;
+  labelConfidence: number | null;
+  sampleCount: number;
+  benchmarkEligibility: boolean;
+  limitations: readonly string[];
 };
 
-export const datasetRegistry: DatasetRegistryEntry[] = [
+type DatasetDefinition = Omit<DatasetRegistryEntry,
+  | "datasetId"
+  | "datasetVersion"
+  | "provenanceSource"
+  | "licenceStatus"
+  | "dataSensitivity"
+  | "groundTruthMethod"
+  | "reviewerCount"
+  | "labelConfidence"
+  | "sampleCount"
+  | "benchmarkEligibility"
+  | "limitations"
+>;
+
+const datasetDefinitions: DatasetDefinition[] = [
   {
     name: "Real human sessions",
     directory: "real-human-sessions",
@@ -159,7 +186,70 @@ export const datasetRegistry: DatasetRegistryEntry[] = [
     providerCoverage: ["governance_review"],
     riskDiversity: ["regulated_workflow", "approval_integrity"],
   },
+  {
+    name: "Machine-identity misuse",
+    directory: "machine-identity-misuse",
+    category: "machine_identity_misuse",
+    source: "metadata_scaffold",
+    labelQuality: "unlabelled",
+    reviewerStatus: "not_reviewed",
+    consentStatus: "approved_internal_fixture",
+    dataOrigin: "internal",
+    usableForBenchmark: false,
+    providerCoverage: ["runtime_intelligence", "credential_lineage"],
+    riskDiversity: ["orphaned_credential", "scope_misuse"],
+  },
+  {
+    name: "Risky regulated workflows",
+    directory: "risky-regulated-workflows",
+    category: "risky_regulated_workflow",
+    source: "metadata_scaffold",
+    labelQuality: "unlabelled",
+    reviewerStatus: "not_reviewed",
+    consentStatus: "approved_internal_fixture",
+    dataOrigin: "internal",
+    usableForBenchmark: false,
+    providerCoverage: ["runtime_intelligence", "governance_review"],
+    riskDiversity: ["regulated_workflow", "authority_violation"],
+  },
 ];
+
+function completeDatasetManifest(entry: DatasetDefinition): DatasetRegistryEntry {
+  const reviewerCount = entry.reviewerStatus === "multi_reviewer" ? 2 : entry.reviewerStatus === "single_reviewer" ? 1 : 0;
+  const groundTruthMethod: DatasetRegistryEntry["groundTruthMethod"] = entry.labelQuality === "adjudicated"
+    ? "adjudicated"
+    : entry.reviewerStatus === "multi_reviewer"
+      ? "multi_review"
+      : entry.reviewerStatus === "single_reviewer"
+        ? "single_review"
+        : entry.source === "synthetic"
+          ? "synthetic_label"
+          : "none";
+  return {
+    ...entry,
+    datasetId: entry.directory,
+    datasetVersion: "0.9.3-manifest-1",
+    provenanceSource: `${entry.source}:${entry.dataOrigin}`,
+    licenceStatus: entry.consentStatus === "public_license_required"
+      ? "review_required"
+      : entry.consentStatus === "approved_internal_fixture" || entry.consentStatus === "not_applicable"
+        ? "approved"
+        : "unknown",
+    dataSensitivity: entry.dataOrigin === "public" ? "public" : "internal",
+    groundTruthMethod,
+    reviewerCount,
+    labelConfidence: null,
+    sampleCount: 0,
+    benchmarkEligibility: entry.usableForBenchmark && reviewerCount > 0,
+    limitations: [
+      "Manifest metadata does not imply that sample files are present.",
+      "No customer PII or restricted production evidence is permitted in the repository.",
+      ...(entry.usableForBenchmark ? [] : ["Not eligible for published benchmark metrics."]),
+    ],
+  };
+}
+
+export const datasetRegistry: DatasetRegistryEntry[] = datasetDefinitions.map(completeDatasetManifest);
 
 export async function inspectDatasetRegistry(root = path.join(process.cwd(), "data", "validation")) {
   const folders = await Promise.all(
@@ -172,7 +262,7 @@ export async function inspectDatasetRegistry(root = path.join(process.cwd(), "da
       } catch {
         jsonCaseCount = 0;
       }
-      return { ...entry, jsonCaseCount };
+      return { ...entry, sampleCount: jsonCaseCount, jsonCaseCount };
     })
   );
   return folders;
@@ -241,6 +331,7 @@ function categoryForCase(testCase: ValidationCase): DatasetCategory | null {
   if (testCase.signals.virtualCameraIndicator) return "virtual_camera";
   if (testCase.signals.documentMismatch || testCase.label === "forged") return "forged_document";
   if (testCase.signals.agentRuntimeAnomaly || testCase.intent?.actorType === "agent") return "ai_agent_risk";
+  if (testCase.intent?.actorType === "NHI") return "machine_identity_misuse";
   if (testCase.label === "deepfake") return "deepfake_video";
   if (testCase.label === "synthetic") return "synthetic_face";
   if (testCase.label === "injected") return "injected_session";

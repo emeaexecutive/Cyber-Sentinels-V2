@@ -25,6 +25,9 @@ Every labelled JSON case should include:
 - `datasetMetadata.confidence`
 - `datasetMetadata.providerAgreement`
 - `datasetMetadata.governanceOutcome`
+- `datasetMetadata.reviewTimestamp`
+- `datasetMetadata.datasetVersion`
+- `datasetMetadata.benchmarkVersion`
 
 Allowed `datasetMetadata.source` values are:
 
@@ -56,6 +59,8 @@ The scaffold supports these validation buckets:
 - suspicious agent actions;
 - clean agent actions; and
 - governance-reviewed outcomes.
+- machine-identity misuse; and
+- clean and risky regulated workflows.
 
 See `dataset-metadata.schema.json` for the metadata contract used by future labelled cases.
 
@@ -73,5 +78,9 @@ The canonical readiness registry is `lib/validation/dataset-registry.ts`. It tra
 - `usableForBenchmark`;
 - provider coverage; and
 - risk diversity.
+- version, provenance, licence and sensitivity status;
+- ground-truth method, reviewer count and label confidence;
+- sample count and benchmark eligibility; and
+- explicit limitations.
 
 Registry entries are not benchmark evidence by themselves. A dataset becomes benchmark-usable only when approved JSON cases include source/license or consent metadata, reviewer attribution, label confidence, provider comparison status and governance outcome.

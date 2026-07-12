@@ -18,6 +18,10 @@ export type TrustMemoryEventKind =
   | "step_up_verification"
   | "policy_change"
   | "credential_rotation"
+  | "provider_conflict"
+  | "authority_revoked"
+  | "session_integrity_failure"
+  | "lifecycle_completed"
   | "governance_decision"
   | "reviewer_override"
   | "false_positive_outcome"
@@ -55,6 +59,7 @@ export type TrustMemoryEvent = {
     review_evolution: string;
   };
   created_at: string;
+  tenant_id?: string;
 };
 
 export type TrustEvolutionSummary = {
@@ -165,6 +170,38 @@ export function buildTrustMemorySnapshot(events: TrustMemoryEvent[]): TrustMemor
     generated_at: new Date().toISOString(),
     boundary:
       "Trust Memory is Enterprise Operational Memory for explainable trust, confidence, provider and review evolution. It does not claim autonomous learning, legal finality or first-party ML accuracy.",
+  };
+}
+
+export function validateTrustMemoryIntegrity(
+  events: TrustMemoryEvent[],
+  input: { tenantId: string; evidenceRefs?: string[]; replayRefs?: string[]; governanceRefs?: string[] }
+) {
+  const ordered = [...events].sort((left, right) => Date.parse(left.created_at) - Date.parse(right.created_at));
+  const evidence = new Set(input.evidenceRefs ?? events.flatMap((event) => event.evidence_refs));
+  const replay = new Set(input.replayRefs ?? events.flatMap((event) => event.replay_refs));
+  const governance = new Set(input.governanceRefs ?? events.flatMap((event) => event.governance_refs));
+  const duplicateIds = events.filter((event, index) => events.findIndex((candidate) => candidate.id === event.id) !== index).map((event) => event.id);
+  const unresolved = events.flatMap((event) => [
+    ...event.evidence_refs.filter((ref) => !evidence.has(ref)).map((ref) => `evidence:${ref}`),
+    ...event.replay_refs.filter((ref) => !replay.has(ref)).map((ref) => `replay:${ref}`),
+    ...event.governance_refs.filter((ref) => !governance.has(ref)).map((ref) => `governance:${ref}`),
+  ]);
+  const checks = {
+    chronologyValid: ordered.every((event, index) => index === 0 || Date.parse(event.created_at) >= Date.parse(ordered[index - 1].created_at)),
+    referencesResolve: unresolved.length === 0,
+    tenantIsolationPreserved: events.every((event) => event.tenant_id === input.tenantId),
+    reviewedOutcomesAttributable: events.filter((event) => event.reviewed_outcome_ref).every((event) => event.governance_refs.length > 0),
+    reasonsPresent: events.every((event) => event.reason.trim().length > 0),
+    appendOnlyIds: duplicateIds.length === 0,
+  };
+  return {
+    valid: Object.values(checks).every(Boolean),
+    checks,
+    duplicateIds: [...new Set(duplicateIds)],
+    unresolvedReferences: [...new Set(unresolved)],
+    eventCount: events.length,
+    boundary: "Integrity validation detects continuity failures; it does not silently repair or overwrite Trust Memory.",
   };
 }
 

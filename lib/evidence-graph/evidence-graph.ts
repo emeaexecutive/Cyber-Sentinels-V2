@@ -583,3 +583,34 @@ export function buildEvidenceGraphDemo() {
     ],
   });
 }
+
+export function validateEvidenceGraphContinuity(graph: EvidenceGraph, tenantId?: string) {
+  const nodeIds = new Set(graph.nodes.map((node) => node.id));
+  const incidentEdges = new Map<string, number>();
+  for (const relationship of graph.relationships) {
+    incidentEdges.set(relationship.from, (incidentEdges.get(relationship.from) ?? 0) + 1);
+    incidentEdges.set(relationship.to, (incidentEdges.get(relationship.to) ?? 0) + 1);
+  }
+  const missingEdges = graph.relationships
+    .filter((relationship) => !nodeIds.has(relationship.from) || !nodeIds.has(relationship.to))
+    .map((relationship) => relationship.id);
+  const crossTenantReferences = tenantId
+    ? graph.nodes.filter((node) => node.metadata.tenant_id && node.metadata.tenant_id !== tenantId).map((node) => node.id)
+    : [];
+  const orphanedCredentials = graph.nodes.filter((node) => node.type === "credential" && !incidentEdges.has(node.id)).map((node) => node.id);
+  const unownedAgents = graph.nodes.filter((node) => node.type === "ai_agent" && !graph.relationships.some((edge) => edge.to === node.id && edge.type === "owns")).map((node) => node.id);
+  const revokedAuthority = graph.nodes.filter((node) => node.type === "authorization" && /revoked/i.test(node.label)).map((node) => node.id);
+  const missingExecutionReceipt = graph.nodes.some((node) => node.type === "execution") ? [] : ["execution_receipt"];
+  const evidenceNotLinkedToReplay = graph.nodes
+    .filter((node) => node.type === "evidence" && !graph.relationships.some((edge) => (edge.from === node.id || edge.to === node.id) && Boolean(edge.replayReference)))
+    .map((node) => node.id);
+  const trustMemoryWithoutEvidence = graph.nodes
+    .filter((node) => node.type === "trust_memory_event" && !graph.nodes.some((candidate) => candidate.type === "evidence"))
+    .map((node) => node.id);
+  const findings = { missingEdges, crossTenantReferences, orphanedCredentials, unownedAgents, revokedAuthority, missingExecutionReceipt, evidenceNotLinkedToReplay, trustMemoryWithoutEvidence };
+  return {
+    valid: Object.values(findings).every((items) => items.length === 0),
+    findings,
+    boundary: "Evidence Graph integrity reports continuity gaps without creating another graph or silently repairing records.",
+  };
+}

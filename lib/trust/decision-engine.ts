@@ -1,4 +1,4 @@
-import type { DetectionSource } from "@/lib/detection/detection-engine";
+import type { DetectionSource } from "../detection/detection-engine.ts";
 
 export type TrustDecision = "allow" | "step_up" | "review" | "escalate" | "block" | "insufficient_evidence" | "insufficient evidence";
 

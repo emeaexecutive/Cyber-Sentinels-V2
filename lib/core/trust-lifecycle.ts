@@ -94,6 +94,7 @@ export type TrustLifecycleWrite = {
 };
 
 export type TrustLifecycleInput = {
+  tenantId?: string;
   workflowId: string;
   subjectId: string;
   actorId: string;
@@ -110,6 +111,7 @@ export type TrustLifecycleInput = {
   evidenceExpected?: number;
   governanceState?: LifecycleGovernanceState;
   createdAt?: string;
+  profile?: (stage: "replay" | "governance" | "trust_memory" | "evidence_graph", latencyMs: number) => void;
 };
 
 export type LifecycleDashboardSnapshot = {
@@ -159,6 +161,10 @@ function unique(values: string[] = []) {
 
 function safeId(value: string) {
   return value.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 180);
+}
+
+function profileClock() {
+  return typeof performance !== "undefined" ? performance.now() : Date.now();
 }
 
 function postureFor(action: ContinuousTrustChange, currentPosture = "current") {
@@ -263,6 +269,7 @@ export function writeTrustLifecyclePhase(input: TrustLifecycleInput): TrustLifec
     ...(action === "step_up_verification" ? ["Complete step-up verification"] : []),
     ...(evidenceCompleteness < 100 ? ["Complete lifecycle evidence"] : []),
   ]);
+  let profileStarted = profileClock();
   const replay: ReplaySession = {
     id: replayRef,
     subject_type: "trust_lifecycle",
@@ -271,6 +278,8 @@ export function writeTrustLifecyclePhase(input: TrustLifecycleInput): TrustLifec
     generated_by: "trust_lifecycle_engine",
     created_at: createdAt,
   };
+  input.profile?.("replay", profileClock() - profileStarted);
+  profileStarted = profileClock();
   const governanceEvent: LifecycleGovernanceEvent = {
     id: governanceRef,
     workflow_id: input.workflowId,
@@ -282,7 +291,10 @@ export function writeTrustLifecyclePhase(input: TrustLifecycleInput): TrustLifec
     replay_ref: replayRef,
     created_at: createdAt,
   };
+  input.profile?.("governance", profileClock() - profileStarted);
+  profileStarted = profileClock();
   const trustMemory = createTrustMemoryEvent({
+    tenant_id: input.tenantId,
     actor_id: input.actorId,
     actor_type: input.actorType ?? "workflow",
     workflow_id: input.workflowId,
@@ -299,6 +311,8 @@ export function writeTrustLifecyclePhase(input: TrustLifecycleInput): TrustLifec
     confidence_after: confidenceAfter,
     created_at: createdAt,
   });
+  input.profile?.("trust_memory", profileClock() - profileStarted);
+  profileStarted = profileClock();
   const evidenceGraph = buildLifecycleEvidenceGraph({
     lifecycleEventId,
     workflowId: input.workflowId,
@@ -312,6 +326,7 @@ export function writeTrustLifecyclePhase(input: TrustLifecycleInput): TrustLifec
     trustMemory,
     createdAt,
   });
+  input.profile?.("evidence_graph", profileClock() - profileStarted);
 
   return {
     lifecycle_event_id: lifecycleEventId,

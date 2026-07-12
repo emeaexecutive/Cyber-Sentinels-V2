@@ -1,10 +1,15 @@
 export type RuntimeProfileStage =
+  | "lifecycle_orchestration_latency"
   | "provider_latency"
   | "trust_latency"
   | "workflow_latency"
   | "replay_latency"
   | "queue_latency"
   | "authorization_latency"
+  | "enforcement_latency"
+  | "evidence_graph_latency"
+  | "trust_memory_latency"
+  | "governance_queue_latency"
   | "dashboard_latency"
   | "database_query_latency"
   | "cache_efficiency";
@@ -26,7 +31,7 @@ const maxSamples = 200;
 export function recordRuntimeProfile(sample: Omit<RuntimeProfileSample, "recordedAt">) {
   const recorded: RuntimeProfileSample = {
     ...sample,
-    latencyMs: Math.max(0, Math.round(sample.latencyMs)),
+    latencyMs: Math.max(0, Number(sample.latencyMs.toFixed(3))),
     recordedAt: new Date().toISOString(),
   };
   samples.unshift(recorded);

@@ -16,7 +16,7 @@ import {
   summarizeDatasetRegistry,
   summarizeGroundTruth,
   type GroundTruthRecord,
-} from "./ground-truth";
+} from "./ground-truth.ts";
 import type {
   ConfusionMatrix,
   PrecisionRecallMetrics,
@@ -428,6 +428,10 @@ export async function runValidationBenchmark(options: {
       providerAgreement: null,
       perCategoryCount: 0,
       confidenceBandCount: 0,
+      groundTruthQuality: 0,
+      minimumGroundTruthQuality: 0.75,
+      datasetVersion: datasetCoverageReport.datasetVersion,
+      benchmarkVersion: "benchmark-schema-1",
     });
     return {
       caseCount: 0,
@@ -520,6 +524,10 @@ export async function runValidationBenchmark(options: {
     providerAgreement: providerAgreementScore,
     perCategoryCount: Object.keys(perCategoryMetrics).length,
     confidenceBandCount: Object.values(confidenceCalibrationBands).filter((band) => band.caseCount > 0).length,
+    groundTruthQuality: datasetCoverageReport.confidence,
+    minimumGroundTruthQuality: 0.75,
+    datasetVersion: datasetCoverageReport.datasetVersion,
+    benchmarkVersion: "benchmark-schema-1",
   });
   const runtimeEvaluations = cases.map((testCase) => ({
     testCase,
@@ -707,13 +715,13 @@ export async function runValidationBenchmark(options: {
       ? [
           "Provider results are evidence inputs, not final authenticity decisions.",
           ...(cases.length < MINIMUM_CALIBRATION_SAMPLE_THRESHOLD
-            ? ["Calibration incomplete - insufficient validated data."]
+            ? ["Calibration incomplete — insufficient reviewed ground truth."]
             : []),
         ]
       : [
           "No live provider inference was used.",
           ...(cases.length < MINIMUM_CALIBRATION_SAMPLE_THRESHOLD
-            ? ["Calibration incomplete - insufficient validated data."]
+            ? ["Calibration incomplete — insufficient reviewed ground truth."]
             : []),
         ],
   };

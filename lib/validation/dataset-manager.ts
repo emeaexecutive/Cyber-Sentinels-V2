@@ -39,6 +39,7 @@ function caseCategory(testCase: ValidationCase): DatasetRegistryEntry["category"
   if (testCase.signals.virtualCameraIndicator) return "virtual_camera";
   if (testCase.signals.documentMismatch || testCase.label === "forged") return "forged_document";
   if (testCase.signals.agentRuntimeAnomaly || testCase.intent?.actorType === "agent") return "ai_agent_risk";
+  if (testCase.intent?.actorType === "NHI") return "machine_identity_misuse";
   if (testCase.label === "deepfake") return "deepfake_video";
   if (testCase.label === "synthetic") return "synthetic_face";
   if (testCase.label === "injected") return "injected_session";

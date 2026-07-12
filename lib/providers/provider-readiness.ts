@@ -1,17 +1,32 @@
-import { detectionProviders, providerStatusLabel } from "@/lib/detection/providers";
+import { detectionProviders } from "@/lib/detection/providers";
 import { getVerificationProviderRegistry, providerRuntimeState } from "@/lib/providers/registry";
 
 export type ProviderReadinessRuntimeState =
   | "Live"
+  | "Test Mode"
   | "Simulated"
   | "Awaiting Credentials"
-  | "Disabled";
+  | "Degraded"
+  | "Timeout"
+  | "Failed"
+  | "Disabled"
+  | "Unsupported";
+
+export type ProviderHealthEvidence = {
+  status: "success" | "degraded" | "timeout" | "failed";
+  checkedAt: string;
+  latencyMs?: number | null;
+  mode: "real" | "test";
+  failure?: string | null;
+};
 
 export type ProviderReadinessCheck = {
   id: string;
   name: string;
   category: "media_forensics" | "voice" | "identity" | "document" | "provenance" | "bot_protection" | "device_risk";
   runtimeState: ProviderReadinessRuntimeState;
+  credentialState: "present" | "missing" | "not_required";
+  configurationStatus: "configured" | "partial" | "not_configured" | "disabled";
   credentialPresent: boolean;
   healthCheckAvailable: boolean;
   testModeAvailable: boolean;
@@ -28,6 +43,10 @@ export type ProviderReadinessCheck = {
   };
   supportedFeatures: readonly string[];
   limitations: readonly string[];
+  dataRetentionLimitation: string;
+  deploymentMode: "cloud" | "hybrid" | "self-hosted";
+  lastSuccessfulCheck: string | null;
+  lastFailure: { at: string; reason: string } | null;
   sovereignty: {
     deploymentMode: "cloud" | "hybrid" | "self-hosted";
     restrictedDataSupport: "supported" | "limited" | "not_supported";
@@ -61,19 +80,44 @@ function providerId(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
+function verifiedRuntimeState(input: {
+  credentialsPresent: boolean;
+  configured: boolean;
+  simulated?: boolean;
+  health?: ProviderHealthEvidence;
+}): ProviderReadinessRuntimeState {
+  if (input.simulated) return "Simulated";
+  if (!input.credentialsPresent) return "Awaiting Credentials";
+  if (!input.configured) return "Disabled";
+  if (!input.health) return "Test Mode";
+  if (input.health.status === "timeout") return "Timeout";
+  if (input.health.status === "failed") return "Failed";
+  if (input.health.status === "degraded") return "Degraded";
+  return input.health.mode === "real" ? "Live" : "Test Mode";
+}
+
+export function buildProviderReadinessChecklist(
+  healthChecks: Record<string, ProviderHealthEvidence> = {}
+): ProviderReadinessCheck[] {
   const detection = detectionProviders
     .filter((provider) => provider.providerName !== "Mock Provider")
     .map<ProviderReadinessCheck>((provider) => {
       const status = provider.status();
-      const runtimeState = providerStatusLabel(status);
       const credentialPresent = provider.credentialsPresent();
-      const productionModeAvailable = status === "live";
+      const healthEvidence = healthChecks[provider.providerName];
+      const runtimeState = verifiedRuntimeState({
+        credentialsPresent: credentialPresent,
+        configured: status === "live",
+        health: healthEvidence,
+      });
+      const productionModeAvailable = runtimeState === "Live";
       return {
         id: providerId(`detection-${provider.providerName}`),
         name: provider.providerName,
         category: categoryByName[provider.providerName] ?? "media_forensics",
         runtimeState,
+        credentialState: credentialPresent ? "present" : "missing",
+        configurationStatus: status === "live" ? "configured" : credentialPresent ? "partial" : "not_configured",
         credentialPresent,
         healthCheckAvailable: true,
         testModeAvailable: true,
@@ -82,10 +126,10 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
         timeoutHandlingImplemented: true,
         retryLogicImplemented: false,
         auditLoggingImplemented: true,
-        health: productionModeAvailable ? "degraded" : credentialPresent ? "degraded" : "blocked",
+        health: runtimeState === "Live" ? "healthy" : ["Test Mode", "Degraded"].includes(runtimeState) ? "degraded" : "blocked",
         latency: {
-          measured: false,
-          p95Ms: null,
+          measured: typeof healthEvidence?.latencyMs === "number",
+          p95Ms: healthEvidence?.latencyMs ?? null,
           timeoutMs: 250,
         },
         supportedFeatures: provider.supportedSignals,
@@ -94,6 +138,12 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
           "Provider output requires reviewed dataset comparison before accuracy claims.",
           "Raw provider payloads are not exposed outside protected audit handling.",
         ],
+        dataRetentionLimitation: "Provider retention is controlled by the provider contract and must be reviewed before restricted-data use.",
+        deploymentMode: "cloud",
+        lastSuccessfulCheck: healthEvidence?.status === "success" ? healthEvidence.checkedAt : null,
+        lastFailure: healthEvidence && healthEvidence.status !== "success"
+          ? { at: healthEvidence.checkedAt, reason: healthEvidence.failure ?? healthEvidence.status }
+          : null,
         sovereignty: {
           deploymentMode: "cloud",
           restrictedDataSupport: "limited",
@@ -114,7 +164,14 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
     });
 
   const verification = getVerificationProviderRegistry().map<ProviderReadinessCheck>((provider) => {
-    const runtimeState = providerRuntimeState(provider);
+    const healthEvidence = healthChecks[provider.name];
+    const registryState = providerRuntimeState(provider);
+    const runtimeState = verifiedRuntimeState({
+      credentialsPresent: provider.presentEnv.length === provider.requiredEnv.length,
+      configured: provider.implementationState === "active" && provider.status === "configured",
+      simulated: registryState === "Simulated",
+      health: healthEvidence,
+    });
     const productionModeAvailable = runtimeState === "Live";
     const configured = provider.status === "configured";
     return {
@@ -122,6 +179,8 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
       name: provider.name,
       category: categoryByName[provider.name] ?? "identity",
       runtimeState,
+      credentialState: provider.requiredEnv.length === 0 ? "not_required" : provider.presentEnv.length === provider.requiredEnv.length ? "present" : "missing",
+      configurationStatus: configured ? "configured" : provider.presentEnv.length ? "partial" : provider.implementationState === "safely_disabled" ? "disabled" : "not_configured",
       credentialPresent: provider.presentEnv.length === provider.requiredEnv.length,
       healthCheckAvailable: provider.implementationState === "active",
       testModeAvailable: provider.implementationState !== "safely_disabled",
@@ -130,10 +189,10 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
       timeoutHandlingImplemented: provider.implementationState === "active",
       retryLogicImplemented: false,
       auditLoggingImplemented: provider.replayIntegration === "normalized_evidence",
-      health: productionModeAvailable ? "degraded" : configured ? "degraded" : "blocked",
+      health: runtimeState === "Live" ? "healthy" : ["Test Mode", "Degraded"].includes(runtimeState) ? "degraded" : "blocked",
       latency: {
-        measured: false,
-        p95Ms: null,
+        measured: typeof healthEvidence?.latencyMs === "number",
+        p95Ms: healthEvidence?.latencyMs ?? null,
         timeoutMs: 250,
       },
       supportedFeatures: [
@@ -146,6 +205,12 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
         "Provider evidence must stay workflow-gated, replay-linked and governance-reviewable.",
         provider.notes,
       ],
+      dataRetentionLimitation: "Only normalized provider evidence should enter Replay; provider-side retention remains contract-dependent.",
+      deploymentMode: provider.category === "bot_protection" || provider.category === "device_risk" ? "hybrid" : "cloud",
+      lastSuccessfulCheck: healthEvidence?.status === "success" ? healthEvidence.checkedAt : null,
+      lastFailure: healthEvidence && healthEvidence.status !== "success"
+        ? { at: healthEvidence.checkedAt, reason: healthEvidence.failure ?? healthEvidence.status }
+        : null,
       sovereignty: {
         deploymentMode: provider.category === "bot_protection" || provider.category === "device_risk" ? "hybrid" : "cloud",
         restrictedDataSupport: provider.authProtection === "not_exposed" ? "not_supported" : "limited",
@@ -167,7 +232,39 @@ export function buildProviderReadinessChecklist(): ProviderReadinessCheck[] {
     };
   });
 
-  return [...detection, ...verification];
+  const supabaseConfigured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const supabaseHealth = healthChecks["Supabase Auth"];
+  const supabaseState = verifiedRuntimeState({ credentialsPresent: supabaseConfigured, configured: supabaseConfigured, health: supabaseHealth });
+  const supabaseAuth: ProviderReadinessCheck = {
+    id: "platform-supabase-auth",
+    name: "Supabase Auth",
+    category: "identity",
+    runtimeState: supabaseState,
+    credentialState: supabaseConfigured ? "present" : "missing",
+    configurationStatus: supabaseConfigured ? "configured" : "not_configured",
+    credentialPresent: supabaseConfigured,
+    healthCheckAvailable: true,
+    testModeAvailable: true,
+    productionModeAvailable: supabaseState === "Live",
+    normalizedResultImplemented: true,
+    timeoutHandlingImplemented: true,
+    retryLogicImplemented: false,
+    auditLoggingImplemented: true,
+    health: supabaseState === "Live" ? "healthy" : supabaseState === "Test Mode" ? "degraded" : "blocked",
+    latency: { measured: typeof supabaseHealth?.latencyMs === "number", p95Ms: supabaseHealth?.latencyMs ?? null, timeoutMs: 8000 },
+    supportedFeatures: ["session authentication", "email verification", "tenant-scoped data access"],
+    limitations: ["Configuration is not a health check.", "Authorization and RLS remain separate controls."],
+    dataRetentionLimitation: "Auth and audit retention follow the configured Supabase project and enterprise data policy.",
+    deploymentMode: "cloud",
+    lastSuccessfulCheck: supabaseHealth?.status === "success" ? supabaseHealth.checkedAt : null,
+    lastFailure: supabaseHealth && supabaseHealth.status !== "success" ? { at: supabaseHealth.checkedAt, reason: supabaseHealth.failure ?? supabaseHealth.status } : null,
+    sovereignty: { deploymentMode: "cloud", restrictedDataSupport: "limited", customerOwnedMemoryCompatible: true, providerShutdownRisk: "medium", exportSupport: "partial" },
+    evidence: supabaseHealth ? `Health evidence recorded at ${supabaseHealth.checkedAt}.` : "Supabase environment configuration is checked without exposing credential values.",
+    blocker: supabaseState === "Live" ? "Production authorization and RLS still require continuous validation." : "No successful real health check is recorded in this process.",
+    nextAction: "Record an authenticated health check and validate tenant isolation before declaring Live.",
+  };
+
+  return [...detection, ...verification, supabaseAuth];
 }
 
 export function summarizeProviderReadiness(checks = buildProviderReadinessChecklist()) {
@@ -187,6 +284,8 @@ export function summarizeProviderReadiness(checks = buildProviderReadinessCheckl
     live,
     awaitingCredentials: checks.filter((item) => item.runtimeState === "Awaiting Credentials").length,
     simulated: checks.filter((item) => item.runtimeState === "Simulated").length,
+    testMode: checks.filter((item) => item.runtimeState === "Test Mode").length,
+    degraded: checks.filter((item) => ["Degraded", "Timeout", "Failed"].includes(item.runtimeState)).length,
     disabled: checks.filter((item) => item.runtimeState === "Disabled").length,
     normalized,
     retryReady,

@@ -34,6 +34,9 @@ export type ValidationCase = {
     providerAgreement?: "agreed" | "disagreed" | "not_compared" | "awaiting_credentials";
     governanceOutcome?: "approved" | "escalated" | "blocked" | "more_evidence_required" | "pending";
     notes?: string;
+    reviewTimestamp?: string;
+    datasetVersion?: string;
+    benchmarkVersion?: string;
   };
   reviewerOutcome?: DetectionExpectedOutcome;
   reviewerId?: string;
