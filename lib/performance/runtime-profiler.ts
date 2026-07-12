@@ -4,6 +4,9 @@ export type RuntimeProfileStage =
   | "workflow_latency"
   | "replay_latency"
   | "queue_latency"
+  | "authorization_latency"
+  | "dashboard_latency"
+  | "database_query_latency"
   | "cache_efficiency";
 
 type LegacyRuntimeProfileStage = "provider" | "trust" | "workflow" | "replay" | "queue" | "cache";
@@ -106,7 +109,7 @@ export function getSlowestRuntimeOperations(limit = 10) {
 
 function average(stage: RuntimeProfileStage) {
   const scoped = samples.filter((sample) => sample.stage === stage);
-  if (!scoped.length) return 0;
+  if (!scoped.length) return null;
   return Math.round(scoped.reduce((total, sample) => total + sample.latencyMs, 0) / scoped.length);
 }
 
@@ -120,7 +123,7 @@ export function getRuntimeProfileSnapshot(
   const decisionSamples = samples.filter((sample) => sample.stage === "trust_latency" || sample.stage === "workflow_latency");
   const averageDecisionTimeMs = decisionSamples.length
     ? Math.round(decisionSamples.reduce((total, sample) => total + sample.latencyMs, 0) / decisionSamples.length)
-    : 0;
+    : null;
 
   return {
     slowestProvider: slowestProviderInput
@@ -148,8 +151,11 @@ export function getRuntimeProfileSnapshot(
       workflowLatency: average("workflow_latency"),
       replayLatency: average("replay_latency"),
       queueLatency: average("queue_latency"),
+      authorizationLatency: average("authorization_latency"),
+      dashboardLatency: average("dashboard_latency"),
+      databaseQueryLatency: average("database_query_latency"),
       cacheEfficiency: average("cache_efficiency"),
-    } satisfies Record<string, number>,
+    } satisfies Record<string, number | null>,
     slowestOperations: getSlowestRuntimeOperations(10),
     boundary: "In-process profile samples support readiness review; they are not production APM.",
   };

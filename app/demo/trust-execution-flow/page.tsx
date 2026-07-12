@@ -79,18 +79,13 @@ const paths = [
 ];
 
 const flow = [
-  ["Signal collection", "Actor, workflow, runtime and declared intent enter the pipeline."],
-  ["Parallel checks", "Providers, heuristic baseline, provenance, session and intent run in timeout windows."],
-  ["Signal fusion", "Partial provider availability is normalized without waiting on every source."],
-  ["Trust calculation", "Trust Algorithm computes posture and limitations."],
-  ["Fast decision", "Decision Engine returns allow, step_up, review, escalate, block or insufficient_evidence."],
-  ["Async side effects", "Replay, audit, receipts and governance queues are written after the immediate response when safe."],
-];
-
-const runtimeStages = [
-  ["0-50ms", "Workflow received", "optimistic UI shows evaluating signals"],
-  ["50-300ms", "Parallel signal runner", "provider timeout isolation and heuristic fallback"],
-  ["300ms+", "Governance fabric", "replay writer and queue hooks preserve evidence"],
+  ["Platform starts", "The application and protected operator surfaces load."],
+  ["Health checks pass", "The operator confirms application, provider, queue and configuration health in the admin snapshot."],
+  ["Trust decision generated", "A deterministic demo input produces an allow, review, escalate or block outcome."],
+  ["Replay stored", "The protected workflow confirms the append-only replay write and reports any retry state."],
+  ["Trust Memory updated", "The reviewed outcome appears as a trust-state transition, not a raw database row."],
+  ["Evidence Graph updated", "The decision remains connected to actor, authority, evidence and governance relationships."],
+  ["Dashboard refreshed", "Health, Risk, Actions and Evidence reflect the retained operational state."],
 ];
 
 const decisionClass: Record<string, string> = {
@@ -123,7 +118,7 @@ export default function TrustExecutionFlowDemoPage() {
           </div>
         </section>
 
-        <section className="mt-8 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 lg:grid-cols-6">
+        <section className="mt-8 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 md:grid-cols-2 xl:grid-cols-7">
           {flow.map(([title, label], index) => (
             <article key={title} className="min-w-0 bg-black p-4">
               <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
@@ -133,14 +128,11 @@ export default function TrustExecutionFlowDemoPage() {
           ))}
         </section>
 
-        <section className="mt-8 grid gap-5 lg:grid-cols-3">
-          {runtimeStages.map(([time, title, detail]) => (
-            <article key={title} className="operational-panel p-5">
-              <p className="font-mono text-xs text-cyan-300">{time}</p>
-              <h2 className="mt-3 text-xl font-semibold">{title}</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-500">{detail}</p>
-            </article>
-          ))}
+        <section className="mt-8 rounded-lg border border-amber-900 bg-amber-950/10 p-5">
+          <h2 className="text-lg font-semibold text-amber-100">Operational demo boundary</h2>
+          <p className="mt-3 text-sm leading-7 text-zinc-400">
+            Decision cards below use deterministic demo inputs. Health, replay persistence, Trust Memory and Evidence Graph completion must be confirmed in authenticated operator surfaces; this public page does not fabricate production telemetry or write customer records.
+          </p>
         </section>
 
         <section className="mt-8 grid gap-5">

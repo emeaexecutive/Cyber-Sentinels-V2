@@ -200,6 +200,9 @@ export default async function DeploymentReadinessPage() {
             </span>
           </div>
           <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/admin/trust-execution" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white">
+              Platform Health
+            </Link>
             <Link href="/admin/runtime-validation" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white">
               Runtime Validation
             </Link>

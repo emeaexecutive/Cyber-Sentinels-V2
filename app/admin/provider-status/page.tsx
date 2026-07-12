@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { getMfaStatus } from "@/lib/auth/mfa";
-import { getVerificationProviderRegistry, providerRuntimeState } from "@/lib/providers";
+import { buildPlatformHealth, type ProviderOperationalHealth } from "@/lib/core/platform-health";
+import { getVerificationProviderRegistry } from "@/lib/providers";
 import { buildProviderReadinessChecklist, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
 import { orchestrateProviders } from "@/lib/providers/provider-orchestrator";
 import { evaluateGeoSessionIntelligence } from "@/lib/runtime/geo-session-intelligence";
@@ -10,19 +11,16 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 function statusTone(state: string) {
-  if (state === "Live" || state === "Connected") return "border-emerald-800 text-emerald-200";
-  if (state === "Simulated" || state === "Configured") return "border-cyan-800 text-cyan-200";
-  if (state === "Awaiting Credentials") return "border-amber-800 text-amber-200";
-  if (state === "Offline") return "border-red-800 text-red-200";
+  const normalized = state.toLowerCase().replaceAll("_", " ");
+  if (normalized === "healthy") return "border-emerald-800 text-emerald-200";
+  if (normalized === "configured") return "border-cyan-800 text-cyan-200";
+  if (normalized === "degraded" || normalized === "awaiting credentials") return "border-amber-800 text-amber-200";
+  if (normalized === "offline") return "border-red-800 text-red-200";
   return "border-zinc-700 text-zinc-300";
 }
 
-function providerOperationalState(runtimeState: string) {
-  if (runtimeState === "Live") return "Connected";
-  if (runtimeState === "Simulated") return "Configured";
-  if (runtimeState === "Awaiting Credentials") return "Awaiting Credentials";
-  if (runtimeState === "Disabled") return "Unsupported";
-  return "Offline";
+function providerOperationalLabel(state: ProviderOperationalHealth) {
+  return state.replaceAll("_", " ");
 }
 
 export default async function ProviderStatusAdminPage() {
@@ -38,42 +36,48 @@ export default async function ProviderStatusAdminPage() {
   const providerReadinessChecks = buildProviderReadinessChecklist();
   const providerReadiness = summarizeProviderReadiness(providerReadinessChecks);
   const providerSnapshot = await orchestrateProviders({ timeoutMs: 220, includeDisabled: true });
+  const platformHealth = buildPlatformHealth({ providerSnapshot, authConfigured: true });
+  const platformProviderByName = new Map(platformHealth.providers.map((provider) => [provider.name, provider]));
   const mfa = getMfaStatus();
   const geo = evaluateGeoSessionIntelligence({ currentCountry: "unknown", currentDevice: "server runtime" });
   const rows = [
     {
       name: "Supabase email auth",
-      state: "Live",
+      state: "configured",
       latency: "runtime managed",
       notes: "Password, email verification and session cookies are handled by Supabase auth.",
     },
     {
       name: "Magic links",
-      state: "Live",
+      state: "configured",
       latency: "runtime managed",
       notes: "Magic-link requests use Supabase OTP email flow with existing rate-limit handling.",
     },
     {
       name: "MFA provider",
-      state: mfa.authenticator_app,
+      state: mfa.step_up_available ? "configured" : "awaiting credentials",
       latency: "not measured",
       notes: mfa.summary,
     },
     {
       name: "SMS provider",
-      state: mfa.sms_otp,
+      state: mfa.sms_otp === "Live" ? "configured" : "awaiting credentials",
       latency: "not measured",
       notes: mfa.sms_otp === "Live" ? "SMS provider configuration is present." : "Awaiting Credentials.",
     },
     {
       name: "Geo intelligence",
-      state: "Simulated",
+      state: "degraded",
       latency: "heuristic",
       notes: geo.limitations[0],
     },
     {
       name: "Provider orchestration",
-      state: providerSnapshot.some((provider) => provider.state === "Live") ? "Live" : "Simulated",
+      state: providerSnapshot.some((provider) => ["Timeout", "Failed"].includes(provider.state))
+        ? "offline"
+        : providerSnapshot.some((provider) => provider.state === "Live")
+          ? "configured"
+          : "degraded",
       latency: `${Math.max(...providerSnapshot.map((provider) => provider.latency_ms), 0)}ms max snapshot latency`,
       notes: "Provider orchestration summarizes adapter states and isolates degraded providers from the decision path.",
     },
@@ -117,8 +121,8 @@ export default async function ProviderStatusAdminPage() {
                     <p className="font-medium text-zinc-100">{provider.name}</p>
                     <p className="mt-1 text-xs text-zinc-600">{provider.category.replaceAll("_", " ")}</p>
                   </div>
-                  <span className={`rounded-full border px-2.5 py-1 text-xs ${statusTone(providerOperationalState(provider.runtimeState))}`}>
-                    {providerOperationalState(provider.runtimeState)}
+                  <span className={`rounded-full border px-2.5 py-1 text-xs capitalize ${statusTone(platformProviderByName.get(provider.name)?.state ?? "degraded")}`}>
+                    {providerOperationalLabel(platformProviderByName.get(provider.name)?.state ?? "degraded")}
                   </span>
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-zinc-500">
@@ -140,8 +144,7 @@ export default async function ProviderStatusAdminPage() {
           <h2 className="text-xl font-semibold">Verification provider registry</h2>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {registry.map((provider) => {
-              const runtimeState = providerRuntimeState(provider);
-              const operationalState = providerOperationalState(runtimeState);
+              const operationalState = platformProviderByName.get(provider.name)?.state ?? "degraded";
               return (
                 <article key={provider.id} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <div className="flex items-start justify-between gap-3">
@@ -149,7 +152,7 @@ export default async function ProviderStatusAdminPage() {
                       <p className="font-medium text-zinc-100">{provider.name}</p>
                       <p className="mt-1 text-xs text-zinc-600">{provider.category.replaceAll("_", " ")}</p>
                     </div>
-                    <span className={`rounded-full border px-2.5 py-1 text-xs ${statusTone(operationalState)}`}>{operationalState}</span>
+                    <span className={`rounded-full border px-2.5 py-1 text-xs capitalize ${statusTone(operationalState)}`}>{providerOperationalLabel(operationalState)}</span>
                   </div>
                   <p className="mt-3 text-sm leading-6 text-zinc-400">{provider.notes}</p>
                   <p className="mt-3 text-xs text-zinc-600">

@@ -62,7 +62,7 @@ export async function orchestrateProviders(options: { timeoutMs?: number; includ
           const state = normalizeState(provider);
           const live = state === "Live";
           const evidence = live ? [provider.evidenceReference] : [];
-          const latencyMs = Math.max(1, Date.now() - started);
+          const latencyMs = Date.now() - started;
           const limitations = live
             ? ["Provider is configured; output remains one governed signal."]
             : [`Provider state is ${state}; do not treat as production detection.`];

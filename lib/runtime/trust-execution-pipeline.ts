@@ -50,6 +50,7 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
     agentPostureRisk: signalRunner.runtimeAnomalyRisk,
     governanceHistory: input.governanceHistory,
   });
+  const trustStarted = Date.now();
   const algorithm = runTrustAlgorithm({
     ...input,
     providerSignals: input.providerSignals ?? signalRunner.partialConfidence,
@@ -58,7 +59,7 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
   });
   recordRuntimeProfile({
     stage: "trust_latency",
-    latencyMs: Date.now() - started,
+    latencyMs: Date.now() - trustStarted,
     ok: true,
     degraded: algorithm.decision !== "allow",
     metadata: {
@@ -82,6 +83,7 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
     states: [...new Set(signalRunner.providerResults.map((provider) => provider.state))],
     timeout_or_failed: signalRunner.timeoutOrFailedProviders,
   };
+  const cacheStarted = Date.now();
   setTrustCache("provider_state", input.workflowId, {
     providers: signalRunner.providerResults,
     latency_summary: providerLatencySummary,
@@ -89,7 +91,7 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
   }, { ttlMs: 45_000 });
   recordRuntimeProfile({
     stage: "cache_efficiency",
-    latencyMs: 1,
+    latencyMs: Date.now() - cacheStarted,
     ok: true,
     degraded: false,
     metadata: {
@@ -117,17 +119,8 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
       async_side_effects: true,
     },
   });
-  recordRuntimeProfile({
-    stage: "replay_latency",
-    latencyMs: Date.now() - started,
-    ok: true,
-    degraded: false,
-    metadata: {
-      async_replay_persistence: true,
-      evidence_refs: algorithm.evidence_refs.length,
-    },
-  });
   if (algorithm.decision === "review" || algorithm.decision === "step_up" || algorithm.decision === "escalate" || algorithm.decision === "block") {
+    const queueStarted = Date.now();
     enqueueGovernanceJob({
       queue: algorithm.decision === "escalate" || algorithm.decision === "block" ? "escalation" : "review",
       subject_id: input.workflowId,
@@ -137,7 +130,7 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
     });
     recordRuntimeProfile({
       stage: "queue_latency",
-      latencyMs: 1,
+      latencyMs: Date.now() - queueStarted,
       ok: true,
       degraded: algorithm.decision === "escalate" || algorithm.decision === "block",
       metadata: {

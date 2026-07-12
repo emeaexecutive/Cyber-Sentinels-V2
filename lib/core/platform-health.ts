@@ -1,17 +1,56 @@
 import { getDetectionEngineStatus } from "@/lib/detection/detection-engine";
-import { summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
+import { getGovernanceQueueSnapshot } from "@/lib/governance/governance-queue";
+import {
+  getRuntimeProfileSnapshot,
+  getSlowestRuntimeOperations,
+  summarizeRuntimeProfiles,
+} from "@/lib/performance/runtime-profiler";
+import type { ProviderOrchestrationResult } from "@/lib/providers/provider-orchestrator";
+import {
+  buildProviderReadinessChecklist,
+  type ProviderReadinessCheck,
+} from "@/lib/providers/provider-readiness";
+import { getReplayQueueDiagnostics } from "@/lib/replay/replay-writer";
 
 export type PlatformHealthStatus = "healthy" | "degraded" | "blocked" | "unknown";
+export type MeasurementStatus = "measured" | "awaiting_data";
+export type ProviderOperationalHealth =
+  | "configured"
+  | "healthy"
+  | "degraded"
+  | "offline"
+  | "awaiting_credentials";
 
 export type PlatformHealthSection = {
   status: PlatformHealthStatus;
-  confidence: number;
+  confidence: number | null;
   evidence: string[];
   blockers: string[];
   nextActions: string[];
 };
 
+export type HealthMeasurement = {
+  value: number | null;
+  unit: "ms" | "count";
+  status: MeasurementStatus;
+  sampleCount: number;
+  source: string;
+  limitation: string;
+};
+
+export type ProviderHealthSnapshot = {
+  id: string;
+  name: string;
+  state: ProviderOperationalHealth;
+  configured: boolean;
+  credentialsPresent: boolean;
+  latency: HealthMeasurement;
+  limitation: string;
+  nextAction: string;
+};
+
 export type CanonicalPlatformHealth = {
+  applicationStatus: PlatformHealthStatus;
   platformHealth: PlatformHealthSection;
   authHealth: PlatformHealthSection;
   replayHealth: PlatformHealthSection;
@@ -21,112 +60,217 @@ export type CanonicalPlatformHealth = {
   governanceHealth: PlatformHealthSection;
   latencyHealth: PlatformHealthSection;
   validationHealth: PlatformHealthSection;
+  providers: ProviderHealthSnapshot[];
+  queues: {
+    status: PlatformHealthStatus;
+    governancePending: number;
+    replayPending: number;
+    failedJobs: number;
+    retryQueued: number;
+    source: "in_process";
+    limitation: string;
+  };
+  latency: {
+    dashboardLoad: HealthMeasurement;
+    provider: HealthMeasurement;
+    replayWrite: HealthMeasurement;
+    trustDecision: HealthMeasurement;
+    authorization: HealthMeasurement;
+    largestDatabaseQuery: HealthMeasurement & { label: string | null };
+  };
+  build: {
+    version: string | null;
+    deploymentTimestamp: string | null;
+    source: "environment" | "unavailable";
+  };
   visibility: "admin_only";
   generatedAt: string;
 };
 
-let cachedHealth: { value: CanonicalPlatformHealth; expiresAt: number } | null = null;
-const platformHealthTtlMs = 30_000;
+export type TrustDecisionRow = {
+  created_at?: string | null;
+  event_type?: string | null;
+  metadata?: Record<string, unknown> | null;
+};
 
-function section(input: PlatformHealthSection): PlatformHealthSection {
+export type TrustDecisionMetrics = {
+  windowStart: string;
+  windowEnd: string;
+  total: number;
+  allow: number;
+  review: number;
+  escalate: number;
+  block: number;
+  perHour: Array<{
+    hour: string;
+    total: number;
+    allow: number;
+    review: number;
+    escalate: number;
+    block: number;
+  }>;
+  source: "trust_timeline_events";
+  limitation: string;
+};
+
+type PlatformHealthInput = {
+  providerSnapshot?: ProviderOrchestrationResult[];
+  authConfigured?: boolean;
+};
+
+function section(input: Omit<PlatformHealthSection, "confidence"> & { confidence?: number | null }): PlatformHealthSection {
+  return { ...input, confidence: input.confidence ?? null };
+}
+
+function measurement(stage: Parameters<typeof summarizeRuntimeProfiles>[0], source: string): HealthMeasurement {
+  const summary = summarizeRuntimeProfiles(stage);
   return {
-    status: input.status,
-    confidence: Math.max(0, Math.min(1, input.confidence)),
-    evidence: input.evidence,
-    blockers: input.blockers,
-    nextActions: input.nextActions,
+    value: summary.p95LatencyMs,
+    unit: "ms",
+    status: summary.p95LatencyMs === null ? "awaiting_data" : "measured",
+    sampleCount: summary.sampleCount,
+    source,
+    limitation: summary.boundary,
   };
 }
 
-export function buildPlatformHealth(): CanonicalPlatformHealth {
-  const now = Date.now();
-  if (cachedHealth && cachedHealth.expiresAt > now) return cachedHealth.value;
+function providerState(check: ProviderReadinessCheck, snapshot?: ProviderOrchestrationResult): ProviderOperationalHealth {
+  if (!check.credentialPresent && check.runtimeState === "Awaiting Credentials") return "awaiting_credentials";
+  if (snapshot?.state === "Timeout" || snapshot?.state === "Failed") return "offline";
+  if (snapshot?.state === "Live" && check.latency.measured && check.health === "healthy") return "healthy";
+  if (check.credentialPresent && !check.productionModeAvailable) return "degraded";
+  return "configured";
+}
 
-  const detectionStatus = getDetectionEngineStatus();
-  const providerReadiness = summarizeProviderReadiness();
-  const mlEvidenceAvailable =
-    detectionStatus.real_ml_enabled ||
-    detectionStatus.provider_detection_enabled ||
-    detectionStatus.heuristic_detection_enabled;
+function buildMetadata() {
+  const version = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.BUILD_VERSION ?? null;
+  const deploymentTimestamp = process.env.DEPLOYMENT_TIMESTAMP ?? process.env.VERCEL_DEPLOYMENT_TIMESTAMP ?? null;
+  return {
+    version,
+    deploymentTimestamp,
+    source: version || deploymentTimestamp ? "environment" as const : "unavailable" as const,
+  };
+}
 
+export function buildPlatformHealth(input: PlatformHealthInput = {}): CanonicalPlatformHealth {
+  const detection = getDetectionEngineStatus();
+  const checks = buildProviderReadinessChecklist();
+  const snapshotByName = new Map((input.providerSnapshot ?? []).map((provider) => [provider.name, provider]));
+  const providers = checks.map<ProviderHealthSnapshot>((check) => {
+    const snapshot = snapshotByName.get(check.name);
+    const state = providerState(check, snapshot);
+    return {
+      id: check.id,
+      name: check.name,
+      state,
+      configured: check.credentialPresent && check.productionModeAvailable,
+      credentialsPresent: check.credentialPresent,
+      latency: snapshot
+        ? {
+            value: snapshot.latency_ms,
+            unit: "ms",
+            status: "measured",
+            sampleCount: 1,
+            source: "provider orchestration snapshot",
+            limitation: "This measures the local orchestration path; it is not a retained provider SLA or production APM percentile.",
+          }
+        : {
+            value: null,
+            unit: "ms",
+            status: "awaiting_data",
+            sampleCount: 0,
+            source: "provider orchestration snapshot",
+            limitation: "No provider orchestration sample is retained in this process.",
+          },
+      limitation: check.limitations.join(" "),
+      nextAction: check.nextAction,
+    };
+  });
+
+  const replayDiagnostics = getReplayQueueDiagnostics();
+  const governancePending = getGovernanceQueueSnapshot(100).length;
+  const queueStatus: PlatformHealthStatus = replayDiagnostics.failed || replayDiagnostics.retryQueued ? "degraded" : "healthy";
+  const providerOffline = providers.filter((provider) => provider.state === "offline").length;
+  const providerAwaiting = providers.filter((provider) => provider.state === "awaiting_credentials").length;
+  const providerConfigured = providers.filter((provider) => ["configured", "healthy"].includes(provider.state)).length;
   const authHealth = section({
-    status: "healthy",
-    confidence: 0.78,
-    evidence: ["Protected admin routes use Supabase session checks and configured admin access patterns."],
-    blockers: [],
-    nextActions: ["Keep protected admin routes gated by Supabase session and configured admin emails."],
+    status: input.authConfigured === true ? "healthy" : input.authConfigured === false ? "blocked" : "unknown",
+    evidence: input.authConfigured === true ? ["Authenticated admin access completed for this health snapshot."] : [],
+    blockers: input.authConfigured === false ? ["Authentication configuration is unavailable."] : [],
+    nextActions: input.authConfigured === undefined ? ["Run health collection inside an authenticated admin request."] : [],
   });
   const replayHealth = section({
-    status: "healthy",
-    confidence: 0.74,
-    evidence: ["Trust execution and replay surfaces preserve evidence references, decisions and governance context."],
-    blockers: [],
-    nextActions: ["Continue writing replay references from trust execution and normalized evidence flows."],
+    status: replayDiagnostics.failed ? "degraded" : "healthy",
+    evidence: [`${replayDiagnostics.pending} pending replay write(s); ${replayDiagnostics.failed} failed write(s).`],
+    blockers: replayDiagnostics.failed ? ["One or more replay writes failed in this process."] : [],
+    nextActions: replayDiagnostics.retryQueued ? ["Review the retry queue before relying on replay completeness."] : [],
   });
   const mlHealth = section({
-    status: mlEvidenceAvailable ? "degraded" : "blocked",
-    confidence: detectionStatus.real_ml_enabled ? 0.72 : 0.45,
-    evidence: [
-      detectionStatus.real_ml_enabled ? "Real ML is reported active." : "No first-party trained ML is reported active.",
-      detectionStatus.heuristic_detection_enabled ? "Heuristic Baseline remains available as a bounded source." : "Heuristic baseline is not active.",
-    ],
-    blockers: detectionStatus.real_ml_enabled ? [] : ["No first-party trained ML is enabled."],
-    nextActions: ["Keep Real ML, Provider API, Heuristic Baseline, Awaiting Credentials and Not Implemented separated."],
+    status: detection.real_ml_enabled || detection.provider_detection_enabled ? "healthy" : "degraded",
+    evidence: [detection.real_ml_enabled ? "Verified first-party ML is active." : "No first-party trained ML is active.", detection.heuristic_detection_enabled ? "Heuristic baseline is active and labelled." : "Heuristic baseline is disabled."],
+    blockers: [],
+    nextActions: ["Keep measured, provider supplied, heuristic and awaiting-validation states separate."],
   });
   const providerHealth = section({
-    status: providerReadiness.productionReady > 0 ? "healthy" : providerReadiness.live > 0 ? "degraded" : "blocked",
-    confidence: providerReadiness.currentPercent / 100,
-    evidence: [providerReadiness.evidence],
-    blockers: providerReadiness.productionReady ? [] : [providerReadiness.blocker],
-    nextActions: [providerReadiness.nextAction],
+    status: providerOffline ? "degraded" : providerConfigured ? "healthy" : "unknown",
+    evidence: [`${providerConfigured} configured provider path(s); ${providerAwaiting} awaiting credentials; ${providerOffline} offline.`],
+    blockers: providerOffline ? [`${providerOffline} provider path(s) are offline.`] : [],
+    nextActions: providerAwaiting ? ["Configure only the providers approved for the deployment and validate their limitations."] : [],
   });
+  const runtimeSnapshot = getRuntimeProfileSnapshot(input.providerSnapshot);
   const runtimeHealth = section({
-    status: "healthy",
-    confidence: 0.76,
-    evidence: ["Runtime execution uses staged signal collection, provider timeout isolation and async side effects."],
+    status: runtimeSnapshot.failedProviderCount || runtimeSnapshot.timeoutCount ? "degraded" : "healthy",
+    evidence: [`${runtimeSnapshot.slowestOperations.length} retained in-process runtime sample(s) are available for slow-operation review.`],
     blockers: [],
-    nextActions: ["Prefer async replay persistence and staged runtime states for low-latency trust execution."],
+    nextActions: runtimeSnapshot.slowestOperations.length ? ["Review the slowest measured operation before adding infrastructure."] : ["Generate a trust decision to populate runtime measurements."],
   });
   const governanceHealth = section({
-    status: "healthy",
-    confidence: 0.72,
-    evidence: ["Governance queues, reviewed outcomes and posture restore states keep human review authoritative."],
+    status: queueStatus,
+    evidence: [`${governancePending} governance job(s) are visible in the in-process queue.`],
     blockers: [],
-    nextActions: ["Keep human review authoritative for unresolved evidence, overrides and restore actions."],
+    nextActions: governancePending ? ["Assign review ownership and confirm queue age in the durable workflow record."] : [],
   });
+
+  const slowestDatabaseQuery = getSlowestRuntimeOperations(200).find((sample) => sample.stage === "database_query_latency") ?? null;
+  const latency = {
+    dashboardLoad: measurement("dashboard_latency", "runtime profiler"),
+    provider: measurement("provider_latency", "runtime profiler"),
+    replayWrite: measurement("replay_latency", "replay writer runtime profiler"),
+    trustDecision: measurement("trust_latency", "trust execution runtime profiler"),
+    authorization: measurement("authorization_latency", "admin authorization runtime profiler"),
+    largestDatabaseQuery: {
+      ...measurement("database_query_latency", "admin database query runtime profiler"),
+      label: slowestDatabaseQuery?.label ?? null,
+    },
+  };
+  const measuredLatencyCount = Object.values(latency).filter((item) => item.status === "measured").length;
   const latencyHealth = section({
-    status: "degraded",
-    confidence: 0.62,
-    evidence: ["Provider calls are isolated with timeouts; production-like latency profiling still needs retained evidence."],
-    blockers: ["Provider latency depends on external availability and credentialed adapter state."],
-    nextActions: ["Use timeouts, memoized provider registry state and async replay writes before adding infrastructure."],
+    status: measuredLatencyCount ? "healthy" : "unknown",
+    evidence: [`${measuredLatencyCount} of ${Object.keys(latency).length} latency categories have in-process measurements.`],
+    blockers: [],
+    nextActions: measuredLatencyCount < Object.keys(latency).length ? ["Exercise the missing runtime paths; do not substitute zero for absent measurements."] : [],
   });
   const validationHealth = section({
-    status: detectionStatus.false_positive_tracking_present && detectionStatus.false_negative_tracking_present ? "degraded" : "blocked",
-    confidence: 0.58,
-    evidence: ["Validation tracks false positives, false negatives, reviewer outcomes and benchmark readiness without public accuracy claims."],
-    blockers: ["Calibration claims remain blocked until reviewed datasets meet minimum sample thresholds."],
-    nextActions: ["Record reviewed outcomes, provider comparisons, benchmark versions and confidence drift without fabricating metrics."],
+    status: detection.false_positive_tracking_present && detection.false_negative_tracking_present ? "degraded" : "blocked",
+    evidence: ["False-positive and false-negative tracking paths exist; production cohorts still require reviewed data."],
+    blockers: ["Published accuracy and calibration remain blocked until reviewed sample thresholds are met."],
+    nextActions: ["Collect reviewed outcomes and dataset-scoped benchmark evidence."],
   });
-  const degradedCount = [
-    authHealth,
-    replayHealth,
-    mlHealth,
-    providerHealth,
-    runtimeHealth,
-    governanceHealth,
-    latencyHealth,
-    validationHealth,
-  ].filter((item) => item.status !== "healthy").length;
+  const applicationStatus: PlatformHealthStatus = authHealth.status === "blocked"
+    ? "blocked"
+    : providerOffline || replayDiagnostics.failed
+      ? "degraded"
+      : "healthy";
+  const platformHealth = section({
+    status: applicationStatus,
+    evidence: ["Application status is derived from authenticated access, provider runtime state, replay writes and queue diagnostics."],
+    blockers: applicationStatus === "blocked" ? ["A required application dependency is blocked."] : [],
+    nextActions: applicationStatus === "degraded" ? ["Resolve failed replay or offline provider diagnostics before enterprise reliance."] : [],
+  });
 
-  const health: CanonicalPlatformHealth = {
-    platformHealth: section({
-      status: degradedCount >= 4 ? "degraded" : "healthy",
-      confidence: 0.7,
-      evidence: ["Canonical health combines auth, replay, ML, provider, runtime, governance, latency and validation readiness for admin-only use.", "Health snapshots are cached briefly to avoid repeated admin readiness recalculation."],
-      blockers: degradedCount >= 4 ? ["Several readiness areas require validation before enterprise reliance claims."] : [],
-      nextActions: ["Use this object only in admin surfaces and readiness reporting."],
-    }),
+  return {
+    applicationStatus,
+    platformHealth,
     authHealth,
     replayHealth,
     mlHealth,
@@ -135,9 +279,64 @@ export function buildPlatformHealth(): CanonicalPlatformHealth {
     governanceHealth,
     latencyHealth,
     validationHealth,
+    providers,
+    queues: {
+      status: queueStatus,
+      governancePending,
+      replayPending: replayDiagnostics.pending,
+      failedJobs: replayDiagnostics.failed,
+      retryQueued: replayDiagnostics.retryQueued,
+      source: "in_process",
+      limitation: `${replayDiagnostics.boundary} Governance queue counts are also process-local.`,
+    },
+    latency,
+    build: buildMetadata(),
     visibility: "admin_only",
     generatedAt: new Date().toISOString(),
   };
-  cachedHealth = { value: health, expiresAt: now + platformHealthTtlMs };
-  return health;
+}
+
+function normalizeDecision(row: TrustDecisionRow): "allow" | "review" | "escalate" | "block" | null {
+  const value = String(row.metadata?.decision ?? row.event_type ?? "").toLowerCase();
+  if (value.includes("allow")) return "allow";
+  if (value.includes("block")) return "block";
+  if (value.includes("escalat")) return "escalate";
+  if (value.includes("review") || value.includes("step_up") || value.includes("stepup")) return "review";
+  return null;
+}
+
+export function buildTrustDecisionMetrics(rows: TrustDecisionRow[], now = new Date()): TrustDecisionMetrics {
+  const windowEnd = new Date(now);
+  const windowStart = new Date(windowEnd.getTime() - 24 * 60 * 60 * 1000);
+  const buckets = new Map<string, TrustDecisionMetrics["perHour"][number]>();
+  for (let index = 23; index >= 0; index -= 1) {
+    const hour = new Date(windowEnd.getTime() - index * 60 * 60 * 1000);
+    hour.setMinutes(0, 0, 0);
+    const key = hour.toISOString();
+    buckets.set(key, { hour: key, total: 0, allow: 0, review: 0, escalate: 0, block: 0 });
+  }
+
+  rows.forEach((row) => {
+    const createdAt = row.created_at ? new Date(row.created_at) : null;
+    const decision = normalizeDecision(row);
+    if (!createdAt || Number.isNaN(createdAt.getTime()) || createdAt < windowStart || createdAt > windowEnd || !decision) return;
+    createdAt.setMinutes(0, 0, 0);
+    const bucket = buckets.get(createdAt.toISOString());
+    if (!bucket) return;
+    bucket.total += 1;
+    bucket[decision] += 1;
+  });
+  const perHour = [...buckets.values()];
+  return {
+    windowStart: windowStart.toISOString(),
+    windowEnd: windowEnd.toISOString(),
+    total: perHour.reduce((total, bucket) => total + bucket.total, 0),
+    allow: perHour.reduce((total, bucket) => total + bucket.allow, 0),
+    review: perHour.reduce((total, bucket) => total + bucket.review, 0),
+    escalate: perHour.reduce((total, bucket) => total + bucket.escalate, 0),
+    block: perHour.reduce((total, bucket) => total + bucket.block, 0),
+    perHour,
+    source: "trust_timeline_events",
+    limitation: "Counts include retained trust workflow decisions in the last 24 hours. Missing or unclassified events are not inferred.",
+  };
 }
