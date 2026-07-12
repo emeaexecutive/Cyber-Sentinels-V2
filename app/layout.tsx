@@ -4,7 +4,12 @@ import {
   GlobalNavigation,
   type NavigationAccessLevel,
 } from "@/components/global-navigation";
+import {
+  EnterpriseTrustOSShell,
+  type TrustOSStatusItem,
+} from "@/components/trust-os/enterprise-shell";
 import { hasAdminVerifiedCookie, isAdminAllowlisted } from "@/lib/admin-auth";
+import { buildPlatformHealth } from "@/lib/core/platform-health";
 import { createNavigationClient } from "@/lib/supabase/server";
 import { ReportIssue } from "@/components/report-issue";
 import "./globals.css";
@@ -148,21 +153,42 @@ async function getNavigationState(): Promise<NavigationState> {
   }
 }
 
+function getTrustOSStatus(accessLevel: Exclude<NavigationAccessLevel, "public">): TrustOSStatusItem[] {
+  const isAdmin = accessLevel === "admin";
+  const health = isAdmin ? buildPlatformHealth({ authConfigured: true }) : null;
+  const unknown = "unknown" as const;
+
+  return [
+    { label: "Platform", status: health?.applicationStatus ?? unknown, href: "/dashboard", boundary: "Admin health derives from authenticated access and retained local diagnostics." },
+    { label: "Trust", status: health?.replayHealth.status ?? unknown, href: "/trust-center", boundary: "Trust is workflow-specific; missing global measurements remain awaiting data." },
+    { label: "Providers", status: health?.providerHealth.status ?? unknown, href: isAdmin ? "/admin/provider-status" : "/trust-center#providers", boundary: "Provider status is protected and never inferred from credentials alone." },
+    { label: "Runtime", status: health?.runtimeHealth.status ?? unknown, href: "/dashboard/session-integrity", boundary: "Runtime health uses retained in-process samples only." },
+    { label: "Queues", status: health?.queues.status ?? unknown, href: "/dashboard/governance", boundary: "Queue diagnostics are process-local, not fleet-wide telemetry." },
+    { label: "Validation", status: health?.validationHealth.status ?? unknown, href: isAdmin ? "/dashboard/validation" : "/trust-center", boundary: "Validation remains blocked until reviewed dataset thresholds are met." },
+    { label: "Security", status: health?.authHealth.status ?? (accessLevel === "admin-unverified" ? "degraded" : "healthy"), href: "/dashboard/session-security", boundary: "Status reflects authenticated workspace access, not a complete external security audit." },
+  ];
+}
+
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const { accessLevel } = await getNavigationState();
+  const trustOSStatus = accessLevel === "public" ? [] : getTrustOSStatus(accessLevel);
 
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <div className="shell">
           <GlobalNavigation accessLevel={accessLevel} />
-          {children}
+          {accessLevel === "public" ? children : (
+            <EnterpriseTrustOSShell accessLevel={accessLevel} status={trustOSStatus}>
+              {children}
+            </EnterpriseTrustOSShell>
+          )}
           {accessLevel !== "public" ? <ReportIssue authState={accessLevel} /> : null}
-          <footer className="border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8">
+          {accessLevel === "public" ? <footer className="border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8">
             <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               {footerSections.map((section) => (
                 <nav key={section.title}>
@@ -196,7 +222,7 @@ export default async function RootLayout({
                 enforcement, replay and governance in one operational trust record.
               </p>
             </div>
-          </footer>
+          </footer> : null}
         </div>
       </body>
     </html>

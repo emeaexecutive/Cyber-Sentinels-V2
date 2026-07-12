@@ -14,6 +14,7 @@
     "test:trust-lifecycle": "node --experimental-strip-types --test tests/trust-lifecycle.test.mjs",
     "test:continuous-trust-validation": "node --experimental-strip-types --test tests/continuous-trust-validation.test.mjs",
     "test:public-surface": "node --test tests/public-surface-navigation.test.mjs",
+    "test:trust-os": "node --test tests/enterprise-trust-os.test.mjs",
     "start": "next start",
     "lint": "next build",
     "typecheck": "tsc --noEmit"

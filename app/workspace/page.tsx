@@ -204,7 +204,7 @@ export default async function WorkspacePage({
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.8fr]">
-          <div className="rounded-lg border border-zinc-800 bg-black p-5">
+          <div id="new-workspace" className="scroll-mt-36 rounded-lg border border-zinc-800 bg-black p-5">
             <h2 className="text-xl font-semibold">Create Workspace</h2>
             <form action={createWorkspace} className="mt-5 grid gap-4">
               <input

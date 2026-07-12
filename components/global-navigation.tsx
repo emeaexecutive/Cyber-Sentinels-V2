@@ -64,26 +64,10 @@ const enterpriseDropdownLinks: NavigationLink[] = [
   { href: "/enterprise#support", label: "Enterprise Support", description: "Named onboarding and escalation owners." },
 ];
 
-const adminEnterpriseDropdownLinks: NavigationLink[] = [
-  { href: "/enterprise/identity-governance", label: "Identity Governance", description: "Protected enterprise operations." },
-  { href: "/enterprise-access", label: "Enterprise Access", description: "Manage enterprise enquiries." },
-  { href: "/enterprise/control-plane", label: "Trust Control Plane", description: "Protected control-plane operations." },
-  { href: "/enterprise/auditability", label: "Auditability", description: "Operational audit controls." },
-  { href: "/enterprise/readiness", label: "Deployment Readiness", description: "Production gate status." },
-  { href: "/admin/integrations", label: "Integrations", description: "Provider and workflow integrations." },
-  { href: "/admin/provider-status", label: "Provider Status", description: "Verified provider readiness." },
-  { href: "/admin/runtime-validation", label: "Runtime Validation", description: "Protected validation evidence." },
-];
-
 const developerDropdownLinks: NavigationLink[] = [
   { href: "/developers", label: "Developer Overview", description: "Integration paths and platform boundaries." },
   { href: "/developers/docs", label: "API Documentation", description: "Endpoints, webhooks and examples." },
   { href: "/developers/authentication", label: "Authentication", description: "Secure API access patterns." },
-];
-
-const authenticatedDeveloperDropdownLinks: NavigationLink[] = [
-  ...developerDropdownLinks,
-  { href: "/developers/api-keys", label: "Developer Console", description: "Manage protected API credentials." },
 ];
 
 const resourceDropdownLinks: NavigationLink[] = [
@@ -249,17 +233,17 @@ export function GlobalNavigation({ accessLevel }: { accessLevel: NavigationAcces
           ) : null}
           {accessLevel === "user" || accessLevel === "admin-unverified" ? (
             <>
-              <PrimaryNavigation openDropdown={openDropdown} onToggleDropdown={toggleDropdown} onCloseDropdown={closeMenus} developerLinks={authenticatedDeveloperDropdownLinks} />
-              <Link href="/dashboard" onClick={closeMenus} className="brand-primary-action">Access</Link>
-              {accessLevel === "admin-unverified" ? <Link href="/admin/access" onClick={closeMenus} className="brand-secondary-action">Operations</Link> : null}
+              <Link href="/dashboard" onClick={closeMenus} className="brand-primary-action">Enterprise Workspace</Link>
+              <Link href="/notifications" onClick={closeMenus} className="nav-control">Notifications</Link>
+              {accessLevel === "admin-unverified" ? <Link href="/admin/access" onClick={closeMenus} className="brand-secondary-action">Verify Admin</Link> : null}
               <LogoutButton onNavigate={closeMenus} />
             </>
           ) : null}
           {accessLevel === "admin" ? (
             <>
-              <PrimaryNavigation openDropdown={openDropdown} onToggleDropdown={toggleDropdown} onCloseDropdown={closeMenus} enterpriseLinks={adminEnterpriseDropdownLinks} developerLinks={authenticatedDeveloperDropdownLinks} />
-              <Link href="/admin/access" onClick={closeMenus} className="brand-secondary-action">Operations</Link>
-              <Link href="/dashboard" onClick={closeMenus} className="brand-primary-action">Access</Link>
+              <Link href="/dashboard" onClick={closeMenus} className="brand-primary-action">Enterprise Workspace</Link>
+              <Link href="/notifications" onClick={closeMenus} className="nav-control">Notifications</Link>
+              <Link href="/admin/access" onClick={closeMenus} className="brand-secondary-action">Administration</Link>
               <LogoutButton onNavigate={closeMenus} />
             </>
           ) : null}

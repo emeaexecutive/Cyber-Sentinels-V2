@@ -205,6 +205,61 @@ p {
   text-transform: uppercase;
 }
 
+.trust-os-shell {
+  display: flex;
+  min-height: calc(100vh - 4.75rem);
+  background: var(--brand-canvas);
+}
+
+.trust-os-sidebar {
+  display: none;
+  width: 16rem;
+  flex: 0 0 16rem;
+  border-right: 1px solid var(--brand-border);
+  background: #080b10;
+  padding: 1.25rem;
+}
+
+.trust-os-area-link {
+  display: block;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  color: #d4d4d8;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.trust-os-area-link:hover {
+  border-color: #303640;
+  background: #10141b;
+  color: #fff;
+}
+
+.trust-os-area-link-active {
+  border-color: #155e75;
+  background: rgba(8, 47, 73, 0.28);
+  color: #cffafe;
+}
+
+.trust-os-content {
+  min-width: 0;
+}
+
+.trust-os-content > main {
+  min-height: auto;
+}
+
+@media (min-width: 1024px) {
+  .trust-os-sidebar {
+    display: block;
+    position: sticky;
+    top: 4.75rem;
+    height: calc(100vh - 4.75rem);
+    overflow-y: auto;
+  }
+}
+
 .replay-signature {
   position: relative;
   overflow: hidden;

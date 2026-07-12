@@ -299,7 +299,7 @@ export default async function TrustCenterPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
+          <div id="providers" className="scroll-mt-36 rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
             <h2 className="text-xl font-semibold">Provider-backed evidence</h2>
             <p className="mt-2 text-sm text-zinc-500">Normalized provider evidence outcomes linked to receipts and workflow replay. Runtime availability remains a separate four-state control.</p>
             <div className="mt-5 grid gap-3">
@@ -325,7 +325,7 @@ export default async function TrustCenterPage() {
           </div>
         </section>
 
-        <section className="mt-8 rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
+        <section id="trust-memory" className="mt-8 scroll-mt-36 rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="text-xl font-semibold">Replayable enterprise memory</h2>
