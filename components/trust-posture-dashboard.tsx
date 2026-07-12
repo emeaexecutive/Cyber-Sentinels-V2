@@ -17,6 +17,8 @@ import type {
   TrustPostureDashboardSnapshot,
 } from "@/lib/trust-posture/dashboard";
 import type { TrustPostureBadge as TrustPostureBadgeType } from "@/lib/trust-posture/posture";
+import { ContinuousTrustLifecycleDashboard } from "@/components/continuous-trust-lifecycle-dashboard";
+import { projectOperationalStateToLifecycle } from "@/lib/core/trust-lifecycle";
 
 const badgeDetails: Record<TrustPostureBadgeType, { label: string; className: string }> = {
   trusted: { label: "Trusted", className: "border-emerald-800 text-emerald-200" },
@@ -73,6 +75,15 @@ export function TrustPostureDashboard({
   snapshot: TrustPostureDashboardSnapshot;
   enterprise?: boolean;
 }) {
+  const lifecycleSnapshot = projectOperationalStateToLifecycle({
+    activeTrustLevel: snapshot.activeTrustLevel,
+    activeTrustLabel: snapshot.activeTrustLabel,
+    evidenceCount: snapshot.recentEvents.length,
+    reviewCount: snapshot.reviewQueue.length,
+    anomalyCount: snapshot.sessionAnomalies.length,
+    contextChangeCount: snapshot.metrics.contextChanges,
+    latestEventAt: snapshot.recentEvents[0]?.created_at,
+  });
   const metrics = [
     ["Context changes", snapshot.metrics.contextChanges, Activity],
     ["Reverification due", snapshot.metrics.reverificationDue, RefreshCw],
@@ -216,6 +227,8 @@ export function TrustPostureDashboard({
             { label: "Responsible owner", value: snapshot.reviewQueue.length ? "Governance reviewer" : "Workflow owner" },
           ]} />
         </div>
+
+        <ContinuousTrustLifecycleDashboard snapshot={lifecycleSnapshot} />
 
         <section className="mt-8 grid gap-3 md:grid-cols-[1.2fr_2fr]">
           <div className="operational-card p-5">

@@ -1,5 +1,6 @@
 import { ExecutiveSummary } from "@/components/executive-summary";
 import { buildTrustMemorySnapshot, demoTrustMemoryEvents } from "@/lib/trust-memory/trust-memory";
+import { demoLifecycleDashboard, phaseLabel } from "@/lib/core/trust-lifecycle";
 
 const tone: Record<string, string> = {
   "Trust gained": "border-emerald-800 text-emerald-200",
@@ -32,6 +33,25 @@ export default function DemoTrustMemoryPage() {
           primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
           secondary={{ href: "/verification-replay", label: "View Replay" }}
         />
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="operational-eyebrow">Continuous Trust Lifecycle demo</p>
+          <h2 className="mt-2 text-2xl font-semibold">Runtime trust changed and governance action became outstanding.</h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["Lifecycle stage", phaseLabel(demoLifecycleDashboard.currentStage)],
+              ["Trust posture", demoLifecycleDashboard.currentTrustPosture.replaceAll("_", " ")],
+              ["Evidence completeness", `${demoLifecycleDashboard.evidenceCompleteness}%`],
+              ["Governance", demoLifecycleDashboard.governanceState.replaceAll("_", " ")],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-sm font-semibold capitalize text-zinc-100">{value}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-5 text-sm leading-6 text-zinc-400">{demoLifecycleDashboard.trustMemorySummary}</p>
+        </section>
 
         <section className="mt-8">
           <div className="flex flex-wrap gap-2">

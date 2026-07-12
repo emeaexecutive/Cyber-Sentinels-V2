@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 
+const lifecycleTemplates = ["Hiring", "AI Agent", "Vendor", "Executive", "Machine Identity", "Financial Workflow", "Healthcare", "Government"];
+
 const solutionAreas = [
   [
     "AI Agent Governance",
@@ -63,6 +65,16 @@ export default function SolutionsPage() {
           primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
           secondary={{ href: "/platform", label: "View Architecture" }}
         />
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="operational-eyebrow">Lifecycle templates</p>
+          <h2 className="mt-2 text-2xl font-semibold">One trust lifecycle, configured for each operational domain.</h2>
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {lifecycleTemplates.map((template) => (
+              <div key={template} className="rounded-lg border border-zinc-800 bg-black p-4 text-sm font-semibold text-zinc-200">{template}</div>
+            ))}
+          </div>
+        </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2">
           {solutionAreas.map(([title, copy, href, id]) => (

@@ -11,6 +11,7 @@
     "test:trust-explanation": "node --experimental-strip-types --test tests/trust-explanation.test.mjs",
     "test:decision-intelligence": "node --experimental-strip-types --test tests/decision-intelligence.test.mjs",
     "test:standards-readiness": "node --experimental-strip-types --test tests/standards-readiness.test.mjs",
+    "test:trust-lifecycle": "node --experimental-strip-types --test tests/trust-lifecycle.test.mjs",
     "start": "next start",
     "lint": "next build",
     "typecheck": "tsc --noEmit"

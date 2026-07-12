@@ -56,6 +56,8 @@ const journeyStages: Array<{ id: TrustJourneyStage; label: string; evidence: str
   { id: "receipt_issued", label: "Receipt issued", evidence: "Receipt proof" },
 ];
 
+const trustTimelineLayers = ["Lifecycle", "Evidence", "Decision", "Replay", "Trust Memory™", "Outcome"] as const;
+
 const stateDetails: Record<TrustJourneyState, { label: string; className: string; dotClassName: string }> = {
   verified: {
     label: "Verified",
@@ -182,7 +184,7 @@ export function TrustJourneyVisualization({
   const outcome = finalState ?? orderedEvents.at(-1)?.state ?? "manual_review_required";
   const latestEvent = orderedEvents.at(-1);
   const proofItems = [
-    ["Current verification state", proofState?.currentVerificationState ?? stateDetails[outcome].label],
+    ["Current trust state", proofState?.currentVerificationState ?? stateDetails[outcome].label],
     ["Risk level", proofState?.riskLevel ?? stateDetails[outcome].label],
     ["Last evidence event", proofState?.lastEvidenceEvent ?? latestEvent?.title],
     ["Trust state change", proofState?.trustStateChange ?? latestEvent?.flag],
@@ -216,6 +218,16 @@ export function TrustJourneyVisualization({
           Identity, evidence, authorization, governance action and outcome remain
           connected in one replayable chronology as Trust Posture evolves.
         </p>
+      </div>
+
+      <div className="mt-6 grid gap-2 md:grid-cols-6">
+        {trustTimelineLayers.map((layer, index) => (
+          <div key={layer} className="operational-card p-3 text-center">
+            <p className="font-mono text-[10px] text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
+            <p className="mt-2 text-xs font-semibold text-zinc-200">{layer}</p>
+            {index < trustTimelineLayers.length - 1 ? <p className="mt-2 text-xs text-zinc-700 md:hidden">↓</p> : null}
+          </div>
+        ))}
       </div>
 
       <div className="mt-6 grid gap-3 md:grid-cols-4">

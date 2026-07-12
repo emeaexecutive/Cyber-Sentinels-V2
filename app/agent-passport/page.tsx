@@ -72,6 +72,10 @@ export default function AgentPassportPage() {
               ["Oversight", demoAgentPassportV2.humanOversightStatus],
               ["Revocation", demoAgentPassportV2.revocationStatus],
               ["Jurisdiction", demoAgentPassportV2.jurisdiction],
+              ["Current trust score", demoAgentPassportV2.currentTrustScore === null ? "Not calculated" : `${demoAgentPassportV2.currentTrustScore}/100`],
+              ["Lifecycle stage", demoAgentPassportV2.lifecycleStage],
+              ["Evidence completeness", `${demoAgentPassportV2.evidenceCompleteness}%`],
+              ["Replay", demoAgentPassportV2.replayAvailability],
             ].map(([label, value]) => (
               <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
@@ -80,6 +84,13 @@ export default function AgentPassportPage() {
             ))}
           </div>
           <p className="mt-5 text-sm leading-6 text-zinc-500">{demoAgentPassportV2.boundary}</p>
+          <div className="mt-5 rounded-lg border border-zinc-800 bg-black p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">Trust Memory™ summary</p>
+            <p className="mt-2 text-sm leading-6 text-zinc-300">{demoAgentPassportV2.trustMemorySummary}</p>
+            <p className="mt-3 text-xs text-zinc-500">
+              Historical trend: {demoAgentPassportV2.historicalTrend.map((point) => point.score).join(" → ")}
+            </p>
+          </div>
         </section>
       </div>
     </main>

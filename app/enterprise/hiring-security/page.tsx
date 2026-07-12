@@ -17,17 +17,34 @@ const outcomes = [
   "Preserve a clearer audit trail for security, legal and talent stakeholders.",
 ];
 
+const lifecycleTemplates = ["Hiring", "AI Agent", "Vendor", "Executive", "Machine Identity", "Financial Workflow", "Healthcare", "Government"];
+
 export default function HiringSecurityPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
         <ExecutiveSummary
-          eyebrow="Hiring Security"
-          title="Reach defensible hiring decisions when candidate confidence changes."
+          eyebrow="Hiring Lifecycle Template"
+          title="Apply Continuous Trust Lifecycle infrastructure to consequential hiring decisions."
           bullets={["Surface synthetic applicant, proxy interview and session-integrity risk.", "Keep hiring judgment with accountable human reviewers.", "Connect evidence, review rationale and the final outcome.", "Replay what changed when a decision is challenged."]}
           primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
           secondary={{ href: "/demo/hiring-attack", label: "View Guided Scenario" }}
         />
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="operational-eyebrow">One template, not the platform identity</p>
+          <h2 className="mt-2 text-2xl font-semibold">Hiring Security is one governed lifecycle.</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            The same Enterprise Trust Infrastructure governs evidence, decisions, replay and Trust Memory™ across human and machine workflows.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {lifecycleTemplates.map((template) => (
+              <span key={template} className={`rounded-full border px-3 py-1 text-xs ${template === "Hiring" ? "border-cyan-800 text-cyan-100" : "border-zinc-800 text-zinc-400"}`}>
+                {template}
+              </span>
+            ))}
+          </div>
+        </section>
 
         <section className="mt-8 grid gap-3 md:grid-cols-2">
           {hiringProblems.map(([title, body]) => (

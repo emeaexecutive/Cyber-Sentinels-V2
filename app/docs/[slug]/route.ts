@@ -9,6 +9,7 @@ const allowedDocs = new Set([
   "FOUNDER_DEMO_SCRIPT.md",
   "FOUNDER_OPERATIONAL_NARRATIVES.md",
   "FOUNDER_OPERATIONAL_RHYTHM.md",
+  "CONTINUOUS_TRUST_LIFECYCLE.md",
 ]);
 
 export async function GET(

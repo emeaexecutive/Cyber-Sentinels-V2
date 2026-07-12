@@ -1,4 +1,5 @@
 import type { EntityGovernanceStatus } from "./entity-identity.ts";
+import type { TrustLifecyclePhase } from "./trust-lifecycle.ts";
 
 export type AgentPassportCredentialFormat =
   | "internal_json"
@@ -31,6 +32,16 @@ export type AgentPassportV2 = {
   }>;
   evidenceRefs: string[];
   replayRefs: string[];
+  currentTrustScore: number | null;
+  historicalTrend: Array<{
+    at: string;
+    score: number;
+    reason: string;
+  }>;
+  lifecycleStage: TrustLifecyclePhase;
+  evidenceCompleteness: number;
+  replayAvailability: "available" | "partial" | "unavailable";
+  trustMemorySummary: string;
   boundary: string;
 };
 
@@ -78,6 +89,12 @@ export function createAgentPassportV2(input: Partial<AgentPassportV2> & {
     ],
     evidenceRefs: input.evidenceRefs ?? [],
     replayRefs: input.replayRefs ?? [],
+    currentTrustScore: input.currentTrustScore ?? null,
+    historicalTrend: input.historicalTrend ?? [],
+    lifecycleStage: input.lifecycleStage ?? "application",
+    evidenceCompleteness: Math.max(0, Math.min(100, input.evidenceCompleteness ?? 0)),
+    replayAvailability: input.replayAvailability ?? ((input.replayRefs?.length ?? 0) > 0 ? "available" : "unavailable"),
+    trustMemorySummary: input.trustMemorySummary ?? "No lifecycle Trust Memory has been recorded.",
     boundary:
       "Agent Passport v2 is standards-ready JSON today with future VC and JWT/JWS adapters. It does not hard-code draft standards or create vendor lock-in.",
   };
@@ -104,6 +121,15 @@ export function exportAgentPassportJson(passport: AgentPassportV2) {
     exportFormats: passport.exportFormats,
     evidenceRefs: passport.evidenceRefs,
     replayRefs: passport.replayRefs,
+    continuousTrust: {
+      currentTrustScore: passport.currentTrustScore,
+      historicalTrend: passport.historicalTrend,
+      lifecycleStage: passport.lifecycleStage,
+      evidenceCompleteness: passport.evidenceCompleteness,
+      replayAvailability: passport.replayAvailability,
+      governanceStatus: passport.governanceStatus,
+      trustMemorySummary: passport.trustMemorySummary,
+    },
     boundary: passport.boundary,
   };
 }
@@ -119,4 +145,13 @@ export const demoAgentPassportV2 = createAgentPassportV2({
   revocationStatus: "active",
   evidenceRefs: ["evidence-provider-hopae", "authorization-demo-001"],
   replayRefs: ["replay-demo-001"],
+  currentTrustScore: 78,
+  historicalTrend: [
+    { at: "2026-07-12T08:00:00.000Z", score: 72, reason: "Identity and owner authority confirmed." },
+    { at: "2026-07-12T08:10:00.000Z", score: 78, reason: "Runtime evidence completed governance review." },
+  ],
+  lifecycleStage: "runtime_trust",
+  evidenceCompleteness: 86,
+  replayAvailability: "available",
+  trustMemorySummary: "Identity, authority, runtime evidence and governance decisions remain connected in replay.",
 });

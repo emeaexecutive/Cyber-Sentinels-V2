@@ -5,7 +5,7 @@ import {
   explainTrustChange,
   type TrustChangeClassification,
   type TrustChangeExplanation,
-} from "./trust-evolution";
+} from "./trust-evolution.ts";
 
 export type TrustMemoryActorType = "human" | "ai_agent" | "machine_identity" | "workflow";
 
@@ -14,6 +14,10 @@ export type TrustMemoryEventKind =
   | "runtime_change"
   | "provider_change"
   | "session_integrity_change"
+  | "trust_gain"
+  | "step_up_verification"
+  | "policy_change"
+  | "credential_rotation"
   | "governance_decision"
   | "reviewer_override"
   | "false_positive_outcome"

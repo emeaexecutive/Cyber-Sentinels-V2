@@ -12,7 +12,7 @@ const homepageAnswers = [
   ],
   [
     "What problem does it solve?",
-    "It closes the gap between a one-time check and the evidence, authority and risk that change during execution.",
+    "It manages a Continuous Trust Lifecycle as evidence, authority and risk change before, during and after execution.",
   ],
   [
     "Why is it different?",
@@ -21,14 +21,14 @@ const homepageAnswers = [
 ];
 
 const platformFlow = [
-  "Identity",
+  "Lifecycle",
+  "Evidence",
   "Authority",
-  "Runtime Risk",
   "Decision",
-  "Enforcement",
   "Replay",
   "Governance",
   "Trust Memory\u2122",
+  "Outcome",
 ];
 
 const deeperLinks = [
@@ -44,7 +44,7 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 pb-14 pt-14 md:px-8 md:pb-20 md:pt-24">
         <ExecutiveSummary
           eyebrow="Enterprise Trust Infrastructure"
-          title="The operational trust control plane for humans, AI agents, machine identities and regulated workflows."
+          title="Continuous Trust Lifecycle infrastructure for humans, AI agents, machine identities and regulated workflows."
           bullets={["Know who or what acted and under whose authority.", "See material runtime risk before sensitive work continues.", "Route uncertain outcomes to an accountable owner.", "Prove each decision through evidence, replay and governance."]}
           primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
           secondary={{ href: "/platform", label: "View Architecture" }}
@@ -67,7 +67,7 @@ export default function Home() {
 
       <section className="mx-auto max-w-6xl px-6 py-14 md:px-8">
         <p className="operational-eyebrow">How it works</p>
-        <h2 className="mt-3 text-3xl font-semibold text-white">One governed flow from actor to durable memory.</h2>
+        <h2 className="mt-3 text-3xl font-semibold text-white">Operational Trust from lifecycle context to durable Decision Intelligence.</h2>
         <div className="mt-7 grid overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-8">
           {platformFlow.map((step, index) => (
             <div key={step} className="min-w-0 bg-black p-4">
