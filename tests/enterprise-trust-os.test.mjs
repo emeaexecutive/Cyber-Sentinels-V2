@@ -15,9 +15,37 @@ test("authenticated shell exposes the seven canonical workspace areas", async ()
 test("global context has one canonical bar with all required dimensions", async () => {
   const source = await read("components/trust-os/enterprise-shell.tsx");
   assert.equal((source.match(/aria-label="Global trust context"/g) ?? []).length, 1);
-  for (const field of ["Current Enterprise", "Current Workflow", "Current Entity", "Current Trust Posture", "Current Authority", "Current Replay"]) {
+  for (const field of ["Organization", "Workspace", "Current Workflow", "Current Entity", "Current Trust Posture", "Authority State", "Active Investigation", "Correlation ID"]) {
     assert.match(source, new RegExp(field));
   }
+});
+
+test("platform health exposes truthful service checks and safe degraded states", async () => {
+  const [health, page, guidance] = await Promise.all([
+    read("lib/core/platform-health.ts"),
+    read("app/admin/trust-execution/page.tsx"),
+    read("lib/trust-os/degraded-states.ts"),
+  ]);
+  for (const service of ["Application", "Authentication", "Trust Engine", "Runtime Engine", "Replay", "Governance", "Validation", "Providers", "Queues", "Database", "Deployment / build"]) {
+    assert.match(page, new RegExp(service.replace("/", "\\/")));
+  }
+  assert.match(health, /databaseHealth/);
+  assert.match(health, /trustEngineHealth/);
+  for (const state of ["Provider unavailable", "Provider awaiting credentials", "Authorization service unavailable", "Replay write delayed", "Trust Memory update delayed", "Governance queue delayed", "Session expired", "Insufficient or partial trust result"]) {
+    assert.match(guidance, new RegExp(state));
+  }
+});
+
+test("ML and provider truth labels remain explicit", async () => {
+  const [engine, statusPage] = await Promise.all([
+    read("lib/detection/detection-engine.ts"),
+    read("app/admin/detection-status/page.tsx"),
+  ]);
+  for (const label of ["Real ML", "Provider API", "Heuristic Baseline", "Runtime Intelligence", "Awaiting Credentials", "Not Implemented"]) {
+    assert.match(engine, new RegExp(label));
+  }
+  assert.match(statusPage, /Insufficient Validation/);
+  assert.match(statusPage, /Do not publish precision or recall/);
 });
 
 test("command palette supports Ctrl K and federates existing search destinations", async () => {

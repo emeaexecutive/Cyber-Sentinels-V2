@@ -14,6 +14,16 @@ test("primary navigation contains only the approved public destinations", async 
   assert.doesNotMatch(source, /Founder Control|QA Console|Benchmarking|Test Lab/);
 });
 
+test("Trust concepts have one public navigation home", async () => {
+  const source = await read("components/global-navigation.tsx");
+  const platformBlock = source.match(/const platformDropdownLinks[\s\S]*?const solutionsDropdownLinks/)?.[0] ?? "";
+  const trustBlock = source.match(/const trustDropdownLinks[\s\S]*?const enterpriseDropdownLinks/)?.[0] ?? "";
+  for (const concept of ["Replay", "Evidence Graph", "Trust Memory", "Governance"]) {
+    assert.doesNotMatch(platformBlock, new RegExp(concept));
+    assert.match(trustBlock, new RegExp(concept));
+  }
+});
+
 test("homepage preserves the release promise and section ceiling", async () => {
   const source = await read("app/page.tsx");
   assert.match(source, /The operational trust control plane for humans, AI agents, machine identities and regulated workflows\./);

@@ -20,6 +20,7 @@ function statusTone(state: string) {
 }
 
 function providerOperationalLabel(state: ProviderOperationalHealth) {
+  if (state === "awaiting_credentials") return "Awaiting Configuration";
   return state.replaceAll("_", " ");
 }
 

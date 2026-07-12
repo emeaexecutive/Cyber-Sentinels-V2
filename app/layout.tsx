@@ -36,7 +36,6 @@ const footerSections = [
       ["/platform#trust-engine", "Trust Engine"],
       ["/platform#runtime-engine", "Runtime Trust"],
       ["/platform#authorization-gateway", "Authorization"],
-      ["/trust#trust-memory", "Trust Memory\u2122"],
     ],
   },
   {
@@ -45,6 +44,7 @@ const footerSections = [
       ["/trust", "Trust Center"],
       ["/verification-replay", "Replay"],
       ["/trust#evidence-audit", "Evidence"],
+      ["/trust#trust-memory", "Trust Memory\u2122"],
       ["/governance", "Governance"],
       ["/trust#provenance", "Provenance"],
       ["/trust/data-sovereignty", "AI Sovereignty"],

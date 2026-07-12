@@ -53,6 +53,8 @@ export type CanonicalPlatformHealth = {
   applicationStatus: PlatformHealthStatus;
   platformHealth: PlatformHealthSection;
   authHealth: PlatformHealthSection;
+  trustEngineHealth: PlatformHealthSection;
+  databaseHealth: PlatformHealthSection;
   replayHealth: PlatformHealthSection;
   mlHealth: PlatformHealthSection;
   providerHealth: PlatformHealthSection;
@@ -116,6 +118,7 @@ export type TrustDecisionMetrics = {
 type PlatformHealthInput = {
   providerSnapshot?: ProviderOrchestrationResult[];
   authConfigured?: boolean;
+  databaseAvailable?: boolean;
 };
 
 function section(input: Omit<PlatformHealthSection, "confidence"> & { confidence?: number | null }): PlatformHealthSection {
@@ -219,7 +222,11 @@ export function buildPlatformHealth(input: PlatformHealthInput = {}): CanonicalP
   });
   const runtimeSnapshot = getRuntimeProfileSnapshot(input.providerSnapshot);
   const runtimeHealth = section({
-    status: runtimeSnapshot.failedProviderCount || runtimeSnapshot.timeoutCount ? "degraded" : "healthy",
+    status: runtimeSnapshot.failedProviderCount || runtimeSnapshot.timeoutCount
+      ? "degraded"
+      : runtimeSnapshot.slowestOperations.length
+        ? "healthy"
+        : "unknown",
     evidence: [`${runtimeSnapshot.slowestOperations.length} retained in-process runtime sample(s) are available for slow-operation review.`],
     blockers: [],
     nextActions: runtimeSnapshot.slowestOperations.length ? ["Review the slowest measured operation before adding infrastructure."] : ["Generate a trust decision to populate runtime measurements."],
@@ -244,6 +251,20 @@ export function buildPlatformHealth(input: PlatformHealthInput = {}): CanonicalP
     },
   };
   const measuredLatencyCount = Object.values(latency).filter((item) => item.status === "measured").length;
+  const trustEngineHealth = section({
+    status: latency.trustDecision.status === "measured" ? "healthy" : "unknown",
+    evidence: latency.trustDecision.status === "measured"
+      ? [`${latency.trustDecision.sampleCount} in-process Trust Engine measurement(s) are available.`]
+      : [],
+    blockers: [],
+    nextActions: latency.trustDecision.status === "measured" ? [] : ["Generate a governed trust decision before inferring Trust Engine health."],
+  });
+  const databaseHealth = section({
+    status: input.databaseAvailable === true ? "healthy" : input.databaseAvailable === false ? "degraded" : "unknown",
+    evidence: input.databaseAvailable === true ? ["The protected platform-health query completed successfully."] : [],
+    blockers: input.databaseAvailable === false ? ["The protected platform-health query did not complete."] : [],
+    nextActions: input.databaseAvailable === undefined ? ["Run the protected platform-health query before inferring database health."] : [],
+  });
   const latencyHealth = section({
     status: measuredLatencyCount ? "healthy" : "unknown",
     evidence: [`${measuredLatencyCount} of ${Object.keys(latency).length} latency categories have in-process measurements.`],
@@ -258,20 +279,24 @@ export function buildPlatformHealth(input: PlatformHealthInput = {}): CanonicalP
   });
   const applicationStatus: PlatformHealthStatus = authHealth.status === "blocked"
     ? "blocked"
-    : providerOffline || replayDiagnostics.failed
+    : providerOffline || replayDiagnostics.failed || databaseHealth.status === "degraded"
       ? "degraded"
-      : "healthy";
+      : [authHealth.status, trustEngineHealth.status, runtimeHealth.status, databaseHealth.status].includes("unknown")
+        ? "unknown"
+        : "healthy";
   const platformHealth = section({
     status: applicationStatus,
-    evidence: ["Application status is derived from authenticated access, provider runtime state, replay writes and queue diagnostics."],
+    evidence: ["Application status is derived from authenticated access, Trust Engine measurements, provider runtime state, replay writes, queue diagnostics and the protected database check."],
     blockers: applicationStatus === "blocked" ? ["A required application dependency is blocked."] : [],
-    nextActions: applicationStatus === "degraded" ? ["Resolve failed replay or offline provider diagnostics before enterprise reliance."] : [],
+    nextActions: applicationStatus === "degraded" ? ["Resolve failed database, Replay or provider diagnostics before enterprise reliance."] : [],
   });
 
   return {
     applicationStatus,
     platformHealth,
     authHealth,
+    trustEngineHealth,
+    databaseHealth,
     replayHealth,
     mlHealth,
     providerHealth,

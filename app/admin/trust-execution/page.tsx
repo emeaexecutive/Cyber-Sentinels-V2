@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { DegradedModeGuidance } from "@/components/trust-os/degraded-mode-guidance";
 import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { buildPlatformHealth, buildTrustDecisionMetrics } from "@/lib/core/platform-health";
 import { getRecentTrustEvents } from "@/lib/events/event-bus";
@@ -93,7 +94,7 @@ export default async function TrustExecutionAdminPage() {
     degraded: Boolean(decisionQueryError),
     metadata: { label: "trust execution dashboard server load" },
   });
-  const platformHealth = buildPlatformHealth({ providerSnapshot, authConfigured: true });
+  const platformHealth = buildPlatformHealth({ providerSnapshot, authConfigured: true, databaseAvailable: !decisionQueryError });
   const providerIssueCount = platformHealth.providers.filter((provider) => ["degraded", "offline"].includes(provider.state)).length;
   const missingCredentialCount = platformHealth.providers.filter((provider) => provider.state === "awaiting_credentials").length;
   const configurationIssues = [
@@ -140,6 +141,42 @@ export default async function TrustExecutionAdminPage() {
             </article>
           ))}
         </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="operational-eyebrow">Truthful service checks</p>
+          <h2 className="mt-2 text-2xl font-semibold">Operational health by service</h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {([
+              ["Application", platformHealth.platformHealth],
+              ["Authentication", platformHealth.authHealth],
+              ["Trust Engine", platformHealth.trustEngineHealth],
+              ["Runtime Engine", platformHealth.runtimeHealth],
+              ["Replay", platformHealth.replayHealth],
+              ["Governance", platformHealth.governanceHealth],
+              ["Validation", platformHealth.validationHealth],
+              ["Providers", platformHealth.providerHealth],
+              ["Queues", { ...platformHealth.governanceHealth, status: platformHealth.queues.status }],
+              ["Database", platformHealth.databaseHealth],
+            ] satisfies Array<[string, typeof platformHealth.platformHealth]>).map(([label, section]) => {
+              const displayStatus = section.status === "healthy" ? "Healthy" : section.status === "degraded" ? "Degraded" : section.status === "blocked" ? "Unavailable" : "Unknown";
+              return (
+                <article key={String(label)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
+                  <p className="mt-2 text-sm font-semibold text-zinc-100">{displayStatus}</p>
+                  <p className="mt-2 text-xs leading-5 text-zinc-500">{section.evidence[0] ?? section.blockers[0] ?? section.nextActions[0] ?? "No health evidence is available."}</p>
+                </article>
+              );
+            })}
+            <article className="rounded-lg border border-zinc-800 bg-black p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Deployment / build</p>
+              <p className="mt-2 text-sm font-semibold text-zinc-100">{platformHealth.build.source === "environment" ? "Healthy" : "Unknown"}</p>
+              <p className="mt-2 text-xs leading-5 text-zinc-500">Version {platformHealth.build.version ?? "unavailable"}; deployed {platformHealth.build.deploymentTimestamp ?? "unavailable"}.</p>
+            </article>
+          </div>
+          <p className="mt-4 text-xs leading-5 text-zinc-500">Provider entries awaiting credentials are labelled <span className="font-semibold text-zinc-300">Awaiting Configuration</span> in provider readiness; no configured or healthy state is inferred from a secret alone.</p>
+        </section>
+
+        <DegradedModeGuidance />
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <p className="operational-eyebrow">Enterprise support diagnostics</p>

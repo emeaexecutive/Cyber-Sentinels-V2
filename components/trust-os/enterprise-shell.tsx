@@ -26,9 +26,9 @@ const baseAreas = [
 
 function statusLabel(status: TrustOSStatus) {
   if (status === "healthy") return "Healthy";
-  if (status === "degraded") return "Review";
-  if (status === "blocked") return "Blocked";
-  return "Awaiting data";
+  if (status === "degraded") return "Degraded";
+  if (status === "blocked") return "Unavailable";
+  return "Unknown";
 }
 
 function statusClass(status: TrustOSStatus) {
@@ -50,6 +50,7 @@ export function EnterpriseTrustOSShell({
   const pathname = usePathname();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const context = useMemo(() => deriveTrustOSContext(pathname, accessLevel), [accessLevel, pathname]);
+  const showContext = !["/login", "/verify-email", "/admin/access"].some((route) => pathname.startsWith(route));
   const areas = accessLevel === "admin"
     ? [...baseAreas, ["Providers", "/admin/provider-status"] as const, ["Administration", "/admin/access"] as const]
     : [...baseAreas, ["Providers", "/trust-center#providers"] as const, ["Administration", "/team-access"] as const];
@@ -93,15 +94,17 @@ export function EnterpriseTrustOSShell({
           <button type="button" onClick={() => setPaletteOpen(true)} className="whitespace-nowrap rounded-lg border border-cyan-900 px-3 py-2 text-sm text-cyan-100">Search · Ctrl K</button>
         </nav>
 
-        <section aria-label="Global trust context" className="border-b border-zinc-800 bg-black px-4 py-3 md:px-6">
-          <div className="mx-auto grid max-w-[96rem] gap-2 sm:grid-cols-2 xl:grid-cols-6">
+        {showContext ? <section aria-label="Global trust context" className="border-b border-zinc-800 bg-black px-4 py-3 md:px-6">
+          <div className="mx-auto grid max-w-[96rem] gap-2 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-8">
             {[
-              ["Current Enterprise", context.enterprise],
+              ["Organization", context.organization],
+              ["Workspace", context.workspace],
               ["Current Workflow", context.workflow],
               ["Current Entity", context.entity],
               ["Current Trust Posture", context.trustPosture],
-              ["Current Authority", context.authority],
-              ["Current Replay", context.replay],
+              ["Authority State", context.authorityState],
+              ["Active Investigation", context.activeInvestigation],
+              ["Correlation ID", context.correlationId],
             ].map(([label, value]) => (
               <div key={label} className="min-w-0 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2">
                 <p className="truncate text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-zinc-500">{label}</p>
@@ -109,7 +112,7 @@ export function EnterpriseTrustOSShell({
               </div>
             ))}
           </div>
-        </section>
+        </section> : null}
 
         <section aria-label="Enterprise platform status" className="border-b border-zinc-800 bg-[#080b10] px-4 py-2.5 md:px-6">
           <div className="mx-auto flex max-w-[96rem] gap-2 overflow-x-auto">

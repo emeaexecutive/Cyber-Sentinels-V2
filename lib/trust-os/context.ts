@@ -1,12 +1,14 @@
 export type TrustOSAccessLevel = "user" | "admin-unverified" | "admin";
 
 export type TrustOSContext = {
-  enterprise: string;
+  organization: string;
+  workspace: string;
   workflow: string;
   entity: string;
   trustPosture: string;
-  authority: string;
-  replay: string;
+  authorityState: string;
+  activeInvestigation: string;
+  correlationId: string;
 };
 
 function segmentAfter(pathname: string, segment: string) {
@@ -28,6 +30,7 @@ export function deriveTrustOSContext(pathname: string, accessLevel: TrustOSAcces
   const replayId = shortReference(segmentAfter(pathname, "replay"));
   const sessionId = shortReference(segmentAfter(pathname, "session"));
   const receiptId = shortReference(segmentAfter(pathname, "receipt"));
+  const correlationId = replayId ?? sessionId ?? receiptId;
 
   const workflow = replayId
     ? `Replay ${replayId}`
@@ -50,18 +53,22 @@ export function deriveTrustOSContext(pathname: string, accessLevel: TrustOSAcces
         : "No entity selected";
 
   return {
-    enterprise: workspaceId ? `Workspace ${workspaceId}` : "Enterprise scope",
+    organization: "Authenticated organization",
+    workspace: workspaceId ? `Workspace ${workspaceId}` : "Enterprise workspace",
     workflow,
     entity,
     trustPosture: pathname.includes("trust-posture") || pathname.includes("trust-center")
       ? "Open posture context"
       : "Workflow-specific",
-    authority: accessLevel === "admin"
+    authorityState: accessLevel === "admin"
       ? "Verified administrator"
       : accessLevel === "admin-unverified"
         ? "Admin verification required"
         : "Verified enterprise user",
-    replay: replayId ? `Replay ${replayId}` : "No replay selected",
+    activeInvestigation: pathname.includes("risk") || pathname.includes("integrity") || replayId
+      ? workflow
+      : "No active investigation",
+    correlationId: correlationId ?? "Not present",
   };
 }
 

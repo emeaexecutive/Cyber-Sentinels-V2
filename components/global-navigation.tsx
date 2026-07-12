@@ -23,10 +23,6 @@ const platformDropdownLinks: NavigationLink[] = [
   { href: "/platform#trust-engine", label: "Trust Engine", description: "Evidence-backed decision intelligence." },
   { href: "/platform#runtime-engine", label: "Runtime Trust", description: "Monitor material change during execution." },
   { href: "/platform#authorization-gateway", label: "Authorization & Enforcement", description: "Verify scope before an action proceeds." },
-  { href: "/verification-replay", label: "Replay & Evidence", description: "Reconstruct decisions and their proof." },
-  { href: "/platform#governance-engine", label: "Governance", description: "Route review to accountable owners." },
-  { href: "/trust#trust-memory", label: "Trust Memory\u2122", description: "Retain how trust evolved over time." },
-  { href: "/platform#evidence-graph", label: "Evidence Graph", description: "Connect actors, authority and outcomes." },
 ];
 
 const solutionsDropdownLinks: NavigationLink[] = [
@@ -45,7 +41,8 @@ const trustDropdownLinks: NavigationLink[] = [
   { href: "/trust", label: "Trust Center", description: "Public assurance and transparency.", group: "Assurance" },
   { href: "/trust#trust-posture", label: "Trust Posture", description: "Current evidence and governance state.", group: "Assurance" },
   { href: "/verification-replay", label: "Replay", description: "Decision chronology and proof.", group: "Assurance" },
-  { href: "/trust#evidence-audit", label: "Evidence & Audit", description: "Inspectable decision records.", group: "Assurance" },
+  { href: "/trust#evidence-audit", label: "Evidence Graph", description: "Connect actors, authority, evidence and outcomes.", group: "Assurance" },
+  { href: "/governance", label: "Governance", description: "Route material decisions to accountable owners.", group: "Assurance" },
   { href: "/trust#trust-memory", label: "Trust Memory\u2122", description: "How trust evolves across outcomes.", group: "Transparency" },
   { href: "/trust#provenance", label: "Provenance", description: "Trace evidence source and transformation.", group: "Transparency" },
   { href: "/trust/data-sovereignty", label: "AI & Data Sovereignty", description: "Provider and deployment boundaries.", group: "Transparency" },

@@ -185,6 +185,10 @@ export default async function DetectionStatusAdminPage() {
           <p className="mt-2 text-sm leading-6 text-zinc-500">
             These are the only allowed labels for ML and detection surfaces. Provider-facing state is tracked separately as Live, Simulated, Awaiting Credentials or Disabled; timeout and failure are internal runtime telemetry.
           </p>
+          <div className="mt-4 rounded-lg border border-amber-900 bg-black p-4">
+            <p className="text-sm font-semibold text-amber-200">Insufficient Validation</p>
+            <p className="mt-2 text-xs leading-5 text-zinc-500">Use this state whenever reviewed samples, dataset version, ground-truth method, benchmark version or review threshold are missing. Do not publish precision or recall.</p>
+          </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {status.source_taxonomy.map((item) => (
               <article key={item.source} className="rounded-lg border border-zinc-800 bg-black p-4">

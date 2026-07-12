@@ -16,15 +16,17 @@
     "test:public-surface": "node --test tests/public-surface-navigation.test.mjs",
     "test:trust-os": "node --test tests/enterprise-trust-os.test.mjs",
     "start": "next start",
-    "lint": "next build",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run test:hopae && npm run test:detection && npm run test:ml-validation && npm run test:trust-explanation && npm run test:decision-intelligence && npm run test:standards-readiness && npm run test:trust-lifecycle && npm run test:continuous-trust-validation && npm run test:public-surface && npm run test:trust-os",
+    "validate": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.48.1",
     "@worldcoin/idkit": "^1.3.0",
     "lucide-react": "^0.468.0",
-    "next": "^15.5.18",
+    "next": "15.5.20",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "stripe": "^22.2.0"
@@ -35,7 +37,7 @@
     "@types/react-dom": "^19.0.2",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.17.0",
-    "eslint-config-next": "15.1.4",
+    "eslint-config-next": "15.5.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"

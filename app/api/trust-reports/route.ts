@@ -70,7 +70,7 @@ async function insertTrustReport(
     return { data: extendedInsert.data, error: null };
   }
 
-  let payload = { ...fallbackPayload };
+  const payload = { ...fallbackPayload };
   let lastError = extendedInsert.error;
 
   for (let attempt = 0; attempt < 8; attempt += 1) {
