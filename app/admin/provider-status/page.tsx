@@ -3,7 +3,11 @@ import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { getMfaStatus } from "@/lib/auth/mfa";
 import { buildPlatformHealth, type ProviderOperationalHealth } from "@/lib/core/platform-health";
 import { getVerificationProviderRegistry } from "@/lib/providers";
-import { buildProviderReadinessChecklist, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
+import {
+  buildProviderReadinessChecklist,
+  classifyProviderReadiness,
+  summarizeProviderReadiness,
+} from "@/lib/providers/provider-readiness";
 import { orchestrateProviders } from "@/lib/providers/provider-orchestrator";
 import { evaluateGeoSessionIntelligence } from "@/lib/runtime/geo-session-intelligence";
 import { createClient } from "@/lib/supabase/server";
@@ -13,9 +17,10 @@ export const dynamic = "force-dynamic";
 function statusTone(state: string) {
   const normalized = state.toLowerCase().replaceAll("_", " ");
   if (normalized === "healthy") return "border-emerald-800 text-emerald-200";
+  if (normalized === "production ready") return "border-emerald-800 text-emerald-200";
   if (normalized === "configured") return "border-cyan-800 text-cyan-200";
   if (normalized === "degraded" || normalized === "awaiting credentials") return "border-amber-800 text-amber-200";
-  if (normalized === "offline") return "border-red-800 text-red-200";
+  if (normalized === "offline" || normalized === "deprecated") return "border-red-800 text-red-200";
   return "border-zinc-700 text-zinc-300";
 }
 
@@ -36,6 +41,7 @@ export default async function ProviderStatusAdminPage() {
   const registry = getVerificationProviderRegistry();
   const providerReadinessChecks = buildProviderReadinessChecklist();
   const providerReadiness = summarizeProviderReadiness(providerReadinessChecks);
+  const healthByProviderId = new Map(providerReadiness.healthSummaries.map((item) => [item.providerId, item]));
   const providerSnapshot = await orchestrateProviders({ timeoutMs: 220, includeDisabled: true });
   const platformHealth = buildPlatformHealth({ providerSnapshot, authConfigured: true });
   const platformProviderByName = new Map(platformHealth.providers.map((provider) => [provider.name, provider]));
@@ -122,8 +128,8 @@ export default async function ProviderStatusAdminPage() {
                     <p className="font-medium text-zinc-100">{provider.name}</p>
                     <p className="mt-1 text-xs text-zinc-600">{provider.category.replaceAll("_", " ")}</p>
                   </div>
-                  <span className={`rounded-full border px-2.5 py-1 text-xs capitalize ${statusTone(platformProviderByName.get(provider.name)?.state ?? "degraded")}`}>
-                    {providerOperationalLabel(platformProviderByName.get(provider.name)?.state ?? "degraded")}
+                  <span className={`rounded-full border px-2.5 py-1 text-xs ${statusTone(classifyProviderReadiness(provider))}`}>
+                    {classifyProviderReadiness(provider)}
                   </span>
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-zinc-500">
@@ -134,6 +140,9 @@ export default async function ProviderStatusAdminPage() {
                   <p>Normalized: {provider.normalizedResultImplemented ? "yes" : "no"}</p>
                   <p>Timeouts: {provider.timeoutHandlingImplemented ? "yes" : "no"}</p>
                 </div>
+                <p className="mt-3 text-xs leading-5 text-zinc-500">
+                  Runtime: {provider.runtimeState}. Health: {healthByProviderId.get(provider.id)?.state ?? "Unknown"}. {healthByProviderId.get(provider.id)?.evidence}
+                </p>
                 <p className="mt-3 text-xs leading-5 text-zinc-500">{provider.evidence}</p>
                 <p className="mt-3 text-xs leading-5 text-amber-200">Blocker: {provider.blocker}</p>
               </article>

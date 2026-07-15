@@ -1,5 +1,6 @@
 import { allowedEvidenceMediaTypes, allowedSubjectTypes } from "@/lib/security";
 import { createClient } from "@/lib/supabase/server";
+import { checkRequestRateLimit } from "@/lib/bot-protection";
 import { evaluateDecisionEngine } from "@/lib/trust-engine/decisionEngine";
 import { evaluatePolicyEngine } from "@/lib/trust-engine/policyEngine";
 import {
@@ -40,7 +41,10 @@ export async function POST(req: Request) {
       return trustApiError("Unauthorized", 401);
     }
 
-    // Future: add durable rate limits and partner-specific policy scopes.
+    const rateLimited = checkRequestRateLimit(req, "/api/trust/decision", 120, 60_000);
+    if (rateLimited) return rateLimited;
+
+    // Partner-specific policy scopes remain a release blocker.
     const body = await readJsonObject(req);
 
     if (!body) {

@@ -13,11 +13,21 @@ export type ProviderReadinessRuntimeState =
   | "Unsupported";
 
 export type ProviderReadinessClassification =
+  | "Production Ready"
   | "Configured"
   | "Awaiting Credentials"
   | "Prototype"
-  | "Not Started"
   | "Deprecated";
+
+export type ProviderHealthSummary = {
+  providerId: string;
+  providerName: string;
+  state: "Healthy" | "Degraded" | "Blocked" | "Unknown";
+  evidence: string;
+  lastCheckedAt: string | null;
+  latencyMs: number | null;
+  limitation: string;
+};
 
 export type ProviderHealthEvidence = {
   status: "success" | "degraded" | "timeout" | "failed";
@@ -70,6 +80,15 @@ export function classifyProviderReadiness(
   check: ProviderReadinessCheck
 ): ProviderReadinessClassification {
   if (/deprecated|retired|legacy/i.test(`${check.name} ${check.blocker}`)) return "Deprecated";
+  if (
+    check.runtimeState === "Live" &&
+    check.productionModeAvailable &&
+    check.health === "healthy" &&
+    check.lastSuccessfulCheck &&
+    check.normalizedResultImplemented &&
+    check.timeoutHandlingImplemented &&
+    check.auditLoggingImplemented
+  ) return "Production Ready";
   if (check.credentialPresent && check.configurationStatus === "configured") return "Configured";
   if (check.credentialState === "missing" && (check.healthCheckAvailable || check.testModeAvailable)) {
     return "Awaiting Credentials";
@@ -80,7 +99,30 @@ export function classifyProviderReadiness(
     || check.normalizedResultImplemented
     || check.timeoutHandlingImplemented
   ) return "Prototype";
-  return "Not Started";
+  return "Prototype";
+}
+
+export function buildProviderHealthSummary(check: ProviderReadinessCheck): ProviderHealthSummary {
+  const state: ProviderHealthSummary["state"] = check.lastSuccessfulCheck && check.health === "healthy"
+    ? "Healthy"
+    : check.lastFailure || ["Degraded", "Timeout", "Failed"].includes(check.runtimeState)
+      ? "Degraded"
+      : check.credentialState === "missing" || ["Disabled", "Awaiting Credentials"].includes(check.runtimeState)
+        ? "Blocked"
+        : "Unknown";
+  return {
+    providerId: check.id,
+    providerName: check.name,
+    state,
+    evidence: check.lastSuccessfulCheck
+      ? `Successful ${check.runtimeState} check recorded at ${check.lastSuccessfulCheck}.`
+      : check.lastFailure
+        ? `Last check failed at ${check.lastFailure.at}: ${check.lastFailure.reason}.`
+        : "No successful real health check is recorded in this process.",
+    lastCheckedAt: check.lastSuccessfulCheck ?? check.lastFailure?.at ?? null,
+    latencyMs: check.latency.measured ? check.latency.p95Ms : null,
+    limitation: "Health evidence is process-local and does not establish fleet-wide availability or an SLA.",
+  };
 }
 
 const categoryByName: Record<string, ProviderReadinessCheck["category"]> = {
@@ -316,13 +358,21 @@ export function summarizeProviderReadiness(checks = buildProviderReadinessCheckl
     latencyMeasured,
     productionReady,
     classifications: {
+      productionReady: checks.filter((item) => classifyProviderReadiness(item) === "Production Ready").length,
       configured: checks.filter((item) => classifyProviderReadiness(item) === "Configured").length,
       awaitingCredentials: checks.filter((item) => classifyProviderReadiness(item) === "Awaiting Credentials").length,
       prototype: checks.filter((item) => classifyProviderReadiness(item) === "Prototype").length,
-      notStarted: checks.filter((item) => classifyProviderReadiness(item) === "Not Started").length,
       deprecated: checks.filter((item) => classifyProviderReadiness(item) === "Deprecated").length,
     },
-    currentPercent: checks.length ? Math.round(((normalized + productionReady) / (checks.length * 2)) * 85) : 0,
+    healthSummaries: checks.map(buildProviderHealthSummary),
+    normalizationAudit: checks.map((item) => ({
+      providerId: item.id,
+      providerName: item.name,
+      normalized: item.normalizedResultImplemented,
+      evidence: item.normalizedResultImplemented
+        ? "The adapter maps provider output into the canonical evidence/result contract."
+        : "Canonical response normalization is not implemented.",
+    })),
     evidence: `${checks.length} provider readiness check(s), ${normalized} with normalized evidence/result handling, ${productionReady} production-ready reviewed path(s).`,
     blocker: productionReady ? "Provider output still requires benchmark validation." : "No fully reviewed live provider path is production-ready.",
     nextAction: "Enable one endpoint-specific provider path only after credential, timeout, audit, benchmark and restricted-data egress review.",

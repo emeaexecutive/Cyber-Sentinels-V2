@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import type { User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { getPublicSupabaseEnv } from "@/lib/env";
@@ -46,6 +46,7 @@ export const allowedOriginStatuses = [
 ] as const;
 
 const rateLimitBuckets = new Map<string, RateLimitBucket>();
+const processHashSecret = randomBytes(32).toString("hex");
 
 export function assertServerEnv() {
   getPublicSupabaseEnv("Supabase server client");
@@ -152,7 +153,7 @@ export function getRequestRiskFields(req: Request) {
   };
 }
 
-export function checkRateLimitPlaceholder({
+export function checkRequestRateLimit({
   route,
   req,
   limit,
@@ -180,8 +181,11 @@ export function checkRateLimitPlaceholder({
   return null;
 }
 
+// Compatibility alias for existing routes. The limiter is functional but process-local.
+export const checkRateLimitPlaceholder = checkRequestRateLimit;
+
 export function hashValue(value: string) {
-  const hashSecret = process.env.SECURITY_HASH_SECRET || "cyber-sentinels";
+  const hashSecret = process.env.SECURITY_HASH_SECRET || processHashSecret;
 
   return createHash("sha256")
     .update(`${hashSecret}:${value}`)

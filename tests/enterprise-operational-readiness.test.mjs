@@ -59,7 +59,7 @@ test("provider lifecycle and Trust Memory evolution use the approved explicit la
     read("lib/providers/provider-readiness.ts"),
     read("lib/trust-memory/trust-memory.ts"),
   ]);
-  for (const label of ["Configured", "Awaiting Credentials", "Prototype", "Not Started", "Deprecated"]) {
+  for (const label of ["Production Ready", "Configured", "Awaiting Credentials", "Prototype", "Deprecated"]) {
     assert.match(providers, new RegExp(`\\"${label}\\"`));
   }
   for (const label of ["Trust Increased", "Trust Reduced", "Trust Challenged", "Trust Restored", "Trust Expired", "Trust Revoked", "Trust Delegated", "Trust Reviewed", "Trust Confirmed"]) {

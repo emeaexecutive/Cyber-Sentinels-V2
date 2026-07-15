@@ -86,6 +86,8 @@ export type TrustFabricResponse = {
   };
   explainability: {
     decision: TrustLifecycleExecutionOutput["trust_decision"];
+    why: string[];
+    evidenceUsed: string[];
     evidenceSummary: {
       count: number;
       references: string[];
@@ -93,6 +95,14 @@ export type TrustFabricResponse = {
       missingNodeTypes: string[];
     };
     authoritySummary: {
+      decision: AuthorityGraphResult["decision"];
+      reason: string;
+      accountableHumanId: string | null;
+      authorityReference: string | null;
+      effectiveScope: string[];
+      limitations: string[];
+    };
+    authorityEvaluated: {
       decision: AuthorityGraphResult["decision"];
       reason: string;
       accountableHumanId: string | null;
@@ -115,6 +125,7 @@ export type TrustFabricResponse = {
       explanation: string[];
       limitations: string[];
     };
+    providerParticipation: ProviderConsensusResult["contributions"];
     replayReference: string | null;
     trustMemoryUpdate: {
       reference: string | null;
@@ -268,6 +279,14 @@ export function requestTrust(request: TrustFabricRequest): TrustFabricResponse {
     trustMemory: { reference: lifecycle.trust_memory_reference, evolutionState: memoryEvent.evolution_state, integrity: memoryIntegrity },
     explainability: {
       decision: lifecycle.trust_decision,
+      why: [...new Set([
+        authority.reason,
+        ...consensus.explanation,
+        ...(lifecycle.trust_decision === "allow"
+          ? ["Authority, policy, evidence and runtime checks allowed the requested action."]
+          : [lifecycle.next_required_action]),
+      ])],
+      evidenceUsed: lifecycle.evidence_references,
       evidenceSummary: {
         count: lifecycle.evidence_references.length,
         references: lifecycle.evidence_references,
@@ -275,6 +294,14 @@ export function requestTrust(request: TrustFabricRequest): TrustFabricResponse {
         missingNodeTypes: graphIntegrity.missingNodeTypes,
       },
       authoritySummary: {
+        decision: authority.decision,
+        reason: authority.reason,
+        accountableHumanId: authority.accountableHumanId,
+        authorityReference: authority.authorityReference,
+        effectiveScope: authority.effectiveScope,
+        limitations: authority.limitations,
+      },
+      authorityEvaluated: {
         decision: authority.decision,
         reason: authority.reason,
         accountableHumanId: authority.accountableHumanId,
@@ -297,6 +324,7 @@ export function requestTrust(request: TrustFabricRequest): TrustFabricResponse {
         explanation: consensus.explanation,
         limitations: [...new Set([...consensus.limitations, ...lifecycle.limitations])],
       },
+      providerParticipation: consensus.contributions,
       replayReference: lifecycle.replay_reference,
       trustMemoryUpdate: {
         reference: lifecycle.trust_memory_reference,
@@ -369,5 +397,37 @@ export function buildEnterpriseOperationalReadinessDemo() {
     steps,
     decision,
     boundary: "Simulated steps prove product behavior and explainability only; they are not production provider, traffic or SLA evidence.",
+  };
+}
+
+export function buildReleaseCandidateDemo() {
+  const decision = buildTrustFabricDemo();
+  const steps: Array<{
+    order: number;
+    timestamp: string;
+    label: string;
+    state: EnterpriseOperationalDemoState;
+    evidence: string;
+  }> = [
+    { order: 1, timestamp: "0:00", label: "Human", state: "Configured", evidence: `Configured accountable-human context: ${decision.authority.accountableHumanId ?? "not recorded"}.` },
+    { order: 2, timestamp: "0:35", label: "AI Agent", state: "Configured", evidence: `Normalized entity: ${decision.entity.id}.` },
+    { order: 3, timestamp: "1:10", label: "Machine Identity", state: "Awaiting Credentials", evidence: "The machine-identity provider remains disabled until credentials and egress controls are reviewed." },
+    { order: 4, timestamp: "1:45", label: "Authority", state: "Live", evidence: `${decision.authority.decision}: ${decision.authority.reason}` },
+    { order: 5, timestamp: "2:25", label: "Trust Decision", state: "Simulated", evidence: `${decision.explainability.decision}: ${decision.explainability.why.join(" ")}` },
+    { order: 6, timestamp: "3:10", label: "Replay", state: "Simulated", evidence: decision.explainability.replayReference ?? "Replay write unavailable in the controlled demo." },
+    { order: 7, timestamp: "3:50", label: "Evidence Graph", state: "Simulated", evidence: `${decision.explainability.evidenceUsed.length} evidence reference(s); graph valid: ${decision.explainability.evidenceSummary.graphValid}.` },
+    { order: 8, timestamp: "4:30", label: "Trust Memory™", state: "Simulated", evidence: `${decision.explainability.trustMemoryUpdate.state}: ${decision.explainability.trustMemoryUpdate.reason}` },
+    { order: 9, timestamp: "5:15", label: "Governance", state: "Configured", evidence: `Governance status: ${decision.governance.status}; human review remains authoritative.` },
+    { order: 10, timestamp: "6:10", label: "Enterprise Dashboard", state: "Configured", evidence: "The protected readiness dashboard separates measured evidence from deployment configuration and missing data." },
+  ];
+  return {
+    id: "release-candidate-demo/1.1.5",
+    release: "1.1.5",
+    durationMinutes: 7,
+    mode: "controlled_demo" as const,
+    steps,
+    statesShown: ["Live", "Configured", "Simulated", "Awaiting Credentials"] as EnterpriseOperationalDemoState[],
+    decision,
+    boundary: "Live labels refer only to controls executed in this request. Configured and simulated steps are not production traffic, provider health or SLA evidence.",
   };
 }

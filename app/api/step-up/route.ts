@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
+import { checkRequestRateLimit } from "@/lib/bot-protection";
 import {
   evaluateStepUpVerification,
   stepUpAuditEvents,
@@ -48,6 +49,17 @@ function getAllowed<T extends readonly string[]>(
 
 export async function POST(req: Request) {
   try {
+    const rateLimited = checkRequestRateLimit(req, "/api/step-up", 10, 60_000);
+    if (rateLimited) return rateLimited;
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = (await req.json().catch(() => null)) as Record<
       string,
       unknown
@@ -79,16 +91,13 @@ export async function POST(req: Request) {
       method,
     });
 
-    const supabase = await createClient();
-
-    // Production should enforce rate limiting and store one-time challenge state.
     await createSignal(
       supabase,
       result.step_up_status === "manual_review"
         ? "step_up_manual_review"
         : "step_up_required"
     );
-    await createAuditLog(supabase, "step_up_requested", "step_up_api", {
+    await createAuditLog(supabase, "step_up_requested", user.email ?? user.id, {
       subject_type: subjectType,
       subject_id: subjectId,
       trigger_reason: triggerReason,

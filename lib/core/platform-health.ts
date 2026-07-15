@@ -78,6 +78,7 @@ export type CanonicalPlatformHealth = {
   };
   latency: {
     dashboardLoad: HealthMeasurement;
+    trustOrchestrator: HealthMeasurement;
     provider: HealthMeasurement;
     replayWrite: HealthMeasurement;
     trustDecision: HealthMeasurement;
@@ -253,6 +254,7 @@ export function buildPlatformHealth(input: PlatformHealthInput = {}): CanonicalP
   const slowestDatabaseQuery = getSlowestRuntimeOperations(200).find((sample) => sample.stage === "database_query_latency") ?? null;
   const latency = {
     dashboardLoad: measurement("dashboard_latency", "runtime profiler"),
+    trustOrchestrator: measurement("lifecycle_orchestration_latency", "Trust Orchestrator runtime profiler"),
     provider: measurement("provider_latency", "runtime profiler"),
     replayWrite: measurement("replay_latency", "replay writer runtime profiler"),
     trustDecision: measurement("trust_latency", "trust execution runtime profiler"),

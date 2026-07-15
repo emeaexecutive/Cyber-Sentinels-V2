@@ -174,13 +174,20 @@ export default async function WorkspacePage({
             Trust workspace
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Operational trust case management
+            Trust decisions that need attention
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Cyber Sentinels helps organizations operationalize explainable trust
-            workflows across verification, governance reviews, escalations,
-            audit visibility and trust operations.
+            Review evidence, resolve escalations and retain the decision trail in
+            one governed workspace.
           </p>
+          <div className="mt-6 flex flex-wrap items-center gap-2 text-xs text-zinc-400">
+            {["Evidence", "Decision", "Replay", "Governance"].map((label, index) => (
+              <div key={label} className="flex items-center gap-2">
+                {index ? <span aria-hidden="true" className="text-cyan-700">→</span> : null}
+                <span className="rounded-full border border-zinc-800 bg-black px-3 py-1.5">{label}</span>
+              </div>
+            ))}
+          </div>
         </section>
 
         {query.workspace_error ? (

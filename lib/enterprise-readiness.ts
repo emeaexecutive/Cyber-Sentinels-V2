@@ -197,6 +197,7 @@ export function buildEnterpriseOperationalReadiness(
     providerClassifications: classifications,
     performance: {
       coverage: [
+        ["Trust Orchestrator", health.latency.trustOrchestrator],
         ["Replay", health.latency.replayWrite],
         ["Evidence Graph", health.latency.evidenceWrite],
         ["Trust Memory™", health.latency.trustMemoryWrite],

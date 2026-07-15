@@ -253,6 +253,7 @@ export function getRuntimeProfileSnapshot(
       misses: samples.filter((sample) => sample.stage === "cache_efficiency" && !sample.ok).length,
     },
     stageAverages: {
+      trustOrchestratorLatency: average("lifecycle_orchestration_latency"),
       providerLatency: average("provider_latency"),
       consensusLatency: average("consensus_latency"),
       trustLatency: average("trust_latency"),

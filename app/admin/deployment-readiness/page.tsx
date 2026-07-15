@@ -10,12 +10,7 @@ import {
 import { runRuntimeValidation } from "@/lib/runtime-validation/runner";
 import { createClient } from "@/lib/supabase/server";
 import { auditTrustIntegrity } from "@/lib/trust-integrity/repair";
-import {
-  buildGroundTruthDatasetRegistry,
-  computeGroundTruthValidation,
-  summarizeDatasetRegistry,
-  summarizeGroundTruth,
-} from "@/lib/validation/ground-truth";
+import { runValidationBenchmark, type ReleaseValidationMaturityState } from "@/lib/validation/benchmark-harness";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +42,12 @@ function formatMetric(value: number | null) {
   return `${Math.round(value * 100)}%`;
 }
 
+function maturityClass(state: ReleaseValidationMaturityState) {
+  if (state === "Implemented") return "border-emerald-800 bg-emerald-950/20 text-emerald-200";
+  if (state === "Simulated") return "border-cyan-800 bg-cyan-950/20 text-cyan-200";
+  return "border-amber-800 bg-amber-950/20 text-amber-200";
+}
+
 export default async function DeploymentReadinessPage() {
   const supabase = await createClient();
   const access = await checkAdminAccess(supabase);
@@ -66,16 +67,16 @@ export default async function DeploymentReadinessPage() {
     requestHeaders.get("host"),
     requestHeaders.get("x-forwarded-proto")
   );
-  const [runtime, integrity, metrics] = await Promise.all([
+  const [runtime, integrity, metrics, benchmark] = await Promise.all([
     runRuntimeValidation(baseUrl),
     auditTrustIntegrity().catch(() => null),
     readPilotOperationalMetrics(),
+    runValidationBenchmark(),
   ]);
   const report = buildDeploymentReadinessReport({ runtime, integrity, metrics });
-  const groundTruthRegistry = buildGroundTruthDatasetRegistry();
-  const groundTruthSummary = summarizeGroundTruth([]);
-  const groundTruthValidation = computeGroundTruthValidation([]);
-  const datasetSummary = summarizeDatasetRegistry(groundTruthRegistry);
+  const groundTruthSummary = benchmark.groundTruth.summary;
+  const groundTruthValidation = benchmark.groundTruth.validation;
+  const datasetSummary = benchmark.groundTruth.datasetSummary;
   const configuredSiteUrl = (
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
@@ -267,6 +268,22 @@ export default async function DeploymentReadinessPage() {
                 <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">{label}</p>
                 <p className="mt-2 text-lg font-semibold text-zinc-100">{value}</p>
               </div>
+            ))}
+          </div>
+          <div className="mt-5 grid gap-3 lg:grid-cols-2">
+            {benchmark.releaseMaturity.map((capability) => (
+              <article key={capability.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="max-w-2xl">
+                    <p className="font-medium text-zinc-100">{capability.label}</p>
+                    <p className="mt-2 text-sm leading-6 text-zinc-500">{capability.evidence}</p>
+                    <p className="mt-2 text-xs leading-5 text-zinc-600">Next: {capability.nextAction}</p>
+                  </div>
+                  <span className={`rounded-full border px-3 py-1 text-xs ${maturityClass(capability.state)}`}>
+                    {capability.state}
+                  </span>
+                </div>
+              </article>
             ))}
           </div>
           <p className="mt-4 text-xs leading-6 text-zinc-500">

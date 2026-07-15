@@ -61,6 +61,99 @@ export type ReviewerOverride = {
 
 export const MINIMUM_CALIBRATION_SAMPLE_THRESHOLD = 30;
 
+export type ReleaseValidationMaturityState =
+  | "Implemented"
+  | "Simulated"
+  | "Awaiting Dataset"
+  | "Awaiting Review";
+
+export type ReleaseValidationCapability = {
+  id:
+    | "calibration_reports"
+    | "benchmark_summaries"
+    | "reviewed_outcome_statistics"
+    | "confidence_calibration"
+    | "provider_agreement_analysis";
+  label: string;
+  state: ReleaseValidationMaturityState;
+  evidence: string;
+  blocker: string;
+  nextAction: string;
+};
+
+export function buildReleaseValidationMaturity(input: {
+  caseCount: number;
+  reviewedCaseCount: number;
+  providerResultCount: number;
+  calibrationComplete: boolean;
+  simulationOnly: boolean;
+}): ReleaseValidationCapability[] {
+  const datasetState = (): ReleaseValidationMaturityState => {
+    if (!input.caseCount) return "Awaiting Dataset";
+    if (input.simulationOnly) return "Simulated";
+    if (!input.reviewedCaseCount) return "Awaiting Review";
+    return input.calibrationComplete ? "Implemented" : "Awaiting Dataset";
+  };
+  const reviewedState: ReleaseValidationMaturityState = !input.caseCount
+    ? "Awaiting Dataset"
+    : input.simulationOnly
+      ? "Simulated"
+      : input.reviewedCaseCount
+        ? "Implemented"
+        : "Awaiting Review";
+  const providerState: ReleaseValidationMaturityState = !input.caseCount || !input.providerResultCount
+    ? "Awaiting Dataset"
+    : input.simulationOnly
+      ? "Simulated"
+      : input.reviewedCaseCount
+        ? "Implemented"
+        : "Awaiting Review";
+  const sampleEvidence = `${input.caseCount}/${MINIMUM_CALIBRATION_SAMPLE_THRESHOLD} labelled case(s); ${input.reviewedCaseCount} reviewed case(s).`;
+
+  return [
+    {
+      id: "calibration_reports",
+      label: "Calibration reports",
+      state: datasetState(),
+      evidence: sampleEvidence,
+      blocker: input.calibrationComplete ? "No release blocker in the current dataset scope." : "Calibration incomplete - insufficient reviewed ground truth.",
+      nextAction: "Reach the reviewed sample and quality gates, then publish a dataset-versioned report.",
+    },
+    {
+      id: "benchmark_summaries",
+      label: "Benchmark summaries",
+      state: reviewedState,
+      evidence: `${input.caseCount} labelled case(s) are available to the benchmark harness.`,
+      blocker: input.reviewedCaseCount ? "Results remain valid only for the named dataset." : "Human review is required before benchmark results can support release claims.",
+      nextAction: "Run the versioned benchmark after reviewer adjudication and retain the audit envelope.",
+    },
+    {
+      id: "reviewed_outcome_statistics",
+      label: "Reviewed-outcome statistics",
+      state: reviewedState,
+      evidence: `${input.reviewedCaseCount} reviewed outcome(s) are available.`,
+      blocker: input.reviewedCaseCount ? "More adjudicated false-positive and false-negative cases are required for broader conclusions." : "No reviewed outcomes are available.",
+      nextAction: "Attach accountable reviewer outcomes and override reasons to validation cases.",
+    },
+    {
+      id: "confidence_calibration",
+      label: "Confidence calibration",
+      state: datasetState(),
+      evidence: `${sampleEvidence} Confidence bands are calculated only from supplied results.`,
+      blocker: input.calibrationComplete ? "Confidence remains dataset-scoped." : "Confidence calibration cannot be declared complete before the calibration gate passes.",
+      nextAction: "Compare predicted confidence with reviewed agreement by confidence band.",
+    },
+    {
+      id: "provider_agreement_analysis",
+      label: "Provider agreement analysis",
+      state: providerState,
+      evidence: `${input.providerResultCount} normalized provider result(s) and ${input.reviewedCaseCount} reviewed outcome(s) are available.`,
+      blocker: input.providerResultCount ? (input.reviewedCaseCount ? "Agreement remains provider- and dataset-specific." : "Provider outputs require reviewer comparison.") : "No provider result dataset is available.",
+      nextAction: "Compare normalized provider results with the baseline and reviewed ground truth.",
+    },
+  ];
+}
+
 export type BenchmarkTestCase = {
   id: string;
   category: BenchmarkCaseCategory;
@@ -433,10 +526,18 @@ export async function runValidationBenchmark(options: {
       datasetVersion: datasetCoverageReport.datasetVersion,
       benchmarkVersion: "benchmark-schema-1",
     });
+    const releaseMaturity = buildReleaseValidationMaturity({
+      caseCount: 0,
+      reviewedCaseCount: 0,
+      providerResultCount: 0,
+      calibrationComplete: false,
+      simulationOnly: false,
+    });
     return {
       caseCount: 0,
       message: "Validation incomplete — insufficient reviewed dataset.",
       calibrationStatus,
+      releaseMaturity,
       datasetReadiness,
       datasetCoverageReport,
       roc: rocPlaceholders(),
@@ -528,6 +629,13 @@ export async function runValidationBenchmark(options: {
     minimumGroundTruthQuality: 0.75,
     datasetVersion: datasetCoverageReport.datasetVersion,
     benchmarkVersion: "benchmark-schema-1",
+  });
+  const releaseMaturity = buildReleaseValidationMaturity({
+    caseCount: cases.length,
+    reviewedCaseCount: reviewedOutcomeSummary.reviewed,
+    providerResultCount: usableProviderResults.length,
+    calibrationComplete: calibrationStatus.complete,
+    simulationOnly: cases.every((testCase) => testCase.datasetMetadata?.source === "synthetic"),
   });
   const runtimeEvaluations = cases.map((testCase) => ({
     testCase,
@@ -622,6 +730,7 @@ export async function runValidationBenchmark(options: {
   return {
     caseCount: cases.length,
     calibrationStatus,
+    releaseMaturity,
     datasetReadiness,
     datasetCoverageReport,
     roc: rocPlaceholders(),
