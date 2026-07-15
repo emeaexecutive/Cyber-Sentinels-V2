@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
+import { buildPlatformHealth } from "@/lib/core/platform-health";
 import { buildEnterpriseReadinessModel } from "@/lib/enterprise-readiness";
 import { getVerificationProviderRegistry } from "@/lib/providers";
+import { buildProviderReadinessChecklist } from "@/lib/providers/provider-readiness";
 import { createReadinessGateSnapshot } from "@/lib/readiness-gate/snapshot";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,14 +22,40 @@ const stateStyle = {
   blocked: "border-rose-900/70 bg-rose-950/20 text-rose-200",
 };
 
+const operationalStateStyle = {
+  Healthy: "border-emerald-900/70 bg-emerald-950/20 text-emerald-200",
+  Degraded: "border-amber-900/70 bg-amber-950/20 text-amber-200",
+  "Awaiting Configuration": "border-cyan-900/70 bg-cyan-950/20 text-cyan-200",
+  Unavailable: "border-rose-900/70 bg-rose-950/20 text-rose-200",
+  Unknown: "border-zinc-700 bg-zinc-900 text-zinc-300",
+};
+
+function metricValue(value: number | null, unit: string) {
+  if (value === null) return "Awaiting data";
+  if (unit === "ms") return `${value} ms`;
+  if (unit === "percent") return `${value}%`;
+  if (unit === "per_hour") return `${value}/hr`;
+  return String(value);
+}
+
 export default async function EnterpriseReadinessPage() {
   const supabase = await createClient();
   await requireAdminPageAccess(supabase, { path: "/enterprise/readiness" });
 
   const snapshot = await createReadinessGateSnapshot(supabase);
+  const tableChecks = snapshot.sections
+    .flatMap((section) => section.checks)
+    .filter((check) => /table/i.test(check.label));
+  const providerChecks = buildProviderReadinessChecklist();
+  const platformHealth = buildPlatformHealth({
+    authConfigured: true,
+    databaseAvailable: tableChecks.length > 0 && tableChecks.every((check) => check.state === "ready"),
+  });
   const model = buildEnterpriseReadinessModel(
     snapshot,
-    getVerificationProviderRegistry()
+    getVerificationProviderRegistry(),
+    platformHealth,
+    providerChecks
   );
 
   return (
@@ -43,19 +71,21 @@ export default async function EnterpriseReadinessPage() {
                 Deployment readiness, grounded in evidence.
               </h1>
               <p className="mt-5 max-w-4xl text-lg leading-8 text-zinc-200">
-                Inspect operational trust posture, governance safeguards, replay
-                auditability and provider configuration before an enterprise
+                Inspect evidence-backed component health, internal observability,
+                provider readiness and deployment gaps before an enterprise
                 workflow moves into a controlled pilot.
               </p>
             </div>
             <div className="rounded-lg border border-zinc-800 bg-black p-5 lg:min-w-64">
               <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">
-                Evidence checks ready
+                Operational status
               </p>
-              <p className="mt-2 text-4xl font-semibold text-cyan-100">
-                {model.readinessPercent}%
+              <p className="mt-2 text-3xl font-semibold text-cyan-100">
+                {model.operational.overallStatus}
               </p>
-              <p className="mt-2 text-sm text-zinc-400">{model.status}</p>
+              <p className="mt-2 text-sm text-zinc-400">
+                {model.readinessPercent}% of deployment gate checks ready
+              </p>
             </div>
           </div>
           <p className="mt-6 rounded-lg border border-zinc-800 bg-black/70 p-4 text-sm leading-6 text-zinc-400">
@@ -73,6 +103,89 @@ export default async function EnterpriseReadinessPage() {
               Compliance Readiness
             </Link>
           </div>
+        </section>
+
+        <section className="mt-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="max-w-3xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">
+                Enterprise Trust Fabric health
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold">
+                Eleven components. Evidence before confidence.
+              </h2>
+            </div>
+            <p className="max-w-xl text-sm leading-6 text-zinc-500">
+              Generated {new Date(platformHealth.generatedAt).toLocaleString("en-GB")}. Unknown and awaiting states are preserved until a real check exists.
+            </p>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {model.operational.components.map((item) => (
+              <article key={item.id} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-semibold text-zinc-100">{item.label}</h3>
+                  <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase ${operationalStateStyle[item.status]}`}>
+                    {item.status}
+                  </span>
+                </div>
+                <p className="mt-4 text-sm leading-6 text-zinc-300">{item.evidence}</p>
+                <p className="mt-3 text-xs leading-5 text-cyan-200">Next: {item.nextAction}</p>
+                <p className="mt-3 border-t border-zinc-800 pt-3 text-xs leading-5 text-zinc-500">
+                  {item.boundary}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">
+            Internal observability
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold">Measured values stay separate from missing data.</h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {model.operational.metrics.metrics.map((metric) => (
+              <article key={metric.id} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">{metric.label}</p>
+                <p className="mt-3 text-2xl font-semibold text-zinc-100">{metricValue(metric.value, metric.unit)}</p>
+                <p className="mt-2 text-xs text-zinc-500">{metric.sampleCount} retained sample(s)</p>
+                <p className="mt-3 border-t border-zinc-800 pt-3 text-xs leading-5 text-zinc-500">{metric.limitation}</p>
+              </article>
+            ))}
+          </div>
+          <p className="mt-5 text-sm leading-6 text-zinc-500">{model.operational.metrics.boundary}</p>
+        </section>
+
+        <section className="mt-8 grid gap-5 lg:grid-cols-2">
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Performance coverage</p>
+            <h2 className="mt-3 text-2xl font-semibold">Profiled operational paths</h2>
+            <div className="mt-5 grid gap-3">
+              {model.operational.performance.coverage.map((item) => (
+                <div key={item.label} className="flex items-center justify-between gap-4 rounded-lg border border-zinc-800 bg-black p-3">
+                  <span className="text-sm text-zinc-300">{item.label}</span>
+                  <span className="text-sm font-semibold text-zinc-100">{item.status === "measured" ? `${item.value} ms` : "Awaiting data"}</span>
+                </div>
+              ))}
+            </div>
+          </article>
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Measured bottlenecks</p>
+            <h2 className="mt-3 text-2xl font-semibold">Slowest retained operations</h2>
+            <div className="mt-5 grid gap-3">
+              {model.operational.performance.bottlenecks.length ? model.operational.performance.bottlenecks.map((item) => (
+                <div key={`${item.rank}-${item.recordedAt}`} className="rounded-lg border border-zinc-800 bg-black p-3">
+                  <div className="flex justify-between gap-4 text-sm">
+                    <span className="text-zinc-300">{item.label.replaceAll("_", " ")}</span>
+                    <span className="font-semibold text-zinc-100">{item.latencyMs} ms</span>
+                  </div>
+                </div>
+              )) : (
+                <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-500">Awaiting runtime samples. No bottleneck is inferred.</p>
+              )}
+            </div>
+            <p className="mt-5 text-xs leading-5 text-zinc-500">{model.operational.performance.boundary}</p>
+          </article>
         </section>
 
         <section className="mt-8">
@@ -144,27 +257,28 @@ export default async function EnterpriseReadinessPage() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">
-                Provider orchestration
+                Provider readiness
               </p>
-              <h2 className="mt-3 text-3xl font-semibold">Configuration is shown without implied certainty.</h2>
+              <h2 className="mt-3 text-3xl font-semibold">Lifecycle classification and health remain distinct.</h2>
             </div>
             <Link href="/admin/integrations" className="text-sm font-semibold text-cyan-200 hover:text-cyan-100">
               Manage integrations →
             </Link>
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {model.providerStatus.map((provider) => (
+            {model.operational.providerClassifications.map((provider) => (
               <article key={provider.name} className="rounded-lg border border-zinc-800 bg-black p-5">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="font-semibold text-zinc-100">{provider.name}</h3>
                   <span className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs uppercase text-zinc-400">
-                    {provider.runtimeState}
+                    {provider.classification}
                   </span>
                 </div>
                 <p className="mt-4 text-sm leading-6 text-zinc-400">{provider.evidence}</p>
                 <div className="mt-4 grid gap-1 text-xs text-zinc-500">
-                  <p>Replay: {provider.replayIntegration.replaceAll("_", " ")}</p>
-                  <p>Receipt: {provider.receiptIntegration.replaceAll("_", " ")}</p>
+                  <p>Runtime: {provider.runtimeState}</p>
+                  <p>Health: {provider.health}</p>
+                  <p>Next: {provider.nextAction}</p>
                 </div>
               </article>
             ))}

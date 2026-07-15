@@ -3,6 +3,7 @@ import type { FusionSignal } from "@/lib/detection/signal-fusion";
 import { publishTrustEvent } from "@/lib/events/event-bus";
 import { orchestrateProviders } from "@/lib/providers/provider-orchestrator";
 import type { OrchestratedProviderState } from "@/lib/providers/provider-orchestrator";
+import { recordRuntimeProfile } from "@/lib/performance/runtime-profiler";
 
 export type ParallelSignalRunnerInput = {
   timeoutMs?: number;
@@ -45,6 +46,7 @@ function sourceForProviderState(state: OrchestratedProviderState) {
 }
 
 export async function runParallelSignalChecks(input: ParallelSignalRunnerInput) {
+  const orchestrationStarted = Date.now();
   const timeoutMs = input.timeoutMs ?? 300;
   const [providers, heuristic, provenance, runtime, session, intent] = await Promise.all([
     timed("provider_checks", timeoutMs, () => orchestrateProviders({ timeoutMs })),
@@ -109,9 +111,24 @@ export async function runParallelSignalChecks(input: ParallelSignalRunnerInput) 
       : [heuristic.error],
   };
 
+  const checks = [providers, heuristic, provenance, runtime, session, intent];
+  const failedChecks = checks.filter((check) => !check.ok).length;
+  recordRuntimeProfile({
+    stage: "parallel_orchestration_latency",
+    latencyMs: Date.now() - orchestrationStarted,
+    ok: failedChecks === 0,
+    degraded: failedChecks > 0 || (providers.ok && providers.value.some((provider) => provider.state !== "Live")),
+    metadata: {
+      label: "parallel_signal_orchestration",
+      check_count: checks.length,
+      failed_checks: failedChecks,
+      timeout_ms: timeoutMs,
+    },
+  });
+
   return {
     signals: [...providerSignals, heuristicSignal],
-    checks: [providers, heuristic, provenance, runtime, session, intent],
+    checks,
     providerResults: providers.ok ? providers.value : [],
     intentRisk: intent.ok && intent.value.riskScore != null
       ? {
@@ -124,7 +141,7 @@ export async function runParallelSignalChecks(input: ParallelSignalRunnerInput) 
     provenanceConfidence: provenance.ok ? provenance.value.confidence : null,
     runtimeAnomalyRisk: runtime.ok ? runtime.value.risk : null,
     partialConfidence: Number(
-      ([providers, heuristic, provenance, runtime, session, intent].filter((check) => check.ok).length / 6).toFixed(2)
+      (checks.filter((check) => check.ok).length / checks.length).toFixed(2)
     ),
     timeoutOrFailedProviders: providers.ok
       ? providers.value

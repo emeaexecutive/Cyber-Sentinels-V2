@@ -3,6 +3,7 @@ import { getGovernanceQueueSnapshot } from "@/lib/governance/governance-queue";
 import {
   getRuntimeProfileSnapshot,
   getSlowestRuntimeOperations,
+  getTrustFabricObservabilitySnapshot,
   summarizeRuntimeProfiles,
 } from "@/lib/performance/runtime-profiler";
 import type { ProviderOrchestrationResult } from "@/lib/providers/provider-orchestrator";
@@ -56,6 +57,9 @@ export type CanonicalPlatformHealth = {
   trustEngineHealth: PlatformHealthSection;
   databaseHealth: PlatformHealthSection;
   replayHealth: PlatformHealthSection;
+  evidenceGraphHealth: PlatformHealthSection;
+  trustMemoryHealth: PlatformHealthSection;
+  apiHealth: PlatformHealthSection;
   mlHealth: PlatformHealthSection;
   providerHealth: PlatformHealthSection;
   runtimeHealth: PlatformHealthSection;
@@ -78,8 +82,14 @@ export type CanonicalPlatformHealth = {
     replayWrite: HealthMeasurement;
     trustDecision: HealthMeasurement;
     authorization: HealthMeasurement;
+    evidenceWrite: HealthMeasurement;
+    trustMemoryWrite: HealthMeasurement;
+    parallelOrchestration: HealthMeasurement;
+    queuePerformance: HealthMeasurement;
+    cacheUsage: HealthMeasurement;
     largestDatabaseQuery: HealthMeasurement & { label: string | null };
   };
+  observability: ReturnType<typeof getTrustFabricObservabilitySnapshot>;
   build: {
     version: string | null;
     deploymentTimestamp: string | null;
@@ -119,6 +129,7 @@ type PlatformHealthInput = {
   providerSnapshot?: ProviderOrchestrationResult[];
   authConfigured?: boolean;
   databaseAvailable?: boolean;
+  apiAvailable?: boolean;
 };
 
 function section(input: Omit<PlatformHealthSection, "confidence"> & { confidence?: number | null }): PlatformHealthSection {
@@ -196,6 +207,7 @@ export function buildPlatformHealth(input: PlatformHealthInput = {}): CanonicalP
   const providerOffline = providers.filter((provider) => provider.state === "offline").length;
   const providerAwaiting = providers.filter((provider) => provider.state === "awaiting_credentials").length;
   const providerConfigured = providers.filter((provider) => ["configured", "healthy"].includes(provider.state)).length;
+  const providerHealthy = providers.filter((provider) => provider.state === "healthy").length;
   const authHealth = section({
     status: input.authConfigured === true ? "healthy" : input.authConfigured === false ? "blocked" : "unknown",
     evidence: input.authConfigured === true ? ["Authenticated admin access completed for this health snapshot."] : [],
@@ -215,8 +227,8 @@ export function buildPlatformHealth(input: PlatformHealthInput = {}): CanonicalP
     nextActions: ["Keep measured, provider supplied, heuristic and awaiting-validation states separate."],
   });
   const providerHealth = section({
-    status: providerOffline ? "degraded" : providerConfigured ? "healthy" : "unknown",
-    evidence: [`${providerConfigured} configured provider path(s); ${providerAwaiting} awaiting credentials; ${providerOffline} offline.`],
+    status: providerOffline ? "degraded" : providerHealthy ? "healthy" : "unknown",
+    evidence: [`${providerConfigured} configured provider path(s); ${providerHealthy} with a successful real health sample; ${providerAwaiting} awaiting credentials; ${providerOffline} offline.`],
     blockers: providerOffline ? [`${providerOffline} provider path(s) are offline.`] : [],
     nextActions: providerAwaiting ? ["Configure only the providers approved for the deployment and validate their limitations."] : [],
   });
@@ -245,6 +257,11 @@ export function buildPlatformHealth(input: PlatformHealthInput = {}): CanonicalP
     replayWrite: measurement("replay_latency", "replay writer runtime profiler"),
     trustDecision: measurement("trust_latency", "trust execution runtime profiler"),
     authorization: measurement("authorization_latency", "admin authorization runtime profiler"),
+    evidenceWrite: measurement("evidence_graph_latency", "Evidence Graph runtime profiler"),
+    trustMemoryWrite: measurement("trust_memory_latency", "Trust Memory runtime profiler"),
+    parallelOrchestration: measurement("parallel_orchestration_latency", "parallel signal runtime profiler"),
+    queuePerformance: measurement("queue_latency", "queue runtime profiler"),
+    cacheUsage: measurement("cache_efficiency", "cache runtime profiler"),
     largestDatabaseQuery: {
       ...measurement("database_query_latency", "admin database query runtime profiler"),
       label: slowestDatabaseQuery?.label ?? null,
@@ -258,6 +275,28 @@ export function buildPlatformHealth(input: PlatformHealthInput = {}): CanonicalP
       : [],
     blockers: [],
     nextActions: latency.trustDecision.status === "measured" ? [] : ["Generate a governed trust decision before inferring Trust Engine health."],
+  });
+  const evidenceGraphHealth = section({
+    status: latency.evidenceWrite.status === "measured" ? "healthy" : "unknown",
+    evidence: latency.evidenceWrite.status === "measured"
+      ? [`${latency.evidenceWrite.sampleCount} in-process Evidence Graph write measurement(s) are available.`]
+      : [],
+    blockers: [],
+    nextActions: latency.evidenceWrite.status === "measured" ? [] : ["Exercise an evidence write before inferring Evidence Graph health."],
+  });
+  const trustMemoryHealth = section({
+    status: latency.trustMemoryWrite.status === "measured" ? "healthy" : "unknown",
+    evidence: latency.trustMemoryWrite.status === "measured"
+      ? [`${latency.trustMemoryWrite.sampleCount} in-process Trust Memory write measurement(s) are available.`]
+      : [],
+    blockers: [],
+    nextActions: latency.trustMemoryWrite.status === "measured" ? [] : ["Exercise a Trust Memory write before inferring Trust Memory health."],
+  });
+  const apiHealth = section({
+    status: input.apiAvailable === true ? "healthy" : input.apiAvailable === false ? "degraded" : "unknown",
+    evidence: input.apiAvailable === true ? ["The API health probe completed during this protected snapshot."] : [],
+    blockers: input.apiAvailable === false ? ["The API health probe failed during this protected snapshot."] : [],
+    nextActions: input.apiAvailable === undefined ? ["Run an authenticated deployment health probe before inferring API health."] : [],
   });
   const databaseHealth = section({
     status: input.databaseAvailable === true ? "healthy" : input.databaseAvailable === false ? "degraded" : "unknown",
@@ -298,6 +337,9 @@ export function buildPlatformHealth(input: PlatformHealthInput = {}): CanonicalP
     trustEngineHealth,
     databaseHealth,
     replayHealth,
+    evidenceGraphHealth,
+    trustMemoryHealth,
+    apiHealth,
     mlHealth,
     providerHealth,
     runtimeHealth,
@@ -315,6 +357,10 @@ export function buildPlatformHealth(input: PlatformHealthInput = {}): CanonicalP
       limitation: `${replayDiagnostics.boundary} Governance queue counts are also process-local.`,
     },
     latency,
+    observability: getTrustFabricObservabilitySnapshot({
+      governancePending,
+      replayPending: replayDiagnostics.pending,
+    }),
     build: buildMetadata(),
     visibility: "admin_only",
     generatedAt: new Date().toISOString(),

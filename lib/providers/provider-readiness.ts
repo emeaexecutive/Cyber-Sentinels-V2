@@ -12,6 +12,13 @@ export type ProviderReadinessRuntimeState =
   | "Disabled"
   | "Unsupported";
 
+export type ProviderReadinessClassification =
+  | "Configured"
+  | "Awaiting Credentials"
+  | "Prototype"
+  | "Not Started"
+  | "Deprecated";
+
 export type ProviderHealthEvidence = {
   status: "success" | "degraded" | "timeout" | "failed";
   checkedAt: string;
@@ -58,6 +65,23 @@ export type ProviderReadinessCheck = {
   blocker: string;
   nextAction: string;
 };
+
+export function classifyProviderReadiness(
+  check: ProviderReadinessCheck
+): ProviderReadinessClassification {
+  if (/deprecated|retired|legacy/i.test(`${check.name} ${check.blocker}`)) return "Deprecated";
+  if (check.credentialPresent && check.configurationStatus === "configured") return "Configured";
+  if (check.credentialState === "missing" && (check.healthCheckAvailable || check.testModeAvailable)) {
+    return "Awaiting Credentials";
+  }
+  if (
+    check.runtimeState === "Simulated"
+    || check.runtimeState === "Test Mode"
+    || check.normalizedResultImplemented
+    || check.timeoutHandlingImplemented
+  ) return "Prototype";
+  return "Not Started";
+}
 
 const categoryByName: Record<string, ProviderReadinessCheck["category"]> = {
   "Reality Defender": "media_forensics",
@@ -291,6 +315,13 @@ export function summarizeProviderReadiness(checks = buildProviderReadinessCheckl
     retryReady,
     latencyMeasured,
     productionReady,
+    classifications: {
+      configured: checks.filter((item) => classifyProviderReadiness(item) === "Configured").length,
+      awaitingCredentials: checks.filter((item) => classifyProviderReadiness(item) === "Awaiting Credentials").length,
+      prototype: checks.filter((item) => classifyProviderReadiness(item) === "Prototype").length,
+      notStarted: checks.filter((item) => classifyProviderReadiness(item) === "Not Started").length,
+      deprecated: checks.filter((item) => classifyProviderReadiness(item) === "Deprecated").length,
+    },
     currentPercent: checks.length ? Math.round(((normalized + productionReady) / (checks.length * 2)) * 85) : 0,
     evidence: `${checks.length} provider readiness check(s), ${normalized} with normalized evidence/result handling, ${productionReady} production-ready reviewed path(s).`,
     blocker: productionReady ? "Provider output still requires benchmark validation." : "No fully reviewed live provider path is production-ready.",

@@ -20,6 +20,7 @@ export type TrustMemoryEventKind =
   | "credential_rotation"
   | "provider_conflict"
   | "authority_revoked"
+  | "authority_delegated"
   | "session_integrity_failure"
   | "lifecycle_completed"
   | "governance_decision"
@@ -27,6 +28,7 @@ export type TrustMemoryEventKind =
   | "false_positive_outcome"
   | "false_negative_outcome"
   | "trust_recovery"
+  | "trust_confirmed"
   | "trust_decay";
 
 export type TrustMemoryEvolutionState =
@@ -39,6 +41,17 @@ export type TrustMemoryEvolutionState =
   | "expired"
   | "revoked";
 
+export type TrustMemoryOperationalState =
+  | "Trust Increased"
+  | "Trust Reduced"
+  | "Trust Challenged"
+  | "Trust Restored"
+  | "Trust Expired"
+  | "Trust Revoked"
+  | "Trust Delegated"
+  | "Trust Reviewed"
+  | "Trust Confirmed";
+
 export type TrustMemoryEvent = {
   id: string;
   actor_id: string;
@@ -50,6 +63,7 @@ export type TrustMemoryEvent = {
   trust_delta: number;
   trust_change: TrustChangeClassification;
   evolution_state: TrustMemoryEvolutionState;
+  operational_state: TrustMemoryOperationalState;
   reason: string;
   evidence_refs: string[];
   replay_refs: string[];
@@ -81,6 +95,7 @@ export type TrustEvolutionSummary = {
   workflow_id: string;
   event_count: number;
   latest_state: string;
+  latest_operational_state: TrustMemoryOperationalState;
   net_trust_delta: number;
   confidence_before: number;
   confidence_after: number;
@@ -123,8 +138,27 @@ function evolutionState(input: {
   return "challenged";
 }
 
+function operationalState(input: {
+  eventKind: TrustMemoryEventKind;
+  stateAfter: string;
+  classification: TrustChangeClassification;
+  delta: number;
+}): TrustMemoryOperationalState {
+  const stateAfter = input.stateAfter.toLowerCase();
+  if (input.eventKind === "authority_revoked" || stateAfter.includes("revok")) return "Trust Revoked";
+  if (stateAfter.includes("expir")) return "Trust Expired";
+  if (input.eventKind === "authority_delegated") return "Trust Delegated";
+  if (["reviewer_override", "governance_decision"].includes(input.eventKind)) return "Trust Reviewed";
+  if (["trust_confirmed", "lifecycle_completed"].includes(input.eventKind)) return "Trust Confirmed";
+  if (input.eventKind === "trust_recovery" || input.classification === "restored" || input.classification === "recovered") return "Trust Restored";
+  if (["provider_conflict", "session_integrity_failure", "step_up_verification"].includes(input.eventKind) || input.classification === "escalated") return "Trust Challenged";
+  if (input.delta < 0 || ["decreased", "blocked", "decayed"].includes(input.classification)) return "Trust Reduced";
+  if (input.delta > 0 || input.classification === "increased") return "Trust Increased";
+  return "Trust Challenged";
+}
+
 export function createTrustMemoryEvent(
-  input: Omit<TrustMemoryEvent, "id" | "trust_delta" | "trust_change" | "evolution_state" | "explanation" | "policy_refs" | "authority_refs" | "created_at"> & {
+  input: Omit<TrustMemoryEvent, "id" | "trust_delta" | "trust_change" | "evolution_state" | "operational_state" | "explanation" | "policy_refs" | "authority_refs" | "created_at"> & {
     id?: string;
     policy_refs?: string[];
     authority_refs?: string[];
@@ -155,6 +189,7 @@ export function createTrustMemoryEvent(
     trust_delta: trustDelta,
     trust_change: trustChange,
     evolution_state: evolutionState({ eventKind: input.event_kind, stateAfter: input.trust_state_after, classification: trustChange, delta: trustDelta }),
+    operational_state: operationalState({ eventKind: input.event_kind, stateAfter: input.trust_state_after, classification: trustChange, delta: trustDelta }),
     explanation: explainTrustChange(evolutionInput),
     evidence_refs: normalizeRefs(input.evidence_refs),
     replay_refs: normalizeRefs(input.replay_refs),
@@ -187,6 +222,7 @@ export function summarizeTrustEvolution(events: TrustMemoryEvent[]): TrustEvolut
       workflow_id: first.workflow_id,
       event_count: ordered.length,
       latest_state: latest.trust_state_after,
+      latest_operational_state: latest.operational_state,
       net_trust_delta: Number(ordered.reduce((total, event) => total + event.trust_delta, 0).toFixed(2)),
       confidence_before: first.confidence_before,
       confidence_after: latest.confidence_after,
@@ -276,7 +312,7 @@ export function trustMemoryEventFromReviewedOutcome(
         ? "reviewer_override"
         : record.confirmedEscalation
           ? "governance_decision"
-          : "trust_recovery";
+          : "trust_confirmed";
   const trustAfter = record.falseNegative || record.confirmedEscalation ? "escalated" : record.falsePositive ? "review_required" : "reviewed";
   const confidenceAfter = record.falseNegative
     ? Math.max(0.2, record.reviewConfidence - 0.2)

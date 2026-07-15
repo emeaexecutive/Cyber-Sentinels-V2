@@ -17,10 +17,11 @@
     "test:trust-os": "node --test tests/enterprise-trust-os.test.mjs",
     "test:trust-fabric": "node --experimental-strip-types --test tests/trust-fabric-core.test.mjs",
     "test:enterprise-storytelling": "node --test tests/enterprise-storytelling.test.mjs",
+    "test:enterprise-readiness": "node --experimental-strip-types --test tests/enterprise-operational-readiness.test.mjs",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "npm run test:hopae && npm run test:detection && npm run test:ml-validation && npm run test:trust-explanation && npm run test:decision-intelligence && npm run test:standards-readiness && npm run test:trust-lifecycle && npm run test:continuous-trust-validation && npm run test:public-surface && npm run test:trust-os && npm run test:trust-fabric && npm run test:enterprise-storytelling",
+    "test": "npm run test:hopae && npm run test:detection && npm run test:ml-validation && npm run test:trust-explanation && npm run test:decision-intelligence && npm run test:standards-readiness && npm run test:trust-lifecycle && npm run test:continuous-trust-validation && npm run test:public-surface && npm run test:trust-os && npm run test:trust-fabric && npm run test:enterprise-storytelling && npm run test:enterprise-readiness",
     "validate": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {

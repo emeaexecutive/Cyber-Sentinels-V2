@@ -1,5 +1,24 @@
 # Platform Observability
 
+Release 1.1.4 extends the existing admin-only model into the protected `/enterprise/readiness` workspace. The canonical implementation remains `lib/core/platform-health.ts` and `lib/performance/runtime-profiler.ts`; no second telemetry engine or public metrics endpoint was introduced.
+
+## Release 1.1.4 Trust Fabric metrics
+
+| Metric | Instrumented source | Empty-state rule |
+| --- | --- | --- |
+| Trust Decision latency | `trust_latency` P95 | `Awaiting data` |
+| Replay latency | `replay_latency` P95 | `Awaiting data` |
+| Provider latency | `provider_latency` P95 | `Awaiting data` |
+| Queue depth | Replay plus governance process-local queue counts | Measured zero is allowed because the queue was inspected |
+| Error rate | Failed retained runtime samples divided by all retained samples | `Awaiting data` when no samples exist |
+| Decision throughput | Retained Trust Decision samples during the last hour | `Awaiting data` when no decisions exist |
+| Authority validation time | `authorization_latency` P95 | `Awaiting data` |
+| Evidence write time | `evidence_graph_latency` P95 | `Awaiting data` |
+
+Parallel signal execution additionally records `parallel_orchestration_latency`. Evidence Graph, Trust Memory, governance queue, database query, cache and enforcement stages retain their own measurements for performance review.
+
+The eight dashboard metrics are internal only. They are process-local readiness evidence, not fleet telemetry, production APM, an external uptime claim or an SLA. A value is never manufactured from configuration presence.
+
 ## Purpose
 
 Sprint 9.1 adds an admin-only operational snapshot to the existing Trust Execution surface at `/admin/trust-execution`. It is designed to answer four operator questions first: platform health, current risk, required action and available evidence.

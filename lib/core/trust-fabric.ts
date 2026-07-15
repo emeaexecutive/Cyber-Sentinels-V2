@@ -84,6 +84,49 @@ export type TrustFabricResponse = {
     evolutionState: string;
     integrity: ReturnType<typeof validateTrustMemoryIntegrity>;
   };
+  explainability: {
+    decision: TrustLifecycleExecutionOutput["trust_decision"];
+    evidenceSummary: {
+      count: number;
+      references: string[];
+      graphValid: boolean;
+      missingNodeTypes: string[];
+    };
+    authoritySummary: {
+      decision: AuthorityGraphResult["decision"];
+      reason: string;
+      accountableHumanId: string | null;
+      authorityReference: string | null;
+      effectiveScope: string[];
+      limitations: string[];
+    };
+    policyApplied: {
+      version: string | null;
+      governanceStatus: string;
+      validationStatus: "reviewed" | "incomplete" | "not_run";
+      minimumEvidence: number;
+    };
+    confidenceExplanation: {
+      band: TrustLifecycleExecutionOutput["confidence_band"];
+      providerDecision: ProviderConsensusResult["decision"];
+      trustConfidence: number | null;
+      consensusConfidence: number | null;
+      categoryCoverage: string[];
+      explanation: string[];
+      limitations: string[];
+    };
+    replayReference: string | null;
+    trustMemoryUpdate: {
+      reference: string | null;
+      state: string;
+      timestamp: string;
+      reason: string;
+      actor: { id: string; type: string };
+      evidence: string[];
+      authority: string[];
+    };
+    nextRecommendedAction: string;
+  };
   governance: { status: string; reviewAvailable: boolean };
   limitations: string[];
   lifecycle: TrustLifecycleExecutionOutput;
@@ -206,6 +249,7 @@ export function requestTrust(request: TrustFabricRequest): TrustFabricResponse {
         checks: { ...memoryIntegrityResult.checks, referencesResolve: false },
         unresolvedReferences: [...memoryIntegrityResult.unresolvedReferences, "trust_memory:write_unavailable"],
       };
+  const graphIntegrity = validateFabricGraph(lifecycle, request.tenantId);
 
   return {
     contract: "enterprise_trust_fabric/1.1",
@@ -219,9 +263,52 @@ export function requestTrust(request: TrustFabricRequest): TrustFabricResponse {
       enforcement: lifecycle.enforcement_action,
       nextAction: lifecycle.next_required_action,
     },
-    evidence: { references: lifecycle.evidence_references, graph: lifecycle.evidence_graph, integrity: validateFabricGraph(lifecycle, request.tenantId) },
+    evidence: { references: lifecycle.evidence_references, graph: lifecycle.evidence_graph, integrity: graphIntegrity },
     replay: { reference: lifecycle.replay_reference, status: lifecycle.replay_reference ? "written" : "unavailable" },
     trustMemory: { reference: lifecycle.trust_memory_reference, evolutionState: memoryEvent.evolution_state, integrity: memoryIntegrity },
+    explainability: {
+      decision: lifecycle.trust_decision,
+      evidenceSummary: {
+        count: lifecycle.evidence_references.length,
+        references: lifecycle.evidence_references,
+        graphValid: graphIntegrity.valid,
+        missingNodeTypes: graphIntegrity.missingNodeTypes,
+      },
+      authoritySummary: {
+        decision: authority.decision,
+        reason: authority.reason,
+        accountableHumanId: authority.accountableHumanId,
+        authorityReference: authority.authorityReference,
+        effectiveScope: authority.effectiveScope,
+        limitations: authority.limitations,
+      },
+      policyApplied: {
+        version: request.policy.version,
+        governanceStatus: request.policy.governanceStatus ?? "not_reported",
+        validationStatus: request.policy.validationStatus ?? "not_run",
+        minimumEvidence: request.policy.minimumEvidence ?? template.minimumEvidence,
+      },
+      confidenceExplanation: {
+        band: lifecycle.confidence_band,
+        providerDecision: consensus.decision,
+        trustConfidence: consensus.trustConfidence,
+        consensusConfidence: consensus.consensusConfidence,
+        categoryCoverage: consensus.categoryCoverage,
+        explanation: consensus.explanation,
+        limitations: [...new Set([...consensus.limitations, ...lifecycle.limitations])],
+      },
+      replayReference: lifecycle.replay_reference,
+      trustMemoryUpdate: {
+        reference: lifecycle.trust_memory_reference,
+        state: memoryEvent.operational_state,
+        timestamp: memoryEvent.created_at,
+        reason: memoryEvent.reason,
+        actor: { id: memoryEvent.actor_id, type: memoryEvent.actor_type },
+        evidence: memoryEvent.evidence_refs,
+        authority: memoryEvent.authority_refs,
+      },
+      nextRecommendedAction: lifecycle.next_required_action,
+    },
     governance: { status: lifecycle.governance_status, reviewAvailable: lifecycle.evidence_graph.nodes.some((node) => node.type === "governance_review") },
     limitations: [...new Set([...authority.limitations, ...consensus.limitations, ...lifecycle.limitations])],
     lifecycle,
@@ -249,4 +336,38 @@ export function buildTrustFabricDemo() {
     correlationId: "trust-fabric-demo-001",
     createdAt,
   });
+}
+
+export type EnterpriseOperationalDemoState =
+  | "Live"
+  | "Configured"
+  | "Simulated"
+  | "Awaiting Credentials";
+
+export function buildEnterpriseOperationalReadinessDemo() {
+  const decision = buildTrustFabricDemo();
+  const steps: Array<{
+    order: number;
+    label: string;
+    state: EnterpriseOperationalDemoState;
+    evidence: string;
+  }> = [
+    { order: 1, label: "Human verification", state: "Live", evidence: "Authenticated accountable-human authority is evaluated in the controlled Trust Fabric request." },
+    { order: 2, label: "AI agent verification", state: "Configured", evidence: `The normalized AI-agent identity is ${decision.entity.id}.` },
+    { order: 3, label: "Machine identity verification", state: "Awaiting Credentials", evidence: "The machine-identity adapter remains disabled until deployment credentials and egress controls are reviewed." },
+    { order: 4, label: "Trust Decision", state: "Simulated", evidence: `Controlled demo decision: ${decision.explainability.decision}.` },
+    { order: 5, label: "Replay", state: "Simulated", evidence: decision.explainability.replayReference ?? "Replay write unavailable in the controlled demo." },
+    { order: 6, label: "Evidence Graph", state: "Simulated", evidence: `${decision.explainability.evidenceSummary.count} evidence reference(s) are linked in the controlled demo graph.` },
+    { order: 7, label: "Trust Memory™", state: "Simulated", evidence: `${decision.explainability.trustMemoryUpdate.state}: ${decision.explainability.trustMemoryUpdate.reason}` },
+    { order: 8, label: "Governance review", state: "Configured", evidence: `Governance status is ${decision.governance.status}; human review remains authoritative.` },
+    { order: 9, label: "Enterprise dashboard", state: "Configured", evidence: "The protected Enterprise Readiness workspace uses evidence-backed component states." },
+    { order: 10, label: "Platform health", state: "Configured", evidence: "Platform health combines measured runtime samples, process-local diagnostics and deployment metadata without implying fleet health." },
+  ];
+  return {
+    id: "enterprise-operational-readiness-demo/1.1.4",
+    mode: "controlled_demo" as const,
+    steps,
+    decision,
+    boundary: "Simulated steps prove product behavior and explainability only; they are not production provider, traffic or SLA evidence.",
+  };
 }

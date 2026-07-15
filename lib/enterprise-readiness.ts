@@ -3,6 +3,14 @@ import type {
   ReadinessGateSnapshot,
   ReadinessGateState,
 } from "@/lib/readiness-gate/snapshot";
+import type { CanonicalPlatformHealth, PlatformHealthSection } from "@/lib/core/platform-health";
+import { getSlowestRuntimeOperations } from "@/lib/performance/runtime-profiler";
+import {
+  buildProviderReadinessChecklist,
+  classifyProviderReadiness,
+  type ProviderReadinessCheck,
+  type ProviderReadinessClassification,
+} from "@/lib/providers/provider-readiness";
 import {
   providerRuntimeState,
   type ProviderRuntimeState,
@@ -38,6 +46,46 @@ export type EnterpriseReadinessModel = {
   blockers: ReadinessGateCheck[];
   cautions: ReadinessGateCheck[];
   complianceBoundary: string;
+  operational: EnterpriseOperationalReadiness;
+};
+
+export type EnterpriseOperationalStatus =
+  | "Healthy"
+  | "Degraded"
+  | "Awaiting Configuration"
+  | "Unavailable"
+  | "Unknown";
+
+export type EnterpriseOperationalComponent = {
+  id: string;
+  label: string;
+  status: EnterpriseOperationalStatus;
+  evidence: string;
+  boundary: string;
+  nextAction: string;
+  lastObservedAt: string;
+};
+
+export type EnterpriseOperationalReadiness = {
+  overallStatus: EnterpriseOperationalStatus;
+  components: EnterpriseOperationalComponent[];
+  statusCounts: Record<EnterpriseOperationalStatus, number>;
+  metrics: CanonicalPlatformHealth["observability"];
+  providerClassifications: Array<{
+    id: string;
+    name: string;
+    classification: ProviderReadinessClassification;
+    health: ProviderReadinessCheck["health"];
+    runtimeState: ProviderReadinessCheck["runtimeState"];
+    evidence: string;
+    nextAction: string;
+  }>;
+  performance: {
+    coverage: Array<{ label: string; value: number | null; status: "measured" | "awaiting_data" }>;
+    bottlenecks: ReturnType<typeof getSlowestRuntimeOperations>;
+    boundary: string;
+  };
+  boundary: string;
 };
 
 function checkByLabel(snapshot: ReadinessGateSnapshot, pattern: RegExp) {
@@ -61,9 +109,119 @@ function safeguard(
   };
 }
 
+function sectionStatus(value: PlatformHealthSection): EnterpriseOperationalStatus {
+  if (value.status === "healthy") return "Healthy";
+  if (value.status === "degraded") return "Degraded";
+  if (value.status === "blocked") return "Unavailable";
+  return "Unknown";
+}
+
+function component(
+  id: string,
+  label: string,
+  status: EnterpriseOperationalStatus,
+  health: PlatformHealthSection,
+  generatedAt: string,
+  boundary: string
+): EnterpriseOperationalComponent {
+  return {
+    id,
+    label,
+    status,
+    evidence: health.evidence[0] ?? "No current runtime evidence is available.",
+    boundary,
+    nextAction: health.nextActions[0] ?? health.blockers[0] ?? "Continue controlled monitoring.",
+    lastObservedAt: generatedAt,
+  };
+}
+
+export function buildEnterpriseOperationalReadiness(
+  health: CanonicalPlatformHealth,
+  providerChecks: ProviderReadinessCheck[] = buildProviderReadinessChecklist()
+): EnterpriseOperationalReadiness {
+  const classifications = providerChecks.map((check) => ({
+    id: check.id,
+    name: check.name,
+    classification: classifyProviderReadiness(check),
+    health: check.health,
+    runtimeState: check.runtimeState,
+    evidence: check.evidence,
+    nextAction: check.nextAction,
+  }));
+  const providerStatus: EnterpriseOperationalStatus = health.providerHealth.status === "degraded"
+    ? "Degraded"
+    : health.providerHealth.status === "healthy"
+      ? "Healthy"
+      : classifications.some((item) => item.classification === "Configured")
+        ? "Unknown"
+        : classifications.some((item) => item.classification === "Awaiting Credentials")
+          ? "Awaiting Configuration"
+          : "Unavailable";
+  const buildSection: PlatformHealthSection = {
+    status: health.build.version ? "healthy" : "unknown",
+    confidence: null,
+    evidence: health.build.version ? [`Build ${health.build.version} is reported by deployment metadata.`] : [],
+    blockers: [],
+    nextActions: health.build.version ? [] : ["Expose a deployment build identifier before pilot handoff."],
+  };
+  const components = [
+    component("authentication", "Authentication", sectionStatus(health.authHealth), health.authHealth, health.generatedAt, "Healthy reflects this authenticated admin request, not identity-provider uptime."),
+    component("provider-connectivity", "Provider Connectivity", providerStatus, health.providerHealth, health.generatedAt, "Configured credentials are not a successful provider health check."),
+    component("trust-engine", "Trust Engine", sectionStatus(health.trustEngineHealth), health.trustEngineHealth, health.generatedAt, "Health requires a retained Trust Decision runtime sample."),
+    component("replay", "Replay", sectionStatus(health.replayHealth), health.replayHealth, health.generatedAt, health.queues.limitation),
+    component("evidence-graph", "Evidence Graph", sectionStatus(health.evidenceGraphHealth), health.evidenceGraphHealth, health.generatedAt, "Health reflects retained in-process write samples, not durable fleet availability."),
+    component("trust-memory", "Trust Memory™", sectionStatus(health.trustMemoryHealth), health.trustMemoryHealth, health.generatedAt, "Health reflects retained in-process write samples and never implies autonomous learning."),
+    component("runtime", "Runtime", sectionStatus(health.runtimeHealth), health.runtimeHealth, health.generatedAt, "Runtime samples are process-local readiness telemetry, not production APM."),
+    component("queue-health", "Queue Health", sectionStatus(health.governanceHealth), health.governanceHealth, health.generatedAt, health.queues.limitation),
+    component("validation-coverage", "Validation Coverage", sectionStatus(health.validationHealth), health.validationHealth, health.generatedAt, "Accuracy remains unavailable until dataset-scoped reviewed sample thresholds are met."),
+    component("api-health", "API Health", sectionStatus(health.apiHealth), health.apiHealth, health.generatedAt, "API Health remains Unknown without a deployment health probe."),
+    component("build-version", "Build Version", health.build.version ? "Healthy" : "Unknown", buildSection, health.generatedAt, "Build metadata describes the deployment and is not runtime health evidence."),
+  ];
+  const statuses: EnterpriseOperationalStatus[] = ["Healthy", "Degraded", "Awaiting Configuration", "Unavailable", "Unknown"];
+  const statusCounts = Object.fromEntries(
+    statuses.map((status) => [status, components.filter((item) => item.status === status).length])
+  ) as Record<EnterpriseOperationalStatus, number>;
+  const overallStatus: EnterpriseOperationalStatus = statusCounts.Unavailable
+    ? "Unavailable"
+    : statusCounts.Degraded
+      ? "Degraded"
+      : statusCounts.Unknown || statusCounts["Awaiting Configuration"]
+        ? "Unknown"
+        : "Healthy";
+
+  return {
+    overallStatus,
+    components,
+    statusCounts,
+    metrics: health.observability,
+    providerClassifications: classifications,
+    performance: {
+      coverage: [
+        ["Replay", health.latency.replayWrite],
+        ["Evidence Graph", health.latency.evidenceWrite],
+        ["Trust Memory™", health.latency.trustMemoryWrite],
+        ["Provider execution", health.latency.provider],
+        ["Parallel orchestration", health.latency.parallelOrchestration],
+        ["Database queries", health.latency.largestDatabaseQuery],
+        ["Cache usage", health.latency.cacheUsage],
+        ["Queue performance", health.latency.queuePerformance],
+      ].map(([label, measurement]) => ({
+        label: label as string,
+        value: (measurement as CanonicalPlatformHealth["latency"]["provider"]).value,
+        status: (measurement as CanonicalPlatformHealth["latency"]["provider"]).status,
+      })),
+      bottlenecks: getSlowestRuntimeOperations(8),
+      boundary: "Profiling is in-process and bounded to retained samples. No production-scale bottleneck is inferred from missing data.",
+    },
+    boundary: "This protected workspace separates measured runtime evidence, process-local diagnostics and deployment metadata. It is not certification, fleet observability or an SLA.",
+  };
+}
+
 export function buildEnterpriseReadinessModel(
   snapshot: ReadinessGateSnapshot,
-  providers: VerificationProviderDefinition[]
+  providers: VerificationProviderDefinition[],
+  platformHealth: CanonicalPlatformHealth,
+  providerChecks: ProviderReadinessCheck[] = buildProviderReadinessChecklist()
 ): EnterpriseReadinessModel {
   const checks = snapshot.sections.flatMap((section) => section.checks);
   const ready = checks.filter((check) => check.state === "ready").length;
@@ -186,5 +344,6 @@ export function buildEnterpriseReadinessModel(
     cautions: snapshot.cautions,
     complianceBoundary:
       "Cyber Sentinels supports compliance-oriented evidence, governance and reporting workflows. This readiness view is not a certification, legal opinion or guarantee of regulatory compliance.",
+    operational: buildEnterpriseOperationalReadiness(platformHealth, providerChecks),
   };
 }

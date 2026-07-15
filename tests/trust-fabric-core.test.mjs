@@ -4,7 +4,7 @@ import test from "node:test";
 
 import { entityIdentityModel, normalizeEntityIdentity } from "../lib/core/entity-identity.ts";
 import { evaluateAuthorityGraph } from "../lib/core/authority-graph.ts";
-import { buildTrustFabricDemo, TRUST_FABRIC_SERVICES } from "../lib/core/trust-fabric.ts";
+import { buildEnterpriseOperationalReadinessDemo, buildTrustFabricDemo, TRUST_FABRIC_SERVICES } from "../lib/core/trust-fabric.ts";
 import { createProviderConsensus } from "../lib/providers/provider-consensus.ts";
 import { WORKFLOW_TEMPLATE_IDS, workflowTemplates } from "../lib/workflows/workflow-templates.ts";
 
@@ -83,10 +83,36 @@ test("Trust Fabric demo connects authority, consensus, decision, Replay, graph, 
   assert.deepEqual(demo.lifecycle.trust_memory_event.policy_refs, ["policy:financial-approval/1.1"]);
   assert.deepEqual(demo.lifecycle.trust_memory_event.authority_refs, ["authorization:trust-fabric-demo-001"]);
   assert.equal(demo.evidence.integrity.valid, true);
+  assert.equal(demo.explainability.decision, demo.trust.decision);
+  assert.ok(demo.explainability.evidenceSummary.count > 0);
+  assert.equal(demo.explainability.authoritySummary.decision, "ALLOW");
+  assert.equal(demo.explainability.policyApplied.version, "financial-approval/1.1");
+  assert.equal(demo.explainability.confidenceExplanation.providerDecision, "support");
+  assert.equal(demo.explainability.replayReference, demo.replay.reference);
+  assert.ok(demo.explainability.trustMemoryUpdate.state.startsWith("Trust "));
+  assert.equal(demo.explainability.nextRecommendedAction, demo.trust.nextAction);
   assert.ok(demo.governance.reviewAvailable === true || demo.trust.decision === "allow");
   for (const service of ["Identity", "Authority", "Trust Engine", "Provider Orchestrator", "Evidence Graph", "Trust Memory\u2122", "Governance"]) {
     assert.ok(TRUST_FABRIC_SERVICES.some(([name]) => name === service));
   }
+});
+
+test("enterprise operational demo covers the ten requested steps with explicit reality states", () => {
+  const demo = buildEnterpriseOperationalReadinessDemo();
+  assert.equal(demo.steps.length, 10);
+  assert.deepEqual(demo.steps.map((step) => step.label), [
+    "Human verification",
+    "AI agent verification",
+    "Machine identity verification",
+    "Trust Decision",
+    "Replay",
+    "Evidence Graph",
+    "Trust Memory™",
+    "Governance review",
+    "Enterprise dashboard",
+    "Platform health",
+  ]);
+  assert.deepEqual(new Set(demo.steps.map((step) => step.state)), new Set(["Live", "Configured", "Simulated", "Awaiting Credentials"]));
 });
 
 test("initial domains are workflow templates that inherit the same Trust Fabric", () => {
