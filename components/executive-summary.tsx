@@ -16,7 +16,7 @@ export function ExecutiveSummary({
   title: string;
   bullets: string[];
   primary: SummaryAction;
-  secondary: SummaryAction;
+  secondary?: SummaryAction;
 }) {
   return (
     <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
@@ -30,7 +30,7 @@ export function ExecutiveSummary({
       </ul>
       <div className="mt-7 flex flex-wrap gap-3">
         <Link href={primary.href} className="brand-primary-action brand-action-large text-sm">{primary.label}</Link>
-        <Link href={secondary.href} className="brand-secondary-action brand-action-large text-sm">{secondary.label}</Link>
+        {secondary ? <Link href={secondary.href} className="brand-secondary-action brand-action-large text-sm">{secondary.label}</Link> : null}
       </div>
     </section>
   );

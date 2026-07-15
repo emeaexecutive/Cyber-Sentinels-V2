@@ -28,7 +28,7 @@ test("homepage preserves the release promise and section ceiling", async () => {
   const source = await read("app/page.tsx");
   assert.match(source, /The operational trust control plane for humans, AI agents, machine identities and regulated workflows\./);
   assert.match(source, /Continuously verify who or what acted, under whose authority, what changed, and why each action was allowed, reviewed or blocked\./);
-  assert.equal((source.match(/<section/g) ?? []).length, 9);
+  assert.equal((source.match(/<section/g) ?? []).length, 7);
   assert.match(source, /Request Demo/);
 });
 

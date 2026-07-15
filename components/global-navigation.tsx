@@ -23,18 +23,19 @@ const platformDropdownLinks: NavigationLink[] = [
   { href: "/platform#trust-engine", label: "Trust Engine", description: "Evidence-backed decision intelligence." },
   { href: "/platform#runtime-engine", label: "Runtime Trust", description: "Monitor material change during execution." },
   { href: "/platform#authorization-gateway", label: "Authorization & Enforcement", description: "Verify scope before an action proceeds." },
+  { href: "/platform#provider-orchestrator", label: "Provider Orchestrator", description: "Normalize evidence without hiding its source." },
+  { href: "/platform#enterprise-apis", label: "Enterprise APIs", description: "Request trust through one stable contract." },
 ];
 
 const solutionsDropdownLinks: NavigationLink[] = [
-  { href: "/enterprise/agent-governance", label: "AI Agent Governance", description: "Control agent purpose and authority.", group: "Protect AI Operations" },
-  { href: "/solutions#machine-identity-trust", label: "Machine Identity Trust", description: "Keep workload ownership accountable.", group: "Protect AI Operations" },
-  { href: "/solutions#regulated-workflows", label: "Regulated AI Workflows", description: "Preserve review across sensitive work.", group: "Protect AI Operations" },
-  { href: "/solutions#live-session-trust", label: "Live Session Trust", description: "Track trust after a session begins.", group: "Verify Critical Interactions" },
-  { href: "/solutions#executive-protection", label: "Executive Protection", description: "Govern high-risk identity and approvals.", group: "Verify Critical Interactions" },
-  { href: "/solutions#identity-onboarding", label: "Identity & Onboarding", description: "Resolve identity evidence before access.", group: "Verify Critical Interactions" },
-  { href: "/solutions#financial-services", label: "Financial Services", description: "Explain high-value operational decisions.", group: "Secure Business Workflows" },
-  { href: "/solutions#insurance", label: "Insurance", description: "Connect claims evidence and review.", group: "Secure Business Workflows" },
-  { href: "/enterprise/hiring-security", label: "Hiring Security", description: "Reduce synthetic and proxy interview risk.", group: "Secure Business Workflows" },
+  { href: "/solutions#ai-operations", label: "AI Operations", description: "Control agent purpose and authority.", group: "Workflow outcomes" },
+  { href: "/solutions#financial-services", label: "Financial Services", description: "Explain high-value operational decisions.", group: "Workflow outcomes" },
+  { href: "/solutions#insurance", label: "Insurance", description: "Connect claims evidence and review.", group: "Workflow outcomes" },
+  { href: "/solutions#healthcare", label: "Healthcare", description: "Preserve authority in sensitive workflows.", group: "Workflow outcomes" },
+  { href: "/solutions#critical-infrastructure", label: "Critical Infrastructure", description: "Govern consequential operations.", group: "Workflow outcomes" },
+  { href: "/solutions#vendor-access", label: "Vendor Access", description: "Verify third-party purpose and scope.", group: "Workflow outcomes" },
+  { href: "/solutions#privileged-operations", label: "Privileged Operations", description: "Challenge material change before elevation.", group: "Workflow outcomes" },
+  { href: "/solutions#hiring", label: "Hiring", description: "Reduce synthetic and proxy interview risk.", group: "Workflow outcomes" },
 ];
 
 const trustDropdownLinks: NavigationLink[] = [
@@ -48,6 +49,7 @@ const trustDropdownLinks: NavigationLink[] = [
   { href: "/trust/data-sovereignty", label: "AI & Data Sovereignty", description: "Provider and deployment boundaries.", group: "Transparency" },
   { href: "/trust#ml-validation", label: "ML Validation", description: "Measured capability without inflated claims.", group: "Transparency" },
   { href: "/trust#provider-transparency", label: "Provider Transparency", description: "Live, simulated and unavailable states.", group: "Transparency" },
+  { href: "/trust#operational-trust-graph", label: "Operational Trust Graph™", description: "Connect operational trust over time.", group: "Transparency" },
 ];
 
 const enterpriseDropdownLinks: NavigationLink[] = [

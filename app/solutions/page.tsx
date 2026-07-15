@@ -2,64 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 
-const lifecycleTemplates = ["Hiring", "AI Agent Operations", "Privileged Access", "Financial Approval", "Vendor Access", "Healthcare", "Insurance", "Critical Infrastructure"];
-
-const solutionAreas = [
-  [
-    "AI Agent Governance",
-    "Understand whether agents acted within approved purpose, scope and accountability before sensitive work continues.",
-    "/enterprise/agent-governance",
-    "ai-agent-governance",
-  ],
-  [
-    "Machine Identity Trust",
-    "Keep service accounts, API actors and workload identities connected to accountable owners and delegated authority.",
-    "/enterprise-access?solution=machine-identity-trust",
-    "machine-identity-trust",
-  ],
-  [
-    "Regulated Workflows",
-    "Preserve evidence, authorization and human review across consequential operations with audit obligations.",
-    "/enterprise-access?solution=regulated-workflows",
-    "regulated-workflows",
-  ],
-  [
-    "Financial Services",
-    "Add explainable runtime trust and governance continuity to high-value financial operations.",
-    "/enterprise-access?solution=financial-services",
-    "financial-services",
-  ],
-  [
-    "Insurance",
-    "Connect evidence, authority and reviewed outcomes across claims and regulated insurance workflows.",
-    "/enterprise-access?solution=insurance",
-    "insurance",
-  ],
-  [
-    "Executive Protection",
-    "Govern sensitive identity, access and approval workflows around high-risk executive activity.",
-    "/enterprise-access?solution=executive-protection",
-    "executive-protection",
-  ],
-  [
-    "Live Session Trust",
-    "Track how identity, channel evidence and authorization context change after a session begins.",
-    "/demo/session-integrity",
-    "live-session-trust",
-  ],
-  [
-    "Identity and Onboarding",
-    "Resolve identity evidence, accountable ownership and access conditions before sensitive onboarding completes.",
-    "/enterprise-access?solution=identity-onboarding",
-    "identity-onboarding",
-  ],
-  [
-    "Hiring Security",
-    "Reduce synthetic applicant, proxy interview and unresolved session-integrity risk while keeping people teams, security and legal aligned.",
-    "/enterprise/hiring-security",
-    "hiring-security",
-  ],
-];
+const solutionOutcomes = [
+  ["ai-operations", "AI Operations", "Keep agent purpose, delegated scope and accountable ownership visible before sensitive actions proceed.", "/enterprise/agent-governance"],
+  ["financial-services", "Financial Services", "Make high-value approvals explainable across evidence, authority and review."],
+  ["insurance", "Insurance", "Connect claim evidence, decision ownership and governed outcomes."],
+  ["healthcare", "Healthcare", "Preserve authority and review context across sensitive clinical and administrative workflows."],
+  ["critical-infrastructure", "Critical Infrastructure", "Maintain accountable control across consequential human and machine operations."],
+  ["vendor-access", "Vendor Access", "Verify third-party purpose, scope and session change before access continues."],
+  ["privileged-operations", "Privileged Operations", "Challenge material changes before elevated actions reach protected systems."],
+  ["hiring", "Hiring", "Reduce synthetic applicant and proxy-interview risk without making hiring the platform identity.", "/enterprise/hiring-security"],
+] as const;
 
 export default function SolutionsPage() {
   return (
@@ -67,48 +19,45 @@ export default function SolutionsPage() {
       <div className="mx-auto max-w-6xl">
         <ExecutiveSummary
           eyebrow="Solutions"
-          title="Apply governed trust decisions where uncertainty carries operational or regulatory cost."
-          bullets={["Govern human and machine activity in one review model.", "Escalate material risk without unsupported certainty claims.", "Keep accountable ownership visible across every outcome.", "Preserve evidence for audit, challenge and later review."]}
+          title="Apply operational trust where uncertainty carries business or regulatory cost."
+          bullets={["Reduce ambiguity before consequential action.", "Keep accountable ownership visible.", "Escalate material change to review.", "Preserve proof for audit and challenge."]}
           primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
-          secondary={{ href: "/platform", label: "View Architecture" }}
         />
 
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="operational-eyebrow">Lifecycle templates</p>
-          <h2 className="mt-2 text-2xl font-semibold">One Trust Fabric, configured through workflow templates.</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">Cyber Sentinels is not a hiring platform. Hiring is one template alongside AI operations, privileged access and regulated workflows.</p>
-          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {lifecycleTemplates.map((template) => (
-              <div key={template} className="rounded-lg border border-zinc-800 bg-black p-4 text-sm font-semibold text-zinc-200">{template}</div>
-            ))}
+        <section className="mt-8">
+          <p className="operational-eyebrow">Workflow outcomes</p>
+          <h2 className="mt-3 max-w-3xl text-2xl font-semibold">One Trust Fabric, configured for different enterprise outcomes.</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">Hiring is one workflow. Every workflow inherits the same identity, authority, decision, evidence and governance foundation.</p>
+          <div className="mt-7 grid gap-4 md:grid-cols-2">
+            {solutionOutcomes.map(([id, title, copy, href]) => {
+              const content = (
+                <>
+                  <p className="font-mono text-xs text-cyan-300">Workflow</p>
+                  <h3 className="mt-3 text-xl font-semibold text-zinc-100">{title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
+                </>
+              );
+              return href ? (
+                <Link id={id} key={id} href={href} className="scroll-mt-28 operational-card block p-5 hover:border-cyan-800">{content}</Link>
+              ) : (
+                <article id={id} key={id} className="scroll-mt-28 operational-card p-5">{content}</article>
+              );
+            })}
           </div>
         </section>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-2">
-          {solutionAreas.map(([title, copy, href, id]) => (
-            <Link id={id} key={id} href={href} className="scroll-mt-28 operational-card block p-5 hover:border-cyan-800">
-              <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
-            </Link>
-          ))}
-        </section>
-
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-2xl font-semibold">The common buyer problem</h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            Enterprises can see events in many tools, but they struggle to prove who or what acted, what changed, who reviewed it and why the outcome should be trusted later.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/enterprise-access?intent=demo" className="brand-primary-action">Request Enterprise Demo</Link>
-            <Link href="/platform" className="brand-secondary-action">Explore Platform</Link>
-          </div>
+        <section className="mt-8 operational-panel p-6 md:p-8">
+          <p className="operational-eyebrow">Common outcome</p>
+          <h2 className="mt-3 text-2xl font-semibold">One explainable decision record across security, risk, compliance and operations.</h2>
+          <Link href="/enterprise-access?intent=demo" className="mt-6 inline-flex brand-primary-action">Request Enterprise Demo</Link>
         </section>
       </div>
     </main>
   );
 }
+
 export const metadata: Metadata = {
   title: "Enterprise Solutions | Cyber Sentinels",
-  description: "Operational trust solutions for AI operations, critical interactions and regulated business workflows.",
+  description: "Operational trust outcomes for AI operations, finance, insurance, healthcare, critical infrastructure, vendor access, privileged operations and hiring.",
   alternates: { canonical: "/solutions" },
 };
