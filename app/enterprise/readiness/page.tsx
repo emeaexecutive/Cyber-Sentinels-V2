@@ -30,6 +30,12 @@ const operationalStateStyle = {
   Unknown: "border-zinc-700 bg-zinc-900 text-zinc-300",
 };
 
+const readinessIndicatorStyle = {
+  Ready: "border-emerald-800 text-emerald-200",
+  Review: "border-amber-800 text-amber-200",
+  Blocked: "border-rose-800 text-rose-200",
+};
+
 function metricValue(value: number | null, unit: string) {
   if (value === null) return "Awaiting data";
   if (unit === "ms") return `${value} ms`;
@@ -102,6 +108,27 @@ export default async function EnterpriseReadinessPage() {
             <Link href="/enterprise/compliance" className="brand-secondary-action brand-action-large text-sm">
               Compliance Readiness
             </Link>
+          </div>
+        </section>
+
+        <section className="mt-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Enterprise readiness indicators</p>
+          <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
+            <h2 className="text-3xl font-semibold">Six evidence-linked adoption gates.</h2>
+            <p className="max-w-xl text-sm leading-6 text-zinc-500">Every status links to its canonical supporting evidence; missing deployment evidence remains visible.</p>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {model.readinessIndicators.map((indicator) => (
+              <article key={indicator.id} className="operational-card p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-semibold text-zinc-100">{indicator.label}</h3>
+                  <span className={`enterprise-status-badge ${readinessIndicatorStyle[indicator.state]}`}>{indicator.state}</span>
+                </div>
+                <p className="mt-4 text-sm leading-6 text-zinc-300">{indicator.evidence}</p>
+                <p className="mt-3 text-xs leading-5 text-zinc-500">{indicator.limitation}</p>
+                <Link href={indicator.evidenceHref} className="mt-4 inline-flex text-sm font-semibold text-cyan-200 hover:text-white">Inspect evidence →</Link>
+              </article>
+            ))}
           </div>
         </section>
 
@@ -294,8 +321,11 @@ export default async function EnterpriseReadinessPage() {
                 <div className="mt-4 grid gap-1 text-xs text-zinc-500">
                   <p>Runtime: {provider.runtimeState}</p>
                   <p>Health: {provider.health}</p>
+                  <p>Latency: {provider.latencyMs === null ? "Awaiting data" : `${provider.latencyMs} ms`}</p>
+                  <p>Last successful check: {provider.lastSuccessfulCheck ?? "No successful real check recorded"}</p>
                   <p>Next: {provider.nextAction}</p>
                 </div>
+                <p className="mt-3 text-xs leading-5 text-zinc-500">Known limitations: {provider.limitations.join(" ")}</p>
               </article>
             ))}
           </div>

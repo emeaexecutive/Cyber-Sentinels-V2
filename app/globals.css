@@ -196,6 +196,46 @@ p {
   border-color: var(--brand-border-strong);
 }
 
+.enterprise-status-badge {
+  display: inline-flex;
+  min-height: 1.75rem;
+  align-items: center;
+  border-width: 1px;
+  border-radius: 9999px;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.enterprise-empty-state,
+.enterprise-loading-state {
+  border: 1px dashed var(--brand-border-strong);
+  border-radius: 0.625rem;
+  background: var(--brand-surface);
+  padding: 1rem;
+  color: #b8b8c2;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+}
+
+.enterprise-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.enterprise-table th,
+.enterprise-table td {
+  border-bottom: 1px solid var(--brand-border);
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
 .operational-eyebrow {
   color: var(--brand-accent);
   font-size: 0.75rem;

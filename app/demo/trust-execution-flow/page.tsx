@@ -25,10 +25,13 @@ const flow = [
   ["Human", "The accountable owner and delegated authority remain visible."],
   ["AI Agent", "Agent identity, purpose and action scope are resolved."],
   ["Machine Identity", "Credential lineage is checked without exposing secrets."],
-  ["Decision", "Evidence, authority and policy produce an explainable outcome."],
+  ["Trust Decision", "Evidence, authority and policy produce an explainable outcome."],
   ["Replay", "The decision chronology and evidence references remain reconstructable."],
+  ["Evidence Graph", "Decision, evidence, authority and governance references remain linked."],
+  ["Trust Memory™", "The recorded trust transition supports future review without implying autonomous learning."],
   ["Governance", "A named reviewer owns escalation and resolution."],
   ["Dashboard", "Posture, providers, reviews and next actions remain operationally visible."],
+  ["Operational Readiness", "Release, provider, ML, security, documentation and pilot evidence remain inspectable."],
 ];
 
 const decisionClass: Record<string, string> = {
@@ -61,7 +64,7 @@ export default function TrustExecutionFlowDemoPage() {
           </div>
         </section>
 
-        <section className="mt-8 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 md:grid-cols-2 xl:grid-cols-7">
+        <section className="mt-8 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 md:grid-cols-2 xl:grid-cols-5">
           {flow.map(([title, label], index) => (
             <article key={title} className="min-w-0 bg-black p-4">
               <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>

@@ -20,6 +20,10 @@ const allowedDocs = new Set([
   "VISUAL_SYSTEM.md",
   "TRUST_EVIDENCE_PACKS.md",
   "SPRINT_12_2_ACCEPTANCE.md",
+  "ENTERPRISE_PILOT_CHECKLIST.md",
+  "RELEASE_READINESS.md",
+  "ENTERPRISE_UI_CONSISTENCY.md",
+  "SPRINT_12_3_ACCEPTANCE.md",
 ]);
 
 export async function GET(

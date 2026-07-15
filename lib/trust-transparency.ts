@@ -89,6 +89,12 @@ export type TrustEvidencePack = {
     providerSignals: TrustTransparencyReport["decisionExplanation"]["providerSignals"];
     continuityRecords: number;
   };
+  providerParticipation: Array<{
+    provider: string;
+    state: string;
+    summary: string;
+    evidenceReferences: string[];
+  }>;
   authority: {
     lineage: string[];
     humanReviewRemainsAuthoritative: true;
@@ -275,6 +281,7 @@ export function buildTrustEvidencePack(report: TrustTransparencyReport): TrustEv
       providerSignals: report.decisionExplanation.providerSignals,
       continuityRecords: report.auditability.evidenceContinuityCount,
     },
+    providerParticipation: report.decisionExplanation.providerSignals,
     authority: {
       lineage: report.auditability.authorizationLineage,
       humanReviewRemainsAuthoritative: true,
@@ -300,6 +307,118 @@ export function buildTrustEvidencePack(report: TrustTransparencyReport): TrustEv
       "Missing evidence, authority, Replay or Trust Memory references remain missing and must not be inferred.",
     ],
   };
+}
+
+function trustEvidencePackLines(pack: TrustEvidencePack, enterpriseSummary = false) {
+  const lines = [
+    "CYBER SENTINELS TRUST EVIDENCE PACK",
+    enterpriseSummary ? "Enterprise Summary" : "Portable decision evidence",
+    `Workflow: ${pack.workflow.subjectType} / ${pack.workflow.subjectId}`,
+    `Decision posture: ${pack.decision.posture.label ?? pack.decision.posture.state ?? "not recorded"}`,
+    `What changed: ${pack.decision.whatChanged}`,
+    `Why: ${pack.decision.why}`,
+    "",
+    `Evidence: ${pack.evidence.references.length} reference(s); ${pack.evidence.continuityRecords} continuity record(s)`,
+    `Replay: ${pack.replay.reference ?? "not recorded"}; ${pack.replay.chronologyRecords} chronology record(s)`,
+    `Trust Memory: ${pack.trustMemory.state}; ${pack.trustMemory.references.length} reference(s)`,
+    `Authority: ${pack.authority.lineage.length} lineage reference(s); human review authoritative`,
+    `Provider participation: ${pack.providerParticipation.length} provider signal(s)`,
+  ];
+
+  if (!enterpriseSummary) {
+    lines.push(
+      "",
+      "Evidence references",
+      ...(pack.evidence.references.length ? pack.evidence.references.map((item) => `- ${item}`) : ["- none recorded"]),
+      "",
+      "Provider participation",
+      ...(pack.providerParticipation.length
+        ? pack.providerParticipation.map((item) => `- ${item.provider}: ${item.state} / ${item.summary}`)
+        : ["- no provider participation recorded"]),
+      "",
+      "Authority lineage",
+      ...(pack.authority.lineage.length ? pack.authority.lineage.map((item) => `- ${item}`) : ["- none recorded"]),
+      "",
+      "Governance",
+      ...(pack.governance.escalationPath.length ? pack.governance.escalationPath.map((item) => `- ${item}`) : ["- no escalation recorded"]),
+    );
+  }
+
+  lines.push(
+    "",
+    "Operational limitations",
+    ...pack.operationalLimitations.map((item) => `- ${item}`),
+    `- ${pack.trustMemory.limitation}`,
+  );
+  return lines;
+}
+
+export function trustEvidencePackEnterpriseSummary(pack: TrustEvidencePack) {
+  return trustEvidencePackLines(pack, true).join("\n");
+}
+
+function pdfSafe(value: string) {
+  return value
+    .normalize("NFKD")
+    .replace(/[^\x20-\x7E]/g, "-")
+    .replace(/\\/g, "\\\\")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)");
+}
+
+function wrapPdfLine(value: string, max = 92) {
+  if (value.length <= max) return [value];
+  const words = value.split(/\s+/);
+  const lines: string[] = [];
+  let current = "";
+  for (const word of words) {
+    if (`${current} ${word}`.trim().length > max && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = `${current} ${word}`.trim();
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+export function trustEvidencePackPdf(pack: TrustEvidencePack) {
+  const lines = trustEvidencePackLines(pack).flatMap((line) => wrapPdfLine(pdfSafe(line)));
+  const pages = Array.from({ length: Math.max(1, Math.ceil(lines.length / 48)) }, (_, index) =>
+    lines.slice(index * 48, (index + 1) * 48)
+  );
+  const fontId = 3 + pages.length * 2;
+  const objects = new Map<number, string>();
+  objects.set(1, "<< /Type /Catalog /Pages 2 0 R >>");
+  objects.set(2, `<< /Type /Pages /Kids [${pages.map((_, index) => `${3 + index * 2} 0 R`).join(" ")}] /Count ${pages.length} >>`);
+  pages.forEach((page, index) => {
+    const pageId = 3 + index * 2;
+    const contentId = pageId + 1;
+    const content = [
+      "BT",
+      "/F1 10 Tf",
+      "48 794 Td",
+      "14 TL",
+      ...page.map((line) => `(${line}) Tj T*`),
+      "ET",
+    ].join("\n");
+    objects.set(pageId, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 842] /Resources << /Font << /F1 ${fontId} 0 R >> >> /Contents ${contentId} 0 R >>`);
+    objects.set(contentId, `<< /Length ${Buffer.byteLength(content, "ascii")} >>\nstream\n${content}\nendstream`);
+  });
+  objects.set(fontId, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+
+  let pdf = "%PDF-1.4\n";
+  const offsets: number[] = [0];
+  for (let id = 1; id <= fontId; id += 1) {
+    offsets[id] = Buffer.byteLength(pdf, "ascii");
+    pdf += `${id} 0 obj\n${objects.get(id)}\nendobj\n`;
+  }
+  const xref = Buffer.byteLength(pdf, "ascii");
+  pdf += `xref\n0 ${fontId + 1}\n0000000000 65535 f \n`;
+  for (let id = 1; id <= fontId; id += 1) pdf += `${String(offsets[id]).padStart(10, "0")} 00000 n \n`;
+  pdf += `trailer\n<< /Size ${fontId + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  return Buffer.from(pdf, "ascii");
 }
 
 export function trustTransparencyText(report: TrustTransparencyReport) {

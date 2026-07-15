@@ -1,5 +1,7 @@
 # Public Surface Route Inventory
 
+Sprint 12.3 adoption audit: all 29 routes in `canonicalPublicRoutes` are covered by `lib/navigation/public-page-adoption.ts`. Each contract records audience, problem solved, Cyber Sentinels differentiation, one primary action and one supporting action. The shared adoption rail renders this contract on canonical supporting pages; the homepage and Enterprise page retain their purpose-built CTA treatments. No route was added.
+
 Sprint 12.2 audit: route count is unchanged. Navigation now promotes fewer canonical destinations, while existing redirects and archived visibility records preserve inbound links and protected operational dependencies.
 
 Release: 0.9.4 Focused Enterprise Experience

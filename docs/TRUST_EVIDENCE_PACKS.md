@@ -1,29 +1,32 @@
 # Trust Evidence Packs
 
-Trust Evidence Packs are authenticated, downloadable JSON artifacts for Auditors, CISOs, Compliance and Investigations. They extend the existing audit export endpoint; no new route or evidence store is created.
+Release 1.2.3 supports authenticated Trust Evidence Pack downloads from the existing audit export. No new route or evidence store is introduced.
 
-## Download
+## Formats
 
-From a Trust Transparency report, select `Download Trust Evidence Pack`, or request:
+| Format | Request | Intended use |
+| --- | --- | --- |
+| JSON | `format=pack` or `format=pack-json` | Machine-readable audit, investigation and integration workflows |
+| PDF | `format=pack-pdf` | Portable human review and controlled evidence sharing |
+| Enterprise Summary | `format=pack-summary` | Concise buyer, executive and review handoff |
 
-`/api/audit/export?workflow_id=<id>&subject_type=<type>&format=pack`
+All requests use `/api/audit/export?workflow_id=<id>&subject_type=<type>&format=<format>`. Authentication, row-level access, reference validation and `private, no-store` caching are inherited from the existing audit export.
 
-Authentication, row-level access and workflow-reference validation are inherited from the existing audit export.
+## Evidence contract
 
-## Pack contents
+Every format represents the same normalized pack:
 
 - Decision posture, change and rationale.
-- Evidence references, provider contributions and continuity count.
-- Authority lineage and the human-review boundary.
+- Evidence references and continuity count.
 - Replay reference and chronology count.
-- Trust Memory™ state and recorded references when available.
+- Trust Memory™ state, references and non-learning limitation.
+- Authority lineage and authoritative human-review boundary.
+- Provider participation, state, summary and evidence references.
 - Governance actions and escalation path.
 - Operational limitations.
 
-## Security and evidence boundary
+## Security boundary
 
-The pack contains normalized references and summaries, not raw provider payloads, credentials or secret values. Missing evidence remains missing. A pack supports audit and investigation workflows but does not guarantee authenticity, provider accuracy, biometric certainty, fraud detection or regulatory compliance.
+Packs contain normalized references and summaries, not credentials, secrets or raw provider payloads. Missing evidence stays missing. Artifact generation does not prove authenticity, provider accuracy, biometric certainty, fraud detection, regulatory compliance or production readiness.
 
-## Versioning
-
-`schemaVersion: 1` and `kind: cyber_sentinels_trust_evidence_pack` identify the portable contract. Consumers must tolerate empty reference arrays and must not infer success from artifact generation alone.
+`schemaVersion: 1` and `kind: cyber_sentinels_trust_evidence_pack` identify the JSON contract. PDF generation is deterministic and uses the same pack object. Consumers must tolerate empty arrays and explicit `not recorded` values.

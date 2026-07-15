@@ -13,7 +13,11 @@ const buyerJourneys: BuyerJourney[] = [
       { question: "Different?", answer: "Trust stays governed before, during and after the action." },
       { question: "Trust it?", answer: "Replay, evidence lineage, human review and limitations remain inspectable." },
     ],
-    next: { href: "/security", label: "Review security controls" },
+    actions: [
+      { href: "/enterprise-access?intent=demo&buyer=ciso", label: "Request Demo" },
+      { href: "/enterprise/pilot", label: "Book Pilot" },
+      { href: "/docs/BUYER_JOURNEYS.md", label: "Documentation" },
+    ],
   },
   {
     id: "cio-cto",
@@ -24,7 +28,11 @@ const buyerJourneys: BuyerJourney[] = [
       { question: "Different?", answer: "Enterprise Trust Fabric™ connects identity, authority, decision and proof." },
       { question: "Trust it?", answer: "Provider state, deployment boundary and failure behavior stay explicit." },
     ],
-    next: { href: "/platform", label: "Inspect the platform" },
+    actions: [
+      { href: "/enterprise-access?intent=demo&buyer=cio-cto", label: "Request Demo" },
+      { href: "/enterprise/pilot", label: "Book Pilot" },
+      { href: "/docs/BUYER_JOURNEYS.md", label: "Documentation" },
+    ],
   },
   {
     id: "compliance",
@@ -35,18 +43,26 @@ const buyerJourneys: BuyerJourney[] = [
       { question: "Different?", answer: "Trust Evidence Packs make operational decisions portable for review." },
       { question: "Trust it?", answer: "Unknown evidence remains unknown; no compliance guarantee is inferred." },
     ],
-    next: { href: "/trust", label: "Inspect trust evidence" },
+    actions: [
+      { href: "/enterprise-access?intent=demo&buyer=compliance", label: "Request Demo" },
+      { href: "/enterprise/pilot", label: "Book Pilot" },
+      { href: "/docs/BUYER_JOURNEYS.md", label: "Documentation" },
+    ],
   },
   {
-    id: "executive-investor",
-    role: "Executive / Investor",
+    id: "ceo-investor",
+    role: "CEO / Investor",
     answers: [
       { question: "Why?", answer: "Intelligent enterprises need accountability beyond identity and access." },
       { question: "How?", answer: "Operational Trust Infrastructure governs critical human and machine actions." },
       { question: "Different?", answer: "A vendor-agnostic trust layer links authority, evidence, decisions and memory." },
       { question: "Trust it?", answer: "Readiness claims stay bounded by measured product, pilot and provider evidence." },
     ],
-    next: { href: "/enterprise-access?intent=demo", label: "Request an enterprise demo" },
+    actions: [
+      { href: "/enterprise-access?intent=demo&buyer=ceo-investor", label: "Request Demo" },
+      { href: "/enterprise/pilot", label: "Book Pilot" },
+      { href: "/docs/BUYER_JOURNEYS.md", label: "Documentation" },
+    ],
   },
 ];
 
@@ -70,6 +86,7 @@ export default function EnterprisePage() {
           title="Adopt operational trust one governed workflow at a time."
           bullets={["Deploy beside existing systems.", "Give security, risk and compliance one evidence record.", "Assign every escalation to an owner.", "Verify production boundaries before launch."]}
           primary={{ href: "/enterprise/pilot", label: "Start Pilot" }}
+          secondary={{ href: "/docs/BUYER_JOURNEYS.md", label: "Buyer Documentation" }}
         />
 
         <section className="mt-8">

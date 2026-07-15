@@ -12,6 +12,7 @@ import { hasAdminVerifiedCookie, isAdminAllowlisted } from "@/lib/admin-auth";
 import { buildPlatformHealth } from "@/lib/core/platform-health";
 import { createNavigationClient } from "@/lib/supabase/server";
 import { ReportIssue } from "@/components/report-issue";
+import { PublicPageAdoptionRail } from "@/components/public-page-adoption-rail";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -187,6 +188,7 @@ export default async function RootLayout({
               {children}
             </EnterpriseTrustOSShell>
           )}
+          {accessLevel === "public" ? <PublicPageAdoptionRail /> : null}
           {accessLevel !== "public" ? <ReportIssue authState={accessLevel} /> : null}
           {accessLevel === "public" ? <footer className="border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8">
             <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">

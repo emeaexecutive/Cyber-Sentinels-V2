@@ -94,6 +94,7 @@ export default async function ProviderStatusAdminPage({ searchParams }: { search
                 <div className="mt-4 grid gap-2 text-xs text-zinc-500">
                   <p>Current status: {provider.runtimeState}</p>
                   <p>Health: {healthByProviderId.get(provider.id)?.state ?? "Unknown"}</p>
+                  <p>Latency: {healthByProviderId.get(provider.id)?.latencyMs === null || healthByProviderId.get(provider.id)?.latencyMs === undefined ? "Awaiting data" : `${healthByProviderId.get(provider.id)?.latencyMs} ms`}</p>
                   <p>Credential state: {provider.credentialState.replaceAll("_", " ")}</p>
                   <p>Last successful connection: {provider.lastSuccessfulCheck ?? "No successful real connection recorded"}</p>
                   <p>Supported signals: {provider.supportedFeatures.join(", ")}</p>

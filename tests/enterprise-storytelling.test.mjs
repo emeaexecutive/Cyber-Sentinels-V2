@@ -23,11 +23,11 @@ test("visual storytelling primitives are reusable and SVG-free", async () => {
   assert.doesNotMatch(source, /<svg|<path|<circle/);
 });
 
-test("public pages preserve one purpose and one primary CTA", async () => {
+test("public pages preserve one purpose and one primary CTA, with at most one summary support CTA", async () => {
   const pages = await Promise.all(["platform", "trust", "solutions", "enterprise"].map((page) => read(`app/${page}/page.tsx`)));
   for (const source of pages) {
     assert.equal((source.match(/primary=\{\{/g) ?? []).length, 1);
-    assert.equal((source.match(/secondary=\{\{/g) ?? []).length, 0);
+    assert.ok((source.match(/secondary=\{\{/g) ?? []).length <= 1);
   }
   assert.doesNotMatch(pages[0], /Healthcare|Insurance|Hiring Security|Financial Services/);
   assert.doesNotMatch(pages[3], /Trust Memory|Decision Replay|Provider Transparency|Platform Architecture/);

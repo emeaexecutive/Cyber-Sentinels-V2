@@ -1,18 +1,20 @@
 # Buyer Journeys
 
-All four journeys use existing canonical pages. No buyer-specific route is introduced.
+All buyer journeys use the existing `/enterprise` page and canonical supporting destinations. No buyer-specific route is introduced.
 
-| Buyer | Why Cyber Sentinels? | How does it work? | Why different? | Why trust it? | What next? |
-| --- | --- | --- | --- | --- | --- |
-| CISO | Reduce blind spots after authentication and before consequential action. | Evaluate authority, evidence, policy and runtime change. | Govern trust before, during and after execution. | Inspect Replay, evidence lineage, human review and explicit limitations. | Review `/security`, then start one controlled pilot. |
-| CIO / CTO | Add operational trust beside existing systems of record. | Use one API contract and replaceable provider adapters. | Enterprise Trust Fabric™ connects identity, authority, decision and proof. | Inspect provider state, deployment boundaries and failure behavior. | Review `/platform` and agree the first integration boundary. |
-| Compliance | Keep rationale connected to evidence and accountable ownership. | Retain policy, authority, evidence, Replay and governance in one record. | Download a portable Trust Evidence Pack. | Missing evidence stays missing; no compliance guarantee is inferred. | Review `/trust` and map one workflow to control evidence. |
-| Executive / Investor | Intelligent enterprises need accountability beyond identity and access. | Operational Trust Infrastructure governs critical human and machine actions. | A vendor-agnostic layer links authority, evidence, decisions and memory. | Readiness claims use explicit evidence states and blockers. | Request the seven-minute enterprise demo. |
+| Buyer | Buying problem | Why Cyber Sentinels | Trust evidence |
+| --- | --- | --- | --- |
+| CISO | Blind spots persist between authentication and consequential action. | Authority, evidence, policy and runtime change are evaluated before execution. | Replay, evidence lineage, human review and explicit limitations. |
+| CIO / CTO | Trust controls cannot require replacement of systems of record. | A vendor-agnostic Trust Fabric and normalized adapters sit beside existing workflows. | Provider state, deployment boundary, failure behavior and exportable evidence. |
+| Compliance | Rationale becomes disconnected from accountable evidence. | Policy, authority, evidence, Replay and governance remain in one record. | JSON/PDF Trust Evidence Packs and an Enterprise Summary. |
+| CEO / Investor | Intelligent systems create accountability risk beyond identity and access. | Operational Trust Infrastructure governs critical human and machine actions. | Evidence-defined readiness, explicit blockers and controlled pilot outcomes. |
 
-## Buying sequence
+## Required ending
 
-1. Start at the homepage category promise.
-2. Select the relevant role in `/enterprise`.
-3. Inspect mechanisms in `/platform`, outcomes in `/solutions`, and proof in `/trust`.
-4. Choose one consequential workflow for a controlled pilot.
-5. Agree success evidence, limitations, owners and production gates before activation.
+Every journey ends with the same three actions:
+
+1. `Request Demo` — opens the existing enterprise access flow with buyer context.
+2. `Book Pilot` — opens the existing controlled pilot experience.
+3. `Documentation` — opens this tracked buyer contract.
+
+The sequence is homepage category promise → buyer journey → mechanism/proof review → controlled pilot → production-gate decision.

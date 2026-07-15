@@ -9,7 +9,7 @@ const walkthroughSteps = [
   "Decision",
   "Replay",
   "Trust Memory™",
-  "Continuous Trust",
+  "Enterprise Outcome",
 ] as const;
 
 export function InteractiveTrustWalkthrough() {
@@ -26,7 +26,7 @@ export function InteractiveTrustWalkthrough() {
         }
         return current + 1;
       });
-    }, 1600);
+    }, 2400);
     return () => window.clearTimeout(timer);
   }, [activeStep, playing]);
 
@@ -39,8 +39,8 @@ export function InteractiveTrustWalkthrough() {
     <div className="story-frame" data-testid="interactive-trust-walkthrough">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="operational-eyebrow">Under 20 seconds</p>
-          <h2 className="mt-2 text-xl font-semibold text-white">See one trust decision move from identity to continuous trust.</h2>
+          <p className="operational-eyebrow">15–20 seconds</p>
+          <h2 className="mt-2 text-xl font-semibold text-white">See one trust decision move from identity to an enterprise outcome.</h2>
         </div>
         <button
           type="button"
@@ -48,7 +48,7 @@ export function InteractiveTrustWalkthrough() {
           aria-controls="interactive-trust-walkthrough-steps"
           className="brand-secondary-action"
         >
-          {playing ? "Restart Walkthrough" : "See How It Works"}
+          {playing ? "Restart Trust Flow" : "See Trust in Action"}
         </button>
       </div>
       <ol id="interactive-trust-walkthrough-steps" aria-label="Interactive Operational Trust walkthrough" className="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-7">

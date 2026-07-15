@@ -7,6 +7,7 @@ import type { CanonicalPlatformHealth, PlatformHealthSection } from "@/lib/core/
 import { getSlowestRuntimeOperations } from "@/lib/performance/runtime-profiler";
 import {
   buildProviderReadinessChecklist,
+  buildProviderHealthSummary,
   classifyProviderReadiness,
   type ProviderReadinessCheck,
   type ProviderReadinessClassification,
@@ -28,6 +29,14 @@ export type EnterpriseReadinessModel = {
   status: ReadinessGateSnapshot["status"];
   summary: string;
   readinessPercent: number;
+  readinessIndicators: Array<{
+    id: "release" | "provider" | "ml" | "security" | "documentation" | "pilot";
+    label: string;
+    state: "Ready" | "Review" | "Blocked";
+    evidence: string;
+    evidenceHref: string;
+    limitation: string;
+  }>;
   safeguards: EnterpriseReadinessItem[];
   providerStatus: Array<{
     name: string;
@@ -76,8 +85,11 @@ export type EnterpriseOperationalReadiness = {
     id: string;
     name: string;
     classification: ProviderReadinessClassification;
-    health: ProviderReadinessCheck["health"];
+    health: ReturnType<typeof buildProviderHealthSummary>["state"];
     runtimeState: ProviderReadinessCheck["runtimeState"];
+    latencyMs: number | null;
+    lastSuccessfulCheck: string | null;
+    limitations: readonly string[];
     evidence: string;
     nextAction: string;
   }>;
@@ -140,15 +152,21 @@ export function buildEnterpriseOperationalReadiness(
   health: CanonicalPlatformHealth,
   providerChecks: ProviderReadinessCheck[] = buildProviderReadinessChecklist()
 ): EnterpriseOperationalReadiness {
-  const classifications = providerChecks.map((check) => ({
-    id: check.id,
-    name: check.name,
-    classification: classifyProviderReadiness(check),
-    health: check.health,
-    runtimeState: check.runtimeState,
-    evidence: check.evidence,
-    nextAction: check.nextAction,
-  }));
+  const classifications = providerChecks.map((check) => {
+    const healthSummary = buildProviderHealthSummary(check);
+    return {
+      id: check.id,
+      name: check.name,
+      classification: classifyProviderReadiness(check),
+      health: healthSummary.state,
+      runtimeState: check.runtimeState,
+      latencyMs: healthSummary.latencyMs,
+      lastSuccessfulCheck: check.lastSuccessfulCheck,
+      limitations: check.limitations,
+      evidence: check.evidence,
+      nextAction: check.nextAction,
+    };
+  });
   const providerStatus: EnterpriseOperationalStatus = health.providerHealth.status === "degraded"
     ? "Degraded"
     : health.providerHealth.status === "healthy"
@@ -233,6 +251,26 @@ export function buildEnterpriseReadinessModel(
 ): EnterpriseReadinessModel {
   const checks = snapshot.sections.flatMap((section) => section.checks);
   const ready = checks.filter((check) => check.state === "ready").length;
+  const providerClassifications = providerChecks.map(classifyProviderReadiness);
+  const securityChecks = checks.filter((check) => /auth|admin|rls|secret|session|rate|audit/i.test(check.label));
+  const securityState = !securityChecks.length
+    ? "Review"
+    : securityChecks.some((check) => check.state === "blocked")
+    ? "Blocked"
+    : securityChecks.some((check) => check.state === "caution")
+      ? "Review"
+      : "Ready";
+  const releaseState = snapshot.blockers.length ? "Blocked" : snapshot.cautions.length ? "Review" : "Ready";
+  const providerState = providerClassifications.length > 0 && providerClassifications.every((state) => state === "Production Ready" || state === "Deprecated")
+    ? "Ready"
+    : providerClassifications.some((state) => state === "Configured" || state === "Prototype")
+      ? "Review"
+      : "Blocked";
+  const mlState = platformHealth.validationHealth.status === "healthy"
+    ? "Ready"
+    : platformHealth.validationHealth.status === "blocked"
+      ? "Blocked"
+      : "Review";
 
   return {
     status: snapshot.status,
@@ -240,6 +278,56 @@ export function buildEnterpriseReadinessModel(
     readinessPercent: checks.length
       ? Math.round((ready / checks.length) * 100)
       : 0,
+    readinessIndicators: [
+      {
+        id: "release",
+        label: "Release readiness",
+        state: releaseState,
+        evidence: snapshot.summary,
+        evidenceHref: "/admin/readiness-gate",
+        limitation: "Repository and deployment checks do not establish production certification.",
+      },
+      {
+        id: "provider",
+        label: "Provider readiness",
+        state: providerState,
+        evidence: `${providerClassifications.filter((state) => state === "Production Ready").length} production-ready; ${providerClassifications.filter((state) => state === "Configured").length} configured; ${providerClassifications.filter((state) => state === "Awaiting Credentials").length} awaiting credentials.`,
+        evidenceHref: "/admin/provider-status",
+        limitation: "Credentials and configuration remain separate from successful health and reviewed outcomes.",
+      },
+      {
+        id: "ml",
+        label: "ML readiness",
+        state: mlState,
+        evidence: platformHealth.validationHealth.evidence[0] ?? platformHealth.validationHealth.blockers[0] ?? "No reviewed validation evidence is recorded.",
+        evidenceHref: "/admin/benchmarking",
+        limitation: "Accuracy-like claims remain blocked until reviewed dataset thresholds are met.",
+      },
+      {
+        id: "security",
+        label: "Security readiness",
+        state: securityState,
+        evidence: securityChecks.length ? `${securityChecks.filter((check) => check.state === "ready").length} of ${securityChecks.length} security-related deployment checks are ready.` : "No security gate evidence is available.",
+        evidenceHref: "/dashboard/session-security",
+        limitation: "Source controls require deployed denial-path, RLS, session and secret-rotation evidence.",
+      },
+      {
+        id: "documentation",
+        label: "Documentation readiness",
+        state: "Review",
+        evidence: "Release, provider, security, pilot, buyer and Trust Evidence Pack documentation is published from the tracked release source.",
+        evidenceHref: "/docs/RELEASE_READINESS.md",
+        limitation: "Documentation remains under review until named operator and customer sign-off.",
+      },
+      {
+        id: "pilot",
+        label: "Pilot readiness",
+        state: releaseState === "Blocked" ? "Blocked" : "Review",
+        evidence: "The pilot checklist, success metrics, deployment timeline, responsibilities, support path and rollback plan are defined.",
+        evidenceHref: "/admin/pilot-overview",
+        limitation: "A completed design-partner workflow with retained reviewed outcomes is still required.",
+      },
+    ],
     safeguards: [
       safeguard(
         snapshot,

@@ -48,7 +48,7 @@ const enterpriseDropdownLinks: NavigationLink[] = [
   { href: "/enterprise#ciso", label: "CISO", description: "Security accountability and operational risk." },
   { href: "/enterprise#cio-cto", label: "CIO / CTO", description: "Architecture, integration and deployment." },
   { href: "/enterprise#compliance", label: "Compliance", description: "Evidence continuity and review boundaries." },
-  { href: "/enterprise#executive-investor", label: "Executive / Investor", description: "Category, differentiation and readiness." },
+  { href: "/enterprise#ceo-investor", label: "CEO / Investor", description: "Category, differentiation and readiness." },
   { href: "/security", label: "Security", description: "Security controls and disclosure." },
   { href: "/enterprise/pilot", label: "Pilot Programme", description: "Start with one consequential workflow." },
 ];

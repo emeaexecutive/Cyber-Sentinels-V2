@@ -491,3 +491,34 @@ export function buildCategoryLeadershipDemo() {
     boundary: "Configured and simulated steps demonstrate product behavior, not production traffic, provider accuracy, customer outcomes or an SLA.",
   };
 }
+
+export function buildEnterpriseAdoptionDemo() {
+  const decision = buildTrustFabricDemo();
+  const steps: Array<{
+    order: number;
+    timestamp: string;
+    label: string;
+    state: EnterpriseOperationalDemoState;
+    evidence: string;
+  }> = [
+    { order: 1, timestamp: "0:00", label: "Human", state: "Configured", evidence: `Accountable owner: ${decision.authority.accountableHumanId ?? "not recorded"}.` },
+    { order: 2, timestamp: "0:30", label: "AI Agent", state: "Configured", evidence: `Normalized agent identity: ${decision.entity.id}.` },
+    { order: 3, timestamp: "1:00", label: "Machine Identity", state: "Awaiting Credentials", evidence: "Credential lineage is modeled; deployment credentials and egress approval remain external." },
+    { order: 4, timestamp: "1:30", label: "Trust Decision", state: "Simulated", evidence: `${decision.explainability.decision}: ${decision.explainability.why.join(" ")}` },
+    { order: 5, timestamp: "2:20", label: "Replay", state: "Simulated", evidence: decision.explainability.replayReference ?? "Replay reference unavailable in the controlled demo." },
+    { order: 6, timestamp: "3:00", label: "Evidence Graph", state: "Simulated", evidence: `${decision.explainability.evidenceUsed.length} evidence reference(s); graph valid: ${decision.explainability.evidenceSummary.graphValid}.` },
+    { order: 7, timestamp: "3:40", label: "Trust Memory™", state: "Simulated", evidence: `${decision.explainability.trustMemoryUpdate.state}: ${decision.explainability.trustMemoryUpdate.reason}` },
+    { order: 8, timestamp: "4:20", label: "Governance", state: "Configured", evidence: `Governance status: ${decision.governance.status}; human review remains authoritative.` },
+    { order: 9, timestamp: "5:00", label: "Dashboard", state: "Configured", evidence: "The protected dashboard consolidates posture, providers, reviews and evidence-linked next actions." },
+    { order: 10, timestamp: "5:45", label: "Operational Readiness", state: "Configured", evidence: "Six readiness indicators link release, provider, ML, security, documentation and pilot status to evidence." },
+  ];
+  return {
+    id: "enterprise-adoption-demo/1.2.3",
+    release: "1.2.3",
+    durationMinutes: 6.5,
+    mode: "controlled_demo" as const,
+    steps,
+    decision,
+    boundary: "Configured and simulated steps demonstrate product behavior only; they are not production traffic, provider accuracy, customer outcomes or an SLA.",
+  };
+}

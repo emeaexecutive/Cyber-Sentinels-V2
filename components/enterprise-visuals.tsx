@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 export type VisualStep = {
   label: string;
@@ -9,7 +10,7 @@ export type BuyerJourney = {
   id: string;
   role: string;
   answers: Array<{ question: string; answer: string }>;
-  next: { href: string; label: string };
+  actions: Array<{ href: string; label: "Request Demo" | "Book Pilot" | "Documentation" }>;
 };
 
 export function VisualFrame({
@@ -173,7 +174,17 @@ export function BuyerJourneyGrid({ journeys }: { journeys: BuyerJourney[] }) {
               </div>
             ))}
           </dl>
-          <a href={journey.next.href} className="mt-5 inline-flex text-sm font-semibold text-cyan-200 hover:text-white">{journey.next.label} →</a>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {journey.actions.map((action, index) => (
+              <Link
+                key={action.label}
+                href={action.href}
+                className={index === 0 ? "brand-primary-action text-sm" : "brand-secondary-action text-sm"}
+              >
+                {action.label}
+              </Link>
+            ))}
+          </div>
         </article>
       ))}
     </div>
