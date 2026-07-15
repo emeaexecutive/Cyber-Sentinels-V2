@@ -1,5 +1,7 @@
 # Public Surface Route Inventory
 
+Sprint 12.2 audit: route count is unchanged. Navigation now promotes fewer canonical destinations, while existing redirects and archived visibility records preserve inbound links and protected operational dependencies.
+
 Release: 0.9.4 Focused Enterprise Experience
 Audit date: 2026-07-12
 

@@ -5,7 +5,7 @@ import {
   validReference,
 } from "@/lib/operational-trust/api";
 import { replayEngine } from "@/lib/core/replay-engine";
-import { trustTransparencyText } from "@/lib/trust-transparency";
+import { buildTrustEvidencePack, trustTransparencyText } from "@/lib/trust-transparency";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +15,8 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const workflowId = url.searchParams.get("workflow_id") ?? "";
   const subjectType = url.searchParams.get("subject_type") ?? undefined;
-  const format = url.searchParams.get("format") === "text" ? "text" : "json";
+  const requestedFormat = url.searchParams.get("format");
+  const format = requestedFormat === "text" || requestedFormat === "pack" ? requestedFormat : "json";
   if (!validReference(workflowId)) {
     return apiError("A valid workflow_id is required.", 400);
   }
@@ -27,11 +28,13 @@ export async function GET(request: Request) {
       subjectType
     );
     const { report } = replayEngine.buildReplayTransparencyReport(trust);
-    const filename = `cyber-sentinels-audit-${workflowId}.${format === "text" ? "txt" : "json"}`;
+    const filename = format === "pack"
+      ? `cyber-sentinels-trust-evidence-pack-${workflowId}.json`
+      : `cyber-sentinels-audit-${workflowId}.${format === "text" ? "txt" : "json"}`;
     const body =
       format === "text"
         ? trustTransparencyText(report)
-        : JSON.stringify(report, null, 2);
+        : JSON.stringify(format === "pack" ? buildTrustEvidencePack(report) : report, null, 2);
 
     return new Response(body, {
       headers: {

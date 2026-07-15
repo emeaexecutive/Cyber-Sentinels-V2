@@ -2,7 +2,7 @@
 
 ## 0:00 - What Cyber Sentinels is
 
-Open `/`. State: Cyber Sentinels is the operational trust control plane for humans, AI agents, machine identities and regulated workflows.
+Open `/`. State: Cyber Sentinels is Operational Trust Infrastructure for intelligent enterprises.
 
 ## 0:30 - Why Operational Trust matters
 

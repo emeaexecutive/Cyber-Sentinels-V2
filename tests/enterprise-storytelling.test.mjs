@@ -4,20 +4,20 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("homepage tells the release story through seven visual sections", async () => {
+test("homepage tells the category story through six visual sections", async () => {
   const source = await read("app/page.tsx");
-  assert.equal((source.match(/<section/g) ?? []).length, 7);
-  for (const component of ["ComparisonCard", "LifecycleDiagram", "DecisionFlow", "ArchitectureBlock", "Timeline", "TrustFlow"]) {
+  assert.equal((source.match(/<section/g) ?? []).length, 6);
+  for (const component of ["ComparisonCard", "LifecycleDiagram", "DecisionFlow", "ArchitectureBlock", "Timeline", "InteractiveTrustWalkthrough"]) {
     assert.match(source, new RegExp(`<${component}`));
   }
-  for (const marker of ["Traditional Identity", "Enterprise Trust Fabric", "One Click Trust", "Operational Trust Graph", "Representative solutions"]) {
+  for (const marker of ["Traditional Identity", "Operational Trust Infrastructure", "Enterprise Trust Fabric", "One-Click Trust Orchestration", "Customer Outcomes", "Why Different"]) {
     assert.match(source, new RegExp(marker));
   }
 });
 
 test("visual storytelling primitives are reusable and SVG-free", async () => {
   const source = await read("components/enterprise-visuals.tsx");
-  for (const component of ["LifecycleDiagram", "ComparisonCard", "Timeline", "TrustFlow", "DecisionFlow", "EvidenceCard", "ProviderCard", "ArchitectureBlock"]) {
+  for (const component of ["LifecycleDiagram", "ComparisonCard", "Timeline", "TrustFlow", "DecisionFlow", "EvidenceCard", "ProviderCard", "ArchitectureBlock", "BuyerJourneyGrid"]) {
     assert.match(source, new RegExp(`export function ${component}`));
   }
   assert.doesNotMatch(source, /<svg|<path|<circle/);

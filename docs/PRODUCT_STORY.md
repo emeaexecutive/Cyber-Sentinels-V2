@@ -2,7 +2,7 @@
 
 ## The three-minute answer
 
-Cyber Sentinels is the operational trust control plane for humans, AI agents, machine identities and regulated workflows.
+Cyber Sentinels is Operational Trust Infrastructure for intelligent enterprises, continuously verifying humans, AI agents, machine identities and regulated workflows before, during and after critical actions.
 
 Identity systems establish access. Cyber Sentinels evaluates whether an action remains trustworthy as authority, runtime context, evidence and policy change.
 

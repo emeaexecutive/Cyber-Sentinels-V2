@@ -26,15 +26,23 @@ test("Trust concepts have one public navigation home", async () => {
 
 test("homepage preserves the release promise and section ceiling", async () => {
   const source = await read("app/page.tsx");
-  assert.match(source, /The operational trust control plane for humans, AI agents, machine identities and regulated workflows\./);
-  assert.match(source, /Continuously verify who or what acted, under whose authority, what changed, and why each action was allowed, reviewed or blocked\./);
-  assert.equal((source.match(/<section/g) ?? []).length, 7);
+  assert.match(source, /Operational Trust Infrastructure/);
+  assert.match(source, /Continuously verify humans, AI agents, machine identities and regulated workflows before, during and after critical actions\./);
+  assert.equal((source.match(/<section/g) ?? []).length, 6);
   assert.match(source, /Request Demo/);
 });
 
 test("true duplicate routes redirect without touching protected Trust operations", async () => {
   const config = await read("next.config.mjs");
-  for (const source of ["/about-us", "/design-partners", "/modern-slavery-statement", "/trust-posture"]) {
+  for (const source of [
+    "/about-us",
+    "/design-partners",
+    "/modern-slavery-statement",
+    "/trust-posture",
+    "/reality-os",
+    "/trust-os",
+    "/trust-fabric",
+  ]) {
     assert.match(config, new RegExp(source.replace("/", "\\/")));
   }
   assert.doesNotMatch(config, /source: "\/trust-center"/);

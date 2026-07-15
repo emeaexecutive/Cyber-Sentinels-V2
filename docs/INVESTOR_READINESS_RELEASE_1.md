@@ -2,7 +2,7 @@
 
 ## Category definition
 
-Cyber Sentinels is an operational trust control plane: a governance and evidence layer that evaluates whether human, AI-agent, and machine activity is authorized, explainable, and reviewable before and after consequential execution.
+Cyber Sentinels is Operational Trust Infrastructure: a governance and evidence layer that evaluates whether human, AI-agent, and machine activity is authorized, explainable, and reviewable before, during and after consequential execution.
 
 ## Market timing
 

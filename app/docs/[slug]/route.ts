@@ -15,6 +15,11 @@ const allowedDocs = new Set([
   "DEPLOYMENT_CHECKLIST.md",
   "PROVIDER_SETUP_GUIDE.md",
   "SPRINT_12_1_ACCEPTANCE.md",
+  "CATEGORY_POSITIONING.md",
+  "BUYER_JOURNEYS.md",
+  "VISUAL_SYSTEM.md",
+  "TRUST_EVIDENCE_PACKS.md",
+  "SPRINT_12_2_ACCEPTANCE.md",
 ]);
 
 export async function GET(

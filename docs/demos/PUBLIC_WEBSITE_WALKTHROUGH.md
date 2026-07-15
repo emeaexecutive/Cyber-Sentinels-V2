@@ -5,7 +5,7 @@ Target duration: under five minutes
 
 ## 0:00-0:40 - What Cyber Sentinels is
 
-Open `/`. Read the hero: Cyber Sentinels is the operational trust control plane for humans, AI agents, machine identities and regulated workflows. Point to the single action, `Request Demo`.
+Open `/`. Read the hero: Cyber Sentinels is Operational Trust Infrastructure for intelligent enterprises. Point to the supporting before/during/after promise and the single primary action, `Request Demo`.
 
 ## 0:40-1:15 - Who and what it verifies
 

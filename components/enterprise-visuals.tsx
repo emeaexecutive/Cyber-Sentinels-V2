@@ -5,6 +5,13 @@ export type VisualStep = {
   detail?: string;
 };
 
+export type BuyerJourney = {
+  id: string;
+  role: string;
+  answers: Array<{ question: string; answer: string }>;
+  next: { href: string; label: string };
+};
+
 export function VisualFrame({
   eyebrow,
   title,
@@ -147,6 +154,28 @@ export function ArchitectureBlock({
         <p>Accountable outcome</p>
         <ul>{outputs.map((item) => <li key={item}>{item}</li>)}</ul>
       </div>
+    </div>
+  );
+}
+
+export function BuyerJourneyGrid({ journeys }: { journeys: BuyerJourney[] }) {
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      {journeys.map((journey) => (
+        <article id={journey.id} key={journey.id} className="scroll-mt-28 story-frame">
+          <p className="operational-eyebrow">Buyer journey</p>
+          <h2 className="mt-2 text-2xl font-semibold text-white">{journey.role}</h2>
+          <dl className="mt-5 grid gap-3">
+            {journey.answers.map((item) => (
+              <div key={item.question} className="grid gap-1 border-l border-cyan-900 pl-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
+                <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-cyan-200">{item.question}</dt>
+                <dd className="text-sm leading-6 text-zinc-400">{item.answer}</dd>
+              </div>
+            ))}
+          </dl>
+          <a href={journey.next.href} className="mt-5 inline-flex text-sm font-semibold text-cyan-200 hover:text-white">{journey.next.label} →</a>
+        </article>
+      ))}
     </div>
   );
 }

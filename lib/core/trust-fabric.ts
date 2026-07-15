@@ -463,3 +463,31 @@ export function buildDesignPartnerReadinessDemo() {
     boundary: "Live labels apply only to controls executed in this request. Configured, simulated and awaiting-credential states are not production traffic, provider accuracy or SLA evidence.",
   };
 }
+
+export function buildCategoryLeadershipDemo() {
+  const decision = buildTrustFabricDemo();
+  const steps: Array<{
+    order: number;
+    timestamp: string;
+    label: string;
+    state: EnterpriseOperationalDemoState;
+    evidence: string;
+  }> = [
+    { order: 1, timestamp: "0:00", label: "Human", state: "Configured", evidence: `Accountable owner: ${decision.authority.accountableHumanId ?? "not recorded"}.` },
+    { order: 2, timestamp: "0:40", label: "AI Agent", state: "Configured", evidence: `Normalized agent identity: ${decision.entity.id}.` },
+    { order: 3, timestamp: "1:20", label: "Machine Identity", state: "Awaiting Credentials", evidence: "Credential lineage is modeled; deployment credentials remain outside the controlled demo." },
+    { order: 4, timestamp: "2:00", label: "Decision", state: "Simulated", evidence: `${decision.explainability.decision}: ${decision.explainability.why.join(" ")}` },
+    { order: 5, timestamp: "3:10", label: "Replay", state: "Simulated", evidence: decision.explainability.replayReference ?? "Replay reference unavailable in the controlled demo." },
+    { order: 6, timestamp: "4:20", label: "Governance", state: "Configured", evidence: `Governance status: ${decision.governance.status}; human review remains authoritative.` },
+    { order: 7, timestamp: "5:30", label: "Dashboard", state: "Configured", evidence: "The protected dashboard consolidates posture, decisions, evidence, providers, reviews and next actions." },
+  ];
+  return {
+    id: "category-leadership-demo/1.2.2",
+    release: "1.2.2",
+    durationMinutes: 6.5,
+    mode: "controlled_demo" as const,
+    steps,
+    decision,
+    boundary: "Configured and simulated steps demonstrate product behavior, not production traffic, provider accuracy, customer outcomes or an SLA.",
+  };
+}

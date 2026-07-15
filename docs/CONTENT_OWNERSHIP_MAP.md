@@ -2,6 +2,10 @@
 
 | Concept | Canonical home | Other surfaces may do |
 | --- | --- | --- |
+| Operational Trust Infrastructure | `/` | Use as the public category; link to canonical mechanisms or proof. |
+| Enterprise Trust Fabric™ | `/platform#trust-fabric` | Name as internal architecture; do not present as a second category. |
+| Buyer journeys | `/enterprise#ciso` and adjacent role anchors | Link stakeholders to the existing Enterprise page; do not add buyer routes. |
+| Trust Evidence Packs | Authenticated Trust Transparency report | Link to the existing audit export; do not create a parallel evidence store. |
 | AI Sovereignty | `/trust/data-sovereignty` | Use a short summary and canonical link. |
 | Replay | `/verification-replay` | Mention chronology; protected case replay stays operational. |
 | Trust Memory\u2122 | `/trust#trust-memory` | Name it briefly and link back. |
@@ -18,4 +22,3 @@
 ## Editorial rule
 
 One concept has one explanatory home. Platform describes mechanisms, Solutions describes use, Trust describes evidence and boundaries, and Enterprise describes deployment and purchase readiness.
-

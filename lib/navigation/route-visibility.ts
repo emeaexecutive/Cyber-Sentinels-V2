@@ -51,8 +51,9 @@ export const redirectedPublicRoutes: RouteVisibilityRecord[] = [
   { route: "/design-partners", visibility: "deprecated", canonical: "/design-partner", indexable: false, reason: "Duplicate design-partner entry." },
   { route: "/modern-slavery-statement", visibility: "deprecated", canonical: "/modern-slavery", indexable: false, reason: "Duplicate legal statement." },
   { route: "/trust-posture", visibility: "deprecated", canonical: "/trust#trust-posture", indexable: false, reason: "Public posture explanation is owned by Trust Center." },
-  { route: "/reality-os", visibility: "archived", canonical: "/platform", indexable: false, reason: "Legacy product framing." },
-  { route: "/trust-os", visibility: "archived", canonical: "/platform", indexable: false, reason: "Legacy product framing." },
+  { route: "/reality-os", visibility: "deprecated", canonical: "/platform", indexable: false, reason: "Legacy product framing." },
+  { route: "/trust-os", visibility: "deprecated", canonical: "/platform", indexable: false, reason: "Legacy product framing." },
+  { route: "/trust-fabric", visibility: "deprecated", canonical: "/platform#trust-fabric", indexable: false, reason: "Enterprise Trust Fabric is owned by Platform." },
 ] as const;
 
 export const protectedRoutePrefixes = [
@@ -110,7 +111,6 @@ export const archivedRoutePrefixes = [
   "/trust-badges",
   "/trust-embeds",
   "/trust-evaluation-lab",
-  "/trust-fabric",
   "/trust-feed",
   "/trust-graph",
   "/trust-graph-explorer",

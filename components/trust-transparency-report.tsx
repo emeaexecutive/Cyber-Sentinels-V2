@@ -37,6 +37,12 @@ export function TrustTransparencyReportView({
             {showExport ? (
               <>
                 <Link
+                  href={`/api/audit/export?workflow_id=${encodeURIComponent(report.workflow.subjectId)}&subject_type=${encodeURIComponent(report.workflow.subjectType)}&format=pack`}
+                  className="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-black hover:bg-cyan-100"
+                >
+                  Download Trust Evidence Pack
+                </Link>
+                <Link
                   href={`/api/audit/export?workflow_id=${encodeURIComponent(report.workflow.subjectId)}&subject_type=${encodeURIComponent(report.workflow.subjectType)}&format=json`}
                   className="rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-300 hover:text-white"
                 >

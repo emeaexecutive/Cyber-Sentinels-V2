@@ -1,11 +1,53 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BuyerJourneyGrid, type BuyerJourney } from "@/components/enterprise-visuals";
 import { ExecutiveSummary } from "@/components/executive-summary";
 
-const buyerQuestions = [
-  ["Can decisions be explained later?", "Evidence, authority, reviewer action and outcome remain connected."],
-  ["Who owns an AI-agent action?", "Human accountability, purpose and delegated scope remain visible."],
-  ["Will this replace existing systems?", "No. Cyber Sentinels adds a governed trust layer beside systems of record."],
+const buyerJourneys: BuyerJourney[] = [
+  {
+    id: "ciso",
+    role: "CISO",
+    answers: [
+      { question: "Why?", answer: "Reduce blind spots between authentication and consequential action." },
+      { question: "How?", answer: "Evaluate authority, evidence, policy and runtime change before execution." },
+      { question: "Different?", answer: "Trust stays governed before, during and after the action." },
+      { question: "Trust it?", answer: "Replay, evidence lineage, human review and limitations remain inspectable." },
+    ],
+    next: { href: "/security", label: "Review security controls" },
+  },
+  {
+    id: "cio-cto",
+    role: "CIO / CTO",
+    answers: [
+      { question: "Why?", answer: "Add operational trust without replacing systems of record." },
+      { question: "How?", answer: "Use one API contract and replaceable provider adapters beside existing workflows." },
+      { question: "Different?", answer: "Enterprise Trust Fabric™ connects identity, authority, decision and proof." },
+      { question: "Trust it?", answer: "Provider state, deployment boundary and failure behavior stay explicit." },
+    ],
+    next: { href: "/platform", label: "Inspect the platform" },
+  },
+  {
+    id: "compliance",
+    role: "Compliance",
+    answers: [
+      { question: "Why?", answer: "Keep decision rationale connected to evidence and accountable ownership." },
+      { question: "How?", answer: "Retain policy, authority, evidence, Replay and governance in one record." },
+      { question: "Different?", answer: "Trust Evidence Packs make operational decisions portable for review." },
+      { question: "Trust it?", answer: "Unknown evidence remains unknown; no compliance guarantee is inferred." },
+    ],
+    next: { href: "/trust", label: "Inspect trust evidence" },
+  },
+  {
+    id: "executive-investor",
+    role: "Executive / Investor",
+    answers: [
+      { question: "Why?", answer: "Intelligent enterprises need accountability beyond identity and access." },
+      { question: "How?", answer: "Operational Trust Infrastructure governs critical human and machine actions." },
+      { question: "Different?", answer: "A vendor-agnostic trust layer links authority, evidence, decisions and memory." },
+      { question: "Trust it?", answer: "Readiness claims stay bounded by measured product, pilot and provider evidence." },
+    ],
+    next: { href: "/enterprise-access?intent=demo", label: "Request an enterprise demo" },
+  },
 ];
 
 const readiness = [
@@ -30,13 +72,10 @@ export default function EnterprisePage() {
           primary={{ href: "/enterprise/pilot", label: "Start Pilot" }}
         />
 
-        <section className="mt-8 grid gap-4 lg:grid-cols-3">
-          {buyerQuestions.map(([title, body]) => (
-            <article key={title} className="operational-card p-5">
-              <h2 className="text-lg font-semibold text-zinc-100">{title}</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">{body}</p>
-            </article>
-          ))}
+        <section className="mt-8">
+          <p className="operational-eyebrow">Buying journeys</p>
+          <h2 className="mt-3 max-w-3xl text-3xl font-semibold">Four stakeholders. One operational trust decision record.</h2>
+          <div className="mt-6"><BuyerJourneyGrid journeys={buyerJourneys} /></div>
         </section>
 
         <section className="mt-8 operational-panel p-6 md:p-8">

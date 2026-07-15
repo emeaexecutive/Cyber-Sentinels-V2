@@ -16,9 +16,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.cybersentinels.com"),
-  title: "Cyber Sentinels | Operational Trust Control Plane",
+  title: "Cyber Sentinels | Operational Trust Infrastructure",
   description:
-    "The operational trust control plane for humans, AI agents, machine identities and regulated workflows.",
+    "Continuously verify humans, AI agents, machine identities and regulated workflows before, during and after critical actions.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "32x32" },

@@ -65,11 +65,41 @@ export type TrustTransparencyReport = {
     receiptCount: number;
     replayReference: string | null;
     authorizationLineage: string[];
+    trustMemoryReferences: string[];
     escalationPath: string[];
     resolutionSummaries: string[];
   };
   posture: TrustTransparencyInput["posture"];
   boundary: string;
+};
+
+export type TrustEvidencePack = {
+  schemaVersion: 1;
+  kind: "cyber_sentinels_trust_evidence_pack";
+  audience: readonly ["Auditors", "CISOs", "Compliance", "Investigations"];
+  workflow: TrustTransparencyReport["workflow"];
+  decision: {
+    posture: TrustTransparencyReport["posture"];
+    whatChanged: string;
+    why: string;
+    scoringMethod: TrustTransparencyReport["scoringMethod"];
+  };
+  evidence: {
+    references: string[];
+    providerSignals: TrustTransparencyReport["decisionExplanation"]["providerSignals"];
+    continuityRecords: number;
+  };
+  authority: {
+    lineage: string[];
+    humanReviewRemainsAuthoritative: true;
+  };
+  replay: { reference: string | null; chronologyRecords: number };
+  trustMemory: { references: string[]; state: string; limitation: string };
+  governance: {
+    actions: TrustTransparencyReport["decisionExplanation"]["governanceActions"];
+    escalationPath: string[];
+  };
+  operationalLimitations: string[];
 };
 
 export const TRUST_SCORING_TRANSPARENCY = {
@@ -177,6 +207,16 @@ export function buildTrustTransparencyReport(
       ];
     })
   );
+  const trustMemoryReferences = unique(
+    input.chronology.flatMap((row) => {
+      const meta = metadata(row);
+      return [
+        row.trust_memory_reference ? String(row.trust_memory_reference) : null,
+        meta.trust_memory_reference ? String(meta.trust_memory_reference) : null,
+        meta.trust_memory_event_id ? String(meta.trust_memory_event_id) : null,
+      ];
+    })
+  );
 
   return {
     schemaVersion: 1,
@@ -203,6 +243,7 @@ export function buildTrustTransparencyReport(
       receiptCount: input.receipts.length,
       replayReference: input.replay.reference,
       authorizationLineage,
+      trustMemoryReferences,
       escalationPath: governanceActions.map(
         (action) => `${action.action} / ${action.owner}`
       ),
@@ -213,6 +254,51 @@ export function buildTrustTransparencyReport(
     posture: input.posture,
     boundary:
       "This report explains recorded workflow evidence and governance history. It does not guarantee authenticity, fraud detection, biometric certainty or regulatory compliance.",
+  };
+}
+
+export function buildTrustEvidencePack(report: TrustTransparencyReport): TrustEvidencePack {
+  const memoryState = report.posture.label ?? report.posture.state ?? "not recorded";
+  return {
+    schemaVersion: 1,
+    kind: "cyber_sentinels_trust_evidence_pack",
+    audience: ["Auditors", "CISOs", "Compliance", "Investigations"],
+    workflow: report.workflow,
+    decision: {
+      posture: report.posture,
+      whatChanged: report.decisionExplanation.whatChanged,
+      why: report.decisionExplanation.whyTrustShifted,
+      scoringMethod: report.scoringMethod,
+    },
+    evidence: {
+      references: report.decisionExplanation.evidenceContributed,
+      providerSignals: report.decisionExplanation.providerSignals,
+      continuityRecords: report.auditability.evidenceContinuityCount,
+    },
+    authority: {
+      lineage: report.auditability.authorizationLineage,
+      humanReviewRemainsAuthoritative: true,
+    },
+    replay: {
+      reference: report.auditability.replayReference,
+      chronologyRecords: report.auditability.chronologyCount,
+    },
+    trustMemory: {
+      references: report.auditability.trustMemoryReferences,
+      state: memoryState,
+      limitation: report.auditability.trustMemoryReferences.length
+        ? "References identify recorded Trust Memory events; they do not imply autonomous learning."
+        : "No standalone Trust Memory reference is recorded in this report; absence remains explicit.",
+    },
+    governance: {
+      actions: report.decisionExplanation.governanceActions,
+      escalationPath: report.auditability.escalationPath,
+    },
+    operationalLimitations: [
+      report.boundary,
+      "The pack contains recorded references and summaries, not raw provider payloads or secret values.",
+      "Missing evidence, authority, Replay or Trust Memory references remain missing and must not be inferred.",
+    ],
   };
 }
 

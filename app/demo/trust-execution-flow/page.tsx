@@ -22,20 +22,13 @@ const paths = [
 ];
 
 const flow = [
-  ["Agent passport", "The registered AI agent and lifecycle posture are resolved."],
-  ["Ownership", "The responsible human and organization are identified."],
-  ["Machine identity", "Credential lineage and machine identity are checked."],
-  ["Authority", "Delegated purpose and action scope are evaluated externally."],
-  ["Signals", "Provider states and runtime signals retain source labels."],
-  ["Posture", "The Trust Engine calculates bounded workflow posture."],
-  ["Decision", "Authorization produces an explainable lifecycle decision."],
-  ["Enforcement", "The action is allowed, held for review or blocked."],
-  ["Receipt", "An execution receipt records the policy and enforcement result."],
-  ["Replay", "Append-only chronology receives a lifecycle reference."],
-  ["Evidence Graph", "Actor, authority, execution and evidence relationships update."],
-  ["Governance", "Review status and next accountable action are recorded."],
-  ["Trust Memory™", "Trust evolution retains reasons and source references."],
-  ["Enterprise report", "Source reality, limitations and outcome remain visible."],
+  ["Human", "The accountable owner and delegated authority remain visible."],
+  ["AI Agent", "Agent identity, purpose and action scope are resolved."],
+  ["Machine Identity", "Credential lineage is checked without exposing secrets."],
+  ["Decision", "Evidence, authority and policy produce an explainable outcome."],
+  ["Replay", "The decision chronology and evidence references remain reconstructable."],
+  ["Governance", "A named reviewer owns escalation and resolution."],
+  ["Dashboard", "Posture, providers, reviews and next actions remain operationally visible."],
 ];
 
 const decisionClass: Record<string, string> = {

@@ -1,38 +1,33 @@
 # Homepage Content Model
 
-Release: 0.9.4 Focused Enterprise Experience
+Release: 1.2.2 Category Leadership & Product Simplicity
 
 ## Primary purpose
 
-The homepage gives a CISO one coherent enterprise story: what Cyber Sentinels is, why changing trust matters, how the control plane works, what it governs and how to request a demonstration. It does not act as a platform manual or route inventory.
+The homepage defines Cyber Sentinels as Operational Trust Infrastructure for intelligent enterprises and gives a buyer one short path from category to enterprise demo.
 
 ## Required sequence
 
-1. Hero: exact operational trust control-plane promise and one primary CTA, `Request Demo`.
-2. Enterprise problem: systems record events but lose the decision rationale across changing identity, authority and risk.
-3. Operational trust flow: Observe, Authorize, Decide, Prove.
-4. Four entity types: humans, AI agents, machine identities and regulated workflows.
-5. Core platform capabilities: six concise controls with a link to Platform.
-6. Three representative solutions: AI Agent Governance, Regulated Workflows and Live Session Trust.
-7. Trust and evidence differentiation: bounded evidence, Replay and Trust Memory.
-8. Enterprise readiness: controlled adoption beside existing systems.
-9. Final CTA: one consequential workflow and `Request Demo`.
-10. Global footer.
+1. Hero: exact category promise, supporting line, `Request Demo`, and user-triggered walkthrough.
+2. Operational Trust Lifecycle: lifecycle plus One-Click Trust Orchestration.
+3. Enterprise Trust Fabric™: internal architecture across human and machine activity.
+4. Customer Outcomes: four representative workflows with a link to Solutions.
+5. Why Different: Traditional Identity comparison plus Trust Memory™ Timeline.
+6. Enterprise CTA: one consequential workflow and `Request Demo`.
+7. Global footer.
 
-## Removed or re-homed
+## Re-homed detail
 
-- Full engine and architecture explanations -> `/platform`.
-- Detailed Replay chronology and Trust Memory explanation -> `/trust` and `/verification-replay`.
-- Provider, ML validation and sovereignty detail -> `/trust` and `/trust/data-sovereignty`.
-- Industry and workflow detail -> `/solutions`.
-- Deployment, procurement and support detail -> `/enterprise`.
-- Repeated statistics, hiring-heavy examples, prototype concepts and internal terminology -> removed from the homepage story.
-- Multiple near-identical enterprise CTA blocks -> one hero CTA and one closing CTA.
+- Full engine and API explanations → `/platform`.
+- Industry and workflow detail → `/solutions`.
+- Replay, provider, validation, sovereignty and evidence detail → `/trust` and `/verification-replay`.
+- Buying, deployment, procurement and support detail → `/enterprise`.
+- Security controls → `/security`.
 
 ## Editorial limits
 
-- One primary purpose and one primary CTA.
-- No unsupported provider, ML or certainty claim.
-- No protected customer data, admin naming or test-system terminology.
-- No more than nine content sections before the footer.
-- Supporting paragraphs target readable line lengths and a single idea each.
+- Exactly six content sections before the footer.
+- One public category: Operational Trust Infrastructure.
+- Enterprise Trust Fabric™ is architecture, not a competing category.
+- One primary CTA label: `Request Demo`.
+- No unsupported provider, ML, customer-outcome or certainty claim.

@@ -19,22 +19,17 @@ type NavigationLink = {
 };
 
 const platformDropdownLinks: NavigationLink[] = [
-  { href: "/platform", label: "Platform Overview", description: "The operational trust control plane." },
-  { href: "/platform#trust-engine", label: "Trust Engine", description: "Evidence-backed decision intelligence." },
-  { href: "/platform#runtime-engine", label: "Runtime Trust", description: "Monitor material change during execution." },
-  { href: "/platform#authorization-gateway", label: "Authorization & Enforcement", description: "Verify scope before an action proceeds." },
-  { href: "/platform#provider-orchestrator", label: "Provider Orchestrator", description: "Normalize evidence without hiding its source." },
-  { href: "/platform#enterprise-apis", label: "Enterprise APIs", description: "Request trust through one stable contract." },
+  { href: "/platform", label: "Platform Overview", description: "Operational Trust Infrastructure mechanisms." },
+  { href: "/platform#trust-fabric", label: "Enterprise Trust Fabric™", description: "The shared internal architecture." },
+  { href: "/platform#authorization-gateway", label: "Authority & Decisions", description: "Verify scope before an action proceeds." },
+  { href: "/platform#enterprise-apis", label: "Orchestration & APIs", description: "Request trust through one stable contract." },
 ];
 
 const solutionsDropdownLinks: NavigationLink[] = [
+  { href: "/solutions", label: "Solutions Overview", description: "Operational outcomes by workflow.", group: "Customer outcomes" },
   { href: "/solutions#ai-operations", label: "AI Operations", description: "Control agent purpose and authority.", group: "Workflow outcomes" },
   { href: "/solutions#financial-services", label: "Financial Services", description: "Explain high-value operational decisions.", group: "Workflow outcomes" },
-  { href: "/solutions#insurance", label: "Insurance", description: "Connect claims evidence and review.", group: "Workflow outcomes" },
-  { href: "/solutions#healthcare", label: "Healthcare", description: "Preserve authority in sensitive workflows.", group: "Workflow outcomes" },
   { href: "/solutions#critical-infrastructure", label: "Critical Infrastructure", description: "Govern consequential operations.", group: "Workflow outcomes" },
-  { href: "/solutions#vendor-access", label: "Vendor Access", description: "Verify third-party purpose and scope.", group: "Workflow outcomes" },
-  { href: "/solutions#privileged-operations", label: "Privileged Operations", description: "Challenge material change before elevation.", group: "Workflow outcomes" },
   { href: "/solutions#hiring", label: "Hiring", description: "Reduce synthetic and proxy interview risk.", group: "Workflow outcomes" },
 ];
 
@@ -45,22 +40,17 @@ const trustDropdownLinks: NavigationLink[] = [
   { href: "/trust#evidence-audit", label: "Evidence Graph", description: "Connect actors, authority, evidence and outcomes.", group: "Assurance" },
   { href: "/governance", label: "Governance", description: "Route material decisions to accountable owners.", group: "Assurance" },
   { href: "/trust#trust-memory", label: "Trust Memory\u2122", description: "How trust evolves across outcomes.", group: "Transparency" },
-  { href: "/trust#provenance", label: "Provenance", description: "Trace evidence source and transformation.", group: "Transparency" },
-  { href: "/trust/data-sovereignty", label: "AI & Data Sovereignty", description: "Provider and deployment boundaries.", group: "Transparency" },
-  { href: "/trust#ml-validation", label: "ML Validation", description: "Measured capability without inflated claims.", group: "Transparency" },
-  { href: "/trust#provider-transparency", label: "Provider Transparency", description: "Live, simulated and unavailable states.", group: "Transparency" },
   { href: "/trust#operational-trust-graph", label: "Operational Trust Graph™", description: "Connect operational trust over time.", group: "Transparency" },
 ];
 
 const enterpriseDropdownLinks: NavigationLink[] = [
   { href: "/enterprise", label: "Enterprise Overview", description: "Adoption, governance and buyer readiness." },
-  { href: "/enterprise#architecture", label: "Architecture", description: "Deployment beside systems of record." },
+  { href: "/enterprise#ciso", label: "CISO", description: "Security accountability and operational risk." },
+  { href: "/enterprise#cio-cto", label: "CIO / CTO", description: "Architecture, integration and deployment." },
+  { href: "/enterprise#compliance", label: "Compliance", description: "Evidence continuity and review boundaries." },
+  { href: "/enterprise#executive-investor", label: "Executive / Investor", description: "Category, differentiation and readiness." },
   { href: "/security", label: "Security", description: "Security controls and disclosure." },
-  { href: "/enterprise#compliance", label: "Compliance", description: "Evidence continuity for control mapping." },
-  { href: "/enterprise#deployment", label: "Deployment", description: "Controlled rollout and production gates." },
-  { href: "/enterprise#data-residency", label: "Data Residency", description: "Regional and retention boundaries." },
   { href: "/enterprise/pilot", label: "Pilot Programme", description: "Start with one consequential workflow." },
-  { href: "/enterprise#support", label: "Enterprise Support", description: "Named onboarding and escalation owners." },
 ];
 
 const developerDropdownLinks: NavigationLink[] = [
@@ -71,10 +61,9 @@ const developerDropdownLinks: NavigationLink[] = [
 
 const resourceDropdownLinks: NavigationLink[] = [
   { href: "/methodology", label: "Methodology", description: "How evidence and decisions are evaluated." },
+  { href: "/developers/docs", label: "Documentation", description: "Technical implementation guidance." },
   { href: "/journal", label: "Journal", description: "Operational trust perspectives." },
   { href: "/regulatory", label: "Regulatory Material", description: "Regulatory context and boundaries." },
-  { href: "/developers/docs", label: "Documentation", description: "Technical implementation guidance." },
-  { href: "/media-centre", label: "Media Centre", description: "Company and media resources." },
 ];
 
 function LogoutButton({ onNavigate }: { onNavigate?: CloseMenus }) {

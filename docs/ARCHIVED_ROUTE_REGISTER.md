@@ -7,6 +7,10 @@ Archive date: 2026-07-12
 
 Archive is a visibility state, not physical deletion. Routes remain in their original Next.js locations so runtime behavior, imports and deep links are preserved. Global navigation and footer do not promote them; middleware protects the internal/experimental families; robots and response headers prevent indexing. Restoration is a configuration and navigation decision after evidence review.
 
+## Sprint 12.2 audit
+
+The 1.2.2 audit added no route. `/reality-os` and `/trust-os` now redirect to `/platform`; `/trust-fabric` redirects to `/platform#trust-fabric`. Public navigation was reduced to canonical destinations and role anchors on `/enterprise`; no protected operational route was redirected or removed.
+
 | Route | Reason archived | Original purpose | Replacement route | Dependencies | Date archived | Criteria for restoration | Criteria for permanent deletion |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `/agent-passport` | Legacy or experimental public concept no longer promoted | agent passport capability or research surface | `/platform#authorization-gateway` | Route component, middleware protection, contextual links and any stored deep links | 2026-07-12 | Named product owner, verified buyer need and canonical-ownership review | Route-specific import/link/API/stored-URL audit plus migration period |
