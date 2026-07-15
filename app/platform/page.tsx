@@ -45,11 +45,12 @@ export default function PlatformPage() {
           ))}
         </section>
 
-        <section className="mt-8 operational-panel p-6">
-          <p className="operational-eyebrow">Governed execution contract</p>
+        <section id="trust-fabric" className="mt-8 scroll-mt-28 operational-panel p-6">
+          <p className="operational-eyebrow">Enterprise Trust Fabric™</p>
           <h2 className="mt-3 text-2xl font-semibold">
-            Continuity from actor entry to retained outcome.
+            One governed execution contract from actor entry to retained outcome.
           </h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">Every workflow template requests trust through the same identity, authority, provider consensus, decision, enforcement, Replay, Evidence Graph, Trust Memory™ and governance foundation.</p>
           <div className="mt-6 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 sm:grid-cols-2 lg:grid-cols-5">
             {executionContract.map(([title, copy], index) => (
               <article key={title} className="min-w-0 bg-black p-4">

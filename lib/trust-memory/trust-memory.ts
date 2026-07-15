@@ -29,6 +29,16 @@ export type TrustMemoryEventKind =
   | "trust_recovery"
   | "trust_decay";
 
+export type TrustMemoryEvolutionState =
+  | "gained"
+  | "challenged"
+  | "reduced"
+  | "restored"
+  | "decayed"
+  | "recovered"
+  | "expired"
+  | "revoked";
+
 export type TrustMemoryEvent = {
   id: string;
   actor_id: string;
@@ -39,11 +49,14 @@ export type TrustMemoryEvent = {
   trust_state_after: string;
   trust_delta: number;
   trust_change: TrustChangeClassification;
+  evolution_state: TrustMemoryEvolutionState;
   reason: string;
   evidence_refs: string[];
   replay_refs: string[];
   governance_refs: string[];
   provider_refs: string[];
+  policy_refs: string[];
+  authority_refs: string[];
   reviewed_outcome_ref: string | null;
   confidence_before: number;
   confidence_after: number;
@@ -92,9 +105,29 @@ function normalizeRefs(value: string[] | undefined) {
   return [...new Set((value ?? []).map((item) => item.trim()).filter(Boolean))].slice(0, 20);
 }
 
+function evolutionState(input: {
+  eventKind: TrustMemoryEventKind;
+  stateAfter: string;
+  classification: TrustChangeClassification;
+  delta: number;
+}): TrustMemoryEvolutionState {
+  const stateAfter = input.stateAfter.toLowerCase();
+  if (input.eventKind === "authority_revoked" || stateAfter.includes("revok")) return "revoked";
+  if (stateAfter.includes("expir")) return "expired";
+  if (input.eventKind === "trust_decay" || input.classification === "decayed") return "decayed";
+  if (input.eventKind === "trust_recovery" || input.classification === "recovered") return "recovered";
+  if (input.classification === "restored") return "restored";
+  if (["provider_conflict", "session_integrity_failure", "step_up_verification"].includes(input.eventKind) || input.classification === "escalated") return "challenged";
+  if (input.delta < 0 || ["decreased", "blocked"].includes(input.classification)) return "reduced";
+  if (input.delta > 0 || input.classification === "increased") return "gained";
+  return "challenged";
+}
+
 export function createTrustMemoryEvent(
-  input: Omit<TrustMemoryEvent, "id" | "trust_delta" | "trust_change" | "explanation" | "created_at"> & {
+  input: Omit<TrustMemoryEvent, "id" | "trust_delta" | "trust_change" | "evolution_state" | "explanation" | "policy_refs" | "authority_refs" | "created_at"> & {
     id?: string;
+    policy_refs?: string[];
+    authority_refs?: string[];
     created_at?: string;
   }
 ): TrustMemoryEvent {
@@ -111,19 +144,24 @@ export function createTrustMemoryEvent(
     reason: input.reason,
   };
   const createdAt = input.created_at ?? new Date().toISOString();
+  const trustDelta = calculateTrustDelta(evolutionInput);
+  const trustChange = classifyTrustChange(evolutionInput);
 
   return {
     ...input,
     id: input.id ?? `tm_${input.workflow_id}_${input.actor_id}_${createdAt}`.replace(/[^a-zA-Z0-9_-]/g, "_"),
     confidence_before: confidenceBefore,
     confidence_after: confidenceAfter,
-    trust_delta: calculateTrustDelta(evolutionInput),
-    trust_change: classifyTrustChange(evolutionInput),
+    trust_delta: trustDelta,
+    trust_change: trustChange,
+    evolution_state: evolutionState({ eventKind: input.event_kind, stateAfter: input.trust_state_after, classification: trustChange, delta: trustDelta }),
     explanation: explainTrustChange(evolutionInput),
     evidence_refs: normalizeRefs(input.evidence_refs),
     replay_refs: normalizeRefs(input.replay_refs),
     governance_refs: normalizeRefs(input.governance_refs),
     provider_refs: normalizeRefs(input.provider_refs),
+    policy_refs: normalizeRefs(input.policy_refs),
+    authority_refs: normalizeRefs(input.authority_refs),
     created_at: createdAt,
   };
 }
@@ -175,17 +213,21 @@ export function buildTrustMemorySnapshot(events: TrustMemoryEvent[]): TrustMemor
 
 export function validateTrustMemoryIntegrity(
   events: TrustMemoryEvent[],
-  input: { tenantId: string; evidenceRefs?: string[]; replayRefs?: string[]; governanceRefs?: string[] }
+  input: { tenantId: string; evidenceRefs?: string[]; replayRefs?: string[]; governanceRefs?: string[]; policyRefs?: string[]; authorityRefs?: string[] }
 ) {
   const ordered = [...events].sort((left, right) => Date.parse(left.created_at) - Date.parse(right.created_at));
   const evidence = new Set(input.evidenceRefs ?? events.flatMap((event) => event.evidence_refs));
   const replay = new Set(input.replayRefs ?? events.flatMap((event) => event.replay_refs));
   const governance = new Set(input.governanceRefs ?? events.flatMap((event) => event.governance_refs));
+  const policy = new Set(input.policyRefs ?? events.flatMap((event) => event.policy_refs));
+  const authority = new Set(input.authorityRefs ?? events.flatMap((event) => event.authority_refs));
   const duplicateIds = events.filter((event, index) => events.findIndex((candidate) => candidate.id === event.id) !== index).map((event) => event.id);
   const unresolved = events.flatMap((event) => [
     ...event.evidence_refs.filter((ref) => !evidence.has(ref)).map((ref) => `evidence:${ref}`),
     ...event.replay_refs.filter((ref) => !replay.has(ref)).map((ref) => `replay:${ref}`),
     ...event.governance_refs.filter((ref) => !governance.has(ref)).map((ref) => `governance:${ref}`),
+    ...event.policy_refs.filter((ref) => !policy.has(ref)).map((ref) => `policy:${ref}`),
+    ...event.authority_refs.filter((ref) => !authority.has(ref)).map((ref) => `authority:${ref}`),
   ]);
   const checks = {
     chronologyValid: ordered.every((event, index) => index === 0 || Date.parse(event.created_at) >= Date.parse(ordered[index - 1].created_at)),

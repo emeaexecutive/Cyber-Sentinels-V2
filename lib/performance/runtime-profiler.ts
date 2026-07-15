@@ -1,6 +1,7 @@
 export type RuntimeProfileStage =
   | "lifecycle_orchestration_latency"
   | "provider_latency"
+  | "consensus_latency"
   | "trust_latency"
   | "workflow_latency"
   | "replay_latency"
@@ -152,6 +153,7 @@ export function getRuntimeProfileSnapshot(
     },
     stageAverages: {
       providerLatency: average("provider_latency"),
+      consensusLatency: average("consensus_latency"),
       trustLatency: average("trust_latency"),
       workflowLatency: average("workflow_latency"),
       replayLatency: average("replay_latency"),

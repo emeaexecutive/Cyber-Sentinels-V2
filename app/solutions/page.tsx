@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 
-const lifecycleTemplates = ["Hiring", "AI Agent", "Vendor", "Executive", "Machine Identity", "Financial Workflow", "Healthcare", "Government"];
+const lifecycleTemplates = ["Hiring", "AI Agent Operations", "Privileged Access", "Financial Approval", "Vendor Access", "Healthcare", "Insurance", "Critical Infrastructure"];
 
 const solutionAreas = [
   [
@@ -75,7 +75,8 @@ export default function SolutionsPage() {
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="operational-eyebrow">Lifecycle templates</p>
-          <h2 className="mt-2 text-2xl font-semibold">One trust lifecycle, configured for each operational domain.</h2>
+          <h2 className="mt-2 text-2xl font-semibold">One Trust Fabric, configured through workflow templates.</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">Cyber Sentinels is not a hiring platform. Hiring is one template alongside AI operations, privileged access and regulated workflows.</p>
           <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {lifecycleTemplates.map((template) => (
               <div key={template} className="rounded-lg border border-zinc-800 bg-black p-4 text-sm font-semibold text-zinc-200">{template}</div>

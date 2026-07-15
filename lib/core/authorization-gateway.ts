@@ -6,7 +6,7 @@ export type AuthorizationGatewayDecision =
 
 export type AuthorizationGatewayInput = {
   subjectId: string;
-  subjectType: "human" | "ai_agent" | "machine_identity" | "workflow";
+  subjectType: EntityIdentityType;
   authenticated: boolean;
   requestedAction: string;
   requestedPurpose: string;
@@ -96,3 +96,4 @@ export function evaluateAuthorizationGateway(input: AuthorizationGatewayInput): 
     limitations: ["Allow is limited to the requested purpose, action and current policy version."],
   };
 }
+import type { EntityIdentityType } from "./entity-identity.ts";

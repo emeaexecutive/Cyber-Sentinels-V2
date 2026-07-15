@@ -2,7 +2,31 @@ export type EntityIdentityType =
   | "human"
   | "ai_agent"
   | "machine_identity"
+  | "organization"
+  | "workflow"
+  | "credential"
+  | "session"
+  | "evidence"
+  | "decision"
+  | "replay"
+  | "authority"
+  | "provider"
+  // Compatibility alias for records created before the canonical workflow type.
   | "regulated_workflow";
+
+export type EntityLifecycleState =
+  | "pending"
+  | "active"
+  | "challenged"
+  | "suspended"
+  | "expired"
+  | "revoked"
+  | "archived";
+
+export type EntityRelationship = {
+  type: "owns" | "delegates" | "uses" | "belongs_to" | "supports" | "generated" | "reviewed_by" | "governs";
+  target_id: string;
+};
 
 export type EntityVerificationStatus =
   | "verified"
@@ -76,11 +100,15 @@ export type EntityIdentityEvidence = {
   ai_agent?: AiAgentIdentityEvidence;
   machine_identity?: MachineIdentityEvidence;
   regulated_workflow?: RegulatedWorkflowIdentityEvidence;
+  workflow?: RegulatedWorkflowIdentityEvidence;
+  metadata?: Record<string, unknown>;
 };
 
 export type EntityIdentityInput = {
   id: string;
   type: EntityIdentityType;
+  global_id?: string | null;
+  tenant_id?: string | null;
   owner?: string | null;
   authority?: string | null;
   verification_status?: EntityVerificationStatus | null;
@@ -89,12 +117,22 @@ export type EntityIdentityInput = {
   replay_refs?: string[];
   governance_status?: EntityGovernanceStatus | null;
   risk_level?: EntityRiskLevel | null;
+  lifecycle?: {
+    state?: EntityLifecycleState | null;
+    created_at?: string | null;
+    updated_at?: string | null;
+    expires_at?: string | null;
+    revoked_at?: string | null;
+  };
+  relationships?: EntityRelationship[];
   evidence?: EntityIdentityEvidence;
 };
 
 export type EntityIdentity = {
   id: string;
+  global_id: string;
   type: EntityIdentityType;
+  tenant_id: string;
   owner: string;
   authority: string;
   verification_status: EntityVerificationStatus;
@@ -103,6 +141,14 @@ export type EntityIdentity = {
   replay_refs: string[];
   governance_status: EntityGovernanceStatus;
   risk_level: EntityRiskLevel;
+  lifecycle: {
+    state: EntityLifecycleState;
+    created_at: string | null;
+    updated_at: string | null;
+    expires_at: string | null;
+    revoked_at: string | null;
+  };
+  relationships: EntityRelationship[];
   evidence: EntityIdentityEvidence;
   control_plane: {
     trust_engine: true;
@@ -120,10 +166,24 @@ function refs(values?: string[]) {
   return [...new Set((values ?? []).map(String).filter(Boolean))];
 }
 
+function relationships(values?: EntityRelationship[]) {
+  const seen = new Set<string>();
+  return (values ?? []).filter((relationship) => {
+    const target = String(relationship.target_id ?? "").trim();
+    const key = `${relationship.type}:${target}`;
+    if (!target || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).map((relationship) => ({ ...relationship, target_id: relationship.target_id.trim() }));
+}
+
 export function normalizeEntityIdentity(input: EntityIdentityInput): EntityIdentity {
+  const id = String(input.id || "entity-not-recorded");
   return {
-    id: String(input.id || "entity-not-recorded"),
+    id,
+    global_id: String(input.global_id || `${input.tenant_id || "tenant-not-recorded"}:${input.type}:${id}`),
     type: input.type,
+    tenant_id: input.tenant_id ?? "tenant-not-recorded",
     owner: input.owner ?? "Owner not recorded",
     authority: input.authority ?? "Authority not recorded",
     verification_status: input.verification_status ?? "awaiting_evidence",
@@ -132,6 +192,14 @@ export function normalizeEntityIdentity(input: EntityIdentityInput): EntityIdent
     replay_refs: refs(input.replay_refs),
     governance_status: input.governance_status ?? "review_required",
     risk_level: input.risk_level ?? "unknown",
+    lifecycle: {
+      state: input.lifecycle?.state ?? "pending",
+      created_at: input.lifecycle?.created_at ?? null,
+      updated_at: input.lifecycle?.updated_at ?? null,
+      expires_at: input.lifecycle?.expires_at ?? null,
+      revoked_at: input.lifecycle?.revoked_at ?? null,
+    },
+    relationships: relationships(input.relationships),
     evidence: input.evidence ?? {},
     control_plane: {
       trust_engine: true,
@@ -244,6 +312,30 @@ export const entityIdentityModel: EntityIdentity[] = [
       },
     },
   }),
+  ...([
+    ["organization", "Organization", "Enterprise owner and governance boundary"],
+    ["workflow", "Workflow", "Policy, purpose and accountable workflow owner"],
+    ["credential", "Credential", "Credential issuer, owner, scope and rotation policy"],
+    ["session", "Session", "Authenticated actor, runtime channel and expiry boundary"],
+    ["evidence", "Evidence", "Evidence origin, integrity and retention policy"],
+    ["decision", "Decision", "Policy version, evidence basis and accountable outcome"],
+    ["replay", "Replay", "Chronology owner and retained workflow lifecycle"],
+    ["authority", "Authority", "Grantor, grantee, delegated scope and revocation state"],
+    ["provider", "Provider", "Provider model, version, limitations and evidence boundary"],
+  ] as const).map(([type, owner, authority]) => normalizeEntityIdentity({
+    id: `${type}-entity`,
+    type,
+    tenant_id: "tenant-example",
+    owner,
+    authority,
+    verification_status: "awaiting_evidence",
+    trust_posture: "insufficient_evidence",
+    governance_status: "review_required",
+    lifecycle: { state: "pending" },
+    evidence_refs: [`${type}:evidence-required`],
+    relationships: [{ type: "belongs_to", target_id: "organization:tenant-example" }],
+    evidence: { metadata: { boundary: "Canonical Trust Fabric entity; no runtime state is inferred." } },
+  })),
 ];
 
 export function entityDecisionSurface(entity: EntityIdentity) {

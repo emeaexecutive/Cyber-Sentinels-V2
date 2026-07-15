@@ -9,6 +9,12 @@ import {
 } from "./trust-lifecycle.ts";
 import { runTrustAlgorithm, type TrustAlgorithmDecision } from "../trust/trust-algorithm.ts";
 import { recordRuntimeProfile } from "../performance/runtime-profiler.ts";
+import {
+  createProviderConsensus,
+  type ProviderConsensusResult,
+  type ProviderSignalCategory,
+} from "../providers/provider-consensus.ts";
+import type { TrustMemoryActorType } from "../trust-memory/trust-memory.ts";
 
 export const LIFECYCLE_DECISIONS = [
   "allow",
@@ -34,7 +40,11 @@ export type LifecycleProviderState =
 
 export type LifecycleProviderSignal = {
   providerName: string;
+  category?: ProviderSignalCategory;
   state: LifecycleProviderState;
+  signal?: "support" | "challenge" | "unknown";
+  model?: string | null;
+  version?: string | null;
   identityConfidence?: number | null;
   sessionIntegrity?: number | null;
   evidenceReferences?: string[];
@@ -108,11 +118,14 @@ export type TrustLifecycleExecutionOutput = {
   execution_receipt_reference: string;
   replay_reference: string | null;
   evidence_graph_reference: string | null;
+  evidence_graph: ReturnType<typeof writeTrustLifecyclePhase>["evidence_graph"];
   trust_memory_reference: string | null;
+  trust_memory_event: ReturnType<typeof writeTrustLifecyclePhase>["trust_memory"];
   governance_status: string;
   limitations: string[];
   next_required_action: string;
   provider_reality: Array<{ provider: string; state: LifecycleProviderState; evidence: string[] }>;
+  provider_consensus: ProviderConsensusResult;
   continuity: {
     valid: boolean;
     chain: string[];
@@ -133,6 +146,11 @@ function elapsed(start: number) {
 
 function unique(values: Array<string | null | undefined>) {
   return [...new Set(values.map((value) => String(value ?? "").trim()).filter(Boolean))];
+}
+
+function trustMemoryActorType(type: EntityIdentityInput["type"]): TrustMemoryActorType {
+  if (type === "human" || type === "ai_agent" || type === "machine_identity") return type;
+  return "workflow";
 }
 
 function toLifecycleDecision(
@@ -181,6 +199,7 @@ function addContinuityNodes(
     ["credential", `credential:${input.correlationId}`, "Credential"],
     ["authorization", `authorization:grant:${input.correlationId}`, "Authority Grant"],
     ["authorization", `authorization:decision:${input.correlationId}`, "Authorization Decision"],
+    ["decision", `decision:${input.correlationId}`, "Trust Decision"],
     ["execution", `execution:${receiptId}`, "Execution Receipt"],
   ] as const;
   for (const [type, id, label] of nodes) {
@@ -188,18 +207,38 @@ function addContinuityNodes(
       graph.nodes.push({ id, type, label, summary: `${label} linked by lifecycle orchestration.`, metadata: tenant });
     }
   }
+  for (const signal of input.providerSignals) {
+    const id = `provider:${signal.providerName.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+    if (!graph.nodes.some((node) => node.id === id)) {
+      graph.nodes.push({
+        id,
+        type: "provider",
+        label: signal.providerName,
+        summary: "Normalized provider signal linked by Trust Fabric consensus.",
+        metadata: { ...tenant, category: signal.category ?? "identity", model: signal.model ?? "Not reported", version: signal.version ?? "Not reported", state: signal.state },
+      });
+    }
+  }
   for (const node of graph.nodes) node.metadata = { ...node.metadata, ...tenant };
   const workflow = `workflow:${input.workflowId}`;
-  const pairs: Array<[string, string, "owns" | "uses" | "authorizes" | "executes" | "generated"]> = [
+  const pairs: Array<[string, string, "owns" | "delegates" | "uses" | "authorizes" | "executes" | "generated" | "supports"]> = [
     [`organization:${input.authorityContext.owner}`, `human:${input.authorityContext.humanAuthority}`, "owns"],
-    [`human:${input.authorityContext.humanAuthority}`, `ai_agent:${input.entityId}`, "delegates" as "owns"],
+    [`human:${input.authorityContext.humanAuthority}`, `ai_agent:${input.entityId}`, "delegates"],
     [`ai_agent:${input.entityId}`, `machine_identity:${input.entityId}`, "uses"],
     [`machine_identity:${input.entityId}`, `credential:${input.correlationId}`, "uses"],
     [`authorization:grant:${input.correlationId}`, workflow, "authorizes"],
     [workflow, `authorization:decision:${input.correlationId}`, "generated"],
-    [`authorization:decision:${input.correlationId}`, `execution:${receiptId}`, "authorizes"],
+    [`authorization:decision:${input.correlationId}`, `decision:${input.correlationId}`, "supports"],
+    [`decision:${input.correlationId}`, `execution:${receiptId}`, "authorizes"],
     [`execution:${receiptId}`, workflow, "executes"],
   ];
+  for (const signal of input.providerSignals) {
+    pairs.push([
+      `provider:${signal.providerName.replace(/[^a-zA-Z0-9_-]/g, "_")}`,
+      `decision:${input.correlationId}`,
+      "supports",
+    ]);
+  }
   for (const [from, to, type] of pairs) {
     graph.relationships.push({
       id: `${from}->${type}->${to}`,
@@ -223,26 +262,38 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
   const providerLimitations = input.providerSignals.flatMap((signal) => signal.limitations ?? []);
   const failures = input.runtimeContext.failureInjection;
   const providerTimeout = failures === "provider_timeout" || input.providerSignals.some((signal) => signal.state === "Timeout");
-  const contributingProviderSignals = input.providerSignals.filter(
-    (signal) => ["Live", "Test Mode", "Simulated", "Degraded"].includes(signal.state) && typeof signal.identityConfidence === "number"
-  );
-  const providerConfidence = contributingProviderSignals.length
-    ? contributingProviderSignals.reduce((sum, signal) => sum + Number(signal.identityConfidence), 0) / contributingProviderSignals.length
-    : null;
-  const providerConfidenceValues = contributingProviderSignals.map((signal) => Number(signal.identityConfidence));
-  const providerConflict = failures === "provider_conflict" || (
-    providerConfidenceValues.length > 1 && Math.max(...providerConfidenceValues) - Math.min(...providerConfidenceValues) > 0.35
-  );
   timings.provider = elapsed(providerStart);
+  const consensusStart = nowMs();
+  const providerConsensus = createProviderConsensus(input.providerSignals.map((signal) => ({
+    provider: signal.providerName,
+    category: signal.category ?? "identity",
+    state: signal.state,
+    signal: signal.signal,
+    model: signal.model,
+    version: signal.version,
+    latencyMs: signal.latencyMs,
+    confidence: signal.identityConfidence,
+    limitations: signal.limitations,
+    evidenceRefs: signal.evidenceReferences,
+  })));
+  const providerConfidence = providerConsensus.trustConfidence;
+  const providerConflict = failures === "provider_conflict" || providerConsensus.decision === "conflict";
+  timings.consensus = elapsed(consensusStart);
 
   let started = nowMs();
   const entity = normalizeEntityIdentity({
     id: input.entityId,
     type: input.entityType,
+    tenant_id: input.tenantId,
     owner: input.authorityContext.owner,
     authority: input.authorityContext.humanAuthority,
     verification_status: evidence.length ? "partially_verified" : "awaiting_evidence",
     evidence_refs: evidence,
+    lifecycle: { state: "active", updated_at: input.createdAt ?? new Date().toISOString() },
+    relationships: [
+      { type: "belongs_to", target_id: `organization:${input.authorityContext.owner}` },
+      { type: "uses", target_id: `workflow:${input.workflowId}` },
+    ],
   });
   timings.entity_identity = elapsed(started);
 
@@ -265,7 +316,7 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
   started = nowMs();
   const authority = evaluateAuthorizationGateway({
     subjectId: entity.id,
-    subjectType: input.entityType === "regulated_workflow" ? "workflow" : input.entityType,
+    subjectType: input.entityType,
     authenticated: input.authorityContext.authenticated,
     requestedAction: input.requestedAction,
     requestedPurpose: input.authorityContext.requestedPurpose,
@@ -307,7 +358,7 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
     workflowId: input.workflowId,
     subjectId: input.entityId,
     actorId: input.entityId,
-    actorType: input.entityType === "regulated_workflow" ? "workflow" : input.entityType,
+    actorType: trustMemoryActorType(input.entityType),
     template: input.lifecycleTemplate ?? "ai_agent",
     phase: input.lifecycleStage,
     action: changeForDecision(decision),
@@ -316,6 +367,8 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
     reason: `${decision}: ${authority.reason}`,
     evidenceRefs: evidence,
     providerRefs: input.providerSignals.map((signal) => `${signal.providerName}:${signal.state}`),
+    policyRefs: input.policyContext.policyVersion ? [`policy:${input.policyContext.policyVersion}`] : [],
+    authorityRefs: [`authorization:${input.correlationId}`],
     evidenceExpected: input.policyContext.minimumEvidence ?? 1,
     governanceState: ["review", "escalate", "block"].includes(decision) ? "review_required" : undefined,
     createdAt: input.createdAt,
@@ -329,7 +382,7 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
   const replayFailed = failures === "replay_write_failure";
   const memoryFailed = failures === "trust_memory_write_failure";
   const graphTypes = new Set(lifecycle.evidence_graph.nodes.map((node) => node.type));
-  const requiredTypes = ["human", "organization", "ai_agent", "machine_identity", "credential", "authorization", "execution", "evidence", "replay_event", "governance_review", "trust_memory_event", "trust_posture"];
+  const requiredTypes = ["human", "organization", "ai_agent", "machine_identity", "credential", "workflow", "provider", "authorization", "decision", "execution", "evidence", "replay_event", "governance_review", "trust_memory_event", "trust_posture"];
   const missing = requiredTypes.filter((type) => !graphTypes.has(type as never));
   const tenantIsolated = lifecycle.evidence_graph.nodes.every((node) => node.metadata.tenant_id === input.tenantId);
   timings.total = elapsed(totalStart);
@@ -341,6 +394,7 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
       enforcement: "enforcement_latency",
       lifecycle_write: "lifecycle_orchestration_latency",
       provider: "provider_latency",
+      consensus: "consensus_latency",
       replay: "replay_latency",
       governance: "governance_queue_latency",
       trust_memory: "trust_memory_latency",
@@ -354,6 +408,7 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
     ...algorithm.limitations,
     ...authority.limitations,
     ...providerLimitations,
+    ...providerConsensus.limitations,
     ...(input.policyContext.validationStatus !== "reviewed" ? ["Calibration incomplete — insufficient reviewed ground truth."] : []),
     ...(providerTimeout ? ["Provider timeout: decision degraded to human review."] : []),
     ...(providerConflict ? ["Provider conflict: no provider result was treated as autonomous truth."] : []),
@@ -377,14 +432,17 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
     execution_receipt_reference: enforcement.executionReceipt.receiptId,
     replay_reference: replayFailed ? null : lifecycle.replay.id,
     evidence_graph_reference: `evidence-graph:${lifecycle.lifecycle_event_id}`,
+    evidence_graph: lifecycle.evidence_graph,
     trust_memory_reference: memoryFailed ? null : lifecycle.trust_memory.id,
+    trust_memory_event: lifecycle.trust_memory,
     governance_status: failures === "governance_queue_delay" ? "delayed" : lifecycle.governance_state,
     limitations,
     next_required_action: replayFailed || memoryFailed ? "Retry the failed evidence write before execution." : nextAction(decision),
     provider_reality: input.providerSignals.map((signal) => ({ provider: signal.providerName, state: signal.state, evidence: signal.evidenceReferences ?? [] })),
+    provider_consensus: providerConsensus,
     continuity: { valid: !missing.length && tenantIsolated && !replayFailed && !memoryFailed, chain: requiredTypes, missing, tenant_isolated: tenantIsolated },
     performance: timings,
-    engine_trace: ["Entity Identity", "Trust Engine", "Runtime Context", "Authorization Gateway", "Enforcement Layer", "Replay Engine", "Governance Engine", "Evidence Graph", "Trust Memory™", "Validation Gate"],
+    engine_trace: ["Entity Identity", "Authority Graph", "Provider Orchestrator", "Provider Consensus", "Trust Engine", "Runtime Context", "Policy", "Decision Intelligence", "Authorization Gateway", "Enforcement Layer", "Replay Engine", "Governance Engine", "Evidence Graph", "Trust Memory™", "Validation Gate"],
   };
 }
 

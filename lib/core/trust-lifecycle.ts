@@ -107,6 +107,8 @@ export type TrustLifecycleInput = {
   reason: string;
   evidenceRefs?: string[];
   providerRefs?: string[];
+  policyRefs?: string[];
+  authorityRefs?: string[];
   outstandingActions?: string[];
   evidenceExpected?: number;
   governanceState?: LifecycleGovernanceState;
@@ -306,6 +308,8 @@ export function writeTrustLifecyclePhase(input: TrustLifecycleInput): TrustLifec
     replay_refs: [replayRef],
     governance_refs: [governanceRef],
     provider_refs: unique(input.providerRefs),
+    policy_refs: unique(input.policyRefs),
+    authority_refs: unique(input.authorityRefs),
     reviewed_outcome_ref: null,
     confidence_before: confidenceBefore,
     confidence_after: confidenceAfter,

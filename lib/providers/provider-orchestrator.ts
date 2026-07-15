@@ -7,6 +7,9 @@ export type ProviderOrchestrationResult = {
   id: string;
   name: string;
   providerName: string;
+  category: string;
+  model: string;
+  version: string;
   status: OrchestratedProviderState;
   state: OrchestratedProviderState;
   latency_ms: number;
@@ -75,6 +78,9 @@ export async function orchestrateProviders(options: { timeoutMs?: number; includ
             id: provider.id,
             name: provider.name,
             providerName: provider.name,
+            category: provider.category,
+            model: "Not reported",
+            version: "Not reported",
             status: state,
             state,
             latency_ms: latencyMs,
@@ -120,6 +126,9 @@ export async function orchestrateProviders(options: { timeoutMs?: number; includ
       id: provider.id,
       name: provider.name,
       providerName: provider.name,
+      category: provider.category,
+      model: "Not reported",
+      version: "Not reported",
       status: result.reason instanceof Error && result.reason.message === "provider_timeout" ? "Timeout" : "Failed",
       state: result.reason instanceof Error && result.reason.message === "provider_timeout" ? "Timeout" : "Failed",
       latency_ms: timeoutMs,
