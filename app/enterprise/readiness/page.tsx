@@ -112,7 +112,7 @@ export default async function EnterpriseReadinessPage() {
                 Enterprise Trust Fabric health
               </p>
               <h2 className="mt-3 text-3xl font-semibold">
-                Eleven components. Evidence before confidence.
+                Ten pilot-critical components. Evidence before confidence.
               </h2>
             </div>
             <p className="max-w-xl text-sm leading-6 text-zinc-500">
@@ -134,6 +134,22 @@ export default async function EnterpriseReadinessPage() {
                   {item.boundary}
                 </p>
               </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Enterprise settings</p>
+          <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
+            <h2 className="text-3xl font-semibold">One index for existing controls.</h2>
+            <p className="max-w-xl text-sm leading-6 text-zinc-500">Settings link to the current canonical control surfaces; no parallel configuration route is introduced.</p>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {model.settingsGroups.map((group) => (
+              <Link key={group.label} href={group.href} className="rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-800">
+                <h3 className="font-semibold text-zinc-100">{group.label}</h3>
+                <p className="mt-2 text-xs leading-5 text-zinc-500">{group.description}</p>
+              </Link>
             ))}
           </div>
         </section>

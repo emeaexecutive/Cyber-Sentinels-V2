@@ -94,6 +94,7 @@ export type CanonicalPlatformHealth = {
   build: {
     version: string | null;
     deploymentTimestamp: string | null;
+    environment: string | null;
     source: "environment" | "unavailable";
   };
   visibility: "admin_only";
@@ -160,10 +161,12 @@ function providerState(check: ProviderReadinessCheck, snapshot?: ProviderOrchest
 function buildMetadata() {
   const version = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.BUILD_VERSION ?? null;
   const deploymentTimestamp = process.env.DEPLOYMENT_TIMESTAMP ?? process.env.VERCEL_DEPLOYMENT_TIMESTAMP ?? null;
+  const environment = process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? null;
   return {
     version,
     deploymentTimestamp,
-    source: version || deploymentTimestamp ? "environment" as const : "unavailable" as const,
+    environment,
+    source: version || deploymentTimestamp || environment ? "environment" as const : "unavailable" as const,
   };
 }
 

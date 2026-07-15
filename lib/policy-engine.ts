@@ -80,6 +80,17 @@ export type PolicyEvaluation = {
   };
 };
 
+export type EnterprisePolicyTemplate = {
+  id: string;
+  name: "AI Operations" | "Financial Services" | "Insurance" | "Healthcare" | "Critical Infrastructure" | "General Enterprise" | "Hiring";
+  purpose: string;
+  trustThresholds: Pick<TrustPolicy, "escalationThreshold" | "highAssuranceThreshold" | "providerConfidenceMinimum" | "sessionIntegrityMinimum">;
+  escalationPath: readonly string[];
+  reviewRequirements: readonly string[];
+  evidenceRequirements: readonly string[];
+  policy: TrustPolicy;
+};
+
 export const POLICY_ENGINE_BOUNDARY = {
   explainable: true,
   humanReviewable: true,
@@ -200,6 +211,51 @@ export const defaultTrustPolicies: TrustPolicy[] = [
     humanApprovalRequired: true,
   },
 ];
+
+function enterprisePolicyTemplate(
+  id: EnterprisePolicyTemplate["id"],
+  name: EnterprisePolicyTemplate["name"],
+  purpose: string,
+  policy: TrustPolicy,
+  escalationPath: readonly string[],
+  evidenceRequirements: readonly string[]
+): EnterprisePolicyTemplate {
+  return {
+    id,
+    name,
+    purpose,
+    trustThresholds: {
+      escalationThreshold: policy.escalationThreshold,
+      highAssuranceThreshold: policy.highAssuranceThreshold,
+      providerConfidenceMinimum: policy.providerConfidenceMinimum,
+      sessionIntegrityMinimum: policy.sessionIntegrityMinimum,
+    },
+    escalationPath,
+    reviewRequirements: [
+      `Named reviewer: ${policy.assignedReviewer}`,
+      `Queue: ${policy.reviewerQueue}`,
+      "Human approval remains authoritative",
+      "Outcome and rationale must be retained in Replay",
+    ],
+    evidenceRequirements,
+    policy,
+  };
+}
+
+const generalPolicy = defaultTrustPolicies.find((policy) => policy.id === "provider-confidence")!;
+const elevatedPolicy = defaultTrustPolicies.find((policy) => policy.id === "candidate-high-risk")!;
+const highAssurancePolicy = defaultTrustPolicies.find((policy) => policy.id === "high-assurance-approval")!;
+const sessionPolicy = defaultTrustPolicies.find((policy) => policy.id === "session-integrity")!;
+
+export const enterprisePolicyTemplates: readonly EnterprisePolicyTemplate[] = [
+  enterprisePolicyTemplate("ai-operations", "AI Operations", "Govern AI-agent actions, delegated authority and runtime evidence.", highAssurancePolicy, ["AI operations owner", "Security reviewer", "Governance approval"], ["Agent identity", "Authority grant", "Runtime context", "Action intent", "Provider evidence"]),
+  enterprisePolicyTemplate("financial-services", "Financial Services", "Apply high-assurance controls to regulated financial decisions.", highAssurancePolicy, ["Risk owner", "Compliance reviewer", "CISO delegate"], ["Identity evidence", "Transaction context", "Authority mandate", "Session integrity", "Decision receipt"]),
+  enterprisePolicyTemplate("insurance", "Insurance", "Retain explainable evidence and reviewer ownership for insurance workflows.", elevatedPolicy, ["Claims owner", "Fraud review", "Governance approval"], ["Subject identity", "Claim evidence", "Provenance", "Provider findings", "Reviewer outcome"]),
+  enterprisePolicyTemplate("healthcare", "Healthcare", "Protect high-sensitivity workflows while keeping human clinical authority outside automated decisions.", highAssurancePolicy, ["Workflow owner", "Privacy or security reviewer", "Authorized human decision"], ["Identity evidence", "Purpose and consent", "Minimum necessary workflow context", "Session integrity", "Audit receipt"]),
+  enterprisePolicyTemplate("critical-infrastructure", "Critical Infrastructure", "Require strong authority and session continuity before high-impact operational actions.", sessionPolicy, ["Operations owner", "Security operations", "Named incident authority"], ["Machine identity", "Human authority", "Device or channel integrity", "Action intent", "Replay reference"]),
+  enterprisePolicyTemplate("general-enterprise", "General Enterprise", "Start a governed enterprise pilot with explainable thresholds and named review.", generalPolicy, ["Workflow owner", "Trust operations reviewer"], ["Identity evidence", "Purpose", "Provider evidence", "Policy result", "Reviewer outcome"]),
+  enterprisePolicyTemplate("hiring", "Hiring", "Run one governed hiring-security workflow with evidence and human review.", elevatedPolicy, ["Hiring trust lead", "HR or security reviewer"], ["Candidate identity", "Session integrity", "Evidence provenance", "Provider findings", "Human outcome"]),
+] as const;
 
 export function validateTrustPolicy(policy: TrustPolicy) {
   const errors: string[] = [];

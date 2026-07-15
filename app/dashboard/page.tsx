@@ -1,18 +1,8 @@
 import Link from "next/link";
-import {
-  ClipboardCheck,
-  FileWarning,
-  History,
-  ScanSearch,
-} from "lucide-react";
 import { redirect } from "next/navigation";
-import { EnterpriseDecisionCard } from "@/components/enterprise-decision-card";
 import { DecisionSummary } from "@/components/executive-summary";
-import { buildDecisionIntelligence } from "@/lib/core/decision-intelligence";
-import { buildEvidenceGraphDemo } from "@/lib/evidence-graph/evidence-graph";
-import { buildProviderReadinessChecklist } from "@/lib/providers/provider-readiness";
+import { buildProviderReadinessChecklist, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
 import { createClient } from "@/lib/supabase/server";
-import { buildDemoTrustExplanation } from "@/lib/trust-explanation/explanation";
 
 export const dynamic = "force-dynamic";
 
@@ -21,25 +11,29 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/dashboard");
 
-  const [flags, reviews, integrity, receipts] = await Promise.all([
+  const [flags, reviews, integrity, receipts, decisions, evidence, replay, pendingActions] = await Promise.all([
     supabase.from("interview_risk_events").select("*", { count: "exact", head: true }).eq("escalation_required", true),
     supabase.from("governance_actions").select("*", { count: "exact", head: true }).in("action_status", ["pending", "in_review", "escalated"]),
     supabase.from("session_integrity_checks").select("*", { count: "exact", head: true }),
     supabase.from("verification_receipts").select("*", { count: "exact", head: true }),
+    supabase.from("trust_timeline_events").select("*", { count: "exact", head: true }).in("event_type", ["decision_completed", "governance_decision"]),
+    supabase.from("evidence_files").select("*", { count: "exact", head: true }),
+    supabase.from("trust_replay_sessions").select("*", { count: "exact", head: true }),
+    supabase.from("notifications").select("*", { count: "exact", head: true }).eq("user_id", user.id).eq("is_read", false),
   ]);
 
+  const providerReadiness = summarizeProviderReadiness(buildProviderReadinessChecklist());
   const metrics = [
-    ["Active Flags", flags.count ?? 0, FileWarning, "/dashboard/interview-risk"],
-    ["Pending Reviews", reviews.count ?? 0, ClipboardCheck, "/dashboard/governance"],
-    ["Session Integrity", integrity.count ?? 0, ScanSearch, "/dashboard/session-integrity"],
-    ["Verification Receipts", receipts.count ?? 0, History, "/verification-receipts"],
+    ["Current Trust Posture", reviews.count || flags.count ? "Attention" : "Stable", "/dashboard/trust-posture", `${flags.count ?? 0} active flag(s); ${integrity.count ?? 0} integrity check(s)`],
+    ["Recent Decisions", decisions.count ?? "Awaiting data", "/trust-replay", "Retained decision and governance events"],
+    ["Evidence Summary", evidence.count ?? "Awaiting data", "/evidence-vault", `${receipts.count ?? 0} verification receipt(s)`],
+    ["Replay Activity", replay.count ?? "Awaiting data", "/trust-replay", "Retained replay sessions"],
+    ["Trust Memory", "Process-local", "/dashboard/trust-posture", "Updates are replay-linked; no autonomous learning claim"],
+    ["Provider Status", `${providerReadiness.classifications.productionReady + providerReadiness.classifications.configured} configured`, "/admin/provider-status", `${providerReadiness.classifications.awaitingCredentials} awaiting credentials`],
+    ["Open Reviews", reviews.count ?? "Awaiting data", "/dashboard/governance", "Pending, in-review or escalated"],
+    ["Pending Actions", pendingActions.count ?? "Awaiting data", "/notifications", "Unread accountable actions"],
   ] as const;
-  const noOperationalActivity = metrics.every(([, value]) => value === 0);
-  const demoExplanation = buildDemoTrustExplanation(buildEvidenceGraphDemo());
-  const demoDecision = buildDecisionIntelligence({
-    explanation: demoExplanation,
-    providerReadiness: buildProviderReadinessChecklist(),
-  });
+  const noOperationalActivity = (flags.count ?? 0) === 0 && (reviews.count ?? 0) === 0;
 
   return (
     <main className="min-h-screen bg-sentinel-black px-5 py-8 text-sentinel-white sm:px-6 md:px-8">
@@ -85,11 +79,11 @@ export default async function DashboardPage() {
         </div>
 
         <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {metrics.map(([title, value, Icon, href]) => (
+          {metrics.map(([title, value, href, detail]) => (
             <Link key={title} href={href} className="rounded-lg border border-sentinel-line bg-white/[0.04] p-5 hover:border-sentinel-green">
-              <Icon className="h-6 w-6 text-sentinel-green" />
-              <p className="mt-4 text-sm text-sentinel-muted">{title}</p>
-              <p className="mt-1 text-3xl font-semibold">{value}</p>
+              <p className="text-sm text-sentinel-muted">{title}</p>
+              <p className="mt-2 text-2xl font-semibold">{value}</p>
+              <p className="mt-2 text-xs leading-5 text-zinc-500">{detail}</p>
             </Link>
           ))}
         </section>
@@ -102,19 +96,6 @@ export default async function DashboardPage() {
             </p>
           </section>
         ) : null}
-
-        <section className="mt-8">
-          <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.16em] text-sentinel-green">Decision Intelligence Demo</p>
-              <h2 className="mt-2 text-xl font-semibold">Enterprise decision card</h2>
-            </div>
-            <Link href="/trust/transparency?demo=1" className="text-sm font-semibold text-cyan-200 hover:text-white">
-              Open explanation
-            </Link>
-          </div>
-          <EnterpriseDecisionCard intelligence={demoDecision} />
-        </section>
 
         <section className="mt-8 rounded-lg border border-sentinel-line bg-sentinel-panel/80 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">

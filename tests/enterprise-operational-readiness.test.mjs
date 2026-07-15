@@ -17,16 +17,16 @@ test("Enterprise Readiness is protected and renders the canonical operational mo
   assert.match(source, /model\.operational\.providerClassifications/);
 });
 
-test("operational readiness uses only the five approved statuses across eleven components", async () => {
+test("operational readiness uses only the five approved statuses across ten pilot-critical components", async () => {
   const source = await read("lib/enterprise-readiness.ts");
   for (const status of ["Healthy", "Degraded", "Awaiting Configuration", "Unavailable", "Unknown"]) {
     assert.match(source, new RegExp(`\\| \\"${status}\\"|\\[\\"${status}\\"`));
   }
-  for (const component of ["Authentication", "Provider Connectivity", "Trust Engine", "Replay", "Evidence Graph", "Trust Memory", "Runtime", "Queue Health", "Validation Coverage", "API Health", "Build Version"]) {
+  for (const component of ["Authentication", "Provider Connectivity", "Decision Engine", "Replay", "Evidence Graph", "Trust Memory", "Queues", "Database", "Build Version", "Environment"]) {
     assert.match(source, new RegExp(component));
   }
   assert.match(source, /Configured credentials are not a successful provider health check/);
-  assert.match(source, /API Health remains Unknown without a deployment health probe/);
+  assert.match(source, /Only the environment label is exposed; secret values remain hidden/);
 });
 
 test("observability exposes all eight metrics and preserves absent measurements", () => {

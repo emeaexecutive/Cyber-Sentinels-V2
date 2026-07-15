@@ -17,6 +17,8 @@ import {
   getOperationalPilotTemplate,
   operationalPilotTemplates,
 } from "@/lib/pilot-templates";
+import { enterprisePolicyTemplates } from "@/lib/policy-engine";
+import { buildProviderReadinessChecklist, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
 
 export const dynamic = "force-dynamic";
 
@@ -36,12 +38,17 @@ async function createPilotWorkspace(formData: FormData) {
   const pilotTemplate = getOperationalPilotTemplate(formData.get("pilot_template"));
   const caseTitle = String(formData.get("case_title") ?? "").trim();
   const caseDescription = String(formData.get("case_description") ?? "").trim();
+  const identityProvider = String(formData.get("identity_provider") ?? "supabase").trim();
+  const providerConfiguration = String(formData.get("provider_configuration") ?? "awaiting_credentials").trim();
+  const policyTemplateId = String(formData.get("policy_template") ?? "general-enterprise").trim();
+  const adminConfirmed = formData.get("admin_confirmed") === "on";
+  const policyTemplate = enterprisePolicyTemplates.find((template) => template.id === policyTemplateId);
   const reviewerEmailList = reviewerEmails
     .split(/[,\n]/)
     .map((email) => email.trim())
     .filter(Boolean);
 
-  if (!organizationName || !caseTitle) {
+  if (!organizationName || !caseTitle || !adminConfirmed || !policyTemplate) {
     redirect("/enterprise/pilot-setup?error=missing_fields");
   }
 
@@ -104,19 +111,38 @@ async function createPilotWorkspace(formData: FormData) {
         governance: pilotTemplate.governanceIntervention,
         outcome: pilotTemplate.finalOutcome,
       },
+      enterprise_onboarding: {
+        identity_provider: identityProvider,
+        provider_configuration: providerConfiguration,
+        policy_template: policyTemplate.id,
+        policy_name: policyTemplate.name,
+        admin_confirmed: adminConfirmed,
+        first_verification_walkthrough: "ready",
+      },
     });
     const { data: policies } = await supabase
       .from("governance_policies")
       .insert(
-        pilotGovernanceTemplates.map((template) => ({
-          workspace_id: workspace.id,
-          name: template.name,
-          description: template.description,
-          trigger_type: template.trigger_type,
-          severity: template.severity,
-          action_type: template.action_type,
-          requires_human_review: true,
-        }))
+        [
+          ...pilotGovernanceTemplates.map((template) => ({
+            workspace_id: workspace.id,
+            name: template.name,
+            description: template.description,
+            trigger_type: template.trigger_type,
+            severity: template.severity,
+            action_type: template.action_type,
+            requires_human_review: true,
+          })),
+          {
+            workspace_id: workspace.id,
+            name: `${policyTemplate.name} Trust Policy`,
+            description: `${policyTemplate.purpose} Escalation threshold ${policyTemplate.trustThresholds.escalationThreshold}; provider minimum ${policyTemplate.trustThresholds.providerConfidenceMinimum}. Evidence: ${policyTemplate.evidenceRequirements.join(", ")}.`,
+            trigger_type: `enterprise_policy_${policyTemplate.id.replaceAll("-", "_")}`,
+            severity: policyTemplate.policy.assuranceLevel === "high" ? "high" : "medium",
+            action_type: "human_review",
+            requires_human_review: true,
+          },
+        ]
       )
       .select("id, trigger_type");
     const governancePolicyId =
@@ -192,6 +218,11 @@ async function createPilotWorkspace(formData: FormData) {
       governance_templates: pilotGovernanceTemplates.map((template) => template.name),
       pilot_template: pilotTemplate.id,
       pilot_template_name: pilotTemplate.name,
+      identity_provider: identityProvider,
+      provider_configuration: providerConfiguration,
+      enterprise_policy_template: policyTemplate.id,
+      enterprise_policy_name: policyTemplate.name,
+      admin_confirmed: adminConfirmed,
       operational_context:
         "Pilot setup created an isolated workspace and first trust case for design-partner onboarding.",
     },
@@ -213,6 +244,7 @@ export default async function PilotSetupPage({
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login?next=/enterprise/pilot-setup");
+  const providerReadiness = summarizeProviderReadiness(buildProviderReadinessChecklist());
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
@@ -232,6 +264,18 @@ export default async function PilotSetupPage({
           <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-500">
             {PILOT_MODE ? pilotModeNotice : "Pilot Mode is currently disabled."}
           </p>
+          <div className="mt-5 grid gap-2 sm:grid-cols-3">
+            {[
+              ["Configured", providerReadiness.classifications.configured + providerReadiness.classifications.productionReady, "Credentials or reviewed paths are present; successful health remains separate."],
+              ["Optional", providerReadiness.classifications.prototype, "Prototype adapters are optional for the first walkthrough."],
+              ["Awaiting Credentials", providerReadiness.classifications.awaitingCredentials, "No provider call is made until credentials and controls are reviewed."],
+            ].map(([label, count, copy]) => (
+              <div key={label} className="rounded-lg border border-zinc-800 bg-black p-3">
+                <p className="text-sm font-semibold text-zinc-100">{label}: {count}</p>
+                <p className="mt-1 text-xs leading-5 text-zinc-500">{copy}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         {query.error ? (
@@ -256,6 +300,31 @@ export default async function PilotSetupPage({
                 placeholder="Reviewer emails, comma or line separated"
                 className="min-h-24 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white"
               />
+              <label className="grid gap-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
+                Identity Provider
+                <select name="identity_provider" defaultValue="supabase" className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm normal-case tracking-normal text-white">
+                  <option value="supabase">Supabase Auth - Configured when environment is present</option>
+                  <option value="saml">Enterprise SAML - Optional</option>
+                  <option value="oidc">Enterprise OIDC - Optional</option>
+                  <option value="scim">SCIM lifecycle - Awaiting Credentials</option>
+                </select>
+              </label>
+              <label className="grid gap-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
+                Provider Configuration Status
+                <select name="provider_configuration" defaultValue="awaiting_credentials" className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm normal-case tracking-normal text-white">
+                  <option value="configured">Configured</option>
+                  <option value="optional">Optional</option>
+                  <option value="awaiting_credentials">Awaiting Credentials</option>
+                </select>
+              </label>
+              <label className="grid gap-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
+                Trust Policy
+                <select name="policy_template" defaultValue="general-enterprise" className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm normal-case tracking-normal text-white">
+                  {enterprisePolicyTemplates.map((template) => (
+                    <option key={template.id} value={template.id}>{template.name}</option>
+                  ))}
+                </select>
+              </label>
               <label className="grid gap-2 text-xs uppercase tracking-[0.16em] text-zinc-600">
                 Pilot Workflow
                 <select
@@ -295,6 +364,10 @@ export default async function PilotSetupPage({
                 placeholder="Operational context for the first case"
                 className="min-h-28 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white"
               />
+              <label className="flex items-start gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-sm text-zinc-300">
+                <input name="admin_confirmed" type="checkbox" required className="mt-1" />
+                <span>I confirm the organization, identity choice, provider state, policy and named reviewers are correct for this controlled pilot.</span>
+              </label>
               <button className="w-fit rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
                 Create Pilot Workspace
               </button>
@@ -302,15 +375,16 @@ export default async function PilotSetupPage({
           </form>
 
           <aside className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">10 Minute Path</h2>
+            <h2 className="text-xl font-semibold">Guided Enterprise Onboarding</h2>
             <div className="mt-5 grid gap-3 text-sm text-zinc-400">
               {[
-                ["Request access", "Enterprise or design-partner access is recorded before pilot activation."],
-                ["Create workspace", "Pilot workspace and first trust case are created together."],
-                ["Upload evidence", "Evidence starts incomplete until the first upload succeeds."],
-                ["Trigger governance", "A pending human governance review is opened for the first trust case."],
-                ["Generate verification receipt", "Receipts become meaningful after evidence and review context exist."],
-                ["Review replay", "Timeline starts at case creation; replay becomes useful after review activity."],
+                ["Welcome", "Confirm the controlled design-partner scope and evidence boundary."],
+                ["Organization setup", "Create the tenant workspace and named administrator."],
+                ["Identity Provider selection", "Record Supabase Auth, SAML, OIDC or SCIM readiness."],
+                ["Provider configuration status", "Preserve Configured, Optional or Awaiting Credentials without implying Live health."],
+                ["Trust Policy selection", "Choose one reviewed template with thresholds, evidence and escalation ownership."],
+                ["Admin confirmation", "Confirm organization, identity, providers, policy and reviewer ownership."],
+                ["First verification walkthrough", "Create the first case, add evidence, review the decision and open Replay."],
               ].map(([label, item], index) => (
                 <div key={item} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">

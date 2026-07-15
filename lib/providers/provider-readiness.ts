@@ -41,6 +41,8 @@ export type ProviderReadinessCheck = {
   id: string;
   name: string;
   category: "media_forensics" | "voice" | "identity" | "document" | "provenance" | "bot_protection" | "device_risk";
+  purpose: string;
+  documentationHref: "/docs/PROVIDER_SETUP_GUIDE.md";
   runtimeState: ProviderReadinessRuntimeState;
   credentialState: "present" | "missing" | "not_required";
   configurationStatus: "configured" | "partial" | "not_configured" | "disabled";
@@ -146,6 +148,18 @@ function providerId(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
+function providerPurpose(category: ProviderReadinessCheck["category"]) {
+  return ({
+    media_forensics: "Media authenticity and manipulation signals",
+    voice: "Voice authenticity and impersonation signals",
+    identity: "Identity, authentication and assurance signals",
+    document: "Document authenticity and provenance signals",
+    provenance: "Content provenance and origin signals",
+    bot_protection: "Automated abuse and bot-risk signals",
+    device_risk: "Device continuity and risk signals",
+  } as const)[category];
+}
+
 function verifiedRuntimeState(input: {
   credentialsPresent: boolean;
   configured: boolean;
@@ -177,10 +191,13 @@ export function buildProviderReadinessChecklist(
         health: healthEvidence,
       });
       const productionModeAvailable = runtimeState === "Live";
+      const category = categoryByName[provider.providerName] ?? "media_forensics";
       return {
         id: providerId(`detection-${provider.providerName}`),
         name: provider.providerName,
-        category: categoryByName[provider.providerName] ?? "media_forensics",
+        category,
+        purpose: providerPurpose(category),
+        documentationHref: "/docs/PROVIDER_SETUP_GUIDE.md",
         runtimeState,
         credentialState: credentialPresent ? "present" : "missing",
         configurationStatus: status === "live" ? "configured" : credentialPresent ? "partial" : "not_configured",
@@ -240,10 +257,13 @@ export function buildProviderReadinessChecklist(
     });
     const productionModeAvailable = runtimeState === "Live";
     const configured = provider.status === "configured";
+    const category = categoryByName[provider.name] ?? "identity";
     return {
       id: providerId(`verification-${provider.name}`),
       name: provider.name,
-      category: categoryByName[provider.name] ?? "identity",
+      category,
+      purpose: provider.purpose || providerPurpose(category),
+      documentationHref: "/docs/PROVIDER_SETUP_GUIDE.md",
       runtimeState,
       credentialState: provider.requiredEnv.length === 0 ? "not_required" : provider.presentEnv.length === provider.requiredEnv.length ? "present" : "missing",
       configurationStatus: configured ? "configured" : provider.presentEnv.length ? "partial" : provider.implementationState === "safely_disabled" ? "disabled" : "not_configured",
@@ -305,6 +325,8 @@ export function buildProviderReadinessChecklist(
     id: "platform-supabase-auth",
     name: "Supabase Auth",
     category: "identity",
+    purpose: providerPurpose("identity"),
+    documentationHref: "/docs/PROVIDER_SETUP_GUIDE.md",
     runtimeState: supabaseState,
     credentialState: supabaseConfigured ? "present" : "missing",
     configurationStatus: supabaseConfigured ? "configured" : "not_configured",

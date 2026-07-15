@@ -431,3 +431,35 @@ export function buildReleaseCandidateDemo() {
     boundary: "Live labels refer only to controls executed in this request. Configured and simulated steps are not production traffic, provider health or SLA evidence.",
   };
 }
+
+export function buildDesignPartnerReadinessDemo() {
+  const decision = buildTrustFabricDemo();
+  const steps: Array<{
+    order: number;
+    timestamp: string;
+    label: string;
+    state: EnterpriseOperationalDemoState;
+    evidence: string;
+  }> = [
+    { order: 1, timestamp: "0:00", label: "Organization created", state: "Configured", evidence: "The protected pilot setup creates a tenant workspace, administrator membership and first governed case." },
+    { order: 2, timestamp: "0:35", label: "Provider configured", state: "Awaiting Credentials", evidence: "Configuration remains distinct from health; the walkthrough proceeds without inventing a successful provider call." },
+    { order: 3, timestamp: "1:10", label: "Trust policy selected", state: "Configured", evidence: `Policy ${decision.explainability.policyApplied.version} retains thresholds, evidence requirements and human review.` },
+    { order: 4, timestamp: "1:45", label: "Verification initiated", state: "Live", evidence: `${decision.authority.decision}: ${decision.authority.reason}` },
+    { order: 5, timestamp: "2:25", label: "Decision", state: "Simulated", evidence: `${decision.explainability.decision}: ${decision.explainability.why.join(" ")}` },
+    { order: 6, timestamp: "3:05", label: "Replay", state: "Simulated", evidence: decision.explainability.replayReference ?? "Replay write unavailable in the controlled demo." },
+    { order: 7, timestamp: "3:45", label: "Evidence Graph", state: "Simulated", evidence: `${decision.explainability.evidenceUsed.length} retained evidence reference(s) support the controlled decision.` },
+    { order: 8, timestamp: "4:25", label: "Trust Memory™", state: "Simulated", evidence: `${decision.explainability.trustMemoryUpdate.state}: ${decision.explainability.trustMemoryUpdate.reason}` },
+    { order: 9, timestamp: "5:10", label: "Governance", state: "Configured", evidence: `Governance status: ${decision.governance.status}; a human outcome remains authoritative.` },
+    { order: 10, timestamp: "6:10", label: "Enterprise Dashboard", state: "Configured", evidence: "The protected dashboard consolidates posture, decisions, evidence, replay, memory, providers, reviews and pending actions." },
+  ];
+  return {
+    id: "design-partner-readiness-demo/1.2.1",
+    release: "1.2.1",
+    durationMinutes: 7,
+    mode: "controlled_demo" as const,
+    steps,
+    statesShown: ["Live", "Configured", "Simulated", "Awaiting Credentials"] as EnterpriseOperationalDemoState[],
+    decision,
+    boundary: "Live labels apply only to controls executed in this request. Configured, simulated and awaiting-credential states are not production traffic, provider accuracy or SLA evidence.",
+  };
+}

@@ -47,6 +47,7 @@ export type EnterpriseReadinessModel = {
   cautions: ReadinessGateCheck[];
   complianceBoundary: string;
   operational: EnterpriseOperationalReadiness;
+  settingsGroups: Array<{ label: string; href: string; description: string }>;
 };
 
 export type EnterpriseOperationalStatus =
@@ -164,18 +165,24 @@ export function buildEnterpriseOperationalReadiness(
     blockers: [],
     nextActions: health.build.version ? [] : ["Expose a deployment build identifier before pilot handoff."],
   };
+  const environmentSection: PlatformHealthSection = {
+    status: health.build.environment ? "healthy" : "unknown",
+    confidence: null,
+    evidence: health.build.environment ? [`Deployment environment is ${health.build.environment}.`] : [],
+    blockers: [],
+    nextActions: health.build.environment ? [] : ["Expose a deployment environment label before pilot handoff."],
+  };
   const components = [
     component("authentication", "Authentication", sectionStatus(health.authHealth), health.authHealth, health.generatedAt, "Healthy reflects this authenticated admin request, not identity-provider uptime."),
     component("provider-connectivity", "Provider Connectivity", providerStatus, health.providerHealth, health.generatedAt, "Configured credentials are not a successful provider health check."),
-    component("trust-engine", "Trust Engine", sectionStatus(health.trustEngineHealth), health.trustEngineHealth, health.generatedAt, "Health requires a retained Trust Decision runtime sample."),
+    component("decision-engine", "Decision Engine", sectionStatus(health.trustEngineHealth), health.trustEngineHealth, health.generatedAt, "This is the operational label for the existing Trust Engine; health requires a retained Trust Decision runtime sample."),
     component("replay", "Replay", sectionStatus(health.replayHealth), health.replayHealth, health.generatedAt, health.queues.limitation),
     component("evidence-graph", "Evidence Graph", sectionStatus(health.evidenceGraphHealth), health.evidenceGraphHealth, health.generatedAt, "Health reflects retained in-process write samples, not durable fleet availability."),
     component("trust-memory", "Trust Memory™", sectionStatus(health.trustMemoryHealth), health.trustMemoryHealth, health.generatedAt, "Health reflects retained in-process write samples and never implies autonomous learning."),
-    component("runtime", "Runtime", sectionStatus(health.runtimeHealth), health.runtimeHealth, health.generatedAt, "Runtime samples are process-local readiness telemetry, not production APM."),
-    component("queue-health", "Queue Health", sectionStatus(health.governanceHealth), health.governanceHealth, health.generatedAt, health.queues.limitation),
-    component("validation-coverage", "Validation Coverage", sectionStatus(health.validationHealth), health.validationHealth, health.generatedAt, "Accuracy remains unavailable until dataset-scoped reviewed sample thresholds are met."),
-    component("api-health", "API Health", sectionStatus(health.apiHealth), health.apiHealth, health.generatedAt, "API Health remains Unknown without a deployment health probe."),
+    component("queues", "Queues", sectionStatus(health.governanceHealth), health.governanceHealth, health.generatedAt, health.queues.limitation),
+    component("database", "Database", sectionStatus(health.databaseHealth), health.databaseHealth, health.generatedAt, "Database health reflects the protected readiness check and does not prove regional availability."),
     component("build-version", "Build Version", health.build.version ? "Healthy" : "Unknown", buildSection, health.generatedAt, "Build metadata describes the deployment and is not runtime health evidence."),
+    component("environment", "Environment", health.build.environment ? "Healthy" : "Unknown", environmentSection, health.generatedAt, "Only the environment label is exposed; secret values remain hidden."),
   ];
   const statuses: EnterpriseOperationalStatus[] = ["Healthy", "Degraded", "Awaiting Configuration", "Unavailable", "Unknown"];
   const statusCounts = Object.fromEntries(
@@ -346,5 +353,15 @@ export function buildEnterpriseReadinessModel(
     complianceBoundary:
       "Cyber Sentinels supports compliance-oriented evidence, governance and reporting workflows. This readiness view is not a certification, legal opinion or guarantee of regulatory compliance.",
     operational: buildEnterpriseOperationalReadiness(platformHealth, providerChecks),
+    settingsGroups: [
+      { label: "Identity", href: "/enterprise/identity-governance", description: "Identity providers, ownership and lifecycle controls." },
+      { label: "Providers", href: "/admin/provider-status", description: "Credentials, health, signals and connection evidence." },
+      { label: "Security", href: "/dashboard/session-security", description: "Session security, access boundaries and protection state." },
+      { label: "Policies", href: "/policy-engine", description: "Trust thresholds, review rules and escalation paths." },
+      { label: "Notifications", href: "/notifications", description: "Operator alerts and accountable next actions." },
+      { label: "Audit", href: "/enterprise/auditability", description: "Audit events, replay evidence and export boundaries." },
+      { label: "Integrations", href: "/admin/integrations", description: "Adapter registry and workflow integration controls." },
+      { label: "System", href: "/admin/deployment-readiness", description: "Deployment, environment and build readiness." },
+    ],
   };
 }
