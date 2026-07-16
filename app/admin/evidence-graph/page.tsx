@@ -123,7 +123,7 @@ export default async function AdminEvidenceGraphPage({
     <main className="min-h-screen bg-[#04070c] px-6 py-10 text-white md:px-8">
       <div className="mx-auto max-w-7xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">Evidence Graph Alpha</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">Evidence Graph Operations</p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-5">
             <div>
               <h1 className="max-w-4xl text-4xl font-semibold md:text-5xl">
@@ -156,7 +156,7 @@ export default async function AdminEvidenceGraphPage({
         </div>
 
         <section className="mt-6 flex flex-wrap gap-2">
-          {filterOptions.map(([label, text, value]) => (
+          {filterOptions.map(([, text, value]) => (
             <Link
               key={value}
               href={`/admin/evidence-graph?filter=${value}${showDemo ? "&demo=1" : ""}`}
@@ -179,6 +179,36 @@ export default async function AdminEvidenceGraphPage({
               <p className="mt-2 text-2xl font-semibold text-zinc-100">{String(value)}</p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:p-6">
+          <p className="text-xs uppercase tracking-[0.14em] text-cyan-200">Evidence Coverage</p>
+          <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-semibold">Assessment evidence remains explicit.</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">Verified, pending, missing, expired and contradictory evidence are counted separately for each assessment.</p>
+            </div>
+            <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">Graph health: {queries.evidenceCoverage.graphHealth.state}</span>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {queries.evidenceCoverage.assessments.slice(0, 9).map((assessment) => (
+              <article key={assessment.assessmentId} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <h3 className="font-semibold text-zinc-100">{assessment.label}</h3>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-zinc-500">
+                  {Object.entries(assessment.counts).map(([status, count]) => <p key={status}>{status}: <span className="text-zinc-200">{count}</span></p>)}
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["Verified coverage", queries.evidenceCoverage.graphHealth.verifiedCoveragePercent === null ? "Unavailable" : `${queries.evidenceCoverage.graphHealth.verifiedCoveragePercent}%`],
+              ["Orphaned nodes", queries.evidenceCoverage.graphHealth.orphanedNodes],
+              ["Expired relationships", queries.evidenceCoverage.graphHealth.expiredRelationships],
+              ["Contradictions", queries.evidenceCoverage.graphHealth.contradictoryRelationships],
+            ].map(([label, value]) => <article key={label} className="rounded-lg border border-zinc-800 bg-black p-4"><p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p><p className="mt-2 text-xl font-semibold text-zinc-100">{value}</p></article>)}
+          </div>
+          <p className="mt-4 text-xs leading-5 text-zinc-600">{queries.evidenceCoverage.graphHealth.boundary}</p>
         </section>
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
@@ -213,7 +243,7 @@ export default async function AdminEvidenceGraphPage({
                       {from?.label ?? edge.from} <span className="text-cyan-200">{edge.type}</span> {to?.label ?? edge.to}
                     </p>
                     <p className="mt-2 text-xs text-zinc-600">
-                      {edge.source} / confidence {Math.round(edge.confidence * 100)}% / replay {edge.replayReference ?? "not linked"}
+                      {edge.source} / confidence {edge.confidence === null ? "Unavailable" : `${Math.round(edge.confidence * 100)}%`} / strength {edge.relationshipStrength ?? "unknown"} / freshness {edge.freshness ?? "unknown"} / provenance {edge.providerProvenance ?? "Unavailable"} / replay {edge.replayReference ?? "not linked"}
                     </p>
                   </div>
                 );

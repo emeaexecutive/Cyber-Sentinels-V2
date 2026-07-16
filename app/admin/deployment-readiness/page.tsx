@@ -100,7 +100,7 @@ export default async function DeploymentReadinessPage() {
     },
     {
       label: "Provider credentials pending",
-      detail: "Confirm each provider reports Live, Test, Awaiting Credentials, Prototype or Disabled before launch.",
+      detail: "Confirm each provider reports Production, Sandbox, Awaiting Credentials, Prototype or Disabled before launch.",
       state: "CAUTION",
     },
     {
@@ -128,7 +128,7 @@ export default async function DeploymentReadinessPage() {
     },
     {
       label: "Provider Health",
-      detail: "Provider paths remain explicit about Live, Test, Awaiting Credentials, Prototype and Disabled states.",
+      detail: "Provider paths remain explicit about Production, Sandbox, Awaiting Credentials, Prototype and Disabled states.",
       state: "CAUTION",
     },
     {

@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { createPublicApiContext, paginatePublicItems, publicApiPagination, publicApiSuccess } from "@/lib/api/public-contracts";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
 import { getPublicTrustFeed } from "@/lib/trust-feed/feed";
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createClient();
 
   // Public feed items are intentionally pre-sanitized and never include evidence,
@@ -14,8 +14,6 @@ export async function GET() {
     source: "public_feed_api",
   });
 
-  return NextResponse.json({
-    ok: true,
-    feed: getPublicTrustFeed(),
-  });
+  const page = paginatePublicItems(getPublicTrustFeed(), publicApiPagination(request));
+  return publicApiSuccess({ feed: page.items }, createPublicApiContext(request, "public_feed"), { pagination: page.pagination });
 }

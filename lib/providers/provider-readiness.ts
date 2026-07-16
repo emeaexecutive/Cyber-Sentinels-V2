@@ -19,9 +19,9 @@ export type ProviderReadinessClassification =
   | "Prototype"
   | "Deprecated";
 
-export type ProviderRealityState =
-  | "Live"
-  | "Test"
+export type ProviderOperationsState =
+  | "Production"
+  | "Sandbox"
   | "Awaiting Credentials"
   | "Prototype"
   | "Disabled";
@@ -33,6 +33,12 @@ export type ProviderHealthSummary = {
   evidence: string;
   lastCheckedAt: string | null;
   latencyMs: number | null;
+  availability: "Available" | "Unavailable" | "Unknown";
+  credentialStatus: ProviderReadinessCheck["credentialState"];
+  supportedSignals: readonly string[];
+  confidence: number | null;
+  errorRate: number | null;
+  retryState: "Enabled" | "Not implemented" | "Inactive";
   limitation: string;
 };
 
@@ -86,12 +92,12 @@ export type ProviderReadinessCheck = {
   nextAction: string;
 };
 
-export function providerRealityState(check: ProviderReadinessCheck): ProviderRealityState {
+export function providerRealityState(check: ProviderReadinessCheck): ProviderOperationsState {
   if (check.adapterMaturity === "disabled") return "Disabled";
   if (check.adapterMaturity === "prototype") return "Prototype";
   if (check.credentialState === "missing") return "Awaiting Credentials";
-  if (classifyProviderReadiness(check) === "Production Ready") return "Live";
-  return "Test";
+  if (classifyProviderReadiness(check) === "Production Ready") return "Production";
+  return "Sandbox";
 }
 
 export function classifyProviderReadiness(
@@ -139,7 +145,13 @@ export function buildProviderHealthSummary(check: ProviderReadinessCheck): Provi
         : "No successful real health check is recorded in this process.",
     lastCheckedAt: check.lastSuccessfulCheck ?? check.lastFailure?.at ?? null,
     latencyMs: check.latency.measured ? check.latency.p95Ms : null,
-    limitation: "Health evidence is process-local and does not establish fleet-wide availability or an SLA.",
+    availability: check.lastSuccessfulCheck ? "Available" : check.lastFailure || check.credentialState === "missing" ? "Unavailable" : "Unknown",
+    credentialStatus: check.credentialState,
+    supportedSignals: check.supportedFeatures,
+    confidence: null,
+    errorRate: check.lastSuccessfulCheck ? 0 : check.lastFailure ? 1 : null,
+    retryState: check.retryLogicImplemented ? "Enabled" : check.lastFailure ? "Not implemented" : "Inactive",
+    limitation: "Health evidence is process-local. Confidence is unavailable without a provider-returned, normalized value; error rate reflects only the retained health observation and does not establish fleet-wide availability or an SLA.",
   };
 }
 
@@ -411,9 +423,9 @@ export function summarizeProviderReadiness(checks = buildProviderReadinessCheckl
       prototype: checks.filter((item) => classifyProviderReadiness(item) === "Prototype").length,
       deprecated: checks.filter((item) => classifyProviderReadiness(item) === "Deprecated").length,
     },
-    realityStates: {
-      live: checks.filter((item) => providerRealityState(item) === "Live").length,
-      test: checks.filter((item) => providerRealityState(item) === "Test").length,
+    operationsStates: {
+      production: checks.filter((item) => providerRealityState(item) === "Production").length,
+      sandbox: checks.filter((item) => providerRealityState(item) === "Sandbox").length,
       awaitingCredentials: checks.filter((item) => providerRealityState(item) === "Awaiting Credentials").length,
       prototype: checks.filter((item) => providerRealityState(item) === "Prototype").length,
       disabled: checks.filter((item) => providerRealityState(item) === "Disabled").length,

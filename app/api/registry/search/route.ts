@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { createPublicApiContext, paginatePublicItems, publicApiPagination, publicApiSuccess } from "@/lib/api/public-contracts";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
@@ -28,19 +28,6 @@ export async function GET(req: Request) {
 
   await recordRegistrySearch(query, type);
 
-  return NextResponse.json({ ok: true, results });
-}
-
-export async function POST(req: Request) {
-  const body = (await req.json().catch(() => ({}))) as {
-    query?: unknown;
-    type?: unknown;
-  };
-  const query = typeof body.query === "string" ? body.query : null;
-  const type = typeof body.type === "string" ? body.type : null;
-  const results = searchTrustRegistry(query, type).map(toPublicTrustRegistryJson);
-
-  await recordRegistrySearch(query, type);
-
-  return NextResponse.json({ ok: true, results });
+  const page = paginatePublicItems(results, publicApiPagination(req));
+  return publicApiSuccess({ results: page.items }, createPublicApiContext(req, "public_registry"), { pagination: page.pagination });
 }

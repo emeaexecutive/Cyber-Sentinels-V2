@@ -78,7 +78,7 @@ export type TrustExplanation = {
     relationship: string;
     source: string;
     replayReference: string | null;
-    confidence: number;
+    confidence: number | null;
   }>;
   timeline: TrustExplanationTimelineEvent[];
   replayReference: string | null;

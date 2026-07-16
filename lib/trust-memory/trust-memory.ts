@@ -1,4 +1,4 @@
-import type { ReviewedOutcomeRecord } from "@/lib/governance/reviewed-outcomes";
+import type { ReviewedOutcomeRecord } from "../governance/reviewed-outcomes.ts";
 import {
   calculateTrustDelta,
   classifyTrustChange,
@@ -61,6 +61,23 @@ export type TrustMemoryOperationalState =
   | "Trust Reviewed"
   | "Trust Confirmed";
 
+export type TrustMemoryContext = {
+  purpose: string | null;
+  action: string | null;
+  environment: string | null;
+};
+
+export type TrustMemoryReassessment = {
+  state: "scheduled" | "completed" | "not_scheduled";
+  scheduled_for: string | null;
+  trigger: string;
+};
+
+export type TrustMemoryEvidenceSource = {
+  reference: string;
+  source_type: "provider" | "policy" | "authority" | "governance" | "replay" | "reviewed_outcome" | "system";
+};
+
 export type TrustMemoryEvent = {
   id: string;
   actor_id: string;
@@ -81,6 +98,10 @@ export type TrustMemoryEvent = {
   policy_refs: string[];
   authority_refs: string[];
   reviewed_outcome_ref: string | null;
+  context: TrustMemoryContext;
+  reassessment: TrustMemoryReassessment;
+  evidence_sources: TrustMemoryEvidenceSource[];
+  policy_history: Array<{ policy_ref: string; effective_at: string }>;
   confidence_before: number;
   confidence_after: number;
   explanation: TrustChangeExplanation;
@@ -129,6 +150,16 @@ function normalizeRefs(value: string[] | undefined) {
   return [...new Set((value ?? []).map((item) => item.trim()).filter(Boolean))].slice(0, 20);
 }
 
+function evidenceSource(reference: string): TrustMemoryEvidenceSource["source_type"] {
+  if (/^provider:/i.test(reference)) return "provider";
+  if (/^policy:/i.test(reference)) return "policy";
+  if (/^authority:/i.test(reference)) return "authority";
+  if (/^(governance|override):/i.test(reference)) return "governance";
+  if (/^(replay:|\/.*replay)/i.test(reference)) return "replay";
+  if (/^reviewed-outcome:/i.test(reference)) return "reviewed_outcome";
+  return "system";
+}
+
 function evolutionState(input: {
   eventKind: TrustMemoryEventKind;
   stateAfter: string;
@@ -173,10 +204,12 @@ function operationalState(input: {
 }
 
 export function createTrustMemoryEvent(
-  input: Omit<TrustMemoryEvent, "id" | "trust_delta" | "trust_change" | "evolution_state" | "operational_state" | "explanation" | "policy_refs" | "authority_refs" | "created_at"> & {
+  input: Omit<TrustMemoryEvent, "id" | "trust_delta" | "trust_change" | "evolution_state" | "operational_state" | "explanation" | "policy_refs" | "authority_refs" | "context" | "reassessment" | "evidence_sources" | "policy_history" | "created_at"> & {
     id?: string;
     policy_refs?: string[];
     authority_refs?: string[];
+    context?: Partial<TrustMemoryContext>;
+    reassessment?: Partial<TrustMemoryReassessment>;
     created_at?: string;
   }
 ): TrustMemoryEvent {
@@ -195,6 +228,13 @@ export function createTrustMemoryEvent(
   const createdAt = input.created_at ?? new Date().toISOString();
   const trustDelta = calculateTrustDelta(evolutionInput);
   const trustChange = classifyTrustChange(evolutionInput);
+  const policyRefs = normalizeRefs(input.policy_refs);
+  const authorityRefs = normalizeRefs(input.authority_refs);
+  const evidenceRefs = normalizeRefs(input.evidence_refs);
+  const replayRefs = normalizeRefs(input.replay_refs);
+  const governanceRefs = normalizeRefs(input.governance_refs);
+  const providerRefs = normalizeRefs(input.provider_refs);
+  const reviewedOutcomeRefs = input.reviewed_outcome_ref ? [input.reviewed_outcome_ref] : [];
 
   return {
     ...input,
@@ -206,13 +246,41 @@ export function createTrustMemoryEvent(
     evolution_state: evolutionState({ eventKind: input.event_kind, stateAfter: input.trust_state_after, classification: trustChange, delta: trustDelta }),
     operational_state: operationalState({ eventKind: input.event_kind, stateAfter: input.trust_state_after, classification: trustChange, delta: trustDelta }),
     explanation: explainTrustChange(evolutionInput),
-    evidence_refs: normalizeRefs(input.evidence_refs),
-    replay_refs: normalizeRefs(input.replay_refs),
-    governance_refs: normalizeRefs(input.governance_refs),
-    provider_refs: normalizeRefs(input.provider_refs),
-    policy_refs: normalizeRefs(input.policy_refs),
-    authority_refs: normalizeRefs(input.authority_refs),
+    evidence_refs: evidenceRefs,
+    replay_refs: replayRefs,
+    governance_refs: governanceRefs,
+    provider_refs: providerRefs,
+    policy_refs: policyRefs,
+    authority_refs: authorityRefs,
+    context: {
+      purpose: input.context?.purpose?.trim() || null,
+      action: input.context?.action?.trim() || null,
+      environment: input.context?.environment?.trim() || null,
+    },
+    reassessment: {
+      state: input.reassessment?.state ?? "not_scheduled",
+      scheduled_for: input.reassessment?.scheduled_for ?? null,
+      trigger: input.reassessment?.trigger?.trim() || "No reassessment schedule was recorded for this event.",
+    },
+    evidence_sources: [...evidenceRefs, ...providerRefs, ...policyRefs, ...authorityRefs, ...governanceRefs, ...replayRefs, ...reviewedOutcomeRefs]
+      .map((reference) => ({ reference, source_type: evidenceSource(reference) })),
+    policy_history: policyRefs.map((policy_ref) => ({ policy_ref, effective_at: createdAt })),
     created_at: createdAt,
+  };
+}
+
+export function buildWhyTrustChanged(event: TrustMemoryEvent) {
+  return {
+    previousPosture: event.trust_state_before,
+    newPosture: event.trust_state_after,
+    evidenceResponsible: event.evidence_sources,
+    authorityImpact: event.authority_refs.length ? event.authority_refs : ["No authority lineage change was recorded."],
+    policyApplied: event.policy_refs.length ? event.policy_refs : ["No policy version was recorded."],
+    reviewer: event.reviewed_outcome_ref ?? null,
+    replayLink: event.replay_refs[0] ?? null,
+    confidenceChange: event.explanation.confidenceChange,
+    reassessment: event.reassessment,
+    context: event.context,
   };
 }
 
@@ -286,6 +354,9 @@ export function validateTrustMemoryIntegrity(
     tenantIsolationPreserved: events.every((event) => event.tenant_id === input.tenantId),
     reviewedOutcomesAttributable: events.filter((event) => event.reviewed_outcome_ref).every((event) => event.governance_refs.length > 0),
     reasonsPresent: events.every((event) => event.reason.trim().length > 0),
+    evidenceSourcesAttributable: events.every((event) => event.evidence_sources.every((source) => source.reference.length > 0)),
+    policyHistoryTraceable: events.every((event) => event.policy_history.length === event.policy_refs.length),
+    reassessmentTraceable: events.every((event) => event.reassessment.trigger.trim().length > 0 && (event.reassessment.state !== "scheduled" || Boolean(event.reassessment.scheduled_for))),
     appendOnlyIds: duplicateIds.length === 0,
   };
   return {
@@ -374,7 +445,11 @@ export const demoTrustMemoryEvents: TrustMemoryEvent[] = [
     replay_refs: ["/trust-replay?workflow_id=wf-enterprise-hiring-42"],
     governance_refs: [],
     provider_refs: ["provider:identity:Live"],
+    policy_refs: ["policy:enterprise-access:v3"],
+    authority_refs: ["authority:reviewer-role:v2"],
     reviewed_outcome_ref: null,
+    context: { purpose: "Enterprise workflow review", action: "Establish reviewer identity", environment: "Controlled demo" },
+    reassessment: { state: "scheduled", scheduled_for: "2026-07-11T08:00:00.000Z", trigger: "Reassess identity and authority before the next consequential action." },
     confidence_before: 0.48,
     confidence_after: 0.82,
     created_at: "2026-07-10T08:00:00.000Z",
@@ -391,7 +466,11 @@ export const demoTrustMemoryEvents: TrustMemoryEvent[] = [
     replay_refs: ["/trust-replay?workflow_id=wf-enterprise-hiring-42"],
     governance_refs: ["governance:queued-review-778"],
     provider_refs: ["provider:runtime:Heuristic Baseline"],
+    policy_refs: ["policy:candidate-data-scope:v5"],
+    authority_refs: ["authority:screening-agent:v4"],
     reviewed_outcome_ref: null,
+    context: { purpose: "Candidate screening", action: "Request candidate data", environment: "Controlled demo" },
+    reassessment: { state: "scheduled", scheduled_for: "2026-07-10T08:37:00.000Z", trigger: "Reassess after governance confirms the requested data scope." },
     confidence_before: 0.78,
     confidence_after: 0.57,
     created_at: "2026-07-10T08:07:00.000Z",
@@ -408,7 +487,11 @@ export const demoTrustMemoryEvents: TrustMemoryEvent[] = [
     replay_refs: ["/trust-replay?workflow_id=wf-enterprise-hiring-42"],
     governance_refs: ["governance:signature-review-991"],
     provider_refs: ["provider:ats:Awaiting Credentials"],
+    policy_refs: ["policy:restricted-export:v2"],
+    authority_refs: ["authority:ats-webhook:v3"],
     reviewed_outcome_ref: null,
+    context: { purpose: "Restricted workflow export", action: "Transmit signed event", environment: "Controlled demo" },
+    reassessment: { state: "scheduled", scheduled_for: "2026-07-10T08:43:00.000Z", trigger: "Reassess after signature continuity is restored and reviewed." },
     confidence_before: 0.74,
     confidence_after: 0.44,
     created_at: "2026-07-10T08:13:00.000Z",
@@ -425,7 +508,11 @@ export const demoTrustMemoryEvents: TrustMemoryEvent[] = [
     replay_refs: ["/trust-replay?workflow_id=wf-enterprise-hiring-42"],
     governance_refs: ["governance:review-778"],
     provider_refs: [],
+    policy_refs: ["policy:delegated-exception:v2"],
+    authority_refs: ["authority:screening-agent:v4", "authority:reviewer-778:v1"],
     reviewed_outcome_ref: "reviewed-outcome:screening-agent-7",
+    context: { purpose: "Candidate screening", action: "Approve bounded exception", environment: "Controlled demo" },
+    reassessment: { state: "completed", scheduled_for: "2026-07-10T08:22:00.000Z", trigger: "Governance review completed with a narrower future scope." },
     confidence_before: 0.57,
     confidence_after: 0.73,
     created_at: "2026-07-10T08:22:00.000Z",

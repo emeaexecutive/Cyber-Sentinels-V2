@@ -32,7 +32,7 @@ export async function GET() {
     generatedAt: new Date().toISOString(),
     ok: true,
     statusMeaning:
-      "Provider maturity uses only Live, Test, Awaiting Credentials, Prototype and Disabled. Live additionally requires a successful real check; no state is an accuracy claim.",
+      "Adapter maturity uses only Production, Sandbox, Awaiting Credentials, Prototype and Disabled. Production additionally requires a successful real check; no state is an accuracy claim.",
     providers: getVerificationProviderRegistry().map((provider) => ({
       id: provider.id,
       name: provider.name,

@@ -7,13 +7,13 @@ import { buildTrustEvidencePack } from "../lib/trust-transparency.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("homepage owns the Operational Trust Infrastructure category in six sections", async () => {
+test("homepage owns the Operational Trust Infrastructure category in three focused sections", async () => {
   const source = await read("app/page.tsx");
-  assert.equal((source.match(/<section/g) ?? []).length, 6);
+  assert.equal((source.match(/<section/g) ?? []).length, 3);
   assert.match(source, /Operational Trust Infrastructure/);
   assert.match(source, /for Intelligent Enterprises/);
-  assert.match(source, /before, during and after critical actions/);
-  for (const section of ["Operational Trust Lifecycle", "Enterprise Trust Fabric", "Customer Outcomes", "Why Different", "Enterprise Pilot"]) assert.match(source, new RegExp(section));
+  assert.match(source, /evidence-backed decisions, continuous authorization and replayable operations/);
+  for (const section of ["Operational Trust Lifecycle", "Enterprise Trust Fabric", "Why Different"]) assert.match(source, new RegExp(section));
   assert.doesNotMatch(source, /operational trust control plane/i);
 });
 

@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import { createPublicApiContext, publicApiSuccess } from "@/lib/api/public-contracts";
 import { summarizeIntegrationStatus } from "@/lib/integrations/registry";
 
 export const dynamic = "force-dynamic";
 
-export function GET() {
+export function GET(request: Request) {
   const integrations = summarizeIntegrationStatus();
   const optionalWarnings = [
     integrations.stripe,
@@ -18,12 +18,10 @@ export function GET() {
         : "READY"
       : "BLOCKED";
 
-  return NextResponse.json({
-    ok: true,
+  return publicApiSuccess({
     status: "ok",
     deployment_state: deploymentState,
     warnings: optionalWarnings,
     integrations,
-    timestamp: new Date().toISOString(),
-  });
+  }, createPublicApiContext(request, "status"));
 }

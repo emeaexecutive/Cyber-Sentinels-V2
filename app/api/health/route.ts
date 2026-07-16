@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
+import { createPublicApiContext, publicApiSuccess } from "@/lib/api/public-contracts";
 
-export function GET() {
-  return NextResponse.json({ status: "ok", timestamp: Date.now() });
+export function GET(request: Request) {
+  return publicApiSuccess({ status: "ok" }, createPublicApiContext(request, "health"));
 }

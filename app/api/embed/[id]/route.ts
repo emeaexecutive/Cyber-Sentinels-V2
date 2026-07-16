@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { createPublicApiContext, publicApiError, publicApiSuccess } from "@/lib/api/public-contracts";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
@@ -8,12 +8,13 @@ import {
 } from "@/lib/public-verification/embeds";
 
 export async function GET(
-  _req: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   const embed = getPublicTrustEmbed(id);
   const publicEmbed = toPublicTrustEmbedJson(embed);
+  const context = createPublicApiContext(request, "public_embed");
 
   try {
     const supabase = await createClient();
@@ -26,5 +27,6 @@ export async function GET(
     // Public embed JSON should remain available before signal tables are ready.
   }
 
-  return NextResponse.json(publicEmbed);
+  if (publicEmbed.subject_name === "Unknown trust badge") return publicApiError("embed_not_found", "Trust embed was not found.", 404, context);
+  return publicApiSuccess({ embed: publicEmbed }, context);
 }

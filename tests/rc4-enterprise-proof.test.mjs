@@ -23,12 +23,12 @@ test("validation loader excludes metadata schemas and metrics remain gated", asy
   assert.equal(benchmark.calibrationStatus.complete, false);
 });
 
-test("Validation Dashboard exposes every RC4 proof field and decision source", async () => {
+test("Validation Center preserves RC4 proof fields and adds RC5 evidence boundaries", async () => {
   const [page, engine] = await Promise.all([
     read("app/dashboard/validation/page.tsx"),
     read("lib/core/ml-validation-engine.ts"),
   ]);
-  for (const label of ["Dataset version", "Ground truth", "Reviewed samples", "Precision", "Recall", "False positives", "False negatives", "Calibration state", "Unknown rate"]) {
+  for (const label of ["Dataset version", "Ground truth availability", "Human-reviewed outcomes", "Provider evidence", "Synthetic test coverage", "Precision", "Recall", "False positives", "False negatives", "Calibration status", "Unknown rate"]) {
     assert.match(page, new RegExp(label));
   }
   assert.match(page, /Calibration Incomplete/i);
@@ -37,26 +37,26 @@ test("Validation Dashboard exposes every RC4 proof field and decision source", a
   }
 });
 
-test("provider-facing maturity is constrained to the five RC4 states", async () => {
+test("provider-facing maturity is constrained to the five RC5 operations states", async () => {
   const [readiness, admin, api, hopae] = await Promise.all([
     read("lib/providers/provider-readiness.ts"),
     read("app/admin/provider-status/page.tsx"),
     read("app/api/providers/route.ts"),
     read("lib/providers/hopae-rc1-server.ts"),
   ]);
-  const stateBlock = readiness.match(/export type ProviderRealityState =([\s\S]*?);/)?.[1] ?? "";
+  const stateBlock = readiness.match(/export type ProviderOperationsState =([\s\S]*?);/)?.[1] ?? "";
   assert.deepEqual(
     [...stateBlock.matchAll(/\| "([^"]+)"/g)].map((match) => match[1]),
-    ["Live", "Test", "Awaiting Credentials", "Prototype", "Disabled"]
+    ["Production", "Sandbox", "Awaiting Credentials", "Prototype", "Disabled"]
   );
   assert.match(readiness, /provider\.id === "hopae_connect"[\s\S]*?"production_candidate"/);
-  assert.match(admin, /providerRealityState\(provider\)/);
+  assert.match(admin, /Provider Operations/);
   assert.doesNotMatch(admin, /Test Connection/);
-  assert.match(api, /Provider maturity uses only Live, Test, Awaiting Credentials, Prototype and Disabled/);
+  assert.match(api, /Adapter maturity uses only Production, Sandbox, Awaiting Credentials, Prototype and Disabled/);
   assert.match(hopae, /config\.environment === "production" \? "Live" : "Test Mode"/);
 });
 
-test("operational performance profile measures all six paths without invented empty values", () => {
+test("operational performance profile preserves six RC4 paths and adds three RC5 paths", () => {
   const samples = [
     ["replay_latency", 20, {}],
     ["evidence_graph_latency", 25, {}],
@@ -72,7 +72,9 @@ test("operational performance profile measures all six paths without invented em
     recordRuntimeProfile({ stage, latencyMs, ok: metadata.timeout !== true, degraded: metadata.timeout === true, metadata });
   }
   const profile = getOperationalPerformanceProfile();
-  assert.deepEqual(profile.map((item) => item.label), ["Replay", "Evidence Graph", "Trust Decision", "Provider calls", "Database", "Queues"]);
+  for (const label of ["Replay", "Evidence Graph", "Trust Decision", "Provider calls", "Database", "Queues", "Provider normalization", "Trust profile generation", "Queue throughput"]) {
+    assert.ok(profile.some((item) => item.label === label), label);
+  }
   const provider = profile.find((item) => item.id === "provider_calls");
   assert.equal(provider.averageLatencyMs, 4075);
   assert.equal(provider.p95LatencyMs, 8100);
@@ -84,21 +86,22 @@ test("operational performance profile measures all six paths without invented em
   assert.equal(database.slowOperationCount, 1);
 });
 
-test("homepage is outcome-led with six sections, two CTAs and one graph", async () => {
+test("homepage is outcome-led with three sections, one CTA, one graph and one comparison", async () => {
   const source = await read("app/page.tsx");
-  assert.equal((source.match(/<section/g) ?? []).length, 6);
-  assert.equal((source.match(/<Link/g) ?? []).length, 2);
+  assert.equal((source.match(/<section/g) ?? []).length, 3);
+  assert.equal((source.match(/<Link/g) ?? []).length, 1);
   assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 1);
-  for (const outcome of ["Reduce operational uncertainty", "Know whether a critical action should proceed", "Keep consequential work accountable", "Understand and replay every critical trust decision"]) {
+  assert.equal((source.match(/<ComparisonCard/g) ?? []).length, 1);
+  for (const outcome of ["evidence-backed decisions", "continuous authorization", "replayable operations", "Know whether a critical action should proceed"]) {
     assert.match(source, new RegExp(outcome));
   }
 });
 
 test("demo presents one linear nine-stage operational trust journey", async () => {
   const source = await read("app/demo/trust-execution-flow/page.tsx");
-  const labels = [...source.matchAll(/label: "([^"]+)"/g)].map((match) => match[1]);
-  assert.deepEqual(labels, ["Start", "Identity", "Authority", "Evidence", "Decision", "Replay", "Trust Memory™", "Evidence Pack", "Enterprise Dashboard"]);
-  assert.match(source, /No branches/);
+  const labels = [...source.matchAll(/\["([^"]+)", "(?:Test|Awaiting Credentials)"/g)].map((match) => match[1]);
+  assert.deepEqual(labels, ["Identity verified", "Authority resolved", "Provider evidence collected", "Trust evaluated", "Decision made", "Replay generated", "Trust Memory™ updated", "Evidence Graph refreshed", "Executive trust report produced"]);
+  assert.match(source, /No manual explanation/);
   assert.doesNotMatch(source, /buildRegulatedAiAgentDemo\("allow"\)|buildRegulatedAiAgentDemo\("block"\)/);
 });
 

@@ -1,6 +1,7 @@
 export type RuntimeProfileStage =
   | "lifecycle_orchestration_latency"
   | "provider_latency"
+  | "provider_normalization_latency"
   | "consensus_latency"
   | "trust_latency"
   | "workflow_latency"
@@ -10,11 +11,13 @@ export type RuntimeProfileStage =
   | "enforcement_latency"
   | "evidence_graph_latency"
   | "trust_memory_latency"
+  | "trust_profile_latency"
   | "evidence_pack_latency"
   | "parallel_orchestration_latency"
   | "governance_queue_latency"
   | "dashboard_latency"
   | "database_query_latency"
+  | "queue_throughput"
   | "cache_efficiency";
 
 type LegacyRuntimeProfileStage = "provider" | "trust" | "workflow" | "replay" | "queue" | "cache";
@@ -48,7 +51,7 @@ export type TrustFabricObservabilityMetric = {
 };
 
 export type OperationalPerformanceProfile = {
-  id: "replay" | "evidence_graph" | "trust_decision" | "provider_calls" | "database" | "queues";
+  id: "replay" | "evidence_graph" | "trust_decision" | "provider_calls" | "provider_normalization" | "trust_profile_generation" | "database" | "queues" | "queue_throughput";
   label: string;
   stages: RuntimeProfileStage[];
   sampleCount: number;
@@ -100,6 +103,23 @@ export function recordRuntimeProfileSample(sample: {
     metadata: {
       label: sample.label,
       ...(sample.metadata ?? {}),
+    },
+  });
+}
+
+export function recordQueueThroughput(input: { itemsProcessed: number; durationMs: number; queue: string; ok?: boolean }) {
+  const itemsProcessed = Math.max(0, Math.floor(input.itemsProcessed));
+  const durationMs = Math.max(0, input.durationMs);
+  return recordRuntimeProfile({
+    stage: "queue_throughput",
+    latencyMs: durationMs,
+    ok: input.ok ?? true,
+    degraded: !(input.ok ?? true),
+    metadata: {
+      label: `${input.queue} queue batch`,
+      queue: input.queue,
+      itemsProcessed,
+      itemsPerSecond: durationMs > 0 ? Number(((itemsProcessed / durationMs) * 1000).toFixed(3)) : null,
     },
   });
 }
@@ -158,8 +178,11 @@ const operationalProfileDefinitions: Array<{
   { id: "evidence_graph", label: "Evidence Graph", stages: ["evidence_graph_latency"], slowThresholdMs: 200 },
   { id: "trust_decision", label: "Trust Decision", stages: ["trust_latency"], slowThresholdMs: 300 },
   { id: "provider_calls", label: "Provider calls", stages: ["provider_latency"], slowThresholdMs: 8_000 },
+  { id: "provider_normalization", label: "Provider normalization", stages: ["provider_normalization_latency"], slowThresholdMs: 50 },
+  { id: "trust_profile_generation", label: "Trust profile generation", stages: ["trust_profile_latency"], slowThresholdMs: 200 },
   { id: "database", label: "Database", stages: ["database_query_latency"], slowThresholdMs: 250 },
   { id: "queues", label: "Queues", stages: ["queue_latency", "governance_queue_latency"], slowThresholdMs: 500 },
+  { id: "queue_throughput", label: "Queue throughput", stages: ["queue_throughput"], slowThresholdMs: 1_000 },
 ];
 
 export function getOperationalPerformanceProfile(): OperationalPerformanceProfile[] {

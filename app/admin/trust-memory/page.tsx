@@ -3,7 +3,7 @@ import { DecisionSummary } from "@/components/executive-summary";
 import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { reviewedOutcomesToTrustMemoryEvents } from "@/lib/governance/reviewed-outcomes";
 import { createClient } from "@/lib/supabase/server";
-import { buildTrustMemorySnapshot, demoTrustMemoryEvents } from "@/lib/trust-memory/trust-memory";
+import { buildTrustMemorySnapshot, buildWhyTrustChanged, demoTrustMemoryEvents } from "@/lib/trust-memory/trust-memory";
 import { loadValidationCases, runValidationBenchmark } from "@/lib/validation/benchmark-harness";
 
 export const dynamic = "force-dynamic";
@@ -39,13 +39,14 @@ export default async function AdminTrustMemoryPage() {
   const events = snapshot.events.slice(0, 20);
   const reviewedImpact = events.filter((event) => event.reviewed_outcome_ref).length;
   const evidenceCount = events.reduce((total, event) => total + event.evidence_refs.length, 0);
+  const selectedChange = events[0] ? buildWhyTrustChanged(events[0]) : null;
 
   return (
     <main className="operational-shell min-h-screen px-6 py-8 text-white md:px-8">
       <div className="mx-auto max-w-7xl">
         <section className="operational-panel p-6">
           <p className="text-sm font-medium text-emerald-300">Admin Access Verified</p>
-          <h1 className="mt-4 text-4xl font-semibold">Trust Memory Alpha</h1>
+          <h1 className="mt-4 text-4xl font-semibold">Trust Memory Operations</h1>
           <p className="mt-4 max-w-4xl text-sm leading-7 text-zinc-400">
             Trust Memory records how trust changed across actors, workflows, evidence,
             replay and governance review. Raw evidence remains outside this view.
@@ -106,6 +107,34 @@ export default async function AdminTrustMemoryPage() {
             <p className="operational-eyebrow">Boundary</p>
             <p className="mt-2 text-sm leading-6 text-zinc-400">{snapshot.boundary}</p>
           </article>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-cyan-900/60 bg-cyan-950/10 p-5 md:p-6">
+          <p className="operational-eyebrow">Why Trust Changed</p>
+          <h2 className="mt-3 text-2xl font-semibold">The latest transition stays attributable to evidence, authority, policy and review.</h2>
+          {selectedChange ? (
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {[
+                ["Previous posture", selectedChange.previousPosture],
+                ["New posture", selectedChange.newPosture],
+                ["Evidence responsible", selectedChange.evidenceResponsible.map((item) => `${item.source_type}: ${item.reference}`).join("; ") || "No evidence source recorded"],
+                ["Authority impact", selectedChange.authorityImpact.join("; ")],
+                ["Policy applied", selectedChange.policyApplied.join("; ")],
+                ["Reviewer", selectedChange.reviewer ?? "No reviewer recorded"],
+                ["Confidence change", `${selectedChange.confidenceChange.before} to ${selectedChange.confidenceChange.after} (${selectedChange.confidenceChange.delta >= 0 ? "+" : ""}${selectedChange.confidenceChange.delta})`],
+                ["Reassessment", `${selectedChange.reassessment.state.replaceAll("_", " ")}: ${selectedChange.reassessment.scheduled_for ?? selectedChange.reassessment.trigger}`],
+              ].map(([label, value]) => (
+                <article key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                  <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+                  <p className="mt-2 text-sm leading-6 text-zinc-300">{value}</p>
+                </article>
+              ))}
+              <article className="rounded-lg border border-zinc-800 bg-black p-4 md:col-span-2 xl:col-span-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">Replay link</p>
+                {selectedChange.replayLink ? <Link href={selectedChange.replayLink} className="mt-2 inline-flex text-sm font-semibold text-cyan-200 hover:text-white">Open Replay</Link> : <p className="mt-2 text-sm text-zinc-500">Replay not linked</p>}
+              </article>
+            </div>
+          ) : <p className="mt-4 text-sm text-zinc-500">No trust transition is available.</p>}
         </section>
 
         <section className="mt-8 border-l border-zinc-800 pl-5">

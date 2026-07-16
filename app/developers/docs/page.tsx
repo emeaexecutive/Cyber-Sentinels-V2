@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 const docs = [
+  ["Public API Reference", "/api-docs", "Versioned public reads, signed callbacks, schemas and pagination."],
   ["Authentication", "/developers/authentication", "Create scoped keys and keep secrets server-side."],
   ["Trust Events", "/developers/trust-events", "Send structured trust activity into Cyber Sentinels."],
   ["API Keys", "/developers/api-keys", "Manage active and revoked developer keys."],
@@ -18,7 +19,7 @@ export default function DeveloperDocsPage() {
             operational systems.
           </p>
         </section>
-        <section className="mt-8 grid gap-4 md:grid-cols-3">
+        <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {docs.map(([title, href, copy]) => (
             <Link key={href} href={href} className="rounded-lg border border-zinc-800 bg-black p-5 hover:border-cyan-800">
               <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>

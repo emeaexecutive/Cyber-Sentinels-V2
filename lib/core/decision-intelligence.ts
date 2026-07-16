@@ -63,7 +63,7 @@ export type DecisionIntelligence = {
   evidence_graph_inputs: Array<{
     relationship: string;
     source: string;
-    confidence: number;
+    confidence: number | null;
     replayReference: string | null;
   }>;
   limitations: string[];

@@ -1,9 +1,10 @@
-import { writeReplayEvent, type ReplayWriteJob } from "@/lib/replay/replay-writer";
-import { entityDecisionSurface, normalizeEntityIdentity, type EntityIdentityInput } from "@/lib/core/entity-identity";
-import { buildReplaySnapshot, type ReplaySnapshot, type ReplayRow } from "@/lib/trust-replay/replay";
-import { buildTrustTransparencyReport } from "@/lib/trust-transparency";
-import type { TrustTimelineEvent } from "@/lib/trust-timeline/provenance";
+import { writeReplayEvent, type ReplayWriteJob } from "../replay/replay-writer.ts";
+import { entityDecisionSurface, normalizeEntityIdentity, type EntityIdentityInput } from "./entity-identity.ts";
+import { buildReplaySnapshot, type ReplaySnapshot, type ReplayRow } from "../trust-replay/replay.ts";
+import { buildTrustTransparencyReport } from "../trust-transparency.ts";
+import type { TrustTimelineEvent } from "../trust-timeline/provenance.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { recordRuntimeProfile } from "../performance/runtime-profiler.ts";
 
 export type ReplayEngineSnapshotInput = {
   subjectType: string;
@@ -19,7 +20,16 @@ export type ReplayEngineSnapshotInput = {
 };
 
 export function buildOperationalReplay(input: ReplayEngineSnapshotInput): ReplaySnapshot {
-  return buildReplaySnapshot(input);
+  const startedAt = performance.now();
+  const replay = buildReplaySnapshot(input);
+  recordRuntimeProfile({
+    stage: "replay_latency",
+    latencyMs: performance.now() - startedAt,
+    ok: true,
+    degraded: false,
+    metadata: { label: "operational replay generation", subjectType: input.subjectType },
+  });
+  return replay;
 }
 
 export function writeOperationalReplayEvent(

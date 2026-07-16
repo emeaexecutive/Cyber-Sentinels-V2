@@ -1,7 +1,7 @@
 import type {
   ProviderVerificationState,
   TrustScoreRiskFlag,
-} from "@/lib/trust-score";
+} from "../trust-score.ts";
 import { getVerificationProviderDefinition } from "./registry.ts";
 import type {
   NormalizedVerificationResponse,
@@ -9,6 +9,7 @@ import type {
   VerificationProviderId,
   VerificationProviderSignal,
 } from "./types.ts";
+import { recordRuntimeProfile } from "../performance/runtime-profiler.ts";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -97,6 +98,7 @@ function providerId(value: unknown): VerificationProviderId {
 }
 
 export function normalizeProviderSignal(input: ProviderSignalInput): VerificationProviderSignal {
+  const startedAt = performance.now();
   const definition = getVerificationProviderDefinition(input.providerId);
   const providerName = input.providerName ?? definition?.name ?? providerNames[input.providerId];
   const providerState = normalizeProviderState(input.providerVerificationState);
@@ -106,7 +108,7 @@ export function normalizeProviderSignal(input: ProviderSignalInput): Verificatio
     definition?.evidenceReference ?? "External verification source",
   ]).filter(Boolean);
 
-  return {
+  const signal: VerificationProviderSignal = {
     providerId: input.providerId,
     providerName,
     sourceType: input.sourceType ?? "provider_signal",
@@ -126,6 +128,14 @@ export function normalizeProviderSignal(input: ProviderSignalInput): Verificatio
       `${providerName} signal normalized as ${providerState} verification evidence.`
     ),
   };
+  recordRuntimeProfile({
+    stage: "provider_normalization_latency",
+    latencyMs: performance.now() - startedAt,
+    ok: true,
+    degraded: false,
+    metadata: { providerId: input.providerId, label: "provider normalization" },
+  });
+  return signal;
 }
 
 export function toNormalizedVerificationResponse(

@@ -1,7 +1,9 @@
-import type { NormalizedTrustEvidence } from "@/lib/core/evidence-normalizer";
-import { normalizeProviderSignal, type VerificationProviderSignal } from "@/lib/providers";
-import type { ReplaySession } from "@/lib/trust-replay/replay";
-import { createTrustMemoryEvent, type TrustMemoryEvent } from "@/lib/trust-memory/trust-memory";
+import type { NormalizedTrustEvidence } from "../core/evidence-normalizer.ts";
+import { normalizeProviderSignal } from "../providers/signals.ts";
+import type { VerificationProviderSignal } from "../providers/types.ts";
+import type { ReplaySession } from "../trust-replay/replay.ts";
+import { createTrustMemoryEvent, type TrustMemoryEvent } from "../trust-memory/trust-memory.ts";
+import { recordRuntimeProfile } from "../performance/runtime-profiler.ts";
 
 export type EvidenceGraphNodeType =
   | "human"
@@ -49,7 +51,13 @@ export type EvidenceGraphRelationship = {
   to: string;
   type: EvidenceGraphRelationshipType;
   timestamp: string;
-  confidence: number;
+  confidence: number | null;
+  relationshipStrength?: "strong" | "moderate" | "weak" | "unknown";
+  freshness?: "fresh" | "stale" | "expired" | "unknown";
+  expiresAt?: string | null;
+  providerProvenance?: string | null;
+  contradiction?: boolean;
+  missingEvidence?: boolean;
   source: string;
   replayReference: string | null;
 };
@@ -100,10 +108,25 @@ function timestamp(value: unknown) {
   return Number.isNaN(parsed.getTime()) ? now() : parsed.toISOString();
 }
 
-function confidence(value: unknown, fallback = 0.7) {
+function confidence(value: unknown, fallback: number | null = null) {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return fallback;
   return Math.max(0, Math.min(1, numeric > 1 ? numeric / 100 : numeric));
+}
+
+function relationshipStrength(value: number | null): EvidenceGraphRelationship["relationshipStrength"] {
+  if (value === null) return "unknown";
+  if (value >= 0.8) return "strong";
+  if (value >= 0.5) return "moderate";
+  return "weak";
+}
+
+function freshness(expiresAt: string | null, explicit?: EvidenceGraphRelationship["freshness"]): EvidenceGraphRelationship["freshness"] {
+  if (explicit) return explicit;
+  if (!expiresAt) return "unknown";
+  const expiry = Date.parse(expiresAt);
+  if (!Number.isFinite(expiry)) return "unknown";
+  return expiry <= Date.now() ? "expired" : "fresh";
 }
 
 function safeMetadata(record: Record<string, unknown> = {}) {
@@ -139,10 +162,18 @@ export class EvidenceGraphBuilder {
   }
 
   addRelationship(relationship: Omit<EvidenceGraphRelationship, "id">) {
+    const normalizedConfidence = confidence(relationship.confidence);
+    const normalizedExpiry = relationship.expiresAt ? timestamp(relationship.expiresAt) : null;
     const normalized = {
       ...relationship,
       timestamp: timestamp(relationship.timestamp),
-      confidence: confidence(relationship.confidence),
+      confidence: normalizedConfidence,
+      relationshipStrength: relationship.relationshipStrength ?? relationshipStrength(normalizedConfidence),
+      freshness: freshness(normalizedExpiry, relationship.freshness),
+      expiresAt: normalizedExpiry,
+      providerProvenance: relationship.providerProvenance ? cleanText(relationship.providerProvenance, "") : null,
+      contradiction: Boolean(relationship.contradiction),
+      missingEvidence: Boolean(relationship.missingEvidence),
       replayReference: relationship.replayReference ? cleanText(relationship.replayReference, "") : null,
     };
     const id = edgeId(normalized);
@@ -173,7 +204,16 @@ function link(
   to: string,
   type: EvidenceGraphRelationshipType,
   source: string,
-  options: { timestamp?: unknown; confidence?: unknown; replayReference?: unknown } = {}
+  options: {
+    timestamp?: unknown;
+    confidence?: unknown;
+    replayReference?: unknown;
+    expiresAt?: unknown;
+    providerProvenance?: unknown;
+    contradiction?: boolean;
+    missingEvidence?: boolean;
+    freshness?: EvidenceGraphRelationship["freshness"];
+  } = {}
 ) {
   if (!from || !to) return;
   builder.addRelationship({
@@ -182,6 +222,12 @@ function link(
     type,
     timestamp: timestamp(options.timestamp),
     confidence: confidence(options.confidence),
+    relationshipStrength: relationshipStrength(confidence(options.confidence)),
+    freshness: options.freshness,
+    expiresAt: options.expiresAt ? timestamp(options.expiresAt) : null,
+    providerProvenance: options.providerProvenance ? String(options.providerProvenance) : null,
+    contradiction: Boolean(options.contradiction),
+    missingEvidence: Boolean(options.missingEvidence),
     source,
     replayReference: options.replayReference ? String(options.replayReference) : null,
   });
@@ -208,7 +254,7 @@ export function writeTrustMemoryGraphEdges(builder: EvidenceGraphBuilder, events
       id: nodeId("trust_memory_event", event.id),
       type: "trust_memory_event",
       label: cleanText(event.event_kind, "Trust Memory event"),
-      summary: cleanText(event.explanation ?? event.reason, "Trust Memory captured a trust transition."),
+      summary: cleanText(event.explanation.summary ?? event.reason, "Trust Memory captured a trust transition."),
       metadata: {
         trust_state_before: event.trust_state_before,
         trust_state_after: event.trust_state_after,
@@ -342,6 +388,7 @@ export function writeProviderGraphEdges(builder: EvidenceGraphBuilder, signals: 
       timestamp: now(),
       confidence: signal.identityConfidence / 100,
       replayReference: signal.evidenceReferences.find((item) => /replay/i.test(item)),
+      providerProvenance: signal.providerName,
     });
   }
 }
@@ -364,13 +411,15 @@ export function writeValidationGraphEdges(builder: EvidenceGraphBuilder, results
     });
     link(builder, evidence, workflow, "supports", "validation", {
       timestamp: result.created_at,
-      confidence: result.confidence ?? 0.5,
+      confidence: result.confidence,
       replayReference: result.replay_reference,
+      contradiction: Boolean(result.expected && result.actual && result.expected !== result.actual),
     });
   }
 }
 
 export function buildEvidenceGraph(input: EvidenceGraphBuildInput = {}) {
+  const startedAt = performance.now();
   const builder = new EvidenceGraphBuilder();
 
   for (const human of input.humans ?? []) {
@@ -520,7 +569,14 @@ export function buildEvidenceGraph(input: EvidenceGraphBuildInput = {}) {
         summary: "Workflow inferred from evidence record.",
         metadata: {},
       });
-      link(builder, workflowNode, evidenceNode, "generated", "evidence_record", { timestamp: evidence.issued_at ?? evidence.created_at, confidence: evidence.confidence_level ?? evidence.confidence ?? 0.7, replayReference: evidence.replay_id });
+      link(builder, workflowNode, evidenceNode, "generated", "evidence_record", {
+        timestamp: evidence.issued_at ?? evidence.created_at,
+        confidence: evidence.confidence_level ?? evidence.confidence,
+        replayReference: evidence.replay_id,
+        expiresAt: evidence.expires_at ?? evidence.expiry,
+        contradiction: evidence.contradictory === true || evidence.contradiction === true,
+        missingEvidence: evidence.missing === true,
+      });
     }
   }
 
@@ -543,7 +599,15 @@ export function buildEvidenceGraph(input: EvidenceGraphBuildInput = {}) {
     if (workflowId) link(builder, nodeId("workflow", workflowId), postureNode, "supports", "trust_posture", { timestamp: posture.updated_at ?? posture.created_at, confidence: posture.confidence ?? 0.7, replayReference: posture.replay_id });
   }
 
-  return builder.build();
+  const graph = builder.build();
+  recordRuntimeProfile({
+    stage: "evidence_graph_latency",
+    latencyMs: performance.now() - startedAt,
+    ok: true,
+    degraded: false,
+    metadata: { label: "evidence graph build", nodes: graph.nodes.length, relationships: graph.relationships.length },
+  });
+  return graph;
 }
 
 export function buildEvidenceGraphDemo() {

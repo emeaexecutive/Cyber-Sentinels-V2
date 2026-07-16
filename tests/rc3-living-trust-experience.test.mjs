@@ -28,15 +28,15 @@ test("footer is the secondary discovery index and preserves company and support 
   assert.match(source, /\/enterprise#support/);
 });
 
-test("homepage contains six blocks and exactly one canonical operational-trust graph", async () => {
+test("homepage contains three blocks and exactly one canonical operational-trust graph", async () => {
   const source = await read("app/page.tsx");
   assert.ok((source.match(/<section/g) ?? []).length <= 7);
   assert.equal((source.match(/data-testid="primary-operational-trust-flow"/g) ?? []).length, 1);
   assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 1);
   assert.doesNotMatch(source, /<InteractiveTrustWalkthrough|<DecisionFlow|<ArchitectureBlock/);
   for (const step of ["Identity", "Authority", "Context", "Evidence", "Trust Decision", "Enforcement", "Replay", "Trust Memory™", "Current Trust Posture"]) assert.match(source, new RegExp(step));
-  assert.match(source, /See operational trust evolve before, during and after a critical action\./);
-  assert.equal((source.match(/<Link/g) ?? []).length, 2);
+  assert.match(source, /One evidence chain connects identity, authority, policy, decision, enforced outcome, Replay and current posture\./);
+  assert.equal((source.match(/<Link/g) ?? []).length, 1);
 });
 
 test("canonical public routes remain indexable while protected and archived routes remain isolated", async () => {
@@ -53,11 +53,11 @@ test("canonical public routes remain indexable while protected and archived rout
   assert.doesNotMatch(redirects, /source: "\/trust-center"|source: "\/trust-graph-engine"/);
 });
 
-test("CISO and CIO buyer journeys reach canonical proof and readiness surfaces", async () => {
+test("CISO and CIO buyer journeys preserve canonical proof and readiness surfaces", async () => {
   const [home, demoPage, platform] = await Promise.all([read("app/page.tsx"), read("app/demo/trust-execution-flow/page.tsx"), read("app/platform/page.tsx")]);
-  assert.match(home, /href="\/demo\/trust-execution-flow"/);
+  assert.match(home, /href="\/enterprise-access\?intent=demo"/);
   for (const href of ["/verification-replay", "/enterprise/readiness"]) assert.match(demoPage, new RegExp(`href="${href.replaceAll("/", "\\/")}"`));
-  assert.equal((home.match(/<Link/g) ?? []).length, 2);
+  assert.equal((home.match(/<Link/g) ?? []).length, 1);
   assert.match(platform, /href="\/developers"/);
   assert.match(platform, /href="\/enterprise\/pilot"/);
 });

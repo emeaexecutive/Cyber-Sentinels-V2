@@ -31,10 +31,18 @@ const allowedDocs = new Set([
   "RC4_ENTERPRISE_STORY.md",
   "RC4_RELEASE_SCORECARD.md",
   "SPRINT_13_4_ACCEPTANCE.md",
+  "TRUST_MEMORY_RC5.md",
+  "EVIDENCE_GRAPH_RC5.md",
+  "VALIDATION_CENTER.md",
+  "PROVIDER_OPERATIONS.md",
+  "ENTERPRISE_PROOF_PACK.md",
+  "UX_SIMPLIFICATION.md",
+  "API_MATURITY.md",
+  "SPRINT_14_1_ACCEPTANCE.md",
 ]);
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
@@ -45,10 +53,12 @@ export async function GET(
 
   const filePath = path.join(process.cwd(), "docs", slug);
   const body = await readFile(filePath, "utf8");
+  const download = new URL(request.url).searchParams.get("download") === "1";
 
   return new NextResponse(body, {
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
+      ...(download ? { "Content-Disposition": `attachment; filename="${slug}"` } : {}),
     },
   });
 }

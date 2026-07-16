@@ -25,7 +25,7 @@ const endpoints = [
   ["POST", "/api/badges/verify", "Verify public-safe trust badges."],
   ["GET", "/api/public/verify/[id]", "Read public-safe verification summaries."],
   ["GET", "/api/embed/[id]", "Read public-safe Trust Embed badge JSON."],
-  ["GET/POST", "/api/registry/search", "Search public-safe registry records."],
+  ["GET", "/api/registry/search", "Search public-safe registry records with bounded cursor pagination."],
 ];
 
 function formatDate(value: string | null) {

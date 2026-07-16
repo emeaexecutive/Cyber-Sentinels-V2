@@ -12,8 +12,8 @@ export const dynamic = "force-dynamic";
 
 function statusTone(state: string) {
   const normalized = state.toLowerCase().replaceAll("_", " ");
-  if (normalized === "live") return "border-emerald-800 text-emerald-200";
-  if (normalized === "test") return "border-cyan-800 text-cyan-200";
+  if (normalized === "production") return "border-emerald-800 text-emerald-200";
+  if (normalized === "sandbox") return "border-cyan-800 text-cyan-200";
   if (normalized === "awaiting credentials") return "border-amber-800 text-amber-200";
   if (normalized === "disabled") return "border-red-800 text-red-200";
   return "border-zinc-700 text-zinc-300";
@@ -37,14 +37,14 @@ export default async function ProviderStatusAdminPage() {
       <div className="mx-auto max-w-7xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm font-medium text-emerald-300">Admin Access Verified</p>
-          <h1 className="mt-4 text-4xl font-semibold">Provider Status</h1>
+          <h1 className="mt-4 text-4xl font-semibold">Provider Operations</h1>
           <p className="mt-4 max-w-4xl text-sm leading-7 text-zinc-400">
             Runtime status for auth, MFA, geo intelligence and provider orchestration. States describe configuration and code-path readiness; they do not claim biometric certainty, provider accuracy or delivered SMS messages.
           </p>
         </section>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {Object.entries(providerReadiness.realityStates).map(([label, count]) => (
+          {Object.entries(providerReadiness.operationsStates).map(([label, count]) => (
             <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-xs capitalize text-zinc-500">{label.replace(/([A-Z])/g, " $1")}</p>
               <p className="mt-2 text-2xl font-semibold text-zinc-100">{count}</p>
@@ -73,11 +73,15 @@ export default async function ProviderStatusAdminPage() {
                 <div className="mt-4 grid gap-2 text-xs text-zinc-500">
                   <p>Current status: {provider.runtimeState}</p>
                   <p>Health: {healthByProviderId.get(provider.id)?.state ?? "Unknown"}</p>
+                  <p>Availability: {healthByProviderId.get(provider.id)?.availability ?? "Unknown"}</p>
                   <p>Latency: {healthByProviderId.get(provider.id)?.latencyMs === null || healthByProviderId.get(provider.id)?.latencyMs === undefined ? "Awaiting data" : `${healthByProviderId.get(provider.id)?.latencyMs} ms`}</p>
                   <p>Credential state: {provider.credentialState.replaceAll("_", " ")}</p>
                   <p>Adapter maturity: {provider.adapterMaturity.replaceAll("_", " ")}</p>
                   <p>Last successful connection: {provider.lastSuccessfulCheck ?? "No successful real connection recorded"}</p>
                   <p>Supported signals: {provider.supportedFeatures.join(", ")}</p>
+                  <p>Confidence: {healthByProviderId.get(provider.id)?.confidence === null || healthByProviderId.get(provider.id)?.confidence === undefined ? "Unavailable" : `${Math.round((healthByProviderId.get(provider.id)?.confidence ?? 0) * 100)}%`}</p>
+                  <p>Error rate: {healthByProviderId.get(provider.id)?.errorRate === null || healthByProviderId.get(provider.id)?.errorRate === undefined ? "Unavailable" : `${Math.round((healthByProviderId.get(provider.id)?.errorRate ?? 0) * 100)}% of retained health observations`}</p>
+                  <p>Retry state: {healthByProviderId.get(provider.id)?.retryState ?? "Inactive"}</p>
                 </div>
                 <p className="mt-3 text-xs leading-5 text-zinc-500">
                   Normalized response: {provider.normalizedResultImplemented ? "implemented" : "not implemented"}. {healthByProviderId.get(provider.id)?.evidence}

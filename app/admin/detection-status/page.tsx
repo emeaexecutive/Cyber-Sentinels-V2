@@ -31,7 +31,7 @@ export default async function DetectionStatusAdminPage() {
       ? "Awaiting Credentials"
       : provider.status() === "disabled"
         ? "Prototype"
-        : "Test",
+        : "Sandbox",
     signals: provider.supportedSignals.join(", "),
   }));
   const scorecard = [
@@ -186,7 +186,7 @@ export default async function DetectionStatusAdminPage() {
           <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Detection truth labels</p>
           <h2 className="mt-3 text-xl font-semibold text-zinc-100">Source taxonomy and boundaries</h2>
           <p className="mt-2 text-sm leading-6 text-zinc-500">
-            These are the only allowed labels for ML and detection surfaces. Provider-facing maturity is tracked separately as Live, Test, Awaiting Credentials, Prototype or Disabled; timeout and failure remain internal runtime telemetry.
+            These are the only allowed labels for ML and detection surfaces. Adapter maturity is tracked separately as Production, Sandbox, Awaiting Credentials, Prototype or Disabled; timeout and failure remain internal runtime telemetry.
           </p>
           <div className="mt-4 rounded-lg border border-amber-900 bg-black p-4">
             <p className="text-sm font-semibold text-amber-200">Insufficient Validation</p>

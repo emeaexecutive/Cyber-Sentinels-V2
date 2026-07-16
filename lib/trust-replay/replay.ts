@@ -2,8 +2,8 @@ import {
   formatTimelineDate,
   timelineCategory,
   type TrustTimelineEvent,
-} from "@/lib/trust-timeline/provenance";
-import { buildTrustPosture, latestCreatedAt, type TrustPosture } from "@/lib/trust-posture/posture";
+} from "../trust-timeline/provenance.ts";
+import { buildTrustPosture, latestCreatedAt, type TrustPosture } from "../trust-posture/posture.ts";
 
 export type ReplayRow = Record<string, any>;
 

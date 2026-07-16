@@ -14,6 +14,8 @@ function percent(value: number | null) {
   return value === null ? "Awaiting data" : `${Math.round(value * 100)}%`;
 }
 
+type ValidationEvidenceState = "Live" | "Test" | "Estimated" | "Unavailable";
+
 export default async function ValidationDashboardPage() {
   const supabase = await createClient();
   const {
@@ -30,17 +32,23 @@ export default async function ValidationDashboardPage() {
   const benchmark = validation.benchmark;
   const groundTruth = benchmark.groundTruth.validation;
   const metricReady = groundTruth.precision.status === "computed";
-  const validationMetrics = [
-    ["Dataset version", benchmark.datasetCoverageReport.datasetVersion],
-    ["Ground truth", `${groundTruth.reviewedSamples}/${groundTruth.minimumReviewedSamples} reviewed samples`],
-    ["Reviewed samples", String(groundTruth.reviewedSamples)],
-    ["Precision", percent(groundTruth.precision.value)],
-    ["Recall", percent(groundTruth.recall.value)],
-    ["False positives", metricReady ? String(groundTruth.confusionMatrix.falsePositives) : "Awaiting data"],
-    ["False negatives", metricReady ? String(groundTruth.confusionMatrix.falseNegatives) : "Awaiting data"],
-    ["Calibration state", metricReady ? "Calibration Complete" : "Calibration Incomplete"],
-    ["Unknown rate", percent(groundTruth.unknownRate.value)],
-  ] as const;
+  const testState: ValidationEvidenceState = benchmark.caseCount ? "Test" : "Unavailable";
+  const reviewedState: ValidationEvidenceState = groundTruth.reviewedSamples ? "Test" : "Unavailable";
+  const computedState: ValidationEvidenceState = metricReady ? "Test" : "Unavailable";
+  const validationMetrics: Array<{ label: string; value: string; state: ValidationEvidenceState }> = [
+    { label: "Dataset version", value: benchmark.datasetCoverageReport.datasetVersion, state: testState },
+    { label: "Ground truth availability", value: `${groundTruth.reviewedSamples}/${groundTruth.minimumReviewedSamples} reviewed samples`, state: reviewedState },
+    { label: "Provider evidence", value: benchmark.providerAgreement === null ? "No reviewed provider comparison" : percent(benchmark.providerAgreement), state: benchmark.providerAgreement === null ? "Unavailable" : "Test" },
+    { label: "Human-reviewed outcomes", value: String(groundTruth.reviewedSamples), state: reviewedState },
+    { label: "Synthetic test coverage", value: benchmark.caseCount ? `${benchmark.caseCount} controlled case(s)` : "No controlled cases loaded", state: testState },
+    { label: "Unknown rate", value: percent(groundTruth.unknownRate.value), state: computedState },
+    { label: "Precision", value: percent(groundTruth.precision.value), state: computedState },
+    { label: "Recall", value: percent(groundTruth.recall.value), state: computedState },
+    { label: "False positives", value: metricReady ? String(groundTruth.confusionMatrix.falsePositives) : "Awaiting data", state: computedState },
+    { label: "False negatives", value: metricReady ? String(groundTruth.confusionMatrix.falseNegatives) : "Awaiting data", state: computedState },
+    { label: "Calibration status", value: metricReady ? "Calibration Complete" : "Calibration Incomplete", state: computedState },
+    { label: "Retained workflow observations", value: String(observations.length), state: observations.length ? "Live" : "Unavailable" },
+  ];
   const validationReadiness = [
     {
       label: "Implemented",
@@ -85,7 +93,7 @@ export default async function ValidationDashboardPage() {
             Operational Validation
           </p>
           <h1 className="mt-4 max-w-5xl text-4xl font-semibold md:text-5xl">
-            Trust workflow validation dashboard
+            Validation Center
           </h1>
           <p className="mt-4 max-w-4xl text-lg leading-8 text-zinc-200">
             Cyber Sentinels helps organizations benchmark and understand operational trust continuity across workflows, identities and intelligent systems.
@@ -142,14 +150,20 @@ export default async function ValidationDashboardPage() {
             </span>
           </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {validationMetrics.map(([label, value]) => (
-              <article key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
-                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
-                <p className="mt-2 text-lg font-semibold text-zinc-100">{value}</p>
+            {validationMetrics.map((metric) => (
+              <article key={metric.label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{metric.label}</p>
+                  <span className="rounded-full border border-zinc-700 px-2 py-0.5 text-[10px] uppercase tracking-[0.1em] text-zinc-300">{metric.state}</span>
+                </div>
+                <p className="mt-2 text-lg font-semibold text-zinc-100">{metric.value}</p>
               </article>
             ))}
           </div>
           <p className="mt-4 text-sm leading-6 text-amber-200">{metricReady ? groundTruth.message : "Calibration incomplete - insufficient reviewed ground truth."}</p>
+          <div className="mt-5 flex flex-wrap gap-2" aria-label="Validation metric state legend">
+            {(["Live", "Test", "Estimated", "Unavailable"] as ValidationEvidenceState[]).map((state) => <span key={state} className="rounded-full border border-zinc-800 bg-black px-3 py-1 text-xs text-zinc-400">{state}</span>)}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:p-6">

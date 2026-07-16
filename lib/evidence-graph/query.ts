@@ -1,8 +1,6 @@
 import type {
   EvidenceGraph,
-  EvidenceGraphNode,
   EvidenceGraphRelationship,
-  EvidenceGraphRelationshipType,
 } from "./evidence-graph.ts";
 
 function node(graph: EvidenceGraph, id: string) {
@@ -21,13 +19,54 @@ function labels(graph: EvidenceGraph, edges: EvidenceGraphRelationship[]) {
   });
 }
 
-function byType(graph: EvidenceGraph, type: EvidenceGraphRelationshipType) {
-  return graph.relationships.filter((edge) => edge.type === type);
-}
-
 function uniqueNodes(graph: EvidenceGraph, edges: EvidenceGraphRelationship[]) {
   const ids = new Set(edges.flatMap((edge) => [edge.from, edge.to]));
   return graph.nodes.filter((item) => ids.has(item.id));
+}
+
+export type EvidenceCoverageStatus = "Verified" | "Pending" | "Missing" | "Expired" | "Contradictory";
+
+function evidenceStatus(graph: EvidenceGraph, evidenceId: string): EvidenceCoverageStatus {
+  const evidence = node(graph, evidenceId);
+  const relationships = edgesFor(graph, evidenceId);
+  if (relationships.some((edge) => edge.contradiction) || evidence?.metadata.contradictory === true) return "Contradictory";
+  if (relationships.some((edge) => edge.freshness === "expired") || evidence?.metadata.expired === true) return "Expired";
+  if (relationships.some((edge) => edge.missingEvidence) || evidence?.metadata.missing === true) return "Missing";
+  if (relationships.some((edge) => edge.type === "verified_by")) return "Verified";
+  return "Pending";
+}
+
+export function buildEvidenceCoverage(graph: EvidenceGraph) {
+  const assessments = graph.nodes
+    .filter((item) => item.type === "workflow")
+    .map((workflow) => {
+      const direct = edgesFor(graph, workflow.id);
+      const evidenceIds = [...new Set(direct.flatMap((edge) => [edge.from, edge.to]))]
+        .filter((id) => node(graph, id)?.type === "evidence");
+      const statuses = evidenceIds.length
+        ? evidenceIds.map((id) => ({ evidenceId: id, status: evidenceStatus(graph, id) }))
+        : [{ evidenceId: `${workflow.id}:missing-evidence`, status: "Missing" as const }];
+      const counts = (Object.fromEntries(
+        (["Verified", "Pending", "Missing", "Expired", "Contradictory"] as EvidenceCoverageStatus[])
+          .map((status) => [status, statuses.filter((item) => item.status === status).length])
+      ) as Record<EvidenceCoverageStatus, number>);
+      return { assessmentId: workflow.id, label: workflow.label, statuses, counts };
+    });
+  const orphanedNodes = graph.nodes.filter((item) => edgesFor(graph, item.id).length === 0).length;
+  const verifiedAssessments = assessments.filter((assessment) => assessment.counts.Verified > 0).length;
+  const graphHealth = {
+    state: assessments.length && verifiedAssessments === assessments.length && orphanedNodes === 0 ? "Healthy" : "Needs review",
+    nodeCount: graph.nodes.length,
+    relationshipCount: graph.relationships.length,
+    orphanedNodes,
+    verifiedCoveragePercent: assessments.length ? Math.round((verifiedAssessments / assessments.length) * 100) : null,
+    expiredRelationships: graph.relationships.filter((edge) => edge.freshness === "expired").length,
+    contradictoryRelationships: graph.relationships.filter((edge) => edge.contradiction).length,
+    missingEvidenceRelationships: graph.relationships.filter((edge) => edge.missingEvidence).length,
+    replayLinkedRelationships: graph.relationships.filter((edge) => Boolean(edge.replayReference)).length,
+    boundary: "Coverage is derived from retained graph relationships; missing nodes and absent freshness metadata remain visible.",
+  };
+  return { assessments, graphHealth };
 }
 
 export function explainTrust(graph: EvidenceGraph, targetId?: string) {
@@ -118,5 +157,6 @@ export function runEvidenceGraphQueries(graph: EvidenceGraph, targetId?: string)
     workflowHistory: showWorkflowHistory(graph, targetId),
     trustEvolution: showTrustEvolution(graph),
     governanceHistory: showGovernanceHistory(graph),
+    evidenceCoverage: buildEvidenceCoverage(graph),
   };
 }

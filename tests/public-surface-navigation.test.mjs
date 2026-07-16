@@ -27,10 +27,10 @@ test("Trust concepts have one public navigation home", async () => {
 test("homepage preserves the release promise and section ceiling", async () => {
   const source = await read("app/page.tsx");
   assert.match(source, /Operational Trust Infrastructure/);
-  assert.match(source, /Reduce operational uncertainty by continuously establishing trust for humans, AI agents, machine identities and regulated workflows before, during and after critical actions\./);
-  assert.equal((source.match(/<section/g) ?? []).length, 6);
+  assert.match(source, /Give Fortune 500 security leaders evidence-backed decisions, continuous authorization and replayable operations across people, AI agents and machine identities\./);
+  assert.equal((source.match(/<section/g) ?? []).length, 3);
   assert.match(source, /Request Enterprise Demo/);
-  assert.match(source, /See Trust in Action/);
+  assert.equal((source.match(/<Link/g) ?? []).length, 1);
 });
 
 test("true duplicate routes redirect without touching protected Trust operations", async () => {

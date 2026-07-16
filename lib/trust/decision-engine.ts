@@ -1,4 +1,5 @@
 import type { DetectionSource } from "../detection/detection-engine.ts";
+import { recordRuntimeProfile } from "../performance/runtime-profiler.ts";
 
 export type TrustDecision = "allow" | "step_up" | "review" | "escalate" | "block" | "insufficient_evidence" | "insufficient evidence";
 
@@ -25,6 +26,7 @@ function toRisk(confidence: number | null | undefined) {
 }
 
 export function evaluateTrustDecision(input: TrustDecisionInput) {
+  const startedAt = performance.now();
   const risks = [
     toRisk(input.identityConfidence),
     input.agentOwnership === "orphaned" ? 0.75 : input.agentOwnership === "unknown" ? 0.55 : input.agentOwnership === "known" ? 0.1 : null,
@@ -72,7 +74,7 @@ export function evaluateTrustDecision(input: TrustDecisionInput) {
             ? "Evidence supports human review before execution continues."
             : "Available evidence supports allow under current policy.";
 
-  return {
+  const result = {
     decision,
     reason,
     confidence: risk === null ? 0 : Number((1 - Math.min(0.95, Math.abs(0.5 - risk))).toFixed(2)),
@@ -92,4 +94,12 @@ export function evaluateTrustDecision(input: TrustDecisionInput) {
       "Manual reviewer action remains authoritative for escalated and blocked states.",
     ],
   };
+  recordRuntimeProfile({
+    stage: "trust_latency",
+    latencyMs: performance.now() - startedAt,
+    ok: decision !== "insufficient_evidence",
+    degraded: ["review", "step_up", "escalate", "block", "insufficient_evidence"].includes(decision),
+    metadata: { label: "decision engine evaluation", decision },
+  });
+  return result;
 }

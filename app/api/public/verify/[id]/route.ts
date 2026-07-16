@@ -1,15 +1,16 @@
-import { NextResponse } from "next/server";
+import { createPublicApiContext, publicApiError, publicApiSuccess } from "@/lib/api/public-contracts";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
 import { getPublicVerification } from "@/lib/public-verification/verify";
 
 export async function GET(
-  _req: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   const result = getPublicVerification(id);
+  const context = createPublicApiContext(request, "public_verification");
   const supabase = await createClient();
 
   // Future: verify signed public verification IDs before resolving records.
@@ -26,8 +27,6 @@ export async function GET(
     verification_status: result.verification_status,
   });
 
-  return NextResponse.json({
-    ok: result.verification_status !== "not_found",
-    verification: result,
-  });
+  if (result.verification_status === "not_found") return publicApiError("verification_not_found", "Verification record was not found.", 404, context);
+  return publicApiSuccess({ verification: result }, context);
 }

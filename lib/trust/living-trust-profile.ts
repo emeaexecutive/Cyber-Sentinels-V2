@@ -4,6 +4,7 @@ import { createLiveTrustSnapshot, type LiveTrustSnapshot } from "../core/live-tr
 import type { ReviewedOutcomeRecord } from "../governance/reviewed-outcomes.ts";
 import type { ProviderNeutralEvidence } from "../providers/hopae-rc1.ts";
 import { createTrustMemoryEvent, type TrustMemoryEvent } from "../trust-memory/trust-memory.ts";
+import { recordRuntimeProfile } from "../performance/runtime-profiler.ts";
 
 export const LIVING_TRUST_CONTEXT_BOUNDARY =
   "Valid for this organization, workflow, purpose and assessment time.";
@@ -381,6 +382,7 @@ export function trustMemoryEventsFromTimelineRecords(rows: Array<Record<string, 
 }
 
 export function deriveLivingTrustProfile(input: LivingTrustProfileInput): LivingTrustProfile {
+  const startedAt = performance.now();
   const { key } = input;
   if (input.entity.tenant_id !== key.tenantId || input.entity.id !== key.entityId || input.entity.type !== key.entityType) {
     throw new Error("Living Trust Profile context does not match the tenant-scoped entity.");
@@ -485,7 +487,7 @@ export function deriveLivingTrustProfile(input: LivingTrustProfileInput): Living
       : posture === "require_approval" ? "awaiting_approval"
         : authorityState;
 
-  return {
+  const profile: LivingTrustProfile = {
     profileKey: key,
     entityId: key.entityId,
     tenantId: key.tenantId,
@@ -526,6 +528,14 @@ export function deriveLivingTrustProfile(input: LivingTrustProfileInput): Living
     universalTransferable: false,
     calculatedPersistence: "derived_not_persisted",
   };
+  recordRuntimeProfile({
+    stage: "trust_profile_latency",
+    latencyMs: performance.now() - startedAt,
+    ok: true,
+    degraded: profile.currentPosture !== "allow_with_constraints",
+    metadata: { label: "living trust profile generation", posture: profile.currentPosture, evidencePresent: profile.evidenceCompleteness.present },
+  });
+  return profile;
 }
 
 export function evaluateContinuousAuthorization(input: {

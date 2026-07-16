@@ -108,6 +108,9 @@ export default async function EnterpriseReadinessPage() {
             <Link href="/enterprise/compliance" className="brand-secondary-action brand-action-large text-sm">
               Compliance Readiness
             </Link>
+            <Link href="/docs/ENTERPRISE_PROOF_PACK.md?download=1" className="brand-secondary-action brand-action-large text-sm">
+              Download Enterprise Proof Pack
+            </Link>
           </div>
         </section>
 
