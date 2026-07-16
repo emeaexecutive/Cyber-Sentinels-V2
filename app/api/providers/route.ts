@@ -9,6 +9,7 @@ import {
   processHopaeProviderCallback,
   Rc1ProviderError,
 } from "@/lib/providers/hopae-rc1-server";
+import { completeWebhookEvent, retainRejectedWebhookEvent } from "@/lib/webhooks/event-ledger";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +73,14 @@ export async function POST(request: Request) {
     return NextResponse.json(result, { headers: { "cache-control": "no-store" } });
   } catch (error) {
     if (error instanceof Rc1ProviderError) {
+      const rejectedBeforeTrust = ["forged_callback", "stale_callback", "invalid_callback_body", "invalid_callback_reference"].includes(error.code);
+      if (rejectedBeforeTrust) {
+        await retainRejectedWebhookEvent("hopae_connect", rawBody, error.code).catch(() => undefined);
+      } else {
+        const payload = JSON.parse(rawBody || "{}");
+        const eventId = String(payload?.event_id ?? payload?.eventId ?? payload?.data?.event_id ?? payload?.data?.eventId ?? "").trim();
+        if (eventId) await completeWebhookEvent("hopae_connect", eventId, "failed", error.code).catch(() => undefined);
+      }
       return NextResponse.json({ ok: false, error: error.code, message: error.message }, { status: error.status });
     }
     console.error("Provider callback processing failed.", error);

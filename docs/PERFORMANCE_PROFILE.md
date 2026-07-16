@@ -2,6 +2,10 @@
 
 Release: 1.1.4
 
+## RC6 durable evidence update
+
+RC6 adds `operational_measurements`, a 90-day default retention boundary, RLS, service-role-only access and correlation-aware forwarding for the existing runtime stages. Current durable target sample count is **0** because no configured Supabase target is available in this execution environment. The local buffer and microbenchmarks below remain diagnostic evidence, not production APM or an SLA. No query or queue optimization was made because no measured deployed bottleneck exists.
+
 ## Instrumented paths
 
 | Path | Runtime stage | Current interpretation |

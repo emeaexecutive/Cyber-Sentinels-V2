@@ -22,6 +22,7 @@ import {
   webhookTimestampWithinTolerance,
 } from "@/lib/providers/hopae-rc1";
 import { hashValue } from "@/lib/security";
+import { completeWebhookEvent, reserveWebhookEvent } from "@/lib/webhooks/event-ledger";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const referencePattern = /^[a-zA-Z0-9_.:-]{1,120}$/;
@@ -81,12 +82,15 @@ export async function startHopaeTrustAssessment(input: {
   const requestedPurpose = requiredReference(input.body.requested_purpose, "requested_purpose");
   const hopaeProviderId = requiredReference(input.body.hopae_provider_id ?? "hopae-connect", "hopae_provider_id");
   const entityId = input.body.entity_id ? requiredReference(input.body.entity_id, "entity_id", true) : input.user.id;
+  const correlationId = crypto.randomUUID();
 
+  const databaseStarted = Date.now();
   const [workspaceResult, workflowResult, policiesResult] = await Promise.all([
     input.supabase.from("trust_workspaces").select("id,name,created_by").eq("id", workspaceId).maybeSingle(),
     input.supabase.from("trust_cases").select("id,workspace_id,status,created_by").eq("id", workflowId).eq("workspace_id", workspaceId).maybeSingle(),
     input.supabase.from("governance_policies").select("id,name,trigger_type,action_type,requires_human_review,allowed_actions,allowed_purposes,minimum_evidence,authority_expires_at,authority_revoked").eq("workspace_id", workspaceId).limit(100),
   ]);
+  recordRuntimeProfile({ stage: "database_query_latency", latencyMs: Date.now() - databaseStarted, ok: !workspaceResult.error && !workflowResult.error && !policiesResult.error, degraded: Boolean(workspaceResult.error || workflowResult.error || policiesResult.error), metadata: { correlationId, tenantId: workspaceId, workflowType: requestedPurpose } });
   if (workspaceResult.error || !workspaceResult.data) throw new Rc1ProviderError("Tenant is not available to the authenticated user.", 403, "tenant_access_denied");
   if (workflowResult.error || !workflowResult.data) throw new Rc1ProviderError("Workflow is unknown or outside the tenant.", 404, "unknown_workflow");
   if (policiesResult.error) throw new Rc1ProviderError("Workflow policy could not be resolved.", 503, "policy_unavailable");
@@ -100,7 +104,6 @@ export async function startHopaeTrustAssessment(input: {
   const allowedPurposes = matchingPolicy ? textArray(matchingPolicy.allowed_purposes) : [];
   const authorityExpired = Boolean(matchingPolicy?.authority_expires_at) && Date.parse(String(matchingPolicy?.authority_expires_at)) <= Date.now();
   const delegationValid = Boolean(matchingPolicy) && matchingPolicy?.authority_revoked !== true && !authorityExpired;
-  const correlationId = crypto.randomUUID();
   const nonce = crypto.randomUUID();
   const redirectUri = new URL("/demo/trust-execution-flow", input.appUrl).toString();
   const providerStarted = Date.now();
@@ -152,6 +155,18 @@ export async function startHopaeTrustAssessment(input: {
     retention_status: "normalized_only",
   });
   if (error) throw new Rc1ProviderError("Trust assessment session could not be retained.", 500, "session_persistence_failed");
+  const { error: executionError } = await createServiceRoleClient().from("provider_execution_records").insert({
+    provider_id: "hopae_connect",
+    environment: config.environment,
+    runtime_mode: "Test",
+    tenant_id: workspaceId,
+    workflow_id: workflowId,
+    correlation_id: correlationId,
+    request_created_at: new Date().toISOString(),
+    status: "request_created",
+    limitations: ["Live is prohibited until a verified real callback completes and retained evidence is reviewed."],
+  });
+  if (executionError) throw new Rc1ProviderError("Provider execution evidence could not be retained.", 500, "execution_record_failed");
 
   return {
     ok: true,
@@ -169,6 +184,7 @@ export async function startHopaeTrustAssessment(input: {
 }
 
 export async function processHopaeProviderCallback(rawBody: string, signature: string, receivedAt = new Date()) {
+  const callbackStarted = Date.now();
   const config = getHopaeConfig();
   if (!config.enabled || !config.webhookSecret) throw new Rc1ProviderError("Hopae Connect callback is not configured.", 503, "provider_awaiting_credentials");
   if (!verifyHopaeWebhookSignature(rawBody, signature, config.webhookSecret)) throw new Rc1ProviderError("Provider signature is invalid.", 401, "forged_callback");
@@ -180,11 +196,18 @@ export async function processHopaeProviderCallback(rawBody: string, signature: s
   if (!envelope.eventId || !envelope.verificationId) throw new Rc1ProviderError("Provider callback lacks an event or verification reference.", 400, "invalid_callback_reference");
 
   const admin = createServiceRoleClient();
+  const intake = await reserveWebhookEvent({ provider: "hopae_connect", eventId: envelope.eventId, eventType: envelope.eventType, rawBody, tenantId: envelope.tenantId, workflowId: envelope.workflowId, correlationId: envelope.correlationId });
+  if (!intake.reserved) return { ok: true, duplicate: true, eventId: envelope.eventId, outcome: "ignored_idempotently", duplicateOf: intake.duplicateOf };
+  const callbackDatabaseStarted = Date.now();
   const duplicate = await admin.from("hopae_webhook_events").select("id").eq("event_id", envelope.eventId).maybeSingle();
-  if (duplicate.data) return { ok: true, duplicate: true, eventId: envelope.eventId, outcome: "ignored_idempotently" };
+  if (duplicate.data) {
+    await admin.from("hopae_webhook_events").update({ duplicate_status: true }).eq("event_id", envelope.eventId);
+    return { ok: true, duplicate: true, eventId: envelope.eventId, outcome: "ignored_idempotently" };
+  }
   const sessionResult = await admin.from("hopae_verifications").select("*").eq("verification_id", envelope.verificationId).maybeSingle();
   if (sessionResult.error || !sessionResult.data) throw new Rc1ProviderError("Provider callback references an unknown workflow.", 404, "unknown_workflow");
   const session = sessionResult.data as Record<string, any>;
+  recordRuntimeProfile({ stage: "database_query_latency", latencyMs: Date.now() - callbackDatabaseStarted, ok: true, degraded: false, metadata: { correlationId: session.correlation_id, tenantId: session.workspace_id, provider: "hopae_connect", workflowType: session.requested_purpose } });
   let currentPolicy: Record<string, any> | null = null;
   if (session.policy_id) {
     const policyResult = await admin
@@ -282,6 +305,7 @@ export async function processHopaeProviderCallback(rawBody: string, signature: s
   }
   const references = persistence.data as Record<string, unknown>;
   if (references.duplicate === true) {
+    await admin.from("hopae_webhook_events").update({ duplicate_status: true }).eq("event_id", envelope.eventId);
     return { ok: true, duplicate: true, eventId: envelope.eventId, outcome: "ignored_idempotently" };
   }
   const replayReference = String(references.replay_reference ?? "");
@@ -295,6 +319,25 @@ export async function processHopaeProviderCallback(rawBody: string, signature: s
     trustMemory: { ...assessment.trust_evidence_pack.trustMemory, references: [trustMemoryReference] },
     enforcement: { ...assessment.trust_evidence_pack.enforcement, receiptReference },
   };
+  const { error: executionUpdateError } = await admin.from("provider_execution_records").update({
+    runtime_mode: sourceMode === "live" ? "Live" : "Test",
+    callback_received_at: receivedAt.toISOString(),
+    signature_status: "verified",
+    idempotency_status: "unique",
+    normalized_evidence_reference: `provider-evidence:${envelope.eventId}`,
+    evidence_quality_status: evidenceQuality.status,
+    decision_reference: `decision:${session.correlation_id}`,
+    replay_reference: replayReference,
+    evidence_graph_reference: evidenceGraphReference,
+    trust_memory_reference: trustMemoryReference,
+    latency_ms: latencyMs,
+    status: "completed",
+    limitations: evidence.limitations,
+    updated_at: receivedAt.toISOString(),
+  }).eq("correlation_id", session.correlation_id);
+  if (executionUpdateError) throw new Rc1ProviderError("Provider execution record could not be completed.", 500, "execution_record_update_failed");
+  await completeWebhookEvent("hopae_connect", envelope.eventId, "processed");
+  recordRuntimeProfile({ stage: "provider_callback_latency", latencyMs: Date.now() - callbackStarted, ok: true, degraded: sourceMode !== "live", metadata: { correlationId: session.correlation_id, tenantId: session.workspace_id, provider: "hopae_connect", workflowType: session.requested_purpose } });
 
   return {
     ok: true,

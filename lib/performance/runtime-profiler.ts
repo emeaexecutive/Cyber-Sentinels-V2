@@ -1,6 +1,7 @@
 export type RuntimeProfileStage =
   | "lifecycle_orchestration_latency"
   | "provider_latency"
+  | "provider_callback_latency"
   | "provider_normalization_latency"
   | "consensus_latency"
   | "trust_latency"
@@ -75,6 +76,19 @@ export function recordRuntimeProfile(sample: Omit<RuntimeProfileSample, "recorde
   };
   samples.unshift(recorded);
   samples.splice(maxSamples);
+  if (
+    typeof process !== "undefined" &&
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.SUPABASE_SERVICE_ROLE_KEY &&
+    sample.metadata?.correlationId
+  ) {
+    void import("./durable-telemetry")
+      .then(({ retainRuntimeProfileSample }) => retainRuntimeProfileSample(recorded))
+      .catch((error) => console.error("Durable operational measurement write failed.", {
+        stage: recorded.stage,
+        error_name: error instanceof Error ? error.name : "unknown",
+      }));
+  }
   return recorded;
 }
 

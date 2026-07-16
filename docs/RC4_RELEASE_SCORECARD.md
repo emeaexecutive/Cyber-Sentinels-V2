@@ -2,6 +2,8 @@
 
 States are evidence-derived: `Ready`, `Review` or `Blocked`. They are not percentages and do not imply certification.
 
+> RC6 update (2026-07-16): the four production-evidence blockers remain open. The RC4 scorecard is historical; current validation, real-provider, deployed-security and durable-performance status is governed by `docs/EPIC_15_RELEASE_BLOCKERS.md`.
+
 | Area | State | Evidence link | Release boundary / next proof |
 | --- | --- | --- | --- |
 | Architecture | Ready | `/platform`, `docs/TRUST_FABRIC_ARCHITECTURE.md` | Deployment and pilot evidence remain required |

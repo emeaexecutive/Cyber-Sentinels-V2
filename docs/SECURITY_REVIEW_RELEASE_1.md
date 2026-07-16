@@ -3,6 +3,10 @@
 Review date: 2026-07-15
 Scope: authentication, authorization, RLS, secret management, API access, rate limiting, session expiry, and audit logging.
 
+## RC6 evidence update — 2026-07-16
+
+The RC6 schema can retain environment, timestamp, state and non-secret evidence references for deployed checks, and the webhook ledgers retain sanitized replay outcomes. No target project, deployment URL or credentials are linked to this checkout, so deployed authentication, RLS denial, cross-tenant denial and webhook rejection results remain **Blocked**. Source review findings below are not promoted to deployed passes.
+
 ## Review boundary
 
 This is a source and configuration-path review. It is not a penetration test, deployed Supabase policy inspection, secret-store audit, dependency CVE attestation, or production traffic test. A migration in source proves intended policy, not deployed policy.

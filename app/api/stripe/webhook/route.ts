@@ -11,9 +11,23 @@ import { captureOperationalIssue } from "@/lib/operational-monitoring";
 import { checkRequestRateLimit } from "@/lib/security";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import type { UserPlan } from "@/types/billing";
+import { completeWebhookEvent, reserveWebhookEvent, retainRejectedWebhookEvent } from "@/lib/webhooks/event-ledger";
 
 export const dynamic = "force-dynamic";
 const maxWebhookBytes = 1_000_000;
+
+async function reserveStripeEvent(event: Stripe.Event, rawBody: string) {
+  const intake = await reserveWebhookEvent({ provider: "stripe", eventId: event.id, eventType: event.type, rawBody, tenantId: null, workflowId: null, correlationId: event.id });
+  return intake.reserved;
+}
+
+async function finishStripeEvent(eventId: string, status: "processed" | "failed", failureReason?: string) {
+  await completeWebhookEvent("stripe", eventId, status, failureReason);
+}
+
+async function retainRejectedStripeEvent(rawBody: string, reason: string) {
+  await retainRejectedWebhookEvent("stripe", rawBody, reason);
+}
 
 function stringId(value: string | { id: string } | null) {
   if (!value) {
@@ -210,6 +224,8 @@ export async function POST(req: Request) {
   if (Number.isFinite(contentLength) && contentLength > maxWebhookBytes) {
     return NextResponse.json({ ok: false, error: "Webhook payload is too large." }, { status: 413 });
   }
+  let rawBody = "";
+  let retainedEventId: string | null = null;
   try {
     const stripe = createStripeClient();
     const webhookSecret = getStripeWebhookSecretEnv("Stripe webhook");
@@ -223,7 +239,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const rawBody = await req.text();
+    rawBody = await req.text();
     if (Buffer.byteLength(rawBody, "utf8") > maxWebhookBytes) {
       return NextResponse.json({ ok: false, error: "Webhook payload is too large." }, { status: 413 });
     }
@@ -232,6 +248,11 @@ export async function POST(req: Request) {
       signature,
       webhookSecret
     );
+    const reserved = await reserveStripeEvent(event, rawBody);
+    if (!reserved) {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+    retainedEventId = event.id;
 
     switch (event.type) {
       case "checkout.session.completed":
@@ -259,8 +280,18 @@ export async function POST(req: Request) {
         break;
     }
 
+    await finishStripeEvent(event.id, "processed");
+
     return NextResponse.json({ received: true });
   } catch (error) {
+    const errorCategory = isEnvConfigurationError(error)
+      ? "webhook_not_configured"
+      : "signature_or_processing_failure";
+    if (retainedEventId) {
+      await finishStripeEvent(retainedEventId, "failed", errorCategory).catch(() => undefined);
+    } else if (rawBody) {
+      await retainRejectedStripeEvent(rawBody, errorCategory).catch(() => undefined);
+    }
     captureOperationalIssue("stripe_webhook", "error", "Stripe webhook handling failed.", {
       configured: isEnvConfigurationError(error) ? false : true,
       error_name: error instanceof Error ? error.name : "unknown",

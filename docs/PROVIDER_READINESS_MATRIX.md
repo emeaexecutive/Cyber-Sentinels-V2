@@ -6,6 +6,8 @@ Provider readiness is evidence for controlled operation, not proof of detection 
 
 Hopae Connect is the production-candidate provider in approved external `Test` maturity (internal runtime `Test Mode`): session creation, signed/timestamped/idempotent callback, status re-fetch, provider-neutral normalization, evidence-quality gating and atomic proof continuity are implemented and fixture-tested. Credentials were not present in this checkout, so the deployed state remains `Awaiting Credentials` until configured and successfully checked. Stripe Identity and World ID remain prototypes. Turnstile is supporting abuse control, never identity proof.
 
+RC6 retains `Live` only when `release_evidence_checks` contains a passed `real_target_environment_flow` with a target environment, timestamp and evidence reference, plus a reviewed provider outcome. Current RC6 state: **Awaiting Credentials; no real retained execution**.
+
 ERM priority order for real integrations:
 
 1. World ID
@@ -46,7 +48,7 @@ Readiness summary:
 | Stripe Identity | Identity | Optional identity verification source. | Server key presence does not equal workflow readiness. | Validate workflow-specific setup and replay evidence before reliance. |
 | C2PA | Provenance | Provenance signal adapter is represented. | Provenance is not proof of realness. | Keep provenance as review evidence and track missing/conflicting metadata. |
 | SynthID | Provenance | Synthetic-media provenance signal is represented. | Coverage depends on supported media and metadata availability. | Compare against reviewed media cases when available. |
-| Hopae Connect | eID verification | RC1 path includes safe session creation, signed callback, normalization, quality gate, authority/policy, atomic Replay/Graph/Memory/receipt persistence and approved fixtures. | Deployment credentials, real health, endpoint contract and reviewed pilot evidence remain. | Apply the RC1 migration, configure sandbox credentials and retain a successful Test Mode run. |
+| Hopae Connect | eID verification | RC1 path includes safe session creation, signed callback, normalization, quality gate, authority/policy, atomic Replay/Graph/Memory/receipt persistence and approved fixtures. RC6 strengthens retained ledger fields. | Deployment credentials, applied RC6 migration, real target flow and reviewed pilot evidence remain. | Apply migrations, configure approved target credentials, retain the complete real flow, then review the result before using `Live`. |
 | Cloudflare Turnstile | Bot protection | Active server-form protection when configured. | Bot challenge evidence is not identity trust. | Keep separate from identity, session and workflow trust. |
 | Persona | Future identity adapter | Placeholder/future adapter. | Not implemented for production workflow use. | Keep disabled until credentials, workflow and audit design are approved. |
 | Entrust | Future identity/document adapter | Placeholder/future adapter. | Not implemented for production workflow use. | Keep disabled until endpoint behavior and restricted-data controls are reviewed. |

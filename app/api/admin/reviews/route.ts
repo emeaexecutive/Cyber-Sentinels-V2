@@ -35,12 +35,19 @@ export async function GET(req: Request) {
     .order("created_at", { ascending: false })
     .limit(100);
 
-  if (error) {
+  const { data: validationCases, error: validationError } = await adminSupabase
+    .from("release_validation_cases")
+    .select("case_id,dataset_version,entity_type,workflow,input_evidence,expected_outcome,actual_outcome,ground_truth_label,review_status,review_confidence,source_provenance,usage_boundary,limitations,evidence_references,uncertainty,disagreement")
+    .in("review_status", ["pending", "reviewed", "disputed"])
+    .order("created_at", { ascending: true })
+    .limit(100);
+
+  if (error || (validationError && validationError.code !== "42P01")) {
     console.error("admin review queue fetch failed", error);
     return NextResponse.json({ ok: false, error: "admin_reviews_fetch_failed" }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, reviews: data ?? [] });
+  return NextResponse.json({ ok: true, reviews: data ?? [], validation_cases: validationCases ?? [] });
 }
 
 export async function POST(req: Request) {
@@ -53,8 +60,37 @@ export async function POST(req: Request) {
 
   const body = await readRequestValues(req);
   const verificationEventId = stringValue(body.verification_event_id);
+  const validationCaseId = stringValue(body.validation_case_id);
   const status = stringValue(body.status);
   const notes = stringValue(body.notes);
+
+  if (validationCaseId) {
+    const confidence = Number(body.review_confidence);
+    const allowed = ["pending", "reviewed", "disputed", "excluded", "approved"];
+    if (!allowed.includes(status) || !Number.isFinite(confidence) || confidence < 0 || confidence > 1 || !notes) {
+      return NextResponse.json({ ok: false, error: "invalid_validation_review" }, { status: 400 });
+    }
+    const adminSupabase = createServiceRoleClient();
+    const { data: reviewId, error: reviewError } = await adminSupabase.rpc("review_release_validation_case", {
+      target_case_id: validationCaseId,
+      target_status: status,
+      target_ground_truth_label: stringValue(body.ground_truth_label),
+      target_reviewer_id: access.user.id,
+      target_reviewer_role: "admin_reviewer",
+      target_confidence: confidence,
+      target_rationale: notes,
+      target_uncertainty: stringValue(body.uncertainty) || null,
+      target_disagreement: stringValue(body.disagreement) || null,
+    });
+    if (reviewError) {
+      console.error("validation case review failed", reviewError);
+      return NextResponse.json({ ok: false, error: "validation_review_failed" }, { status: 500 });
+    }
+    if (!(req.headers.get("content-type") ?? "").includes("application/json")) {
+      return NextResponse.redirect(new URL("/admin/reviews?updated=validation", req.url), { status: 303 });
+    }
+    return NextResponse.json({ ok: true, review_id: reviewId });
+  }
 
   if (
     !verificationEventId ||

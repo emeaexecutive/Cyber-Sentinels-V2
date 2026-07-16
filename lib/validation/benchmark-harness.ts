@@ -423,11 +423,8 @@ function groundTruthRecordsFromCases(
       results.find((result) => result.caseId === testCase.id) ??
       null;
     const reviewedOutcome = testCase.reviewerOutcome ?? testCase.governanceOverride?.outcome ?? null;
-    const reviewStatus = reviewedOutcome
-      ? "reviewed"
-      : testCase.reviewerId || testCase.datasetMetadata?.reviewer
-        ? "in_review"
-        : "unreviewed";
+    const reviewStatus = testCase.datasetMetadata?.reviewStatus ??
+      (reviewedOutcome ? "reviewed" : "pending");
     const providerAgreement =
       testCase.datasetMetadata?.providerAgreement === "agreed"
         ? 1

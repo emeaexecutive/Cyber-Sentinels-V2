@@ -37,6 +37,14 @@ export type ValidationCase = {
     reviewTimestamp?: string;
     datasetVersion?: string;
     benchmarkVersion?: string;
+    reviewStatus?: "pending" | "reviewed" | "disputed" | "excluded" | "approved";
+    workflow?: string;
+    signalType?: string;
+    providerId?: string;
+    rulesetVersion?: string;
+    sourceProvenance?: string;
+    usageBoundary?: string;
+    evidenceReferences?: string[];
   };
   reviewerOutcome?: DetectionExpectedOutcome;
   reviewerId?: string;

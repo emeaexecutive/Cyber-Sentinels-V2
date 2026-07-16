@@ -1,0 +1,992 @@
+[
+  {
+    "caseId": "rc6-001-valid-low-risk-allow-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "human",
+    "workflowType": "regulated_approval",
+    "signalType": "evidence_quality",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:001"
+    ],
+    "expectedDecision": "allow",
+    "actualDecision": "allow",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-002-valid-low-risk-allow-02",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "ai_agent",
+    "workflowType": "regulated_approval",
+    "signalType": "authority",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:002"
+    ],
+    "expectedDecision": "allow",
+    "actualDecision": "allow",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-003-step-up-required-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "human",
+    "workflowType": "payment_approval",
+    "signalType": "session_change",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:003"
+    ],
+    "expectedDecision": "step_up",
+    "actualDecision": "step_up",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-004-step-up-required-02",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "ai_agent",
+    "workflowType": "data_export",
+    "signalType": "risk_change",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:004"
+    ],
+    "expectedDecision": "step_up",
+    "actualDecision": "step_up",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-005-human-review-required-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "human",
+    "workflowType": "identity_review",
+    "signalType": "provider_conflict",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:005"
+    ],
+    "expectedDecision": "review",
+    "actualDecision": "review",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-006-human-review-required-02",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "workflow",
+    "workflowType": "hiring_security",
+    "signalType": "uncertainty",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:006"
+    ],
+    "expectedDecision": "review",
+    "actualDecision": "review",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-007-expired-authority-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "ai_agent",
+    "workflowType": "payment_approval",
+    "signalType": "authority_expiry",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:007"
+    ],
+    "expectedDecision": "block",
+    "actualDecision": "block",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-008-expired-authority-02",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "machine_identity",
+    "workflowType": "data_export",
+    "signalType": "credential_expiry",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:008"
+    ],
+    "expectedDecision": "block",
+    "actualDecision": "block",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-009-revoked-authority-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "ai_agent",
+    "workflowType": "regulated_approval",
+    "signalType": "authority_revocation",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:009"
+    ],
+    "expectedDecision": "block",
+    "actualDecision": "block",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-010-revoked-authority-02",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "workflow",
+    "workflowType": "machine_operation",
+    "signalType": "kill_switch",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:010"
+    ],
+    "expectedDecision": "block",
+    "actualDecision": "block",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-011-excessive-scope-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "ai_agent",
+    "workflowType": "delegated_action",
+    "signalType": "delegation_scope",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:011"
+    ],
+    "expectedDecision": "block",
+    "actualDecision": "block",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-012-excessive-scope-02",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "machine_identity",
+    "workflowType": "delegated_action",
+    "signalType": "delegation_depth",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:012"
+    ],
+    "expectedDecision": "block",
+    "actualDecision": "block",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-013-provider-timeout-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "human",
+    "workflowType": "identity_review",
+    "signalType": "provider_timeout",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:013"
+    ],
+    "expectedDecision": "abstain",
+    "actualDecision": "abstain",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-014-provider-timeout-02",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "workflow",
+    "workflowType": "session_verification",
+    "signalType": "provider_timeout",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:014"
+    ],
+    "expectedDecision": "insufficient_evidence",
+    "actualDecision": "insufficient_evidence",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-015-provider-conflict-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "human",
+    "workflowType": "identity_review",
+    "signalType": "provider_disagreement",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:015"
+    ],
+    "expectedDecision": "review",
+    "actualDecision": "review",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-016-provider-conflict-02",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "workflow",
+    "workflowType": "document_review",
+    "signalType": "provider_disagreement",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:016"
+    ],
+    "expectedDecision": "review",
+    "actualDecision": "review",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-017-missing-evidence-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "ai_agent",
+    "workflowType": "regulated_approval",
+    "signalType": "missing_evidence",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:017"
+    ],
+    "expectedDecision": "insufficient_evidence",
+    "actualDecision": "insufficient_evidence",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-018-stale-evidence-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "human",
+    "workflowType": "session_verification",
+    "signalType": "evidence_freshness",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:018"
+    ],
+    "expectedDecision": "step_up",
+    "actualDecision": "step_up",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-019-malformed-evidence-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "workflow",
+    "workflowType": "document_review",
+    "signalType": "evidence_schema",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:019"
+    ],
+    "expectedDecision": "block",
+    "actualDecision": "block",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-020-duplicate-callback-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "workflow",
+    "workflowType": "provider_callback",
+    "signalType": "webhook_idempotency",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:020"
+    ],
+    "expectedDecision": "abstain",
+    "actualDecision": "abstain",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-021-cross-tenant-reference-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "workflow",
+    "workflowType": "provider_callback",
+    "signalType": "tenant_isolation",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:021"
+    ],
+    "expectedDecision": "block",
+    "actualDecision": "block",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-022-suspicious-runtime-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "ai_agent",
+    "workflowType": "tool_execution",
+    "signalType": "runtime_behavior",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:022"
+    ],
+    "expectedDecision": "block",
+    "actualDecision": "block",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-023-suspicious-runtime-02",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "human",
+    "workflowType": "session_verification",
+    "signalType": "runtime_behavior",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:023"
+    ],
+    "expectedDecision": "review",
+    "actualDecision": "review",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-024-machine-credential-expiry-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "machine_identity",
+    "workflowType": "service_action",
+    "signalType": "credential_expiry",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:024"
+    ],
+    "expectedDecision": "block",
+    "actualDecision": "block",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-025-agent-permission-violation-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "ai_agent",
+    "workflowType": "tool_execution",
+    "signalType": "permission_scope",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:025"
+    ],
+    "expectedDecision": "block",
+    "actualDecision": "block",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-026-agent-permission-violation-02",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "ai_agent",
+    "workflowType": "data_export",
+    "signalType": "purpose_binding",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:026"
+    ],
+    "expectedDecision": "block",
+    "actualDecision": "block",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-027-safe-abstention-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "workflow",
+    "workflowType": "identity_review",
+    "signalType": "ambiguous_signal",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:027"
+    ],
+    "expectedDecision": "abstain",
+    "actualDecision": "abstain",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-028-safe-abstention-02",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "workflow",
+    "workflowType": "document_review",
+    "signalType": "provider_unavailable",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:028"
+    ],
+    "expectedDecision": "abstain",
+    "actualDecision": "abstain",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-029-insufficient-evidence-01",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "human",
+    "workflowType": "hiring_security",
+    "signalType": "evidence_coverage",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:029"
+    ],
+    "expectedDecision": "insufficient_evidence",
+    "actualDecision": "insufficient_evidence",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "caseId": "rc6-030-insufficient-evidence-02",
+    "datasetId": "release-1-candidate",
+    "datasetVersion": "1.0.0-rc6-pending",
+    "entityType": "ai_agent",
+    "workflowType": "regulated_approval",
+    "signalType": "evidence_coverage",
+    "evidenceMode": "synthetic_fixture",
+    "evidenceReferences": [
+      "fixture:release-1-candidate:030"
+    ],
+    "expectedDecision": "insufficient_evidence",
+    "actualDecision": "insufficient_evidence",
+    "groundTruthLabel": null,
+    "reviewStatus": "pending",
+    "reviewerId": null,
+    "reviewerRole": null,
+    "reviewTimestamp": null,
+    "reviewerConfidence": null,
+    "rationale": null,
+    "provenance": "Internally authored deterministic synthetic product-behavior fixture",
+    "licenceBoundary": "Cyber Sentinels internal test use; no third-party or personal data",
+    "limitations": [
+      "Product-behavior fixture only",
+      "Requires accountable human review before metric eligibility"
+    ],
+    "rulesetVersion": "trust-rules:rc6-v1",
+    "providerVersions": {
+      "hopae_connect": "not_called"
+    },
+    "createdAt": "2026-07-16T00:00:00.000Z",
+    "updatedAt": "2026-07-16T00:00:00.000Z"
+  }
+]

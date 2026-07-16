@@ -1,11 +1,11 @@
 import type { ConfusionMatrix, DetectionExpectedOutcome } from "./validation-case";
 
 export type GroundTruthReviewStatus =
-  | "unreviewed"
-  | "in_review"
+  | "pending"
   | "reviewed"
   | "disputed"
-  | "rejected";
+  | "excluded"
+  | "approved";
 
 export type GroundTruthReviewSource =
   | "human_reviewer"
@@ -44,6 +44,11 @@ export type GroundTruthRecord = {
   reviewedOutcome?: DetectionExpectedOutcome | null;
   weighting?: number;
   trustPosture?: "strengthen" | "hold" | "weaken" | "investigate";
+  workflow?: string;
+  signalType?: string;
+  providerId?: string;
+  rulesetVersion?: string;
+  reviewDate?: string;
 };
 
 export type DatasetRegistryEntry = {
@@ -76,10 +81,14 @@ export type GroundTruthValidationSummary = {
   f1: GuardedMetric;
   falsePositiveRate: GuardedMetric;
   falseNegativeRate: GuardedMetric;
+  specificity: GuardedMetric;
+  abstentionRate: GuardedMetric;
   unknownRate: GuardedMetric;
   calibration: GuardedMetric;
   confidence: GuardedMetric;
   providerAgreement: GuardedMetric;
+  providerDisagreement: GuardedMetric;
+  calibrationError: GuardedMetric;
   humanAgreement: GuardedMetric;
   reviewedOutcomes: {
     total: number;
@@ -87,6 +96,7 @@ export type GroundTruthValidationSummary = {
     weightingEligible: number;
     trustPostureEligible: number;
   };
+  decisionDistribution: Record<string, number>;
   message: string;
 };
 
@@ -123,7 +133,7 @@ function average(values: Array<number | null | undefined>) {
 function reviewed(records: GroundTruthRecord[]) {
   return records.filter(
     (record) =>
-      record.reviewStatus === "reviewed" &&
+      record.reviewStatus === "approved" &&
       Boolean(record.reviewedOutcome) &&
       typeof record.systemOutcome === "string"
   );
@@ -239,7 +249,7 @@ export function summarizeDatasetRegistry(entries: DatasetRegistryEntry[]) {
 }
 
 export function buildReviewedOutcomeContribution(record: GroundTruthRecord) {
-  const hasReviewedOutcome = record.reviewStatus === "reviewed" && Boolean(record.reviewedOutcome);
+  const hasReviewedOutcome = record.reviewStatus === "approved" && Boolean(record.reviewedOutcome);
   const calibrationEligible =
     hasReviewedOutcome &&
     record.reviewConfidence >= 0.7 &&
@@ -262,7 +272,7 @@ export function buildReviewedOutcomeContribution(record: GroundTruthRecord) {
 }
 
 export function summarizeGroundTruth(records: GroundTruthRecord[]) {
-  const reviewedRecords = records.filter((record) => record.reviewStatus === "reviewed");
+  const reviewedRecords = records.filter((record) => record.reviewStatus === "approved");
   return {
     total: records.length,
     reviewed: reviewedRecords.length,
@@ -310,6 +320,12 @@ export function computeGroundTruthValidation(
       : null;
   const falsePositiveDenominator = matrix.falsePositives + matrix.trueNegatives;
   const falseNegativeDenominator = matrix.falseNegatives + matrix.truePositives;
+  const specificityDenominator = matrix.trueNegatives + matrix.falsePositives;
+  const providerAgreementValue = thresholdMet ? average(reviewedRecords.map((record) => record.providerAgreement)) : null;
+  const calibrationError = thresholdMet ? average(reviewedRecords.map((record) => {
+    const correct = record.reviewedOutcome === record.systemOutcome ? 1 : 0;
+    return Math.abs(record.confidence - correct);
+  })) : null;
   const contributions = records.map(buildReviewedOutcomeContribution);
 
   return {
@@ -328,6 +344,20 @@ export function computeGroundTruthValidation(
     }),
     falseNegativeRate: guarded({
       value: thresholdMet && falseNegativeDenominator ? matrix.falseNegatives / falseNegativeDenominator : null,
+      status,
+      sampleCount,
+      minimumReviewedSamples,
+      reason,
+    }),
+    specificity: guarded({
+      value: thresholdMet && specificityDenominator ? matrix.trueNegatives / specificityDenominator : null,
+      status,
+      sampleCount,
+      minimumReviewedSamples,
+      reason,
+    }),
+    abstentionRate: guarded({
+      value: thresholdMet && sampleCount ? matrix.reviewOnly / sampleCount : null,
       status,
       sampleCount,
       minimumReviewedSamples,
@@ -355,12 +385,20 @@ export function computeGroundTruthValidation(
       reason,
     }),
     providerAgreement: guarded({
-      value: thresholdMet ? average(reviewedRecords.map((record) => record.providerAgreement)) : null,
+      value: providerAgreementValue,
       status,
       sampleCount,
       minimumReviewedSamples,
       reason,
     }),
+    providerDisagreement: guarded({
+      value: providerAgreementValue === null ? null : 1 - providerAgreementValue,
+      status,
+      sampleCount,
+      minimumReviewedSamples,
+      reason,
+    }),
+    calibrationError: guarded({ value: calibrationError, status, sampleCount, minimumReviewedSamples, reason }),
     humanAgreement: guarded({
       value: thresholdMet ? average(reviewedRecords.map((record) => record.humanAgreement)) : null,
       status,
@@ -369,13 +407,38 @@ export function computeGroundTruthValidation(
       reason,
     }),
     reviewedOutcomes: {
-      total: records.filter((record) => record.reviewStatus === "reviewed").length,
+      total: records.filter((record) => record.reviewStatus === "approved").length,
       calibrationEligible: contributions.filter((item) => item.contributesToFutureCalibration).length,
       weightingEligible: contributions.filter((item) => item.contributesToFutureWeighting).length,
       trustPostureEligible: contributions.filter((item) => item.contributesToFutureTrustPosture).length,
     },
+    decisionDistribution: thresholdMet ? Object.fromEntries(
+      ["positive", "negative", "review"].map((decision) => [decision, reviewedRecords.filter((record) => record.systemOutcome === decision).length])
+    ) : {},
     message: thresholdMet
-      ? "Ground-truth metrics are available for this reviewed dataset scope."
-      : "Ground-truth metrics are gated until enough reviewed samples exist.",
+      ? "Ground-truth metrics are available for this approved dataset scope."
+      : "Calibration Incomplete — fewer than 30 approved reviewed cases exist.",
   };
+}
+
+export function computeScopedGroundTruthValidation(records: GroundTruthRecord[], minimumReviewedSamples = MINIMUM_GROUND_TRUTH_REVIEWED_SAMPLES) {
+  const groups = new Map<string, GroundTruthRecord[]>();
+  for (const record of records) {
+    const scope = [record.datasetId, record.datasetVersion, record.workflow ?? "unscoped", record.signalType ?? "unscoped", record.providerId ?? "none", record.rulesetVersion ?? "unversioned", record.reviewDate ?? "undated"];
+    const key = scope.join("|");
+    groups.set(key, [...(groups.get(key) ?? []), record]);
+  }
+  return [...groups.entries()].map(([scopeKey, scopedRecords]) => ({
+    scopeKey,
+    scope: {
+      datasetId: scopedRecords[0].datasetId,
+      datasetVersion: scopedRecords[0].datasetVersion,
+      workflow: scopedRecords[0].workflow ?? "unscoped",
+      signalType: scopedRecords[0].signalType ?? "unscoped",
+      providerId: scopedRecords[0].providerId ?? "none",
+      rulesetVersion: scopedRecords[0].rulesetVersion ?? "unversioned",
+      reviewDate: scopedRecords[0].reviewDate ?? "undated",
+    },
+    metrics: computeGroundTruthValidation(scopedRecords, { minimumReviewedSamples }),
+  }));
 }

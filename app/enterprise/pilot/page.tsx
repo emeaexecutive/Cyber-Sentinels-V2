@@ -11,6 +11,13 @@ const structure = [
   ["Admin workflows", "Use readiness, runtime validation and pilot overview surfaces before live walkthroughs."],
 ];
 
+const releaseEvidence = [
+  ["Validation", "Human Review Required", "30 pending fixtures; 0 approved. Calibration remains incomplete."],
+  ["Provider", "Deployment Required", "Hopae is selected; no retained real target execution exists."],
+  ["Security", "Deployment Required", "Source controls exist; deployed denial evidence is still required."],
+  ["Performance", "Pilot Traffic Required", "Durable telemetry is implemented; representative retained samples are absent."],
+];
+
 const outcomes = [
   "A documented workflow from intake to review.",
   "Clear separation of identity, liveness, deepfake risk and injection risk.",
@@ -68,6 +75,23 @@ export default function EnterprisePilotPage() {
           primary={{ href: "/enterprise-access?intent=pilot", label: "Start Pilot" }}
           secondary={{ href: "/docs/ENTERPRISE_PILOT_CHECKLIST.md", label: "Pilot Checklist" }}
         />
+
+        <section className="mt-8 operational-panel p-6">
+          <p className="operational-eyebrow">Release evidence</p>
+          <h2 className="mt-3 text-3xl font-semibold">What is proven—and what still requires execution.</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {releaseEvidence.map(([area, status, detail]) => (
+              <article key={area} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <h3 className="font-semibold text-zinc-100">{area}</h3>
+                  <span className="rounded-full border border-amber-800 px-3 py-1 text-xs text-amber-200">{status}</span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{detail}</p>
+              </article>
+            ))}
+          </div>
+          <p className="mt-5 text-sm leading-6 text-zinc-500">Known limitation: no production accuracy, Live provider, deployed-security or SLA claim is made. Controlled pilot activation requires retained evidence for all four areas.</p>
+        </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {structure.map(([title, copy]) => (
@@ -160,7 +184,6 @@ export default function EnterprisePilotPage() {
               The pilot keeps Verification Evidence, Governance Review, Replay Evidence and Session Integrity visible for practical conversations about fake applicants, proxy interviews and injected sessions.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/enterprise-access?intent=pilot" className="brand-primary-action brand-action-large text-sm">Start Pilot</Link>
               <Link href="/trust" className="brand-secondary-action brand-action-large text-sm">Read Trust Framework</Link>
             </div>
           </section>

@@ -9,6 +9,8 @@ import {
 } from "@/lib/pilot-execution/readiness";
 import { runRuntimeValidation } from "@/lib/runtime-validation/runner";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { readRc6EvidenceCards } from "@/lib/release-evidence/rc6";
 import { auditTrustIntegrity } from "@/lib/trust-integrity/repair";
 import { runValidationBenchmark, type ReleaseValidationMaturityState } from "@/lib/validation/benchmark-harness";
 
@@ -35,6 +37,12 @@ function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Not recorded";
   return date.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+}
+
+function evidenceStateClass(state: string) {
+  if (state === "Cleared") return stateClass("READY");
+  if (state === "Blocked") return stateClass("BLOCKED");
+  return stateClass("CAUTION");
 }
 
 function formatMetric(value: number | null) {
@@ -67,11 +75,12 @@ export default async function DeploymentReadinessPage() {
     requestHeaders.get("host"),
     requestHeaders.get("x-forwarded-proto")
   );
-  const [runtime, integrity, metrics, benchmark] = await Promise.all([
+  const [runtime, integrity, metrics, benchmark, rc6Cards] = await Promise.all([
     runRuntimeValidation(baseUrl),
     auditTrustIntegrity().catch(() => null),
     readPilotOperationalMetrics(),
     runValidationBenchmark(),
+    readRc6EvidenceCards(createServiceRoleClient()),
   ]);
   const report = buildDeploymentReadinessReport({ runtime, integrity, metrics });
   const groundTruthSummary = benchmark.groundTruth.summary;
@@ -213,6 +222,33 @@ export default async function DeploymentReadinessPage() {
             <Link href="/enterprise/pilot-setup" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100 hover:text-white">
               Pilot Setup
             </Link>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-red-900/70 bg-red-950/10 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-red-200">Release 1.0 RC6</p>
+          <h2 className="mt-2 text-xl font-semibold">Production Evidence Gate</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
+            A blocker turns ready only when retained target-environment evidence exists. Source inspection,
+            local fixtures and process-local samples do not clear this gate.
+          </p>
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            {rc6Cards.map((card) => (
+              <article key={card.category} className="rounded-lg border border-zinc-800 bg-black p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-semibold tracking-[0.12em]">{card.category}</h3>
+                  <span className={`rounded-full border px-3 py-1 text-xs ${evidenceStateClass(card.state)}`}>{card.state}</span>
+                </div>
+                <dl className="mt-4 grid gap-2">
+                  {card.metrics.map(([label, value]) => (
+                    <div key={label} className="flex items-start justify-between gap-4 text-sm">
+                      <dt className="text-zinc-500">{label}</dt><dd className="text-right text-zinc-200">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <Link href={card.evidenceHref} className="mt-5 inline-flex text-sm text-cyan-200 hover:text-white">{card.evidenceLabel}</Link>
+              </article>
+            ))}
           </div>
         </section>
 

@@ -1,0 +1,13 @@
+{
+  "datasetId": "release-1-candidate",
+  "datasetVersion": "1.0.0-rc6-pending",
+  "intendedCoverage": "Product-behaviour coverage across authority, provider, evidence, runtime, tenant and machine-identity boundaries.",
+  "source": "Internally authored deterministic synthetic fixtures",
+  "licence": "Cyber Sentinels internal test fixtures; no third-party or personal data",
+  "limitations": [
+    "These fixtures test product behavior and are not reviewed ground truth.",
+    "They do not support production accuracy, provider quality or population-level claims."
+  ],
+  "reviewRequirement": "Every case begins pending and requires attributable human review through the protected workflow before metrics eligibility.",
+  "caseCount": 30
+}
