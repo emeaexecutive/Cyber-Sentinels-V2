@@ -62,9 +62,10 @@ test("Evidence Pack download reuses the authenticated audit export route", async
 
 test("public navigation is consolidated without adding a buyer or evidence route", async () => {
   const source = await read("components/global-navigation.tsx");
-  const publicLinkCount = (source.match(/\{ href:/g) ?? []).length;
-  assert.ok(publicLinkCount <= 32);
-  for (const anchor of ["/enterprise#ciso", "/enterprise#cio-cto", "/enterprise#compliance", "/enterprise#ceo-investor"]) assert.match(source, new RegExp(anchor.replaceAll("/", "\\/")));
+  const publicBlock = source.match(/export const publicHeaderLinks = \[([\s\S]*?)\] as const;/)?.[0] ?? "";
+  assert.equal((publicBlock.match(/\{ href:/g) ?? []).length, 6);
+  for (const route of ["/platform", "/solutions", "/trust", "/enterprise", "/pricing", "/login"]) assert.match(publicBlock, new RegExp(route.replaceAll("/", "\\/")));
+  assert.doesNotMatch(publicBlock, /#|Developers|Resources/);
   const appEntries = await readdir(new URL("../app", import.meta.url));
   for (const forbidden of ["buyer", "category", "trust-evidence-packs"]) assert.equal(appEntries.includes(forbidden), false);
 });

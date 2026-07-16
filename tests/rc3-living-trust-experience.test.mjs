@@ -9,20 +9,19 @@ import { buildRc2LivingTrustDemo, deriveLivingTrustProfile } from "../lib/trust/
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 const demo = buildRc2LivingTrustDemo();
 
-test("primary and mobile navigation expose the RC3 buyer destinations without About or Help", async () => {
+test("primary and mobile navigation expose the six release-candidate destinations", async () => {
   const source = await read("components/global-navigation.tsx");
-  for (const label of ["Platform", "Solutions", "Trust", "Enterprise", "Developers", "Pricing", "Resources", "Sign In"]) assert.match(source, new RegExp(`(?:label=|>|\")${label}`));
-  assert.doesNotMatch(source, /label="About"|label="Help"/);
+  for (const label of ["Platform", "Solutions", "Trust", "Enterprise", "Pricing", "Sign In"]) assert.match(source, new RegExp(`label: "${label}"`));
+  assert.doesNotMatch(source.match(/export const publicHeaderLinks = \[([\s\S]*?)\] as const;/)?.[0] ?? "", /Developers|Resources|About|Help/);
+  assert.doesNotMatch(source, /DropdownLinks|aria-haspopup="menu"/);
   assert.match(source, /aria-controls="primary-navigation"/);
   assert.match(source, /sm:hidden/);
-  assert.match(source, /event\.key === "Escape"/);
-  assert.match(source, /Living Trust Profile/);
-  assert.match(source, /Trust DNA™/);
+  assert.equal((source.match(/publicHeaderLinks\.map/g) ?? []).length, 1);
 });
 
 test("footer is the secondary discovery index and preserves company and support access", async () => {
   const source = await read("app/layout.tsx");
-  for (const section of ["Platform", "Trust", "Solutions", "Enterprise", "Developers", "Company", "Legal & Support"]) assert.match(source, new RegExp(`title: "${section.replace("&", "&")}"`));
+  for (const section of ["Platform", "Trust", "Solutions", "Enterprise", "Developers & Resources", "Company", "Legal & Support"]) assert.match(source, new RegExp(`title: "${section.replace("&", "&")}"`));
   for (const label of ["About", "Help", "Living Trust Profile", "Trust DNA™", "Trust Memory", "Evidence & Audit", "Pilot Programme", "API Documentation", "Accessibility", "Privacy", "Terms", "Cookies", "Security", "Status"]) assert.match(source, new RegExp(label));
   assert.match(source, /\/trust#living-trust-profile/);
   assert.match(source, /\/enterprise#support/);

@@ -33,7 +33,6 @@ const footerSections = [
   {
     title: "Platform",
     links: [
-      ["/platform", "Platform Overview"],
       ["/platform#trust-engine", "Trust Orchestrator"],
       ["/platform#runtime-engine", "Runtime Trust"],
       ["/platform#authorization-gateway", "Authorization & Enforcement"],
@@ -43,10 +42,9 @@ const footerSections = [
   {
     title: "Trust",
     links: [
-      ["/trust", "Trust Center"],
       ["/trust#living-trust-profile", "Living Trust Profile"],
       ["/trust#trust-dna", "Trust DNA™"],
-      ["/trust#trust-memory", "Trust Memory\u2122"],
+      ["/trust#trust-memory", "Trust Memory™"],
       ["/verification-replay", "Replay"],
       ["/trust#evidence-audit", "Evidence & Audit"],
       ["/governance", "Governance"],
@@ -78,14 +76,16 @@ const footerSections = [
     ],
   },
   {
-    title: "Developers",
+    title: "Developers & Resources",
     links: [
       ["/developers", "Developer Overview"],
       ["/developers/docs", "API Documentation"],
       ["/developers/authentication", "Authentication"],
       ["/developers/docs#webhooks", "Webhooks"],
       ["/developers/docs#integrations", "Integrations"],
-      ["/developers/api-keys", "Developer Console"],
+      ["/methodology", "Methodology"],
+      ["/journal", "Journal"],
+      ["/regulatory", "Regulatory Material"],
     ],
   },
   {
@@ -109,7 +109,6 @@ const footerSections = [
       ["/cookies", "Cookies"],
       ["/legal", "Legal"],
       ["/modern-slavery", "Modern Slavery"],
-      ["/security", "Security"],
       ["/status", "Status"],
     ],
   },
@@ -207,9 +206,9 @@ export default async function RootLayout({
           {accessLevel === "public" ? <PublicPageAdoptionRail /> : null}
           {accessLevel !== "public" ? <ReportIssue authState={accessLevel} /> : null}
           {accessLevel === "public" ? <footer className="border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8">
-            <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mx-auto grid max-w-7xl gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
               {footerSections.map((section) => (
-                <nav key={section.title}>
+                <nav key={section.title} aria-label={`${section.title} footer navigation`} className="min-w-0">
                   <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-300">
                     {section.title}
                   </h2>
