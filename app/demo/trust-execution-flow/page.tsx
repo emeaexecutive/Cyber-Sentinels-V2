@@ -22,16 +22,15 @@ const paths = [
 ];
 
 const flow = [
-  ["Human", "The accountable owner and delegated authority remain visible."],
-  ["AI Agent", "Agent identity, purpose and action scope are resolved."],
-  ["Machine Identity", "Credential lineage is checked without exposing secrets."],
-  ["Trust Decision", "Evidence, authority and policy produce an explainable outcome."],
-  ["Replay", "The decision chronology and evidence references remain reconstructable."],
-  ["Evidence Graph", "Decision, evidence, authority and governance references remain linked."],
-  ["Trust Memory™", "The recorded trust transition supports future review without implying autonomous learning."],
-  ["Governance", "A named reviewer owns escalation and resolution."],
-  ["Dashboard", "Posture, providers, reviews and next actions remain operationally visible."],
-  ["Operational Readiness", "Release, provider, ML, security, documentation and pilot evidence remain inspectable."],
+  ["Establish Trust", "Test Mode", "The user initiates one canonical Trust Assessment."],
+  ["Resolve Identity", "Awaiting Credentials", "Hopae Connect is selected, but no live call is implied without deployment credentials."],
+  ["Confirm Authority", "Test Mode", "Owner, purpose, scope, expiry, revocation and workflow policy are evaluated separately from identity."],
+  ["Collect Evidence", "Simulated", "Approved fixtures produce provider-neutral evidence without raw documents or biometric data."],
+  ["Evaluate Trust", "Test Mode", "Evidence quality, authority, policy and runtime context produce an explainable outcome."],
+  ["Enforce Decision", "Test Mode", "Allow, step-up, review, escalation or block is enforced by deterministic policy."],
+  ["Write Replay", "Simulated", "The public demo previews chronology; authenticated recorded flows persist Replay atomically."],
+  ["Update Trust Memory™", "Simulated", "Append-only trust change records link reason, evidence, actor, authority, policy and Replay."],
+  ["Produce Evidence Pack", "Simulated", "Recorded flows export structured JSON and enterprise-readable PDF from the existing audit route."],
 ];
 
 const decisionClass: Record<string, string> = {
@@ -54,9 +53,7 @@ export default function TrustExecutionFlowDemoPage() {
             Detection signals become governed workflow action.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            ML and providers are treated as signals. Cyber Sentinels combines
-            Detection Signals, Trust Algorithm, Decision Engine, Workflow
-            Automation, Governance and Replay without claiming autonomous certainty.
+            Providers and models are treated as signals. This approved Test Mode flow coordinates the existing authority, policy, decision, enforcement, Replay, Evidence Graph, Trust Memory™ and Evidence Pack seams without claiming a live provider call.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/trust-replay" className="brand-primary-action brand-action-large text-sm">View Replay</Link>
@@ -64,11 +61,12 @@ export default function TrustExecutionFlowDemoPage() {
           </div>
         </section>
 
-        <section className="mt-8 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 md:grid-cols-2 xl:grid-cols-5">
-          {flow.map(([title, label], index) => (
+        <section className="mt-8 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 md:grid-cols-3 xl:grid-cols-9">
+          {flow.map(([title, status, label], index) => (
             <article key={title} className="min-w-0 bg-black p-4">
               <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
               <h2 className="mt-2 text-sm font-semibold text-zinc-100">{title}</h2>
+              <p className="mt-2 text-[10px] uppercase tracking-[0.12em] text-amber-200">{status}</p>
               <p className="mt-2 text-xs leading-5 text-zinc-500">{label}</p>
             </article>
           ))}

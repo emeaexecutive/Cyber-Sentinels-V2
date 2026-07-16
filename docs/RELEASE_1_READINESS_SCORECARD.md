@@ -37,3 +37,9 @@ Historical mapping: Architecture and Governance are consolidated into Operationa
 4. Verify deployed RLS, distributed rate limiting, session expiry, webhook signatures, secret rotation and partner API scopes.
 5. Capture representative pilot performance and authenticated cross-browser UX evidence.
 6. Obtain operator, security and design-partner acceptance sign-off.
+
+## 1.0 RC1 evidence-gate update — 2026-07-16
+
+The score remains `2 — Implemented`, not `3 — Pilot evidenced`. Hopae Connect now completes the canonical evidence path in approved Test Mode with signature/timestamp/idempotency controls, provider-neutral normalization, evidence quality, authority/policy separation, enforcement, and atomic Replay/Evidence Graph/Trust Memory/receipt persistence. No credentials or successful target-environment provider health were present, so no `Live` state is claimed.
+
+Enterprise UX now uses a six-block homepage and nine-step 16.2-second guided flow. The final performance-evidence run measured 100 in-process samples: 0.161 ms average, 0.108 ms p50, 0.348 ms p95, 10% injected unavailability and 0% execution errors. Provider/network/database performance, deployed migration/RLS denial checks, reviewed pilot evidence and operator sign-off remain blockers.

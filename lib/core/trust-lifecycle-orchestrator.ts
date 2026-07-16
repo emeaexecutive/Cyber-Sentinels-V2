@@ -15,6 +15,13 @@ import {
   type ProviderSignalCategory,
 } from "../providers/provider-consensus.ts";
 import type { TrustMemoryActorType } from "../trust-memory/trust-memory.ts";
+import type { EvidenceQualityResult, ProviderNeutralEvidence } from "../providers/hopae-rc1.ts";
+import {
+  buildRc1TrustEvidencePack,
+  buildTrustEvidencePack,
+  TRUST_SCORING_TRANSPARENCY,
+  type TrustTransparencyReport,
+} from "../trust-transparency.ts";
 
 export const LIFECYCLE_DECISIONS = [
   "allow",
@@ -70,6 +77,9 @@ export type TrustLifecycleExecutionInput = {
     humanApprovalPresent?: boolean;
     stepUpSatisfied?: boolean;
     delegationValid: boolean;
+    authorityExpiresAt?: string | null;
+    authorityRevoked?: boolean;
+    authorityScope?: string[];
     nonce: string | null;
     seenNonces?: string[];
   };
@@ -314,13 +324,18 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
   timings.trust_engine = elapsed(started);
 
   started = nowMs();
+  const authorityExpired = Boolean(input.authorityContext.authorityExpiresAt) &&
+    Date.parse(String(input.authorityContext.authorityExpiresAt)) <= Date.now();
+  const authorityRevoked = input.authorityContext.authorityRevoked === true;
+  const scopeExceeded = Boolean(input.authorityContext.authorityScope?.length) &&
+    !input.authorityContext.authorityScope?.includes(input.requestedAction);
   const authority = evaluateAuthorizationGateway({
     subjectId: entity.id,
     subjectType: input.entityType,
     authenticated: input.authorityContext.authenticated,
     requestedAction: input.requestedAction,
     requestedPurpose: input.authorityContext.requestedPurpose,
-    allowedActions: input.authorityContext.allowedActions,
+    allowedActions: authorityExpired || authorityRevoked || scopeExceeded ? [] : input.authorityContext.allowedActions,
     allowedPurposes: input.authorityContext.allowedPurposes,
     humanApprovalPresent: input.authorityContext.humanApprovalPresent,
     stepUpSatisfied: input.authorityContext.stepUpSatisfied,
@@ -329,9 +344,11 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
   });
   timings.authorization = elapsed(started);
   let decision = toLifecycleDecision(algorithm.decision, authority.decision);
+  const requiredEvidence = input.policyContext.minimumEvidence ?? 1;
+  const evidenceBelowMinimum = evidence.length < requiredEvidence;
   if (providerTimeout && decision === "allow") decision = "review";
   if (providerConflict && ["allow", "step_up"].includes(decision)) decision = "review";
-  if (evidence.length < (input.policyContext.minimumEvidence ?? 1)) decision = "insufficient_evidence";
+  if (evidenceBelowMinimum) decision = "insufficient_evidence";
 
   started = nowMs();
   const enforcement = evaluateTrustEnforcement({
@@ -340,7 +357,7 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
     allowedPurposes: input.authorityContext.allowedPurposes,
     arguments: input.policyContext.arguments ?? { action: input.requestedAction, workflowId: input.workflowId },
     requiredArguments: input.policyContext.requiredArguments ?? ["action", "workflowId"],
-    delegationValid: input.authorityContext.delegationValid,
+    delegationValid: input.authorityContext.delegationValid && !authorityExpired && !authorityRevoked && !scopeExceeded,
     nonce: input.authorityContext.nonce,
     seenNonces: failures === "duplicate_event"
       ? [...(input.authorityContext.seenNonces ?? []), String(input.authorityContext.nonce)]
@@ -415,6 +432,10 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
     ...(replayFailed ? ["Replay write failed in injected test mode; execution must not proceed."] : []),
     ...(memoryFailed ? ["Trust Memory write failed in injected test mode; evidence was retained for recovery."] : []),
     ...(failures === "governance_queue_delay" ? ["Governance queue delay injected; case remains pending without execution."] : []),
+    ...(authorityExpired ? ["Delegated authority is expired."] : []),
+    ...(authorityRevoked ? ["Delegated authority is revoked."] : []),
+    ...(scopeExceeded ? ["Requested action exceeds delegated authority scope."] : []),
+    ...(evidenceBelowMinimum ? [`Evidence minimum not met: received ${evidence.length} of ${requiredEvidence} required references.`] : []),
   ]);
 
   return {
@@ -443,6 +464,151 @@ export function executeTrustLifecycle(input: TrustLifecycleExecutionInput): Trus
     continuity: { valid: !missing.length && tenantIsolated && !replayFailed && !memoryFailed, chain: requiredTypes, missing, tenant_isolated: tenantIsolated },
     performance: timings,
     engine_trace: ["Entity Identity", "Authority Graph", "Provider Orchestrator", "Provider Consensus", "Trust Engine", "Runtime Context", "Policy", "Decision Intelligence", "Authorization Gateway", "Enforcement Layer", "Replay Engine", "Governance Engine", "Evidence Graph", "Trust Memory™", "Validation Gate"],
+  };
+}
+
+export type CanonicalTrustAssessmentInput = {
+  tenantId: string;
+  workflowId: string;
+  entityId: string;
+  entityType: EntityIdentityInput["type"];
+  requestedAction: string;
+  requestedPurpose: string;
+  correlationId: string;
+  nonce: string;
+  owner: string;
+  accountableActor: string;
+  allowedActions: string[];
+  allowedPurposes: string[];
+  delegationValid: boolean;
+  authorityExpiresAt?: string | null;
+  authorityRevoked?: boolean;
+  policyVersion: string;
+  minimumEvidence?: number;
+  evidence: ProviderNeutralEvidence;
+  evidenceQuality: EvidenceQualityResult;
+  createdAt?: string;
+  seenNonces?: string[];
+};
+
+export function executeCanonicalTrustAssessment(input: CanonicalTrustAssessmentInput) {
+  const evidenceAccepted = input.evidenceQuality.canInfluenceDecision;
+  const criticalQualityBlock = input.evidenceQuality.recommendedOutcome === "block";
+  const lifecycle = executeTrustLifecycle({
+    tenantId: input.tenantId,
+    entityId: input.entityId,
+    entityType: input.entityType,
+    workflowId: input.workflowId,
+    lifecycleStage: "identity_verification",
+    requestedAction: input.requestedAction,
+    authorityContext: {
+      owner: input.owner,
+      humanAuthority: input.accountableActor,
+      authenticated: true,
+      requestedPurpose: input.requestedPurpose,
+      allowedActions: criticalQualityBlock ? [] : input.allowedActions,
+      allowedPurposes: input.allowedPurposes,
+      humanApprovalPresent: false,
+      stepUpSatisfied: input.evidenceQuality.recommendedOutcome !== "step_up",
+      delegationValid: input.delegationValid && !criticalQualityBlock,
+      authorityExpiresAt: input.authorityExpiresAt,
+      authorityRevoked: input.authorityRevoked,
+      authorityScope: input.allowedActions,
+      nonce: input.nonce,
+      seenNonces: input.seenNonces,
+    },
+    providerSignals: [{
+      providerName: input.evidence.providerName,
+      category: "identity",
+      state: input.evidence.runtimeState === "Unavailable" ? "Failed" : input.evidence.runtimeState,
+      signal: evidenceAccepted && input.evidence.evidenceStatus === "verified" ? "support" : input.evidence.evidenceStatus === "failed" ? "challenge" : "unknown",
+      model: input.evidence.modelRulesetVersion,
+      version: input.evidence.modelRulesetVersion,
+      identityConfidence: evidenceAccepted ? input.evidenceQuality.confidence : 0,
+      evidenceReferences: evidenceAccepted ? [input.evidence.providerReference] : [],
+      limitations: [...input.evidence.limitations, ...input.evidenceQuality.limitations],
+      latencyMs: input.evidence.latencyMs,
+    }],
+    runtimeContext: {
+      sessionIntegrity: 0.8,
+      anomalyRisk: criticalQualityBlock ? 1 : 0.1,
+      provenanceConfidence: input.evidence.reasonCodes.includes("provenance_reported") ? 0.85 : 0.45,
+      evidenceReferences: evidenceAccepted ? [`correlation:${input.correlationId}`] : [],
+      failureInjection: input.evidenceQuality.reasonCodes.includes("quality_duplication_failed") ? "duplicate_event" :
+        input.evidenceQuality.reasonCodes.includes("quality_conflicting_evidence_failed") ? "provider_conflict" : undefined,
+    },
+    policyContext: {
+      policyVersion: input.policyVersion,
+      requiredArguments: ["action", "workflowId"],
+      arguments: { action: input.requestedAction, workflowId: input.workflowId },
+      governanceStatus: input.evidenceQuality.recommendedOutcome === "review" ? "review_required" : "clear",
+      minimumEvidence: Math.max(1, Math.min(20, input.minimumEvidence ?? 2)),
+      validationStatus: "incomplete",
+    },
+    correlationId: input.correlationId,
+    createdAt: input.createdAt,
+  });
+
+  const finalDecision = !evidenceAccepted && lifecycle.trust_decision === "allow"
+    ? input.evidenceQuality.recommendedOutcome
+    : lifecycle.trust_decision === "deny" ? "block" : lifecycle.trust_decision;
+  const baseReport: TrustTransparencyReport = {
+    schemaVersion: 1,
+    workflow: { subjectType: input.entityType, subjectId: input.workflowId },
+    scoringMethod: TRUST_SCORING_TRANSPARENCY,
+    decisionExplanation: {
+      whatChanged: lifecycle.trust_memory_event.reason,
+      whyTrustShifted: [...input.evidence.reasonCodes, ...input.evidenceQuality.reasonCodes].join("; "),
+      evidenceContributed: lifecycle.evidence_references,
+      governanceActions: [],
+      providerSignals: [{
+        provider: input.evidence.providerName,
+        state: input.evidence.evidenceStatus,
+        summary: `${input.evidence.runtimeState} / ${input.evidence.sourceMode}; evidence quality ${input.evidenceQuality.status}`,
+        evidenceReferences: lifecycle.evidence_references,
+      }],
+    },
+    auditability: {
+      evidenceContinuityCount: lifecycle.evidence_references.length,
+      chronologyCount: 1,
+      governanceInterventionCount: ["review", "escalate", "block"].includes(finalDecision) ? 1 : 0,
+      replaySessionCount: lifecycle.replay_reference ? 1 : 0,
+      receiptCount: 1,
+      replayReference: lifecycle.replay_reference,
+      authorizationLineage: lifecycle.authority_result.policyReferences,
+      trustMemoryReferences: lifecycle.trust_memory_reference ? [lifecycle.trust_memory_reference] : [],
+      escalationPath: ["review", "escalate", "block"].includes(finalDecision) ? ["Accountable governance review"] : [],
+      resolutionSummaries: [],
+    },
+    posture: { state: lifecycle.trust_posture, label: lifecycle.trust_posture },
+    boundary: "RC1 evidence uses normalized provider references only. Raw identity documents, biometrics, credentials and challenge tokens are excluded.",
+  };
+  const evidencePackStarted = nowMs();
+  const trustEvidencePack = buildRc1TrustEvidencePack({
+    base: buildTrustEvidencePack(baseReport),
+    entity: { id: input.entityId, type: input.entityType },
+    decision: { outcome: finalDecision, posture: lifecycle.trust_posture, reasons: [...input.evidence.reasonCodes, ...input.evidenceQuality.reasonCodes] },
+    authority: { summary: lifecycle.authority_result.reason, policyReferences: lifecycle.authority_result.policyReferences },
+    policy: { applied: input.policyVersion, outcome: lifecycle.authority_result.decision },
+    evidenceQuality: { status: input.evidenceQuality.status, limitations: input.evidenceQuality.limitations },
+    enforcement: { outcome: lifecycle.enforcement_action, receiptReference: lifecycle.execution_receipt_reference },
+    replayReference: lifecycle.replay_reference,
+    evidenceGraphReference: lifecycle.evidence_graph_reference,
+    trustMemoryReference: lifecycle.trust_memory_reference,
+    trustMemoryImpact: `${lifecycle.trust_memory_event.trust_state_before} -> ${lifecycle.trust_memory_event.trust_state_after}`,
+    governanceStatus: lifecycle.governance_status,
+    sourceModes: [input.evidence.sourceMode],
+  });
+  const evidencePackLatency = elapsed(evidencePackStarted);
+  recordRuntimeProfile({ stage: "evidence_pack_latency", latencyMs: evidencePackLatency, ok: true, degraded: input.evidenceQuality.status !== "accepted", metadata: { correlationId: input.correlationId } });
+
+  return {
+    ...lifecycle,
+    trust_decision: finalDecision,
+    evidence_quality: input.evidenceQuality,
+    normalized_provider_evidence: input.evidence,
+    trust_evidence_pack: trustEvidencePack,
+    performance: { ...lifecycle.performance, evidence_pack: evidencePackLatency, total: Number((lifecycle.performance.total + evidencePackLatency).toFixed(3)) },
   };
 }
 

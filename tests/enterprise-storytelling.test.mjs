@@ -7,10 +7,11 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 test("homepage tells the category story through six visual sections", async () => {
   const source = await read("app/page.tsx");
   assert.equal((source.match(/<section/g) ?? []).length, 6);
-  for (const component of ["ComparisonCard", "LifecycleDiagram", "DecisionFlow", "ArchitectureBlock", "Timeline", "InteractiveTrustWalkthrough"]) {
+  for (const component of ["ComparisonCard", "LifecycleDiagram", "DecisionFlow", "ArchitectureBlock", "InteractiveTrustWalkthrough"]) {
     assert.match(source, new RegExp(`<${component}`));
   }
-  for (const marker of ["Traditional Identity", "Operational Trust Infrastructure", "Enterprise Trust Fabric", "One-Click Trust Orchestration", "Customer Outcomes", "Why Different"]) {
+  assert.doesNotMatch(source, /<Timeline/);
+  for (const marker of ["Traditional Identity", "Operational Trust Infrastructure", "Enterprise Trust Fabric", "One Trust Assessment", "What We Protect", "Why Operational Trust"]) {
     assert.match(source, new RegExp(marker));
   }
 });

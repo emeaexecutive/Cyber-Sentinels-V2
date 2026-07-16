@@ -57,3 +57,9 @@ The existing in-process profiler records provider, consensus, trust, authorizati
 - No autonomous provider verdict or hidden confidence average.
 - No workflow-specific identity, policy, replay or memory silo.
 - No claim that configured, simulated or unreviewed provider output is production truth.
+
+## Release 1.0 RC1 evidence gate
+
+RC1 reuses `POST /api/trust/execute` for authenticated `Establish Trust` session creation and `POST /api/providers` for timestamped HMAC callbacks. Hopae transport stays in the adapter. `executeCanonicalTrustAssessment()` is a thin action over the existing lifecycle orchestrator, authorization gateway, enforcement, Replay, Evidence Graph, Trust Memory and Evidence Pack builders.
+
+Provider evidence is normalized and quality-gated before the Trust Decision. A service-role-only PostgreSQL function commits idempotency, Replay, the explicit evidence-to-receipt graph edge, append-only Trust Memory, receipt, audit and provider references in one transaction. Canonical proof and graph relationship tables are workspace/owner scoped; legacy unscoped rows are not exposed to ordinary authenticated sessions.

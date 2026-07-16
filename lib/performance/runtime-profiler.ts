@@ -10,6 +10,7 @@ export type RuntimeProfileStage =
   | "enforcement_latency"
   | "evidence_graph_latency"
   | "trust_memory_latency"
+  | "evidence_pack_latency"
   | "parallel_orchestration_latency"
   | "governance_queue_latency"
   | "dashboard_latency"
@@ -264,6 +265,7 @@ export function getRuntimeProfileSnapshot(
       enforcementLatency: average("enforcement_latency"),
       evidenceGraphLatency: average("evidence_graph_latency"),
       trustMemoryLatency: average("trust_memory_latency"),
+      evidencePackLatency: average("evidence_pack_latency"),
       parallelOrchestrationLatency: average("parallel_orchestration_latency"),
       governanceQueueLatency: average("governance_queue_latency"),
       dashboardLatency: average("dashboard_latency"),

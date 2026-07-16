@@ -75,10 +75,14 @@ export type TrustTransparencyReport = {
 
 export type TrustEvidencePack = {
   schemaVersion: 1;
+  packVersion: "1.0-rc1";
+  generatedAt: string;
   kind: "cyber_sentinels_trust_evidence_pack";
   audience: readonly ["Auditors", "CISOs", "Compliance", "Investigations"];
   workflow: TrustTransparencyReport["workflow"];
+  entity: { id: string; type: string };
   decision: {
+    outcome: string;
     posture: TrustTransparencyReport["posture"];
     whatChanged: string;
     why: string;
@@ -95,16 +99,30 @@ export type TrustEvidencePack = {
     summary: string;
     evidenceReferences: string[];
   }>;
+  provider_signals: Array<{
+    provider_id: string;
+    provider_name: string;
+    provider_verification_state: string;
+    evidence_references: string[];
+    summary: string;
+  }>;
   authority: {
     lineage: string[];
+    summary: string;
     humanReviewRemainsAuthoritative: true;
   };
+  policy: { applied: string; outcome: string };
+  evidenceQuality: { status: string; limitations: string[] };
+  enforcement: { outcome: string; receiptReference: string | null };
   replay: { reference: string | null; chronologyRecords: number };
+  evidenceGraph: { reference: string | null };
   trustMemory: { references: string[]; state: string; limitation: string };
   governance: {
+    status: string;
     actions: TrustTransparencyReport["decisionExplanation"]["governanceActions"];
     escalationPath: string[];
   };
+  sourceModes: string[];
   operationalLimitations: string[];
 };
 
@@ -267,10 +285,14 @@ export function buildTrustEvidencePack(report: TrustTransparencyReport): TrustEv
   const memoryState = report.posture.label ?? report.posture.state ?? "not recorded";
   return {
     schemaVersion: 1,
+    packVersion: "1.0-rc1",
+    generatedAt: new Date().toISOString(),
     kind: "cyber_sentinels_trust_evidence_pack",
     audience: ["Auditors", "CISOs", "Compliance", "Investigations"],
     workflow: report.workflow,
+    entity: { id: report.workflow.subjectId, type: report.workflow.subjectType },
     decision: {
+      outcome: report.posture.state ?? report.posture.label ?? "not recorded",
       posture: report.posture,
       whatChanged: report.decisionExplanation.whatChanged,
       why: report.decisionExplanation.whyTrustShifted,
@@ -282,14 +304,28 @@ export function buildTrustEvidencePack(report: TrustTransparencyReport): TrustEv
       continuityRecords: report.auditability.evidenceContinuityCount,
     },
     providerParticipation: report.decisionExplanation.providerSignals,
+    provider_signals: report.decisionExplanation.providerSignals.map((signal) => ({
+      provider_id: signal.provider === "Hopae Connect" ? "hopae_connect" : "external_unattributed",
+      provider_name: signal.provider,
+      provider_verification_state: signal.state,
+      evidence_references: signal.evidenceReferences,
+      summary: signal.summary,
+    })),
     authority: {
       lineage: report.auditability.authorizationLineage,
+      summary: report.auditability.authorizationLineage.length
+        ? "Recorded authority lineage was included in the decision evidence."
+        : "Authority lineage was not recorded.",
       humanReviewRemainsAuthoritative: true,
     },
+    policy: { applied: "not recorded", outcome: "not recorded" },
+    evidenceQuality: { status: "not recorded", limitations: [] },
+    enforcement: { outcome: "not recorded", receiptReference: null },
     replay: {
       reference: report.auditability.replayReference,
       chronologyRecords: report.auditability.chronologyCount,
     },
+    evidenceGraph: { reference: null },
     trustMemory: {
       references: report.auditability.trustMemoryReferences,
       state: memoryState,
@@ -298,9 +334,11 @@ export function buildTrustEvidencePack(report: TrustTransparencyReport): TrustEv
         : "No standalone Trust Memory reference is recorded in this report; absence remains explicit.",
     },
     governance: {
+      status: report.decisionExplanation.governanceActions.length ? "recorded" : "no action recorded",
       actions: report.decisionExplanation.governanceActions,
       escalationPath: report.auditability.escalationPath,
     },
+    sourceModes: unique(report.decisionExplanation.providerSignals.map((signal) => signal.state)),
     operationalLimitations: [
       report.boundary,
       "The pack contains recorded references and summaries, not raw provider payloads or secret values.",
@@ -309,10 +347,56 @@ export function buildTrustEvidencePack(report: TrustTransparencyReport): TrustEv
   };
 }
 
+export function buildRc1TrustEvidencePack(input: {
+  base: TrustEvidencePack;
+  entity: { id: string; type: string };
+  decision: { outcome: string; posture: string; reasons: string[] };
+  authority: { summary: string; policyReferences: string[] };
+  policy: { applied: string; outcome: string };
+  evidenceQuality: { status: string; limitations: string[] };
+  enforcement: { outcome: string; receiptReference: string | null };
+  replayReference: string | null;
+  evidenceGraphReference: string | null;
+  trustMemoryReference: string | null;
+  trustMemoryImpact: string;
+  governanceStatus: string;
+  sourceModes: string[];
+}) {
+  return {
+    ...input.base,
+    entity: input.entity,
+    decision: {
+      ...input.base.decision,
+      outcome: input.decision.outcome,
+      posture: { ...input.base.decision.posture, state: input.decision.posture, label: input.decision.posture },
+      why: input.decision.reasons.join("; ") || input.base.decision.why,
+    },
+    authority: {
+      ...input.base.authority,
+      lineage: unique([...input.base.authority.lineage, ...input.authority.policyReferences]),
+      summary: input.authority.summary,
+    },
+    policy: input.policy,
+    evidenceQuality: input.evidenceQuality,
+    enforcement: input.enforcement,
+    replay: { ...input.base.replay, reference: input.replayReference },
+    evidenceGraph: { reference: input.evidenceGraphReference },
+    trustMemory: {
+      ...input.base.trustMemory,
+      references: unique([...input.base.trustMemory.references, input.trustMemoryReference]),
+      state: input.trustMemoryImpact,
+    },
+    governance: { ...input.base.governance, status: input.governanceStatus },
+    sourceModes: unique(input.sourceModes),
+    operationalLimitations: unique([...input.base.operationalLimitations, ...input.evidenceQuality.limitations]),
+  } satisfies TrustEvidencePack;
+}
+
 function trustEvidencePackLines(pack: TrustEvidencePack, enterpriseSummary = false) {
   const lines = [
     "CYBER SENTINELS TRUST EVIDENCE PACK",
     enterpriseSummary ? "Enterprise Summary" : "Portable decision evidence",
+    `Pack version: ${pack.packVersion}; generated: ${pack.generatedAt}`,
     `Workflow: ${pack.workflow.subjectType} / ${pack.workflow.subjectId}`,
     `Decision posture: ${pack.decision.posture.label ?? pack.decision.posture.state ?? "not recorded"}`,
     `What changed: ${pack.decision.whatChanged}`,
@@ -323,6 +407,11 @@ function trustEvidencePackLines(pack: TrustEvidencePack, enterpriseSummary = fal
     `Trust Memory: ${pack.trustMemory.state}; ${pack.trustMemory.references.length} reference(s)`,
     `Authority: ${pack.authority.lineage.length} lineage reference(s); human review authoritative`,
     `Provider participation: ${pack.providerParticipation.length} provider signal(s)`,
+    `Evidence quality: ${pack.evidenceQuality.status}`,
+    `Policy: ${pack.policy.applied}; outcome: ${pack.policy.outcome}`,
+    `Enforcement: ${pack.enforcement.outcome}; receipt: ${pack.enforcement.receiptReference ?? "not recorded"}`,
+    `Evidence Graph: ${pack.evidenceGraph.reference ?? "not recorded"}`,
+    `Source modes: ${pack.sourceModes.join(", ") || "not recorded"}`,
   ];
 
   if (!enterpriseSummary) {

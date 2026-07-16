@@ -1,6 +1,9 @@
 import "server-only";
 
-import { createHmac, timingSafeEqual } from "node:crypto";
+export {
+  getHopaeWebhookTimestamp,
+  verifyHopaeWebhookSignature,
+} from "@/lib/providers/hopae-rc1";
 
 export type HopaeConfig = {
   enabled: boolean;
@@ -20,6 +23,8 @@ export type CreateHopaeVerificationInput = {
   matchData?: HopaeJson;
   metadata?: HopaeJson;
 };
+
+export const HOPAE_REQUEST_TIMEOUT_MS = 8_000;
 
 export class HopaeDisabledError extends Error {
   constructor(message = "Hopae Connect is disabled.") {
@@ -60,22 +65,34 @@ export function hopaeBasicAuthHeader() {
 
 async function hopaeRequest(path: string, init: RequestInit = {}) {
   const config = requireHopaeApiConfig();
-  const response = await fetch(`${config.apiBaseUrl}${path}`, {
-    ...init,
-    cache: "no-store",
-    headers: {
-      Accept: "application/json",
-      Authorization: hopaeBasicAuthHeader(),
-      ...(init.body ? { "Content-Type": "application/json" } : {}),
-      ...init.headers,
-    },
-  });
-  const payload = (await response.json().catch(() => ({}))) as HopaeJson;
-  if (!response.ok) {
-    console.error("Hopae API request failed.", { path, status: response.status });
-    throw new Error(`Hopae API request failed with status ${response.status}.`);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), HOPAE_REQUEST_TIMEOUT_MS);
+  try {
+    const response = await fetch(`${config.apiBaseUrl}${path}`, {
+      ...init,
+      cache: "no-store",
+      signal: controller.signal,
+      headers: {
+        Accept: "application/json",
+        Authorization: hopaeBasicAuthHeader(),
+        ...(init.body ? { "Content-Type": "application/json" } : {}),
+        ...init.headers,
+      },
+    });
+    const payload = (await response.json().catch(() => ({}))) as HopaeJson;
+    if (!response.ok) {
+      console.error("Hopae API request failed.", { path, status: response.status });
+      throw new Error(`Hopae API request failed with status ${response.status}.`);
+    }
+    return payload;
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Hopae API request timed out.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-  return payload;
 }
 
 export function createHopaeVerification({
@@ -103,45 +120,4 @@ export function getHopaeVerificationUserInfo(verificationId: string) {
   return hopaeRequest(
     `/connect/v1/verifications/${encodeURIComponent(verificationId)}/userinfo`
   );
-}
-
-function parseSignatureHeader(signatureHeader: string) {
-  const compactMatch = signatureHeader.trim().match(/^(\d+)\.([a-fA-F0-9]{64})$/);
-  if (compactMatch) {
-    return { timestamp: compactMatch[1], signature: compactMatch[2] };
-  }
-  const parts = Object.fromEntries(
-    signatureHeader.split(/[,;]/).map((part) => {
-      const [key, ...value] = part.trim().split("=");
-      return [key, value.join("=")];
-    })
-  );
-  return {
-    timestamp: parts.t || parts.timestamp || "",
-    signature: parts.v1 || parts.signature || parts.sig || "",
-  };
-}
-
-export function verifyHopaeWebhookSignature(
-  rawBody: string,
-  signatureHeader: string,
-  secret: string
-) {
-  if (!rawBody || !signatureHeader || !secret) return false;
-  const { timestamp, signature } = parseSignatureHeader(signatureHeader);
-  if (!timestamp || !signature || !/^\d+$/.test(timestamp)) return false;
-
-  const expected = createHmac("sha256", secret)
-    .update(`${timestamp}.${rawBody}`, "utf8")
-    .digest("hex");
-  const supplied = signature.replace(/^sha256=/i, "").toLowerCase();
-  if (!/^[a-f0-9]{64}$/.test(supplied)) return false;
-
-  return timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(supplied, "hex"));
-}
-
-export function getHopaeWebhookTimestamp(signatureHeader: string) {
-  const { timestamp } = parseSignatureHeader(signatureHeader);
-  const parsed = Number(timestamp);
-  return Number.isFinite(parsed) ? parsed : null;
 }

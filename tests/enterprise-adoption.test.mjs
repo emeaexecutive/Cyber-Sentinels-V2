@@ -77,12 +77,12 @@ test("every buyer journey ends with the required three actions", async () => {
   assert.match(visual, /journey\.actions\.map/);
 });
 
-test("interactive trust flow lasts 16.8 seconds and ends in Enterprise Outcome", async () => {
+test("interactive RC1 trust flow lasts 16.2 seconds and ends in an Evidence Pack", async () => {
   const source = await read("components/interactive-trust-walkthrough.tsx");
-  for (const step of ["Identity", "Authority", "Evidence", "Decision", "Replay", "Trust Memory™", "Enterprise Outcome"]) assert.match(source, new RegExp(step));
+  for (const step of ["Establish Trust", "Resolve Identity", "Confirm Authority", "Collect Evidence", "Evaluate Trust", "Enforce Decision", "Write Replay", "Update Trust Memory™", "Produce Evidence Pack"]) assert.match(source, new RegExp(step));
   assert.match(source, /See Trust in Action/);
-  assert.equal(2400 * 7, 16800);
-  assert.match(source, /2400/);
+  assert.equal(1800 * 9, 16200);
+  assert.match(source, /1800/);
   assert.match(source, /aria-live="polite"/);
 });
 

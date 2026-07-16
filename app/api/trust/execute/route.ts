@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { runtimeEngine } from "@/lib/core/runtime-engine";
+import { checkRequestRateLimit } from "@/lib/security";
+import {
+  Rc1ProviderError,
+  startHopaeTrustAssessment,
+} from "@/lib/providers/hopae-rc1-server";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +15,8 @@ function numberValue(body: Record<string, unknown>, key: string) {
 }
 
 export async function POST(request: Request) {
+  const rateLimited = checkRequestRateLimit({ route: "/api/trust/execute", req: request, limit: 20, windowMs: 60_000 });
+  if (rateLimited) return rateLimited;
   const supabase = await createClient();
   const {
     data: { user },
@@ -18,6 +25,27 @@ export async function POST(request: Request) {
 
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return NextResponse.json({ ok: false, error: "invalid_execution_input" }, { status: 400 });
+
+  if (body.action === "establish_trust") {
+    if (body.provider_id !== "hopae_connect") {
+      return NextResponse.json({ ok: false, error: "unsupported_primary_provider" }, { status: 400 });
+    }
+    try {
+      const result = await startHopaeTrustAssessment({
+        supabase,
+        user,
+        body,
+        appUrl: process.env.NEXT_PUBLIC_APP_URL?.trim() || new URL(request.url).origin,
+      });
+      return NextResponse.json(result, { status: 201, headers: { "cache-control": "private, no-store" } });
+    } catch (error) {
+      if (error instanceof Rc1ProviderError) {
+        return NextResponse.json({ ok: false, error: error.code, message: error.message }, { status: error.status });
+      }
+      console.error("Trust assessment session creation failed.", error);
+      return NextResponse.json({ ok: false, error: "trust_assessment_unavailable" }, { status: 503 });
+    }
+  }
 
   const workflowId = String(body.workflow_id ?? crypto.randomUUID()).slice(0, 120);
   const actorId = String(body.actor_id ?? user.id).slice(0, 120);

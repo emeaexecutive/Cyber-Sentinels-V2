@@ -19,11 +19,11 @@ test("homepage owns the Operational Trust Infrastructure category in six section
 
 test("interactive walkthrough is user-triggered, accessible and completes in the fifteen-to-twenty-second target", async () => {
   const source = await read("components/interactive-trust-walkthrough.tsx");
-  for (const step of ["Identity", "Authority", "Evidence", "Decision", "Replay", "Trust Memory™", "Enterprise Outcome"]) assert.match(source, new RegExp(step));
+  for (const step of ["Establish Trust", "Resolve Identity", "Confirm Authority", "Collect Evidence", "Evaluate Trust", "Enforce Decision", "Write Replay", "Update Trust Memory™", "Produce Evidence Pack"]) assert.match(source, new RegExp(step));
   assert.match(source, /See Trust in Action/);
   assert.match(source, /aria-live="polite"/);
-  assert.match(source, /2400/);
-  assert.ok(2400 * 7 >= 15000 && 2400 * 7 <= 20000);
+  assert.match(source, /1800/);
+  assert.ok(1800 * 9 >= 15000 && 1800 * 9 <= 20000);
 });
 
 test("four buying journeys answer the complete buyer sequence on the existing Enterprise page", async () => {

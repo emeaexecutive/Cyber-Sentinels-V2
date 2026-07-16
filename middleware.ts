@@ -259,6 +259,11 @@ function protectedSurfaceUnavailable() {
 
 export async function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
+  // Provider callbacks authenticate with a timestamped HMAC in the route.
+  // Browser GET access to the provider registry remains session-protected.
+  if (pathname === "/api/providers" && req.method === "POST") {
+    return NextResponse.next();
+  }
   const protectsUser = isProtectedUserPath(pathname);
   const protectsAdmin = isProtectedAdminPath(pathname);
 
