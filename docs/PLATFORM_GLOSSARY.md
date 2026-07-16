@@ -30,6 +30,6 @@
 
 **Provider-neutral evidence** — Safe contract independent of raw provider payload shape.
 
-**Live / Test Mode / Simulated / Awaiting Credentials / Unavailable** — Runtime truth labels. `Live` requires a real successful health check; configuration alone is insufficient.
+**Live / Test / Awaiting Credentials / Prototype / Disabled** — Provider-facing maturity labels. `Live` requires a production-candidate path and a real successful check; timeout, failure, degradation, Test Mode and simulation remain internal runtime or demo evidence rather than additional provider maturity states.
 
 **Calibration incomplete — insufficient reviewed ground truth.** — Required state when an accuracy-like metric lacks a versioned reviewed dataset and calculation record.

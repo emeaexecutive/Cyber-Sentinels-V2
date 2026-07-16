@@ -1,6 +1,6 @@
 # Release 1 readiness scorecard
 
-Release candidate: 1.0 RC3
+Release candidate: 1.0 RC4
 Review date: 2026-07-16
 
 ## Evidence scale
@@ -21,7 +21,7 @@ Historical mapping: Architecture and Governance are consolidated into Operationa
 | --- | --- | --- | --- | --- | --- |
 | Enterprise UX | `2 — Implemented` | `3 — Pilot evidenced` | Authenticated cross-browser and design-partner usability evidence are not recorded; in-app browser QA was unavailable in this review. | Six-section homepage, canonical public-page adoption contracts, four guided buyer journeys, consolidated navigation and a 16.8-second accessible trust flow. | Complete desktop/mobile buyer walkthroughs with one design partner and retain findings. |
 | Operational Readiness | `2 — Implemented` | `3 — Pilot evidenced` | Deployed tenant, queue, database, Replay and Trust Memory evidence remain external. | Six evidence-linked readiness indicators, ten-component health model, guided onboarding, protected dashboard and deployment checklist. | Complete one tenant-scoped workflow with decision, Replay, governance and Trust Memory references. |
-| Provider Readiness | `2 — Implemented` | `3 — Pilot evidenced` | No successful real provider health check or reviewed provider outcome was supplied to this review. | Provider classifications, credential state, health, latency, last successful check, normalization audit, limitations and truthful Test Connection behavior. | Validate one endpoint-specific adapter with approved pilot evidence and retained real health. |
+| Provider Readiness | `2 — Implemented` | `3 — Pilot evidenced` | No successful real provider health check or reviewed provider outcome was supplied to this review. | Five-state provider reality, credential state, health, latency, last successful check, normalization audit, limitations and the Hopae production-candidate path. | Validate Hopae with approved pilot evidence and retained real health. |
 | ML Validation | `2 — Implemented` | `3 — Pilot evidenced` | Fewer than 30 approved reviewed samples; no provider-comparison dataset. | Calibration, benchmark, reviewed-outcome, confidence-calibration and provider-agreement contracts in `lib/validation/benchmark-harness.ts`. | Add dataset-versioned, consented or approved reviewed cases that satisfy the calibration gate. |
 | Security | `2 — Implemented` | `3 — Pilot evidenced` | Deployed RLS, distributed rate limiting, session policy, webhook verification and secret rotation require target-environment proof. | Protected auth/admin paths, RLS migrations, secret validation, rate-limit controls and `docs/SECURITY_REVIEW_RELEASE_1.md`. | Execute the deployment security checklist and attach denial-path evidence. |
 | Performance | `2 — Implemented` | `3 — Pilot evidenced` | Measurements remain process-local; representative pilot p50/p95 and durable APM are absent. | Profiling covers orchestration, providers, database, Replay, Evidence Graph, Trust Memory and queues. | Capture versioned pilot measurements and optimize only a reproducible bottleneck. |
@@ -51,3 +51,7 @@ The score remains `2 — Implemented`. RC2 derives one Living Trust Profile from
 ## 1.0 RC3 living-trust experience update — 2026-07-16
 
 The score remains `2 — Implemented`. RC3 reduces the homepage to six blocks and one operational-trust graph, keeps eight primary buyer destinations, moves company/support discovery to a seven-group footer and preserves protected/admin routes. The Living Trust Profile now renders contextual evidence coverage, complete authority constraints and fully attributable Trust Memory transitions with responsive and accessibility boundaries. Design-partner browser evidence, production provider/runtime receipts and target-environment security checks remain blockers.
+
+## 1.0 RC4 enterprise-proof update — 2026-07-16
+
+The score remains `2 — Implemented`. RC4 adds reviewed-ground-truth gating to the existing Validation Dashboard, constrains provider-facing maturity to Live, Test, Awaiting Credentials, Prototype or Disabled, profiles six required operational paths, and expands the Enterprise Readiness Center to eight evidence-linked release areas. The homepage retains six sections, one graph and two total CTAs; the demo is one linear nine-stage journey. Current validation remains blocked at 0/30 reviewed samples, no Live provider evidence is claimed, and deployed security, representative performance and design-partner outcomes remain outstanding.

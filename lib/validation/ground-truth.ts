@@ -76,6 +76,7 @@ export type GroundTruthValidationSummary = {
   f1: GuardedMetric;
   falsePositiveRate: GuardedMetric;
   falseNegativeRate: GuardedMetric;
+  unknownRate: GuardedMetric;
   calibration: GuardedMetric;
   confidence: GuardedMetric;
   providerAgreement: GuardedMetric;
@@ -327,6 +328,13 @@ export function computeGroundTruthValidation(
     }),
     falseNegativeRate: guarded({
       value: thresholdMet && falseNegativeDenominator ? matrix.falseNegatives / falseNegativeDenominator : null,
+      status,
+      sampleCount,
+      minimumReviewedSamples,
+      reason,
+    }),
+    unknownRate: guarded({
+      value: thresholdMet && sampleCount ? matrix.reviewOnly / sampleCount : null,
       status,
       sampleCount,
       minimumReviewedSamples,

@@ -59,11 +59,11 @@ test("authenticated audit export and report UI expose all three Evidence Pack fo
   assert.match(route, /private, no-store/);
 });
 
-test("Enterprise Readiness has six evidence-linked indicators", async () => {
+test("Enterprise Readiness has eight evidence-linked indicators", async () => {
   const [model, page] = await Promise.all([read("lib/enterprise-readiness.ts"), read("app/enterprise/readiness/page.tsx")]);
-  for (const label of ["Release readiness", "Provider readiness", "ML readiness", "Security readiness", "Documentation readiness", "Pilot readiness"]) assert.match(model, new RegExp(label));
+  for (const label of ["Architecture", "Validation", "Security", "Performance", "Provider readiness", "Documentation readiness", "Demo", "Pilot readiness"]) assert.match(model, new RegExp(label));
   const indicators = model.match(/readinessIndicators: \[[\s\S]*?\n    \],\n    safeguards:/)?.[0] ?? "";
-  assert.equal((indicators.match(/evidenceHref:/g) ?? []).length, 6);
+  assert.equal((indicators.match(/evidenceHref:/g) ?? []).length, 8);
   assert.match(page, /model\.readinessIndicators/);
   assert.match(page, /Inspect evidence/);
 });

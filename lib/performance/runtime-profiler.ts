@@ -47,6 +47,20 @@ export type TrustFabricObservabilityMetric = {
   limitation: string;
 };
 
+export type OperationalPerformanceProfile = {
+  id: "replay" | "evidence_graph" | "trust_decision" | "provider_calls" | "database" | "queues";
+  label: string;
+  stages: RuntimeProfileStage[];
+  sampleCount: number;
+  averageLatencyMs: number | null;
+  p95LatencyMs: number | null;
+  timeoutCount: number | null;
+  slowOperationCount: number | null;
+  slowThresholdMs: number;
+  status: "measured" | "awaiting_data";
+  limitation: string;
+};
+
 const samples: RuntimeProfileSample[] = [];
 const maxSamples = 200;
 
@@ -132,6 +146,44 @@ export function getSlowestRuntimeOperations(limit = 10) {
       label: typeof sample.metadata.label === "string" ? sample.metadata.label : sample.stage,
       metadata: sample.metadata,
     }));
+}
+
+const operationalProfileDefinitions: Array<{
+  id: OperationalPerformanceProfile["id"];
+  label: string;
+  stages: RuntimeProfileStage[];
+  slowThresholdMs: number;
+}> = [
+  { id: "replay", label: "Replay", stages: ["replay_latency"], slowThresholdMs: 200 },
+  { id: "evidence_graph", label: "Evidence Graph", stages: ["evidence_graph_latency"], slowThresholdMs: 200 },
+  { id: "trust_decision", label: "Trust Decision", stages: ["trust_latency"], slowThresholdMs: 300 },
+  { id: "provider_calls", label: "Provider calls", stages: ["provider_latency"], slowThresholdMs: 8_000 },
+  { id: "database", label: "Database", stages: ["database_query_latency"], slowThresholdMs: 250 },
+  { id: "queues", label: "Queues", stages: ["queue_latency", "governance_queue_latency"], slowThresholdMs: 500 },
+];
+
+export function getOperationalPerformanceProfile(): OperationalPerformanceProfile[] {
+  return operationalProfileDefinitions.map((definition) => {
+    const scoped = samples.filter((sample) => definition.stages.includes(sample.stage));
+    const latencies = scoped.map((sample) => sample.latencyMs);
+    const averageLatencyMs = latencies.length
+      ? Number((latencies.reduce((total, latency) => total + latency, 0) / latencies.length).toFixed(3))
+      : null;
+    return {
+      ...definition,
+      sampleCount: scoped.length,
+      averageLatencyMs,
+      p95LatencyMs: percentile(latencies, 95),
+      timeoutCount: scoped.length
+        ? scoped.filter((sample) => sample.metadata.timeout === true).length
+        : null,
+      slowOperationCount: scoped.length
+        ? scoped.filter((sample) => sample.latencyMs >= definition.slowThresholdMs).length
+        : null,
+      status: scoped.length ? "measured" : "awaiting_data",
+      limitation: "Process-local retained samples only; thresholds identify investigation candidates and do not define an SLA.",
+    };
+  });
 }
 
 function average(stage: RuntimeProfileStage) {

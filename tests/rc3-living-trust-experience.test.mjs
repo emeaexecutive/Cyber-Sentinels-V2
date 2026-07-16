@@ -36,7 +36,7 @@ test("homepage contains six blocks and exactly one canonical operational-trust g
   assert.doesNotMatch(source, /<InteractiveTrustWalkthrough|<DecisionFlow|<ArchitectureBlock/);
   for (const step of ["Identity", "Authority", "Context", "Evidence", "Trust Decision", "Enforcement", "Replay", "Trust Memory™", "Current Trust Posture"]) assert.match(source, new RegExp(step));
   assert.match(source, /See operational trust evolve before, during and after a critical action\./);
-  assert.match(source, /Explore the Trust Fabric/);
+  assert.equal((source.match(/<Link/g) ?? []).length, 2);
 });
 
 test("canonical public routes remain indexable while protected and archived routes remain isolated", async () => {
@@ -53,11 +53,11 @@ test("canonical public routes remain indexable while protected and archived rout
   assert.doesNotMatch(redirects, /source: "\/trust-center"|source: "\/trust-graph-engine"/);
 });
 
-test("CISO and CIO buyer journeys reach canonical detail and conversion surfaces", async () => {
+test("CISO and CIO buyer journeys reach canonical proof and readiness surfaces", async () => {
   const [home, demoPage, platform] = await Promise.all([read("app/page.tsx"), read("app/demo/trust-execution-flow/page.tsx"), read("app/platform/page.tsx")]);
   assert.match(home, /href="\/demo\/trust-execution-flow"/);
-  for (const href of ["/trust", "/security", "/enterprise-access?intent=demo"]) assert.match(demoPage, new RegExp(`href="${href.replaceAll("/", "\\/").replace("?", "\\?")}"`));
-  assert.match(home, /href="\/platform#trust-fabric"/);
+  for (const href of ["/verification-replay", "/enterprise/readiness"]) assert.match(demoPage, new RegExp(`href="${href.replaceAll("/", "\\/")}"`));
+  assert.equal((home.match(/<Link/g) ?? []).length, 2);
   assert.match(platform, /href="\/developers"/);
   assert.match(platform, /href="\/enterprise\/pilot"/);
 });

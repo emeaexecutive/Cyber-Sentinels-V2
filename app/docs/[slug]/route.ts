@@ -24,6 +24,13 @@ const allowedDocs = new Set([
   "RELEASE_READINESS.md",
   "ENTERPRISE_UI_CONSISTENCY.md",
   "SPRINT_12_3_ACCEPTANCE.md",
+  "RC4_VALIDATION.md",
+  "RC4_PROVIDER_REALITY.md",
+  "RC4_PERFORMANCE.md",
+  "RC4_SECURITY.md",
+  "RC4_ENTERPRISE_STORY.md",
+  "RC4_RELEASE_SCORECARD.md",
+  "SPRINT_13_4_ACCEPTANCE.md",
 ]);
 
 export async function GET(

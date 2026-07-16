@@ -4,7 +4,7 @@ import type {
   ReadinessGateState,
 } from "@/lib/readiness-gate/snapshot";
 import type { CanonicalPlatformHealth, PlatformHealthSection } from "@/lib/core/platform-health";
-import { getSlowestRuntimeOperations } from "@/lib/performance/runtime-profiler";
+import { getOperationalPerformanceProfile, getSlowestRuntimeOperations } from "@/lib/performance/runtime-profiler";
 import {
   buildProviderReadinessChecklist,
   buildProviderHealthSummary,
@@ -30,7 +30,7 @@ export type EnterpriseReadinessModel = {
   summary: string;
   readinessPercent: number;
   readinessIndicators: Array<{
-    id: "release" | "provider" | "ml" | "security" | "documentation" | "pilot";
+    id: "architecture" | "validation" | "security" | "performance" | "provider" | "documentation" | "demo" | "pilot";
     label: string;
     state: "Ready" | "Review" | "Blocked";
     evidence: string;
@@ -95,6 +95,7 @@ export type EnterpriseOperationalReadiness = {
   }>;
   performance: {
     coverage: Array<{ label: string; value: number | null; status: "measured" | "awaiting_data" }>;
+    profiles: ReturnType<typeof getOperationalPerformanceProfile>;
     bottlenecks: ReturnType<typeof getSlowestRuntimeOperations>;
     boundary: string;
   };
@@ -237,6 +238,7 @@ export function buildEnterpriseOperationalReadiness(
         status: (measurement as CanonicalPlatformHealth["latency"]["provider"]).status,
       })),
       bottlenecks: getSlowestRuntimeOperations(8),
+      profiles: getOperationalPerformanceProfile(),
       boundary: "Profiling is in-process and bounded to retained samples. No production-scale bottleneck is inferred from missing data.",
     },
     boundary: "This protected workspace separates measured runtime evidence, process-local diagnostics and deployment metadata. It is not certification, fleet observability or an SLA.",
@@ -268,9 +270,9 @@ export function buildEnterpriseReadinessModel(
       : "Blocked";
   const mlState = platformHealth.validationHealth.status === "healthy"
     ? "Ready"
-    : platformHealth.validationHealth.status === "blocked"
-      ? "Blocked"
-      : "Review";
+    : "Blocked";
+  const performanceProfiles = getOperationalPerformanceProfile();
+  const measuredPerformanceProfiles = performanceProfiles.filter((profile) => profile.status === "measured").length;
 
   return {
     status: snapshot.status,
@@ -280,27 +282,19 @@ export function buildEnterpriseReadinessModel(
       : 0,
     readinessIndicators: [
       {
-        id: "release",
-        label: "Release readiness",
-        state: releaseState,
-        evidence: snapshot.summary,
-        evidenceHref: "/admin/readiness-gate",
-        limitation: "Repository and deployment checks do not establish production certification.",
+        id: "architecture",
+        label: "Architecture",
+        state: "Ready",
+        evidence: "The canonical Trust Fabric connects identity, authority, evidence, decision, enforcement, Replay, Evidence Graph and Trust Memory without a parallel RC4 engine.",
+        evidenceHref: "/platform",
+        limitation: "Implemented architecture still requires deployment and pilot evidence for production reliance.",
       },
       {
-        id: "provider",
-        label: "Provider readiness",
-        state: providerState,
-        evidence: `${providerClassifications.filter((state) => state === "Production Ready").length} production-ready; ${providerClassifications.filter((state) => state === "Configured").length} configured; ${providerClassifications.filter((state) => state === "Awaiting Credentials").length} awaiting credentials.`,
-        evidenceHref: "/admin/provider-status",
-        limitation: "Credentials and configuration remain separate from successful health and reviewed outcomes.",
-      },
-      {
-        id: "ml",
-        label: "ML readiness",
+        id: "validation",
+        label: "Validation",
         state: mlState,
         evidence: platformHealth.validationHealth.evidence[0] ?? platformHealth.validationHealth.blockers[0] ?? "No reviewed validation evidence is recorded.",
-        evidenceHref: "/admin/benchmarking",
+        evidenceHref: "/dashboard/validation",
         limitation: "Accuracy-like claims remain blocked until reviewed dataset thresholds are met.",
       },
       {
@@ -312,12 +306,36 @@ export function buildEnterpriseReadinessModel(
         limitation: "Source controls require deployed denial-path, RLS, session and secret-rotation evidence.",
       },
       {
+        id: "performance",
+        label: "Performance",
+        state: measuredPerformanceProfiles === performanceProfiles.length ? "Ready" : "Review",
+        evidence: `${measuredPerformanceProfiles}/${performanceProfiles.length} required operational paths have retained process-local latency samples.`,
+        evidenceHref: "/enterprise/readiness#performance-evidence",
+        limitation: "Local retained samples are not production APM, capacity evidence or an SLA.",
+      },
+      {
+        id: "provider",
+        label: "Provider readiness",
+        state: providerState,
+        evidence: `${providerClassifications.filter((state) => state === "Production Ready").length} production-ready; ${providerClassifications.filter((state) => state === "Configured").length} configured; ${providerClassifications.filter((state) => state === "Awaiting Credentials").length} awaiting credentials.`,
+        evidenceHref: "/admin/provider-status",
+        limitation: "Credentials and configuration remain separate from successful health and reviewed outcomes.",
+      },
+      {
         id: "documentation",
         label: "Documentation readiness",
         state: "Review",
         evidence: "Release, provider, security, pilot, buyer and Trust Evidence Pack documentation is published from the tracked release source.",
-        evidenceHref: "/docs/RELEASE_READINESS.md",
+        evidenceHref: "/docs/RC4_RELEASE_SCORECARD.md",
         limitation: "Documentation remains under review until named operator and customer sign-off.",
+      },
+      {
+        id: "demo",
+        label: "Demo",
+        state: "Review",
+        evidence: "One linear controlled operational-trust journey connects Start, Identity, Authority, Evidence, Decision, Replay, Trust Memory, Evidence Pack and Enterprise Dashboard.",
+        evidenceHref: "/demo/trust-execution-flow",
+        limitation: "Controlled Test evidence proves product behavior, not production traffic or provider accuracy.",
       },
       {
         id: "pilot",

@@ -476,6 +476,16 @@ function groundTruthRecordsFromCases(
 
 export async function loadValidationCases(root = path.join(process.cwd(), "data", "validation")) {
   const cases: ValidationCase[] = [];
+  const isValidationCase = (value: unknown): value is ValidationCase => {
+    if (!value || typeof value !== "object") return false;
+    const candidate = value as Partial<ValidationCase>;
+    return Boolean(
+      typeof candidate.id === "string" &&
+      candidate.signals &&
+      typeof candidate.signals === "object" &&
+      ["positive", "negative", "review"].includes(String(candidate.expectedOutcome))
+    );
+  };
   async function visit(directory: string): Promise<void> {
     let entries;
     try {
@@ -488,7 +498,7 @@ export async function loadValidationCases(root = path.join(process.cwd(), "data"
       if (entry.isDirectory()) await visit(target);
       else if (entry.name.endsWith(".json")) {
         const parsed = JSON.parse(await readFile(target, "utf8")) as ValidationCase | ValidationCase[];
-        cases.push(...(Array.isArray(parsed) ? parsed : [parsed]));
+        cases.push(...(Array.isArray(parsed) ? parsed.filter(isValidationCase) : isValidationCase(parsed) ? [parsed] : []));
       }
     }
   }
@@ -557,6 +567,7 @@ export async function runValidationBenchmark(options: {
       escalationRate: null,
       falsePositiveRate: null,
       falseNegativeRate: null,
+      unknownRate: null,
       governanceOverrideTracking: { overrides: 0, reviewerDisagreements: 0 },
       reviewedOutcomeSummary: summarizeReviewedOutcomes([]),
       reviewedOutcomes: [],
@@ -761,6 +772,7 @@ export async function runValidationBenchmark(options: {
     ).length / cases.length,
     falsePositiveRate: rates.falsePositiveRate ?? (negativeCases ? falsePositiveCount / negativeCases : null),
     falseNegativeRate: rates.falseNegativeRate ?? (positiveCases ? falseNegativeCount / positiveCases : null),
+    unknownRate: results.length ? confusionMatrix.reviewOnly / results.length : null,
     governanceOverrideTracking: {
       overrides: cases.filter((testCase) => Boolean(testCase.governanceOverride)).length,
       reviewerDisagreements: reviewerAgreement.disagreements,

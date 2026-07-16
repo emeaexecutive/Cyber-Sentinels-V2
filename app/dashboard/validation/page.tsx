@@ -4,10 +4,15 @@ import { ValidationBenchmarkDashboard } from "@/components/validation-benchmark-
 import { DecisionSummary } from "@/components/executive-summary";
 import { buildBenchmarkSummary } from "@/lib/benchmarking";
 import { loadBenchmarkObservations } from "@/lib/benchmarking/server";
+import { mlValidationEngine } from "@/lib/core/ml-validation-engine";
 import { createClient } from "@/lib/supabase/server";
 import { buildValidationMetrics } from "@/lib/validation-metrics";
 
 export const dynamic = "force-dynamic";
+
+function percent(value: number | null) {
+  return value === null ? "Awaiting data" : `${Math.round(value * 100)}%`;
+}
 
 export default async function ValidationDashboardPage() {
   const supabase = await createClient();
@@ -16,9 +21,26 @@ export default async function ValidationDashboardPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/dashboard/validation");
 
-  const observations = await loadBenchmarkObservations(supabase);
+  const [observations, validation] = await Promise.all([
+    loadBenchmarkObservations(supabase),
+    mlValidationEngine.runMlValidationEngine(),
+  ]);
   const metrics = buildValidationMetrics(observations);
   const summary = buildBenchmarkSummary(observations);
+  const benchmark = validation.benchmark;
+  const groundTruth = benchmark.groundTruth.validation;
+  const metricReady = groundTruth.precision.status === "computed";
+  const validationMetrics = [
+    ["Dataset version", benchmark.datasetCoverageReport.datasetVersion],
+    ["Ground truth", `${groundTruth.reviewedSamples}/${groundTruth.minimumReviewedSamples} reviewed samples`],
+    ["Reviewed samples", String(groundTruth.reviewedSamples)],
+    ["Precision", percent(groundTruth.precision.value)],
+    ["Recall", percent(groundTruth.recall.value)],
+    ["False positives", metricReady ? String(groundTruth.confusionMatrix.falsePositives) : "Awaiting data"],
+    ["False negatives", metricReady ? String(groundTruth.confusionMatrix.falseNegatives) : "Awaiting data"],
+    ["Calibration state", metricReady ? "Calibration Complete" : "Calibration Incomplete"],
+    ["Unknown rate", percent(groundTruth.unknownRate.value)],
+  ] as const;
   const validationReadiness = [
     {
       label: "Implemented",
@@ -106,6 +128,45 @@ export default async function ValidationDashboardPage() {
               </ul>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">Validation proof</p>
+          <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-semibold">Reviewed ground-truth metrics</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">Accuracy-like metrics remain unavailable until the reviewed sample and dataset-quality gates pass.</p>
+            </div>
+            <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${metricReady ? "border-emerald-800 text-emerald-200" : "border-amber-800 text-amber-200"}`}>
+              {metricReady ? "CALIBRATION COMPLETE" : "CALIBRATION INCOMPLETE"}
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {validationMetrics.map(([label, value]) => (
+              <article key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-lg font-semibold text-zinc-100">{value}</p>
+              </article>
+            ))}
+          </div>
+          <p className="mt-4 text-sm leading-6 text-amber-200">{metricReady ? groundTruth.message : "Calibration incomplete - insufficient reviewed ground truth."}</p>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">Decision-source audit</p>
+          <h2 className="mt-3 text-2xl font-semibold">Every decision input remains attributable.</h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {validation.decisionSourceAudit.map((item) => (
+              <article key={item.source} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-semibold text-zinc-100">{item.source}</h3>
+                  <span className="rounded-full border border-zinc-700 px-2 py-1 text-xs text-zinc-300">{item.state}</span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{item.evidence}</p>
+                <p className="mt-3 border-t border-zinc-800 pt-3 text-xs leading-5 text-zinc-600">{item.boundary}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mt-8">

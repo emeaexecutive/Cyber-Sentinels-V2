@@ -54,6 +54,44 @@ export async function runMlValidationEngine(
     boundary: "Drift and error rates stay null or scoped until reviewed outcomes support them.",
   };
   const validationIncomplete = !benchmark.calibrationStatus.complete || benchmark.reviewedOutcomeSummary.reviewed === 0;
+  const decisionSourceAudit = [
+    {
+      source: "Deterministic rules",
+      state: "Implemented",
+      evidence: "Trust, authority, policy and enforcement decisions execute through versioned deterministic code paths.",
+      boundary: "Rule execution is explainable workflow logic, not ML inference.",
+    },
+    {
+      source: "Heuristic logic",
+      state: status.heuristic_detection_enabled ? "Implemented" : "Inactive",
+      evidence: "The Heuristic Baseline emits source-labelled review signals and never a final authenticity verdict.",
+      boundary: "Heuristic output must not be described as trained first-party ML.",
+    },
+    {
+      source: "Provider evidence",
+      state: providerReadiness.productionReady > 0 ? "Observed" : providerReadiness.testMode > 0 ? "Test" : "Awaiting Credentials",
+      evidence: providerReadiness.evidence,
+      boundary: "Provider evidence is one input; credentials and configuration do not establish accuracy.",
+    },
+    {
+      source: "ML inference",
+      state: status.real_ml_enabled ? "Observed" : "Not Implemented",
+      evidence: status.real_ml_enabled ? "A verified model inference path is active." : "No trained first-party ML inference is active.",
+      boundary: "General-purpose AI assistance and heuristics are not detection ML.",
+    },
+    {
+      source: "Human-reviewed outcome",
+      state: benchmark.reviewedOutcomeSummary.reviewed > 0 ? "Observed" : "Awaiting Data",
+      evidence: `${benchmark.reviewedOutcomeSummary.reviewed} reviewed outcome(s) are retained in the current dataset scope.`,
+      boundary: "Only attributed, versioned reviews can support calibration readiness.",
+    },
+    {
+      source: "Simulated evidence",
+      state: benchmark.caseCount > 0 ? "Test" : "Awaiting Data",
+      evidence: `${benchmark.caseCount} labelled validation case(s) are available in the current dataset scope.`,
+      boundary: "Controlled fixtures prove product behavior only and cannot support production accuracy claims.",
+    },
+  ] as const;
 
   return {
     engine: "ml_validation_engine" as const,
@@ -78,6 +116,7 @@ export async function runMlValidationEngine(
       heuristic_logic: status.heuristic_detection_enabled,
       boundary: "Real ML, Provider API, Heuristic Baseline, Awaiting Credentials and Not Implemented remain separate states.",
     },
+    decisionSourceAudit,
     limitations: [
       ...(validationIncomplete ? ["Calibration incomplete — insufficient reviewed ground truth."] : []),
       "No precision, recall or F1 claim is valid unless calibrationStatus.complete is true.",

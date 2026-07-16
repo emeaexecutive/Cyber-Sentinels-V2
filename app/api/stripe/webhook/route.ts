@@ -8,10 +8,12 @@ import {
 } from "@/lib/billing/stripe";
 import { getStripeWebhookSecretEnv, isEnvConfigurationError } from "@/lib/env";
 import { captureOperationalIssue } from "@/lib/operational-monitoring";
+import { checkRequestRateLimit } from "@/lib/security";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import type { UserPlan } from "@/types/billing";
 
 export const dynamic = "force-dynamic";
+const maxWebhookBytes = 1_000_000;
 
 function stringId(value: string | { id: string } | null) {
   if (!value) {
@@ -197,6 +199,17 @@ async function handleInvoicePayment(event: Stripe.Event) {
 }
 
 export async function POST(req: Request) {
+  const rateLimited = checkRequestRateLimit({
+    route: "/api/stripe/webhook",
+    req,
+    limit: 120,
+    windowMs: 60_000,
+  });
+  if (rateLimited) return rateLimited;
+  const contentLength = Number(req.headers.get("content-length") ?? "0");
+  if (Number.isFinite(contentLength) && contentLength > maxWebhookBytes) {
+    return NextResponse.json({ ok: false, error: "Webhook payload is too large." }, { status: 413 });
+  }
   try {
     const stripe = createStripeClient();
     const webhookSecret = getStripeWebhookSecretEnv("Stripe webhook");
@@ -211,6 +224,9 @@ export async function POST(req: Request) {
     }
 
     const rawBody = await req.text();
+    if (Buffer.byteLength(rawBody, "utf8") > maxWebhookBytes) {
+      return NextResponse.json({ ok: false, error: "Webhook payload is too large." }, { status: 413 });
+    }
     const event = stripe.webhooks.constructEvent(
       rawBody,
       signature,

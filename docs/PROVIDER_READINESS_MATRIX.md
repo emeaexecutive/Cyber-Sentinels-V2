@@ -4,7 +4,7 @@ Provider readiness is evidence for controlled operation, not proof of detection 
 
 ## Release 1.0 RC1 decision
 
-Hopae Connect is the RC1 primary provider in approved `Test Mode`: session creation, signed/timestamped/idempotent callback, status re-fetch, provider-neutral normalization, evidence-quality gating and atomic proof continuity are implemented and fixture-tested. Credentials were not present in this checkout, so runtime remains `Awaiting Credentials` until a deployment is configured and successfully checked. Stripe Identity and World ID remain post-RC1. Turnstile is supporting abuse control, never identity proof.
+Hopae Connect is the production-candidate provider in approved external `Test` maturity (internal runtime `Test Mode`): session creation, signed/timestamped/idempotent callback, status re-fetch, provider-neutral normalization, evidence-quality gating and atomic proof continuity are implemented and fixture-tested. Credentials were not present in this checkout, so the deployed state remains `Awaiting Credentials` until configured and successfully checked. Stripe Identity and World ID remain prototypes. Turnstile is supporting abuse control, never identity proof.
 
 ERM priority order for real integrations:
 
@@ -17,7 +17,7 @@ ERM priority order for real integrations:
 
 | Area | Current State | Evidence | Gap | Next Action |
 | --- | --- | --- | --- | --- |
-| Credential state | Provider readiness reports credential presence and runtime state. | `lib/providers/provider-readiness.ts`, `lib/providers/provider-orchestrator.ts`. | Missing credentials or configured-but-unreviewed adapters remain degraded or disabled. | Keep states constrained to Live, Simulated, Awaiting Credentials, Timeout, Failed and Disabled. |
+| Credential state | Provider readiness reports credential presence and runtime state. | `lib/providers/provider-readiness.ts`, `lib/providers/provider-orchestrator.ts`. | Missing credentials or configured-but-unreviewed adapters remain unavailable for production reliance. | Keep provider-facing maturity constrained to Live, Test, Awaiting Credentials, Prototype and Disabled; retain timeout/failure only as internal telemetry. |
 | Health | Readiness now includes healthy/degraded/blocked health labels. | Provider checks mark live/configured/missing states without implying production accuracy. | No durable provider health history exists yet. | Persist health snapshots only after pilot provider traffic exists. |
 | Latency | Provider orchestration returns `latencyMs`; readiness exposes p95 placeholders. | Runtime pipeline records provider latency samples through `runtime-profiler`. | p95 is not measured until enough samples exist. | Record provider p50/p95 under pilot workflows. |
 | Supported features | Provider readiness exposes `supportedFeatures`. | Orchestrator includes category and purpose; detection providers expose supported signals. | Verification providers need more granular signal taxonomy. | Normalize supported features per provider adapter before enabling live output. |

@@ -35,12 +35,13 @@ test("provider setup exposes the required maturity and connection evidence field
     read("app/admin/provider-status/page.tsx"),
     read("lib/providers/provider-readiness.ts"),
   ]);
-  for (const label of ["Current status", "Health", "Credential state", "Last successful connection", "Supported signals", "Known limitations", "Test Connection", "Documentation"]) {
+  for (const label of ["Current status", "Health", "Credential state", "Last successful connection", "Supported signals", "Known limitations", "Documentation"]) {
     assert.match(source, new RegExp(label));
   }
+  assert.doesNotMatch(source, /Test Connection/);
   assert.match(readiness, /purpose: string/);
   assert.match(readiness, /documentationHref: "\/docs\/PROVIDER_SETUP_GUIDE\.md"/);
-  assert.match(source, /never converts configuration into a Live result/);
+  assert.match(source, /No successful real connection recorded/);
 });
 
 test("Trust Workspace and Enterprise Readiness consolidate the requested operational views", async () => {

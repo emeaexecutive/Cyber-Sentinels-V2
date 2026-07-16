@@ -1,182 +1,123 @@
 import Link from "next/link";
-import { LivingTrustProfileView } from "@/components/living-trust-profile";
 import { buildRegulatedAiAgentDemo } from "@/lib/core/trust-lifecycle-orchestrator";
 import { buildRc2LivingTrustDemo } from "@/lib/trust/living-trust-profile";
 
 export const dynamic = "force-dynamic";
 
-const paths = [
+const decision = buildRegulatedAiAgentDemo("review");
+const livingTrustProof = buildRc2LivingTrustDemo();
+
+const journey = [
   {
-    label: "Allowed",
-    actor: "Regulated finance agent within scope",
-    result: buildRegulatedAiAgentDemo("allow"),
+    label: "Start",
+    state: "Test",
+    detail: "Establish Trust for one consequential regulated workflow and one attributable action.",
   },
   {
-    label: "Governance review",
-    actor: "Regulated finance agent requiring accountable review",
-    result: buildRegulatedAiAgentDemo("review"),
+    label: "Identity",
+    state: "Awaiting Credentials",
+    detail: "Resolve Identity through the production-candidate Hopae path; this environment makes no live provider claim.",
   },
   {
-    label: "Blocked",
-    actor: "Agent outside delegated financial authority",
-    result: buildRegulatedAiAgentDemo("block"),
+    label: "Authority",
+    state: "Test",
+    detail: "Confirm Authority by evaluating owner, purpose, action scope, expiry, revocation and policy independently from identity.",
   },
-];
-
-const flow = [
-  ["Establish Trust", "Test Mode", "The user initiates one canonical Trust Assessment."],
-  ["Resolve Identity", "Awaiting Credentials", "Hopae Connect is selected, but no live call is implied without deployment credentials."],
-  ["Confirm Authority", "Test Mode", "Owner, purpose, scope, expiry, revocation and workflow policy are evaluated separately from identity."],
-  ["Collect Evidence", "Simulated", "Approved fixtures produce provider-neutral evidence without raw documents or biometric data."],
-  ["Evaluate Trust", "Test Mode", "Evidence quality, authority, policy and runtime context produce an explainable outcome."],
-  ["Enforce Decision", "Test Mode", "Allow, step-up, review, escalation or block is enforced by deterministic policy."],
-  ["Write Replay", "Simulated", "The public demo previews chronology; authenticated recorded flows persist Replay atomically."],
-  ["Update Trust Memory™", "Simulated", "Append-only trust change records link reason, evidence, actor, authority, policy and Replay."],
-  ["Produce Evidence Pack", "Simulated", "Recorded flows export structured JSON and enterprise-readable PDF from the existing audit route."],
-];
-
-const rc2Demo = buildRc2LivingTrustDemo();
-const livingTrustFlow = [
-  "Human delegates constrained authority to an AI agent",
-  "Agent requests a regulated action",
-  "Current Living Trust Profile is resolved",
-  "Provider evidence and credentials are checked",
-  "Runtime context changes",
-  "Authorization is re-evaluated",
-  "Action requires approval and is paused",
-  "Execution receipt is required",
-  "Replay records the sequence",
-  "Trust Memory™ records how trust changed",
-  "Trust DNA™ view updates",
-  "Governance can revoke or restore authority",
-];
-
-const decisionClass: Record<string, string> = {
-  allow: "border-emerald-800 text-emerald-200",
-  step_up: "border-cyan-800 text-cyan-100",
-  review: "border-amber-800 text-amber-200",
-  escalate: "border-orange-800 text-orange-200",
-  block: "border-red-800 text-red-200",
-  insufficient_evidence: "border-zinc-700 text-zinc-300",
-  "insufficient evidence": "border-zinc-700 text-zinc-300",
-};
+  {
+    label: "Evidence",
+    state: "Test",
+    detail: "Collect Evidence as normalized, provider-neutral references without exposing raw documents or biometric data.",
+  },
+  {
+    label: "Decision",
+    state: "Test",
+    detail: "Evaluate Trust and Enforce Decision through deterministic policy; this path pauses for accountable governance review.",
+  },
+  {
+    label: "Replay",
+    state: "Test",
+    detail: "Write Replay so the actor, authority, evidence, policy, decision and enforcement sequence can be reconstructed.",
+  },
+  {
+    label: "Trust Memory™",
+    state: "Test",
+    detail: "Update Trust Memory™ with the previous posture, new posture, reason, evidence, actor, policy and Replay reference.",
+  },
+  {
+    label: "Evidence Pack",
+    state: "Test",
+    detail: "Produce Evidence Pack output from the same decision record for technical and enterprise review.",
+  },
+  {
+    label: "Enterprise Dashboard",
+    state: "Test",
+    detail: "Close on evidence-linked validation, provider, performance, security, documentation, demo and pilot readiness.",
+  },
+] as const;
 
 export default function TrustExecutionFlowDemoPage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-10 text-white md:px-8">
       <div className="mx-auto max-w-7xl">
         <section className="operational-panel p-6 md:p-8">
-          <p className="operational-eyebrow">Trust execution demo</p>
+          <p className="operational-eyebrow">Release 1.0 RC4 · Controlled Test</p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold md:text-5xl">
-            Detection signals become governed workflow action.
+            Understand one critical trust decision from start to enterprise proof.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Providers and models are treated as signals. This approved Test Mode flow coordinates the existing authority, policy, decision, enforcement, Replay, Evidence Graph, Trust Memory™ and Evidence Pack seams without claiming a live provider call.
+            This linear journey shows how identity, authority and evidence become an explainable decision, Replay, Trust Memory™ record and Evidence Pack. Test Mode proves product behavior only; no live provider, production accuracy or customer telemetry is claimed.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/verification-replay" className="brand-primary-action brand-action-large text-sm">View Replay</Link>
-            <Link href="/admin/trust-execution" className="brand-secondary-action brand-action-large text-sm">Open Execution Monitor</Link>
-          </div>
         </section>
 
-        <section className="mt-8 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 md:grid-cols-3 xl:grid-cols-9">
-          {flow.map(([title, status, label], index) => (
-            <article key={title} className="min-w-0 bg-black p-4">
-              <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
-              <h2 className="mt-2 text-sm font-semibold text-zinc-100">{title}</h2>
-              <p className="mt-2 text-[10px] uppercase tracking-[0.12em] text-amber-200">{status}</p>
-              <p className="mt-2 text-xs leading-5 text-zinc-500">{label}</p>
-            </article>
-          ))}
-        </section>
-
-        <section className="mt-8 rounded-lg border border-amber-900 bg-amber-950/10 p-5">
-          <h2 className="text-lg font-semibold text-amber-100">Operational demo boundary</h2>
-          <p className="mt-3 text-sm leading-7 text-zinc-400">
-            Decision cards below use deterministic demo inputs. Health, replay persistence, Trust Memory and Evidence Graph completion must be confirmed in authenticated operator surfaces; this public page does not fabricate production telemetry or write customer records.
-          </p>
+        <section aria-labelledby="journey-title" className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-950 p-5 md:p-7">
+          <p className="operational-eyebrow">Operational trust journey</p>
+          <h2 id="journey-title" className="mt-3 text-3xl font-semibold">One action. Nine attributable stages. No branches.</h2>
+          <ol className="mt-6 grid gap-px overflow-hidden rounded-lg border border-zinc-800 bg-zinc-800 md:grid-cols-3 xl:grid-cols-9">
+            {journey.map((step, index) => (
+              <li key={step.label} className="min-w-0 bg-black p-4">
+                <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
+                <h3 className="mt-2 text-sm font-semibold text-zinc-100">{step.label}</h3>
+                <p className="mt-2 text-[10px] uppercase tracking-[0.12em] text-amber-200">{step.state}</p>
+                <p className="mt-2 text-xs leading-5 text-zinc-500">{step.detail}</p>
+              </li>
+            ))}
+          </ol>
         </section>
 
         <section className="mt-8 rounded-2xl border border-cyan-900/60 bg-cyan-950/10 p-6 md:p-8">
-          <p className="operational-eyebrow">Release 1.0 RC2 · Approved Test Mode</p>
-          <h2 className="mt-3 text-3xl font-semibold">Living trust and runtime reauthorization</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            A finance owner delegates constrained authority to an AI agent. When the requested action, workflow stage, runtime risk and transaction threshold change, the existing authorization and enforcement path evaluates the action again.
-          </p>
-          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {livingTrustFlow.map((step, index) => (
-              <div key={step} className="rounded-xl border border-zinc-800 bg-black p-4">
-                <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
-                <p className="mt-2 text-sm leading-6 text-zinc-300">{step}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6 grid gap-3 md:grid-cols-3">
+          <p className="operational-eyebrow">Decision proof</p>
+          <h2 className="mt-3 text-2xl font-semibold">The workflow pauses because accountable review is required.</h2>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              ["Reauthorization", rc2Demo.authorization.outcome],
-              ["Triggers", rc2Demo.authorization.triggers.join(", ").replaceAll("_", " ")],
-              ["Governed control", `${rc2Demo.control.action.replaceAll("_", " ")} · ${rc2Demo.control.executionState}`],
+              ["Current posture", livingTrustProof.profile.currentPosture],
+              ["Decision", decision.trust_decision],
+              ["Enforcement", decision.enforcement_action],
+              ["Confidence band", decision.confidence_band],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
-                <p className="mt-2 text-sm font-semibold capitalize text-zinc-100">{value}</p>
-              </div>
+              <article key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-lg font-semibold capitalize text-zinc-100">{String(value).replaceAll("_", " ")}</p>
+              </article>
             ))}
           </div>
-          <p className="mt-5 text-sm leading-7 text-amber-100/80">
-            {rc2Demo.control.limitation} Provider evidence is {rc2Demo.sourceMode}; no live provider or external runtime interruption is claimed.
-          </p>
-        </section>
-
-        <LivingTrustProfileView profile={rc2Demo.profile} />
-
-        <section className="mt-8 grid gap-5">
-          {paths.map((path) => (
-            <article key={path.label} className="operational-panel p-5">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">{path.actor}</p>
-                  <h2 className="mt-2 text-2xl font-semibold">{path.label}</h2>
-                </div>
-                <span className={`rounded-full border px-3 py-1 text-sm ${decisionClass[path.result.trust_decision]}`}>
-                  {path.result.trust_decision}
-                </span>
-              </div>
-              <div className="mt-5 grid gap-3 md:grid-cols-4">
-                {[
-                  ["Current posture", path.result.trust_posture],
-                  ["Enforcement", path.result.enforcement_action],
-                  ["Confidence band", path.result.confidence_band],
-                  ["Next action", path.result.next_required_action],
-                ].map(([label, value]) => (
-                  <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
-                    <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
-                    <p className="mt-2 text-sm font-semibold text-zinc-100">{String(value)}</p>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-5 text-sm leading-7 text-zinc-500">
-                Provider reality: {path.result.provider_reality.map((provider) => `${provider.provider} (${provider.state})`).join(", ")}.
-                Evidence: {path.result.evidence_references.join(", ") || "demo evidence only"}.
-                Replay: {path.result.replay_reference ?? "write unavailable"}. Trust Memory™: {path.result.trust_memory_reference ?? "write unavailable"}.
-              </p>
-              <p className="mt-3 text-sm leading-7 text-amber-200">
-                Limitations: {path.result.limitations.join(" ")}
-              </p>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link href="/trust-replay" className="text-sm font-semibold text-cyan-200 hover:text-cyan-100">View Replay</Link>
-                <Link href="/admin/trust-execution" className="text-sm font-semibold text-cyan-200 hover:text-cyan-100">View Runtime Events</Link>
-              </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            <article className="rounded-lg border border-zinc-800 bg-black p-4">
+              <h3 className="font-semibold text-zinc-100">Evidence continuity</h3>
+              <p className="mt-2 text-sm leading-6 text-zinc-500">Replay: {decision.replay_reference ?? "Awaiting retained execution"}. Trust Memory™: {decision.trust_memory_reference ?? "Awaiting retained execution"}. Evidence references: {decision.evidence_references.join(", ") || "Controlled demo evidence only"}.</p>
             </article>
-          ))}
+            <article className="rounded-lg border border-zinc-800 bg-black p-4">
+              <h3 className="font-semibold text-zinc-100">Operational boundary</h3>
+              <p className="mt-2 text-sm leading-6 text-zinc-500">{decision.limitations.join(" ")} Provider evidence remains {livingTrustProof.sourceMode}; authenticated persistence and deployment health must be confirmed in operator surfaces.</p>
+            </article>
+          </div>
         </section>
+
         <section className="mt-8 rounded-2xl border border-zinc-800 bg-black p-6 md:p-8">
-          <p className="operational-eyebrow">Continue the buyer journey</p>
-          <h2 className="mt-3 text-2xl font-semibold">Inspect assurance, security and the enterprise next step.</h2>
+          <p className="operational-eyebrow">Continue with evidence</p>
+          <h2 className="mt-3 text-2xl font-semibold">Inspect the recorded sequence, then review enterprise readiness.</h2>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/trust" className="brand-secondary-action">Trust Center</Link>
-            <Link href="/security" className="brand-secondary-action">Security</Link>
-            <Link href="/enterprise-access?intent=demo" className="brand-primary-action">Request Enterprise Demo</Link>
+            <Link href="/verification-replay" className="brand-primary-action">View Replay</Link>
+            <Link href="/enterprise/readiness" className="brand-secondary-action">Enterprise Dashboard</Link>
           </div>
         </section>
       </div>

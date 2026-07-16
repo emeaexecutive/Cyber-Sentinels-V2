@@ -119,6 +119,8 @@ export async function startHopaeTrustAssessment(input: {
   }
   const verificationId = providerReference(created);
   if (!verificationId) throw new Rc1ProviderError("Hopae Connect did not return a provider reference.", 502, "missing_provider_reference");
+  const runtimeState = config.environment === "production" ? "Live" : "Test Mode";
+  const sourceMode = config.environment === "production" ? "live" : "test";
   recordRuntimeProfile({ stage: "provider_latency", latencyMs: Date.now() - providerStarted, ok: true, degraded: config.environment !== "production", metadata: { provider: "hopae_connect", source_mode: config.environment === "production" ? "live" : "test" } });
 
   const { error } = await input.supabase.from("hopae_verifications").insert({
@@ -145,8 +147,8 @@ export async function startHopaeTrustAssessment(input: {
     allowed_actions: allowedActions,
     allowed_purposes: allowedPurposes,
     minimum_evidence: Math.max(1, Math.min(20, Number(matchingPolicy?.minimum_evidence ?? 1))),
-    runtime_state: "Test Mode",
-    source_mode: config.environment === "production" ? "live" : "test",
+    runtime_state: runtimeState,
+    source_mode: sourceMode,
     retention_status: "normalized_only",
   });
   if (error) throw new Rc1ProviderError("Trust assessment session could not be retained.", 500, "session_persistence_failed");
@@ -155,7 +157,7 @@ export async function startHopaeTrustAssessment(input: {
     ok: true,
     action: "Establish Trust",
     assessmentStatus: "provider_evidence_pending",
-    provider: { id: "hopae_connect", name: "Hopae Connect", runtimeState: "Test Mode", sourceMode: config.environment === "production" ? "live" : "test" },
+    provider: { id: "hopae_connect", name: "Hopae Connect", runtimeState, sourceMode },
     providerReference: verificationId,
     providerRedirect: providerRedirect(created),
     correlationId,

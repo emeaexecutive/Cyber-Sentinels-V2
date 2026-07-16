@@ -6,8 +6,7 @@ import { mlValidationEngine } from "@/lib/core/ml-validation-engine";
 import { getDetectionEngineStatus } from "@/lib/detection/detection-engine";
 import { createClient } from "@/lib/supabase/server";
 import { detectionProviders } from "@/lib/detection/providers";
-import { providerStatusLabel } from "@/lib/detection/providers";
-import { buildProviderReadinessChecklist, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
+import { buildProviderReadinessChecklist, providerRealityState, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
 import { buildMlReadinessScoreboard, evaluateMlReadiness, mlReadinessLevels } from "@/lib/validation/ml-readiness";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +27,11 @@ export default async function DetectionStatusAdminPage() {
   const providerStates = detectionProviders.map((provider) => ({
     name: provider.providerName,
     status: provider.status(),
-    displayStatus: providerStatusLabel(provider.status()),
+    displayStatus: provider.status() === "awaiting_credentials"
+      ? "Awaiting Credentials"
+      : provider.status() === "disabled"
+        ? "Prototype"
+        : "Test",
     signals: provider.supportedSignals.join(", "),
   }));
   const scorecard = [
@@ -37,7 +40,7 @@ export default async function DetectionStatusAdminPage() {
     ["Heuristic detection", status.heuristic_detection_enabled ? "Active" : "Inactive"],
     ["Demo/mock scoring", status.mock_data_present ? "Present" : "Absent"],
     ["Validation dataset", benchmark.caseCount ? "Present" : "Missing"],
-    ["Precision / recall", benchmark.caseCount ? "Available on run" : "Missing"],
+    ["Precision / recall", benchmark.groundTruth.validation.precision.status === "computed" ? "Available for reviewed dataset" : "Calibration Incomplete"],
     ["False positive tracking", status.false_positive_tracking_present ? "Present" : "Missing"],
     ["False negative tracking", status.false_negative_tracking_present ? "Present" : "Missing"],
   ] as const;
@@ -183,7 +186,7 @@ export default async function DetectionStatusAdminPage() {
           <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Detection truth labels</p>
           <h2 className="mt-3 text-xl font-semibold text-zinc-100">Source taxonomy and boundaries</h2>
           <p className="mt-2 text-sm leading-6 text-zinc-500">
-            These are the only allowed labels for ML and detection surfaces. Provider-facing state is tracked separately as Live, Simulated, Awaiting Credentials or Disabled; timeout and failure are internal runtime telemetry.
+            These are the only allowed labels for ML and detection surfaces. Provider-facing maturity is tracked separately as Live, Test, Awaiting Credentials, Prototype or Disabled; timeout and failure remain internal runtime telemetry.
           </p>
           <div className="mt-4 rounded-lg border border-amber-900 bg-black p-4">
             <p className="text-sm font-semibold text-amber-200">Insufficient Validation</p>
@@ -273,7 +276,7 @@ export default async function DetectionStatusAdminPage() {
                     <p className="mt-1 text-xs text-zinc-600">{provider.category.replaceAll("_", " ")}</p>
                   </div>
                   <span className="rounded-full border border-zinc-700 px-2 py-1 text-xs text-zinc-300">
-                    {provider.runtimeState}
+                    {providerRealityState(provider)}
                   </span>
                 </div>
                 <p className="mt-3 text-xs leading-5 text-zinc-500">{provider.evidence}</p>

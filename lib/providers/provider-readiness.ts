@@ -19,6 +19,13 @@ export type ProviderReadinessClassification =
   | "Prototype"
   | "Deprecated";
 
+export type ProviderRealityState =
+  | "Live"
+  | "Test"
+  | "Awaiting Credentials"
+  | "Prototype"
+  | "Disabled";
+
 export type ProviderHealthSummary = {
   providerId: string;
   providerName: string;
@@ -42,6 +49,7 @@ export type ProviderReadinessCheck = {
   name: string;
   category: "media_forensics" | "voice" | "identity" | "document" | "provenance" | "bot_protection" | "device_risk";
   purpose: string;
+  adapterMaturity: "production_candidate" | "test_ready" | "prototype" | "disabled";
   documentationHref: "/docs/PROVIDER_SETUP_GUIDE.md";
   runtimeState: ProviderReadinessRuntimeState;
   credentialState: "present" | "missing" | "not_required";
@@ -77,6 +85,14 @@ export type ProviderReadinessCheck = {
   blocker: string;
   nextAction: string;
 };
+
+export function providerRealityState(check: ProviderReadinessCheck): ProviderRealityState {
+  if (check.adapterMaturity === "disabled") return "Disabled";
+  if (check.adapterMaturity === "prototype") return "Prototype";
+  if (check.credentialState === "missing") return "Awaiting Credentials";
+  if (classifyProviderReadiness(check) === "Production Ready") return "Live";
+  return "Test";
+}
 
 export function classifyProviderReadiness(
   check: ProviderReadinessCheck
@@ -197,6 +213,7 @@ export function buildProviderReadinessChecklist(
         name: provider.providerName,
         category,
         purpose: providerPurpose(category),
+        adapterMaturity: "prototype",
         documentationHref: "/docs/PROVIDER_SETUP_GUIDE.md",
         runtimeState,
         credentialState: credentialPresent ? "present" : "missing",
@@ -263,6 +280,13 @@ export function buildProviderReadinessChecklist(
       name: provider.name,
       category,
       purpose: provider.purpose || providerPurpose(category),
+      adapterMaturity: provider.id === "hopae_connect"
+        ? "production_candidate"
+        : provider.implementationState === "active"
+          ? "test_ready"
+          : provider.id === "external_unattributed"
+            ? "disabled"
+            : "prototype",
       documentationHref: "/docs/PROVIDER_SETUP_GUIDE.md",
       runtimeState,
       credentialState: provider.requiredEnv.length === 0 ? "not_required" : provider.presentEnv.length === provider.requiredEnv.length ? "present" : "missing",
@@ -326,6 +350,7 @@ export function buildProviderReadinessChecklist(
     name: "Supabase Auth",
     category: "identity",
     purpose: providerPurpose("identity"),
+    adapterMaturity: "test_ready",
     documentationHref: "/docs/PROVIDER_SETUP_GUIDE.md",
     runtimeState: supabaseState,
     credentialState: supabaseConfigured ? "present" : "missing",
@@ -385,6 +410,13 @@ export function summarizeProviderReadiness(checks = buildProviderReadinessCheckl
       awaitingCredentials: checks.filter((item) => classifyProviderReadiness(item) === "Awaiting Credentials").length,
       prototype: checks.filter((item) => classifyProviderReadiness(item) === "Prototype").length,
       deprecated: checks.filter((item) => classifyProviderReadiness(item) === "Deprecated").length,
+    },
+    realityStates: {
+      live: checks.filter((item) => providerRealityState(item) === "Live").length,
+      test: checks.filter((item) => providerRealityState(item) === "Test").length,
+      awaitingCredentials: checks.filter((item) => providerRealityState(item) === "Awaiting Credentials").length,
+      prototype: checks.filter((item) => providerRealityState(item) === "Prototype").length,
+      disabled: checks.filter((item) => providerRealityState(item) === "Disabled").length,
     },
     healthSummaries: checks.map(buildProviderHealthSummary),
     normalizationAudit: checks.map((item) => ({

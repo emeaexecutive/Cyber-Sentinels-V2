@@ -114,7 +114,7 @@ export default async function EnterpriseReadinessPage() {
         <section className="mt-8">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Enterprise readiness indicators</p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
-            <h2 className="text-3xl font-semibold">Six evidence-linked adoption gates.</h2>
+            <h2 className="text-3xl font-semibold">Eight evidence-linked release gates.</h2>
             <p className="max-w-xl text-sm leading-6 text-zinc-500">Every status links to its canonical supporting evidence; missing deployment evidence remains visible.</p>
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -199,15 +199,24 @@ export default async function EnterpriseReadinessPage() {
           <p className="mt-5 text-sm leading-6 text-zinc-500">{model.operational.metrics.boundary}</p>
         </section>
 
-        <section className="mt-8 grid gap-5 lg:grid-cols-2">
+        <section id="performance-evidence" className="mt-8 scroll-mt-28 grid gap-5 lg:grid-cols-2">
           <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Performance coverage</p>
-            <h2 className="mt-3 text-2xl font-semibold">Profiled operational paths</h2>
+            <h2 className="mt-3 text-2xl font-semibold">Average, p95 and exception evidence</h2>
             <div className="mt-5 grid gap-3">
-              {model.operational.performance.coverage.map((item) => (
-                <div key={item.label} className="flex items-center justify-between gap-4 rounded-lg border border-zinc-800 bg-black p-3">
-                  <span className="text-sm text-zinc-300">{item.label}</span>
-                  <span className="text-sm font-semibold text-zinc-100">{item.status === "measured" ? `${item.value} ms` : "Awaiting data"}</span>
+              {model.operational.performance.profiles.map((item) => (
+                <div key={item.id} className="rounded-lg border border-zinc-800 bg-black p-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-sm font-semibold text-zinc-200">{item.label}</span>
+                    <span className="text-xs text-zinc-500">{item.sampleCount} sample(s)</span>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-zinc-500 sm:grid-cols-4">
+                    <span>Average: {item.averageLatencyMs === null ? "Awaiting data" : `${item.averageLatencyMs} ms`}</span>
+                    <span>p95: {item.p95LatencyMs === null ? "Awaiting data" : `${item.p95LatencyMs} ms`}</span>
+                    <span>Timeouts: {item.timeoutCount ?? "Awaiting data"}</span>
+                    <span>Slow: {item.slowOperationCount ?? "Awaiting data"}</span>
+                  </div>
+                  <p className="mt-2 text-[11px] leading-5 text-zinc-600">Slow threshold: {item.slowThresholdMs} ms. {item.limitation}</p>
                 </div>
               ))}
             </div>

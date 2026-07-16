@@ -27,7 +27,7 @@ test("Trust concepts have one public navigation home", async () => {
 test("homepage preserves the release promise and section ceiling", async () => {
   const source = await read("app/page.tsx");
   assert.match(source, /Operational Trust Infrastructure/);
-  assert.match(source, /Continuously establish trust for humans, AI agents, machine identities and regulated workflows before, during and after critical actions\./);
+  assert.match(source, /Reduce operational uncertainty by continuously establishing trust for humans, AI agents, machine identities and regulated workflows before, during and after critical actions\./);
   assert.equal((source.match(/<section/g) ?? []).length, 6);
   assert.match(source, /Request Enterprise Demo/);
   assert.match(source, /See Trust in Action/);

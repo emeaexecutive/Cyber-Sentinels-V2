@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import {
   getVerificationProviderRegistry,
-  providerRuntimeState,
 } from "@/lib/providers";
+import { buildProviderReadinessChecklist, providerRealityState } from "@/lib/providers/provider-readiness";
 import { createClient } from "@/lib/supabase/server";
 import { checkRequestRateLimit } from "@/lib/security";
 import {
@@ -24,17 +24,22 @@ export async function GET() {
     }, { status: 401 });
   }
 
+  const readinessByName = new Map(
+    buildProviderReadinessChecklist().map((provider) => [provider.name, provider])
+  );
   return NextResponse.json({
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),
     ok: true,
     statusMeaning:
-      "Live means a supported code path is enabled and configured; it is not a provider health or accuracy claim.",
+      "Provider maturity uses only Live, Test, Awaiting Credentials, Prototype and Disabled. Live additionally requires a successful real check; no state is an accuracy claim.",
     providers: getVerificationProviderRegistry().map((provider) => ({
       id: provider.id,
       name: provider.name,
       category: provider.category,
-      runtimeState: providerRuntimeState(provider),
+      runtimeState: readinessByName.has(provider.name)
+        ? providerRealityState(readinessByName.get(provider.name)!)
+        : "Disabled",
       implementationState: provider.implementationState,
       configured: provider.status === "configured",
       credentialState: provider.missingEnv.length ? "missing_credentials" : "present",
