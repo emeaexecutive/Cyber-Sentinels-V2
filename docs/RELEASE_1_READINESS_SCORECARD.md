@@ -1,6 +1,6 @@
 # Release 1 readiness scorecard
 
-Release candidate: 1.0 RC2
+Release candidate: 1.0 RC3
 Review date: 2026-07-16
 
 ## Evidence scale
@@ -47,3 +47,7 @@ Enterprise UX now uses a six-block homepage and nine-step 16.2-second guided flo
 ## 1.0 RC2 living-trust update — 2026-07-16
 
 The score remains `2 — Implemented`. RC2 derives one Living Trust Profile from canonical identity, authority, credential, provider, runtime, Evidence Graph, Replay, Trust Memory, review, governance and policy sources. Trust DNA exposes contextual dimensions without a universal score. Authority attenuation, runtime reauthorization, governed control records, retention tombstones, observed-evidence queries and compliance mappings are repository-tested. Pilot evidence, integrated external control receipts, approved retention/deletion operations and target-environment checks remain absent.
+
+## 1.0 RC3 living-trust experience update — 2026-07-16
+
+The score remains `2 — Implemented`. RC3 reduces the homepage to six blocks and one operational-trust graph, keeps eight primary buyer destinations, moves company/support discovery to a seven-group footer and preserves protected/admin routes. The Living Trust Profile now renders contextual evidence coverage, complete authority constraints and fully attributable Trust Memory transitions with responsive and accessibility boundaries. Design-partner browser evidence, production provider/runtime receipts and target-environment security checks remain blockers.

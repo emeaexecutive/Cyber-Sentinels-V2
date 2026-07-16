@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ArchitectureBlock, DecisionFlow, VisualFrame } from "@/components/enterprise-visuals";
 import { ExecutiveSummary } from "@/components/executive-summary";
 
@@ -62,6 +63,10 @@ export default function PlatformPage() {
           <VisualFrame eyebrow="Internal orchestration contract" title="Everything requests trust through one API.">
             <DecisionFlow steps={requestFlow} />
           </VisualFrame>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/developers" className="brand-secondary-action">Developers</Link>
+            <Link href="/enterprise/pilot" className="brand-primary-action">Start Pilot</Link>
+          </div>
         </section>
       </div>
     </main>

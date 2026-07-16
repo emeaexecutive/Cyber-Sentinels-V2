@@ -21,8 +21,8 @@ type NavigationLink = {
 const platformDropdownLinks: NavigationLink[] = [
   { href: "/platform", label: "Platform Overview", description: "Operational Trust Infrastructure mechanisms." },
   { href: "/platform#trust-fabric", label: "Enterprise Trust Fabric™", description: "The shared internal architecture." },
-  { href: "/platform#authorization-gateway", label: "Authority & Decisions", description: "Verify scope before an action proceeds." },
-  { href: "/platform#enterprise-apis", label: "Orchestration & APIs", description: "Request trust through one stable contract." },
+  { href: "/platform#trust-engine", label: "Trust Orchestrator", description: "Coordinate evidence, policy and decision mechanisms." },
+  { href: "/platform#authorization-gateway", label: "Authorization & Enforcement", description: "Verify scope before an action proceeds." },
 ];
 
 const solutionsDropdownLinks: NavigationLink[] = [
@@ -35,12 +35,12 @@ const solutionsDropdownLinks: NavigationLink[] = [
 
 const trustDropdownLinks: NavigationLink[] = [
   { href: "/trust", label: "Trust Center", description: "Public assurance and transparency.", group: "Assurance" },
-  { href: "/trust#trust-posture", label: "Trust Posture", description: "Current evidence and governance state.", group: "Assurance" },
+  { href: "/trust#living-trust-profile", label: "Living Trust Profile", description: "Inspect contextual posture and evidence coverage.", group: "Assurance" },
+  { href: "/trust#trust-dna", label: "Trust DNA™", description: "See how operational trust evolved in context.", group: "Assurance" },
   { href: "/verification-replay", label: "Replay", description: "Decision chronology and proof.", group: "Assurance" },
   { href: "/trust#evidence-audit", label: "Evidence Graph", description: "Connect actors, authority, evidence and outcomes.", group: "Assurance" },
   { href: "/governance", label: "Governance", description: "Route material decisions to accountable owners.", group: "Assurance" },
   { href: "/trust#trust-memory", label: "Trust Memory\u2122", description: "How trust evolves across outcomes.", group: "Transparency" },
-  { href: "/trust#operational-trust-graph", label: "Operational Trust Graph™", description: "Connect operational trust over time.", group: "Transparency" },
 ];
 
 const enterpriseDropdownLinks: NavigationLink[] = [
@@ -216,7 +216,7 @@ export function GlobalNavigation({ accessLevel }: { accessLevel: NavigationAcces
           {accessLevel === "public" ? (
             <>
               <PrimaryNavigation openDropdown={openDropdown} onToggleDropdown={toggleDropdown} onCloseDropdown={closeMenus} />
-              <Link href="/login" onClick={closeMenus} className="brand-primary-action">Login</Link>
+              <Link href="/login" onClick={closeMenus} className="brand-primary-action">Sign In</Link>
             </>
           ) : null}
           {accessLevel === "user" || accessLevel === "admin-unverified" ? (

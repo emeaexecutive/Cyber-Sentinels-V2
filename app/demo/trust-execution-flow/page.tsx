@@ -74,7 +74,7 @@ export default function TrustExecutionFlowDemoPage() {
             Providers and models are treated as signals. This approved Test Mode flow coordinates the existing authority, policy, decision, enforcement, Replay, Evidence Graph, Trust Memory™ and Evidence Pack seams without claiming a live provider call.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/trust-replay" className="brand-primary-action brand-action-large text-sm">View Replay</Link>
+            <Link href="/verification-replay" className="brand-primary-action brand-action-large text-sm">View Replay</Link>
             <Link href="/admin/trust-execution" className="brand-secondary-action brand-action-large text-sm">Open Execution Monitor</Link>
           </div>
         </section>
@@ -169,6 +169,15 @@ export default function TrustExecutionFlowDemoPage() {
               </div>
             </article>
           ))}
+        </section>
+        <section className="mt-8 rounded-2xl border border-zinc-800 bg-black p-6 md:p-8">
+          <p className="operational-eyebrow">Continue the buyer journey</p>
+          <h2 className="mt-3 text-2xl font-semibold">Inspect assurance, security and the enterprise next step.</h2>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/trust" className="brand-secondary-action">Trust Center</Link>
+            <Link href="/security" className="brand-secondary-action">Security</Link>
+            <Link href="/enterprise-access?intent=demo" className="brand-primary-action">Request Enterprise Demo</Link>
+          </div>
         </section>
       </div>
     </main>

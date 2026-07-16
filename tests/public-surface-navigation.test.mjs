@@ -6,7 +6,7 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("primary navigation contains only the approved public destinations", async () => {
   const source = await read("components/global-navigation.tsx");
-  for (const label of ["Platform", "Solutions", "Trust", "Enterprise", "Developers", "Pricing", "Resources", "Login"]) {
+  for (const label of ["Platform", "Solutions", "Trust", "Enterprise", "Developers", "Pricing", "Resources", "Sign In"]) {
     assert.match(source, new RegExp(`(?:label=|>|")${label}`));
   }
   assert.doesNotMatch(source, /label="About"/);

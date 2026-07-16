@@ -69,3 +69,7 @@ Provider evidence is normalized and quality-gated before the Trust Decision. A s
 `lib/trust/living-trust-profile.ts` is a derived read model over the existing service composition. It does not calculate a universal score, persist duplicate posture, or replace authorization. Its key includes tenant, entity, workflow, purpose, action, policy version and time.
 
 The Authority Graph now attenuates permitted and prohibited actions, resource scope, approvals, purpose, policy version and depth across organization, human, agent, sub-agent and machine-identity chains. `evaluateContinuousAuthorization()` records material context-change triggers and returns to the existing enforcement, receipt, Replay and Trust Memory path. Governed controls and retention tombstones are proof contracts, not claims that an unintegrated external system executed them.
+
+## Release 1.0 RC3 experience boundary
+
+RC3 does not change the service composition. It consolidates public navigation and homepage explanation around one nine-stage operational-trust flow, then sends architecture to Platform and assurance depth to Trust. The same Living Trust Profile service now exposes complete authority context and Trust Memory attribution to the existing workspace/demo component. Public Trust content explains the model without exposing tenant evidence; protected operations remain behind middleware and RLS.

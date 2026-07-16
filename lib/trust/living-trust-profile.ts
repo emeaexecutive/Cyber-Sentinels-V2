@@ -9,7 +9,7 @@ export const LIVING_TRUST_CONTEXT_BOUNDARY =
   "Valid for this organization, workflow, purpose and assessment time.";
 
 export const TRUST_DNA_PRODUCT_BOUNDARY =
-  "Trust DNA™ shows how operational trust has evolved within a defined enterprise context.";
+  "Trust DNA™ shows how operational trust has evolved within a defined organization, workflow, purpose and assessment period.";
 
 export type LivingTrustEntityType = Extract<
   EntityIdentityType,
@@ -84,11 +84,15 @@ export type LivingTrustChange = {
     | "restored"
     | "inconclusive";
   whatChanged: string;
+  previousPosture: string;
+  newPosture: string;
   why: string;
   evidenceChanged: string[];
   policyApplied: string[];
   reviewedBy: string | null;
+  actorOrReviewer: string;
   authorityChanged: boolean;
+  replayReference: string | null;
   recommendedAction: string;
   changedAt: string;
 };
@@ -108,10 +112,19 @@ export type LivingTrustProfile = {
   currentPosture: RuntimeAuthorizationOutcome;
   dimensionalAssurance: Record<AssuranceDimensionName, AssuranceDimension>;
   activeAuthority: {
-    state: "active" | "constrained" | "expired" | "revoked" | "missing";
+    state: "active" | "constrained" | "awaiting_approval" | "expired" | "revoked" | "suspended" | "insufficient";
     reference: string | null;
     accountableHumanId: string | null;
+    delegatorId: string | null;
+    delegateId: string | null;
     effectiveScope: string[];
+    resourceScope: string[];
+    permittedActions: string[];
+    prohibitedActions: string[];
+    maximumDelegationDepth: number | null;
+    expiresAt: string | null;
+    policyVersion: string;
+    lastRuntimeReassessment: string;
     limitations: string[];
   };
   evidenceCompleteness: {
@@ -262,6 +275,12 @@ function unique(values: Array<string | null | undefined>) {
   return [...new Set(values.map((value) => String(value ?? "").trim()).filter(Boolean))];
 }
 
+function intersectDefined(values: Array<string[] | undefined>) {
+  const defined = values.filter((value): value is string[] => Array.isArray(value));
+  if (!defined.length) return [];
+  return unique(defined.reduce((current, next) => current.filter((item) => next.includes(item))));
+}
+
 function validDate(value?: string | null) {
   const parsed = value ? Date.parse(value) : Number.NaN;
   return Number.isFinite(parsed) ? new Date(parsed).toISOString() : null;
@@ -319,11 +338,15 @@ function memoryChanges(events: TrustMemoryEvent[], key: LivingTrustProfileKey) {
         id: event.id,
         transition,
         whatChanged: `${event.trust_state_before} → ${event.trust_state_after}`,
+        previousPosture: event.trust_state_before,
+        newPosture: event.trust_state_after,
         why: event.reason,
         evidenceChanged: unique([...event.evidence_refs, ...event.provider_refs]),
         policyApplied: event.policy_refs,
-        reviewedBy: event.reviewed_outcome_ref,
+        reviewedBy: event.actor_type === "human" ? event.actor_id : event.reviewed_outcome_ref,
+        actorOrReviewer: event.reviewed_outcome_ref ?? `${event.actor_type}:${event.actor_id}`,
         authorityChanged: ["authority_delegated", "authority_revoked"].includes(event.event_kind),
+        replayReference: event.replay_refs[0] ?? null,
         recommendedAction: recommendedForTransition(transition),
         changedAt: event.created_at,
       };
@@ -375,7 +398,7 @@ export function deriveLivingTrustProfile(input: LivingTrustProfileInput): Living
   const authorityState: LivingTrustProfile["activeAuthority"]["state"] = input.authority.valid
     ? input.authority.limitations.length ? "constrained" : "active"
     : input.authority.checks.some((check) => /revok/i.test(check.detail)) ? "revoked"
-      : authorityExpired ? "expired" : "missing";
+      : authorityExpired ? "expired" : "insufficient";
 
   const identityRefs = unique(input.entity.evidence_refs);
   const authorityRefs = unique([input.authority.authorityReference, ...input.authority.evidenceRefs]);
@@ -454,6 +477,13 @@ export function deriveLivingTrustProfile(input: LivingTrustProfileInput): Living
     TRUST_DNA_PRODUCT_BOUNDARY,
     LIVING_TRUST_CONTEXT_BOUNDARY,
   ]);
+  const authorityTerminal = input.authority.chain.at(-1) ?? null;
+  const authorityExpiry = earliestFuture(input.authority.chain.map((grant) => grant.expiresAt), key.assessedAt);
+  const authorityDisplayState: LivingTrustProfile["activeAuthority"]["state"] = authorityState === "revoked" || authorityState === "expired" || authorityState === "insufficient"
+    ? authorityState
+    : posture === "pause" ? "suspended"
+      : posture === "require_approval" ? "awaiting_approval"
+        : authorityState;
 
   return {
     profileKey: key,
@@ -464,13 +494,28 @@ export function deriveLivingTrustProfile(input: LivingTrustProfileInput): Living
     workflowContext: { workflowId: key.workflowId, requestedAction: key.requestedAction, policyVersion: key.policyVersion, assessedAt: key.assessedAt },
     currentPosture: posture,
     dimensionalAssurance: dimensions,
-    activeAuthority: { state: authorityState, reference: input.authority.authorityReference, accountableHumanId: input.authority.accountableHumanId, effectiveScope: input.authority.effectiveScope, limitations: input.authority.limitations },
+    activeAuthority: {
+      state: authorityDisplayState,
+      reference: input.authority.authorityReference,
+      accountableHumanId: input.authority.accountableHumanId,
+      delegatorId: authorityTerminal?.grantorId ?? null,
+      delegateId: authorityTerminal?.granteeId ?? null,
+      effectiveScope: input.authority.effectiveScope,
+      resourceScope: intersectDefined(input.authority.chain.map((grant) => grant.resourceScope ?? grant.constraints?.resourceScope)),
+      permittedActions: intersectDefined(input.authority.chain.map((grant) => grant.permittedActions ?? grant.constraints?.actions ?? grant.scope)),
+      prohibitedActions: unique(input.authority.chain.flatMap((grant) => grant.prohibitedActions ?? grant.constraints?.prohibitedActions ?? [])),
+      maximumDelegationDepth: authorityTerminal?.maxDelegationDepth ?? null,
+      expiresAt: authorityExpiry,
+      policyVersion: authorityTerminal?.policyVersion ?? key.policyVersion,
+      lastRuntimeReassessment: latestRuntimeChange ?? key.assessedAt,
+      limitations: input.authority.limitations,
+    },
     evidenceCompleteness: { state: enoughEvidence ? missing.length ? "partial" : "complete" : "insufficient", present: evidencePresent.size, expected: expectedEvidence, missing },
     confidenceBand,
     recentTrustChanges: memoryChanges(memory, key),
     unresolvedRisks,
     governanceState,
-    expiryOrReassessmentDate: input.reassessmentAt ?? earliestFuture([input.entity.lifecycle.expires_at, input.credential?.expiresAt, ...input.authority.chain.map((grant) => grant.expiresAt)], key.assessedAt),
+    expiryOrReassessmentDate: input.reassessmentAt ?? earliestFuture([input.entity.lifecycle.expires_at, input.credential?.expiresAt, authorityExpiry], key.assessedAt),
     reasons,
     limitations,
     sourceReferences: allReferences,

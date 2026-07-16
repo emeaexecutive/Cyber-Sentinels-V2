@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArchitectureBlock, ComparisonCard, DecisionFlow, LifecycleDiagram, VisualFrame } from "@/components/enterprise-visuals";
-import { InteractiveTrustWalkthrough } from "@/components/interactive-trust-walkthrough";
+import { ComparisonCard, LifecycleDiagram, VisualFrame } from "@/components/enterprise-visuals";
 
 export const metadata: Metadata = {
   title: "Operational Trust Infrastructure | Cyber Sentinels",
@@ -10,18 +9,15 @@ export const metadata: Metadata = {
 };
 
 const lifecycle = [
-  { label: "Establish Trust", detail: "Initiate" },
-  { label: "Resolve Identity", detail: "Identify" },
-  { label: "Confirm Authority", detail: "Authorize" },
-  { label: "Collect Evidence", detail: "Normalize" },
-  { label: "Evaluate Trust", detail: "Decide" },
-  { label: "Enforce Decision", detail: "Control" },
-  { label: "Retain Proof", detail: "Replay" },
-];
-
-const decisionFlow = [
-  { label: "Identity" }, { label: "Authority" }, { label: "Provider evidence" },
-  { label: "Evidence quality" }, { label: "Trust Decision" }, { label: "Enforcement" }, { label: "Replay" },
+  { label: "Identity" },
+  { label: "Authority" },
+  { label: "Context" },
+  { label: "Evidence" },
+  { label: "Trust Decision" },
+  { label: "Enforcement" },
+  { label: "Replay" },
+  { label: "Trust Memory™" },
+  { label: "Current Trust Posture" },
 ];
 
 const protectedActivity = [
@@ -29,6 +25,8 @@ const protectedActivity = [
   ["AI agents", "Constrain delegated actions by owner, purpose, scope, policy and current runtime evidence."],
   ["Machine identities", "Connect credentials and service activity to accountable ownership and workflow context."],
   ["Regulated workflows", "Preserve the decision, enforcement outcome, Replay and governance trail."],
+  ["Executive decisions", "Keep evidence, authority and accountable review connected to consequential approvals."],
+  ["Critical operations", "Reassess trust as context changes before sensitive execution continues."],
 ];
 
 export default function Home() {
@@ -52,19 +50,21 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-20">
+      <section id="primary-operational-trust-flow" data-testid="primary-operational-trust-flow" className="mx-auto max-w-6xl scroll-mt-28 px-6 py-16 md:px-8 md:py-20">
         <p className="operational-eyebrow">Operational Trust Lifecycle</p>
-        <h2 className="mt-3 max-w-3xl text-3xl font-semibold text-white">See Trust in Action</h2>
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">The guided flow is an approved demonstration. Its labels distinguish Test Mode and simulated steps from real provider activity.</p>
-        <div className="mt-8"><InteractiveTrustWalkthrough /></div>
-        <div className="mt-6"><LifecycleDiagram steps={lifecycle} /></div>
+        <h2 className="mt-3 max-w-4xl text-3xl font-semibold text-white">See operational trust evolve before, during and after a critical action.</h2>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">One contextual evidence chain connects the actor, authority, decision, enforced outcome and current posture.</p>
+        <VisualFrame eyebrow="Primary operational trust flow" title="One action. One attributable trust record.">
+          <LifecycleDiagram steps={lifecycle} />
+        </VisualFrame>
+        <Link href="/platform#trust-fabric" className="mt-6 inline-flex text-sm font-semibold text-cyan-200 hover:text-white">Explore the Trust Fabric →</Link>
       </section>
 
       <section className="border-y border-zinc-800 bg-zinc-950">
         <div className="mx-auto max-w-6xl px-6 py-16 md:px-8">
           <p className="operational-eyebrow">Customer Outcomes</p>
           <h2 className="mt-3 max-w-3xl text-3xl font-semibold text-white">What We Protect</h2>
-          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {protectedActivity.map(([title, copy]) => <article key={title} className="operational-card p-5"><h3 className="text-lg font-semibold text-white">{title}</h3><p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p></article>)}
           </div>
         </div>
@@ -73,17 +73,18 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-20">
         <p className="operational-eyebrow">Why Different</p>
         <h2 className="mt-3 max-w-3xl text-3xl font-semibold text-white">Traditional Identity vs Operational Trust</h2>
-        <div className="mt-8 grid gap-6">
-          <ComparisonCard left={{ title: "Traditional Identity", items: ["Identity", "Authentication", "MFA", "Access"] }} right={{ title: "Operational Trust", items: ["Authority", "Runtime evidence", "Policy", "Decision", "Enforcement", "Replay"] }} />
-          <VisualFrame eyebrow="One Trust Assessment" title="One action coordinates the existing trust fabric."><DecisionFlow steps={decisionFlow} /></VisualFrame>
-        </div>
+        <div className="mt-8"><ComparisonCard left={{ title: "Traditional Identity", items: ["Identity", "Authentication", "MFA", "Access"] }} right={{ title: "Operational Trust", items: ["Authority", "Runtime evidence", "Policy", "Decision", "Enforcement", "Replay"] }} /></div>
       </section>
 
       <section className="border-t border-zinc-800 bg-black">
         <div className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-24">
           <p className="operational-eyebrow">Enterprise Trust Fabric™</p>
           <h2 className="mt-3 max-w-3xl text-3xl font-semibold text-white">One evidence chain across human and machine activity.</h2>
-          <ArchitectureBlock inputs={["Humans", "AI Agents", "Machine Identities", "Regulated Workflows"]} core="Enterprise Trust Fabric™" outputs={["Trust Decision", "Enforcement", "Replay", "Evidence Pack"]} />
+          <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-400">The Platform page owns the complete architecture. The shared fabric coordinates identity, authority, runtime context, policy, enforcement and review without replacing systems of record.</p>
+          <div className="mt-7 flex flex-wrap gap-2" aria-label="Enterprise Trust Fabric preview">
+            {["Provider-neutral orchestration", "External authorization", "Runtime mediation", "Replayable evidence"].map((item) => <span key={item} className="rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-300">{item}</span>)}
+          </div>
+          <Link href="/platform#trust-fabric" className="mt-6 inline-flex brand-secondary-action">Explore the Trust Fabric</Link>
           <div className="mt-12 border-t border-zinc-800 pt-10 text-center">
             <p className="operational-eyebrow">Enterprise Pilot</p>
             <h3 className="mx-auto mt-3 max-w-3xl text-3xl font-semibold text-white md:text-4xl">Choose one consequential workflow. Make every trust decision explainable.</h3>

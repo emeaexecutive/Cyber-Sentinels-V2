@@ -34,20 +34,22 @@ const footerSections = [
     title: "Platform",
     links: [
       ["/platform", "Platform Overview"],
-      ["/platform#trust-engine", "Trust Engine"],
+      ["/platform#trust-engine", "Trust Orchestrator"],
       ["/platform#runtime-engine", "Runtime Trust"],
-      ["/platform#authorization-gateway", "Authorization"],
+      ["/platform#authorization-gateway", "Authorization & Enforcement"],
+      ["/platform#trust-fabric", "Enterprise Trust Fabric™"],
     ],
   },
   {
     title: "Trust",
     links: [
       ["/trust", "Trust Center"],
-      ["/verification-replay", "Replay"],
-      ["/trust#evidence-audit", "Evidence"],
+      ["/trust#living-trust-profile", "Living Trust Profile"],
+      ["/trust#trust-dna", "Trust DNA™"],
       ["/trust#trust-memory", "Trust Memory\u2122"],
+      ["/verification-replay", "Replay"],
+      ["/trust#evidence-audit", "Evidence & Audit"],
       ["/governance", "Governance"],
-      ["/trust#provenance", "Provenance"],
       ["/trust/data-sovereignty", "AI Sovereignty"],
       ["/trust#ml-validation", "Validation Transparency"],
     ],
@@ -55,20 +57,31 @@ const footerSections = [
   {
     title: "Solutions",
     links: [
-      ["/enterprise/agent-governance", "AI Agents"],
-      ["/solutions#machine-identity-trust", "Machine Identities"],
-      ["/solutions#regulated-workflows", "Regulated Workflows"],
+      ["/solutions#ai-operations", "AI Agent Operations"],
+      ["/solutions#vendor-access", "Machine Identity"],
+      ["/solutions#privileged-operations", "Regulated Workflows"],
       ["/solutions#financial-services", "Financial Services"],
       ["/solutions#insurance", "Insurance"],
-      ["/solutions#executive-protection", "Executive Protection"],
+      ["/solutions#critical-infrastructure", "Critical Infrastructure"],
       ["/enterprise/hiring-security", "Hiring Security"],
+    ],
+  },
+  {
+    title: "Enterprise",
+    links: [
+      ["/security", "Security"],
+      ["/enterprise#compliance", "Compliance"],
+      ["/enterprise#deployment", "Deployment"],
+      ["/platform#trust-fabric", "Architecture"],
+      ["/enterprise/pilot", "Pilot Programme"],
+      ["/enterprise#support", "Enterprise Support"],
     ],
   },
   {
     title: "Developers",
     links: [
       ["/developers", "Developer Overview"],
-      ["/developers/docs", "API Docs"],
+      ["/developers/docs", "API Documentation"],
       ["/developers/authentication", "Authentication"],
       ["/developers/docs#webhooks", "Webhooks"],
       ["/developers/docs#integrations", "Integrations"],
@@ -80,6 +93,7 @@ const footerSections = [
     links: [
       ["/about", "About"],
       ["/about/mission", "Mission"],
+      ["/our-people", "Our People"],
       ["/careers", "Careers"],
       ["/enterprise-access", "Contact"],
       ["/media-centre", "Media Centre"],
@@ -93,6 +107,8 @@ const footerSections = [
       ["/privacy", "Privacy"],
       ["/terms", "Terms"],
       ["/cookies", "Cookies"],
+      ["/legal", "Legal"],
+      ["/modern-slavery", "Modern Slavery"],
       ["/security", "Security"],
       ["/status", "Status"],
     ],
@@ -191,7 +207,7 @@ export default async function RootLayout({
           {accessLevel === "public" ? <PublicPageAdoptionRail /> : null}
           {accessLevel !== "public" ? <ReportIssue authState={accessLevel} /> : null}
           {accessLevel === "public" ? <footer className="border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8">
-            <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
               {footerSections.map((section) => (
                 <nav key={section.title}>
                   <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-300">

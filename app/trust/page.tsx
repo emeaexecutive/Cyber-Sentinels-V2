@@ -62,6 +62,20 @@ export default async function TrustPage() {
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">Current evidence freshness, authority, runtime risk and governance determine the posture. Unknown evidence remains unknown.</p>
         </section>
 
+        <section id="living-trust-profile" className="mt-8 scroll-mt-28 operational-panel p-6 md:p-8">
+          <p className="operational-eyebrow">Living Trust Profile</p>
+          <h2 className="mt-3 text-2xl font-semibold">Current operational posture, derived for one defined context.</h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">The profile derives identity, authority lineage, credentials, provider evidence, runtime context, Evidence Graph, Replay, Trust Memory™, reviewed outcomes, governance and policy. It is not a universal reputation score.</p>
+          <div id="trust-dna" className="mt-6 scroll-mt-28 rounded-xl border border-cyan-900/70 bg-cyan-950/10 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Trust DNA™</p>
+            <p className="mt-3 max-w-3xl text-lg font-semibold text-white">Trust DNA™ shows how operational trust has evolved within a defined organization, workflow, purpose and assessment period.</p>
+            <p className="mt-3 text-sm font-medium text-cyan-100">Valid for this organization, workflow, purpose and assessment time.</p>
+            <ul className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Trust DNA assurance dimensions">
+              {["Identity assurance", "Authority assurance", "Credential assurance", "Runtime integrity", "Evidence quality", "Behavioural consistency", "Governance status", "Decision confidence"].map((item) => <li key={item} className="rounded-lg border border-zinc-800 bg-black px-3 py-2 text-sm text-zinc-300">{item}</li>)}
+            </ul>
+          </div>
+        </section>
+
         <section id="operational-trust-graph" className="mt-8 scroll-mt-28">
           <VisualFrame eyebrow="Operational Trust Graph™" title="Operational trust connected over time." caption="Evidence Graph stores relationships. Operational Trust Graph™ connects identity, authority, action and evolving trust across the decision chronology.">
             <TrustFlow steps={operationalTrustGraph} ariaLabel="Operational Trust Graph" />

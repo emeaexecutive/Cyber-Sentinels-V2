@@ -2,7 +2,11 @@
 
 **Living Trust Profile** — Derived contextual profile keyed by tenant, entity, workflow, purpose, requested action, policy version and assessment time. Calculated values are not a second persisted truth source.
 
-**Trust DNA™** — Visual assurance dimensions and explained evolution for one Living Trust Profile. It is not biological data, a reputation score or fraud label.
+**Trust DNA™** — Visual assurance dimensions and explained evolution for one Living Trust Profile within a defined organization, workflow, purpose and assessment period. It is not biological data, a reputation score or fraud label.
+
+**Evidence Coverage** — Count of assurance dimensions or source categories with observed contextual evidence. It is not a confidence score or accuracy measure.
+
+**Authority Status** — Contextual state of delegated authority: active, constrained, awaiting approval, expired, revoked, suspended or insufficient.
 
 **Continuous Authorization** — Re-evaluation of current authority and policy when action or runtime context changes, before execution continues.
 

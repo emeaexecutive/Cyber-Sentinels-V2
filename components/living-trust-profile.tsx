@@ -25,8 +25,12 @@ export function LivingTrustProfileView({ profile }: { profile: LivingTrustProfil
   }
 
   const dimensions = Object.values(profile.dimensionalAssurance);
+  const observedDimensions = dimensions.filter((item) => !["unavailable", "insufficient_evidence"].includes(item.state)).length;
+  const coverageDegrees = Math.round((observedDimensions / dimensions.length) * 360);
+  const summaryId = "living-trust-profile-summary";
   return (
-    <section aria-labelledby="living-trust-profile" className="mt-8 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
+    <section aria-labelledby="living-trust-profile" aria-describedby={summaryId} className="mt-8 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
+      <p id={summaryId} className="sr-only">Living Trust Profile for {profile.entityType} {profile.entityId}. Current posture {label(profile.currentPosture)}. {observedDimensions} of {dimensions.length} assurance dimensions have observed evidence. Authority is {label(profile.activeAuthority.state)}.</p>
       <div className="border-b border-zinc-800 bg-[radial-gradient(circle_at_top_right,rgba(8,145,178,0.15),transparent_38%)] p-6 md:p-8">
         <div className="flex flex-wrap items-start justify-between gap-5">
           <div>
@@ -72,7 +76,7 @@ export function LivingTrustProfileView({ profile }: { profile: LivingTrustProfil
                 <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.1em] opacity-70">Evidence and boundary</summary>
                 <div className="mt-3 space-y-2 text-xs leading-5 opacity-75">
                   <p>Sources: {item.sourceEvidence.length ? item.sourceEvidence.join(", ") : "Not recorded"}</p>
-                  <p>Last changed: {item.lastChanged ?? "Not recorded"}</p>
+                  <p>Last updated: {item.lastChanged ?? "Not recorded"}</p>
                   <p>Expiry: {item.expiry ?? "Not recorded"}</p>
                   <p>Reviewer: {label(item.reviewerStatus)}</p>
                   <p>{item.limitation}</p>
@@ -86,12 +90,26 @@ export function LivingTrustProfileView({ profile }: { profile: LivingTrustProfil
           <article className="rounded-xl border border-zinc-800 bg-black p-5">
             <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Authority status</p>
             <p className="mt-2 text-xl font-semibold capitalize text-white">{label(profile.activeAuthority.state)}</p>
-            <p className="mt-2 text-sm leading-6 text-zinc-500">Scope: {profile.activeAuthority.effectiveScope.join(", ") || "No active scope"}</p>
-            <p className="mt-2 text-xs text-zinc-600">Accountable human: {profile.activeAuthority.accountableHumanId ?? "Not recorded"}</p>
+            <dl className="mt-3 grid gap-2 text-xs leading-5 text-zinc-500">
+              <div><dt className="inline text-zinc-300">Delegator:</dt> <dd className="inline">{profile.activeAuthority.delegatorId ?? "Not recorded"}</dd></div>
+              <div><dt className="inline text-zinc-300">Delegate:</dt> <dd className="inline">{profile.activeAuthority.delegateId ?? "Not recorded"}</dd></div>
+              <div><dt className="inline text-zinc-300">Resource scope:</dt> <dd className="inline">{profile.activeAuthority.resourceScope.join(", ") || "Not recorded"}</dd></div>
+              <div><dt className="inline text-zinc-300">Permitted:</dt> <dd className="inline">{profile.activeAuthority.permittedActions.join(", ") || "None recorded"}</dd></div>
+              <div><dt className="inline text-zinc-300">Prohibited:</dt> <dd className="inline">{profile.activeAuthority.prohibitedActions.join(", ") || "None recorded"}</dd></div>
+              <div><dt className="inline text-zinc-300">Maximum delegation depth:</dt> <dd className="inline">{profile.activeAuthority.maximumDelegationDepth ?? "Not recorded"}</dd></div>
+              <div><dt className="inline text-zinc-300">Expiry:</dt> <dd className="inline">{profile.activeAuthority.expiresAt ?? "Not recorded"}</dd></div>
+              <div><dt className="inline text-zinc-300">Policy:</dt> <dd className="inline">{profile.activeAuthority.policyVersion}</dd></div>
+              <div><dt className="inline text-zinc-300">Last runtime reassessment:</dt> <dd className="inline">{profile.activeAuthority.lastRuntimeReassessment}</dd></div>
+            </dl>
           </article>
           <article className="rounded-xl border border-zinc-800 bg-black p-5">
             <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Evidence completeness</p>
-            <p className="mt-2 text-xl font-semibold capitalize text-white">{profile.evidenceCompleteness.state}</p>
+            <div className="mt-4 flex items-center gap-4">
+              <div role="img" aria-label={`${observedDimensions} of ${dimensions.length} assurance dimensions have observed evidence`} className="grid h-20 w-20 shrink-0 place-items-center rounded-full" style={{ background: `conic-gradient(rgb(34 211 238) 0deg ${coverageDegrees}deg, rgb(39 39 42) ${coverageDegrees}deg 360deg)` }}>
+                <div className="grid h-14 w-14 place-items-center rounded-full bg-black text-sm font-semibold text-white">{observedDimensions}/{dimensions.length}</div>
+              </div>
+              <p className="text-xl font-semibold capitalize text-white">{profile.evidenceCompleteness.state}</p>
+            </div>
             <p className="mt-2 text-sm leading-6 text-zinc-500">{profile.evidenceCompleteness.present} observed categories for {profile.evidenceCompleteness.expected} required.</p>
             <p className="mt-2 text-xs text-zinc-600">Missing: {profile.evidenceCompleteness.missing.join(", ") || "None recorded"}</p>
           </article>
@@ -114,9 +132,15 @@ export function LivingTrustProfileView({ profile }: { profile: LivingTrustProfil
                 <details key={change.id} className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
                   <summary className="cursor-pointer text-sm font-medium capitalize text-zinc-200">{label(change.transition)} · {change.whatChanged}</summary>
                   <div className="mt-3 space-y-2 text-sm leading-6 text-zinc-500">
-                    <p>{change.why}</p>
+                    <p>Previous posture: {label(change.previousPosture)}</p>
+                    <p>New posture: {label(change.newPosture)}</p>
+                    <p>Reason: {change.why}</p>
+                    <p>Evidence: {change.evidenceChanged.join(", ") || "Not recorded"}</p>
                     <p>Authority changed: {change.authorityChanged ? "Yes" : "No"}</p>
-                    <p>Reviewed by: {change.reviewedBy ?? "Not recorded"}</p>
+                    <p>Policy: {change.policyApplied.join(", ") || "Not recorded"}</p>
+                    <p>Actor or reviewer: {change.actorOrReviewer}</p>
+                    <p>Replay: {change.replayReference ?? "Not recorded"}</p>
+                    <p>Timestamp: {change.changedAt}</p>
                     <p>{change.recommendedAction}</p>
                   </div>
                 </details>
@@ -137,6 +161,13 @@ export function LivingTrustProfileView({ profile }: { profile: LivingTrustProfil
             </div>
           </article>
         </div>
+        <details className="mt-7 rounded-xl border border-zinc-800 bg-black p-5">
+          <summary className="cursor-pointer text-sm font-semibold text-zinc-200">Source references and operational limitations</summary>
+          <div className="mt-4 grid gap-5 text-xs leading-5 text-zinc-500 lg:grid-cols-2">
+            <div><p className="font-semibold text-zinc-300">Sources</p><ul className="mt-2 grid gap-1">{profile.sourceReferences.map((item) => <li key={item}>{item}</li>)}</ul></div>
+            <div><p className="font-semibold text-zinc-300">Limitations</p><ul className="mt-2 grid gap-1">{profile.limitations.map((item) => <li key={item}>{item}</li>)}</ul></div>
+          </div>
+        </details>
       </div>
     </section>
   );

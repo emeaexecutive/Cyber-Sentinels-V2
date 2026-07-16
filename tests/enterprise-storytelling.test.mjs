@@ -4,14 +4,16 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("homepage tells the category story through six visual sections", async () => {
+test("homepage tells the category story through six calm sections and one process graph", async () => {
   const source = await read("app/page.tsx");
   assert.equal((source.match(/<section/g) ?? []).length, 6);
-  for (const component of ["ComparisonCard", "LifecycleDiagram", "DecisionFlow", "ArchitectureBlock", "InteractiveTrustWalkthrough"]) {
+  for (const component of ["ComparisonCard", "LifecycleDiagram"]) {
     assert.match(source, new RegExp(`<${component}`));
   }
+  for (const removed of ["DecisionFlow", "ArchitectureBlock", "InteractiveTrustWalkthrough"]) assert.doesNotMatch(source, new RegExp(`<${removed}`));
   assert.doesNotMatch(source, /<Timeline/);
-  for (const marker of ["Traditional Identity", "Operational Trust Infrastructure", "Enterprise Trust Fabric", "One Trust Assessment", "What We Protect", "Why Operational Trust"]) {
+  assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 1);
+  for (const marker of ["Traditional Identity", "Operational Trust Infrastructure", "Enterprise Trust Fabric", "Primary operational trust flow", "What We Protect", "Why Operational Trust"]) {
     assert.match(source, new RegExp(marker));
   }
 });

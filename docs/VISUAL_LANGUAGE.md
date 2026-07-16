@@ -25,3 +25,9 @@ The components use semantic HTML and shared CSS connectors. Pages supply content
 - Section spacing: 64-96 pixels, with a maximum content width of 1152 pixels.
 
 Motion respects `prefers-reduced-motion`. Meaning never depends on animation or colour alone.
+
+## RC3 public hierarchy and Trust DNA™
+
+The homepage owns one process graph only: Identity → Authority → Context → Evidence → Trust Decision → Enforcement → Replay → Trust Memory™ → Current Trust Posture. Detailed architecture stays on Platform; Trust Memory, Living Trust Profile, Trust DNA, Evidence Graph and validation visuals stay on Trust or protected product surfaces.
+
+Trust DNA uses eight assurance cards, a static contextual coverage ring, authority details, an attributable evolution timeline and open-risk/governance panels. Every state has a text label, screen-reader summary and progressively disclosed evidence. The ring represents evidence coverage only; it is not a score. Native controls remain keyboard accessible, layouts reflow from mobile to desktop, and reduced-motion preferences disable non-essential transitions.
