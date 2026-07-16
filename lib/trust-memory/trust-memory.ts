@@ -29,9 +29,12 @@ export type TrustMemoryEventKind =
   | "false_negative_outcome"
   | "trust_recovery"
   | "trust_confirmed"
-  | "trust_decay";
+  | "trust_decay"
+  | "retention_tombstone";
 
 export type TrustMemoryEvolutionState =
+  | "established"
+  | "strengthened"
   | "gained"
   | "challenged"
   | "reduced"
@@ -39,15 +42,21 @@ export type TrustMemoryEvolutionState =
   | "decayed"
   | "recovered"
   | "expired"
+  | "suspended"
+  | "inconclusive"
   | "revoked";
 
 export type TrustMemoryOperationalState =
+  | "Trust Established"
+  | "Trust Strengthened"
   | "Trust Increased"
   | "Trust Reduced"
   | "Trust Challenged"
   | "Trust Restored"
   | "Trust Expired"
   | "Trust Revoked"
+  | "Trust Suspended"
+  | "Trust Inconclusive"
   | "Trust Delegated"
   | "Trust Reviewed"
   | "Trust Confirmed";
@@ -127,15 +136,18 @@ function evolutionState(input: {
   delta: number;
 }): TrustMemoryEvolutionState {
   const stateAfter = input.stateAfter.toLowerCase();
+  if (input.classification === "established") return "established";
   if (input.eventKind === "authority_revoked" || stateAfter.includes("revok")) return "revoked";
   if (stateAfter.includes("expir")) return "expired";
+  if (stateAfter.includes("suspend") || stateAfter === "paused") return "suspended";
   if (input.eventKind === "trust_decay" || input.classification === "decayed") return "decayed";
   if (input.eventKind === "trust_recovery" || input.classification === "recovered") return "recovered";
   if (input.classification === "restored") return "restored";
-  if (["provider_conflict", "session_integrity_failure", "step_up_verification"].includes(input.eventKind) || input.classification === "escalated") return "challenged";
-  if (input.delta < 0 || ["decreased", "blocked"].includes(input.classification)) return "reduced";
+  if (["provider_conflict", "session_integrity_failure", "step_up_verification"].includes(input.eventKind) || ["escalated", "challenged"].includes(input.classification)) return "challenged";
+  if (input.delta < 0 || ["decreased", "reduced", "blocked"].includes(input.classification)) return "reduced";
+  if (input.classification === "strengthened") return "strengthened";
   if (input.delta > 0 || input.classification === "increased") return "gained";
-  return "challenged";
+  return "inconclusive";
 }
 
 function operationalState(input: {
@@ -145,16 +157,19 @@ function operationalState(input: {
   delta: number;
 }): TrustMemoryOperationalState {
   const stateAfter = input.stateAfter.toLowerCase();
+  if (input.classification === "established") return "Trust Established";
   if (input.eventKind === "authority_revoked" || stateAfter.includes("revok")) return "Trust Revoked";
   if (stateAfter.includes("expir")) return "Trust Expired";
+  if (stateAfter.includes("suspend") || stateAfter === "paused") return "Trust Suspended";
   if (input.eventKind === "authority_delegated") return "Trust Delegated";
   if (["reviewer_override", "governance_decision"].includes(input.eventKind)) return "Trust Reviewed";
   if (["trust_confirmed", "lifecycle_completed"].includes(input.eventKind)) return "Trust Confirmed";
   if (input.eventKind === "trust_recovery" || input.classification === "restored" || input.classification === "recovered") return "Trust Restored";
-  if (["provider_conflict", "session_integrity_failure", "step_up_verification"].includes(input.eventKind) || input.classification === "escalated") return "Trust Challenged";
-  if (input.delta < 0 || ["decreased", "blocked", "decayed"].includes(input.classification)) return "Trust Reduced";
+  if (["provider_conflict", "session_integrity_failure", "step_up_verification"].includes(input.eventKind) || ["escalated", "challenged"].includes(input.classification)) return "Trust Challenged";
+  if (input.delta < 0 || ["decreased", "reduced", "blocked", "decayed"].includes(input.classification)) return "Trust Reduced";
+  if (input.classification === "strengthened") return "Trust Strengthened";
   if (input.delta > 0 || input.classification === "increased") return "Trust Increased";
-  return "Trust Challenged";
+  return "Trust Inconclusive";
 }
 
 export function createTrustMemoryEvent(

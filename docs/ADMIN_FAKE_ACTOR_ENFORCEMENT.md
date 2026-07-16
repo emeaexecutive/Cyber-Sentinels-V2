@@ -23,7 +23,7 @@ Each enforcement action requires a reviewer note. The action records the adminis
 
 ## Evidence preservation
 
-Blocking or removing an actor never deletes the candidate, session, evidence, replay or receipt. The enforcement service:
+Blocking or removing an actor preserves current evidence and review continuity while tenant retention policy applies. Approved deletion or redaction creates an auditable tombstone instead of silently rewriting history. The enforcement service:
 
 1. appends an admin audit event;
 2. creates a governance action;

@@ -25,7 +25,7 @@ A failed replay save no longer appears successful. Source-load failures are show
 - Admin review, enforcement, validation and integration surfaces remain admin protected.
 - Reviewer identity, rationale, escalation state and source evidence remain attributable.
 - Partial governance writes are visible for reconciliation.
-- False-positive handling and fake-actor enforcement preserve evidence and do not silently delete operational history.
+- False-positive handling and fake-actor enforcement preserve current review continuity; governed retention, deletion or redaction produces an auditable tombstone.
 
 ## Provider handling
 

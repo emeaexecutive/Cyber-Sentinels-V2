@@ -2,6 +2,7 @@ import { inferAgentBehaviorEvents, type AgentBehaviorEvent } from "@/lib/agents/
 import type { FusionSignalSource } from "@/lib/detection/signal-fusion";
 import { evaluateCredentialExposureRisk } from "@/lib/security/credential-exposure-risk";
 import { evaluateTrustDecision, type TrustDecision } from "@/lib/trust/decision-engine";
+import { createGovernedControlAction } from "@/lib/trust/living-trust-profile";
 
 export type AgentRuntimeControlInput = {
   agentId: string;
@@ -33,6 +34,14 @@ export type AgentRuntimeControlInput = {
   providerSignals?: number | null;
   reviewedOutcomeRisk?: number | null;
   evidence_refs?: string[];
+  workflowId?: string;
+  tenantId?: string;
+  policyVersion?: string;
+  controlActor?: string;
+  controlReason?: string;
+  replayReference?: string;
+  recoveryRequirements?: string[];
+  externalExecutionReceipt?: string | null;
 };
 
 export type AgentRuntimeDecision = TrustDecision;
@@ -110,6 +119,19 @@ export function evaluateAgentRuntimeControl(input: AgentRuntimeControlInput) {
     ...credentialExposure.source_labels,
     ...behaviorEvents.flatMap((event) => event.source_labels),
   ])] as FusionSignalSource[];
+  const governedControl = killSwitchStatus === "not_recommended" ? null : createGovernedControlAction({
+    action: input.expiryStatus === "revoked" ? "revoke_authority" : "pause_agent",
+    actor: input.controlActor ?? input.humanOwner ?? "Accountable actor not recorded",
+    reason: input.controlReason ?? decision.reason,
+    scope: uniqueControlScope([input.tenantId, input.workflowId, input.runtimeAction, input.accessedResource]),
+    affectedEntity: input.agentId,
+    affectedWorkflow: input.workflowId ?? "Workflow not recorded",
+    policy: input.policyVersion ?? "Policy not recorded",
+    evidence: evidenceRefs,
+    replayReference: input.replayReference ?? "Replay reference not recorded",
+    recoveryRequirements: input.recoveryRequirements ?? ["accountable_human_review", "current_authority", "fresh_runtime_authorization"],
+    externalExecutionReceipt: input.externalExecutionReceipt ?? null,
+  });
 
   return {
     agent: {
@@ -138,7 +160,7 @@ export function evaluateAgentRuntimeControl(input: AgentRuntimeControlInput) {
       ...decision.limitations,
       ...credentialExposure.limitations,
       "Kill-switch status is a governance recommendation or placeholder unless an integrated runtime exposes an activation API.",
-      "Cyber Sentinels preserves evidence and review state; it does not silently delete data.",
+      "Evidence and review state follow tenant retention, legal-hold, redaction and deletion policy; governed removal creates an auditable tombstone.",
     ],
     source_labels: sourceLabels,
     kill_switch: {
@@ -146,6 +168,7 @@ export function evaluateAgentRuntimeControl(input: AgentRuntimeControlInput) {
       recommended: killSwitchStatus === "kill_switch_recommended" || killSwitchStatus === "review_kill_switch",
       activated_placeholder: killSwitchStatus === "kill_switch_activated_placeholder",
       evidence_required: ["audit log", "replay event", "governance review", "human reviewer status"],
+      governed_control: governedControl,
     },
     replay_evidence_model: {
       agent: input.agentName ?? input.agentId,
@@ -162,4 +185,8 @@ export function evaluateAgentRuntimeControl(input: AgentRuntimeControlInput) {
         : "retain_evidence",
     },
   };
+}
+
+function uniqueControlScope(values: Array<string | null | undefined>) {
+  return [...new Set(values.map((value) => String(value ?? "").trim()).filter(Boolean))];
 }

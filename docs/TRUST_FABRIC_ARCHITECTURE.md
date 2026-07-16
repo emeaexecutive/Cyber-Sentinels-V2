@@ -63,3 +63,9 @@ The existing in-process profiler records provider, consensus, trust, authorizati
 RC1 reuses `POST /api/trust/execute` for authenticated `Establish Trust` session creation and `POST /api/providers` for timestamped HMAC callbacks. Hopae transport stays in the adapter. `executeCanonicalTrustAssessment()` is a thin action over the existing lifecycle orchestrator, authorization gateway, enforcement, Replay, Evidence Graph, Trust Memory and Evidence Pack builders.
 
 Provider evidence is normalized and quality-gated before the Trust Decision. A service-role-only PostgreSQL function commits idempotency, Replay, the explicit evidence-to-receipt graph edge, append-only Trust Memory, receipt, audit and provider references in one transaction. Canonical proof and graph relationship tables are workspace/owner scoped; legacy unscoped rows are not exposed to ordinary authenticated sessions.
+
+## Release 1.0 RC2 contextual profile
+
+`lib/trust/living-trust-profile.ts` is a derived read model over the existing service composition. It does not calculate a universal score, persist duplicate posture, or replace authorization. Its key includes tenant, entity, workflow, purpose, action, policy version and time.
+
+The Authority Graph now attenuates permitted and prohibited actions, resource scope, approvals, purpose, policy version and depth across organization, human, agent, sub-agent and machine-identity chains. `evaluateContinuousAuthorization()` records material context-change triggers and returns to the existing enforcement, receipt, Replay and Trust Memory path. Governed controls and retention tombstones are proof contracts, not claims that an unintegrated external system executed them.

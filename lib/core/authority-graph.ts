@@ -4,6 +4,9 @@ export type AuthorityConstraints = {
   workflowIds?: string[];
   actions?: string[];
   purposes?: string[];
+  prohibitedActions?: string[];
+  resourceScope?: string[];
+  approvalRequirements?: string[];
 };
 
 export type AuthorityGrant = {
@@ -14,6 +17,13 @@ export type AuthorityGrant = {
   granteeId: string;
   granteeType: AuthorityPrincipalType;
   scope: string[];
+  purpose?: string;
+  permittedActions?: string[];
+  prohibitedActions?: string[];
+  resourceScope?: string[];
+  approvalRequirements?: string[];
+  policyVersion?: string;
+  evidenceReference?: string;
   constraints?: AuthorityConstraints;
   parentGrantId?: string | null;
   maxDelegationDepth: number;
@@ -30,6 +40,9 @@ export type AuthorityGraphRequest = {
   action: string;
   purpose: string;
   requestedScope?: string[];
+  resource?: string;
+  approvals?: string[];
+  policyVersion?: string;
   grants: AuthorityGrant[];
   evaluatedAt?: string;
 };
@@ -58,6 +71,7 @@ const allowedDelegations = new Set([
   "human->ai_agent",
   "human->machine_identity",
   "ai_agent->ai_agent",
+  "ai_agent->machine_identity",
 ]);
 
 function unique(values: string[] = []) {
@@ -112,6 +126,21 @@ function validateChain(chain: AuthorityGrant[], request: AuthorityGraphRequest, 
   add("scope inheritance", chain.every((grant, index) => index === 0 || subset(grant.scope, chain[index - 1].scope)), "A child grant cannot exceed its parent scope.");
   add("maximum delegation depth", chain.every((grant, index) => chain.length - index - 1 <= Math.max(0, grant.maxDelegationDepth)), "Every ancestor's delegation-depth ceiling is enforced.");
 
+  const permissionInheritance = chain.every((grant, index) => {
+    if (index === 0) return true;
+    const parent = chain[index - 1];
+    const parentPermitted = unique(parent.permittedActions ?? parent.constraints?.actions ?? parent.scope);
+    const childPermitted = unique(grant.permittedActions ?? grant.constraints?.actions ?? grant.scope);
+    const parentProhibited = unique(parent.prohibitedActions ?? parent.constraints?.prohibitedActions);
+    const childProhibited = unique(grant.prohibitedActions ?? grant.constraints?.prohibitedActions);
+    const parentResources = unique(parent.resourceScope ?? parent.constraints?.resourceScope);
+    const childResources = unique(grant.resourceScope ?? grant.constraints?.resourceScope);
+    return subset(childPermitted, parentPermitted)
+      && subset(parentProhibited, childProhibited)
+      && (!parentResources.length || subset(childResources, parentResources));
+  });
+  add("authority attenuation", permissionInheritance, "A child may narrow permitted actions and resources, but cannot remove an inherited prohibition or gain authority its parent did not hold.");
+
   const constraintInheritance = chain.every((grant, index) => {
     if (index === 0) return true;
     const parent = chain[index - 1].constraints;
@@ -130,7 +159,18 @@ function validateChain(chain: AuthorityGrant[], request: AuthorityGraphRequest, 
     purposes: intersect(chain.map((grant) => grant.constraints?.purposes)),
   };
   const requestedScope = unique([...(request.requestedScope ?? []), request.action]);
+  const prohibitedActions = unique(chain.flatMap((grant) => grant.prohibitedActions ?? grant.constraints?.prohibitedActions ?? []));
+  const permittedActions = intersect(chain.map((grant) => grant.permittedActions ?? grant.constraints?.actions ?? grant.scope)) ?? [];
+  const requiredApprovals = unique(chain.flatMap((grant) => grant.approvalRequirements ?? grant.constraints?.approvalRequirements ?? []));
+  const suppliedApprovals = unique(request.approvals);
+  const effectiveResources = intersect(chain.map((grant) => grant.resourceScope ?? grant.constraints?.resourceScope));
   add("requested scope", subset(requestedScope, effectiveScope), "The requested action and scope must be present throughout the chain.");
+  add("permitted action", permittedActions.includes(request.action), "The requested action must remain explicitly permitted through the delegation chain.");
+  add("prohibited action", !prohibitedActions.includes(request.action), "An inherited prohibited action always fails closed.");
+  add("resource scope", !request.resource || effectiveResources === null || effectiveResources.includes(request.resource), "The requested resource must remain inside the attenuated resource scope.");
+  add("approval requirements", subset(requiredApprovals, suppliedApprovals), "Every inherited approval requirement must be satisfied before execution.");
+  add("policy version", !request.policyVersion || chain.every((grant) => !grant.policyVersion || grant.policyVersion === request.policyVersion), "Delegation policy versions must match the policy evaluated for this action.");
+  add("declared purpose", chain.every((grant) => !grant.purpose || grant.purpose === request.purpose), "Every declared delegation purpose must match the requested purpose.");
   add("workflow constraint", effectiveConstraints.workflowIds === null || effectiveConstraints.workflowIds.includes(request.workflowId), `Workflow ${request.workflowId} must be allowed.`);
   add("action constraint", effectiveConstraints.actions === null || effectiveConstraints.actions.includes(request.action), `Action ${request.action} must be allowed.`);
   add("purpose constraint", effectiveConstraints.purposes === null || effectiveConstraints.purposes.includes(request.purpose), `Purpose ${request.purpose} must be allowed.`);
@@ -164,7 +204,7 @@ export function evaluateAuthorityGraph(request: AuthorityGraphRequest): Authorit
         effectiveConstraints: validation.effectiveConstraints,
         accountableHumanId: accountableHuman,
         authorityReference: terminal.id,
-        evidenceRefs: unique(built.chain.flatMap((grant) => grant.evidenceRefs ?? [])),
+        evidenceRefs: unique(built.chain.flatMap((grant) => [...(grant.evidenceRefs ?? []), ...(grant.evidenceReference ? [grant.evidenceReference] : [])])),
         checks: validation.checks,
         limitations: ["Authority is valid only for the evaluated tenant, workflow, action, purpose and time."],
       };

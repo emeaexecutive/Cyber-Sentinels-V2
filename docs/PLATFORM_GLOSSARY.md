@@ -1,5 +1,15 @@
 # Platform Glossary
 
+**Living Trust Profile** — Derived contextual profile keyed by tenant, entity, workflow, purpose, requested action, policy version and assessment time. Calculated values are not a second persisted truth source.
+
+**Trust DNA™** — Visual assurance dimensions and explained evolution for one Living Trust Profile. It is not biological data, a reputation score or fraud label.
+
+**Continuous Authorization** — Re-evaluation of current authority and policy when action or runtime context changes, before execution continues.
+
+**Governed Control** — Attributable revoke, pause, terminate, disable, quarantine, block-tool or human-takeover record. External execution is claimed only with an integration receipt.
+
+**Retention Tombstone** — Append-only event proving governed deletion, redaction or provider-reference removal without retaining the removed raw value.
+
 **Establish Trust / Trust Assessment** — Canonical action coordinating identity, authority, provider evidence, evidence quality, decision, enforcement and proof. It is not provider identity verification.
 
 **Trust Decision** — Explainable `allow`, `step_up`, `review`, `escalate`, `block` or `insufficient_evidence` outcome.

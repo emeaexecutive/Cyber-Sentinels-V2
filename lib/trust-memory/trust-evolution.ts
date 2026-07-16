@@ -1,11 +1,19 @@
 export type TrustChangeClassification =
+  | "established"
+  | "strengthened"
+  | "challenged"
+  | "reduced"
   | "increased"
   | "decreased"
   | "decayed"
+  | "expired"
+  | "suspended"
+  | "revoked"
   | "recovered"
   | "escalated"
   | "blocked"
   | "restored"
+  | "inconclusive"
   | "insufficient_evidence";
 
 export type TrustEvolutionInput = {
@@ -31,7 +39,7 @@ export type TrustChangeExplanation = {
   };
 };
 
-const BLOCKED_STATES = new Set(["blocked", "denied", "revoked"]);
+const BLOCKED_STATES = new Set(["blocked", "denied"]);
 const ESCALATED_STATES = new Set(["escalated", "review_required", "needs_review", "step_up_required"]);
 const RESTORED_STATES = new Set(["restored", "approved", "trusted", "verified"]);
 const RECOVERY_STATES = new Set(["recovered", "restored", "verified", "approved"]);
@@ -54,15 +62,20 @@ export function classifyTrustChange(input: TrustEvolutionInput): TrustChangeClas
     (input.governanceRefs?.length ?? 0) > 0 ||
     Boolean(input.reviewedOutcomeRef);
 
-  if (!hasEvidence && Math.abs(delta) < 0.03) return "insufficient_evidence";
+  if (!hasEvidence) return "inconclusive";
+  if (after === "established" && before !== "established") return "established";
+  if (after.includes("revok")) return "revoked";
+  if (after.includes("expir")) return "expired";
+  if (after.includes("suspend") || after === "paused") return "suspended";
   if (BLOCKED_STATES.has(after)) return "blocked";
   if (ESCALATED_STATES.has(after)) return "escalated";
+  if (after.includes("challenge")) return "challenged";
   if (RESTORED_STATES.has(after) && !RESTORED_STATES.has(before)) return "restored";
   if (delta > 0 && RECOVERY_STATES.has(after)) return "recovered";
   if (delta < -0.08 && before === after) return "decayed";
-  if (delta > 0.02) return "increased";
-  if (delta < -0.02) return "decreased";
-  return hasEvidence ? "increased" : "insufficient_evidence";
+  if (delta > 0.02) return "strengthened";
+  if (delta < -0.02) return "reduced";
+  return "inconclusive";
 }
 
 export function explainTrustChange(input: TrustEvolutionInput): TrustChangeExplanation {
@@ -79,7 +92,7 @@ export function explainTrustChange(input: TrustEvolutionInput): TrustChangeExpla
     classification,
     trustDelta,
     summary:
-      classification === "insufficient_evidence"
+      ["insufficient_evidence", "inconclusive"].includes(classification)
         ? "Trust did not change because the memory event lacks enough evidence to explain a shift."
         : `Trust ${classification.replace("_", " ")} from ${input.trustStateBefore} to ${input.trustStateAfter}.`,
     drivers,

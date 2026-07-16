@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { LivingTrustProfileView } from "@/components/living-trust-profile";
 import { buildRegulatedAiAgentDemo } from "@/lib/core/trust-lifecycle-orchestrator";
+import { buildRc2LivingTrustDemo } from "@/lib/trust/living-trust-profile";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +33,22 @@ const flow = [
   ["Write Replay", "Simulated", "The public demo previews chronology; authenticated recorded flows persist Replay atomically."],
   ["Update Trust Memory™", "Simulated", "Append-only trust change records link reason, evidence, actor, authority, policy and Replay."],
   ["Produce Evidence Pack", "Simulated", "Recorded flows export structured JSON and enterprise-readable PDF from the existing audit route."],
+];
+
+const rc2Demo = buildRc2LivingTrustDemo();
+const livingTrustFlow = [
+  "Human delegates constrained authority to an AI agent",
+  "Agent requests a regulated action",
+  "Current Living Trust Profile is resolved",
+  "Provider evidence and credentials are checked",
+  "Runtime context changes",
+  "Authorization is re-evaluated",
+  "Action requires approval and is paused",
+  "Execution receipt is required",
+  "Replay records the sequence",
+  "Trust Memory™ records how trust changed",
+  "Trust DNA™ view updates",
+  "Governance can revoke or restore authority",
 ];
 
 const decisionClass: Record<string, string> = {
@@ -78,6 +96,39 @@ export default function TrustExecutionFlowDemoPage() {
             Decision cards below use deterministic demo inputs. Health, replay persistence, Trust Memory and Evidence Graph completion must be confirmed in authenticated operator surfaces; this public page does not fabricate production telemetry or write customer records.
           </p>
         </section>
+
+        <section className="mt-8 rounded-2xl border border-cyan-900/60 bg-cyan-950/10 p-6 md:p-8">
+          <p className="operational-eyebrow">Release 1.0 RC2 · Approved Test Mode</p>
+          <h2 className="mt-3 text-3xl font-semibold">Living trust and runtime reauthorization</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
+            A finance owner delegates constrained authority to an AI agent. When the requested action, workflow stage, runtime risk and transaction threshold change, the existing authorization and enforcement path evaluates the action again.
+          </p>
+          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {livingTrustFlow.map((step, index) => (
+              <div key={step} className="rounded-xl border border-zinc-800 bg-black p-4">
+                <p className="font-mono text-xs text-cyan-300">{String(index + 1).padStart(2, "0")}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-300">{step}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {[
+              ["Reauthorization", rc2Demo.authorization.outcome],
+              ["Triggers", rc2Demo.authorization.triggers.join(", ").replaceAll("_", " ")],
+              ["Governed control", `${rc2Demo.control.action.replaceAll("_", " ")} · ${rc2Demo.control.executionState}`],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
+                <p className="mt-2 text-sm font-semibold capitalize text-zinc-100">{value}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-5 text-sm leading-7 text-amber-100/80">
+            {rc2Demo.control.limitation} Provider evidence is {rc2Demo.sourceMode}; no live provider or external runtime interruption is claimed.
+          </p>
+        </section>
+
+        <LivingTrustProfileView profile={rc2Demo.profile} />
 
         <section className="mt-8 grid gap-5">
           {paths.map((path) => (

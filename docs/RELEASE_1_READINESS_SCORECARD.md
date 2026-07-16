@@ -1,7 +1,7 @@
 # Release 1 readiness scorecard
 
-Release candidate: 1.2.3
-Review date: 2026-07-15
+Release candidate: 1.0 RC2
+Review date: 2026-07-16
 
 ## Evidence scale
 
@@ -43,3 +43,7 @@ Historical mapping: Architecture and Governance are consolidated into Operationa
 The score remains `2 — Implemented`, not `3 — Pilot evidenced`. Hopae Connect now completes the canonical evidence path in approved Test Mode with signature/timestamp/idempotency controls, provider-neutral normalization, evidence quality, authority/policy separation, enforcement, and atomic Replay/Evidence Graph/Trust Memory/receipt persistence. No credentials or successful target-environment provider health were present, so no `Live` state is claimed.
 
 Enterprise UX now uses a six-block homepage and nine-step 16.2-second guided flow. The final performance-evidence run measured 100 in-process samples: 0.161 ms average, 0.108 ms p50, 0.348 ms p95, 10% injected unavailability and 0% execution errors. Provider/network/database performance, deployed migration/RLS denial checks, reviewed pilot evidence and operator sign-off remain blockers.
+
+## 1.0 RC2 living-trust update — 2026-07-16
+
+The score remains `2 — Implemented`. RC2 derives one Living Trust Profile from canonical identity, authority, credential, provider, runtime, Evidence Graph, Replay, Trust Memory, review, governance and policy sources. Trust DNA exposes contextual dimensions without a universal score. Authority attenuation, runtime reauthorization, governed control records, retention tombstones, observed-evidence queries and compliance mappings are repository-tested. Pilot evidence, integrated external control receipts, approved retention/deletion operations and target-environment checks remain absent.

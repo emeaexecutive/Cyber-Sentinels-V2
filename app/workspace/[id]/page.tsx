@@ -1,11 +1,20 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { LivingTrustProfileView } from "@/components/living-trust-profile";
 import { OnboardingHint } from "@/components/onboarding-walkthrough";
+import { evaluateAuthorityGraph } from "@/lib/core/authority-graph";
+import { normalizeEntityIdentity } from "@/lib/core/entity-identity";
 import {
   intelligenceSeverityClass,
   workspaceBottlenecks,
 } from "@/lib/operational-intelligence/intelligence";
 import { createClient } from "@/lib/supabase/server";
+import {
+  deriveLivingTrustProfile,
+  providerEvidenceFromRecords,
+  trustMemoryEventsFromTimelineRecords,
+  type LivingTrustEntityType,
+} from "@/lib/trust/living-trust-profile";
 import {
   buildReviewQueue,
   casePriorities,
@@ -170,6 +179,14 @@ function nextCaseAction(item: TrustCaseRow) {
 
 function rowTitle(row: AnyRow) {
   return String(row.file_name ?? row.event_title ?? row.event_type ?? row.event ?? row.target_type ?? "Linked record");
+}
+
+function livingTrustEntityType(value: unknown): LivingTrustEntityType {
+  const normalized = String(value ?? "").toLowerCase().replace("agent", "ai_agent");
+  if (["human", "ai_agent", "machine_identity", "organization", "workflow"].includes(normalized)) {
+    return normalized as LivingTrustEntityType;
+  }
+  return "human";
 }
 
 function CaseCard({
@@ -386,7 +403,7 @@ export default async function WorkspaceDetailPage({
 
   if (!workspace) notFound();
 
-  const [members, cases, relationships, signals, evidence, timeline, auditLogs, governanceActions, intelligenceEvents] = await Promise.all([
+  const [members, cases, relationships, signals, evidence, timeline, auditLogs, governanceActions, intelligenceEvents, replaySessions, evidenceGraphRelationships, providerRecords, governancePolicies] = await Promise.all([
     fetchRows<WorkspaceMemberRow>(supabase, "workspace_members", 200),
     fetchRows<TrustCaseRow>(supabase, "trust_cases", 200),
     fetchRows<CaseRelationshipRow>(supabase, "trust_case_relationships", 200),
@@ -396,6 +413,10 @@ export default async function WorkspaceDetailPage({
     fetchRows<AnyRow>(supabase, "audit_logs", 120),
     fetchRows<AnyRow>(supabase, "governance_actions", 120),
     fetchRows<AnyRow>(supabase, "operational_intelligence_events", 120),
+    fetchRows<AnyRow>(supabase, "trust_replay_sessions", 120),
+    fetchRows<AnyRow>(supabase, "trust_relationships", 120),
+    fetchRows<AnyRow>(supabase, "hopae_verifications", 80),
+    fetchRows<AnyRow>(supabase, "governance_policies", 80),
   ]);
   const scopedMembers = members.filter((item) => item.workspace_id === id);
   const canAccessWorkspace =
@@ -427,7 +448,7 @@ export default async function WorkspaceDetailPage({
     item.case_id ? caseIds.has(item.case_id) : false
   );
   const scopedTimeline = timeline.filter((item) =>
-    item.subject_type === "trust_case" && item.subject_id ? caseIds.has(String(item.subject_id)) : false
+    item.workspace_id === id || (item.subject_id ? caseIds.has(String(item.subject_id)) : false)
   );
   const scopedAuditLogs = auditLogs.filter((item) => {
     const metadata = item.metadata && typeof item.metadata === "object" ? item.metadata : {};
@@ -461,6 +482,63 @@ export default async function WorkspaceDetailPage({
     governanceActions: scopedGovernanceActions,
     intelligenceEvents: scopedIntelligenceEvents,
   });
+  const profileCase = scopedCases.find((item) => !["closed", "rejected"].includes(String(item.status))) ?? scopedCases[0] ?? null;
+  const profileRelationship = profileCase
+    ? scopedRelationships.find((item) => item.case_id === profileCase.id && item.target_id)
+    : null;
+  const profileEntityId = profileRelationship?.target_id ?? profileCase?.created_by ?? null;
+  const profileEntityType = profileRelationship ? livingTrustEntityType(profileRelationship.target_type) : "human";
+  const profilePolicy = governancePolicies.find((item) => item.workspace_id === id) ?? null;
+  const policyActions = Array.isArray(profilePolicy?.allowed_actions) ? profilePolicy.allowed_actions.map(String) : [];
+  const requestedAction = policyActions[0] ?? "review_trust_case";
+  const assessedAt = new Date().toISOString();
+  const profileAuthority = profileCase && profileEntityId
+    ? evaluateAuthorityGraph({ tenantId: id, subjectId: profileEntityId, workflowId: profileCase.id, action: requestedAction, purpose: "workspace_governance", grants: [], evaluatedAt: assessedAt })
+    : null;
+  const livingProfile = profileCase && profileEntityId && profileAuthority
+    ? deriveLivingTrustProfile({
+        key: {
+          tenantId: id,
+          entityId: profileEntityId,
+          entityType: profileEntityType,
+          workflowId: profileCase.id,
+          purpose: "workspace_governance",
+          requestedAction,
+          policyVersion: profilePolicy?.id ? `governance-policy:${profilePolicy.id}` : "policy:not-configured",
+          assessedAt,
+        },
+        entity: normalizeEntityIdentity({
+          id: profileEntityId,
+          type: profileEntityType,
+          tenant_id: id,
+          owner: workspace.name ?? "Workspace owner",
+          authority: profileAuthority.reason,
+          verification_status: profileRelationship ? "partially_verified" : "awaiting_evidence",
+          trust_posture: profileAuthority.valid ? "review" : "insufficient_evidence",
+          governance_status: unresolvedGovernance.length ? "review_required" : "clear",
+          evidence_refs: [profileRelationship?.id, ...scopedTimeline.map((item) => item.id)].filter(Boolean).map(String),
+          replay_refs: replaySessions.filter((item) => item.workspace_id === id && item.subject_id === profileCase.id).map((item) => String(item.id)),
+          lifecycle: { state: profileCase.status === "closed" ? "archived" : "active", created_at: profileCase.created_at, updated_at: profileCase.assigned_at ?? profileCase.created_at },
+        }),
+        authority: profileAuthority,
+        credential: { status: "unknown", evidenceRefs: [], reason: "No current credential evidence is linked to this workspace profile." },
+        providerEvidence: providerEvidenceFromRecords(providerRecords, id, profileCase.id),
+        runtimeRisks: scopedIntelligenceEvents.filter((item) => item.workflow_id === profileCase.id || item.trust_case_id === profileCase.id).map((item) => ({
+          id: String(item.id),
+          severity: ["low", "medium", "high", "critical"].includes(String(item.severity)) ? item.severity : "medium",
+          reason: String(item.summary ?? "Observed runtime context requires review."),
+          evidenceRefs: Array.isArray(item.evidence_refs) ? item.evidence_refs.map(String) : [],
+          observedAt: String(item.created_at ?? assessedAt),
+          resolved: item.status === "resolved",
+        })),
+        evidenceRelationships: evidenceGraphRelationships.filter((item) => item.workspace_id === id && (item.source_id === profileCase.id || item.target_id === profileCase.id)).map((item) => ({ id: String(item.id), sourceReference: `${item.source_type}:${item.source_id}`, targetReference: `${item.target_type}:${item.target_id}` })),
+        replayReferences: replaySessions.filter((item) => item.workspace_id === id && item.subject_id === profileCase.id).map((item) => String(item.id)),
+        trustMemoryEvents: trustMemoryEventsFromTimelineRecords(scopedTimeline, id, profileCase.id, profileEntityId),
+        governanceActions: scopedGovernanceActions.filter((item) => item.subject_id === profileCase.id).map((item) => ({ id: String(item.id), status: item.action_status ?? "pending", reason: String(item.resolution_notes ?? "Governance action requires review."), reviewerId: item.assigned_to, evidenceRefs: [] })),
+        minimumEvidence: Number(profilePolicy?.minimum_evidence ?? 5),
+        reassessmentAt: profilePolicy?.authority_expires_at ?? null,
+      })
+    : null;
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -523,6 +601,8 @@ export default async function WorkspaceDetailPage({
             </div>
           ))}
         </section>
+
+        <LivingTrustProfileView profile={livingProfile} />
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">

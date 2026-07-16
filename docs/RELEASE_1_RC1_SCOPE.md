@@ -32,3 +32,7 @@ RC1 proves one controlled Trust Assessment in approved Hopae Test Mode. It adds 
 | Legacy duplicate/hidden experimental surfaces | archived/hidden | Outside RC1 and the buyer promise. |
 
 Scope may shrink to address a critical defect. It must not expand during RC1 implementation.
+
+## RC2 handoff
+
+RC1 remains the provider evidence gate. RC2 composes its normalized evidence into a contextual Living Trust Profile and reauthorization proof. RC2 does not widen RC1 provider claims, create another provider path or change the rule that `Live` requires deployed credentials plus successful real health evidence.

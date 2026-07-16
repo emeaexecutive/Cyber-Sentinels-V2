@@ -31,7 +31,7 @@ ML and provider signals can contribute evidence when implemented and validated. 
 
 Blocking occurs when authority is missing, permission scope is mismatched, intent risk is critical, runtime anomalies are severe, prior governance state is blocked, or evidence is insufficient for safe continuation under policy.
 
-Blocking preserves evidence, writes audit history, creates replay context and does not silently delete source data.
+Blocking preserves current evidence, writes audit history and creates Replay context. Governed retention, deletion or redaction records an auditable tombstone rather than silently rewriting source history.
 
 ## When Human Review Happens
 

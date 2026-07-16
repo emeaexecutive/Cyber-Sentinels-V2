@@ -91,7 +91,7 @@ Kill-switch states are:
 - `kill_switch_recommended`
 - `kill_switch_activated_placeholder`
 
-Cyber Sentinels does not silently delete data. Every block or kill-switch recommendation must preserve evidence, write audit context, write replay context, create governance review and show human reviewer status where applicable.
+Every block or kill-switch recommendation must preserve current evidence, write audit context, write Replay context, create governance review and show human reviewer status where applicable. Tenant retention, legal hold, approved deletion and redaction remain governed; removal creates a tombstone rather than silently rewriting history.
 
 `kill_switch_activated_placeholder` means the runtime record can represent activation state, but it is not proof that an external agent runtime was interrupted unless a governed integration supplies evidence.
 
