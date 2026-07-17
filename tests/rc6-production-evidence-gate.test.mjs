@@ -72,7 +72,7 @@ test("Stripe reserves durable event IDs before business processing", async () =>
   assert.match(route, /retainRejectedWebhookEvent/);
 });
 
-test("existing protected readiness and review surfaces own RC6 evidence", async () => {
+test("existing protected readiness and review surfaces own release evidence", async () => {
   const [readiness, reviews, evidenceModel] = await Promise.all([
     read("app/admin/deployment-readiness/page.tsx"),
     read("app/admin/reviews/page.tsx"),
@@ -85,7 +85,7 @@ test("existing protected readiness and review surfaces own RC6 evidence", async 
   assert.match(evidenceModel, /telemetry_survives_restart/);
   assert.match(evidenceModel, /Awaiting sufficient samples/);
   for (const state of ["Cleared", "Partially Cleared", "Deployment Required", "Human Review Required", "Pilot Traffic Required", "Blocked"]) assert.match(evidenceModel, new RegExp(state));
-  assert.match(readiness, /Production Evidence Gate/);
+  assert.match(readiness, /Controlled Pilot Evidence Gate/);
   assert.match(reviews, /Ground-truth review/);
   assert.match(reviews, /value="disputed"/);
   assert.match(reviews, /value="excluded"/);
@@ -104,9 +104,9 @@ test("deployment, RLS and load harnesses are explicit opt-in and paid-provider s
   assert.doesNotMatch(provider, /clientSecret|webhookSecret/);
 });
 
-test("buyer evidence experience has explicit statuses and one primary pilot action", async () => {
+test("buyer evidence experience has RC7 evidence statuses and one primary pilot action", async () => {
   const page = await read("app/enterprise/pilot/page.tsx");
-  for (const state of ["Human Review Required", "Deployment Required", "Pilot Traffic Required"]) assert.match(page, new RegExp(state));
+  for (const state of ["Blocked", "Requires customer configuration", "Requires pilot evidence"]) assert.match(page, new RegExp(state));
   assert.equal((page.match(/primary=\{\{/g) ?? []).length, 1);
   assert.equal((page.match(/brand-primary-action/g) ?? []).length, 0);
 });

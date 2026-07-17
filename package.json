@@ -29,6 +29,7 @@
     "test:rc4": "node --experimental-strip-types --test tests/rc4-enterprise-proof.test.mjs",
     "test:rc5": "node --experimental-strip-types --test tests/rc5-operational-proof.test.mjs",
     "test:rc6": "node --experimental-strip-types --test tests/rc6-production-evidence-gate.test.mjs",
+    "test:rc7": "node --test tests/rc7-controlled-pilot-evidence.test.mjs",
     "check:hopae": "node --experimental-strip-types scripts/hopae-deployment-readiness.mjs",
     "test:deployed": "node scripts/deployed-security-harness.mjs",
     "test:rls": "node --test tests/rls/rc6-denial.test.mjs",
@@ -37,7 +38,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "npm run test:hopae && npm run test:detection && npm run test:ml-validation && npm run test:trust-explanation && npm run test:decision-intelligence && npm run test:standards-readiness && npm run test:trust-lifecycle && npm run test:continuous-trust-validation && npm run test:public-surface && npm run test:trust-os && npm run test:trust-fabric && npm run test:enterprise-storytelling && npm run test:enterprise-readiness && npm run test:release-candidate && npm run test:design-partner && npm run test:category-leadership && npm run test:enterprise-adoption && npm run test:rc1 && npm run test:rc1-performance && npm run test:rc2 && npm run test:rc3 && npm run test:rc4 && npm run test:rc5 && npm run test:rc6",
+    "test": "npm run test:hopae && npm run test:detection && npm run test:ml-validation && npm run test:trust-explanation && npm run test:decision-intelligence && npm run test:standards-readiness && npm run test:trust-lifecycle && npm run test:continuous-trust-validation && npm run test:public-surface && npm run test:trust-os && npm run test:trust-fabric && npm run test:enterprise-storytelling && npm run test:enterprise-readiness && npm run test:release-candidate && npm run test:design-partner && npm run test:category-leadership && npm run test:enterprise-adoption && npm run test:rc1 && npm run test:rc1-performance && npm run test:rc2 && npm run test:rc3 && npm run test:rc4 && npm run test:rc5 && npm run test:rc6 && npm run test:rc7",
     "validate": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {

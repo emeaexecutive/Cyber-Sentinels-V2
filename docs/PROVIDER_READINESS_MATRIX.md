@@ -8,6 +8,8 @@ Hopae Connect is the production-candidate provider in approved external `Test` m
 
 RC6 retains `Live` only when `release_evidence_checks` contains a passed `real_target_environment_flow` with a target environment, timestamp and evidence reference, plus a reviewed provider outcome. Current RC6 state: **Awaiting Credentials; no real retained execution**.
 
+RC7 verification on 2026-07-17 found the Hopae credential names absent, the enable flag false, callback URL unconfigured, target migration unverified and no execution record. Current RC7 state remains **Awaiting Credentials**.
+
 ERM priority order for real integrations:
 
 1. World ID

@@ -2,20 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 
-const structure = [
-  ["Onboarding", "Confirm pilot scope, users, sample data, review owners and the first workflow to show."],
-  ["Verification setup", "Create the workspace, first case and evidence expectations for hiring or session integrity review."],
-  ["Governance review", "Route unresolved risk to a named reviewer with evidence, context and open actions."],
-  ["Replay evidence", "Use replay timelines to show what happened before, during and after the session changed."],
-  ["Trust receipts", "Export a receipt that summarizes evidence, session integrity, governance outcome and replay access."],
-  ["Admin workflows", "Use readiness, runtime validation and pilot overview surfaces before live walkthroughs."],
+const proofJourney = [
+  ["Operational Trust Infrastructure", "Identity, authority, evidence, policy and runtime change are evaluated before consequential action."],
+  ["What is proven", "Deterministic Trust Fabric execution, fail-closed controls, Replay, Evidence Graph, Trust Memory and evidence packs pass controlled source tests."],
+  ["Validation evidence", "The versioned Release 1 cohort exists; human-reviewed approval and scoped metrics remain blocked."],
+  ["Provider execution evidence", "The Hopae path is implemented; a credentialed target execution and reviewed outcome remain required."],
+  ["Security evidence", "Source controls exist; deployed authentication, authorization, RLS, tenant and webhook proof remains required."],
+  ["Performance evidence", "Durable telemetry is implemented; representative staging samples and evidence-backed percentiles remain required."],
+  ["Known limitations", "No universal accuracy, Live provider, penetration-test, certification or SLA claim is made."],
+  ["Controlled pilot scope", "One consequential workflow, named owners, approved data and explicit rollback boundaries."],
+  ["Customer prerequisites", "Approved staging, controlled tenants, reviewers, provider credentials and security-test identities."],
+  ["Request Pilot", "Request evaluation only after the evidence boundary and customer prerequisites are accepted."],
 ];
 
 const releaseEvidence = [
-  ["Validation", "Human Review Required", "30 pending fixtures; 0 approved. Calibration remains incomplete."],
-  ["Provider", "Deployment Required", "Hopae is selected; no retained real target execution exists."],
-  ["Security", "Deployment Required", "Source controls exist; deployed denial evidence is still required."],
-  ["Performance", "Pilot Traffic Required", "Durable telemetry is implemented; representative retained samples are absent."],
+  ["Validation", "Blocked", "30 pending fixtures; 0 approved. Scoped precision and recall remain unavailable."],
+  ["Provider", "Requires customer configuration", "Hopae is selected; credentials and a retained target execution are absent."],
+  ["Security", "Requires pilot evidence", "Source controls exist; deployed denial and isolation evidence is absent."],
+  ["Performance", "Requires pilot evidence", "Durable telemetry is implemented; representative retained samples are absent."],
 ];
 
 const outcomes = [
@@ -72,7 +76,7 @@ export default function EnterprisePilotPage() {
           eyebrow="Enterprise Pilot"
           title="Prove one accountable decision workflow before expanding."
           bullets={["Select one consequential workflow and responsible owner.", "Agree identity, authority and evidence boundaries.", "Exercise runtime change, governance, Replay and receipt.", "Close with measurable acceptance evidence and next-step ownership."]}
-          primary={{ href: "/enterprise-access?intent=pilot", label: "Start Pilot" }}
+          primary={{ href: "/enterprise-access?intent=pilot", label: "Request Controlled Pilot" }}
           secondary={{ href: "/docs/ENTERPRISE_PILOT_CHECKLIST.md", label: "Pilot Checklist" }}
         />
 
@@ -94,7 +98,7 @@ export default function EnterprisePilotPage() {
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {structure.map(([title, copy]) => (
+          {proofJourney.map(([title, copy]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
               <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>
               <p className="mt-3 text-sm leading-7 text-zinc-300">{copy}</p>

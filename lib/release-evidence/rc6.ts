@@ -1,10 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export type Rc6BlockerState = "Cleared" | "Partially Cleared" | "Deployment Required" | "Human Review Required" | "Pilot Traffic Required" | "Blocked";
+export type ReleaseBlockerState = "Cleared" | "Partially Cleared" | "Deployment Required" | "Human Review Required" | "Pilot Traffic Required" | "Blocked";
 
-export type Rc6EvidenceCard = {
+export type ReleaseEvidenceCard = {
   category: "VALIDATION" | "PROVIDER" | "SECURITY" | "PERFORMANCE";
-  state: Rc6BlockerState;
+  state: ReleaseBlockerState;
   metrics: Array<[string, string]>;
   evidenceHref: string;
   evidenceLabel: string;
@@ -20,11 +20,11 @@ function formatMs(value: number | null) {
   return value === null ? "Awaiting Data" : `${value.toFixed(1)} ms`;
 }
 
-export async function readRc6EvidenceCards(admin: SupabaseClient): Promise<Rc6EvidenceCard[]> {
+export async function readReleaseEvidenceCards(admin: SupabaseClient): Promise<ReleaseEvidenceCard[]> {
   const targetProviderEnvironment = process.env.HOPAE_ENV?.trim() || "sandbox";
   const [validation, checks, measurements, providerExecution] = await Promise.all([
     admin.from("release_validation_cases").select("case_id,dataset_version,review_status", { count: "exact" }),
-    admin.from("release_evidence_checks").select("category,check_name,status,evidence_reference,checked_at,details").eq("release_version", "1.0-rc6").order("checked_at", { ascending: false }),
+    admin.from("release_evidence_checks").select("category,check_name,status,evidence_reference,checked_at,details").eq("release_version", "1.0-rc7").order("checked_at", { ascending: false }),
     admin.from("operational_measurements").select("stage,duration_ms,timeout,status,recorded_at,environment").order("recorded_at", { ascending: false }).limit(5000),
     admin.from("provider_execution_records").select("runtime_mode,status,updated_at,latency_ms,replay_reference,evidence_graph_reference,trust_memory_reference,reviewed_outcome_id").eq("provider_id", "hopae_connect").eq("environment", targetProviderEnvironment).order("updated_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
@@ -84,6 +84,7 @@ export async function readRc6EvidenceCards(admin: SupabaseClient): Promise<Rc6Ev
         ["Threshold", "30"],
         ["Calibration", eligibleDatasetCount >= 30 ? "Dataset-scoped" : "Calibration Incomplete"],
         ["Dataset version", eligibleDatasetVersion],
+        ["Evidence report", "docs/evidence/RC7_VALIDATION_EVIDENCE.md"],
       ],
       evidenceHref: "/admin/reviews",
       evidenceLabel: "Open review evidence",
@@ -97,6 +98,7 @@ export async function readRc6EvidenceCards(admin: SupabaseClient): Promise<Rc6Ev
         ["Last successful real check", providerLive ? providerRecord?.updated_at ?? "Awaiting Data" : "Awaiting Data"],
         ["Latency", providerLive && providerRecord?.latency_ms !== null ? formatMs(Number(providerRecord?.latency_ms)) : "Awaiting Data"],
         ["Reviewed outcome", providerReviewed ? "Passed" : "Blocked"],
+        ["Evidence report", "docs/evidence/RC7_PROVIDER_EXECUTION_EVIDENCE.md"],
       ],
       evidenceHref: "/admin/provider-status",
       evidenceLabel: "Open provider evidence",
@@ -110,6 +112,7 @@ export async function readRc6EvidenceCards(admin: SupabaseClient): Promise<Rc6Ev
         ["RLS proof", passed("security", "rls_read_denial") && passed("security", "rls_write_denial") ? "Passed" : "Blocked"],
         ["Webhook proof", passed("security", "forged_webhook_rejection") && passed("security", "stale_webhook_rejection") && passed("security", "duplicate_webhook_rejection") ? "Passed" : "Blocked"],
         ["Tenant isolation", passed("security", "tenant_isolation") ? "Passed" : "Blocked"],
+        ["Evidence report", "docs/evidence/RC7_DEPLOYED_SECURITY_EVIDENCE.md"],
       ],
       evidenceHref: "/admin/runtime-validation",
       evidenceLabel: "Open security evidence",
@@ -129,6 +132,7 @@ export async function readRc6EvidenceCards(admin: SupabaseClient): Promise<Rc6Ev
         ["Slowest stages", slowestStages || "Awaiting Data"],
         ["Missing evidence", missingPerformanceStages.length ? missingPerformanceStages.join(", ") : "None"],
         ["Latest load test", loadCheck?.checked_at ?? "Awaiting Data"],
+        ["Evidence report", "docs/evidence/RC7_PERFORMANCE_EVIDENCE.md"],
       ],
       evidenceHref: "/admin/trust-execution",
       evidenceLabel: "Open performance evidence",

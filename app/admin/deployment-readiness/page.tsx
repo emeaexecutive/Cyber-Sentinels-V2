@@ -10,7 +10,7 @@ import {
 import { runRuntimeValidation } from "@/lib/runtime-validation/runner";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { readRc6EvidenceCards } from "@/lib/release-evidence/rc6";
+import { readReleaseEvidenceCards } from "@/lib/release-evidence/rc6";
 import { auditTrustIntegrity } from "@/lib/trust-integrity/repair";
 import { runValidationBenchmark, type ReleaseValidationMaturityState } from "@/lib/validation/benchmark-harness";
 
@@ -75,12 +75,12 @@ export default async function DeploymentReadinessPage() {
     requestHeaders.get("host"),
     requestHeaders.get("x-forwarded-proto")
   );
-  const [runtime, integrity, metrics, benchmark, rc6Cards] = await Promise.all([
+  const [runtime, integrity, metrics, benchmark, releaseEvidenceCards] = await Promise.all([
     runRuntimeValidation(baseUrl),
     auditTrustIntegrity().catch(() => null),
     readPilotOperationalMetrics(),
     runValidationBenchmark(),
-    readRc6EvidenceCards(createServiceRoleClient()),
+    readReleaseEvidenceCards(createServiceRoleClient()),
   ]);
   const report = buildDeploymentReadinessReport({ runtime, integrity, metrics });
   const groundTruthSummary = benchmark.groundTruth.summary;
@@ -226,14 +226,14 @@ export default async function DeploymentReadinessPage() {
         </section>
 
         <section className="mt-8 rounded-lg border border-red-900/70 bg-red-950/10 p-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-red-200">Release 1.0 RC6</p>
-          <h2 className="mt-2 text-xl font-semibold">Production Evidence Gate</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-red-200">Release 1.0 RC7</p>
+          <h2 className="mt-2 text-xl font-semibold">Controlled Pilot Evidence Gate</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
             A blocker turns ready only when retained target-environment evidence exists. Source inspection,
             local fixtures and process-local samples do not clear this gate.
           </p>
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            {rc6Cards.map((card) => (
+            {releaseEvidenceCards.map((card) => (
               <article key={card.category} className="rounded-lg border border-zinc-800 bg-black p-5">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="font-semibold tracking-[0.12em]">{card.category}</h3>

@@ -1,5 +1,21 @@
 # Release Candidate Audit
 
+## Release 1.0 RC7 controlled-pilot verdict
+
+| Area | Verdict | Evidence boundary |
+| --- | --- | --- |
+| Architecture | Pass | RC7 reuses the RC6 evidence architecture and existing protected/public routes. |
+| Build | Pass | Lint has 0 errors, typecheck and all configured tests pass, and the production build generated 154 static pages. |
+| UX | Conditional Pass | Protected blocker cards and the buyer proof journey are updated; deployed visual review remains external. |
+| Validation | Blocked | 0/30 approved cases; scoped precision and recall are unavailable. |
+| Provider Integrations | Blocked | Hopae is Awaiting Credentials; no target execution or reviewed result exists. |
+| Security | Blocked | No approved deployed auth, RLS, tenant-isolation or webhook run exists. |
+| Performance | Blocked | Durable target sample count is 0; p50 and p95 are unavailable. |
+| General Availability | Not Approved | Outside this Sprint and no operational gate is cleared. |
+| Controlled Pilot Evaluation | Not Approved | All four operational evidence gates failed. |
+
+Exact decision: **CONTROLLED PILOT NOT APPROVED**.
+
 ## Release 1.0 RC6 production-evidence verdict
 
 | Area | Verdict | Evidence boundary |

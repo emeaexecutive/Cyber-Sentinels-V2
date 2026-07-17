@@ -2,7 +2,7 @@
 
 States are evidence-derived: `Ready`, `Review` or `Blocked`. They are not percentages and do not imply certification.
 
-> RC6 update (2026-07-16): the four production-evidence blockers remain open. The RC4 scorecard is historical; current validation, real-provider, deployed-security and durable-performance status is governed by `docs/EPIC_15_RELEASE_BLOCKERS.md`.
+> RC7 update (2026-07-17): the four controlled-pilot evidence blockers remain open. The RC4 scorecard is historical; the current decision is recorded in `docs/RC7_CONTROLLED_PILOT_DECISION.md`.
 
 | Area | State | Evidence link | Release boundary / next proof |
 | --- | --- | --- | --- |
