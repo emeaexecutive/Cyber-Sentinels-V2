@@ -4,6 +4,7 @@ import { runtimeEngine } from "@/lib/core/runtime-engine";
 import { checkRequestRateLimit } from "@/lib/security";
 import {
   Rc1ProviderError,
+  retrieveHopaeTrustAssessment,
   startHopaeTrustAssessment,
 } from "@/lib/providers/hopae-rc1-server";
 
@@ -12,6 +13,25 @@ export const dynamic = "force-dynamic";
 function numberValue(body: Record<string, unknown>, key: string) {
   const value = body[key];
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+export async function GET(request: Request) {
+  const rateLimited = checkRequestRateLimit({ route: "/api/trust/execute:provider-session", req: request, limit: 20, windowMs: 60_000 });
+  if (rateLimited) return rateLimited;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  const providerSessionId = new URL(request.url).searchParams.get("provider_session_id") ?? "";
+  try {
+    const result = await retrieveHopaeTrustAssessment({ supabase, user, providerSessionId });
+    return NextResponse.json(result, { headers: { "cache-control": "private, no-store" } });
+  } catch (error) {
+    if (error instanceof Rc1ProviderError) {
+      return NextResponse.json({ ok: false, error: error.code, message: error.message }, { status: error.status });
+    }
+    console.error("Provider session retrieval failed.", error);
+    return NextResponse.json({ ok: false, error: "provider_session_unavailable" }, { status: 503 });
+  }
 }
 
 export async function POST(request: Request) {

@@ -101,3 +101,127 @@ export type ProviderSignalInput = {
   summary?: string | null;
   providerReference?: string | null;
 };
+
+export type IdentityProviderId = "hopae_connect" | "world_id" | "stripe_identity";
+export type ProviderEnvironment = "sandbox" | "production";
+export type ProviderSessionStatus =
+  | "CREATED"
+  | "PENDING"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "FAILED"
+  | "EXPIRED"
+  | "CANCELLED"
+  | "UNKNOWN";
+
+export type IdentityEvidenceType =
+  | "IDENTITY_SESSION"
+  | "DOCUMENT_CHECK"
+  | "LIVENESS_CHECK"
+  | "FACE_MATCH_CHECK"
+  | "ADDRESS_CHECK"
+  | "AGE_CHECK"
+  | "EMAIL_CHECK"
+  | "PHONE_CHECK"
+  | "PROVIDER_ASSERTION";
+
+export type EvidenceOutcome =
+  | "PASSED"
+  | "FAILED"
+  | "INCONCLUSIVE"
+  | "NOT_PERFORMED"
+  | "UNKNOWN";
+
+export type ProviderContext = {
+  tenantId: string;
+  actorId: string;
+  trustSessionId: string;
+  correlationId: string;
+};
+
+export type CreateProviderSessionInput = {
+  context: ProviderContext;
+  purpose: string;
+  redirectUri: string;
+  idempotencyKey: string;
+  requestedAssuranceLevel?: number;
+};
+
+export type CreateProviderSessionResult = {
+  provider: IdentityProviderId;
+  providerSessionId: string;
+  status: ProviderSessionStatus;
+  expiresAt: string | null;
+  clientAction: { type: "redirect" | "qr" | "wait"; value: string } | null;
+  providerRequestId: string | null;
+};
+
+export type RetrieveProviderSessionResult = {
+  provider: IdentityProviderId;
+  providerSessionId: string;
+  status: ProviderSessionStatus;
+  expiresAt: string | null;
+  updatedAt: string | null;
+  providerRequestId: string | null;
+};
+
+export type ProviderCallbackEnvelope = {
+  rawBody: string;
+  signature: string;
+  receivedAt: Date;
+  correlationId: string;
+};
+
+export type VerifiedProviderCallback = {
+  provider: IdentityProviderId;
+  eventId: string;
+  eventType: string;
+  providerSessionId: string;
+  providerTimestamp: string | null;
+  signatureTimestamp: number;
+  sourceDigest: string;
+  payload: Record<string, unknown>;
+};
+
+export type NormalizedIdentityEvidence = {
+  schemaVersion: 1;
+  idempotencyKey: string;
+  tenantId: string;
+  trustSessionId: string;
+  correlationId: string;
+  provider: IdentityProviderId;
+  providerSessionId: string;
+  providerEventId: string;
+  evidenceType: IdentityEvidenceType;
+  outcome: EvidenceOutcome;
+  assuranceLevel: number | null;
+  observedAt: string;
+  expiresAt: string | null;
+  sourceDigest: string;
+  mappingVersion: string;
+  attributes: Record<string, string | number | boolean | null>;
+  limitations: string[];
+};
+
+export type ProviderHealthState = "HEALTHY" | "DEGRADED" | "UNAVAILABLE" | "MISCONFIGURED" | "UNKNOWN";
+export type ProviderHealthSnapshot = {
+  provider: IdentityProviderId;
+  environment: ProviderEnvironment;
+  configured: boolean;
+  enabled: boolean;
+  state: ProviderHealthState;
+  reason: string;
+  checkedAt: string;
+  latencyMs: number | null;
+  providerRequestId: string | null;
+};
+
+export interface IdentityProviderAdapter {
+  readonly id: IdentityProviderId;
+  readonly environment: ProviderEnvironment;
+  createSession(input: CreateProviderSessionInput): Promise<CreateProviderSessionResult>;
+  retrieveSession(providerSessionId: string, context: ProviderContext): Promise<RetrieveProviderSessionResult>;
+  verifyCallback(envelope: ProviderCallbackEnvelope): Promise<VerifiedProviderCallback>;
+  normalizeEvidence(callback: VerifiedProviderCallback, context: ProviderContext): Promise<NormalizedIdentityEvidence[]>;
+  healthCheck(): Promise<ProviderHealthSnapshot>;
+}

@@ -21,7 +21,7 @@ function formatMs(value: number | null) {
 }
 
 export async function readReleaseEvidenceCards(admin: SupabaseClient): Promise<ReleaseEvidenceCard[]> {
-  const targetProviderEnvironment = process.env.HOPAE_ENV?.trim() || "sandbox";
+  const targetProviderEnvironment = process.env.HOPAE_ENVIRONMENT?.trim() || process.env.HOPAE_ENV?.trim() || "sandbox";
   const [validation, checks, measurements, providerExecution] = await Promise.all([
     admin.from("release_validation_cases").select("case_id,dataset_version,review_status", { count: "exact" }),
     admin.from("release_evidence_checks").select("category,check_name,status,evidence_reference,checked_at,details").eq("release_version", "1.0-rc7").order("checked_at", { ascending: false }),

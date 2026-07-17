@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { detectionProviders } from "@/lib/detection/providers";
 import { canonicalDetectionSources, getDetectionEngineStatus } from "@/lib/detection/detection-engine";
 import { loadValidationCases } from "@/lib/validation/benchmark-harness";
+import { getOriRuntimeStatus } from "@/lib/operational-risk";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,7 @@ export async function GET(request: Request) {
 
   const cases = await loadValidationCases();
   const status = getDetectionEngineStatus();
+  const operationalRiskIntelligence = getOriRuntimeStatus();
   const providerStates = detectionProviders.map((provider) => ({
     providerName: provider.providerName,
     status: provider.status(),
@@ -25,6 +27,7 @@ export async function GET(request: Request) {
     currentMaturityLevel: providerMlActive && cases.length ? 3 : 2,
     maturityLabel: providerMlActive && cases.length ? "Provider-backed validation in progress" : "Provider-ready foundation",
     realMlInferenceActive: false,
+    operationalRiskIntelligence,
     providerMlActive,
     providerMlStatus: providerMlActive ? "Live" : providerAwaitingCredentials ? "Awaiting Credentials" : "Disabled",
     baselineModelActive: true,

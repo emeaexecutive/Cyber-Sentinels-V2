@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-
-const requiredVariables = ["HOPAE_CLIENT_ID", "HOPAE_CLIENT_SECRET", "HOPAE_WEBHOOK_SECRET"] as const;
+import { inspectHopaeProviderConfig } from "./adapters/hopae/hopae-config.ts";
 
 export async function inspectHopaeDeploymentReadiness() {
-  const missingVariables = requiredVariables.filter((name) => !process.env[name]?.trim());
-  const enabled = process.env.HOPAE_ENABLED === "true";
-  const environment = process.env.HOPAE_ENV?.trim() || "sandbox";
+  const inspected = inspectHopaeProviderConfig();
+  const missingVariables = inspected.missing;
+  const enabled = inspected.config.enabled;
+  const environment = inspected.config.environment;
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
   const callbackUrl = siteUrl ? `${siteUrl}/api/providers` : "not_configured";
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
@@ -30,8 +30,9 @@ export async function inspectHopaeDeploymentReadiness() {
   const live = lastExecution?.runtime_mode === "Live" && lastExecution?.status === "completed" && linked;
   return {
     provider: "Hopae Connect",
-    configured: enabled && missingVariables.length === 0,
+    configured: inspected.configured,
     missingVariables,
+    invalidVariables: inspected.invalid,
     enabled,
     environment,
     migrationApplied,

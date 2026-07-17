@@ -106,7 +106,7 @@ const providerBlueprints: ProviderBlueprint[] = [
     id: "hopae_connect",
     name: "Hopae Connect",
     category: "identity",
-    requiredEnv: ["HOPAE_CLIENT_ID", "HOPAE_CLIENT_SECRET", "HOPAE_WEBHOOK_SECRET"],
+    requiredEnv: ["HOPAE_CLIENT_ID", "HOPAE_CLIENT_SECRET", "HOPAE_WEBHOOK_SECRET", "HOPAE_PROVIDER_ID"],
     statusWhenMissing: "safely_disabled",
     enabledWhen: () => process.env.HOPAE_ENABLED?.trim().toLowerCase() === "true",
     purpose: "Optional upstream eID verification evidence.",

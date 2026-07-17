@@ -6,6 +6,7 @@ import { buildBenchmarkSummary } from "@/lib/benchmarking";
 import { loadBenchmarkObservations } from "@/lib/benchmarking/server";
 import { mlValidationEngine } from "@/lib/core/ml-validation-engine";
 import { createClient } from "@/lib/supabase/server";
+import { getOriRuntimeStatus, loadOriValidationMetrics } from "@/lib/operational-risk";
 import { buildValidationMetrics } from "@/lib/validation-metrics";
 
 export const dynamic = "force-dynamic";
@@ -23,13 +24,15 @@ export default async function ValidationDashboardPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/dashboard/validation");
 
-  const [observations, validation] = await Promise.all([
+  const [observations, validation, oriValidation] = await Promise.all([
     loadBenchmarkObservations(supabase),
     mlValidationEngine.runMlValidationEngine(),
+    loadOriValidationMetrics(supabase),
   ]);
   const metrics = buildValidationMetrics(observations);
   const summary = buildBenchmarkSummary(observations);
   const benchmark = validation.benchmark;
+  const oriStatus = getOriRuntimeStatus();
   const groundTruth = benchmark.groundTruth.validation;
   const metricReady = groundTruth.precision.status === "computed";
   const testState: ValidationEvidenceState = benchmark.caseCount ? "Test" : "Unavailable";
@@ -136,6 +139,36 @@ export default async function ValidationDashboardPage() {
               </ul>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">Operational Risk Intelligence</p>
+          <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-semibold">Shadow recommendation validation</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
+                ORI is governed decision support. It remains separate from and cannot change the authoritative Trust Decision.
+              </p>
+            </div>
+            <span className="rounded-full border border-amber-800 px-3 py-1 text-xs font-semibold text-amber-200">
+              {oriStatus.mode.toUpperCase()} · {oriValidation.metrics.validationStatus}
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["Operating mode", oriStatus.mode],
+              ["Model version", oriStatus.model.modelVersion],
+              ["Feature schema", oriStatus.featureSchemaVersion],
+              ["Reviewed records", `${oriValidation.metrics.eligibleReviewedCount}/${30}`],
+            ].map(([label, value]) => (
+              <article key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-sm font-semibold text-zinc-100">{value}</p>
+              </article>
+            ))}
+          </div>
+          <p className="mt-4 text-sm leading-6 text-amber-200">{oriValidation.metrics.validationStatus}. Synthetic-only behavior tests do not establish production accuracy.</p>
+          <p className="mt-2 text-xs leading-5 text-zinc-600">{oriValidation.error ?? oriStatus.model.limitations[2]}</p>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 md:p-6">

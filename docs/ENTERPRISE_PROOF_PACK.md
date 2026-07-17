@@ -57,3 +57,7 @@ The Why Trust Changed panel shows the previous and new posture, responsible evid
 2. Complete a real Hopae production health path and restricted-data review.
 3. Capture representative pilot p50/p95, throughput and failure evidence.
 4. Standardize remaining internal API families behind the versioned contract without breaking authenticated workflows.
+
+## Operational Risk Intelligence shadow evidence
+
+ORI provides a controlled, interpretable operational risk recommendation after the authoritative Trust Decision. Model `1.0.0`, feature schema `1.0.0`, and threshold set `ori-thresholds-v1` are versioned and hash-audited. The capability defaults off, has no enforcement mode, and remains `ML Validation Incomplete`; synthetic fixtures and source completion are not production accuracy evidence.

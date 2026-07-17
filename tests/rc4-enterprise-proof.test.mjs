@@ -53,7 +53,8 @@ test("provider-facing maturity is constrained to the five RC5 operations states"
   assert.match(admin, /Provider Operations/);
   assert.doesNotMatch(admin, /Test Connection/);
   assert.match(api, /Adapter maturity uses only Production, Sandbox, Awaiting Credentials, Prototype and Disabled/);
-  assert.match(hopae, /config\.environment === "production" \? "Live" : "Test Mode"/);
+  assert.match(hopae, /const runtimeState = "Test Mode"/);
+  assert.match(hopae, /runtimeState: sourceMode === "live" \? "Live" : "Test Mode"/);
 });
 
 test("operational performance profile preserves six RC4 paths and adds three RC5 paths", () => {

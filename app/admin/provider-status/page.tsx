@@ -7,6 +7,8 @@ import {
   summarizeProviderReadiness,
 } from "@/lib/providers/provider-readiness";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { inspectHopaeProviderConfig } from "@/lib/providers/adapters/hopae/hopae-config";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +33,18 @@ export default async function ProviderStatusAdminPage() {
   const providerReadinessChecks = buildProviderReadinessChecklist();
   const providerReadiness = summarizeProviderReadiness(providerReadinessChecks);
   const healthByProviderId = new Map(providerReadiness.healthSummaries.map((item) => [item.providerId, item]));
+  const admin = createServiceRoleClient();
+  const [registryResult, executionResult, evidenceResult, auditResult] = await Promise.all([
+    admin.from("provider_registry").select("provider_id,display_name,adapter_version,api_version,environment,enabled,configured_state,health_status,last_successful_call,last_failed_call,last_health_check,timeout_ms,retry_policy,retention_classification,data_residency_notes,updated_at").eq("provider_id", "hopae_connect").maybeSingle(),
+    admin.from("provider_execution_records").select("environment,runtime_mode,status,signature_status,idempotency_status,latency_ms,callback_received_at,replay_reference,evidence_graph_reference,trust_memory_reference,updated_at").eq("provider_id", "hopae_connect").order("updated_at", { ascending: false }).limit(1).maybeSingle(),
+    admin.from("normalized_identity_evidence").select("evidence_type,outcome,observed_at,expires_at,mapping_version,replay_reference,evidence_graph_reference,trust_memory_reference,created_at").eq("provider_id", "hopae_connect").order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    admin.from("provider_state_audit").select("enabled,reason,changed_at").eq("provider_id", "hopae_connect").order("changed_at", { ascending: false }).limit(5),
+  ]);
+  const hopaeConfig = inspectHopaeProviderConfig();
+  const registry = registryResult.error ? null : registryResult.data;
+  const latestExecution = executionResult.error ? null : executionResult.data;
+  const latestEvidence = evidenceResult.error ? null : evidenceResult.data;
+  const stateAudit = auditResult.error ? [] : auditResult.data ?? [];
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
@@ -50,6 +64,37 @@ export default async function ProviderStatusAdminPage() {
               <p className="mt-2 text-2xl font-semibold text-zinc-100">{count}</p>
             </div>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-cyan-950 bg-cyan-950/10 p-5">
+          <p className="text-xs uppercase tracking-[0.14em] text-cyan-300">Provider Abstraction Layer · Hopae Connect</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {[
+              ["Environment", hopaeConfig.config.environment],
+              ["Configuration", !hopaeConfig.config.enabled ? "DISABLED" : hopaeConfig.configured ? "CONFIGURED" : "MISCONFIGURED"],
+              ["Registry", registry ? (registry.enabled ? "Enabled" : "Disabled") : "Migration awaiting verification"],
+              ["Health", registry?.health_status ?? "UNKNOWN"],
+              ["Adapter / API", `${registry?.adapter_version ?? "pal-hopae-1.0.0"} / ${registry?.api_version ?? "connect-v1"}`],
+              ["Callback security", latestExecution?.signature_status ?? "Awaiting signed callback"],
+              ["Last execution", latestExecution?.status ?? "Awaiting data"],
+              ["Latency", latestExecution?.latency_ms == null ? "Awaiting data" : `${latestExecution.latency_ms} ms`],
+              ["Mapping", latestEvidence?.mapping_version ?? "hopae-connect-v1-2026-07-17"],
+              ["Evidence freshness", latestEvidence?.observed_at ?? "Awaiting data"],
+              ["Idempotency", latestExecution?.idempotency_status ?? "Awaiting callback"],
+              ["Retention", registry?.retention_classification ?? "normalized evidence only"],
+            ].map(([label, value]) => (
+              <article key={String(label)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
+                <p className="mt-2 text-sm text-zinc-200">{String(value)}</p>
+              </article>
+            ))}
+          </div>
+          <p className="mt-4 text-xs leading-5 text-zinc-500">
+            Replay: {latestExecution?.replay_reference ?? "Awaiting data"} · Evidence Graph: {latestExecution?.evidence_graph_reference ?? "Awaiting data"} · Trust Memory: {latestExecution?.trust_memory_reference ?? "Awaiting data"}. Trust Decision remains authoritative; no secret values are available on this surface.
+          </p>
+          <div className="mt-4 grid gap-2 text-xs text-zinc-500">
+            {stateAudit.length ? stateAudit.map((item, index) => <p key={`${item.changed_at}-${index}`}>{item.changed_at}: {item.enabled ? "enabled" : "disabled"} · {item.reason}</p>) : <p>No provider state audit is available. No enablement is inferred.</p>}
+          </div>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

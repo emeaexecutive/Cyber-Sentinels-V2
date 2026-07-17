@@ -36,7 +36,7 @@ export class HopaeDisabledError extends Error {
 export function getHopaeConfig(): HopaeConfig {
   return {
     enabled: process.env.HOPAE_ENABLED?.trim().toLowerCase() === "true",
-    environment: process.env.HOPAE_ENV?.trim() || "sandbox",
+    environment: process.env.HOPAE_ENVIRONMENT?.trim() || process.env.HOPAE_ENV?.trim() || "sandbox",
     clientId: process.env.HOPAE_CLIENT_ID?.trim() || "",
     clientSecret: process.env.HOPAE_CLIENT_SECRET?.trim() || "",
     webhookSecret: process.env.HOPAE_WEBHOOK_SECRET?.trim() || "",

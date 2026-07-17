@@ -5,6 +5,7 @@ import { checkAdminAccess, requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { buildPlatformHealth, buildTrustDecisionMetrics } from "@/lib/core/platform-health";
 import { getRecentTrustEvents } from "@/lib/events/event-bus";
 import { getGovernanceQueueSnapshot } from "@/lib/governance/governance-queue";
+import { getOriRuntimeStatus } from "@/lib/operational-risk";
 import { getRuntimeProfileSnapshot, recordRuntimeProfile } from "@/lib/performance/runtime-profiler";
 import { orchestrateProviders } from "@/lib/providers/provider-orchestrator";
 import { getReplayQueueDiagnostics, pendingReplayJobs } from "@/lib/replay/replay-writer";
@@ -69,6 +70,7 @@ export default async function TrustExecutionAdminPage() {
   });
   const rows = data ?? [];
   const providerSnapshot = await orchestrateProviders({ timeoutMs: 200 });
+  const oriStatus = getOriRuntimeStatus();
   const recentRuntimeEvents = getRecentTrustEvents(12);
   const governanceQueue = getGovernanceQueueSnapshot(8);
   const runtimeProfile = getRuntimeProfileSnapshot(providerSnapshot);
@@ -140,6 +142,32 @@ export default async function TrustExecutionAdminPage() {
               <p className="mt-3 text-xs leading-5 text-zinc-500">{detail}</p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <p className="operational-eyebrow">Operational Risk Intelligence</p>
+          <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-semibold">Controlled shadow recommendation</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">ORI runs only after the authoritative Trust Decision when explicitly enabled. It cannot enforce, authorize, block, approve, reject, or verify.</p>
+            </div>
+            <span className="rounded-full border border-amber-800 px-3 py-1 text-xs font-semibold text-amber-200">{oriStatus.mode.toUpperCase()}</span>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            {[
+              ["Mode", oriStatus.mode],
+              ["Model", oriStatus.model.modelVersion],
+              ["Feature schema", oriStatus.featureSchemaVersion],
+              ["Validation", oriStatus.validationStatus],
+              ["Enforcement", oriStatus.enforcementAvailable ? "Available" : "Not available"],
+            ].map(([label, value]) => (
+              <article key={String(label)} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{label}</p>
+                <p className="mt-2 text-sm font-semibold text-zinc-100">{String(value)}</p>
+              </article>
+            ))}
+          </div>
+          <p className="mt-4 text-xs leading-5 text-zinc-500">Artifact {oriStatus.model.artifactHash}. {oriStatus.limitation}.</p>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

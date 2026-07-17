@@ -2,12 +2,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { fuseTrustSignals } from "@/lib/detection/signal-fusion";
 import { publishTrustEvent } from "@/lib/events/event-bus";
 import { enqueueGovernanceJob } from "@/lib/governance/governance-queue";
+import { resolveOriOperatingMode, runOriAfterAuthoritativeDecision } from "@/lib/operational-risk";
 import { recordRuntimeProfile } from "@/lib/performance/runtime-profiler";
 import { setTrustCache } from "@/lib/cache/trust-cache";
 import { runParallelSignalChecks } from "@/lib/runtime/parallel-signal-runner";
 import { updateRuntimeTrustPosture } from "@/lib/runtime/trust-posture-engine";
 import { runTrustAlgorithm, type TrustAlgorithmInput } from "@/lib/trust/trust-algorithm";
 import { executeTrustWorkflow } from "@/lib/workflows/trust-workflow-executor";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export type TrustExecutionPipelineInput = TrustAlgorithmInput & {
   actorId: string;
@@ -15,6 +17,7 @@ export type TrustExecutionPipelineInput = TrustAlgorithmInput & {
   workflowId: string;
   subjectType?: string;
   reviewerActor?: string | null;
+  correlationId?: string;
   timeoutMs?: number;
 };
 
@@ -109,6 +112,33 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
     reviewerActor: input.reviewerActor,
     asyncSideEffects: true,
   });
+  const oriConfiguration = resolveOriOperatingMode();
+  let oriPersistenceClient;
+  if (oriConfiguration.enabled && oriConfiguration.mode !== "off") {
+    try {
+      oriPersistenceClient = createServiceRoleClient();
+    } catch {
+      // ORI persistence is optional to the authoritative workflow and fails non-blockingly.
+    }
+  }
+  const ori = await runOriAfterAuthoritativeDecision({
+    authenticatedClient: supabase,
+    persistenceClient: oriPersistenceClient,
+    trustSessionId: input.workflowId,
+    correlationId: input.correlationId ?? `workflow:${input.workflowId}`,
+    authoritativeDecision: algorithm.decision,
+    evidence: {
+      sourceEvidenceIds: [...new Set(input.evidenceRefs ?? algorithm.evidence_refs)],
+      identityConfidence: input.identityConfidence,
+      proofOfHuman: input.proofOfHuman,
+      evidenceLastSeenAt: input.evidenceLastSeenAt,
+      intentRisk: input.intentRisk,
+      governanceHistory: input.governanceHistory,
+      replayAvailable: execution.replay_event_written || execution.replay_write_scheduled,
+      now: input.now,
+    },
+    timeoutMs: Math.min(input.timeoutMs ?? 300, 500),
+  });
   recordRuntimeProfile({
     stage: "workflow_latency",
     latencyMs: Date.now() - started,
@@ -164,6 +194,7 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
       "Decision Engine",
       "Workflow Executor",
       "Replay Writer",
+      "Operational Risk Intelligence (shadow decision support)",
       "Governance Hooks",
       "Notification/Event Hooks",
     ],
@@ -174,6 +205,7 @@ export async function runTrustExecutionPipeline(supabase: SupabaseClient, input:
     algorithm,
     posture,
     execution,
+    operational_risk_intelligence: ori,
     performance_profile: {
       profiling: "in_process",
       boundary: "Runtime profile samples are readiness telemetry and not production APM.",

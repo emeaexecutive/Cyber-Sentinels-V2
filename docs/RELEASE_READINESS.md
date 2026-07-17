@@ -14,3 +14,7 @@ Release 1.2.3 exposes six evidence-linked indicators in the existing protected E
 States are `Ready`, `Review` and `Blocked`. Every state includes evidence, limitation and a link to its canonical owner. Missing evidence cannot resolve to `Ready` by configuration alone.
 
 See `docs/RELEASE_1_READINESS_SCORECARD.md` for the evidence maturity scale and remaining Release 1.0 blockers.
+
+## RC8 Operational Risk Intelligence evidence
+
+Sprint 16.1A adds a controlled operational risk signal in shadow validation. Source implementation, local tests, and migration policy checks do not move release readiness to `Ready`: ORI defaults off, validation is incomplete, and deployed migration plus tenant A/B RLS evidence remains required. See `docs/epic-16/SPRINT_16_1A_ACCEPTANCE.md`.
