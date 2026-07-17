@@ -60,13 +60,13 @@ export default function EnterpriseDemoStoriesPage() {
             one example flow and close on enterprise value.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/enterprise/walkthrough" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">
+            <Link href="/enterprise/walkthrough" className="brand-primary-action brand-action-large text-sm">
               Enterprise Walkthrough
             </Link>
-            <Link href="/enterprise/hiring-security" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm text-cyan-100">
+            <Link href="/enterprise/hiring-security" className="brand-secondary-action brand-action-large text-sm">
               Hiring Security
             </Link>
-            <Link href="/demo" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm text-zinc-300">
+            <Link href="/demo" className="brand-secondary-action brand-action-large text-sm">
               Guided Demo
             </Link>
           </div>

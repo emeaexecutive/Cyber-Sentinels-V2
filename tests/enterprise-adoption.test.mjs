@@ -69,11 +69,16 @@ test("Enterprise Readiness has eight evidence-linked indicators", async () => {
 });
 
 test("every buyer journey ends with the required three actions", async () => {
-  const [page, visual] = await Promise.all([read("app/enterprise/page.tsx"), read("components/enterprise-visuals.tsx")]);
+  const [page, visual, contract] = await Promise.all([
+    read("app/enterprise/page.tsx"),
+    read("components/enterprise-visuals.tsx"),
+    read("lib/enterprise-experience.ts"),
+  ]);
   for (const role of ["CISO", "CIO / CTO", "Compliance", "CEO / Investor"]) assert.match(page, new RegExp(role.replace("/", "\\/")));
-  assert.equal((page.match(/label: "Request Demo"/g) ?? []).length, 4);
-  assert.equal((page.match(/label: "Book Pilot"/g) ?? []).length, 4);
-  assert.equal((page.match(/label: "Documentation"/g) ?? []).length, 4);
+  assert.equal((page.match(/enterpriseCtas\.requestDemo/g) ?? []).length, 4);
+  assert.equal((page.match(/enterpriseCtas\.bookPilot/g) ?? []).length, 5);
+  assert.equal((page.match(/enterpriseCtas\.buyerDocumentation/g) ?? []).length, 5);
+  for (const label of ["Request Demo", "Book Pilot", "Buyer Documentation"]) assert.match(contract, new RegExp(label));
   assert.match(visual, /journey\.actions\.map/);
 });
 

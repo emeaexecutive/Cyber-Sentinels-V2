@@ -52,13 +52,13 @@ export default function EnterpriseWalkthroughPage() {
             operational replay.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/demo" className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">
+            <Link href="/demo" className="brand-primary-action brand-action-large text-sm">
               Open Guided Demo
             </Link>
-            <Link href="/enterprise-access?intent=design_partner" className="rounded-lg border border-cyan-800 px-4 py-3 text-sm text-cyan-100">
+            <Link href="/enterprise-access?intent=design_partner" className="brand-secondary-action brand-action-large text-sm">
               Request Design Partner Access
             </Link>
-            <Link href="/enterprise/pilot-setup" className="rounded-lg border border-zinc-700 px-4 py-3 text-sm text-zinc-300">
+            <Link href="/enterprise/pilot-setup" className="brand-secondary-action brand-action-large text-sm">
               Pilot Setup
             </Link>
           </div>

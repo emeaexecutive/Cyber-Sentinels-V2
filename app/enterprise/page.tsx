@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BuyerJourneyGrid, type BuyerJourney } from "@/components/enterprise-visuals";
 import { ExecutiveSummary } from "@/components/executive-summary";
+import { enterpriseCtas } from "@/lib/enterprise-experience";
 
 const buyerJourneys: BuyerJourney[] = [
   {
@@ -14,9 +15,9 @@ const buyerJourneys: BuyerJourney[] = [
       { question: "Trust it?", answer: "Replay, evidence lineage, human review and limitations remain inspectable." },
     ],
     actions: [
-      { href: "/enterprise-access?intent=demo&buyer=ciso", label: "Request Demo" },
-      { href: "/enterprise/pilot", label: "Book Pilot" },
-      { href: "/docs/BUYER_JOURNEYS.md", label: "Documentation" },
+      enterpriseCtas.requestDemo,
+      enterpriseCtas.bookPilot,
+      enterpriseCtas.buyerDocumentation,
     ],
   },
   {
@@ -29,9 +30,9 @@ const buyerJourneys: BuyerJourney[] = [
       { question: "Trust it?", answer: "Provider state, deployment boundary and failure behavior stay explicit." },
     ],
     actions: [
-      { href: "/enterprise-access?intent=demo&buyer=cio-cto", label: "Request Demo" },
-      { href: "/enterprise/pilot", label: "Book Pilot" },
-      { href: "/docs/BUYER_JOURNEYS.md", label: "Documentation" },
+      enterpriseCtas.requestDemo,
+      enterpriseCtas.bookPilot,
+      enterpriseCtas.buyerDocumentation,
     ],
   },
   {
@@ -44,9 +45,9 @@ const buyerJourneys: BuyerJourney[] = [
       { question: "Trust it?", answer: "Unknown evidence remains unknown; no compliance guarantee is inferred." },
     ],
     actions: [
-      { href: "/enterprise-access?intent=demo&buyer=compliance", label: "Request Demo" },
-      { href: "/enterprise/pilot", label: "Book Pilot" },
-      { href: "/docs/BUYER_JOURNEYS.md", label: "Documentation" },
+      enterpriseCtas.requestDemo,
+      enterpriseCtas.bookPilot,
+      enterpriseCtas.buyerDocumentation,
     ],
   },
   {
@@ -59,9 +60,9 @@ const buyerJourneys: BuyerJourney[] = [
       { question: "Trust it?", answer: "Readiness claims stay bounded by measured product, pilot and provider evidence." },
     ],
     actions: [
-      { href: "/enterprise-access?intent=demo&buyer=ceo-investor", label: "Request Demo" },
-      { href: "/enterprise/pilot", label: "Book Pilot" },
-      { href: "/docs/BUYER_JOURNEYS.md", label: "Documentation" },
+      enterpriseCtas.requestDemo,
+      enterpriseCtas.bookPilot,
+      enterpriseCtas.buyerDocumentation,
     ],
   },
 ];
@@ -85,8 +86,8 @@ export default function EnterprisePage() {
           eyebrow="Enterprise"
           title="Adopt operational trust one governed workflow at a time."
           bullets={["Deploy beside existing systems.", "Give security, risk and compliance one evidence record.", "Assign every escalation to an owner.", "Verify production boundaries before launch."]}
-          primary={{ href: "/enterprise/pilot", label: "Start Pilot" }}
-          secondary={{ href: "/docs/BUYER_JOURNEYS.md", label: "Buyer Documentation" }}
+          primary={enterpriseCtas.bookPilot}
+          secondary={enterpriseCtas.buyerDocumentation}
         />
 
         <section className="mt-8">

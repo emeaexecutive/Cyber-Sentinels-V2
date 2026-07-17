@@ -107,7 +107,7 @@ test("deployment, RLS and load harnesses are explicit opt-in and paid-provider s
 test("buyer evidence experience has RC7 evidence statuses and one primary pilot action", async () => {
   const page = await read("app/enterprise/pilot/page.tsx");
   for (const state of ["Blocked", "Requires customer configuration", "Requires pilot evidence"]) assert.match(page, new RegExp(state));
-  assert.equal((page.match(/primary=\{\{/g) ?? []).length, 1);
+  assert.equal((page.match(/primary=\{(?:\{|enterpriseCtas\.)/g) ?? []).length, 1);
   assert.equal((page.match(/brand-primary-action/g) ?? []).length, 0);
 });
 

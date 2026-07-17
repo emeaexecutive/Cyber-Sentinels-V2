@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
+import { enterpriseCtas } from "@/lib/enterprise-experience";
 
 export const metadata: Metadata = {
   title: "Hiring Security | Cyber Sentinels",
@@ -34,7 +35,7 @@ export default function HiringSecurityPage() {
           eyebrow="Hiring Lifecycle Template"
           title="Apply Continuous Trust Lifecycle infrastructure to consequential hiring decisions."
           bullets={["Surface synthetic applicant, proxy interview and session-integrity risk.", "Keep hiring judgment with accountable human reviewers.", "Connect evidence, review rationale and the final outcome.", "Replay what changed when a decision is challenged."]}
-          primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
+          primary={enterpriseCtas.requestDemo}
           secondary={{ href: "/demo/hiring-attack", label: "View Guided Scenario" }}
         />
 

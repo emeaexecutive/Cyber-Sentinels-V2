@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
+import { enterpriseCtas } from "@/lib/enterprise-experience";
 
 const proofJourney = [
   ["Operational Trust Infrastructure", "Identity, authority, evidence, policy and runtime change are evaluated before consequential action."],
@@ -76,8 +77,8 @@ export default function EnterprisePilotPage() {
           eyebrow="Enterprise Pilot"
           title="Prove one accountable decision workflow before expanding."
           bullets={["Select one consequential workflow and responsible owner.", "Agree identity, authority and evidence boundaries.", "Exercise runtime change, governance, Replay and receipt.", "Close with measurable acceptance evidence and next-step ownership."]}
-          primary={{ href: "/enterprise-access?intent=pilot", label: "Request Controlled Pilot" }}
-          secondary={{ href: "/docs/ENTERPRISE_PILOT_CHECKLIST.md", label: "Pilot Checklist" }}
+          primary={enterpriseCtas.requestControlledPilot}
+          secondary={enterpriseCtas.pilotChecklist}
         />
 
         <section className="mt-8 operational-panel p-6">

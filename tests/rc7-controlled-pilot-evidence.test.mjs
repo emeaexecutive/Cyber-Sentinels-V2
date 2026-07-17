@@ -30,10 +30,11 @@ test("RC7 evidence documents exist and retain the blocked operational truth", as
 });
 
 test("RC7 dashboard and buyer journey expose evidence states without a Live claim", async () => {
-  const [dashboard, evidence, buyer] = await Promise.all([
+  const [dashboard, evidence, buyer, enterpriseActions] = await Promise.all([
     read("app/admin/deployment-readiness/page.tsx"),
     read("lib/release-evidence/rc6.ts"),
     read("app/enterprise/pilot/page.tsx"),
+    read("lib/enterprise-experience.ts"),
   ]);
   assert.match(dashboard, /Release 1\.0 RC7/);
   assert.match(dashboard, /Controlled Pilot Evidence Gate/);
@@ -41,7 +42,8 @@ test("RC7 dashboard and buyer journey expose evidence states without a Live clai
   for (const report of ["RC7_VALIDATION_EVIDENCE", "RC7_PROVIDER_EXECUTION_EVIDENCE", "RC7_DEPLOYED_SECURITY_EVIDENCE", "RC7_PERFORMANCE_EVIDENCE"]) assert.match(evidence, new RegExp(report));
   for (const state of ["Blocked", "Requires customer configuration", "Requires pilot evidence"]) assert.match(buyer, new RegExp(state));
   for (const section of ["Operational Trust Infrastructure", "What is proven", "Validation evidence", "Provider execution evidence", "Security evidence", "Performance evidence", "Known limitations", "Controlled pilot scope", "Customer prerequisites", "Request Pilot"]) assert.match(buyer, new RegExp(section));
-  assert.equal((buyer.match(/Request Controlled Pilot/g) ?? []).length, 1);
+  assert.match(buyer, /primary=\{enterpriseCtas\.requestControlledPilot\}/);
+  assert.equal((enterpriseActions.match(/Request Controlled Pilot/g) ?? []).length, 1);
 });
 
 test("external RC7 harnesses remain explicit opt-in", async () => {

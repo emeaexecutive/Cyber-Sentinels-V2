@@ -10,7 +10,7 @@ export type BuyerJourney = {
   id: string;
   role: string;
   answers: Array<{ question: string; answer: string }>;
-  actions: Array<{ href: string; label: "Request Demo" | "Book Pilot" | "Documentation" }>;
+  actions: Array<{ href: string; label: "Request Demo" | "Book Pilot" | "Buyer Documentation" }>;
 };
 
 export function VisualFrame({
