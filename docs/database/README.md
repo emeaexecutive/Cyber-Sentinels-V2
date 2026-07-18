@@ -5,3 +5,5 @@ This directory owns persistence architecture, schema conventions, migration proc
 Executable schema history remains under `supabase/migrations/`. Documentation never replaces a migration and must not imply that a migration is applied merely because its source file exists.
 
 The current migration-source inventory is `database-overview.md`; table-level keys, relationships, RLS evidence and representative consumers are in `schema-map.md`.
+
+The canonical evidence persistence target, current immutability boundaries, retention, integrity and index requirements are documented in `evidence-storage.md`.

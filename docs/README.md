@@ -54,9 +54,14 @@ Ownership is a review responsibility, not permission to bypass pull-request or e
 ## Current architecture baseline
 
 - Application, components, hooks, services, providers and configuration: `docs/architecture/`
+- Permanent trust-pipeline contracts and current-versus-target boundaries: `docs/architecture/provider-abstraction.md` through `docs/architecture/trust-decision-engine.md`
 - Authentication and admin access: `docs/security/authentication-flow.md`
+- Trust-pipeline security control matrix: `docs/security/trust-architecture-requirements.md`
 - Supabase object inventory and table map: `docs/database/database-overview.md` and `docs/database/schema-map.md`
+- Immutable evidence persistence target and current storage boundaries: `docs/database/evidence-storage.md`
 - Endpoint inventory and API standards: `docs/api/api-overview.md` and `docs/api/api-standards.md`
 - Prioritized debt and implementation findings: `docs/engineering/technical-debt.md` and `docs/engineering/platform-findings.md`
+- Trust architecture findings and migration priorities: `docs/engineering/trust-architecture-review.md`
+- Enterprise Trust Report contract: `docs/product/trust-report.md`
 
 Existing historical and Epic-specific documents remain valid evidence. New foundation documents do not delete or silently replace them.
