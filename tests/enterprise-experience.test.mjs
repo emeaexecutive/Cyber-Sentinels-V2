@@ -34,20 +34,27 @@ async function hasNativeDestination(target) {
   return false;
 }
 
-test("buyer documentation and pilot checklist are native Enterprise routes", async () => {
-  const [buyerPage, checklistPage, layout] = await Promise.all([
+test("buyer documentation and pilot checklist are native, accessible Enterprise routes", async () => {
+  const [buyerPage, checklistPage, layout, breadcrumbs] = await Promise.all([
     read("app/enterprise/buyer-documentation/page.tsx"),
     read("app/enterprise/pilot-checklist/page.tsx"),
     read("app/enterprise/layout.tsx"),
+    read("components/enterprise-breadcrumbs.tsx"),
   ]);
 
-  for (const marker of ["CISO", "CIO / CTO", "Compliance", "CEO / Investor", "Current evidence boundary"]) {
+  for (const marker of ["CISO", "CIO / CTO", "Compliance", "CEO / Investor", "Trust evidence", "Current evidence boundary", "BuyerJourneyGrid"]) {
     assert.match(buyerPage, new RegExp(marker.replace("/", "\\/")));
   }
   for (const marker of ["Before kickoff", "Success metrics", "Deployment timeline", "Responsibilities and support", "Rollback"]) {
     assert.match(checklistPage, new RegExp(marker));
   }
   assert.match(layout, /enterpriseNavigation\.map/);
+  assert.match(layout, /w-full.*sm:ml-auto.*sm:w-auto/);
+  assert.match(buyerPage, /EnterpriseBreadcrumbs/);
+  assert.match(checklistPage, /EnterpriseBreadcrumbs/);
+  assert.match(breadcrumbs, /aria-label="Breadcrumb"/);
+  assert.match(breadcrumbs, /aria-current="page"/);
+  assert.doesNotMatch(`${buyerPage}\n${checklistPage}\n${breadcrumbs}`, /target="_blank"|window\.open/);
 });
 
 test("Enterprise CTAs use one internal contract", async () => {
@@ -63,7 +70,31 @@ test("Enterprise CTAs use one internal contract", async () => {
     assert.match(contract, new RegExp(`${action}:`));
   }
   for (const source of [overview, pilot, buyerPage, checklistPage]) assert.match(source, /enterpriseCtas\./);
+  for (const action of ["requestDemo", "bookPilot", "pilotChecklist"]) assert.match(buyerPage, new RegExp(`enterpriseCtas\\.${action}`));
+  for (const action of ["requestDemo", "bookPilot", "buyerDocumentation"]) assert.match(checklistPage, new RegExp(`enterpriseCtas\\.${action}`));
   assert.doesNotMatch(`${overview}\n${pilot}`, /\/docs\/(BUYER_JOURNEYS|ENTERPRISE_PILOT_CHECKLIST)\.md/);
+});
+
+test("Enterprise buyer routes publish canonical metadata and retire raw Markdown URLs", async () => {
+  const [buyerPage, checklistPage, visibility, config, docsRoute] = await Promise.all([
+    read("app/enterprise/buyer-documentation/page.tsx"),
+    read("app/enterprise/pilot-checklist/page.tsx"),
+    read("lib/navigation/route-visibility.ts"),
+    read("next.config.mjs"),
+    read("app/docs/[slug]/route.ts"),
+  ]);
+
+  for (const [page, route] of [
+    [buyerPage, "/enterprise/buyer-documentation"],
+    [checklistPage, "/enterprise/pilot-checklist"],
+  ]) {
+    assert.match(page, /openGraph:/);
+    assert.match(page, new RegExp(route.replaceAll("/", "\\/")));
+    assert.match(visibility, new RegExp(`"${route.replaceAll("/", "\\/")}"`));
+  }
+  assert.match(config, /\/docs\/BUYER_JOURNEYS\.md/);
+  assert.match(config, /\/docs\/ENTERPRISE_PILOT_CHECKLIST\.md/);
+  assert.doesNotMatch(docsRoute, /BUYER_JOURNEYS|ENTERPRISE_PILOT_CHECKLIST/);
 });
 
 test("all literal Enterprise links stay inside a native application route", async () => {

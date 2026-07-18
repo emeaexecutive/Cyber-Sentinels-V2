@@ -4,7 +4,7 @@
 | --- | --- | --- |
 | Operational Trust Infrastructure | `/` | Use as the public category; link to canonical mechanisms or proof. |
 | Enterprise Trust Fabric™ | `/platform#trust-fabric` | Name as internal architecture; do not present as a second category. |
-| Buyer journeys | `/enterprise#ciso` and adjacent role anchors | Link stakeholders to the existing Enterprise page; do not add buyer routes. |
+| Buyer journeys | `/enterprise/buyer-documentation` | Keep concise role summaries on `/enterprise`; link to the detailed buyer documentation instead of duplicating it. |
 | Trust Evidence Packs | Authenticated Trust Transparency report | Link to the existing audit export; do not create a parallel evidence store. |
 | AI Sovereignty | `/trust/data-sovereignty` | Use a short summary and canonical link. |
 | Replay | `/verification-replay` | Mention chronology; protected case replay stays operational. |

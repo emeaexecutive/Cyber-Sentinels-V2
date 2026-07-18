@@ -1,6 +1,6 @@
 # Buyer Journeys
 
-All buyer journeys use the existing `/enterprise` page and canonical supporting destinations. No buyer-specific route is introduced.
+The canonical detailed buyer journey lives at `/enterprise/buyer-documentation`. The Enterprise overview may keep concise role summaries, but it should link to the buyer documentation instead of duplicating the full buying case.
 
 | Buyer | Buying problem | Why Cyber Sentinels | Trust evidence |
 | --- | --- | --- | --- |
@@ -13,8 +13,8 @@ All buyer journeys use the existing `/enterprise` page and canonical supporting 
 
 Every journey ends with the same three actions:
 
-1. `Request Demo` — opens the existing enterprise access flow with buyer context.
-2. `Book Pilot` — opens the existing controlled pilot experience.
-3. `Documentation` — opens this tracked buyer contract.
+1. `Request Demo` - opens the existing enterprise access flow with buyer context.
+2. `Book Pilot` - opens the existing controlled pilot experience.
+3. `Pilot Checklist` - continues to `/enterprise/pilot-checklist` for the bounded deployment plan.
 
-The sequence is homepage category promise → buyer journey → mechanism/proof review → controlled pilot → production-gate decision.
+The sequence is homepage category promise -> buyer documentation -> mechanism and proof review -> pilot checklist -> controlled pilot -> production-gate decision.

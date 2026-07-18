@@ -111,7 +111,7 @@ test("sitemap and robots share central route visibility", async () => {
   ]);
   assert.match(sitemap, /canonicalPublicRoutes/);
   assert.match(robots, /archivedRoutePrefixes/);
-  for (const route of ["/", "/pricing", "/enterprise", "/developers", "/trust"]) {
+  for (const route of ["/", "/pricing", "/enterprise", "/enterprise/buyer-documentation", "/enterprise/pilot-checklist", "/developers", "/trust"]) {
     assert.match(visibility, new RegExp(`"${route.replaceAll("/", "\\/")}"`));
   }
   assert.doesNotMatch(visibility.match(/canonicalPublicRoutes = \[([\s\S]*?)\]/)?.[1] ?? "", /\/admin|\/trust-center|\/trust-replay/);

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import type { EnterpriseAction } from "@/lib/enterprise-experience";
 
 export type VisualStep = {
   label: string;
@@ -10,7 +11,7 @@ export type BuyerJourney = {
   id: string;
   role: string;
   answers: Array<{ question: string; answer: string }>;
-  actions: Array<{ href: string; label: "Request Demo" | "Book Pilot" | "Buyer Documentation" }>;
+  actions: EnterpriseAction[];
 };
 
 export function VisualFrame({

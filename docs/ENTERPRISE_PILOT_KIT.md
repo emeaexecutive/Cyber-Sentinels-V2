@@ -5,11 +5,12 @@ Cyber Sentinels pilot onboarding is designed for controlled enterprise walkthrou
 ## Onboarding Flow
 
 1. Start at `/pilot/welcome` to explain what Cyber Sentinels protects.
-2. Continue to `/pilot/getting-started` for the pilot checklist, FAQ and support flow.
-3. Use `/demo` before showing live records so stakeholders understand the narrative.
-4. Create an isolated workspace through `/enterprise/pilot-setup` when a real pilot is approved.
-5. Upload evidence, inspect flags and open governance review before presenting outcomes.
-6. Open replay and export the verification receipt as the pilot artifact.
+2. Use `/enterprise/pilot-checklist` for the public buyer-facing deployment plan, responsibilities, rollback boundary and success measures.
+3. Continue to protected `/pilot/getting-started` for participant onboarding, FAQ and support flow.
+4. Use `/demo` before showing live records so stakeholders understand the narrative.
+5. Create an isolated workspace through `/enterprise/pilot-setup` when a real pilot is approved.
+6. Upload evidence, inspect flags and open governance review before presenting outcomes.
+7. Open replay and export the verification receipt as the pilot artifact.
 
 The onboarding flow should stay simple. A pilot operator should be able to explain the product in terms of evidence, review, receipt and replay without introducing new infrastructure or speculative systems.
 

@@ -1,3 +1,8 @@
+export type EnterpriseAction = {
+  href: string;
+  label: string;
+};
+
 export const enterpriseCtas = {
   requestDemo: {
     href: "/enterprise-access?intent=demo",
@@ -19,7 +24,7 @@ export const enterpriseCtas = {
     href: "/enterprise/pilot-checklist",
     label: "Pilot Checklist",
   },
-} as const;
+} as const satisfies Record<string, EnterpriseAction>;
 
 export const enterpriseNavigation = [
   { href: "/enterprise", label: "Overview" },

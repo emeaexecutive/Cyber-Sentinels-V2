@@ -1,32 +1,56 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EnterpriseBreadcrumbs } from "@/components/enterprise-breadcrumbs";
+import { BuyerJourneyGrid, type BuyerJourney } from "@/components/enterprise-visuals";
 import { ExecutiveSummary } from "@/components/executive-summary";
 import { enterpriseCtas } from "@/lib/enterprise-experience";
 
-const buyerJourneys = [
+const buyerActions: BuyerJourney["actions"] = [
+  enterpriseCtas.requestDemo,
+  enterpriseCtas.bookPilot,
+  enterpriseCtas.pilotChecklist,
+];
+
+const buyerJourneys: BuyerJourney[] = [
   {
+    id: "ciso",
     role: "CISO",
-    problem: "Blind spots persist between authentication and consequential action.",
-    mechanism: "Authority, evidence, policy and runtime change are evaluated before execution.",
-    proof: "Replay, evidence lineage, human review and explicit limitations remain inspectable.",
+    answers: [
+      { question: "Buying problem", answer: "Blind spots persist between authentication and consequential action." },
+      { question: "Why Cyber Sentinels", answer: "Authority, evidence, policy and runtime change are evaluated before execution." },
+      { question: "Trust evidence", answer: "Replay, evidence lineage, human review and explicit limitations remain inspectable." },
+    ],
+    actions: buyerActions,
   },
   {
+    id: "cio-cto",
     role: "CIO / CTO",
-    problem: "Trust controls cannot require replacement of systems of record.",
-    mechanism: "A vendor-agnostic Trust Fabric and normalized adapters sit beside existing workflows.",
-    proof: "Provider state, deployment boundaries, failure behavior and exportable evidence remain explicit.",
+    answers: [
+      { question: "Buying problem", answer: "Trust controls cannot require replacement of systems of record." },
+      { question: "Why Cyber Sentinels", answer: "A vendor-agnostic Trust Fabric and normalized adapters sit beside existing workflows." },
+      { question: "Trust evidence", answer: "Provider state, deployment boundaries, failure behavior and exportable evidence remain explicit." },
+    ],
+    actions: buyerActions,
   },
   {
+    id: "compliance",
     role: "Compliance",
-    problem: "Decision rationale becomes disconnected from accountable evidence.",
-    mechanism: "Policy, authority, evidence, Replay and governance remain connected in one record.",
-    proof: "Trust Evidence Packs support JSON, PDF and Enterprise Summary review formats.",
+    answers: [
+      { question: "Buying problem", answer: "Decision rationale becomes disconnected from accountable evidence." },
+      { question: "Why Cyber Sentinels", answer: "Policy, authority, evidence, Replay and governance remain connected in one record." },
+      { question: "Trust evidence", answer: "Trust Evidence Packs support JSON, PDF and Enterprise Summary review formats." },
+    ],
+    actions: buyerActions,
   },
   {
+    id: "ceo-investor",
     role: "CEO / Investor",
-    problem: "Intelligent systems create accountability risk beyond identity and access.",
-    mechanism: "Operational Trust Infrastructure governs consequential human and machine actions.",
-    proof: "Readiness claims stay bounded by measured product, pilot and provider evidence.",
+    answers: [
+      { question: "Buying problem", answer: "Intelligent systems create accountability risk beyond identity and access." },
+      { question: "Why Cyber Sentinels", answer: "Operational Trust Infrastructure governs consequential human and machine actions." },
+      { question: "Trust evidence", answer: "Evidence-defined readiness, explicit blockers and controlled pilot outcomes." },
+    ],
+    actions: buyerActions,
   },
 ];
 
@@ -45,10 +69,18 @@ const readiness = [
   ["Performance", "Awaiting Data", "Durable telemetry exists; representative target samples are still required."],
 ];
 
+const evidenceTypes = [
+  ["Replay", "A chronological account of the evidence, authority, runtime change and governance action behind a decision."],
+  ["Evidence lineage", "Provider state, source references and deployment boundaries remain connected to the reviewed workflow."],
+  ["Human review", "Escalations retain a named reviewer, disposition, rationale and timestamp."],
+  ["Trust Evidence Packs", "Approved cases can produce JSON, PDF and Enterprise Summary formats without hiding limitations."],
+];
+
 export default function EnterpriseBuyerDocumentationPage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
+        <EnterpriseBreadcrumbs current="Buyer Documentation" />
         <ExecutiveSummary
           eyebrow="Buyer Documentation"
           title="One evidence-backed buying path for every enterprise stakeholder."
@@ -65,27 +97,7 @@ export default function EnterpriseBuyerDocumentationPage() {
         <section className="mt-8">
           <p className="operational-eyebrow">Stakeholder journeys</p>
           <h2 className="mt-3 text-3xl font-semibold">Different buying questions. One governed decision record.</h2>
-          <div className="mt-6 grid gap-4 lg:grid-cols-2">
-            {buyerJourneys.map((journey) => (
-              <article key={journey.role} className="operational-card p-6">
-                <h3 className="text-2xl font-semibold text-zinc-100">{journey.role}</h3>
-                <dl className="mt-5 grid gap-4 text-sm leading-6">
-                  <div>
-                    <dt className="font-semibold text-cyan-200">Buying problem</dt>
-                    <dd className="mt-1 text-zinc-400">{journey.problem}</dd>
-                  </div>
-                  <div>
-                    <dt className="font-semibold text-cyan-200">Cyber Sentinels mechanism</dt>
-                    <dd className="mt-1 text-zinc-400">{journey.mechanism}</dd>
-                  </div>
-                  <div>
-                    <dt className="font-semibold text-cyan-200">Evidence available</dt>
-                    <dd className="mt-1 text-zinc-400">{journey.proof}</dd>
-                  </div>
-                </dl>
-              </article>
-            ))}
-          </div>
+          <div className="mt-6"><BuyerJourneyGrid journeys={buyerJourneys} /></div>
         </section>
 
         <section className="mt-8 operational-panel p-6 md:p-8">
@@ -103,8 +115,18 @@ export default function EnterpriseBuyerDocumentationPage() {
         </section>
 
         <section className="mt-8 operational-panel p-6 md:p-8">
-          <p className="operational-eyebrow">Current evidence boundary</p>
-          <h2 className="mt-3 text-3xl font-semibold">Readiness remains explicit before a pilot starts.</h2>
+          <p className="operational-eyebrow">Trust evidence</p>
+          <h2 className="mt-3 text-3xl font-semibold">Proof stays connected to the decision and its limitations.</h2>
+          <div className="mt-6 grid gap-3 md:grid-cols-2">
+            {evidenceTypes.map(([title, detail]) => (
+              <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
+                <h3 className="font-semibold text-zinc-100">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-400">{detail}</p>
+              </article>
+            ))}
+          </div>
+          <h3 className="mt-8 text-xl font-semibold text-zinc-100">Current evidence boundary</h3>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">Readiness remains explicit before a pilot starts.</p>
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {readiness.map(([area, status, detail]) => (
               <article key={area} className="rounded-lg border border-zinc-800 bg-black p-5">
@@ -132,6 +154,13 @@ export default function EnterpriseBuyerDocumentationPage() {
 
 export const metadata: Metadata = {
   title: "Enterprise Buyer Documentation | Cyber Sentinels",
-  description: "Buyer journeys, evidence boundaries and the controlled enterprise adoption path.",
+  description: "Understand how Cyber Sentinels supports enterprise leaders through operational trust evidence and controlled deployment.",
   alternates: { canonical: "/enterprise/buyer-documentation" },
+  openGraph: {
+    type: "website",
+    url: "/enterprise/buyer-documentation",
+    title: "Enterprise Buyer Documentation | Cyber Sentinels",
+    description: "Buyer journeys, operational trust evidence and a controlled path to enterprise deployment.",
+    siteName: "Cyber Sentinels",
+  },
 };

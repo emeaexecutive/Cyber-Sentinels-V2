@@ -217,6 +217,7 @@ This inventory scans every `app/` page and route handler. It does not remove cap
 | `/embed/[id]` | Page | INTERNAL | User-facing surface for the route family. | Engineering / Operations | No | No | No | Yes | No |
 | `/enterprise/agent-governance` | Page | PUBLIC | Governance, review or protected operations surface. | Growth / Enterprise GTM | Yes | Yes | Enterprise hub | No | No |
 | `/enterprise/auditability` | Page | PUBLIC | Enterprise buyer, pilot or workflow surface. | Growth / Enterprise GTM | Yes | No | Enterprise hub | No | No |
+| `/enterprise/buyer-documentation` | Page | PUBLIC | Canonical role-based buyer evaluation and trust-evidence surface. | Growth / Enterprise GTM | Yes | Yes | Enterprise hub | No | No |
 | `/enterprise/compliance` | Page | PUBLIC | Enterprise buyer, pilot or workflow surface. | Growth / Enterprise GTM | Yes | No | Enterprise hub | No | No |
 | `/enterprise/consortium` | Page | PUBLIC | Enterprise buyer, pilot or workflow surface. | Growth / Enterprise GTM | Yes | No | Enterprise hub | No | No |
 | `/enterprise/control-plane` | Page | PUBLIC | Enterprise buyer, pilot or workflow surface. | Growth / Enterprise GTM | Yes | No | Enterprise hub | No | No |
@@ -225,6 +226,7 @@ This inventory scans every `app/` page and route handler. It does not remove cap
 | `/enterprise/identity-governance` | Page | PUBLIC | Governance, review or protected operations surface. | Growth / Enterprise GTM | Yes | No | Enterprise hub | No | No |
 | `/enterprise` | Page | PUBLIC | Enterprise buyer, pilot or workflow surface. | Growth / Enterprise GTM | Yes | Yes | No | No | No |
 | `/enterprise/pilot` | Page | PUBLIC | Enterprise buyer, pilot or workflow surface. | Growth / Enterprise GTM | Yes | Yes | Enterprise hub | No | No |
+| `/enterprise/pilot-checklist` | Page | PUBLIC | Public controlled-pilot scope, timeline, ownership and rollback surface. | Growth / Enterprise GTM | Yes | Yes | Enterprise hub | No | No |
 | `/enterprise/pilot-setup` | Page | PUBLIC | Enterprise buyer, pilot or workflow surface. | Growth / Enterprise GTM | Yes | No | Enterprise hub | No | No |
 | `/enterprise/readiness` | Page | PUBLIC | Enterprise buyer, pilot or workflow surface. | Growth / Enterprise GTM | Yes | No | Enterprise hub | No | No |
 | `/enterprise/walkthrough` | Page | PUBLIC | Enterprise buyer, pilot or workflow surface. | Growth / Enterprise GTM | Yes | No | Enterprise hub | No | No |

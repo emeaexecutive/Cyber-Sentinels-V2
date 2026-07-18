@@ -10,6 +10,8 @@ const nextConfig = {
       { source: "/reality-os", destination: "/platform", permanent: true },
       { source: "/trust-os", destination: "/platform", permanent: true },
       { source: "/trust-fabric", destination: "/platform#trust-fabric", permanent: true },
+      { source: "/docs/BUYER_JOURNEYS.md", destination: "/enterprise/buyer-documentation", permanent: true },
+      { source: "/docs/ENTERPRISE_PILOT_CHECKLIST.md", destination: "/enterprise/pilot-checklist", permanent: true },
     ];
   },
   async headers() {

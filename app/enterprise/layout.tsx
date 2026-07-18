@@ -10,7 +10,7 @@ export default function EnterpriseLayout({ children }: { children: React.ReactNo
           {enterpriseNavigation.map((item) => (
             <Link key={item.href} href={item.href} className="text-zinc-300 hover:text-white">{item.label}</Link>
           ))}
-          <Link href={enterpriseCtas.requestDemo.href} className="brand-primary-action ml-auto min-h-9 px-3 py-1.5 text-sm">
+          <Link href={enterpriseCtas.requestDemo.href} className="brand-primary-action min-h-9 w-full px-3 py-1.5 text-sm sm:ml-auto sm:w-auto">
             {enterpriseCtas.requestDemo.label}
           </Link>
         </nav>
