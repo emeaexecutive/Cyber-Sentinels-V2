@@ -63,5 +63,7 @@ Ownership is a review responsibility, not permission to bypass pull-request or e
 - Prioritized debt and implementation findings: `docs/engineering/technical-debt.md` and `docs/engineering/platform-findings.md`
 - Trust architecture findings and migration priorities: `docs/engineering/trust-architecture-review.md`
 - Enterprise Trust Report contract: `docs/product/trust-report.md`
+- Enterprise Experience site map, buyer, pilot, operations, governance, reporting and quality contracts: `docs/product/enterprise-site-map.md` through `docs/product/content-guidelines.md`
+- Enterprise Experience findings and priorities: `docs/engineering/enterprise-review.md`
 
 Existing historical and Epic-specific documents remain valid evidence. New foundation documents do not delete or silently replace them.
