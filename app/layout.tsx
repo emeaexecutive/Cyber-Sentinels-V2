@@ -71,6 +71,8 @@ const footerSections = [
       ["/enterprise#compliance", "Compliance"],
       ["/enterprise#deployment", "Deployment"],
       ["/platform#trust-fabric", "Architecture"],
+      ["/enterprise/buyer-documentation", "Buyer Documentation"],
+      ["/enterprise/pilot-checklist", "Pilot Checklist"],
       ["/enterprise/pilot", "Pilot Programme"],
       ["/enterprise#support", "Enterprise Support"],
     ],

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EnterpriseBreadcrumbs } from "@/components/enterprise-breadcrumbs";
+import { EnterpriseCTAGroup } from "@/components/enterprise-cta-group";
 import { BuyerJourneyGrid, type BuyerJourney } from "@/components/enterprise-visuals";
 import { ExecutiveSummary } from "@/components/executive-summary";
 import { enterpriseCtas } from "@/lib/enterprise-experience";
@@ -8,7 +9,7 @@ import { enterpriseCtas } from "@/lib/enterprise-experience";
 const buyerActions: BuyerJourney["actions"] = [
   enterpriseCtas.requestDemo,
   enterpriseCtas.bookPilot,
-  enterpriseCtas.pilotChecklist,
+  enterpriseCtas.contactEnterprise,
 ];
 
 const buyerJourneys: BuyerJourney[] = [
@@ -78,12 +79,13 @@ const evidenceTypes = [
 
 export default function EnterpriseBuyerDocumentationPage() {
   return (
-    <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
+    <main className="operational-shell min-h-screen px-4 py-10 text-white sm:px-6 md:px-8 md:py-12">
       <div className="mx-auto max-w-6xl">
         <EnterpriseBreadcrumbs current="Buyer Documentation" />
         <ExecutiveSummary
           eyebrow="Buyer Documentation"
           title="One evidence-backed buying path for every enterprise stakeholder."
+          description="Review the buying problem, operating model and evidence boundary for a controlled Cyber Sentinels deployment without leaving the product experience."
           bullets={[
             "Start with one consequential workflow.",
             "Inspect the same authority and evidence boundaries.",
@@ -97,7 +99,9 @@ export default function EnterpriseBuyerDocumentationPage() {
         <section className="mt-8">
           <p className="operational-eyebrow">Stakeholder journeys</p>
           <h2 className="mt-3 text-3xl font-semibold">Different buying questions. One governed decision record.</h2>
-          <div className="mt-6"><BuyerJourneyGrid journeys={buyerJourneys} /></div>
+          <div className="mt-6">
+            <BuyerJourneyGrid journeys={buyerJourneys} />
+          </div>
         </section>
 
         <section className="mt-8 operational-panel p-6 md:p-8">
@@ -138,13 +142,22 @@ export default function EnterpriseBuyerDocumentationPage() {
               </article>
             ))}
           </div>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href={enterpriseCtas.requestDemo.href} className="brand-primary-action brand-action-large text-sm">
-              {enterpriseCtas.requestDemo.label}
+          <div className="mt-6 rounded-lg border border-cyan-950 bg-black p-5">
+            <h3 className="text-lg font-semibold text-zinc-100">Continue to deployment planning</h3>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
+              Review prerequisites, owners, success measures and rollback controls before requesting a pilot.
+            </p>
+            <Link href={enterpriseCtas.pilotChecklist.href} className="brand-secondary-action brand-action-large mt-4 min-h-11 w-full text-sm sm:w-auto">
+              Open {enterpriseCtas.pilotChecklist.label}
             </Link>
-            <Link href={enterpriseCtas.pilotChecklist.href} className="brand-secondary-action brand-action-large text-sm">
-              {enterpriseCtas.pilotChecklist.label}
-            </Link>
+          </div>
+        </section>
+
+        <section className="mt-8 operational-panel p-6 md:p-8" aria-labelledby="buyer-next-steps">
+          <p className="operational-eyebrow">Enterprise next steps</p>
+          <h2 id="buyer-next-steps" className="mt-3 max-w-3xl text-3xl font-semibold">Choose the next conversation for your evaluation.</h2>
+          <div className="mt-6">
+            <EnterpriseCTAGroup label="Buyer documentation next steps" />
           </div>
         </section>
       </div>
@@ -154,13 +167,13 @@ export default function EnterpriseBuyerDocumentationPage() {
 
 export const metadata: Metadata = {
   title: "Enterprise Buyer Documentation | Cyber Sentinels",
-  description: "Understand how Cyber Sentinels supports enterprise leaders through operational trust evidence and controlled deployment.",
+  description: "See how Cyber Sentinels supports CISOs, CIOs, CTOs, compliance leaders, CEOs and investors through operational trust evidence and controlled deployment.",
   alternates: { canonical: "/enterprise/buyer-documentation" },
   openGraph: {
     type: "website",
     url: "/enterprise/buyer-documentation",
     title: "Enterprise Buyer Documentation | Cyber Sentinels",
-    description: "Buyer journeys, operational trust evidence and a controlled path to enterprise deployment.",
+    description: "See how Cyber Sentinels supports CISOs, CIOs, CTOs, compliance leaders, CEOs and investors through operational trust evidence and controlled deployment.",
     siteName: "Cyber Sentinels",
   },
 };

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EnterpriseBreadcrumbs } from "@/components/enterprise-breadcrumbs";
+import { EnterpriseCTAGroup } from "@/components/enterprise-cta-group";
 import { ExecutiveSummary } from "@/components/executive-summary";
 import { enterpriseCtas } from "@/lib/enterprise-experience";
 
@@ -42,12 +43,13 @@ const rollback = [
 
 export default function EnterprisePilotChecklistPage() {
   return (
-    <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
+    <main className="operational-shell min-h-screen px-4 py-10 text-white sm:px-6 md:px-8 md:py-12">
       <div className="mx-auto max-w-6xl">
-        <EnterpriseBreadcrumbs current="Pilot Checklist" />
+        <EnterpriseBreadcrumbs current="Pilot Checklist" parent={enterpriseCtas.buyerDocumentation} />
         <ExecutiveSummary
           eyebrow="Pilot Checklist"
           title="Make every pilot prerequisite, owner and exit condition explicit."
+          description="Use this public planning checklist to scope one controlled workflow before any customer data, provider connection or production-readiness decision is introduced."
           bullets={[
             "One bounded consequential workflow.",
             "Named customer and Cyber Sentinels owners.",
@@ -102,10 +104,10 @@ export default function EnterprisePilotChecklistPage() {
             <h2 className="mt-3 text-3xl font-semibold">Named ownership from kickoff to closeout.</h2>
             <div className="mt-5 grid gap-3">
               {responsibilities.map(([owner, detail]) => (
-                <div key={owner} className="rounded-lg border border-zinc-800 bg-black p-4">
+                <article key={owner} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <h3 className="font-semibold text-zinc-100">{owner}</h3>
                   <p className="mt-2 text-sm leading-6 text-zinc-400">{detail}</p>
-                </div>
+                </article>
               ))}
             </div>
             <p className="mt-4 text-sm leading-6 text-zinc-500">
@@ -129,16 +131,14 @@ export default function EnterprisePilotChecklistPage() {
         <section className="mt-8 operational-panel p-6 md:p-8">
           <p className="operational-eyebrow">Ready to scope the workflow?</p>
           <h2 className="mt-3 max-w-3xl text-3xl font-semibold">Request a controlled pilot only after the evidence boundary is accepted.</h2>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href={enterpriseCtas.requestDemo.href} className="brand-primary-action brand-action-large text-sm">
-              {enterpriseCtas.requestDemo.label}
-            </Link>
-            <Link href={enterpriseCtas.bookPilot.href} className="brand-secondary-action brand-action-large text-sm">
-              {enterpriseCtas.bookPilot.label}
-            </Link>
-            <Link href={enterpriseCtas.buyerDocumentation.href} className="brand-secondary-action brand-action-large text-sm">
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-400">
+            Need to revisit the buying case and evidence boundary? Return to the{" "}
+            <Link href={enterpriseCtas.buyerDocumentation.href} className="font-semibold text-cyan-200 underline underline-offset-4 hover:text-white">
               {enterpriseCtas.buyerDocumentation.label}
-            </Link>
+            </Link>.
+          </p>
+          <div className="mt-6">
+            <EnterpriseCTAGroup label="Pilot checklist next steps" />
           </div>
         </section>
       </div>
@@ -148,13 +148,13 @@ export default function EnterprisePilotChecklistPage() {
 
 export const metadata: Metadata = {
   title: "Enterprise Pilot Checklist | Cyber Sentinels",
-  description: "Plan a controlled Cyber Sentinels enterprise pilot with clear owners, success criteria, evidence requirements and rollback controls.",
+  description: "Plan a controlled Cyber Sentinels enterprise pilot with clear ownership, success criteria, evidence requirements, rollback controls and production-readiness gates.",
   alternates: { canonical: "/enterprise/pilot-checklist" },
   openGraph: {
     type: "website",
     url: "/enterprise/pilot-checklist",
     title: "Enterprise Pilot Checklist | Cyber Sentinels",
-    description: "Pilot prerequisites, timeline, success metrics, accountable ownership and rollback controls.",
+    description: "Plan a controlled Cyber Sentinels enterprise pilot with clear ownership, success criteria, evidence requirements, rollback controls and production-readiness gates.",
     siteName: "Cyber Sentinels",
   },
 };

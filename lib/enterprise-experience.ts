@@ -12,6 +12,10 @@ export const enterpriseCtas = {
     href: "/enterprise/pilot",
     label: "Book Pilot",
   },
+  contactEnterprise: {
+    href: "/enterprise-access?intent=trust-team",
+    label: "Contact Enterprise",
+  },
   requestControlledPilot: {
     href: "/enterprise-access?intent=pilot",
     label: "Request Controlled Pilot",
@@ -28,11 +32,11 @@ export const enterpriseCtas = {
 
 export const enterpriseNavigation = [
   { href: "/enterprise", label: "Overview" },
-  { href: "/enterprise/pilot", label: "Pilot Program" },
   enterpriseCtas.buyerDocumentation,
   enterpriseCtas.pilotChecklist,
+  { href: "/enterprise/pilot", label: "Pilot Program" },
   { href: "/enterprise/agent-governance", label: "Agent Governance" },
-  { href: "/enterprise/auditability", label: "Auditability" },
-  { href: "/enterprise/compliance", label: "Compliance" },
+  { href: "/enterprise#compliance", label: "Compliance" },
+  { href: "/security", label: "Security" },
   { href: "/design-partner", label: "Design Partner" },
 ] as const;

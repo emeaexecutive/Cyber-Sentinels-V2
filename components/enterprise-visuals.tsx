@@ -166,7 +166,7 @@ export function BuyerJourneyGrid({ journeys }: { journeys: BuyerJourney[] }) {
       {journeys.map((journey) => (
         <article id={journey.id} key={journey.id} className="scroll-mt-28 story-frame">
           <p className="operational-eyebrow">Buyer journey</p>
-          <h2 className="mt-2 text-2xl font-semibold text-white">{journey.role}</h2>
+          <h3 className="mt-2 text-2xl font-semibold text-white">{journey.role}</h3>
           <dl className="mt-5 grid gap-3">
             {journey.answers.map((item) => (
               <div key={item.question} className="grid gap-1 border-l border-cyan-900 pl-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
@@ -175,12 +175,12 @@ export function BuyerJourneyGrid({ journeys }: { journeys: BuyerJourney[] }) {
               </div>
             ))}
           </dl>
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap">
             {journey.actions.map((action, index) => (
               <Link
                 key={action.label}
                 href={action.href}
-                className={index === 0 ? "brand-primary-action text-sm" : "brand-secondary-action text-sm"}
+                className={`${index === 0 ? "brand-primary-action" : "brand-secondary-action"} min-h-11 w-full text-sm sm:w-auto`}
               >
                 {action.label}
               </Link>

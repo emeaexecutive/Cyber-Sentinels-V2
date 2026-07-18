@@ -8,12 +8,14 @@ type SummaryAction = {
 export function ExecutiveSummary({
   eyebrow,
   title,
+  description,
   bullets,
   primary,
   secondary,
 }: {
   eyebrow: string;
   title: string;
+  description?: string;
   bullets: string[];
   primary: SummaryAction;
   secondary?: SummaryAction;
@@ -23,6 +25,7 @@ export function ExecutiveSummary({
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">{eyebrow}</p>
       <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Executive Summary</p>
       <h1 className="mt-3 max-w-5xl text-4xl font-semibold leading-tight md:text-5xl">{title}</h1>
+      {description ? <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">{description}</p> : null}
       <ul className="mt-6 grid max-w-5xl gap-3 text-sm leading-6 text-zinc-300 md:grid-cols-2">
         {bullets.slice(0, 4).map((bullet) => (
           <li key={bullet} className="border-l border-cyan-900 pl-4">{bullet}</li>
