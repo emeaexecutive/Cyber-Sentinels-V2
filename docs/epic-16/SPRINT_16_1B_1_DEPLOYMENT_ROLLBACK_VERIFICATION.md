@@ -3,26 +3,26 @@
 Date: 2026-07-18  
 Repository: `C:\Users\emeae\Desktop\cyber-sentinels-clean`  
 Branch: `main`  
-Verified source commit: `e18c0af62d8060563a956f9ddf9033ae9cd9b9cd`
+Verified application source commit: `e18c0af62d8060563a956f9ddf9033ae9cd9b9cd`
 
 ## Release outcome
 
-The Enterprise Buyer Documentation and Pilot Checklist experience is deployed and healthy on the canonical production domain. Vercel's production build log binds the active release to commit `e18c0af`, and runtime checks confirm the intended routes, navigation, metadata and legacy redirects.
+The Enterprise Buyer Documentation and Pilot Checklist experience is deployed and healthy on the canonical production domain. Vercel's production build log binds the application-bearing release to commit `e18c0af`, and runtime checks confirm the intended routes, navigation, metadata and legacy redirects.
 
-No additional production promotion was performed in Part 4. The Git-connected production deployment had already promoted the verified commit before the manual preview was created. Creating another production deployment would add no code change and would bypass the required stakeholder sign-off gate.
+No manual production promotion was performed in Part 4. The Git-connected production deployment had already promoted the verified application commit before the manual preview was created. Every subsequent `main` documentation push creates an equivalent production build automatically; those builds change the deployment identifier but do not change the verified application baseline.
 
-Recommendation: **retain the current production deployment; do not perform another promotion until stakeholder sign-off is recorded and the Vercel environment inventory is reviewed.** The two static public Enterprise resources are suitable for production use. Credentialed analytics and wider operational integrations are not accepted by this release record.
+Recommendation: **retain the `e18c0af` application baseline on the current READY production deployment; do not perform a manual promotion until stakeholder sign-off is recorded and the Vercel environment inventory is reviewed.** The two static public Enterprise resources are suitable for production use. Credentialed analytics and wider operational integrations are not accepted by this release record.
 
 ## Deployment identity
 
 | Environment | State | Deployment | Source |
 | --- | --- | --- | --- |
-| Production | READY | `dpl_F5NYTPPL3xhNwZSQk6ASWYpZkAzx` / `https://cyber-sentinels-v2-8enz12y8q-keith-speres-projects.vercel.app` | Vercel build log: `main`, commit `e18c0af` |
-| Canonical production | READY | `https://www.cybersentinels.com` | Alias of the production deployment above |
+| Verified application-bearing production snapshot | READY | `dpl_F5NYTPPL3xhNwZSQk6ASWYpZkAzx` / `https://cyber-sentinels-v2-8enz12y8q-keith-speres-projects.vercel.app` | Vercel build log: `main`, commit `e18c0af` |
+| Canonical production | READY | `https://www.cybersentinels.com` | Git-connected alias; re-resolve after every `main` documentation push |
 | Protected preview | READY | `dpl_6W4mqmmo88C7c24oqKkctE7rUG5r` / `https://cyber-sentinels-v2-imvvon3wp-keith-speres-projects.vercel.app` | Manual deployment from the clean `e18c0af` checkout |
 | Previous production / rollback target | READY | `dpl_48nG4sv86rgd62ojeLzGCgzM4gvq` / `https://cyber-sentinels-v2-lrfngs4wi-keith-speres-projects.vercel.app` | Vercel build log: `main`, commit `b2f93fe` |
 
-The preview remains behind Vercel SSO protection. Verification used Vercel's authenticated request path; deployment protection was not weakened.
+The preview remains behind Vercel SSO protection. Verification used Vercel's authenticated request path; deployment protection was not weakened. Deployment IDs in this table are retained audit evidence, while the canonical alias may advance to a documentation-only descendant of the same application baseline.
 
 ## Pre-deployment gate
 
@@ -119,7 +119,7 @@ Before broader production acceptance:
 
 ## Rollback plan
 
-Rollback is ready but was not executed because production is healthy.
+Rollback is ready but was not executed because production is healthy. For a documentation-only deployment failure, use `vercel ls cyber-sentinels-v2` to select the immediately preceding READY production deployment built from the same `e18c0af` application baseline. For an application rollback, use the fixed `b2f93fe` target below.
 
 1. Pause new promotion activity and preserve Vercel, Git and application audit history.
 2. Record the trigger, affected routes, timestamps and observed impact.
@@ -144,12 +144,12 @@ The rollback target is commit `b2f93fe`, the immediately prior implementation re
 | Enterprise journey complete | Passed for public direct routes, navigation, breadcrumbs and CTAs |
 | Documentation updated | Passed with this release record |
 | Preview deployed and verified | Passed |
-| Production deployment verified | Passed; active deployment is commit `e18c0af` |
+| Production deployment verified | Passed; application baseline is commit `e18c0af` on a READY Git-connected deployment |
 | Rollback target and procedure verified | Passed |
 | Stakeholder sign-off | Awaiting evidence |
 | Analytics live verification | Blocked by design: no approved provider or consent controller |
 | Manual browser/assistive-technology matrix | Awaiting browser-capable session |
-| Additional production promotion | Not required; current production already contains the verified commit |
+| Manual production promotion | Not required; Git-connected production already contains the verified application commit |
 
 ## Final Codex report
 
@@ -162,4 +162,4 @@ The rollback target is commit `b2f93fe`, the immediately prior implementation re
 7. **Tests:** `npm.cmd run validate` passed the complete chained suite with 0 lint errors and 6 existing warnings.
 8. **Build:** local, preview and production builds pass with 156 generated pages.
 9. **Rollback:** exact prior READY deployment, commit and CLI procedure are recorded; audit-preserving Git revert is specified.
-10. **Production recommendation:** retain the current `e18c0af` production deployment; do not create another promotion until stakeholder sign-off and environment review are complete.
+10. **Production recommendation:** retain the `e18c0af` application baseline on the current READY production deployment; do not create a manual promotion until stakeholder sign-off and environment review are complete.
