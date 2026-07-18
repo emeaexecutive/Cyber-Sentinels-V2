@@ -51,4 +51,12 @@ Ownership is a review responsibility, not permission to bypass pull-request or e
 | `docs/testing/` | Test strategy, quality gates and manual test guidance |
 | `docs/product/` | Product requirements, ownership and approved product decisions |
 
+## Current architecture baseline
+
+- Application, components, hooks, services, providers and configuration: `docs/architecture/`
+- Authentication and admin access: `docs/security/authentication-flow.md`
+- Supabase object inventory and table map: `docs/database/database-overview.md` and `docs/database/schema-map.md`
+- Endpoint inventory and API standards: `docs/api/api-overview.md` and `docs/api/api-standards.md`
+- Prioritized debt and implementation findings: `docs/engineering/technical-debt.md` and `docs/engineering/platform-findings.md`
+
 Existing historical and Epic-specific documents remain valid evidence. New foundation documents do not delete or silently replace them.
