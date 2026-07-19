@@ -31,25 +31,29 @@ export function requestDigest(value: unknown) {
 }
 
 export function calculateIdentityConfidence(evidence: SignalEvidenceDraft[]): ConfidenceResult {
-  const verified = evidence.filter((item) => item.serverVerified && item.outcome === "VERIFIED");
+  const verified = evidence.filter((item) => item.status === "PASS" && item.serverVerified && item.signatureVerified && item.outcome === "VERIFIED");
+  const contradictions = evidence.filter((item) => item.status === "FAIL" || item.reasonCodes.includes("CONTRADICTION_DETECTED") || item.riskFlags.includes("contradiction"));
   if (!verified.length) return {
     score: 0,
     band: "NONE",
     status: "INSUFFICIENT_EVIDENCE",
     verifiedSignalCount: 0,
     totalSignalCount: evidence.length,
-    reasonCodes: ["NO_SERVER_VERIFIED_EVIDENCE"],
+    contradictionCount: contradictions.length,
+    reasonCodes: contradictions.length ? ["NO_SERVER_VERIFIED_EVIDENCE", "CONTRADICTION_DETECTED"] : ["NO_SERVER_VERIFIED_EVIDENCE"],
     methodologyVersion: "identity-confidence-v1",
   };
-  const score = Math.round(verified.reduce((sum, item) => sum + Math.max(0, Math.min(100, item.confidence)), 0) / verified.length);
-  const band = score >= 90 ? "VERY_HIGH" : score >= 75 ? "HIGH" : score >= 50 ? "MODERATE" : "LOW";
+  const positiveScore = verified.reduce((sum, item) => sum + Math.max(0, Math.min(100, item.confidence)), 0) / verified.length;
+  const score = Math.max(0, Math.round(positiveScore - contradictions.length * 15));
+  const band = score === 0 ? "NONE" : score >= 90 ? "VERY_HIGH" : score >= 75 ? "HIGH" : score >= 50 ? "MODERATE" : "LOW";
   return {
     score,
     band,
     status: verified.length >= 2 && score >= 75 ? "ESTABLISHED" : "PROVISIONAL",
     verifiedSignalCount: verified.length,
     totalSignalCount: evidence.length,
-    reasonCodes: verified.length >= 2 ? ["MULTI_SIGNAL_SERVER_VERIFIED"] : ["SINGLE_SERVER_VERIFIED_SIGNAL"],
+    contradictionCount: contradictions.length,
+    reasonCodes: [verified.length >= 2 ? "MULTI_SIGNAL_SERVER_VERIFIED" : "SINGLE_SERVER_VERIFIED_SIGNAL", ...(contradictions.length ? ["CONTRADICTION_DETECTED" as const] : [])],
     methodologyVersion: "identity-confidence-v1",
   };
 }

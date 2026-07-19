@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { orchestrateIdentityVerification } from "../lib/identity-signals/orchestrator.ts";
+import { IdentitySignalOrchestrator, orchestrateIdentityVerification } from "../lib/identity-signals/orchestrator.ts";
 
 function fakeRepository() {
   const state = { request: null, evidence: [], confidence: null };
@@ -14,7 +14,14 @@ function fakeRepository() {
   };
 }
 
-const blockedAdapter = { providerId: "email", signals: ["EMAIL_OWNERSHIP"], async collect(signalType) { return { transactionStatus: "BLOCKED", errorCode: "PROVIDER_NOT_CONFIGURED", limitations: ["No provider."], evidence: { signalType, providerId: "email", outcome: "BLOCKED", confidence: 0, serverVerified: false, reasonCodes: ["PROVIDER_NOT_CONFIGURED"], limitations: ["No provider."], observedAt: new Date().toISOString() } }; } };
+const blockedAdapter = {
+  providerId: "email",
+  signals: ["EMAIL_OWNERSHIP"],
+  async getCapabilities() { return [{ providerId: "email", signalType: "EMAIL_OWNERSHIP", implementationStatus: "PARTIALLY_IMPLEMENTED", runtimeStatus: "DISABLED", serverVerified: false, limitations: [] }]; },
+  async healthCheck() { return { providerId: "email", available: false, state: "DISABLED", reasonCode: "PROVIDER_NOT_CONFIGURED", checkedAt: new Date().toISOString() }; },
+  async collectSignal(signalType) { return { transactionStatus: "BLOCKED", errorCode: "PROVIDER_NOT_CONFIGURED", limitations: ["No provider."], evidence: { signalType, providerId: "email", status: "BLOCKED", outcome: "BLOCKED", confidence: 0, riskScore: null, riskFlags: [], serverVerified: false, signatureVerified: false, providerEventId: null, providerReference: null, providerTransactionId: null, providerRequestId: null, payloadHash: null, normalizedValue: null, provenance: { source: "none", mappingVersion: "identity-signal-v1", collectedAt: new Date().toISOString() }, reasonCodes: ["PROVIDER_NOT_CONFIGURED"], limitations: ["No provider."], observedAt: new Date().toISOString() } }; },
+  async verifyCallback() { return []; },
+};
 
 test("orchestration persists truthful blocked evidence and returns idempotent replay", async () => {
   const repository = fakeRepository();
@@ -34,4 +41,22 @@ test("idempotency key reuse with a changed request fails closed", async () => {
   const base = { repository, adapters: [blockedAdapter], enterpriseId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", subjectId: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", requestedSignals: ["EMAIL_OWNERSHIP"], purpose: "employment", idempotencyKey: "request-key-002", actorId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc", signalInputs: {} };
   await orchestrateIdentityVerification(base);
   await assert.rejects(() => orchestrateIdentityVerification({ ...base, purpose: "account-recovery" }), (error) => error.code === "IDEMPOTENCY_CONFLICT" && error.status === 409);
+});
+
+test("provider timeout is isolated, persisted, and returns partial completion", async () => {
+  const repository = fakeRepository();
+  const timeoutAdapter = {
+    providerId: "slow_provider",
+    signals: ["EMAIL_OWNERSHIP"],
+    async getCapabilities() { return [{ providerId: "slow_provider", signalType: "EMAIL_OWNERSHIP", implementationStatus: "IMPLEMENTED", runtimeStatus: "AVAILABLE", serverVerified: true, limitations: [] }]; },
+    async healthCheck() { return { providerId: "slow_provider", available: true, state: "HEALTHY", reasonCode: null, checkedAt: new Date().toISOString() }; },
+    async collectSignal() { return new Promise(() => {}); },
+    async verifyCallback() { return []; },
+  };
+  const orchestrator = new IdentitySignalOrchestrator({ repository, adapters: [timeoutAdapter], providerTimeoutMs: 100 });
+  const result = await orchestrator.execute({ enterpriseId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", subjectId: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", requestedSignals: ["EMAIL_OWNERSHIP"], purpose: "employment", idempotencyKey: "request-key-timeout", actorId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc", signalInputs: {} });
+  assert.equal(result.status, "PARTIAL");
+  assert.equal(repository.state.evidence[0].status, "UNAVAILABLE");
+  assert.deepEqual(repository.state.evidence[0].reasonCodes, ["PROVIDER_TIMEOUT"]);
+  assert.equal(repository.state.confidence.score, 0);
 });

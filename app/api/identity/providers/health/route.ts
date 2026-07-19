@@ -1,11 +1,12 @@
 import { inspectHopaeProviderConfig } from "@/lib/providers/adapters/hopae/hopae-config";
 import { HopaeAdapter } from "@/lib/providers/adapters/hopae/hopae-adapter";
 import { resolveIdentityEnterprise } from "@/lib/identity-signals/enterprise-context";
-import { identityFailure, identitySuccess } from "@/lib/identity-signals/http";
+import { identityCorrelationId, identityFailure, identitySuccess } from "@/lib/identity-signals/http";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
+  const correlationId = identityCorrelationId(request);
   try {
     await resolveIdentityEnterprise(request);
     const config = inspectHopaeProviderConfig();
@@ -38,6 +39,6 @@ export async function GET(request: Request) {
       latencyMs: null,
       providerRequestId: null,
     }));
-    return identitySuccess({ providers: [hopae, worldId, ...placeholders] });
-  } catch (error) { return identityFailure(error); }
+    return identitySuccess({ providers: [hopae, worldId, ...placeholders] }, 200, correlationId);
+  } catch (error) { return identityFailure(error, correlationId); }
 }

@@ -2,15 +2,16 @@ import { createHmac } from "node:crypto";
 import { checkRequestRateLimit } from "@/lib/security";
 import { boundedText } from "@/lib/identity-signals/core";
 import { resolveIdentityEnterprise } from "@/lib/identity-signals/enterprise-context";
-import { identityFailure, identitySuccess } from "@/lib/identity-signals/http";
+import { identityCorrelationId, identityFailure, identitySuccess } from "@/lib/identity-signals/http";
 import { identityRepository } from "@/lib/identity-signals/repository";
 
 export async function POST(request: Request) {
+  const correlationId = identityCorrelationId(request);
   const limited = checkRequestRateLimit({ route: "identity-subjects", req: request, limit: 30, windowMs: 60_000 });
   if (limited) return limited;
   try {
-    if ((request.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase() !== "application/json") return Response.json({ ok: false, code: "UNSUPPORTED_CONTENT_TYPE", error: "application/json is required." }, { status: 415 });
-    if (Number(request.headers.get("content-length") ?? 0) > 32_000) return Response.json({ ok: false, code: "PAYLOAD_TOO_LARGE", error: "Payload is too large." }, { status: 413 });
+    if ((request.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase() !== "application/json") return Response.json({ schemaVersion: 1, ok: false, code: "UNSUPPORTED_CONTENT_TYPE", error: "application/json is required.", correlationId }, { status: 415 });
+    if (Number(request.headers.get("content-length") ?? 0) > 32_000) return Response.json({ schemaVersion: 1, ok: false, code: "PAYLOAD_TOO_LARGE", error: "Payload is too large.", correlationId }, { status: 413 });
     const context = await resolveIdentityEnterprise(request, ["owner", "admin", "reviewer"]);
     const body = await request.json() as Record<string, unknown>;
     if ("enterpriseId" in body || "enterprise_id" in body) throw new Error("enterpriseId must be selected only with the authorized X-Enterprise-Id header.");
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
       if (!secret) throw new Error("SECURITY_HASH_SECRET is required before external references can be accepted.");
       externalReferenceHash = createHmac("sha256", secret).update(`${context.enterpriseId}:${boundedText(body.externalReference, "externalReference", 200)}`).digest("hex");
     }
-    const subject = await identityRepository().createSubject({ enterpriseId: context.enterpriseId, subjectType, displayLabel, externalReferenceHash, metadata: {}, actorId: context.user.id });
-    return identitySuccess({ subject }, 201);
-  } catch (error) { return identityFailure(error); }
+    const subject = await identityRepository().createSubject({ enterpriseId: context.enterpriseId, subjectType, displayLabel, externalReferenceHash, metadata: {}, actorId: context.user.id, correlationId });
+    return identitySuccess({ subject }, 201, correlationId);
+  } catch (error) { return identityFailure(error, correlationId); }
 }

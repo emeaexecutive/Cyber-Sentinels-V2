@@ -1,14 +1,15 @@
 import { inspectHopaeProviderConfig } from "@/lib/providers/adapters/hopae/hopae-config";
 import { resolveIdentityEnterprise } from "@/lib/identity-signals/enterprise-context";
-import { identityFailure, identitySuccess } from "@/lib/identity-signals/http";
+import { identityCorrelationId, identityFailure, identitySuccess } from "@/lib/identity-signals/http";
 import { identityRepository } from "@/lib/identity-signals/repository";
 import { evaluateProviderCapabilityTruth } from "@/lib/providers/capability-truth";
 
 export async function GET(request: Request) {
+  const correlationId = identityCorrelationId(request);
   try {
     const context = await resolveIdentityEnterprise(request);
     const repository = identityRepository();
-    const [capabilities, runtime] = await Promise.all([repository.capabilities(), repository.providerRuntimeEvidence(context.enterpriseId)]);
+    const [capabilities, runtime] = await Promise.all([repository.capabilities(context.enterpriseId), repository.providerRuntimeEvidence(context.enterpriseId)]);
     const hopae = inspectHopaeProviderConfig();
     return identitySuccess({ capabilities: capabilities.map((capability) => {
       const providerId = String(capability.provider_id);
@@ -42,6 +43,6 @@ export async function GET(request: Request) {
         capabilityTruth: truth,
         lastRuntimeEvidenceAt: execution?.updated_at ?? registry?.last_health_check ?? transaction?.created_at ?? null,
       };
-    }), truthNotice: "Provider maturity is an ordered evidence set. Registration or configuration alone never implies a transaction, signed assertion, or server-verified identity result." });
-  } catch (error) { return identityFailure(error); }
+    }), truthNotice: "Provider maturity is an ordered evidence set. Registration or configuration alone never implies a transaction, signed assertion, or server-verified identity result." }, 200, correlationId);
+  } catch (error) { return identityFailure(error, correlationId); }
 }
