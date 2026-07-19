@@ -53,6 +53,9 @@ Ownership is a review responsibility, not permission to bypass pull-request or e
 
 ## Current architecture baseline
 
+- CS-ENG-002 repository audit: `docs/engineering/CS-ENG-002-GAP-ANALYSIS.md`
+- CS-ENG-002 capability matrix and evidence: `docs/engineering/CS-ENG-002-IMPLEMENTATION-MATRIX.md` and `docs/engineering/CS-ENG-002-EVIDENCE-REGISTER.md`
+- CS-ENG-002 readiness decision and remediation sequence: `docs/engineering/CS-ENG-002-PRODUCTION-READINESS-SCORE.md`, `docs/engineering/CS-ENG-002-CRITICAL-GAPS.md`, and `docs/engineering/CS-ENG-002-IMPLEMENTATION-ROADMAP.md`
 - Master publication entry point: `docs/engineering/CS-ENG-001_MASTER_ENGINEERING_BLUEPRINT.md`
 - Approved gap analysis and readiness baseline: `docs/engineering/CS-ENG-001_GAP_ANALYSIS.md`
 - Parts 1-6 implementation status and final acceptance: `docs/engineering/CS-ENG-001-IMPLEMENTATION-MATRIX.md` and `docs/engineering/CS-ENG-001-FINAL-REPORT.md`
