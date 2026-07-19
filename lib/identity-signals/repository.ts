@@ -83,6 +83,16 @@ export function identityRepository() {
       if (result.error) throw databaseFailure("Provider capability retrieval", result.error);
       return result.data ?? [];
     },
+    async providerRuntimeEvidence(enterpriseId: string) {
+      const [registry, transactions, evidence, executions] = await Promise.all([
+        database.from("provider_registry").select("provider_id,enabled,configured_state,health_status,last_successful_call,last_failed_call,last_health_check"),
+        database.from("identity_provider_transactions").select("id,provider_id,provider_session_id,status,error_code,limitations,created_at").eq("enterprise_id", enterpriseId).order("created_at", { ascending: false }).limit(200),
+        database.from("identity_signal_evidence").select("provider_id,provider_transaction_id,outcome,server_verified,source_digest,reason_codes,created_at").eq("enterprise_id", enterpriseId).order("created_at", { ascending: false }).limit(200),
+        database.from("provider_execution_records").select("provider_id,provider_session_id,status,signature_status,idempotency_status,normalized_evidence_reference,updated_at").eq("tenant_id", enterpriseId).order("updated_at", { ascending: false }).limit(200),
+      ]);
+      if (registry.error || transactions.error || evidence.error || executions.error) throw databaseFailure("Provider runtime truth retrieval", registry.error ?? transactions.error ?? evidence.error ?? executions.error);
+      return { registry: registry.data ?? [], transactions: transactions.data ?? [], evidence: evidence.data ?? [], executions: executions.data ?? [] };
+    },
   };
 }
 

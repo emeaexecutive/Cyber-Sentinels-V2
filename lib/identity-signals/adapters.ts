@@ -24,7 +24,7 @@ export class WorldIdSafeAdapter implements IdentitySignalAdapter {
   readonly providerId = "world_id";
   readonly signals = ["PROOF_OF_PERSONHOOD"] as const;
   async collect(signalType: IdentitySignalType) {
-    return unavailable(signalType, this.providerId, "INCONCLUSIVE", "WORLD_ID_SERVER_VERIFICATION_NOT_CONNECTED", "A proof-shaped input is not verified evidence until the World ID server exchange succeeds.");
+    return unavailable(signalType, this.providerId, "INCONCLUSIVE", "WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED", "A proof-shaped input is not verified evidence until the World ID server exchange succeeds.");
   }
 }
 

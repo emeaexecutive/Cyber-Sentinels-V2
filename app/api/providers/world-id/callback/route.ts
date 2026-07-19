@@ -7,5 +7,5 @@ export async function POST(request: Request) {
   const length = Number(request.headers.get("content-length") ?? 0);
   if (length > 64_000) return Response.json({ ok: false, code: "PAYLOAD_TOO_LARGE", error: "Payload is too large." }, { status: 413 });
   await request.text();
-  return Response.json({ schemaVersion: 1, ok: false, code: "WORLD_ID_SERVER_VERIFICATION_NOT_CONNECTED", outcome: "INCONCLUSIVE", confidence: 0, serverVerified: false, error: "World ID callbacks are disabled until signature and server verification configuration is implemented." }, { status: 501 });
+  return Response.json({ schemaVersion: 1, ok: false, status: "INCONCLUSIVE", outcome: "INCONCLUSIVE", reasonCode: "WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED", confidence: 0, serverVerified: false, message: "Proof received — server verification pending", error: "World ID callbacks are disabled until signature and server verification configuration is implemented." }, { status: 501 });
 }

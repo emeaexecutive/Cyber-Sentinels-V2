@@ -38,8 +38,8 @@ export async function POST(req: Request) {
     const normalized = getProviderAdapter("world_id").normalizeResponse({
       sourceType: "placeholder",
       providerVerificationState: "none",
-      identityConfidence: 50,
-      sessionIntegrity: 50,
+      identityConfidence: 0,
+      sessionIntegrity: 0,
       evidenceReferences: ["World ID proof received; provider exchange not connected"],
       governanceRecommendation:
         "Do not treat this proof as verified. Connect server-side World ID verification first.",
@@ -49,7 +49,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ok: false,
-      error: "World ID provider verification is not connected.",
+      status: "INCONCLUSIVE",
+      serverVerified: false,
+      reasonCode: "WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED",
+      message: "Proof received — server verification pending",
+      error: "World ID server verification is not implemented.",
       provider: normalized,
     }, { status: 501 });
   } catch (error) {

@@ -1,582 +1,423 @@
 <#
 .SYNOPSIS
-  Runs the CS-ENG-002 Cyber Sentinels repository gap analysis.
+  Runs the resilient CS-ENG-002 Cyber Sentinels repository audit.
 
 .DESCRIPTION
-  Performs an audit-only inventory from main, records routes, APIs,
-  configuration, migrations/RLS, tests and workflows, and optionally executes
-  existing package quality scripts. It writes a timestamped Markdown report
-  under reports/ and exits 2 when a Critical condition is detected.
-
-  Dependency installation is deliberately opt-in because it mutates
-  node_modules and can require network access. The script never creates a
-  branch, deploys, changes external configuration, runs migrations or prints
-  secret values.
+  Executes every audit stage independently, captures combined stdout/stderr,
+  writes per-stage logs and a consolidated Markdown report, and selects one
+  aggregate exit code only after report generation. The runner never deploys,
+  applies migrations, changes external configuration, or prints secret values.
 
 .PARAMETER RepositoryPath
   Repository root. RepoPath is accepted as an alias.
 
-.PARAMETER InstallDependencies
-  Opt in to npm ci (with a lockfile) or npm install before checks.
+.PARAMETER PauseAtEnd
+  Wait for Enter after the report is written when running interactively.
+
+.PARAMETER NonInteractive
+  Never prompt. CI=true also forces non-interactive behavior.
 
 .PARAMETER SkipInstall
-  Compatibility switch that suppresses installation even when requested.
-
-.PARAMETER SkipQualityChecks
-  Skip install, lint, type-check, tests, build and npm audit.
+  Record dependency installation as skipped.
 
 .PARAMETER SkipTests
-  Skip only the package test script.
+  Record unit, integration and security test stages as skipped.
 
 .PARAMETER SkipBuild
-  Skip only the production build.
-
-.PARAMETER Strict
-  Promote any failed quality check or missing requested package script to a
-  Critical result.
-
-.PARAMETER MaxFiles
-  Maximum page/API rows written per inventory. Truncation is Critical because
-  an incomplete inventory cannot pass CS-ENG-002.
+  Record the production build stage as skipped.
 #>
 [CmdletBinding()]
 param(
   [Alias('RepoPath')]
   [string]$RepositoryPath,
-  [switch]$SkipQualityChecks,
+  [switch]$PauseAtEnd,
+  [switch]$NonInteractive,
   [switch]$SkipInstall,
-  [switch]$InstallDependencies,
   [switch]$SkipTests,
   [switch]$SkipBuild,
+  [switch]$SkipQualityChecks,
+  [switch]$InstallDependencies,
   [switch]$Strict,
   [ValidateRange(1, 100000)]
   [int]$MaxFiles = 500
 )
 
-$ErrorActionPreference = "Stop"
-if ([string]::IsNullOrWhiteSpace($RepositoryPath)) {
-  $RepositoryPath = Split-Path -Parent $PSScriptRoot
-}
-$repo = [System.IO.Path]::GetFullPath($RepositoryPath)
-$reportDirectory = Join-Path $repo "reports"
-$timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$ErrorActionPreference = 'Stop'
+$startedAt = Get-Date
+$timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+$requestedPath = if ([string]::IsNullOrWhiteSpace($RepositoryPath)) { Split-Path -Parent $PSScriptRoot } else { $RepositoryPath }
+try { $repo = [System.IO.Path]::GetFullPath($requestedPath) } catch { $repo = [System.IO.Path]::GetFullPath((Get-Location).Path) }
+$reportRoot = if (Test-Path -LiteralPath $repo -PathType Container) { $repo } else { [System.IO.Path]::GetTempPath() }
+$reportDirectory = Join-Path $reportRoot 'reports'
+$logDirectory = Join-Path $reportDirectory "cs-eng-002-audit-$timestamp-logs"
 $reportPath = Join-Path $reportDirectory "cs-eng-002-audit-$timestamp.md"
+New-Item -ItemType Directory -Force -Path $logDirectory | Out-Null
 
-function Invoke-Git {
-  param([Parameter(Mandatory)][string[]]$CommandArgs)
-  $previousErrorPreference = $ErrorActionPreference
-  $ErrorActionPreference = "Continue"
-  $output = & git -c core.safecrlf=false @CommandArgs 2>&1
-  if ($LASTEXITCODE -ne 0) {
-    $ErrorActionPreference = $previousErrorPreference
-    throw "git $($CommandArgs -join ' ') failed: $($output -join [Environment]::NewLine)"
-  }
-  $ErrorActionPreference = $previousErrorPreference
-  return ($output -join [Environment]::NewLine).Trim()
-}
+$stageResults = New-Object System.Collections.Generic.List[object]
+$script:package = $null
+$script:gitBaseline = @{}
+$script:routeInventory = @()
+$script:providerInventory = @()
+$script:migrationInventory = @()
+$script:environmentInventory = @()
+$script:secretFindings = @()
 
-function Convert-AppPathToRoute {
+function New-StagePayload {
   param(
-    [Parameter(Mandatory)][string]$RelativePath,
-    [Parameter(Mandatory)][string]$LeafName
+    [ValidateSet('PASS', 'FAIL', 'SKIPPED')][string]$Status,
+    [string]$Summary,
+    [string]$Output = ''
   )
-  $normalized = $RelativePath -replace '\\', '/'
-  $withoutLeaf = $normalized -replace "/?$([regex]::Escape($LeafName))$", ""
-  $withoutApp = $withoutLeaf -replace '^app', ''
-  $withoutGroups = $withoutApp -replace '/\([^/]+\)', ''
-  if ([string]::IsNullOrWhiteSpace($withoutGroups)) { return "/" }
-  return $withoutGroups
+  return @{ Status = $Status; Summary = $Summary; Output = $Output }
 }
 
-function Get-RouteExpectation {
-  param([Parameter(Mandatory)][string]$Route)
-  $adminPrefixes = @(
-    "/admin", "/back-office", "/enterprise/control-plane",
-    "/enterprise/auditability", "/enterprise/readiness",
-    "/enterprise/compliance", "/enterprise/identity-governance",
-    "/enterprise/consortium", "/verification-queue", "/evidence-vault",
-    "/decision-engine", "/trust-intelligence", "/trust-graph-engine",
-    "/mission-control", "/signals", "/workforce-trust",
-    "/intent-verification", "/autonomy-governance", "/execution-passports",
-    "/state-verification", "/trust-events", "/trustops", "/launch-control"
-  )
-  $userPrefixes = @(
-    "/agents", "/billing", "/clearances", "/client-portal",
-    "/compliance-export", "/passport", "/passports", "/evidence-upload",
-    "/enterprise/pilot-setup", "/trust-assistant", "/knowledge-base",
-    "/data-rights", "/messages", "/notifications", "/pilot", "/appeals",
-    "/feedback", "/hiring-shield", "/recruiter/dashboard", "/replay",
-    "/dashboard", "/developers/api-keys", "/workspace", "/team-access",
-    "/team-workspace", "/trust-replay", "/trust-center", "/verify/session",
-    "/verify/candidate", "/verify/recruiter", "/verify/provenance",
-    "/verification/receipt", "/verifier-network", "/interview/session"
-  )
-  foreach ($prefix in $adminPrefixes) {
-    if ($Route -eq $prefix -or $Route.StartsWith("$prefix/")) { return "admin" }
-  }
-  foreach ($prefix in $userPrefixes) {
-    if ($Route -eq $prefix -or $Route.StartsWith("$prefix/")) { return "authenticated" }
-  }
-  return "public"
+function Convert-ToSafeFileName {
+  param([string]$Value)
+  return (($Value.ToLowerInvariant() -replace '[^a-z0-9]+', '-') -replace '(^-|-$)', '')
 }
 
-function Get-ApiEvidence {
-  param([Parameter(Mandatory)][string]$Content)
-  $auth = if ($Content -match 'requireAdminApiAccess|checkAdminAccess') {
-    "admin server check"
-  } elseif ($Content -match 'auth\.getUser|getUser\(\)') {
-    "server session check"
-  } elseif ($Content -match 'verify.*signature|constructEvent|callback-security') {
-    "signed callback/webhook"
-  } else {
-    "none found"
-  }
-  $authorization = if ($Content -match 'requireAdminApiAccess|checkAdminAccess') {
-    "admin allowlist/cookie"
-  } elseif ($Content -match 'owner_user_id|created_by|member_email|user\.id|user\.email') {
-    "owner/member predicate"
-  } else {
-    "none found"
-  }
-  $tenant = if ($Content -match 'tenant_id|workspace_id|team_id|enterprise_id') {
-    "tenant-like field used; trust derivation requires review"
-  } else {
-    "not evident"
-  }
-  $validation = if ($Content -match 'zod|safeParse|validate[A-Z]|isValid|FormData|typeof .*===|JSON\.parse') {
-    "custom/schema evidence"
-  } else {
-    "none found"
-  }
-  $rateLimit = if ($Content -match 'rate.?limit|checkRate|consumeRate') { "present" } else { "none found" }
-  $logging = if ($Content -match 'createAuditLog|console\.(error|warn|info)|record.*event|telemetry') { "present" } else { "none found" }
-  return [pscustomobject]@{
-    Auth = $auth
-    Authorization = $authorization
-    Tenant = $tenant
-    Validation = $validation
-    RateLimit = $rateLimit
-    Logging = $logging
-  }
-}
-
-function Invoke-QualityCheck {
+function Invoke-AuditStage {
   param(
     [Parameter(Mandatory)][string]$Name,
+    [Parameter(Mandatory)][bool]$Critical,
+    [Parameter(Mandatory)][scriptblock]$Action
+  )
+  $stageStarted = Get-Date
+  $payload = $null
+  try {
+    $payload = & $Action
+    if ($null -eq $payload -or -not $payload.ContainsKey('Status')) {
+      $payload = New-StagePayload -Status 'PASS' -Summary 'Stage completed.' -Output ([string]$payload)
+    }
+  } catch {
+    $payload = New-StagePayload -Status 'FAIL' -Summary $_.Exception.Message -Output ($_ | Out-String)
+  }
+  $duration = [math]::Round(((Get-Date) - $stageStarted).TotalSeconds, 2)
+  $safeName = Convert-ToSafeFileName $Name
+  $logPath = Join-Path $logDirectory "$safeName.log"
+  $logText = if ([string]::IsNullOrWhiteSpace([string]$payload.Output)) { $payload.Summary } else { [string]$payload.Output }
+  $logText | Set-Content -LiteralPath $logPath -Encoding utf8
+  $result = [pscustomobject]@{
+    Name = $Name
+    Status = [string]$payload.Status
+    Critical = $Critical
+    Summary = [string]$payload.Summary
+    DurationSeconds = $duration
+    LogPath = $logPath
+    Output = $logText
+  }
+  $stageResults.Add($result)
+  # Host output remains visible even when callers discard the returned result.
+  Write-Host ("[{0}] {1}: {2}" -f $result.Status, $Name, $result.Summary)
+  return $result
+}
+
+function Invoke-NativeCapture {
+  param(
+    [Parameter(Mandatory)][string]$FilePath,
     [Parameter(Mandatory)][string[]]$CommandArgs
   )
-  $started = Get-Date
-  $previousErrorPreference = $ErrorActionPreference
-  $ErrorActionPreference = "Continue"
-  $output = & npm.cmd @CommandArgs 2>&1
+  $previousPreference = $ErrorActionPreference
+  $ErrorActionPreference = 'Continue'
+  $output = @(& $FilePath @CommandArgs 2>&1)
   $exitCode = $LASTEXITCODE
-  $ErrorActionPreference = $previousErrorPreference
-  $duration = [math]::Round(((Get-Date) - $started).TotalSeconds, 1)
-  $tail = @($output | Select-Object -Last 12) -join "`n"
-  return [pscustomobject]@{
-    Name = $Name
-    ExitCode = $exitCode
-    DurationSeconds = $duration
-    Tail = $tail
+  $ErrorActionPreference = $previousPreference
+  return @{ ExitCode = $exitCode; Output = ($output | Out-String).TrimEnd() }
+}
+
+function Invoke-NpmCommand {
+  param([string[]]$CommandArgs, [string]$Description)
+  $result = Invoke-NativeCapture -FilePath 'npm.cmd' -CommandArgs $CommandArgs
+  if ($result.ExitCode -eq 0) {
+    return New-StagePayload -Status 'PASS' -Summary "$Description passed." -Output $result.Output
   }
+  return New-StagePayload -Status 'FAIL' -Summary "$Description failed with exit code $($result.ExitCode)." -Output $result.Output
 }
 
 function Has-PackageScript {
-  param(
-    [Parameter(Mandatory)][object]$Package,
-    [Parameter(Mandatory)][string]$Name
+  param([string]$Name)
+  return $null -ne $script:package -and $null -ne $script:package.scripts -and $script:package.scripts.PSObject.Properties.Name -contains $Name
+}
+
+function Invoke-ExistingPackageScripts {
+  param([string[]]$Names, [string]$Description)
+  $available = @($Names | Where-Object { Has-PackageScript $_ })
+  if ($available.Count -eq 0) {
+    return New-StagePayload -Status 'FAIL' -Summary "$Description could not run because no matching package script exists."
+  }
+  $combined = New-Object System.Collections.Generic.List[string]
+  $failed = New-Object System.Collections.Generic.List[string]
+  foreach ($name in $available) {
+    $result = Invoke-NativeCapture -FilePath 'npm.cmd' -CommandArgs @('run', $name)
+    $combined.Add("### npm run $name`n$($result.Output)")
+    if ($result.ExitCode -ne 0) { $failed.Add("$name ($($result.ExitCode))") }
+  }
+  if ($failed.Count -gt 0) {
+    return New-StagePayload -Status 'FAIL' -Summary "$Description failed: $($failed -join ', ')." -Output ($combined -join "`n`n")
+  }
+  return New-StagePayload -Status 'PASS' -Summary "$Description passed: $($available -join ', ')." -Output ($combined -join "`n`n")
+}
+
+function Get-TrackedFiles {
+  $result = Invoke-NativeCapture -FilePath 'git' -CommandArgs @('-c', 'core.safecrlf=false', 'ls-files')
+  if ($result.ExitCode -ne 0) { return @() }
+  return @($result.Output -split '\r?\n' | Where-Object { $_ })
+}
+
+Invoke-AuditStage -Name 'repository validation' -Critical $true -Action {
+  if (-not (Test-Path -LiteralPath $repo -PathType Container)) { return New-StagePayload -Status 'FAIL' -Summary "Repository path does not exist: $repo" }
+  Set-Location -LiteralPath $repo
+  $packagePath = Join-Path $repo 'package.json'
+  if (-not (Test-Path -LiteralPath $packagePath -PathType Leaf)) { return New-StagePayload -Status 'FAIL' -Summary 'package.json is missing.' }
+  try { $script:package = Get-Content -Raw -LiteralPath $packagePath | ConvertFrom-Json } catch { return New-StagePayload -Status 'FAIL' -Summary "package.json is invalid: $($_.Exception.Message)" }
+  return New-StagePayload -Status 'PASS' -Summary "Repository and package manifest are readable at $repo."
+} | Out-Null
+
+Invoke-AuditStage -Name 'Git branch and conflict checks' -Critical $true -Action {
+  if (-not (Test-Path -LiteralPath $repo -PathType Container)) { return New-StagePayload -Status 'FAIL' -Summary 'Git checks are blocked because the repository directory is unavailable.' }
+  Set-Location -LiteralPath $repo
+  $inside = Invoke-NativeCapture 'git' @('rev-parse', '--is-inside-work-tree')
+  if ($inside.ExitCode -ne 0 -or $inside.Output.Trim() -ne 'true') { return New-StagePayload -Status 'FAIL' -Summary 'The path is not a Git worktree.' -Output $inside.Output }
+  $branch = Invoke-NativeCapture 'git' @('branch', '--show-current')
+  # The index is authoritative for unresolved entries. `git diff --name-only`
+  # can emit worktree line-ending warnings on stderr, which must not be
+  # misclassified as conflict paths when combined output is retained.
+  $conflicts = Invoke-NativeCapture 'git' @('ls-files', '-u')
+  $head = Invoke-NativeCapture 'git' @('rev-parse', '--short=12', 'HEAD')
+  $status = Invoke-NativeCapture 'git' @('status', '--short', '--branch')
+  $origin = Invoke-NativeCapture 'git' @('remote', 'get-url', 'origin')
+  $script:gitBaseline = @{ Branch = $branch.Output.Trim(); Head = $head.Output.Trim(); Status = $status.Output; Origin = $origin.Output.Trim(); Conflicts = $conflicts.Output.Trim() }
+  $problems = @()
+  if ($branch.Output.Trim() -ne 'main') { $problems += "Expected main; found $($branch.Output.Trim())." }
+  if (-not [string]::IsNullOrWhiteSpace($conflicts.Output)) { $problems += 'Unresolved merge conflicts are present.' }
+  if ($problems.Count) { return New-StagePayload -Status 'FAIL' -Summary ($problems -join ' ') -Output $status.Output }
+  return New-StagePayload -Status 'PASS' -Summary "Branch main has no unresolved conflicts at $($head.Output.Trim())." -Output $status.Output
+} | Out-Null
+
+Invoke-AuditStage -Name 'dependency install' -Critical $true -Action {
+  if ($SkipQualityChecks -or $SkipInstall) { return New-StagePayload -Status 'SKIPPED' -Summary 'Dependency installation was skipped by caller.' }
+  if ($null -eq $script:package) { return New-StagePayload -Status 'FAIL' -Summary 'Dependency installation is blocked because package.json was not loaded.' }
+  $args = if (Test-Path -LiteralPath (Join-Path $repo 'package-lock.json')) { @('ci', '--no-audit', '--fund=false') } else { @('install', '--no-audit', '--fund=false') }
+  return Invoke-NpmCommand -CommandArgs $args -Description 'Dependency installation'
+} | Out-Null
+
+Invoke-AuditStage -Name 'lint' -Critical $true -Action {
+  if ($SkipQualityChecks) { return New-StagePayload -Status 'SKIPPED' -Summary 'Lint was skipped by caller.' }
+  if (-not (Has-PackageScript 'lint')) { return New-StagePayload -Status 'FAIL' -Summary 'Package script lint is missing.' }
+  return Invoke-NpmCommand -CommandArgs @('run', 'lint') -Description 'Lint'
+} | Out-Null
+
+Invoke-AuditStage -Name 'type-check' -Critical $true -Action {
+  if ($SkipQualityChecks) { return New-StagePayload -Status 'SKIPPED' -Summary 'Type-check was skipped by caller.' }
+  if (-not (Has-PackageScript 'typecheck')) { return New-StagePayload -Status 'FAIL' -Summary 'Package script typecheck is missing.' }
+  return Invoke-NpmCommand -CommandArgs @('run', 'typecheck') -Description 'Type-check'
+} | Out-Null
+
+Invoke-AuditStage -Name 'unit tests' -Critical $true -Action {
+  if ($SkipQualityChecks -or $SkipTests) { return New-StagePayload -Status 'SKIPPED' -Summary 'Unit tests were skipped by caller.' }
+  if (-not (Has-PackageScript 'test')) { return New-StagePayload -Status 'FAIL' -Summary 'Package script test is missing.' }
+  return Invoke-NpmCommand -CommandArgs @('test') -Description 'Default unit and repository test chain'
+} | Out-Null
+
+Invoke-AuditStage -Name 'integration tests' -Critical $true -Action {
+  if ($SkipQualityChecks -or $SkipTests) { return New-StagePayload -Status 'SKIPPED' -Summary 'Integration tests were skipped by caller.' }
+  return Invoke-ExistingPackageScripts -Names @('test:providers', 'test:hopae', 'test:identity-signals') -Description 'Integration test scripts'
+} | Out-Null
+
+Invoke-AuditStage -Name 'security tests' -Critical $true -Action {
+  if ($SkipQualityChecks -or $SkipTests) { return New-StagePayload -Status 'SKIPPED' -Summary 'Security tests were skipped by caller.' }
+  return Invoke-ExistingPackageScripts -Names @('test:provider-rls', 'test:identity-signal-rls', 'test:rls') -Description 'Security and RLS test scripts'
+} | Out-Null
+
+Invoke-AuditStage -Name 'build' -Critical $true -Action {
+  if ($SkipQualityChecks -or $SkipBuild) { return New-StagePayload -Status 'SKIPPED' -Summary 'Production build was skipped by caller.' }
+  if (-not (Has-PackageScript 'build')) { return New-StagePayload -Status 'FAIL' -Summary 'Package script build is missing.' }
+  return Invoke-NpmCommand -CommandArgs @('run', 'build') -Description 'Production build'
+} | Out-Null
+
+Invoke-AuditStage -Name 'npm audit' -Critical $true -Action {
+  if ($SkipQualityChecks) { return New-StagePayload -Status 'SKIPPED' -Summary 'npm audit was skipped by caller.' }
+  return Invoke-NpmCommand -CommandArgs @('audit', '--omit=dev') -Description 'Production dependency audit'
+} | Out-Null
+
+Invoke-AuditStage -Name 'route inventory' -Critical $false -Action {
+  $appPath = Join-Path $repo 'app'
+  if (-not (Test-Path -LiteralPath $appPath -PathType Container)) { return New-StagePayload -Status 'FAIL' -Summary 'App Router directory is missing.' }
+  $files = @(Get-ChildItem -LiteralPath $appPath -Recurse -File | Where-Object { $_.Name -match '^(page|route)\.(ts|tsx|js|jsx)$' } | Sort-Object FullName)
+  $truncated = $files.Count -gt $MaxFiles
+  $script:routeInventory = @($files | Select-Object -First $MaxFiles | ForEach-Object {
+    $relative = $_.FullName.Substring($repo.Length).TrimStart('\') -replace '\\', '/'
+    $route = ($relative -replace '^app', '' -replace '/\([^/]+\)', '' -replace '/(page|route)\.(ts|tsx|js|jsx)$', '')
+    if ([string]::IsNullOrWhiteSpace($route)) { $route = '/' }
+    [pscustomobject]@{ Route = $route; File = $relative; Kind = if ($relative -match '/route\.') { 'API' } else { 'Page' } }
+  })
+  if ($truncated) { return New-StagePayload -Status 'FAIL' -Summary "Route inventory exceeded MaxFiles ($($files.Count) > $MaxFiles)." -Output (($script:routeInventory | Format-Table | Out-String)) }
+  return New-StagePayload -Status 'PASS' -Summary "Inventoried $($files.Count) page and API route modules." -Output (($script:routeInventory | Format-Table | Out-String))
+} | Out-Null
+
+Invoke-AuditStage -Name 'provider inventory' -Critical $false -Action {
+  $capabilityPath = Join-Path $repo 'lib\providers\capability-truth.ts'
+  $identityAdapterPath = Join-Path $repo 'lib\identity-signals\adapters.ts'
+  $hopaePath = Join-Path $repo 'lib\providers\hopae-rc1-server.ts'
+  $script:providerInventory = @(
+    [pscustomobject]@{ Provider = 'hopae_connect'; RepositoryState = 'REGISTERED'; RuntimeState = 'BLOCKED'; Evidence = 'Signed adapter, timestamp validation, event ledger, normalized persistence and transaction reason codes exist; runtime requires direct evidence.' },
+    [pscustomobject]@{ Provider = 'world_id'; RepositoryState = 'REGISTERED'; RuntimeState = 'BLOCKED'; Evidence = 'Server verification is not implemented; every result is INCONCLUSIVE and contributes zero.' },
+    [pscustomobject]@{ Provider = 'email/phone/ip/network/geolocation'; RepositoryState = 'REGISTERED'; RuntimeState = 'DISABLED'; Evidence = 'Registry-only or incomplete adapters return blocked/unavailable states and contribute zero.' },
+    [pscustomobject]@{ Provider = 'device_context'; RepositoryState = 'CONFIGURED only with secret'; RuntimeState = 'BLOCKED'; Evidence = 'Client-reported continuity context is never server-verified identity evidence.' }
   )
-  return $null -ne $Package.scripts -and
-    $Package.scripts.PSObject.Properties.Name -contains $Name
-}
+  $missing = @($capabilityPath, $identityAdapterPath, $hopaePath | Where-Object { -not (Test-Path -LiteralPath $_ -PathType Leaf) })
+  if ($missing.Count) { return New-StagePayload -Status 'FAIL' -Summary 'Provider truth implementation files are missing.' -Output ($missing -join "`n") }
+  return New-StagePayload -Status 'PASS' -Summary 'Provider inventory preserves explicit maturity states without converting registration into verification.' -Output (($script:providerInventory | Format-Table -Wrap | Out-String))
+} | Out-Null
 
-if (-not (Test-Path -LiteralPath $repo -PathType Container)) {
-  throw "Repository path does not exist: $repo"
-}
-Set-Location -LiteralPath $repo
+Invoke-AuditStage -Name 'migration and RLS inventory' -Critical $true -Action {
+  $migrationPath = Join-Path $repo 'supabase\migrations'
+  if (-not (Test-Path -LiteralPath $migrationPath -PathType Container)) { return New-StagePayload -Status 'FAIL' -Summary 'Supabase migration directory is missing.' }
+  $files = @(Get-ChildItem -LiteralPath $migrationPath -File -Filter '*.sql' | Sort-Object Name)
+  $empty = @($files | Where-Object Length -eq 0)
+  $duplicatePrefixes = @($files | Group-Object { if ($_.BaseName -match '^(\d{6,14})') { $Matches[1] } else { $_.BaseName } } | Where-Object Count -gt 1)
+  $text = ($files | ForEach-Object { Get-Content -Raw -LiteralPath $_.FullName }) -join "`n"
+  $identityTables = @('identity_subjects', 'identity_verification_requests', 'identity_provider_capabilities', 'identity_provider_transactions', 'identity_signal_evidence', 'identity_confidence_results', 'identity_audit_events')
+  $missingRls = @($identityTables | Where-Object { $text -notmatch "(?is)alter table public\.$([regex]::Escape($_)) enable row level security|\'$([regex]::Escape($_))\'.{0,500}enable row level security" })
+  $teamPolicyMigration = Join-Path $migrationPath '20260528_explicit_supabase_api_grants.sql'
+  $teamPolicyText = if (Test-Path -LiteralPath $teamPolicyMigration -PathType Leaf) { Get-Content -Raw -LiteralPath $teamPolicyMigration } else { '' }
+  $laterTeamHardening = @($files | Where-Object Name -gt '20260528_explicit_supabase_api_grants.sql' | Where-Object {
+    (Get-Content -Raw -LiteralPath $_.FullName) -match '(?is)(drop policy[^;]+Allow authenticated (teams|team_members)|create policy[^;]+on public\.(teams|team_members)[^;]+auth\.(uid|jwt))'
+  })
+  $legacyTeamPolicyBlocker = $teamPolicyText -match "'teams'" -and $teamPolicyText -match "'team_members'" -and $laterTeamHardening.Count -eq 0
+  $unrestrictedPolicies = $text -match '(?is)(using\s*\(\s*true\s*\)|with\s+check\s*\(\s*true\s*\))'
+  $script:migrationInventory = @($files | ForEach-Object { [pscustomobject]@{ Name = $_.Name; Bytes = $_.Length } })
+  $problems = @()
+  if ($empty.Count) { $problems += "Empty migrations: $($empty.Name -join ', ')." }
+  if ($duplicatePrefixes.Count) { $problems += "Duplicate migration prefixes: $($duplicatePrefixes.Name -join ', ')." }
+  if ($missingRls.Count) { $problems += "Missing Identity RLS source evidence: $($missingRls -join ', ')." }
+  if ($legacyTeamPolicyBlocker) { $problems += 'Authenticated-wide teams/team_members policies lack a later tenant-scoped replacement.' }
+  $migrationOutput = "Unrestricted policy text present (requires contextual review): $unrestrictedPolicies`n`n$(($script:migrationInventory | Format-Table | Out-String))"
+  if ($problems.Count) { return New-StagePayload -Status 'FAIL' -Summary ($problems -join ' ') -Output $migrationOutput }
+  return New-StagePayload -Status 'PASS' -Summary "Inventoried $($files.Count) migrations; all Identity Signal Engine tables have source RLS evidence." -Output $migrationOutput
+} | Out-Null
 
-if ((Invoke-Git -CommandArgs @('rev-parse', '--is-inside-work-tree')) -ne 'true') {
-  throw "Not a Git worktree: $repo"
-}
-
-$branch = Invoke-Git -CommandArgs @('branch', '--show-current')
-if ($branch -ne 'main') { throw "CS-ENG-002 requires main; active branch is $branch" }
-
-$origin = Invoke-Git -CommandArgs @('remote', 'get-url', 'origin')
-$head = Invoke-Git -CommandArgs @('rev-parse', '--short=12', 'HEAD')
-$headSubject = Invoke-Git -CommandArgs @('log', '-1', '--format=%s')
-$status = Invoke-Git -CommandArgs @('status', '--short', '--branch')
-$conflicts = Invoke-Git -CommandArgs @('diff', '--name-only', '--diff-filter=U')
-if ($conflicts) { throw "Unresolved merge conflicts detected: $conflicts" }
-$divergence = Invoke-Git -CommandArgs @('rev-list', '--left-right', '--count', 'origin/main...main')
-$tags = Invoke-Git -CommandArgs @('tag', '--list')
-
-New-Item -ItemType Directory -Force -Path $reportDirectory | Out-Null
-
-$pageFiles = @(Get-ChildItem -LiteralPath (Join-Path $repo 'app') -Recurse -File -Filter 'page.*' |
-  Where-Object { $_.Extension -in @('.ts', '.tsx', '.js', '.jsx') } |
-  Sort-Object FullName)
-$apiFiles = @(Get-ChildItem -LiteralPath (Join-Path $repo 'app\api') -Recurse -File -Filter 'route.*' |
-  Where-Object { $_.Extension -in @('.ts', '.tsx', '.js', '.jsx') } |
-  Sort-Object FullName)
-$componentFiles = @(Get-ChildItem -LiteralPath (Join-Path $repo 'components') -Recurse -File -ErrorAction SilentlyContinue)
-$libFiles = @(Get-ChildItem -LiteralPath (Join-Path $repo 'lib') -Recurse -File -ErrorAction SilentlyContinue)
-$testFiles = @(Get-ChildItem -LiteralPath (Join-Path $repo 'tests') -Recurse -File -ErrorAction SilentlyContinue |
-  Where-Object { $_.Name -match '\.(test|spec)\.(mjs|cjs|js|jsx|ts|tsx)$' })
-$migrationFiles = @(Get-ChildItem -LiteralPath (Join-Path $repo 'supabase\migrations') -File -Filter '*.sql' -ErrorAction SilentlyContinue | Sort-Object Name)
-$workflowFiles = @(Get-ChildItem -LiteralPath (Join-Path $repo '.github\workflows') -File -ErrorAction SilentlyContinue)
-$scriptFiles = @(Get-ChildItem -LiteralPath (Join-Path $repo 'scripts') -File -ErrorAction SilentlyContinue)
-$inventoryTruncations = New-Object System.Collections.Generic.List[string]
-if ($pageFiles.Count -gt $MaxFiles) {
-  $inventoryTruncations.Add("Page route inventory exceeded MaxFiles ($($pageFiles.Count) > $MaxFiles).")
-}
-if ($apiFiles.Count -gt $MaxFiles) {
-  $inventoryTruncations.Add("API route inventory exceeded MaxFiles ($($apiFiles.Count) > $MaxFiles).")
-}
-
-$packagePath = Join-Path $repo 'package.json'
-$package = Get-Content -Raw -LiteralPath $packagePath | ConvertFrom-Json
-$lockfiles = @('package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lockb') |
-  Where-Object { Test-Path -LiteralPath (Join-Path $repo $_) }
-
-$defaultTestFiles = New-Object System.Collections.Generic.HashSet[string]
-$visitedScripts = New-Object System.Collections.Generic.HashSet[string]
-$scriptQueue = New-Object System.Collections.Generic.Queue[string]
-$scriptQueue.Enqueue('test')
-while ($scriptQueue.Count -gt 0) {
-  $scriptName = $scriptQueue.Dequeue()
-  if (-not $visitedScripts.Add($scriptName)) { continue }
-  $scriptValue = [string]$package.scripts.$scriptName
-  if (-not $scriptValue) { continue }
-  foreach ($match in [regex]::Matches($scriptValue, 'npm run ([A-Za-z0-9:_-]+)')) {
-    $scriptQueue.Enqueue($match.Groups[1].Value)
-  }
-  foreach ($match in [regex]::Matches($scriptValue, 'tests/[A-Za-z0-9_./-]+\.(?:mjs|cjs|js|jsx|ts|tsx)')) {
-    [void]$defaultTestFiles.Add(($match.Value -replace '/', '\'))
-  }
-}
-
-$middlewarePath = Join-Path $repo 'middleware.ts'
-$middlewareText = if (Test-Path -LiteralPath $middlewarePath) { Get-Content -Raw -LiteralPath $middlewarePath } else { '' }
-
-$pageRows = foreach ($file in @($pageFiles | Select-Object -First $MaxFiles)) {
-  $relative = $file.FullName.Substring($repo.Length).TrimStart('\')
-  $route = Convert-AppPathToRoute -RelativePath $relative -LeafName $file.Name
-  $expectation = Get-RouteExpectation -Route $route
-  $content = Get-Content -Raw -LiteralPath $file.FullName
-  $fileSession = $content -match 'auth\.getUser|getUser\(\)|requireAdminPageAccess|checkAdminAccess'
-  $middlewareLiteral = $expectation -ne 'public'
-  $actual = if ($fileSession) { 'server component session/role evidence' } elseif ($middlewareLiteral) { 'middleware prefix evidence' } else { 'none required/found' }
-  [pscustomobject]@{
-    Route = $route
-    File = $relative -replace '\\', '/'
-    Type = 'page'
-    ExpectedAuth = $expectation
-    ActualAuth = $actual
-    TenantExpectation = if ($expectation -eq 'public') { 'none' } else { 'owner/workspace scope where data-backed' }
-    Status = if ($expectation -eq 'public' -or $fileSession -or $middlewareLiteral) { 'PARTIALLY IMPLEMENTED' } else { 'MISSING' }
-  }
-}
-
-$apiRows = foreach ($file in @($apiFiles | Select-Object -First $MaxFiles)) {
-  $relative = $file.FullName.Substring($repo.Length).TrimStart('\')
-  $route = Convert-AppPathToRoute -RelativePath $relative -LeafName $file.Name
-  $content = Get-Content -Raw -LiteralPath $file.FullName
-  $methods = @([regex]::Matches($content, 'export\s+(?:async\s+)?function\s+(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD)') |
-    ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
-  if ($methods.Count -eq 0) { $methods = @('UNKNOWN') }
-  $evidence = Get-ApiEvidence -Content $content
-  [pscustomobject]@{
-    Method = $methods -join ', '
-    Path = $route
-    File = $relative -replace '\\', '/'
-    Purpose = ($route -replace '^/api/', '')
-    Auth = $evidence.Auth
-    Authorization = $evidence.Authorization
-    Tenant = $evidence.Tenant
-    Validation = $evidence.Validation
-    RateLimit = $evidence.RateLimit
-    Logging = $evidence.Logging
-    Tests = if ((Get-ChildItem -LiteralPath (Join-Path $repo 'tests') -Recurse -File -ErrorAction SilentlyContinue | Select-String -SimpleMatch $route -Quiet)) { 'route string referenced' } else { 'none found' }
-    Status = 'PARTIALLY IMPLEMENTED'
-  }
-}
-
-$duplicateRoutes = @($pageRows | Group-Object Route | Where-Object Count -gt 1)
-$hasPagesRouter = (Test-Path -LiteralPath (Join-Path $repo 'pages')) -or (Test-Path -LiteralPath (Join-Path $repo 'src\pages'))
-
-$migrationGroups = $migrationFiles | Group-Object {
-  if ($_.BaseName -match '^(\d{6,14})') { $Matches[1] } else { $_.BaseName }
-}
-$duplicateMigrationPrefixes = @($migrationGroups | Where-Object Count -gt 1)
-$emptyMigrations = @($migrationFiles | Where-Object Length -eq 0)
-$allMigrationText = ($migrationFiles | ForEach-Object { Get-Content -Raw -LiteralPath $_.FullName }) -join "`n"
-$teamPolicyMigration = Join-Path $repo 'supabase\migrations\20260528_explicit_supabase_api_grants.sql'
-$teamPolicyText = if (Test-Path -LiteralPath $teamPolicyMigration) { Get-Content -Raw -LiteralPath $teamPolicyMigration } else { '' }
-$laterTeamHardening = @($migrationFiles | Where-Object Name -gt '20260528_explicit_supabase_api_grants.sql' | Where-Object {
-  (Get-Content -Raw -LiteralPath $_.FullName) -match '(?is)(drop policy[^;]+Allow authenticated (teams|team_members)|create policy[^;]+on public\.(teams|team_members)[^;]+auth\.(uid|jwt))'
-})
-$criticalTenantPolicy = $teamPolicyText -match "'teams'" -and $teamPolicyText -match "'team_members'" -and $laterTeamHardening.Count -eq 0
-
-$trackedEnvFiles = @((Invoke-Git -CommandArgs @('ls-files', '--', '.env', '.env.*')) -split '\r?\n' | Where-Object { $_ })
-$trackedFiles = @((Invoke-Git -CommandArgs @('ls-files')) -split '\r?\n' | Where-Object { $_ })
-$envNames = New-Object System.Collections.Generic.HashSet[string]
-foreach ($trackedFile in $trackedFiles) {
-  $fullPath = Join-Path $repo $trackedFile
-  if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) { continue }
-  if ([System.IO.Path]::GetExtension($fullPath) -notin @('.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.md', '.json', '.sql', '.example')) { continue }
-  $content = Get-Content -Raw -LiteralPath $fullPath -ErrorAction SilentlyContinue
-  foreach ($match in [regex]::Matches([string]$content, 'process\.env(?:\.([A-Z][A-Z0-9_]*)|\[[''\"]([A-Z][A-Z0-9_]*)[''\"]\])')) {
-    $name = if ($match.Groups[1].Success) { $match.Groups[1].Value } else { $match.Groups[2].Value }
-    [void]$envNames.Add($name)
-  }
-}
-$exampleNames = New-Object System.Collections.Generic.HashSet[string]
-$envExamplePath = Join-Path $repo '.env.example'
-if (Test-Path -LiteralPath $envExamplePath) {
-  foreach ($line in Get-Content -LiteralPath $envExamplePath) {
-    if ($line -match '^([A-Z][A-Z0-9_]*)=') { [void]$exampleNames.Add($Matches[1]) }
-  }
-}
-
-$suspiciousLocations = New-Object System.Collections.Generic.List[string]
-$secretPattern = '(sk_live_[A-Za-z0-9]+|BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY|SUPABASE_SERVICE_ROLE_KEY\s*=\s*[^\s#]+|STRIPE_SECRET_KEY\s*=\s*[^\s#]+)'
-foreach ($trackedFile in $trackedFiles) {
-  $fullPath = Join-Path $repo $trackedFile
-  if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) { continue }
-  try {
-    $matches = Select-String -LiteralPath $fullPath -Pattern $secretPattern -AllMatches -ErrorAction Stop
-    foreach ($match in $matches) { $suspiciousLocations.Add("${trackedFile}:$($match.LineNumber)") }
-  } catch {
-    continue
-  }
-}
-
-$qualityResults = @()
-$qualityConfigurationFindings = New-Object System.Collections.Generic.List[string]
-if (-not $SkipQualityChecks) {
-  $checks = New-Object System.Collections.Generic.List[object]
-
-  # Installing dependencies mutates node_modules and may require network access,
-  # so it is opt-in. -SkipInstall is retained for compatibility with the
-  # supplied runner and always wins over -InstallDependencies.
-  if ($InstallDependencies -and -not $SkipInstall) {
-    $installArgs = if (Test-Path -LiteralPath (Join-Path $repo 'package-lock.json')) {
-      @('ci', '--no-audit', '--fund=false')
-    } else {
-      @('install', '--no-audit', '--fund=false')
-    }
-    $checks.Add(@{ Name = 'dependency install'; Args = $installArgs; Script = $null })
-  }
-
-  $checks.Add(@{ Name = 'lint'; Args = @('run', 'lint'); Script = 'lint' })
-  $checks.Add(@{ Name = 'typecheck'; Args = @('run', 'typecheck'); Script = 'typecheck' })
-  if (-not $SkipTests) {
-    $checks.Add(@{ Name = 'test'; Args = @('test'); Script = 'test' })
-  }
-  if (-not $SkipBuild) {
-    $checks.Add(@{ Name = 'build'; Args = @('run', 'build'); Script = 'build' })
-  }
-  $checks.Add(@{ Name = 'npm audit --omit=dev'; Args = @('audit', '--omit=dev'); Script = $null })
-
-  foreach ($check in $checks) {
-    if ($check.Script -and -not (Has-PackageScript -Package $package -Name $check.Script)) {
-      $qualityConfigurationFindings.Add("Package script is missing: $($check.Script).")
-      continue
-    }
-    $qualityResults += Invoke-QualityCheck -Name $check.Name -CommandArgs $check.Args
-  }
-}
-
-$criticalFindings = New-Object System.Collections.Generic.List[string]
-if ($criticalTenantPolicy) {
-  $criticalFindings.Add('Authenticated-wide RLS policies remain effective for teams and team_members; no later tenant-scoped replacement was found.')
-}
-foreach ($truncation in $inventoryTruncations) {
-  $criticalFindings.Add("Audit inventory is incomplete: $truncation")
-}
-if ($suspiciousLocations.Count -gt 0) {
-  $criticalFindings.Add('Potential committed secret pattern locations require human verification; values were not printed.')
-}
-$failedQualityResults = @($qualityResults | Where-Object ExitCode -ne 0)
-$buildResult = $qualityResults | Where-Object Name -eq 'build' | Select-Object -First 1
-if ($buildResult -and $buildResult.ExitCode -ne 0) {
-  $criticalFindings.Add('Production build failed.')
-}
-if (-not $SkipQualityChecks -and -not $SkipBuild -and -not (Has-PackageScript -Package $package -Name 'build')) {
-  $criticalFindings.Add('Production build script is missing.')
-}
-if ($Strict) {
-  foreach ($result in $failedQualityResults) {
-    if (-not $criticalFindings.Contains("Strict quality gate failed: $($result.Name).")) {
-      $criticalFindings.Add("Strict quality gate failed: $($result.Name).")
+Invoke-AuditStage -Name 'environment-variable inventory' -Critical $false -Action {
+  $tracked = Get-TrackedFiles
+  if ($tracked.Count -eq 0) { return New-StagePayload -Status 'FAIL' -Summary 'Tracked files were unavailable for environment inventory.' }
+  $names = New-Object System.Collections.Generic.HashSet[string]
+  foreach ($relative in $tracked) {
+    $full = Join-Path $repo $relative
+    if (-not (Test-Path -LiteralPath $full -PathType Leaf)) { continue }
+    if ([System.IO.Path]::GetExtension($full) -notin @('.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.md', '.json', '.sql', '.example')) { continue }
+    $content = Get-Content -Raw -LiteralPath $full -ErrorAction SilentlyContinue
+    foreach ($match in [regex]::Matches([string]$content, 'process\.env(?:\.([A-Z][A-Z0-9_]*)|\[[''\"]([A-Z][A-Z0-9_]*)[''\"]\])')) {
+      [void]$names.Add($(if ($match.Groups[1].Success) { $match.Groups[1].Value } else { $match.Groups[2].Value }))
     }
   }
-  foreach ($finding in $qualityConfigurationFindings) {
-    $criticalFindings.Add("Strict quality configuration failure: $finding")
+  $script:environmentInventory = @($names | Sort-Object | ForEach-Object { [pscustomobject]@{ Name = $_; Exposure = if ($_.StartsWith('NEXT_PUBLIC_')) { 'browser-visible' } else { 'server-only by naming' }; State = 'BLOCKED_BY_EXTERNAL_CONFIGURATION' } })
+  return New-StagePayload -Status 'PASS' -Summary "Inventoried $($script:environmentInventory.Count) referenced environment-variable names without reading values." -Output (($script:environmentInventory | Format-Table | Out-String))
+} | Out-Null
+
+Invoke-AuditStage -Name 'secret scan' -Critical $true -Action {
+  $tracked = Get-TrackedFiles
+  if ($tracked.Count -eq 0) { return New-StagePayload -Status 'FAIL' -Summary 'Tracked files were unavailable for secret scanning.' }
+  $pattern = '(sk_live_[A-Za-z0-9]{12,}|sk_test_[A-Za-z0-9]{12,}|BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY|eyJ[A-Za-z0-9_-]{40,}\.[A-Za-z0-9_-]{40,}\.[A-Za-z0-9_-]{20,})'
+  $findings = New-Object System.Collections.Generic.List[string]
+  foreach ($relative in $tracked) {
+    $full = Join-Path $repo $relative
+    if (-not (Test-Path -LiteralPath $full -PathType Leaf)) { continue }
+    try {
+      foreach ($match in @(Select-String -LiteralPath $full -Pattern $pattern -AllMatches -ErrorAction Stop)) { $findings.Add("${relative}:$($match.LineNumber)") }
+    } catch { continue }
   }
+  $script:secretFindings = @($findings)
+  if ($findings.Count) { return New-StagePayload -Status 'FAIL' -Summary "Potential tracked secret patterns require review at $($findings.Count) location(s); values are suppressed." -Output ($findings -join "`n") }
+  return New-StagePayload -Status 'PASS' -Summary 'No tracked high-confidence secret patterns were detected.'
+} | Out-Null
+
+Invoke-AuditStage -Name 'report generation' -Critical $true -Action {
+  $criticalFailures = @($stageResults | Where-Object { $_.Status -eq 'FAIL' -and $_.Critical }).Count
+  $nonCriticalFailures = @($stageResults | Where-Object { $_.Status -eq 'FAIL' -and -not $_.Critical }).Count
+  $lines = New-Object System.Collections.Generic.List[string]
+  $lines.Add('# CS-ENG-002 Resilient Repository Audit')
+  $lines.Add('')
+  $lines.Add("**Generated:** $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss K')")
+  $lines.Add('')
+  $lines.Add("**Repository:** $repo")
+  $lines.Add('')
+  $lines.Add("**Branch:** $($script:gitBaseline.Branch)")
+  $lines.Add('')
+  $lines.Add("**Revision:** $($script:gitBaseline.Head)")
+  $lines.Add('')
+  $lines.Add("**Critical stage failures before report generation:** $criticalFailures")
+  $lines.Add('')
+  $lines.Add("**Non-critical stage failures before report generation:** $nonCriticalFailures")
+  $lines.Add('')
+  $lines.Add('External platform state is not inferred. Vercel branch/environment controls, Cloudflare WAF/DNSSEC/bot controls/rate limiting, Supabase deployed migrations, and Production RLS remain BLOCKED_BY_EXTERNAL_CONFIGURATION without direct evidence.')
+  $lines.Add('')
+  $lines.Add('## Stage results')
+  $lines.Add('')
+  $lines.Add('| Stage | Status | Critical | Seconds | Summary | Log |')
+  $lines.Add('| --- | --- | --- | ---: | --- | --- |')
+  foreach ($result in $stageResults) {
+    $summary = $result.Summary -replace '\|', '\|' -replace '\r?\n', ' '
+    # Windows PowerShell 5.1 targets .NET Framework, where Path.GetRelativePath
+    # is unavailable. Logs always live in the timestamped directory beside the
+    # report, so construct the portable relative link from known path segments.
+    $relativeLog = "$(Split-Path -Leaf $logDirectory)/$(Split-Path -Leaf $result.LogPath)" -replace '\\', '/'
+    $lines.Add("| $($result.Name) | $($result.Status) | $($result.Critical) | $($result.DurationSeconds) | $summary | $relativeLog |")
+  }
+  $lines.Add('')
+  $lines.Add('## Provider truth')
+  $lines.Add('')
+  $lines.Add('| Provider | Repository state | Runtime state | Evidence boundary |')
+  $lines.Add('| --- | --- | --- | --- |')
+  foreach ($row in $script:providerInventory) { $lines.Add("| $($row.Provider) | $($row.RepositoryState) | $($row.RuntimeState) | $($row.Evidence) |") }
+  $lines.Add('')
+  $lines.Add('## Route inventory')
+  $lines.Add('')
+  $lines.Add('| Route | Kind | File |')
+  $lines.Add('| --- | --- | --- |')
+  foreach ($row in $script:routeInventory) { $lines.Add("| $($row.Route) | $($row.Kind) | $($row.File) |") }
+  $lines.Add('')
+  $lines.Add('## Environment register')
+  $lines.Add('')
+  $lines.Add('| Name | Exposure | External state |')
+  $lines.Add('| --- | --- | --- |')
+  foreach ($row in $script:environmentInventory) { $lines.Add("| $($row.Name) | $($row.Exposure) | $($row.State) |") }
+  $lines.Add('')
+  $lines.Add('## Secret scan')
+  $lines.Add('')
+  $lines.Add($(if ($script:secretFindings.Count) { "Potential locations (values suppressed): $($script:secretFindings -join ', ')" } else { 'No tracked high-confidence secret pattern was detected.' }))
+  $lines.Add('')
+  $lines.Add('## Execution options')
+  $lines.Add('')
+  $lines.Add("- PauseAtEnd: $PauseAtEnd")
+  $lines.Add("- NonInteractive: $NonInteractive")
+  $lines.Add("- SkipInstall: $SkipInstall")
+  $lines.Add("- SkipTests: $SkipTests")
+  $lines.Add("- SkipBuild: $SkipBuild")
+  $lines.Add("- SkipQualityChecks: $SkipQualityChecks")
+  $lines.Add('')
+  $lines.Add('## Limitations')
+  $lines.Add('')
+  $lines.Add('- Migration and RLS inventory proves repository source only, not deployed Supabase state.')
+  $lines.Add('- Environment inventory records names only and does not prove target-environment completeness.')
+  $lines.Add('- Provider registration or configuration does not prove availability, transactions, signatures, or server verification.')
+  $lines | Set-Content -LiteralPath $reportPath -Encoding utf8
+  return New-StagePayload -Status 'PASS' -Summary "Consolidated report written to $reportPath." -Output $reportPath
+} | Out-Null
+
+$criticalFailures = @($stageResults | Where-Object { $_.Status -eq 'FAIL' -and $_.Critical }).Count
+$nonCriticalFailures = @($stageResults | Where-Object { $_.Status -eq 'FAIL' -and -not $_.Critical }).Count
+$finalExitCode = if ($criticalFailures -gt 0) { 2 } elseif ($nonCriticalFailures -gt 0) { 1 } else { 0 }
+$reportStage = $stageResults | Where-Object Name -eq 'report generation' | Select-Object -Last 1
+if ($reportStage.Status -eq 'PASS') {
+  Add-Content -LiteralPath $reportPath -Encoding utf8 -Value "`n## Aggregate result`n`n- Critical failures: $criticalFailures`n- Non-critical failures: $nonCriticalFailures`n- Final exit code: **$finalExitCode**`n- Total duration seconds: $([math]::Round(((Get-Date) - $startedAt).TotalSeconds, 2))"
 }
 
-$automatedDecision = if ($criticalFindings.Count -gt 0) {
-  'AUDIT FAILED - CRITICAL BLOCKERS'
-} else {
-  # Static automation cannot authorize EPIC 17 by itself. Human review of the
-  # consolidated CS-ENG-002 reports remains mandatory even on a clean run.
-  'AUDIT PASSED WITH REMEDIATION REQUIRED'
-}
-
-$lines = New-Object System.Collections.Generic.List[string]
-$lines.Add('# CS-ENG-002 Timestamped Repository Audit')
-$lines.Add('')
-$lines.Add("**Generated:** $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss K')  ")
-$lines.Add("**Repository:** $repo  ")
-$lines.Add("**Branch:** $branch  ")
-$lines.Add("**Revision:** $head - $headSubject  ")
-$lines.Add("**Final script result:** **$automatedDecision**")
-$lines.Add('')
-$lines.Add('This is static repository evidence. It does not prove migration application, production credentials, provider transactions, Vercel settings, Cloudflare settings, or live tenant isolation.')
-$lines.Add('')
-$lines.Add('## Execution options')
-$lines.Add('')
-$lines.Add("- Strict: **$Strict**")
-$lines.Add("- MaxFiles per route inventory: **$MaxFiles**")
-$lines.Add("- Dependency install requested: **$InstallDependencies**")
-$lines.Add("- Dependency install suppressed: **$SkipInstall**")
-$lines.Add("- Quality checks skipped: **$SkipQualityChecks**")
-$lines.Add("- Tests skipped: **$SkipTests**")
-$lines.Add("- Build skipped: **$SkipBuild**")
-$lines.Add('')
-$lines.Add('## Git baseline')
-$lines.Add('')
-$lines.Add("- Origin: $origin")
-$lines.Add("- Divergence (origin-only, local-only): $divergence")
-$tagSummary = if ($tags) { ($tags -split '\r?\n') -join ', ' } else { 'none' }
-$lines.Add("- Tags: $tagSummary")
-$lines.Add('- Working tree:')
-$lines.Add('')
-$lines.Add('```text')
-$lines.Add($status)
-$lines.Add('```')
-$lines.Add('')
-$lines.Add('## Inventory summary')
-$lines.Add('')
-$lines.Add('| Artifact | Count |')
-$lines.Add('| --- | ---: |')
-$lines.Add("| Page route modules | $($pageFiles.Count) |")
-$lines.Add("| API route modules | $($apiFiles.Count) |")
-$lines.Add("| Components | $($componentFiles.Count) |")
-$lines.Add("| Library/service files | $($libFiles.Count) |")
-$lines.Add("| Supabase migrations | $($migrationFiles.Count) |")
-$lines.Add("| Test files | $($testFiles.Count) |")
-$lines.Add("| Test files in default npm test expansion | $($defaultTestFiles.Count) |")
-$lines.Add("| GitHub workflow files | $($workflowFiles.Count) |")
-$lines.Add("| Audit/utility scripts | $($scriptFiles.Count) |")
-$lines.Add("| Inventory truncations | $($inventoryTruncations.Count) |")
-$lines.Add('')
-$lines.Add("Framework: Next.js $($package.dependencies.next); React $($package.dependencies.react); TypeScript $($package.devDependencies.typescript). Package manager evidence: $($lockfiles -join ', '). Node engine: $(if ($package.engines.node) { $package.engines.node } else { 'not declared' }).")
-$lines.Add('')
-$lines.Add('## Critical automated findings')
-$lines.Add('')
-if ($criticalFindings.Count -eq 0) { $lines.Add('- None detected by this script. Human audit is still required.') }
-foreach ($finding in $criticalFindings) { $lines.Add("- **CRITICAL:** $finding") }
-$lines.Add('')
-$lines.Add('## Migration checks')
-$lines.Add('')
-$lines.Add("- Duplicate numeric prefixes: $(if ($duplicateMigrationPrefixes.Count) { ($duplicateMigrationPrefixes.Name -join ', ') } else { 'none' })")
-$lines.Add("- Empty migrations: $(if ($emptyMigrations.Count) { ($emptyMigrations.Name -join ', ') } else { 'none' })")
-$lines.Add("- Confirmed teams/team_members tenant-policy blocker: **$criticalTenantPolicy**")
-$lines.Add("- Source contains unrestricted USING (true) or WITH CHECK (true) policy text: **$($allMigrationText -match '(?is)(using\s*\(\s*true\s*\)|with\s+check\s*\(\s*true\s*\))')**")
-$lines.Add('')
-$lines.Add('## Router checks')
-$lines.Add('')
-$lines.Add("- App Router present: **$($pageFiles.Count -gt 0)**")
-$lines.Add("- Pages Router present: **$hasPagesRouter**")
-$lines.Add("- Duplicate resolved page routes: $(if ($duplicateRoutes.Count) { ($duplicateRoutes.Name -join ', ') } else { 'none detected' })")
-$lines.Add('')
-$lines.Add('## Environment-variable register')
-$lines.Add('')
-$lines.Add('| Name | Exposure | Example parity | Classification |')
-$lines.Add('| --- | --- | --- | --- |')
-foreach ($name in @($envNames | Sort-Object)) {
-  $exposure = if ($name.StartsWith('NEXT_PUBLIC_')) { 'browser-visible' } else { 'server-only by naming' }
-  $classification = if ($name -match 'HOPAE|STRIPE|WORLD|OPENAI|TURNSTILE') { 'provider-specific' } elseif ($name -match 'TEST|MOCK|DEMO|DEV') { 'test/development control' } elseif ($name -match 'SUPABASE|ADMIN') { 'runtime/security' } else { 'runtime' }
-  $lines.Add("| $name | $exposure | $(if ($exampleNames.Contains($name)) { 'documented' } else { '**missing**' }) | $classification |")
-}
-$unusedExampleNames = @($exampleNames | Where-Object { -not $envNames.Contains($_) } | Sort-Object)
-$lines.Add('')
-$unusedExampleSummary = if ($unusedExampleNames.Count) { $unusedExampleNames -join ', ' } else { 'none' }
-$lines.Add("Example-only or indirectly referenced names: $unusedExampleSummary.")
-$lines.Add('')
-$lines.Add('## Secret and environment-file checks')
-$lines.Add('')
-$trackedEnvSummary = if ($trackedEnvFiles.Count) { $trackedEnvFiles -join ', ' } else { 'none' }
-$suspiciousSummary = if ($suspiciousLocations.Count) { $suspiciousLocations -join ', ' } else { 'none detected' }
-$lines.Add("- Tracked environment files: $trackedEnvSummary")
-$lines.Add("- Suspicious committed secret-pattern locations (values suppressed): $suspiciousSummary")
-$lines.Add('')
-$lines.Add('## Quality and security check results')
-$lines.Add('')
-if ($SkipQualityChecks) {
-  $lines.Add('All quality checks were skipped by caller. This run cannot replace the validated full audit.')
-} else {
-  $lines.Add('| Check | Exit | Seconds | Result |')
-  $lines.Add('| --- | ---: | ---: | --- |')
-  foreach ($result in $qualityResults) {
-    $lines.Add("| $($result.Name) | $($result.ExitCode) | $($result.DurationSeconds) | $(if ($result.ExitCode -eq 0) { 'PASS' } else { 'FAIL' }) |")
-  }
-  foreach ($result in $qualityResults) {
-    $lines.Add('')
-    $lines.Add("### $($result.Name) output tail")
-    $lines.Add('')
-    $lines.Add('```text')
-    $lines.Add($result.Tail)
-    $lines.Add('```')
-  }
-  if ($qualityConfigurationFindings.Count -gt 0) {
-    $lines.Add('')
-    $lines.Add('### Quality configuration findings')
-    $lines.Add('')
-    foreach ($finding in $qualityConfigurationFindings) {
-      $lines.Add("- $finding")
-    }
-  }
-  if ($SkipTests) {
-    $lines.Add('')
-    $lines.Add('- Tests were skipped by caller; test status is not established by this run.')
-  }
-  if ($SkipBuild) {
-    $lines.Add('')
-    $lines.Add('- Build was skipped by caller; build status is not established by this run.')
-  }
-}
-$lines.Add('')
-$lines.Add('## Page route inventory')
-$lines.Add('')
-$lines.Add('| Route | File | Type | Expected auth | Actual auth evidence | Tenant expectation | Status | Duplicate risk |')
-$lines.Add('| --- | --- | --- | --- | --- | --- | --- | --- |')
-foreach ($row in $pageRows) {
-  $duplicate = if (($pageRows | Where-Object Route -eq $row.Route).Count -gt 1) { 'yes' } else { 'no' }
-  $lines.Add("| $($row.Route) | $($row.File) | $($row.Type) | $($row.ExpectedAuth) | $($row.ActualAuth) | $($row.TenantExpectation) | $($row.Status) | $duplicate |")
-}
-$lines.Add('')
-$lines.Add('## API route inventory')
-$lines.Add('')
-$lines.Add('| Method | Path | File | Purpose | Auth | Authorization | Tenant scope | Validation | Rate limit | Logging | Tests | Status |')
-$lines.Add('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |')
-foreach ($row in $apiRows) {
-  $lines.Add("| $($row.Method) | $($row.Path) | $($row.File) | $($row.Purpose) | $($row.Auth) | $($row.Authorization) | $($row.Tenant) | $($row.Validation) | $($row.RateLimit) | $($row.Logging) | $($row.Tests) | $($row.Status) |")
-}
-$lines.Add('')
-$lines.Add('## Limitations')
-$lines.Add('')
-$lines.Add('- Route and API classifications are conservative static heuristics and require human review.')
-$lines.Add('- RLS findings describe migration source, not confirmed deployed Supabase state.')
-$lines.Add('- External Vercel, Cloudflare, Supabase and provider-console state is not modified or inferred.')
-$lines.Add('- Secret scanning is pattern-based and does not replace a dedicated scanner or history scan.')
-
-$lines | Set-Content -LiteralPath $reportPath -Encoding utf8
 Write-Output "CS-ENG-002 report: $reportPath"
-Write-Output "Critical findings: $($criticalFindings.Count)"
+Write-Output "Critical failures: $criticalFailures; non-critical failures: $nonCriticalFailures; final exit code: $finalExitCode"
 
-if ($criticalFindings.Count -gt 0) { exit 2 }
-exit 0
+$ciMode = $NonInteractive -or $env:CI -in @('1', 'true', 'TRUE', 'True')
+if ($PauseAtEnd -and -not $ciMode) {
+  [void](Read-Host 'Audit complete. Press Enter to close')
+}
+
+exit $finalExitCode

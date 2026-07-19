@@ -18,7 +18,7 @@ test("identity API derives enterprise authority from authenticated membership", 
 });
 
 test("provider callbacks remain fail-closed and canonical", () => {
-  assert.match(worldCallback, /WORLD_ID_SERVER_VERIFICATION_NOT_CONNECTED/);
+  assert.match(worldCallback, /WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED/);
   assert.match(worldCallback, /confidence: 0/);
   assert.match(worldCallback, /serverVerified: false/);
   assert.match(hopaeAlias, /export \{ POST \} from "\.\.\/\.\.\/route"/);

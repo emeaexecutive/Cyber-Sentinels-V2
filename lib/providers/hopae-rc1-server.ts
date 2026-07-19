@@ -18,7 +18,12 @@ const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}
 const referencePattern = /^[a-zA-Z0-9_.:-]{1,120}$/;
 
 export class Rc1ProviderError extends Error {
-  constructor(message: string, readonly status: number, readonly code: string) {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly code: string,
+    readonly reasonCode: "HOPAE_SIGNATURE_INVALID" | "HOPAE_SIGNATURE_EXPIRED" | "HOPAE_PROVIDER_ERROR" = "HOPAE_PROVIDER_ERROR"
+  ) {
     super(message);
     this.name = "Rc1ProviderError";
   }
@@ -238,7 +243,8 @@ export async function processHopaeProviderCallback(rawBody: string, signature: s
   } catch (error) {
     if (error instanceof ProviderError) {
       const code = error.code === "CALLBACK_SIGNATURE_INVALID" ? "forged_callback" : error.code === "CALLBACK_TIMESTAMP_INVALID" ? "stale_callback" : error.code.toLowerCase();
-      throw new Rc1ProviderError(error.safeMessage, error.httpStatus, code);
+      const reasonCode = error.code === "CALLBACK_SIGNATURE_INVALID" ? "HOPAE_SIGNATURE_INVALID" : error.code === "CALLBACK_TIMESTAMP_INVALID" ? "HOPAE_SIGNATURE_EXPIRED" : "HOPAE_PROVIDER_ERROR";
+      throw new Rc1ProviderError(error.safeMessage, error.httpStatus, code, reasonCode);
     }
     throw error;
   }
@@ -260,21 +266,33 @@ export async function processHopaeProviderCallback(rawBody: string, signature: s
 
   const admin = createServiceRoleClient();
   const intake = await reserveWebhookEvent({ provider: "hopae_connect", eventId: envelope.eventId, eventType: envelope.eventType, rawBody, tenantId: envelope.tenantId, workflowId: envelope.workflowId, correlationId: envelope.correlationId });
-  if (!intake.reserved) return { ok: true, duplicate: true, eventId: envelope.eventId, outcome: "ignored_idempotently", duplicateOf: intake.duplicateOf };
+  if (!intake.reserved) return { ok: true, duplicate: true, eventId: envelope.eventId, outcome: "ignored_idempotently", reasonCode: "HOPAE_DUPLICATE_EVENT", duplicateOf: intake.duplicateOf };
   const registryResult = await admin.from("provider_registry").select("enabled").eq("provider_id", adapter.id).maybeSingle();
   if (registryResult.error || registryResult.data?.enabled !== true) {
     await completeWebhookEvent("hopae_connect", envelope.eventId, "processed", "provider_disabled");
-    return { ok: true, duplicate: false, eventId: envelope.eventId, outcome: "ignored_provider_disabled" };
+    return { ok: true, duplicate: false, eventId: envelope.eventId, outcome: "ignored_provider_disabled", reasonCode: "HOPAE_PROVIDER_ERROR" };
   }
   const callbackDatabaseStarted = Date.now();
   const duplicate = await admin.from("hopae_webhook_events").select("id").eq("event_id", envelope.eventId).maybeSingle();
   if (duplicate.data) {
     await admin.from("hopae_webhook_events").update({ duplicate_status: true }).eq("event_id", envelope.eventId);
-    return { ok: true, duplicate: true, eventId: envelope.eventId, outcome: "ignored_idempotently" };
+    return { ok: true, duplicate: true, eventId: envelope.eventId, outcome: "ignored_idempotently", reasonCode: "HOPAE_DUPLICATE_EVENT" };
   }
   const sessionResult = await admin.from("hopae_verifications").select("*").eq("verification_id", envelope.verificationId).maybeSingle();
   if (sessionResult.error || !sessionResult.data) throw new Rc1ProviderError("Provider callback references an unknown workflow.", 404, "unknown_workflow");
   const session = sessionResult.data as Record<string, any>;
+  const completedTransaction = await admin.from("provider_execution_records")
+    .select("execution_id")
+    .eq("provider_id", "hopae_connect")
+    .eq("provider_session_id", envelope.verificationId)
+    .eq("status", "completed")
+    .limit(1)
+    .maybeSingle();
+  if (completedTransaction.error) throw new Rc1ProviderError("Provider transaction state could not be checked.", 503, "provider_transaction_check_failed");
+  if (completedTransaction.data) {
+    await completeWebhookEvent("hopae_connect", envelope.eventId, "processed", "duplicate_transaction");
+    return { ok: true, duplicate: true, eventId: envelope.eventId, outcome: "ignored_duplicate_transaction", reasonCode: "HOPAE_DUPLICATE_TRANSACTION", duplicateOf: completedTransaction.data.execution_id };
+  }
   recordRuntimeProfile({ stage: "database_query_latency", latencyMs: Date.now() - callbackDatabaseStarted, ok: true, degraded: false, metadata: { correlationId: session.correlation_id, tenantId: session.workspace_id, provider: "hopae_connect", workflowType: session.requested_purpose } });
   let currentPolicy: Record<string, any> | null = null;
   if (session.policy_id) {
@@ -384,7 +402,7 @@ export async function processHopaeProviderCallback(rawBody: string, signature: s
   const references = persistence.data as Record<string, unknown>;
   if (references.duplicate === true) {
     await admin.from("hopae_webhook_events").update({ duplicate_status: true }).eq("event_id", envelope.eventId);
-    return { ok: true, duplicate: true, eventId: envelope.eventId, outcome: "ignored_idempotently" };
+    return { ok: true, duplicate: true, eventId: envelope.eventId, outcome: "ignored_idempotently", reasonCode: "HOPAE_DUPLICATE_EVENT" };
   }
   const replayReference = String(references.replay_reference ?? "");
   const evidenceGraphReference = String(references.evidence_graph_reference ?? "");
@@ -433,6 +451,7 @@ export async function processHopaeProviderCallback(rawBody: string, signature: s
   return {
     ok: true,
     duplicate: false,
+    reasonCode: "HOPAE_SIGNED_ASSERTION_VALID",
     eventId: envelope.eventId,
     correlationId: session.correlation_id,
     decision: assessment.trust_decision,

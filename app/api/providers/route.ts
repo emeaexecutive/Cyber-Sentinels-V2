@@ -200,7 +200,7 @@ export async function POST(request: Request) {
           callback_verification_failures: rejectedBeforeTrust ? 1 : 0,
         }),
       ]).catch(() => undefined);
-      return NextResponse.json({ ok: false, error: error.code, message: error.message }, { status: error.status });
+      return NextResponse.json({ ok: false, error: error.code, reasonCode: error.reasonCode, message: error.message }, { status: error.status });
     }
     console.error("Provider callback processing failed.", error);
     return NextResponse.json({ ok: false, error: "provider_callback_unavailable" }, { status: 503 });
