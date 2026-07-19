@@ -68,6 +68,42 @@ export function identityRepository() {
       if (!request.data) return null;
       return { request: request.data, transactions: transactions.data ?? [], evidence: evidence.data ?? [], confidence: confidence.data };
     },
+    async dashboardSnapshot(enterpriseId: string, page: number, pageSize: number) {
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+      const [requests, subjectCount] = await Promise.all([
+        database.from("identity_verification_requests")
+          .select("id,subject_id,status,purpose,requested_signals,created_at,updated_at,completed_at", { count: "exact" })
+          .eq("enterprise_id", enterpriseId)
+          .order("updated_at", { ascending: false })
+          .range(from, to),
+        database.from("identity_subjects").select("id", { count: "exact", head: true }).eq("enterprise_id", enterpriseId),
+      ]);
+      if (requests.error || subjectCount.error) throw databaseFailure("Identity dashboard retrieval", requests.error ?? subjectCount.error);
+      const requestRows = requests.data ?? [];
+      if (!requestRows.length) return { requests: [], total: requests.count ?? 0, subjectCount: subjectCount.count ?? 0, page, pageSize };
+      const requestIds = requestRows.map((row) => row.id);
+      const subjectIds = [...new Set(requestRows.map((row) => row.subject_id))];
+      const [subjects, evidence, confidence, transactions] = await Promise.all([
+        database.from("identity_subjects").select("id,subject_type,display_label").eq("enterprise_id", enterpriseId).in("id", subjectIds),
+        database.from("identity_signal_evidence").select("verification_request_id,signal_status,outcome,server_verified,signature_verified,provider_reference,provider_transaction_id,source_digest,reason_codes").eq("enterprise_id", enterpriseId).in("verification_request_id", requestIds),
+        database.from("identity_confidence_results").select("verification_request_id,score,status,verified_signal_count,total_signal_count,reason_codes,computed_at").eq("enterprise_id", enterpriseId).in("verification_request_id", requestIds),
+        database.from("identity_provider_transactions").select("verification_request_id,error_code,status,completed_at").eq("enterprise_id", enterpriseId).in("verification_request_id", requestIds),
+      ]);
+      if (subjects.error || evidence.error || confidence.error || transactions.error) throw databaseFailure("Identity dashboard evidence retrieval", subjects.error ?? evidence.error ?? confidence.error ?? transactions.error);
+      const rows = requestRows.map((request) => {
+        const requestEvidence = (evidence.data ?? []).filter((row) => row.verification_request_id === request.id);
+        const requestTransactions = (transactions.data ?? []).filter((row) => row.verification_request_id === request.id);
+        return {
+          ...request,
+          subject: (subjects.data ?? []).find((row) => row.id === request.subject_id) ?? null,
+          evidence: requestEvidence,
+          confidence: (confidence.data ?? []).find((row) => row.verification_request_id === request.id) ?? null,
+          providerErrors: requestTransactions.filter((row) => Boolean(row.error_code)).map((row) => row.error_code),
+        };
+      });
+      return { requests: rows, total: requests.count ?? rows.length, subjectCount: subjectCount.count ?? 0, page, pageSize };
+    },
     async subjectSignals(enterpriseId: string, subjectId: string) {
       const result = await database.from("identity_signal_evidence").select("*").eq("enterprise_id", enterpriseId).eq("subject_id", subjectId).order("observed_at", { ascending: false }).limit(200);
       if (result.error) throw databaseFailure("Identity signals retrieval", result.error);
@@ -88,8 +124,8 @@ export function identityRepository() {
     async providerRuntimeEvidence(enterpriseId: string) {
       const [registry, transactions, evidence, executions] = await Promise.all([
         database.from("provider_registry").select("provider_id,enabled,configured_state,health_status,last_successful_call,last_failed_call,last_health_check"),
-        database.from("identity_provider_transactions").select("id,provider_id,provider_session_id,status,error_code,limitations,created_at").eq("enterprise_id", enterpriseId).order("created_at", { ascending: false }).limit(200),
-        database.from("identity_signal_evidence").select("provider_id,provider_transaction_id,outcome,server_verified,source_digest,reason_codes,created_at").eq("enterprise_id", enterpriseId).order("created_at", { ascending: false }).limit(200),
+        database.from("identity_provider_transactions").select("id,provider_id,provider_session_id,provider_transaction_id,status,error_code,limitations,created_at").eq("enterprise_id", enterpriseId).order("created_at", { ascending: false }).limit(200),
+        database.from("identity_signal_evidence").select("provider_id,provider_transaction_id,provider_reference,signal_status,outcome,server_verified,signature_verified,source_digest,reason_codes,created_at").eq("enterprise_id", enterpriseId).order("created_at", { ascending: false }).limit(200),
         database.from("provider_execution_records").select("provider_id,provider_session_id,status,signature_status,idempotency_status,normalized_evidence_reference,updated_at").eq("tenant_id", enterpriseId).order("updated_at", { ascending: false }).limit(200),
       ]);
       if (registry.error || transactions.error || evidence.error || executions.error) throw databaseFailure("Provider runtime truth retrieval", registry.error ?? transactions.error ?? evidence.error ?? executions.error);

@@ -24,12 +24,18 @@ export async function GET(request: Request) {
         configured,
         enabled,
         healthState: registry?.health_status ?? "UNKNOWN",
-        transactionReference: transaction?.provider_session_id ?? null,
+        transactionReference: transaction?.provider_transaction_id ?? transaction?.provider_session_id ?? null,
         transactionSucceeded: transaction?.status === "SUCCEEDED" || execution?.status === "completed",
         signatureVerified: execution?.signature_status === "verified",
         idempotencyVerified: execution?.idempotency_status === "unique" || execution?.idempotency_status === "duplicate",
         normalizedEvidencePersisted: Boolean(execution?.normalized_evidence_reference),
-        serverVerifiedEvidence: evidence?.server_verified === true && evidence?.outcome === "VERIFIED" && Boolean(evidence?.source_digest),
+        serverVerifiedEvidence: evidence?.signal_status === "PASS"
+          && evidence?.server_verified === true
+          && evidence?.signature_verified === true
+          && evidence?.outcome === "VERIFIED"
+          && Boolean(evidence?.provider_reference)
+          && Boolean(evidence?.provider_transaction_id)
+          && Boolean(evidence?.source_digest),
         blockers: [
           ...(Array.isArray(transaction?.limitations) ? transaction.limitations : []),
           ...(providerId === "world_id" ? ["WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED"] : []),

@@ -1,0 +1,3 @@
+export default function IdentitySignalsLoading() {
+  return <main className="operational-shell min-h-screen px-4 py-10 text-zinc-100 sm:px-6 md:px-8"><div className="mx-auto max-w-7xl animate-pulse" aria-busy="true" aria-label="Loading identity signals"><div className="h-10 w-72 rounded bg-zinc-800" /><div className="mt-8 grid gap-4 sm:grid-cols-3">{[0, 1, 2].map((item) => <div key={item} className="h-28 rounded-xl border border-zinc-800 bg-zinc-950" />)}</div><div className="mt-6 h-80 rounded-xl border border-zinc-800 bg-zinc-950" /><span className="sr-only">Loading identity signals</span></div></main>;
+}

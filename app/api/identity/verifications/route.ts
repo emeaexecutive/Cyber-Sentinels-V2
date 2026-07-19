@@ -5,7 +5,48 @@ import { resolveIdentityEnterprise } from "@/lib/identity-signals/enterprise-con
 import { identityCorrelationId, identityFailure, identitySuccess } from "@/lib/identity-signals/http";
 import { orchestrateIdentityVerification } from "@/lib/identity-signals/orchestrator";
 import { identityRepository } from "@/lib/identity-signals/repository";
+import { identityRequestUiState, isStrictVerifiedEvidence } from "@/lib/identity-signals/presentation";
 import { startHopaeTrustAssessment } from "@/lib/providers/hopae-rc1-server";
+
+export async function GET(request: Request) {
+  const correlationId = identityCorrelationId(request);
+  try {
+    const context = await resolveIdentityEnterprise(request);
+    const url = new URL(request.url);
+    const page = Math.max(1, Math.min(10_000, Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1));
+    const pageSize = Math.max(5, Math.min(50, Number.parseInt(url.searchParams.get("pageSize") ?? "20", 10) || 20));
+    const snapshot = await identityRepository().dashboardSnapshot(context.enterpriseId, page, pageSize);
+    return identitySuccess({
+      dashboard: {
+        ...snapshot,
+        requests: snapshot.requests.map((row) => {
+          const reasonCodes = [...new Set([
+            ...row.evidence.flatMap((item) => item.reason_codes ?? []),
+            ...(row.confidence?.reason_codes ?? []),
+          ])];
+          return {
+            id: row.id,
+            subjectId: row.subject_id,
+            subject: row.subject,
+            status: row.status,
+            uiState: identityRequestUiState(row.status, row.evidence.map((item) => item.signal_status)),
+            purpose: row.purpose,
+            requestedSignals: row.requested_signals,
+            confidence: row.confidence,
+            evidenceCount: row.evidence.length,
+            verifiedEvidenceCount: row.evidence.filter(isStrictVerifiedEvidence).length,
+            warningCount: row.evidence.filter((item) => item.signal_status !== "PASS").length,
+            providerErrors: row.providerErrors,
+            reasonCodes,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            completedAt: row.completed_at,
+          };
+        }),
+      },
+    }, 200, correlationId);
+  } catch (error) { return identityFailure(error, correlationId); }
+}
 
 export async function POST(request: Request) {
   const correlationId = identityCorrelationId(request);
