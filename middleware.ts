@@ -261,7 +261,14 @@ export async function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
   // Provider callbacks authenticate with a timestamped HMAC in the route.
   // Browser GET access to the provider registry remains session-protected.
-  if (pathname === "/api/providers" && req.method === "POST") {
+  if (
+    req.method === "POST" &&
+    [
+      "/api/providers",
+      "/api/providers/hopae/callback",
+      "/api/providers/world-id/callback",
+    ].includes(pathname)
+  ) {
     return NextResponse.next();
   }
   const protectsUser = isProtectedUserPath(pathname);

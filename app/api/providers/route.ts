@@ -16,6 +16,7 @@ import {
   Rc1ProviderError,
 } from "@/lib/providers/hopae-rc1-server";
 import { completeWebhookEvent, retainRejectedWebhookEvent } from "@/lib/webhooks/event-ledger";
+import { bridgeHopaeCallbackToIdentity } from "@/lib/identity-signals/hopae-callback-bridge";
 
 export const dynamic = "force-dynamic";
 
@@ -172,6 +173,9 @@ export async function POST(request: Request) {
   }
   try {
     const result = await processHopaeProviderCallback(rawBody, signature);
+    await bridgeHopaeCallbackToIdentity(result).catch((bridgeError) => {
+      console.warn("Hopae callback completed, but no EPIC 17.1 identity request was bridged.", bridgeError);
+    });
     return NextResponse.json(result, { headers: { "cache-control": "no-store" } });
   } catch (error) {
     if (error instanceof Rc1ProviderError) {
