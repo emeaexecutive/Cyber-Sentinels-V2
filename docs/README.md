@@ -53,6 +53,9 @@ Ownership is a review responsibility, not permission to bypass pull-request or e
 
 ## Current architecture baseline
 
+- Master publication entry point: `docs/engineering/CS-ENG-001_MASTER_ENGINEERING_BLUEPRINT.md`
+- Approved gap analysis and readiness baseline: `docs/engineering/CS-ENG-001_GAP_ANALYSIS.md`
+- Parts 1-6 implementation status and final acceptance: `docs/engineering/CS-ENG-001-IMPLEMENTATION-MATRIX.md` and `docs/engineering/CS-ENG-001-FINAL-REPORT.md`
 - Application, components, hooks, services, providers and configuration: `docs/architecture/`
 - Permanent trust-pipeline contracts and current-versus-target boundaries: `docs/architecture/provider-abstraction.md` through `docs/architecture/trust-decision-engine.md`
 - Authentication and admin access: `docs/security/authentication-flow.md`
@@ -66,7 +69,8 @@ Ownership is a review responsibility, not permission to bypass pull-request or e
 - Enterprise Experience site map, buyer, pilot, operations, governance, reporting and quality contracts: `docs/product/enterprise-site-map.md` through `docs/product/content-guidelines.md`
 - Enterprise Experience findings and priorities: `docs/engineering/enterprise-review.md`
 - Production-only CS-ENG workflow: `docs/engineering/deployment-policy.md`
-- Evidence-based Parts 1-5 status: `docs/engineering/CS-ENG-001-IMPLEMENTATION-MATRIX.md`
+- Evidence-based Parts 1-6 status: `docs/engineering/CS-ENG-001-IMPLEMENTATION-MATRIX.md`
+- Testing, CI/CD, migration, release, observability, incident, rollback and recovery specification: `docs/testing/`, `docs/operations/`, `docs/releases/`, `docs/database/migration-operations.md`, and `docs/runbooks/`
 - Vercel production and notification verification: `docs/runbooks/vercel-production-verification.md` and `docs/runbooks/vercel-notification-policy.md`
 - Production alignment release evidence: `docs/releases/production-alignment-verification.md`
 
