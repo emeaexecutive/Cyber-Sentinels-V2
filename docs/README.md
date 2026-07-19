@@ -65,5 +65,9 @@ Ownership is a review responsibility, not permission to bypass pull-request or e
 - Enterprise Trust Report contract: `docs/product/trust-report.md`
 - Enterprise Experience site map, buyer, pilot, operations, governance, reporting and quality contracts: `docs/product/enterprise-site-map.md` through `docs/product/content-guidelines.md`
 - Enterprise Experience findings and priorities: `docs/engineering/enterprise-review.md`
+- Production-only CS-ENG workflow: `docs/engineering/deployment-policy.md`
+- Evidence-based Parts 1-5 status: `docs/engineering/CS-ENG-001-IMPLEMENTATION-MATRIX.md`
+- Vercel production and notification verification: `docs/runbooks/vercel-production-verification.md` and `docs/runbooks/vercel-notification-policy.md`
+- Production alignment release evidence: `docs/releases/production-alignment-verification.md`
 
 Existing historical and Epic-specific documents remain valid evidence. New foundation documents do not delete or silently replace them.

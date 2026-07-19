@@ -12,6 +12,20 @@
 
 At this baseline only `main` exists locally. This policy defines the target workflow; it does not falsely claim that `develop` or branch protection is already configured.
 
+## CS-ENG-001 production-alignment exception
+
+CS-ENG-001 is governed by `docs/engineering/deployment-policy.md`. Approved CS-ENG production-alignment work is performed on `main` under explicit release authority; it does not create a dedicated documentation or Preview branch. The general target branch model above remains proposed for other work until it is adopted and enforced in the Git host.
+
+For CS-ENG-001, synchronize and publish only with:
+
+```powershell
+git checkout main
+git pull --ff-only origin main
+git push origin main
+```
+
+When Git integration is active, pushing `main` is the single deployment trigger. If an explicitly approved CLI deployment is required, it must use `vercel --prod`.
+
 ## Branch names
 
 - `feature/<issue-or-scope>`

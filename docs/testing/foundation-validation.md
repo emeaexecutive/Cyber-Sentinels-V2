@@ -4,7 +4,7 @@
 
 - Date: 2026-07-18
 - Baseline commit: `9b6fecf`
-- Branch: `feature/master-engineering-blueprint-v1`
+- Canonical branch: `main` (consolidated from the superseded CS-ENG documentation branch on 2026-07-18)
 - Scope: documentation-only engineering foundation
 
 ## Documentation completeness

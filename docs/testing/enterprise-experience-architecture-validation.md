@@ -2,7 +2,7 @@
 
 Validation date: 2026-07-18
 
-Branch: `feature/master-engineering-blueprint-v1`
+Canonical branch: `main` (consolidated from the superseded CS-ENG documentation branch on 2026-07-18)
 
 Baseline commit: `f752e58`
 

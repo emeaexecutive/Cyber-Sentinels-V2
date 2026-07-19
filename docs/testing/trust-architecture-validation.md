@@ -4,7 +4,7 @@
 
 - Date: 2026-07-18
 - Parent commit: `77588a5`
-- Branch: `feature/master-engineering-blueprint-v1`
+- Canonical branch: `main` (consolidated from the superseded CS-ENG documentation branch on 2026-07-18)
 - Scope: CS-ENG-001 Part 3, documentation only
 
 ## Acceptance reconciliation
