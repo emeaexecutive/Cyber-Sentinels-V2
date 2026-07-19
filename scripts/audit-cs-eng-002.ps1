@@ -1,7 +1,56 @@
+<#
+.SYNOPSIS
+  Runs the CS-ENG-002 Cyber Sentinels repository gap analysis.
+
+.DESCRIPTION
+  Performs an audit-only inventory from main, records routes, APIs,
+  configuration, migrations/RLS, tests and workflows, and optionally executes
+  existing package quality scripts. It writes a timestamped Markdown report
+  under reports/ and exits 2 when a Critical condition is detected.
+
+  Dependency installation is deliberately opt-in because it mutates
+  node_modules and can require network access. The script never creates a
+  branch, deploys, changes external configuration, runs migrations or prints
+  secret values.
+
+.PARAMETER RepositoryPath
+  Repository root. RepoPath is accepted as an alias.
+
+.PARAMETER InstallDependencies
+  Opt in to npm ci (with a lockfile) or npm install before checks.
+
+.PARAMETER SkipInstall
+  Compatibility switch that suppresses installation even when requested.
+
+.PARAMETER SkipQualityChecks
+  Skip install, lint, type-check, tests, build and npm audit.
+
+.PARAMETER SkipTests
+  Skip only the package test script.
+
+.PARAMETER SkipBuild
+  Skip only the production build.
+
+.PARAMETER Strict
+  Promote any failed quality check or missing requested package script to a
+  Critical result.
+
+.PARAMETER MaxFiles
+  Maximum page/API rows written per inventory. Truncation is Critical because
+  an incomplete inventory cannot pass CS-ENG-002.
+#>
 [CmdletBinding()]
 param(
+  [Alias('RepoPath')]
   [string]$RepositoryPath,
-  [switch]$SkipQualityChecks
+  [switch]$SkipQualityChecks,
+  [switch]$SkipInstall,
+  [switch]$InstallDependencies,
+  [switch]$SkipTests,
+  [switch]$SkipBuild,
+  [switch]$Strict,
+  [ValidateRange(1, 100000)]
+  [int]$MaxFiles = 500
 )
 
 $ErrorActionPreference = "Stop"
@@ -132,6 +181,15 @@ function Invoke-QualityCheck {
   }
 }
 
+function Has-PackageScript {
+  param(
+    [Parameter(Mandatory)][object]$Package,
+    [Parameter(Mandatory)][string]$Name
+  )
+  return $null -ne $Package.scripts -and
+    $Package.scripts.PSObject.Properties.Name -contains $Name
+}
+
 if (-not (Test-Path -LiteralPath $repo -PathType Container)) {
   throw "Repository path does not exist: $repo"
 }
@@ -168,6 +226,13 @@ $testFiles = @(Get-ChildItem -LiteralPath (Join-Path $repo 'tests') -Recurse -Fi
 $migrationFiles = @(Get-ChildItem -LiteralPath (Join-Path $repo 'supabase\migrations') -File -Filter '*.sql' -ErrorAction SilentlyContinue | Sort-Object Name)
 $workflowFiles = @(Get-ChildItem -LiteralPath (Join-Path $repo '.github\workflows') -File -ErrorAction SilentlyContinue)
 $scriptFiles = @(Get-ChildItem -LiteralPath (Join-Path $repo 'scripts') -File -ErrorAction SilentlyContinue)
+$inventoryTruncations = New-Object System.Collections.Generic.List[string]
+if ($pageFiles.Count -gt $MaxFiles) {
+  $inventoryTruncations.Add("Page route inventory exceeded MaxFiles ($($pageFiles.Count) > $MaxFiles).")
+}
+if ($apiFiles.Count -gt $MaxFiles) {
+  $inventoryTruncations.Add("API route inventory exceeded MaxFiles ($($apiFiles.Count) > $MaxFiles).")
+}
 
 $packagePath = Join-Path $repo 'package.json'
 $package = Get-Content -Raw -LiteralPath $packagePath | ConvertFrom-Json
@@ -194,7 +259,7 @@ while ($scriptQueue.Count -gt 0) {
 $middlewarePath = Join-Path $repo 'middleware.ts'
 $middlewareText = if (Test-Path -LiteralPath $middlewarePath) { Get-Content -Raw -LiteralPath $middlewarePath } else { '' }
 
-$pageRows = foreach ($file in $pageFiles) {
+$pageRows = foreach ($file in @($pageFiles | Select-Object -First $MaxFiles)) {
   $relative = $file.FullName.Substring($repo.Length).TrimStart('\')
   $route = Convert-AppPathToRoute -RelativePath $relative -LeafName $file.Name
   $expectation = Get-RouteExpectation -Route $route
@@ -213,7 +278,7 @@ $pageRows = foreach ($file in $pageFiles) {
   }
 }
 
-$apiRows = foreach ($file in $apiFiles) {
+$apiRows = foreach ($file in @($apiFiles | Select-Object -First $MaxFiles)) {
   $relative = $file.FullName.Substring($repo.Length).TrimStart('\')
   $route = Convert-AppPathToRoute -RelativePath $relative -LeafName $file.Name
   $content = Get-Content -Raw -LiteralPath $file.FullName
@@ -288,17 +353,38 @@ foreach ($trackedFile in $trackedFiles) {
 }
 
 $qualityResults = @()
+$qualityConfigurationFindings = New-Object System.Collections.Generic.List[string]
 if (-not $SkipQualityChecks) {
-  foreach ($check in @(
-    @{ Name = 'lint'; Args = @('run', 'lint') },
-    @{ Name = 'typecheck'; Args = @('run', 'typecheck') },
-    @{ Name = 'test'; Args = @('test') },
-    @{ Name = 'build'; Args = @('run', 'build') },
-    @{ Name = 'npm audit --omit=dev'; Args = @('audit', '--omit=dev') }
-  )) {
-    if ($check.Name -eq 'npm audit --omit=dev' -or $package.scripts.($check.Name)) {
-      $qualityResults += Invoke-QualityCheck -Name $check.Name -CommandArgs $check.Args
+  $checks = New-Object System.Collections.Generic.List[object]
+
+  # Installing dependencies mutates node_modules and may require network access,
+  # so it is opt-in. -SkipInstall is retained for compatibility with the
+  # supplied runner and always wins over -InstallDependencies.
+  if ($InstallDependencies -and -not $SkipInstall) {
+    $installArgs = if (Test-Path -LiteralPath (Join-Path $repo 'package-lock.json')) {
+      @('ci', '--no-audit', '--fund=false')
+    } else {
+      @('install', '--no-audit', '--fund=false')
     }
+    $checks.Add(@{ Name = 'dependency install'; Args = $installArgs; Script = $null })
+  }
+
+  $checks.Add(@{ Name = 'lint'; Args = @('run', 'lint'); Script = 'lint' })
+  $checks.Add(@{ Name = 'typecheck'; Args = @('run', 'typecheck'); Script = 'typecheck' })
+  if (-not $SkipTests) {
+    $checks.Add(@{ Name = 'test'; Args = @('test'); Script = 'test' })
+  }
+  if (-not $SkipBuild) {
+    $checks.Add(@{ Name = 'build'; Args = @('run', 'build'); Script = 'build' })
+  }
+  $checks.Add(@{ Name = 'npm audit --omit=dev'; Args = @('audit', '--omit=dev'); Script = $null })
+
+  foreach ($check in $checks) {
+    if ($check.Script -and -not (Has-PackageScript -Package $package -Name $check.Script)) {
+      $qualityConfigurationFindings.Add("Package script is missing: $($check.Script).")
+      continue
+    }
+    $qualityResults += Invoke-QualityCheck -Name $check.Name -CommandArgs $check.Args
   }
 }
 
@@ -306,12 +392,37 @@ $criticalFindings = New-Object System.Collections.Generic.List[string]
 if ($criticalTenantPolicy) {
   $criticalFindings.Add('Authenticated-wide RLS policies remain effective for teams and team_members; no later tenant-scoped replacement was found.')
 }
+foreach ($truncation in $inventoryTruncations) {
+  $criticalFindings.Add("Audit inventory is incomplete: $truncation")
+}
 if ($suspiciousLocations.Count -gt 0) {
   $criticalFindings.Add('Potential committed secret pattern locations require human verification; values were not printed.')
 }
+$failedQualityResults = @($qualityResults | Where-Object ExitCode -ne 0)
 $buildResult = $qualityResults | Where-Object Name -eq 'build' | Select-Object -First 1
 if ($buildResult -and $buildResult.ExitCode -ne 0) {
   $criticalFindings.Add('Production build failed.')
+}
+if (-not $SkipQualityChecks -and -not $SkipBuild -and -not (Has-PackageScript -Package $package -Name 'build')) {
+  $criticalFindings.Add('Production build script is missing.')
+}
+if ($Strict) {
+  foreach ($result in $failedQualityResults) {
+    if (-not $criticalFindings.Contains("Strict quality gate failed: $($result.Name).")) {
+      $criticalFindings.Add("Strict quality gate failed: $($result.Name).")
+    }
+  }
+  foreach ($finding in $qualityConfigurationFindings) {
+    $criticalFindings.Add("Strict quality configuration failure: $finding")
+  }
+}
+
+$automatedDecision = if ($criticalFindings.Count -gt 0) {
+  'AUDIT FAILED - CRITICAL BLOCKERS'
+} else {
+  # Static automation cannot authorize EPIC 17 by itself. Human review of the
+  # consolidated CS-ENG-002 reports remains mandatory even on a clean run.
+  'AUDIT PASSED WITH REMEDIATION REQUIRED'
 }
 
 $lines = New-Object System.Collections.Generic.List[string]
@@ -321,9 +432,19 @@ $lines.Add("**Generated:** $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss K')  ")
 $lines.Add("**Repository:** $repo  ")
 $lines.Add("**Branch:** $branch  ")
 $lines.Add("**Revision:** $head - $headSubject  ")
-$lines.Add("**Final script result:** $(if ($criticalFindings.Count -gt 0) { '**CRITICAL FAILURES DETECTED**' } else { '**NO AUTOMATED CRITICAL FAILURE DETECTED**' })")
+$lines.Add("**Final script result:** **$automatedDecision**")
 $lines.Add('')
 $lines.Add('This is static repository evidence. It does not prove migration application, production credentials, provider transactions, Vercel settings, Cloudflare settings, or live tenant isolation.')
+$lines.Add('')
+$lines.Add('## Execution options')
+$lines.Add('')
+$lines.Add("- Strict: **$Strict**")
+$lines.Add("- MaxFiles per route inventory: **$MaxFiles**")
+$lines.Add("- Dependency install requested: **$InstallDependencies**")
+$lines.Add("- Dependency install suppressed: **$SkipInstall**")
+$lines.Add("- Quality checks skipped: **$SkipQualityChecks**")
+$lines.Add("- Tests skipped: **$SkipTests**")
+$lines.Add("- Build skipped: **$SkipBuild**")
 $lines.Add('')
 $lines.Add('## Git baseline')
 $lines.Add('')
@@ -350,6 +471,7 @@ $lines.Add("| Test files | $($testFiles.Count) |")
 $lines.Add("| Test files in default npm test expansion | $($defaultTestFiles.Count) |")
 $lines.Add("| GitHub workflow files | $($workflowFiles.Count) |")
 $lines.Add("| Audit/utility scripts | $($scriptFiles.Count) |")
+$lines.Add("| Inventory truncations | $($inventoryTruncations.Count) |")
 $lines.Add('')
 $lines.Add("Framework: Next.js $($package.dependencies.next); React $($package.dependencies.react); TypeScript $($package.devDependencies.typescript). Package manager evidence: $($lockfiles -join ', '). Node engine: $(if ($package.engines.node) { $package.engines.node } else { 'not declared' }).")
 $lines.Add('')
@@ -395,7 +517,7 @@ $lines.Add('')
 $lines.Add('## Quality and security check results')
 $lines.Add('')
 if ($SkipQualityChecks) {
-  $lines.Add('Quality checks were skipped by caller.')
+  $lines.Add('All quality checks were skipped by caller. This run cannot replace the validated full audit.')
 } else {
   $lines.Add('| Check | Exit | Seconds | Result |')
   $lines.Add('| --- | ---: | ---: | --- |')
@@ -409,6 +531,22 @@ if ($SkipQualityChecks) {
     $lines.Add('```text')
     $lines.Add($result.Tail)
     $lines.Add('```')
+  }
+  if ($qualityConfigurationFindings.Count -gt 0) {
+    $lines.Add('')
+    $lines.Add('### Quality configuration findings')
+    $lines.Add('')
+    foreach ($finding in $qualityConfigurationFindings) {
+      $lines.Add("- $finding")
+    }
+  }
+  if ($SkipTests) {
+    $lines.Add('')
+    $lines.Add('- Tests were skipped by caller; test status is not established by this run.')
+  }
+  if ($SkipBuild) {
+    $lines.Add('')
+    $lines.Add('- Build was skipped by caller; build status is not established by this run.')
   }
 }
 $lines.Add('')
