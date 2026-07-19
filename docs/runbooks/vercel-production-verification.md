@@ -4,7 +4,7 @@
 
 `REQUIRES VERCEL DASHBOARD VERIFICATION`
 
-Repository and API/CLI evidence verifies the linked project and Production Branch, but environment completeness, Preview deployment protection, notification settings and the exact deployed Git SHA still require Vercel evidence after the alignment push.
+Repository and API/CLI evidence verifies the linked project, Production Branch and deployed alignment SHA. Environment completeness, Preview deployment protection and notification settings still require Vercel dashboard evidence.
 
 ## Evidence captured on 2026-07-18
 
@@ -18,8 +18,8 @@ Repository and API/CLI evidence verifies the linked project and Production Branc
 | Preview-only values are not required by Production | Requires dashboard verification | Compare each Production variable with Preview and Development scopes |
 | Deployment Protection enabled for Preview where available | Requires dashboard verification | Verify project Security / Deployment Protection settings |
 | Preview URLs are not indexed or official | Partially verified | Canonical domain is the public URL; protected routes set `X-Robots-Tag: noindex`. Inspect Preview protection and robots behavior separately |
-| Latest successful Production contains expected commit SHA | Requires post-push verification | Record the Git SHA and Vercel deployment after the alignment commit is pushed |
-| No immediate auth, database or runtime failures | Verified for bounded window | `vercel logs --environment production --level error --since 24h` returned no logs; this is not a substitute for alerting |
+| Alignment Production contains expected commit SHA | Verified | Deployment `dpl_9gvF9qNmCRRqGHgoL7ueSLx4RtT1` build log records Branch `main`, Commit `b3fa291`; status `Ready` |
+| No immediate auth, database or runtime failures | Partially verified | Bounded Production invocation error-log queries returned no logs. The successful build emitted non-fatal `Durable operational measurement write failed` messages during static page collection; investigate telemetry build-phase behavior |
 
 ## Dashboard procedure
 
@@ -38,4 +38,4 @@ Repository and API/CLI evidence verifies the linked project and Production Branc
 
 | Reviewer | UTC time | Deployment ID | Expected commit | Observed commit | Result |
 | --- | --- | --- | --- | --- | --- |
-| Codex repository/API audit | 2026-07-18 | Pending alignment deployment | Pending alignment commit | Pending | Requires dashboard/post-push verification |
+| Codex repository/API audit | 2026-07-19 06:56 UTC | `dpl_9gvF9qNmCRRqGHgoL7ueSLx4RtT1` | `b3fa291` | `b3fa291` | Production commit verified; dashboard-only checks remain |

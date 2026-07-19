@@ -38,9 +38,24 @@ All repository-defined gates passed after the dependency remediation:
 
 The initial audit identified Next's nested PostCSS `8.4.31`. npm's automatic forced fix proposed an unsuitable breaking Next downgrade, so it was not used. `package.json` now pins PostCSS `8.5.14` and uses npm's direct-dependency override reference; `npm ls postcss --all` confirms that Next and all other consumers resolve to `8.5.14`. The complete validation chain passed again after this change.
 
-## Post-deployment verification
+## Post-deployment verification - 2026-07-19
 
-Pending the reviewed alignment commit, push to `main`, automatic Vercel Production deployment and live re-check. The deployed commit must be proven from Vercel; it must not be inferred from Git alone.
+| Check | Result |
+| --- | --- |
+| Pushed commit | `b3fa291` |
+| Production deployment | `dpl_9gvF9qNmCRRqGHgoL7ueSLx4RtT1`, `Ready`, target `production` |
+| Commit proof | Vercel build log: Branch `main`, Commit `b3fa291` |
+| Canonical aliases | `www.cybersentinels.com`, `cybersentinels.com` and the project production aliases attached to the deployment |
+| Canonical redirect chain | HTTP apex reached canonical HTTPS `www` in two redirects; HTTPS apex reached it in one; no loop |
+| Public pages | Homepage, `/login` and `/enterprise-access` returned 200 |
+| Protected routes | `/dashboard` and `/back-office` each redirected once to `/login` and completed with 200 |
+| Critical APIs | `/api/health` returned 200 with `status: ok`; unauthenticated `/api/trust/posture` returned 401 |
+| Assets and mixed content | All ten homepage `/_next/static/` references returned 200; no `http://` asset reference or visible `*.vercel.app` URL appeared in homepage markup |
+| Security headers | CSP, HSTS, framing, content-type, referrer and permissions policies present on the deployed canonical homepage |
+| Runtime errors | Bounded error-log query for the new deployment returned no logs after smoke checks |
+| Branch cleanup | Superseded local and remote CS-ENG branch deleted after zero-unique-commit checks; safety tag retained |
+
+The successful Vercel build emitted non-fatal `Durable operational measurement write failed` messages for telemetry stages while collecting page data. The deployment completed and subsequent Production invocation error logs were empty, but telemetry should avoid writes during static generation or report a more actionable failure reason.
 
 ## Manual and credentialed boundaries
 
@@ -54,7 +69,7 @@ The following remain unverified until an authorized operator supplies the releva
 - Cloudflare DNS/WAF/bot dashboard configuration;
 - applied Supabase migration/RLS state;
 - live Hopae/provider transaction;
-- full browser mixed-content, asset, accessibility and redirect-loop inspection.
+- full interactive-browser accessibility and authenticated redirect/session inspection.
 
 ## Rollback
 
