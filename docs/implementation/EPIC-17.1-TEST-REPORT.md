@@ -15,6 +15,7 @@
 | EPIC identity RLS source tests | PASS | 3 tests passed |
 | Full repository test chain | PASS | `npm test` exited 0, including provider, Hopae, RLS, security, trust lifecycle, and release-candidate suites |
 | Production build | PASS | `next build` compiled, type-checked, generated 161 static pages, emitted all new API/dashboard routes, and exited 0 |
+| Production dependency audit | PASS | `npm audit --omit=dev` reported 0 vulnerabilities |
 | Diff whitespace check | PASS | `git diff --check` exited 0 |
 
 The first production-build attempt compiled and generated all pages but exceeded the 180-second command wrapper while collecting build traces. It was rerun with a 300-second limit and completed successfully in 152.4 seconds. This is not recorded as a product failure.
@@ -62,3 +63,5 @@ No new EPIC 17.1 file produced a lint warning at final validation.
 ## Acceptance decision
 
 Local repository acceptance gates pass. Production acceptance remains blocked until the external tests above are completed and the separate legacy RLS release blocker is resolved.
+
+Read-only post-push evidence is recorded separately in `EPIC-17.1-PRODUCTION-VERIFICATION.md`.
