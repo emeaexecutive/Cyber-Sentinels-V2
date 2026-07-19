@@ -19,7 +19,7 @@ Repository and API/CLI evidence verifies the linked project, Production Branch a
 | Deployment Protection enabled for Preview where available | Requires dashboard verification | Verify project Security / Deployment Protection settings |
 | Preview URLs are not indexed or official | Partially verified | Canonical domain is the public URL; protected routes set `X-Robots-Tag: noindex`. Inspect Preview protection and robots behavior separately |
 | Alignment Production contains expected commit SHA | Verified | Deployment `dpl_9gvF9qNmCRRqGHgoL7ueSLx4RtT1` build log records Branch `main`, Commit `b3fa291`; status `Ready` |
-| No immediate auth, database or runtime failures | Partially verified | Bounded Production invocation error-log queries returned no logs. The successful build emitted non-fatal `Durable operational measurement write failed` messages during static page collection; investigate telemetry build-phase behavior |
+| No immediate auth, database or runtime failures | Partially verified | Bounded Production invocation error-log queries returned no logs. Initial builds emitted non-fatal telemetry writes during static page collection; `runtime-profiler.ts` now skips durable persistence in `phase-production-build`, pending final deployment-log verification |
 
 ## Dashboard procedure
 

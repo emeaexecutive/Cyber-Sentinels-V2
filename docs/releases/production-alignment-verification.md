@@ -55,7 +55,7 @@ The initial audit identified Next's nested PostCSS `8.4.31`. npm's automatic for
 | Runtime errors | Bounded error-log query for the new deployment returned no logs after smoke checks |
 | Branch cleanup | Superseded local and remote CS-ENG branch deleted after zero-unique-commit checks; safety tag retained |
 
-The successful Vercel build emitted non-fatal `Durable operational measurement write failed` messages for telemetry stages while collecting page data. The deployment completed and subsequent Production invocation error logs were empty, but telemetry should avoid writes during static generation or report a more actionable failure reason.
+The initial successful Vercel alignment builds emitted non-fatal `Durable operational measurement write failed` messages for telemetry stages while collecting page data. The follow-up runtime guard skips durable telemetry persistence only during Next's `phase-production-build`; in-process measurement and deployed runtime persistence remain enabled. The final deployment build log must contain no durable telemetry write failure before this remediation is considered verified.
 
 ## Manual and credentialed boundaries
 

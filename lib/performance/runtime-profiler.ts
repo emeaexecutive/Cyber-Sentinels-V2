@@ -1,3 +1,5 @@
+import { isProductionBuildPhase } from "../env.ts";
+
 export type RuntimeProfileStage =
   | "lifecycle_orchestration_latency"
   | "provider_latency"
@@ -77,6 +79,7 @@ export function recordRuntimeProfile(sample: Omit<RuntimeProfileSample, "recorde
   samples.unshift(recorded);
   samples.splice(maxSamples);
   if (
+    !isProductionBuildPhase() &&
     typeof process !== "undefined" &&
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
     process.env.SUPABASE_SERVICE_ROLE_KEY &&

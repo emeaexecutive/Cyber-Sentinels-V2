@@ -96,6 +96,7 @@ test("performance coverage includes every requested path without speculative opt
   for (const stage of ["lifecycle_orchestration_latency", "parallel_orchestration_latency", "database_query_latency", "replay_latency", "evidence_graph_latency", "trust_memory_latency", "queue_latency"]) {
     assert.match(`${profiler}\n${health}`, new RegExp(stage));
   }
+  assert.match(profiler, /!isProductionBuildPhase\(\)/);
   assert.match(report, /no speculative caching, index, queue, or concurrency optimization/i);
 });
 
