@@ -32,7 +32,9 @@ test("provider enablement is service-role only and audited", () => {
 test("callback ingress enforces content type, body limit, raw body, signature, and duplicate ledger", () => {
   assert.match(callbackRoute, /contentType !== "application\/json"/);
   assert.match(callbackRoute, /256_000/);
-  assert.match(callbackRoute, /await request\.text\(\)/);
+  assert.match(callbackRoute, /await request\.arrayBuffer\(\)/);
+  assert.match(callbackRoute, /new TextDecoder\("utf-8", \{ fatal: true \}\)/);
+  assert.doesNotMatch(callbackRoute, /await request\.text\(\)/);
   assert.match(providerServer, /verifyCallback/);
   assert.match(providerServer, /reserveWebhookEvent/);
 });

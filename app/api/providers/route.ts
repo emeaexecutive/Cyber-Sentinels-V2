@@ -17,6 +17,8 @@ import {
 } from "@/lib/providers/hopae-rc1-server";
 import { completeWebhookEvent, retainRejectedWebhookEvent } from "@/lib/webhooks/event-ledger";
 import { bridgeHopaeCallbackToIdentity } from "@/lib/identity-signals/hopae-callback-bridge";
+import { ingestTrustEventRequest } from "@/src/lib/trust-events/gateway";
+import { supabaseTrustEventRepository } from "@/src/lib/trust-events/repository";
 
 export const dynamic = "force-dynamic";
 
@@ -167,16 +169,33 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "provider_content_type_invalid" }, { status: 415 });
   }
   const signature = request.headers.get("x-hopae-signature") ?? request.headers.get("hopae-signature") ?? "";
-  const rawBody = await request.text();
-  if (Buffer.byteLength(rawBody, "utf8") > 256_000) {
+  const callbackReceivedAt = new Date();
+  const rawBytes = new Uint8Array(await request.arrayBuffer());
+  if (rawBytes.byteLength > 256_000) {
     return NextResponse.json({ ok: false, error: "provider_payload_too_large" }, { status: 413 });
   }
+  let rawBody: string;
+  try { rawBody = new TextDecoder("utf-8", { fatal: true }).decode(rawBytes); }
+  catch { return NextResponse.json({ ok: false, error: "provider_payload_invalid_utf8" }, { status: 400 }); }
   try {
     const result = await processHopaeProviderCallback(rawBody, signature);
     await bridgeHopaeCallbackToIdentity(result).catch((bridgeError) => {
       console.warn("Hopae callback completed, but no EPIC 17.1 identity request was bridged.", bridgeError);
     });
-    return NextResponse.json(result, { headers: { "cache-control": "no-store" } });
+    const trustEvent = await ingestTrustEventRequest({
+      rawBytes,
+      headers: Object.fromEntries([...request.headers.entries()].map(([key, value]) => [key.toLowerCase(), value])),
+      method: request.method,
+      path: "/api/trust-events/ingest/hopae_connect",
+      receivedAt: callbackReceivedAt,
+      correlationId: crypto.randomUUID(),
+    }, supabaseTrustEventRepository());
+    const providerDisabled = (result as { outcome?: string }).outcome === "ignored_provider_disabled";
+    if (!trustEvent.ok && !(providerDisabled && trustEvent.disposition === "BLOCKED_PROVIDER")) {
+      console.error("Hopae callback canonical Trust Event persistence failed.", { disposition: trustEvent.disposition, correlationId: trustEvent.correlationId });
+      return NextResponse.json({ ok: false, error: "canonical_trust_event_persistence_failed", disposition: trustEvent.disposition, correlationId: trustEvent.correlationId }, { status: trustEvent.conflict ? 409 : 503, headers: { "cache-control": "no-store" } });
+    }
+    return NextResponse.json({ ...result, trustEvent: { disposition: trustEvent.disposition, eventIds: trustEvent.eventIds, correlationId: trustEvent.correlationId } }, { headers: { "cache-control": "no-store" } });
   } catch (error) {
     if (error instanceof Rc1ProviderError) {
       const rejectedBeforeTrust = ["forged_callback", "stale_callback", "invalid_callback_body", "invalid_callback_reference", "provider_invalid_response", "callback_signature_invalid", "callback_timestamp_invalid"].includes(error.code);

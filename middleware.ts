@@ -107,7 +107,6 @@ const internalToolingPrefixes = [
   "/api/origin/analyze",
   "/api/reality-twin/analyze",
   "/api/trust-algorithm/run",
-  "/api/trust-events",
   "/api/trust-recovery",
 ];
 
@@ -263,11 +262,11 @@ export async function middleware(req: NextRequest) {
   // Browser GET access to the provider registry remains session-protected.
   if (
     req.method === "POST" &&
-    [
+    ([
       "/api/providers",
       "/api/providers/hopae/callback",
       "/api/providers/world-id/callback",
-    ].includes(pathname)
+    ].includes(pathname) || pathname.startsWith("/api/trust-events/ingest/"))
   ) {
     return NextResponse.next();
   }
