@@ -1,0 +1,4 @@
+import { ConsensusWorkspace } from "@/src/components/consensus/ConsensusWorkspace";
+import { consensusUiContext } from "@/src/lib/consensus/ui-context";
+export const dynamic="force-dynamic";
+export default async function ConsensusProvidersAdminPage(){const {workspace}=await consensusUiContext("/admin/consensus/providers",true);return <main className="min-h-screen bg-[#04070c] px-5 py-10 text-white"><div className="mx-auto max-w-7xl"><p className="text-sm uppercase tracking-[0.2em] text-cyan-300">Consensus operations</p><h1 className="mt-3 text-4xl font-semibold">Provider health and capability</h1><p className="mt-4 max-w-4xl text-zinc-400">Operational health can reduce availability; it can never turn failed evidence into a pass.</p><div className="mt-8">{workspace?<ConsensusWorkspace enterpriseId={workspace.id} mode="providers"/>:<p className="text-amber-200">Enterprise workspace required.</p>}</div></div></main>;}

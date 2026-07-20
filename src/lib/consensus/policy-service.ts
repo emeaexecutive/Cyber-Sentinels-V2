@@ -1,0 +1,8 @@
+import "server-only";
+
+import { sha256Hex,signTrustEvent } from "@/src/lib/trust-events/hash";
+import { TRUST_EVENT_CANONICALIZATION,TRUST_EVENT_HASH_ALGORITHM,TRUST_EVENT_SCHEMA_VERSION } from "@/src/lib/trust-events/types";
+import { consensusRepository } from "./repository.ts";
+import type { ConsensusPolicy } from "./types.ts";
+
+export async function persistConsensusPolicy(input:{enterpriseId:string;actorId:string;policy:ConsensusPolicy;correlationId:string}){const repository=consensusRepository();const head=await repository.chainHead(input.enterpriseId);const now=new Date().toISOString();const event=signTrustEvent({eventId:crypto.randomUUID(),enterpriseId:input.enterpriseId,schemaVersion:TRUST_EVENT_SCHEMA_VERSION,eventType:"consensus.policy.changed",subject:{type:"ORGANIZATION",id:`enterprise:${input.enterpriseId}`},actor:{type:"ADMINISTRATOR",id:`administrator:${sha256Hex(input.actorId)}`},workflow:null,session:null,authority:null,provider:{key:"cyber_sentinels_consensus",protocol:"UNSIGNED",serverVerified:true,eventId:input.policy.version,transactionId:input.correlationId,deliveryId:null},normalizedFacts:{policyId:input.policy.policyId,policyVersion:input.policy.version,active:input.policy.active,validFrom:input.policy.validFrom},reasonCodes:["CONSENSUS_POLICY_CHANGED"],evidenceReferences:[],occurredAt:now,receivedAt:now,sequence:head.sequence+1,previousHash:head.eventHash,canonicalization:TRUST_EVENT_CANONICALIZATION,hashAlgorithm:TRUST_EVENT_HASH_ALGORITHM,ordering:{late:false,supersedesEventId:null,providerSequence:null}});return repository.createPolicy(input.enterpriseId,input.actorId,input.policy,input.correlationId,event);}

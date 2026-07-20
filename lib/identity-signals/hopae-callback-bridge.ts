@@ -3,6 +3,7 @@ import "server-only";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { calculateIdentityConfidence } from "./core";
 import type { SignalEvidenceDraft } from "./types";
+import { sha256Hex } from "@/src/lib/trust-events/hash";
 
 export async function bridgeHopaeCallbackToIdentity(result: Record<string, unknown>) {
   if (result.duplicate === true || typeof result.correlationId !== "string") return { bridged: false, reason: "not_applicable" };
@@ -31,6 +32,10 @@ export async function bridgeHopaeCallbackToIdentity(result: Record<string, unkno
   const resultConfidence = calculateIdentityConfidence(drafts);
   const identityRequest = await database.from("identity_verification_requests").select("subject_id").eq("id", transaction.data.verification_request_id).single();
   if (identityRequest.error || !identityRequest.data) throw identityRequest.error ?? new Error("Linked identity request is unavailable.");
+  const sourceDigest = typeof normalized.data?.source_digest === "string" && /^[a-f0-9]{64}$/i.test(normalized.data.source_digest) ? normalized.data.source_digest.toLowerCase() : sha256Hex(`hopae-consensus-v1:${session.data.verification_id}:${result.correlationId}`);
+  const assurance = Math.max(0, Math.min(1, Number(normalized.data?.assurance_level ?? 0) / 5));
+  const consensusObservation = await database.from("provider_observations").upsert({ observation_id: crypto.randomUUID(), enterprise_id: transaction.data.enterprise_id, subject_id: identityRequest.data.subject_id, workflow_id: transaction.data.verification_request_id, provider_key: "hopae_connect", signal_type: "identity_verification", result: accepted ? "PASS" : "INCONCLUSIVE", assurance, quality: accepted ? 1 : 0.5, signature_verified: true, server_verified: accepted, authoritative: false, evidence_digest: sourceDigest, evidence_reference: `normalized-identity-evidence:${session.data.verification_id}`, correlation_key: `hopae:${session.data.verification_id}`, occurred_at: observedAt, received_at: observedAt, expires_at: normalized.data?.expires_at ?? null, reason_codes: [accepted ? "HOPAE_SIGNED_NORMALIZED_OBSERVATION" : "HOPAE_OBSERVATION_INCONCLUSIVE"] }, { onConflict: "enterprise_id,provider_key,signal_type,evidence_digest", ignoreDuplicates: true });
+  if (consensusObservation.error && consensusObservation.error.code !== "42P01") throw consensusObservation.error;
   const confidenceWrite = await database.from("identity_confidence_results").upsert({ enterprise_id: transaction.data.enterprise_id, subject_id: identityRequest.data.subject_id, verification_request_id: transaction.data.verification_request_id, score: resultConfidence.score, band: resultConfidence.band, status: resultConfidence.status, verified_signal_count: resultConfidence.verifiedSignalCount, total_signal_count: resultConfidence.totalSignalCount, contradiction_count: resultConfidence.contradictionCount, reason_codes: resultConfidence.reasonCodes, methodology_version: resultConfidence.methodologyVersion, computed_at: new Date().toISOString() }, { onConflict: "verification_request_id" });
   if (confidenceWrite.error) throw confidenceWrite.error;
   const requestStatus = drafts.every((draft) => draft.status === "PASS" && draft.serverVerified && draft.signatureVerified) ? "COMPLETED" : "PARTIAL";

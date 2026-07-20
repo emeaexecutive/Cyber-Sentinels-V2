@@ -1,0 +1,4 @@
+import { consensusContext,consensusCorrelationId,consensusFailure,consensusResponse,pagination } from "@/src/lib/consensus/http";
+import { consensusRepository } from "@/src/lib/consensus/repository";
+
+export async function GET(request:Request){const correlationId=consensusCorrelationId(request);try{const context=await consensusContext(request);const {limit,cursor}=pagination(request);const rows=await consensusRepository().decisions(context.enterpriseId,limit,cursor??undefined);const hasMore=rows.length>limit;const decisions=rows.slice(0,limit);const last=decisions.at(-1);const nextCursor=hasMore&&last?Buffer.from(JSON.stringify({evaluatedAt:last.evaluated_at,decisionId:last.decision_id})).toString("base64url"):null;return consensusResponse({ok:true,decisions,pagination:{limit,hasMore,nextCursor}},200,correlationId);}catch(error){return consensusFailure(error,correlationId);}}

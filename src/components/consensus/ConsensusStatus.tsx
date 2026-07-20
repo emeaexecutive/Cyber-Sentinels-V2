@@ -1,0 +1,3 @@
+import type { ConsensusTrustState } from "@/src/lib/consensus/types";
+const colors:Record<ConsensusTrustState,string>={VERIFIED:"border-emerald-700 bg-emerald-950/30 text-emerald-200",TRUSTED:"border-cyan-700 bg-cyan-950/30 text-cyan-200",CHALLENGED:"border-amber-700 bg-amber-950/30 text-amber-200",INCONCLUSIVE:"border-zinc-700 bg-zinc-900 text-zinc-300",BLOCKED:"border-rose-700 bg-rose-950/30 text-rose-200",REVOKED:"border-red-700 bg-red-950/40 text-red-200"};
+export function ConsensusStatus({state}:{state:ConsensusTrustState}){return <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold tracking-wide ${colors[state]}`}>{state}</span>;}

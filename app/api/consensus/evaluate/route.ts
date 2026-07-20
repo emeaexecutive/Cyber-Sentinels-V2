@@ -1,0 +1,4 @@
+import { assertConsensusMutation,consensusContext,consensusCorrelationId,consensusFailure,consensusResponse,reference } from "@/src/lib/consensus/http";
+import { evaluateAndPersistConsensus } from "@/src/lib/consensus/service";
+
+export async function POST(request:Request){const correlationId=consensusCorrelationId(request);try{assertConsensusMutation(request);const context=await consensusContext(request,["owner","admin","reviewer"]);const body=await request.json() as Record<string,unknown>;const subjectId=reference(body.subjectId,"subjectId");const workflowId=body.workflowId?reference(body.workflowId,"workflowId"):null;const result=await evaluateAndPersistConsensus({enterpriseId:context.enterpriseId,subjectId,workflowId,correlationId});return consensusResponse({ok:true,...result},result.replayed?200:201,correlationId);}catch(error){return consensusFailure(error,correlationId);}}

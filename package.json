@@ -14,6 +14,7 @@
     "test:identity-signals-ui": "node --experimental-strip-types --test tests/identity-signals-ui.test.mjs",
     "test:trust-events": "node --experimental-strip-types --test tests/trust-event-foundation.test.mjs tests/trust-event-api.test.mjs tests/rls/trust-event-foundation.test.mjs",
     "test:consent": "node --experimental-strip-types --test tests/consent-manager.test.mjs tests/consent-api-ui.test.mjs tests/rls/consent-manager.test.mjs",
+    "test:consensus-engine": "node --experimental-strip-types --test tests/consensus-engine.test.mjs tests/consensus-api-ui.test.mjs tests/rls/consensus-engine.test.mjs",
     "test:audit-runner": "node --test tests/audit-runner-resilience.test.mjs",
     "test:hopae-live": "node --experimental-strip-types scripts/hopae-live-sandbox.mjs",
     "test:detection": "node --experimental-strip-types --test tests/detection-sovereignty.test.mjs",
@@ -52,9 +53,10 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "npm run test:providers && npm run test:hopae && npm run test:provider-rls && npm run test:identity-signals && npm run test:identity-signal-rls && npm run test:identity-runtime-hardening && npm run test:identity-signals-ui && npm run test:trust-events && npm run test:consent && npm run test:audit-runner && npm run test:detection && npm run test:ml-validation && npm run test:ori && npm run test:ori-rls && npm run test:trust-explanation && npm run test:decision-intelligence && npm run test:standards-readiness && npm run test:trust-lifecycle && npm run test:continuous-trust-validation && npm run test:public-surface && npm run test:trust-os && npm run test:trust-fabric && npm run test:enterprise-storytelling && npm run test:enterprise-readiness && npm run test:release-candidate && npm run test:design-partner && npm run test:category-leadership && npm run test:enterprise-adoption && npm run test:enterprise-experience && npm run test:rc1 && npm run test:rc1-performance && npm run test:rc2 && npm run test:rc3 && npm run test:rc4 && npm run test:rc5 && npm run test:rc6 && npm run test:rc7",
+    "test": "npm run test:providers && npm run test:hopae && npm run test:provider-rls && npm run test:identity-signals && npm run test:identity-signal-rls && npm run test:identity-runtime-hardening && npm run test:identity-signals-ui && npm run test:trust-events && npm run test:consent && npm run test:consensus-engine && npm run test:audit-runner && npm run test:detection && npm run test:ml-validation && npm run test:ori && npm run test:ori-rls && npm run test:trust-explanation && npm run test:decision-intelligence && npm run test:standards-readiness && npm run test:trust-lifecycle && npm run test:continuous-trust-validation && npm run test:public-surface && npm run test:trust-os && npm run test:trust-fabric && npm run test:enterprise-storytelling && npm run test:enterprise-readiness && npm run test:release-candidate && npm run test:design-partner && npm run test:category-leadership && npm run test:enterprise-adoption && npm run test:enterprise-experience && npm run test:rc1 && npm run test:rc1-performance && npm run test:rc2 && npm run test:rc3 && npm run test:rc4 && npm run test:rc5 && npm run test:rc6 && npm run test:rc7",
     "verify:17.1d": "tsx scripts/verify-epic-17-1d.ts",
     "verify:17.1e": "tsx scripts/verify-epic-17-1e.ts",
+    "verify:17.2": "tsx scripts/verify-epic-17-2.ts",
     "validate": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {

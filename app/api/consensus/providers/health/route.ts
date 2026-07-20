@@ -1,0 +1,5 @@
+import { consensusContext,consensusCorrelationId,consensusFailure,consensusResponse } from "@/src/lib/consensus/http";
+import { consensusProviderRegistry } from "@/src/lib/consensus/provider-registry";
+import { consensusRepository } from "@/src/lib/consensus/repository";
+
+export async function GET(request:Request){const correlationId=consensusCorrelationId(request);try{const auth=await consensusContext(request);const [health,registry]=await Promise.all([consensusRepository().health(auth.enterpriseId),Promise.resolve(consensusProviderRegistry())]);const latest=new Map(health.map((item)=>[item.providerKey,item]));return consensusResponse({ok:true,providers:registry.providers.map((provider)=>({providerKey:provider.providerKey,displayName:provider.displayName,capabilityState:provider.state,positiveEvidence:provider.positiveEvidence,baseWeight:provider.baseWeight,health:latest.get(provider.providerKey)??{state:"UNKNOWN",reasonCodes:["NO_HEALTH_SNAPSHOT"]},reasonCodes:provider.reasonCodes}))},200,correlationId);}catch(error){return consensusFailure(error,correlationId);}}

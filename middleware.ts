@@ -273,6 +273,7 @@ export async function middleware(req: NextRequest) {
   // Enterprise consent-admin APIs authorize workspace owner/admin roles in the
   // route and are not restricted to the platform-wide founder allowlist.
   if (pathname === "/admin/consent" || pathname.startsWith("/api/admin/consent/")) return NextResponse.next();
+  if (pathname.startsWith("/admin/consensus") || pathname.startsWith("/api/admin/consensus/")) return NextResponse.next();
   const protectsUser = isProtectedUserPath(pathname);
   const protectsAdmin = isProtectedAdminPath(pathname);
 
