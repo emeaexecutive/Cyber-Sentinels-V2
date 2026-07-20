@@ -13,6 +13,7 @@ import { buildPlatformHealth } from "@/lib/core/platform-health";
 import { createNavigationClient } from "@/lib/supabase/server";
 import { ReportIssue } from "@/components/report-issue";
 import { PublicPageAdoptionRail } from "@/components/public-page-adoption-rail";
+import { ConsentManager } from "@/src/components/consent/ConsentManager";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -107,6 +108,7 @@ const footerSections = [
       ["/help", "Help"],
       ["/accessibility", "Accessibility"],
       ["/privacy", "Privacy"],
+      ["/privacy/preferences", "Trust Preferences"],
       ["/terms", "Terms"],
       ["/cookies", "Cookies"],
       ["/legal", "Legal"],
@@ -198,6 +200,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
+        <ConsentManager />
         <div className="shell">
           <GlobalNavigation accessLevel={accessLevel} />
           {accessLevel === "public" ? children : (

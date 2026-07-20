@@ -86,6 +86,7 @@ export function EnterpriseTrustOSShell({
           <span>Search & commands</span><kbd className="rounded border border-zinc-700 px-1.5 py-0.5 text-xs text-zinc-500">Ctrl K</kbd>
         </button>
         <Link href="/notifications" className="mt-2 block rounded-lg border border-zinc-800 px-3 py-2.5 text-sm text-zinc-300 hover:border-cyan-900 hover:text-white">Notification Center</Link>
+        <Link href="/privacy/preferences" className="mt-2 block rounded-lg border border-zinc-800 px-3 py-2.5 text-sm text-zinc-300 hover:border-cyan-900 hover:text-white">Settings → Privacy &amp; Trust Preferences</Link>
       </aside>
 
       <div className="min-w-0 flex-1">

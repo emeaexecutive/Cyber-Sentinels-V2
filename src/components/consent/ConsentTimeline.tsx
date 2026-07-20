@@ -1,0 +1,5 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { ConsentReceipt } from "./ConsentReceipt";
+export function ConsentTimeline() { const [rows,setRows]=useState<Record<string,unknown>[]>([]); const [error,setError]=useState<string|null>(null); useEffect(()=>{ fetch("/api/consent/history",{cache:"no-store"}).then(async response=>{const body=await response.json(); if(!response.ok) throw new Error(body.error??"History unavailable."); setRows(body.receipts??[]);}).catch((reason)=>setError(reason.message)); },[]); return <section aria-labelledby="consent-timeline-heading"><h2 id="consent-timeline-heading" className="text-2xl font-semibold text-white">Consent Timeline™</h2><p className="mt-2 text-sm text-zinc-400">Append-only history of your Trust Preference changes.</p>{error?<p role="alert" className="mt-4 text-sm text-amber-200">{error}</p>:null}<div className="mt-5 grid gap-3">{rows.length?rows.map((row)=><ConsentReceipt key={String(row.receipt_id)} receipt={row}/>):<p className="text-sm text-zinc-500">No persisted consent history is available yet.</p>}</div></section>; }

@@ -3,9 +3,11 @@ const requiredEventTypes = [
   "provider.envelope.accepted", "provider.envelope.duplicate", "provider.envelope.rejected",
   "authority.granted", "authority.revoked", "session.created", "session.risk.changed",
   "workflow.started", "workflow.paused", "workflow.completed",
+  "consent.banner.displayed", "consent.accept_all", "consent.reject_optional", "consent.preferences.saved",
+  "consent.withdrawn", "consent.policy.reconsent_required", "consent.policy.version_changed", "consent.receipt.created",
 ] as const;
 
-const namespaces = ["identity", "device", "session", "authority", "workflow", "runtime", "security", "governance", "provider", "system"] as const;
+const namespaces = ["identity", "device", "session", "authority", "workflow", "runtime", "security", "governance", "provider", "system", "consent"] as const;
 
 export const trustEventTypeRegistry = {
   version: "trust-event-types-v1",

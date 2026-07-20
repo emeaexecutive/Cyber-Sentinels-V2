@@ -1,0 +1,23 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { applyConsentState } from "@/src/lib/consent/tracker-loader";
+import { consentDefaults, currentConsentPolicy } from "@/src/lib/consent/policy";
+import type { ConsentAction, ConsentChoices } from "@/src/lib/consent/types";
+import { ConsentBanner } from "./ConsentBanner";
+import { ConsentPreferences } from "./ConsentPreferences";
+import { ConsentStatus } from "./ConsentStatus";
+
+export function ConsentManager({ preferencePage = false }: { preferencePage?: boolean }) {
+  const pathname = usePathname(); const [choices,setChoices]=useState<ConsentChoices>(consentDefaults("GLOBAL_DEFAULT")); const [ready,setReady]=useState(false); const [needsConsent,setNeedsConsent]=useState(false); const [managing,setManaging]=useState(preferencePage); const [busy,setBusy]=useState(false); const [error,setError]=useState<string|null>(null);
+  const preferenceDialog = useRef<HTMLDivElement>(null); const preferenceReturnFocus = useRef<HTMLElement | null>(null);
+  useEffect(()=>{ applyConsentState(consentDefaults("GLOBAL_DEFAULT"),true); fetch("/api/consent",{cache:"no-store"}).then(async response=>{const body=await response.json(); if(!response.ok) throw new Error(body.error??"Consent state unavailable."); setChoices(body.choices); setNeedsConsent(body.needsConsent); applyConsentState(body.choices,false);}).catch((reason)=>setError(reason.message)).finally(()=>setReady(true)); },[]);
+  useEffect(()=>{ if(!managing||preferencePage)return; preferenceReturnFocus.current=document.activeElement as HTMLElement; const root=preferenceDialog.current; root?.querySelector<HTMLElement>("button,input")?.focus(); function keydown(event:KeyboardEvent){if(!root)return;if(event.key==="Escape"){event.preventDefault();setManaging(false);return;}if(event.key!=="Tab")return;const items=[...root.querySelectorAll<HTMLElement>("button:not(:disabled),input:not(:disabled),a[href]")];const first=items[0],last=items.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}} document.addEventListener("keydown",keydown);return()=>{document.removeEventListener("keydown",keydown);preferenceReturnFocus.current?.focus();};},[managing,preferencePage]);
+  async function persist(action: ConsentAction) { setBusy(true); setError(null); try { const response=await fetch(action==="WITHDRAW"?"/api/consent/withdraw":"/api/consent",{method:action==="SAVE_PREFERENCES"?"PATCH":"POST",headers:{"content-type":"application/json","idempotency-key":crypto.randomUUID()},body:JSON.stringify({action,categories:choices,policyVersion:currentConsentPolicy.version,source:preferencePage?"TRUST_PREFERENCES":"CONSENT_BANNER"})}); const body=await response.json(); if(!response.ok) throw new Error(body.error??"Consent choice could not be saved."); setChoices(body.choices); applyConsentState(body.choices); setNeedsConsent(false); setManaging(preferencePage); } catch(reason){setError(reason instanceof Error?reason.message:"Consent choice could not be saved.");} finally{setBusy(false);} }
+  if (!ready && !preferencePage) return null;
+  if (preferencePage) return <div className="grid gap-6"><ConsentStatus choices={choices}/><ConsentPreferences policy={currentConsentPolicy} choices={choices} busy={busy} error={error} onChange={setChoices} onSave={()=>persist("SAVE_PREFERENCES")} onAcceptAll={()=>persist("ACCEPT_ALL")} onRejectOptional={()=>persist("REJECT_OPTIONAL")} onCancel={()=>history.back()}/><button type="button" className="justify-self-start text-sm text-red-300 underline" onClick={()=>persist("WITHDRAW")}>Withdraw optional consent</button></div>;
+  if (["/privacy/preferences","/privacy/consent-history"].includes(pathname)) return null;
+  if (managing) return <div className="fixed inset-0 z-[100] overflow-y-auto bg-black/80 p-3 sm:p-8" role="presentation"><div ref={preferenceDialog} role="dialog" aria-modal="true" aria-label="Trust Preferences" className="mx-auto max-w-4xl rounded-2xl border border-zinc-800 bg-[#070b11] p-5 sm:p-7"><ConsentPreferences policy={currentConsentPolicy} choices={choices} busy={busy} error={error} onChange={setChoices} onSave={()=>persist("SAVE_PREFERENCES")} onAcceptAll={()=>persist("ACCEPT_ALL")} onRejectOptional={()=>persist("REJECT_OPTIONAL")} onCancel={()=>setManaging(false)}/></div></div>;
+  return needsConsent ? <ConsentBanner busy={busy} error={error} onAcceptAll={()=>persist("ACCEPT_ALL")} onRejectOptional={()=>persist("REJECT_OPTIONAL")} onManage={()=>setManaging(true)}/> : null;
+}
