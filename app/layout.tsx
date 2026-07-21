@@ -14,6 +14,7 @@ import { createNavigationClient } from "@/lib/supabase/server";
 import { ReportIssue } from "@/components/report-issue";
 import { PublicPageAdoptionRail } from "@/components/public-page-adoption-rail";
 import { ConsentManager } from "@/src/components/consent/ConsentManager";
+import { ConsentPreferencesLink } from "@/src/components/consent/ConsentPreferencesLink";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -239,6 +240,7 @@ export default async function RootLayout({
             </div>
             <div className="mx-auto mt-8 max-w-7xl border-t border-zinc-900 pt-6">
               <p>&copy;2026 Cyber Sentinels&trade;. All rights reserved.</p>
+              <ConsentPreferencesLink />
               <p className="mt-3 max-w-3xl leading-6">
                 Cyber Sentinels connects identity, authority, runtime risk,
                 enforcement, replay and governance in one operational trust record.

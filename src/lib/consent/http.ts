@@ -24,7 +24,7 @@ export function consentFailure(error: unknown, correlationId: string) {
   const candidate = error as Error & { status?: number; code?: string };
   const status = candidate.status ?? 500;
   if (status >= 500) console.error("Consent API failed safely.", { code: candidate.code ?? "CONSENT_API_FAILED" });
-  return consentResponse({ ok: false, code: candidate.code ?? "CONSENT_API_FAILED", error: status < 500 ? candidate.message : "Consent operation failed safely." }, status, correlationId);
+  return consentResponse({ ok: false, code: candidate.code ?? "CONSENT_API_FAILED", error: status < 500 ? candidate.message : "Consent receipt sync is temporarily unavailable." }, status, correlationId);
 }
 
 function cookieValue(request: Request, name: string) {
@@ -58,7 +58,7 @@ export type ConsentRequestContext = {
   language: string; userAgentHash: string | null;
 };
 
-export async function resolveConsentContext(request: Request): Promise<ConsentRequestContext> {
+export async function resolveConsentContext(request: Request, preferredAnonymousToken?: string): Promise<ConsentRequestContext> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const headerEnterprise = request.headers.get("x-enterprise-id")?.trim();
@@ -67,7 +67,11 @@ export async function resolveConsentContext(request: Request): Promise<ConsentRe
   else enterpriseId = process.env.CONSENT_DEFAULT_ENTERPRISE_ID?.trim() ?? "";
   if (!uuidPattern.test(enterpriseId)) throw new ConsentApiError("Consent enterprise configuration is required.", 503, "BLOCKED_BY_EXTERNAL_CONFIGURATION");
   const priorAnonymous = cookieValue(request, consentAnonymousCookieName);
-  const anonymousToken = priorAnonymous && /^[A-Za-z0-9_-]{20,128}$/.test(priorAnonymous) ? priorAnonymous : crypto.randomUUID();
+  const anonymousToken = priorAnonymous && /^[A-Za-z0-9_-]{20,128}$/.test(priorAnonymous)
+    ? priorAnonymous
+    : preferredAnonymousToken && uuidPattern.test(preferredAnonymousToken)
+      ? preferredAnonymousToken
+      : crypto.randomUUID();
   const anonymousIdHash = sha256Hex(`consent-anonymous-v1:${anonymousToken}`);
   const userSubject = user ? `user:${sha256Hex(`consent-user-v1:${user.id}`)}` : null;
   const anonymousSubject = `anonymous:${anonymousIdHash}`;
