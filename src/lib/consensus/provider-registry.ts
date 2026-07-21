@@ -1,7 +1,7 @@
 import { providerCapabilities } from "./provider-capabilities.ts";
 import type { ProviderCapability } from "./types.ts";
 
-export const CONSENSUS_CAPABILITY_REGISTRY_VERSION = "consensus-capability-v1";
+export const CONSENSUS_CAPABILITY_REGISTRY_VERSION = "consensus-capability-v2";
 
 export type ProviderRegistrySnapshot = { version: string; generatedAt: string; providers: ProviderCapability[] };
 

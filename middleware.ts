@@ -274,6 +274,7 @@ export async function middleware(req: NextRequest) {
   // route and are not restricted to the platform-wide founder allowlist.
   if (pathname === "/admin/consent" || pathname.startsWith("/api/admin/consent/")) return NextResponse.next();
   if (pathname.startsWith("/admin/consensus") || pathname.startsWith("/api/admin/consensus/")) return NextResponse.next();
+  if (pathname.startsWith("/admin/trust-architecture") || pathname.startsWith("/api/admin/trust-architecture/")) return NextResponse.next();
   const protectsUser = isProtectedUserPath(pathname);
   const protectsAdmin = isProtectedAdminPath(pathname);
 

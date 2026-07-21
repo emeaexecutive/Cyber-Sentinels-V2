@@ -63,6 +63,13 @@ export type ConsensusDecision = {
   decisionHash: string; simulated: boolean;
 };
 
+/** Provider Consensus recommends a state; it never authoritatively changes current trust state. */
+export type ConsensusRecommendation = ConsensusDecision & {
+  recommendationId: string;
+  recommendedState: ConsensusTrustState;
+  recommendationKind: "CONSENSUS_RECOMMENDATION";
+};
+
 function object(value: unknown, name: string): Record<string, unknown> { if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${name} must be an object.`); return value as Record<string, unknown>; }
 function text(value: unknown, name: string) { if (typeof value !== "string" || !value.trim()) throw new Error(`${name} is required.`); return value.trim(); }
 function bounded(value: unknown, name: string) { const number = Number(value); if (!Number.isFinite(number) || number < 0 || number > 1) throw new Error(`${name} must be between 0 and 1.`); return number; }

@@ -1,0 +1,4 @@
+import { assertBoundedTraversal } from "@/src/lib/trust-architecture/evidence-graph";
+import { architectureContext,architectureCorrelationId,architectureFailure,architectureReference,architectureResponse } from "@/src/lib/trust-architecture/http";
+import { trustArchitectureRepository } from "@/src/lib/trust-architecture/repository";
+export async function GET(request:Request,context:{params:Promise<{subjectId:string}>}){const correlationId=architectureCorrelationId(request);try{const auth=await architectureContext(request);const subjectId=architectureReference((await context.params).subjectId,"subjectId");const limit=Math.min(500,Math.max(1,Number(new URL(request.url).searchParams.get("limit")??200)||200));assertBoundedTraversal(1,limit);return architectureResponse({ok:true,graph:await trustArchitectureRepository().graph(auth.enterpriseId,subjectId,limit)},200,correlationId);}catch(error){return architectureFailure(error,correlationId);}}

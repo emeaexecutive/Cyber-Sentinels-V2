@@ -1,0 +1,5 @@
+Contact: mailto:security@cybersentinels.com
+Canonical: https://www.cybersentinels.com/security.txt
+Policy: https://www.cybersentinels.com/security
+Preferred-Languages: en
+Expires: 2027-07-21T00:00:00.000Z

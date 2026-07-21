@@ -3,6 +3,7 @@ import "server-only";
 import { createServiceRoleClient } from "@/lib/supabase/admin";
 import type { CanonicalTrustEvent, JsonValue, ProviderEnvelope, TrustEventDisposition } from "./types.ts";
 import type { EnvelopeReservation, TrustEventGatewayRepository } from "./gateway.ts";
+import { hashCanonical } from "../trust-core/hash.ts";
 
 function databaseError(operation: string, error: unknown): never {
   console.error(`${operation} failed.`, error);
@@ -47,10 +48,10 @@ export function supabaseTrustEventRepository(): TrustEventGatewayRepository {
       if (result.error) databaseError("Trust Event chain-head retrieval", result.error);
       return { sequence: Number(result.data?.last_sequence ?? 0), eventHash: result.data?.last_event_hash ? String(result.data.last_event_hash) : null };
     },
-    async persistEvidence(input: { enterpriseId: string; envelopeId: string; providerKey: string; classification: string; normalizedFacts: Record<string, JsonValue>; occurredAt: string; retentionExpiresAt: string | null }) {
-      const result = await database.from("evidence_objects").insert({ enterprise_id: input.enterpriseId, envelope_id: input.envelopeId, provider_key: input.providerKey, evidence_classification: input.classification, storage_boundary: "NORMALIZED_LEDGER", normalized_facts: input.normalizedFacts, occurred_at: input.occurredAt, retention_expires_at: input.retentionExpiresAt }).select("id").single();
+    async persistEvidence(input: { evidenceId:string;enterpriseId: string; envelopeId: string; providerKey: string; classification: string;domainKey:"IDENTITY";subjectId:string;subjectType:string;evidenceType:string;result:"POSITIVE"|"NEGATIVE"|"INCONCLUSIVE"|"REVOKED";assuranceLevel:"NONE"|"MEDIUM"|"HIGH"|"VERY_HIGH";cryptographicallyVerified:boolean;serverVerified:boolean; normalizedFacts: Record<string, JsonValue>; occurredAt: string;receivedAt:string; retentionExpiresAt: string | null;reasonCodes:string[] }) {
+      const result = await database.from("evidence_objects").insert({ evidence_id:input.evidenceId,enterprise_id: input.enterpriseId, envelope_id: input.envelopeId, provider_key: input.providerKey, evidence_classification: input.classification, storage_boundary: "NORMALIZED_LEDGER", normalized_facts: input.normalizedFacts, occurred_at: input.occurredAt, retention_expires_at: input.retentionExpiresAt,domain_key:input.domainKey,subject_id:input.subjectId,subject_type:input.subjectType,evidence_type:input.evidenceType,source_type:"PROVIDER",source_key:input.providerKey,result:input.result,assurance_level:input.assuranceLevel,cryptographically_verified:input.cryptographicallyVerified,server_verified:input.serverVerified,received_at:input.receivedAt,expires_at:input.retentionExpiresAt,payload_hash:hashCanonical(input.normalizedFacts),canonicalization:"JCS",hash_algorithm:"SHA-256",reason_codes:input.reasonCodes }).select("id,evidence_id").single();
       if (result.error || !result.data) databaseError("Normalized evidence persistence", result.error);
-      return `evidence:${result.data.id}`;
+      return `evidence:${result.data.evidence_id}`;
     },
     async appendEvent(input: { event: CanonicalTrustEvent; envelopeId: string; correlationId: string }) {
       const result = await database.rpc("append_trust_event_v1", { p_event: input.event, p_envelope_id: input.envelopeId, p_correlation_id: input.correlationId });

@@ -1,0 +1,6 @@
+import { notFound } from "next/navigation";
+import { EvidenceGraphView,StateTimeline,TrustPosture } from "@/src/components/trust-architecture/TrustArchitecture";
+import { trustArchitectureRepository } from "@/src/lib/trust-architecture/repository";
+import { trustArchitectureUiContext } from "@/src/lib/trust-architecture/ui-context";
+export const dynamic="force-dynamic";
+export default async function TrustSubjectPage({params}:{params:Promise<{subjectId:string}>}){const subjectId=(await params).subjectId;const {workspace}=await trustArchitectureUiContext(`/dashboard/trust-architecture/subjects/${encodeURIComponent(subjectId)}`);if(!workspace)notFound();const repository=trustArchitectureRepository();const [subject,timeline,graph]=await Promise.all([repository.subject(workspace.id,subjectId),repository.timeline(workspace.id,subjectId),repository.graph(workspace.id,subjectId,200)]);if(!subject)notFound();return <main className="min-h-screen bg-[#04070c] px-5 py-10 text-white"><div className="mx-auto max-w-6xl space-y-8"><header><p className="text-sm uppercase tracking-[0.2em] text-cyan-300">Trust subject</p><h1 className="mt-3 break-all text-3xl font-semibold">{subjectId}</h1></header><TrustPosture state={subject.state as Record<string,unknown>|null}/><StateTimeline decisions={timeline.stateDecisions}/><EvidenceGraphView graph={graph as never}/></div></main>;}

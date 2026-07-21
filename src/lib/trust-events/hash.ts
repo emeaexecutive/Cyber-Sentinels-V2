@@ -1,9 +1,10 @@
-import { createHash, timingSafeEqual } from "node:crypto";
+import { timingSafeEqual } from "node:crypto";
+import { sha256Hex as sha256Core } from "../trust-core/hash.ts";
 import { canonicalizeTrustEvent, normalizeTrustEvent } from "./canonicalize.ts";
 import type { CanonicalTrustEvent, UnsignedTrustEvent } from "./types.ts";
 
 export function sha256Hex(bytes: Uint8Array | string) {
-  return createHash("sha256").update(bytes).digest("hex");
+  return sha256Core(bytes);
 }
 
 export function hashTrustEvent(event: UnsignedTrustEvent | CanonicalTrustEvent) {

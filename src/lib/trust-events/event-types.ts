@@ -5,7 +5,7 @@ const requiredEventTypes = [
   "workflow.started", "workflow.paused", "workflow.completed",
   "consent.banner.displayed", "consent.accept_all", "consent.reject_optional", "consent.preferences.saved",
   "consent.withdrawn", "consent.policy.reconsent_required", "consent.policy.version_changed", "consent.receipt.created",
-  "consensus.evaluation.started", "consensus.evaluation.completed", "consensus.verified", "consensus.trusted",
+  "consensus.evaluation.started", "consensus.evaluation.completed", "consensus.recommendation.created", "consensus.verified", "consensus.trusted",
   "consensus.challenged", "consensus.inconclusive", "consensus.blocked", "consensus.revoked",
   "consensus.conflict.detected", "consensus.policy.changed", "provider.health.changed",
 ] as const;

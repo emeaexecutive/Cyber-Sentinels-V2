@@ -12,7 +12,7 @@ export interface TrustEventGatewayRepository {
   reserveEnvelope(input: { enterpriseId: string; providerKey: string; idempotencyKey: string; requestHash: string; envelope: ProviderEnvelope; receivedAt: string; correlationId: string }): Promise<EnvelopeReservation>;
   recordRejectedEnvelope(input: { enterpriseId?: string; providerKey: string; protocol: ProviderProtocol; requestHash: string; disposition: TrustEventDisposition; reasonCodes: string[]; correlationId: string; receivedAt: string }): Promise<void>;
   getChainHead(enterpriseId: string): Promise<ChainHead>;
-  persistEvidence(input: { enterpriseId: string; envelopeId: string; providerKey: string; classification: string; normalizedFacts: Record<string, JsonValue>; occurredAt: string; retentionExpiresAt: string | null }): Promise<string>;
+  persistEvidence(input: { evidenceId: string; enterpriseId: string; envelopeId: string; providerKey: string; classification: string; domainKey: "IDENTITY"; subjectId: string; subjectType: string; evidenceType: string; result: "POSITIVE"|"NEGATIVE"|"INCONCLUSIVE"|"REVOKED"; assuranceLevel: "NONE"|"MEDIUM"|"HIGH"|"VERY_HIGH"; cryptographicallyVerified: boolean; serverVerified: boolean; normalizedFacts: Record<string, JsonValue>; occurredAt: string; receivedAt: string; retentionExpiresAt: string | null; reasonCodes: string[] }): Promise<string>;
   appendEvent(input: { event: CanonicalTrustEvent; envelopeId: string; correlationId: string }): Promise<"APPENDED" | "CHAIN_CONFLICT">;
   completeEnvelope(input: { envelopeId: string; disposition: TrustEventDisposition; eventIds: string[]; reasonCodes: string[] }): Promise<void>;
 }
@@ -69,7 +69,9 @@ export async function ingestTrustEventRequest(input: RawProviderRequest, reposit
   if (!normalized.length) { await repository.completeEnvelope({ envelopeId: reservation.envelopeId, disposition: "INCONCLUSIVE", eventIds: [], reasonCodes: ["NO_NORMALIZED_EVENTS"] }); return failed("INCONCLUSIVE", input.correlationId, ["NO_NORMALIZED_EVENTS"], { envelopeId: reservation.envelopeId }); }
   const eventIds: string[] = [];
   for (const item of normalized) {
-    const evidenceReference = await repository.persistEvidence({ enterpriseId, envelopeId: reservation.envelopeId, providerKey: adapter.key, classification: capabilities.positiveEvidence && verification.serverVerified ? "SERVER_VERIFIED" : "NORMALIZED_ONLY", normalizedFacts: item.normalizedFacts, occurredAt: item.occurredAt, retentionExpiresAt: null });
+    const positiveEligible=capabilities.positiveEvidence&&verification.serverVerified&&adapter.key!=="world_id";
+    const evidenceResult=item.eventType.includes("revoked")?"REVOKED" as const:item.eventType.includes("rejected")||item.eventType.includes("failed")?"NEGATIVE" as const:positiveEligible?"POSITIVE" as const:"INCONCLUSIVE" as const;
+    const evidenceReference = await repository.persistEvidence({ evidenceId:crypto.randomUUID(),enterpriseId, envelopeId: reservation.envelopeId, providerKey: adapter.key, classification: positiveEligible ? "SERVER_VERIFIED" : "NORMALIZED_ONLY",domainKey:"IDENTITY",subjectId:item.subject.id,subjectType:item.subject.type,evidenceType:item.eventType,result:evidenceResult,assuranceLevel:positiveEligible&&(capabilities.signatureVerification||capabilities.serverVerification)?"VERY_HIGH":verification.serverVerified?"HIGH":verification.verified?"MEDIUM":"NONE",cryptographicallyVerified:capabilities.signatureVerification&&verification.verified,serverVerified:verification.serverVerified, normalizedFacts: item.normalizedFacts, occurredAt: item.occurredAt,receivedAt:input.receivedAt.toISOString(), retentionExpiresAt: null,reasonCodes:item.reasonCodes });
     let appended = false;
     for (let attempt = 0; attempt < 5 && !appended; attempt += 1) {
       const head = await repository.getChainHead(enterpriseId);

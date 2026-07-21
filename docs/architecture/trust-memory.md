@@ -2,7 +2,7 @@
 
 Baseline commit: `77588a5`
 
-Architecture review date: 2026-07-18
+Architecture review date: 2026-07-18; EPIC 18 extension: 2026-07-21
 
 ## Definition
 
@@ -14,32 +14,32 @@ Trust Memory is **not a session**. A session is one bounded interaction; Trust M
 
 Trust Memory is historical operational confidence, not a permanent reputation score or autonomous learning system.
 
-## Current model
+## Original model
 
 `lib/trust-memory/trust-memory.ts` models events for humans, AI agents, machine identities and workflows. Event kinds cover identity, runtime, provider and session change; trust gain, decay and recovery; policy, credential and authority change; conflict; governance decisions; reviewer overrides; reviewed false-positive/false-negative outcomes; and retention tombstones.
 
-Events can carry trust before/after/delta, evidence/replay/governance/provider/policy/authority references, reviewed outcome, purpose, action, environment, confidence, explanation, ownership and retention context. Snapshot helpers summarize an supplied event history. This is an application model/projection; no dedicated universal `trust_memory` event table was identified.
+Events can carry trust before/after/delta, evidence/replay/governance/provider/policy/authority references, reviewed outcome, purpose, action, environment, confidence, explanation, ownership and retention context. Snapshot helpers summarize a supplied event history.
 
 ## Required contents
 
-| Blueprint content | Current representation and boundary |
+| Blueprint content | Representation and boundary |
 | --- | --- |
-| Previous verifications | Identity/provider/session event history and evidence references |
-| Behaviour consistency | Runtime behavior change and reviewed outcomes; not a universal behavioral profile |
-| Historical devices | May be referenced through evidence/metadata; no dedicated complete device history |
-| Historical sessions | Session-change and workflow/replay references |
+| Previous verifications | Identity/provider/session history and Evidence Object references |
+| Behaviour consistency | Runtime changes and reviewed outcomes; not a universal behavioral profile |
+| Historical devices | Explicit Device-domain subjects/evidence where registered |
+| Historical sessions | Session, workflow, Trust Event and Replay references |
 | Authority history | Authority, delegation, credential and policy events |
-| Provider history | Provider-change events and provider references |
-| Evidence quality | Evidence sources, confidence and limitations |
-| Incident history | Conflict/governance/runtime events where supplied |
-| Trust decay | Explicit decay events and algorithm freshness posture |
-| Recovery history | Recovery and governance-restore events |
+| Provider history | Provider health and observation references |
+| Evidence quality | Evidence result, assurance, verification, freshness and limitations |
+| Incident history | Conflict, governance and runtime events where supplied |
+| Trust decay | Explicit expiry/decay events and freshness posture |
+| Recovery history | New evidence and governed recovery decisions |
 
 ## Event and snapshot contract
 
 Every event requires an immutable event ID, tenant, subject/actor type and ID, event kind, recorded and effective times, cause, before/after state, calculation version, source references and limitations. A snapshot requires a stable version/watermark, ordered event IDs, calculation version, created time and integrity result.
 
-Current event types carry rich provenance, but a stable persisted snapshot/version reference is not yet guaranteed for every decision. That prevents complete version-pinned replay.
+EPIC 18 adds `trust_memory_index`, a tenant-scoped chronological index over immutable state decisions and their source IDs. It is a projection, not a second audit source. State transitions populate it atomically with the decision and Canonical Trust Event.
 
 ## Rules
 
@@ -47,11 +47,11 @@ Current event types carry rich provenance, but a stable persisted snapshot/versi
 
 New information creates a new event. Corrections, reviewer overrides, decay, restoration and revocation reference the earlier state; they do not rewrite it. `validateTrustMemoryIntegrity` detects chronology, duplicate IDs, tenant and linkage problems without repairing history.
 
-Migration source prevents update/delete on `trust_timeline_events`, which can carry Trust Memory context. This does not prove that every contributing source is immutable or that the migration is deployed.
+The EPIC 18 index and its source decisions are append-only. This repository rule does not by itself prove that the migration is deployed.
 
 ### Historical snapshots
 
-Snapshots are derived, versioned projections and can be rebuilt from retained events. A decision records the exact snapshot watermark it used. A later calculation may change posture but cannot change the prior decision's recorded inputs.
+Snapshots are derived, versioned projections and can be rebuilt from retained events. A decision records the exact Evidence Object snapshot and policy version it used. A later calculation may change posture but cannot change the prior decision's recorded inputs.
 
 ### Retention and privacy
 
@@ -69,17 +69,20 @@ Trust Memory supplies prior reviewed context and freshness/decay signals. It mus
 
 ## Integrity controls
 
-- deterministic event ordering by effective/recorded time and ID;
+- deterministic ordering by effective/recorded time and ID;
 - tenant and subject isolation;
-- evidence, replay, governance and policy reference validation;
-- calculation-version and snapshot-watermark recording;
+- evidence, Replay, governance and policy reference validation;
+- Decision Contract input and snapshot hashes;
 - conflict and missing-reference states; and
-- audit of every privileged read/export.
+- audit of every privileged mutation/export path.
 
-## Current gaps
+## EPIC 18 Replay boundary
 
-- No single dedicated durable Trust Memory store/snapshot registry is universal.
-- Complete device and session histories depend on supplied records.
-- Current decisions do not consistently pin a Trust Memory snapshot version.
-- Append-only enforcement is strongest on timeline events, not all upstream sources.
-- Durable privacy disposition, legal hold and cross-version reconstruction require deployed verification.
+Historical Replay loads the decision, Evidence Objects/provider observations, provider health, policy versions and consent receipts as of the decision time. Policy, outage, evidence-exclusion, state, consent and authority simulations create separate reproducible hashes. Simulations report `mutatesProduction=false` and cannot update current state or write themselves as real Trust Memory.
+
+## Remaining operational gaps
+
+- The forward migration and durable index have not been applied or verified in Production.
+- Complete device, session and authority histories depend on their source domains registering explicit evidence.
+- Privacy disposition/legal-hold procedures require deployed operational verification.
+- Live Replay completeness KPIs remain `INSUFFICIENT_DATA` until measured snapshots exist.

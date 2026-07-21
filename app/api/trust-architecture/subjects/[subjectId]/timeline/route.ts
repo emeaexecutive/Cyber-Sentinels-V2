@@ -1,0 +1,3 @@
+import { architectureContext,architectureCorrelationId,architectureFailure,architectureReference,architectureResponse } from "@/src/lib/trust-architecture/http";
+import { trustArchitectureRepository } from "@/src/lib/trust-architecture/repository";
+export async function GET(request:Request,context:{params:Promise<{subjectId:string}>}){const correlationId=architectureCorrelationId(request);try{const auth=await architectureContext(request);const subjectId=architectureReference((await context.params).subjectId,"subjectId");return architectureResponse({ok:true,timeline:await trustArchitectureRepository().timeline(auth.enterpriseId,subjectId)},200,correlationId);}catch(error){return architectureFailure(error,correlationId);}}

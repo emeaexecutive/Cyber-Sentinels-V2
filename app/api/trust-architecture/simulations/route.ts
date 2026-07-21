@@ -1,0 +1,3 @@
+import { architectureContext,architectureCorrelationId,architectureFailure,architectureResponse,assertArchitectureMutation } from "@/src/lib/trust-architecture/http";
+import { createTrustSimulation } from "@/src/lib/trust-architecture/service";
+export async function POST(request:Request){const correlationId=architectureCorrelationId(request);try{assertArchitectureMutation(request);const auth=await architectureContext(request,["owner","admin","reviewer"]);const simulation=await createTrustSimulation({enterpriseId:auth.enterpriseId,actorId:auth.user.id,value:await request.json(),correlationId});return architectureResponse({ok:true,simulation},201,correlationId);}catch(error){return architectureFailure(error,correlationId);}}

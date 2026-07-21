@@ -1,8 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
   async redirects() {
     return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "cybersentinels.com" }],
+        destination: "https://www.cybersentinels.com/:path*",
+        permanent: true,
+      },
       { source: "/about-us", destination: "/about", permanent: true },
       { source: "/design-partners", destination: "/design-partner", permanent: true },
       { source: "/modern-slavery-statement", destination: "/modern-slavery", permanent: true },

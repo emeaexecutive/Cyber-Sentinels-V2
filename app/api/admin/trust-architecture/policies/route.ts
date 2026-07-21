@@ -1,0 +1,5 @@
+import { architectureContext,architectureCorrelationId,architectureFailure,architectureResponse,assertArchitectureMutation } from "@/src/lib/trust-architecture/http";
+import { trustArchitectureRepository } from "@/src/lib/trust-architecture/repository";
+import { createTrustPolicy } from "@/src/lib/trust-architecture/service";
+export async function GET(request:Request){const correlationId=architectureCorrelationId(request);try{const auth=await architectureContext(request,["owner","admin"]);return architectureResponse({ok:true,policies:await trustArchitectureRepository().policies(auth.enterpriseId)},200,correlationId);}catch(error){return architectureFailure(error,correlationId);}}
+export async function POST(request:Request){const correlationId=architectureCorrelationId(request);try{assertArchitectureMutation(request);const auth=await architectureContext(request,["owner","admin"]);const policy=await createTrustPolicy({enterpriseId:auth.enterpriseId,actorId:auth.user.id,value:await request.json(),correlationId});return architectureResponse({ok:true,policy},201,correlationId);}catch(error){return architectureFailure(error,correlationId);}}
