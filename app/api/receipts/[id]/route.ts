@@ -34,7 +34,8 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
       issuedAt: receipt.issued_at,
       replayReference: trust.replay.sessions.length ? trust.replay.reference : null,
     });
-    const { evidence_snapshot: _hidden, ...safeReceipt } = receipt;
+    const safeReceipt = { ...receipt };
+    delete safeReceipt.evidence_snapshot;
     return apiSuccess({
       receipt: safeReceipt,
       portableEvidence,

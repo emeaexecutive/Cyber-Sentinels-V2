@@ -29,6 +29,13 @@ function createDemoClient() {
 }
 
 export async function POST() {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { ok: false, error: "Not found." },
+      { status: 404 },
+    );
+  }
+
   if (process.env.ENABLE_DEMO_SEED !== "true") {
     return NextResponse.json(
       {

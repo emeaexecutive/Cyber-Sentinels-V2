@@ -3,11 +3,16 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   choicesForConsentAction,
+  consentDecisionState,
+  consentRetryDelayRemainingMs,
   consentRetryIsDue,
+  consentSavedToastSessionPrefix,
+  consentSyncMaximumAttempts,
   createLocalConsentReceipt,
   effectiveConsentChoices,
   markConsentPersisted,
   markConsentSyncAttempt,
+  markConsentSyncFailure,
   parseLocalConsentReceipt,
 } from "../src/lib/consent/local-state.ts";
 import { canonicalCookieChoices, cookieConsentAction, validateCookieConsentRequest } from "../src/lib/consent/cookie-contract.ts";
@@ -24,38 +29,58 @@ const makeReceipt = (action = "REJECT_OPTIONAL", choices = strict) => {
   return createLocalConsentReceipt({ action, choices, consentVersion: "policy-v1", source: "cookie_banner", now: new Date("2026-07-21T10:00:00Z"), randomUuid: () => uuids[index++] });
 };
 
-test("accept, reject, and custom choices create a local pending receipt immediately", () => {
+test("accept, reject, and custom choices close against an idle receipt immediately", () => {
   const accepted = makeReceipt("ACCEPT_ALL");
   assert.deepEqual(accepted.choices, { essential: true, functional: true, analytics: true, ai_improvements: true, marketing: true });
-  assert.equal(accepted.status, "pending_sync");
-  assert.deepEqual(makeReceipt("REJECT_OPTIONAL").choices, strict);
+  assert.equal(accepted.status, "idle");
+  assert.equal(consentDecisionState(accepted), "accepted");
+  const rejected = makeReceipt("REJECT_OPTIONAL");
+  assert.deepEqual(rejected.choices, strict);
+  assert.equal(consentDecisionState(rejected), "rejected");
   const custom = choicesForConsentAction("SAVE_PREFERENCES", { ...strict, functional: true, analytics: true });
   assert.equal(custom.functional, true);
   assert.equal(custom.analytics, true);
   assert.equal(custom.marketing, false);
+  assert.equal(consentDecisionState(makeReceipt("SAVE_PREFERENCES", custom)), "customized");
+  assert.equal(consentDecisionState(null), "undecided");
 });
 
-test("server failure is fail-closed while a browser choice remains valid", () => {
-  const pending = markConsentSyncAttempt(makeReceipt("ACCEPT_ALL"), new Date("2026-07-21T10:01:00Z"));
-  assert.equal(pending.status, "pending_sync");
+test("server failure is fail-closed while the browser choice remains valid", () => {
+  const syncing = markConsentSyncAttempt(makeReceipt("ACCEPT_ALL"), new Date("2026-07-21T10:01:00Z"));
+  const pending = markConsentSyncFailure(syncing);
+  assert.equal(syncing.status, "syncing");
+  assert.equal(pending.status, "retry_scheduled");
   assert.deepEqual(effectiveConsentChoices(pending), strict);
   assert.equal(parseLocalConsentReceipt(JSON.stringify(pending), "policy-v1", new Date("2026-07-21T10:02:00Z")).state, "valid");
 });
 
-test("receipt retry preserves its idempotency key and honors backoff", () => {
+test("background receipt retry uses 5s, 30s, 2m, and 10m backoff then stops", () => {
   const receipt = makeReceipt();
-  const attempted = markConsentSyncAttempt(receipt, new Date("2026-07-21T10:00:00Z"));
-  const retried = markConsentSyncAttempt(attempted, new Date("2026-07-21T10:03:00Z"));
-  assert.equal(retried.idempotencyKey, receipt.idempotencyKey);
-  assert.equal(consentRetryIsDue(attempted, new Date("2026-07-21T10:01:00Z")), false);
-  assert.equal(consentRetryIsDue(attempted, new Date("2026-07-21T10:02:01Z")), true);
+  assert.equal(consentRetryDelayRemainingMs(receipt, new Date("2026-07-21T10:00:00Z")), 0);
+  let pending = markConsentSyncFailure(markConsentSyncAttempt(receipt, new Date("2026-07-21T10:00:00Z")));
+  assert.equal(pending.idempotencyKey, receipt.idempotencyKey);
+  assert.equal(consentRetryDelayRemainingMs(pending, new Date("2026-07-21T10:00:01Z")), 4_000);
+  assert.equal(consentRetryIsDue(pending, new Date("2026-07-21T10:00:05Z")), true);
+  pending = markConsentSyncFailure(markConsentSyncAttempt(pending, new Date("2026-07-21T10:00:05Z")));
+  assert.equal(consentRetryDelayRemainingMs(pending, new Date("2026-07-21T10:00:05Z")), 30_000);
+  pending = markConsentSyncFailure(markConsentSyncAttempt(pending, new Date("2026-07-21T10:00:35Z")));
+  assert.equal(consentRetryDelayRemainingMs(pending, new Date("2026-07-21T10:00:35Z")), 120_000);
+  pending = markConsentSyncFailure(markConsentSyncAttempt(pending, new Date("2026-07-21T10:02:35Z")));
+  assert.equal(consentRetryDelayRemainingMs(pending, new Date("2026-07-21T10:02:35Z")), 600_000);
+  pending = markConsentSyncFailure(markConsentSyncAttempt(pending, new Date("2026-07-21T10:12:35Z")));
+  assert.equal(pending.retryCount, consentSyncMaximumAttempts);
+  assert.equal(pending.status, "failed_terminal");
+  assert.equal(consentRetryDelayRemainingMs(pending), null);
 });
 
-test("confirmed receipt enables only the recorded optional categories", () => {
+test("confirmed receipt records its server ID, clears retry state, and enables only recorded choices", () => {
   const receipt = makeReceipt("SAVE_PREFERENCES", { ...strict, analytics: true });
   const persisted = markConsentPersisted(receipt, "server-receipt-1");
+  assert.equal(persisted.status, "synced");
+  assert.equal(persisted.serverReceiptId, "server-receipt-1");
   assert.equal(effectiveConsentChoices(persisted).analytics, true);
   assert.equal(effectiveConsentChoices(persisted).marketing, false);
+  assert.equal(consentRetryDelayRemainingMs(persisted), null);
 });
 
 test("stale, expired, corrupt, and old-policy local choices require a fresh choice", () => {
@@ -66,6 +91,41 @@ test("stale, expired, corrupt, and old-policy local choices require a fresh choi
   assert.equal(parseLocalConsentReceipt(JSON.stringify({ ...receipt, choices: null }), "policy-v1").state, "missing");
 });
 
+test("legacy receipt states migrate without reopening the main banner", () => {
+  const receipt = makeReceipt();
+  const pending = parseLocalConsentReceipt(JSON.stringify({ ...receipt, status: "pending_sync", retryCount: 1 }), "policy-v1");
+  const exhausted = parseLocalConsentReceipt(JSON.stringify({ ...receipt, status: "pending_sync", retryCount: 5 }), "policy-v1");
+  const persisted = parseLocalConsentReceipt(JSON.stringify({ ...receipt, status: "persisted", serverReceiptId: "server-1" }), "policy-v1");
+  assert.equal(pending.receipt?.status, "retry_scheduled");
+  assert.equal(exhausted.receipt?.status, "failed_terminal");
+  assert.equal(persisted.receipt?.status, "synced");
+});
+
+test("every valid synchronization state preserves the browser decision across remounts", () => {
+  for (const action of ["ACCEPT_ALL", "REJECT_OPTIONAL", "SAVE_PREFERENCES"]) {
+    const choices = action === "SAVE_PREFERENCES" ? { ...strict, functional: true } : strict;
+    const receipt = makeReceipt(action, choices);
+    for (const status of ["idle", "syncing", "retry_scheduled", "synced", "failed_terminal"]) {
+      const remounted = parseLocalConsentReceipt(JSON.stringify({
+        ...receipt,
+        status,
+        retryCount: status === "failed_terminal" ? consentSyncMaximumAttempts : receipt.retryCount,
+      }), "policy-v1");
+      assert.equal(remounted.state, "valid", `${action}/${status} remains a valid local decision`);
+      assert.notEqual(consentDecisionState(remounted.receipt), "undecided", `${action}/${status} keeps the banner closed`);
+    }
+  }
+});
+
+test("banner existence depends only on readiness and decision state", async () => {
+  const manager = await readFile(new URL("../src/components/consent/ConsentManager.tsx", import.meta.url), "utf8");
+  assert.match(manager, /const showConsentBanner = ready && decisionState === "undecided";/);
+  assert.match(manager, /if \(showConsentBanner\) return <ConsentBanner state=\{saving \? "saving" : "open"\}/);
+  assert.doesNotMatch(manager, /decisionState === "undecided" \|\| saving/);
+  assert.match(manager, /function openPreferences\(\) \{\s*setError\(null\);\s*setManaging\(true\);\s*\}/);
+  assert.doesNotMatch(manager, /function openPreferences\(\)[\s\S]{0,160}setDecisionState/);
+});
+
 test("public cookie contract maps aliases into the canonical consent model", () => {
   const input = validateCookieConsentRequest({ consentVersion: "policy-v1", anonymousId: uuids[0], idempotencyKey: uuids[1], source: "cookie_preferences", choices: { necessary: true, preferences: true, analytics: true, marketing: false, aiImprovements: false } });
   assert.deepEqual(canonicalCookieChoices(input), { essential: true, functional: true, analytics: true, ai_improvements: false, marketing: false });
@@ -73,21 +133,45 @@ test("public cookie contract maps aliases into the canonical consent model", () 
   assert.throws(() => validateCookieConsentRequest({ ...input, choices: { ...input.choices, necessary: false } }), /choices/i);
 });
 
+test("saved toast is temporary, action-deduplicated, route-stable, and non-blocking", async () => {
+  const manager = await readFile(new URL("../src/components/consent/ConsentManager.tsx", import.meta.url), "utf8");
+  const status = await readFile(new URL("../src/components/consent/ConsentStatus.tsx", import.meta.url), "utf8");
+  const localState = await readFile(new URL("../src/lib/consent/local-state.ts", import.meta.url), "utf8");
+  assert.match(manager, /setDecisionState\(consentDecisionState\(receipt\)\)/);
+  assert.match(manager, /savedToastDurationMs = 5_000/);
+  assert.match(manager, /role="status"/);
+  assert.match(manager, /aria-live="polite"/);
+  assert.match(manager, /aria-label="Dismiss saved preferences notification"/);
+  assert.match(manager, /pointer-events-none/);
+  assert.match(manager, /window\.sessionStorage/);
+  assert.match(manager, /receiptId/);
+  assert.match(manager, /hydratedRef/);
+  assert.match(manager, /consentRetryDelayRemainingMs/);
+  assert.match(manager, /window\.setTimeout/);
+  assert.match(manager, /setSavedToast\(null\)/);
+  assert.match(manager, /applyConsentState\(strictConsentChoices\)/);
+  assert.match(manager, /cs:open-consent-preferences/);
+  assert.match(manager, />Preferences saved\.<\/p>/);
+  assert.doesNotMatch(manager, /data-state="retryable"/);
+  assert.doesNotMatch(manager, /Your privacy choice is saved in this browser|Optional tracking remains off|Retry receipt sync|receipt waits to sync/i);
+  assert.match(status, /Retry receipt sync/);
+  assert.match(status, /Receipt status:/);
+  assert.match(status, /Synced/);
+  assert.match(status, /Retry scheduled/);
+  assert.match(status, /Sync unavailable/);
+  assert.match(localState, /"idle" \| "syncing" \| "retry_scheduled" \| "synced" \| "failed_terminal"/);
+  assert.equal(consentSavedToastSessionPrefix, "cookie_preferences_saved:");
+  assert.match(manager, /eventType: "consent\.receipt\.sync_failed"/);
+  assert.match(manager, /errorCategory:/);
+  assert.match(manager, /finalOutcome:/);
+});
+
 test("public route is anonymous, idempotent, IP-minimised, and reuses the consent service", async () => {
   const route = await readFile(new URL("../app/api/consent/cookies/route.ts", import.meta.url), "utf8");
-  const manager = await readFile(new URL("../src/components/consent/ConsentManager.tsx", import.meta.url), "utf8");
   assert.match(route, /resolveConsentContext\(request, body\.anonymousId\)/);
   assert.match(route, /persistConsentChoice/);
   assert.match(route, /idempotencyKey: body\.idempotencyKey/);
   assert.doesNotMatch(route, /membership|member_of|raw.?ip|x-forwarded-for/i);
-  assert.match(manager, /persistBrowserReceipt\(receipt\)/);
-  assert.match(manager, /setUiState\("closed"\)/);
-  assert.match(manager, /applyConsentState\(consentDefaults\("GLOBAL_DEFAULT"\)\)/);
-  assert.match(manager, /Retry receipt sync/);
-  assert.match(manager, /cs:open-consent-preferences/);
-  assert.match(manager, /data-state="retryable"/);
-  assert.match(manager, /data-state="closed"/);
-  assert.match(manager, /automaticRetryStarted/);
 });
 
 test("existing consent migrations retain narrow append-only RLS and no duplicate cookie ledger", async () => {
@@ -98,4 +182,13 @@ test("existing consent migrations retain narrow append-only RLS and no duplicate
   assert.match(migration, /consent_receipts_append_only before update or delete/i);
   assert.match(migration, /users read own consent receipts/i);
   assert.match(migration, /persist_consent_change_v1/i);
+});
+
+test("hiring migration guards absent legacy interview columns", async () => {
+  const migration = await readFile(new URL("../supabase/migrations/202606090001_hiring_security_interview_integrity.sql", import.meta.url), "utf8");
+  assert.match(migration, /information_schema\.columns[\s\S]*column_name = 'candidate_id'[\s\S]*column_name = 'candidate_profile_id'/i);
+  assert.match(migration, /execute \$sql\$[\s\S]*set candidate_id = coalesce\(candidate_id, candidate_profile_id\)[\s\S]*candidate_profile_id is not null[\s\S]*\$sql\$/i);
+  assert.match(migration, /Skipped legacy candidate_profile_id backfill: one or both columns are absent\./);
+  assert.match(migration, /column_name = 'status'[\s\S]*set session_status = coalesce\(session_status, status, 'scheduled'\)/i);
+  assert.doesNotMatch(migration, /add column if not exists candidate_profile_id/i);
 });

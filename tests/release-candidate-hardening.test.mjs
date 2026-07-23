@@ -101,10 +101,11 @@ test("performance coverage includes every requested path without speculative opt
 });
 
 test("security hardening removes the shared hash fallback and gates sensitive APIs", async () => {
-  const [security, stepUp, decision] = await Promise.all([
+  const [security, stepUp, decision, demoSeed] = await Promise.all([
     read("lib/security.ts"),
     read("app/api/step-up/route.ts"),
     read("app/api/trust/decision/route.ts"),
+    read("app/api/demo/seed/route.ts"),
   ]);
   assert.match(security, /randomBytes\(32\)/);
   assert.doesNotMatch(security, /SECURITY_HASH_SECRET \|\| "cyber-sentinels"/);
@@ -112,6 +113,9 @@ test("security hardening removes the shared hash fallback and gates sensitive AP
   assert.match(stepUp, /checkRequestRateLimit/);
   assert.match(decision, /validateTrustApiKey/);
   assert.match(decision, /checkRequestRateLimit/);
+  assert.match(demoSeed, /process\.env\.NODE_ENV === "production"/);
+  assert.match(demoSeed, /status: 404/);
+  assert.match(demoSeed, /process\.env\.ENABLE_DEMO_SEED !== "true"/);
 });
 
 test("Release 1 evidence documents and scorecard fields are present", async () => {

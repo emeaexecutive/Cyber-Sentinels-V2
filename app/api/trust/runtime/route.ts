@@ -1,0 +1,5 @@
+import { boundedLimit, continuousTrustContext, continuousTrustCorrelationId, continuousTrustFailure, continuousTrustResponse } from "@/src/lib/continuous-trust/http";
+import { continuousTrustRepository } from "@/src/lib/continuous-trust/repository";
+
+export const dynamic = "force-dynamic";
+export async function GET(request: Request) { const correlationId = continuousTrustCorrelationId(request); try { const auth = await continuousTrustContext(request); const limit = boundedLimit(request); const before = new URL(request.url).searchParams.get("before"); if (before && !Number.isFinite(Date.parse(before))) throw Object.assign(new Error("before must be an ISO timestamp."), { status: 400, code: "CURSOR_INVALID" }); const rows = await continuousTrustRepository().listRuntime(auth.enterpriseId, limit, before); const items = rows.slice(0, limit); return continuousTrustResponse({ ok: true, runtime: items, page: { limit, hasMore: rows.length > limit, nextCursor: rows.length > limit ? String(items.at(-1)?.updated_at ?? "") : null } }, 200, correlationId); } catch (error) { return continuousTrustFailure(error, correlationId); } }

@@ -23,5 +23,7 @@ export type TrustStateDecision = {
   stateDecisionId: string; decisionContractId: string; enterpriseId: string; domainKey: string; subjectId: string;
   priorState: TrustState; nextState: TrustState; recommendationId: string; policyId: string; policyVersion: string;
   confidence: number; evidenceSnapshotHash: string; decisionInputHash: string; decisionHash: string; decidedAt: string; reasonCodes: string[];
+  score?: number; evidenceFreshness?: string; nextEvaluationAt?: string; riskFlags?: string[]; sourceEventId?: string | null;
+  decisionReasonSummary?: string; transitionType?: string; assessmentId?: string;
   evidence: EvidenceObject[];
 };

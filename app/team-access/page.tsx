@@ -16,7 +16,6 @@ import {
   teamAccessPermissions,
   teamAccessRoles,
   teamAccessSignals,
-  type TeamAccessRole,
 } from "@/lib/team/accessControl";
 
 export const dynamic = "force-dynamic";
