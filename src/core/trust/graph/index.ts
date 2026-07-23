@@ -78,3 +78,5 @@ export class EvidenceGraphService implements EvidenceGraphAPI {
     };
   }
 }
+
+export * from "./service.ts";

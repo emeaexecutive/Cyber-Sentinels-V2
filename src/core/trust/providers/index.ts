@@ -1,4 +1,5 @@
 import type { EvidenceKind, EvidenceStatus } from "../evidence/index.ts";
+import type { TrustEvidence } from "../types/index.ts";
 
 export type TrustProviderRequest = {
   tenantId: string;
@@ -52,5 +53,28 @@ export function normalizeTrustProviderResult(result: TrustProviderResult): Trust
           entry[1] === null || ["string", "number", "boolean"].includes(typeof entry[1]),
       ),
     ),
+  };
+}
+
+export function providerResultToTrustEvidence(
+  result: TrustProviderResult,
+  input: { id: string; entityId: string; createdAt?: string },
+): TrustEvidence {
+  const normalized = normalizeTrustProviderResult(result);
+  return {
+    id: input.id,
+    tenantId: normalized.tenantId,
+    entityId: input.entityId,
+    source: `provider:${normalized.provider}`,
+    provider: normalized.provider,
+    evidenceType: normalized.evidenceKind,
+    confidence: normalized.confidence,
+    metadata: {
+      status: normalized.status,
+      reference: normalized.reference,
+      limitationCount: normalized.limitations.length,
+    },
+    version: 1,
+    createdAt: new Date(input.createdAt ?? normalized.observedAt).toISOString(),
   };
 }
