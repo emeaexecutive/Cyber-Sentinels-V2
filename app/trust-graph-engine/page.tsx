@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";

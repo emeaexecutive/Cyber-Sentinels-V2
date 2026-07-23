@@ -8,6 +8,11 @@ const requiredEventTypes = [
   "consensus.evaluation.started", "consensus.evaluation.completed", "consensus.recommendation.created", "consensus.verified", "consensus.trusted",
   "consensus.challenged", "consensus.inconclusive", "consensus.blocked", "consensus.revoked",
   "consensus.conflict.detected", "consensus.policy.changed", "provider.health.changed",
+  "identity.created", "verification.started", "verification.completed", "verification.failed",
+  "provider.result.received", "evidence.added", "evidence.expired", "evidence.revoked", "evidence.superseded",
+  "runtime.trust.recalculated", "runtime.trust.degraded", "runtime.trust.restored",
+  "runtime.access.restricted", "provider.outage.detected", "governance.manual_review.requested", "governance.manual_review.completed",
+  "runtime.drift.detected", "runtime.alert.opened", "runtime.alert.acknowledged", "runtime.alert.resolved",
 ] as const;
 
 const namespaces = ["identity", "device", "session", "authority", "workflow", "runtime", "security", "governance", "provider", "system", "consent", "consensus"] as const;

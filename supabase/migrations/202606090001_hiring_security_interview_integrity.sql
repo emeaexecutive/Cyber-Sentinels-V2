@@ -23,13 +23,63 @@ alter table public.interview_sessions add column if not exists session_status te
 alter table public.interview_sessions add column if not exists integrity_status text default 'pending';
 alter table public.interview_sessions add column if not exists risk_level text default 'unknown';
 
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'interview_sessions'
+      and column_name = 'candidate_id'
+  )
+  and exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'interview_sessions'
+      and column_name = 'candidate_profile_id'
+  )
+  then
+    execute $sql$
+      update public.interview_sessions
+      set candidate_id = coalesce(candidate_id, candidate_profile_id)
+      where candidate_id is null
+        and candidate_profile_id is not null
+    $sql$;
+  else
+    raise notice
+      'Skipped legacy candidate_profile_id backfill: one or both columns are absent.';
+  end if;
+end
+$$;
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'interview_sessions'
+      and column_name = 'status'
+  )
+  then
+    execute $sql$
+      update public.interview_sessions
+      set session_status = coalesce(session_status, status, 'scheduled')
+      where session_status is null
+    $sql$;
+  else
+    update public.interview_sessions
+    set session_status = 'scheduled'
+    where session_status is null;
+    raise notice 'Skipped legacy interview_sessions.status backfill: column is absent.';
+  end if;
+end
+$$;
+
 update public.interview_sessions
-set candidate_id = coalesce(candidate_id, candidate_profile_id),
-    session_status = coalesce(session_status, status, 'scheduled'),
-    risk_level = coalesce(risk_level, 'unknown')
-where candidate_id is null
-   or session_status is null
-   or risk_level is null;
+set risk_level = 'unknown'
+where risk_level is null;
 
 create table if not exists public.interview_risk_events (
   id uuid primary key default gen_random_uuid(),

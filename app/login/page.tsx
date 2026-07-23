@@ -90,6 +90,31 @@ async function withAuthTimeout<T>(task: Promise<T>): Promise<T> {
   }
 }
 
+async function recordAuthEvent(
+  eventType: string,
+  nextPath: string,
+  rememberSession: boolean,
+  context: Record<string, unknown> = {}
+) {
+  try {
+    await fetch("/api/auth/replay-event", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event_type: eventType,
+        decision: "allow",
+        context: {
+          next_path: nextPath,
+          remember_session: rememberSession,
+          ...context,
+        },
+      }),
+    });
+  } catch (error) {
+    console.warn("Auth replay event could not be recorded.", error);
+  }
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [authMode, setAuthMode] = useState<AuthMode>("sign-in");
@@ -149,8 +174,10 @@ export default function LoginPage() {
     const searchParams = new URLSearchParams(window.location.search);
     const resolvedNextPath = getSafeRedirect(searchParams.get("next"));
 
+    const restoresSession =
+      window.localStorage.getItem(REMEMBER_SESSION_KEY) !== "false";
     setNextPath(resolvedNextPath);
-    setRememberSession(window.localStorage.getItem(REMEMBER_SESSION_KEY) !== "false");
+    setRememberSession(restoresSession);
 
     if (searchParams.get("expired") === "1") {
       window.localStorage.removeItem(SESSION_START_KEY);
@@ -183,9 +210,12 @@ export default function LoginPage() {
         if (data.session?.user) {
           setSessionRestoreState("restored");
           window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
-          await recordAuthEvent("session_restoration", {
-            restored_to: resolvedNextPath,
-          });
+          await recordAuthEvent(
+            "session_restoration",
+            resolvedNextPath,
+            restoresSession,
+            { restored_to: resolvedNextPath }
+          );
           router.replace(resolvedNextPath);
           return;
         }
@@ -273,26 +303,6 @@ export default function LoginPage() {
     }
   }
 
-  async function recordAuthEvent(eventType: string, context: Record<string, unknown> = {}) {
-    try {
-      await fetch("/api/auth/replay-event", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          event_type: eventType,
-          decision: "allow",
-          context: {
-            next_path: nextPath,
-            remember_session: rememberSession,
-            ...context,
-          },
-        }),
-      });
-    } catch (error) {
-      console.warn("Auth replay event could not be recorded.", error);
-    }
-  }
-
   async function signInWithPassword() {
     const trimmedEmail = email.trim();
 
@@ -338,7 +348,9 @@ export default function LoginPage() {
 
       window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
       window.localStorage.setItem(REMEMBER_SESSION_KEY, rememberSession ? "true" : "false");
-      await recordAuthEvent("login", { method: "password" });
+      await recordAuthEvent("login", nextPath, rememberSession, {
+        method: "password",
+      });
       router.push(nextPath);
     } catch (error) {
       console.error("Supabase password sign-in failed.", error);

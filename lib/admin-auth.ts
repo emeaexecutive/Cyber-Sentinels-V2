@@ -51,7 +51,6 @@ export function isAdminAllowlisted(email: string | null | undefined) {
 
   if (!allowlisted) {
     console.error("Admin email mismatch.", {
-      email: normalizedEmail,
       configuredAdminCount: adminEmails.length,
     });
   }
@@ -74,7 +73,6 @@ export function getAdminAccessFailureReason(email: string | null | undefined) {
 
   if (!adminEmails.includes(normalizedEmail)) {
     console.error("Admin email mismatch.", {
-      email: normalizedEmail,
       configuredAdminCount: adminEmails.length,
     });
     return "forbidden" as const;

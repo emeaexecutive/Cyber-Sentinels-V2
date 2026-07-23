@@ -198,9 +198,14 @@ export async function loadWorkflowTrust(supabase: any, subjectId: string, subjec
         "governance_continuity",
       ],
     },
-    receipts: receipts.map(({ evidence_snapshot: _hidden, ...receipt }: Row) => ({
-      ...receipt,
-      apiReference: `/api/receipts/${receipt.id}`,
-    })),
+    receipts: receipts.map((receipt: Row) => {
+      const safeReceipt = { ...receipt };
+      delete safeReceipt.evidence_snapshot;
+
+      return {
+        ...safeReceipt,
+        apiReference: `/api/receipts/${receipt.id}`,
+      };
+    }),
   };
 }

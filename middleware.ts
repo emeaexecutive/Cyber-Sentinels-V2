@@ -218,7 +218,6 @@ function isAllowlisted(email: string | null | undefined) {
 
   if (!allowlisted) {
     console.error("Middleware admin redirect reason: admin email mismatch.", {
-      email: normalizedEmail,
       configuredAdminCount: adminEmails.length,
     });
   }
