@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 const RATE_LIMIT_MESSAGE =
   "Email login is temporarily rate-limited. Use password login or wait before requesting another magic link.";
 const CONNECTION_FAILURE_MESSAGE =
-  "Cyber Sentinels could not connect. Check Vercel Production environment variables.";
+  "Cyber Sentinels could not connect. Please try again shortly.";
 const SESSION_START_KEY = "cyber_sentinels_session_started_at";
 const REMEMBER_SESSION_KEY = "cyber_sentinels_remember_session";
 const authTimeoutMs = 8000;
@@ -41,6 +41,17 @@ function isRateLimitError(message: string) {
     normalizedMessage.includes("email rate limit exceeded") ||
     normalizedMessage.includes("too many requests")
   );
+}
+
+function safeAuthMessage(error: unknown, fallback: string) {
+  const message = error instanceof Error ? error.message : typeof error === "string" ? error : "";
+  const normalized = message.toLowerCase();
+
+  if (isRateLimitError(message)) return RATE_LIMIT_MESSAGE;
+  if (normalized.includes("invalid login credentials")) return "Email or password is incorrect.";
+  if (normalized.includes("email not confirmed")) return "Verify your email before signing in.";
+  if (normalized.includes("user already registered")) return "An account already exists for this email. Sign in or reset your password.";
+  return fallback;
 }
 
 function getSafeRedirect(path: string | null) {
@@ -342,7 +353,7 @@ export default function LoginPage() {
       );
 
       if (error) {
-        setMessage(error.message || "Could not sign in.");
+        setMessage(safeAuthMessage(error, "Could not sign in. Please try again."));
         return;
       }
 
@@ -354,7 +365,7 @@ export default function LoginPage() {
       router.push(nextPath);
     } catch (error) {
       console.error("Supabase password sign-in failed.", error);
-      setMessage(error instanceof Error ? error.message : "Could not sign in.");
+      setMessage(safeAuthMessage(error, "Could not sign in. Please try again."));
     } finally {
       setLoadingAction(null);
     }
@@ -409,7 +420,7 @@ export default function LoginPage() {
       );
 
       if (error) {
-        setMessage(error.message || "Could not create account.");
+        setMessage(safeAuthMessage(error, "Could not create the account. Please review the details and try again."));
         return;
       }
 
@@ -417,7 +428,7 @@ export default function LoginPage() {
       setMessage("Check your email to verify your account before continuing.");
     } catch (error) {
       console.error("Supabase account creation failed.", error);
-      setMessage(error instanceof Error ? error.message : "Could not create account.");
+      setMessage(safeAuthMessage(error, "Could not create the account. Please try again."));
     } finally {
       setLoadingAction(null);
     }
@@ -462,16 +473,14 @@ export default function LoginPage() {
       );
 
       if (error) {
-        setMessage(error.message || "Could not resend the verification email.");
+        setMessage(safeAuthMessage(error, "Could not resend the verification email. Please try again shortly."));
         return;
       }
 
       setMessage("Verification email resent. Check your inbox and spam or junk folder.");
     } catch (error) {
       console.error("Supabase verification resend failed.", error);
-      setMessage(
-        error instanceof Error ? error.message : "Could not resend the verification email."
-      );
+      setMessage(safeAuthMessage(error, "Could not resend the verification email. Please try again shortly."));
     } finally {
       setLoadingAction(null);
     }
@@ -515,14 +524,14 @@ export default function LoginPage() {
       );
 
       if (error) {
-        setMessage(isRateLimitError(error.message) ? RATE_LIMIT_MESSAGE : error.message);
+        setMessage(safeAuthMessage(error, "Could not send the magic link. Please try again."));
         return;
       }
 
       setMessage("Check your email for a secure sign-in link.");
     } catch (error) {
       console.error("Supabase magic-link sign-in failed.", error);
-      setMessage(error instanceof Error ? error.message : "Could not send magic link.");
+      setMessage(safeAuthMessage(error, "Could not send the magic link. Please try again."));
     } finally {
       setLoadingAction(null);
     }
@@ -561,16 +570,14 @@ export default function LoginPage() {
       );
 
       if (error) {
-        setMessage(error.message || "Could not send password reset email.");
+        setMessage(safeAuthMessage(error, "Could not send the password reset email. Please try again shortly."));
         return;
       }
 
       setMessage("If the account exists, password reset instructions have been sent.");
     } catch (error) {
       console.error("Supabase password reset email failed.", error);
-      setMessage(
-        error instanceof Error ? error.message : "Could not send password reset email."
-      );
+      setMessage(safeAuthMessage(error, "Could not send the password reset email. Please try again shortly."));
     } finally {
       setLoadingAction(null);
     }
@@ -646,7 +653,7 @@ export default function LoginPage() {
                     onClick={() => switchAuthMode(mode.id)}
                     type="button"
                     aria-pressed={selected}
-                    className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                    className={`min-h-11 rounded-lg px-3 py-2 text-sm font-medium transition ${
                       selected
                         ? "bg-white text-black"
                         : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
@@ -885,7 +892,7 @@ export default function LoginPage() {
               ) : null}
             </div>
 
-            {message ? <p className="text-sm text-zinc-400">{message}</p> : null}
+            {message ? <p role="status" aria-live="polite" className="text-sm text-zinc-300">{message}</p> : null}
 
             {showDevAuth ? (
               <div className="grid gap-2 border border-yellow-500/40 p-4">

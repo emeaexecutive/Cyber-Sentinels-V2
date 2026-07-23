@@ -124,6 +124,7 @@ test("banner existence depends only on readiness and decision state", async () =
   assert.doesNotMatch(manager, /decisionState === "undecided" \|\| saving/);
   assert.match(manager, /function openPreferences\(\) \{\s*setError\(null\);\s*setManaging\(true\);\s*\}/);
   assert.doesNotMatch(manager, /function openPreferences\(\)[\s\S]{0,160}setDecisionState/);
+  assert.match(manager, /announceReceiptUpdate\(receipt\);\s*void syncReceipt\(receipt\);/);
 });
 
 test("public cookie contract maps aliases into the canonical consent model", () => {

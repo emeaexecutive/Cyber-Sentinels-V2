@@ -45,14 +45,14 @@ export default function VerifyEmailPage() {
       });
 
       if (error) {
-        setMessage(error.message || "Could not resend the verification email.");
+        setMessage("Could not resend the verification email. Please wait a moment and try again.");
         return;
       }
 
       setMessage("Verification email resent. Check your inbox and spam or junk folder.");
     } catch (error) {
       console.error("Supabase verification resend failed.", error);
-      setMessage(error instanceof Error ? error.message : "Could not resend the verification email.");
+      setMessage("Could not resend the verification email. Please try again shortly.");
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,9 @@ export default function VerifyEmailPage() {
             <li>Resend the verification email when needed.</li>
           </ul>
           <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
+            <label className="sr-only" htmlFor="verification-email">Account email address</label>
             <input
+              id="verification-email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               type="email"
@@ -93,7 +95,7 @@ export default function VerifyEmailPage() {
               {loading ? "Sending..." : "Resend verification"}
             </button>
           </div>
-          {message ? <p className="mt-3 text-sm text-zinc-300">{message}</p> : null}
+          {message ? <p role="status" aria-live="polite" className="mt-3 text-sm text-zinc-300">{message}</p> : null}
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
