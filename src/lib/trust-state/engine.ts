@@ -26,7 +26,9 @@ function deriveSafeState(input: { recommendation: TrustStateRecommendation; evid
 export function evaluateTrustState(input: { contract: TrustDecisionContract; priorState: TrustState; recommendation: TrustStateRecommendation; evidence: unknown[]; policy: TrustStatePolicy; decidedAt?: string; runtime?: { score: number; evidenceFreshness: string; nextEvaluationAt: string; riskFlags: string[]; sourceEventId: string | null; decisionReasonSummary: string; transitionType: string; assessmentId: string } }): TrustStateDecision {
   const decidedAt=normalizeUtcTimestamp(input.decidedAt??new Date().toISOString(),"decidedAt");
   const evidence=input.evidence.map(validateEvidenceObject);
-  if(hashCanonical(evidence.map((item)=>item.evidenceId).sort())!==input.contract.evidenceSnapshotHash)throw Object.assign(new Error("Evidence snapshot does not match the decision contract."),{code:"EVIDENCE_SNAPSHOT_MISMATCH"});
+  const idSnapshot=hashCanonical(evidence.map((item)=>item.evidenceId).sort());
+  const detailedSnapshot=hashCanonical(evidence.map((item)=>({evidenceId:item.evidenceId,result:item.result,assuranceLevel:item.assuranceLevel,sourceKey:item.sourceKey,occurredAt:item.occurredAt,expiresAt:item.expiresAt??null,payloadHash:item.payloadHash})).sort((left,right)=>left.evidenceId.localeCompare(right.evidenceId)));
+  if(![idSnapshot,detailedSnapshot].includes(input.contract.evidenceSnapshotHash))throw Object.assign(new Error("Evidence snapshot does not match the decision contract."),{code:"EVIDENCE_SNAPSHOT_MISMATCH"});
   for(const item of evidence)assertPositiveEvidenceEligible(item);
   const safe=deriveSafeState({recommendation:input.recommendation,evidence,decidedAt,policy:input.policy});
   assertTransition(input.priorState,safe.state,input.policy.allowRecoveryFromBlocked);
