@@ -145,7 +145,7 @@ create table public.replay_events (
 create index replay_events_identity_idx
   on public.replay_events(tenant_id,identity_id,occurred_at,event_id);
 
-create table public.trust_signals (
+create table public.trust_intelligence_signals (
   signal_id uuid primary key,
   tenant_id uuid not null references public.trust_workspaces(id) on delete restrict,
   identity_id text not null,
@@ -163,12 +163,12 @@ create table public.trust_signals (
   created_at timestamptz not null default now(),
   unique(tenant_id,signal_id)
 );
-create index trust_signals_identity_idx
-  on public.trust_signals(tenant_id,identity_id,observed_at desc,signal_id desc);
-create index trust_signals_source_idx
-  on public.trust_signals(tenant_id,signal_source,observed_at desc);
+create index trust_intelligence_signals_identity_idx
+  on public.trust_intelligence_signals(tenant_id,identity_id,observed_at desc,signal_id desc);
+create index trust_intelligence_signals_source_idx
+  on public.trust_intelligence_signals(tenant_id,signal_source,observed_at desc);
 
-create table public.trust_updates (
+create table public.trust_intelligence_updates (
   update_id uuid primary key,
   tenant_id uuid not null references public.trust_workspaces(id) on delete restrict,
   identity_id text not null,
@@ -181,12 +181,12 @@ create table public.trust_updates (
   occurred_at timestamptz not null,
   created_at timestamptz not null default now(),
   foreign key(tenant_id,signal_id)
-    references public.trust_signals(tenant_id,signal_id) on delete restrict,
+    references public.trust_intelligence_signals(tenant_id,signal_id) on delete restrict,
   unique(tenant_id,update_id),
   unique(tenant_id,signal_id)
 );
-create index trust_updates_identity_idx
-  on public.trust_updates(tenant_id,identity_id,occurred_at desc,update_id desc);
+create index trust_intelligence_updates_identity_idx
+  on public.trust_intelligence_updates(tenant_id,identity_id,occurred_at desc,update_id desc);
 
 create table public.provider_results (
   result_id uuid primary key,
@@ -388,7 +388,7 @@ declare table_name text;
 begin
   foreach table_name in array array[
     'evidence_nodes','evidence_relationships','trust_profiles','trust_dimensions',
-    'trust_history','replay_events','trust_signals','trust_updates','provider_results'
+    'trust_history','replay_events','trust_intelligence_signals','trust_intelligence_updates','provider_results'
   ] loop
     execute format('alter table public.%I enable row level security',table_name);
     execute format('revoke all on public.%I from anon,authenticated',table_name);
@@ -409,9 +409,9 @@ create policy "tenant reads trust history" on public.trust_history
   for select to authenticated using(public.user_can_access_trust_workspace(tenant_id));
 create policy "tenant reads replay events" on public.replay_events
   for select to authenticated using(public.user_can_access_trust_workspace(tenant_id));
-create policy "tenant reads trust signals" on public.trust_signals
+create policy "tenant reads trust intelligence signals" on public.trust_intelligence_signals
   for select to authenticated using(public.user_can_access_trust_workspace(tenant_id));
-create policy "tenant reads trust updates" on public.trust_updates
+create policy "tenant reads trust intelligence updates" on public.trust_intelligence_updates
   for select to authenticated using(public.user_can_access_trust_workspace(tenant_id));
 create policy "tenant reads provider results" on public.provider_results
   for select to authenticated using(public.user_can_access_trust_workspace(tenant_id));
@@ -428,9 +428,9 @@ create trigger trust_history_append_only before update or delete on public.trust
   for each row execute function public.prevent_trust_architecture_history_mutation();
 create trigger replay_events_append_only before update or delete on public.replay_events
   for each row execute function public.prevent_trust_architecture_history_mutation();
-create trigger trust_signals_append_only before update or delete on public.trust_signals
+create trigger trust_intelligence_signals_append_only before update or delete on public.trust_intelligence_signals
   for each row execute function public.prevent_trust_architecture_history_mutation();
-create trigger trust_updates_append_only before update or delete on public.trust_updates
+create trigger trust_intelligence_updates_append_only before update or delete on public.trust_intelligence_updates
   for each row execute function public.prevent_trust_architecture_history_mutation();
 create trigger provider_results_append_only before update or delete on public.provider_results
   for each row execute function public.prevent_trust_architecture_history_mutation();
@@ -514,7 +514,7 @@ begin
     raise exception 'Cross-tenant or cross-identity signal projection denied';
   end if;
 
-  insert into public.trust_signals(
+  insert into public.trust_intelligence_signals(
     signal_id,tenant_id,identity_id,signal_source,signal_type,signal_value,
     confidence,observed_at,provider,evidence_node_ids
   ) values (
@@ -524,7 +524,7 @@ begin
     array(select jsonb_array_elements_text(coalesce(p_signal->'evidenceIds','[]'::jsonb)))::uuid[]
   ) on conflict(tenant_id,signal_id) do nothing;
 
-  insert into public.trust_updates(
+  insert into public.trust_intelligence_updates(
     update_id,tenant_id,identity_id,signal_id,prior_trust,resulting_trust,
     delta,confidence,reason,occurred_at
   ) values (

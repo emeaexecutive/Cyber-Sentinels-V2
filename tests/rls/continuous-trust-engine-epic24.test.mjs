@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const sql = await readFile(
-  new URL("../../supabase/migrations/202607240001_continuous_trust_engine.sql", import.meta.url),
+  new URL("../../supabase/migrations/202607240003_continuous_trust_engine.sql", import.meta.url),
   "utf8",
 );
 

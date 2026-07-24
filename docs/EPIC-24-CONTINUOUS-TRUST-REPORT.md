@@ -19,7 +19,7 @@ The existing dashboard, alert transition routes, continuous-trust exports, Trust
 
 ## 4. Database migrations
 
-`202607240001_continuous_trust_engine.sql` adds immutable signals, durable processing, policy decisions, failures, manual review/history, alert history, and overrides. It extends existing drift and alert tables and provides transaction functions for ingestion, rejection audit, processing, reviews, overrides, and alerts.
+`202607240003_continuous_trust_engine.sql` adds immutable signals, durable processing, policy decisions, failures, manual review/history, alert history, and overrides. It extends existing drift and alert tables and provides transaction functions for ingestion, rejection audit, processing, reviews, overrides, and alerts.
 
 ## 5. RLS policies
 

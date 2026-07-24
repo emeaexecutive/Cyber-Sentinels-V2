@@ -14,8 +14,8 @@ const tables = [
   "trust_dimensions",
   "trust_history",
   "replay_events",
-  "trust_signals",
-  "trust_updates",
+  "trust_intelligence_signals",
+  "trust_intelligence_updates",
   "provider_results",
 ];
 

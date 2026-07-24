@@ -23,7 +23,7 @@ Authenticated tenant API / signed server integration
        decision + alert/review + processing result
 ```
 
-The implementation lives in `src/lib/continuous-trust`. `signal-service.ts` coordinates ingestion and processing, `signal-engine.ts` contains deterministic drift and signal-policy rules, and `signal-repository.ts` is the only persistence boundary. The database transaction functions are in `202607240001_continuous_trust_engine.sql`.
+The implementation lives in `src/lib/continuous-trust`. `signal-service.ts` coordinates ingestion and processing, `signal-engine.ts` contains deterministic drift and signal-policy rules, and `signal-repository.ts` is the only persistence boundary. The database transaction functions are in `202607240003_continuous_trust_engine.sql`.
 
 ## Event lifecycle
 
