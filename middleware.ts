@@ -47,6 +47,7 @@ const userPagePrefixes = [
   "/trust",
   "/trust-replay",
   "/trust-center",
+  "/trust-centre",
   "/verify/session",
   "/verify/candidate",
   "/verify/recruiter",
