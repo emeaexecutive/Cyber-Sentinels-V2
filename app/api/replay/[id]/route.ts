@@ -1,7 +1,15 @@
 import { authenticatedTrustClient, apiError, apiSuccess, loadWorkflowTrust, validReference } from "@/lib/operational-trust/api";
 import { replayEngine } from "@/lib/core/replay-engine";
-import { ReplayEngine, ReplayRenderer } from "@/src/core/trust/replay";
+import { ReplayEngine, ReplayRenderer, ReplayService } from "@/src/core/trust/replay";
+import { replayCsvResponse, replayFormat, replaySearch } from "@/src/core/trust/replay/http";
 import { createReplayRepository } from "@/src/core/trust/replay/supabase-repository";
+import {
+  trustGraphContext,
+  trustGraphCorrelationId,
+  trustGraphFailure,
+  trustGraphResponse,
+  trustGraphUuid,
+} from "@/src/core/trust/graph/http";
 import {
   trustIntelligenceContext,
   trustIntelligenceCorrelationId,
@@ -13,9 +21,34 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  const requestedId = (await context.params).id;
+  if (request.headers.get("x-enterprise-id") && /^[0-9a-f-]{36}$/i.test(requestedId)) {
+    const correlationId = trustGraphCorrelationId(request);
+    try {
+      const auth = await trustGraphContext(request);
+      const entityId = trustGraphUuid(requestedId, "entityId");
+      const service = new ReplayService(createReplayRepository(auth.supabase));
+      const search = replaySearch(request);
+      const format = replayFormat(request);
+      if (format === "csv") {
+        return replayCsvResponse(
+          await service.exportCsv(auth.enterpriseId, entityId, search),
+          entityId,
+          correlationId,
+        );
+      }
+      const replay =
+        format === "audit"
+          ? await service.enterpriseAudit(auth.enterpriseId, entityId, search)
+          : await service.artifact(auth.enterpriseId, entityId, search);
+      return trustGraphResponse({ ok: true, replay }, 200, correlationId);
+    } catch (error) {
+      return trustGraphFailure(error, correlationId);
+    }
+  }
   const auth = await authenticatedTrustClient();
   if ("response" in auth) return auth.response;
-  const { id } = await context.params;
+  const id = requestedId;
   if (!validReference(id)) return apiError("Invalid replay reference.", 400);
 
   const { data: replay, error: replayError } = await auth.supabase
