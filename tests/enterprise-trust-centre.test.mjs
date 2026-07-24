@@ -87,7 +87,7 @@ test("Trust Centre APIs authenticate, tenant-scope, bound, and fail safely", asy
 
 test("alert collaboration is RLS protected, append-only, and service-only", async () => {
   const migration = await read(
-    "supabase/migrations/202607240001_enterprise_trust_centre.sql"
+    "supabase/migrations/202607240004_enterprise_trust_centre.sql"
   );
   assert.match(migration, /enable row level security/);
   assert.match(migration, /user_can_access_trust_workspace\(enterprise_id\)/);

@@ -36,7 +36,7 @@ Existing subject graph and policy simulation APIs are reused directly.
 
 ## Database
 
-Migration `202607240001_enterprise_trust_centre.sql` adds only the missing alert
+Migration `202607240004_enterprise_trust_centre.sql` adds only the missing alert
 collaboration boundary:
 
 - immutable `trust_alert_activity`;
