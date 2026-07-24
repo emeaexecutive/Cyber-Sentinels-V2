@@ -18,6 +18,7 @@ import type {
 } from "@/lib/trust-posture/dashboard";
 import type { TrustPostureBadge as TrustPostureBadgeType } from "@/lib/trust-posture/posture";
 import { ContinuousTrustLifecycleDashboard } from "@/components/continuous-trust-lifecycle-dashboard";
+import { TrustDNACard } from "@/components/trust-dna-card";
 import { projectOperationalStateToLifecycle } from "@/lib/core/trust-lifecycle";
 
 const badgeDetails: Record<TrustPostureBadgeType, { label: string; className: string }> = {
@@ -229,6 +230,8 @@ export function TrustPostureDashboard({
         </div>
 
         <ContinuousTrustLifecycleDashboard snapshot={lifecycleSnapshot} />
+
+        <TrustDNACard profile={snapshot.trustDna} />
 
         <section className="mt-8 grid gap-3 md:grid-cols-[1.2fr_2fr]">
           <div className="operational-card p-5">

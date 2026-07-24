@@ -40,6 +40,21 @@ export type TrustPostureDashboardSnapshot = {
   elevatedRisk: AnyRow[];
   recentEvents: AnyRow[];
   sessionAnomalies: AnyRow[];
+  trustDna: TrustDNADashboardSnapshot | null;
+};
+
+export type TrustDNADashboardSnapshot = {
+  entityId: string;
+  overallScore: number;
+  confidence: number;
+  evidenceCompleteness: number;
+  lastRecalculated: string;
+  dimensions: {
+    name: string;
+    score: number;
+    confidence: number;
+    evidenceMissing: boolean;
+  }[];
 };
 
 async function fetchRows(
@@ -77,6 +92,39 @@ function rowLabel(row: AnyRow) {
   );
 }
 
+async function loadLatestTrustDNA(
+  supabase: SupabaseClient
+): Promise<TrustDNADashboardSnapshot | null> {
+  const profileResult = await supabase
+    .from("trust_profiles")
+    .select("profile_id,entity_id,overall_score,overall_confidence,evidence_completeness,generated_at")
+    .eq("profile_version", "trust-dna-v2")
+    .order("version", { ascending: false })
+    .limit(1)
+    .maybeSingle<AnyRow>();
+  if (profileResult.error || !profileResult.data) return null;
+  const dimensionResult = await supabase
+    .from("trust_dimension_scores")
+    .select("dimension_name,score,confidence,evidence_missing")
+    .eq("profile_id", profileResult.data.profile_id)
+    .order("dimension_name")
+    .returns<AnyRow[]>();
+  if (dimensionResult.error) return null;
+  return {
+    entityId: String(profileResult.data.entity_id),
+    overallScore: Number(profileResult.data.overall_score),
+    confidence: Number(profileResult.data.overall_confidence),
+    evidenceCompleteness: Number(profileResult.data.evidence_completeness),
+    lastRecalculated: String(profileResult.data.generated_at),
+    dimensions: (dimensionResult.data ?? []).map((row) => ({
+      name: String(row.dimension_name),
+      score: Number(row.score),
+      confidence: Number(row.confidence),
+      evidenceMissing: Boolean(row.evidence_missing),
+    })),
+  };
+}
+
 export async function loadTrustPostureDashboard(
   supabase: SupabaseClient
 ): Promise<TrustPostureDashboardSnapshot> {
@@ -88,6 +136,7 @@ export async function loadTrustPostureDashboard(
     timelineEvents,
     receipts,
     agents,
+    trustDna,
   ] = await Promise.all([
     fetchRows(supabase, "passports", 100),
     fetchRows(supabase, "session_integrity_checks", 120),
@@ -96,6 +145,7 @@ export async function loadTrustPostureDashboard(
     fetchRows(supabase, "trust_timeline_events", 160),
     fetchRows(supabase, "verification_receipts", 120, "issued_at"),
     fetchRows(supabase, "ai_agents", 100),
+    loadLatestTrustDNA(supabase),
   ]);
 
   const scoredPassports = passports
@@ -221,5 +271,6 @@ export async function loadTrustPostureDashboard(
     elevatedRisk: elevatedRisk.slice(0, 12),
     recentEvents,
     sessionAnomalies: sessionAnomalies.slice(0, 12),
+    trustDna,
   };
 }
