@@ -2,6 +2,7 @@ import { checkRequestRateLimit } from "@/lib/security";
 import { consentAnonymousCookieName, consentCookieName, serializeConsentCookie } from "@/src/lib/consent/cookie";
 import { canonicalCookieChoices, cookieConsentAction, validateCookieConsentRequest } from "@/src/lib/consent/cookie-contract";
 import { assertConsentMutationRequest, consentCookieSecret, consentCorrelationId, consentResponse, resolveConsentContext } from "@/src/lib/consent/http";
+import { consentErrorTelemetry } from "@/src/lib/consent/observability";
 import { currentConsentPolicy } from "@/src/lib/consent/policy";
 import { persistConsentChoice } from "@/src/lib/consent/service";
 
@@ -50,16 +51,26 @@ export async function POST(request: Request) {
     response.cookies.set(consentAnonymousCookieName, context.anonymousToken, { path: "/", sameSite: "lax", secure, httpOnly: true, expires: new Date(result.expiresAt) });
     return response;
   } catch (error) {
-    const candidate = error as Error & { status?: number; code?: string };
-    const status = candidate.status ?? 500;
+    const telemetry = consentErrorTelemetry(error, "consent.cookies.persist");
+    const status = telemetry.status;
+    const errorCode = telemetry.errorCode;
     if (status < 500) {
-      return consentResponse({ success: false, status: "rejected", reasonCode: candidate.code ?? "CONSENT_REQUEST_REJECTED" }, status, correlationId);
+      return consentResponse({ success: false, status: "rejected", reasonCode: errorCode }, status, correlationId);
     }
-    console.error("Cookie consent receipt sync unavailable.", { code: candidate.code ?? "CONSENT_RECEIPT_PERSISTENCE_UNAVAILABLE" });
+    console.warn("Cookie consent receipt sync unavailable.", {
+      operation: telemetry.operation,
+      errorName: telemetry.errorName,
+      errorCode,
+      supabaseCode: telemetry.supabaseCode,
+      message: telemetry.message,
+      details: telemetry.details,
+      hint: telemetry.hint,
+      correlationId,
+    });
     return consentResponse({
       success: false,
       status: "retryable",
-      reasonCode: "CONSENT_RECEIPT_PERSISTENCE_UNAVAILABLE",
+      reasonCode: errorCode,
     }, 503, correlationId);
   }
 }

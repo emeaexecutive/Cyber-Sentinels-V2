@@ -4,14 +4,46 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import type { CanonicalTrustEvent } from "@/src/lib/trust-events/types";
 import type { ConsentReceipt } from "./types.ts";
 import { verifyConsentReceipt } from "./receipt.ts";
+import { sanitizeErrorText } from "./observability";
 
 function fail(operation: string, error: unknown): never {
-  console.error(`${operation} failed.`, { code: (error as { code?: string })?.code });
-  throw Object.assign(new Error(`${operation} failed safely.`), { status: 500, code: "CONSENT_PERSISTENCE_FAILED" });
+  const candidate = error as {
+    code?: string;
+    message?: string;
+    details?: string;
+    hint?: string;
+  };
+  console.error(`${operation} failed.`, {
+    operation,
+    code: candidate.code ?? null,
+    supabaseCode: candidate.code ?? null,
+    message: sanitizeErrorText(candidate.message),
+    details: sanitizeErrorText(candidate.details),
+    hint: sanitizeErrorText(candidate.hint),
+  });
+  throw Object.assign(new Error(`${operation} failed safely.`), {
+    status: 503,
+    code: "CONSENT_PERSISTENCE_FAILED",
+    operation,
+    supabaseCode: candidate.code,
+    supabaseMessage: sanitizeErrorText(candidate.message),
+    supabaseDetails: sanitizeErrorText(candidate.details),
+    supabaseHint: sanitizeErrorText(candidate.hint),
+  });
 }
 
 export function consentRepository() {
-  const database = createServiceRoleClient();
+  let database: ReturnType<typeof createServiceRoleClient>;
+  try {
+    database = createServiceRoleClient();
+  } catch (error) {
+    throw Object.assign(new Error("Consent service-role configuration is unavailable."), {
+      status: 503,
+      code: "BLOCKED_BY_EXTERNAL_CONFIGURATION",
+      operation: "consent.repository.create_service_role_client",
+      supabaseMessage: sanitizeErrorText((error as Error)?.message),
+    });
+  }
   return {
     async chainHead(enterpriseId: string) {
       const result = await database.from("trust_event_chain_heads").select("last_sequence,last_event_hash").eq("enterprise_id", enterpriseId).eq("partition_key", "default").maybeSingle();

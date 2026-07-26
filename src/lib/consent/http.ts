@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveIdentityEnterprise } from "@/lib/identity-signals/enterprise-context";
 import { sha256Hex } from "@/src/lib/trust-events/hash";
 import { consentAnonymousCookieName, consentCookieName, parseConsentCookie } from "./cookie.ts";
+import { consentErrorTelemetry } from "./observability";
 import { isConsentRegionProfile, regionProfileFromCountry } from "./policy.ts";
 import type { ConsentRegionProfile } from "./types.ts";
 
@@ -21,10 +22,21 @@ export function consentResponse(body: Record<string, unknown>, status: number, c
 }
 
 export function consentFailure(error: unknown, correlationId: string) {
-  const candidate = error as Error & { status?: number; code?: string };
-  const status = candidate.status ?? 500;
-  if (status >= 500) console.error("Consent API failed safely.", { code: candidate.code ?? "CONSENT_API_FAILED" });
-  return consentResponse({ ok: false, code: candidate.code ?? "CONSENT_API_FAILED", error: status < 500 ? candidate.message : "Consent receipt sync is temporarily unavailable." }, status, correlationId);
+  const telemetry = consentErrorTelemetry(error, "consent.api");
+  if (telemetry.status >= 500) {
+    console.warn("Consent API failed safely.", {
+      operation: telemetry.operation,
+      errorName: telemetry.errorName,
+      errorCode: telemetry.errorCode,
+      supabaseCode: telemetry.supabaseCode,
+      message: telemetry.message,
+      details: telemetry.details,
+      hint: telemetry.hint,
+      correlationId,
+    });
+  }
+  const candidate = error as Error;
+  return consentResponse({ ok: false, code: telemetry.errorCode, error: telemetry.status < 500 ? candidate.message : "Consent receipt sync is temporarily unavailable." }, telemetry.status, correlationId);
 }
 
 function cookieValue(request: Request, name: string) {
