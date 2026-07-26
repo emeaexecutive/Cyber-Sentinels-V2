@@ -6,7 +6,7 @@
   "crons": [
     {
       "path": "/api/trust/jobs/process",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 2 * * *"
     }
   ]
 }

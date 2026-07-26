@@ -47,7 +47,9 @@ No request-process resident worker exists.
 
 ## Operations
 
-Set a high-entropy `CRON_SECRET` only in the server deployment. Vercel calls `GET /api/trust/jobs/process` every five minutes with `Authorization: Bearer ...`. The route processes at most ten jobs; the SQL claimant permits at most 25. A job receives no more than five attempts and exponential backoff. Terminal failures remain visible in `trust_processing_failures`.
+Set a high-entropy `CRON_SECRET` only in the server deployment. On Vercel Hobby, the scheduled recovery path calls `GET /api/trust/jobs/process` once daily at `02:00 UTC` with `Authorization: Bearer ...`. Runtime signal ingestion still performs an immediate inline processing attempt; the daily schedule is a recovery sweep for queued or retryable jobs. The route processes at most ten jobs; the SQL claimant permits at most 25. A job receives no more than five attempts and exponential backoff. Terminal failures remain visible in `trust_processing_failures`.
+
+Higher-frequency scheduled processing requires Vercel Pro cron entitlements or an external scheduler/queue worker.
 
 Operational checks:
 

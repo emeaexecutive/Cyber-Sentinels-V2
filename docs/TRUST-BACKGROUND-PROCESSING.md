@@ -2,9 +2,11 @@
 
 ## Selected architecture
 
-The engine uses a Postgres transactional outbox (`trust_signal_processing`) plus Vercel Cron. This matches serverless deployment constraints and avoids a permanently running worker inside a request.
+The engine uses a Postgres transactional outbox (`trust_signal_processing`) plus a scheduled recovery trigger. This matches serverless deployment constraints and avoids a permanently running worker inside a request.
 
 Ingestion atomically creates the immutable signal, queue row, Replay event, and audit record. The request makes one inline processing attempt for low latency. The scheduled route claims remaining work with row locks and `SKIP LOCKED`, so concurrent invocations do not process the same job.
+
+On Vercel Hobby, the scheduled recovery trigger runs once daily at `02:00 UTC` (`0 2 * * *`) against `/api/trust/jobs/process`. Higher-frequency scheduling requires Vercel Pro cron entitlements or an external scheduler/queue worker.
 
 ## Retry behavior
 
@@ -23,7 +25,7 @@ There are no endless retry loops. A crashed lease becomes claimable after the lo
 
 ## Runbook
 
-1. Confirm Vercel Cron delivery and `CRON_SECRET`.
+1. Confirm scheduled recovery delivery and `CRON_SECRET`.
 2. Count `QUEUED`, `PROCESSING`, `FAILED_RETRYABLE`, and `FAILED_TERMINAL`.
 3. Group recent failures by safe error code.
 4. Verify Supabase and canonical event-chain health.
