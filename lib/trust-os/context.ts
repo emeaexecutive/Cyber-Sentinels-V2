@@ -57,7 +57,7 @@ export function deriveTrustOSContext(pathname: string, accessLevel: TrustOSAcces
     workspace: workspaceId ? `Workspace ${workspaceId}` : "Enterprise workspace",
     workflow,
     entity,
-    trustPosture: pathname.includes("trust-posture") || pathname.includes("trust-center")
+    trustPosture: pathname.includes("trust-posture") || pathname.includes("trust-center") || pathname.includes("trust-centre")
       ? "Open posture context"
       : "Workflow-specific",
     authorityState: accessLevel === "admin"
@@ -85,6 +85,7 @@ export const trustOSSearchCatalog: TrustOSSearchItem[] = [
   { label: "Overview", description: "Enterprise decision summary and active work.", href: "/dashboard", category: "Navigate", access: "all", keywords: ["home", "overview", "dashboard"] },
   { label: "Operations", description: "Workspaces, cases and workflow coordination.", href: "/workspace", category: "Navigate", access: "all", keywords: ["workflow", "operations", "cases"] },
   { label: "Trust", description: "Current posture, evidence continuity and Trust Memory.", href: "/trust-center", category: "Navigate", access: "all", keywords: ["posture", "memory", "trust"] },
+  { label: "Enterprise Trust Centre", description: "Operate alerts, graph, Replay, policy, providers and continuous trust.", href: "/trust-centre", category: "Navigate", access: "all", keywords: ["enterprise", "operations", "alerts", "graph", "replay", "policy"] },
   { label: "Runtime", description: "Session integrity and runtime trust context.", href: "/dashboard/session-integrity", category: "Navigate", access: "all", keywords: ["runtime", "session", "integrity"] },
   { label: "Governance", description: "Reviews, ownership and accountable actions.", href: "/dashboard/governance", category: "Navigate", access: "all", keywords: ["review", "approval", "governance"] },
   { label: "Providers", description: "Provider readiness and operational boundaries.", href: "/admin/provider-status", category: "Navigate", access: "admin", keywords: ["provider", "vendor", "credentials"] },

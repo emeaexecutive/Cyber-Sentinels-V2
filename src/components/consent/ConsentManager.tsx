@@ -248,6 +248,10 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
     preferenceReturnFocus.current = document.activeElement as HTMLElement;
     const root = preferenceDialog.current;
     root?.querySelector<HTMLElement>("button,input")?.focus();
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousRootOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     function keydown(event: KeyboardEvent) {
       if (!root) return;
       if (event.key === "Escape") { event.preventDefault(); setManaging(false); return; }
@@ -258,7 +262,12 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
     }
     document.addEventListener("keydown", keydown);
-    return () => { document.removeEventListener("keydown", keydown); preferenceReturnFocus.current?.focus(); };
+    return () => {
+      document.removeEventListener("keydown", keydown);
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousRootOverflow;
+      preferenceReturnFocus.current?.focus();
+    };
   }, [managing, preferencePage]);
 
   function persist(action: ConsentAction) {
@@ -289,6 +298,7 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
     applyConsentState(strictConsentChoices);
     showSavedToastOnce(receipt.receiptId);
     announceReceiptUpdate(receipt);
+    void syncReceipt(receipt);
   }
 
   function retrySync() {
@@ -303,7 +313,46 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
   if (!ready && !preferencePage) return null;
   if (preferencePage) return <div className="grid gap-6" data-state={syncStatus}>{status}<ConsentPreferences policy={currentConsentPolicy} choices={choices} busy={saving} error={error} onChange={setChoices} onSave={() => persist("SAVE_PREFERENCES")} onAcceptAll={() => persist("ACCEPT_ALL")} onRejectOptional={() => persist("REJECT_OPTIONAL")} onCancel={() => history.back()}/><button type="button" className="justify-self-start text-sm text-red-300 underline" onClick={() => persist("WITHDRAW")}>Withdraw optional consent</button></div>;
   if (hiddenManagerPaths.includes(pathname)) return null;
-  if (managing) return <div className="fixed inset-0 z-[100] overflow-y-auto bg-black/80 p-3 sm:p-8" role="presentation" data-state={syncStatus}><div ref={preferenceDialog} role="dialog" aria-modal="true" aria-label="Trust Preferences" className="mx-auto grid max-w-4xl gap-6 rounded-2xl border border-zinc-800 bg-[#070b11] p-5 sm:p-7">{status}<ConsentPreferences policy={currentConsentPolicy} choices={choices} busy={saving} error={error} onChange={setChoices} onSave={() => persist("SAVE_PREFERENCES")} onAcceptAll={() => persist("ACCEPT_ALL")} onRejectOptional={() => persist("REJECT_OPTIONAL")} onCancel={() => setManaging(false)}/></div></div>;
+  if (managing) return (
+    <div
+      className="fixed inset-0 z-[10000] flex items-center justify-center overflow-y-auto bg-slate-950/80 p-3 backdrop-blur-sm sm:p-4"
+      role="presentation"
+      data-state={syncStatus}
+      style={{
+        paddingTop: "max(0.75rem, env(safe-area-inset-top))",
+        paddingRight: "max(0.75rem, env(safe-area-inset-right))",
+        paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
+        paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
+      }}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) setManaging(false);
+      }}
+    >
+      <div
+        ref={preferenceDialog}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="consent-preferences-heading"
+        aria-describedby="consent-preferences-description"
+        className="relative my-auto flex max-h-[90dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[var(--brand-border-strong)] bg-[var(--brand-surface)] text-white shadow-2xl"
+      >
+        <button
+          type="button"
+          aria-label="Close cookie preferences"
+          className="absolute right-3 top-3 z-10 flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-zinc-600 bg-zinc-950 text-xl leading-none text-zinc-100 shadow-md hover:border-cyan-400 hover:text-white sm:right-4 sm:top-4"
+          onClick={() => setManaging(false)}
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+        <div className="overscroll-contain overflow-y-auto p-4 sm:p-6">
+          {status}
+          <div className="mt-5">
+            <ConsentPreferences policy={currentConsentPolicy} choices={choices} busy={saving} error={error} onChange={setChoices} onSave={() => persist("SAVE_PREFERENCES")} onAcceptAll={() => persist("ACCEPT_ALL")} onRejectOptional={() => persist("REJECT_OPTIONAL")} onCancel={() => setManaging(false)}/>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
   if (showConsentBanner) return <ConsentBanner state={saving ? "saving" : "open"} error={error} onAcceptAll={() => persist("ACCEPT_ALL")} onRejectOptional={() => persist("REJECT_OPTIONAL")} onManage={() => setManaging(true)}/>;
   if (savedToast) return <aside data-notice="preferences-saved" className="pointer-events-none fixed bottom-4 right-4 z-[90] max-w-sm rounded-xl border border-cyan-900 bg-[#071018] p-4 text-sm text-cyan-50 shadow-xl" role="status" aria-live="polite"><p>Preferences saved.</p><button type="button" className="pointer-events-auto mt-3 min-h-11 rounded px-2 font-semibold underline" onClick={() => setSavedToast(null)} aria-label="Dismiss saved preferences notification">Dismiss</button></aside>;
   return <span hidden data-state={syncStatus} />;

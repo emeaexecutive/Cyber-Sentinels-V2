@@ -19,6 +19,7 @@ export type TrustOSStatusItem = {
 const baseAreas = [
   ["Overview", "/dashboard"],
   ["Operations", "/workspace"],
+  ["Trust Centre", "/trust-centre"],
   ["Trust", "/trust-center"],
   ["Runtime", "/dashboard/session-integrity"],
   ["Governance", "/dashboard/governance"],
