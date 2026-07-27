@@ -40,7 +40,7 @@ export async function GET() {
     );
   }
 
-  if (!consentConfig.ready) {
+  if (!consentConfig.persistenceReady) {
     return NextResponse.json(
       {
         schemaVersion: "readiness-v2",

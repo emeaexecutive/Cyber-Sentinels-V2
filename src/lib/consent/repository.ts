@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { inferConsentConfigInternalCode } from "@/src/lib/config/consent-config";
 import type { CanonicalTrustEvent } from "@/src/lib/trust-events/types";
 import type { ConsentReceipt } from "./types.ts";
 import { verifyConsentReceipt } from "./receipt.ts";
@@ -37,9 +38,11 @@ export function consentRepository() {
   try {
     database = createServiceRoleClient();
   } catch (error) {
+    const internalCode = inferConsentConfigInternalCode(error);
     throw Object.assign(new Error("Consent service-role configuration is unavailable."), {
       status: 503,
       code: "BLOCKED_BY_EXTERNAL_CONFIGURATION",
+      internalCode,
       operation: "consent.repository.create_service_role_client",
       supabaseMessage: sanitizeErrorText((error as Error)?.message),
     });

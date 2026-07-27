@@ -59,6 +59,7 @@ export async function POST(request: Request) {
     }
     console.warn("Cookie consent receipt sync unavailable.", {
       operation: telemetry.operation,
+      internalCode: telemetry.internalCode,
       errorName: telemetry.errorName,
       errorCode,
       status,
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
     return consentResponse({
       success: false,
       status: "retryable",
-      reasonCode: errorCode,
+      reasonCode: "CONSENT_RECEIPT_PERSISTENCE_UNAVAILABLE",
     }, 503, correlationId);
   }
 }

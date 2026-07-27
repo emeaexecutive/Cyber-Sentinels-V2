@@ -24,6 +24,6 @@ export async function GET(request: Request) {
   const consent = getConsentConfigurationStatus();
   return NextResponse.json(
     { consent },
-    { status: 200, headers: { "cache-control": "no-store" } },
+    { status: consent.persistenceReady ? 200 : 503, headers: { "cache-control": "no-store" } },
   );
 }

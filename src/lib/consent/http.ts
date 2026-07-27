@@ -3,7 +3,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { resolveIdentityEnterprise } from "@/lib/identity-signals/enterprise-context";
-import { getConsentCookieSecret, getConsentDefaultEnterpriseId } from "@/src/lib/config/consent-config";
+import { assertConsentPublicSupabaseConfiguration, getConsentCookieSecret, getConsentDefaultEnterpriseId, inferConsentConfigInternalCode } from "@/src/lib/config/consent-config";
 import { sha256Hex } from "@/src/lib/trust-events/hash";
 import { consentAnonymousCookieName, consentCookieName, parseConsentCookie } from "./cookie.ts";
 import { consentErrorTelemetry } from "./observability";
@@ -11,7 +11,17 @@ import { isConsentRegionProfile, regionProfileFromCountry } from "./policy.ts";
 import type { ConsentRegionProfile } from "./types.ts";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-export class ConsentApiError extends Error { constructor(message: string, readonly status: number, readonly code: string) { super(message); } }
+export class ConsentApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly code: string,
+    readonly internalCode?: string,
+    readonly operation?: string,
+  ) {
+    super(message);
+  }
+}
 
 export function consentCorrelationId(request?: Request) {
   const value = request?.headers.get("x-correlation-id")?.trim();
@@ -78,6 +88,19 @@ export type ConsentRequestContext = {
 };
 
 export async function resolveConsentContext(request: Request, preferredAnonymousToken?: string): Promise<ConsentRequestContext> {
+  try {
+    assertConsentPublicSupabaseConfiguration();
+  } catch (error) {
+    const internalCode = inferConsentConfigInternalCode(error);
+    throw new ConsentApiError(
+      "Consent persistence is not configured.",
+      503,
+      "CONSENT_RECEIPT_PERSISTENCE_UNAVAILABLE",
+      internalCode,
+      "consent.resolve_context.public_supabase_config",
+    );
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const headerEnterprise = request.headers.get("x-enterprise-id")?.trim();
@@ -87,9 +110,18 @@ export async function resolveConsentContext(request: Request, preferredAnonymous
     try {
       enterpriseId = getConsentDefaultEnterpriseId();
     } catch (error) {
-      const candidate = error as { code?: string };
-      if (candidate.code === "CONSENT_DEFAULT_ENTERPRISE_ID_MISSING" || candidate.code === "CONSENT_DEFAULT_ENTERPRISE_ID_INVALID") {
-        throw new ConsentApiError("Consent enterprise configuration is required.", 503, candidate.code);
+      const candidate = error as { code?: string; internalCode?: string };
+      if (
+        candidate.code === "CONSENT_DEFAULT_ENTERPRISE_ID_MISSING"
+        || candidate.code === "CONSENT_DEFAULT_ENTERPRISE_ID_INVALID"
+      ) {
+        throw new ConsentApiError(
+          "Consent enterprise configuration is required.",
+          503,
+          "CONSENT_RECEIPT_PERSISTENCE_UNAVAILABLE",
+          candidate.internalCode,
+          "consent.resolve_context.default_enterprise",
+        );
       }
       throw error;
     }

@@ -2,6 +2,7 @@ import "server-only";
 
 type ErrorWithMetadata = Error & {
   code?: string;
+  internalCode?: string;
   status?: number;
   operation?: string;
   details?: string;
@@ -41,6 +42,7 @@ export function consentErrorTelemetry(error: unknown, fallbackOperation: string)
     operation: candidate.operation ?? fallbackOperation,
     errorName: candidate.name,
     errorCode,
+    internalCode: sanitizeErrorCode(candidate.internalCode),
     status: candidate.status ?? 500,
     supabaseCode: sanitizeErrorCode(candidate.supabaseCode ?? candidate.code),
     message: sanitizeErrorText(candidate.supabaseMessage ?? candidate.message),
