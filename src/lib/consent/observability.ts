@@ -27,14 +27,22 @@ export function sanitizeErrorText(value: unknown) {
   return redactSensitive(normalized).slice(0, 240);
 }
 
+export function sanitizeErrorCode(value: unknown) {
+  if (typeof value !== "string") return undefined;
+  const normalized = value.replace(/[^A-Za-z0-9_.:-]/g, "").trim();
+  if (!normalized) return undefined;
+  return normalized.slice(0, 80);
+}
+
 export function consentErrorTelemetry(error: unknown, fallbackOperation: string) {
   const candidate = (error instanceof Error ? error : new Error("Unexpected error")) as ErrorWithMetadata;
+  const errorCode = sanitizeErrorCode(candidate.code) ?? "CONSENT_API_FAILED";
   return {
     operation: candidate.operation ?? fallbackOperation,
     errorName: candidate.name,
-    errorCode: candidate.code ?? "CONSENT_API_FAILED",
+    errorCode,
     status: candidate.status ?? 500,
-    supabaseCode: candidate.supabaseCode ?? candidate.code,
+    supabaseCode: sanitizeErrorCode(candidate.supabaseCode ?? candidate.code),
     message: sanitizeErrorText(candidate.supabaseMessage ?? candidate.message),
     details: sanitizeErrorText(candidate.supabaseDetails ?? candidate.details),
     hint: sanitizeErrorText(candidate.supabaseHint ?? candidate.hint),

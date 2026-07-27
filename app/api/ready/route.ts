@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getMissingEnv } from "@/lib/env";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { getConsentConfigurationStatus } from "@/src/lib/config/consent-config";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,7 @@ export async function GET() {
   const generatedAt = new Date().toISOString();
   const runtimeCommit = process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null;
   const missingEnvironment = getMissingEnv([...requiredEnvironment]);
+  const consentConfig = getConsentConfigurationStatus();
 
   if (missingEnvironment.length > 0) {
     return NextResponse.json(
@@ -28,6 +30,30 @@ export async function GET() {
           externalControls: "BLOCKED",
         },
         runtime: { commitSha: runtimeCommit },
+        externalControls: {
+          state: "BLOCKED",
+          reasonCode: "AUTHORITATIVE_CONTROL_PLANE_EVIDENCE_REQUIRED",
+        },
+        generatedAt,
+      },
+      { status: 503, headers: { "cache-control": "no-store" } },
+    );
+  }
+
+  if (!consentConfig.ready) {
+    return NextResponse.json(
+      {
+        schemaVersion: "readiness-v2",
+        status: "NOT_READY",
+        reasonCode: "CONSENT_CONFIGURATION_NOT_READY",
+        checks: {
+          environment: "READY",
+          enterpriseTrustArchitecture: "NOT_CHECKED",
+          repositoryRuntime: runtimeCommit ? "VERIFIED_FROM_RUNTIME" : "NOT_CONFIGURED",
+          externalControls: "BLOCKED",
+        },
+        runtime: { commitSha: runtimeCommit },
+        consent: consentConfig,
         externalControls: {
           state: "BLOCKED",
           reasonCode: "AUTHORITATIVE_CONTROL_PLANE_EVIDENCE_REQUIRED",

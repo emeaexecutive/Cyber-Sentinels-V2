@@ -61,6 +61,7 @@ export async function POST(request: Request) {
       operation: telemetry.operation,
       errorName: telemetry.errorName,
       errorCode,
+      status,
       supabaseCode: telemetry.supabaseCode,
       message: telemetry.message,
       details: telemetry.details,

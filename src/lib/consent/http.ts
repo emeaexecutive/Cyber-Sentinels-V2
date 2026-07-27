@@ -3,6 +3,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { resolveIdentityEnterprise } from "@/lib/identity-signals/enterprise-context";
+import { getConsentCookieSecret, getConsentDefaultEnterpriseId } from "@/src/lib/config/consent-config";
 import { sha256Hex } from "@/src/lib/trust-events/hash";
 import { consentAnonymousCookieName, consentCookieName, parseConsentCookie } from "./cookie.ts";
 import { consentErrorTelemetry } from "./observability";
@@ -45,9 +46,15 @@ function cookieValue(request: Request, name: string) {
 }
 
 export function consentCookieSecret(required = true) {
-  const secret = process.env.CONSENT_COOKIE_SECRET?.trim() ?? "";
-  if (required && secret.length < 32) throw new ConsentApiError("Consent persistence is not configured.", 503, "BLOCKED_BY_CREDENTIALS");
-  return secret;
+  try {
+    return getConsentCookieSecret(required);
+  } catch (error) {
+    const candidate = error as { code?: string; message?: string };
+    if (candidate.code === "CONSENT_COOKIE_SECRET_MISSING" || candidate.code === "CONSENT_COOKIE_SECRET_WEAK") {
+      throw new ConsentApiError("Consent persistence is not configured.", 503, candidate.code);
+    }
+    throw error;
+  }
 }
 
 export function readVerifiedConsentCookie(request: Request) {
@@ -76,8 +83,17 @@ export async function resolveConsentContext(request: Request, preferredAnonymous
   const headerEnterprise = request.headers.get("x-enterprise-id")?.trim();
   let enterpriseId: string;
   if (headerEnterprise) enterpriseId = (await resolveIdentityEnterprise(request)).enterpriseId;
-  else enterpriseId = process.env.CONSENT_DEFAULT_ENTERPRISE_ID?.trim() ?? "";
-  if (!uuidPattern.test(enterpriseId)) throw new ConsentApiError("Consent enterprise configuration is required.", 503, "BLOCKED_BY_EXTERNAL_CONFIGURATION");
+  else {
+    try {
+      enterpriseId = getConsentDefaultEnterpriseId();
+    } catch (error) {
+      const candidate = error as { code?: string };
+      if (candidate.code === "CONSENT_DEFAULT_ENTERPRISE_ID_MISSING" || candidate.code === "CONSENT_DEFAULT_ENTERPRISE_ID_INVALID") {
+        throw new ConsentApiError("Consent enterprise configuration is required.", 503, candidate.code);
+      }
+      throw error;
+    }
+  }
   const priorAnonymous = cookieValue(request, consentAnonymousCookieName);
   const anonymousToken = priorAnonymous && /^[A-Za-z0-9_-]{20,128}$/.test(priorAnonymous)
     ? priorAnonymous
