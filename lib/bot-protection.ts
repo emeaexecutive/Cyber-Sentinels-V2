@@ -85,7 +85,7 @@ export async function verifyTurnstileToken(token: string | null | undefined, ip?
 }
 
 export function getTurnstileTokenFromForm(formData: FormData) {
-  return String(formData.get("cf-turnstile-response") ?? formData.get("turnstile_token") ?? "").trim();
+  return String(formData.get("cf-turnstile-response") ?? "").trim();
 }
 
 export function getTurnstileTokenFromJson(body: Record<string, unknown>) {

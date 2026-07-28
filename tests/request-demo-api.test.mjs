@@ -97,12 +97,21 @@ function assertSafeLog(log) {
   );
 }
 
-test("Request Demo frontend uses the shared Turnstile site-key helper", async () => {
+test("Request Demo frontend appends the Turnstile callback token to FormData", async () => {
   const page = await readFile(new URL("../app/enterprise-access/page.tsx", import.meta.url), "utf8");
   const field = await readFile(new URL("../components/turnstile-field.tsx", import.meta.url), "utf8");
-  assert.match(page, /const turnstileSiteKey = getTurnstileSiteKey\(\)/);
-  assert.match(page, /<TurnstileField siteKey=\{turnstileSiteKey\}/);
-  assert.match(field, /data-sitekey=\{siteKey\}/);
+  const botProtection = await readFile(new URL("../lib/bot-protection.ts", import.meta.url), "utf8");
+  assert.match(page, /<EnterpriseAccessForm buttonLabel=\{buttonLabel\} designPartner=\{designPartner\}/);
+  assert.match(field, /process\.env\.NEXT_PUBLIC_TURNSTILE_SITE_KEY/);
+  assert.match(field, /turnstile\.render\(containerRef\.current/);
+  assert.match(field, /callback: \(token\) => onTokenChange\?\.\(token\)/);
+  assert.match(field, /formData\.append\("cf-turnstile-response", turnstileToken\)/);
+  assert.match(field, /fetch\("\/api\/enterprise-access"/);
+  assert.match(field, /disabled=\{!turnstileToken \|\| submitting\}/);
+  assert.match(
+    botProtection,
+    /getTurnstileTokenFromForm\(formData: FormData\) \{\s+return String\(formData\.get\("cf-turnstile-response"\) \?\? ""\)\.trim\(\);/,
+  );
 });
 
 for (const [name, override] of [
