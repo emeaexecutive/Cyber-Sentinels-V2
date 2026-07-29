@@ -44,14 +44,29 @@ export type RequestDemoConfig = {
 };
 
 export type TurnstileResult =
-  | { ok: true; reason: string }
-  | { ok: false; reason: string };
+  | {
+      ok: true;
+      reason: string;
+      errorCodes?: string[];
+      hostname?: string;
+      challengeTimestamp?: string;
+    }
+  | {
+      ok: false;
+      reason: string;
+      errorCodes?: string[];
+      hostname?: string;
+      challengeTimestamp?: string;
+    };
 
 export type RequestDemoLogFields = {
   correlationId: string;
   operation: string;
   internalCode: string;
   providerCode?: string;
+  providerErrorCodes?: string[];
+  providerHostname?: string;
+  providerChallengeTimestamp?: string;
   errorName: string;
 };
 
@@ -234,7 +249,11 @@ export function createRequestDemoHandler(dependencies: RequestDemoDependencies) 
       );
 
       if (!turnstile.ok) {
-        const unavailable = turnstile.reason === "provider_unavailable" || turnstile.reason === "provider_error";
+        const unavailable = [
+          "provider_unavailable",
+          "provider_error",
+          "turnstile_not_configured",
+        ].includes(turnstile.reason);
         const code: RequestDemoErrorCode = unavailable
           ? "REQUEST_DEMO_TURNSTILE_UNAVAILABLE"
           : "REQUEST_DEMO_TURNSTILE_FAILED";
@@ -243,6 +262,11 @@ export function createRequestDemoHandler(dependencies: RequestDemoDependencies) 
           operation: "request_demo.turnstile",
           internalCode: code,
           providerCode: turnstile.reason,
+          ...(turnstile.errorCodes ? { providerErrorCodes: turnstile.errorCodes } : {}),
+          ...(turnstile.hostname ? { providerHostname: turnstile.hostname } : {}),
+          ...(turnstile.challengeTimestamp
+            ? { providerChallengeTimestamp: turnstile.challengeTimestamp }
+            : {}),
           errorName: "TurnstileError",
         });
         return enterpriseAccessErrorResponse(

@@ -9,60 +9,203 @@ type TurnstileFieldProps = {
   resetKey?: number;
 };
 
-type TurnstileApi = {
-  render(
-    container: HTMLElement,
-    options: {
-      sitekey: string;
-      callback(token: string): void;
-      "error-callback"(): void;
-      "expired-callback"(): void;
-      "timeout-callback"(): void;
-      "response-field": boolean;
-    },
-  ): string;
-  reset(widgetId: string): void;
+export type TurnstileRenderOptions = {
+  sitekey: string;
+  callback(token: string): void;
+  "error-callback"(errorCode?: string | number): boolean;
+  "expired-callback"(): void;
+  "timeout-callback"(): void;
+  "response-field": boolean;
+  retry: "auto";
+  "retry-interval": number;
+  "refresh-expired": "auto";
+  "refresh-timeout": "auto";
 };
+
+export type TurnstileApi = {
+  render(container: HTMLElement, options: TurnstileRenderOptions): string;
+  reset(widgetId: string): void;
+  remove?(widgetId: string): void;
+};
+
+type WaitForTurnstileOptions = {
+  readApi(): TurnstileApi | undefined;
+  onReady(api: TurnstileApi): void;
+  onTimeout(): void;
+  schedule?(callback: () => void, delayMs: number): ReturnType<typeof setTimeout>;
+  cancel?(timer: ReturnType<typeof setTimeout>): void;
+  retryMs?: number;
+  timeoutMs?: number;
+};
+
+export function waitForTurnstileApi({
+  readApi,
+  onReady,
+  onTimeout,
+  schedule = setTimeout,
+  cancel = clearTimeout,
+  retryMs = 100,
+  timeoutMs = 10_000,
+}: WaitForTurnstileOptions) {
+  let stopped = false;
+  let elapsedMs = 0;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  function check() {
+    if (stopped) return;
+    const api = readApi();
+    if (api) {
+      onReady(api);
+      return;
+    }
+    if (elapsedMs >= timeoutMs) {
+      onTimeout();
+      return;
+    }
+    timer = schedule(() => {
+      elapsedMs += retryMs;
+      check();
+    }, retryMs);
+  }
+
+  check();
+  return () => {
+    stopped = true;
+    if (timer !== null) cancel(timer);
+  };
+}
+
+function turnstileErrorMessage(errorCode?: string | number) {
+  const code = String(errorCode ?? "");
+  if (["110100", "110110", "400020", "400070"].includes(code)) {
+    return "The security check is not configured correctly. Please contact support.";
+  }
+  if (code === "110200") {
+    return "The security check is not authorised for this site. Please contact support.";
+  }
+  if (code === "200500") {
+    return "The security check could not connect. Check blockers or your network, then reload.";
+  }
+  return "Security check failed. Please refresh the page and try again.";
+}
+
+export function createTurnstileOptions(input: {
+  siteKey: string;
+  onToken(token: string): void;
+  onError(message: string): void;
+}): TurnstileRenderOptions {
+  return {
+    sitekey: input.siteKey,
+    callback: (token) => {
+      input.onError("");
+      input.onToken(token);
+    },
+    "error-callback": (errorCode) => {
+      input.onToken("");
+      input.onError(turnstileErrorMessage(errorCode));
+      return true;
+    },
+    "expired-callback": () => {
+      input.onToken("");
+      input.onError("The security check expired. Please complete it again.");
+    },
+    "timeout-callback": () => {
+      input.onToken("");
+      input.onError("The security check timed out. Please complete it again.");
+    },
+    "response-field": false,
+    retry: "auto",
+    "retry-interval": 2_000,
+    "refresh-expired": "auto",
+    "refresh-timeout": "auto",
+  };
+}
 
 export function TurnstileField({ siteKey, onTokenChange, resetKey = 0 }: TurnstileFieldProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
+  const apiRef = useRef<TurnstileApi | null>(null);
+  const onTokenChangeRef = useRef(onTokenChange);
+  const [widgetError, setWidgetError] = useState("");
 
-  const renderWidget = useCallback(() => {
-    const turnstile = (window as Window & { turnstile?: TurnstileApi }).turnstile;
-    if (!siteKey || !containerRef.current || !turnstile || widgetIdRef.current) return;
+  useEffect(() => {
+    onTokenChangeRef.current = onTokenChange;
+  }, [onTokenChange]);
 
-    widgetIdRef.current = turnstile.render(containerRef.current, {
-      sitekey: siteKey,
-      callback: (token) => onTokenChange?.(token),
-      "error-callback": () => onTokenChange?.(""),
-      "expired-callback": () => onTokenChange?.(""),
-      "timeout-callback": () => onTokenChange?.(""),
-      "response-field": !onTokenChange,
+  const renderWidget = useCallback((turnstile: TurnstileApi) => {
+    if (!siteKey || !containerRef.current || widgetIdRef.current) return;
+
+    try {
+      apiRef.current = turnstile;
+      widgetIdRef.current = turnstile.render(
+        containerRef.current,
+        createTurnstileOptions({
+          siteKey,
+          onToken: (token) => onTokenChangeRef.current?.(token),
+          onError: setWidgetError,
+        }),
+      );
+    } catch {
+      setWidgetError("The security check could not start. Please reload and try again.");
+    }
+  }, [siteKey]);
+
+  useEffect(() => {
+    if (!siteKey) return;
+    const container = containerRef.current;
+    setWidgetError("");
+    const stopWaiting = waitForTurnstileApi({
+      readApi: () => (window as Window & { turnstile?: TurnstileApi }).turnstile,
+      onReady: renderWidget,
+      onTimeout: () => {
+        setWidgetError("The security check could not load. Check blockers or your network, then reload.");
+      },
     });
-  }, [onTokenChange, siteKey]);
+
+    return () => {
+      stopWaiting();
+      const widgetId = widgetIdRef.current;
+      if (widgetId) {
+        try {
+          apiRef.current?.remove?.(widgetId);
+        } catch {
+          container?.replaceChildren();
+        }
+      }
+      widgetIdRef.current = null;
+      apiRef.current = null;
+      onTokenChangeRef.current?.("");
+    };
+  }, [renderWidget, siteKey]);
 
   useEffect(() => {
-    renderWidget();
-  }, [renderWidget]);
-
-  useEffect(() => {
-    const turnstile = (window as Window & { turnstile?: TurnstileApi }).turnstile;
-    if (resetKey > 0 && turnstile && widgetIdRef.current) {
-      turnstile.reset(widgetIdRef.current);
+    if (resetKey > 0 && apiRef.current && widgetIdRef.current) {
+      onTokenChangeRef.current?.("");
+      setWidgetError("");
+      apiRef.current.reset(widgetIdRef.current);
     }
   }, [resetKey]);
 
-  if (!siteKey) return null;
+  if (!siteKey) {
+    return (
+      <p className="text-sm text-amber-200" role="alert">
+        The security check is temporarily unavailable. Please try again later.
+      </p>
+    );
+  }
 
   return (
     <div className="grid gap-2">
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         strategy="afterInteractive"
-        onReady={renderWidget}
+        onError={() => {
+          onTokenChangeRef.current?.("");
+          setWidgetError("The security check could not load. Check blockers or your network, then reload.");
+        }}
       />
       <div ref={containerRef} />
+      {widgetError ? <p className="text-sm text-amber-200" role="alert">{widgetError}</p> : null}
       <p className="text-xs text-zinc-500">Protected by Cloudflare Turnstile.</p>
     </div>
   );
@@ -90,14 +233,7 @@ export function EnterpriseAccessForm({ buttonLabel, designPartner }: EnterpriseA
     }
 
     const formData = new FormData(event.currentTarget);
-    formData.append("cf-turnstile-response", turnstileToken);
-    console.debug(
-      "Enterprise Access FormData entries",
-      Array.from(formData.entries(), ([key, value]) => [
-        key,
-        key === "cf-turnstile-response" ? `[token:${String(value).length}]` : "[redacted]",
-      ]),
-    );
+    formData.set("cf-turnstile-response", turnstileToken);
 
     setSubmitting(true);
     try {

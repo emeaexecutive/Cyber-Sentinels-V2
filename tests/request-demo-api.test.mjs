@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { createRequestDemoHandler } from "../lib/request-demo.ts";
+import {
+  createTurnstileOptions,
+  waitForTurnstileApi,
+} from "../components/turnstile-field.tsx";
 
 const correlationId = "0d9a8b6d-4ed0-4be1-9fa1-4046f3579711";
 const genericMessage = "We could not submit your request. Please try again or contact support.";
@@ -81,37 +85,123 @@ function assertSafeLog(log) {
   assert.ok(log.fields.operation);
   assert.ok(log.fields.internalCode);
   assert.ok(log.fields.errorName);
-  assert.deepEqual(
-    Object.keys(log.fields).sort(),
-    [
-      "correlationId",
-      "operation",
-      "internalCode",
-      ...(log.fields.providerCode ? ["providerCode"] : []),
-      "errorName",
-    ].sort(),
-  );
+  const allowed = new Set([
+    "correlationId",
+    "operation",
+    "internalCode",
+    "providerCode",
+    "providerErrorCodes",
+    "providerHostname",
+    "providerChallengeTimestamp",
+    "errorName",
+  ]);
+  assert.ok(Object.keys(log.fields).every((key) => allowed.has(key)));
   assert.doesNotMatch(
     JSON.stringify(log),
     /test@example\.com|Test Person|Example Company|verified-token|203\.0\.113\.10|service-role-key/,
   );
 }
 
-test("Request Demo frontend appends the Turnstile callback token to FormData", async () => {
+test("Request Demo frontend sets the Turnstile callback token on FormData", async () => {
   const page = await readFile(new URL("../app/enterprise-access/page.tsx", import.meta.url), "utf8");
   const field = await readFile(new URL("../components/turnstile-field.tsx", import.meta.url), "utf8");
   const botProtection = await readFile(new URL("../lib/bot-protection.ts", import.meta.url), "utf8");
   assert.match(page, /<EnterpriseAccessForm buttonLabel=\{buttonLabel\} designPartner=\{designPartner\}/);
   assert.match(field, /process\.env\.NEXT_PUBLIC_TURNSTILE_SITE_KEY/);
-  assert.match(field, /turnstile\.render\(containerRef\.current/);
-  assert.match(field, /callback: \(token\) => onTokenChange\?\.\(token\)/);
-  assert.match(field, /formData\.append\("cf-turnstile-response", turnstileToken\)/);
+  assert.match(field, /turnstile\.render\(\s*containerRef\.current/);
+  assert.match(field, /onToken: \(token\) => onTokenChangeRef\.current\?\.\(token\)/);
+  assert.match(field, /formData\.set\("cf-turnstile-response", turnstileToken\)/);
+  assert.doesNotMatch(field, /console\.(?:debug|log)\(/);
   assert.match(field, /fetch\("\/api\/enterprise-access"/);
   assert.match(field, /disabled=\{!turnstileToken \|\| submitting\}/);
+  assert.match(field, /"response-field": false/);
+  assert.match(field, /retry: "auto"/);
+  assert.match(field, /"retry-interval": 2_000/);
+  assert.match(field, /"refresh-expired": "auto"/);
+  assert.match(field, /"refresh-timeout": "auto"/);
+  assert.match(field, /apiRef\.current\?\.remove\?\.\(widgetId\)/);
+  assert.match(field, /apiRef\.current\.reset\(widgetIdRef\.current\)/);
   assert.match(
     botProtection,
     /getTurnstileTokenFromForm\(formData: FormData\) \{\s+return String\(formData\.get\("cf-turnstile-response"\) \?\? ""\)\.trim\(\);/,
   );
+});
+
+test("Turnstile waits for delayed API availability and resolves exactly once", () => {
+  const scheduled = [];
+  let api;
+  let readyCount = 0;
+  let timeoutCount = 0;
+  const stop = waitForTurnstileApi({
+    readApi: () => api,
+    onReady: () => { readyCount += 1; },
+    onTimeout: () => { timeoutCount += 1; },
+    schedule: (callback) => {
+      scheduled.push(callback);
+      return scheduled.length;
+    },
+    cancel: () => {},
+    retryMs: 100,
+    timeoutMs: 10_000,
+  });
+
+  assert.equal(scheduled.length, 1);
+  api = {};
+  scheduled.shift()();
+  assert.equal(readyCount, 1);
+  assert.equal(timeoutCount, 0);
+  assert.equal(scheduled.length, 0);
+  stop();
+});
+
+test("Turnstile wait cleanup cancels pending retries", () => {
+  let pending;
+  let cancelled = false;
+  let readyCount = 0;
+  const stop = waitForTurnstileApi({
+    readApi: () => undefined,
+    onReady: () => { readyCount += 1; },
+    onTimeout: () => assert.fail("cleanup must prevent timeout"),
+    schedule: (callback) => {
+      pending = callback;
+      return 7;
+    },
+    cancel: (timer) => {
+      assert.equal(timer, 7);
+      cancelled = true;
+    },
+  });
+
+  stop();
+  pending();
+  assert.equal(cancelled, true);
+  assert.equal(readyCount, 0);
+});
+
+test("Turnstile callbacks own token state and surface safe failure states", () => {
+  const tokens = [];
+  const errors = [];
+  const options = createTurnstileOptions({
+    siteKey: "public-site-key",
+    onToken: (token) => tokens.push(token),
+    onError: (message) => errors.push(message),
+  });
+
+  options.callback("challenge-token");
+  assert.equal(tokens.at(-1), "challenge-token");
+  assert.equal(errors.at(-1), "");
+
+  assert.equal(options["error-callback"]("110200"), true);
+  assert.equal(tokens.at(-1), "");
+  assert.match(errors.at(-1), /not authorised/i);
+
+  options["expired-callback"]();
+  assert.equal(tokens.at(-1), "");
+  assert.match(errors.at(-1), /expired/i);
+
+  options["timeout-callback"]();
+  assert.equal(tokens.at(-1), "");
+  assert.match(errors.at(-1), /timed out/i);
 });
 
 for (const [name, override] of [
@@ -138,15 +228,24 @@ test("missing challenge token returns REQUEST_DEMO_TURNSTILE_TOKEN_MISSING", asy
 
 test("invalid challenge returns REQUEST_DEMO_TURNSTILE_FAILED", async () => {
   const { handler, logs } = harness({
-    verifyTurnstile: async () => ({ ok: false, reason: "invalid_token" }),
+    verifyTurnstile: async () => ({
+      ok: false,
+      reason: "invalid_token",
+      errorCodes: ["invalid-input-response"],
+      hostname: "www.cybersentinels.com",
+      challengeTimestamp: "2026-07-29T10:00:00.000Z",
+    }),
   });
   const response = await handler(request(), correlationId);
   await assertFailure(response, 400, "REQUEST_DEMO_TURNSTILE_FAILED");
   assert.equal(logs[0].fields.providerCode, "invalid_token");
+  assert.deepEqual(logs[0].fields.providerErrorCodes, ["invalid-input-response"]);
+  assert.equal(logs[0].fields.providerHostname, "www.cybersentinels.com");
+  assert.equal(logs[0].fields.providerChallengeTimestamp, "2026-07-29T10:00:00.000Z");
   assertSafeLog(logs[0]);
 });
 
-for (const reason of ["provider_unavailable", "provider_error"]) {
+for (const reason of ["provider_unavailable", "provider_error", "turnstile_not_configured"]) {
   test(`Turnstile ${reason} returns REQUEST_DEMO_TURNSTILE_UNAVAILABLE`, async () => {
     const { handler, logs } = harness({
       verifyTurnstile: async () => ({ ok: false, reason }),
@@ -215,4 +314,15 @@ test("Request Demo source contains no code:null response", async () => {
   const route = await readFile(new URL("../app/api/enterprise-access/route.ts", import.meta.url), "utf8");
   const core = await readFile(new URL("../lib/request-demo.ts", import.meta.url), "utf8");
   assert.doesNotMatch(`${route}\n${core}`, /code:\s*null/);
+});
+
+test("server-side Turnstile verification posts only the required safe fields to Siteverify", async () => {
+  const botProtection = await readFile(new URL("../lib/bot-protection.ts", import.meta.url), "utf8");
+  assert.match(botProtection, /process\.env\.TURNSTILE_SECRET_KEY/);
+  assert.match(botProtection, /formData\.set\("secret", secret\)/);
+  assert.match(botProtection, /formData\.set\("response", token\)/);
+  assert.match(botProtection, /formData\.set\("remoteip", ip\)/);
+  assert.match(botProtection, /https:\/\/challenges\.cloudflare\.com\/turnstile\/v0\/siteverify/);
+  assert.match(botProtection, /process\.env\.NODE_ENV !== "production"/);
+  assert.doesNotMatch(botProtection, /console\.(?:debug|log)\(/);
 });
