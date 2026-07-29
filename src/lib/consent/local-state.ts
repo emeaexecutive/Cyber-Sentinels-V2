@@ -10,7 +10,7 @@ const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}
 const retryDelaysMs = [0, 5_000, 30_000, 2 * 60_000, 10 * 60_000] as const;
 
 export type ConsentDecisionState = "undecided" | "accepted" | "rejected" | "customized";
-export type ConsentReceiptSyncStatus = "idle" | "syncing" | "retry_scheduled" | "synced" | "failed_terminal";
+export type ConsentReceiptSyncStatus = "idle" | "syncing" | "retry_scheduled" | "synced" | "failed_terminal" | "rejected";
 
 export type LocalConsentReceipt = {
   schemaVersion: "cookie-consent-local-v1";
@@ -82,7 +82,7 @@ function isReceipt(value: unknown): value is LocalConsentReceipt {
     && uuidPattern.test(receipt.receiptId ?? "")
     && uuidPattern.test(receipt.anonymousId ?? "")
     && uuidPattern.test(receipt.idempotencyKey ?? "")
-    && ["idle", "local_saved", "syncing", "synced", "retry_scheduled", "failed_terminal", "pending_sync", "persisted"].includes(receipt.status ?? "")
+    && ["idle", "local_saved", "syncing", "synced", "retry_scheduled", "failed_terminal", "rejected", "pending_sync", "persisted"].includes(receipt.status ?? "")
     && Number.isInteger(receipt.retryCount)
     && Boolean(receipt.createdAt)
     && Boolean(receipt.expiresAt)
@@ -107,7 +107,7 @@ export function parseLocalConsentReceipt(value: string | null, consentVersion: s
         : legacyStatus === "syncing"
           ? "retry_scheduled"
           : legacyStatus as ConsentReceiptSyncStatus;
-    const status = migratedStatus !== "synced" && receipt.retryCount >= consentSyncMaximumAttempts
+    const status = !["synced", "rejected"].includes(migratedStatus) && receipt.retryCount >= consentSyncMaximumAttempts
       ? "failed_terminal"
       : migratedStatus;
     const normalized = { ...receipt, status, choices: normalizeConsentChoices(receipt.choices, "GLOBAL_DEFAULT") };
@@ -143,12 +143,16 @@ export function markConsentSyncFailure(receipt: LocalConsentReceipt): LocalConse
   };
 }
 
+export function markConsentSyncRejected(receipt: LocalConsentReceipt): LocalConsentReceipt {
+  return { ...receipt, status: "rejected" };
+}
+
 export function markConsentPersisted(receipt: LocalConsentReceipt, serverReceiptId: string): LocalConsentReceipt {
   return { ...receipt, status: "synced", serverReceiptId };
 }
 
 export function consentRetryDelayRemainingMs(receipt: LocalConsentReceipt, now = new Date()) {
-  if (receipt.status === "synced" || receipt.status === "failed_terminal") return null;
+  if (["synced", "failed_terminal", "rejected"].includes(receipt.status)) return null;
   if (receipt.status === "idle" || !receipt.lastAttemptAt) return 0;
   const retryDelay = retryDelaysMs[Math.min(receipt.retryCount, retryDelaysMs.length - 1)];
   return Math.max(0, Date.parse(receipt.lastAttemptAt) + retryDelay - now.getTime());
