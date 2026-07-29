@@ -6,6 +6,7 @@ import {
   createTurnstileOptions,
   waitForTurnstileApi,
 } from "../components/turnstile-field.tsx";
+import { verifyTurnstileToken } from "../lib/bot-protection.ts";
 
 const correlationId = "0d9a8b6d-4ed0-4be1-9fa1-4046f3579711";
 const genericMessage = "We could not submit your request. Please try again or contact support.";
@@ -121,6 +122,7 @@ test("Request Demo frontend sets the Turnstile callback token on FormData", asyn
   assert.match(field, /"refresh-timeout": "auto"/);
   assert.match(field, /apiRef\.current\?\.remove\?\.\(widgetId\)/);
   assert.match(field, /apiRef\.current\.reset\(widgetIdRef\.current\)/);
+  assert.match(field, /if \(!siteKey \|\| !containerRef\.current \|\| widgetIdRef\.current\) return/);
   assert.match(
     botProtection,
     /getTurnstileTokenFromForm\(formData: FormData\) \{\s+return String\(formData\.get\("cf-turnstile-response"\) \?\? ""\)\.trim\(\);/,
@@ -178,6 +180,32 @@ test("Turnstile wait cleanup cancels pending retries", () => {
   assert.equal(readyCount, 0);
 });
 
+test("Turnstile API polling stops after the configured timeout", () => {
+  const scheduled = [];
+  let timeoutCount = 0;
+  waitForTurnstileApi({
+    readApi: () => undefined,
+    onReady: () => assert.fail("unavailable API must not become ready"),
+    onTimeout: () => { timeoutCount += 1; },
+    schedule: (callback) => {
+      scheduled.push(callback);
+      return scheduled.length;
+    },
+    cancel: () => {},
+    retryMs: 100,
+    timeoutMs: 10_000,
+  });
+
+  let callbacks = 0;
+  while (scheduled.length > 0) {
+    scheduled.shift()();
+    callbacks += 1;
+    assert.ok(callbacks <= 100);
+  }
+  assert.equal(callbacks, 100);
+  assert.equal(timeoutCount, 1);
+});
+
 test("Turnstile callbacks own token state and surface safe failure states", () => {
   const tokens = [];
   const errors = [];
@@ -227,7 +255,7 @@ test("missing challenge token returns REQUEST_DEMO_TURNSTILE_TOKEN_MISSING", asy
 });
 
 test("invalid challenge returns REQUEST_DEMO_TURNSTILE_FAILED", async () => {
-  const { handler, logs } = harness({
+  const { handler, logs, inserts } = harness({
     verifyTurnstile: async () => ({
       ok: false,
       reason: "invalid_token",
@@ -243,6 +271,7 @@ test("invalid challenge returns REQUEST_DEMO_TURNSTILE_FAILED", async () => {
   assert.equal(logs[0].fields.providerHostname, "www.cybersentinels.com");
   assert.equal(logs[0].fields.providerChallengeTimestamp, "2026-07-29T10:00:00.000Z");
   assertSafeLog(logs[0]);
+  assert.equal(inserts.length, 0);
 });
 
 for (const reason of ["provider_unavailable", "provider_error", "turnstile_not_configured"]) {
@@ -258,10 +287,64 @@ for (const reason of ["provider_unavailable", "provider_error", "turnstile_not_c
 }
 
 test("invalid required fields return REQUEST_DEMO_VALIDATION_FAILED", async () => {
-  const { handler, logs } = harness();
+  let siteverifyCalls = 0;
+  const { handler, logs } = harness({
+    verifyTurnstile: async () => {
+      siteverifyCalls += 1;
+      return { ok: true, reason: "verified" };
+    },
+  });
   const response = await handler(request({ company: "" }), correlationId);
   await assertFailure(response, 400, "REQUEST_DEMO_VALIDATION_FAILED");
   assertSafeLog(logs[0]);
+  assert.equal(siteverifyCalls, 0);
+});
+
+test("Siteverify success fails closed when the response hostname does not match", async () => {
+  const previousSecret = process.env.TURNSTILE_SECRET_KEY;
+  const previousFetch = globalThis.fetch;
+  process.env.TURNSTILE_SECRET_KEY = "test-secret";
+  globalThis.fetch = async () => Response.json({
+    success: true,
+    hostname: "unexpected.example",
+    challenge_ts: "2026-07-29T10:00:00.000Z",
+  });
+
+  try {
+    const result = await verifyTurnstileToken(
+      "challenge-token",
+      "203.0.113.10",
+      "www.cybersentinels.com",
+    );
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, "hostname_mismatch");
+    assert.equal(result.hostname, "unexpected.example");
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousSecret === undefined) delete process.env.TURNSTILE_SECRET_KEY;
+    else process.env.TURNSTILE_SECRET_KEY = previousSecret;
+  }
+});
+
+test("Siteverify success without a valid hostname fails closed", async () => {
+  const previousSecret = process.env.TURNSTILE_SECRET_KEY;
+  const previousFetch = globalThis.fetch;
+  process.env.TURNSTILE_SECRET_KEY = "test-secret";
+  globalThis.fetch = async () => Response.json({ success: true });
+
+  try {
+    const result = await verifyTurnstileToken(
+      "challenge-token",
+      "203.0.113.10",
+      "www.cybersentinels.com",
+    );
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, "provider_error");
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousSecret === undefined) delete process.env.TURNSTILE_SECRET_KEY;
+    else process.env.TURNSTILE_SECRET_KEY = previousSecret;
+  }
 });
 
 test("database insert failure returns REQUEST_DEMO_DATABASE_FAILED without exposing provider code", async () => {

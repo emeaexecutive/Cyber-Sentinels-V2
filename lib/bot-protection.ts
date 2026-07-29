@@ -16,6 +16,7 @@ export type TurnstileVerificationResult = {
     | "turnstile_not_configured"
     | "missing_token"
     | "invalid_token"
+    | "hostname_mismatch"
     | "provider_unavailable"
     | "provider_error";
   errorCodes?: string[];
@@ -92,6 +93,7 @@ function failureReason(errorCodes: string[] | undefined): TurnstileVerificationR
 export async function verifyTurnstileToken(
   token: string | null | undefined,
   ip?: string | null,
+  expectedHostname?: string | null,
 ): Promise<TurnstileVerificationResult> {
   const secret = String(process.env.TURNSTILE_SECRET_KEY ?? "").trim();
 
@@ -132,6 +134,13 @@ export async function verifyTurnstileToken(
     };
 
     if (result.success === true) {
+      const expected = safeTurnstileHostname(expectedHostname);
+      if (!hostname || !expected) {
+        return { ok: false, skipped: false, reason: "provider_error", ...diagnostics };
+      }
+      if (hostname !== expected) {
+        return { ok: false, skipped: false, reason: "hostname_mismatch", ...diagnostics };
+      }
       return { ok: true, skipped: false, reason: "verified", ...diagnostics };
     }
     if (result.success === false) {

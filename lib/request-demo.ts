@@ -74,7 +74,7 @@ export type RequestDemoDependencies = {
   isRateLimited(req: Request): boolean;
   getClientIp(req: Request): string;
   getTurnstileToken(formData: FormData): string;
-  verifyTurnstile(token: string, ip: string): Promise<TurnstileResult>;
+  verifyTurnstile(token: string, ip: string, expectedHostname: string): Promise<TurnstileResult>;
   getConfig(): RequestDemoConfig;
   createPersistence(config: Required<Pick<RequestDemoConfig, "supabaseUrl" | "serviceRoleKey">>): RequestDemoPersistence;
   logError(event: string, fields: RequestDemoLogFields): void;
@@ -226,6 +226,22 @@ export function createRequestDemoHandler(dependencies: RequestDemoDependencies) 
       }
 
       const formData = await req.formData();
+      const payload = buildPayload(formData);
+      if (!payload.name || !payload.work_email || !payload.company) {
+        logFailure(dependencies, {
+          correlationId,
+          operation: "request_demo.validation",
+          internalCode: "REQUEST_DEMO_VALIDATION_FAILED",
+          errorName: "RequestDemoError",
+        });
+        return enterpriseAccessErrorResponse(
+          "Additional information is required.",
+          400,
+          "REQUEST_DEMO_VALIDATION_FAILED",
+          correlationId,
+        );
+      }
+
       const turnstileToken = dependencies.getTurnstileToken(formData);
 
       if (!turnstileToken) {
@@ -246,6 +262,7 @@ export function createRequestDemoHandler(dependencies: RequestDemoDependencies) 
       const turnstile = await dependencies.verifyTurnstile(
         turnstileToken,
         dependencies.getClientIp(req),
+        new URL(req.url).hostname,
       );
 
       if (!turnstile.ok) {
@@ -273,22 +290,6 @@ export function createRequestDemoHandler(dependencies: RequestDemoDependencies) 
           "Security check failed. Please try again.",
           unavailable ? 503 : 400,
           code,
-          correlationId,
-        );
-      }
-
-      const payload = buildPayload(formData);
-      if (!payload.name || !payload.work_email || !payload.company) {
-        logFailure(dependencies, {
-          correlationId,
-          operation: "request_demo.validation",
-          internalCode: "REQUEST_DEMO_VALIDATION_FAILED",
-          errorName: "RequestDemoError",
-        });
-        return enterpriseAccessErrorResponse(
-          "Additional information is required.",
-          400,
-          "REQUEST_DEMO_VALIDATION_FAILED",
           correlationId,
         );
       }

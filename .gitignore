@@ -19,3 +19,5 @@ Desktop.ini
 
 # TypeScript incremental build caches are generated locally.
 *.tsbuildinfo
+.vercel
+.env*
