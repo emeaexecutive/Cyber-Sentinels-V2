@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hashValue } from "@/lib/security";
+import { getTrustedClientIp, hashValue } from "@/lib/security";
 
 type TurnstileVerifyResponse = {
   success?: boolean;
@@ -38,11 +38,7 @@ type RateLimitOptions = {
 const rateLimitBuckets = new Map<string, RateLimitBucket>();
 
 export function getClientIp(req: Request) {
-  const forwardedFor = req.headers.get("x-forwarded-for") || "";
-  const realIp = req.headers.get("x-real-ip") || "";
-  const cfIp = req.headers.get("cf-connecting-ip") || "";
-
-  return forwardedFor.split(",")[0]?.trim() || cfIp || realIp || "unknown";
+  return getTrustedClientIp(req);
 }
 
 export function isTurnstileConfigured() {
@@ -117,6 +113,7 @@ export async function verifyTurnstileToken(
       method: "POST",
       body: formData,
       cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
     });
 
     if (!response.ok) {

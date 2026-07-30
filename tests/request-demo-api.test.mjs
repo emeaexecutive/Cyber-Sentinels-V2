@@ -7,6 +7,7 @@ import {
   waitForTurnstileApi,
 } from "../components/turnstile-field.tsx";
 import { verifyTurnstileToken } from "../lib/bot-protection.ts";
+import { getSafeSameOriginUrl, getTrustedClientIp } from "../lib/security.ts";
 
 const correlationId = "0d9a8b6d-4ed0-4be1-9fa1-4046f3579711";
 const genericMessage = "We could not submit your request. Please try again or contact support.";
@@ -110,11 +111,14 @@ test("Request Demo frontend sets the Turnstile callback token on FormData", asyn
   assert.match(page, /<EnterpriseAccessForm buttonLabel=\{buttonLabel\} designPartner=\{designPartner\}/);
   assert.match(field, /process\.env\.NEXT_PUBLIC_TURNSTILE_SITE_KEY/);
   assert.match(field, /turnstile\.render\(\s*containerRef\.current/);
-  assert.match(field, /onToken: \(token\) => onTokenChangeRef\.current\?\.\(token\)/);
+  assert.match(field, /onToken: publishToken/);
+  assert.match(field, /onTokenChangeRef\.current\?\.\(nextToken\)/);
   assert.match(field, /formData\.set\("cf-turnstile-response", turnstileToken\)/);
+  assert.match(field, /type="hidden" name="cf-turnstile-response" value=\{token\}/);
   assert.doesNotMatch(field, /console\.(?:debug|log)\(/);
   assert.match(field, /fetch\("\/api\/enterprise-access"/);
   assert.match(field, /disabled=\{!turnstileToken \|\| submitting\}/);
+  assert.match(field, /if \(submissionInFlightRef\.current\) return/);
   assert.match(field, /"response-field": false/);
   assert.match(field, /retry: "auto"/);
   assert.match(field, /"retry-interval": 2_000/);
@@ -300,6 +304,109 @@ test("invalid required fields return REQUEST_DEMO_VALIDATION_FAILED", async () =
   assert.equal(siteverifyCalls, 0);
 });
 
+test("unsupported request encoding returns controlled validation failure", async () => {
+  const { handler, logs, inserts } = harness();
+  const unsupportedRequest = new Request(
+    "https://www.cybersentinels.com/api/enterprise-access",
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: "{}",
+    },
+  );
+
+  const response = await handler(unsupportedRequest, correlationId);
+  await assertFailure(response, 400, "REQUEST_DEMO_VALIDATION_FAILED");
+  assert.equal(inserts.length, 0);
+  assertSafeLog(logs[0]);
+});
+
+test("invalid email and oversized fields fail validation before Siteverify", async () => {
+  let siteverifyCalls = 0;
+  const { handler, logs } = harness({
+    verifyTurnstile: async () => {
+      siteverifyCalls += 1;
+      return { ok: true, reason: "verified" };
+    },
+  });
+
+  const invalidEmail = await handler(request({ work_email: "not-an-email" }), correlationId);
+  await assertFailure(invalidEmail, 400, "REQUEST_DEMO_VALIDATION_FAILED");
+  const oversized = await handler(request({ message: "x".repeat(4_001) }), correlationId);
+  await assertFailure(oversized, 400, "REQUEST_DEMO_VALIDATION_FAILED");
+  assert.equal(siteverifyCalls, 0);
+  assertSafeLog(logs[0]);
+  assertSafeLog(logs[1]);
+});
+
+test("declared oversized Request Demo bodies return 413 before parsing", async () => {
+  const { handler, logs, inserts } = harness();
+  const oversized = request();
+  const requestWithLength = new Request(oversized, {
+    headers: {
+      ...Object.fromEntries(oversized.headers),
+      "content-length": "32001",
+    },
+  });
+  const response = await handler(requestWithLength, correlationId);
+  await assertFailure(response, 413, "REQUEST_DEMO_PAYLOAD_TOO_LARGE");
+  assert.equal(inserts.length, 0);
+  assertSafeLog(logs[0]);
+});
+
+test("Turnstile tokens over the documented maximum are rejected before Siteverify", async () => {
+  let siteverifyCalls = 0;
+  const { handler, logs } = harness({
+    verifyTurnstile: async () => {
+      siteverifyCalls += 1;
+      return { ok: true, reason: "verified" };
+    },
+  });
+  const response = await handler(
+    request({ "cf-turnstile-response": "x".repeat(2_049) }),
+    correlationId,
+  );
+  await assertFailure(response, 400, "REQUEST_DEMO_TURNSTILE_TOKEN_MISSING");
+  assert.equal(siteverifyCalls, 0);
+  assertSafeLog(logs[0]);
+});
+
+test("rate-limit identity prefers Cloudflare's validated header and rejects malformed IPs", () => {
+  const cloudflare = new Request("https://www.cybersentinels.com", {
+    headers: {
+      "cf-connecting-ip": "203.0.113.20",
+      "x-forwarded-for": "198.51.100.50, 198.51.100.60",
+    },
+  });
+  assert.equal(getTrustedClientIp(cloudflare), "203.0.113.20");
+  const direct = new Request("https://preview.example", {
+    headers: { "x-forwarded-for": "198.51.100.50, 198.51.100.60" },
+  });
+  assert.equal(getTrustedClientIp(direct), "198.51.100.50");
+  const malformed = new Request("https://preview.example", {
+    headers: { "cf-connecting-ip": "spoofed", "x-forwarded-for": "also-spoofed" },
+  });
+  assert.equal(getTrustedClientIp(malformed), "unknown");
+});
+
+test("HTML workflow redirects cannot leave the current origin", () => {
+  const request = new Request("https://www.cybersentinels.com/api/example");
+  assert.equal(
+    getSafeSameOriginUrl(request, "/dashboard?updated=1", "/dashboard").toString(),
+    "https://www.cybersentinels.com/dashboard?updated=1",
+  );
+  assert.equal(
+    getSafeSameOriginUrl(request, "https://attacker.example/phish", "/dashboard").toString(),
+    "https://www.cybersentinels.com/dashboard",
+  );
+  assert.equal(
+    getSafeSameOriginUrl(request, "javascript:alert(1)", "/dashboard").toString(),
+    "https://www.cybersentinels.com/dashboard",
+  );
+});
+
 test("Siteverify success fails closed when the response hostname does not match", async () => {
   const previousSecret = process.env.TURNSTILE_SECRET_KEY;
   const previousFetch = globalThis.fetch;
@@ -406,6 +513,7 @@ test("server-side Turnstile verification posts only the required safe fields to 
   assert.match(botProtection, /formData\.set\("response", token\)/);
   assert.match(botProtection, /formData\.set\("remoteip", ip\)/);
   assert.match(botProtection, /https:\/\/challenges\.cloudflare\.com\/turnstile\/v0\/siteverify/);
+  assert.match(botProtection, /AbortSignal\.timeout\(10_000\)/);
   assert.match(botProtection, /process\.env\.NODE_ENV !== "production"/);
   assert.doesNotMatch(botProtection, /console\.(?:debug|log)\(/);
 });

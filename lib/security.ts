@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
+import { isIP } from "node:net";
 import type { User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { getPublicSupabaseEnv } from "@/lib/env";
@@ -138,9 +139,7 @@ export function getAllowedValue<T extends readonly string[]>(
 
 export function getRequestRiskFields(req: Request) {
   const userAgent = req.headers.get("user-agent") || "unknown";
-  const forwardedFor = req.headers.get("x-forwarded-for") || "";
-  const realIp = req.headers.get("x-real-ip") || "";
-  const sourceIp = forwardedFor.split(",")[0]?.trim() || realIp || "unknown";
+  const sourceIp = getTrustedClientIp(req);
 
   return {
     abuse_risk: "low",
@@ -179,6 +178,41 @@ export function checkRequestRateLimit({
   }
 
   return null;
+}
+
+function validIp(value: string | null) {
+  const candidate = String(value ?? "").trim();
+  return isIP(candidate) ? candidate : "";
+}
+
+export function getTrustedClientIp(req: Request) {
+  // The canonical site is Cloudflare-proxied, where CF-Connecting-IP is the
+  // single-value visitor address. Vercel overwrites X-Forwarded-For for direct
+  // and Preview traffic, so it is the safe fallback when Cloudflare is absent.
+  const cloudflareIp = validIp(req.headers.get("cf-connecting-ip"));
+  if (cloudflareIp) return cloudflareIp;
+
+  const forwardedIp = validIp(
+    req.headers.get("x-forwarded-for")?.split(",")[0] ?? null
+  );
+  if (forwardedIp) return forwardedIp;
+
+  return validIp(req.headers.get("x-real-ip")) || "unknown";
+}
+
+export function getSafeSameOriginUrl(
+  request: Request,
+  candidate: string | null | undefined,
+  fallbackPath: string,
+) {
+  const requestOrigin = new URL(request.url).origin;
+  const fallback = new URL(fallbackPath, requestOrigin);
+  try {
+    const target = new URL(candidate || fallbackPath, requestOrigin);
+    return target.origin === requestOrigin ? target : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 // Compatibility alias for existing routes. The limiter is functional but process-local.

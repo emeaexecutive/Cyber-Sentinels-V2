@@ -126,11 +126,17 @@ export function TurnstileField({ siteKey, onTokenChange, resetKey = 0 }: Turnsti
   const widgetIdRef = useRef<string | null>(null);
   const apiRef = useRef<TurnstileApi | null>(null);
   const onTokenChangeRef = useRef(onTokenChange);
+  const [token, setToken] = useState("");
   const [widgetError, setWidgetError] = useState("");
 
   useEffect(() => {
     onTokenChangeRef.current = onTokenChange;
   }, [onTokenChange]);
+
+  const publishToken = useCallback((nextToken: string) => {
+    setToken(nextToken);
+    onTokenChangeRef.current?.(nextToken);
+  }, []);
 
   const renderWidget = useCallback((turnstile: TurnstileApi) => {
     if (!siteKey || !containerRef.current || widgetIdRef.current) return;
@@ -141,14 +147,14 @@ export function TurnstileField({ siteKey, onTokenChange, resetKey = 0 }: Turnsti
         containerRef.current,
         createTurnstileOptions({
           siteKey,
-          onToken: (token) => onTokenChangeRef.current?.(token),
+          onToken: publishToken,
           onError: setWidgetError,
         }),
       );
     } catch {
       setWidgetError("The security check could not start. Please reload and try again.");
     }
-  }, [siteKey]);
+  }, [publishToken, siteKey]);
 
   useEffect(() => {
     if (!siteKey) return;
@@ -180,11 +186,11 @@ export function TurnstileField({ siteKey, onTokenChange, resetKey = 0 }: Turnsti
 
   useEffect(() => {
     if (resetKey > 0 && apiRef.current && widgetIdRef.current) {
-      onTokenChangeRef.current?.("");
+      publishToken("");
       setWidgetError("");
       apiRef.current.reset(widgetIdRef.current);
     }
-  }, [resetKey]);
+  }, [publishToken, resetKey]);
 
   if (!siteKey) {
     return (
@@ -200,10 +206,11 @@ export function TurnstileField({ siteKey, onTokenChange, resetKey = 0 }: Turnsti
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         strategy="afterInteractive"
         onError={() => {
-          onTokenChangeRef.current?.("");
+          publishToken("");
           setWidgetError("The security check could not load. Check blockers or your network, then reload.");
         }}
       />
+      <input type="hidden" name="cf-turnstile-response" value={token} />
       <div ref={containerRef} />
       {widgetError ? <p className="text-sm text-amber-200" role="alert">{widgetError}</p> : null}
       <p className="text-xs text-zinc-500">Protected by Cloudflare Turnstile.</p>
@@ -222,9 +229,11 @@ export function EnterpriseAccessForm({ buttonLabel, designPartner }: EnterpriseA
   const [resetKey, setResetKey] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const submissionInFlightRef = useRef(false);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submissionInFlightRef.current) return;
     setError("");
 
     if (!turnstileToken) {
@@ -235,6 +244,7 @@ export function EnterpriseAccessForm({ buttonLabel, designPartner }: EnterpriseA
     const formData = new FormData(event.currentTarget);
     formData.set("cf-turnstile-response", turnstileToken);
 
+    submissionInFlightRef.current = true;
     setSubmitting(true);
     try {
       const response = await fetch("/api/enterprise-access", {
@@ -258,6 +268,7 @@ export function EnterpriseAccessForm({ buttonLabel, designPartner }: EnterpriseA
       setTurnstileToken("");
       setResetKey((value) => value + 1);
     } finally {
+      submissionInFlightRef.current = false;
       setSubmitting(false);
     }
   }

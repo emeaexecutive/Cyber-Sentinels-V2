@@ -4,6 +4,7 @@ export type RequestDemoErrorCode =
   | "REQUEST_DEMO_TURNSTILE_FAILED"
   | "REQUEST_DEMO_TURNSTILE_UNAVAILABLE"
   | "REQUEST_DEMO_VALIDATION_FAILED"
+  | "REQUEST_DEMO_PAYLOAD_TOO_LARGE"
   | "REQUEST_DEMO_DATABASE_FAILED"
   | "REQUEST_DEMO_RATE_LIMITED"
   | "REQUEST_DEMO_UNKNOWN";
@@ -81,6 +82,20 @@ export type RequestDemoDependencies = {
 };
 
 const genericMessage = "We could not submit your request. Please try again or contact support.";
+const maxRequestBytes = 32_000;
+const fieldLimits = {
+  name: 160,
+  work_email: 254,
+  company: 200,
+  role: 160,
+  message: 4_000,
+  use_case: 100,
+  status: 64,
+  ai_usage_level: 100,
+  company_size: 100,
+  current_problem_category: 100,
+  current_problem: 2_000,
+} satisfies Record<keyof RequestDemoPayload, number>;
 
 function field(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();
@@ -104,6 +119,13 @@ function buildPayload(formData: FormData): RequestDemoPayload {
     status: field(formData, "status") || (designPartnerInterest ? "design_partner_interest" : "new"),
     message: field(formData, "message"),
   };
+}
+
+function validPayload(payload: RequestDemoPayload) {
+  if (!payload.name || !payload.work_email || !payload.company) return false;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.work_email)) return false;
+  return (Object.keys(fieldLimits) as Array<keyof RequestDemoPayload>)
+    .every((key) => payload[key].length <= fieldLimits[key]);
 }
 
 function getEnterpriseInterestSignal(problemCategory: string) {
@@ -225,9 +247,42 @@ export function createRequestDemoHandler(dependencies: RequestDemoDependencies) 
         );
       }
 
-      const formData = await req.formData();
+      const contentLength = Number(req.headers.get("content-length") ?? "0");
+      if (Number.isFinite(contentLength) && contentLength > maxRequestBytes) {
+        logFailure(dependencies, {
+          correlationId,
+          operation: "request_demo.validation",
+          internalCode: "REQUEST_DEMO_PAYLOAD_TOO_LARGE",
+          errorName: "RequestDemoError",
+        });
+        return enterpriseAccessErrorResponse(
+          "The submitted request is too large.",
+          413,
+          "REQUEST_DEMO_PAYLOAD_TOO_LARGE",
+          correlationId,
+        );
+      }
+
+      let formData: FormData;
+      try {
+        formData = await req.formData();
+      } catch {
+        logFailure(dependencies, {
+          correlationId,
+          operation: "request_demo.validation",
+          internalCode: "REQUEST_DEMO_VALIDATION_FAILED",
+          errorName: "RequestDemoError",
+        });
+        return enterpriseAccessErrorResponse(
+          "Additional information is required.",
+          400,
+          "REQUEST_DEMO_VALIDATION_FAILED",
+          correlationId,
+        );
+      }
+
       const payload = buildPayload(formData);
-      if (!payload.name || !payload.work_email || !payload.company) {
+      if (!validPayload(payload)) {
         logFailure(dependencies, {
           correlationId,
           operation: "request_demo.validation",
@@ -244,7 +299,7 @@ export function createRequestDemoHandler(dependencies: RequestDemoDependencies) 
 
       const turnstileToken = dependencies.getTurnstileToken(formData);
 
-      if (!turnstileToken) {
+      if (!turnstileToken || turnstileToken.length > 2_048) {
         logFailure(dependencies, {
           correlationId,
           operation: "request_demo.turnstile",
