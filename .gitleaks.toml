@@ -1,0 +1,11 @@
+title = "Cyber Sentinels redacted secret scanning"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Forward reconciliation phase identifiers are public migration metadata, not credentials."
+regexTarget = "line"
+regexes = [
+  '''^\s*where reconciliation_key = '[0-9]{12}_[a-z_]+'\s*$'''
+]

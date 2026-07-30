@@ -21,3 +21,14 @@ Desktop.ini
 *.tsbuildinfo
 .vercel
 .env*
+
+# Security containment: local Supabase state and secret-bearing artifacts.
+.supabase/
+supabase/.temp/
+*.dump
+*.backup
+*.transcript
+*.pwsh-transcript
+*-credential-export.*
+*-connection-string.*
+*-diagnostic-output.*
