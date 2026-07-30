@@ -63,7 +63,7 @@ foreach ($name in $secretVariableNames) {
     }
 }
 
-$mutationPattern = '(?i)(^|\s)(db\s+(push|reset)|migration\s+(repair|up)|backups\s+restore|projects\s+delete|branches\s+(create|delete)|secrets\s+(set|unset)|functions\s+(deploy|delete))(\s|$)'
+$mutationPattern = '(?i)(^|\s)(db\s+(dump|pull|push|reset)|migration\s+(repair|up)|backups\s+restore|projects\s+delete|branches\s+(create|delete)|secrets\s+(set|unset)|functions\s+(deploy|delete))(\s|$)'
 $productionTarget = $joined.Contains($productionProjectRef)
 
 $linkedProjectRefPath = Join-Path (Split-Path -Parent $PSScriptRoot) 'supabase/.temp/project-ref'

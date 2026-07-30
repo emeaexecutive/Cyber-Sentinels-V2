@@ -50,7 +50,11 @@ Invoke-GuardCase 'credential URL' @('db', 'dump', '--db-url', 'postgresql://user
 Invoke-GuardCase 'environment secret' @('projects', 'list', 'synthetic-environment-secret') 1 'SECRET_VALUE' @{
     SUPABASE_ACCESS_TOKEN = 'synthetic-environment-secret'
 }
+Invoke-GuardCase 'Production dump' @('db', 'dump', '--project-ref', 'kecgtsfibkypjuaxqbjx') 1 ''
+Invoke-GuardCase 'Production pull' @('db', 'pull', '--project-ref', 'kecgtsfibkypjuaxqbjx') 1 ''
 Invoke-GuardCase 'Production mutation' @('db', 'push', '--project-ref', 'kecgtsfibkypjuaxqbjx') 1 ''
+Invoke-GuardCase 'Production migration repair' @('migration', 'repair', '--project-ref', 'kecgtsfibkypjuaxqbjx', 'synthetic-version') 1 ''
+Invoke-GuardCase 'Production reset' @('db', 'reset', '--project-ref', 'kecgtsfibkypjuaxqbjx') 1 ''
 Invoke-GuardCase 'safe read' @('projects', 'list') 0 'PASS'
 
 if ($failures.Count -gt 0) {

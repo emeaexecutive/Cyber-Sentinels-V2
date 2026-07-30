@@ -14,6 +14,15 @@
 | Supabase CLI | `2.110.0` |
 | Sanitized command | `supabase db dump --dry-run [REDACTED]` |
 | Output captured | Yes, by the Codex tool-call session |
+| Production database password reset | YES |
+| Replacement password value recorded | NO |
+| Replacement password value requested | NO |
+| Replacement password value displayed | NO |
+| Password displayed in repository | NO |
+| Replacement access token committed | NO |
+| Production migration occurred | NO |
+| Production schema mutation occurred | NO |
+| Production deployment occurred | NO |
 
 The command generated and displayed database connection material even though
 the purpose was a read-only execution preview. The value is not reproduced,

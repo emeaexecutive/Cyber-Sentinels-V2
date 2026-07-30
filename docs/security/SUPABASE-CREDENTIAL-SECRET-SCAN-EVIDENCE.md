@@ -71,3 +71,18 @@ Current occurrences of unsafe option names are limited to:
 Codex session/tool-call storage, terminal application logs, PowerShell history,
 screenshots, Supabase database logs, and Supabase management activity have not
 been cleared or reviewed. Those gates require human action after rotation.
+
+## Post-recovery verification - 2026-07-30
+
+| Scope | Result |
+|---|---|
+| Reachable Git history | PASS - 552 commits, zero findings |
+| Current changed release paths | PASS - zero findings |
+| Tracked credential-indicator filenames | PASS - variable names, SQL role names, and synthetic guard inputs only |
+| Replacement credential in Git | NOT FOUND |
+| Broad ignored local-state scan | 35 redacted candidates confined to `.env.local`, `.vercel`, and derived `.next` output |
+
+The broad local-state candidates were not opened, printed, copied, removed, or
+added to Git. They are expected secret-bearing or derived ignored files and are
+not release artifacts. The release-scope scan covers Git history and every
+current changed path.
