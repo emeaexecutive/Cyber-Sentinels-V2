@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Developer Documentation | Cyber Sentinels",
+  description: "Cyber Sentinels API references, integration guidance, schemas and operational trust developer resources.",
+  alternates: { canonical: "/developers/docs" },
+};
 
 const docs = [
   ["Public API Reference", "/api-docs", "Versioned public reads, signed callbacks, schemas and pagination."],

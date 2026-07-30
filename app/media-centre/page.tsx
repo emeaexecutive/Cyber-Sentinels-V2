@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
+
+export const metadata: Metadata = {
+  title: "Media Centre | Cyber Sentinels",
+  description: "Approved Cyber Sentinels media resources and company updates.",
+  alternates: { canonical: "/media-centre" },
+};
 
 export default function MediaCentrePage() {
   return (

@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Journal | Cyber Sentinels",
+  description: "Cyber Sentinels perspectives on operational trust, accountable AI and evidence-backed workflows.",
+  alternates: { canonical: "/journal" },
+};
+
 const posts = [
   [
     "Why Cyber Sentinels Exists",

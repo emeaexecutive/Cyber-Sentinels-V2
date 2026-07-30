@@ -5,6 +5,7 @@ import { hasOpenAIKey, getOperationalOpenAIModel } from "@/lib/ai/openai";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
+import { getSafeSameOriginUrl } from "@/lib/security";
 import {
   evaluateAIProviderPolicy,
   normalizeDataClassification,
@@ -66,7 +67,7 @@ function wantsHtml(req: Request) {
 function redirectBack(req: Request, subjectType: GovernanceSubjectType, subjectId: string, code: string) {
   const fallbackPath =
     subjectType === "passport" ? `/passports/${subjectId}` : `/agents/${subjectId}`;
-  const url = new URL(req.headers.get("referer") ?? fallbackPath, req.url);
+  const url = getSafeSameOriginUrl(req, req.headers.get("referer"), fallbackPath);
   url.searchParams.set("ai_governance", code);
   return NextResponse.redirect(url, { status: 303 });
 }
@@ -455,10 +456,10 @@ export async function POST(req: Request) {
   }
 
   if (wantsHtml(req)) {
-    const redirectTarget = new URL(
-      req.headers.get("referer") ??
-        (subjectType === "passport" ? `/passports/${subjectId}` : `/agents/${subjectId}`),
-      req.url
+    const redirectTarget = getSafeSameOriginUrl(
+      req,
+      req.headers.get("referer"),
+      subjectType === "passport" ? `/passports/${subjectId}` : `/agents/${subjectId}`,
     );
     return NextResponse.redirect(redirectTarget, { status: 303 });
   }

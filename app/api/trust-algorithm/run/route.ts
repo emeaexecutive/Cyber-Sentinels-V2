@@ -8,6 +8,7 @@ import {
 } from "@/lib/trust-algorithm";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
+import { getSafeSameOriginUrl } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -348,7 +349,11 @@ export async function POST(req: Request) {
   if (wantsHtml(req)) {
     const fallbackPath =
       subjectType === "passport" ? `/passports/${subjectId}` : `/agents/${subjectId}`;
-    const redirectTarget = new URL(req.headers.get("referer") ?? fallbackPath, req.url);
+    const redirectTarget = getSafeSameOriginUrl(
+      req,
+      req.headers.get("referer"),
+      fallbackPath,
+    );
     return NextResponse.redirect(redirectTarget, { status: 303 });
   }
 

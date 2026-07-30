@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
+
+export const metadata: Metadata = {
+  title: "Terms and Conditions | Cyber Sentinels",
+  description: "Terms governing Cyber Sentinels operational trust workflows and services.",
+  alternates: { canonical: "/terms" },
+};
 
 export default function TermsPage() {
   return (

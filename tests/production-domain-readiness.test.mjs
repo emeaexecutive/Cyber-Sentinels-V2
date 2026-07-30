@@ -38,12 +38,50 @@ test("security headers cover the application and Cloudflare Turnstile", () => {
     "Referrer-Policy",
     "Permissions-Policy",
     "Strict-Transport-Security",
+    "Cross-Origin-Opener-Policy",
+    "Cross-Origin-Resource-Policy",
   ]) {
     assert.match(config, new RegExp(header));
   }
   assert.match(config, /script-src[^"]*https:\/\/challenges\.cloudflare\.com/);
   assert.match(config, /frame-src[^"]*https:\/\/challenges\.cloudflare\.com/);
   assert.match(config, /connect-src[^"]*https:\/\/challenges\.cloudflare\.com/);
+  assert.doesNotMatch(config, /unsafe-eval/);
+  assert.match(config, /upgrade-insecure-requests/);
+  assert.match(config, /VERCEL_ENV === "production"/);
+  assert.match(config, /X-Robots-Tag/);
+});
+
+test("every declared indexable public route has explicit canonical metadata", () => {
+  const visibility = read("lib/navigation/route-visibility.ts");
+  const block = visibility.match(/canonicalPublicRoutes = \[([\s\S]*?)\] as const/)?.[1] ?? "";
+  const routes = [...block.matchAll(/"([^"]+)"/g)].map((match) => match[1]);
+  assert.ok(routes.length > 0);
+
+  for (const route of routes) {
+    const page = route === "/" ? "app/page.tsx" : `app${route}/page.tsx`;
+    assert.equal(fs.existsSync(page), true, `${page} should exist`);
+    assert.match(
+      read(page),
+      new RegExp(`canonical:\\s*["']${route.replaceAll("/", "\\/")}["']`),
+      `${route} should declare its canonical URL`,
+    );
+  }
+});
+
+test("account and privacy settings surfaces are explicitly non-indexable", () => {
+  const config = read("next.config.mjs");
+  const robots = read("app/robots.ts");
+  for (const route of [
+    "/login",
+    "/verify-email",
+    "/reset-password",
+    "/privacy/preferences",
+    "/privacy/consent-history",
+  ]) {
+    assert.match(config, new RegExp(`"${route.replaceAll("/", "\\/")}"`));
+    assert.match(robots, new RegExp(`"${route.replaceAll("/", "\\/")}"`));
+  }
 });
 
 test("auth actions verify Turnstile server-side when configured", () => {
@@ -102,7 +140,7 @@ test("security, trust, methodology, status and security.txt routes exist", () =>
   );
   assert.match(
     read("middleware.ts"),
-    /if \(pathname === "\/trust"\)\s*{\s*return false/
+    /if \(\s*pathname === "\/trust" \|\|[\s\S]*?\)\s*{\s*return false/
   );
 });
 
@@ -117,7 +155,7 @@ test("admin and sensitive governance operations retain server protection", () =>
   assert.match(admin, /getAdminAccessFailureReason/);
   assert.match(admin, /hasAdminVerifiedCookie/);
   assert.match(governanceApi, /requireAdminApiAccess/);
-  assert.match(governancePage, /Public overview, protected operations/);
+  assert.match(governancePage, /One governance model, protected operations/);
 });
 
 test("service-role secrets remain server-only", () => {

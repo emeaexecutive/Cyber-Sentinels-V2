@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Mission | Cyber Sentinels",
+  description: "The Cyber Sentinels mission and principles for evidence-backed, human-governed operational trust.",
+  alternates: { canonical: "/about/mission" },
+};
 
 const principles = [
   ["Evidence before assertion", "Trust decisions should be grounded in material a reviewer can inspect."],
