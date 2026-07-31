@@ -1,0 +1,18 @@
+-- NOT APPROVED FOR PRODUCTION
+-- STAGING TEST ONLY - two-session concurrent duplicate procedure.
+--
+-- This file documents the exact concurrent test executed by the staging
+-- harness. It is intentionally not a single-session test: two independent
+-- psql sessions must call persist_consent_change_v1 with the same enterprise,
+-- subject, idempotency key and request hash while the first transaction holds
+-- the per-subject advisory lock.
+--
+-- Expected result:
+--   session A: CREATED
+--   session B: DUPLICATE
+--   consent_receipts delta: 1
+--   canonical trust_events delta: event count supplied by session A only
+--   no unique-constraint or partial-state error
+--
+-- The execution transcript and timings belong in
+-- docs/STAGING-RECONCILIATION-EXECUTION.md.

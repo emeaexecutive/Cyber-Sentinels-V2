@@ -13,9 +13,11 @@ import {
   markConsentPersisted,
   markConsentSyncAttempt,
   markConsentSyncFailure,
+  markConsentSyncRejected,
   parseLocalConsentReceipt,
 } from "../src/lib/consent/local-state.ts";
 import { canonicalCookieChoices, cookieConsentAction, validateCookieConsentRequest } from "../src/lib/consent/cookie-contract.ts";
+import { normalizeConsentPersistResult } from "../src/lib/consent/persistence-result.ts";
 import { consentDefaults } from "../src/lib/consent/policy.ts";
 
 const strict = consentDefaults("GLOBAL_DEFAULT");
@@ -52,6 +54,14 @@ test("server failure is fail-closed while the browser choice remains valid", () 
   assert.equal(pending.status, "retry_scheduled");
   assert.deepEqual(effectiveConsentChoices(pending), strict);
   assert.equal(parseLocalConsentReceipt(JSON.stringify(pending), "policy-v1", new Date("2026-07-21T10:02:00Z")).state, "valid");
+});
+
+test("permanent receipt rejection stops retries and keeps optional tracking disabled", () => {
+  const syncing = markConsentSyncAttempt(makeReceipt("ACCEPT_ALL"));
+  const rejected = markConsentSyncRejected(syncing);
+  assert.equal(rejected.status, "rejected");
+  assert.equal(consentRetryDelayRemainingMs(rejected), null);
+  assert.deepEqual(effectiveConsentChoices(rejected), strict);
 });
 
 test("background receipt retry uses 5s, 30s, 2m, and 10m backoff then stops", () => {
@@ -105,7 +115,7 @@ test("every valid synchronization state preserves the browser decision across re
   for (const action of ["ACCEPT_ALL", "REJECT_OPTIONAL", "SAVE_PREFERENCES"]) {
     const choices = action === "SAVE_PREFERENCES" ? { ...strict, functional: true } : strict;
     const receipt = makeReceipt(action, choices);
-    for (const status of ["idle", "syncing", "retry_scheduled", "synced", "failed_terminal"]) {
+    for (const status of ["idle", "syncing", "retry_scheduled", "synced", "failed_terminal", "rejected"]) {
       const remounted = parseLocalConsentReceipt(JSON.stringify({
         ...receipt,
         status,
@@ -152,19 +162,82 @@ test("saved toast is temporary, action-deduplicated, route-stable, and non-block
   assert.match(manager, /setSavedToast\(null\)/);
   assert.match(manager, /applyConsentState\(strictConsentChoices\)/);
   assert.match(manager, /cs:open-consent-preferences/);
-  assert.match(manager, />Preferences saved\.<\/p>/);
+  assert.match(manager, /Privacy choice saved and receipt persisted\./);
+  assert.match(manager, /Privacy choice stored locally\. Receipt synchronisation is pending\./);
+  assert.match(manager, /Receipt persistence is temporarily unavailable\./);
+  assert.match(manager, /server rejected its receipt\./);
   assert.doesNotMatch(manager, /data-state="retryable"/);
-  assert.doesNotMatch(manager, /Your privacy choice is saved in this browser|Optional tracking remains off|Retry receipt sync|receipt waits to sync/i);
+  assert.doesNotMatch(manager, /Your privacy choice is saved in this browser|receipt waits to sync/i);
   assert.match(status, /Retry receipt sync/);
   assert.match(status, /Receipt status:/);
-  assert.match(status, /Synced/);
-  assert.match(status, /Retry scheduled/);
-  assert.match(status, /Sync unavailable/);
-  assert.match(localState, /"idle" \| "syncing" \| "retry_scheduled" \| "synced" \| "failed_terminal"/);
+  assert.match(status, /Saved and persisted/);
+  assert.match(status, /Stored locally; retry scheduled/);
+  assert.match(status, /Stored locally; persistence temporarily unavailable/);
+  assert.match(status, /Stored locally; receipt rejected/);
+  assert.match(localState, /"idle" \| "syncing" \| "retry_scheduled" \| "synced" \| "failed_terminal" \| "rejected"/);
   assert.equal(consentSavedToastSessionPrefix, "cookie_preferences_saved:");
   assert.match(manager, /eventType: "consent\.receipt\.sync_failed"/);
   assert.match(manager, /errorCategory:/);
   assert.match(manager, /finalOutcome:/);
+});
+
+test("consent persistence normalises stable camelCase and legacy snake_case RPC results", () => {
+  const common = {
+    status: "CREATED",
+    categories: strict,
+  };
+  const camel = normalizeConsentPersistResult({
+    ...common,
+    receiptId: uuids[0],
+    receiptHash: "a".repeat(64),
+    expiresAt: "2027-01-01T00:00:00.000Z",
+  });
+  const snake = normalizeConsentPersistResult({
+    ...common,
+    receipt_id: uuids[0],
+    receipt_hash: "a".repeat(64),
+    expires_at: "2027-01-01T00:00:00.000Z",
+  });
+  assert.deepEqual(snake, camel);
+});
+
+test("consent persistence validates duplicate, conflict, and malformed RPC results", () => {
+  const duplicate = normalizeConsentPersistResult({
+    status: "DUPLICATE",
+    receiptId: uuids[0],
+    receiptHash: "b".repeat(64),
+    expiresAt: "2027-01-01T00:00:00.000Z",
+    categories: strict,
+  });
+  assert.equal(duplicate.status, "DUPLICATE");
+  assert.deepEqual(normalizeConsentPersistResult({ status: "CONFLICT", receipt_id: uuids[0] }), {
+    status: "CONFLICT",
+    receiptId: uuids[0],
+  });
+  assert.throws(() => normalizeConsentPersistResult({ status: "CREATED" }), /receiptId/);
+  assert.throws(() => normalizeConsentPersistResult({ status: "CREATED", receiptId: "undefined" }), /receiptId/);
+  assert.throws(() => normalizeConsentPersistResult({
+    status: "CREATED",
+    receiptId: uuids[0],
+    receiptHash: "c".repeat(64),
+    expiresAt: "2027-01-01T00:00:00.000Z",
+    categories: {},
+  }), /categories/);
+});
+
+test("consent 503 logging keeps correlation and safe Supabase diagnostics server-side", async () => {
+  const repository = await readFile(new URL("../src/lib/consent/repository.ts", import.meta.url), "utf8");
+  const route = await readFile(new URL("../app/api/consent/cookies/route.ts", import.meta.url), "utf8");
+  for (const field of ["correlationId", "operation", "internalCode", "status", "errorName", "environment", "targetType", "target", "supabaseCode", "supabaseMessage", "supabaseDetails", "supabaseHint"]) {
+    assert.match(repository, new RegExp(`${field}:`));
+  }
+  assert.match(repository, /trust_event_chain_heads/);
+  assert.match(repository, /persist_consent_change_v1/);
+  assert.match(repository, /\[email\]/);
+  assert.match(repository, /\[uuid\]/);
+  assert.match(repository, /\[redacted\]/);
+  assert.match(route, /reasonCode: "CONSENT_RECEIPT_PERSISTENCE_UNAVAILABLE"/);
+  assert.doesNotMatch(route, /supabaseMessage|supabaseDetails|supabaseHint/);
 });
 
 test("public route is anonymous, idempotent, IP-minimised, and reuses the consent service", async () => {

@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { TurnstileField } from "@/components/turnstile-field";
-import { getTurnstileSiteKey } from "@/lib/bot-protection";
+import { EnterpriseAccessForm } from "@/components/turnstile-field";
 import { EvidenceDisclaimer } from "@/components/evidence-disclaimer";
 import { operationalPilotTemplates } from "@/lib/pilot-templates";
+
+export const metadata: Metadata = {
+  title: "Enterprise Access | Cyber Sentinels",
+  description: "Request a Cyber Sentinels enterprise demo, design-partner conversation or operational trust pilot.",
+  alternates: { canonical: "/enterprise-access" },
+};
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +21,6 @@ export default async function EnterpriseAccessPage({ searchParams }: {
   const demoRequest = query.intent === "demo";
   const trustTeam = query.intent === "trust-team";
   const pilot = query.intent === "pilot";
-  const turnstileSiteKey = getTurnstileSiteKey();
   const pageTitle = designPartner
     ? "Become a Design Partner"
     : introCall
@@ -95,27 +100,7 @@ export default async function EnterpriseAccessPage({ searchParams }: {
         <section className="rounded-lg border border-zinc-800 bg-black p-6">
           {query.success ? <p className="mb-5 rounded-md border border-emerald-900 bg-emerald-950/20 p-4 text-sm text-emerald-100">Your request has been received. We will follow up about pilot fit and next steps.</p> : null}
           {query.error ? <p className="mb-5 rounded-md border border-amber-900 bg-amber-950/20 p-4 text-sm text-amber-100">Please check the required fields and try again.</p> : null}
-          <form action="/api/enterprise-access" method="post" className="grid gap-4">
-            <input type="hidden" name="design_partner_interest" value={designPartner ? "true" : "false"} />
-            <label className="grid gap-2 text-sm text-zinc-300">Name<input required name="name" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
-            <label className="grid gap-2 text-sm text-zinc-300">Work email<input required name="work_email" type="email" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
-            <label className="grid gap-2 text-sm text-zinc-300">Company<input required name="company" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
-            <label className="grid gap-2 text-sm text-zinc-300">
-              Operational trust concern
-              <select name="current_problem_category" defaultValue="" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white">
-                <option value="" disabled>Select the closest concern</option>
-                <option value="ai_identity">AI-agent governance and authorization</option>
-                <option value="auditability">Replay continuity and Evidence Chain</option>
-                <option value="human_review">Governance Review and escalation</option>
-                <option value="session_integrity">Continuous Verification and Session Integrity</option>
-                <option value="hiring_security">Hiring Security workflow</option>
-                <option value="other">Other</option>
-              </select>
-            </label>
-            <label className="grid gap-2 text-sm text-zinc-300">Requirements<textarea name="message" rows={5} placeholder="Workflow, verification evidence, review or pilot requirements" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
-            <TurnstileField siteKey={turnstileSiteKey} />
-            <button className="brand-primary-action w-full p-3">{buttonLabel}</button>
-          </form>
+          <EnterpriseAccessForm buttonLabel={buttonLabel} designPartner={designPartner} />
         </section>
       </div>
     </main>

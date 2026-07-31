@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
+
+export const metadata: Metadata = {
+  title: "Cookies and Preferences | Cyber Sentinels",
+  description: "How Cyber Sentinels uses cookies, browser storage and privacy preferences.",
+  alternates: { canonical: "/cookies" },
+};
 
 export default function CookiesPage() {
   return (

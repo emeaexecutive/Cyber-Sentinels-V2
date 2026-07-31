@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
+
+export const metadata: Metadata = {
+  title: "Careers | Cyber Sentinels",
+  description: "Career and hiring information for Cyber Sentinels.",
+  alternates: { canonical: "/careers" },
+};
 
 export default function CareersPage() {
   return (

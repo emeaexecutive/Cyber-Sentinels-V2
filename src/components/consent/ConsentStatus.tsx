@@ -4,11 +4,12 @@ import { consentCategoryKeys, type ConsentChoices } from "@/src/lib/consent/type
 
 const labels = { essential: "Essential Security", functional: "Functional", analytics: "Analytics", ai_improvements: "AI Improvements", marketing: "Marketing" };
 const receiptStatusLabels: Record<ConsentReceiptSyncStatus, string> = {
-  idle: "Waiting to sync",
-  syncing: "Waiting to sync",
-  synced: "Synced",
-  retry_scheduled: "Retry scheduled",
-  failed_terminal: "Sync unavailable",
+  idle: "Stored locally; receipt pending",
+  syncing: "Receipt synchronising",
+  synced: "Saved and persisted",
+  retry_scheduled: "Stored locally; retry scheduled",
+  failed_terminal: "Stored locally; persistence temporarily unavailable",
+  rejected: "Stored locally; receipt rejected",
 };
 
 export function ConsentStatus({ choices, receiptStatus, canRetry, retrying, onRetry }: {

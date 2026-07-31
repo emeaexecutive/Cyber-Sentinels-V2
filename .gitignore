@@ -5,6 +5,8 @@ node_modules/
 .env.*
 !.env.example
 .vercel/
+*.pem
+*.key
 coverage/
 test-results/
 playwright-report/
@@ -19,3 +21,14 @@ Desktop.ini
 
 # TypeScript incremental build caches are generated locally.
 *.tsbuildinfo
+
+# Security containment: local Supabase state and secret-bearing artifacts.
+.supabase/
+supabase/.temp/
+*.dump
+*.backup
+*.transcript
+*.pwsh-transcript
+*-credential-export.*
+*-connection-string.*
+*-diagnostic-output.*

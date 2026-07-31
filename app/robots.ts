@@ -22,8 +22,12 @@ const protectedPaths = [
   "/evidence-vault",
   "/launch-console",
   "/launch-control",
+  "/login",
   "/mission-control",
+  "/privacy/consent-history",
+  "/privacy/preferences",
   "/qa-console",
+  "/reset-password",
   "/signals",
   "/status",
   "/api/ai-governance/analyze",
@@ -37,6 +41,7 @@ const protectedPaths = [
   "/trust-intelligence",
   "/trust-prediction",
   "/verification-queue",
+  "/verify-email",
   "/workspace/",
 ];
 

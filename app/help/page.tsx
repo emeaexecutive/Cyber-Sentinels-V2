@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
+
+export const metadata: Metadata = {
+  title: "Help | Cyber Sentinels",
+  description: "Cyber Sentinels help, support and operational guidance.",
+  alternates: { canonical: "/help" },
+};
 import { createSignal } from "@/lib/trust-engine/createSignal";
 
 export const dynamic = "force-dynamic";

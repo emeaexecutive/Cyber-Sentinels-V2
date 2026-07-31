@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Methodology | Cyber Sentinels",
+  description: "How Cyber Sentinels collects, normalizes and evaluates operational trust evidence.",
+  alternates: { canonical: "/methodology" },
+};
 
 const stages = [
   ["1", "Collect", "Retain the consented workflow, identity, session and provider evidence available at that time."],

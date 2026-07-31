@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
+
+export const metadata: Metadata = {
+  title: "Regulatory | Cyber Sentinels",
+  description: "Governance-aware regulatory information for Cyber Sentinels operational trust workflows.",
+  alternates: { canonical: "/regulatory" },
+};
 
 export default function RegulatoryPage() {
   return (

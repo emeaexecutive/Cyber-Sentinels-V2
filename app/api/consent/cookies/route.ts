@@ -55,7 +55,14 @@ export async function POST(request: Request) {
     if (status < 500) {
       return consentResponse({ success: false, status: "rejected", reasonCode: candidate.code ?? "CONSENT_REQUEST_REJECTED" }, status, correlationId);
     }
-    console.error("Cookie consent receipt sync unavailable.", { code: candidate.code ?? "CONSENT_RECEIPT_PERSISTENCE_UNAVAILABLE" });
+    console.error("Cookie consent receipt sync unavailable.", {
+      correlationId,
+      operation: "consent.receipt.sync",
+      internalCode: candidate.code ?? "CONSENT_RECEIPT_PERSISTENCE_UNAVAILABLE",
+      status: 503,
+      errorName: candidate.name || "ConsentPersistenceError",
+      environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "unknown",
+    });
     return consentResponse({
       success: false,
       status: "retryable",

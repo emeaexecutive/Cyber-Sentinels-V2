@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
+import { isIP } from "node:net";
 import type { User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { getPublicSupabaseEnv } from "@/lib/env";
@@ -138,9 +139,7 @@ export function getAllowedValue<T extends readonly string[]>(
 
 export function getRequestRiskFields(req: Request) {
   const userAgent = req.headers.get("user-agent") || "unknown";
-  const forwardedFor = req.headers.get("x-forwarded-for") || "";
-  const realIp = req.headers.get("x-real-ip") || "";
-  const sourceIp = forwardedFor.split(",")[0]?.trim() || realIp || "unknown";
+  const sourceIp = getTrustedClientIp(req);
 
   return {
     abuse_risk: "low",
@@ -179,6 +178,46 @@ export function checkRequestRateLimit({
   }
 
   return null;
+}
+
+function validIp(value: string | null) {
+  const candidate = String(value ?? "").trim();
+  return isIP(candidate) ? candidate : "";
+}
+
+function firstForwardedIp(value: string | null) {
+  return validIp(value?.split(",", 1)[0] ?? null);
+}
+
+function isVercelRuntime() {
+  return process.env.VERCEL === "1"
+    || ["production", "preview", "development"].includes(process.env.VERCEL_ENV ?? "");
+}
+
+export function getTrustedClientIp(req: Request) {
+  // Vercel overwrites these headers at its ingress. Cloudflare-looking headers
+  // remain informational because this repository has no authenticated origin
+  // boundary that proves a request traversed Cloudflare before reaching Vercel.
+  if (!isVercelRuntime()) return "unknown";
+
+  return firstForwardedIp(req.headers.get("x-vercel-forwarded-for"))
+    || firstForwardedIp(req.headers.get("x-forwarded-for"))
+    || "unknown";
+}
+
+export function getSafeSameOriginUrl(
+  request: Request,
+  candidate: string | null | undefined,
+  fallbackPath: string,
+) {
+  const requestOrigin = new URL(request.url).origin;
+  const fallback = new URL(fallbackPath, requestOrigin);
+  try {
+    const target = new URL(candidate || fallbackPath, requestOrigin);
+    return target.origin === requestOrigin ? target : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 // Compatibility alias for existing routes. The limiter is functional but process-local.

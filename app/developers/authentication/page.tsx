@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "API Authentication | Cyber Sentinels",
+  description: "Authentication, scoped credentials and server-side security guidance for Cyber Sentinels APIs.",
+  alternates: { canonical: "/developers/authentication" },
+};
 
 export default function DeveloperAuthenticationPage() {
   return (

@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
+
+export const metadata: Metadata = {
+  title: "Accessibility | Cyber Sentinels",
+  description: "Cyber Sentinels accessibility commitments and support information.",
+  alternates: { canonical: "/accessibility" },
+};
 
 export default function AccessibilityPage() {
   return (

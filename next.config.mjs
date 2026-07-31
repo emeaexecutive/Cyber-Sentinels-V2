@@ -22,6 +22,9 @@ const nextConfig = {
     ];
   },
   async headers() {
+    const previewHeaders = process.env.VERCEL_ENV === "production"
+      ? []
+      : [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
     const securityHeaders = [
       {
         key: "Content-Security-Policy",
@@ -33,10 +36,11 @@ const nextConfig = {
           "img-src 'self' data: blob: https:",
           "font-src 'self' data:",
           "style-src 'self' 'unsafe-inline'",
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
+          "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
           "connect-src 'self' https://*.supabase.co https://api.stripe.com https://*.stripe.com https://api.openai.com https://challenges.cloudflare.com",
           "frame-src https://*.stripe.com https://challenges.cloudflare.com",
           "form-action 'self'",
+          "upgrade-insecure-requests",
         ].join("; "),
       },
       { key: "X-Frame-Options", value: "DENY" },
@@ -50,6 +54,9 @@ const nextConfig = {
         key: "Permissions-Policy",
         value: "camera=(), microphone=(), geolocation=(), payment=(self)",
       },
+      { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+      { key: "Cross-Origin-Resource-Policy", value: "same-site" },
+      ...previewHeaders,
     ];
 
     return [
@@ -57,6 +64,18 @@ const nextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      ...[
+        "/login",
+        "/verify-email",
+        "/reset-password",
+        "/privacy/preferences",
+        "/privacy/consent-history",
+      ].map((source) => ({
+        source,
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+        ],
+      })),
     ];
   },
 };

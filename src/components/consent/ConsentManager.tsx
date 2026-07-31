@@ -15,6 +15,7 @@ import {
   markConsentPersisted,
   markConsentSyncAttempt,
   markConsentSyncFailure,
+  markConsentSyncRejected,
   readLocalConsentReceipt,
   writeLocalConsentReceipt,
   type ConsentDecisionState,
@@ -34,6 +35,8 @@ const savedToastDurationMs = 5_000;
 const hiddenManagerPaths = ["/privacy/preferences", "/privacy/consent-history"];
 const inMemorySavedToasts = new Set<string>();
 const strictConsentChoices = consentDefaults("GLOBAL_DEFAULT");
+
+class ConsentSyncRejectedError extends Error {}
 
 function persistBrowserReceipt(receipt: LocalConsentReceipt) {
   writeLocalConsentReceipt(window.localStorage, receipt);
@@ -63,6 +66,7 @@ function claimSavedToast(receiptId: string) {
 }
 
 function consentSyncErrorCategory(error: unknown) {
+  if (error instanceof ConsentSyncRejectedError) return "permanent_rejection";
   if (error instanceof TypeError) return "network";
   if (error instanceof Error && error.message === "invalid_response") return "invalid_response";
   return "server_unavailable";
@@ -143,8 +147,11 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
         headers: { "content-type": "application/json" },
         body: JSON.stringify(cookieRequest(attempted)),
       });
-      const body = await response.json().catch(() => null) as { success?: boolean; status?: string; receiptId?: string } | null;
+      const body = await response.json().catch(() => null) as { success?: boolean; status?: string; receiptId?: string; reasonCode?: string } | null;
       if (!response.ok || body?.success !== true || body.status !== "persisted" || !body.receiptId) {
+        if (response.status >= 400 && response.status < 500 && body?.status === "rejected") {
+          throw new ConsentSyncRejectedError("consent_receipt_rejected");
+        }
         throw new Error("invalid_response");
       }
       const synced = markConsentPersisted(attempted, body.receiptId);
@@ -155,7 +162,8 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
     } catch (error) {
       // Local consent dismisses the prompt, but optional technologies stay denied
       // until the server confirms a durable receipt.
-      const failed = markConsentSyncFailure(attempted);
+      const rejected = error instanceof ConsentSyncRejectedError;
+      const failed = rejected ? markConsentSyncRejected(attempted) : markConsentSyncFailure(attempted);
       receiptRef.current = failed;
       setSyncStatus(failed.status);
       applyConsentState(strictConsentChoices);
@@ -166,7 +174,7 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
         // The original local choice remains in place if a later metadata write fails.
       }
       logConsentSyncFailure(error, failed);
-      setError(null);
+      setError(rejected ? "The server rejected this receipt. Review your privacy choice and try again." : null);
     }
   }, [acceptReceiptState]);
 
@@ -307,7 +315,7 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
     else void syncReceipt(receiptRef.current, true);
   }
 
-  const status = <ConsentStatus choices={effectiveConsentChoices(receiptRef.current)} receiptStatus={syncStatus} canRetry={Boolean(receiptRef.current && syncStatus !== "synced")} retrying={syncStatus === "syncing"} onRetry={retrySync}/>;
+  const status = <ConsentStatus choices={effectiveConsentChoices(receiptRef.current)} receiptStatus={syncStatus} canRetry={Boolean(receiptRef.current && !["synced", "rejected"].includes(syncStatus))} retrying={syncStatus === "syncing"} onRetry={retrySync}/>;
   const showConsentBanner = ready && decisionState === "undecided";
 
   if (!ready && !preferencePage) return null;
@@ -354,6 +362,6 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
     </div>
   );
   if (showConsentBanner) return <ConsentBanner state={saving ? "saving" : "open"} error={error} onAcceptAll={() => persist("ACCEPT_ALL")} onRejectOptional={() => persist("REJECT_OPTIONAL")} onManage={() => setManaging(true)}/>;
-  if (savedToast) return <aside data-notice="preferences-saved" className="pointer-events-none fixed bottom-4 right-4 z-[90] max-w-sm rounded-xl border border-cyan-900 bg-[#071018] p-4 text-sm text-cyan-50 shadow-xl" role="status" aria-live="polite"><p>Preferences saved.</p><button type="button" className="pointer-events-auto mt-3 min-h-11 rounded px-2 font-semibold underline" onClick={() => setSavedToast(null)} aria-label="Dismiss saved preferences notification">Dismiss</button></aside>;
+  if (savedToast) return <aside data-notice="preferences-saved" className="pointer-events-none fixed bottom-4 right-4 z-[90] max-w-sm rounded-xl border border-cyan-900 bg-[#071018] p-4 text-sm text-cyan-50 shadow-xl" role="status" aria-live="polite"><p>{syncStatus === "synced" ? "Privacy choice saved and receipt persisted." : syncStatus === "failed_terminal" ? "Privacy choice stored locally. Receipt persistence is temporarily unavailable." : syncStatus === "rejected" ? "Privacy choice stored locally, but the server rejected its receipt." : "Privacy choice stored locally. Receipt synchronisation is pending."}</p><button type="button" className="pointer-events-auto mt-3 min-h-11 rounded px-2 font-semibold underline" onClick={() => setSavedToast(null)} aria-label="Dismiss saved preferences notification">Dismiss</button></aside>;
   return <span hidden data-state={syncStatus} />;
 }
