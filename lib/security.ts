@@ -185,19 +185,24 @@ function validIp(value: string | null) {
   return isIP(candidate) ? candidate : "";
 }
 
+function firstForwardedIp(value: string | null) {
+  return validIp(value?.split(",", 1)[0] ?? null);
+}
+
+function isVercelRuntime() {
+  return process.env.VERCEL === "1"
+    || ["production", "preview", "development"].includes(process.env.VERCEL_ENV ?? "");
+}
+
 export function getTrustedClientIp(req: Request) {
-  // The canonical site is Cloudflare-proxied, where CF-Connecting-IP is the
-  // single-value visitor address. Vercel overwrites X-Forwarded-For for direct
-  // and Preview traffic, so it is the safe fallback when Cloudflare is absent.
-  const cloudflareIp = validIp(req.headers.get("cf-connecting-ip"));
-  if (cloudflareIp) return cloudflareIp;
+  // Vercel overwrites these headers at its ingress. Cloudflare-looking headers
+  // remain informational because this repository has no authenticated origin
+  // boundary that proves a request traversed Cloudflare before reaching Vercel.
+  if (!isVercelRuntime()) return "unknown";
 
-  const forwardedIp = validIp(
-    req.headers.get("x-forwarded-for")?.split(",")[0] ?? null
-  );
-  if (forwardedIp) return forwardedIp;
-
-  return validIp(req.headers.get("x-real-ip")) || "unknown";
+  return firstForwardedIp(req.headers.get("x-vercel-forwarded-for"))
+    || firstForwardedIp(req.headers.get("x-forwarded-for"))
+    || "unknown";
 }
 
 export function getSafeSameOriginUrl(

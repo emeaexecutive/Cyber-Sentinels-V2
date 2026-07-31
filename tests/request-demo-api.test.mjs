@@ -1,12 +1,18 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { createRequestDemoHandler } from "../lib/request-demo.ts";
+import {
+  createRequestDemoHandler,
+  requestDemoMaxRequestBytes,
+} from "../lib/request-demo.ts";
 import {
   createTurnstileOptions,
   waitForTurnstileApi,
 } from "../components/turnstile-field.tsx";
-import { verifyTurnstileToken } from "../lib/bot-protection.ts";
+import {
+  checkRequestRateLimit,
+  verifyTurnstileToken,
+} from "../lib/bot-protection.ts";
 import { getSafeSameOriginUrl, getTrustedClientIp } from "../lib/security.ts";
 
 const correlationId = "0d9a8b6d-4ed0-4be1-9fa1-4046f3579711";
@@ -35,6 +41,67 @@ function request(fields = {}) {
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body,
   });
+}
+
+function multipartRequest(fields = {}) {
+  const body = new FormData();
+  for (const [key, value] of Object.entries({
+    name: "Test Person",
+    work_email: "test@example.com",
+    company: "Example Company",
+    "cf-turnstile-response": "verified-token",
+    ...fields,
+  })) {
+    body.set(key, value);
+  }
+  return new Request("https://www.cybersentinels.com/api/enterprise-access", {
+    method: "POST",
+    body,
+  });
+}
+
+function fixedSizeRequest(size, headers = {}) {
+  const prefix = "padding=";
+  assert.ok(size >= prefix.length);
+  return new Request("https://www.cybersentinels.com/api/enterprise-access", {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+      ...headers,
+    },
+    body: prefix + "x".repeat(size - prefix.length),
+  });
+}
+
+function streamedFixedSizeRequest(size) {
+  const encoded = new TextEncoder().encode(
+    "padding=" + "x".repeat(size - "padding=".length),
+  );
+  const splitAt = Math.floor(encoded.byteLength / 2);
+  const body = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoded.subarray(0, splitAt));
+      controller.enqueue(encoded.subarray(splitAt));
+      controller.close();
+    },
+  });
+  return new Request("https://www.cybersentinels.com/api/enterprise-access", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body,
+    duplex: "half",
+  });
+}
+
+function withVercelRuntime(callback) {
+  const previousVercel = process.env.VERCEL;
+  process.env.VERCEL = "1";
+  try {
+    return callback();
+  } finally {
+    if (previousVercel === undefined) delete process.env.VERCEL;
+    else process.env.VERCEL = previousVercel;
+  }
 }
 
 function harness(overrides = {}) {
@@ -356,6 +423,86 @@ test("declared oversized Request Demo bodies return 413 before parsing", async (
   assertSafeLog(logs[0]);
 });
 
+test("actual body above 32,000 bytes without Content-Length returns 413", async () => {
+  let siteverifyCalls = 0;
+  const { handler, logs, inserts } = harness({
+    verifyTurnstile: async () => {
+      siteverifyCalls += 1;
+      return { ok: true, reason: "verified" };
+    },
+  });
+  const oversized = fixedSizeRequest(requestDemoMaxRequestBytes + 1);
+  assert.equal(oversized.headers.get("content-length"), null);
+  const response = await handler(oversized, correlationId);
+  await assertFailure(response, 413, "REQUEST_DEMO_PAYLOAD_TOO_LARGE");
+  assert.equal(siteverifyCalls, 0);
+  assert.equal(inserts.length, 0);
+  assertSafeLog(logs[0]);
+});
+
+test("understated Content-Length cannot bypass the actual body ceiling", async () => {
+  const { handler, logs, inserts } = harness();
+  const response = await handler(
+    fixedSizeRequest(requestDemoMaxRequestBytes + 1, { "content-length": "100" }),
+    correlationId,
+  );
+  await assertFailure(response, 413, "REQUEST_DEMO_PAYLOAD_TOO_LARGE");
+  assert.equal(inserts.length, 0);
+  assertSafeLog(logs[0]);
+});
+
+test("streamed body above the byte ceiling returns 413", async () => {
+  const { handler, logs, inserts } = harness();
+  const streamed = streamedFixedSizeRequest(requestDemoMaxRequestBytes + 1);
+  assert.equal(streamed.headers.get("content-length"), null);
+  const response = await handler(streamed, correlationId);
+  await assertFailure(response, 413, "REQUEST_DEMO_PAYLOAD_TOO_LARGE");
+  assert.equal(inserts.length, 0);
+  assertSafeLog(logs[0]);
+});
+
+test("body exactly at 32,000 bytes is parsed and reaches field validation", async () => {
+  const { handler, logs } = harness();
+  const response = await handler(fixedSizeRequest(requestDemoMaxRequestBytes), correlationId);
+  await assertFailure(response, 400, "REQUEST_DEMO_VALIDATION_FAILED");
+  assertSafeLog(logs[0]);
+});
+
+test("body one byte over 32,000 returns 413", async () => {
+  const { handler, logs } = harness();
+  const response = await handler(
+    fixedSizeRequest(requestDemoMaxRequestBytes + 1),
+    correlationId,
+  );
+  await assertFailure(response, 413, "REQUEST_DEMO_PAYLOAD_TOO_LARGE");
+  assertSafeLog(logs[0]);
+});
+
+test("large sensitive form fields cannot bypass the stream limit or enter logs", async () => {
+  const { handler, logs, inserts } = harness();
+  const oversized = request({ message: "verified-token".repeat(3_000) });
+  const response = await handler(oversized, correlationId);
+  await assertFailure(response, 413, "REQUEST_DEMO_PAYLOAD_TOO_LARGE");
+  assert.equal(inserts.length, 0);
+  assertSafeLog(logs[0]);
+});
+
+test("malformed multipart input returns a controlled validation response", async () => {
+  const { handler, logs, inserts } = harness();
+  const malformed = new Request(
+    "https://www.cybersentinels.com/api/enterprise-access",
+    {
+      method: "POST",
+      headers: { "content-type": "multipart/form-data; boundary=missing-boundary" },
+      body: "not-a-valid-multipart-body",
+    },
+  );
+  const response = await handler(malformed, correlationId);
+  await assertFailure(response, 400, "REQUEST_DEMO_VALIDATION_FAILED");
+  assert.equal(inserts.length, 0);
+  assertSafeLog(logs[0]);
+});
+
 test("Turnstile tokens over the documented maximum are rejected before Siteverify", async () => {
   let siteverifyCalls = 0;
   const { handler, logs } = harness({
@@ -373,22 +520,93 @@ test("Turnstile tokens over the documented maximum are rejected before Siteverif
   assertSafeLog(logs[0]);
 });
 
-test("rate-limit identity prefers Cloudflare's validated header and rejects malformed IPs", () => {
-  const cloudflare = new Request("https://www.cybersentinels.com", {
-    headers: {
-      "cf-connecting-ip": "203.0.113.20",
-      "x-forwarded-for": "198.51.100.50, 198.51.100.60",
-    },
+test("Vercel client identity rejects spoofed Cloudflare and malformed IP headers", () => {
+  withVercelRuntime(() => {
+    const proxied = new Request("https://www.cybersentinels.com", {
+      headers: {
+        "cf-connecting-ip": "203.0.113.20",
+        "cf-ray": "synthetic-ray",
+        "cf-visitor": "{\"scheme\":\"https\"}",
+        "x-vercel-forwarded-for": "198.51.100.50",
+        "x-forwarded-for": "198.51.100.60",
+      },
+    });
+    assert.equal(getTrustedClientIp(proxied), "198.51.100.50");
+
+    const malformed = new Request("https://preview.example", {
+      headers: {
+        "cf-connecting-ip": "203.0.113.20",
+        "x-vercel-forwarded-for": "not-an-ip",
+        "x-forwarded-for": "also-not-an-ip",
+      },
+    });
+    assert.equal(getTrustedClientIp(malformed), "unknown");
   });
-  assert.equal(getTrustedClientIp(cloudflare), "203.0.113.20");
-  const direct = new Request("https://preview.example", {
-    headers: { "x-forwarded-for": "198.51.100.50, 198.51.100.60" },
+});
+
+test("trusted Vercel forwarding supports IPv4, IPv6, and a comma-separated chain", () => {
+  withVercelRuntime(() => {
+    const ipv4 = new Request("https://preview.example", {
+      headers: { "x-vercel-forwarded-for": "198.51.100.50" },
+    });
+    assert.equal(getTrustedClientIp(ipv4), "198.51.100.50");
+
+    const ipv6 = new Request("https://preview.example", {
+      headers: { "x-vercel-forwarded-for": "2001:db8::50" },
+    });
+    assert.equal(getTrustedClientIp(ipv6), "2001:db8::50");
+
+    const chain = new Request("https://preview.example", {
+      headers: { "x-vercel-forwarded-for": " 198.51.100.70, 198.51.100.80 " },
+    });
+    assert.equal(getTrustedClientIp(chain), "198.51.100.70");
   });
-  assert.equal(getTrustedClientIp(direct), "198.51.100.50");
-  const malformed = new Request("https://preview.example", {
-    headers: { "cf-connecting-ip": "spoofed", "x-forwarded-for": "also-spoofed" },
+});
+
+test("missing trusted headers and unauthenticated Cloudflare-looking headers share a stable fallback", () => {
+  withVercelRuntime(() => {
+    assert.equal(getTrustedClientIp(new Request("https://preview.example")), "unknown");
+    assert.equal(
+      getTrustedClientIp(new Request("https://preview.example", {
+        headers: {
+          "cf-connecting-ip": "203.0.113.20",
+          "cf-ray": "synthetic-ray",
+        },
+      })),
+      "unknown",
+    );
   });
-  assert.equal(getTrustedClientIp(malformed), "unknown");
+
+  assert.equal(
+    getTrustedClientIp(new Request("http://localhost", {
+      headers: {
+        "cf-connecting-ip": "203.0.113.20",
+        "x-vercel-forwarded-for": "198.51.100.50",
+        "x-forwarded-for": "198.51.100.60",
+      },
+    })),
+    "unknown",
+  );
+});
+
+test("rotating CF-Connecting-IP cannot rotate a Vercel rate-limit bucket", () => {
+  withVercelRuntime(() => {
+    const first = new Request("https://preview.example", {
+      headers: {
+        "cf-connecting-ip": "203.0.113.20",
+        "x-vercel-forwarded-for": "198.51.100.50",
+      },
+    });
+    const second = new Request("https://preview.example", {
+      headers: {
+        "cf-connecting-ip": "203.0.113.21",
+        "x-vercel-forwarded-for": "198.51.100.50",
+      },
+    });
+    const route = "/test/request-demo-cf-rotation";
+    assert.equal(checkRequestRateLimit(first, route, 1, 60_000), null);
+    assert.equal(checkRequestRateLimit(second, route, 1, 60_000)?.status, 429);
+  });
 });
 
 test("HTML workflow redirects cannot leave the current origin", () => {
@@ -491,11 +709,26 @@ test("rate limit returns REQUEST_DEMO_RATE_LIMITED", async () => {
   assertSafeLog(logs[0]);
 });
 
-test("successful submission inserts both records and redirects", async () => {
+test("valid URL-encoded submission verifies Turnstile, persists, and redirects", async () => {
   const { handler, logs, inserts } = harness();
   const response = await handler(request(), correlationId);
   assert.equal(response.status, 303);
   assert.equal(response.headers.get("location"), "https://www.cybersentinels.com/enterprise-access?success=true");
+  assert.deepEqual(inserts.map(({ table }) => table), ["enterprise_access_requests", "interest_signals"]);
+  assert.equal(logs.length, 0);
+});
+
+test("valid multipart submission verifies Turnstile, persists, and redirects", async () => {
+  let siteverifyCalls = 0;
+  const { handler, logs, inserts } = harness({
+    verifyTurnstile: async () => {
+      siteverifyCalls += 1;
+      return { ok: true, reason: "verified" };
+    },
+  });
+  const response = await handler(multipartRequest(), correlationId);
+  assert.equal(response.status, 303);
+  assert.equal(siteverifyCalls, 1);
   assert.deepEqual(inserts.map(({ table }) => table), ["enterprise_access_requests", "interest_signals"]);
   assert.equal(logs.length, 0);
 });

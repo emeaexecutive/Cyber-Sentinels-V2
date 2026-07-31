@@ -82,7 +82,7 @@ export type RequestDemoDependencies = {
 };
 
 const genericMessage = "We could not submit your request. Please try again or contact support.";
-const maxRequestBytes = 32_000;
+export const requestDemoMaxRequestBytes = 32_000;
 const fieldLimits = {
   name: 160,
   work_email: 254,
@@ -96,6 +96,46 @@ const fieldLimits = {
   current_problem_category: 100,
   current_problem: 2_000,
 } satisfies Record<keyof RequestDemoPayload, number>;
+
+class RequestDemoBodyTooLargeError extends Error {}
+
+async function boundedFormData(req: Request) {
+  const reader = req.body?.getReader();
+  if (!reader) return req.formData();
+
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!value) continue;
+      totalBytes += value.byteLength;
+      if (totalBytes > requestDemoMaxRequestBytes) {
+        await reader.cancel();
+        throw new RequestDemoBodyTooLargeError();
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const body = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  const headers = new Headers(req.headers);
+  headers.delete("content-length");
+  return new Request(req.url, {
+    method: req.method,
+    headers,
+    body,
+  }).formData();
+}
 
 function field(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();
@@ -248,7 +288,7 @@ export function createRequestDemoHandler(dependencies: RequestDemoDependencies) 
       }
 
       const contentLength = Number(req.headers.get("content-length") ?? "0");
-      if (Number.isFinite(contentLength) && contentLength > maxRequestBytes) {
+      if (Number.isFinite(contentLength) && contentLength > requestDemoMaxRequestBytes) {
         logFailure(dependencies, {
           correlationId,
           operation: "request_demo.validation",
@@ -265,8 +305,22 @@ export function createRequestDemoHandler(dependencies: RequestDemoDependencies) 
 
       let formData: FormData;
       try {
-        formData = await req.formData();
-      } catch {
+        formData = await boundedFormData(req);
+      } catch (error) {
+        if (error instanceof RequestDemoBodyTooLargeError) {
+          logFailure(dependencies, {
+            correlationId,
+            operation: "request_demo.validation",
+            internalCode: "REQUEST_DEMO_PAYLOAD_TOO_LARGE",
+            errorName: "RequestDemoError",
+          });
+          return enterpriseAccessErrorResponse(
+            "The submitted request is too large.",
+            413,
+            "REQUEST_DEMO_PAYLOAD_TOO_LARGE",
+            correlationId,
+          );
+        }
         logFailure(dependencies, {
           correlationId,
           operation: "request_demo.validation",
