@@ -2,6 +2,7 @@ import { ContinuousTrustDashboard } from "@/src/components/continuous-trust/Cont
 import { continuousTrustRepository } from "@/src/lib/continuous-trust/repository";
 import { continuousTrustSignalRepository } from "@/src/lib/continuous-trust/signal-repository";
 import { trustArchitectureUiContext } from "@/src/lib/trust-architecture/ui-context";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,9 @@ export default async function ContinuousTrustRuntimePage() {
             and accountable manual review derive from tenant-scoped production records.
             Missing measurements remain explicit.
           </p>
+          <Link href="/dashboard/environment-scope" className="mt-5 inline-flex text-sm font-semibold text-cyan-200 underline underline-offset-4">
+            Review Environment Attestation and Scope Continuity™
+          </Link>
         </header>
         <ContinuousTrustDashboard
           initialRuntime={runtimeRows.slice(0, 100)}

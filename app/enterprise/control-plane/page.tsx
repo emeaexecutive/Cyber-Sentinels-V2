@@ -35,6 +35,13 @@ export default async function EnterpriseControlPlanePage() {
             thresholds, provider policy, reviewer ownership and replay
             retention without replacing accountable human decisions.
           </p>
+          <p className="mt-4 max-w-4xl text-base leading-7 text-zinc-300">
+            Cyber Sentinels continuously verifies that an AI agent&apos;s identity,
+            authority, declared environment and permitted scope still match the
+            conditions in which its actions execute. Scope Continuity™ uses
+            Environment Attestation because declared scope is not trusted until
+            runtime evidence confirms it.
+          </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/dashboard/governance"
@@ -59,6 +66,12 @@ export default async function EnterpriseControlPlanePage() {
               className="brand-secondary-action brand-action-large text-sm"
             >
               Review Deployment Readiness
+            </Link>
+            <Link
+              href="/dashboard/environment-scope"
+              className="brand-secondary-action brand-action-large text-sm"
+            >
+              Review Environment &amp; Scope
             </Link>
           </div>
         </section>
