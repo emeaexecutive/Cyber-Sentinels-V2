@@ -8,6 +8,7 @@ import {
 } from "@/lib/providers";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { createClient } from "@/lib/supabase/server";
+import { canonicalProviderRuntimeState } from "@/lib/providers/runtime-contract";
 
 export const dynamic = "force-dynamic";
 
@@ -272,16 +273,16 @@ export default async function AdminIntegrationsPage() {
           </p>
           <h2 className="mt-2 text-xl font-semibold">Runtime state and credential readiness</h2>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
-            “Live” means a supported code path is enabled and configured. It is
-            not a provider health, identity-certainty or accuracy claim. Secret
-            values are never displayed.
+            Runtime state describes operational evidence availability. It is not
+            a provider health, identity-certainty or accuracy claim. Secret values are never displayed.
           </p>
           <div className="mt-4 flex flex-wrap gap-2 text-xs text-zinc-400">
             {[
-              ["Live", "enabled supported path"],
-              ["Simulated", "controlled test data only"],
-              ["Awaiting Credentials", "required environment names are absent"],
-              ["Disabled", "fails safely without provider evidence"],
+              ["available", "verified operational evidence path"],
+              ["degraded", "partial or impaired evidence path"],
+              ["unavailable", "no operational evidence path"],
+              ["contradicted", "provider assertion conflicts with evidence"],
+              ["unknown", "insufficient health evidence"],
             ].map(([state, meaning]) => (
               <span key={state} className="rounded-full border border-zinc-700 px-3 py-1.5">
                 <span className="font-semibold text-zinc-200">{state}:</span> {meaning}
@@ -290,7 +291,8 @@ export default async function AdminIntegrationsPage() {
           </div>
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
             {verificationProviders.map((provider) => {
-              const runtimeState = providerRuntimeState(provider);
+              const maturityState = providerRuntimeState(provider);
+              const runtimeState = canonicalProviderRuntimeState({ configured: provider.status === "configured", usesMockData: provider.usesMockData, safeFailure: provider.safeFailure, runtimeState: maturityState });
               return (
                 <article key={provider.id} className="rounded-lg border border-zinc-800 bg-black p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">

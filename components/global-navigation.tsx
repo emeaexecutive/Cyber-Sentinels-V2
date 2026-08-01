@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { canonicalNavigation, publicHeaderLinks } from "@/lib/navigation/canonical-navigation";
 
 export type NavigationAccessLevel =
   | "public"
@@ -12,14 +13,7 @@ export type NavigationAccessLevel =
 
 type CloseMenus = () => void;
 
-export const publicHeaderLinks = [
-  { href: "/platform", label: "Platform" },
-  { href: "/solutions", label: "Solutions" },
-  { href: "/trust", label: "Trust" },
-  { href: "/enterprise", label: "Enterprise" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/login", label: "Sign In" },
-] as const;
+export { publicHeaderLinks };
 
 function LogoutButton({ onNavigate }: { onNavigate?: CloseMenus }) {
   return (
@@ -71,17 +65,15 @@ export function GlobalNavigation({ accessLevel }: { accessLevel: NavigationAcces
           ) : null}
           {accessLevel === "user" || accessLevel === "admin-unverified" ? (
             <>
-              <Link href="/dashboard" onClick={closeMenus} className="brand-primary-action">Enterprise Workspace</Link>
-              <Link href="/notifications" onClick={closeMenus} className="nav-control">Notifications</Link>
+              {canonicalNavigation.authenticated.map((item) => <Link key={item.href} href={item.href} onClick={closeMenus} className={item.href === "/dashboard" ? "brand-primary-action" : "nav-control"}>{item.label}</Link>)}
               {accessLevel === "admin-unverified" ? <Link href="/admin/access" onClick={closeMenus} className="brand-secondary-action">Verify Admin</Link> : null}
               <LogoutButton onNavigate={closeMenus} />
             </>
           ) : null}
           {accessLevel === "admin" ? (
             <>
-              <Link href="/dashboard" onClick={closeMenus} className="brand-primary-action">Enterprise Workspace</Link>
-              <Link href="/notifications" onClick={closeMenus} className="nav-control">Notifications</Link>
-              <Link href="/admin/access" onClick={closeMenus} className="brand-secondary-action">Administration</Link>
+              {canonicalNavigation.authenticated.map((item) => <Link key={item.href} href={item.href} onClick={closeMenus} className={item.href === "/dashboard" ? "brand-primary-action" : "nav-control"}>{item.label}</Link>)}
+              {canonicalNavigation.admin.map((item) => <Link key={item.href} href={item.href} onClick={closeMenus} className="brand-secondary-action">{item.label}</Link>)}
               <LogoutButton onNavigate={closeMenus} />
             </>
           ) : null}

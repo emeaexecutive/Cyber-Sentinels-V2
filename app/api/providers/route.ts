@@ -19,6 +19,7 @@ import { completeWebhookEvent, retainRejectedWebhookEvent } from "@/lib/webhooks
 import { bridgeHopaeCallbackToIdentity } from "@/lib/identity-signals/hopae-callback-bridge";
 import { ingestTrustEventRequest } from "@/src/lib/trust-events/gateway";
 import { supabaseTrustEventRepository } from "@/src/lib/trust-events/repository";
+import { canonicalProviderRuntimeState } from "@/lib/providers/runtime-contract";
 
 export const dynamic = "force-dynamic";
 
@@ -55,34 +56,43 @@ export async function GET(request: Request) {
     generatedAt: new Date().toISOString(),
     ok: true,
     statusMeaning:
-      "Adapter maturity uses only Production, Sandbox, Awaiting Credentials, Prototype and Disabled. Production additionally requires a successful real check; no state is an accuracy claim.",
-    providers: getVerificationProviderRegistry().map((provider) => ({
-      id: provider.id,
-      name: provider.name,
-      category: provider.category,
-      runtimeState: readinessByName.has(provider.name)
+      "Canonical runtime states are available, degraded, unavailable, contradicted and unknown. They describe operational evidence availability, not provider accuracy.",
+    providers: getVerificationProviderRegistry().map((provider) => {
+      const maturityState = readinessByName.has(provider.name)
         ? providerRealityState(readinessByName.get(provider.name)!)
-        : "Disabled",
-      implementationState: provider.implementationState,
-      configured: provider.status === "configured",
-      credentialState: provider.missingEnv.length ? "missing_credentials" : "present",
-      missingEnvironmentNames: provider.missingEnv,
-      usesMockData: provider.usesMockData,
-      safeFailure: provider.safeFailure,
-      authProtection: provider.authProtection,
-      replayIntegration: provider.replayIntegration,
-      receiptIntegration: provider.receiptIntegration,
-      purpose: provider.purpose,
-      notes: provider.notes,
-      ...(provider.id === "hopae_connect" ? {
-        environment: hopaeConfig.config.environment,
-        configuredState: !hopaeConfig.config.enabled ? "DISABLED" : hopaeConfig.configured ? "CONFIGURED" : "MISCONFIGURED",
-        adapterVersion: "pal-hopae-1.0.0",
-        apiVersion: "connect-v1",
-        callbackSecurity: "HMAC-SHA256 over timestamp and exact raw body",
-        mappingVersion: "hopae-connect-v1-2026-07-17",
-      } : {}),
-    })),
+        : "Disabled";
+      return {
+        id: provider.id,
+        name: provider.name,
+        category: provider.category,
+        runtimeState: canonicalProviderRuntimeState({
+          configured: provider.status === "configured",
+          usesMockData: provider.usesMockData,
+          safeFailure: provider.safeFailure,
+          runtimeState: maturityState,
+        }),
+        adapterMaturityState: maturityState,
+        implementationState: provider.implementationState,
+        configured: provider.status === "configured",
+        credentialState: provider.missingEnv.length ? "missing_credentials" : "present",
+        missingEnvironmentNames: provider.missingEnv,
+        usesMockData: provider.usesMockData,
+        safeFailure: provider.safeFailure,
+        authProtection: provider.authProtection,
+        replayIntegration: provider.replayIntegration,
+        receiptIntegration: provider.receiptIntegration,
+        purpose: provider.purpose,
+        notes: provider.notes,
+        ...(provider.id === "hopae_connect" ? {
+          environment: hopaeConfig.config.environment,
+          configuredState: !hopaeConfig.config.enabled ? "DISABLED" : hopaeConfig.configured ? "CONFIGURED" : "MISCONFIGURED",
+          adapterVersion: "pal-hopae-1.0.0",
+          apiVersion: "connect-v1",
+          callbackSecurity: "HMAC-SHA256 over timestamp and exact raw body",
+          mappingVersion: "hopae-connect-v1-2026-07-17",
+        } : {}),
+      };
+    }),
     recentExecutions,
     recentEvidence,
     telemetry: getProviderTelemetry(limit),
