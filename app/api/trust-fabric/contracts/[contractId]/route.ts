@@ -1,0 +1,4 @@
+import { enterpriseTrustFabricRepository } from "@/src/lib/trust-fabric/repository";
+import { TrustArchitectureApiError,fabricContext,fabricCorrelationId,fabricFailure,fabricResponse } from "@/src/lib/trust-fabric/http";
+const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+export async function GET(request:Request,{params}:{params:Promise<{contractId:string}>}){const correlationId=fabricCorrelationId(request);try{const auth=await fabricContext(request);const {contractId}=await params;if(!uuid.test(contractId))throw new TrustArchitectureApiError("Contract reference is invalid.",400,"CONTRACT_INVALID");const [contract]=await enterpriseTrustFabricRepository().contracts(auth.enterpriseId,contractId);if(!contract)throw new TrustArchitectureApiError("Trust Contract was not found.",404,"CONTRACT_NOT_FOUND");return fabricResponse({ok:true,contract},200,correlationId);}catch(error){return fabricFailure(error,correlationId);}}
