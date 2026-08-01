@@ -103,12 +103,12 @@ test("RC5 performance diagnostics measure all requested operation classes", () =
   console.log(`RC5_OPERATIONAL_BENCHMARK=${JSON.stringify(profiles.filter((profile) => ["trust_decision", "evidence_graph", "replay", "provider_normalization", "trust_profile_generation", "queue_throughput"].includes(profile.id)))}`);
 });
 
-test("enterprise demo uses the canonical eight-question contract and redirects the legacy route", async () => {
+test("enterprise demo uses the canonical twelve-question contract and redirects the legacy route", async () => {
   const [source, legacyRoute] = await Promise.all([
     read("app/demo/page.tsx"),
     read("app/demo/trust-execution-flow/page.tsx"),
   ]);
-  const questions = ["Who or what acted?", "What authority existed?", "What environment was declared and observed?", "What scope was permitted?", "What evidence supported the decision?", "What changed the trust state?", "What happened next?", "How can it be replayed?"];
+  const questions = ["Who or what acted?", "What authority existed?", "What environment was declared?", "What environment was observed?", "What scope was permitted?", "What evidence supported the decision?", "Why did trust change?", "Was an incident opened?", "What containment occurred?", "Who reviewed it?", "What corrective action followed?", "How is the complete sequence replayed?"];
   for (const question of questions) assert.match(source, new RegExp(question.replace(/[?]/g, "\\?")));
   assert.match(legacyRoute, /redirect\("\/demo"\)/);
 });

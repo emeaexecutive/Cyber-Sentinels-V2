@@ -99,9 +99,9 @@ test("homepage is outcome-led with three sections, two bounded CTAs, one graph a
   }
 });
 
-test("demo presents one canonical eight-question Enterprise Trust journey", async () => {
+test("demo presents one canonical twelve-question cross-Epic Enterprise Trust journey", async () => {
   const [source,legacy] = await Promise.all([read("app/demo/page.tsx"),read("app/demo/trust-execution-flow/page.tsx")]);
-  for(const question of ["Who or what acted?","What authority existed?","What environment was declared and observed?","What scope was permitted?","What evidence supported the decision?","What changed the trust state?","What happened next?","How can it be replayed?"]) assert.equal(source.includes(question),true);
+  for(const question of ["Who or what acted?","What authority existed?","What environment was declared?","What environment was observed?","What scope was permitted?","What evidence supported the decision?","Why did trust change?","Was an incident opened?","What containment occurred?","Who reviewed it?","What corrective action followed?","How is the complete sequence replayed?"]) assert.equal(source.includes(question),true);
   assert.match(legacy,/redirect\("\/demo"\)/);
   assert.doesNotMatch(source, /buildRegulatedAiAgentDemo\("allow"\)|buildRegulatedAiAgentDemo\("block"\)/);
 });

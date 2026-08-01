@@ -136,28 +136,75 @@ end $$;
 revoke all on function public.persist_trust_contract_evaluation_v1(uuid,uuid,jsonb) from public,anon,authenticated;
 grant execute on function public.persist_trust_contract_evaluation_v1(uuid,uuid,jsonb) to service_role;
 
--- Canonical policy guard for forward migrations. Existing definitions are compared; drift raises instead of being ignored.
-create or replace function public.ensure_policy_definition_v1(p_schema text,p_table text,p_name text,p_command text,p_roles name[],p_using text,p_check text default null)
+-- Durable decisions for forward-only policy reconciliation. Historical migrations remain immutable.
+create table public.migration_policy_decisions (
+  decision_id uuid primary key default gen_random_uuid(),
+  migration_version text not null,
+  schema_name text not null,
+  table_name text not null,
+  policy_name text not null,
+  decision text not null check(decision in ('CREATED','UNCHANGED','REPLACED','CONFLICT')),
+  requested_definition jsonb not null,
+  previous_definition jsonb,
+  replacement_reason text,
+  decided_at timestamptz not null default now(),
+  decided_by text not null default current_user
+);
+alter table public.migration_policy_decisions enable row level security;
+revoke all on public.migration_policy_decisions from public,anon,authenticated;
+grant select,insert on public.migration_policy_decisions to service_role;
+create trigger migration_policy_decisions_append_only before update or delete on public.migration_policy_decisions for each row execute function public.prevent_trust_architecture_history_mutation();
+
+-- Canonical policy guard for forward migrations. Replacement is possible only with explicit versioned intent.
+create or replace function public.ensure_policy_definition_v2(p_schema text,p_table text,p_name text,p_command text,p_roles name[],p_using text,p_check text default null,p_mode text default 'strict',p_migration_version text default null,p_replacement_reason text default null,p_raise_on_conflict boolean default true)
 returns text language plpgsql security definer set search_path=pg_catalog,public as $$
-declare existing record; normalized_using text:=regexp_replace(coalesce(p_using,''),'\s+','','g'); normalized_check text:=regexp_replace(coalesce(p_check,''),'\s+','','g'); role_sql text;
+declare existing record; normalized_using text:=regexp_replace(coalesce(p_using,''),'\s+','','g'); normalized_check text:=regexp_replace(coalesce(p_check,''),'\s+','','g'); role_sql text; requested jsonb; previous jsonb; definitions_match boolean;
 begin
   if auth.role()<>'service_role' then raise exception 'Migration policy guard requires service role'; end if;
-  if p_schema<>'public' or p_command not in ('SELECT','INSERT','UPDATE','DELETE','ALL') then raise exception 'Policy guard input invalid'; end if;
+  if p_schema<>'public' or p_command not in ('SELECT','INSERT','UPDATE','DELETE','ALL') or p_mode not in ('strict','intentional_replace') then raise exception 'Policy guard input invalid'; end if;
+  if p_migration_version is null or btrim(p_migration_version)='' then raise exception 'Migration version is required for policy reconciliation'; end if;
+  if p_mode='intentional_replace' and (p_replacement_reason is null or btrim(p_replacement_reason)='') then raise exception 'Intentional policy replacement requires a reason'; end if;
+  requested:=jsonb_build_object('command',p_command,'roles',p_roles,'using',p_using,'withCheck',p_check);
   select * into existing from pg_policies where schemaname=p_schema and tablename=p_table and policyname=p_name;
   if found then
-    if existing.cmd<>p_command or existing.roles::text<>p_roles::text or regexp_replace(coalesce(existing.qual,''),'\s+','','g')<>normalized_using or regexp_replace(coalesce(existing.with_check,''),'\s+','','g')<>normalized_check then
+    previous:=jsonb_build_object('command',existing.cmd,'roles',existing.roles,'using',existing.qual,'withCheck',existing.with_check);
+    definitions_match:=existing.cmd=p_command and existing.roles::text=p_roles::text and regexp_replace(coalesce(existing.qual,''),'\s+','','g')=normalized_using and regexp_replace(coalesce(existing.with_check,''),'\s+','','g')=normalized_check;
+    if definitions_match then
+      insert into public.migration_policy_decisions(migration_version,schema_name,table_name,policy_name,decision,requested_definition,previous_definition)
+      values(p_migration_version,p_schema,p_table,p_name,'UNCHANGED',requested,previous);
+      return 'UNCHANGED';
+    end if;
+    if p_mode='intentional_replace' then
+      execute format('drop policy %I on %I.%I',p_name,p_schema,p_table);
+    else
+      if not p_raise_on_conflict then
+        insert into public.migration_policy_decisions(migration_version,schema_name,table_name,policy_name,decision,requested_definition,previous_definition)
+        values(p_migration_version,p_schema,p_table,p_name,'CONFLICT',requested,previous);
+        return 'CONFLICT';
+      end if;
       raise exception 'Conflicting policy definition: %.%.%',p_schema,p_table,p_name;
     end if;
-    return 'UNCHANGED';
   end if;
   select string_agg(quote_ident(role_name::text),',') into role_sql from unnest(p_roles) role_name;
   execute format('create policy %I on %I.%I for %s to %s%s%s',p_name,p_schema,p_table,p_command,role_sql,
     case when p_using is null then '' else format(' using (%s)',p_using) end,
     case when p_check is null then '' else format(' with check (%s)',p_check) end);
-  return 'CREATED';
+  insert into public.migration_policy_decisions(migration_version,schema_name,table_name,policy_name,decision,requested_definition,previous_definition,replacement_reason)
+  values(p_migration_version,p_schema,p_table,p_name,case when previous is null then 'CREATED' else 'REPLACED' end,requested,previous,p_replacement_reason);
+  return case when previous is null then 'CREATED' else 'REPLACED' end;
+end $$;
+revoke all on function public.ensure_policy_definition_v2(text,text,text,text,name[],text,text,text,text,text,boolean) from public,anon,authenticated;
+grant execute on function public.ensure_policy_definition_v2(text,text,text,text,name[],text,text,text,text,text,boolean) to service_role;
+
+-- Compatibility wrapper retains the original fail-closed contract for existing forward callers.
+create or replace function public.ensure_policy_definition_v1(p_schema text,p_table text,p_name text,p_command text,p_roles name[],p_using text,p_check text default null)
+returns text language plpgsql security definer set search_path=pg_catalog,public as $$
+begin
+  return public.ensure_policy_definition_v2(p_schema,p_table,p_name,p_command,p_roles,p_using,p_check,'strict','202608010002-enterprise-trust-fabric',null,true);
 end $$;
 revoke all on function public.ensure_policy_definition_v1(text,text,text,text,name[],text,text) from public,anon,authenticated;
 grant execute on function public.ensure_policy_definition_v1(text,text,text,text,name[],text,text) to service_role;
 
 comment on view public.enterprise_trust_objects is 'Security-invoker current-state projection; canonical payloads remain in their owning systems.';
 comment on function public.ensure_policy_definition_v1(text,text,text,text,name[],text,text) is 'Forward migration helper: idempotent only for identical policy definitions and fail-closed on drift.';
+comment on function public.ensure_policy_definition_v2(text,text,text,text,name[],text,text,text,text,text,boolean) is 'Forward-only policy reconciliation: create, repeat unchanged, explicitly replace, or fail/record conflict with a durable migration decision.';

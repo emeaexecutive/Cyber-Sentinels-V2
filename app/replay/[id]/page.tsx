@@ -16,6 +16,7 @@ import {
   simulationScenarios,
   type SimulationScenario,
 } from "@/lib/simulationScenarios";
+import { epic2627CrossEpicScenario } from "@/src/lib/trust-fabric/cross-epic-scenario";
 
 export const dynamic = "force-dynamic";
 
@@ -89,6 +90,7 @@ function stageForEvent(event: Row): TrustJourneyStage {
 }
 
 function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
+  const crossEpic = epic2627CrossEpicScenario();
   return (
     <main className="min-h-screen bg-[#04070c] px-5 py-10 text-white sm:px-6 md:px-8">
       <div className="mx-auto max-w-6xl">
@@ -113,16 +115,20 @@ function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
           </p>
         </section>
 
-        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Canonical demonstration contract">
+        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Canonical twelve-question demonstration contract">
           {[
             ["Who or what acted?", "Human participant with accountable workflow ownership"],
             ["What authority existed?", scenario.replayEvents[0]?.authorization ?? "No authority reference"],
-            ["What environment was declared and observed?", "Controlled synthetic demonstration environment"],
-            ["What scope was permitted?", scenario.name],
-            ["What evidence supported the decision?", `${scenario.replayEvents.length} attributed scenario records`],
-            ["What changed the trust state?", scenario.replayEvents.find((event) => event.trustChange)?.trustChange ?? scenario.finalPosture],
-            ["What happened next?", scenario.replayEvents.at(-1)?.operationalState ?? "Recorded"],
-            ["How can it be replayed?", "This deterministic Replay Timeline preserves the sequence and uncertainty."],
+            ["What environment was declared?", `Controlled synthetic demonstration environment: ${crossEpic.scope.input.declaration.environmentClass}`],
+            ["What environment was observed?", crossEpic.scope.input.attestations[0]?.observedEnvironmentClass ?? "Not observed"],
+            ["What scope was permitted?", crossEpic.scope.input.authorization.permittedTargets.join(", ")],
+            ["What evidence supported the decision?", `${crossEpic.scope.decision.evidenceReferences.length} canonical evidence references`],
+            ["Why did trust change?", crossEpic.scope.decision.reasonCodes.join(", ")],
+            ["Was an incident opened?", crossEpic.incident.id],
+            ["What containment occurred?", "Containment requested and provider acknowledged; not confirmed"],
+            ["Who reviewed it?", `${crossEpic.reviewerDecision.reviewerRole} under ${crossEpic.reviewerDecision.organizationalAuthority}`],
+            ["What corrective action followed?", crossEpic.correctiveAction.action],
+            ["How is the complete sequence replayed?", `${crossEpic.replay.length} deterministic cross-Epic events and draft package ${crossEpic.submissionPackage.packageDigest.slice(0, 12)}… preserve source ownership and uncertainty.`],
           ].map(([title, value]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>

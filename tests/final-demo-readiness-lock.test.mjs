@@ -17,18 +17,22 @@ test("the canonical demo route and deterministic Replay fast path are linked", (
   assert.ok(receipt.indexOf('if (id === "demo")') < receipt.indexOf("createClient()"));
 });
 
-test("demo Replay answers the canonical eight operational questions", () => {
+test("demo Replay answers the canonical twelve operational questions", () => {
   const replay = read("app/replay/[id]/page.tsx");
 
   for (const marker of [
     "Who or what acted?",
     "What authority existed?",
-    "What environment was declared and observed?",
+    "What environment was declared?",
+    "What environment was observed?",
     "What scope was permitted?",
     "What evidence supported the decision?",
-    "What changed the trust state?",
-    "What happened next?",
-    "How can it be replayed?",
+    "Why did trust change?",
+    "Was an incident opened?",
+    "What containment occurred?",
+    "Who reviewed it?",
+    "What corrective action followed?",
+    "How is the complete sequence replayed?",
   ]) {
     assert.equal(replay.includes(marker), true);
   }

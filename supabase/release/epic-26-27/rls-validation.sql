@@ -1,0 +1,10 @@
+-- Read-only RLS, grant and security-invoker validation.
+do $$
+declare expected_tables text[]:=array['execution_context_declarations','environment_attestations','scope_authorization_leases','scope_continuity_decisions','scope_decision_attestations','context_contradiction_events','scope_continuity_reviewer_actions','incident_regulatory_assessments','incident_responsibility_roles','incident_chronology_events','incident_evidence_snapshots','incident_impact_assessments','incident_regulatory_trigger_findings','incident_reviewer_decisions','incident_submission_packages','incident_external_submissions','incident_corrective_actions','incident_evidence_supersessions']; missing text[];
+begin
+  select array_agg(name) into missing from unnest(expected_tables) name where not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relname=name and c.relrowsecurity);
+  if cardinality(coalesce(missing,'{}'))>0 then raise exception 'EPIC_26_27_RLS_DISABLED: %',array_to_string(missing,', '); end if;
+  if exists(select 1 from information_schema.role_table_grants where table_schema='public' and table_name=any(expected_tables) and grantee in ('anon','authenticated') and privilege_type in ('INSERT','UPDATE','DELETE','TRUNCATE')) then raise exception 'EPIC_26_27_UNSAFE_CLIENT_WRITE_GRANT'; end if;
+  if exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname in ('persist_scope_continuity_decision_v1','persist_serious_incident_case_v1','append_serious_incident_record_v1') and has_function_privilege('authenticated',p.oid,'EXECUTE')) then raise exception 'EPIC_26_27_UNSAFE_RPC_GRANT'; end if;
+  if exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relname in ('scope_continuity_replay','incident_reporting_replay') and coalesce(c.reloptions,'{}')@>array['security_invoker=false']) then raise exception 'EPIC_26_27_REPLAY_NOT_SECURITY_INVOKER'; end if;
+end $$;

@@ -1,0 +1,36 @@
+{
+  "release": "epic-26-27-integration-reconciliation-v1",
+  "reviewOnly": true,
+  "remoteMutation": false,
+  "orderedMigrations": [
+    {
+      "path": "supabase/migrations/202607310001_environment_attestation_scope_continuity.sql",
+      "sha256": "fdfa8d25f3280eef27835d6d7ed62fd5a387c59d0195c57d2329eea1c3c53f3d"
+    },
+    {
+      "path": "supabase/migrations/202608010001_ai_serious_incident_regulatory_lineage.sql",
+      "sha256": "7831be488d85281673ecfd29500029fbad32d3b8759c6e51bba4384788d028e2"
+    },
+    {
+      "path": "supabase/migrations/202608010002_enterprise_trust_fabric.sql",
+      "sha256": "86276fed66911cc34d561ceb8abb64e54e21db80e69fa91475506d3def1d4f6a"
+    }
+  ],
+  "prerequisites": ["trust_workspaces", "user_can_access_trust_workspace(uuid)", "trust_architecture_audit_log", "evidence_graph_nodes", "evidence_graph_edges", "trust_memory_index", "trust_policy_versions", "prevent_trust_architecture_history_mutation()"],
+  "validationOrder": ["preflight.sql", "post-apply-validation.sql", "rls-validation.sql", "integrity-validation.sql"],
+  "inventories": ["object-inventory.json", "scenario-fixture.json"],
+  "integrity": {
+    "tenantScopedForeignKeys": true,
+    "appendOnlyHistory": true,
+    "securityInvokerReplay": true,
+    "serviceOnlyMutationRpcs": true,
+    "sourceVersionedEvidence": true,
+    "supersessionInsteadOfMutation": true
+  },
+  "limitations": [
+    "No destructive rollback is supported for append-only evidence history.",
+    "No migration in this package is applied automatically.",
+    "A historical provider_health_snapshots collision currently blocks a clean preview before Epic 26."
+  ],
+  "forwardPlan": "Resolve the historical collision only through a new audited forward migration, then rerun a clean preview and every package validation script."
+}
