@@ -1,0 +1,15 @@
+import { TrustArchitectureApiError, architectureContext, architectureCorrelationId, architectureFailure, architectureResponse, assertArchitectureMutation } from "../trust-architecture/http.ts";
+
+export const seriousIncidentContext = architectureContext;
+export const seriousIncidentCorrelationId = architectureCorrelationId;
+export const seriousIncidentFailure = architectureFailure;
+export const seriousIncidentResponse = architectureResponse;
+
+export async function readSeriousIncidentJson(request: Request, limit = 64_000) {
+  assertArchitectureMutation(request);
+  if (!request.body) throw new TrustArchitectureApiError("Request body is required.", 400, "REQUEST_BODY_REQUIRED");
+  const reader = request.body.getReader(); const chunks: Uint8Array[] = []; let size = 0;
+  while (true) { const { done, value } = await reader.read(); if (done) break; size += value.byteLength; if (size > limit) { await reader.cancel(); throw new TrustArchitectureApiError("Request is too large.", 413, "PAYLOAD_TOO_LARGE"); } chunks.push(value); }
+  try { const parsed: unknown = JSON.parse(Buffer.concat(chunks).toString("utf8")); if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("object required"); return parsed as Record<string, unknown>; }
+  catch { throw new TrustArchitectureApiError("Request body must be valid JSON.", 400, "MALFORMED_JSON"); }
+}
