@@ -5,15 +5,15 @@
   "orderedMigrations": [
     {
       "path": "supabase/migrations/202607310001_environment_attestation_scope_continuity.sql",
-      "sha256": "fdfa8d25f3280eef27835d6d7ed62fd5a387c59d0195c57d2329eea1c3c53f3d"
+      "sha256": "11bafa552700f7351bf63845d81bf2d518f064b1a65ae74fc8a99be72094ea6f"
     },
     {
       "path": "supabase/migrations/202608010001_ai_serious_incident_regulatory_lineage.sql",
-      "sha256": "7831be488d85281673ecfd29500029fbad32d3b8759c6e51bba4384788d028e2"
+      "sha256": "d4acdf09197be946503938fd31dfe3654fe4495d16f7535e99d263bb0f506385"
     },
     {
       "path": "supabase/migrations/202608010002_enterprise_trust_fabric.sql",
-      "sha256": "86276fed66911cc34d561ceb8abb64e54e21db80e69fa91475506d3def1d4f6a"
+      "sha256": "6d218b94d6bb4b9c35a6a2124f3dfa5fe247c22abc62b4537237fa4e3475873c"
     }
   ],
   "prerequisites": ["trust_workspaces", "user_can_access_trust_workspace(uuid)", "trust_architecture_audit_log", "evidence_graph_nodes", "evidence_graph_edges", "trust_memory_index", "trust_policy_versions", "prevent_trust_architecture_history_mutation()"],

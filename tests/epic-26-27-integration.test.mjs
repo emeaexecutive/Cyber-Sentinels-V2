@@ -6,14 +6,15 @@ import { epic2627CrossEpicScenario } from "../src/lib/trust-fabric/cross-epic-sc
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const sha256 = (path) => createHash("sha256").update(fs.readFileSync(path)).digest("hex");
+const sha256CanonicalText = (path) => createHash("sha256").update(read(path).replace(/\r\n/g, "\n"), "utf8").digest("hex");
 const epic26Path = "supabase/migrations/202607310001_environment_attestation_scope_continuity.sql";
 const epic27Path = "supabase/migrations/202608010001_ai_serious_incident_regulatory_lineage.sql";
 const fabricPath = "supabase/migrations/202608010002_enterprise_trust_fabric.sql";
 const releaseRoot = "supabase/release/epic-26-27";
 
 test("merged Epic 26 and 27 migrations retain their audited hashes", () => {
-  assert.equal(sha256(epic26Path), "fdfa8d25f3280eef27835d6d7ed62fd5a387c59d0195c57d2329eea1c3c53f3d");
-  assert.equal(sha256(epic27Path), "7831be488d85281673ecfd29500029fbad32d3b8759c6e51bba4384788d028e2");
+  assert.equal(sha256CanonicalText(epic26Path), "11bafa552700f7351bf63845d81bf2d518f064b1a65ae74fc8a99be72094ea6f");
+  assert.equal(sha256CanonicalText(epic27Path), "d4acdf09197be946503938fd31dfe3654fe4495d16f7535e99d263bb0f506385");
 });
 
 test("release manifest orders Epic 26 before Epic 27 and pins canonical files", () => {
@@ -21,6 +22,7 @@ test("release manifest orders Epic 26 before Epic 27 and pins canonical files", 
   assert.deepEqual(manifest.orderedMigrations.slice(0, 2).map((entry) => entry.path), [epic26Path, epic27Path]);
   assert.equal(manifest.reviewOnly, true);
   assert.equal(manifest.remoteMutation, false);
+  for (const migration of manifest.orderedMigrations) assert.equal(sha256CanonicalText(migration.path), migration.sha256, migration.path);
   const migrationNames = fs.readdirSync("supabase/migrations").filter((name) => /^\d+.*\.sql$/.test(name));
   assert.equal(new Set(migrationNames.map((name) => name.match(/^\d+/)?.[0])).size, migrationNames.length);
   for (const prerequisite of manifest.prerequisites) assert.match(read(`${releaseRoot}/prerequisite-objects.txt`), new RegExp(prerequisite.replace(/[()]/g, "\\$&")));
