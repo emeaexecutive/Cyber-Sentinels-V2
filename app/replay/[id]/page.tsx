@@ -113,14 +113,16 @@ function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
           </p>
         </section>
 
-        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Canonical demonstration contract">
           {[
-            ["Actor", "Human participant with accountable workflow ownership"],
-            ["Workflow", scenario.name],
-            ["Final Trust Posture", scenario.finalPosture],
-            ["Evidence Chain", `${scenario.replayEvents.length} scenario records`],
-            ["Governance Review", "Human decision recorded"],
-            ["Operational Outcome", scenario.replayEvents.at(-1)?.operationalState ?? "Recorded"],
+            ["Who or what acted?", "Human participant with accountable workflow ownership"],
+            ["What authority existed?", scenario.replayEvents[0]?.authorization ?? "No authority reference"],
+            ["What environment was declared and observed?", "Controlled synthetic demonstration environment"],
+            ["What scope was permitted?", scenario.name],
+            ["What evidence supported the decision?", `${scenario.replayEvents.length} attributed scenario records`],
+            ["What changed the trust state?", scenario.replayEvents.find((event) => event.trustChange)?.trustChange ?? scenario.finalPosture],
+            ["What happened next?", scenario.replayEvents.at(-1)?.operationalState ?? "Recorded"],
+            ["How can it be replayed?", "This deterministic Replay Timeline preserves the sequence and uncertainty."],
           ].map(([title, value]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>

@@ -18,6 +18,7 @@ import {
   type TrustTimelineEvent,
 } from "@/lib/trust-timeline/provenance";
 import { trustPostureClass } from "@/lib/trust-posture/posture";
+import { resolveReplayAvailability } from "@/src/lib/trust-fabric/replay";
 
 export const dynamic = "force-dynamic";
 
@@ -289,6 +290,14 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
   const providerSignals = providerEvidence
     ? buildWorkflowProviderSignals({ evidenceSnapshot: providerEvidence })
     : [];
+  const replayAvailability = resolveReplayAvailability({
+    authorized: true,
+    generationFailed: Boolean(query.replay_error),
+    sourceAvailable: unavailableSources.length === 0,
+    collectionAttempted: true,
+    evidenceReferences: snapshot.evidence.map((row) => ({ type: "evidence", id: String(row.id) })),
+    relevantEventCount: snapshot.timelineEvents.length,
+  });
   const replayValidationRows = [
     ["What triggered", riskEvents.length ? "Session integrity or interview risk event" : signals.length ? "Workflow signal" : "No active trigger in this replay window"],
     ["Why it triggered", riskEvents[0]?.risk_reason ?? signals[0]?.event ?? "Replay is showing available workflow evidence without an active risk trigger."],
@@ -428,6 +437,12 @@ export default async function TrustReplayPage({ searchParams }: TrustReplayPageP
             confirmed absence.
           </div>
         ) : null}
+        <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-300">
+          <span className="font-semibold text-zinc-100">Replay evidence state:</span>{" "}
+          {replayAvailability.state.replaceAll("_", " ")} · {replayAvailability.reasonCode}.
+          Evidence not yet collected, collected-but-empty evidence, unavailable sources,
+          generation failure and access denial remain distinct states.
+        </div>
 
         <section className="operational-panel mt-8 p-5">
           <form className="grid gap-4 md:grid-cols-[1fr_2fr_2fr_auto]" action="/trust-replay">
