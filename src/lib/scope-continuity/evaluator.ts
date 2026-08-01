@@ -1,7 +1,7 @@
 import { evaluateAuthorityGraph, type AuthorityGrant } from "../../../lib/core/authority-graph.ts";
 import { deterministicUuid, hashCanonical } from "../trust-core/hash.ts";
 import { normalizeReasonCodes } from "../trust-core/reason-codes.ts";
-import { isIndependentEvidence, strongerEvidence } from "./evidence.ts";
+import { isIndependentEvidence } from "./evidence.ts";
 import { validateScopeContinuityInput } from "./validation.ts";
 import type { ContextContradictionEvent, ContradictionSeverity, ContradictionType, EnvironmentAttestation, ScopeAuthorizationEvaluation, ScopeContinuityDecision, ScopeContinuityEvaluationInput, ScopeDecisionOutcome, ScopeTrustState } from "./types.ts";
 
@@ -134,6 +134,14 @@ export function evaluateScopeContinuity(raw: ScopeContinuityEvaluationInput): Sc
     reasonCodes.push("TARGET_OUTSIDE_AUTHORIZED_SCOPE");
     outcome = maximumOutcome(outcome, "deny");
   }
+  if (!input.declaration.permittedTargetIdentifiers.includes(input.request.targetIdentifier)) {
+    reasonCodes.push("TARGET_OUTSIDE_DECLARED_SCOPE");
+    outcome = maximumOutcome(outcome, "deny");
+  }
+  if (!input.authorization.permittedEnvironments.includes(input.request.targetEnvironmentClass)) {
+    reasonCodes.push("TARGET_ENVIRONMENT_OUTSIDE_AUTHORIZED_SCOPE");
+    outcome = maximumOutcome(outcome, "deny");
+  }
   if (!input.declaration.productionAccessExpected && input.request.targetEnvironmentClass === "production") {
     addContradiction("unexpected_production_access", "critical", "PRODUCTION_TARGET_NOT_EXPECTED", [input.declaration.evidenceReference, ...input.authorization.evidenceReferences], input.policy.criticalContradictionOutcome);
   }
@@ -157,24 +165,20 @@ export function evaluateScopeContinuity(raw: ScopeContinuityEvaluationInput): Sc
     if (!independentCurrent) addContradiction("independent_detection_absent", "material", "INDEPENDENT_ATTESTATION_MISSING", [], input.policy.missingAttestationOutcome);
   }
 
-  const effective = currentAttestations.reduce<EnvironmentAttestation | null>((selected, item) => selected ? strongerEvidence(selected, item) : item, null);
-  if (effective) {
-    if (input.declaration.environmentClass === "simulation" && (effective.observedEnvironmentClass === "production" || effective.productionReachable === true)) {
-      addContradiction("declared_simulation_observed_production", "critical", "SIMULATION_OBSERVED_PRODUCTION", [input.declaration.evidenceReference, effective.evidenceReference], input.policy.criticalContradictionOutcome);
-    }
-    if (!input.declaration.internetAccessExpected && effective.internetReachable === true) {
-      addContradiction("unexpected_internet_access", "critical", "INTERNET_REACHABILITY_UNEXPECTED", [input.declaration.evidenceReference, effective.evidenceReference], input.policy.unexpectedInternetOutcome);
-    }
-    if (!input.declaration.productionAccessExpected && effective.productionReachable === true) {
-      addContradiction("unexpected_production_access", "critical", "PRODUCTION_REACHABILITY_UNEXPECTED", [input.declaration.evidenceReference, effective.evidenceReference], input.policy.criticalContradictionOutcome);
-    }
-    const unapprovedObserved = effective.observedTargetIdentifiers.filter((target) => !input.authorization.permittedTargets.includes(target));
+  const observations = currentAttestations.filter((item) => ["runtime_observation", "independent_attestation"].includes(item.attestationSourceType));
+  if (observations.length) {
+    const unsafeEvidence = observations.filter((item) => input.declaration.environmentClass === "simulation" && (item.observedEnvironmentClass === "production" || item.productionReachable === true));
+    if (unsafeEvidence.length) addContradiction("declared_simulation_observed_production", "critical", "SIMULATION_OBSERVED_PRODUCTION", [input.declaration.evidenceReference, ...unsafeEvidence.map((item) => item.evidenceReference)], input.policy.criticalContradictionOutcome);
+    const internetEvidence = observations.filter((item) => !input.declaration.internetAccessExpected && item.internetReachable === true);
+    if (internetEvidence.length) addContradiction("unexpected_internet_access", "critical", "INTERNET_REACHABILITY_UNEXPECTED", [input.declaration.evidenceReference, ...internetEvidence.map((item) => item.evidenceReference)], input.policy.unexpectedInternetOutcome);
+    const productionEvidence = observations.filter((item) => !input.declaration.productionAccessExpected && item.productionReachable === true);
+    if (productionEvidence.length) addContradiction("unexpected_production_access", "critical", "PRODUCTION_REACHABILITY_UNEXPECTED", [input.declaration.evidenceReference, ...productionEvidence.map((item) => item.evidenceReference)], input.policy.criticalContradictionOutcome);
+    const unapprovedObserved = [...new Set(observations.flatMap((item) => item.observedTargetIdentifiers).filter((target) => !input.authorization.permittedTargets.includes(target)))];
     if (unapprovedObserved.length) {
-      addContradiction("unapproved_target_reachable", "critical", "UNAPPROVED_TARGET_REACHABLE", [effective.evidenceReference], input.policy.criticalContradictionOutcome);
+      addContradiction("unapproved_target_reachable", "critical", "UNAPPROVED_TARGET_REACHABLE", observations.filter((item) => item.observedTargetIdentifiers.some((target) => unapprovedObserved.includes(target))).map((item) => item.evidenceReference), input.policy.criticalContradictionOutcome);
     }
-    if (effective.isolationControlState === "absent" && input.declaration.environmentClass !== "production") {
-      addContradiction("isolation_configuration_drift", "material", "ISOLATION_CONTROL_DRIFT", [effective.evidenceReference], "pause");
-    }
+    const absentIsolation = observations.filter((item) => item.isolationControlState === "absent" && input.declaration.environmentClass !== "production");
+    if (absentIsolation.length) addContradiction("isolation_configuration_drift", "material", "ISOLATION_CONTROL_DRIFT", absentIsolation.map((item) => item.evidenceReference), "pause");
   }
 
   if (currentAttestations.some((item) => item.monitoringState === "unavailable")) {

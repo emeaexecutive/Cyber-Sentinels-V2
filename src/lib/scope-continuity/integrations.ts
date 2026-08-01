@@ -1,15 +1,16 @@
 import { deterministicUuid } from "../trust-core/hash.ts";
-import type { EvidenceStrength, ScopeContinuityArtifacts, ScopeContinuityDecision, ScopeContinuityEvaluationInput, ScopeReplayItem } from "./types.ts";
+import type { ScopeContinuityArtifacts, ScopeContinuityDecision, ScopeContinuityEvaluationInput, ScopeReplayItem } from "./types.ts";
 
 function replayItem(input: Omit<ScopeReplayItem, "id">): ScopeReplayItem {
   return { ...input, id: deterministicUuid(input as unknown as Record<string, unknown>) };
 }
 
-function labelForStrength(strength: EvidenceStrength): ScopeReplayItem["label"] {
-  if (strength === "configured") return "CONFIGURED";
-  if (strength === "observed") return "OBSERVED";
-  if (["independently_attested", "cryptographically_attested"].includes(strength)) return "INDEPENDENTLY_ATTESTED";
-  return "ASSERTED";
+function replayClassification(attestation: ScopeContinuityEvaluationInput["attestations"][number]): Pick<ScopeReplayItem, "stage" | "label"> {
+  if (attestation.attestationSourceType === "provider_assertion") return { stage: "provider_assertion", label: "ASSERTED" };
+  if (attestation.attestationSourceType === "operator_assertion") return { stage: "operator_assertion", label: "ASSERTED" };
+  if (attestation.attestationSourceType === "harness_configuration") return { stage: "configuration_assertion", label: "CONFIGURED" };
+  if (attestation.attestationSourceType === "independent_attestation") return { stage: "independent_attestation", label: "INDEPENDENTLY_ATTESTED" };
+  return { stage: "runtime_observation", label: "OBSERVED" };
 }
 
 export function buildScopeContinuityArtifacts(input: ScopeContinuityEvaluationInput, decision: ScopeContinuityDecision): ScopeContinuityArtifacts {
@@ -19,7 +20,7 @@ export function buildScopeContinuityArtifacts(input: ScopeContinuityEvaluationIn
   const replay: ScopeReplayItem[] = [
     replayItem({ ...common, stage: "declared_environment", label: "ASSERTED", sourceType: declaration.declarationSourceType, sourceIdentity: declaration.declarationSourceId, occurredAt: declaration.declaredAt, evidenceStrength: "asserted", integrityStatus: declaration.integrityMetadata.status, evidenceReference: declaration.evidenceReference, summary: `Environment declared as ${declaration.environmentClass}.`, evidenced: true }),
     ...(declaration.testHarnessProvider ? [replayItem({ ...common, stage: "configuration_assertion" as const, label: "CONFIGURED" as const, sourceType: "harness_configuration", sourceIdentity: declaration.testHarnessProvider, occurredAt: declaration.declaredAt, evidenceStrength: "configured" as const, integrityStatus: declaration.integrityMetadata.status, evidenceReference: declaration.evidenceReference, summary: "Test harness configuration was attributed to its declared provider.", evidenced: true })] : []),
-    ...input.attestations.map((item) => replayItem({ ...common, stage: item.attestationSourceType === "independent_attestation" ? "independent_attestation" : "runtime_observation", label: labelForStrength(item.evidenceStrength), sourceType: item.attestationSourceType, sourceIdentity: item.attestationSourceId, occurredAt: item.observedAt, evidenceStrength: item.evidenceStrength, integrityStatus: item.integrityMetadata.status, evidenceReference: item.evidenceReference, summary: `${item.observationType} recorded ${item.observedEnvironmentClass} context.`, evidenced: true })),
+    ...input.attestations.map((item) => replayItem({ ...common, ...replayClassification(item), sourceType: item.attestationSourceType, sourceIdentity: item.attestationSourceId, occurredAt: item.observedAt, evidenceStrength: item.evidenceStrength, integrityStatus: item.integrityMetadata.status, evidenceReference: item.evidenceReference, summary: `${item.observationType} recorded ${item.observedEnvironmentClass} context.`, evidenced: true })),
     replayItem({ ...common, stage: "authorized_scope", label: "ASSERTED", sourceType: "authority_grant", sourceIdentity: authorization.approverId, occurredAt: authorization.issuedAt, evidenceStrength: "asserted", integrityStatus: "verified", evidenceReference: authorization.authorityReference ?? authorization.id, summary: `Scope authorized for ${authorization.authorizedObjective}.`, evidenced: true }),
     replayItem({ ...common, stage: "requested_action", label: "OBSERVED", sourceType: "action_request", sourceIdentity: declaration.subjectId, occurredAt: input.request.requestedAt, evidenceStrength: "observed", integrityStatus: "verified", evidenceReference: null, summary: `Requested action ${input.request.action}.`, evidenced: true }),
     replayItem({ ...common, stage: "requested_target", label: "OBSERVED", sourceType: "action_request", sourceIdentity: declaration.subjectId, occurredAt: input.request.requestedAt, evidenceStrength: "observed", integrityStatus: "verified", evidenceReference: null, summary: `Requested target ${input.request.targetIdentifier}.`, evidenced: true }),
@@ -49,7 +50,7 @@ export function buildScopeContinuityArtifacts(input: ScopeContinuityEvaluationIn
     { from: declaration.id, to: authorization.id, type: "REQUIRES", evidenceReference: declaration.evidenceReference },
     ...input.attestations.map((item) => ({ from: item.id, to: declaration.id, type: decision.contradictions.length ? "CONTRADICTS" : "SATISFIES", evidenceReference: item.evidenceReference })),
     ...decision.contradictions.map((item) => ({ from: item.id, to: decision.id, type: "RESULTED_IN", evidenceReference: item.evidenceReferences[0] ?? null })),
-    { from: authorization.id, to: decision.id, type: decision.outcome === "revoke_scope" ? "REVOKES" : "AUTHORIZED_BY", evidenceReference: authorization.authorityReference ?? authorization.id },
+    { from: decision.id, to: authorization.id, type: decision.outcome === "revoke_scope" ? "REVOKES" : "AUTHORIZED_BY", evidenceReference: authorization.authorityReference ?? authorization.id },
   ];
 
   const canonicalTrustState = decision.trustImpact.nextState === "verified" ? "VERIFIED" : decision.trustImpact.nextState === "contested" ? "CHALLENGED" : decision.trustImpact.nextState === "revoked" ? "REVOKED" : "BLOCKED";

@@ -1,4 +1,5 @@
 import type { ScopeContinuityArtifacts, ScopeContinuityDecision, ScopeContinuityEvaluationInput } from "@/src/lib/scope-continuity/types";
+import { strongerEvidence } from "@/src/lib/scope-continuity/evidence";
 
 type Scenario = { input: ScopeContinuityEvaluationInput; decision: ScopeContinuityDecision; artifacts: ScopeContinuityArtifacts };
 
@@ -14,7 +15,7 @@ function State({ label, value, detail }: { label: string; value: string; detail?
 
 function ScenarioPanel({ title, scenario }: { title: string; scenario: Scenario }) {
   const { input, decision } = scenario;
-  const strongest = [...input.attestations].sort((left, right) => right.confidence - left.confidence)[0];
+  const strongest = input.attestations.reduce((selected, item) => selected ? strongerEvidence(selected, item) : item, undefined as ScopeContinuityEvaluationInput["attestations"][number] | undefined);
   return (
     <article className="rounded-xl border border-zinc-800 bg-zinc-950 p-5" aria-label={title}>
       <div className="flex flex-wrap items-start justify-between gap-3">

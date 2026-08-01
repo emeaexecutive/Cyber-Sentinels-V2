@@ -22,7 +22,7 @@ The chain preserves who declared the environment, configured the harness, approv
 
 ## 5. Evidence taxonomy
 
-| Source category | Meaning | Minimum strength |
+| Source category | Meaning | Accepted strength |
 |---|---|---|
 | Provider assertion | A provider-attributed claim | asserted |
 | Operator assertion | An accountable operator claim | asserted |
@@ -30,7 +30,7 @@ The chain preserves who declared the environment, configured the harness, approv
 | Runtime observation | Runtime-produced observation | observed |
 | Independent attestation | Separately attributed attestation | independently_attested |
 
-`cryptographically_attested` is accepted only when verified signature metadata exists. Every item retains source authority, source identity, observation and receipt times, freshness, confidence, integrity status, and third-party identity where applicable.
+Source categories cannot self-promote: provider and operator assertions remain `asserted`, harness configuration remains `configured`, runtime observations remain `observed`, and only an authorized independent source may use `independently_attested` or `cryptographically_attested`. Cryptographic strength additionally requires verified integrity status, signature verification, an algorithm, and a SHA-256 evidence digest. Every item retains source authority, source identity, observation and receipt times, freshness, confidence, integrity status, and third-party identity where applicable.
 
 ## 6. Assertions versus attestations
 
@@ -44,7 +44,7 @@ Assertions state what a provider or operator says should be true. Configuration 
 - `ScopeContinuityDecision`: immutable requested action, evidence availability, outcome, reasons, missing evidence, trust impact, policy, correlation ID, and decision hash.
 - `ContextContradictionEvent`: stable classification, severity, evidence references, detector, and time.
 
-Corrections use `supersedes_attestation_id`, `supersedes_lease_id`, or a later reviewer action. Historical evidence is not overwritten.
+Corrections use `supersedes_attestation_id`, `supersedes_lease_id`, or a later reviewer action. Historical evidence is not overwritten, self-supersession is rejected, and tenant-safe foreign keys prevent cross-enterprise correction chains.
 
 ## 8. Policy engine
 
@@ -62,7 +62,7 @@ The authorization lease maps to `AuthorityGrant`, preserving the canonical fail-
 
 ## 11. Evidence Graph integration
 
-The persistence RPC writes execution-context, authorization, attestation, contradiction, and decision nodes into the existing Evidence Graph tables. Relationships reuse canonical uppercase graph conventions such as `AUTHORIZED_BY`, `OBSERVED_BY`, `CONFLICTS_WITH`, and `RESULTED_IN`.
+The persistence RPC writes execution-context, authorization, attestation, contradiction, and decision nodes into the existing Evidence Graph tables. Relationships reuse canonical uppercase graph conventions such as `AUTHORIZED_BY`, `OBSERVED_BY`, `CONFLICTS_WITH`, and `RESULTED_IN`. Direction follows the canonical subject relationship wording: an execution context points to the lease that authorized it and to the attestation that observed it.
 
 ## 12. Continuous Trust integration
 
@@ -74,7 +74,7 @@ Every decision adds a tenant-scoped Trust Memory index entry with outcome, trust
 
 ## 14. Replay
 
-`scope_continuity_replay` projects the same append-only records into declared, observed or independently attested evidence, contradictions, decisions, trust changes, and actual reviewer actions. TypeScript artifacts also show configured and requested stages. Labels are ASSERTED, CONFIGURED, OBSERVED, INDEPENDENTLY ATTESTED, INFERRED, and DECIDED.
+`scope_continuity_replay` projects the same append-only records into declared, provider-asserted, operator-asserted, configured, observed or independently attested evidence, contradictions, decisions, trust changes, and actual reviewer actions. Provider and operator assertions remain `ASSERTED`; harness configuration is `CONFIGURED`; runtime observations are `OBSERVED`; authorized independent evidence is `INDEPENDENTLY ATTESTED`; policy contradictions are `INFERRED`; and outcomes are `DECIDED`.
 
 No external action appears unless a future integration supplies evidence that it occurred. A required human review is shown as a requirement, not as a completed action.
 
@@ -90,11 +90,11 @@ Future external ingestion requires workload authentication, replay protection, s
 
 ## 16. Authentication and authorization
 
-API access reuses enterprise membership resolution. Mutations require owner or admin role; reads accept authorized workspace roles. The server binds every body enterprise ID to the authenticated enterprise. Service-role access remains server-only and the database RPC rejects non-service callers.
+API access reuses enterprise membership resolution. Mutations require owner or admin role; reads accept authorized workspace roles. The server binds every body enterprise ID to the authenticated enterprise. An owner or admin may submit attributed assertions, configuration, or operational observations, but cannot create a new independent or cryptographic attestation through this endpoint. Those classifications require an existing canonical record produced by a separately authorized server integration. Service-role access remains server-only and the database RPC rejects non-service callers.
 
 ## 17. RLS and tenant isolation
 
-Every tenant-owned row carries `enterprise_id`. Composite foreign keys prevent cross-enterprise context, attestation, lease, decision, and reviewer references. RLS is enabled, anonymous access is revoked, authenticated writes are not granted, and tenant reads use `user_can_access_trust_workspace`. Static RLS tests cover cross-tenant denial and service-controlled writes.
+Every tenant-owned row carries `enterprise_id`. Composite foreign keys prevent cross-enterprise context, attestation, lease, decision, and reviewer references. RLS is enabled, anonymous access is revoked, authenticated writes are not granted, and tenant reads use `user_can_access_trust_workspace`. Immutable record hashes reject reused declaration, lease, or attestation identifiers with different content, including a conflict race after canonical reads. Correlation-key retries return an existing decision only when its identity and decision hash match. Static RLS tests cover cross-tenant denial and service-controlled writes.
 
 ## 18. Data minimization
 
@@ -102,7 +102,7 @@ The schema stores classifications, booleans, bounded identifiers, reason codes, 
 
 ## 19. Provider attribution
 
-Provider assertions require `providerOrThirdPartyIdentity`. Their evidence strength remains asserted unless separate verifiable evidence supports a stronger classification. A conflicting stronger observation prevails for the decision while both records remain linked.
+Provider assertions require `providerOrThirdPartyIdentity` and always remain `asserted`; a provider assertion itself is never promoted. A separately authorized independent attestation may carry a stronger classification. Conflicts preserve both records and apply the configured contradiction response without rewriting either source.
 
 ## 20. Limitations
 

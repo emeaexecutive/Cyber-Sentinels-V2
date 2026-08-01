@@ -20,16 +20,28 @@ export function evidenceStrengthRank(value: EvidenceStrength) {
 }
 
 export function isIndependentEvidence(attestation: EnvironmentAttestation) {
-  return ["runtime_observation", "independent_attestation"].includes(attestation.attestationSourceType)
-    && evidenceStrengthRank(attestation.evidenceStrength) >= evidenceStrengthRank("observed");
+  return attestation.attestationSourceType === "independent_attestation"
+    && evidenceStrengthRank(attestation.evidenceStrength) >= evidenceStrengthRank("independently_attested")
+    && attestation.integrityMetadata.status === "verified";
 }
 
 export function validateEvidenceAttribution(attestation: EnvironmentAttestation) {
-  const minimum = minimumStrengthForSource(attestation.attestationSourceType);
-  if (evidenceStrengthRank(attestation.evidenceStrength) < evidenceStrengthRank(minimum)) {
-    throw Object.assign(new TypeError("Evidence strength understates or conflicts with its attributed source."), { code: "EVIDENCE_STRENGTH_INVALID" });
+  const allowed: Record<AttestationSourceType, EvidenceStrength[]> = {
+    provider_assertion: ["asserted"],
+    operator_assertion: ["asserted"],
+    harness_configuration: ["configured"],
+    runtime_observation: ["observed"],
+    independent_attestation: ["independently_attested", "cryptographically_attested"],
+  };
+  if (!allowed[attestation.attestationSourceType].includes(attestation.evidenceStrength)) {
+    throw Object.assign(new TypeError("Evidence strength conflicts with its attributed source."), { code: "EVIDENCE_STRENGTH_INVALID" });
   }
-  if (attestation.evidenceStrength === "cryptographically_attested" && attestation.integrityMetadata.signatureVerified !== true) {
+  if (attestation.evidenceStrength === "cryptographically_attested" && (
+    attestation.integrityMetadata.status !== "verified"
+    || attestation.integrityMetadata.signatureVerified !== true
+    || !attestation.integrityMetadata.algorithm?.trim()
+    || !/^[a-f0-9]{64}$/.test(attestation.integrityMetadata.digest ?? "")
+  )) {
     throw Object.assign(new TypeError("Cryptographic attestation requires verified signature evidence."), { code: "CRYPTOGRAPHIC_ATTESTATION_UNVERIFIED" });
   }
   if (attestation.attestationSourceType === "provider_assertion" && !attestation.providerOrThirdPartyIdentity?.trim()) {

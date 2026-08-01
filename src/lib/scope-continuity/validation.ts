@@ -47,6 +47,7 @@ function orderedRange(from: string, until: string, code: string) {
 function integrity(value: ExecutionContextDeclaration["integrityMetadata"], field: string) {
   if (!value || !["unverified", "verified", "invalid", "unknown"].includes(value.status)) fail(`${field} is invalid.`, "INTEGRITY_METADATA_INVALID");
   if (value.digest && !digest.test(value.digest)) fail(`${field} digest is invalid.`, "INTEGRITY_DIGEST_INVALID");
+  if (value.signatureVerified !== undefined && typeof value.signatureVerified !== "boolean") fail(`${field} signature status is invalid.`, "INTEGRITY_METADATA_INVALID");
   return { ...value, algorithm: value.algorithm?.trim() || null, digest: value.digest ?? null };
 }
 
@@ -65,7 +66,7 @@ export function validateExecutionContextDeclaration(value: ExecutionContextDecla
   ref(value.declarationSourceType, "declarationSourceType"); ref(value.declarationSourceId, "declarationSourceId");
   ref(value.accountableOwnerType, "accountableOwnerType"); ref(value.accountableOwnerId, "accountableOwnerId");
   ref(value.evidenceReference, "evidenceReference");
-  return { ...value, validFrom, validUntil, declaredAt, createdAt, permittedNetworkZones: refs(value.permittedNetworkZones, "permittedNetworkZones"), permittedDomains: refs(value.permittedDomains, "permittedDomains"), permittedTargetIdentifiers: refs(value.permittedTargetIdentifiers, "permittedTargetIdentifiers"), integrityMetadata: integrity(value.integrityMetadata, "declaration.integrityMetadata") };
+  return { ...value, workflowId: value.workflowId ?? null, executionId: value.executionId ?? null, testHarnessProvider: value.testHarnessProvider ?? null, validFrom, validUntil, declaredAt, createdAt, permittedNetworkZones: refs(value.permittedNetworkZones, "permittedNetworkZones"), permittedDomains: refs(value.permittedDomains, "permittedDomains"), permittedTargetIdentifiers: refs(value.permittedTargetIdentifiers, "permittedTargetIdentifiers"), integrityMetadata: integrity(value.integrityMetadata, "declaration.integrityMetadata") };
 }
 
 export function validateEnvironmentAttestation(value: EnvironmentAttestation): EnvironmentAttestation {
@@ -83,7 +84,8 @@ export function validateEnvironmentAttestation(value: EnvironmentAttestation): E
   ref(value.attestationSourceId, "attestationSourceId"); ref(value.sourceAuthority, "sourceAuthority"); ref(value.evidenceReference, "evidenceReference");
   if (value.providerOrThirdPartyIdentity) ref(value.providerOrThirdPartyIdentity, "providerOrThirdPartyIdentity");
   if (value.supersedesAttestationId) id(value.supersedesAttestationId, "supersedesAttestationId");
-  const normalized = { ...value, observedAt: normalizeUtcTimestamp(value.observedAt, "observedAt"), receivedAt: normalizeUtcTimestamp(value.receivedAt, "receivedAt"), createdAt: normalizeUtcTimestamp(value.createdAt, "createdAt"), observedNetworkZones: refs(value.observedNetworkZones, "observedNetworkZones"), observedDomains: refs(value.observedDomains, "observedDomains"), observedTargetIdentifiers: refs(value.observedTargetIdentifiers, "observedTargetIdentifiers"), integrityMetadata: integrity(value.integrityMetadata, "attestation.integrityMetadata") };
+  if (value.supersedesAttestationId === value.id) fail("An attestation cannot supersede itself.", "ATTESTATION_SELF_SUPERSESSION");
+  const normalized = { ...value, providerOrThirdPartyIdentity: value.providerOrThirdPartyIdentity ?? null, supersedesAttestationId: value.supersedesAttestationId ?? null, observedAt: normalizeUtcTimestamp(value.observedAt, "observedAt"), receivedAt: normalizeUtcTimestamp(value.receivedAt, "receivedAt"), createdAt: normalizeUtcTimestamp(value.createdAt, "createdAt"), observedNetworkZones: refs(value.observedNetworkZones, "observedNetworkZones"), observedDomains: refs(value.observedDomains, "observedDomains"), observedTargetIdentifiers: refs(value.observedTargetIdentifiers, "observedTargetIdentifiers"), integrityMetadata: integrity(value.integrityMetadata, "attestation.integrityMetadata") };
   if (Date.parse(normalized.receivedAt) < Date.parse(normalized.observedAt)) fail("Attestation receipt cannot predate observation.", "ATTESTATION_TIME_INVALID");
   return validateEvidenceAttribution(normalized);
 }
@@ -97,11 +99,13 @@ export function validateScopeAuthorizationLease(value: ScopeAuthorizationLease):
   if (!Number.isInteger(value.maximumActionCount) || value.maximumActionCount < 1 || !Number.isInteger(value.consumedActionCount) || value.consumedActionCount < 0) fail("Action count is invalid.", "AUTHORIZATION_ACTION_COUNT_INVALID");
   const [issuedAt, expiresAt] = orderedRange(value.issuedAt, value.expiresAt, "AUTHORIZATION_VALIDITY_INVALID");
   if (Date.parse(expiresAt) - Date.parse(issuedAt) > value.maximumDurationSeconds * 1000) fail("Authorization exceeds its maximum duration.", "AUTHORIZATION_DURATION_EXCEEDED");
-  if (value.revokedAt) normalizeUtcTimestamp(value.revokedAt, "revokedAt");
+  const revokedAt = value.revokedAt ? normalizeUtcTimestamp(value.revokedAt, "revokedAt") : null;
+  if (value.supersedesLeaseId) id(value.supersedesLeaseId, "supersedesLeaseId");
+  if (value.supersedesLeaseId === value.id) fail("A scope lease cannot supersede itself.", "LEASE_SELF_SUPERSESSION");
   if (value.requiredAttestationTypes.some((item) => !attestationSourceTypes.includes(item))) fail("Required attestation source is invalid.", "ATTESTATION_SOURCE_INVALID");
   if (value.permittedEnvironments.some((item) => !environmentClasses.includes(item))) fail("Permitted environment is invalid.", "ENVIRONMENT_CLASS_INVALID");
   choice(value.contradictionResponsePolicy, ["require_human_approval", "pause", "deny", "revoke_scope"] as const, "contradictionResponsePolicy");
-  return { ...value, issuedAt, expiresAt, permittedTools: refs(value.permittedTools, "permittedTools"), permittedActions: refs(value.permittedActions, "permittedActions"), permittedTargets: refs(value.permittedTargets, "permittedTargets"), dataClassificationBoundary: refs(value.dataClassificationBoundary, "dataClassificationBoundary"), evidenceReferences: refs(value.evidenceReferences, "evidenceReferences"), permittedEnvironments: [...new Set(value.permittedEnvironments)].sort(), requiredAttestationTypes: [...new Set(value.requiredAttestationTypes)].sort() };
+  return { ...value, issuedAt, expiresAt, revokedAt, revocationReason: value.revocationReason ?? null, authorityReference: value.authorityReference ?? null, supersedesLeaseId: value.supersedesLeaseId ?? null, permittedTools: refs(value.permittedTools, "permittedTools"), permittedActions: refs(value.permittedActions, "permittedActions"), permittedTargets: refs(value.permittedTargets, "permittedTargets"), dataClassificationBoundary: refs(value.dataClassificationBoundary, "dataClassificationBoundary"), evidenceReferences: refs(value.evidenceReferences, "evidenceReferences"), permittedEnvironments: [...new Set(value.permittedEnvironments)].sort(), requiredAttestationTypes: [...new Set(value.requiredAttestationTypes)].sort() };
 }
 
 export function validateScopeActionRequest(value: ScopeActionRequest): ScopeActionRequest {
@@ -135,6 +139,6 @@ export function validateScopeContinuityInput(value: ScopeContinuityEvaluationInp
   const evaluatedAt = normalizeUtcTimestamp(value.evaluatedAt, "evaluatedAt");
   const enterpriseIds = [declaration.enterpriseId, authorization.enterpriseId, ...attestations.map((item) => item.enterpriseId)];
   if (enterpriseIds.some((item) => item !== declaration.enterpriseId)) fail("Cross-enterprise evidence is rejected.", "CROSS_ENTERPRISE_REFERENCE");
-  if (authorization.subjectId !== declaration.subjectId || attestations.some((item) => item.subjectId !== declaration.subjectId || item.executionContextId !== declaration.id)) fail("Cross-context evidence is rejected.", "CROSS_CONTEXT_REFERENCE");
+  if (authorization.subjectId !== declaration.subjectId || authorization.subjectType !== declaration.subjectType || attestations.some((item) => item.subjectId !== declaration.subjectId || item.subjectType !== declaration.subjectType || item.executionContextId !== declaration.id)) fail("Cross-context evidence is rejected.", "CROSS_CONTEXT_REFERENCE");
   return { ...value, declaration, authorization, request, policy, attestations, evaluatedAt };
 }

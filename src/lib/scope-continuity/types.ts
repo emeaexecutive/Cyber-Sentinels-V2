@@ -117,6 +117,7 @@ export type ScopeAuthorizationLease = {
   contradictionResponsePolicy: "require_human_approval" | "pause" | "deny" | "revoke_scope";
   authorityReference?: string | null;
   evidenceReferences: string[];
+  supersedesLeaseId?: string | null;
 };
 
 export type ScopeActionRequest = {
@@ -203,7 +204,7 @@ export type ScopeReplayItem = {
   id: string;
   enterpriseId: string;
   executionContextId: string;
-  stage: "declared_environment" | "configuration_assertion" | "runtime_observation" | "independent_attestation" | "authorized_scope" | "requested_action" | "requested_target" | "contradiction" | "scope_decision" | "external_action" | "detection" | "containment" | "trust_change" | "human_review";
+  stage: "declared_environment" | "provider_assertion" | "operator_assertion" | "configuration_assertion" | "runtime_observation" | "independent_attestation" | "authorized_scope" | "requested_action" | "requested_target" | "contradiction" | "scope_decision" | "external_action" | "detection" | "containment" | "trust_change" | "human_review";
   label: ScopeReplayLabel;
   sourceType: string;
   sourceIdentity: string;

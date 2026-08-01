@@ -26,6 +26,7 @@ create table public.execution_context_declarations (
   declared_at timestamptz not null,
   evidence_reference text not null,
   integrity_metadata jsonb not null default '{}' check(jsonb_typeof(integrity_metadata)='object'),
+  immutable_hash text not null check(immutable_hash ~ '^[a-f0-9]{64}$'),
   created_at timestamptz not null,
   unique(enterprise_id,id),
   unique(enterprise_id,execution_id),
@@ -63,13 +64,26 @@ create table public.environment_attestations (
   evidence_reference text not null,
   integrity_metadata jsonb not null default '{}' check(jsonb_typeof(integrity_metadata)='object'),
   supersedes_attestation_id uuid,
+  immutable_hash text not null check(immutable_hash ~ '^[a-f0-9]{64}$'),
   created_at timestamptz not null,
   unique(enterprise_id,id),
   unique(enterprise_id,execution_context_id,attestation_source_type,attestation_source_id,evidence_reference),
   foreign key(enterprise_id,execution_context_id) references public.execution_context_declarations(enterprise_id,id) on delete restrict,
   foreign key(enterprise_id,supersedes_attestation_id) references public.environment_attestations(enterprise_id,id) on delete restrict,
+  check(supersedes_attestation_id is null or supersedes_attestation_id<>id),
   check(received_at>=observed_at),
-  check(evidence_strength<>'cryptographically_attested' or integrity_metadata->>'signatureVerified'='true'),
+  check(
+    (attestation_source_type in ('provider_assertion','operator_assertion') and evidence_strength='asserted') or
+    (attestation_source_type='harness_configuration' and evidence_strength='configured') or
+    (attestation_source_type='runtime_observation' and evidence_strength='observed') or
+    (attestation_source_type='independent_attestation' and evidence_strength in ('independently_attested','cryptographically_attested'))
+  ),
+  check(evidence_strength<>'cryptographically_attested' or (
+    integrity_metadata->>'status'='verified' and
+    integrity_metadata->>'signatureVerified'='true' and
+    nullif(trim(integrity_metadata->>'algorithm'),'') is not null and
+    integrity_metadata->>'digest' ~ '^[a-f0-9]{64}$'
+  )),
   check(attestation_source_type<>'provider_assertion' or provider_or_third_party_identity is not null)
 );
 create index environment_attestation_context_idx on public.environment_attestations(enterprise_id,execution_context_id,observed_at desc);
@@ -99,9 +113,11 @@ create table public.scope_authorization_leases (
   authority_reference text,
   evidence_references jsonb not null default '[]' check(jsonb_typeof(evidence_references)='array'),
   supersedes_lease_id uuid,
+  immutable_hash text not null check(immutable_hash ~ '^[a-f0-9]{64}$'),
   created_at timestamptz not null default now(),
   unique(enterprise_id,id),
   foreign key(enterprise_id,supersedes_lease_id) references public.scope_authorization_leases(enterprise_id,id) on delete restrict,
+  check(supersedes_lease_id is null or supersedes_lease_id<>id),
   check(expires_at>issued_at),
   check(extract(epoch from expires_at-issued_at)<=maximum_duration_seconds),
   check((revoked_at is null and revocation_reason is null) or (revoked_at is not null and revocation_reason is not null))
@@ -179,7 +195,8 @@ create table public.scope_continuity_reviewer_actions (
   supersedes_action_id uuid,
   unique(enterprise_id,id),
   foreign key(enterprise_id,decision_id) references public.scope_continuity_decisions(enterprise_id,id) on delete restrict,
-  foreign key(enterprise_id,supersedes_action_id) references public.scope_continuity_reviewer_actions(enterprise_id,id) on delete restrict
+  foreign key(enterprise_id,supersedes_action_id) references public.scope_continuity_reviewer_actions(enterprise_id,id) on delete restrict,
+  check(supersedes_action_id is null or supersedes_action_id<>id)
 );
 
 create or replace view public.scope_continuity_replay with (security_invoker=true) as
@@ -190,8 +207,8 @@ select d.id,d.enterprise_id,d.id as execution_context_id,'declared_environment':
 from public.execution_context_declarations d
 union all
 select a.id,a.enterprise_id,a.execution_context_id,
-  case when a.attestation_source_type='independent_attestation' then 'independent_attestation' else 'runtime_observation' end,
-  case when a.evidence_strength in ('independently_attested','cryptographically_attested') then 'INDEPENDENTLY_ATTESTED' when a.evidence_strength='configured' then 'CONFIGURED' else 'OBSERVED' end,
+  case a.attestation_source_type when 'provider_assertion' then 'provider_assertion' when 'operator_assertion' then 'operator_assertion' when 'harness_configuration' then 'configuration_assertion' when 'independent_attestation' then 'independent_attestation' else 'runtime_observation' end,
+  case a.attestation_source_type when 'provider_assertion' then 'ASSERTED' when 'operator_assertion' then 'ASSERTED' when 'harness_configuration' then 'CONFIGURED' when 'independent_attestation' then 'INDEPENDENTLY_ATTESTED' else 'OBSERVED' end,
   a.attestation_source_type,a.attestation_source_id,a.observed_at,a.evidence_strength,coalesce(a.integrity_metadata->>'status','unknown'),null::uuid,a.evidence_reference,
   a.observation_type||' recorded '||a.observed_environment_class,true
 from public.environment_attestations a
@@ -257,39 +274,50 @@ declare
   lease_node uuid;
   decision_node uuid;
   item_node uuid;
+  context_hash text := encode(digest(convert_to(((p_input->'declaration')-'immutableHash')::text,'UTF8'),'sha256'),'hex');
+  lease_hash text := encode(digest(convert_to((((p_input->'authorization')-'consumedActionCount')-'createdAt')-'immutableHash')::text,'UTF8'),'sha256'),'hex');
+  item_hash text;
 begin
   if auth.role()<>'service_role' then raise exception 'Scope Continuity service path required'; end if;
   if p_correlation_id<>(p_decision->>'correlationId')::uuid then raise exception 'Scope Continuity correlation mismatch'; end if;
+  if enterprise<>(p_decision->>'enterpriseId')::uuid or context_id<>(p_decision->>'executionContextId')::uuid then raise exception 'Scope Continuity decision context mismatch'; end if;
+  if p_actor_id is null or (p_decision->>'decisionHash') !~ '^[a-f0-9]{64}$' then raise exception 'Scope Continuity integrity metadata invalid'; end if;
+  perform pg_advisory_xact_lock(hashtextextended(enterprise::text||':'||context_id::text||':'||p_correlation_id::text,26));
   if exists(select 1 from public.scope_continuity_decisions where enterprise_id=enterprise and execution_context_id=context_id and correlation_id=p_correlation_id) then
     select * into existing from public.scope_continuity_decisions where enterprise_id=enterprise and execution_context_id=context_id and correlation_id=p_correlation_id;
+    if existing.id<>decision_id or existing.decision_hash<>p_decision->>'decisionHash' then raise exception 'Scope Continuity idempotency conflict'; end if;
     return jsonb_build_object('decisionId',existing.id,'outcome',existing.outcome,'idempotentReplay',true);
   end if;
 
   insert into public.execution_context_declarations(
     id,enterprise_id,subject_type,subject_id,workflow_id,execution_id,environment_class,internet_access_expected,production_access_expected,
     permitted_network_zones,permitted_domains,permitted_target_identifiers,test_harness_provider,declaration_source_type,declaration_source_id,
-    accountable_owner_type,accountable_owner_id,valid_from,valid_until,declared_at,evidence_reference,integrity_metadata,created_at
+    accountable_owner_type,accountable_owner_id,valid_from,valid_until,declared_at,evidence_reference,integrity_metadata,immutable_hash,created_at
   ) values (
     context_id,enterprise,p_input#>>'{declaration,subjectType}',p_input#>>'{declaration,subjectId}',nullif(p_input#>>'{declaration,workflowId}',''),nullif(p_input#>>'{declaration,executionId}',''),p_input#>>'{declaration,environmentClass}',
     (p_input#>>'{declaration,internetAccessExpected}')::boolean,(p_input#>>'{declaration,productionAccessExpected}')::boolean,p_input#>'{declaration,permittedNetworkZones}',p_input#>'{declaration,permittedDomains}',p_input#>'{declaration,permittedTargetIdentifiers}',
     nullif(p_input#>>'{declaration,testHarnessProvider}',''),p_input#>>'{declaration,declarationSourceType}',p_input#>>'{declaration,declarationSourceId}',p_input#>>'{declaration,accountableOwnerType}',p_input#>>'{declaration,accountableOwnerId}',
-    (p_input#>>'{declaration,validFrom}')::timestamptz,(p_input#>>'{declaration,validUntil}')::timestamptz,(p_input#>>'{declaration,declaredAt}')::timestamptz,p_input#>>'{declaration,evidenceReference}',p_input#>'{declaration,integrityMetadata}',(p_input#>>'{declaration,createdAt}')::timestamptz
+    (p_input#>>'{declaration,validFrom}')::timestamptz,(p_input#>>'{declaration,validUntil}')::timestamptz,(p_input#>>'{declaration,declaredAt}')::timestamptz,p_input#>>'{declaration,evidenceReference}',p_input#>'{declaration,integrityMetadata}',context_hash,(p_input#>>'{declaration,createdAt}')::timestamptz
   ) on conflict(enterprise_id,id) do nothing;
+  if not exists(select 1 from public.execution_context_declarations where enterprise_id=enterprise and id=context_id and immutable_hash=context_hash) then raise exception 'Conflicting execution-context identifier'; end if;
 
   for item in select value from jsonb_array_elements(p_input->'attestations') loop
     if (item->>'enterpriseId')::uuid<>enterprise or (item->>'executionContextId')::uuid<>context_id then raise exception 'Cross-tenant attestation reference rejected'; end if;
+    item_hash := encode(digest(convert_to((item-'immutableHash')::text,'UTF8'),'sha256'),'hex');
     insert into public.environment_attestations(
       id,enterprise_id,execution_context_id,subject_type,subject_id,observation_type,observed_environment_class,internet_reachable,production_reachable,observed_network_zones,observed_domains,observed_target_identifiers,
-      egress_policy_state,isolation_control_state,monitoring_state,attestation_source_type,attestation_source_id,provider_or_third_party_identity,source_authority,observed_at,received_at,confidence,freshness,evidence_strength,evidence_reference,integrity_metadata,supersedes_attestation_id,created_at
+      egress_policy_state,isolation_control_state,monitoring_state,attestation_source_type,attestation_source_id,provider_or_third_party_identity,source_authority,observed_at,received_at,confidence,freshness,evidence_strength,evidence_reference,integrity_metadata,supersedes_attestation_id,immutable_hash,created_at
     ) values (
       (item->>'id')::uuid,enterprise,context_id,item->>'subjectType',item->>'subjectId',item->>'observationType',item->>'observedEnvironmentClass',nullif(item->>'internetReachable','')::boolean,nullif(item->>'productionReachable','')::boolean,item->'observedNetworkZones',item->'observedDomains',item->'observedTargetIdentifiers',
-      item->>'egressPolicyState',item->>'isolationControlState',item->>'monitoringState',item->>'attestationSourceType',item->>'attestationSourceId',nullif(item->>'providerOrThirdPartyIdentity',''),item->>'sourceAuthority',(item->>'observedAt')::timestamptz,(item->>'receivedAt')::timestamptz,(item->>'confidence')::numeric,item->>'freshness',item->>'evidenceStrength',item->>'evidenceReference',item->'integrityMetadata',nullif(item->>'supersedesAttestationId','')::uuid,(item->>'createdAt')::timestamptz
+      item->>'egressPolicyState',item->>'isolationControlState',item->>'monitoringState',item->>'attestationSourceType',item->>'attestationSourceId',nullif(item->>'providerOrThirdPartyIdentity',''),item->>'sourceAuthority',(item->>'observedAt')::timestamptz,(item->>'receivedAt')::timestamptz,(item->>'confidence')::numeric,item->>'freshness',item->>'evidenceStrength',item->>'evidenceReference',item->'integrityMetadata',nullif(item->>'supersedesAttestationId','')::uuid,item_hash,(item->>'createdAt')::timestamptz
     ) on conflict(enterprise_id,id) do nothing;
+    if not exists(select 1 from public.environment_attestations where enterprise_id=enterprise and id=(item->>'id')::uuid and immutable_hash=item_hash) then raise exception 'Conflicting environment-attestation identifier'; end if;
   end loop;
 
-  insert into public.scope_authorization_leases(id,enterprise_id,subject_type,subject_id,authorized_objective,permitted_tools,permitted_actions,permitted_targets,permitted_environments,maximum_duration_seconds,maximum_action_count,data_classification_boundary,approver_type,approver_id,issued_at,expires_at,revoked_at,revocation_reason,required_attestation_types,contradiction_response_policy,authority_reference,evidence_references)
-  values(lease_id,enterprise,p_input#>>'{authorization,subjectType}',p_input#>>'{authorization,subjectId}',p_input#>>'{authorization,authorizedObjective}',p_input#>'{authorization,permittedTools}',p_input#>'{authorization,permittedActions}',p_input#>'{authorization,permittedTargets}',p_input#>'{authorization,permittedEnvironments}',(p_input#>>'{authorization,maximumDurationSeconds}')::integer,(p_input#>>'{authorization,maximumActionCount}')::integer,p_input#>'{authorization,dataClassificationBoundary}',p_input#>>'{authorization,approverType}',p_input#>>'{authorization,approverId}',(p_input#>>'{authorization,issuedAt}')::timestamptz,(p_input#>>'{authorization,expiresAt}')::timestamptz,nullif(p_input#>>'{authorization,revokedAt}','')::timestamptz,nullif(p_input#>>'{authorization,revocationReason}',''),p_input#>'{authorization,requiredAttestationTypes}',p_input#>>'{authorization,contradictionResponsePolicy}',nullif(p_input#>>'{authorization,authorityReference}',''),p_input#>'{authorization,evidenceReferences}')
+  insert into public.scope_authorization_leases(id,enterprise_id,subject_type,subject_id,authorized_objective,permitted_tools,permitted_actions,permitted_targets,permitted_environments,maximum_duration_seconds,maximum_action_count,data_classification_boundary,approver_type,approver_id,issued_at,expires_at,revoked_at,revocation_reason,required_attestation_types,contradiction_response_policy,authority_reference,evidence_references,supersedes_lease_id,immutable_hash)
+  values(lease_id,enterprise,p_input#>>'{authorization,subjectType}',p_input#>>'{authorization,subjectId}',p_input#>>'{authorization,authorizedObjective}',p_input#>'{authorization,permittedTools}',p_input#>'{authorization,permittedActions}',p_input#>'{authorization,permittedTargets}',p_input#>'{authorization,permittedEnvironments}',(p_input#>>'{authorization,maximumDurationSeconds}')::integer,(p_input#>>'{authorization,maximumActionCount}')::integer,p_input#>'{authorization,dataClassificationBoundary}',p_input#>>'{authorization,approverType}',p_input#>>'{authorization,approverId}',(p_input#>>'{authorization,issuedAt}')::timestamptz,(p_input#>>'{authorization,expiresAt}')::timestamptz,nullif(p_input#>>'{authorization,revokedAt}','')::timestamptz,nullif(p_input#>>'{authorization,revocationReason}',''),p_input#>'{authorization,requiredAttestationTypes}',p_input#>>'{authorization,contradictionResponsePolicy}',nullif(p_input#>>'{authorization,authorityReference}',''),p_input#>'{authorization,evidenceReferences}',nullif(p_input#>>'{authorization,supersedesLeaseId}','')::uuid,lease_hash)
   on conflict(enterprise_id,id) do nothing;
+  if not exists(select 1 from public.scope_authorization_leases where enterprise_id=enterprise and id=lease_id and immutable_hash=lease_hash) then raise exception 'Conflicting scope-authorization identifier'; end if;
 
   insert into public.scope_continuity_decisions(id,enterprise_id,execution_context_id,authorization_id,requested_action,evidence_availability,outcome,human_review_required,reason_codes,missing_evidence,evidence_references,trust_impact,decision_timestamp,decision_version,policy_id,policy_version,correlation_id,decision_hash,artifacts,actor_id)
   values(decision_id,enterprise,context_id,lease_id,p_decision->'requestedAction',p_decision->>'evidenceAvailability',p_decision->>'outcome',(p_decision->>'humanReviewRequired')::boolean,p_decision->'reasonCodes',p_decision->'missingEvidence',p_decision->'evidenceReferences',p_decision->'trustImpact',(p_decision->>'decisionTimestamp')::timestamptz,p_decision->>'decisionVersion',p_decision->>'policyId',p_decision->>'policyVersion',p_correlation_id,p_decision->>'decisionHash',p_artifacts,p_actor_id);
@@ -313,11 +341,13 @@ begin
   select node_id into context_node from public.evidence_graph_nodes where enterprise_id=enterprise and node_type='EXECUTION_CONTEXT' and external_id=context_id::text;
   select node_id into lease_node from public.evidence_graph_nodes where enterprise_id=enterprise and node_type='AUTHORIZATION' and external_id=lease_id::text;
   select node_id into decision_node from public.evidence_graph_nodes where enterprise_id=enterprise and node_type='SCOPE_DECISION' and external_id=decision_id::text;
-  insert into public.evidence_graph_edges(enterprise_id,from_node_id,to_node_id,edge_type) values(enterprise,lease_node,context_node,'AUTHORIZED_BY'),(enterprise,context_node,decision_node,'RESULTED_IN') on conflict do nothing;
+  if context_node is null or lease_node is null or decision_node is null then raise exception 'Scope Continuity graph node resolution failed'; end if;
+  insert into public.evidence_graph_edges(enterprise_id,from_node_id,to_node_id,edge_type) values(enterprise,context_node,lease_node,'AUTHORIZED_BY'),(enterprise,context_node,decision_node,'RESULTED_IN') on conflict do nothing;
   for item in select value from jsonb_array_elements(p_input->'attestations') loop
     insert into public.evidence_graph_nodes(enterprise_id,node_type,external_id,domain_key,label,metadata) values(enterprise,'ENVIRONMENT_ATTESTATION',item->>'id','RUNTIME',item->>'observationType',jsonb_build_object('sourceType',item->>'attestationSourceType','evidenceStrength',item->>'evidenceStrength')) on conflict do nothing;
     select node_id into item_node from public.evidence_graph_nodes where enterprise_id=enterprise and node_type='ENVIRONMENT_ATTESTATION' and external_id=item->>'id';
-    insert into public.evidence_graph_edges(enterprise_id,from_node_id,to_node_id,edge_type) values(enterprise,item_node,context_node,'OBSERVED_BY') on conflict do nothing;
+    if item_node is null then raise exception 'Scope Continuity attestation graph node resolution failed'; end if;
+    insert into public.evidence_graph_edges(enterprise_id,from_node_id,to_node_id,edge_type) values(enterprise,context_node,item_node,'OBSERVED_BY') on conflict do nothing;
   end loop;
   for item in select value from jsonb_array_elements(p_decision->'contradictions') loop
     insert into public.evidence_graph_nodes(enterprise_id,node_type,external_id,domain_key,label,metadata) values(enterprise,'CONTRADICTION',item->>'id','RUNTIME',item->>'type',jsonb_build_object('severity',item->>'severity')) on conflict do nothing;
