@@ -52,7 +52,8 @@ test("provider-facing maturity is constrained to the five RC5 operations states"
   assert.match(readiness, /provider\.id === "hopae_connect"[\s\S]*?"production_candidate"/);
   assert.match(admin, /Provider Operations/);
   assert.doesNotMatch(admin, /Test Connection/);
-  assert.match(api, /Adapter maturity uses only Production, Sandbox, Awaiting Credentials, Prototype and Disabled/);
+  assert.match(api, /Canonical runtime states are available, degraded, unavailable, contradicted and unknown/);
+  assert.match(api, /adapterMaturityState/);
   assert.match(hopae, /const runtimeState = "Test Mode"/);
   assert.match(hopae, /runtimeState: sourceMode === "live" \? "Live" : "Test Mode"/);
 });
@@ -87,22 +88,21 @@ test("operational performance profile preserves six RC4 paths and adds three RC5
   assert.equal(database.slowOperationCount, 1);
 });
 
-test("homepage is outcome-led with three sections, one CTA, one graph and one comparison", async () => {
+test("homepage is outcome-led with three sections, two bounded CTAs, one graph and one comparison", async () => {
   const source = await read("app/page.tsx");
   assert.equal((source.match(/<section/g) ?? []).length, 3);
-  assert.equal((source.match(/<Link/g) ?? []).length, 1);
+  assert.equal((source.match(/<Link/g) ?? []).length, 2);
   assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 1);
   assert.equal((source.match(/<ComparisonCard/g) ?? []).length, 1);
-  for (const outcome of ["evidence-backed decisions", "continuous authorization", "replayable operations", "Know whether a critical action should proceed"]) {
+  for (const outcome of ["continuously verifies", "operational scope", "before, during and after critical decisions", "Know whether a critical action should proceed"]) {
     assert.match(source, new RegExp(outcome));
   }
 });
 
-test("demo presents one linear nine-stage operational trust journey", async () => {
-  const source = await read("app/demo/trust-execution-flow/page.tsx");
-  const labels = [...source.matchAll(/\["([^"]+)", "(?:Test|Awaiting Credentials)"/g)].map((match) => match[1]);
-  assert.deepEqual(labels, ["Identity verified", "Authority resolved", "Provider evidence collected", "Trust evaluated", "Decision made", "Replay generated", "Trust Memory™ updated", "Evidence Graph refreshed", "Executive trust report produced"]);
-  assert.match(source, /No manual explanation/);
+test("demo presents one canonical eight-question Enterprise Trust journey", async () => {
+  const [source,legacy] = await Promise.all([read("app/demo/page.tsx"),read("app/demo/trust-execution-flow/page.tsx")]);
+  for(const question of ["Who or what acted?","What authority existed?","What environment was declared and observed?","What scope was permitted?","What evidence supported the decision?","What changed the trust state?","What happened next?","How can it be replayed?"]) assert.equal(source.includes(question),true);
+  assert.match(legacy,/redirect\("\/demo"\)/);
   assert.doesNotMatch(source, /buildRegulatedAiAgentDemo\("allow"\)|buildRegulatedAiAgentDemo\("block"\)/);
 });
 

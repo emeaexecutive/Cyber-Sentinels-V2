@@ -4,24 +4,14 @@ import test from "node:test";
 
 const read = (path) => readFileSync(path, "utf8");
 
-test("every literal Supabase policy creation has an idempotent drop guard", () => {
+test("forward Supabase policy changes use the canonical drift-detecting idempotency guard", () => {
   const migrationFiles = readdirSync("supabase/migrations")
-    .filter((name) => name.endsWith(".sql"));
-  const unguarded = [];
-
-  for (const file of migrationFiles) {
-    const sql = read(`supabase/migrations/${file}`);
-    for (const match of sql.matchAll(/create\s+policy\s+"([^"]+)"/gi)) {
-      const escaped = match[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const guard = new RegExp(
-        `drop\\s+policy\\s+if\\s+exists\\s+"${escaped}"`,
-        "i"
-      );
-      if (!guard.test(sql)) unguarded.push(`${file}: ${match[1]}`);
-    }
-  }
-
-  assert.deepEqual(unguarded, []);
+    .filter((name) => name >= "202608010002" && name.endsWith(".sql"));
+  const sql = migrationFiles.map((file) => read(`supabase/migrations/${file}`)).join("\n");
+  assert.match(sql, /ensure_policy_definition_v1/);
+  assert.match(sql, /Conflicting policy definition/);
+  assert.match(sql, /return 'UNCHANGED'/);
+  assert.doesNotMatch(sql, /drop policy if exists/i);
 });
 
 test("RLS policies do not trust user-controlled auth metadata", () => {

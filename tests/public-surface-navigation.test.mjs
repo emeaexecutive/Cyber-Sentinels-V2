@@ -5,8 +5,8 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 function publicHeaderLinks(source) {
-  const block = source.match(/export const publicHeaderLinks = \[([\s\S]*?)\] as const;/)?.[1] ?? "";
-  return [...block.matchAll(/\{ href: "([^"]+)", label: "([^"]+)" \}/g)].map((match) => ({ href: match[1], label: match[2] }));
+  const block = source.match(/public: \[([\s\S]*?)\n  \]/)?.[1] ?? "";
+  return [...block.matchAll(/\{ href: "([^"]+)", label: "([^"]+)", access: "public" \}/g)].map((match) => ({ href: match[1], label: match[2] }));
 }
 
 function footerLinks(source) {
@@ -15,7 +15,8 @@ function footerLinks(source) {
 }
 
 test("public header contains exactly six direct actions and no dropdown discovery", async () => {
-  const source = await read("components/global-navigation.tsx");
+  const source = await read("lib/navigation/canonical-navigation.ts");
+  const component = await read("components/global-navigation.tsx");
   assert.deepEqual(publicHeaderLinks(source), [
     { href: "/platform", label: "Platform" },
     { href: "/solutions", label: "Solutions" },
@@ -24,13 +25,13 @@ test("public header contains exactly six direct actions and no dropdown discover
     { href: "/pricing", label: "Pricing" },
     { href: "/login", label: "Sign In" },
   ]);
-  assert.doesNotMatch(source, /DropdownLinks|aria-haspopup="menu"|role="menuitem"/);
-  assert.doesNotMatch(source.match(/export const publicHeaderLinks = \[([\s\S]*?)\] as const;/)?.[0] ?? "", /Resources|Developers|About|Help/);
+  assert.doesNotMatch(component, /DropdownLinks|aria-haspopup="menu"|role="menuitem"/);
+  assert.doesNotMatch(source.match(/public: \[([\s\S]*?)\n  \]/)?.[0] ?? "", /Resources|Developers|About|Help/);
   assert.doesNotMatch(source, /Founder Control|QA Console|Benchmarking|Test Lab/);
 });
 
 test("footer owns detailed discovery without exact header duplication", async () => {
-  const [navigation, layout] = await Promise.all([read("components/global-navigation.tsx"), read("app/layout.tsx")]);
+  const [navigation, layout] = await Promise.all([read("lib/navigation/canonical-navigation.ts"), read("app/layout.tsx")]);
   const header = publicHeaderLinks(navigation);
   const footer = footerLinks(layout);
   const headerKeys = new Set(header.map((item) => `${item.href}|${item.label}`));
@@ -40,14 +41,15 @@ test("footer owns detailed discovery without exact header duplication", async ()
   for (const concept of ["Living Trust Profile", "Trust DNA™", "Trust Memory™", "Replay", "Evidence & Audit", "Governance", "AI Sovereignty", "Validation Transparency"]) assert.equal(footer.some((item) => item.label === concept), true, concept);
 });
 
-test("authenticated and admin navigation branches remain operationally unchanged", async () => {
-  const source = await read("components/global-navigation.tsx");
-  for (const marker of ["Enterprise Workspace", "Notifications", "Verify Admin", "Administration", "LogoutButton"]) assert.match(source, new RegExp(marker));
+test("authenticated and admin navigation branches remain canonical and role-gated", async () => {
+  const [source,contract] = await Promise.all([read("components/global-navigation.tsx"),read("lib/navigation/canonical-navigation.ts")]);
+  for (const marker of ["Enterprise Workspace", "Notifications", "Administration"]) assert.match(contract, new RegExp(marker));
+  for (const marker of ["Verify Admin", "LogoutButton"]) assert.match(source, new RegExp(marker));
   assert.match(source, /accessLevel === "user" \|\| accessLevel === "admin-unverified"/);
   assert.match(source, /accessLevel === "admin"/);
-  assert.equal((source.match(/href="\/dashboard"/g) ?? []).length, 2);
-  assert.equal((source.match(/href="\/notifications"/g) ?? []).length, 2);
-  assert.equal((source.match(/href="\/admin\/access"/g) ?? []).length, 2);
+  assert.match(source,/canonicalNavigation\.authenticated\.map/);
+  assert.match(source,/canonicalNavigation\.admin\.map/);
+  assert.doesNotMatch(contract.match(/public: \[([\s\S]*?)\n  \]/)?.[1] ?? "",/\/admin/);
 });
 
 test("mobile and desktop public navigation render the same shared link set", async () => {
@@ -76,13 +78,13 @@ test("footer exposes the final seven detailed discovery groups accessibly", asyn
   assert.match(source, /sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7/);
 });
 
-test("homepage preserves the release promise and section ceiling", async () => {
+test("homepage preserves the canonical release promise and section ceiling", async () => {
   const source = await read("app/page.tsx");
-  assert.match(source, /Operational Trust Infrastructure/);
-  assert.match(source, /Give Fortune 500 security leaders evidence-backed decisions, continuous authorization and replayable operations across people, AI agents and machine identities\./);
+  assert.match(source, /Enterprise Trust Infrastructure/);
+  assert.match(source, /continuously verifies that the identity, authority, environment, evidence and operational scope/);
   assert.equal((source.match(/<section/g) ?? []).length, 3);
   assert.match(source, /Request Enterprise Demo/);
-  assert.equal((source.match(/<Link/g) ?? []).length, 1);
+  assert.equal((source.match(/<Link/g) ?? []).length, 2);
 });
 
 test("true duplicate routes redirect without touching protected Trust operations", async () => {

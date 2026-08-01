@@ -36,46 +36,50 @@ test("experimental routes remain implemented but are not promoted", () => {
   }
 });
 
-test("primary navigation follows the six-destination standard", () => {
-  const navigation = read("components/global-navigation.tsx");
+test("primary navigation follows the canonical six-destination standard", () => {
+  const navigation = read("lib/navigation/canonical-navigation.ts");
+  const component = read("components/global-navigation.tsx");
 
   for (const label of [
     "Platform",
-    "Hiring Security",
-    "Trust Center",
+    "Solutions",
+    "Trust",
     "Enterprise",
     "Pricing",
-    "Access",
+    "Sign In",
   ]) {
     assert.match(navigation, new RegExp(label));
   }
-  assert.match(navigation, /onClick={onClose}/);
-  assert.match(navigation, /onClick={onCloseDropdown}/);
+  assert.match(component, /canonicalNavigation\.authenticated/);
+  assert.match(component, /canonicalNavigation\.admin/);
   assert.doesNotMatch(navigation, /Consortium Intelligence|Funding \/ Build Plan/);
 });
 
-test("homepage stays focused and uses the operational vocabulary", () => {
+test("homepage stays focused and uses the canonical Enterprise Trust vocabulary", () => {
   const homepage = read("app/page.tsx");
 
-  assert.match(homepage, /Operational trust for intelligent systems\./);
-  assert.match(homepage, /Understand identity, authenticity and trust across every workflow\./);
+  assert.match(homepage, /Enterprise Trust Infrastructure/);
+  assert.match(homepage, /continuously verifies that the identity, authority, environment, evidence and operational scope/);
   assert.doesNotMatch(homepage, /Private Beta|Enterprise Pilot Ready|trust universe/i);
 
   for (const label of [
-    "Trust Posture",
-    "Replay Timeline",
-    "Governance Review",
-    "Evidence Chain",
-    "Session Integrity",
-    "Verification Receipt",
+    "Enterprise Trust Fabric",
+    "Authority Lineage",
+    "Environment Attestation",
+    "Scope Continuity",
+    "Evidence Graph",
+    "Continuous Trust",
+    "Replay",
+    "Trust Memory",
   ]) {
     assert.match(homepage, new RegExp(label));
   }
 });
 
-test("auth affordances and discreet administrative access remain visible", () => {
+test("auth affordances remain visible and administrative navigation is role-gated", () => {
   const login = read("app/login/page.tsx");
-  const layout = read("app/layout.tsx");
+  const navigation = read("components/global-navigation.tsx");
+  const contract = read("lib/navigation/canonical-navigation.ts");
 
   for (const label of [
     "Sign in",
@@ -87,7 +91,9 @@ test("auth affordances and discreet administrative access remain visible", () =>
   ]) {
     assert.match(login, new RegExp(label, "i"));
   }
-  assert.match(layout, /Administrative access/);
+  assert.match(contract, /href: "\/admin\/access"[^\n]+access: "admin"/);
+  assert.match(navigation, /accessLevel === "admin"/);
+  assert.doesNotMatch(contract.match(/public: \[([\s\S]*?)\n  \]/)?.[1] ?? "", /\/admin/);
 });
 
 test("production security baseline remains preserved", () => {

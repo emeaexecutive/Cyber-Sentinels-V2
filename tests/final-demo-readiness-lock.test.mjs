@@ -4,33 +4,35 @@ import test from "node:test";
 
 const read = (path) => fs.readFileSync(path, "utf8");
 
-test("the exact demo path is linked and deterministic", () => {
+test("the canonical demo route and deterministic Replay fast path are linked", () => {
   const demo = read("app/demo/page.tsx");
   const replay = read("app/replay/[id]/page.tsx");
   const receipt = read("app/trust/receipt/[id]/page.tsx");
 
   assert.match(demo, /\/replay\/demo/);
-  assert.match(demo, /\/verification\/receipt\/demo/);
-  assert.match(replay, /if \(id === "demo"\)\s*{\s*return <DemoReplay \/>/);
+  assert.match(demo, /Canonical demo route: \/demo/);
+  assert.match(replay, /if \(id === "demo"\)[\s\S]*?return <DemoReplay scenario=/);
   assert.match(receipt, /if \(id === "demo"\)\s*{\s*return <DemoReceipt \/>/);
   assert.ok(replay.indexOf('if (id === "demo")') < replay.indexOf("createClient()"));
   assert.ok(receipt.indexOf('if (id === "demo")') < receipt.indexOf("createClient()"));
 });
 
-test("demo replay answers the six operational questions", () => {
+test("demo Replay answers the canonical eight operational questions", () => {
   const replay = read("app/replay/[id]/page.tsx");
 
   for (const marker of [
-    "Replay Timeline",
-    "What changed",
-    "Evidence available",
-    "Reviewer",
-    "Trust Posture",
-    "30 Jun 2026",
+    "Who or what acted?",
+    "What authority existed?",
+    "What environment was declared and observed?",
+    "What scope was permitted?",
+    "What evidence supported the decision?",
+    "What changed the trust state?",
+    "What happened next?",
+    "How can it be replayed?",
   ]) {
-    assert.match(replay, new RegExp(marker));
+    assert.equal(replay.includes(marker), true);
   }
-  assert.match(replay, /simulated evidence/i);
+  assert.match(replay, /controlled synthetic demonstration environment/i);
   assert.match(replay, /not provider accuracy, biometric certainty/i);
 });
 
@@ -44,15 +46,15 @@ test("demo receipt is evidence-first and explicitly synthetic", () => {
   assert.match(receipt, /does not prove identity, guarantee authenticity/);
 });
 
-test("provider runtime status uses only the four demo-safe states", () => {
+test("provider runtime status uses the canonical five operational states", () => {
   const page = read("app/admin/integrations/page.tsx");
   const api = read("app/api/providers/route.ts");
 
-  for (const state of ["Live", "Simulated", "Awaiting credentials", "Disabled"]) {
+  for (const state of ["available", "degraded", "unavailable", "contradicted", "unknown"]) {
     assert.match(page, new RegExp(state));
     assert.match(api, new RegExp(state));
   }
-  assert.doesNotMatch(api, /return "real"|return "placeholder"|return "simulated"/);
+  assert.match(api, /canonicalProviderRuntimeState/);
 });
 
 test("homepage, auth affordances and admin protection remain locked", () => {
@@ -62,14 +64,14 @@ test("homepage, auth affordances and admin protection remain locked", () => {
   const layout = read("app/layout.tsx");
   const testLab = read("app/admin/test-lab/page.tsx");
 
-  assert.match(homepage, /Operational trust for intelligent systems\./);
-  assert.match(homepage, /Understand identity, authenticity and trust across every workflow\./);
+  assert.match(homepage, /Enterprise Trust Infrastructure/);
+  assert.match(homepage, /continuously verifies that the identity, authority, environment, evidence and operational scope/);
   assert.doesNotMatch(homepage, /Private Beta|Enterprise Pilot Ready/i);
   for (const marker of ["Sign in", "Create account", "Confirm Password", "Use magic link", "Forgot password"]) {
     assert.match(login, new RegExp(marker, "i"));
   }
   assert.match(verifyEmail, /Please verify your email before continuing/);
-  assert.match(layout, /Administrative access/i);
+  assert.doesNotMatch(layout, /Administrative access/i);
   assert.match(testLab, /requireAdminPageAccess/);
 });
 
