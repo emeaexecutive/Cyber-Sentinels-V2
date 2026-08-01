@@ -43,6 +43,8 @@ Supported workflow states are `draft`, `evidence_collection`, `technical_review`
 
 Automated logic may suggest `potentially_reportable`. It cannot set protected reporting or closure states. Every human decision records identity, assigned role, organizational authority, type, decision, rationale, evidence, unresolved issues, conditions, approval chain, timestamp, conflict declaration when supplied, and supersession.
 
+The transition matrix is explicit in both TypeScript and SQL. Invalid transitions fail closed. `additional_information_requested` requires a real submission or attributed regulator response. `resolved` requires current corrective actions to be validated, unless a legal reviewer or executive records the explicit `authorized_corrective_action_override` condition with supporting evidence. `resolved` can only move to `reopened`, preserving the earlier resolution.
+
 ## Responsibility and Authority Lineage
 
 Incident roles can represent model and system providers, deployers, developers, owners, evaluation sponsors/operators, harness and infrastructure providers, runtime security, identity/access providers, affected parties, responders, specialist reviewers, advisers, regulator liaisons, and executive approvers.
@@ -53,7 +55,7 @@ Typed lineage does not assume that a model provider controlled the harness, exec
 
 The immutable snapshot records normalized references to system and agent identity; model and agent version; prompt/configuration digest; masked prompt reference; tools and connectors; authority grants; scope lease; declared, configured and observed environment; effective access; targets; credential-state classification; policy; monitoring health; findings; exceptions; responsible-human state; deployment approval; assurance baseline; containment readiness; and provider evidence.
 
-It rejects fields for passwords, secrets, tokens, cookies, raw credentials, private keys, raw payloads, exploit payloads, and full prompts. Later evidence creates a new snapshot or corrected record linked through supersession. It never rewrites the incident-time baseline.
+It records exact source evidence versions and digests, and represents missing evidence explicitly. It rejects fields for passwords, secrets, tokens, cookies, raw credentials, private keys, raw payloads, exploit payloads, and full prompts recursively at application and database boundaries. Later evidence creates a new snapshot or corrected record linked through supersession. It never rewrites the incident-time baseline.
 
 ## Awareness and reporting clocks
 
@@ -63,27 +65,27 @@ A deadline is recorded only when supplied by an authorized reviewer, an approved
 
 ## Impact evidence
 
-Normalized impact ranges from `no_confirmed_impact`, attempts, unauthorized access, confidentiality/integrity/availability and financial effects through fundamental-rights, human-control, third-party, critical-infrastructure and systemic-risk effects. Assessments preserve affected references, data classifications, organizations, user estimate, duration, geography, reversibility, persistence, confidence, limitations, independent confirmation and reviewer confirmation.
+Normalized impact ranges from `no_confirmed_impact`, attempts, unauthorized access, confidentiality/integrity/availability and financial effects through fundamental-rights, human-control, third-party, critical-infrastructure and systemic-risk effects. Assessments preserve source type/reference, evidence strength, affected references, data classifications, organizations, user estimate, duration, geography, reversibility, persistence, confidence, limitations, independent confirmation and reviewer confirmation.
 
 A provider alert, model-generated statement, suspected target, or failed containment request cannot by itself establish confirmed impact.
 
 ## Potential regulatory relevance
 
-The deterministic engine accepts operational facts and returns `no_known_trigger`, `potential_trigger`, `multiple_potential_triggers`, `insufficient_information`, or `specialist_review_required`, with stable reason codes, missing evidence, and recommended reviewer roles.
+The deterministic engine accepts operational facts and returns `no_known_trigger`, `potential_trigger`, `multiple_potential_triggers`, `insufficient_information`, or `specialist_review_required`, with stable reason codes, missing evidence, and recommended reviewer roles. Every result binds a canonical input digest; changed evidence creates an append-only superseding result even when the visible outcome is unchanged.
 
 Every result is labeled **OPERATIONAL SCREENING — NOT A LEGAL CONCLUSION**. The engine cannot set `reporting_required`, `not_reportable`, liability, compliance, or legal sufficiency.
 
 ## Reviewer authorization and supersession
 
-Workspace access alone is insufficient to claim a specialist capacity. The actor must also have an active incident responsibility assignment matching the recorded reviewer role. Compliance, legal, data-protection, or executive authority is required for protected reporting/closure states; compliance, legal, or executive authority is required to approve packages. A later decision links to the decision it supersedes, preserving both.
+Workspace access alone is insufficient to claim a specialist capacity. The actor must also have an active, tenant-bound incident responsibility assignment whose authority reference exactly matches the decision. Decision types and target states have separate role allowlists: technical reviewers cannot make legal decisions, legal reviewers cannot rewrite technical findings, and external advisers cannot approve protected internal states. Compliance, legal, or executive authority is required to approve packages; closure is limited to compliance, legal, or executive reviewers. A later decision links to the decision it supersedes, preserving both.
 
 ## Packages and external submissions
 
 Packages are versioned, data-minimized exports containing incident identity, operational baseline, environment/scope evidence, snapshot, chronology, findings, impact, containment, corrective actions, operational screening, reviewer decisions, uncertainty, evidence index/digests, Replay and Trust Memory references, schema version, export time, and a stable SHA-256 digest.
 
-Approved packages are immutable. Changes create an exactly incremented superseding version. `regulator_ready` means internally prepared and approved; it does not mean legally sufficient. Exports exclude secrets and restricted raw evidence.
+Approved packages are immutable. Changes create an exactly incremented superseding version. The canonical digest covers package identity, version, state, approval, supersession, schema, export time, machine-readable content and human-readable summary. Approval evidence binds the canonical content digest of the exact recorded draft, and the approved version must supersede that draft; an older approval cannot authorize changed content. Changed retries under the same idempotency key or record ID are rejected under a transaction-wide incident lock. `regulator_ready` means internally prepared and approved; it does not mean legally sufficient. Exports exclude secrets and restricted raw evidence.
 
-External submission records preserve destination, jurisdiction, channel, external reference, actor, time, exact package version/digest, acknowledgement, follow-up and limitations. An acknowledgement proves receipt only; it does not prove agreement with legal conclusions. No regulator-portal password, session token, cookie, or private API credential is stored. No direct EU SEND integration is claimed or implemented.
+External submission records preserve destination, jurisdiction, channel, masked external reference, authenticated actor, time, exact package ID/version/digest, acknowledgement, follow-up deadline provenance and limitations. The actor is derived from authenticated server context. An acknowledgement proves receipt only; it does not prove agreement with legal conclusions. Supplements link the original submission and exact package. No regulator-portal password, session token, cookie, or private API credential is stored. No direct EU SEND integration is claimed or implemented.
 
 ## Requested-versus-confirmed containment
 

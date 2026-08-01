@@ -10,6 +10,7 @@ export function buildSubmissionPackage(input: { assessment: SeriousIncidentAsses
   if (["reviewer_approved", "regulator_ready", "submitted"].includes(input.packageInput.state)) {
     if (!input.packageInput.approvedByDecisionId || !input.reviewerRole || !approvers.has(input.reviewerRole)) throw Object.assign(new Error("Approved package state requires an authorized reviewer decision."), { code: "PACKAGE_APPROVAL_REQUIRED" });
   }
+  const evidenceArtifacts = Object.fromEntries(Object.entries(input.artifacts).filter(([key]) => !["incident_submission_packages", "incident_external_submissions"].includes(key)).map(([key, value]) => [key, key === "incident_reviewer_decisions" && Array.isArray(value) ? value.filter((decision) => (decision as Record<string, unknown>).decision_type !== "submission_approval") : value]));
   const machineReadable: Record<string, unknown> = {
     schemaVersion: input.packageInput.exportSchemaVersion,
     incidentId: input.assessment.id,
@@ -25,15 +26,28 @@ export function buildSubmissionPackage(input: { assessment: SeriousIncidentAsses
     evidenceIntegrityDigests: input.packageInput.evidenceIntegrityDigests,
     replayReference: input.packageInput.replayReference,
     trustMemoryReference: input.packageInput.trustMemoryReference,
-    artifacts: input.artifacts,
-    exportedAt: input.packageInput.exportedAt,
+    artifacts: evidenceArtifacts,
   };
-  const packageDigest = hashCanonical(machineReadable);
+  const humanReadableSummary = `${input.packageInput.incidentSummary}\n\nOperational screening and evidence package only. This package is not a legal conclusion, certification, or guarantee of legal sufficiency.`;
+  const contentDigest = hashCanonical({ machineReadable, humanReadableSummary });
+  const packageDigest = hashCanonical({
+    packageId: input.packageInput.id,
+    version: input.packageInput.version,
+    state: input.packageInput.state,
+    approvedByDecisionId: input.packageInput.approvedByDecisionId,
+    supersedesPackageId: input.packageInput.supersedesPackageId,
+    exportSchemaVersion: input.packageInput.exportSchemaVersion,
+    exportedAt: input.packageInput.exportedAt,
+    contentDigest,
+    machineReadable,
+    humanReadableSummary,
+  });
   return {
     ...input.packageInput,
+    contentDigest,
     packageDigest,
     machineReadable,
-    humanReadableSummary: `${input.packageInput.incidentSummary}\n\nOperational screening and evidence package only. This package is not a legal conclusion, certification, or guarantee of legal sufficiency.`,
+    humanReadableSummary,
   };
 }
 

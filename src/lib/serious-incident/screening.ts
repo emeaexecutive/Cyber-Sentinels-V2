@@ -4,8 +4,10 @@ import type { ReviewerRole, ScreeningInput, ScreeningResult } from "./types.ts";
 const SCREENING_LABEL = "OPERATIONAL SCREENING — NOT A LEGAL CONCLUSION" as const;
 
 export function screenPotentialRegulatoryRelevance(input: ScreeningInput, evaluatedAt: string): ScreeningResult {
+  const inputDigest = hashCanonical(input);
   const triggers: Array<[boolean | null, string, string, ReviewerRole[]]> = [
     [input.cybersecurityImpact, "CYBERSECURITY_IMPACT_REVIEW", "cybersecurity_impact", ["security_reviewer", "compliance_reviewer"]],
+    [input.executionBoundaryViolation, "EXECUTION_BOUNDARY_VIOLATION_REVIEW", "execution_boundary_violation", ["technical_reviewer", "security_reviewer"]],
     [input.outsideAuthorizedHumanControl, "OUTSIDE_AUTHORIZED_HUMAN_CONTROL", "outside_authorized_human_control", ["technical_reviewer", "legal_reviewer"]],
     [input.seriousMalfunction, "SERIOUS_MALFUNCTION_REVIEW", "serious_malfunction", ["technical_reviewer", "compliance_reviewer"]],
     [input.thirdPartyHarm, "THIRD_PARTY_HARM_REVIEW", "third_party_harm", ["legal_reviewer", "data_protection_reviewer"]],
@@ -21,7 +23,7 @@ export function screenPotentialRegulatoryRelevance(input: ScreeningInput, evalua
   if (!input.systemClassification) missingEvidence.push("system_classification");
   if (!input.organizationAwarenessRecorded) missingEvidence.push("organization_awareness_timestamp");
   if (input.evidenceCompleteness === "insufficient" || input.evidenceCompleteness === "unknown") missingEvidence.push("material_evidence");
-  if ([input.cybersecurityImpact, input.outsideAuthorizedHumanControl, input.seriousMalfunction, input.thirdPartyHarm].every((value) => value === null)) missingEvidence.push("operational_impact_classification");
+  if ([input.cybersecurityImpact, input.executionBoundaryViolation, input.outsideAuthorizedHumanControl, input.seriousMalfunction, input.thirdPartyHarm].every((value) => value === null)) missingEvidence.push("operational_impact_classification");
 
   let outcome: ScreeningResult["outcome"];
   if (matched.some(([, code]) => ["OUTSIDE_AUTHORIZED_HUMAN_CONTROL", "FUNDAMENTAL_RIGHTS_REVIEW", "CRITICAL_SECTOR_REVIEW", "GPAI_SYSTEMIC_RISK_REVIEW"].includes(code))) outcome = "specialist_review_required";
@@ -30,8 +32,14 @@ export function screenPotentialRegulatoryRelevance(input: ScreeningInput, evalua
   else if (missingEvidence.length) outcome = "insufficient_information";
   else outcome = "no_known_trigger";
 
-  const reasonCodes = matched.map(([, code]) => code);
-  if (!reasonCodes.length) reasonCodes.push(outcome === "no_known_trigger" ? "NO_KNOWN_OPERATIONAL_TRIGGER" : "SCREENING_INFORMATION_INSUFFICIENT");
+  const contextualReasonCodes = [
+    ...(input.highRiskUseContext === true ? ["HIGH_RISK_USE_CONTEXT_RECORDED"] : []),
+    ...(input.modelProviderRole === true ? ["ORGANIZATIONAL_ROLE_MODEL_PROVIDER"] : []),
+    ...(input.deployerRole === true ? ["ORGANIZATIONAL_ROLE_DEPLOYER"] : []),
+  ];
+  const reasonCodes = [...matched.map(([, code]) => code), ...contextualReasonCodes];
+  if (outcome === "no_known_trigger") reasonCodes.push("NO_KNOWN_OPERATIONAL_TRIGGER");
+  if (outcome === "insufficient_information") reasonCodes.push("SCREENING_INFORMATION_INSUFFICIENT");
   const recommendedReviewerRoles = [...new Set(matched.flatMap(([, , , roles]) => roles))];
   if (outcome === "insufficient_information" && !recommendedReviewerRoles.length) recommendedReviewerRoles.push("technical_reviewer", "compliance_reviewer");
   const base = {
@@ -44,6 +52,7 @@ export function screenPotentialRegulatoryRelevance(input: ScreeningInput, evalua
     evaluatedAt,
     policyId: "serious-incident-operational-screening",
     policyVersion: "1.0.0",
+    inputDigest,
   };
   return { id: deterministicUuid(base), ...base, resultDigest: hashCanonical(base) };
 }

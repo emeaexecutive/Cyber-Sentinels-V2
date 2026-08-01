@@ -72,6 +72,24 @@ export type ResponsibilityRoleType = (typeof responsibilityRoleTypes)[number];
 export type WorkspaceRole = "owner" | "admin" | "reviewer" | "observer";
 export type EvidenceCompleteness = "complete" | "partial" | "insufficient" | "unknown";
 export type EvidenceConfidence = "confirmed" | "high" | "medium" | "low" | "unknown";
+export type ImpactEvidenceStrength = "asserted" | "observed" | "corroborated" | "independently_confirmed" | "cryptographically_verified";
+
+export type EvidenceSourceVersion = {
+  sourceType: string;
+  sourceReference: string;
+  version: string;
+  digest: string;
+};
+
+export type DeadlineMetadata = {
+  deadline: string;
+  sourceType: "reviewer_supplied" | "policy_supplied" | "externally_supplied";
+  ruleSource: string;
+  rationale: string;
+  timezone: string;
+  uncertainty: string;
+  approvedBy: string;
+};
 
 export type IncidentIdentity = {
   agentId: string;
@@ -106,6 +124,7 @@ export type RegulatoryContext = {
 export type IncidentClock = {
   firstOccurrenceAt?: string | null;
   firstProviderObservationAt?: string | null;
+  firstRuntimeSecurityObservationAt?: string | null;
   firstCyberSentinelsIngestionAt: string;
   firstDetectionAt: string;
   firstHumanReviewAt?: string | null;
@@ -177,6 +196,8 @@ export type EvidenceSnapshotInput = {
   assuranceBaselineReference?: string | null;
   containmentReadiness: string;
   providerEvidenceReferences: string[];
+  sourceEvidenceVersions: EvidenceSourceVersion[];
+  missingEvidence: string[];
   evidenceLimitations: string[];
   supersedesSnapshotId?: string | null;
 };
@@ -187,6 +208,7 @@ export type ScreeningInput = {
   gpaiSystemicRisk: boolean | null;
   highRiskUseContext: boolean | null;
   cybersecurityImpact: boolean | null;
+  executionBoundaryViolation: boolean | null;
   outsideAuthorizedHumanControl: boolean | null;
   seriousMalfunction: boolean | null;
   thirdPartyHarm: boolean | null;
@@ -211,6 +233,7 @@ export type ScreeningResult = {
   evaluatedAt: string;
   policyId: string;
   policyVersion: string;
+  inputDigest: string;
   resultDigest: string;
 };
 
@@ -246,7 +269,7 @@ export type IncidentChronologyEvent = {
   classification: ReplayClassification;
   summary: string;
   containmentState?: ContainmentState | null;
-  deadlineMetadata?: { deadline: string; sourceType: "reviewer_supplied" | "policy_supplied" | "externally_supplied"; ruleSource: string; rationale: string; timezone: string; uncertainty: string; approvedBy: string } | null;
+  deadlineMetadata?: DeadlineMetadata | null;
   supersedesEventId?: string | null;
 };
 
@@ -262,6 +285,9 @@ export type ImpactAssessmentInput = {
   reversibility: string;
   persistence: string;
   independentConfirmation: boolean;
+  sourceType: "provider_assertion" | "agent_statement" | "user_assertion" | "runtime_observation" | "reviewer_assessment" | "independent_evidence";
+  sourceReference: string;
+  evidenceStrength: ImpactEvidenceStrength;
   evidenceReferences: string[];
   evidenceLimitations: string[];
   confidence: EvidenceConfidence;
@@ -305,6 +331,7 @@ export type SubmissionPackageInput = {
 };
 
 export type SubmissionPackage = SubmissionPackageInput & {
+  contentDigest: string;
   packageDigest: string;
   machineReadable: Record<string, unknown>;
   humanReadableSummary: string;
@@ -325,6 +352,7 @@ export type ExternalSubmissionInput = {
   acknowledgementReference?: string | null;
   acknowledgementAt?: string | null;
   followUpDeadline?: string | null;
+  followUpDeadlineMetadata?: DeadlineMetadata | null;
   limitations: string[];
   supersedesSubmissionId?: string | null;
 };
@@ -337,6 +365,7 @@ export type CorrectiveActionInput = {
   targetDate?: string | null;
   completionDate?: string | null;
   completionEvidenceReferences: string[];
+  completionSourceType: "owner_evidence" | "provider_assertion" | "independent_validation" | "reviewer_validation";
   validationEvidenceReferences: string[];
   residualRisk: string;
   reviewerApprovalDecisionId?: string | null;
@@ -360,7 +389,7 @@ export type EvidenceSupersessionInput = {
 
 export type SeriousIncidentArtifacts = {
   authorityLineage: Array<{ type: string; from: string; to: string; evidenceReference?: string | null; occurredAt: string }>;
-  evidenceGraph: { nodes: Array<{ id: string; type: string; label: string; metadata: Record<string, unknown> }>; relationships: Array<{ from: string; to: string; type: string; evidenceReference?: string | null }> };
+  evidenceGraph: { nodes: Array<{ id: string; type: string; label: string; metadata: Record<string, unknown> }>; relationships: Array<{ from: string; fromType: string; to: string; toType: string; type: string; evidenceReference?: string | null }> };
   replay: IncidentChronologyEvent[];
   trustMemory: Array<{ eventKind: string; subject: string; evidenceReferences: string[]; decisionAuthority?: string | null; reason: string; occurredAt: string; supersedesEventId?: string | null }>;
 };
