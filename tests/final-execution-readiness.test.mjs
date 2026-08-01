@@ -26,11 +26,11 @@ test("public auth keeps every required account-access path visible", () => {
   assert.equal(middleware.includes("email_confirmed_at"), true);
 });
 
-test("homepage copy is focused and primary CTA routes exist", () => {
+test("homepage copy is canonical and primary CTA routes exist", () => {
   const homepage = read("app/page.tsx");
-  assert.equal(homepage.includes("Operational trust for intelligent systems."), true);
+  assert.equal(homepage.includes("Enterprise Trust Infrastructure"), true);
   assert.equal(
-    homepage.includes("Understand identity, authenticity and trust across every workflow."),
+    homepage.includes("continuously verifies that the identity, authority, environment, evidence and operational scope"),
     true
   );
   assert.equal(homepage.includes("Private Beta"), false);
@@ -46,16 +46,15 @@ test("homepage copy is focused and primary CTA routes exist", () => {
   }
 });
 
-test("dropdown behavior and discreet protected admin entry remain wired", () => {
+test("direct navigation and protected admin entry remain wired", () => {
   const navigation = read("components/global-navigation.tsx");
-  const layout = read("app/layout.tsx");
+  const contract = read("lib/navigation/canonical-navigation.ts");
   const adminAccess = read("app/admin/access/page.tsx");
 
-  assert.equal(navigation.includes('aria-haspopup="menu"'), true);
-  assert.equal(navigation.includes('aria-expanded={open}'), true);
-  assert.equal(navigation.includes('event.key === "Escape"'), true);
-  assert.equal(navigation.includes('document.addEventListener("pointerdown"'), true);
-  assert.equal(layout.includes('["/admin/access", "Administrative access"]'), true);
+  assert.equal(navigation.includes("canonicalNavigation.admin.map"), true);
+  assert.equal(navigation.includes('accessLevel === "admin"'), true);
+  assert.equal(contract.includes('{ href: "/admin/access", label: "Administration", access: "admin" }'), true);
+  assert.doesNotMatch(contract.match(/public: \[([\s\S]*?)\n  \]/)?.[1] ?? "", /\/admin/);
   assert.equal(adminAccess.includes('redirect("/back-office")'), true);
 });
 

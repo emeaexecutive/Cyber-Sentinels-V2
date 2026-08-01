@@ -12,12 +12,16 @@ test("replay persistence fails closed and never reports an unrecorded save", () 
   assert.match(replay, /The underlying evidence was not changed/);
 });
 
-test("replay distinguishes unavailable sources from confirmed empty evidence", () => {
+test("Replay distinguishes every canonical evidence availability state", () => {
   const replay = read("app/trust-replay/page.tsx");
+  const contract = read("src/lib/trust-fabric/replay.ts");
 
   assert.match(replay, /unavailableSources/);
   assert.match(replay, /Empty counts must not be treated as\s+confirmed absence/);
-  assert.match(replay, /Replay operational snapshot/);
+  assert.match(replay, /Replay evidence state/);
+  for (const state of ["ready", "empty", "evidence_missing", "source_unavailable", "generation_failed", "access_denied"]) {
+    assert.match(contract, new RegExp(state));
+  }
   for (const label of [
     "Trust Posture",
     "Evidence Chain",
@@ -50,12 +54,12 @@ test("deployment environment and admin boundaries remain fail closed", () => {
   assert.match(adminApi, /requireAdminApiAccess/);
 });
 
-test("homepage keeps exact positioning and strengthened wordmark without beta language", () => {
+test("homepage keeps canonical positioning and strengthened wordmark without beta language", () => {
   const homepage = read("app/page.tsx");
   const styles = read("app/globals.css");
 
-  assert.match(homepage, /Operational trust for intelligent systems\./);
-  assert.match(homepage, /Understand identity, authenticity and trust across every workflow\./);
+  assert.match(homepage, /Enterprise Trust Infrastructure/);
+  assert.match(homepage, /continuously verifies that the identity, authority, environment, evidence and operational scope/);
   assert.doesNotMatch(homepage, /Private Beta|Enterprise Pilot Ready/i);
   assert.match(styles, /\.brand-wordmark/);
   assert.match(styles, /font-weight:\s*800/);

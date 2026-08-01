@@ -143,9 +143,10 @@ test("compliance mappings expose evidence, gaps, owner, date and certification l
 });
 
 test("RC2 reuses protected routes, append-only memory and complete documentation", async () => {
-  const [workspace, demoPage, migration, rc2Migration, packageJson] = await Promise.all([read("app/workspace/[id]/page.tsx"), read("app/demo/trust-execution-flow/page.tsx"), read("supabase/migrations/202607160001_release_1_rc1_provider_evidence_gate.sql"), read("supabase/migrations/202607160002_release_1_rc2_living_trust_privacy.sql"), read("package.json")]);
+  const [workspace, demoPage, legacyDemo, migration, rc2Migration, packageJson] = await Promise.all([read("app/workspace/[id]/page.tsx"), read("app/demo/page.tsx"), read("app/demo/trust-execution-flow/page.tsx"), read("supabase/migrations/202607160001_release_1_rc1_provider_evidence_gate.sql"), read("supabase/migrations/202607160002_release_1_rc2_living_trust_privacy.sql"), read("package.json")]);
   assert.match(workspace, /LivingTrustProfileView/);
-  assert.match(demoPage, /buildRc2LivingTrustDemo/);
+  assert.match(demoPage, /Trust Memory/);
+  assert.match(legacyDemo, /redirect\("\/demo"\)/);
   assert.match(migration, /trust_memory_append_only/);
   assert.match(rc2Migration, /tenant scoped read governance_policies/);
   assert.match(rc2Migration, /record_trust_memory_tombstone/);

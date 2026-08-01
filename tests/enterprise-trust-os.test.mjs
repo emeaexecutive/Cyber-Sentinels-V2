@@ -83,13 +83,16 @@ test("heavy authenticated areas have shared streaming loading boundaries", async
 });
 
 test("public navigation remains separate from the authenticated Trust OS", async () => {
-  const [layout, navigation] = await Promise.all([
+  const [layout, navigation, contract] = await Promise.all([
     read("app/layout.tsx"),
     read("components/global-navigation.tsx"),
+    read("lib/navigation/canonical-navigation.ts"),
   ]);
   assert.match(layout, /accessLevel === "public" \? children/);
-  assert.match(navigation, /Enterprise Workspace/);
-  assert.match(navigation, /Administration/);
+  assert.match(contract, /Enterprise Workspace/);
+  assert.match(contract, /Administration/);
+  assert.match(navigation, /canonicalNavigation\.authenticated\.map/);
+  assert.match(navigation, /canonicalNavigation\.admin\.map/);
 });
 
 test("Sprint 10.1 documentation is complete", async () => {

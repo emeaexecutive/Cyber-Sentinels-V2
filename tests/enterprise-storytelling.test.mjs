@@ -13,7 +13,7 @@ test("homepage tells the category story through three calm sections and one proc
   for (const removed of ["DecisionFlow", "ArchitectureBlock", "InteractiveTrustWalkthrough"]) assert.doesNotMatch(source, new RegExp(`<${removed}`));
   assert.doesNotMatch(source, /<Timeline/);
   assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 1);
-  for (const marker of ["Traditional Identity", "Operational Trust Infrastructure", "Enterprise Trust Fabric", "Primary operational trust flow", "Know whether a critical action should proceed", "Why Different"]) {
+  for (const marker of ["Traditional Identity", "Enterprise Trust Infrastructure", "Enterprise Trust Fabric", "Primary operational trust flow", "Know whether a critical action should proceed", "Why Different"]) {
     assert.match(source, new RegExp(marker));
   }
 });
