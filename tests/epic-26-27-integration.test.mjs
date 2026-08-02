@@ -5,7 +5,6 @@ import test from "node:test";
 import { epic2627CrossEpicScenario } from "../src/lib/trust-fabric/cross-epic-scenario.ts";
 
 const read = (path) => fs.readFileSync(path, "utf8");
-const sha256 = (path) => createHash("sha256").update(fs.readFileSync(path)).digest("hex");
 const sha256CanonicalText = (path) => createHash("sha256").update(read(path).replace(/\r\n/g, "\n"), "utf8").digest("hex");
 const epic26Path = "supabase/migrations/202607310001_environment_attestation_scope_continuity.sql";
 const epic27Path = "supabase/migrations/202608010001_ai_serious_incident_regulatory_lineage.sql";
@@ -25,7 +24,7 @@ test("release manifest orders Epic 26 before Epic 27 and pins canonical files", 
   for (const migration of manifest.orderedMigrations) assert.equal(sha256CanonicalText(migration.path), migration.sha256, migration.path);
   const migrationNames = fs.readdirSync("supabase/migrations").filter((name) => /^\d+.*\.sql$/.test(name));
   assert.equal(new Set(migrationNames.map((name) => name.match(/^\d+/)?.[0])).size, migrationNames.length);
-  for (const prerequisite of manifest.prerequisites) assert.match(read(`${releaseRoot}/prerequisite-objects.txt`), new RegExp(prerequisite.replace(/[()]/g, "\\$&")));
+  for (const prerequisite of manifest.prerequisites) assert.match(read(`${releaseRoot}/prerequisite-objects.md`), new RegExp(prerequisite.replace(/[()]/g, "\\$&")));
 });
 
 test("cross-Epic fixture uses exact tenant-scoped Epic 26 canonical references", () => {
@@ -42,6 +41,12 @@ test("cross-Epic fixture uses exact tenant-scoped Epic 26 canonical references",
   assert.equal(fixture.scopeAuthorizationLeaseId, scenario.canonicalReferences.scopeAuthorizationLeaseId);
   assert.equal(fixture.incidentId, scenario.incident.id);
   assert.equal(fixture.evidenceSnapshotId, scenario.evidenceSnapshot.id);
+  assert.equal(fixture.trustObjectDigest, scenario.trustFabric.trustEvaluation.trustObject.canonicalDigest);
+  assert.equal(fixture.decisionEnvelopeDigest, scenario.trustFabric.decisionEnvelope.canonicalDigest);
+  assert.equal(fixture.trustContractId, scenario.trustFabric.trustContract.contractId);
+  assert.equal(fixture.trustContractOutcome, scenario.trustFabric.trustContractEvaluation.outcome);
+  assert.equal(fixture.timelineItemCount, scenario.trustFabric.trustTimeline.length);
+  assert.equal(fixture.scenarioDigest, scenario.scenarioDigest);
 });
 
 test("cross-Epic scenario is deterministic and digest-bound", () => {
@@ -51,6 +56,19 @@ test("cross-Epic scenario is deterministic and digest-bound", () => {
   assert.equal(first.submissionPackage.packageDigest, second.submissionPackage.packageDigest);
   assert.equal(first.evidenceSnapshot.snapshotDigest, second.evidenceSnapshot.snapshotDigest);
   assert.match(first.scenarioDigest, /^[a-f0-9]{64}$/);
+  assert.equal(first.trustFabric.trustEvaluation.trustObject.canonicalDigest, second.trustFabric.trustEvaluation.trustObject.canonicalDigest);
+  assert.equal(first.trustFabric.decisionEnvelope.canonicalDigest, first.trustFabric.decisionEnvelope.deterministicDigest);
+});
+
+test("Trust Fabric composes the active contract, strongest adverse state and one timeline", () => {
+  const scenario = epic2627CrossEpicScenario();
+  assert.equal(scenario.trustFabric.identity.subject.type, "ai_agent");
+  assert.ok(["suspended", "revoked"].includes(scenario.trustFabric.trustEvaluation.currentTrustState));
+  assert.equal(scenario.trustFabric.trustEvaluation.trustObject.activeIncidents[0].id, scenario.incident.id);
+  assert.equal(scenario.trustFabric.trustContract.revocationState, "active");
+  assert.equal(scenario.trustFabric.trustContractEvaluation.outcome, "breached");
+  assert.ok(scenario.trustFabric.trustTimeline.some((item) => item.category === "INCIDENT"));
+  assert.ok(scenario.trustFabric.trustTimeline.every((item) => item.sourceAuthority && item.replayClassification));
 });
 
 test("incident chronology separates occurrence, detection, awareness and containment evidence", () => {
@@ -68,6 +86,8 @@ test("operational screening, reviewer authority and legal conclusion stay separa
   assert.equal(scenario.incident.legalConclusion, null);
   assert.equal(scenario.evidenceSnapshot.scopeContinuityDecisionId, scenario.scope.decision.id);
   assert.deepEqual(scenario.evidenceSnapshot.environmentAttestationVersions.map((item) => item.id), scenario.canonicalReferences.environmentAttestationIds);
+  assert.ok(scenario.evidenceSnapshot.environmentAttestationVersions.every((item) => /^[a-f0-9]{64}$/.test(item.digest)));
+  assert.ok(scenario.evidenceSnapshot.sourceEvidenceVersions.every((item) => /^[a-f0-9]{64}$/.test(item.digest)));
   assert.equal(scenario.reviewerDecision.reviewerRole, "compliance_reviewer");
   assert.match(scenario.reviewerDecision.organizationalAuthority, /^authority:/);
 });
@@ -118,23 +138,23 @@ test("policy reconciliation handles absent, identical, intentional replacement, 
   assert.match(sql, /migration_policy_decisions_append_only/);
 });
 
-test("staging package includes preflight, post-apply, RLS, integrity, inventory, hashes and forward plan", () => {
-  for (const file of ["README.md", "manifest.json", "ordered-migrations.txt", "prerequisite-objects.txt", "preflight.sql", "post-apply-validation.sql", "rls-validation.sql", "integrity-validation.sql", "object-inventory.json", "scenario-fixture.json", "checksums.sha256"]) assert.equal(fs.existsSync(`${releaseRoot}/${file}`), true, file);
+test("staging package includes the exact review inventory, hashes and forward plan", () => {
+  for (const file of ["README.md", "manifest.json", "migration-order.txt", "prerequisite-objects.md", "preflight.sql", "post-apply-validation.sql", "rls-validation.sql", "integrity-validation.sql", "expected-inventory.json", "rollback-limitations.md", "forward-repair-plan.md", "SHA256SUMS"]) assert.equal(fs.existsSync(`${releaseRoot}/${file}`), true, file);
   assert.match(read(`${releaseRoot}/README.md`), /forward-only migration/i);
   assert.match(read(`${releaseRoot}/preflight.sql`), /provider_health_snapshots/);
-  const checksums = read(`${releaseRoot}/checksums.sha256`).trim().split(/\r?\n/);
+  const checksums = read(`${releaseRoot}/SHA256SUMS`).trim().split(/\r?\n/);
   for (const line of checksums) {
     const [expected, file] = line.split(/\s{2}/);
-    assert.equal(sha256(`${releaseRoot}/${file}`), expected, file);
+    assert.equal(sha256CanonicalText(`${releaseRoot}/${file}`), expected, file);
   }
-  const inventory = JSON.parse(read(`${releaseRoot}/object-inventory.json`));
+  const inventory = JSON.parse(read(`${releaseRoot}/expected-inventory.json`));
   const source = `${read(epic26Path)}\n${read(epic27Path)}`;
   for (const name of [...inventory.epic26.tables, ...inventory.epic27.tables, ...inventory.epic26.indexes, ...inventory.epic27.indexes]) assert.match(source, new RegExp(name));
 });
 
-test("canonical demo asks twelve questions and uses the cross-Epic fixture", () => {
+test("canonical demo asks fourteen questions and uses the cross-Epic fixture", () => {
   const demo = read("app/demo/page.tsx");
-  const questions = ["Who or what acted?", "What authority existed?", "What environment was declared?", "What environment was observed?", "What scope was permitted?", "What evidence supported the decision?", "Why did trust change?", "Was an incident opened?", "What containment occurred?", "Who reviewed it?", "What corrective action followed?", "How is the complete sequence replayed?"];
+  const questions = ["Who or what acted?", "What identity was verified?", "What authority existed?", "What environment was declared?", "What environment was observed?", "What scope was permitted?", "What evidence supported the decision?", "Why did trust change?", "Was an incident opened?", "What containment was requested?", "What containment was confirmed?", "Who reviewed it?", "What corrective action followed?", "How can the complete sequence be replayed?"];
   for (const question of questions) assert.ok(demo.includes(question), question);
   assert.match(demo, /epic2627CrossEpicScenario/);
 });

@@ -1,7 +1,7 @@
 import { hashCanonical, deterministicUuid } from "../trust-core/hash.ts";
 import type {
   EnterpriseTrustObject, FabricReference, FabricTrustState, TrustFabricDecisionEnvelope,
-  TrustFabricEvaluation, TrustFabricEvaluationInput, FabricDecisionType,
+  TrustFabricEvaluation, TrustFabricEvaluationInput, FabricDecisionType, ProviderRuntimeState,
 } from "./types.ts";
 
 const rank: Record<FabricTrustState, number> = { verified: 0, degraded: 1, contested: 2, suspended: 3, revoked: 4 };
@@ -19,6 +19,15 @@ function actionsFor(state: FabricTrustState, review: boolean): string[] {
   if (state === "contested") return ["restrict the workflow", "resolve contradictions", "open human review"];
   if (state === "degraded") return ["collect missing or stale evidence", ...(review ? ["complete human review"] : [])];
   return review ? ["complete required human review"] : ["continue continuous monitoring"];
+}
+
+function providerStateFor(states: FabricTrustState[]): ProviderRuntimeState {
+  if (!states.length) return "unknown";
+  const state = strongestAdverseState(states);
+  if (state === "verified") return "available";
+  if (state === "degraded") return "degraded";
+  if (state === "contested") return "contradicted";
+  return "unavailable";
 }
 
 export function evaluateEnterpriseTrust(input: TrustFabricEvaluationInput): TrustFabricEvaluation {
@@ -44,10 +53,19 @@ export function evaluateEnterpriseTrust(input: TrustFabricEvaluationInput): Trus
   const requiredReviews = input.reviewerDecisions.filter((decision) => decision.reviewRequired);
   const contradictionState = input.contradictions.length ? strongestAdverseState(input.contradictions.map((item) => item.state)) : null;
   const incidentState = input.incidents.length ? strongestAdverseState(input.incidents.map((item) => item.state)) : null;
-  const trustObject: EnterpriseTrustObject = {
-    enterpriseId: input.enterpriseId, subject: input.subject, identityState: input.identity.state,
+  const providerState = providerStateFor(input.providers.map((provider) => provider.state));
+  const correctiveActions = input.correctiveActions ?? [];
+  const objectContent = {
+    enterpriseId: input.enterpriseId, subjectType: input.subject.type, subjectId: input.subject.id,
+    displayIdentity: input.subject.displayName, subject: input.subject, identityState: input.identity.state,
     authorityState: input.authority.state, environmentState: input.environment.state, scopeState: input.scope.state,
-    evidenceCompleteness: input.evidenceCompleteness, currentTrustState,
+    evidenceCompleteness: input.evidenceCompleteness, trustState: currentTrustState, providerState,
+    activeContradictions: input.contradictions, activeIncidents: input.incidents, activeReviews: requiredReviews,
+    correctiveActions,
+    trustDnaReference: input.trustDnaProfileReference ?? null,
+    continuousTrustReference: input.continuousTrust.decisionReference ?? null,
+    policyId: input.policy.id,
+    currentTrustState,
     trustDnaProfileReference: input.trustDnaProfileReference ?? null,
     continuousTrustStateReference: input.continuousTrust.decisionReference ?? null,
     contradictionSummary: { count: input.contradictions.length, highestState: contradictionState, references: input.contradictions.map((item) => ({ type: "contradiction", id: item.id })) },
@@ -57,20 +75,39 @@ export function evaluateEnterpriseTrust(input: TrustFabricEvaluationInput): Trus
     evidenceGraphNodeReference: input.evidenceGraphNodeReference ?? null, lastEvaluatedAt: input.evaluatedAt,
     policyVersion: input.policy.version, correlationId: input.correlationId,
   };
+  const trustObject: EnterpriseTrustObject = { ...objectContent, canonicalDigest: hashCanonical(objectContent) };
+  const deterministicDigest = hashCanonical({
+    trustObjectDigest: trustObject.canonicalDigest, currentTrustState, providerState, reasonCodes, evidenceReferences,
+    recommendedOperationalActions: actionsFor(currentTrustState, requiredReviews.length > 0),
+  });
   return {
     trustObject, currentTrustState, authorityState: input.authority.state,
     environmentConsistency: input.environment.consistent ? "consistent" : "inconsistent",
     scopeContinuityState: input.scope.state, evidenceCompleteness: input.evidenceCompleteness,
     activeContradictions: input.contradictions, activeIncidents: input.incidents, requiredReviews,
+    providerState, incidentSummary: trustObject.incidentSummary, correctiveActions,
     recommendedOperationalActions: actionsFor(currentTrustState, requiredReviews.length > 0), reasonCodes,
     evidenceReferences, replayReference: input.replayReference ?? null, trustMemoryReference: input.trustMemoryReference ?? null,
     legalDecisionReference: input.legalDecisionReference ?? null,
+    deterministicDigest,
   };
 }
 
-export function createDecisionEnvelope(input: Omit<TrustFabricDecisionEnvelope, "decisionId" | "deterministicDigest"> & { decisionType: FabricDecisionType }): TrustFabricDecisionEnvelope {
+type DecisionEnvelopeInput = Omit<TrustFabricDecisionEnvelope, "decisionId" | "deterministicDigest" | "canonicalDigest" | "workflowId" | "actorAuthority"> & {
+  decisionType: FabricDecisionType;
+  workflowId?: string | null;
+  actorAuthority?: string;
+};
+
+export function createDecisionEnvelope(input: DecisionEnvelopeInput): TrustFabricDecisionEnvelope {
   if (input.decisionType === "legal_reference" && !input.legalDecisionReference) throw new TypeError("Legal decisions must be externally referenced.");
-  const canonical = { ...input, reasonCodes: [...new Set(input.reasonCodes)].sort(), evidenceReferences: unique(input.evidenceReferences, (item: FabricReference) => `${item.type}:${item.id}:${item.version ?? ""}`) };
+  const canonical = {
+    ...input,
+    workflowId: input.workflowId ?? input.workflow?.id ?? null,
+    actorAuthority: input.actorAuthority ?? input.actorOrSystemAuthority,
+    reasonCodes: [...new Set(input.reasonCodes)].sort(),
+    evidenceReferences: unique(input.evidenceReferences, (item: FabricReference) => `${item.type}:${item.id}:${item.version ?? ""}`),
+  };
   const deterministicDigest = hashCanonical(canonical);
-  return { ...canonical, decisionId: deterministicUuid({ deterministicDigest, enterpriseId: input.enterpriseId, decisionType: input.decisionType }), deterministicDigest };
+  return { ...canonical, decisionId: deterministicUuid({ deterministicDigest, enterpriseId: input.enterpriseId, decisionType: input.decisionType }), deterministicDigest, canonicalDigest: deterministicDigest };
 }

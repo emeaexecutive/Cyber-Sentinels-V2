@@ -1,27 +1,29 @@
 # Legacy Source-Contract Reconciliation
 
-The former non-default source sweep encoded several mutually inconsistent product eras. Epic 28 preserves security intent while replacing stale wording and architecture with canonical functional contracts. No test is skipped or deleted. The corrected suite is `npm run test:legacy-source-contracts` and is part of `npm test`.
+The former sweep encoded several product eras. Epic 28 preserves security intent while replacing stale wording and architecture with canonical functional contracts. No test was skipped or deleted. `npm run test:legacy-source-contracts` is in the default `npm test` chain.
 
-| Former failure | Original contract | Classification | Current canonical contract | Code change | Test change | Status |
-|---|---|---|---|---|---|---|
-| 1. Primary navigation six destinations | Platform, Hiring Security, Trust Center, Enterprise, Pricing, Access | partially stale contract | Six public links are Platform, Solutions, Trust, Enterprise, Pricing, Sign In; protected links are role-gated | added one navigation definition and consumed it in global navigation | asserts the canonical definition and access separation | pass |
-| 2. Homepage operational vocabulary | exact Operational Trust sentences and six workflow labels | obsolete product behavior | Enterprise Trust Infrastructure plus the approved continuous-verification statement | replaced hero/metadata with bounded canonical positioning | semantic markers; no paragraph-length match | pass |
-| 3. Authentication/admin affordances | login choices plus public-layout admin text | partially stale contract | login choices remain; admin entry exists only in authenticated role-gated navigation | centralized admin navigation; public layout stays clean | preserves auth assertions and tests access gating | pass |
-| 4. Historical policy-drop idempotency | every historical `CREATE POLICY` must have literal `DROP POLICY IF EXISTS` | historical migration debt | future policy guard compares canonical definitions and raises on drift | added `ensure_policy_definition_v1`; no historical migration edit | forward-only guard/contradiction assertions | pass |
-| 5. Exact demo path | overview must link replay and receipt fixtures | partially stale contract | `/demo` is canonical; `/replay/demo` is its deterministic replay; old execution entry redirects | rebuilt demo and redirect policy | asserts canonical route, redirect and pre-auth replay path | pass |
-| 6. Demo Replay six questions | six markers tied to one hiring fixture | obsolete product behavior | twelve-question cross-Epic Enterprise Trust Fabric demonstration contract | split declared/observed environment and added incident response, reviewer decision, corrective action, package formation, and full Replay | replaced stale six/eight-question assertions | pass |
-| 7. Provider four-state runtime | Live, Simulated, Awaiting Credentials, Disabled | obsolete product behavior | available, degraded, unavailable, contradicted, unknown | added canonical runtime mapper; retained adapter maturity separately | asserts all five operational states | pass |
-| 8. Homepage/auth/admin lock | old homepage sentences, public admin text, auth controls | partially stale contract | canonical homepage, unchanged account recovery, protected admin code | homepage/navigation changes only; admin pages remain protected | replaced stale copy/public-admin assertions | pass |
-| 9. Homepage copy and CTA routes | exact old copy and four route files | partially stale contract | canonical copy; `/demo` and enterprise-demo request CTAs resolve | added explicit demo CTA | tests semantic statement and route existence | pass |
-| 10. Dropdown/admin wiring | public dropdown mechanics and discreet footer admin entry | obsolete product behavior | direct six-link public navigation and role-gated admin link | removed dependency on dropdown source shape; centralized links | tests direct navigation and public/admin separation | pass |
-| 11. Replay unavailable versus empty | unavailable source warning plus snapshot wording | implementation regression | ready, empty, evidence_missing, source_unavailable, generation_failed, access_denied | added canonical resolver and UI evidence-state notice | tests all six states and fail-closed messages | pass |
-| 12. Provider Replay from activity counts | workflow counts could imply provider evidence | implementation regression | provider-backed Replay requires actual provider evidence references | Replay uses `provider_signals` references; empty panel states no inference | asserts no count inference and missing-evidence outcome | pass |
-| 13. Homepage positioning/wordmark/beta | exact old positioning, strong wordmark, no beta | partially stale contract | Enterprise Trust Infrastructure statement; strong wordmark; no beta language | canonical copy retained existing wordmark styling | semantic positioning plus brand and beta exclusions | pass |
+| Former failure | Original contract | Current canonical contract | Code change | Test change | Status |
+|---|---|---|---|---|---|
+| 1. Primary navigation six destinations | Platform, Hiring Security, Trust Center, Enterprise, Pricing, Access | Six public links are Platform, Solutions, Trust, Enterprise, Pricing, Sign In; protected links are role-gated | Central registry consumed by global navigation | Canonical definition and access separation | pass |
+| 2. Homepage operational vocabulary | Exact Operational Trust sentences and six workflow labels | Enterprise Trust Infrastructure plus approved continuous-verification statement | Replaced hero/metadata | Semantic markers, not full-paragraph matching | pass |
+| 3. Authentication/admin affordances | Login choices plus public-layout admin text | Login choices remain; admin appears only in authenticated role-gated navigation | Centralized admin navigation | Auth controls and role gating retained | pass |
+| 4. Historical policy-drop idempotency | Every historical policy needed literal `DROP POLICY IF EXISTS` | Forward guard compares canonical definitions, records decisions and fails closed on drift | Added versioned policy guard without historical edit | Absent, identical, replacement, conflict and repeat | pass |
+| 5. Exact demo path | Overview links replay and receipt fixtures | `/demo` canonical, `/replay/demo` deterministic, legacy execution route redirects | Unified route policy | Route, redirect and pre-auth Replay | pass |
+| 6. Demo Replay questions | Six hiring-fixture questions | Exact fourteen-question cross-Epic contract | Unified demo and Replay copy | Fourteen required questions | pass |
+| 7. Provider runtime state | Live, Simulated, Awaiting Credentials, Disabled | available, degraded, unavailable, contradicted, unknown | Canonical mapper; maturity separate | Five operational states | pass |
+| 8. Homepage/auth/admin lock | Old homepage, public admin text, auth controls | Canonical homepage, recovery unchanged, admin protected | Homepage/navigation only | Canonical copy plus access controls | pass |
+| 9. Homepage copy and CTA routes | Exact old copy and four route files | Canonical copy, `/demo`, enterprise-demo request | Explicit demo CTA | Semantic statement and route existence | pass |
+| 10. Dropdown/admin wiring | Public dropdown and footer admin entry | Shared direct public navigation and role-gated admin link | Desktop/mobile use one registry | Link resolution and public/admin separation | pass |
+| 11. Replay unavailable versus empty | Unavailable source warning collapsed with empty evidence | Six distinct availability states | Canonical resolver and UI notice | All states and controlled failure | pass |
+| 12. Provider Replay from activity counts | Counts could imply provider evidence | Provider Replay requires attributed evidence references | Provider-signal references only | Count cannot create evidence | pass |
+| 13. Positioning, wordmark and beta | Old positioning, strong wordmark, no beta | Enterprise Trust Infrastructure, existing wordmark, no beta language | Canonical positioning | Semantic category/brand/beta exclusions | pass |
+
+## Classification decisions
+
+Failures 1, 3, 5, 8, 9 and 13 were partially stale contracts; 2, 6, 7 and 10 were obsolete product behavior; 4 was historical migration debt; 11 and 12 were implementation regressions. None required restoring obsolete architecture or reducing security coverage.
 
 ## Result
 
 `LEGACY SOURCE-CONTRACT SWEEP: 58/58 PASS`
 
-The 58-test suite includes the reconciled contract files plus provider hardening, production-domain readiness, production readiness, real-world workflow hardening and public-surface navigation. It contains zero skips and zero failures.
-
-Epic 26/27 reconciliation preserves the 58-test legacy lock while extending its canonical demo expectation. It does not weaken, skip, or remove any source-contract test.
+The 58-test sweep has zero skips and remains the source-contract lock. Epic 28 extends the demo expectation without weakening legacy coverage.

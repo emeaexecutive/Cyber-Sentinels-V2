@@ -13,12 +13,12 @@
     },
     {
       "path": "supabase/migrations/202608010002_enterprise_trust_fabric.sql",
-      "sha256": "6d218b94d6bb4b9c35a6a2124f3dfa5fe247c22abc62b4537237fa4e3475873c"
+      "sha256": "e494e4bcf6b3d26432c5aa732a10c6944b0f03b8f1ba4fc783c1048300ff6900"
     }
   ],
   "prerequisites": ["trust_workspaces", "user_can_access_trust_workspace(uuid)", "trust_architecture_audit_log", "evidence_graph_nodes", "evidence_graph_edges", "trust_memory_index", "trust_policy_versions", "prevent_trust_architecture_history_mutation()"],
   "validationOrder": ["preflight.sql", "post-apply-validation.sql", "rls-validation.sql", "integrity-validation.sql"],
-  "inventories": ["object-inventory.json", "scenario-fixture.json"],
+  "inventories": ["expected-inventory.json", "scenario-fixture.json"],
   "integrity": {
     "tenantScopedForeignKeys": true,
     "appendOnlyHistory": true,
@@ -32,5 +32,6 @@
     "No migration in this package is applied automatically.",
     "A historical provider_health_snapshots collision currently blocks a clean preview before Epic 26."
   ],
-  "forwardPlan": "Resolve the historical collision only through a new audited forward migration, then rerun a clean preview and every package validation script."
+  "rollbackLimitations": "rollback-limitations.md",
+  "forwardPlan": "forward-repair-plan.md"
 }

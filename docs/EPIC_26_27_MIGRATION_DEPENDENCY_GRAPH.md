@@ -68,7 +68,7 @@ Both persistence layers insert into `trust_memory_index` with the original canon
 
 ## RLS, grants, policies and indexes
 
-All 18 tenant tables enable RLS. Authenticated users receive `SELECT` only through a tenant-read policy calling `user_can_access_trust_workspace(enterprise_id)`. Anon receives nothing. Persistence RPC execution is revoked from public, anon, and authenticated and granted to service role. Replay select is available through RLS and security-invoker semantics. Compound indexes begin with `enterprise_id` and cover subject/context, state/time, incident chronology, active responsibility, snapshot time, findings, package version, submissions, corrective actions, and corrections. The exact inventory is machine-readable in `supabase/release/epic-26-27/object-inventory.json`.
+All 18 tenant tables enable RLS. Authenticated users receive `SELECT` only through a tenant-read policy calling `user_can_access_trust_workspace(enterprise_id)`. Anon receives nothing. Persistence RPC execution is revoked from public, anon, and authenticated and granted to service role. Replay select is available through RLS and security-invoker semantics. Compound indexes begin with `enterprise_id` and cover subject/context, state/time, incident chronology, active responsibility, snapshot time, findings, package version, submissions, corrective actions, and corrections. The exact inventory is machine-readable in `supabase/release/epic-26-27/expected-inventory.json`.
 
 ## Transaction phases
 

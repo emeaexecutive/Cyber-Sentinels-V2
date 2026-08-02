@@ -4,9 +4,9 @@ A Trust Contract defines deterministic conditions under which an existing subjec
 
 ## Model
 
-The model in `src/lib/trust-fabric/types.ts` records enterprise, subject, workflow, authorized objective, required identity and environment states, required authority, permitted scope/providers, required evidence types and age, monitoring, human-review thresholds, contradiction policy, incident threshold, expiry, revocation state, issuer, approver, policy version and evidence references.
+The model in `src/lib/trust-fabric/types.ts` records `enterpriseId`, `subjectType`, `subjectId`, `workflowId`, authorized objective, required identity and environment states, required authority, permitted scope/providers, required evidence types and age, monitoring, human-review thresholds, contradiction policy, incident threshold, issuance/expiry/revocation timestamps, issuer, approver, policy ID/version, evidence references and supersession.
 
-Contracts are append-only. Revocation or replacement is represented by a new immutable record and supersession lineage at persistence level. `contractId` and record hash make retries idempotent; changed reuse fails closed.
+Contracts are append-only. An active contract has `revokedAt: null`; a revoked contract records its revocation time. Replacement uses a new immutable record and `supersedesContractId`. `contractId` and record hash make retries idempotent; changed reuse fails closed.
 
 ## Evaluation
 

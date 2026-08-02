@@ -38,7 +38,7 @@
     "test:continuous-trust-validation": "node --experimental-strip-types --test tests/continuous-trust-validation.test.mjs",
     "test:public-surface": "node --test tests/public-surface-navigation.test.mjs",
     "test:trust-os": "node --test tests/enterprise-trust-os.test.mjs",
-    "test:trust-fabric": "node --experimental-strip-types --test tests/trust-fabric-core.test.mjs",
+    "test:trust-fabric": "node --experimental-strip-types --test tests/trust-fabric-core.test.mjs tests/enterprise-trust-fabric-epic28.test.mjs tests/enterprise-trust-fabric-api-ui.test.mjs tests/rls/enterprise-trust-fabric.test.mjs",
     "test:enterprise-trust-fabric": "node --experimental-strip-types --test tests/enterprise-trust-fabric-epic28.test.mjs tests/enterprise-trust-fabric-api-ui.test.mjs tests/rls/enterprise-trust-fabric.test.mjs",
     "test:epic-26-27-integration": "node --experimental-strip-types --test tests/epic-26-27-integration.test.mjs",
     "test:legacy-source-contracts": "node --test tests/consolidation-operational-simplification.test.mjs tests/final-blocker-sweep.test.mjs tests/final-demo-readiness-lock.test.mjs tests/final-execution-readiness.test.mjs tests/operational-excellence-lockdown.test.mjs tests/provider-hardening.test.mjs tests/production-domain-readiness.test.mjs tests/production-readiness.test.mjs tests/real-world-workflow-hardening.test.mjs tests/public-surface-navigation.test.mjs",

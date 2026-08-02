@@ -12,7 +12,7 @@ Epic 27 owns the incident case, responsibility, chronology, immutable evidence s
 
 ## Capability matrix
 
-| Capability | Epic source | Canonical entity | Canonical service | API | UI | Evidence integration | Gap |
+| Capability | Epic source | Canonical record | Canonical service | API | UI | Shared evidence | Gap |
 |---|---|---|---|---|---|---|---|
 | Declared context | 26 | `execution_context_declarations` | `ScopeContinuityService` | `/api/trust/scope-continuity/evaluate` | `/dashboard/environment-scope` | Replay, Authority Lineage, graph, Trust Memory | none |
 | Environment evidence | 26 | `environment_attestations` | evaluator/repository | evaluate + evidence routes | Environment & Scope | versioned source reference and integrity state | none |
@@ -32,6 +32,8 @@ Epic 27 owns the incident case, responsibility, chronology, immutable evidence s
 ## Cross-Epic integrity
 
 The Epic 27 service and persistence RPC resolve every Epic 26 reference by both `enterprise_id` and canonical identifier. The deterministic fixture in `src/lib/trust-fabric/cross-epic-scenario.ts` uses the exact Epic 26 context, attestation, authorization lease, continuity decision, enterprise, and correlation references. It creates no shadow copy of any Epic 26 record.
+
+The fixture also composes a canonical AI-agent identity, digest-bound Trust Object, decision envelope, active Trust Contract evaluation and one attributed Enterprise Trust Timeline. The adverse Scope Continuity state remains strongest; the Fabric does not reevaluate or weaken it.
 
 Occurrence, provider observation, detection, human review, organization awareness, materiality, containment request, containment confirmation, reporting decision, submission, acknowledgment, recovery, and closure remain separate clocks. A provider acknowledgment is an assertion and never proves containment. Operational screening can require specialist review but cannot create a legal conclusion.
 

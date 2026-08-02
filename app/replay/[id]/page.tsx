@@ -115,9 +115,10 @@ function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
           </p>
         </section>
 
-        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Canonical twelve-question demonstration contract">
+        <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Canonical fourteen-question demonstration contract">
           {[
             ["Who or what acted?", "Human participant with accountable workflow ownership"],
+            ["What identity was verified?", `${crossEpic.trustFabric.identity.subject.displayName} / ${crossEpic.trustFabric.identity.identityReference.id}`],
             ["What authority existed?", scenario.replayEvents[0]?.authorization ?? "No authority reference"],
             ["What environment was declared?", `Controlled synthetic demonstration environment: ${crossEpic.scope.input.declaration.environmentClass}`],
             ["What environment was observed?", crossEpic.scope.input.attestations[0]?.observedEnvironmentClass ?? "Not observed"],
@@ -125,10 +126,11 @@ function DemoReplay({ scenario }: { scenario: SimulationScenario }) {
             ["What evidence supported the decision?", `${crossEpic.scope.decision.evidenceReferences.length} canonical evidence references`],
             ["Why did trust change?", crossEpic.scope.decision.reasonCodes.join(", ")],
             ["Was an incident opened?", crossEpic.incident.id],
-            ["What containment occurred?", "Containment requested and provider acknowledged; not confirmed"],
+            ["What containment was requested?", "Runtime isolation and authority rotation"],
+            ["What containment was confirmed?", "No containment confirmation exists; provider acknowledgement is preserved separately"],
             ["Who reviewed it?", `${crossEpic.reviewerDecision.reviewerRole} under ${crossEpic.reviewerDecision.organizationalAuthority}`],
             ["What corrective action followed?", crossEpic.correctiveAction.action],
-            ["How is the complete sequence replayed?", `${crossEpic.replay.length} deterministic cross-Epic events and draft package ${crossEpic.submissionPackage.packageDigest.slice(0, 12)}… preserve source ownership and uncertainty.`],
+            ["How can the complete sequence be replayed?", `${crossEpic.trustFabric.trustTimeline.length} deterministic cross-Epic timeline items and draft package ${crossEpic.submissionPackage.packageDigest.slice(0, 12)}… preserve source ownership and uncertainty.`],
           ].map(([title, value]) => (
             <article key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
               <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{title}</p>

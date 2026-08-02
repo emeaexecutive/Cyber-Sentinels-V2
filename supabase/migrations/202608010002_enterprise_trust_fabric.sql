@@ -5,7 +5,7 @@ create extension if not exists pgcrypto;
 create table public.trust_contracts (
   contract_id uuid not null,
   enterprise_id uuid not null references public.trust_workspaces(id) on delete restrict,
-  subject_type text not null check(subject_type in ('human','ai_agent','machine_identity','device','organization','workflow','application','API','model','document','infrastructure_resource','provider','external_system')),
+  subject_type text not null check(subject_type in ('human','ai_agent','machine_identity','device','organization','workflow','application','api','model','document','infrastructure_resource','provider','external_system')),
   subject_id text not null,
   workflow_id text not null,
   authorized_objective text not null,
