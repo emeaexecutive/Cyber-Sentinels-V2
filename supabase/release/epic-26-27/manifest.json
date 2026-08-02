@@ -17,7 +17,7 @@
     },
     {
       "path": "supabase/migrations/202607310001_environment_attestation_scope_continuity.sql",
-      "sha256": "11bafa552700f7351bf63845d81bf2d518f064b1a65ae74fc8a99be72094ea6f"
+      "sha256": "0f54e55ee0427c396675121f701dcf26bedc56fc20ac5a3a1fb411fd36fe2292"
     },
     {
       "path": "supabase/migrations/202608010001_ai_serious_incident_regulatory_lineage.sql",
@@ -48,6 +48,16 @@
       "scope": "Enterprise Trust Graph relationship table, index, policy, and consumer name separation only; columns and behavior unchanged.",
       "dataMigrationRequired": false,
       "productionLedgerRepairRequired": false
+    },
+    {
+      "path": "supabase/migrations/202607310001_environment_attestation_scope_continuity.sql",
+      "originalCommit": "b4717179cb6a1d78d6f130bacd70361fe16f0097",
+      "originalSha256": "11bafa552700f7351bf63845d81bf2d518f064b1a65ae74fc8a99be72094ea6f",
+      "correctedSha256": "0f54e55ee0427c396675121f701dcf26bedc56fc20ac5a3a1fb411fd36fe2292",
+      "applicationProof": "The linked Production ledger records 202607310001 as remote-blank, and clean Preview reconstruction failed while parsing statement 32 before durable application.",
+      "scope": "Lease-hash SQL parenthesis correction only; canonical fields, SHA-256 algorithm, idempotency, and behavior unchanged.",
+      "dataMigrationRequired": false,
+      "productionLedgerRepairRequired": false
     }
   ],
   "prerequisites": ["trust_workspaces", "user_can_access_trust_workspace(uuid)", "trust_architecture_audit_log", "evidence_graph_nodes", "evidence_graph_edges", "trust_memory_index", "trust_policy_versions", "prevent_trust_architecture_history_mutation()"],
@@ -64,8 +74,8 @@
   "limitations": [
     "No destructive rollback is supported for append-only evidence history.",
     "No migration in this package is applied automatically.",
-    "The Epic 16 and Enterprise Trust Graph historical corrections were authorized only because they were never durably applied.",
-    "No provider-health or trust-relationship data migration or Production ledger repair is required."
+    "The Epic 16, Enterprise Trust Graph, and Epic 26 historical corrections were authorized only because they were never durably applied.",
+    "No provider-health, trust-relationship, or Scope Continuity data migration or Production ledger repair is required."
   ],
   "rollbackLimitations": "rollback-limitations.md",
   "forwardPlan": "forward-repair-plan.md"

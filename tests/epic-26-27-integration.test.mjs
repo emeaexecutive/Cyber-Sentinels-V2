@@ -15,7 +15,7 @@ const fabricPath = "supabase/migrations/202608010002_enterprise_trust_fabric.sql
 const releaseRoot = "supabase/release/epic-26-27";
 
 test("merged Epic 26 and 27 migrations retain their audited hashes", () => {
-  assert.equal(sha256CanonicalText(epic26Path), "11bafa552700f7351bf63845d81bf2d518f064b1a65ae74fc8a99be72094ea6f");
+  assert.equal(sha256CanonicalText(epic26Path), "0f54e55ee0427c396675121f701dcf26bedc56fc20ac5a3a1fb411fd36fe2292");
   assert.equal(sha256CanonicalText(epic27Path), "d4acdf09197be946503938fd31dfe3654fe4495d16f7535e99d263bb0f506385");
 });
 
@@ -25,7 +25,7 @@ test("release manifest orders corrected Epic 16, Epic 17, Enterprise graph, Epic
   assert.equal(manifest.reviewOnly, true);
   assert.equal(manifest.remoteMutation, false);
   for (const migration of manifest.orderedMigrations) assert.equal(sha256CanonicalText(migration.path), migration.sha256, migration.path);
-  assert.equal(manifest.historicalCorrections.length, 2);
+  assert.equal(manifest.historicalCorrections.length, 3);
   for (const correction of manifest.historicalCorrections) {
     assert.equal(correction.dataMigrationRequired, false);
     assert.equal(correction.productionLedgerRepairRequired, false);

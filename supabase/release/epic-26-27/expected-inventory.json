@@ -39,5 +39,15 @@
     "dataMigrationRequired": false,
     "productionLedgerRepairRequired": false
   },
+  "scopeContinuityHashReconciliation": {
+    "classification": "unapplied Epic 26 SQL syntax corrected before first durable deployment",
+    "rpc": "persist_scope_continuity_decision_v1(jsonb,jsonb,jsonb,uuid,uuid)",
+    "digestAlgorithm": "sha256",
+    "digestEncoding": "lowercase hexadecimal",
+    "immutableLeaseHash": true,
+    "changedRetryRejected": true,
+    "dataMigrationRequired": false,
+    "productionLedgerRepairRequired": false
+  },
   "sharedGraphEdgeTypes": ["ASSERTS", "DERIVED_FROM", "OBSERVED_BY", "AUTHORIZED_BY", "PARTICIPATED_IN", "APPLIES_TO", "SUPERSEDES", "REVOKES", "CONFLICTS_WITH", "SUPPORTED", "CHALLENGED", "RESULTED_IN", "TRIGGERED", "ALERTED_BY", "CORRELATED_WITH", "REPLAYED_AS", "INVOLVES", "OPERATED_AS", "RAN_IN", "CONTRADICTS", "CAUSED_OR_PRECEDED", "DETECTED_BY", "AFFECTED", "REQUESTED_FROM", "CONTAINMENT_REQUESTED", "ACKNOWLEDGED_BY", "CONFIRMED_BY", "INDEPENDENTLY_CONFIRMED_BY", "SUPPORTS_TRIGGER", "REVIEWED_BY", "DECIDED_BY", "INCLUDES", "INCLUDED_IN_PACKAGE", "SUBMITTED_TO", "CORRECTED_BY", "REMEDIATED_BY", "VALIDATED_BY", "RECORDED_IN_MEMORY", "RECONSTRUCTED_BY_REPLAY"]
 }
