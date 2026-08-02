@@ -1,6 +1,6 @@
 # Forward deployment plan
 
-The Epic 16 and Epic 17 migrations were proven absent from Production and every durable Supabase branch before the historical source correction. Epic 16 now creates `provider_operational_health_snapshots`; Epic 17 creates the tenant-scoped `provider_health_snapshots`. The original Epic 16 source remains in Git history, and the manifest binds both original and corrected hashes.
+The Epic 16, Epic 17, and Enterprise Trust Graph migrations were proven absent from Production and every durable Supabase branch before historical source correction. Epic 16 now creates `provider_operational_health_snapshots`; Epic 17 creates the tenant-scoped `provider_health_snapshots`; and the Enterprise graph creates `trust_graph_relationships_v2` without altering applied legacy `trust_relationships`. The original corrected sources remain in Git history, and the manifest binds their original and corrected hashes.
 
 No data migration, table rename in a durable database, or Production migration-ledger repair is required. Do not attempt an out-of-order repair.
 

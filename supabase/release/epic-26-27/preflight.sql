@@ -27,3 +27,13 @@ begin
     select 1 from information_schema.columns where table_schema='public' and table_name='provider_health_snapshots' and column_name='enterprise_id'
   ) then raise exception 'EPIC_17_CONSENSUS_PROVIDER_HEALTH_SHAPE_DRIFT'; end if;
 end $$;
+
+-- Canonical trust-relationship separation. Legacy and Enterprise objects must coexist.
+do $$
+begin
+  if to_regclass('public.trust_relationships') is null then raise exception 'LEGACY_TRUST_RELATIONSHIPS_ABSENT'; end if;
+  if to_regclass('public.trust_graph_relationships_v2') is null then raise exception 'ENTERPRISE_TRUST_GRAPH_RELATIONSHIPS_ABSENT'; end if;
+  if not exists(select 1 from information_schema.columns where table_schema='public' and table_name='trust_relationships' and column_name='source_type') then raise exception 'LEGACY_TRUST_RELATIONSHIPS_SHAPE_DRIFT'; end if;
+  if not exists(select 1 from information_schema.columns where table_schema='public' and table_name='trust_graph_relationships_v2' and column_name='tenant_id')
+    or not exists(select 1 from information_schema.columns where table_schema='public' and table_name='trust_graph_relationships_v2' and column_name='source_entity') then raise exception 'ENTERPRISE_TRUST_GRAPH_RELATIONSHIPS_SHAPE_DRIFT'; end if;
+end $$;

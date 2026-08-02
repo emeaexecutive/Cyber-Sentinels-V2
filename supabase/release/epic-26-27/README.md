@@ -2,7 +2,7 @@
 
 This is a review and validation package, not a deployment tool. It contains no secrets and performs no remote operation.
 
-It inventories the corrected Epic 16 provider abstraction, Epic 17 Provider Consensus, Epic 26, Epic 27, and Epic 28 migrations for isolated staging architecture review; it does not apply them. The Epic 16 migration was corrected before first durable deployment to name its global operational table `provider_operational_health_snapshots`; Epic 17 retains the tenant-scoped `provider_health_snapshots` table.
+It inventories the corrected Epic 16 provider abstraction, Epic 17 Provider Consensus, corrected Enterprise Trust Graph, Epic 26, Epic 27, and Epic 28 migrations for isolated staging architecture review; it does not apply them. The Epic 16 migration was corrected before first durable deployment to name its global operational table `provider_operational_health_snapshots`; Epic 17 retains the tenant-scoped `provider_health_snapshots` table. The unapplied Enterprise graph migration now uses `trust_graph_relationships_v2` while the applied legacy `trust_relationships` contract remains intact.
 
 Apply the complete repository history in lexical order in an isolated environment. `migration-order.txt` records the reviewed dependency path. Then run `preflight.sql`, `post-apply-validation.sql`, `rls-validation.sql`, and `integrity-validation.sql`; each script is read-only and fails closed with a descriptive exception.
 

@@ -12,4 +12,6 @@ begin
   if not exists(select 1 from pg_constraint where conrelid='public.provider_operational_health_snapshots'::regclass and contype='f' and confrelid='public.provider_registry'::regclass) then raise exception 'EPIC_16_OPERATIONAL_PROVIDER_HEALTH_FK_MISSING'; end if;
   if exists(select 1 from information_schema.columns where table_schema='public' and table_name='provider_operational_health_snapshots' and column_name='enterprise_id') then raise exception 'EPIC_16_OPERATIONAL_PROVIDER_HEALTH_FABRICATED_OWNERSHIP'; end if;
   if not exists(select 1 from pg_constraint where conrelid='public.provider_health_snapshots'::regclass and contype='f' and confrelid='public.trust_workspaces'::regclass) then raise exception 'EPIC_17_CONSENSUS_PROVIDER_HEALTH_TENANT_FK_MISSING'; end if;
+  if (select count(*) from pg_constraint where conrelid='public.trust_graph_relationships_v2'::regclass and contype='f' and confrelid='public.trust_entities'::regclass and array_length(conkey,1)=2)<2 then raise exception 'ENTERPRISE_TRUST_GRAPH_RELATIONSHIPS_TENANT_FK_MISSING'; end if;
+  if not exists(select 1 from pg_indexes where schemaname='public' and tablename='trust_graph_relationships_v2' and indexname='trust_graph_relationships_v2_active_unique_idx') then raise exception 'ENTERPRISE_TRUST_GRAPH_RELATIONSHIPS_ACTIVE_UNIQUENESS_MISSING'; end if;
 end $$;
