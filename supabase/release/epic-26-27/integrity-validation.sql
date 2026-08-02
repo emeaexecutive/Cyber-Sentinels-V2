@@ -9,4 +9,7 @@ begin
   if not exists(select 1 from pg_constraint where conrelid='public.evidence_graph_edges'::regclass and pg_get_constraintdef(oid) like '%INCIDENT_HAS_SNAPSHOT%') then raise exception 'EPIC_26_27_GRAPH_EDGE_TYPES_MISSING'; end if;
   if not exists(select 1 from pg_proc where proname='persist_scope_continuity_decision_v1' and prosrc like '%trust_memory_index%') then raise exception 'EPIC_26_TRUST_MEMORY_WRITE_MISSING'; end if;
   if not exists(select 1 from pg_proc where proname='persist_serious_incident_case_v1' and prosrc like '%trust_memory_index%') then raise exception 'EPIC_27_TRUST_MEMORY_WRITE_MISSING'; end if;
+  if not exists(select 1 from pg_constraint where conrelid='public.provider_operational_health_snapshots'::regclass and contype='f' and confrelid='public.provider_registry'::regclass) then raise exception 'EPIC_16_OPERATIONAL_PROVIDER_HEALTH_FK_MISSING'; end if;
+  if exists(select 1 from information_schema.columns where table_schema='public' and table_name='provider_operational_health_snapshots' and column_name='enterprise_id') then raise exception 'EPIC_16_OPERATIONAL_PROVIDER_HEALTH_FABRICATED_OWNERSHIP'; end if;
+  if not exists(select 1 from pg_constraint where conrelid='public.provider_health_snapshots'::regclass and contype='f' and confrelid='public.trust_workspaces'::regclass) then raise exception 'EPIC_17_CONSENSUS_PROVIDER_HEALTH_TENANT_FK_MISSING'; end if;
 end $$;

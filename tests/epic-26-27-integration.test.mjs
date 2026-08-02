@@ -6,6 +6,8 @@ import { epic2627CrossEpicScenario } from "../src/lib/trust-fabric/cross-epic-sc
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const sha256CanonicalText = (path) => createHash("sha256").update(read(path).replace(/\r\n/g, "\n"), "utf8").digest("hex");
+const epic16Path = "supabase/migrations/202607170002_provider_abstraction_hopae.sql";
+const epic17Path = "supabase/migrations/202607200003_provider_consensus_engine.sql";
 const epic26Path = "supabase/migrations/202607310001_environment_attestation_scope_continuity.sql";
 const epic27Path = "supabase/migrations/202608010001_ai_serious_incident_regulatory_lineage.sql";
 const fabricPath = "supabase/migrations/202608010002_enterprise_trust_fabric.sql";
@@ -16,12 +18,15 @@ test("merged Epic 26 and 27 migrations retain their audited hashes", () => {
   assert.equal(sha256CanonicalText(epic27Path), "d4acdf09197be946503938fd31dfe3654fe4495d16f7535e99d263bb0f506385");
 });
 
-test("release manifest orders Epic 26 before Epic 27 and pins canonical files", () => {
+test("release manifest orders corrected Epic 16, Epic 17, Epic 26, Epic 27, and Epic 28", () => {
   const manifest = JSON.parse(read(`${releaseRoot}/manifest.json`));
-  assert.deepEqual(manifest.orderedMigrations.slice(0, 2).map((entry) => entry.path), [epic26Path, epic27Path]);
+  assert.deepEqual(manifest.orderedMigrations.map((entry) => entry.path), [epic16Path, epic17Path, epic26Path, epic27Path, fabricPath]);
   assert.equal(manifest.reviewOnly, true);
   assert.equal(manifest.remoteMutation, false);
   for (const migration of manifest.orderedMigrations) assert.equal(sha256CanonicalText(migration.path), migration.sha256, migration.path);
+  assert.equal(manifest.historicalCorrections.length, 1);
+  assert.equal(manifest.historicalCorrections[0].dataMigrationRequired, false);
+  assert.equal(manifest.historicalCorrections[0].productionLedgerRepairRequired, false);
   const migrationNames = fs.readdirSync("supabase/migrations").filter((name) => /^\d+.*\.sql$/.test(name));
   assert.equal(new Set(migrationNames.map((name) => name.match(/^\d+/)?.[0])).size, migrationNames.length);
   for (const prerequisite of manifest.prerequisites) assert.match(read(`${releaseRoot}/prerequisite-objects.md`), new RegExp(prerequisite.replace(/[()]/g, "\\$&")));
@@ -140,7 +145,8 @@ test("policy reconciliation handles absent, identical, intentional replacement, 
 
 test("staging package includes the exact review inventory, hashes and forward plan", () => {
   for (const file of ["README.md", "manifest.json", "migration-order.txt", "prerequisite-objects.md", "preflight.sql", "post-apply-validation.sql", "rls-validation.sql", "integrity-validation.sql", "expected-inventory.json", "rollback-limitations.md", "forward-repair-plan.md", "SHA256SUMS"]) assert.equal(fs.existsSync(`${releaseRoot}/${file}`), true, file);
-  assert.match(read(`${releaseRoot}/README.md`), /forward-only migration/i);
+  assert.match(read(`${releaseRoot}/README.md`), /corrected Epic 16 provider abstraction/i);
+  assert.match(read(`${releaseRoot}/preflight.sql`), /provider_operational_health_snapshots/);
   assert.match(read(`${releaseRoot}/preflight.sql`), /provider_health_snapshots/);
   const checksums = read(`${releaseRoot}/SHA256SUMS`).trim().split(/\r?\n/);
   for (const line of checksums) {
@@ -150,6 +156,8 @@ test("staging package includes the exact review inventory, hashes and forward pl
   const inventory = JSON.parse(read(`${releaseRoot}/expected-inventory.json`));
   const source = `${read(epic26Path)}\n${read(epic27Path)}`;
   for (const name of [...inventory.epic26.tables, ...inventory.epic27.tables, ...inventory.epic26.indexes, ...inventory.epic27.indexes]) assert.match(source, new RegExp(name));
+  const providerSource = `${read(epic16Path)}\n${read(epic17Path)}`;
+  for (const name of [...inventory.providerHealthReconciliation.tables, ...inventory.providerHealthReconciliation.indexes]) assert.match(providerSource, new RegExp(name));
 });
 
 test("canonical demo asks fourteen questions and uses the cross-Epic fixture", () => {

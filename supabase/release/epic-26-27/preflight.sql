@@ -13,10 +13,17 @@ begin
   if cardinality(missing)>0 then raise exception 'EPIC_26_27_MISSING_PREREQUISITES: %',array_to_string(missing,', '); end if;
 end $$;
 
--- Known historical-chain collision detector. Either incompatible shape requires forward repair, never history edits.
+-- Canonical provider-health separation. Both objects must exist with their owning shape.
 do $$
 begin
-  if to_regclass('public.provider_health_snapshots') is not null and not exists(
+  if to_regclass('public.provider_operational_health_snapshots') is null then raise exception 'EPIC_16_OPERATIONAL_PROVIDER_HEALTH_ABSENT'; end if;
+  if to_regclass('public.provider_health_snapshots') is null then raise exception 'EPIC_17_CONSENSUS_PROVIDER_HEALTH_ABSENT'; end if;
+  if not exists(
+    select 1 from information_schema.columns where table_schema='public' and table_name='provider_operational_health_snapshots' and column_name='provider_id'
+  ) or exists(
+    select 1 from information_schema.columns where table_schema='public' and table_name='provider_operational_health_snapshots' and column_name='enterprise_id'
+  ) then raise exception 'EPIC_16_OPERATIONAL_PROVIDER_HEALTH_SHAPE_DRIFT'; end if;
+  if not exists(
     select 1 from information_schema.columns where table_schema='public' and table_name='provider_health_snapshots' and column_name='enterprise_id'
-  ) then raise exception 'EPIC_26_27_HISTORICAL_PROVIDER_HEALTH_COLLISION: forward-only repair required'; end if;
+  ) then raise exception 'EPIC_17_CONSENSUS_PROVIDER_HEALTH_SHAPE_DRIFT'; end if;
 end $$;

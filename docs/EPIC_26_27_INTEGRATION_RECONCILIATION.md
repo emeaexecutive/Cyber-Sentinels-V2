@@ -27,7 +27,7 @@ Epic 27 owns the incident case, responsibility, chronology, immutable evidence s
 | Reviewer decision | 27 | `incident_reviewer_decisions` | workflow/repository | reviewer route | Serious Incidents / Regulatory Readiness | assigned role + authority reference | none |
 | Package/submission | 27 | package + external-submission tables | package builder/repository | package/submission routes | Regulatory Readiness | immutable digest, exact approved version | none |
 | Corrective action/correction | 27 | corrective-action + supersession tables | workflow/repository | append routes | Serious Incidents | completion and validation evidence; `SUPERSEDES` | none |
-| Composed trust view | 28 | provider-neutral reference envelope | Trust Fabric control plane | `/api/trust-fabric` | `/trust-centre/fabric` | references both owners without copying payloads | staging preview blocked before Epic 26 by historical provider table collision |
+| Composed trust view | 28 | provider-neutral reference envelope | Trust Fabric control plane | `/api/trust-fabric` | `/trust-centre/fabric` | references both owners without copying payloads | clean Preview replay required before staging approval |
 
 ## Cross-Epic integrity
 
@@ -49,6 +49,6 @@ All Epic 26 and Epic 27 tenant tables enable RLS. Authenticated access is read-o
 
 The staging architecture package is in `supabase/release/epic-26-27/`. It contains hashes, immutable migration references, object inventories, prerequisite checks, post-apply validation, RLS validation, integrity checks, the canonical scenario fixture, rollback limitations, and a forward-repair plan. It neither applies SQL nor contains credentials.
 
-## Known external blocker
+## Provider-health prerequisite correction
 
-The repository migration chain contains a pre-existing `provider_health_snapshots` definition collision between `202607170002_provider_abstraction_hopae.sql` and `202607200003_provider_consensus_engine.sql`. A clean Supabase preview fails before Epic 26/27 can apply. This reconciliation detects and documents that condition but does not rewrite historical migrations or remote migration history. Staging approval therefore remains blocked until an authorized forward-only repair is merged and a clean preview succeeds.
+Authoritative migration history proved that neither `202607170002_provider_abstraction_hopae.sql` nor `202607200003_provider_consensus_engine.sql` was durably applied. The narrowly corrected Epic 16 migration creates `provider_operational_health_snapshots`; Epic 17 retains tenant-scoped `provider_health_snapshots`. No data migration or Production ledger repair is required. Staging approval still requires a clean disposable Preview replay through Epic 28.

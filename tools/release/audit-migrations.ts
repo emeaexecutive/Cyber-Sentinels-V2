@@ -25,9 +25,9 @@ function markdownTimestamp() {
   return new Date().toISOString();
 }
 
-export function auditMigrations(repoRoot = process.cwd(), writeReport = true): MigrationAudit {
+export function auditMigrations(repoRoot = process.cwd(), writeReport = true, reportsRoot = join(repoRoot, "reports")): MigrationAudit {
   const migrationRoot = join(repoRoot, "supabase", "migrations");
-  const reportPath = join(repoRoot, "reports", "MigrationReport.md");
+  const reportPath = join(reportsRoot, "MigrationReport.md");
   const files = sqlFiles(migrationRoot).sort();
   const findings: MigrationFinding[] = [];
   const names = new Map<string, string[]>();
@@ -70,7 +70,7 @@ export function auditMigrations(repoRoot = process.cwd(), writeReport = true): M
   const warnings = findings.filter((item) => item.level === "WARNING").length;
   const status: MigrationAudit["status"] = errors ? "FAIL" : warnings ? "PASS WITH WARNINGS" : "PASS";
   if (writeReport) {
-    mkdirSync(join(repoRoot, "reports"), { recursive: true });
+    mkdirSync(reportsRoot, { recursive: true });
     const lines = [
       "# Migration report",
       "",

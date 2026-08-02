@@ -7,13 +7,14 @@ import { auditMigrations, type MigrationAudit } from "./audit-migrations.ts";
 import { requireNode22 } from "./node-version.ts";
 import { runSecurityChecks, type SecurityAudit } from "./security-checks.ts";
 import { checkTrustInfrastructure, type TrustInfrastructureAudit } from "./trust-infrastructure-checks.ts";
+import { runBoundedCommand } from "./bounded-subprocess.ts";
 
 type Options = { full: boolean; migrate: boolean; skipInstall: boolean; skipBuild: boolean; dryRun: boolean; help: boolean };
 type StageStatus = "PASS" | "PASS WITH WARNINGS" | "FAIL" | "SKIPPED";
 type StageResult = { name: string; status: StageStatus; command: string; detail: string };
 
 const repoRoot = resolve(process.cwd());
-const reportsRoot = join(repoRoot, "reports");
+const reportsRoot = resolve(process.env.CYBER_SENTINELS_REPORTS_ROOT ?? join(repoRoot, "reports"));
 const npmCli = process.env.CYBER_SENTINELS_NPM_CLI ?? process.env.npm_execpath;
 const npmExecutable = npmCli ? process.execPath : process.platform === "win32" ? "npm.cmd" : "npm";
 const npmPrefix = npmCli ? [npmCli] : [];
@@ -24,6 +25,9 @@ const pathKey = Object.keys(process.env).find((key) => key.toLowerCase() === "pa
 const childEnvironment = { ...process.env, [pathKey]: `${dirname(process.execPath)}${delimiter}${process.env[pathKey] ?? ""}` };
 const stages: StageResult[] = [];
 const warnings: string[] = [];
+const captureTimeoutMs = 30_000;
+const configuredStageTimeout = Number(process.env.CYBER_SENTINELS_STAGE_TIMEOUT_MS ?? 1_200_000);
+const stageTimeoutMs = Number.isFinite(configuredStageTimeout) && configuredStageTimeout >= 1_000 ? configuredStageTimeout : 1_200_000;
 let currentStage = "Argument validation";
 let failure: Error | null = null;
 let migrationAudit: MigrationAudit | null = null;
@@ -55,7 +59,8 @@ function commandLabel(executable: string, args: string[]) {
 }
 
 function capture(executable: string, args: string[]) {
-  const result = spawnSync(executable, args, { cwd: repoRoot, encoding: "utf8", env: childEnvironment, shell: false, windowsHide: true });
+  const result = spawnSync(executable, args, { cwd: repoRoot, encoding: "utf8", env: childEnvironment, shell: false, windowsHide: true, timeout: captureTimeoutMs, maxBuffer: 1024 * 1024 });
+  if (result.error && "code" in result.error && result.error.code === "ETIMEDOUT") throw new Error(`${commandLabel(executable, args)} timed out after ${captureTimeoutMs}ms.`);
   if (result.error || result.status !== 0) throw new Error(`${commandLabel(executable, args)} failed.`);
   return result.stdout.trim();
 }
@@ -64,28 +69,37 @@ function safeCapture(executable: string, args: string[]) {
   try { return capture(executable, args); } catch { return "unavailable"; }
 }
 
-function run(executable: string, args: string[], name: string) {
+async function run(executable: string, args: string[], name: string) {
   currentStage = name;
   console.log(`\n==> ${name}`);
   console.log(commandLabel(executable, args));
-  const result = spawnSync(executable, args, { cwd: repoRoot, stdio: "inherit", env: childEnvironment, shell: false, windowsHide: true });
+  const result = await runBoundedCommand(executable, args, { cwd: repoRoot, env: childEnvironment, timeoutMs: stageTimeoutMs });
+  const outputSummary = `Captured ${result.stdoutBytes} stdout bytes and ${result.stderrBytes} stderr bytes; content omitted to avoid secret disclosure.`;
+  if (result.timedOut) {
+    stages.push({ name, status: "FAIL", command: commandLabel(executable, args), detail: `Timed out after ${stageTimeoutMs}ms; process tree terminated. ${outputSummary}` });
+    throw new Error(`${name} timed out after ${stageTimeoutMs}ms; process tree terminated.`);
+  }
   if (result.error || result.status !== 0) {
     const exitCode = result.status ?? 1;
-    stages.push({ name, status: "FAIL", command: commandLabel(executable, args), detail: `Exited with code ${exitCode}.` });
+    stages.push({ name, status: "FAIL", command: commandLabel(executable, args), detail: `Exited with code ${exitCode}. ${outputSummary}` });
     throw new Error(`${name} failed with exit code ${exitCode}.`);
   }
-  stages.push({ name, status: "PASS", command: commandLabel(executable, args), detail: "Completed successfully." });
+  stages.push({ name, status: "PASS", command: commandLabel(executable, args), detail: `Completed successfully. ${outputSummary}` });
 }
 
 function skip(name: string, command: string, detail: string) {
   stages.push({ name, status: "SKIPPED", command, detail });
 }
 
-function runDependencyAudit() {
+async function runDependencyAudit() {
   const name = "Dependency security audit";
   currentStage = name;
   const args = [...npmPrefix, "audit", "--omit=dev", "--json"];
-  const result = spawnSync(npmExecutable, args, { cwd: repoRoot, encoding: "utf8", env: childEnvironment, shell: false, windowsHide: true });
+  const result = spawnSync(npmExecutable, args, { cwd: repoRoot, encoding: "utf8", env: childEnvironment, shell: false, windowsHide: true, timeout: stageTimeoutMs, maxBuffer: 16 * 1024 * 1024 });
+  if (result.error && "code" in result.error && result.error.code === "ETIMEDOUT") {
+    stages.push({ name, status: "FAIL", command: commandLabel(npmExecutable, args), detail: `Timed out after ${stageTimeoutMs}ms.` });
+    throw new Error(`Dependency security audit timed out after ${stageTimeoutMs}ms.`);
+  }
   let counts = { low: 0, moderate: 0, high: 0, critical: 0 };
   try {
     const parsed = JSON.parse(result.stdout || "{}") as { metadata?: { vulnerabilities?: Partial<typeof counts> } };
@@ -211,6 +225,7 @@ function terminalSummary(ready: boolean, options: Options) {
   console.log("==================================================");
 }
 
+async function main() {
 let options: Options;
 try {
   options = parseOptions(process.argv.slice(2));
@@ -250,11 +265,11 @@ try {
   if (options.migrate) capture(npxExecutable, [...npxPrefix, "supabase", "--version"]);
   stages.push({ name: "Tool checks", status: "PASS", command: "git/node/npm version checks", detail: `${gitVersion}; runtime ${nodeVersion}; child PATH ${pathNodeVersion}; npm ${npmVersion}` });
 
-  migrationAudit = auditMigrations(repoRoot);
+  migrationAudit = auditMigrations(repoRoot, true, reportsRoot);
   if (options.migrate && migrationAudit.status === "FAIL") throw new Error("Migration static audit contains ERROR findings; database push is blocked.");
-  securityAudit = runSecurityChecks(repoRoot);
+  securityAudit = runSecurityChecks(repoRoot, true, reportsRoot);
   if (securityAudit.status === "FAIL") throw new Error("Security static checks contain blocking findings.");
-  trustAudit = checkTrustInfrastructure(repoRoot);
+  trustAudit = checkTrustInfrastructure(repoRoot, true, reportsRoot);
 
   currentStage = "Consent source verification";
   const consentManager = readFileSync(join(repoRoot, "src", "components", "consent", "ConsentManager.tsx"), "utf8");
@@ -279,18 +294,18 @@ try {
     if (options.migrate) skip("Supabase migration", commandLabel(npxExecutable, [...npxPrefix, "supabase", "db", "push", "--include-all"]), "Dry run; no database changes performed.");
   } else {
     if (options.skipInstall) skip("Dependencies", commandLabel(npmExecutable, [...npmPrefix, "ci"]), "Explicitly skipped.");
-    else run(npmExecutable, [...npmPrefix, "ci"], "Dependencies");
-    runDependencyAudit();
-    if (scripts["test:cookie-consent"]) run(npmExecutable, [...npmPrefix, "run", "test:cookie-consent"], "Cookie-consent tests");
-    if (scripts["test:consent"]) run(npmExecutable, [...npmPrefix, "run", "test:consent"], "Consent tests");
-    run(npmExecutable, [...npmPrefix, "run", "lint"], "Lint");
-    run(npmExecutable, [...npmPrefix, "run", "typecheck"], "TypeScript");
-    if (options.full) run(npmExecutable, [...npmPrefix, "test"], "Full tests");
+    else await run(npmExecutable, [...npmPrefix, "ci"], "Dependencies");
+    await runDependencyAudit();
+    if (scripts["test:cookie-consent"]) await run(npmExecutable, [...npmPrefix, "run", "test:cookie-consent"], "Cookie-consent tests");
+    if (scripts["test:consent"]) await run(npmExecutable, [...npmPrefix, "run", "test:consent"], "Consent tests");
+    await run(npmExecutable, [...npmPrefix, "run", "lint"], "Lint");
+    await run(npmExecutable, [...npmPrefix, "run", "typecheck"], "TypeScript");
+    if (options.full) await run(npmExecutable, [...npmPrefix, "test"], "Full tests");
     if (options.skipBuild) skip("Build", commandLabel(npmExecutable, [...npmPrefix, "run", "build"]), "Explicitly skipped.");
-    else run(npmExecutable, [...npmPrefix, "run", "build"], "Build");
+    else await run(npmExecutable, [...npmPrefix, "run", "build"], "Build");
     if (options.migrate) {
-      run(npxExecutable, [...npxPrefix, "supabase", "db", "push", "--include-all"], "Supabase migration");
-      run(npxExecutable, [...npxPrefix, "supabase", "db", "lint", "--linked", "--level", "error"], "Post-migration verification");
+      await run(npxExecutable, [...npxPrefix, "supabase", "db", "push", "--include-all"], "Supabase migration");
+      await run(npxExecutable, [...npxPrefix, "supabase", "db", "lint", "--linked", "--level", "error"], "Post-migration verification");
     }
   }
 } catch (error) {
@@ -304,3 +319,6 @@ try {
 const ready = finalReports(options);
 terminalSummary(ready, options);
 process.exitCode = ready ? 0 : 1;
+}
+
+void main();
