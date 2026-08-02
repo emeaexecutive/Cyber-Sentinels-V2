@@ -1,6 +1,6 @@
-import type { ProviderHealth, ProviderHealthState } from "./types.ts";
+import type { ProviderConsensusHealthSnapshot, ProviderHealthState } from "./types.ts";
 
-export function deriveProviderHealth(input: Omit<ProviderHealth, "state" | "reasonCodes"> & { credentialsConfigured: boolean; enabled: boolean; incidentOpen?: boolean }): ProviderHealth {
+export function deriveProviderHealth(input: Omit<ProviderConsensusHealthSnapshot, "state" | "reasonCodes"> & { credentialsConfigured: boolean; enabled: boolean; incidentOpen?: boolean }): ProviderConsensusHealthSnapshot {
   const reasons: string[] = [];
   let state: ProviderHealthState = "HEALTHY";
   if (!input.enabled) { state = "DISABLED"; reasons.push("PROVIDER_DISABLED"); }

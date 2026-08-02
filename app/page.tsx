@@ -3,8 +3,8 @@ import Link from "next/link";
 import { ComparisonCard, LifecycleDiagram, VisualFrame } from "@/components/enterprise-visuals";
 
 export const metadata: Metadata = {
-  title: "Operational Trust Infrastructure | Cyber Sentinels",
-  description: "Evidence-backed decisions, continuous authorization and replayable operations for intelligent enterprises.",
+  title: "Enterprise Trust Infrastructure | Cyber Sentinels",
+  description: "Continuous verification of identity, authority, environment, evidence and operational scope for intelligent systems.",
   alternates: { canonical: "/" },
 };
 
@@ -26,16 +26,17 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 pb-16 pt-16 md:px-8 md:pb-24 md:pt-24">
         <p className="operational-eyebrow">Cyber Sentinels</p>
         <h1 className="mt-5 max-w-5xl text-4xl font-semibold leading-tight text-white md:text-6xl">
-          Operational Trust Infrastructure<br className="hidden md:block" /> for Intelligent Enterprises
+          Enterprise Trust Infrastructure
         </h1>
         <p className="mt-6 max-w-4xl text-lg leading-8 text-zinc-300 md:text-xl">
-          Give Fortune 500 security leaders evidence-backed decisions, continuous authorization and replayable operations across people, AI agents and machine identities.
+          Cyber Sentinels continuously verifies that the identity, authority, environment, evidence and operational scope of intelligent systems remain aligned before, during and after critical decisions.
         </p>
         <p className="mt-4 max-w-4xl text-sm leading-7 text-zinc-400">
-          Enterprise Trust Fabric™ connects authority, runtime evidence, AI Agent Governance and Trust Memory™ without replacing systems of record.
+          Enterprise Trust Fabric™ composes Authority Lineage, Environment Attestation, Scope Continuity™, Evidence Graph, Continuous Trust, Replay and Trust Memory™ without replacing systems of record.
         </p>
-        <div className="mt-8">
-          <Link href="/enterprise-access?intent=demo" className="brand-primary-action brand-action-large">Request Enterprise Demo</Link>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link href="/demo" className="brand-primary-action brand-action-large">View Trust Fabric Demo</Link>
+          <Link href="/enterprise-access?intent=demo" className="brand-secondary-action brand-action-large">Request Enterprise Demo</Link>
         </div>
       </section>
 

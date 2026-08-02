@@ -9,7 +9,7 @@ const trustRoute = await readFile(new URL("../../app/api/trust/execute/route.ts"
 const providerServer = await readFile(new URL("../../lib/providers/hopae-rc1-server.ts", import.meta.url), "utf8");
 
 test("provider tables enable RLS and deny anonymous or browser writes", () => {
-  for (const table of ["provider_registry", "provider_state_audit", "provider_health_snapshots", "normalized_identity_evidence"]) {
+  for (const table of ["provider_registry", "provider_state_audit", "provider_operational_health_snapshots", "normalized_identity_evidence"]) {
     assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`, "i"));
     assert.match(migration, new RegExp(`revoke all on public\\.${table} from anon, authenticated`, "i"));
   }

@@ -38,7 +38,7 @@ create table if not exists public.provider_state_audit (
   changed_at timestamptz not null default now()
 );
 
-create table if not exists public.provider_health_snapshots (
+create table if not exists public.provider_operational_health_snapshots (
   snapshot_id uuid primary key default gen_random_uuid(),
   provider_id text not null references public.provider_registry(provider_id),
   environment text not null check (environment in ('sandbox', 'production')),
@@ -93,19 +93,19 @@ alter table public.hopae_verifications
   add column if not exists last_polled_at timestamptz;
 
 create index if not exists provider_state_audit_provider_idx on public.provider_state_audit (provider_id, changed_at desc);
-create index if not exists provider_health_latest_idx on public.provider_health_snapshots (provider_id, environment, health_dimension, checked_at desc);
+create index if not exists provider_operational_health_snapshots_provider_idx on public.provider_operational_health_snapshots (provider_id, environment, health_dimension, checked_at desc);
 create index if not exists normalized_identity_evidence_scope_idx on public.normalized_identity_evidence (tenant_id, trust_session_id, created_at desc);
 create index if not exists normalized_identity_evidence_provider_idx on public.normalized_identity_evidence (provider_id, provider_session_id, created_at desc);
 create unique index if not exists provider_execution_session_idx on public.provider_execution_records (provider_id, environment, provider_session_id) where provider_session_id is not null;
 
 alter table public.provider_registry enable row level security;
 alter table public.provider_state_audit enable row level security;
-alter table public.provider_health_snapshots enable row level security;
+alter table public.provider_operational_health_snapshots enable row level security;
 alter table public.normalized_identity_evidence enable row level security;
 
 revoke all on public.provider_registry from anon, authenticated;
 revoke all on public.provider_state_audit from anon, authenticated;
-revoke all on public.provider_health_snapshots from anon, authenticated;
+revoke all on public.provider_operational_health_snapshots from anon, authenticated;
 revoke all on public.normalized_identity_evidence from anon, authenticated;
 grant select on public.normalized_identity_evidence to authenticated;
 

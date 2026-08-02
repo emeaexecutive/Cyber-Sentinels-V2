@@ -13,7 +13,7 @@ function trackedFiles(repoRoot: string) {
   return result.stdout.split("\0").filter(Boolean);
 }
 
-export function runSecurityChecks(repoRoot = process.cwd(), writeReport = true): SecurityAudit {
+export function runSecurityChecks(repoRoot = process.cwd(), writeReport = true, reportsRoot = join(repoRoot, "reports")): SecurityAudit {
   const findings: SecurityFinding[] = [];
   const files = trackedFiles(repoRoot);
   const textExtensions = new Set([".ts", ".tsx", ".js", ".mjs", ".cjs", ".json", ".md", ".sql", ".yml", ".yaml", ".toml", ".ps1"]);
@@ -55,9 +55,9 @@ export function runSecurityChecks(repoRoot = process.cwd(), writeReport = true):
   const errors = findings.filter((item) => item.level === "ERROR").length;
   const warnings = findings.filter((item) => item.level === "WARNING").length;
   const status: SecurityAudit["status"] = errors ? "FAIL" : warnings ? "PASS WITH WARNINGS" : "PASS";
-  const reportPath = join(repoRoot, "reports", "SecurityReport.md");
+  const reportPath = join(reportsRoot, "SecurityReport.md");
   if (writeReport) {
-    mkdirSync(join(repoRoot, "reports"), { recursive: true });
+    mkdirSync(reportsRoot, { recursive: true });
     const lines = [
       "# Security report",
       "",

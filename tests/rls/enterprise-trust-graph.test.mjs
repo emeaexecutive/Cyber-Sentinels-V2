@@ -9,7 +9,7 @@ const sql = readFileSync(
 const tables = [
   "trust_entities",
   "trust_evidence",
-  "trust_relationships",
+  "trust_graph_relationships_v2",
   "trust_sources",
   "trust_graph_events",
 ];
@@ -27,7 +27,7 @@ test("all graph tables enable RLS, revoke direct writes and scope tenant reads",
   for (const policy of [
     "tenant reads trust entities",
     "tenant reads trust graph evidence",
-    "tenant reads trust relationships",
+    "tenant reads trust graph relationships v2",
     "tenant reads trust sources",
     "tenant reads trust graph events",
   ]) assert.match(sql, new RegExp(policy));
@@ -56,8 +56,8 @@ test("indexes cover tenant entity, evidence, relationship, source, event and has
     "trust_entities_tenant_type_status_idx",
     "trust_evidence_entity_idx",
     "trust_evidence_match_key_idx",
-    "trust_relationships_source_idx",
-    "trust_relationships_target_idx",
+    "trust_graph_relationships_v2_source_idx",
+    "trust_graph_relationships_v2_target_idx",
     "trust_sources_health_idx",
     "trust_graph_events_entity_idx",
   ]) assert.match(sql, new RegExp(index), index);

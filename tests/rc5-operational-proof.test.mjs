@@ -56,13 +56,13 @@ test("Provider Operations uses the five RC5 classifications and normalized healt
   assert.match(readiness, /export function providerRealityState/);
 });
 
-test("homepage contains one hero, one visual, one comparison and one enterprise CTA", async () => {
+test("homepage contains one hero, one visual, one comparison and two bounded CTAs", async () => {
   const source = await read("app/page.tsx");
   assert.equal((source.match(/<section/g) ?? []).length, 3);
-  assert.equal((source.match(/<Link\s/g) ?? []).length, 1);
+  assert.equal((source.match(/<Link\s/g) ?? []).length, 2);
   assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 1);
   assert.equal((source.match(/<ComparisonCard/g) ?? []).length, 1);
-  for (const phrase of ["evidence-backed decisions", "continuous authorization", "replayable operations", "AI Agent Governance", "Trust Memory", "Enterprise Trust Fabric"]) assert.match(source, new RegExp(phrase, "i"));
+  for (const phrase of ["Enterprise Trust Infrastructure", "identity, authority, environment, evidence and operational scope", "Authority Lineage", "Environment Attestation", "Scope Continuity", "Trust Memory", "Enterprise Trust Fabric"]) assert.match(source, new RegExp(phrase, "i"));
 });
 
 test("public API contract is versioned, traceable, paginated and duplicate registry POST is removed", async () => {
@@ -103,11 +103,14 @@ test("RC5 performance diagnostics measure all requested operation classes", () =
   console.log(`RC5_OPERATIONAL_BENCHMARK=${JSON.stringify(profiles.filter((profile) => ["trust_decision", "evidence_graph", "replay", "provider_normalization", "trust_profile_generation", "queue_throughput"].includes(profile.id)))}`);
 });
 
-test("enterprise demo follows the exact nine-stage executive scenario", async () => {
-  const source = await read("app/demo/trust-execution-flow/page.tsx");
-  const labels = ["Identity verified", "Authority resolved", "Provider evidence collected", "Trust evaluated", "Decision made", "Replay generated", "Trust Memory", "Evidence Graph refreshed", "Executive trust report produced"];
-  for (const label of labels) assert.match(source, new RegExp(label));
-  assert.match(source, /No manual explanation/);
+test("enterprise demo uses the canonical fourteen-question contract and redirects the legacy route", async () => {
+  const [source, legacyRoute] = await Promise.all([
+    read("app/demo/page.tsx"),
+    read("app/demo/trust-execution-flow/page.tsx"),
+  ]);
+  const questions = ["Who or what acted?", "What identity was verified?", "What authority existed?", "What environment was declared?", "What environment was observed?", "What scope was permitted?", "What evidence supported the decision?", "Why did trust change?", "Was an incident opened?", "What containment was requested?", "What containment was confirmed?", "Who reviewed it?", "What corrective action followed?", "How can the complete sequence be replayed?"];
+  for (const question of questions) assert.match(source, new RegExp(question.replace(/[?]/g, "\\?")));
+  assert.match(legacyRoute, /redirect\("\/demo"\)/);
 });
 
 test("all RC5 documents and the downloadable proof-pack contract exist", async () => {

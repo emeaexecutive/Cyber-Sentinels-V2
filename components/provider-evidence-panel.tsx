@@ -103,8 +103,9 @@ export function ProviderEvidencePanel({
             </div>
           </article>
         )) : (
-          <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm leading-6 text-zinc-400 md:col-span-2">
-            No provider-backed verification evidence is attached to this workflow
+              <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm leading-6 text-zinc-400 md:col-span-2">
+                <span className="block font-semibold text-zinc-200">Workflow evidence context</span>
+                No provider-backed verification evidence is attached to this workflow
             window. Replay does not infer a live provider result from workflow
             activity alone.
           </p>

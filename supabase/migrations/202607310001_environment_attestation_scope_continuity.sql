@@ -275,7 +275,21 @@ declare
   decision_node uuid;
   item_node uuid;
   context_hash text := encode(digest(convert_to(((p_input->'declaration')-'immutableHash')::text,'UTF8'),'sha256'),'hex');
-  lease_hash text := encode(digest(convert_to((((p_input->'authorization')-'consumedActionCount')-'createdAt')-'immutableHash')::text,'UTF8'),'sha256'),'hex');
+  lease_hash text := encode(
+    digest(
+      convert_to(
+        (
+          p_input->'authorization'
+          - 'consumedActionCount'
+          - 'createdAt'
+          - 'immutableHash'
+        )::text,
+        'UTF8'
+      ),
+      'sha256'
+    ),
+    'hex'
+  );
   item_hash text;
 begin
   if auth.role()<>'service_role' then raise exception 'Scope Continuity service path required'; end if;

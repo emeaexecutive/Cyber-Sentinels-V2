@@ -1,5 +1,7 @@
 # Reconciled Forward Migration Sequence
 
+> Status update (2026-08-02): authoritative application evidence permitted the unapplied Epic 16 history to be corrected. Its operational table is now `provider_operational_health_snapshots`; Epic 17 retains tenant-scoped `provider_health_snapshots`. Earlier provisional `provider_health_snapshots_v2` guidance below is superseded.
+
 > **NOT APPROVED FOR PRODUCTION**
 
 ## Decision

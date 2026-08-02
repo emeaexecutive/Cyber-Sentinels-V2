@@ -179,7 +179,7 @@ export function createTrustGraphRepository(readClient: SupabaseClient): TrustGra
 
     async findRelationship(tenantId, relationshipId) {
       const result = await readClient
-        .from("trust_relationships")
+        .from("trust_graph_relationships_v2")
         .select(relationshipFields)
         .eq("tenant_id", tenantId)
         .eq("id", relationshipId)
@@ -190,7 +190,7 @@ export function createTrustGraphRepository(readClient: SupabaseClient): TrustGra
 
     async findNeighbours(tenantId, entityId, limit) {
       const relationshipsResult = await readClient
-        .from("trust_relationships")
+        .from("trust_graph_relationships_v2")
         .select(relationshipFields)
         .eq("tenant_id", tenantId)
         .is("removed_at", null)

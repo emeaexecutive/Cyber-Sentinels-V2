@@ -1,0 +1,82 @@
+{
+  "release": "enterprise-trust-fabric-staging-review-v3",
+  "reviewOnly": true,
+  "remoteMutation": false,
+  "orderedMigrations": [
+    {
+      "path": "supabase/migrations/202607170002_provider_abstraction_hopae.sql",
+      "sha256": "1eef7fbb925a973c96fb55f6d5e78756a0e4e4d01156b152cff1a57ee70c61dc"
+    },
+    {
+      "path": "supabase/migrations/202607200003_provider_consensus_engine.sql",
+      "sha256": "c72673265d36bac4da172da2d5ba52984f9349fce99894ed350f56ee9bc5c348"
+    },
+    {
+      "path": "supabase/migrations/202607230002_enterprise_trust_graph.sql",
+      "sha256": "b140f455f73ca642f49dff555de0f9fe632daa342c87311373062757d886d735"
+    },
+    {
+      "path": "supabase/migrations/202607310001_environment_attestation_scope_continuity.sql",
+      "sha256": "0f54e55ee0427c396675121f701dcf26bedc56fc20ac5a3a1fb411fd36fe2292"
+    },
+    {
+      "path": "supabase/migrations/202608010001_ai_serious_incident_regulatory_lineage.sql",
+      "sha256": "d4acdf09197be946503938fd31dfe3654fe4495d16f7535e99d263bb0f506385"
+    },
+    {
+      "path": "supabase/migrations/202608010002_enterprise_trust_fabric.sql",
+      "sha256": "e494e4bcf6b3d26432c5aa732a10c6944b0f03b8f1ba4fc783c1048300ff6900"
+    }
+  ],
+  "historicalCorrections": [
+    {
+      "path": "supabase/migrations/202607170002_provider_abstraction_hopae.sql",
+      "originalCommit": "cc9c9135fae85c542a7f59e2fc89298575cfe922",
+      "originalSha256": "3043937d1f0b5d2c9eba51f3de0fc336a2eb765486c80a2e75240318a5d37deb",
+      "correctedSha256": "1eef7fbb925a973c96fb55f6d5e78756a0e4e4d01156b152cff1a57ee70c61dc",
+      "applicationProof": "Production and durable branch inventories prove the migration was never durably applied.",
+      "scope": "Provider-health table and associated object name separation only; columns and behavior unchanged.",
+      "dataMigrationRequired": false,
+      "productionLedgerRepairRequired": false
+    },
+    {
+      "path": "supabase/migrations/202607230002_enterprise_trust_graph.sql",
+      "originalCommit": "4f817901a638eada170efd6fdd21202a8e33862d",
+      "originalSha256": "58898a9803e3c097d418c3f5e7661cf89f756f868d01be6961a8344c0c10b18c",
+      "correctedSha256": "b140f455f73ca642f49dff555de0f9fe632daa342c87311373062757d886d735",
+      "applicationProof": "The linked Production ledger records 202607230002 as remote-blank, and no retained persistent staging branch applied it.",
+      "scope": "Enterprise Trust Graph relationship table, index, policy, and consumer name separation only; columns and behavior unchanged.",
+      "dataMigrationRequired": false,
+      "productionLedgerRepairRequired": false
+    },
+    {
+      "path": "supabase/migrations/202607310001_environment_attestation_scope_continuity.sql",
+      "originalCommit": "b4717179cb6a1d78d6f130bacd70361fe16f0097",
+      "originalSha256": "11bafa552700f7351bf63845d81bf2d518f064b1a65ae74fc8a99be72094ea6f",
+      "correctedSha256": "0f54e55ee0427c396675121f701dcf26bedc56fc20ac5a3a1fb411fd36fe2292",
+      "applicationProof": "The linked Production ledger records 202607310001 as remote-blank, and clean Preview reconstruction failed while parsing statement 32 before durable application.",
+      "scope": "Lease-hash SQL parenthesis correction only; canonical fields, SHA-256 algorithm, idempotency, and behavior unchanged.",
+      "dataMigrationRequired": false,
+      "productionLedgerRepairRequired": false
+    }
+  ],
+  "prerequisites": ["trust_workspaces", "user_can_access_trust_workspace(uuid)", "trust_architecture_audit_log", "evidence_graph_nodes", "evidence_graph_edges", "trust_memory_index", "trust_policy_versions", "prevent_trust_architecture_history_mutation()"],
+  "validationOrder": ["preflight.sql", "post-apply-validation.sql", "rls-validation.sql", "integrity-validation.sql"],
+  "inventories": ["expected-inventory.json", "scenario-fixture.json"],
+  "integrity": {
+    "tenantScopedForeignKeys": true,
+    "appendOnlyHistory": true,
+    "securityInvokerReplay": true,
+    "serviceOnlyMutationRpcs": true,
+    "sourceVersionedEvidence": true,
+    "supersessionInsteadOfMutation": true
+  },
+  "limitations": [
+    "No destructive rollback is supported for append-only evidence history.",
+    "No migration in this package is applied automatically.",
+    "The Epic 16, Enterprise Trust Graph, and Epic 26 historical corrections were authorized only because they were never durably applied.",
+    "No provider-health, trust-relationship, or Scope Continuity data migration or Production ledger repair is required."
+  ],
+  "rollbackLimitations": "rollback-limitations.md",
+  "forwardPlan": "forward-repair-plan.md"
+}

@@ -7,12 +7,11 @@ import { buildTrustEvidencePack } from "../lib/trust-transparency.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("homepage owns the Operational Trust Infrastructure category in three focused sections", async () => {
+test("homepage owns the Enterprise Trust Infrastructure category in three focused sections", async () => {
   const source = await read("app/page.tsx");
   assert.equal((source.match(/<section/g) ?? []).length, 3);
-  assert.match(source, /Operational Trust Infrastructure/);
-  assert.match(source, /for Intelligent Enterprises/);
-  assert.match(source, /evidence-backed decisions, continuous authorization and replayable operations/);
+  assert.match(source, /Enterprise Trust Infrastructure/);
+  assert.match(source, /continuously verifies that the identity, authority, environment, evidence and operational scope/);
   for (const section of ["Operational Trust Lifecycle", "Enterprise Trust Fabric", "Why Different"]) assert.match(source, new RegExp(section));
   assert.doesNotMatch(source, /operational trust control plane/i);
 });
@@ -61,8 +60,8 @@ test("Evidence Pack download reuses the authenticated audit export route", async
 });
 
 test("public navigation is consolidated without adding a buyer or evidence route", async () => {
-  const source = await read("components/global-navigation.tsx");
-  const publicBlock = source.match(/export const publicHeaderLinks = \[([\s\S]*?)\] as const;/)?.[0] ?? "";
+  const source = await read("lib/navigation/canonical-navigation.ts");
+  const publicBlock = source.match(/public: \[([\s\S]*?)\n  \]/)?.[0] ?? "";
   assert.equal((publicBlock.match(/\{ href:/g) ?? []).length, 6);
   for (const route of ["/platform", "/solutions", "/trust", "/enterprise", "/pricing", "/login"]) assert.match(publicBlock, new RegExp(route.replaceAll("/", "\\/")));
   assert.doesNotMatch(publicBlock, /#|Developers|Resources/);

@@ -204,7 +204,7 @@ export type NormalizedIdentityEvidence = {
 };
 
 export type ProviderHealthState = "HEALTHY" | "DEGRADED" | "UNAVAILABLE" | "MISCONFIGURED" | "UNKNOWN";
-export type ProviderHealthSnapshot = {
+export type ProviderOperationalHealthSnapshot = {
   provider: IdentityProviderId;
   environment: ProviderEnvironment;
   configured: boolean;
@@ -223,5 +223,5 @@ export interface IdentityProviderAdapter {
   retrieveSession(providerSessionId: string, context: ProviderContext): Promise<RetrieveProviderSessionResult>;
   verifyCallback(envelope: ProviderCallbackEnvelope): Promise<VerifiedProviderCallback>;
   normalizeEvidence(callback: VerifiedProviderCallback, context: ProviderContext): Promise<NormalizedIdentityEvidence[]>;
-  healthCheck(): Promise<ProviderHealthSnapshot>;
+  healthCheck(): Promise<ProviderOperationalHealthSnapshot>;
 }

@@ -53,7 +53,8 @@ This is a static migration-source map. “Indexes” counts explicit `create ind
 | `hopae_webhook_events` | Hopae callback ledger | `id`; verification/workspace links are logical | 2 | Yes | Hopae server module and runtime validation |
 | `normalized_identity_evidence` | Provider-neutral normalized identity evidence | `evidence_id`; tenant -> workspace, trust session -> case, provider -> registry | 2 | Yes | provider status and provider API |
 | `provider_execution_records` | Provider execution/audit records | `execution_id`; tenant -> workspace, workflow -> case, review -> release review | 2 | Yes | provider API/status and deployment readiness |
-| `provider_health_snapshots` | Evidence-backed health observations | `snapshot_id`; `provider_id -> provider_registry.provider_id` | 1 | Yes | provider API and Hopae server module |
+| `provider_operational_health_snapshots` | Global Hopae operational health observations | `snapshot_id`; `provider_id -> provider_registry.provider_id` | 1 | Yes | provider API and Hopae server module |
+| `provider_health_snapshots` | Tenant-scoped Provider Consensus health evidence | `id`; `enterprise_id -> trust_workspaces.id` | 1 | Yes | Consensus, Continuous Trust, Replay, and Trust Architecture |
 | `provider_registry` | Tenant-aware provider enablement | `provider_id`; none explicit | 0 | Yes | provider API/status and Hopae server module |
 | `provider_state_audit` | Provider enable/disable audit | `audit_id`; `provider_id -> provider_registry.provider_id` | 1 | Yes | admin provider status |
 | `provenance_events` | Agent/subject provenance events | `id`; subject relationships are logical | 2 | Yes | agents, provenance API and governance dashboard |

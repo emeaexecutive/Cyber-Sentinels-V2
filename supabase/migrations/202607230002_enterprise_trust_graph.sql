@@ -50,7 +50,7 @@ create index trust_evidence_match_key_idx
   on public.trust_evidence(tenant_id,evidence_type,(metadata->>'matchKeyHash'))
   where metadata ? 'matchKeyHash';
 
-create table public.trust_relationships (
+create table public.trust_graph_relationships_v2 (
   id uuid primary key,
   tenant_id uuid not null references public.trust_workspaces(id) on delete restrict,
   source_entity uuid not null,
@@ -70,14 +70,14 @@ create table public.trust_relationships (
   unique(tenant_id,id),
   check(source_entity<>target_entity)
 );
-create unique index trust_relationships_active_unique_idx
-  on public.trust_relationships(
+create unique index trust_graph_relationships_v2_active_unique_idx
+  on public.trust_graph_relationships_v2(
     tenant_id,source_entity,target_entity,relationship_type
   ) where removed_at is null;
-create index trust_relationships_source_idx
-  on public.trust_relationships(tenant_id,source_entity,created_at desc,id);
-create index trust_relationships_target_idx
-  on public.trust_relationships(tenant_id,target_entity,created_at desc,id);
+create index trust_graph_relationships_v2_source_idx
+  on public.trust_graph_relationships_v2(tenant_id,source_entity,created_at desc,id);
+create index trust_graph_relationships_v2_target_idx
+  on public.trust_graph_relationships_v2(tenant_id,target_entity,created_at desc,id);
 
 create table public.trust_sources (
   tenant_id uuid not null references public.trust_workspaces(id) on delete restrict,
@@ -132,7 +132,7 @@ do $$
 declare table_name text;
 begin
   foreach table_name in array array[
-    'trust_entities','trust_evidence','trust_relationships',
+    'trust_entities','trust_evidence','trust_graph_relationships_v2',
     'trust_sources','trust_graph_events'
   ] loop
     execute format('alter table public.%I enable row level security',table_name);
@@ -148,7 +148,8 @@ create policy "tenant reads trust entities" on public.trust_entities
 create policy "tenant reads trust graph evidence" on public.trust_evidence
   for select to authenticated
   using(public.user_can_access_trust_workspace(tenant_id));
-create policy "tenant reads trust relationships" on public.trust_relationships
+create policy "tenant reads trust graph relationships v2"
+  on public.trust_graph_relationships_v2
   for select to authenticated
   using(public.user_can_access_trust_workspace(tenant_id));
 create policy "tenant reads trust sources" on public.trust_sources
@@ -176,7 +177,7 @@ declare
   actor uuid := (p_event->>'actorId')::uuid;
   entity_row public.trust_entities%rowtype;
   evidence_row public.trust_evidence%rowtype;
-  relationship_row public.trust_relationships%rowtype;
+  relationship_row public.trust_graph_relationships_v2%rowtype;
   source_row public.trust_sources%rowtype;
   result jsonb;
 begin
@@ -225,7 +226,7 @@ begin
 
     when 'DELETE_ENTITY' then
       if exists(
-        select 1 from public.trust_relationships
+        select 1 from public.trust_graph_relationships_v2
         where tenant_id=tenant and removed_at is null
           and (
             source_entity=(p_payload->>'entityId')::uuid
@@ -274,7 +275,7 @@ begin
           )
           and status<>'DELETED'
       )<>2 then raise exception 'Relationship entities unavailable'; end if;
-      insert into public.trust_relationships(
+      insert into public.trust_graph_relationships_v2(
         id,tenant_id,source_entity,target_entity,relationship_type,
         confidence,metadata,version,created_at,removed_at
       ) values (
@@ -290,7 +291,7 @@ begin
       result:=to_jsonb(relationship_row);
 
     when 'REMOVE_RELATIONSHIP' then
-      update public.trust_relationships set
+      update public.trust_graph_relationships_v2 set
         removed_at=(p_event->>'occurredAt')::timestamptz,
         version=version+1
       where tenant_id=tenant
@@ -359,17 +360,17 @@ language sql stable security invoker set search_path=public as $$
       where v.tenant_id=p_tenant_id and v.entity_id=p_entity_id
     ),
     'active_relationship_count',(
-      select count(*) from public.trust_relationships r
+      select count(*) from public.trust_graph_relationships_v2 r
       where r.tenant_id=p_tenant_id and r.removed_at is null
         and (r.source_entity=p_entity_id or r.target_entity=p_entity_id)
     ),
     'inbound_relationship_count',(
-      select count(*) from public.trust_relationships r
+      select count(*) from public.trust_graph_relationships_v2 r
       where r.tenant_id=p_tenant_id and r.removed_at is null
         and r.target_entity=p_entity_id
     ),
     'outbound_relationship_count',(
-      select count(*) from public.trust_relationships r
+      select count(*) from public.trust_graph_relationships_v2 r
       where r.tenant_id=p_tenant_id and r.removed_at is null
         and r.source_entity=p_entity_id
     ),
@@ -401,7 +402,7 @@ language sql stable security invoker set search_path=public as $$
   select e.* from public.trust_entities e
   where e.tenant_id=p_tenant_id and e.status<>'DELETED'
     and not exists(
-      select 1 from public.trust_relationships r
+      select 1 from public.trust_graph_relationships_v2 r
       where r.tenant_id=p_tenant_id and r.removed_at is null
         and (r.source_entity=e.id or r.target_entity=e.id)
     )
@@ -417,13 +418,13 @@ language sql stable security invoker set search_path=public as $$
     'entities',(select count(*) from public.trust_entities where tenant_id=p_tenant_id),
     'active_entities',(select count(*) from public.trust_entities where tenant_id=p_tenant_id and status='ACTIVE'),
     'evidence',(select count(*) from public.trust_evidence where tenant_id=p_tenant_id),
-    'active_relationships',(select count(*) from public.trust_relationships where tenant_id=p_tenant_id and removed_at is null),
+    'active_relationships',(select count(*) from public.trust_graph_relationships_v2 where tenant_id=p_tenant_id and removed_at is null),
     'providers',(select count(*) from public.trust_sources where tenant_id=p_tenant_id),
     'orphan_entities',(
       select count(*) from public.trust_entities e
       where e.tenant_id=p_tenant_id and e.status<>'DELETED'
         and not exists(
-          select 1 from public.trust_relationships r
+          select 1 from public.trust_graph_relationships_v2 r
           where r.tenant_id=p_tenant_id and r.removed_at is null
             and (r.source_entity=e.id or r.target_entity=e.id)
         )
@@ -443,7 +444,7 @@ comment on table public.trust_entities is
   'Versioned Enterprise Trust Graph entities. Deletion creates a tombstone.';
 comment on table public.trust_evidence is
   'Provider-neutral, append-only evidence attached to Trust Graph entities.';
-comment on table public.trust_relationships is
+comment on table public.trust_graph_relationships_v2 is
   'Versioned tenant-bound Trust Graph topology with non-destructive removal.';
 comment on function public.mutate_trust_graph_v1(text,jsonb,jsonb) is
   'Atomic service-only Trust Graph mutation and immutable event boundary.';

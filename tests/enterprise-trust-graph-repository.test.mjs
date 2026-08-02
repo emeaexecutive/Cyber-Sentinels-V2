@@ -24,7 +24,7 @@ test("repository scopes every graph table read by tenant", () => {
   for (const table of [
     "trust_entities",
     "trust_evidence",
-    "trust_relationships",
+    "trust_graph_relationships_v2",
     "trust_sources",
     "trust_graph_events",
   ]) assert.match(source, new RegExp(`from\\(\"${table}\"\\)[\\s\\S]{0,260}eq\\(\"tenant_id\"`), table);

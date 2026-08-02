@@ -6,7 +6,7 @@ import { spawnSync } from "node:child_process";
 type TrustCheck = { concept: string; patterns: RegExp[]; files: string[] };
 export type TrustInfrastructureAudit = { status: "PASS" | "PASS WITH WARNINGS"; checks: TrustCheck[]; reportPath: string };
 
-export function checkTrustInfrastructure(repoRoot = process.cwd(), writeReport = true): TrustInfrastructureAudit {
+export function checkTrustInfrastructure(repoRoot = process.cwd(), writeReport = true, reportsRoot = join(repoRoot, "reports")): TrustInfrastructureAudit {
   const listed = spawnSync("git", ["ls-files", "--cached", "--others", "--exclude-standard", "-z", "--", "app", "components", "lib", "src"], { cwd: repoRoot, encoding: "utf8", shell: false });
   if (listed.status !== 0) throw new Error("Unable to enumerate implementation files for trust-infrastructure checks.");
   const sources = listed.stdout.split("\0").filter((file) => /\.(?:ts|tsx|js|mjs)$/i.test(file) && existsSync(join(repoRoot, file)));
@@ -28,9 +28,9 @@ export function checkTrustInfrastructure(repoRoot = process.cwd(), writeReport =
   }));
   const missing = checks.filter((check) => check.files.length === 0);
   const status: TrustInfrastructureAudit["status"] = missing.length ? "PASS WITH WARNINGS" : "PASS";
-  const reportPath = join(repoRoot, "reports", "TrustInfrastructureReport.md");
+  const reportPath = join(reportsRoot, "TrustInfrastructureReport.md");
   if (writeReport) {
-    mkdirSync(join(repoRoot, "reports"), { recursive: true });
+    mkdirSync(reportsRoot, { recursive: true });
     const lines = [
       "# Trust infrastructure report",
       "",

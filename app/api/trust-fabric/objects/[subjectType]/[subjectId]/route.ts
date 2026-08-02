@@ -1,0 +1,5 @@
+import { enterpriseTrustFabricRepository } from "@/src/lib/trust-fabric/repository";
+import { enterpriseSubjectClasses } from "@/src/lib/trust-fabric/types";
+import { TrustArchitectureApiError,fabricContext,fabricCorrelationId,fabricFailure,fabricResponse } from "@/src/lib/trust-fabric/http";
+
+export async function GET(request:Request,{params}:{params:Promise<{subjectType:string;subjectId:string}>}){const correlationId=fabricCorrelationId(request);try{const auth=await fabricContext(request);const value=await params;if(!enterpriseSubjectClasses.includes(value.subjectType as never)||!value.subjectId||value.subjectId.length>256)throw new TrustArchitectureApiError("Subject reference is invalid.",400,"SUBJECT_INVALID");const [object]=await enterpriseTrustFabricRepository().objects(auth.enterpriseId,value.subjectType,value.subjectId,1);if(!object)throw new TrustArchitectureApiError("Trust Object was not found.",404,"TRUST_OBJECT_NOT_FOUND");return fabricResponse({ok:true,object},200,correlationId);}catch(error){return fabricFailure(error,correlationId);}}

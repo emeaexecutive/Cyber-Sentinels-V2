@@ -11,8 +11,9 @@ const demo = buildRc2LivingTrustDemo();
 
 test("primary and mobile navigation expose the six release-candidate destinations", async () => {
   const source = await read("components/global-navigation.tsx");
-  for (const label of ["Platform", "Solutions", "Trust", "Enterprise", "Pricing", "Sign In"]) assert.match(source, new RegExp(`label: "${label}"`));
-  assert.doesNotMatch(source.match(/export const publicHeaderLinks = \[([\s\S]*?)\] as const;/)?.[0] ?? "", /Developers|Resources|About|Help/);
+  const contract = await read("lib/navigation/canonical-navigation.ts");
+  for (const label of ["Platform", "Solutions", "Trust", "Enterprise", "Pricing", "Sign In"]) assert.match(contract, new RegExp(`label: "${label}"`));
+  assert.doesNotMatch(contract.match(/public: \[([\s\S]*?)\n  \]/)?.[0] ?? "", /Developers|Resources|About|Help/);
   assert.doesNotMatch(source, /DropdownLinks|aria-haspopup="menu"/);
   assert.match(source, /aria-controls="primary-navigation"/);
   assert.match(source, /sm:hidden/);
@@ -35,7 +36,7 @@ test("homepage contains three blocks and exactly one canonical operational-trust
   assert.doesNotMatch(source, /<InteractiveTrustWalkthrough|<DecisionFlow|<ArchitectureBlock/);
   for (const step of ["Identity", "Authority", "Context", "Evidence", "Trust Decision", "Enforcement", "Replay", "Trust Memory™", "Current Trust Posture"]) assert.match(source, new RegExp(step));
   assert.match(source, /One evidence chain connects identity, authority, policy, decision, enforced outcome, Replay and current posture\./);
-  assert.equal((source.match(/<Link/g) ?? []).length, 1);
+  assert.equal((source.match(/<Link/g) ?? []).length, 2);
 });
 
 test("canonical public routes remain indexable while protected and archived routes remain isolated", async () => {
@@ -53,10 +54,11 @@ test("canonical public routes remain indexable while protected and archived rout
 });
 
 test("CISO and CIO buyer journeys preserve canonical proof and readiness surfaces", async () => {
-  const [home, demoPage, platform] = await Promise.all([read("app/page.tsx"), read("app/demo/trust-execution-flow/page.tsx"), read("app/platform/page.tsx")]);
+  const [home, demoPage, legacyDemo, platform] = await Promise.all([read("app/page.tsx"), read("app/demo/page.tsx"), read("app/demo/trust-execution-flow/page.tsx"), read("app/platform/page.tsx")]);
   assert.match(home, /href="\/enterprise-access\?intent=demo"/);
-  for (const href of ["/verification-replay", "/enterprise/readiness"]) assert.match(demoPage, new RegExp(`href="${href.replaceAll("/", "\\/")}"`));
-  assert.equal((home.match(/<Link/g) ?? []).length, 1);
+  for (const href of ["/replay/demo", "/trust-centre/fabric"]) assert.match(demoPage, new RegExp(`href[:=]"${href.replaceAll("/", "\\/")}"`));
+  assert.match(legacyDemo,/redirect\("\/demo"\)/);
+  assert.equal((home.match(/<Link/g) ?? []).length, 2);
   assert.match(platform, /href="\/developers"/);
   assert.match(platform, /href="\/enterprise\/pilot"/);
 });

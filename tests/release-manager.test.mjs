@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { node22FailureMessage, requireNode22 } from "../tools/release/node-version.ts";
+import { runBoundedCommand } from "../tools/release/bounded-subprocess.ts";
 
 test("Node guard accepts only major 22 and emits the required failure", () => {
   assert.equal(requireNode22("22.12.0"), "22.12.0");
@@ -11,15 +12,28 @@ test("Node guard accepts only major 22 and emits the required failure", () => {
 
 test("release manager uses explicit process argument arrays and rejects unknown flags", async () => {
   const source = await readFile(new URL("../tools/release/release-manager.ts", import.meta.url), "utf8");
-  assert.match(source, /spawnSync\(executable, args,/);
+  assert.match(source, /runBoundedCommand\(executable, args,/);
   assert.match(source, /shell: false/);
   assert.match(source, /dirname\(process\.execPath\).*delimiter/);
   assert.match(source, /env: childEnvironment/);
+  assert.match(source, /CYBER_SENTINELS_REPORTS_ROOT/);
   assert.match(source, /Unknown release flag/);
   assert.match(source, /"audit", "--omit=dev", "--json"/);
   assert.match(source, /Critical production dependency advisories detected/);
   for (const flag of ["--full", "--migrate", "--skip-install", "--skip-build", "--dry-run", "--help"]) assert.match(source, new RegExp(flag));
   assert.doesNotMatch(source, /execSync|execFileSync\([^,]+\+|shell:\s*true/);
+});
+
+test("release subprocesses time out and report termination as failure", async () => {
+  const started = Date.now();
+  const result = await runBoundedCommand(process.execPath, ["-e", "setInterval(() => {}, 1000)"], {
+    cwd: process.cwd(),
+    env: process.env,
+    timeoutMs: 250,
+  });
+  assert.equal(result.timedOut, true);
+  assert.notEqual(result.status, 0);
+  assert.ok(Date.now() - started < 10_000);
 });
 
 test("release manager generates all required reports on pass or failure paths", async () => {
