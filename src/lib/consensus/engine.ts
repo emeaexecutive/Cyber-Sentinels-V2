@@ -6,13 +6,13 @@ import { delayedDelivery, freshnessMultiplier } from "./freshness.ts";
 import { healthMultiplier } from "./health.ts";
 import { assessIndependence } from "./independence.ts";
 import { providerCapabilities } from "./provider-capabilities.ts";
-import type { ConsensusDecision, ConsensusPolicy, ConsensusRecommendation, ConsensusTrustState, ProviderHealth, ProviderObservation } from "./types.ts";
+import type { ConsensusDecision, ConsensusPolicy, ConsensusRecommendation, ConsensusTrustState, ProviderConsensusHealthSnapshot, ProviderObservation } from "./types.ts";
 
 const round = (value: number) => Number(Math.max(0, Math.min(1, value)).toFixed(6));
 const reason = (values: Array<string | null | undefined>) => [...new Set(values.filter((value): value is string => Boolean(value)))].sort();
 const uuidFromHash=(hash:string)=>`${hash.slice(0,8)}-${hash.slice(8,12)}-5${hash.slice(13,16)}-${((parseInt(hash[16],16)&3)|8).toString(16)}${hash.slice(17,20)}-${hash.slice(20,32)}`;
 
-export function evaluateConsensus(input: { enterpriseId: string; subjectId: string; workflowId?: string | null; observations: ProviderObservation[]; policy: ConsensusPolicy; health?: ProviderHealth[]; evaluatedAt?: string; priorDecision?: Pick<ConsensusDecision,"decisionId"|"state"> | null; simulated?: boolean; environment?: Record<string,string|undefined> }): ConsensusRecommendation {
+export function evaluateConsensus(input: { enterpriseId: string; subjectId: string; workflowId?: string | null; observations: ProviderObservation[]; policy: ConsensusPolicy; health?: ProviderConsensusHealthSnapshot[]; evaluatedAt?: string; priorDecision?: Pick<ConsensusDecision,"decisionId"|"state"> | null; simulated?: boolean; environment?: Record<string,string|undefined> }): ConsensusRecommendation {
   const evaluatedAt = input.evaluatedAt ? new Date(input.evaluatedAt).toISOString() : new Date().toISOString();
   const capabilities = providerCapabilities(input.environment); const capabilityMap = new Map(capabilities.map((item) => [item.providerKey,item])); const health = new Map((input.health ?? []).map((item)=>[item.providerKey,item]));
   const sorted = [...input.observations].filter((item)=>item.enterpriseId===input.enterpriseId&&item.subjectId===input.subjectId).sort((a,b)=>a.observationId.localeCompare(b.observationId));

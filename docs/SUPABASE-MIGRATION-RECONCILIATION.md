@@ -1,5 +1,7 @@
 # Supabase Migration Reconciliation
 
+> Historical capture note (2026-08-02): this inventory records the source and Production ledger observed before the authorized Epic 16 name correction. Owner-verified current evidence confirmed both provider-health migrations remained unapplied and no persistent Supabase branches existed. Epic 16 now creates `provider_operational_health_snapshots`; no Production ledger repair was performed.
+
 Date: 2026-07-29
 Repository: `C:\Users\emeae\Desktop\cyber-sentinels-clean`
 Branch: `hotfix/request-demo-turnstile-production`

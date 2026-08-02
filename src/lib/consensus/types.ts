@@ -19,7 +19,7 @@ export type ProviderCapability = {
   serverVerificationRequired: boolean; freshnessWindowSeconds: number; reasonCodes: string[];
 };
 
-export type ProviderHealth = {
+export type ProviderConsensusHealthSnapshot = {
   providerKey: string; state: ProviderHealthState; observedAt: string;
   latencyMs: number | null; errorRate: number | null; timeoutRate: number | null;
   signatureFailures: number; schemaFailures: number; circuitOpen: boolean; reasonCodes: string[];

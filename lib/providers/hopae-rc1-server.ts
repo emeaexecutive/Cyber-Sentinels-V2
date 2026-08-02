@@ -440,7 +440,7 @@ export async function processHopaeProviderCallback(rawBody: string, signature: s
       last_successful_call: healthRecordedAt,
       updated_at: healthRecordedAt,
     }).eq("provider_id", adapter.id),
-    admin.from("provider_health_snapshots").insert([
+    admin.from("provider_operational_health_snapshots").insert([
       { provider_id: adapter.id, environment: adapter.environment, health_status: "HEALTHY", health_dimension: "callback", reason: "Signed callback verified within tolerance.", latency_ms: Date.now() - callbackStarted },
       { provider_id: adapter.id, environment: adapter.environment, health_status: "HEALTHY", health_dimension: "evidence_pipeline", reason: "Normalized evidence and authoritative trust references committed atomically.", latency_ms: Date.now() - callbackStarted },
     ]),

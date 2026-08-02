@@ -39,7 +39,7 @@ export type HealthMeasurement = {
   limitation: string;
 };
 
-export type ProviderHealthSnapshot = {
+export type PlatformProviderHealthSnapshot = {
   id: string;
   name: string;
   state: ProviderOperationalHealth;
@@ -66,7 +66,7 @@ export type CanonicalPlatformHealth = {
   governanceHealth: PlatformHealthSection;
   latencyHealth: PlatformHealthSection;
   validationHealth: PlatformHealthSection;
-  providers: ProviderHealthSnapshot[];
+  providers: PlatformProviderHealthSnapshot[];
   queues: {
     status: PlatformHealthStatus;
     governancePending: number;
@@ -174,7 +174,7 @@ export function buildPlatformHealth(input: PlatformHealthInput = {}): CanonicalP
   const detection = getDetectionEngineStatus();
   const checks = buildProviderReadinessChecklist();
   const snapshotByName = new Map((input.providerSnapshot ?? []).map((provider) => [provider.name, provider]));
-  const providers = checks.map<ProviderHealthSnapshot>((check) => {
+  const providers = checks.map<PlatformProviderHealthSnapshot>((check) => {
     const snapshot = snapshotByName.get(check.name);
     const state = providerState(check, snapshot);
     return {

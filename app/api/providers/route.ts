@@ -146,7 +146,7 @@ export async function PUT(request: Request) {
       };
   retainProviderHealth(snapshot);
   const admin = createServiceRoleClient();
-  const { error: snapshotError } = await admin.from("provider_health_snapshots").insert({
+  const { error: snapshotError } = await admin.from("provider_operational_health_snapshots").insert({
     provider_id: snapshot.provider,
     environment: snapshot.environment,
     health_status: snapshot.state,
@@ -220,7 +220,7 @@ export async function POST(request: Request) {
       const admin = createServiceRoleClient();
       await Promise.all([
         admin.from("provider_registry").update({ health_status: "DEGRADED", last_failed_call: failedAt, updated_at: failedAt }).eq("provider_id", "hopae_connect"),
-        admin.from("provider_health_snapshots").insert({
+        admin.from("provider_operational_health_snapshots").insert({
           provider_id: "hopae_connect",
           environment: inspectHopaeProviderConfig().config.environment,
           health_status: "DEGRADED",

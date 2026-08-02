@@ -20,7 +20,8 @@ parallel:
   and drift context;
 - `trust_events` and Trust Memory for Replay;
 - `trust_policy_versions` and simulations for governed policy;
-- `provider_health_snapshots` for provider operations; and
+- `provider_health_snapshots` for tenant-scoped Provider Consensus evidence;
+- `provider_operational_health_snapshots` for global provider operations; and
 - `trust_alerts` plus immutable `trust_alert_activity` for operations.
 
 Every service-role query is behind authenticated enterprise resolution and

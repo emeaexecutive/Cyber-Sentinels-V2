@@ -81,5 +81,5 @@ Fabric APIs authenticate enterprise context, role-bind mutations, enforce stream
 - Current objects can show partial or unknown evidence until links exist.
 - The synthetic adapter is not a production provider integration.
 - Timeline ordering is no stronger than source timestamp confidence.
-- The historical `provider_health_snapshots` collision blocks a clean Supabase preview before Epic 26 and requires a separate forward repair.
+- The previously conflicting provider-health concepts are separated before first durable application: Epic 16 owns `provider_operational_health_snapshots`, while Epic 17 retains tenant-scoped `provider_health_snapshots`.
 - No production SQL, migration, deployment, environment change or provider configuration is part of Epic 28.

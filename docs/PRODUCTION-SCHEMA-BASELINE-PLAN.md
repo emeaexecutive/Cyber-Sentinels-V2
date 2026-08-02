@@ -1,5 +1,7 @@
 # Production Schema Baseline Plan
 
+> Historical capture note (2026-08-02): the collision reproduced below describes migration source before the authorized Epic 16 name correction. The corrected source creates `provider_operational_health_snapshots`; Production remains unapplied and untouched.
+
 > **NOT APPROVED FOR PRODUCTION**
 
 ## Outcome

@@ -29,6 +29,6 @@ The Fabric then creates a digest-bound Trust Object, a canonical decision envelo
 
 Fabric objects contain references and summaries, not evidence bodies or restricted provider payloads. APIs do not log evidence bodies or expose service credentials. LLM output is never final trust, authority, permit, deny, revoke, containment confirmation or legal authority. Operational regulatory screening merely routes specialist review.
 
-## Known limitation
+## Provider-health dependency
 
-A historical `provider_health_snapshots` collision occurs before Epic 26 in a clean Supabase preview. Historical migrations are immutable; resolution requires the documented forward-only repair and a new clean preview. This prevents staging execution approval but does not authorize production mutation.
+The unapplied Epic 16 migration was narrowly corrected before first durable deployment so its global operational table is `provider_operational_health_snapshots`; Epic 17 retains tenant-scoped `provider_health_snapshots`. A clean disposable Preview replay remains required before staging approval. This correction does not authorize Production mutation.

@@ -1,5 +1,7 @@
 # Production-to-Target Schema Difference
 
+> Historical capture note (2026-08-02): this report records the pre-correction target state. Authoritative ledger and branch evidence subsequently proved both provider-health migrations unapplied, and Epic 16 was narrowly corrected to create `provider_operational_health_snapshots`. See `PROVIDER_HEALTH_SNAPSHOT_SCHEMA_RECONCILIATION.md`.
+
 > **NOT APPROVED FOR PRODUCTION**
 
 ## Status and scope
