@@ -1,0 +1,948 @@
+# Sanitized Production baseline
+
+- Capture timestamp: 2026-08-03T09:14:38.361248Z
+- Source classification: read-only Production metadata.
+- Production project reference: `kecgtsfibkypjuaxqbjx` (identifier only; no credentials).
+- Region: `eu-west-3`.
+- PostgreSQL version: `17.6` (major 17).
+- Current Production migration head: `202606090003`.
+- Applied migration count: 45.
+- Backup status: not owner-confirmed in this capture.
+- PITR status: not owner-confirmed in this capture.
+- Production mutation: none; the capture query ran inside a read-only transaction.
+
+## Applied migration timestamps
+
+- `001`
+- `202605260001`
+- `20260528`
+- `202605300001`
+- `202605300002`
+- `202605300003`
+- `202605310001`
+- `202606010001`
+- `202606010002`
+- `202606010003`
+- `202606010004`
+- `202606020001`
+- `202606020002`
+- `202606020004`
+- `202606020005`
+- `202606020006`
+- `202606030001`
+- `202606030002`
+- `202606030003`
+- `202606030004`
+- `202606030005`
+- `202606030006`
+- `202606040001`
+- `202606040002`
+- `202606040003`
+- `202606050001`
+- `202606050002`
+- `202606050003`
+- `202606050004`
+- `202606060001`
+- `202606070001`
+- `202606070002`
+- `202606070003`
+- `202606070004`
+- `202606070005`
+- `202606080001`
+- `202606080002`
+- `202606080003`
+- `202606080004`
+- `202606080005`
+- `202606080006`
+- `202606080007`
+- `202606090001`
+- `202606090002`
+- `202606090003`
+
+## Installed extensions (5)
+
+- `pg_stat_statements`
+- `pgcrypto`
+- `plpgsql`
+- `supabase_vault`
+- `uuid-ossp`
+
+## Tables (118)
+
+- `auth.audit_log_entries`
+- `auth.custom_oauth_providers`
+- `auth.flow_state`
+- `auth.identities`
+- `auth.instances`
+- `auth.mfa_amr_claims`
+- `auth.mfa_challenges`
+- `auth.mfa_factors`
+- `auth.oauth_authorizations`
+- `auth.oauth_client_states`
+- `auth.oauth_clients`
+- `auth.oauth_consents`
+- `auth.one_time_tokens`
+- `auth.refresh_tokens`
+- `auth.saml_providers`
+- `auth.saml_relay_states`
+- `auth.schema_migrations`
+- `auth.sessions`
+- `auth.sso_domains`
+- `auth.sso_providers`
+- `auth.users`
+- `auth.webauthn_challenges`
+- `auth.webauthn_credentials`
+- `public.admin_reviews`
+- `public.agent_activity`
+- `public.agent_activity_logs`
+- `public.agent_passports`
+- `public.agent_permissions`
+- `public.agent_profiles`
+- `public.agents`
+- `public.ai_agents`
+- `public.ai_governance_runs`
+- `public.api_keys`
+- `public.api_test_runs`
+- `public.appeals`
+- `public.audit_events`
+- `public.audit_logs`
+- `public.autonomy_profiles`
+- `public.billing_customers`
+- `public.candidate_profiles`
+- `public.cookie_consent_receipts`
+- `public.data_rights_requests`
+- `public.decisions`
+- `public.device_channel_evidence`
+- `public.enterprise_access_requests`
+- `public.evidence_chains`
+- `public.evidence_files`
+- `public.execution_passports`
+- `public.feedback_reports`
+- `public.governance_actions`
+- `public.governance_policies`
+- `public.help_questions`
+- `public.hopae_verifications`
+- `public.hopae_webhook_events`
+- `public.injection_risk_events`
+- `public.integration_status`
+- `public.intent_requests`
+- `public.interest_signals`
+- `public.interview_risk_events`
+- `public.interview_risk_signals`
+- `public.interview_sessions`
+- `public.knowledge_articles`
+- `public.launch_control_notes`
+- `public.liveness_checks`
+- `public.message_events`
+- `public.message_threads`
+- `public.notifications`
+- `public.operational_intelligence_events`
+- `public.passport_state_checks`
+- `public.passports`
+- `public.provenance_assets`
+- `public.provenance_events`
+- `public.provenance_reports`
+- `public.recruiter_profiles`
+- `public.risk_scores`
+- `public.runtime_validation_logs`
+- `public.session_integrity_checks`
+- `public.signals`
+- `public.subscriptions`
+- `public.system_health_checks`
+- `public.team_members`
+- `public.teams`
+- `public.trust_alerts`
+- `public.trust_algorithm_runs`
+- `public.trust_assistant_questions`
+- `public.trust_case_relationships`
+- `public.trust_cases`
+- `public.trust_certifications`
+- `public.trust_events`
+- `public.trust_explanations`
+- `public.trust_graph_edges`
+- `public.trust_graph_nodes`
+- `public.trust_relationships`
+- `public.trust_replay_sessions`
+- `public.trust_reports`
+- `public.trust_scores`
+- `public.trust_signals`
+- `public.trust_timeline_events`
+- `public.trust_workspaces`
+- `public.usage_limits`
+- `public.verification_cases`
+- `public.verification_events`
+- `public.verification_flags`
+- `public.verification_passports`
+- `public.verification_receipts`
+- `public.verification_signals`
+- `public.voice_signals`
+- `public.waitlist`
+- `public.webcam_signals`
+- `public.workspace_members`
+- `storage.buckets`
+- `storage.buckets_analytics`
+- `storage.buckets_vectors`
+- `storage.migrations`
+- `storage.objects`
+- `storage.s3_multipart_uploads`
+- `storage.s3_multipart_uploads_parts`
+- `storage.vector_indexes`
+
+## Views (0)
+
+- None.
+
+## Materialized views (0)
+
+- None.
+
+## Function and RPC signatures (43)
+
+- `public.create_governance_action_if_needed(policy_id_input uuid, subject_type_input text, subject_id_input uuid, status_input text, notes_input text)`
+- `public.ensure_governance_policy(policy_name text, policy_description text, policy_trigger_type text, policy_severity text, policy_action_type text)`
+- `public.evidence_chain_record_integrity()`
+- `public.governance_from_agent_activity()`
+- `public.governance_from_ai_audit()`
+- `public.governance_from_case_missing_evidence()`
+- `public.governance_from_signal()`
+- `public.governance_from_trust_algorithm_run()`
+- `public.hiring_risk_event_records()`
+- `public.notification_insert(target_user_id uuid, notification_kind text, notification_title text, notification_message text, notification_severity text, notification_metadata jsonb)`
+- `public.notify_ai_recommendation_audit()`
+- `public.notify_governance_action_insert()`
+- `public.notify_governance_action_update()`
+- `public.notify_suspicious_agent_activity()`
+- `public.notify_trust_case_update()`
+- `public.operational_intelligence_from_agent_activity()`
+- `public.operational_intelligence_from_governance()`
+- `public.operational_intelligence_from_interview_risk()`
+- `public.operational_intelligence_from_trust_case()`
+- `public.operational_intelligence_record_integrity()`
+- `public.prevent_cookie_consent_mutation()`
+- `public.record_cookie_consent(p_anonymous_id uuid, p_session_id uuid, p_consent_version text, p_analytics boolean, p_marketing boolean, p_preferences boolean, p_source text, p_idempotency_key uuid, p_country_code text, p_ip_hash text, p_user_agent_hash text, p_metadata jsonb)`
+- `public.record_governance_action_created()`
+- `public.record_governance_action_updated()`
+- `public.record_trust_case_created()`
+- `public.record_trust_case_relationship_created()`
+- `public.rls_auto_enable()`
+- `public.submit_enterprise_access_request(p_name text, p_email text, p_company text, p_role text, p_message text, p_use_case text, p_urgency text, p_company_size text)`
+- `public.trust_receipt_record_integrity()`
+- `public.trust_timeline_actor_id(row_data jsonb)`
+- `public.trust_timeline_record_agent_activity()`
+- `public.trust_timeline_record_algorithm_run()`
+- `public.trust_timeline_record_audit()`
+- `public.trust_timeline_record_decision()`
+- `public.trust_timeline_record_event(row_data jsonb, timeline_event_type text, timeline_title text, timeline_summary text, timeline_actor_type text, timeline_severity text)`
+- `public.trust_timeline_record_evidence()`
+- `public.trust_timeline_record_relationship()`
+- `public.trust_timeline_record_signal()`
+- `public.trust_timeline_record_trust_event()`
+- `public.trust_timeline_safe_timestamptz(value text)`
+- `public.trust_timeline_safe_uuid(value text)`
+- `public.trust_timeline_subject_id(row_data jsonb)`
+- `public.trust_timeline_subject_type(row_data jsonb)`
+
+## RLS-enabled tables (111)
+
+- `auth.audit_log_entries`
+- `auth.flow_state`
+- `auth.identities`
+- `auth.instances`
+- `auth.mfa_amr_claims`
+- `auth.mfa_challenges`
+- `auth.mfa_factors`
+- `auth.one_time_tokens`
+- `auth.refresh_tokens`
+- `auth.saml_providers`
+- `auth.saml_relay_states`
+- `auth.schema_migrations`
+- `auth.sessions`
+- `auth.sso_domains`
+- `auth.sso_providers`
+- `auth.users`
+- `public.admin_reviews`
+- `public.agent_activity`
+- `public.agent_activity_logs`
+- `public.agent_passports`
+- `public.agent_permissions`
+- `public.agent_profiles`
+- `public.agents`
+- `public.ai_agents`
+- `public.ai_governance_runs`
+- `public.api_keys`
+- `public.api_test_runs`
+- `public.appeals`
+- `public.audit_events`
+- `public.audit_logs`
+- `public.autonomy_profiles`
+- `public.billing_customers`
+- `public.candidate_profiles`
+- `public.cookie_consent_receipts`
+- `public.data_rights_requests`
+- `public.decisions`
+- `public.device_channel_evidence`
+- `public.enterprise_access_requests`
+- `public.evidence_chains`
+- `public.evidence_files`
+- `public.execution_passports`
+- `public.feedback_reports`
+- `public.governance_actions`
+- `public.governance_policies`
+- `public.help_questions`
+- `public.hopae_verifications`
+- `public.hopae_webhook_events`
+- `public.injection_risk_events`
+- `public.integration_status`
+- `public.intent_requests`
+- `public.interest_signals`
+- `public.interview_risk_events`
+- `public.interview_risk_signals`
+- `public.interview_sessions`
+- `public.knowledge_articles`
+- `public.launch_control_notes`
+- `public.liveness_checks`
+- `public.message_events`
+- `public.message_threads`
+- `public.notifications`
+- `public.operational_intelligence_events`
+- `public.passport_state_checks`
+- `public.passports`
+- `public.provenance_assets`
+- `public.provenance_events`
+- `public.provenance_reports`
+- `public.recruiter_profiles`
+- `public.risk_scores`
+- `public.runtime_validation_logs`
+- `public.session_integrity_checks`
+- `public.signals`
+- `public.subscriptions`
+- `public.system_health_checks`
+- `public.team_members`
+- `public.teams`
+- `public.trust_alerts`
+- `public.trust_algorithm_runs`
+- `public.trust_assistant_questions`
+- `public.trust_case_relationships`
+- `public.trust_cases`
+- `public.trust_certifications`
+- `public.trust_events`
+- `public.trust_explanations`
+- `public.trust_graph_edges`
+- `public.trust_graph_nodes`
+- `public.trust_relationships`
+- `public.trust_replay_sessions`
+- `public.trust_reports`
+- `public.trust_scores`
+- `public.trust_signals`
+- `public.trust_timeline_events`
+- `public.trust_workspaces`
+- `public.usage_limits`
+- `public.verification_cases`
+- `public.verification_events`
+- `public.verification_flags`
+- `public.verification_passports`
+- `public.verification_receipts`
+- `public.verification_signals`
+- `public.voice_signals`
+- `public.waitlist`
+- `public.webcam_signals`
+- `public.workspace_members`
+- `storage.buckets`
+- `storage.buckets_analytics`
+- `storage.buckets_vectors`
+- `storage.migrations`
+- `storage.objects`
+- `storage.s3_multipart_uploads`
+- `storage.s3_multipart_uploads_parts`
+- `storage.vector_indexes`
+
+## Policies (184)
+
+- `public.admin_reviews.admin reviews owner insert`
+- `public.admin_reviews.admin reviews owner select`
+- `public.admin_reviews.admin reviews owner update`
+- `public.agent_activity.users insert own agent activity`
+- `public.agent_activity.users read own agent activity`
+- `public.agent_permissions.admin manage agent_permissions`
+- `public.agent_permissions.users create own agent_permissions`
+- `public.agent_permissions.users read own agent_permissions`
+- `public.agents.admin manage agents`
+- `public.agents.users manage own agents`
+- `public.ai_agents.ai_insert`
+- `public.ai_agents.ai_select`
+- `public.ai_agents.users manage own ai agents`
+- `public.api_keys.Allow authenticated api_keys inserts`
+- `public.api_keys.Allow authenticated api_keys reads`
+- `public.api_keys.Allow authenticated api_keys updates`
+- `public.api_keys.admin manage api_keys`
+- `public.api_keys.users manage own api_keys`
+- `public.api_test_runs.admin insert api test runs`
+- `public.api_test_runs.admin read api test runs`
+- `public.appeals.admin manage appeals`
+- `public.appeals.users manage own appeals`
+- `public.audit_logs.Allow authenticated audit_logs inserts`
+- `public.audit_logs.Allow authenticated audit_logs reads`
+- `public.audit_logs.Allow authenticated audit_logs updates`
+- `public.audit_logs.authenticated manage audit_logs`
+- `public.audit_logs.authenticated read audit_logs`
+- `public.autonomy_profiles.authenticated manage autonomy_profiles`
+- `public.billing_customers.users can read own billing customers`
+- `public.candidate_profiles.candidate profiles owner insert`
+- `public.candidate_profiles.candidate profiles owner select`
+- `public.candidate_profiles.candidate profiles owner update`
+- `public.cookie_consent_receipts.cookie_consent_receipts_select_own`
+- `public.data_rights_requests.authenticated manage data rights requests`
+- `public.data_rights_requests.authenticated manage data_rights_requests`
+- `public.decisions.Allow authenticated decisions inserts`
+- `public.decisions.Allow authenticated decisions reads`
+- `public.decisions.Allow authenticated decisions updates`
+- `public.decisions.authenticated manage decisions`
+- `public.enterprise_access_requests.Allow public enterprise access submissions`
+- `public.enterprise_access_requests.anon can request enterprise access`
+- `public.enterprise_access_requests.authenticated manage enterprise access requests`
+- `public.enterprise_access_requests.public insert enterprise access requests`
+- `public.evidence_chains.authenticated insert evidence_chains`
+- `public.evidence_chains.authenticated read evidence_chains`
+- `public.evidence_files.Allow authenticated evidence_files inserts`
+- `public.evidence_files.Allow authenticated evidence_files reads`
+- `public.evidence_files.Allow authenticated evidence_files updates`
+- `public.evidence_files.authenticated manage evidence_files`
+- `public.execution_passports.authenticated manage execution_passports`
+- `public.feedback_reports.authenticated manage feedback_reports`
+- `public.governance_actions.authenticated manage governance_actions`
+- `public.governance_policies.authenticated manage governance_policies`
+- `public.help_questions.authenticated manage help_questions`
+- `public.hopae_verifications.Users can insert own Hopae verifications`
+- `public.hopae_verifications.Users can view own Hopae verifications`
+- `public.integration_status.admin insert integration status`
+- `public.integration_status.admin read integration status`
+- `public.intent_requests.authenticated manage intent_requests`
+- `public.interest_signals.authenticated manage interest_signals`
+- `public.interest_signals.public insert interest_signals`
+- `public.interview_risk_events.interview risk events owner insert`
+- `public.interview_risk_events.interview risk events owner select`
+- `public.interview_risk_events.interview risk events owner update`
+- `public.interview_risk_signals.interview risk signals owner insert`
+- `public.interview_risk_signals.interview risk signals owner select`
+- `public.interview_risk_signals.interview risk signals owner update`
+- `public.interview_sessions.interview sessions owner insert`
+- `public.interview_sessions.interview sessions owner select`
+- `public.interview_sessions.interview sessions owner update`
+- `public.knowledge_articles.admin manage knowledge_articles`
+- `public.knowledge_articles.authenticated manage knowledge articles`
+- `public.knowledge_articles.authenticated read approved knowledge articles`
+- `public.knowledge_articles.authenticated read approved knowledge_articles`
+- `public.launch_control_notes.admin manage launch control notes`
+- `public.liveness_checks.liveness checks owner insert`
+- `public.liveness_checks.liveness checks owner select`
+- `public.liveness_checks.liveness checks owner update`
+- `public.message_events.admin manage message_events`
+- `public.message_events.users manage own message_events`
+- `public.message_threads.admin manage message_threads`
+- `public.message_threads.users manage own message_threads`
+- `public.notifications.admin manage notifications`
+- `public.notifications.users create own notifications`
+- `public.notifications.users read own notifications`
+- `public.notifications.users update own notifications`
+- `public.operational_intelligence_events.authenticated insert operational_intelligence_events`
+- `public.operational_intelligence_events.authenticated read operational_intelligence_events`
+- `public.passport_state_checks.authenticated manage passport_state_checks`
+- `public.passports.Allow authenticated passports inserts`
+- `public.passports.Allow authenticated passports reads`
+- `public.passports.Allow authenticated passports updates`
+- `public.passports.authenticated manage passports`
+- `public.passports.authenticated read passports`
+- `public.provenance_events.pe_insert`
+- `public.provenance_events.pe_select`
+- `public.recruiter_profiles.recruiter profiles owner insert`
+- `public.recruiter_profiles.recruiter profiles owner select`
+- `public.recruiter_profiles.recruiter profiles owner update`
+- `public.risk_scores.Allow authenticated risk_scores inserts`
+- `public.risk_scores.Allow authenticated risk_scores reads`
+- `public.risk_scores.Allow authenticated risk_scores updates`
+- `public.risk_scores.authenticated manage risk_scores`
+- `public.signals.Allow authenticated signals inserts`
+- `public.signals.Allow authenticated signals reads`
+- `public.signals.Allow authenticated signals updates`
+- `public.signals.authenticated manage signals`
+- `public.signals.authenticated read signals`
+- `public.subscriptions.users can read own subscriptions`
+- `public.system_health_checks.authenticated manage system health checks`
+- `public.team_members.Allow authenticated team_members inserts`
+- `public.team_members.Allow authenticated team_members reads`
+- `public.team_members.Allow authenticated team_members updates`
+- `public.teams.Allow authenticated teams inserts`
+- `public.teams.Allow authenticated teams reads`
+- `public.teams.Allow authenticated teams updates`
+- `public.trust_alerts.ta_insert`
+- `public.trust_alerts.ta_select`
+- `public.trust_algorithm_runs.authenticated insert trust algorithm runs`
+- `public.trust_algorithm_runs.authenticated read trust algorithm runs`
+- `public.trust_assistant_questions.admin manage trust_assistant_questions`
+- `public.trust_assistant_questions.authenticated insert trust assistant questions`
+- `public.trust_assistant_questions.authenticated insert trust_assistant_questions`
+- `public.trust_assistant_questions.authenticated own read trust assistant questions`
+- `public.trust_assistant_questions.authenticated own read trust_assistant_questions`
+- `public.trust_case_relationships.workspace members read case relationships`
+- `public.trust_case_relationships.workspace reviewers create case relationships`
+- `public.trust_cases.workspace members create trust cases`
+- `public.trust_cases.workspace members read trust cases`
+- `public.trust_cases.workspace reviewers update trust cases`
+- `public.trust_certifications.tc_insert`
+- `public.trust_certifications.tc_select`
+- `public.trust_events.admin manage trust_events`
+- `public.trust_events.users create own trust_events`
+- `public.trust_events.users read own trust_events`
+- `public.trust_graph_edges.authenticated manage trust_graph_edges`
+- `public.trust_graph_nodes.authenticated manage trust_graph_nodes`
+- `public.trust_relationships.authenticated insert trust_relationships`
+- `public.trust_relationships.authenticated read trust_relationships`
+- `public.trust_replay_sessions.authenticated insert trust_replay_sessions`
+- `public.trust_replay_sessions.authenticated read trust_replay_sessions`
+- `public.trust_reports.Allow authenticated trust_reports inserts`
+- `public.trust_reports.Allow authenticated trust_reports reads`
+- `public.trust_reports.Allow authenticated trust_reports updates`
+- `public.trust_reports.authenticated manage trust_reports`
+- `public.trust_reports.authenticated read trust_reports`
+- `public.trust_scores.trust scores owner insert`
+- `public.trust_scores.trust scores owner select`
+- `public.trust_scores.trust scores owner update`
+- `public.trust_timeline_events.authenticated insert trust_timeline_events`
+- `public.trust_timeline_events.authenticated read trust_timeline_events`
+- `public.trust_workspaces.authenticated users create own workspaces`
+- `public.trust_workspaces.workspace owners and members read workspaces`
+- `public.trust_workspaces.workspace owners update workspaces`
+- `public.usage_limits.users can read own usage limits`
+- `public.verification_cases.Allow authenticated verification_cases inserts`
+- `public.verification_cases.Allow authenticated verification_cases reads`
+- `public.verification_cases.Allow authenticated verification_cases updates`
+- `public.verification_cases.authenticated manage verification_cases`
+- `public.verification_cases.authenticated read verification_cases`
+- `public.verification_events.verification events owner insert`
+- `public.verification_events.verification events owner select`
+- `public.verification_events.verification events owner update`
+- `public.verification_passports.Allow authenticated verification_passports inserts`
+- `public.verification_passports.Allow authenticated verification_passports reads`
+- `public.verification_passports.Allow authenticated verification_passports updates`
+- `public.verification_receipts.authenticated insert verification_receipts`
+- `public.verification_receipts.authenticated read verification_receipts`
+- `public.waitlist.Allow authenticated waitlist inserts`
+- `public.waitlist.Allow authenticated waitlist reads`
+- `public.waitlist.Allow authenticated waitlist updates`
+- `public.waitlist.Allow public waitlist inserts`
+- `public.waitlist.anon insert waitlist`
+- `public.workspace_members.workspace owners and self add members`
+- `public.workspace_members.workspace owners update members`
+- `public.workspace_members.workspace participants read members`
+- `storage.objects.Allow authenticated evidence file reads`
+- `storage.objects.Allow authenticated evidence file updates`
+- `storage.objects.Allow authenticated evidence file uploads`
+- `storage.objects.authenticated read evidence files`
+- `storage.objects.authenticated upload evidence files`
+- `storage.objects.authenticated users can read evidence files`
+- `storage.objects.authenticated users can update evidence files`
+- `storage.objects.authenticated users can upload evidence files`
+
+## Indexes (265)
+
+- `auth.amr_id_pk`
+- `auth.audit_log_entries_pkey`
+- `auth.audit_logs_instance_id_idx`
+- `auth.confirmation_token_idx`
+- `auth.custom_oauth_providers_created_at_idx`
+- `auth.custom_oauth_providers_enabled_idx`
+- `auth.custom_oauth_providers_identifier_idx`
+- `auth.custom_oauth_providers_identifier_key`
+- `auth.custom_oauth_providers_pkey`
+- `auth.custom_oauth_providers_provider_type_idx`
+- `auth.email_change_token_current_idx`
+- `auth.email_change_token_new_idx`
+- `auth.factor_id_created_at_idx`
+- `auth.flow_state_created_at_idx`
+- `auth.flow_state_pkey`
+- `auth.identities_email_idx`
+- `auth.identities_pkey`
+- `auth.identities_provider_id_provider_unique`
+- `auth.identities_user_id_idx`
+- `auth.idx_auth_code`
+- `auth.idx_oauth_client_states_created_at`
+- `auth.idx_user_id_auth_method`
+- `auth.idx_users_created_at_desc`
+- `auth.idx_users_email`
+- `auth.idx_users_last_sign_in_at_desc`
+- `auth.idx_users_name`
+- `auth.instances_pkey`
+- `auth.mfa_amr_claims_session_id_authentication_method_pkey`
+- `auth.mfa_challenge_created_at_idx`
+- `auth.mfa_challenges_pkey`
+- `auth.mfa_factors_last_challenged_at_key`
+- `auth.mfa_factors_pkey`
+- `auth.mfa_factors_user_friendly_name_unique`
+- `auth.mfa_factors_user_id_idx`
+- `auth.oauth_auth_pending_exp_idx`
+- `auth.oauth_authorizations_authorization_code_key`
+- `auth.oauth_authorizations_authorization_id_key`
+- `auth.oauth_authorizations_pkey`
+- `auth.oauth_client_states_pkey`
+- `auth.oauth_clients_deleted_at_idx`
+- `auth.oauth_clients_pkey`
+- `auth.oauth_consents_active_client_idx`
+- `auth.oauth_consents_active_user_client_idx`
+- `auth.oauth_consents_pkey`
+- `auth.oauth_consents_user_client_unique`
+- `auth.oauth_consents_user_order_idx`
+- `auth.one_time_tokens_pkey`
+- `auth.one_time_tokens_relates_to_hash_idx`
+- `auth.one_time_tokens_token_hash_hash_idx`
+- `auth.one_time_tokens_user_id_token_type_key`
+- `auth.reauthentication_token_idx`
+- `auth.recovery_token_idx`
+- `auth.refresh_tokens_instance_id_idx`
+- `auth.refresh_tokens_instance_id_user_id_idx`
+- `auth.refresh_tokens_parent_idx`
+- `auth.refresh_tokens_pkey`
+- `auth.refresh_tokens_session_id_revoked_idx`
+- `auth.refresh_tokens_token_unique`
+- `auth.refresh_tokens_updated_at_idx`
+- `auth.saml_providers_entity_id_key`
+- `auth.saml_providers_pkey`
+- `auth.saml_providers_sso_provider_id_idx`
+- `auth.saml_relay_states_created_at_idx`
+- `auth.saml_relay_states_for_email_idx`
+- `auth.saml_relay_states_pkey`
+- `auth.saml_relay_states_sso_provider_id_idx`
+- `auth.schema_migrations_pkey`
+- `auth.sessions_not_after_idx`
+- `auth.sessions_oauth_client_id_idx`
+- `auth.sessions_pkey`
+- `auth.sessions_user_id_idx`
+- `auth.sso_domains_domain_idx`
+- `auth.sso_domains_pkey`
+- `auth.sso_domains_sso_provider_id_idx`
+- `auth.sso_providers_pkey`
+- `auth.sso_providers_resource_id_idx`
+- `auth.sso_providers_resource_id_pattern_idx`
+- `auth.unique_phone_factor_per_user`
+- `auth.user_id_created_at_idx`
+- `auth.users_email_partial_key`
+- `auth.users_instance_id_email_idx`
+- `auth.users_instance_id_idx`
+- `auth.users_is_anonymous_idx`
+- `auth.users_phone_key`
+- `auth.users_pkey`
+- `auth.webauthn_challenges_expires_at_idx`
+- `auth.webauthn_challenges_pkey`
+- `auth.webauthn_challenges_user_id_idx`
+- `auth.webauthn_credentials_credential_id_key`
+- `auth.webauthn_credentials_pkey`
+- `auth.webauthn_credentials_user_id_idx`
+- `public.admin_reviews_pkey`
+- `public.agent_activity_agent_id_idx`
+- `public.agent_activity_logs_pkey`
+- `public.agent_activity_pkey`
+- `public.agent_passports_pkey`
+- `public.agent_permissions_pkey`
+- `public.agent_profiles_pkey`
+- `public.agents_pkey`
+- `public.ai_agents_owner_user_id_idx`
+- `public.ai_agents_pkey`
+- `public.ai_governance_runs_pkey`
+- `public.api_keys_pkey`
+- `public.api_test_runs_name_created_idx`
+- `public.api_test_runs_pkey`
+- `public.appeals_pkey`
+- `public.audit_events_pkey`
+- `public.audit_logs_pkey`
+- `public.autonomy_profiles_pkey`
+- `public.billing_customers_pkey`
+- `public.billing_customers_stripe_customer_id_key`
+- `public.billing_customers_user_id_idx`
+- `public.candidate_profiles_pkey`
+- `public.cookie_consent_receipts_anonymous_created_idx`
+- `public.cookie_consent_receipts_enterprise_created_idx`
+- `public.cookie_consent_receipts_idempotency_unique`
+- `public.cookie_consent_receipts_pkey`
+- `public.cookie_consent_receipts_user_created_idx`
+- `public.data_rights_requests_pkey`
+- `public.decisions_pkey`
+- `public.device_channel_evidence_pkey`
+- `public.enterprise_access_requests_pkey`
+- `public.evidence_chains_pkey`
+- `public.evidence_chains_subject_idx`
+- `public.evidence_files_pkey`
+- `public.execution_passports_pkey`
+- `public.feedback_reports_pkey`
+- `public.governance_actions_assigned_idx`
+- `public.governance_actions_pkey`
+- `public.governance_actions_policy_idx`
+- `public.governance_actions_subject_idx`
+- `public.governance_policies_pkey`
+- `public.governance_policies_workspace_idx`
+- `public.help_questions_pkey`
+- `public.hopae_verifications_pkey`
+- `public.hopae_verifications_verification_id_key`
+- `public.hopae_webhook_events_pkey`
+- `public.idx_ai_enterprise`
+- `public.idx_enterprise_access_ai_usage`
+- `public.idx_enterprise_access_created_at`
+- `public.idx_enterprise_access_problem_category`
+- `public.idx_enterprise_access_status`
+- `public.idx_governance_actions_status`
+- `public.idx_hopae_verifications_status`
+- `public.idx_hopae_verifications_user_id`
+- `public.idx_hopae_verifications_verification_id`
+- `public.idx_notifications_user`
+- `public.idx_operational_intelligence_workspace`
+- `public.idx_pe_enterprise`
+- `public.idx_session_integrity_subject`
+- `public.idx_ta_enterprise`
+- `public.idx_tc_enterprise`
+- `public.idx_tc_subject`
+- `public.idx_trust_cases_workspace`
+- `public.idx_trust_relationships_source`
+- `public.idx_trust_relationships_target`
+- `public.idx_trust_replay_subject`
+- `public.idx_trust_timeline_created`
+- `public.idx_trust_timeline_subject`
+- `public.idx_verification_receipts_subject`
+- `public.idx_verification_signals_subject`
+- `public.injection_risk_events_pkey`
+- `public.integration_status_pkey`
+- `public.integration_status_provider_checked_idx`
+- `public.intent_requests_pkey`
+- `public.interest_signals_pkey`
+- `public.interview_risk_events_pkey`
+- `public.interview_risk_events_session_idx`
+- `public.interview_risk_events_signal_idx`
+- `public.interview_risk_signals_pkey`
+- `public.interview_sessions_pkey`
+- `public.knowledge_articles_pkey`
+- `public.launch_control_notes_created_idx`
+- `public.launch_control_notes_pkey`
+- `public.liveness_checks_pkey`
+- `public.message_events_pkey`
+- `public.message_threads_pkey`
+- `public.notifications_pkey`
+- `public.notifications_type_idx`
+- `public.notifications_user_read_idx`
+- `public.operational_intelligence_events_pkey`
+- `public.operational_intelligence_subject_idx`
+- `public.operational_intelligence_type_idx`
+- `public.operational_intelligence_workspace_idx`
+- `public.passport_state_checks_pkey`
+- `public.passports_pkey`
+- `public.provenance_assets_pkey`
+- `public.provenance_events_pkey`
+- `public.provenance_reports_pkey`
+- `public.recruiter_profiles_pkey`
+- `public.risk_scores_pkey`
+- `public.runtime_validation_logs_pkey`
+- `public.session_integrity_checks_pkey`
+- `public.signals_pkey`
+- `public.subscriptions_pkey`
+- `public.subscriptions_stripe_customer_id_idx`
+- `public.subscriptions_stripe_subscription_id_key`
+- `public.subscriptions_user_id_idx`
+- `public.system_health_checks_pkey`
+- `public.team_members_pkey`
+- `public.teams_pkey`
+- `public.trust_alerts_pkey`
+- `public.trust_algorithm_runs_pkey`
+- `public.trust_algorithm_runs_subject_idx`
+- `public.trust_assistant_questions_pkey`
+- `public.trust_case_relationships_case_idx`
+- `public.trust_case_relationships_pkey`
+- `public.trust_cases_pkey`
+- `public.trust_cases_workspace_idx`
+- `public.trust_certifications_pkey`
+- `public.trust_events_pkey`
+- `public.trust_explanations_pkey`
+- `public.trust_graph_edges_pkey`
+- `public.trust_graph_nodes_pkey`
+- `public.trust_relationships_pkey`
+- `public.trust_relationships_source_idx`
+- `public.trust_relationships_target_idx`
+- `public.trust_relationships_type_idx`
+- `public.trust_replay_sessions_created_at_idx`
+- `public.trust_replay_sessions_pkey`
+- `public.trust_replay_sessions_subject_idx`
+- `public.trust_reports_pkey`
+- `public.trust_scores_pkey`
+- `public.trust_signals_pkey`
+- `public.trust_timeline_events_pkey`
+- `public.trust_timeline_events_severity_idx`
+- `public.trust_timeline_events_subject_idx`
+- `public.trust_timeline_events_type_idx`
+- `public.trust_workspaces_created_by_idx`
+- `public.trust_workspaces_pkey`
+- `public.trust_workspaces_slug_key`
+- `public.usage_limits_pkey`
+- `public.usage_limits_plan_key`
+- `public.usage_limits_user_id_idx`
+- `public.verification_cases_pkey`
+- `public.verification_events_pkey`
+- `public.verification_flags_pkey`
+- `public.verification_passports_pkey`
+- `public.verification_receipts_pkey`
+- `public.verification_receipts_subject_idx`
+- `public.verification_receipts_type_idx`
+- `public.verification_signals_pkey`
+- `public.voice_signals_pkey`
+- `public.waitlist_email_key`
+- `public.waitlist_pkey`
+- `public.webcam_signals_pkey`
+- `public.workspace_members_pkey`
+- `public.workspace_members_workspace_idx`
+- `storage.bname`
+- `storage.bucketid_objname`
+- `storage.buckets_analytics_pkey`
+- `storage.buckets_analytics_unique_name_idx`
+- `storage.buckets_pkey`
+- `storage.buckets_vectors_pkey`
+- `storage.idx_multipart_uploads_list`
+- `storage.idx_objects_bucket_id_name`
+- `storage.idx_objects_bucket_id_name_lower`
+- `storage.migrations_name_key`
+- `storage.migrations_pkey`
+- `storage.name_prefix_search`
+- `storage.objects_pkey`
+- `storage.s3_multipart_uploads_parts_pkey`
+- `storage.s3_multipart_uploads_pkey`
+- `storage.vector_indexes_name_bucket_id_idx`
+- `storage.vector_indexes_pkey`
+
+## Triggers (37)
+
+- `public.agent_activity.governance_agent_activity_insert`
+- `public.agent_activity.notify_suspicious_agent_activity`
+- `public.agent_activity.operational_intelligence_agent_activity_insert`
+- `public.agent_activity.trust_timeline_agent_activity_insert`
+- `public.audit_logs.governance_ai_audit_insert`
+- `public.audit_logs.notify_ai_recommendation_audit`
+- `public.audit_logs.trust_timeline_audit_insert`
+- `public.cookie_consent_receipts.cookie_consent_receipts_prevent_update`
+- `public.decisions.trust_timeline_decision_insert`
+- `public.evidence_chains.evidence_chains_integrity_insert`
+- `public.evidence_files.trust_timeline_evidence_insert`
+- `public.governance_actions.governance_action_created_records`
+- `public.governance_actions.governance_action_updated_records`
+- `public.governance_actions.notify_governance_action_insert`
+- `public.governance_actions.notify_governance_action_update`
+- `public.governance_actions.operational_intelligence_governance_insert`
+- `public.governance_actions.operational_intelligence_governance_update`
+- `public.interview_risk_events.hiring_risk_event_records`
+- `public.interview_risk_events.operational_intelligence_interview_risk_insert`
+- `public.operational_intelligence_events.operational_intelligence_event_integrity_insert`
+- `public.signals.governance_signal_insert`
+- `public.signals.trust_timeline_signal_insert`
+- `public.trust_algorithm_runs.governance_trust_algorithm_run`
+- `public.trust_algorithm_runs.trust_timeline_algorithm_run_insert`
+- `public.trust_case_relationships.trust_case_relationship_created_timeline`
+- `public.trust_cases.governance_case_missing_evidence`
+- `public.trust_cases.notify_trust_case_update`
+- `public.trust_cases.operational_intelligence_trust_case_insert`
+- `public.trust_cases.operational_intelligence_trust_case_update`
+- `public.trust_cases.trust_case_created_timeline`
+- `public.trust_events.trust_timeline_trust_event_insert`
+- `public.trust_relationships.trust_timeline_relationship_insert`
+- `public.verification_receipts.verification_receipts_integrity_insert`
+- `storage.buckets.enforce_bucket_name_length_trigger`
+- `storage.buckets.protect_buckets_delete`
+- `storage.objects.protect_objects_delete`
+- `storage.objects.update_objects_updated_at`
+
+## Grant categories (60)
+
+- `auth:postgres:DELETE`
+- `auth:postgres:INSERT`
+- `auth:postgres:REFERENCES`
+- `auth:postgres:SELECT`
+- `auth:postgres:TRIGGER`
+- `auth:postgres:TRUNCATE`
+- `auth:postgres:UPDATE`
+- `public:anon:INSERT`
+- `public:anon:REFERENCES`
+- `public:anon:SELECT`
+- `public:anon:TRIGGER`
+- `public:anon:TRUNCATE`
+- `public:authenticated:INSERT`
+- `public:authenticated:REFERENCES`
+- `public:authenticated:SELECT`
+- `public:authenticated:TRIGGER`
+- `public:authenticated:TRUNCATE`
+- `public:authenticated:UPDATE`
+- `public:postgres:DELETE`
+- `public:postgres:INSERT`
+- `public:postgres:REFERENCES`
+- `public:postgres:SELECT`
+- `public:postgres:TRIGGER`
+- `public:postgres:TRUNCATE`
+- `public:postgres:UPDATE`
+- `public:service_role:DELETE`
+- `public:service_role:INSERT`
+- `public:service_role:REFERENCES`
+- `public:service_role:SELECT`
+- `public:service_role:TRIGGER`
+- `public:service_role:TRUNCATE`
+- `public:service_role:UPDATE`
+- `storage:anon:DELETE`
+- `storage:anon:INSERT`
+- `storage:anon:REFERENCES`
+- `storage:anon:SELECT`
+- `storage:anon:TRIGGER`
+- `storage:anon:TRUNCATE`
+- `storage:anon:UPDATE`
+- `storage:authenticated:DELETE`
+- `storage:authenticated:INSERT`
+- `storage:authenticated:REFERENCES`
+- `storage:authenticated:SELECT`
+- `storage:authenticated:TRIGGER`
+- `storage:authenticated:TRUNCATE`
+- `storage:authenticated:UPDATE`
+- `storage:postgres:DELETE`
+- `storage:postgres:INSERT`
+- `storage:postgres:REFERENCES`
+- `storage:postgres:SELECT`
+- `storage:postgres:TRIGGER`
+- `storage:postgres:TRUNCATE`
+- `storage:postgres:UPDATE`
+- `storage:service_role:DELETE`
+- `storage:service_role:INSERT`
+- `storage:service_role:REFERENCES`
+- `storage:service_role:SELECT`
+- `storage:service_role:TRIGGER`
+- `storage:service_role:TRUNCATE`
+- `storage:service_role:UPDATE`
+
+## Auth and Storage foreign-key dependencies (15)
+
+- `public.admin_reviews.admin_reviews_reviewer_user_id_fkey -> auth.users`
+- `public.admin_reviews.admin_reviews_user_id_fkey -> auth.users`
+- `public.agent_profiles.agent_profiles_owner_user_id_fkey -> auth.users`
+- `public.audit_events.audit_events_user_id_fkey -> auth.users`
+- `public.candidate_profiles.candidate_profiles_user_id_fkey -> auth.users`
+- `public.cookie_consent_receipts.cookie_consent_receipts_user_id_fkey -> auth.users`
+- `public.hopae_verifications.hopae_verifications_user_id_fkey -> auth.users`
+- `public.interview_risk_signals.interview_risk_signals_user_id_fkey -> auth.users`
+- `public.interview_sessions.interview_sessions_user_id_fkey -> auth.users`
+- `public.liveness_checks.liveness_checks_user_id_fkey -> auth.users`
+- `public.provenance_assets.provenance_assets_user_id_fkey -> auth.users`
+- `public.recruiter_profiles.recruiter_profiles_user_id_fkey -> auth.users`
+- `public.trust_scores.trust_scores_user_id_fkey -> auth.users`
+- `public.usage_limits.usage_limits_user_id_fkey -> auth.users`
+- `public.verification_events.verification_events_user_id_fkey -> auth.users`
+
+## Auth and Storage function dependencies (1)
+
+- `public.record_cookie_consent(p_anonymous_id uuid, p_session_id uuid, p_consent_version text, p_analytics boolean, p_marketing boolean, p_preferences boolean, p_source text, p_idempotency_key uuid, p_country_code text, p_ip_hash text, p_user_agent_hash text, p_metadata jsonb)`
+
+## Known limitations
+
+- This baseline contains catalog names and signatures only. It intentionally excludes rows, Auth identities, Storage objects, evidence, credentials, connection strings, function bodies, policy expressions, index definitions and private schema payloads.
+- Row counts, table sizes, query plans, lock timing and data distribution were not inspected; all row-volume risk remains unknown until isolated staging measurement.
+- Backup and PITR state remain unknown because no owner-confirmed entitlement evidence was available to this read-only capture.
+- Catalog names describe the capture time only; Epic 29.3 must verify the isolated staging starting boundary independently before any migration execution.
+
+## Safety confirmation
+
+The linked reference was matched to the Production entry in the environment registry before inspection. Only the migration ledger, project metadata and the SELECT-only catalog query in `tools/release/capture-production-baseline-readonly.sql` were executed. No Production row was selected, no migration was applied, no ledger was repaired and no schema or data mutation occurred.

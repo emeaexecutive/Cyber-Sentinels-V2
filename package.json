@@ -88,6 +88,8 @@
     "release:dry": "tsx tools/release/release-manager.ts --dry-run",
     "test:release-manager": "node --experimental-strip-types --test tests/release-manager.test.mjs",
     "test:environment-safety": "node --experimental-strip-types --test tests/environment-safety.test.mjs",
+    "test:staging-migration-audit": "node --test tests/staging-migration-audit.test.mjs",
+    "test:staging-release": "node --test tests/staging-migration-audit.test.mjs tests/staging-release-package.test.mjs",
     "test:provider-health-reconciliation": "node --test tests/provider-health-schema-reconciliation.test.mjs",
     "test:trust-relationships-reconciliation": "node --test tests/trust-relationships-schema-reconciliation.test.mjs",
     "test:migration-namespace": "node --test tests/migration-namespace-reconciliation.test.mjs",

@@ -1,0 +1,39 @@
+# Destructive SQL review
+
+No pending migration contains `DROP TABLE`, `DROP COLUMN`, `TRUNCATE`, destructive `ALTER TYPE`, or an unbounded `DELETE`. Static findings below are never silently allowed: they require the stated staging evidence or later Production approval. `CASCADE` occurrences are foreign-key/function dependency semantics, not an instruction to run a cascading object drop.
+
+| Migration | Signals | Classification | Lock and performance review |
+| --- | --- | --- | --- |
+| `202606100001_runtime_validation_logs.sql` | dropPolicy:2 | requires staging evidence | MEDIUM; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202606180001_enterprise_ai_trust_governance.sql` | dropPolicy:4, update:2 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202606190001_verifiers.sql` | dropPolicy:2 | requires staging evidence | MEDIUM; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202606190002_session_integrity_signal_separation.sql` | cascade:14, dropPolicy:4, replaceFunction:2, insert:4 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202606190003_hopae_connect_upstream_identity.sql` | dropPolicy:1, update:1 | requires staging evidence | MEDIUM; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202606270001_screenshot_support_debugging.sql` | cascade:2, dropPolicy:2, update:1, insert:1 | requires staging evidence | MEDIUM; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607010001_production_owner_scoped_rls.sql` | dropPolicy:24, update:6 | requires staging evidence | MEDIUM; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607020001_critical_trust_infrastructure_alignment.sql` | dropConstraint:1 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607160001_release_1_rc1_provider_evidence_gate.sql` | cascade:9, dropPolicy:10, replaceFunction:3, update:3, insert:7 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607160002_release_1_rc2_living_trust_privacy.sql` | dropPolicy:2, replaceFunction:1, update:4, insert:2 | requires staging evidence | MEDIUM; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607160003_release_1_rc6_production_evidence_gate.sql` | delete:2, cascade:3, dropPolicy:1, replaceFunction:3, update:2, insert:1 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607170001_operational_risk_intelligence_shadow.sql` | delete:1, cascade:3, dropConstraint:1, dropPolicy:2, replaceFunction:4, update:3, insert:4 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607170002_provider_abstraction_hopae.sql` | cascade:2, dropPolicy:1, replaceFunction:2, update:2, insert:3 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607190001_identity_signal_engine.sql` | cascade:12, replaceFunction:2, update:2, insert:1 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607190002_identity_signal_runtime.sql` | cascade:1, dropConstraint:1, dropPolicy:3, update:1 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607200001_canonical_trust_event_foundation.sql` | cascade:5, dropPolicy:3, replaceFunction:5, update:4, insert:10 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607200002_enterprise_trust_consent_manager.sql` | cascade:10, dropConstraint:1, replaceFunction:3, update:4, insert:14 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607200003_provider_consensus_engine.sql` | cascade:7, dropConstraint:1, replaceFunction:4, update:3, insert:13 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607210001_enterprise_trust_architecture.sql` | cascade:11, dropConstraint:1, replaceFunction:9, update:5, insert:35 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607210002_continuous_trust_runtime.sql` | cascade:1, dropConstraint:3, dropPolicy:1, replaceFunction:2, update:6, insert:7 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607230001_trust_intelligence_engine.sql` | replaceFunction:4, update:10, insert:10 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607230002_enterprise_trust_graph.sql` | replaceFunction:4, update:6, insert:5 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607240001_trust_dna_engine.sql` | dropConstraint:1, replaceFunction:1, update:2, insert:3 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607240002_replay_timeline_engine.sql` | dropConstraint:1, replaceFunction:4, insert:1 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607240003_continuous_trust_engine.sql` | replaceFunction:10, update:13, insert:19 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607240004_enterprise_trust_centre.sql` | cascade:2, replaceFunction:1, update:3, insert:2 | requires staging evidence | MEDIUM; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202607310001_environment_attestation_scope_continuity.sql` | replaceFunction:2, update:1, insert:14 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202608010001_ai_serious_incident_regulatory_lineage.sql` | dropConstraint:2, replaceFunction:5, update:1, insert:44 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202608010002_enterprise_trust_fabric.sql` | dropPolicy:1, replaceFunction:4, update:4, insert:7 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+
+## Production approval boundary
+
+Constraint replacement, bounded delete paths, policy replacement, non-concurrent indexes on existing tables, function replacement and any measured HIGH/BLOCKING lock behavior require explicit Production approval after staging evidence. No such approval is granted by Epic 29.2.

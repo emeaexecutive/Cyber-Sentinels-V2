@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "release": "enterprise-trust-fabric-staging-epic-29.2",
+  "reviewOnly": true,
+  "migrationExecutionPermitted": false,
+  "productionMutationPermitted": false,
+  "syntheticDataOnly": true,
+  "productionHead": "202606090003",
+  "firstPendingMigration": "202606100001",
+  "targetHead": "202608010002",
+  "appliedMigrationCount": 45,
+  "pendingMigrationCount": 29,
+  "phaseOrder": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G"
+  ],
+  "validationOrder": [
+    "preflight.sql",
+    "post-apply-validation.sql",
+    "rls-validation.sql",
+    "integrity-validation.sql",
+    "compatibility-validation.sql"
+  ],
+  "architectureFreeze": {
+    "source": "docs/release/EPIC_29_ARCHITECTURE_FREEZE.md",
+    "incompatibleChangesPermitted": false,
+    "contracts": [
+      "Trust Object",
+      "Trust Contract",
+      "evidence taxonomy",
+      "trust states",
+      "provider states",
+      "Replay availability",
+      "Scope Continuity",
+      "Serious-Incident protected decisions",
+      "tenant identity",
+      "reviewer authority"
+    ]
+  }
+}
