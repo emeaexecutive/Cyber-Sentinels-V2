@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "environments": [
+    {
+      "name": "production",
+      "displayName": "Cyber Sentinels Production",
+      "environmentType": "production",
+      "projectReference": "kecgtsfibkypjuaxqbjx",
+      "region": "eu-west-3",
+      "production": true,
+      "syntheticDataOnly": false,
+      "automatedMutationPermitted": false,
+      "automatedStagingValidationPermitted": false,
+      "permittedOperations": [
+        "read_only_inventory"
+      ],
+      "knownApplicationHostnames": [
+        "cybersentinels.com",
+        "www.cybersentinels.com"
+      ],
+      "retentionClassification": "production_system_of_record"
+    },
+    {
+      "name": "staging",
+      "displayName": "Cyber Sentinels Staging",
+      "environmentType": "staging",
+      "projectReference": "agpyhygpfmppjkxwcpac",
+      "region": "eu-west-3",
+      "production": false,
+      "syntheticDataOnly": true,
+      "automatedMutationPermitted": false,
+      "automatedStagingValidationPermitted": true,
+      "permittedOperations": [
+        "read_only_inventory",
+        "synthetic_fixture_validation"
+      ],
+      "knownApplicationHostnames": [],
+      "retentionClassification": "retain_through_epic_31"
+    }
+  ]
+}
