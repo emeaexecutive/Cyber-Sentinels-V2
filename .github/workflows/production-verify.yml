@@ -27,5 +27,7 @@ jobs:
       - run: npm run test:security-zap-config
       - run: npm run test:release-health
       - run: npm run security:zap:staging
+        env:
+          ZAP_TARGET: https://staging.cybersentinels.example
       - run: npm test
       - run: npm run build
