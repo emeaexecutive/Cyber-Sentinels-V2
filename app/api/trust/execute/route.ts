@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { runtimeEngine } from "@/lib/core/runtime-engine";
 import { checkRequestRateLimit } from "@/lib/security";
+import { emitTraceSpan } from "@/lib/operations/observability";
 import {
   Rc1ProviderError,
   retrieveHopaeTrustAssessment,
@@ -15,7 +16,22 @@ function numberValue(body: Record<string, unknown>, key: string) {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
+function correlationIdFor(request: Request) {
+  const header = request.headers.get("x-correlation-id")?.trim();
+  return header || crypto.randomUUID();
+}
+
 export async function GET(request: Request) {
+  const correlationId = correlationIdFor(request);
+  emitTraceSpan("trust.request.received", {
+    correlationId,
+    operationType: "trust.execute.get",
+    resultState: "received",
+    providerState: "unknown",
+    reasonCode: "request_received",
+    environment: process.env.NODE_ENV ?? "unknown",
+    applicationSha: process.env.VERCEL_GIT_COMMIT_SHA ?? "local",
+  });
   const rateLimited = checkRequestRateLimit({ route: "/api/trust/execute:provider-session", req: request, limit: 20, windowMs: 60_000 });
   if (rateLimited) return rateLimited;
   const supabase = await createClient();
@@ -35,6 +51,16 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const correlationId = correlationIdFor(request);
+  emitTraceSpan("trust.request.received", {
+    correlationId,
+    operationType: "trust.execute.post",
+    resultState: "received",
+    providerState: "unknown",
+    reasonCode: "request_received",
+    environment: process.env.NODE_ENV ?? "unknown",
+    applicationSha: process.env.VERCEL_GIT_COMMIT_SHA ?? "local",
+  });
   const rateLimited = checkRequestRateLimit({ route: "/api/trust/execute", req: request, limit: 20, windowMs: 60_000 });
   if (rateLimited) return rateLimited;
   const supabase = await createClient();
@@ -47,6 +73,15 @@ export async function POST(request: Request) {
   if (!body) return NextResponse.json({ ok: false, error: "invalid_execution_input" }, { status: 400 });
 
   if (body.action === "establish_trust") {
+    emitTraceSpan("trust.provider.request", {
+      correlationId,
+      operationType: "trust.provider.request",
+      resultState: "requested",
+      providerState: String(body.provider_id ?? "unknown"),
+      reasonCode: "provider_requested",
+      environment: process.env.NODE_ENV ?? "unknown",
+      applicationSha: process.env.VERCEL_GIT_COMMIT_SHA ?? "local",
+    });
     if (body.provider_id !== "hopae_connect") {
       return NextResponse.json({ ok: false, error: "unsupported_primary_provider" }, { status: 400 });
     }
@@ -68,10 +103,8 @@ export async function POST(request: Request) {
   }
 
   const workflowId = String(body.workflow_id ?? crypto.randomUUID()).slice(0, 120);
-  const actorId = String(body.actor_id ?? user.id).slice(0, 120);
-  const actorType = ["human", "agent", "NHI", "workflow"].includes(String(body.actor_type))
-    ? (String(body.actor_type) as "human" | "agent" | "NHI" | "workflow")
-    : "workflow";
+  const actorId = user.id.slice(0, 120);
+  const actorType = "human";
   const evidenceRefs = Array.isArray(body.evidence_refs) ? body.evidence_refs.map(String).slice(0, 20) : [];
   const pipeline = await runtimeEngine.executeRuntimeWorkflow(supabase, {
     actorId,
@@ -97,6 +130,16 @@ export async function POST(request: Request) {
     governanceHistory: [],
     evidenceRefs,
     evidenceLastSeenAt: typeof body.evidence_last_seen_at === "string" ? body.evidence_last_seen_at : null,
+  });
+
+  emitTraceSpan("trust.decision.created", {
+    correlationId,
+    operationType: "trust.decision.created",
+    resultState: pipeline?.ok === false ? "error" : "allow",
+    providerState: String(body.provider_id ?? "unknown"),
+    reasonCode: pipeline?.ok === false ? "decision_failed" : "decision_created",
+    environment: process.env.NODE_ENV ?? "unknown",
+    applicationSha: process.env.VERCEL_GIT_COMMIT_SHA ?? "local",
   });
 
   return NextResponse.json(pipeline, { headers: { "cache-control": "no-store" } });

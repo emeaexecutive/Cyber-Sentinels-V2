@@ -1,0 +1,23 @@
+{
+  "emptyReconstruction": {
+    "postApply": "PASS",
+    "rls": "PASS",
+    "integrity": "PASS",
+    "compatibility": "PASS"
+  },
+  "productionHeadReconstruction": {
+    "baseline": "PASS",
+    "phaseA": "PASS",
+    "phaseB": "PASS",
+    "phaseC": "PASS",
+    "phaseD": "PASS",
+    "phaseE": "PASS",
+    "phaseF": "PASS",
+    "phaseG": "PASS"
+  },
+  "schemaComparison": {
+    "unexplainedDifferences": 0,
+    "matchedCategories": 3,
+    "totalCategories": 3
+  }
+}

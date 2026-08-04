@@ -1,0 +1,19 @@
+{
+  "path": "production-head",
+  "environmentType": "staging",
+  "targetReference": "agpyhygpfmppjkxwcpac",
+  "syntheticMode": true,
+  "startingHead": "202606090003",
+  "finalMigrationHead": "202608010002",
+  "pendingMigrations": 29,
+  "validation": {
+    "baseline": "PASS",
+    "phaseA": "PASS",
+    "phaseB": "PASS",
+    "phaseC": "PASS",
+    "phaseD": "PASS",
+    "phaseE": "PASS",
+    "phaseF": "PASS",
+    "phaseG": "PASS"
+  }
+}

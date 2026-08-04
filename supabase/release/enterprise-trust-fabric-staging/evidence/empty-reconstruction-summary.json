@@ -1,0 +1,15 @@
+{
+  "path": "empty",
+  "environmentType": "staging",
+  "targetReference": "agpyhygpfmppjkxwcpac",
+  "syntheticMode": true,
+  "migrationHead": "202606090003",
+  "finalMigrationHead": "202608010002",
+  "migrationCount": 29,
+  "validation": {
+    "postApply": "PASS",
+    "rls": "PASS",
+    "integrity": "PASS",
+    "compatibility": "PASS"
+  }
+}

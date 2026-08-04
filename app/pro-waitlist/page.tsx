@@ -14,19 +14,19 @@ type ProWaitlistPageProps = {
 const waitlistPlans = {
   starter: {
     name: "Starter",
-    price: "EUR 9.99/month",
+    availability: "Pilot pricing",
     useCase: "starter_waitlist",
     status: "starter_waitlist",
   },
   professional: {
     name: "Professional",
-    price: "EUR 29.99/month",
+    availability: "By consultation",
     useCase: "professional_waitlist",
     status: "professional_waitlist",
   },
   premium: {
     name: "Premium",
-    price: "EUR 39.99/month",
+    availability: "Tailored to your environment",
     useCase: "premium_waitlist",
     status: "premium_waitlist",
   },
@@ -55,11 +55,10 @@ export default async function ProWaitlistPage({
             Join the Cyber Sentinels {selectedPlan.name} waitlist
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            {selectedPlan.name} is priced at {selectedPlan.price}. Checkout
-            will open once billing is fully configured.
+            {selectedPlan.name} is available through pilot and enterprise consultation. Commercial terms are tailored to workflow scope, evidence providers and deployment requirements.
           </p>
           <p className="mt-3 text-sm text-zinc-500">
-            Prices shown in EUR. Additional currencies may be supported later.
+            {selectedPlan.availability}
           </p>
         </section>
 

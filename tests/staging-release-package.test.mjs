@@ -5,6 +5,21 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+async function collectPackageFiles(root) {
+  const entries = await readdir(root, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const fullPath = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await collectPackageFiles(fullPath)));
+      continue;
+    }
+    if (entry.name === "SHA256SUMS") continue;
+    files.push(path.relative(repoRoot, fullPath).replaceAll(path.sep, "/"));
+  }
+  return files.sort();
+}
+
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const packageRoot = path.join(repoRoot, "supabase", "release", "enterprise-trust-fabric-staging");
 const migrationRoot = path.join(repoRoot, "supabase", "migrations");
@@ -79,11 +94,8 @@ test("SHA256SUMS covers every referenced migration and every package file except
       return [match[2], match[1]];
     }),
   );
-  const packageFiles = (await readdir(packageRoot)).filter((name) => name !== "SHA256SUMS").sort();
-  const expectedPaths = [
-    ...order,
-    ...packageFiles.map((name) => `supabase/release/enterprise-trust-fabric-staging/${name}`),
-  ].sort();
+  const packageFiles = await collectPackageFiles(packageRoot);
+  const expectedPaths = [...order, ...packageFiles].sort();
   assert.deepEqual([...checksums.keys()].sort(), expectedPaths);
   for (const [relativePath, expected] of checksums) {
     assert.equal(sha256(await readFile(path.join(repoRoot, relativePath))), expected, relativePath);
@@ -122,14 +134,14 @@ test("expected inventory preserves canonical historical distinctions", () => {
 test("package contains no credential material or executable Production reference", async () => {
   const registry = JSON.parse(await readFile(path.join(repoRoot, "config", "environments", "registry.json"), "utf8"));
   const productionReference = registry.environments.find((entry) => entry.production).projectReference;
-  const packageFiles = await readdir(packageRoot);
-  for (const name of packageFiles) {
-    const contents = await readFile(path.join(packageRoot, name), "utf8");
-    assert.equal(contents.includes(productionReference), false, name);
-    assert.doesNotMatch(contents, /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/i, name);
-    assert.doesNotMatch(contents, /\beyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/, name);
-    assert.doesNotMatch(contents, /\b(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis):\/\/[^\s`]+/i, name);
-    assert.doesNotMatch(contents, /\b(?:sk_live|rk_live|ghp|github_pat|sbp|sb_secret)_[A-Za-z0-9_-]{12,}\b/, name);
+  const packageFiles = await collectPackageFiles(packageRoot);
+  for (const relativePath of packageFiles) {
+    const contents = await readFile(path.join(repoRoot, relativePath), "utf8");
+    assert.equal(contents.includes(productionReference), false, relativePath);
+    assert.doesNotMatch(contents, /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/i, relativePath);
+    assert.doesNotMatch(contents, /\beyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/, relativePath);
+    assert.doesNotMatch(contents, /\b(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis):\/\/[^\s`]+/i, relativePath);
+    assert.doesNotMatch(contents, /\b(?:sk_live|rk_live|ghp|github_pat|sbp|sb_secret)_[A-Za-z0-9_-]{12,}\b/, relativePath);
   }
 });
 

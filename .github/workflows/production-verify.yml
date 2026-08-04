@@ -22,5 +22,10 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run test:cookie-consent
+      - run: npm run test:observability
+      - run: npm run test:security-tooling
+      - run: npm run test:security-zap-config
+      - run: npm run test:release-health
+      - run: npm run security:zap:staging
       - run: npm test
       - run: npm run build

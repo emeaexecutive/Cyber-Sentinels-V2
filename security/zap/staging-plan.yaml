@@ -1,0 +1,15 @@
+id: cyber-sentinels-staging-zap
+context:
+  target: staging
+  allowHosts:
+    - staging.cybersentinels.example
+  denyHosts:
+    - cybersentinels.com
+    - www.cybersentinels.com
+    - production.cybersentinels.example
+  auth:
+    mode: none
+  scanMode: passive
+  timeoutSeconds: 180
+  riskThreshold: medium
+  reportFormat: json

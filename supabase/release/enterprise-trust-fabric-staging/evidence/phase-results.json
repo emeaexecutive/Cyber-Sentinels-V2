@@ -1,0 +1,71 @@
+{
+  "phases": [
+    {
+      "id": "A",
+      "name": "Compatibility and historical corrections",
+      "result": "PASS",
+      "migrationsApplied": 8,
+      "validationSql": [
+        "post-apply-validation.sql"
+      ]
+    },
+    {
+      "id": "B",
+      "name": "Provider, identity and trust foundations",
+      "result": "PASS",
+      "migrationsApplied": 10,
+      "validationSql": [
+        "post-apply-validation.sql"
+      ]
+    },
+    {
+      "id": "C",
+      "name": "Enterprise trust architecture",
+      "result": "PASS",
+      "migrationsApplied": 8,
+      "validationSql": [
+        "post-apply-validation.sql"
+      ]
+    },
+    {
+      "id": "D",
+      "name": "Environment and Scope",
+      "result": "PASS",
+      "migrationsApplied": 1,
+      "validationSql": [
+        "post-apply-validation.sql"
+      ]
+    },
+    {
+      "id": "E",
+      "name": "Serious Incidents",
+      "result": "PASS",
+      "migrationsApplied": 1,
+      "validationSql": [
+        "post-apply-validation.sql"
+      ]
+    },
+    {
+      "id": "F",
+      "name": "Enterprise Trust Fabric",
+      "result": "PASS",
+      "migrationsApplied": 1,
+      "validationSql": [
+        "post-apply-validation.sql"
+      ]
+    },
+    {
+      "id": "G",
+      "name": "Validation",
+      "result": "PASS",
+      "migrationsApplied": 0,
+      "validationSql": [
+        "post-apply-validation.sql",
+        "rls-validation.sql",
+        "integrity-validation.sql",
+        "compatibility-validation.sql"
+      ]
+    }
+  ],
+  "stopRule": "PASS"
+}
