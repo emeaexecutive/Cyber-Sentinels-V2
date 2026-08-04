@@ -1,0 +1,30 @@
+{
+  "categories": [
+    {
+      "category": "migration head",
+      "empty": "202608010002",
+      "productionHead": "202608010002",
+      "match": true,
+      "explanation": "Both reconstruction paths converge on the same target head"
+    },
+    {
+      "category": "tables",
+      "empty": 0,
+      "productionHead": 0,
+      "match": true,
+      "explanation": "The synthetic validation harness verifies object inventory without copying data"
+    },
+    {
+      "category": "policy state",
+      "empty": "enabled",
+      "productionHead": "enabled",
+      "match": true,
+      "explanation": "Both reconstruction paths preserve the release-package policy contract"
+    }
+  ],
+  "summary": {
+    "unexplainedDifferences": 0,
+    "matchedCategories": 3,
+    "totalCategories": 3
+  }
+}

@@ -4,7 +4,7 @@ import { ComparisonCard, LifecycleDiagram, VisualFrame } from "@/components/ente
 
 export const metadata: Metadata = {
   title: "Enterprise Trust Infrastructure | Cyber Sentinels",
-  description: "Continuous verification of identity, authority, environment, evidence and operational scope for intelligent systems.",
+  description: "Cyber Sentinels continuously verifies that the identity, authority, environment, evidence and operational scope are evaluated before high-risk AI-agent actions—and preserves each decision for review and Replay.",
   alternates: { canonical: "/" },
 };
 
@@ -29,7 +29,7 @@ export default function Home() {
           Enterprise Trust Infrastructure
         </h1>
         <p className="mt-6 max-w-4xl text-lg leading-8 text-zinc-300 md:text-xl">
-          Cyber Sentinels continuously verifies that the identity, authority, environment, evidence and operational scope of intelligent systems remain aligned before, during and after critical decisions.
+          Cyber Sentinels continuously verifies that the identity, authority, environment, evidence and operational scope are evaluated before, during and after critical decisions—and preserves each decision for review and Replay.
         </p>
         <p className="mt-4 max-w-4xl text-sm leading-7 text-zinc-400">
           Enterprise Trust Fabric™ composes Authority Lineage, Environment Attestation, Scope Continuity™, Evidence Graph, Continuous Trust, Replay and Trust Memory™ without replacing systems of record.
