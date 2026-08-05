@@ -1,0 +1,3 @@
+import { createTrustRecommendations } from "@/src/lib/trust-learning/service";
+import { readTrustLearningJson, trustLearningContext, trustLearningCorrelationId, trustLearningFailure, trustLearningResponse } from "@/src/lib/trust-learning/http";
+export async function POST(request: Request) { const correlationId = trustLearningCorrelationId(request); try { const auth = await trustLearningContext(request, ["owner", "admin", "reviewer"]); const recommendations = await createTrustRecommendations({ enterpriseId: auth.enterpriseId, value: await readTrustLearningJson(request) }); return trustLearningResponse({ ok: true, recommendations }, 200, correlationId); } catch (error) { return trustLearningFailure(error, correlationId); } }

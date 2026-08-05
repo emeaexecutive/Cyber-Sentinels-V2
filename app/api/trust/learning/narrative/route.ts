@@ -1,0 +1,3 @@
+import { createGroundedNarrative } from "@/src/lib/trust-learning/service";
+import { readTrustLearningJson, trustLearningContext, trustLearningCorrelationId, trustLearningFailure, trustLearningResponse } from "@/src/lib/trust-learning/http";
+export async function POST(request: Request) { const correlationId = trustLearningCorrelationId(request); try { const auth = await trustLearningContext(request, ["owner", "admin", "reviewer"]); const narrative = await createGroundedNarrative({ enterpriseId: auth.enterpriseId, correlationId, value: await readTrustLearningJson(request) }); return trustLearningResponse({ ok: true, narrative }, 200, correlationId); } catch (error) { return trustLearningFailure(error, correlationId); } }

@@ -7,6 +7,7 @@ import type {
   TrustCentreSearchResult,
   TrustCentreSnapshot,
 } from "@/src/lib/trust-centre/types";
+import { EnterpriseTrustLearningPanel } from "@/src/components/trust-learning/EnterpriseTrustLearningPanel";
 
 type View =
   | "overview"
@@ -17,6 +18,7 @@ type View =
   | "alerts"
   | "policies"
   | "providers"
+  | "learning"
   | "reports";
 
 const views: Array<{ id: View; label: string }> = [
@@ -28,6 +30,7 @@ const views: Array<{ id: View; label: string }> = [
   { id: "alerts", label: "Alerts" },
   { id: "policies", label: "Policies" },
   { id: "providers", label: "Providers" },
+  { id: "learning", label: "Trust Learning" },
   { id: "reports", label: "Reports" },
 ];
 
@@ -479,6 +482,7 @@ export function EnterpriseTrustCentre({ initialSnapshot }: { initialSnapshot: Tr
         {view === "alerts" ? <Alerts snapshot={snapshot} onRefresh={refresh} /> : null}
         {view === "policies" ? <Policies snapshot={snapshot} /> : null}
         {view === "providers" ? <Providers snapshot={snapshot} /> : null}
+        {view === "learning" ? <EnterpriseTrustLearningPanel enterpriseId={snapshot.organisation.id} /> : null}
         {view === "reports" ? <Reports snapshot={snapshot} /> : null}
       </div>
     </div>

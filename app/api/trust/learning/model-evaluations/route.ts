@@ -1,0 +1,3 @@
+import { enterpriseTrustLearningRepository } from "@/src/lib/trust-learning/repository";
+import { trustLearningContext, trustLearningCorrelationId, trustLearningFailure, trustLearningResponse } from "@/src/lib/trust-learning/http";
+export async function GET(request: Request) { const correlationId = trustLearningCorrelationId(request); try { const auth = await trustLearningContext(request); const evaluations = await enterpriseTrustLearningRepository().modelEvaluations(auth.enterpriseId); return trustLearningResponse({ ok: true, evaluations }, 200, correlationId); } catch (error) { return trustLearningFailure(error, correlationId); } }

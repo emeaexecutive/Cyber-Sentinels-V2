@@ -1,0 +1,3 @@
+import { evaluateEnterpriseTrustPatterns } from "@/src/lib/trust-learning/service";
+import { readTrustLearningJson, trustLearningContext, trustLearningCorrelationId, trustLearningFailure, trustLearningResponse } from "@/src/lib/trust-learning/http";
+export async function POST(request: Request) { const correlationId = trustLearningCorrelationId(request); try { const auth = await trustLearningContext(request, ["owner", "admin", "reviewer"]); const value = await readTrustLearningJson(request); const result = await evaluateEnterpriseTrustPatterns({ enterpriseId: auth.enterpriseId, actorId: auth.user.id, correlationId, value }); return trustLearningResponse({ ok: true, result }, 200, correlationId); } catch (error) { return trustLearningFailure(error, correlationId); } }
