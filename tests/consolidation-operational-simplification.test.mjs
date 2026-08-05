@@ -55,22 +55,20 @@ test("primary navigation follows the canonical six-destination standard", () => 
   assert.doesNotMatch(navigation, /Consortium Intelligence|Funding \/ Build Plan/);
 });
 
-test("homepage stays focused and uses the canonical Enterprise Trust vocabulary", () => {
+test("homepage stays focused and uses the canonical Operational Trust vocabulary", () => {
   const homepage = read("app/page.tsx");
 
-  assert.match(homepage, /Enterprise Trust Infrastructure/);
-  assert.match(homepage, /continuously verifies that the identity, authority, environment, evidence and operational scope/);
+  assert.match(homepage, /Operational Trust Intelligence™/);
+  assert.match(homepage, /continuously explainable,\s*evidence-backed trust decisions/);
   assert.doesNotMatch(homepage, /Private Beta|Enterprise Pilot Ready|trust universe/i);
 
   for (const label of [
-    "Enterprise Trust Fabric",
-    "Authority Lineage",
-    "Environment Attestation",
-    "Scope Continuity",
-    "Evidence Graph",
-    "Continuous Trust",
-    "Replay",
-    "Trust Memory",
+    "Trust Narrative™",
+    "Trust Drift™",
+    "Trust Recommendation™",
+    "Authority Lineage™",
+    "Replay™",
+    "Trust Memory™",
   ]) {
     assert.match(homepage, new RegExp(label));
   }
