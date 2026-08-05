@@ -1,5 +1,7 @@
 # Cyber Sentinels capability truth matrix
 
+This matrix reflects repository-backed static validation and staged-safe implementation. Live staging proof is not claimed in this workspace because the required staging Supabase/provider credentials were not present; the table should therefore be read as implemented and static-validated rather than live-validated.
+
 | Capability | Code | Database | API | UI | Contract tests | Live staging proof | Production proof | Current classification | Next proof required |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Web application foundation | Present in Next.js app router structure | Present via Supabase-backed application services | Present | Present | Present | Partial | Not proven | production-capable foundation | Staging deployment and route validation |
@@ -13,6 +15,7 @@
 | Replay | Present | Present | Present | Present | Present | Partial | Not proven | working prototype | Deterministic replay proof |
 | Continuous Trust | Present | Present | Present | Partial | Present | Partial | Not proven | working prototype | Live transition and evidence proof |
 | Trust Intelligence | Present | Present | Present | Partial | Present | Partial | Not proven | working prototype | Staged decision evidence |
+| Operational Trust Intelligence public positioning | Present in public pages and docs | Not applicable | Not applicable | Present | Present | Not applicable | Not proven | public positioning only | Keep wording evidence-backed and no-blueprint |
 | Consensus Engine | Present | Present | Present | Partial | Present | Partial | Not proven | working prototype | One provider decision path |
 | Decision Intelligence | Present | Present | Present | Partial | Present | Partial | Not proven | working prototype | Allow/review/deny decision evidence |
 | Operational Risk Intelligence | Present | Present | Present | Partial | Present | Partial | Not proven | rules-based implementation | Staged recommendation and review evidence |
@@ -34,3 +37,18 @@
 | Behavioural detection | Partial / experimental | Partial | Partial | Partial | Partial | Not proven | Not proven | simulation/test fixture | Validated behavioural model before claim |
 | Content provenance | Not implemented in this task | Not implemented | Not implemented | Not implemented | Not implemented | Not proven | Not proven | not implemented at required level | Defer until approved future extension |
 | Compliance operations | Partial | Partial | Partial | Partial | Partial | Partial | Not proven | partially integrated | Design-partner evidence export |
+
+## Public positioning claim register
+
+This register governs the public teaser layer. It does not change the implementation classification of any product capability above.
+
+| Public claim or vocabulary | Truth classification | Evidence in this repository | Approved public wording boundary |
+| --- | --- | --- | --- |
+| “Cyber Sentinels is building the Operational Trust Intelligence™ platform for intelligent enterprises.” | Category positioning; not a deployment claim | Homepage, investor page and public positioning documents | Use “building”; do not imply production deployment or enterprise-scale proof. |
+| “It transforms fragmented identity, security, AI and operational evidence into continuously explainable, evidence-backed trust decisions.” | Intended enterprise outcome supported by working-prototype capabilities | Trust Intelligence, Replay, Authority Lineage and related rows above | Keep outcome-level; do not describe internal processing or claim continuous live monitoring. |
+| Operational evidence showing what changed, why trust changed, who was accountable and what happened next | High-level differentiation supported by working-prototype evidence and replay surfaces | Replay, Trust Intelligence, Authority Lineage and Trust Centre rows above | Describe the evidence outcome only; do not claim perfect attribution or expose workflow logic. |
+| Operational Trust Intelligence™ and the fourteen supporting names in the brand vocabulary | Public capability vocabulary only | `docs/brand/OPERATIONAL_TRUST_CAPABILITY_NAMES.md` | A name is not implementation proof. Do not describe calculations, relationships, thresholds or status beyond the applicable matrix row. |
+| Customer-controlled evidence, accountability and historical proof | Design objective supported in part by repository implementation | Evidence Graph, Replay, Trust Memory-related implementation and tenant-isolation rows above | Use high-level value language; do not claim cryptographic immutability, guaranteed retention or live scale. |
+| Design-partner and enterprise-pilot invitation | Design-partner-stage positioning | Design-partner documentation and controlled pilot materials | Invite conversations; do not claim customer traction or a completed production pilot. |
+| Early-investor conversation invitation | Conversation availability only | Public investor page and positioning document | Do not publish financial terms, projected returns, valuation or invented traction. |
+| Public accountability questions | Category education; not a mechanism claim | Homepage and investor page | Ask what changed, why, who was accountable and what happened next without explaining how answers are produced. |

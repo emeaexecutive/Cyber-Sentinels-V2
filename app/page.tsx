@@ -1,23 +1,44 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ComparisonCard, LifecycleDiagram, VisualFrame } from "@/components/enterprise-visuals";
 
 export const metadata: Metadata = {
-  title: "Enterprise Trust Infrastructure | Cyber Sentinels",
-  description: "Cyber Sentinels continuously verifies that the identity, authority, environment, evidence and operational scope are evaluated before high-risk AI-agent actions—and preserves each decision for review and Replay.",
+  title: "Operational Trust Intelligence™ | Cyber Sentinels",
+  description:
+    "Cyber Sentinels is building the Operational Trust Intelligence™ platform for intelligent enterprises. It transforms fragmented identity, security, AI and operational evidence into continuously explainable, evidence-backed trust decisions.",
   alternates: { canonical: "/" },
 };
 
-const lifecycle = [
-  { label: "Identity" },
-  { label: "Authority" },
-  { label: "Context" },
-  { label: "Evidence" },
-  { label: "Trust Decision" },
-  { label: "Enforcement" },
-  { label: "Replay" },
-  { label: "Trust Memory™" },
-  { label: "Current Trust Posture" },
+const capabilityThemes = [
+  {
+    theme: "Understand",
+    names: "Trust Narrative™ · Trust Explanation™ · Trust Confidence™",
+    description: "Understand why trust changed and which evidence supports the conclusion.",
+  },
+  {
+    theme: "Anticipate",
+    names: "Trust Drift™ · Trust Stability™ · Trust Prediction™",
+    description: "Identify material changes that may require additional verification or human review.",
+  },
+  {
+    theme: "Act",
+    names: "Trust Recommendation™ · Trust Advisor™ · Trust Recovery™",
+    description: "Surface the next evidence-backed action required to restore or maintain operational trust.",
+  },
+  {
+    theme: "Remember",
+    names: "Replay™ · Trust Memory™ · Authority Lineage™ · Trust Continuity™",
+    description: "Preserve who acted, what authority existed and how trust evolved over time.",
+  },
+];
+
+const publicQuestions = [
+  "What changed?",
+  "Why did trust change?",
+  "Who authorized the action?",
+  "Which evidence supported the decision?",
+  "Who was accountable?",
+  "What happened next?",
+  "Can the organization prove it?",
 ];
 
 export default function Home() {
@@ -26,44 +47,69 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 pb-16 pt-16 md:px-8 md:pb-24 md:pt-24">
         <p className="operational-eyebrow">Cyber Sentinels</p>
         <h1 className="mt-5 max-w-5xl text-4xl font-semibold leading-tight text-white md:text-6xl">
-          Enterprise Trust Infrastructure
+          Operational Trust Intelligence™
         </h1>
         <p className="mt-6 max-w-4xl text-lg leading-8 text-zinc-300 md:text-xl">
-          Cyber Sentinels continuously verifies that the identity, authority, environment, evidence and operational scope are evaluated before, during and after critical decisions—and preserves each decision for review and Replay.
+          Cyber Sentinels is building the Operational Trust Intelligence™ platform for intelligent enterprises.
+        </p>
+        <p className="mt-4 max-w-4xl text-base leading-8 text-zinc-300">
+          It transforms fragmented identity, security, AI and operational evidence into continuously explainable,
+          evidence-backed trust decisions.
         </p>
         <p className="mt-4 max-w-4xl text-sm leading-7 text-zinc-400">
-          Enterprise Trust Fabric™ composes Authority Lineage, Environment Attestation, Scope Continuity™, Evidence Graph, Continuous Trust, Replay and Trust Memory™ without replacing systems of record.
+          Evidence-backed. Continuously explainable. Customer-controlled.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/demo" className="brand-primary-action brand-action-large">View Trust Fabric Demo</Link>
-          <Link href="/enterprise-access?intent=demo" className="brand-secondary-action brand-action-large">Request Enterprise Demo</Link>
+          <Link href="#operational-trust-intelligence" className="brand-secondary-action brand-action-large">
+            Explore the vision
+          </Link>
+          <Link href="/enterprise-access?intent=design_partner" className="brand-primary-action brand-action-large">
+            Join the design-partner programme
+          </Link>
+          <Link href="/enterprise-access?intent=intro_call" className="brand-secondary-action brand-action-large">
+            Request an enterprise conversation
+          </Link>
         </div>
       </section>
 
-      <section id="primary-operational-trust-flow" data-testid="primary-operational-trust-flow" className="border-y border-zinc-800 bg-black">
+      <section id="operational-trust-intelligence" className="border-y border-zinc-800 bg-black">
         <div className="mx-auto max-w-6xl scroll-mt-28 px-6 py-16 md:px-8 md:py-20">
-          <p className="operational-eyebrow">Operational Trust Lifecycle</p>
-          <h2 className="mt-3 max-w-4xl text-3xl font-semibold text-white">Know whether a critical action should proceed—and why.</h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">One evidence chain connects identity, authority, policy, decision, enforced outcome, Replay and current posture.</p>
-          <VisualFrame eyebrow="Primary operational trust flow" title="One action. One attributable trust record.">
-            <LifecycleDiagram steps={lifecycle} />
-          </VisualFrame>
+          <p className="operational-eyebrow">Capability vocabulary</p>
+          <h2 className="mt-3 max-w-4xl text-3xl font-semibold text-white">Understand trust as it changes.</h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            AI systems increasingly act across identity, security and business workflows. Cyber Sentinels is building
+            the operational trust layer that helps enterprises understand what changed, why trust changed, who was
+            accountable and what happened next.
+          </p>
+          <div className="mt-8 grid gap-x-10 gap-y-8 md:grid-cols-2">
+            {capabilityThemes.map((capability) => (
+              <article key={capability.theme} className="border-l border-zinc-700 pl-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300">{capability.theme}</p>
+                <h3 className="mt-3 text-lg font-semibold text-white">{capability.names}</h3>
+                <p className="mt-3 text-sm leading-7 text-zinc-400">{capability.description}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="bg-zinc-950">
-        <div className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-20">
-          <p className="operational-eyebrow">Why Different</p>
-          <h2 className="mt-3 max-w-3xl text-3xl font-semibold text-white">Move beyond point-in-time access decisions.</h2>
-          <div className="mt-8">
-            <ComparisonCard
-              left={{ title: "Traditional Identity", items: ["Identity", "Authentication", "MFA", "Access"] }}
-              right={{ title: "Operational Trust", items: ["Authority", "Runtime evidence", "Policy", "Decision", "Enforcement", "Replay"] }}
-            />
+        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 md:px-8 md:py-20 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <p className="operational-eyebrow">Why it matters</p>
+            <h2 className="mt-3 max-w-3xl text-3xl font-semibold text-white">Operational evidence should outlast the alert.</h2>
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+              Most platforms detect, authenticate, monitor or contain. Cyber Sentinels preserves the operational
+              evidence showing what changed, why trust changed, who was accountable and what happened next.
+            </p>
           </div>
-          <p className="mt-6 max-w-3xl text-sm leading-7 text-zinc-400">
-            Security leaders can see who acted, under whose authority, with which evidence, why the decision changed, and how the operation can be replayed.
-          </p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {publicQuestions.map((question) => (
+              <p key={question} className="rounded-lg border border-zinc-800 bg-black px-4 py-3 text-sm text-zinc-300">
+                {question}
+              </p>
+            ))}
+          </div>
         </div>
       </section>
     </main>
