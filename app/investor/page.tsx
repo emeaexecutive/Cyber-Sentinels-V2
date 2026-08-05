@@ -1,163 +1,80 @@
 import Link from "next/link";
-import { EvidenceDisclaimer } from "@/components/evidence-disclaimer";
 
-const marketShifts = [
-  ["Synthetic credibility", "Generated profiles, reused identity evidence and manipulated sessions can reach high-value workflows before fragmented controls expose the mismatch."],
-  ["Point-in-time verification", "An identity check at entry does not explain whether the live session, authorization context or evidence remained trustworthy."],
-  ["Governance fragmentation", "Provider results, review notes, decisions and audit evidence often sit in separate systems, weakening operational accountability."],
-  ["Agent and NHI accountability", "AI agents, service accounts and API actors can execute consequential work while ownership, delegated authority and replay remain fragmented."],
-];
-
-const moat = [
-  ["Operational memory", "Each governed workflow adds replayable chronology, authorization history and evidence relationships that improve continuity."],
-  ["Unified trust model", "Humans, AI agents, non-human identities and workflows share one posture, governance and replay model."],
-  ["Governance embeddedness", "Reviewer ownership, escalation policy and operational accountability become part of how consequential work runs."],
-  ["Cross-workflow continuity", "A common evidence and authorization language can extend from one validated workflow into adjacent enterprise operations."],
-];
-
-const boundaries = [
-  "No hidden behavioral monitoring.",
-  "No universal score about a person.",
-  "No automatic claim that media or identity is perfectly real or fake.",
-  "No autonomous approval outside declared authority.",
-  "No replacement of accountable human review.",
+const investorQuestions = [
+  "What changed?",
+  "Who authorized the action?",
+  "Which evidence supported the decision?",
+  "Who was accountable?",
+  "Can the organization prove it?",
 ];
 
 export default function InvestorPage() {
   return (
     <main className="min-h-screen bg-[#04070c] text-white">
-      <section className="border-b border-zinc-900 px-6 py-16 md:px-8">
+      <section className="border-b border-zinc-900 px-6 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">
-            Investor overview
-          </p>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Investor overview</p>
           <h1 className="mt-5 max-w-5xl text-4xl font-semibold leading-tight md:text-6xl">
-            Trust infrastructure for humans, AI agents, machine identities and regulated workflows.
+            Operational Trust Intelligence™ for intelligent enterprises.
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
-            Cyber Sentinels is the operational trust infrastructure layer for
-            humans, AI agents, machine identities and regulated workflows,
-            connecting persistent posture, governed execution and replayable
-            operational memory.
+            Cyber Sentinels is building infrastructure for a world in which people, AI agents and automated workflows
+            make consequential decisions together.
           </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
-            The initial wedge is Hiring Security and Session Integrity. The
-            infrastructure expands through the same authorization, governance
-            and replay model across other consequential workflows.
+          <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-200">
+            The opportunity is not another alerting product. It is the independent operational trust layer connecting
+            identity, authority, evidence, decisions and outcomes.
           </p>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Enterprise AI sovereignty keeps provider choice, data policy,
-            workflow memory and operational IP under customer control.
+          <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-300">
+            Design-partner and early-investor conversations are now open.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/trust#trust-memory" className="brand-secondary-action brand-action-large text-sm">
-              Trust Memory\u2122
+            <Link
+              href="/enterprise-access?intent=design_partner"
+              className="brand-secondary-action brand-action-large text-sm"
+            >
+              Join the design-partner programme
             </Link>
-            <Link href="/verification-replay" className="brand-primary-action brand-action-large text-sm">
-              Explore Verification Replay
+            <Link
+              href="/enterprise-access?intent=intro_call"
+              className="brand-primary-action brand-action-large text-sm"
+            >
+              Request an enterprise conversation
             </Link>
-            <Link href="/enterprise-access?intent=intro_call" className="rounded-lg border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-200 hover:border-zinc-400">
-              Discuss the Platform
-            </Link>
-          </div>
-          <EvidenceDisclaimer className="mt-7 max-w-3xl" />
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-6 py-14 md:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Market problem</p>
-        <h2 className="mt-3 max-w-3xl text-3xl font-semibold">Enterprise decisions now depend on evidence that changes mid-workflow.</h2>
-        <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {marketShifts.map(([title, copy]) => (
-            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
-              <h3 className="text-lg font-semibold">{title}</h3>
-              <p className="mt-3 text-sm leading-7 text-zinc-300">{copy}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="border-y border-zinc-900 bg-zinc-950 px-6 py-14 md:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Why now</p>
-            <h2 className="mt-3 text-3xl font-semibold">TrustOps is becoming an enterprise infrastructure category.</h2>
-            <p className="mt-4 text-sm leading-7 text-zinc-300">
-              Remote hiring, synthetic media and automated operations increase the distance between
-              a credential checked at entry and the person, session or system acting later.
-              Persistent posture, governed execution and replayable memory close
-              that continuity gap across human and machine activity.
-            </p>
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Wedge</p>
-            <h2 className="mt-3 text-3xl font-semibold">Hiring Security + Session Integrity</h2>
-            <p className="mt-4 text-sm leading-7 text-zinc-300">
-              Start with a painful, legible workflow: candidate intake, provider verification,
-              live-session anomaly, governance escalation, replay, receipt and updated trust posture.
-            </p>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-14 md:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Defensibility</p>
-        <h2 className="mt-3 text-3xl font-semibold">The moat is the operational memory around the decision.</h2>
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-          Defensibility compounds through retained continuity and enterprise
-          operating practice—not through unsupported claims of proprietary AI
-          certainty.
-        </p>
-        <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {moat.map(([title, copy]) => (
-            <article key={title} className="rounded-lg border border-zinc-800 bg-black p-5">
-              <h3 className="text-lg font-semibold">{title}</h3>
-              <p className="mt-3 text-sm leading-7 text-zinc-300">{copy}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="border-y border-zinc-900 bg-zinc-950 px-6 py-14 md:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Provider orchestration</p>
-            <h2 className="mt-3 text-3xl font-semibold">Integrate evidence without outsourcing the decision.</h2>
-          </div>
-          <div className="grid gap-3 text-sm leading-7 text-zinc-300">
-            <p className="rounded-lg border border-zinc-800 bg-black p-4">
-              Provider adapters normalize verification state, assurance context, evidence references and failure conditions into the workflow chronology.
-            </p>
-            <p className="rounded-lg border border-zinc-800 bg-black p-4">
-              Pending, missing and failed providers stay visible. Governance—not a provider confidence value—determines the final workflow outcome.
-            </p>
-            <p className="rounded-lg border border-zinc-800 bg-black p-4">
-              The platform can add providers over time while preserving one replay, receipt and review model for the enterprise.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto grid max-w-6xl gap-8 px-6 py-14 md:px-8 lg:grid-cols-2">
+      <section className="mx-auto grid max-w-6xl gap-10 px-6 py-16 md:px-8 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Ethical boundaries</p>
-          <h2 className="mt-3 text-3xl font-semibold">Accountable evidence, not synthetic certainty.</h2>
-          <div className="mt-6 grid gap-3">
-            {boundaries.map((boundary) => (
-              <p key={boundary} className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-300">{boundary}</p>
-            ))}
-          </div>
-        </div>
-        <div className="rounded-lg border border-cyan-950 bg-black p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Design partner motion</p>
-          <h2 className="mt-3 text-3xl font-semibold">Prove the workflow with serious operators.</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Enterprise problem</p>
+          <h2 className="mt-3 text-3xl font-semibold">Accountability fragments when operational evidence does.</h2>
           <p className="mt-4 text-sm leading-7 text-zinc-300">
-            Pilot one hiring workflow, validate provider evidence, review the replay and receipt,
-            then use operational feedback to refine policy, ownership and evidence requirements.
+            Identity, security, AI and business systems each hold part of the story. Enterprises need customer-controlled
+            evidence that preserves historical proof as conditions, authority and decisions change.
           </p>
-          <Link href="/design-partner" className="mt-6 inline-flex rounded-lg bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-cyan-100">
-            Review Design Partner Program
-          </Link>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {investorQuestions.map((question) => (
+            <p key={question} className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-300">
+              {question}
+            </p>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-y border-zinc-900 bg-zinc-950 px-6 py-16 md:px-8">
+        <div className="mx-auto max-w-6xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Category distinction</p>
+          <h2 className="mt-3 max-w-3xl text-3xl font-semibold">The record of trust is part of the outcome.</h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            Most platforms detect, authenticate, monitor or contain. Cyber Sentinels preserves the operational evidence
+            showing what changed, why trust changed, who was accountable and what happened next.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
+            The platform is at the design-partner stage. Public statements describe the category and intended enterprise
+            outcome, with deeper product evidence reserved for controlled conversations.
+          </p>
         </div>
       </section>
     </main>

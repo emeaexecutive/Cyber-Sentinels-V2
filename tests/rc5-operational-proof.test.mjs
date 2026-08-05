@@ -56,13 +56,13 @@ test("Provider Operations uses the five RC5 classifications and normalized healt
   assert.match(readiness, /export function providerRealityState/);
 });
 
-test("homepage contains one hero, one visual, one comparison and two bounded CTAs", async () => {
+test("homepage contains one hero, one restrained vocabulary section and three bounded CTAs", async () => {
   const source = await read("app/page.tsx");
   assert.equal((source.match(/<section/g) ?? []).length, 3);
-  assert.equal((source.match(/<Link\s/g) ?? []).length, 2);
-  assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 1);
-  assert.equal((source.match(/<ComparisonCard/g) ?? []).length, 1);
-  for (const phrase of ["Enterprise Trust Infrastructure", "identity, authority, environment, evidence and operational scope", "Authority Lineage", "Environment Attestation", "Scope Continuity", "Trust Memory", "Enterprise Trust Fabric"]) assert.match(source, new RegExp(phrase, "i"));
+  assert.equal((source.match(/<Link\s/g) ?? []).length, 3);
+  assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 0);
+  assert.equal((source.match(/<ComparisonCard/g) ?? []).length, 0);
+  for (const phrase of ["Operational Trust Intelligence™", "Trust Narrative™", "Trust Drift™", "Trust Recommendation™", "Authority Lineage™", "Trust Memory™"]) assert.match(source, new RegExp(phrase, "i"));
 });
 
 test("public API contract is versioned, traceable, paginated and duplicate registry POST is removed", async () => {

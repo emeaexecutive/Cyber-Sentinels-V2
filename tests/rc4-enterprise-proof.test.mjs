@@ -88,14 +88,14 @@ test("operational performance profile preserves six RC4 paths and adds three RC5
   assert.equal(database.slowOperationCount, 1);
 });
 
-test("homepage is outcome-led with three sections, two bounded CTAs, one graph and one comparison", async () => {
+test("homepage is outcome-led with three sections, three bounded CTAs and no blueprint visual", async () => {
   const source = await read("app/page.tsx");
   assert.equal((source.match(/<section/g) ?? []).length, 3);
-  assert.equal((source.match(/<Link/g) ?? []).length, 2);
-  assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 1);
-  assert.equal((source.match(/<ComparisonCard/g) ?? []).length, 1);
-  for (const outcome of ["continuously verifies", "operational scope", "before, during and after critical decisions", "Know whether a critical action should proceed"]) {
-    assert.match(source, new RegExp(outcome));
+  assert.equal((source.match(/<Link/g) ?? []).length, 3);
+  assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 0);
+  assert.equal((source.match(/<ComparisonCard/g) ?? []).length, 0);
+  for (const outcome of ["Operational Trust Intelligence™", "continuously explainable", "customer-controlled", "Operational evidence should outlast the alert"]) {
+    assert.match(source, new RegExp(outcome, "i"));
   }
 });
 

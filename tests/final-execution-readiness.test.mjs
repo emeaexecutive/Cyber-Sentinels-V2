@@ -28,9 +28,9 @@ test("public auth keeps every required account-access path visible", () => {
 
 test("homepage copy is canonical and primary CTA routes exist", () => {
   const homepage = read("app/page.tsx");
-  assert.equal(homepage.includes("Enterprise Trust Infrastructure"), true);
+  assert.equal(homepage.includes("Operational Trust Intelligence™"), true);
   assert.equal(
-    homepage.includes("continuously verifies that the identity, authority, environment, evidence and operational scope"),
+    homepage.includes("Cyber Sentinels is building the Operational Trust Intelligence™ platform for intelligent enterprises."),
     true
   );
   assert.equal(homepage.includes("Private Beta"), false);

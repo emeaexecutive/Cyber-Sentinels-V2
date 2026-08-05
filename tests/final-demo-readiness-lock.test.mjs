@@ -70,8 +70,8 @@ test("homepage, auth affordances and admin protection remain locked", () => {
   const layout = read("app/layout.tsx");
   const testLab = read("app/admin/test-lab/page.tsx");
 
-  assert.match(homepage, /Enterprise Trust Infrastructure/);
-  assert.match(homepage, /continuously verifies that the identity, authority, environment, evidence and operational scope/);
+  assert.match(homepage, /Operational Trust Intelligence™/);
+  assert.match(homepage, /Cyber Sentinels is building/);
   assert.doesNotMatch(homepage, /Private Beta|Enterprise Pilot Ready/i);
   for (const marker of ["Sign in", "Create account", "Confirm Password", "Use magic link", "Forgot password"]) {
     assert.match(login, new RegExp(marker, "i"));

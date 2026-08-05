@@ -28,15 +28,15 @@ test("footer is the secondary discovery index and preserves company and support 
   assert.match(source, /\/enterprise#support/);
 });
 
-test("homepage contains three blocks and exactly one canonical operational-trust graph", async () => {
+test("homepage contains three blocks and no public implementation graph", async () => {
   const source = await read("app/page.tsx");
-  assert.ok((source.match(/<section/g) ?? []).length <= 7);
-  assert.equal((source.match(/data-testid="primary-operational-trust-flow"/g) ?? []).length, 1);
-  assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 1);
-  assert.doesNotMatch(source, /<InteractiveTrustWalkthrough|<DecisionFlow|<ArchitectureBlock/);
-  for (const step of ["Identity", "Authority", "Context", "Evidence", "Trust Decision", "Enforcement", "Replay", "Trust Memory™", "Current Trust Posture"]) assert.match(source, new RegExp(step));
-  assert.match(source, /One evidence chain connects identity, authority, policy, decision, enforced outcome, Replay and current posture\./);
-  assert.equal((source.match(/<Link/g) ?? []).length, 2);
+  assert.equal((source.match(/<section/g) ?? []).length, 3);
+  assert.equal((source.match(/data-testid="primary-operational-trust-flow"/g) ?? []).length, 0);
+  assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 0);
+  assert.doesNotMatch(source, /<InteractiveTrustWalkthrough|<DecisionFlow|<ArchitectureBlock|<ComparisonCard/);
+  for (const marker of ["Operational Trust Intelligence™", "Trust Narrative™", "Trust Drift™", "Trust Recommendation™", "Replay™", "Trust Memory™"]) assert.match(source, new RegExp(marker));
+  assert.match(source, /Most platforms detect, authenticate, monitor or contain\./);
+  assert.equal((source.match(/<Link/g) ?? []).length, 3);
 });
 
 test("canonical public routes remain indexable while protected and archived routes remain isolated", async () => {
@@ -55,10 +55,11 @@ test("canonical public routes remain indexable while protected and archived rout
 
 test("CISO and CIO buyer journeys preserve canonical proof and readiness surfaces", async () => {
   const [home, demoPage, legacyDemo, platform] = await Promise.all([read("app/page.tsx"), read("app/demo/page.tsx"), read("app/demo/trust-execution-flow/page.tsx"), read("app/platform/page.tsx")]);
-  assert.match(home, /href="\/enterprise-access\?intent=demo"/);
+  assert.match(home, /href="\/enterprise-access\?intent=intro_call"/);
+  assert.match(home, /href="\/enterprise-access\?intent=design_partner"/);
   for (const href of ["/replay/demo", "/trust-centre/fabric"]) assert.match(demoPage, new RegExp(`href[:=]"${href.replaceAll("/", "\\/")}"`));
   assert.match(legacyDemo,/redirect\("\/demo"\)/);
-  assert.equal((home.match(/<Link/g) ?? []).length, 2);
+  assert.equal((home.match(/<Link/g) ?? []).length, 3);
   assert.match(platform, /href="\/developers"/);
   assert.match(platform, /href="\/enterprise\/pilot"/);
 });

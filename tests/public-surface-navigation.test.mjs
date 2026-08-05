@@ -80,11 +80,11 @@ test("footer exposes the final seven detailed discovery groups accessibly", asyn
 
 test("homepage preserves the canonical release promise and section ceiling", async () => {
   const source = await read("app/page.tsx");
-  assert.match(source, /Enterprise Trust Infrastructure/);
-  assert.match(source, /continuously verifies that the identity, authority, environment, evidence and operational scope/);
+  assert.match(source, /Operational Trust Intelligence™/);
+  assert.match(source, /Cyber Sentinels is building/);
   assert.equal((source.match(/<section/g) ?? []).length, 3);
-  assert.match(source, /Request Enterprise Demo/);
-  assert.equal((source.match(/<Link/g) ?? []).length, 2);
+  assert.match(source, /Request an enterprise conversation/);
+  assert.equal((source.match(/<Link/g) ?? []).length, 3);
 });
 
 test("true duplicate routes redirect without touching protected Trust operations", async () => {
