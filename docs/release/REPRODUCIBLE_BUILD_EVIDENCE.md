@@ -54,3 +54,9 @@ Only four structure-diff rows exist: each build has its own `_buildManifest.js` 
 - Login logs the expected missing local Supabase configuration; protected routes return `Protected surface unavailable.` No live authentication or payment success is claimed.
 
 Production and staging were not accessed or mutated.
+
+## RC1 consolidation requalification — 2026-08-06
+
+The Enterprise Trust Platform RC1 added one static route and one app path without changing the dependency lock. Two further clean install/build cycles on Node 22.23.1 and npm 10.9.8 produced 502 app paths, 231 static routes, 124 dynamic routes, 535 static files and 192 generated static pages in both cycles. CSS was byte-identical; JavaScript counts and byte totals matched at 534 files and 2,039,889 bytes. The lock remained byte-identical.
+
+The generated build IDs were `-2Tf29Njmr0Czlu37o-i8` and `Am-Os3j9Irg3qUuqy237P`. Aggregate path-based structure/JavaScript hashes therefore differ for the same documented Next.js build-ID manifest behavior; route counts, asset counts, asset bytes, CSS hash and dependency inputs are stable. Full details are recorded in `docs/release/RC1_LOCAL_VALIDATION.md`.
