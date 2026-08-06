@@ -121,7 +121,7 @@ test("brand vocabulary records every approved capability name and claimed-mark s
 
 test("teaser library contains twelve concise posts and the six-week sequence", async () => {
   const teasers = await read("docs/marketing/OPERATIONAL_TRUST_TEASERS.md");
-  const posts = teasers.split(/^### Post \d+[^\n]*\n\n/gm).slice(1);
+  const posts = teasers.split(/^### Post \d+[^\r\n]*\r?\n\r?\n/gm).slice(1);
 
   assert.equal(posts.length, 12);
   for (const [index, post] of posts.entries()) {

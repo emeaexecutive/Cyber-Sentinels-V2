@@ -2,9 +2,10 @@
   "name": "cyber-sentinels-v2",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@10.9.8",
   "engines": {
     "node": "22.x",
-    "npm": ">=10"
+    "npm": "10.x"
   },
   "scripts": {
     "dev": "next dev",
@@ -85,7 +86,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "pretest": "npm run test:environment-safety",
+    "pretest": "npm run test:environment-safety && npm run test:dependency-baseline && npm run test:react-upgrade",
     "test": "npm run test:request-demo && npm run test:providers && npm run test:hopae && npm run test:provider-rls && npm run test:identity-signals && npm run test:identity-signal-rls && npm run test:identity-runtime-hardening && npm run test:identity-signals-ui && npm run test:trust-events && npm run test:consent && npm run test:consensus-engine && npm run test:trust-architecture && npm run test:trust-centre && npm run test:continuous-trust && npm run test:continuous-trust-engine && npm run test:trust-intelligence && npm run test:enterprise-trust-graph && npm run test:trust-dna && npm run test:replay && npm run test:scope-continuity && npm run test:epic-26-lease-hash && npm run test:serious-incidents && npm run test:audit-runner && npm run test:detection && npm run test:ml-validation && npm run test:ori && npm run test:ori-rls && npm run test:trust-explanation && npm run test:decision-intelligence && npm run test:standards-readiness && npm run test:trust-lifecycle && npm run test:continuous-trust-validation && npm run test:public-surface && npm run test:pricing-surface && npm run test:technical-truth && npm run test:public-positioning && npm run test:trust-os && npm run test:trust-fabric && npm run test:enterprise-trust-fabric && npm run test:epic-26-27-integration && npm run test:provider-health-reconciliation && npm run test:trust-relationships-reconciliation && npm run test:migration-namespace && npm run test:release-manager && npm run test:legacy-source-contracts && npm run test:enterprise-storytelling && npm run test:enterprise-readiness && npm run test:release-candidate && npm run test:design-partner && npm run test:category-leadership && npm run test:enterprise-adoption && npm run test:enterprise-experience && npm run test:ui-ux && npm run test:rc1 && npm run test:rc1-performance && npm run test:rc2 && npm run test:rc3 && npm run test:rc4 && npm run test:rc5 && npm run test:rc6 && npm run test:rc7",
     "verify:17.1d": "tsx scripts/verify-epic-17-1d.ts",
     "verify:17.1e": "tsx scripts/verify-epic-17-1e.ts",
@@ -97,8 +98,11 @@
     "release:migrate": "tsx tools/release/release-manager.ts --migrate",
     "release:full:migrate": "tsx tools/release/release-manager.ts --full --migrate",
     "release:dry": "tsx tools/release/release-manager.ts --dry-run",
+    "release:build-evidence": "node scripts/collect-build-evidence.mjs",
     "test:release-manager": "node --experimental-strip-types --test tests/release-manager.test.mjs",
     "test:environment-safety": "node --experimental-strip-types --test tests/environment-safety.test.mjs",
+    "test:dependency-baseline": "node --test tests/dependency-baseline.test.mjs",
+    "test:react-upgrade": "node --test tests/react-19-2-8-compatibility.test.mjs",
     "test:staging-migration-audit": "node --test tests/staging-migration-audit.test.mjs",
     "test:staging-release": "node --test tests/staging-migration-audit.test.mjs tests/staging-release-package.test.mjs",
     "test:staging-reconstruction": "node --test tests/staging-reconstruction.test.mjs",
@@ -111,22 +115,22 @@
     "test:provider-health-reconciliation": "node --test tests/provider-health-schema-reconciliation.test.mjs",
     "test:trust-relationships-reconciliation": "node --test tests/trust-relationships-schema-reconciliation.test.mjs",
     "test:migration-namespace": "node --test tests/migration-namespace-reconciliation.test.mjs",
+    "security:sbom": "node scripts/generate-dependency-security-artifacts.mjs",
     "validate": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.48.1",
-    "@worldcoin/idkit": "^1.3.0",
     "lucide-react": "^0.468.0",
     "next": "15.5.21",
     "react": "19.2.8",
-    "react-dom": "19.0.0",
-    "stripe": "^22.2.0"
+    "react-dom": "19.2.8",
+    "stripe": "22.4.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
     "autoprefixer": "^10.5.4",
     "eslint": "^9.17.0",
     "eslint-config-next": "15.5.21",
