@@ -1,0 +1,355 @@
+import "server-only";
+
+import { createHmac } from "node:crypto";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import type {
+  AuthenticatedTransactionActor,
+  CanonicalDecisionRecord,
+  CanonicalTrustTransactionDependencies,
+  ExternalExecutionResult,
+  PersistedCanonicalDecision,
+  PreviousCanonicalTransaction,
+  ResolvedPolicyVersion,
+  SafeCanonicalTransactionReceipt,
+  StoredProviderEvidence,
+} from "@/src/lib/trust-transaction/canonical";
+import type { EnterpriseSubjectClass, EnterpriseTrustObject, FabricTrustState, TrustContract } from "@/src/lib/trust-fabric/types";
+
+type Row = Record<string, any>;
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const externalReferencePattern = /^[a-zA-Z0-9_.:/-]{1,240}$/;
+
+export class CanonicalTransactionError extends Error {
+  constructor(message: string, readonly status: number, readonly code: string) {
+    super(message);
+    this.name = "CanonicalTransactionError";
+  }
+}
+
+function fail(operation: string, error: unknown): never {
+  console.error("Canonical trust transaction failed safely.", { operation, code: (error as { code?: string })?.code ?? "UNKNOWN" });
+  throw new CanonicalTransactionError(`${operation} failed safely.`, 503, "TRUST_TRANSACTION_PERSISTENCE_FAILED");
+}
+
+function state(value: unknown): FabricTrustState {
+  return ["verified", "degraded", "contested", "suspended", "revoked"].includes(String(value)) ? String(value) as FabricTrustState : "degraded";
+}
+
+function tenantObject(row: Row, enterpriseId: string): EnterpriseTrustObject {
+  const subjectType = String(row.subject_type) as EnterpriseSubjectClass;
+  const subjectId = String(row.subject_id);
+  const trustState = state(row.current_trust_state);
+  const reference = row.evidence_graph_node_id ? { type: "evidence_graph_node", id: String(row.evidence_graph_node_id) } : null;
+  return {
+    enterpriseId,
+    subjectType,
+    subjectId,
+    displayIdentity: String(row.display_label ?? subjectId),
+    subject: { type: subjectType, id: subjectId, displayName: String(row.display_label ?? subjectId) },
+    identityState: trustState,
+    authorityState: trustState,
+    environmentState: trustState,
+    scopeState: trustState,
+    evidenceCompleteness: ["complete", "partial", "insufficient", "unknown"].includes(String(row.evidence_completeness)) ? row.evidence_completeness : "unknown",
+    trustState,
+    providerState: "unknown",
+    activeContradictions: [],
+    activeIncidents: [],
+    activeReviews: [],
+    correctiveActions: [],
+    trustDnaReference: null,
+    continuousTrustReference: null,
+    policyId: "resolved-from-trust-contract",
+    canonicalDigest: "stored-projection",
+    currentTrustState: trustState,
+    trustDnaProfileReference: null,
+    continuousTrustStateReference: null,
+    contradictionSummary: { count: 0, highestState: null, references: [] },
+    activeReviewSummary: { count: 0, required: false, references: [] },
+    incidentSummary: { count: 0, highestState: null, references: [] },
+    replayReference: null,
+    trustMemoryReference: null,
+    evidenceGraphNodeReference: reference,
+    lastEvaluatedAt: String(row.last_evaluated_at ?? new Date(0).toISOString()),
+    policyVersion: "resolved-from-trust-contract",
+    correlationId: String(row.current_state_decision_id ?? "00000000-0000-4000-8000-000000000000"),
+  };
+}
+
+function safeEvidence(row: Row): StoredProviderEvidence {
+  return {
+    reference: String(row.evidence_id),
+    type: String(row.evidence_type),
+    providerId: String(row.provider_id),
+    providerEventId: String(row.provider_event_id),
+    providerSessionId: String(row.provider_session_id),
+    outcome: String(row.outcome) as StoredProviderEvidence["outcome"],
+    observedAt: String(row.observed_at),
+    expiresAt: row.expires_at ? String(row.expires_at) : null,
+    sourceDigest: String(row.source_digest),
+    assuranceLevel: row.assurance_level === null ? null : Number(row.assurance_level),
+    correlationId: String(row.correlation_id),
+  };
+}
+
+function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
+  const evidence = Array.isArray(row.evidence_references) ? row.evidence_references : [];
+  const authorityLineage = Array.isArray(row.authority_lineage_references) ? row.authority_lineage_references : [];
+  const storedExternalState = String(row.external_state ?? "NOT_REQUESTED");
+  const safeExternalOutcome = ["SUCCEEDED", "FAILED", "UNKNOWN", "NOT_REQUESTED", "NOT_CONFIGURED"].includes(storedExternalState)
+    ? storedExternalState as SafeCanonicalTransactionReceipt["externalExecution"]["outcome"]
+    : "UNKNOWN";
+  return {
+    transactionId: String(row.transaction_id),
+    correlationId: String(row.correlation_id),
+    enterpriseId: String(row.enterprise_id),
+    actor: { id: String(row.actor_id), type: String(row.actor_type) },
+    trustObject: { subjectType: String(row.subject_type) as EnterpriseSubjectClass, subjectId: String(row.subject_id) },
+    action: {
+      type: String(row.action_type), purpose: String(row.action_purpose), resource: String(row.action_resource),
+      environment: String(row.action_environment), requestDigest: String(row.request_digest),
+    },
+    decision: String(row.decision) as SafeCanonicalTransactionReceipt["decision"],
+    trustState: String(row.trust_state) as SafeCanonicalTransactionReceipt["trustState"],
+    evidence,
+    evidenceComplete: Boolean(row.evidence_complete),
+    evidenceFresh: Boolean(row.evidence_fresh),
+    authorityReference: String(row.authority_reference),
+    authorityLineageReferences: authorityLineage,
+    policy: { id: String(row.policy_id), version: String(row.policy_version), hash: String(row.policy_hash) },
+    decisionReference: String(row.decision_id),
+    evidenceGraphReference: String(row.evidence_graph_reference ?? ""),
+    replayReference: String(row.replay_reference ?? ""),
+    trustMemoryReference: row.trust_memory_reference ? String(row.trust_memory_reference) : null,
+    materialChange: Boolean(row.material_change),
+    changedConditions: Array.isArray(row.changed_conditions) ? row.changed_conditions.map(String) : [],
+    externalExecution: {
+      requested: row.external_state !== "NOT_REQUESTED" && row.external_state !== "NOT_CONFIGURED",
+      requestReference: row.external_request_reference ? String(row.external_request_reference) : null,
+      acknowledgementReference: row.external_acknowledgement_reference ? String(row.external_acknowledgement_reference) : null,
+      outcomeReference: row.external_outcome_reference ? String(row.external_outcome_reference) : null,
+      outcome: safeExternalOutcome,
+    },
+    historyUrl: `/trust/transactions/${row.transaction_id}`,
+    idempotentReplay: false,
+  };
+}
+
+async function rpc(db: SupabaseClient, operation: string, name: string, args: Record<string, unknown>) {
+  const result = await db.rpc(name, args);
+  if (result.error || !result.data) fail(operation, result.error);
+  return result.data as Row;
+}
+
+async function resolveSessionTenant(supabase: SupabaseClient, user: User) {
+  const sessionTenant = String(user.app_metadata?.active_enterprise_id ?? "");
+  if (uuidPattern.test(sessionTenant)) {
+    const active = await supabase.from("trust_workspaces").select("id,name").eq("id", sessionTenant).maybeSingle();
+    if (active.data) return { id: String(active.data.id), name: String(active.data.name ?? active.data.id) };
+  }
+  const owned = await supabase.from("trust_workspaces").select("id,name").eq("created_by", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
+  if (owned.error) fail("Session tenant resolution", owned.error);
+  if (owned.data) return { id: String(owned.data.id), name: String(owned.data.name ?? owned.data.id) };
+  const membership = await supabase.from("workspace_members").select("workspace_id,trust_workspaces(id,name)").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
+  if (membership.error) fail("Session tenant resolution", membership.error);
+  const workspace = membership.data?.trust_workspaces as unknown as { id: string; name: string | null } | null;
+  if (!workspace) throw new CanonicalTransactionError("The authenticated session has no enterprise tenant.", 403, "SESSION_TENANT_UNAVAILABLE");
+  return { id: workspace.id, name: workspace.name ?? workspace.id };
+}
+
+function decisionPayload(record: CanonicalDecisionRecord) {
+  return {
+    transactionId: record.transactionId,
+    enterpriseId: record.enterpriseId,
+    actorId: record.actorId,
+    actorType: "human",
+    subjectType: record.trustObject.subjectType,
+    subjectId: record.trustObject.subjectId,
+    workflowId: record.workflowId,
+    actionType: record.action.type,
+    actionPurpose: record.action.purpose,
+    actionResource: record.action.resource,
+    actionEnvironment: record.action.environment,
+    requestDigest: record.action.payloadDigest,
+    idempotencyKey: record.idempotencyKey,
+    correlationId: record.correlationId,
+    requestedAt: record.requestedAt,
+    decision: record.decision,
+    trustState: record.trustState,
+    decisionId: record.decisionReference,
+    authorityReference: record.authorityReference,
+    authorityLineageReferences: record.authorityEvidenceReferences,
+    policyId: record.policy.id,
+    policyVersion: record.policy.version,
+    policyHash: record.policy.policyHash,
+    evidenceReferences: record.evidence.map((item) => ({ reference: item.reference, providerId: item.providerId, providerEventId: item.providerEventId, sourceDigest: item.sourceDigest, outcome: item.outcome, observedAt: item.observedAt, expiresAt: item.expiresAt })),
+    evidenceDigest: record.evidenceDigest,
+    evidenceComplete: record.evidenceComplete,
+    evidenceFresh: record.evidenceFresh,
+    reasonCodes: record.reasonCodes,
+    previousTransactionId: record.previousTransactionId,
+    changedConditions: record.changedConditions,
+    materialChange: record.materialChange,
+  };
+}
+
+function configuredRelayUrl() {
+  const raw = process.env.TRUST_ACTION_RELAY_URL?.trim();
+  if (!raw) return null;
+  const parsed = new URL(raw);
+  const local = ["localhost", "127.0.0.1", "::1"].includes(parsed.hostname);
+  if (parsed.protocol !== "https:" && !(local && process.env.NODE_ENV !== "production")) throw new CanonicalTransactionError("The external relay requires HTTPS.", 503, "EXTERNAL_RELAY_CONFIGURATION_INVALID");
+  return parsed;
+}
+
+async function callExternalRelay(record: PersistedCanonicalDecision, requestReference: string): Promise<ExternalExecutionResult> {
+  const url = configuredRelayUrl();
+  const secret = process.env.TRUST_ACTION_RELAY_SECRET?.trim();
+  if (!url || !secret) return { configured: false, requestReference, acknowledgement: null, outcome: null };
+  const body = JSON.stringify({
+    requestReference,
+    transactionId: record.transactionId,
+    correlationId: record.correlationId,
+    subject: record.trustObject,
+    action: record.action,
+    authorityReference: record.authorityReference,
+    policy: { id: record.policy.id, version: record.policy.version },
+    evidenceDigest: record.evidenceDigest,
+  });
+  const signature = createHmac("sha256", secret).update(body).digest("hex");
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-correlation-id": record.correlationId, "x-trust-signature": `sha256=${signature}`, "idempotency-key": record.idempotencyKey },
+      body,
+      signal: AbortSignal.timeout(8_000),
+      cache: "no-store",
+    });
+    const parsed = await response.json().catch(() => ({})) as Row;
+    const externalReferenceCandidate = String(parsed.acknowledgementId ?? parsed.requestId ?? response.headers.get("x-external-request-id") ?? requestReference);
+    const externalReference = externalReferencePattern.test(externalReferenceCandidate) ? externalReferenceCandidate : requestReference;
+    const acknowledgement = { externalReference, acknowledgedAt: new Date().toISOString() };
+    if (!response.ok) return { configured: true, requestReference, acknowledgement, outcome: { state: "FAILED", externalReference, occurredAt: new Date().toISOString(), reason: `Relay rejected the request with HTTP ${response.status}.` } };
+    const explicitOutcome = ["SUCCEEDED", "FAILED", "UNKNOWN"].includes(String(parsed.outcome)) ? String(parsed.outcome) as "SUCCEEDED" | "FAILED" | "UNKNOWN" : null;
+    return {
+      configured: true,
+      requestReference,
+      acknowledgement,
+      outcome: explicitOutcome ? { state: explicitOutcome, externalReference: externalReferencePattern.test(String(parsed.outcomeReference ?? "")) ? String(parsed.outcomeReference) : externalReference, occurredAt: String(parsed.outcomeAt ?? new Date().toISOString()), reason: String(parsed.outcomeReason ?? "The relay returned an explicit terminal outcome.").slice(0, 500) } : null,
+    };
+  } catch {
+    return { configured: true, requestReference, acknowledgement: null, outcome: { state: "UNKNOWN", externalReference: null, occurredAt: new Date().toISOString(), reason: "The relay result is unknown after a transport failure or timeout." } };
+  }
+}
+
+export function createCanonicalTrustTransactionDependencies(input: { supabase: SupabaseClient; user: User }): CanonicalTrustTransactionDependencies {
+  const db = createServiceRoleClient();
+  return {
+    async authenticateActor() {
+      const current = await input.supabase.auth.getUser();
+      if (current.error || !current.data.user || current.data.user.id !== input.user.id) throw new CanonicalTransactionError("Authentication required.", 401, "AUTHENTICATION_REQUIRED");
+      return { id: input.user.id, type: "human", authority: `authenticated-session:${input.user.id}` } satisfies AuthenticatedTransactionActor;
+    },
+    async resolveTenantFromSession() { return resolveSessionTenant(input.supabase, input.user); },
+    async findByIdempotency(enterpriseId, idempotencyKey) {
+      const result = await db.from("canonical_trust_transactions").select("*").eq("enterprise_id", enterpriseId).eq("idempotency_key", idempotencyKey).maybeSingle();
+      if (result.error) fail("Idempotency lookup", result.error);
+      return result.data ? receiptFromRow(result.data) : null;
+    },
+    async loadTrustObject(enterpriseId, subjectType, subjectId) {
+      const result = await db.from("enterprise_trust_objects").select("*").eq("enterprise_id", enterpriseId).eq("subject_type", subjectType).eq("subject_id", subjectId).maybeSingle();
+      if (result.error) fail("Trust Object resolution", result.error);
+      if (!result.data) throw new CanonicalTransactionError("The Trust Object is unknown in the session tenant.", 404, "TRUST_OBJECT_NOT_FOUND");
+      return tenantObject(result.data, enterpriseId);
+    },
+    async loadConfiguredEvidence({ enterpriseId, subjectId, providerExecutionId }) {
+      let workflowId: string | null = null;
+      let providerSessionId: string | null = null;
+      if (providerExecutionId) {
+        const execution = await db.from("provider_execution_records").select("provider_id,provider_session_id,status,tenant_id,workflow_id").eq("execution_id", providerExecutionId).eq("tenant_id", enterpriseId).maybeSingle();
+        if (execution.error) fail("Provider execution resolution", execution.error);
+        if (!execution.data || execution.data.status !== "completed" || execution.data.provider_id !== "hopae_connect") throw new CanonicalTransactionError("The configured provider execution is incomplete or outside the tenant.", 409, "PROVIDER_EVIDENCE_INCOMPLETE");
+        providerSessionId = String(execution.data.provider_session_id ?? "");
+        workflowId = String(execution.data.workflow_id ?? "");
+        const verification = await db.from("hopae_verifications").select("verification_id").eq("workspace_id", enterpriseId).eq("workflow_id", workflowId).eq("verification_id", providerSessionId).eq("entity_id", subjectId).eq("provider_session_status", "COMPLETED").maybeSingle();
+        if (verification.error) fail("Provider subject binding", verification.error);
+        if (!verification.data) throw new CanonicalTransactionError("The configured provider execution is not bound to this Trust Object.", 409, "PROVIDER_EVIDENCE_SUBJECT_MISMATCH");
+      } else {
+        const verification = await db.from("hopae_verifications").select("workflow_id,verification_id").eq("workspace_id", enterpriseId).eq("entity_id", subjectId).eq("provider_session_status", "COMPLETED").order("updated_at", { ascending: false }).limit(1).maybeSingle();
+        if (verification.error) fail("Provider verification resolution", verification.error);
+        workflowId = verification.data?.workflow_id ? String(verification.data.workflow_id) : null;
+        providerSessionId = verification.data?.verification_id ? String(verification.data.verification_id) : null;
+      }
+      if (!workflowId || !uuidPattern.test(workflowId)) return [];
+      let query = db.from("normalized_identity_evidence").select("evidence_id,evidence_type,provider_id,provider_event_id,provider_session_id,outcome,observed_at,expires_at,source_digest,assurance_level,correlation_id").eq("tenant_id", enterpriseId).eq("trust_session_id", workflowId).order("observed_at", { ascending: false }).limit(20);
+      if (providerSessionId) query = query.eq("provider_session_id", providerSessionId);
+      const result = await query;
+      if (result.error) fail("Configured evidence collection", result.error);
+      return (result.data ?? []).map(safeEvidence);
+    },
+    async loadAuthority(enterpriseId, subjectType, subjectId) {
+      const result = await db.from("trust_contracts").select("contract").eq("enterprise_id", enterpriseId).eq("subject_type", subjectType).eq("subject_id", subjectId).eq("revocation_state", "active").order("issued_at", { ascending: false }).limit(1).maybeSingle();
+      if (result.error) fail("Authority resolution", result.error);
+      if (!result.data?.contract) throw new CanonicalTransactionError("No active Trust Contract grants authority to this Trust Object.", 409, "AUTHORITY_NOT_FOUND");
+      return result.data.contract as TrustContract;
+    },
+    async loadPolicy(enterpriseId, policyId, policyVersion) {
+      const result = await db.from("trust_policy_versions").select("policy_id,version,active,valid_from,valid_until,policy_hash").eq("enterprise_id", enterpriseId).eq("policy_id", policyId).eq("version", policyVersion).maybeSingle();
+      if (result.error) fail("Policy version resolution", result.error);
+      if (!result.data) throw new CanonicalTransactionError("The exact Trust Contract policy version is unavailable.", 409, "POLICY_VERSION_NOT_FOUND");
+      return { id: String(result.data.policy_id), version: String(result.data.version), active: Boolean(result.data.active), validFrom: String(result.data.valid_from), validUntil: result.data.valid_until ? String(result.data.valid_until) : null, policyHash: String(result.data.policy_hash) } satisfies ResolvedPolicyVersion;
+    },
+    async loadPreviousTransaction(enterpriseId, transactionId) {
+      if (!transactionId) return null;
+      const result = await db.from("canonical_trust_transactions").select("transaction_id,enterprise_id,trust_state,decision,evidence_digest,authority_reference,policy_version").eq("enterprise_id", enterpriseId).eq("transaction_id", transactionId).maybeSingle();
+      if (result.error) fail("Previous transaction resolution", result.error);
+      if (!result.data) throw new CanonicalTransactionError("The previous transaction is unknown in this tenant.", 404, "PREVIOUS_TRANSACTION_NOT_FOUND");
+      return { transactionId: String(result.data.transaction_id), enterpriseId: String(result.data.enterprise_id), trustState: String(result.data.trust_state), decision: String(result.data.decision), evidenceDigest: String(result.data.evidence_digest), authorityReference: String(result.data.authority_reference), policyVersion: String(result.data.policy_version) } as PreviousCanonicalTransaction;
+    },
+    async persistDecision(record) {
+      const result = await rpc(db, "Decision persistence", "persist_canonical_trust_transaction_decision_v1", { p_transaction: decisionPayload(record), p_decision: record.decisionEnvelope });
+      return { ...record, persistenceStatus: result.status === "DUPLICATE" ? "DUPLICATE" : "CREATED" };
+    },
+    async extendEvidenceGraph(record) {
+      const result = await rpc(db, "Evidence Graph extension", "extend_canonical_trust_transaction_graph_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId });
+      return String(result.evidenceGraphReference);
+    },
+    async appendReplay(record) {
+      const result = await rpc(db, "Replay append", "append_canonical_trust_transaction_replay_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId });
+      return String(result.replayReference);
+    },
+    async emitTrustMemory(record) {
+      const result = await rpc(db, "Trust Memory write", "emit_canonical_trust_transaction_memory_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId });
+      return String(result.trustMemoryReference);
+    },
+    async requestExternalExecution(record) {
+      const request = await rpc(db, "External request persistence", "request_canonical_external_execution_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId, p_configured: Boolean(process.env.TRUST_ACTION_RELAY_URL?.trim() && process.env.TRUST_ACTION_RELAY_SECRET?.trim()) });
+      return callExternalRelay(record, String(request.requestReference));
+    },
+    async recordExternalAcknowledgement(record, result) {
+      const stored = await rpc(db, "External acknowledgement persistence", "record_canonical_external_acknowledgement_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId, p_external_reference: result.externalReference, p_acknowledged_at: result.acknowledgedAt });
+      return String(stored.acknowledgementReference);
+    },
+    async recordExternalOutcome(record, result) {
+      const stored = await rpc(db, "External outcome persistence", "record_canonical_external_outcome_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId, p_outcome: result.state, p_external_reference: result.externalReference, p_occurred_at: result.occurredAt, p_reason: result.reason });
+      return String(stored.outcomeReference);
+    },
+  };
+}
+
+export async function loadCanonicalTrustTransactionHistory(input: { supabase: SupabaseClient; user: User; transactionId: string }) {
+  if (!uuidPattern.test(input.transactionId)) throw new CanonicalTransactionError("Transaction reference is invalid.", 400, "INVALID_TRANSACTION_REFERENCE");
+  const tenant = await resolveSessionTenant(input.supabase, input.user);
+  const db = createServiceRoleClient();
+  const [transaction, events, externalRequest, acknowledgements, outcomes] = await Promise.all([
+    db.from("canonical_trust_transactions").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).maybeSingle(),
+    db.from("canonical_trust_transaction_events").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("occurred_at", { ascending: true }),
+    db.from("external_action_requests").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).maybeSingle(),
+    db.from("external_action_acknowledgements").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("acknowledged_at", { ascending: true }),
+    db.from("external_action_outcomes").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("occurred_at", { ascending: true }),
+  ]);
+  for (const result of [transaction, events, externalRequest, acknowledgements, outcomes]) if (result.error) fail("Transaction history read", result.error);
+  if (!transaction.data) throw new CanonicalTransactionError("Transaction not found in the session tenant.", 404, "TRANSACTION_NOT_FOUND");
+  return { tenant, receipt: receiptFromRow(transaction.data), transaction: transaction.data, events: events.data ?? [], externalRequest: externalRequest.data ?? null, acknowledgements: acknowledgements.data ?? [], outcomes: outcomes.data ?? [] };
+}

@@ -107,7 +107,7 @@ export default function EnterpriseTrustPlatformPage() {
             "Investor mode shows why this becomes infrastructure through accumulated customer-owned operational history rather than marketing language alone.",
           ]}
           primary={{ href: "/enterprise", label: "Go to enterprise hub" }}
-          secondary={{ href: "/trust-center", label: "Open trust centre" }}
+          secondary={{ href: "/enterprise/operations", label: "Open enterprise operations" }}
         />
 
         <section className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6 md:p-8">

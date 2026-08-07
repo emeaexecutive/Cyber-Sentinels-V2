@@ -99,6 +99,9 @@ export default async function EnterpriseReadinessPage() {
             evaluation; it does not assert production certification.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/enterprise/operations" className="brand-primary-action brand-action-large text-sm">
+              Enterprise Operations
+            </Link>
             <Link href="/admin/readiness-gate" className="brand-primary-action brand-action-large text-sm">
               Inspect Readiness Gate
             </Link>
