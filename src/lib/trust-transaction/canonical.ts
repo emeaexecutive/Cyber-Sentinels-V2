@@ -1,6 +1,15 @@
 import { createDecisionEnvelope } from "../trust-fabric/control-plane.ts";
 import { evaluateTrustContract } from "../trust-fabric/contracts.ts";
 import { deterministicUuid, hashCanonical } from "../trust-core/hash.ts";
+import { createOperationalEntity, type OperationalEntity, type OperationalEntityResolutionInput } from "../../../lib/operational-entities/operational-entity.ts";
+import {
+  classifyEvidenceIndependence,
+  createDecisionTimeSnapshot,
+  type DecisionTimeSnapshot,
+  type EnforcementChain,
+  type ManagedControlEvidence,
+  type ResponsibilityLineage,
+} from "../../../lib/operational-entities/federated-evidence.ts";
 import type {
   EnterpriseSubjectClass,
   EnterpriseTrustObject,
@@ -25,7 +34,16 @@ export type CanonicalTrustTransactionInput = {
   idempotencyKey: string;
   providerExecutionId?: string | null;
   previousTransactionId?: string | null;
+  operationalEntityId?: string | null;
   requestedAt?: string;
+  managedControl?: {
+    responsibilityLineage?: Partial<ResponsibilityLineage>;
+    providerHealth?: Record<string, string>;
+    configurationRulesetDigest?: string;
+    enforcementState?: Partial<EnforcementChain>;
+    contradictions?: string[];
+    reviewerState?: string;
+  };
 };
 
 export type AuthenticatedTransactionActor = { id: string; type: "human" | "ai_agent"; authority: string };
@@ -42,6 +60,9 @@ export type StoredProviderEvidence = {
   sourceDigest: string;
   assuranceLevel: number | null;
   correlationId: string;
+  sourcePartyId?: string;
+  sourceClassification?: ManagedControlEvidence["sourceClassification"];
+  schemaVersion?: string;
 };
 export type ResolvedPolicyVersion = {
   id: string;
@@ -64,6 +85,10 @@ export type CanonicalDecisionRecord = {
   transactionId: string;
   enterpriseId: string;
   actorId: string;
+  operationalEntityId: string;
+  accountableOwnerId: string;
+  entityType: string;
+  entityLifecycleState: string;
   trustObject: CanonicalTrustTransactionInput["trustObject"];
   workflowId: string;
   action: CanonicalTrustTransactionInput["action"];
@@ -85,6 +110,9 @@ export type CanonicalDecisionRecord = {
   previousTransactionId: string | null;
   changedConditions: string[];
   materialChange: boolean;
+  responsibilityLineage: ResponsibilityLineage;
+  evidenceIndependence: ReturnType<typeof classifyEvidenceIndependence>;
+  decisionTimeSnapshot: DecisionTimeSnapshot;
 };
 export type PersistedCanonicalDecision = CanonicalDecisionRecord & {
   persistenceStatus: "CREATED" | "DUPLICATE";
@@ -99,6 +127,10 @@ export type SafeCanonicalTransactionReceipt = {
   transactionId: string;
   correlationId: string;
   enterpriseId: string;
+  operationalEntityId: string;
+  accountableOwnerId: string;
+  entityType: string;
+  entityLifecycleState: string;
   actor: { id: string; type: string };
   trustObject: CanonicalTrustTransactionInput["trustObject"];
   action: Omit<CanonicalTrustTransactionInput["action"], "payloadDigest"> & { requestDigest: string };
@@ -116,6 +148,9 @@ export type SafeCanonicalTransactionReceipt = {
   trustMemoryReference: string | null;
   materialChange: boolean;
   changedConditions: string[];
+  responsibilityLineage: ResponsibilityLineage;
+  evidenceIndependence: ReturnType<typeof classifyEvidenceIndependence>;
+  decisionTimeSnapshot: DecisionTimeSnapshot;
   externalExecution: {
     requested: boolean;
     requestReference: string | null;
@@ -136,6 +171,7 @@ export type CanonicalTrustTransactionDependencies = {
   loadAuthority(enterpriseId: string, subjectType: EnterpriseSubjectClass, subjectId: string): Promise<TrustContract>;
   loadPolicy(enterpriseId: string, policyId: string, policyVersion: string): Promise<ResolvedPolicyVersion>;
   loadPreviousTransaction(enterpriseId: string, transactionId?: string | null): Promise<PreviousCanonicalTransaction | null>;
+  resolveOperationalEntity?(tenantId: string, input: OperationalEntityResolutionInput): Promise<OperationalEntity>;
   persistDecision(record: CanonicalDecisionRecord): Promise<PersistedCanonicalDecision>;
   extendEvidenceGraph(record: PersistedCanonicalDecision): Promise<string>;
   appendReplay(record: PersistedCanonicalDecision): Promise<string>;
@@ -149,6 +185,7 @@ type TransactionContext = {
   input: CanonicalTrustTransactionInput;
   actor: AuthenticatedTransactionActor;
   tenant: SessionTenant;
+  operationalEntity: OperationalEntity;
   trustObject: EnterpriseTrustObject;
   authority: TrustContract;
   policy: ResolvedPolicyVersion;
@@ -232,7 +269,9 @@ export function validateAuthorityScope(authority: TrustContract, input: Canonica
 export async function resolvePolicyVersion(dependencies: CanonicalTrustTransactionDependencies, tenant: SessionTenant, authority: TrustContract, at: string) {
   const policy = await dependencies.loadPolicy(tenant.id, authority.policyId, authority.policyVersion);
   const time = Date.parse(at);
-  if (!policy.active || Date.parse(policy.validFrom) > time || (policy.validUntil && Date.parse(policy.validUntil) <= time)) throw new Error("POLICY_VERSION_INACTIVE");
+  // Bound sub-second storage/client clock skew without allowing a future policy
+  // version to become materially active before its declared start.
+  if (!policy.active || Date.parse(policy.validFrom) > time + 1_000 || (policy.validUntil && Date.parse(policy.validUntil) <= time)) throw new Error("POLICY_VERSION_INACTIVE");
   return policy;
 }
 
@@ -248,6 +287,7 @@ function conditionChanges(previous: PreviousCanonicalTransaction | null, evidenc
 export function evaluateCanonicalTrustDecision(input: {
   tenant: SessionTenant;
   actor: AuthenticatedTransactionActor;
+  operationalEntity: OperationalEntity;
   trustObject: EnterpriseTrustObject;
   authority: TrustContract;
   policy: ResolvedPolicyVersion;
@@ -284,11 +324,21 @@ export function evaluateCanonicalTrustDecision(input: {
   const negativeEvidence = input.evidence.some((item) => item.outcome === "FAILED");
   const hardDenyReasons = new Set(["AUTHORITY_REQUIREMENT_UNSATISFIED", "ENVIRONMENT_REQUIREMENT_UNSATISFIED", "SCOPE_OUTSIDE_CONTRACT", "PROVIDER_OUTSIDE_CONTRACT", "INCIDENT_THRESHOLD_REACHED", "CONTRACT_REVOKED", "AUTHORITY_REVOKED"]);
   let decision: CanonicalTransactionDecision = "ALLOW";
+  const missingAccountability = !input.operationalEntity.accountableOwnerId || input.operationalEntity.accountableOwnerId === "legacy_unresolved";
+  const entityStateReason = input.operationalEntity.lifecycleState === "active"
+    ? []
+    : input.operationalEntity.lifecycleState === "revoked"
+      ? ["ENTITY_REVOKED"]
+      : input.operationalEntity.lifecycleState === "suspended"
+        ? ["ENTITY_SUSPENDED"]
+        : ["ENTITY_NOT_ENROLLED"];
   if (!input.authorityScopeValid || negativeEvidence || evaluation.reasonCodes.some((reason) => hardDenyReasons.has(reason)) || evaluation.outcome === "revoked") decision = "DENY";
-  else if (!input.evidenceFresh || ["paused", "review_required", "satisfied_with_degraded_evidence"].includes(evaluation.outcome)) decision = "REVIEW";
+  else if (!input.evidenceFresh || missingAccountability || ["paused", "review_required", "satisfied_with_degraded_evidence"].includes(evaluation.outcome)) decision = "REVIEW";
   const trustState: CanonicalOperationalState = decision === "ALLOW" ? "verified" : decision === "REVIEW" ? "degraded" : "suspended";
   const reasonCodes = [...new Set([
     ...evaluation.reasonCodes,
+    ...entityStateReason,
+    ...(missingAccountability ? ["ACCOUNTABLE_OWNER_MISSING"] : []),
     ...(input.authorityScopeValid ? ["AUTHORITY_SCOPE_VALID"] : ["AUTHORITY_SCOPE_INVALID"]),
     ...(input.evidence.length ? [] : ["EVIDENCE_MISSING"]),
     ...(input.evidenceFresh ? ["EVIDENCE_COMPLETE_AND_FRESH"] : ["EVIDENCE_INCOMPLETE_OR_STALE"]),
@@ -317,10 +367,76 @@ export function evaluateCanonicalTrustDecision(input: {
     correlationId: input.correlationId,
     legalDecisionReference: null,
   });
+  const technologyProvider = input.evidence[0]?.providerId ?? "not_configured";
+  const responsibilityLineage: ResponsibilityLineage = {
+    businessOwner: input.operationalEntity.accountableOwnerId,
+    controlOwner: input.transactionInput.managedControl?.responsibilityLineage?.controlOwner ?? input.operationalEntity.accountableOwnerId,
+    policyApprover: input.transactionInput.managedControl?.responsibilityLineage?.policyApprover ?? input.authority.approver,
+    controlOperator: input.transactionInput.managedControl?.responsibilityLineage?.controlOperator ?? "customer:unassigned",
+    technologyProvider: input.transactionInput.managedControl?.responsibilityLineage?.technologyProvider ?? technologyProvider,
+    identityAuthorizationProvider: input.transactionInput.managedControl?.responsibilityLineage?.identityAuthorizationProvider ?? technologyProvider,
+    operationalEntity: input.operationalEntity.entityId,
+    runtimeProvider: input.transactionInput.managedControl?.responsibilityLineage?.runtimeProvider ?? "runtime:not_observed",
+    destinationSystem: input.transactionInput.managedControl?.responsibilityLineage?.destinationSystem ?? input.transactionInput.action.resource,
+    evidenceProvider: input.transactionInput.managedControl?.responsibilityLineage?.evidenceProvider ?? technologyProvider,
+    independentConfirmationSource: input.transactionInput.managedControl?.responsibilityLineage?.independentConfirmationSource ?? null,
+    reviewer: input.transactionInput.managedControl?.responsibilityLineage?.reviewer ?? null,
+  };
+  const managedEvidence: ManagedControlEvidence[] = input.evidence.map((item) => ({
+    evidenceId: item.reference,
+    providerId: item.providerId,
+    sourcePartyId: item.sourcePartyId ?? item.providerId,
+    sourceClassification: item.sourceClassification ?? "provider_asserted",
+    claim: item.outcome === "PASSED" ? "success" : item.outcome === "FAILED" ? "failure" : "unknown",
+    providerNativeEventId: item.providerEventId,
+    normalizedEvidence: { type: item.type, outcome: item.outcome, assuranceLevel: item.assuranceLevel },
+    evidenceDigest: item.sourceDigest,
+    schemaVersion: item.schemaVersion ?? "1.0",
+    observedAt: item.observedAt,
+    supersedesEvidenceId: null,
+    correctionOfEvidenceId: null,
+  }));
+  const evidenceIndependence = classifyEvidenceIndependence({
+    evidence: managedEvidence,
+    controlOperator: responsibilityLineage.controlOperator,
+    technologyProvider: responsibilityLineage.technologyProvider,
+  });
+  const enforcementState: EnforcementChain = {
+    policyDecision: decision,
+    controlOwnerApproval: null,
+    operatorRequest: null,
+    technologyProviderRequest: null,
+    providerAcknowledgement: null,
+    providerEnforcementClaim: null,
+    runtimeObservation: null,
+    destinationObservation: null,
+    businessOutcome: null,
+    ...input.transactionInput.managedControl?.enforcementState,
+  };
+  const decisionTimeSnapshot = createDecisionTimeSnapshot({
+    frozenAt: input.requestedAt,
+    operationalEntityVersion: input.operationalEntity.canonicalDigest,
+    externalIdentityReferences: input.operationalEntity.externalIdentityReferences,
+    accountableHuman: input.operationalEntity.accountableOwnerId,
+    authorityLineageReferences: [input.authority.contractId, ...authorityEvidenceReferences.map((reference) => `${reference.type}:${reference.id}`)],
+    responsibilityLineage,
+    providerHealth: input.transactionInput.managedControl?.providerHealth ?? Object.fromEntries(input.evidence.map((item) => [item.providerId, "evidence_received"])),
+    providerEvidence: managedEvidence,
+    evidenceIndependence,
+    policyVersion: `${input.policy.id}:${input.policy.version}`,
+    configurationRulesetDigest: input.transactionInput.managedControl?.configurationRulesetDigest ?? input.policy.policyHash,
+    enforcementState,
+    contradictions: input.transactionInput.managedControl?.contradictions ?? input.trustObject.activeContradictions.map((item) => item.id),
+    reviewerState: input.transactionInput.managedControl?.reviewerState ?? (decision === "REVIEW" ? "required" : "not_required"),
+  });
   return {
     transactionId,
     enterpriseId: input.tenant.id,
     actorId: input.actor.id,
+    operationalEntityId: input.operationalEntity.entityId,
+    accountableOwnerId: input.operationalEntity.accountableOwnerId,
+    entityType: input.operationalEntity.entityType,
+    entityLifecycleState: input.operationalEntity.lifecycleState,
     trustObject: input.transactionInput.trustObject,
     workflowId: input.authority.workflowId,
     action: input.transactionInput.action,
@@ -342,6 +458,9 @@ export function evaluateCanonicalTrustDecision(input: {
     previousTransactionId: input.previous?.transactionId ?? null,
     changedConditions,
     materialChange,
+    responsibilityLineage,
+    evidenceIndependence,
+    decisionTimeSnapshot,
   };
 }
 
@@ -378,6 +497,10 @@ export function returnSafeTransactionReceipt(input: {
     transactionId: persisted.transactionId,
     correlationId: persisted.correlationId,
     enterpriseId: persisted.enterpriseId,
+    operationalEntityId: persisted.operationalEntityId,
+    accountableOwnerId: persisted.accountableOwnerId,
+    entityType: persisted.entityType,
+    entityLifecycleState: persisted.entityLifecycleState,
     actor: { id: context.actor.id, type: context.actor.type },
     trustObject: persisted.trustObject,
     action: { type: persisted.action.type, purpose: persisted.action.purpose, resource: persisted.action.resource, environment: persisted.action.environment, requestDigest: persisted.action.payloadDigest },
@@ -395,6 +518,9 @@ export function returnSafeTransactionReceipt(input: {
     trustMemoryReference: input.trustMemoryReference,
     materialChange: persisted.materialChange,
     changedConditions: persisted.changedConditions,
+    responsibilityLineage: persisted.responsibilityLineage,
+    evidenceIndependence: persisted.evidenceIndependence,
+    decisionTimeSnapshot: persisted.decisionTimeSnapshot,
     externalExecution: {
       requested: persisted.decision === "ALLOW" && input.external.configured && Boolean(input.external.requestReference),
       requestReference: input.external.requestReference,
@@ -420,6 +546,36 @@ export async function executeCanonicalTrustTransaction(input: CanonicalTrustTran
   }
   const trustObject = await resolveTrustObject(dependencies, tenant, input);
   const requestedAt = input.requestedAt ?? new Date().toISOString();
+  const operationalEntity = dependencies.resolveOperationalEntity
+    ? await dependencies.resolveOperationalEntity(tenant.id, {
+        requestedEntityId: input.operationalEntityId ?? input.trustObject.subjectId,
+        legacyHumanId: null,
+        agentId: null,
+        serviceIdentity: null,
+        deviceIdentity: null,
+        trustObjectReference: input.trustObject.subjectId,
+        tenantId: tenant.id,
+        knownEntities: [],
+      })
+    : createOperationalEntity({
+        entityId: input.operationalEntityId ?? input.trustObject.subjectId,
+        enterpriseId: tenant.id,
+        entityType: input.trustObject.subjectType === "ai_agent" ? "ai_agent" : "other_governed_entity",
+        displayReference: input.trustObject.subjectId,
+        canonicalTrustObjectId: input.trustObject.subjectId,
+        lifecycleState: "active",
+        accountableOwnerId: actor.id,
+        organizationReference: "legacy_unresolved",
+        providerReferences: [],
+        identityProfileReference: input.trustObject.subjectId,
+        currentAuthorityReferences: ["resolved_by_canonical_transaction"],
+        environmentReferences: [input.action.environment],
+        workflowReferences: [input.action.type],
+        currentTrustState: trustObject.trustState,
+        currentEvidenceState: trustObject.evidenceCompleteness,
+        currentConsequenceClassification: "unknown",
+        canonicalDigest: hashCanonical([input.trustObject.subjectId, input.action.type]),
+      });
   const evidence = await collectConfiguredEvidence(dependencies, tenant, trustObject, input);
   const providerEvidenceFresh = validateEvidenceFreshness(evidence, 86_400, requestedAt);
   const authority = await resolveAuthority(dependencies, tenant, trustObject);
@@ -428,8 +584,8 @@ export async function executeCanonicalTrustTransaction(input: CanonicalTrustTran
   const policy = await resolvePolicyVersion(dependencies, tenant, authority, requestedAt);
   const previous = await dependencies.loadPreviousTransaction(tenant.id, input.previousTransactionId);
   const correlationId = crypto.randomUUID();
-  const record = evaluateCanonicalTrustDecision({ tenant, actor, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, transactionInput: input, requestedAt, correlationId });
-  const context: TransactionContext = { input, actor, tenant, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, record };
+  const record = evaluateCanonicalTrustDecision({ tenant, actor, operationalEntity, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, transactionInput: input, requestedAt, correlationId });
+  const context: TransactionContext = { input, actor, tenant, operationalEntity, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, record };
   const persisted = await persistDecision(dependencies, record);
   if (persisted.persistenceStatus === "DUPLICATE") {
     const concurrentReceipt = await dependencies.findByIdempotency(tenant.id, input.idempotencyKey);

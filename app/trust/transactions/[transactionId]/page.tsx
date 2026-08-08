@@ -35,6 +35,11 @@ export default async function TrustTransactionHistoryPage({ params }: { params: 
     throw error;
   }
   const { receipt, events, externalRequest, acknowledgements, outcomes } = history;
+  const responsibility = receipt.responsibilityLineage;
+  const enforcement = receipt.decisionTimeSnapshot.enforcementState;
+  const currentProvider = responsibility.technologyProvider;
+  const evidenceSourceCount = new Set(receipt.decisionTimeSnapshot.providerEvidence.map((item) => item.sourcePartyId)).size;
+  const independentSourceCount = new Set(receipt.decisionTimeSnapshot.providerEvidence.filter((item) => item.sourcePartyId !== responsibility.controlOperator && item.sourcePartyId !== responsibility.technologyProvider).map((item) => item.sourcePartyId)).size;
   const stages = [
     ["Actor authenticated", `actor:${receipt.actor.id}`],
     ["Tenant resolved from session", `enterprise:${receipt.enterpriseId}`],
@@ -74,6 +79,52 @@ export default async function TrustTransactionHistoryPage({ params }: { params: 
             <div className="rounded-lg border border-zinc-800 bg-black p-4"><p className="text-zinc-500">Trust state</p><p className="mt-2 font-semibold text-cyan-100">{receipt.trustState}</p></div>
             <div className="rounded-lg border border-zinc-800 bg-black p-4"><p className="text-zinc-500">External outcome</p><p className="mt-2 font-semibold text-zinc-100">{receipt.externalExecution.outcome}</p></div>
           </div>
+        </section>
+
+        <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Control responsibility</p>
+            <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
+              {[
+                ["Control Owner", responsibility.controlOwner],
+                ["Control Operator", responsibility.controlOperator],
+                ["Technology Provider", responsibility.technologyProvider],
+                ["Identity Provider", responsibility.identityAuthorizationProvider],
+                ["Runtime Provider", responsibility.runtimeProvider],
+                ["Evidence Provider", responsibility.evidenceProvider],
+              ].map(([label, detail]) => <div key={label}><dt className="text-zinc-500">{label}</dt><dd className="mt-1 break-all text-zinc-200">{value(detail)}</dd></div>)}
+            </dl>
+          </article>
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Evidence independence</p>
+            <p className="mt-4 text-2xl font-semibold capitalize text-zinc-100">{receipt.evidenceIndependence.replaceAll("_", " ")}</p>
+            <dl className="mt-4 grid grid-cols-2 gap-3 text-xs"><div><dt className="text-zinc-500">Source count</dt><dd className="mt-1 text-zinc-200">{evidenceSourceCount}</dd></div><div><dt className="text-zinc-500">Independent source count</dt><dd className="mt-1 text-zinc-200">{independentSourceCount}</dd></div><div><dt className="text-zinc-500">Current classification</dt><dd className="mt-1 text-zinc-200">{receipt.evidenceIndependence}</dd></div><div><dt className="text-zinc-500">Conflicts</dt><dd className="mt-1 text-zinc-200">{receipt.decisionTimeSnapshot.contradictions.length}</dd></div></dl>
+            <div className="mt-4 flex flex-wrap gap-2 text-xs text-zinc-400">
+              {["Single Source", "Multi Source", "Independent Confirmation", "Conflicting", "Insufficient"].map((label) => <span key={label} className="rounded-full border border-zinc-800 px-3 py-1">{label}</span>)}
+            </div>
+            <p className="mt-4 text-xs leading-5 text-zinc-500">Multiple systems owned by the same provider do not count as independent confirmation.</p>
+          </article>
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Enforcement</p>
+            <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
+              <div><dt className="text-zinc-500">Requested</dt><dd className="mt-1 text-zinc-200">{receipt.externalExecution.requested ? "Recorded" : "Not requested"}</dd></div>
+              <div><dt className="text-zinc-500">Acknowledged</dt><dd className="mt-1 text-zinc-200">{receipt.externalExecution.acknowledgementReference ? "Recorded" : "Unknown"}</dd></div>
+              <div><dt className="text-zinc-500">Claimed</dt><dd className="mt-1 text-zinc-200">{receipt.externalExecution.outcome}</dd></div>
+              <div><dt className="text-zinc-500">Runtime Observed</dt><dd className="mt-1 text-zinc-200">{value(enforcement.runtimeObservation)}</dd></div>
+              <div><dt className="text-zinc-500">Destination Observed</dt><dd className="mt-1 text-zinc-200">{value(enforcement.destinationObservation)}</dd></div>
+              <div><dt className="text-zinc-500">Confirmed / Contradicted / Unknown</dt><dd className="mt-1 text-zinc-200">{enforcement.destinationObservation === "enforced" && enforcement.runtimeObservation === "enforced" ? "Confirmed" : "Unknown"}</dd></div>
+            </dl>
+          </article>
+          <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Provider history</p>
+            <dl className="mt-5 grid gap-3 text-sm">
+              <div><dt className="text-zinc-500">Current Provider</dt><dd className="mt-1 text-zinc-200">{currentProvider}</dd></div>
+              <div><dt className="text-zinc-500">Previous Provider</dt><dd className="mt-1 text-zinc-200">No replacement recorded in this decision snapshot</dd></div>
+              <div><dt className="text-zinc-500">Migration</dt><dd className="mt-1 text-zinc-200">No migration event attached</dd></div>
+              <div><dt className="text-zinc-500">Historical Evidence Preservation</dt><dd className="mt-1 text-zinc-200">Append-only evidence references retained</dd></div>
+              <div><dt className="text-zinc-500">Evidence Gaps</dt><dd className="mt-1 text-zinc-200">{receipt.decisionTimeSnapshot.contradictions.length ? receipt.decisionTimeSnapshot.contradictions.join(", ") : "None recorded"}</dd></div>
+            </dl>
+          </article>
         </section>
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[1.15fr_.85fr]">

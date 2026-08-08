@@ -116,6 +116,7 @@ export async function POST(request: Request) {
   try {
     const receipt = await executeCanonicalTrustTransaction({
       trustObject: { subjectType: subjectType as (typeof enterpriseSubjectClasses)[number], subjectId: String(body.subject_id ?? "") },
+      operationalEntityId: body.operational_entity_id ? String(body.operational_entity_id) : null,
       action: {
         type: String(body.requested_action ?? ""),
         purpose: String(body.requested_purpose ?? ""),

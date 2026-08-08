@@ -15,6 +15,8 @@ import type {
   StoredProviderEvidence,
 } from "@/src/lib/trust-transaction/canonical";
 import type { EnterpriseSubjectClass, EnterpriseTrustObject, FabricTrustState, TrustContract } from "@/src/lib/trust-fabric/types";
+import { createOperationalEntity, type OperationalEntity } from "@/lib/operational-entities/operational-entity";
+import type { DecisionTimeSnapshot, ResponsibilityLineage } from "@/lib/operational-entities/federated-evidence";
 
 type Row = Record<string, any>;
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -100,10 +102,49 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
   const safeExternalOutcome = ["SUCCEEDED", "FAILED", "UNKNOWN", "NOT_REQUESTED", "NOT_CONFIGURED"].includes(storedExternalState)
     ? storedExternalState as SafeCanonicalTransactionReceipt["externalExecution"]["outcome"]
     : "UNKNOWN";
+  const responsibilityLineage = (row.responsibility_lineage && typeof row.responsibility_lineage === "object"
+    ? row.responsibility_lineage
+    : {
+        businessOwner: String(row.accountable_owner_id ?? "legacy_unresolved"),
+        controlOwner: String(row.accountable_owner_id ?? "legacy_unresolved"),
+        policyApprover: "legacy_unresolved",
+        controlOperator: "legacy_unresolved",
+        technologyProvider: "legacy_unresolved",
+        identityAuthorizationProvider: "legacy_unresolved",
+        operationalEntity: String(row.operational_entity_id ?? row.subject_id ?? "legacy_unresolved"),
+        runtimeProvider: "legacy_unresolved",
+        destinationSystem: String(row.action_resource ?? "legacy_unresolved"),
+        evidenceProvider: "legacy_unresolved",
+        independentConfirmationSource: null,
+        reviewer: null,
+      }) as ResponsibilityLineage;
+  const decisionTimeSnapshot = (row.decision_time_snapshot && typeof row.decision_time_snapshot === "object"
+    ? row.decision_time_snapshot
+    : {
+        snapshotVersion: "1.0",
+        frozenAt: String(row.requested_at),
+        operationalEntityVersion: "legacy_unresolved",
+        externalIdentityReferences: [],
+        accountableHuman: String(row.accountable_owner_id ?? "legacy_unresolved"),
+        authorityLineageReferences: authorityLineage,
+        responsibilityLineage,
+        providerHealth: {},
+        providerEvidence: [],
+        evidenceIndependence: "insufficient",
+        policyVersion: `${row.policy_id}:${row.policy_version}`,
+        configurationRulesetDigest: String(row.policy_hash),
+        enforcementState: { policyDecision: String(row.decision), controlOwnerApproval: null, operatorRequest: null, technologyProviderRequest: null, providerAcknowledgement: null, providerEnforcementClaim: null, runtimeObservation: null, destinationObservation: null, businessOutcome: null },
+        contradictions: [],
+        reviewerState: "legacy_unresolved",
+      }) as DecisionTimeSnapshot;
   return {
     transactionId: String(row.transaction_id),
     correlationId: String(row.correlation_id),
     enterpriseId: String(row.enterprise_id),
+    operationalEntityId: String(row.operational_entity_id ?? row.subject_id ?? "legacy_unresolved"),
+    accountableOwnerId: String(row.accountable_owner_id ?? "legacy_unresolved"),
+    entityType: String(row.entity_type ?? "other_governed_entity"),
+    entityLifecycleState: String(row.entity_lifecycle_state ?? "unknown"),
     actor: { id: String(row.actor_id), type: String(row.actor_type) },
     trustObject: { subjectType: String(row.subject_type) as EnterpriseSubjectClass, subjectId: String(row.subject_id) },
     action: {
@@ -124,6 +165,9 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
     trustMemoryReference: row.trust_memory_reference ? String(row.trust_memory_reference) : null,
     materialChange: Boolean(row.material_change),
     changedConditions: Array.isArray(row.changed_conditions) ? row.changed_conditions.map(String) : [],
+    responsibilityLineage,
+    evidenceIndependence: (["single_source", "same_party_multi_system", "provider_and_operator_same_party", "multi_source", "independently_confirmed", "conflicting", "insufficient"].includes(String(row.evidence_independence)) ? String(row.evidence_independence) : "insufficient") as SafeCanonicalTransactionReceipt["evidenceIndependence"],
+    decisionTimeSnapshot,
     externalExecution: {
       requested: row.external_state !== "NOT_REQUESTED" && row.external_state !== "NOT_CONFIGURED",
       requestReference: row.external_request_reference ? String(row.external_request_reference) : null,
@@ -163,6 +207,10 @@ function decisionPayload(record: CanonicalDecisionRecord) {
     transactionId: record.transactionId,
     enterpriseId: record.enterpriseId,
     actorId: record.actorId,
+    operationalEntityId: record.operationalEntityId,
+    accountableOwnerId: record.accountableOwnerId,
+    entityType: record.entityType,
+    entityLifecycleState: record.entityLifecycleState,
     actorType: "human",
     subjectType: record.trustObject.subjectType,
     subjectId: record.trustObject.subjectId,
@@ -191,6 +239,9 @@ function decisionPayload(record: CanonicalDecisionRecord) {
     previousTransactionId: record.previousTransactionId,
     changedConditions: record.changedConditions,
     materialChange: record.materialChange,
+    responsibilityLineage: record.responsibilityLineage,
+    evidenceIndependence: record.evidenceIndependence,
+    decisionTimeSnapshot: record.decisionTimeSnapshot,
   };
 }
 
@@ -262,6 +313,81 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
       if (result.error) fail("Trust Object resolution", result.error);
       if (!result.data) throw new CanonicalTransactionError("The Trust Object is unknown in the session tenant.", 404, "TRUST_OBJECT_NOT_FOUND");
       return tenantObject(result.data, enterpriseId);
+    },
+    async resolveOperationalEntity(tenantId, input) {
+      try {
+        const result = await db.from("operational_entities").select("*").eq("enterprise_id", tenantId).eq("entity_id", input.requestedEntityId ?? input.trustObjectReference ?? "").maybeSingle();
+        if (result.error) throw result.error;
+        if (result.data) {
+          const identities = await db.from("operational_entity_external_identities")
+            .select("external_identity_id,provider,provider_entity_id,builder_platform,provider_native_lifecycle,provider_owner,provider_business_purpose,certification_state,permissions_summary,observed_at,source_timestamp,evidence_digest,corrected_by_reference_id,supersedes_reference_id")
+            .eq("enterprise_id", tenantId)
+            .eq("operational_entity_id", String(result.data.entity_id))
+            .order("observed_at", { ascending: true });
+          if (identities.error) throw identities.error;
+          return {
+            entityId: String(result.data.entity_id ?? input.requestedEntityId ?? input.trustObjectReference ?? "legacy_unresolved"),
+            enterpriseId: String(result.data.enterprise_id ?? tenantId),
+            entityType: String(result.data.entity_type ?? "other_governed_entity") as OperationalEntity["entityType"],
+            displayReference: String(result.data.display_reference ?? result.data.entity_id ?? input.requestedEntityId ?? input.trustObjectReference ?? "legacy_unresolved"),
+            canonicalTrustObjectId: String(result.data.canonical_trust_object_id ?? input.trustObjectReference ?? "legacy_unresolved"),
+            lifecycleState: String(result.data.lifecycle_state ?? "unknown") as OperationalEntity["lifecycleState"],
+            accountableOwnerId: String(result.data.accountable_owner_id ?? "legacy_unresolved"),
+            organizationReference: String(result.data.organization_reference ?? "legacy_unresolved"),
+            providerReferences: Array.isArray(result.data.provider_references) ? result.data.provider_references.map(String) : [],
+            externalIdentityReferences: (identities.data ?? []).map((identity) => ({
+              referenceId: String(identity.external_identity_id),
+              provider: String(identity.provider),
+              providerEntityId: String(identity.provider_entity_id),
+              builderPlatform: String(identity.builder_platform),
+              providerNativeLifecycle: String(identity.provider_native_lifecycle) as OperationalEntity["externalIdentityReferences"][number]["providerNativeLifecycle"],
+              providerOwner: identity.provider_owner ? String(identity.provider_owner) : null,
+              providerBusinessPurpose: identity.provider_business_purpose ? String(identity.provider_business_purpose) : null,
+              certificationState: String(identity.certification_state),
+              permissionsSummary: Array.isArray(identity.permissions_summary) ? identity.permissions_summary.map(String) : [],
+              observedAt: String(identity.observed_at),
+              sourceTimestamp: String(identity.source_timestamp),
+              evidenceDigest: String(identity.evidence_digest),
+              correctedByReferenceId: identity.corrected_by_reference_id ? String(identity.corrected_by_reference_id) : null,
+              supersedesReferenceId: identity.supersedes_reference_id ? String(identity.supersedes_reference_id) : null,
+            })),
+            identityProfileReference: String(result.data.identity_profile_reference ?? input.requestedEntityId ?? input.trustObjectReference ?? "legacy_unresolved"),
+            currentAuthorityReferences: Array.isArray(result.data.current_authority_references) ? result.data.current_authority_references.map(String) : [],
+            environmentReferences: Array.isArray(result.data.environment_references) ? result.data.environment_references.map(String) : [],
+            workflowReferences: Array.isArray(result.data.workflow_references) ? result.data.workflow_references.map(String) : [],
+            currentTrustState: String(result.data.current_trust_state ?? "unknown"),
+            currentEvidenceState: String(result.data.current_evidence_state ?? "unknown"),
+            currentConsequenceClassification: String(result.data.current_consequence_classification ?? "unknown") as OperationalEntity["currentConsequenceClassification"],
+            createdAt: String(result.data.created_at ?? new Date().toISOString()),
+            updatedAt: String(result.data.updated_at ?? new Date().toISOString()),
+            suspendedAt: result.data.suspended_at ? String(result.data.suspended_at) : null,
+            revokedAt: result.data.revoked_at ? String(result.data.revoked_at) : null,
+            supersedesEntityVersionId: result.data.supersedes_entity_version_id ? String(result.data.supersedes_entity_version_id) : null,
+            canonicalDigest: String(result.data.canonical_digest ?? "legacy_unresolved"),
+          } satisfies OperationalEntity;
+        }
+      } catch {
+        // Fall back to a deterministic derived entity when the canonical storage table is unavailable.
+      }
+      return createOperationalEntity({
+        entityId: input.requestedEntityId ?? input.trustObjectReference ?? "legacy_unresolved",
+        enterpriseId: tenantId,
+        entityType: "other_governed_entity",
+        displayReference: input.requestedEntityId ?? input.trustObjectReference ?? "legacy_unresolved",
+        canonicalTrustObjectId: input.trustObjectReference ?? input.requestedEntityId ?? "legacy_unresolved",
+        lifecycleState: "unknown",
+        accountableOwnerId: "legacy_unresolved",
+        organizationReference: "legacy_unresolved",
+        providerReferences: [],
+        identityProfileReference: input.requestedEntityId ?? input.trustObjectReference ?? "legacy_unresolved",
+        currentAuthorityReferences: [],
+        environmentReferences: [],
+        workflowReferences: [],
+        currentTrustState: "unknown",
+        currentEvidenceState: "unknown",
+        currentConsequenceClassification: "unknown",
+        canonicalDigest: "legacy_unresolved",
+      });
     },
     async loadConfiguredEvidence({ enterpriseId, subjectId, providerExecutionId }) {
       let workflowId: string | null = null;
