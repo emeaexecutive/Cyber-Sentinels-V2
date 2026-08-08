@@ -3,7 +3,7 @@ import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
 import { reviewedOutcomesToTrustMemoryEvents } from "@/lib/governance/reviewed-outcomes";
 import { createClient } from "@/lib/supabase/server";
 import { loadValidationCases, runValidationBenchmark } from "@/lib/validation/benchmark-harness";
-import { buildTrustMemorySnapshot, demoTrustMemoryEvents } from "@/lib/trust-memory/trust-memory";
+import { buildTrustMemorySnapshot } from "@/lib/trust-memory/trust-memory";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   const cases = await loadValidationCases();
   const benchmark = await runValidationBenchmark({ cases });
   const reviewedEvents = reviewedOutcomesToTrustMemoryEvents(benchmark.reviewedOutcomes);
-  const snapshot = buildTrustMemorySnapshot([...reviewedEvents, ...demoTrustMemoryEvents]);
+  const snapshot = buildTrustMemorySnapshot(reviewedEvents);
 
   return NextResponse.json(
     {

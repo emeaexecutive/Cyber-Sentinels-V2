@@ -1,5 +1,4 @@
 import { EnterpriseTrustCentre } from "@/src/components/trust-centre/EnterpriseTrustCentre";
-import { buildContinuousOperationalTrustScenario } from "@/lib/trust-intelligence";
 import { enterpriseTrustCentreRepository } from "@/src/lib/trust-centre/repository";
 import { trustCentreUiContext } from "@/src/lib/trust-centre/ui-context";
 
@@ -25,11 +24,10 @@ export default async function EnterpriseTrustCentrePage() {
     role,
     100
   );
-  const operationalIntelligence = buildContinuousOperationalTrustScenario();
   return (
     <main className="min-h-screen bg-[#05080d] px-4 py-8 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1500px]">
-        <EnterpriseTrustCentre initialSnapshot={snapshot} operationalIntelligence={operationalIntelligence} />
+        <EnterpriseTrustCentre initialSnapshot={snapshot} />
       </div>
     </main>
   );

@@ -203,11 +203,11 @@ export default async function StateVerificationPage({
                 State Dashboard
               </p>
               <h2 className="mt-2 text-2xl font-semibold">
-                Live trust-state inputs across the passport system.
+                Current persisted trust-state inputs across the passport system.
               </h2>
             </div>
             {metricsUnavailable ? (
-              <p className="text-sm text-amber-200">Some live metrics unavailable.</p>
+              <p className="text-sm text-amber-200">Some persisted metrics unavailable.</p>
             ) : null}
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">

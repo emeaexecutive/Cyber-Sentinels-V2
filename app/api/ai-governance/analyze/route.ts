@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
-import { generateGovernanceAnalysis, type GovernanceContext, type GovernanceSubjectType } from "@/lib/ai/governanceAssistant";
+import { generateDeterministicGovernanceAnalysis, generateGovernanceAnalysis, type GovernanceContext, type GovernanceSubjectType } from "@/lib/ai/governanceAssistant";
 import { hasOpenAIKey, getOperationalOpenAIModel } from "@/lib/ai/openai";
 import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
@@ -62,14 +62,6 @@ async function readPayload(req: Request) {
 
 function wantsHtml(req: Request) {
   return (req.headers.get("accept") ?? "").includes("text/html");
-}
-
-function redirectBack(req: Request, subjectType: GovernanceSubjectType, subjectId: string, code: string) {
-  const fallbackPath =
-    subjectType === "passport" ? `/passports/${subjectId}` : `/agents/${subjectId}`;
-  const url = getSafeSameOriginUrl(req, req.headers.get("referer"), fallbackPath);
-  url.searchParams.set("ai_governance", code);
-  return NextResponse.redirect(url, { status: 303 });
 }
 
 async function loadPassportGovernanceContext(
@@ -370,17 +362,6 @@ export async function POST(req: Request) {
     );
   }
 
-  if (!hasOpenAIKey()) {
-    if (wantsHtml(req)) {
-      return redirectBack(req, subjectType, subjectId, "missing_openai_key");
-    }
-
-    return NextResponse.json(
-      { ok: false, error: "AI governance provider is not configured." },
-      { status: 503 }
-    );
-  }
-
   const loaded =
     subjectType === "passport"
       ? await loadPassportGovernanceContext(supabase, subjectId, user.id, user.email)
@@ -394,40 +375,46 @@ export async function POST(req: Request) {
   }
 
   let analysis;
+  let analysisMode: "AI_GROUNDED" | "DETERMINISTIC" = "DETERMINISTIC";
   const governedContext = redactForAIProvider(loaded.context) as GovernanceContext;
 
-  await createAuditLog(supabase, "ai_provider_interaction_started", loaded.actor, {
-    subject_type: subjectType,
-    subject_id: subjectId,
-    redaction_applied: true,
-    ...policyMetadata,
-  });
-
-  try {
-    analysis = await generateGovernanceAnalysis(governedContext);
-  } catch (error) {
-    console.error("AI governance analysis failed", error);
-    await createAuditLog(supabase, "ai_provider_interaction_failed", loaded.actor, {
+  if (hasOpenAIKey()) {
+    await createAuditLog(supabase, "ai_provider_interaction_started", loaded.actor, {
       subject_type: subjectType,
       subject_id: subjectId,
       redaction_applied: true,
       ...policyMetadata,
     });
-
-    if (wantsHtml(req)) {
-      return redirectBack(req, subjectType, subjectId, "generation_failed");
+    try {
+      analysis = await generateGovernanceAnalysis(governedContext);
+      analysisMode = "AI_GROUNDED";
+    } catch (error) {
+      console.error("AI governance output rejected; deterministic fallback used", error);
+      analysis = generateDeterministicGovernanceAnalysis(governedContext);
+      await createAuditLog(supabase, "ai_provider_output_rejected", loaded.actor, {
+        subject_type: subjectType,
+        subject_id: subjectId,
+        deterministic_fallback_used: true,
+        redaction_applied: true,
+        ...policyMetadata,
+      });
     }
-
-    return NextResponse.json(
-      { ok: false, error: "AI governance analysis could not be generated." },
-      { status: 502 }
-    );
+  } else {
+    analysis = generateDeterministicGovernanceAnalysis(governedContext);
+    await createAuditLog(supabase, "ai_deterministic_fallback_used", loaded.actor, {
+      subject_type: subjectType,
+      subject_id: subjectId,
+      reason: "OPENAI_API_KEY_NOT_CONFIGURED",
+      ...policyMetadata,
+    });
   }
   const eventType = subjectType === "passport" ? "ai_summary_generated" : "governance_recommendation_created";
   const metadata = {
     subject_type: subjectType,
     subject_id: subjectId,
-    provider_model: getOperationalOpenAIModel(),
+    provider_model: analysisMode === "AI_GROUNDED" ? getOperationalOpenAIModel() : "deterministic",
+    analysis_mode: analysisMode,
+    evidence_citations: analysis.citations,
     analysis_title: analysis.title,
     recommendation_count: analysis.recommendations.length,
     observation_count: analysis.observations.length,
@@ -461,8 +448,9 @@ export async function POST(req: Request) {
       req.headers.get("referer"),
       subjectType === "passport" ? `/passports/${subjectId}` : `/agents/${subjectId}`,
     );
+    if (analysisMode === "DETERMINISTIC") redirectTarget.searchParams.set("ai_governance", "deterministic_mode");
     return NextResponse.redirect(redirectTarget, { status: 303 });
   }
 
-  return NextResponse.json({ ok: true, analysis });
+  return NextResponse.json({ ok: true, analysis, mode: analysisMode });
 }

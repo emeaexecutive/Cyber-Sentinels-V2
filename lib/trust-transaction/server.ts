@@ -135,8 +135,20 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
         configurationRulesetDigest: String(row.policy_hash),
         enforcementState: { policyDecision: String(row.decision), controlOwnerApproval: null, operatorRequest: null, technologyProviderRequest: null, providerAcknowledgement: null, providerEnforcementClaim: null, runtimeObservation: null, destinationObservation: null, businessOutcome: null },
         contradictions: [],
+        activeIncidentReferences: [],
+        consequence: "unknown",
+        confidenceInConclusion: "INSUFFICIENT",
+        decisionDigest: "not_recorded",
         reviewerState: "legacy_unresolved",
       }) as DecisionTimeSnapshot;
+  const evidenceReferences = evidence
+    .map((item: Row) => ({ type: "normalized_provider_evidence", id: String(item.reference ?? "") }))
+    .filter((item: { id: string }) => item.id);
+  const authorityEvidenceReferences = authorityLineage
+    .map((item: unknown) => item && typeof item === "object"
+      ? { type: String((item as Row).type ?? "authority_evidence"), id: String((item as Row).id ?? "") }
+      : { type: "authority_evidence", id: String(item ?? "") })
+    .filter((item: { id: string }) => item.id);
   return {
     transactionId: String(row.transaction_id),
     correlationId: String(row.correlation_id),
@@ -153,9 +165,11 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
     },
     decision: String(row.decision) as SafeCanonicalTransactionReceipt["decision"],
     trustState: String(row.trust_state) as SafeCanonicalTransactionReceipt["trustState"],
+    reasonCodes: Array.isArray(row.reason_codes) ? row.reason_codes.map(String) : [],
     evidence,
     evidenceComplete: Boolean(row.evidence_complete),
     evidenceFresh: Boolean(row.evidence_fresh),
+    evidenceReferences: [...evidenceReferences, ...authorityEvidenceReferences],
     authorityReference: String(row.authority_reference),
     authorityLineageReferences: authorityLineage,
     policy: { id: String(row.policy_id), version: String(row.policy_version), hash: String(row.policy_hash) },
@@ -168,6 +182,10 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
     responsibilityLineage,
     evidenceIndependence: (["single_source", "same_party_multi_system", "provider_and_operator_same_party", "multi_source", "independently_confirmed", "conflicting", "insufficient"].includes(String(row.evidence_independence)) ? String(row.evidence_independence) : "insufficient") as SafeCanonicalTransactionReceipt["evidenceIndependence"],
     decisionTimeSnapshot,
+    consequence: decisionTimeSnapshot.consequence ?? "unknown",
+    confidenceInConclusion: decisionTimeSnapshot.confidenceInConclusion ?? "INSUFFICIENT",
+    timestamp: String(row.requested_at),
+    digest: decisionTimeSnapshot.decisionDigest ?? "not_recorded",
     externalExecution: {
       requested: row.external_state !== "NOT_REQUESTED" && row.external_state !== "NOT_CONFIGURED",
       requestReference: row.external_request_reference ? String(row.external_request_reference) : null,

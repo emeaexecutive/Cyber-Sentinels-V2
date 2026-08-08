@@ -4,7 +4,6 @@ import {
   demoRecoveryCases,
   recoveryActions,
   recoveryAuditEvents,
-  recoverySignals,
   recoveryStatuses,
   recoveryTriggers,
 } from "@/lib/trust-engine/trustRecovery";
@@ -99,13 +98,14 @@ export default async function TrustRecoveryPage() {
 
         <section className="mt-10">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Appeal workflow
+            Deterministic workflow simulation
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Trust Recovery&trade;
+            Trust Recovery™ Simulation
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Trust can be lost. It can also be rebuilt with evidence.
+            These example cases demonstrate recovery rules. They are not tenant
+            recovery records and never establish restored trust on their own.
           </p>
         </section>
 
@@ -257,14 +257,7 @@ export default async function TrustRecoveryPage() {
                       </p>
                     </div>
                   ))
-                : recoverySignals.map((signal) => (
-                    <div
-                      key={signal}
-                      className="rounded-lg border border-zinc-800 bg-black p-4"
-                    >
-                      <p className="text-zinc-300">{signal}</p>
-                    </div>
-                  ))}
+                : <p className="text-sm text-zinc-500">No persisted recovery signals are available.</p>}
             </div>
           </div>
         </section>

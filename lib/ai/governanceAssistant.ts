@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createOpenAIJsonResponse } from "@/lib/ai/openai";
+import { buildEvidenceAllowlist, validateEvidenceCitations } from "@/lib/ai/evidence-grounding";
 
 export type GovernanceSubjectType = "passport" | "agent";
 
@@ -12,6 +13,7 @@ export type GovernanceAnalysis = {
   observations: string[];
   recommendations: string[];
   governance_boundary: string;
+  citations: string[];
 };
 
 export type GovernanceContext = {
@@ -51,6 +53,7 @@ const governanceSchema = {
     "observations",
     "recommendations",
     "governance_boundary",
+    "citations",
   ],
   properties: {
     title: { type: "string" },
@@ -75,6 +78,12 @@ const governanceSchema = {
       maxItems: 6,
     },
     governance_boundary: { type: "string" },
+    citations: {
+      type: "array",
+      items: { type: "string" },
+      minItems: 1,
+      maxItems: 12,
+    },
   },
 };
 
@@ -86,6 +95,7 @@ const instructions = [
   "Focus on verification gaps, missing evidence, unresolved signals, operational risks, provenance gaps, and audit inconsistencies.",
   "Every output must include explanation, source reasoning, and operational context.",
   "Use only the supplied context. If context is missing, say what is missing.",
+  "Citations must contain only exact references from the supplied evidence_allowlist.",
   "Recommended actions must be human-governance recommendations such as manual review, evidence upload, audit review, provenance review, or signal review.",
 ].join("\n");
 
@@ -112,9 +122,19 @@ function safeRecommendation(value: string) {
   return value;
 }
 
+export function governanceEvidenceAllowlist(context: GovernanceContext) {
+  return buildEvidenceAllowlist(context as unknown as Record<string, unknown>);
+}
+
 export function normalizeGovernanceAnalysis(
-  analysis: Partial<GovernanceAnalysis>
+  analysis: Partial<GovernanceAnalysis>,
+  allowedCitations: string[] = [],
 ): GovernanceAnalysis {
+  const citationValidation = validateEvidenceCitations(analysis.citations, allowedCitations);
+  if (!citationValidation.valid) {
+    throw new Error("AI governance output contained unsupported evidence citations.");
+  }
+  const citations = citationValidation.citations;
   return {
     title: safeText(analysis.title, "AI-assisted operational summary"),
     explanation: safeText(
@@ -136,18 +156,42 @@ export function normalizeGovernanceAnalysis(
     ]).map(safeRecommendation),
     governance_boundary:
       "Cyber Sentinels uses AI-assisted analysis while maintaining human governance and explainable operational review.",
+    citations,
+  };
+}
+
+export function generateDeterministicGovernanceAnalysis(context: GovernanceContext): GovernanceAnalysis {
+  const citations = governanceEvidenceAllowlist(context).slice(0, 12);
+  const safeCitations = citations.length ? citations : ["context:subject_type"];
+  const unresolved = Number(context.unresolved_signal_count ?? 0);
+  const evidence = Number(context.evidence_count ?? 0);
+  return {
+    title: "Deterministic governance review",
+    explanation: unresolved
+      ? `${unresolved} unresolved signal(s) require accountable human review.`
+      : "No unresolved signal count was supplied; the record remains subject to human governance review.",
+    source_reasoning: [
+      `${evidence} evidence record(s) were supplied to the bounded context.`,
+      "No model-generated fact was used in this deterministic fallback.",
+    ],
+    operational_context: `${context.subject_type} governance record ${context.subject_label || "with no label"}.`,
+    observations: unresolved ? ["Unresolved operational signals are present."] : ["No unresolved signal was established by the supplied counters."],
+    recommendations: [unresolved ? "Request human review of unresolved signals and their source evidence." : "Confirm the evidence record before changing trust or access state."],
+    governance_boundary: "Deterministic mode is active. This output is advisory, creates no evidence, and cannot approve, deny, or mutate trust.",
+    citations: safeCitations,
   };
 }
 
 export async function generateGovernanceAnalysis(
   context: GovernanceContext
 ): Promise<GovernanceAnalysis> {
+  const evidenceAllowlist = governanceEvidenceAllowlist(context);
   const analysis = await createOpenAIJsonResponse<GovernanceAnalysis>({
     instructions,
-    input: JSON.stringify(context, null, 2),
+    input: JSON.stringify({ context, evidence_allowlist: evidenceAllowlist }, null, 2),
     schemaName: "cyber_sentinels_governance_analysis",
     schema: governanceSchema,
   });
 
-  return normalizeGovernanceAnalysis(analysis);
+  return normalizeGovernanceAnalysis(analysis, evidenceAllowlist);
 }

@@ -255,7 +255,7 @@ export default async function VerificationQueuePage() {
             Verification Operations Queue™
           </h1>
           <p className="mt-5 max-w-3xl leading-8 text-zinc-400">
-            Live verification work across cases, evidence, signals, audit logs
+            Current persisted verification work across cases, evidence, signals, audit logs
             and decisions. Every review action is routed through the protected
             admin decision loop.
           </p>
@@ -280,7 +280,7 @@ export default async function VerificationQueuePage() {
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-semibold">Live Verification Work</h2>
+              <h2 className="text-xl font-semibold">Current Verification Work</h2>
               <p className="mt-2 text-sm text-zinc-500">
                 subject / type / human_presence / origin_trace / risk /
                 review_status / time waiting / assigned reviewer

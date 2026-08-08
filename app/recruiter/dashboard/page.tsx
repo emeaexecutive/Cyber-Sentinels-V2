@@ -63,7 +63,12 @@ export default async function RecruiterDashboardPage() {
         </section>
 
         <section className="mt-8">
-          <RecruiterDashboardCards />
+          <RecruiterDashboardCards metrics={{
+            candidatesInReview: candidateRows.filter((candidate) => !["verified", "approved"].includes(String(candidate.verification_status ?? "").toLowerCase())).length,
+            interviewSessions: sessionRows.length,
+            reportsReady: sessionRows.filter((session) => ["completed", "reviewed", "closed"].includes(String(session.status ?? "").toLowerCase())).length,
+            escalations: candidateRows.filter((candidate) => ["escalated", "needs_review"].includes(String(candidate.verification_status ?? "").toLowerCase())).length,
+          }} />
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[360px_1fr]">

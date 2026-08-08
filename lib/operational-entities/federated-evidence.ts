@@ -1,4 +1,9 @@
-import { evaluateOperationalEntityContinuity, type ExternalIdentityReference, type OperationalEntity } from "./operational-entity.ts";
+import {
+  evaluateOperationalEntityContinuity,
+  type ExternalIdentityReference,
+  type OperationalConsequenceClassification,
+  type OperationalEntity,
+} from "./operational-entity.ts";
 import { hashCanonical } from "../../src/lib/trust-core/hash.ts";
 
 export type ExternalIdentityChangeType =
@@ -203,6 +208,10 @@ export type DecisionTimeSnapshot = Readonly<{
   configurationRulesetDigest: string;
   enforcementState: Readonly<EnforcementChain>;
   contradictions: readonly string[];
+  activeIncidentReferences?: readonly string[];
+  consequence?: OperationalConsequenceClassification;
+  confidenceInConclusion?: "HIGH" | "MODERATE" | "LOW" | "INSUFFICIENT";
+  decisionDigest?: string;
   reviewerState: string;
 }>;
 
