@@ -7,6 +7,9 @@ import type {
   TrustCentreSearchResult,
   TrustCentreSnapshot,
 } from "@/src/lib/trust-centre/types";
+import type { buildContinuousOperationalTrustScenario } from "@/lib/trust-intelligence";
+
+type OperationalIntelligenceScenario = ReturnType<typeof buildContinuousOperationalTrustScenario>;
 
 type View =
   | "overview"
@@ -17,10 +20,12 @@ type View =
   | "alerts"
   | "policies"
   | "providers"
-  | "reports";
+  | "reports"
+  | "intelligence";
 
 const views: Array<{ id: View; label: string }> = [
   { id: "overview", label: "Overview" },
+  { id: "intelligence", label: "Operational intelligence" },
   { id: "graph", label: "Trust graph" },
   { id: "dna", label: "Trust DNA" },
   { id: "replay", label: "Replay" },
@@ -437,7 +442,44 @@ function EnterpriseSearch({ snapshot }: { snapshot: TrustCentreSnapshot }) {
   );
 }
 
-export function EnterpriseTrustCentre({ initialSnapshot }: { initialSnapshot: TrustCentreSnapshot }) {
+function OperationalIntelligenceView({ scenario }: { scenario: OperationalIntelligenceScenario }) {
+  const counts = scenario.network.counts;
+  const entityHref = `/operational-entities/${encodeURIComponent(scenario.alpha.entityId)}`;
+  const cards = [
+    ["Healthy", counts.HEALTHY], ["Watch", counts.WATCH], ["Degraded", counts.DEGRADED],
+    ["Review Required", counts.REVIEW_REQUIRED], ["Suspended", counts.SUSPENDED], ["Unknown", counts.UNKNOWN],
+  ];
+  const changes = [
+    ["Material Drift", scenario.changes.filter((event) => ["HIGH", "CRITICAL"].includes(event.materiality)).length],
+    ["Authority Changes", scenario.changes.filter((event) => event.changeType.startsWith("AUTHORITY_")).length],
+    ["Provider Changes", scenario.changes.filter((event) => event.changeType === "PROVIDER_CHANGED").length],
+    ["Evidence Conflicts", scenario.changes.filter((event) => event.changeType === "EVIDENCE_CONTRADICTED").length],
+    ["Outcome Contradictions", scenario.changes.filter((event) => event.changeType === "OUTCOME_CONTRADICTED").length],
+  ];
+  const attention = [
+    ["Human Review", scenario.criticalDecision === "REVIEW" ? 1 : 0],
+    ["Expiring Authority", scenario.network.expiringAuthority.length],
+    ["Stale Evidence", scenario.network.staleEvidence.length],
+    ["Open Incidents", scenario.network.involvedInIncidents.length],
+    ["Recovery Pending", scenario.network.awaitingRecovery.length],
+  ];
+  return (
+    <div className="space-y-6">
+      <section className={panel}>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">Controlled deterministic scenario · Derived only</p>
+        <div className="mt-2 flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-2xl font-semibold">Operational Trust Command View</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">Answers what changed, why it matters, which entities are affected, the supporting evidence, whether trust continues, and the bounded next action. No live provider or Production-scale claim is made.</p></div><Link className={subtleButton} href={entityHref}>Open Agent Alpha intelligence</Link></div>
+      </section>
+      <section><h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-zinc-400">Operational entities</h2><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">{cards.map(([label, value]) => <Link href={entityHref} key={String(label)} className={panel}><p className="text-xs text-zinc-500">{label}</p><p className="mt-2 text-3xl font-semibold text-cyan-100">{value}</p></Link>)}</div></section>
+      <div className="grid gap-6 xl:grid-cols-2">
+        <section className={panel}><h2 className="text-lg font-semibold">Trust changes</h2><div className="mt-4 space-y-3">{changes.map(([label, value]) => <Link href={entityHref} key={String(label)} className="flex justify-between rounded-xl border border-white/10 p-3"><span>{label}</span><strong>{value}</strong></Link>)}</div></section>
+        <section className={panel}><h2 className="text-lg font-semibold">Attention required</h2><div className="mt-4 space-y-3">{attention.map(([label, value]) => <Link href={entityHref} key={String(label)} className="flex justify-between rounded-xl border border-white/10 p-3"><span>{label}</span><strong>{value}</strong></Link>)}</div></section>
+      </div>
+      <section className={panel}><h2 className="text-lg font-semibold">Network impact</h2><div className="mt-4 grid gap-4 md:grid-cols-3"><div><p className="text-xs text-zinc-500">Affected entities</p><p className="mt-2 text-2xl font-semibold">{scenario.blastRadius.affectedOperationalEntities.length}</p></div><div><p className="text-xs text-zinc-500">Blast-radius findings</p><p className="mt-2 text-2xl font-semibold">{scenario.blastRadius.impacts.length}</p></div><div><p className="text-xs text-zinc-500">Trust Cascade</p><p className="mt-2 text-2xl font-semibold">{scenario.resolvedCascade.resolved ? "Resolved" : "Active"}</p></div></div><p className="mt-4 text-sm text-zinc-400">Workflow Delta moved to REVIEW_REQUIRED because its deployment approval depends on Agent Alpha. Each cascade edge retains canonical evidence, cycle detection, and maximum traversal depth.</p></section>
+    </div>
+  );
+}
+
+export function EnterpriseTrustCentre({ initialSnapshot, operationalIntelligence }: { initialSnapshot: TrustCentreSnapshot; operationalIntelligence: OperationalIntelligenceScenario }) {
   const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [view, setView] = useState<View>("overview");
   const [connection, setConnection] = useState<"live" | "refreshing" | "degraded">("live");
@@ -472,6 +514,7 @@ export function EnterpriseTrustCentre({ initialSnapshot }: { initialSnapshot: Tr
       <nav className="overflow-x-auto" aria-label="Trust Centre sections"><div className="flex min-w-max gap-2" role="tablist">{views.map((item) => <button type="button" role="tab" aria-selected={view === item.id} aria-controls={`trust-centre-${item.id}`} id={`trust-centre-tab-${item.id}`} className={`rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 ${view === item.id ? "bg-cyan-300 font-semibold text-black" : "border border-white/10 text-zinc-300 hover:border-white/25"}`} onClick={() => setView(item.id)} key={item.id}>{item.label}</button>)}</div></nav>
       <div role="tabpanel" id={`trust-centre-${view}`} aria-labelledby={`trust-centre-tab-${view}`} tabIndex={0}>
         {view === "overview" ? <Overview snapshot={snapshot} /> : null}
+        {view === "intelligence" ? <OperationalIntelligenceView scenario={operationalIntelligence} /> : null}
         {view === "graph" ? <GraphExplorer snapshot={snapshot} /> : null}
         {view === "dna" ? <TrustDna snapshot={snapshot} /> : null}
         {view === "replay" ? <ReplayViewer snapshot={snapshot} /> : null}

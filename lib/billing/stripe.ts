@@ -12,7 +12,7 @@ type ServiceRoleClient = ReturnType<typeof createServiceRoleClient>;
 
 export function createStripeClient() {
   return new Stripe(getStripeSecretKeyEnv("Stripe API"), {
-    apiVersion: "2026-05-27.dahlia",
+    apiVersion: "2026-07-29.dahlia",
   });
 }
 

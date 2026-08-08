@@ -216,6 +216,40 @@ export type ProviderOperationalHealthSnapshot = {
   providerRequestId: string | null;
 };
 
+export type ProviderRelationshipRole =
+  | "identity_provider"
+  | "agent_registry"
+  | "authorization_provider"
+  | "control_operator"
+  | "managed_service_provider"
+  | "technology_provider"
+  | "runtime_provider"
+  | "evidence_provider"
+  | "destination_provider"
+  | "independent_confirmation_source"
+  | "auditor"
+  | "reviewer";
+
+/** A governed relationship record layered over the existing provider registry. */
+export type CanonicalProviderRelationship = {
+  providerId: string;
+  providerType: string;
+  organizationReference: string;
+  externalProviderReference: string;
+  serviceRelationship: string;
+  operationalEntityId: string | null;
+  role: ProviderRelationshipRole;
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  status: "planned" | "active" | "suspended" | "terminated" | "replaced" | "unknown";
+  source: string;
+  nativeReference: string;
+  schemaVersion: string;
+  evidenceResponsibilities: string[];
+  controlResponsibilities: string[];
+  limitations: string[];
+};
+
 export interface IdentityProviderAdapter {
   readonly id: IdentityProviderId;
   readonly environment: ProviderEnvironment;

@@ -2,3 +2,10 @@ title = "Cyber Sentinels redacted secret scanning"
 
 [extend]
 useDefault = true
+
+[[allowlists]]
+description = "Versioned Supabase reconciliation dependency keys are migration identifiers, not credentials"
+regexTarget = "match"
+regexes = [
+  '''(202607300002_reconciliation_ledger|202607300004_consent_foundation|202607300005_consent_persistence_rpc)''',
+]

@@ -70,6 +70,7 @@ const adminPagePrefixes = [
   "/enterprise/control-plane",
   "/enterprise/auditability",
   "/enterprise/readiness",
+  "/enterprise/operations",
   "/enterprise/compliance",
   "/enterprise/identity-governance",
   "/enterprise/consortium",

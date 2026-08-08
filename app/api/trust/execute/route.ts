@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { runtimeEngine } from "@/lib/core/runtime-engine";
 import { checkRequestRateLimit } from "@/lib/security";
 import { emitTraceSpan } from "@/lib/operations/observability";
+import { CanonicalTransactionError, createCanonicalTrustTransactionDependencies } from "@/lib/trust-transaction/server";
+import { executeCanonicalTrustTransaction } from "@/src/lib/trust-transaction/canonical";
+import { enterpriseSubjectClasses } from "@/src/lib/trust-fabric/types";
 import {
   Rc1ProviderError,
   retrieveHopaeTrustAssessment,
@@ -10,11 +12,6 @@ import {
 } from "@/lib/providers/hopae-rc1-server";
 
 export const dynamic = "force-dynamic";
-
-function numberValue(body: Record<string, unknown>, key: string) {
-  const value = body[key];
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
-}
 
 function correlationIdFor(request: Request) {
   const header = request.headers.get("x-correlation-id")?.trim();
@@ -34,8 +31,14 @@ export async function GET(request: Request) {
   });
   const rateLimited = checkRequestRateLimit({ route: "/api/trust/execute:provider-session", req: request, limit: 20, windowMs: 60_000 });
   if (rateLimited) return rateLimited;
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let supabase;
+  let user;
+  try {
+    supabase = await createClient();
+    ({ data: { user } } = await supabase.auth.getUser());
+  } catch {
+    return NextResponse.json({ ok: false, error: "authentication_service_unavailable" }, { status: 503 });
+  }
   if (!user) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   const providerSessionId = new URL(request.url).searchParams.get("provider_session_id") ?? "";
   try {
@@ -63,10 +66,14 @@ export async function POST(request: Request) {
   });
   const rateLimited = checkRequestRateLimit({ route: "/api/trust/execute", req: request, limit: 20, windowMs: 60_000 });
   if (rateLimited) return rateLimited;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let supabase;
+  let user;
+  try {
+    supabase = await createClient();
+    ({ data: { user } } = await supabase.auth.getUser());
+  } catch {
+    return NextResponse.json({ ok: false, error: "authentication_service_unavailable" }, { status: 503 });
+  }
   if (!user) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
 
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
@@ -102,45 +109,39 @@ export async function POST(request: Request) {
     }
   }
 
-  const workflowId = String(body.workflow_id ?? crypto.randomUUID()).slice(0, 120);
-  const actorId = user.id.slice(0, 120);
-  const actorType = "human";
-  const evidenceRefs = Array.isArray(body.evidence_refs) ? body.evidence_refs.map(String).slice(0, 20) : [];
-  const pipeline = await runtimeEngine.executeRuntimeWorkflow(supabase, {
-    actorId,
-    actorType,
-    workflowId,
-    subjectType: String(body.subject_type ?? "workflow"),
-    reviewerActor: user.email ?? user.id,
-    timeoutMs: numberValue(body, "timeout_ms") ?? 300,
-    identityConfidence: numberValue(body, "identity_confidence"),
-    proofOfHuman: body.proof_of_human === "verified" || body.proof_of_human === "failed" ? body.proof_of_human : "unknown",
-    agentIdentity: body.agent_identity === "verified" ? "verified" : body.agent_identity === "unverified" ? "unverified" : "unknown",
-    nhiOwnership: body.nhi_ownership === "known" || body.nhi_ownership === "orphaned" ? body.nhi_ownership : "unknown",
-    sessionIntegrity: numberValue(body, "session_integrity"),
-    injectionRisk: numberValue(body, "injection_risk"),
-    deviceChannelIntegrity: numberValue(body, "device_channel_integrity"),
-    provenanceConfidence: numberValue(body, "provenance_confidence"),
-    documentRisk: numberValue(body, "document_risk"),
-    intentRisk: numberValue(body, "intent_risk"),
-    runtimeBehavior: numberValue(body, "runtime_behavior"),
-    providerSignals: numberValue(body, "provider_signals"),
-    heuristicBaseline: numberValue(body, "heuristic_baseline"),
-    previousTrustPosture: String(body.previous_trust_posture ?? "fresh") as any,
-    governanceHistory: [],
-    evidenceRefs,
-    evidenceLastSeenAt: typeof body.evidence_last_seen_at === "string" ? body.evidence_last_seen_at : null,
-  });
-
-  emitTraceSpan("trust.decision.created", {
-    correlationId,
-    operationType: "trust.decision.created",
-    resultState: pipeline?.ok === false ? "error" : "allow",
-    providerState: String(body.provider_id ?? "unknown"),
-    reasonCode: pipeline?.ok === false ? "decision_failed" : "decision_created",
-    environment: process.env.NODE_ENV ?? "unknown",
-    applicationSha: process.env.VERCEL_GIT_COMMIT_SHA ?? "local",
-  });
-
-  return NextResponse.json(pipeline, { headers: { "cache-control": "no-store" } });
+  const subjectType = String(body.subject_type ?? "");
+  if (!enterpriseSubjectClasses.includes(subjectType as (typeof enterpriseSubjectClasses)[number])) {
+    return NextResponse.json({ ok: false, error: "invalid_trust_object_type" }, { status: 400 });
+  }
+  try {
+    const receipt = await executeCanonicalTrustTransaction({
+      trustObject: { subjectType: subjectType as (typeof enterpriseSubjectClasses)[number], subjectId: String(body.subject_id ?? "") },
+      operationalEntityId: body.operational_entity_id ? String(body.operational_entity_id) : null,
+      action: {
+        type: String(body.requested_action ?? ""),
+        purpose: String(body.requested_purpose ?? ""),
+        resource: String(body.resource ?? ""),
+        environment: String(body.environment ?? ""),
+        payloadDigest: String(body.payload_digest ?? ""),
+      },
+      idempotencyKey: String(body.idempotency_key ?? ""),
+      providerExecutionId: body.provider_execution_id ? String(body.provider_execution_id) : null,
+      previousTransactionId: body.previous_transaction_id ? String(body.previous_transaction_id) : null,
+    }, createCanonicalTrustTransactionDependencies({ supabase, user }));
+    emitTraceSpan("trust.decision.created", {
+      correlationId: receipt.correlationId,
+      operationType: "trust.decision.created",
+      resultState: receipt.decision.toLowerCase(),
+      providerState: receipt.evidence.length ? "stored_evidence" : "unavailable",
+      reasonCode: "canonical_transaction_recorded",
+      environment: process.env.NODE_ENV ?? "unknown",
+      applicationSha: process.env.VERCEL_GIT_COMMIT_SHA ?? "local",
+    });
+    return NextResponse.json({ ok: true, receipt }, { status: receipt.idempotentReplay ? 200 : 201, headers: { "cache-control": "private, no-store", location: receipt.historyUrl } });
+  } catch (error) {
+    if (error instanceof CanonicalTransactionError) return NextResponse.json({ ok: false, error: error.code, message: error.message }, { status: error.status });
+    if (error instanceof TypeError) return NextResponse.json({ ok: false, error: "invalid_execution_input", message: error.message }, { status: 400 });
+    console.error("Canonical trust transaction failed.", { correlationId, message: error instanceof Error ? error.message : "unknown" });
+    return NextResponse.json({ ok: false, error: "trust_transaction_unavailable" }, { status: 503 });
+  }
 }

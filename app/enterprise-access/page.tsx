@@ -46,8 +46,8 @@ export default async function EnterpriseAccessPage({ searchParams }: {
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
-      <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_460px]">
-        <section className="border-b border-zinc-800 pb-10 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-10">
+      <div className="mx-auto grid min-w-0 max-w-6xl gap-8 lg:grid-cols-[1fr_460px]">
+        <section className="min-w-0 border-b border-zinc-800 pb-10 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-10">
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Enterprise Access</p>
           <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Executive Summary</p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">{pageTitle}</h1>
@@ -97,7 +97,7 @@ export default async function EnterpriseAccessPage({ searchParams }: {
           </div>
         </section>
 
-        <section className="rounded-lg border border-zinc-800 bg-black p-6">
+        <section className="min-w-0 rounded-lg border border-zinc-800 bg-black p-6">
           {query.success ? <p className="mb-5 rounded-md border border-emerald-900 bg-emerald-950/20 p-4 text-sm text-emerald-100">Your request has been received. We will follow up about pilot fit and next steps.</p> : null}
           {query.error ? <p className="mb-5 rounded-md border border-amber-900 bg-amber-950/20 p-4 text-sm text-amber-100">Please check the required fields and try again.</p> : null}
           <EnterpriseAccessForm buttonLabel={buttonLabel} designPartner={designPartner} />

@@ -43,18 +43,38 @@ function textArray(value: unknown) {
     : [];
 }
 
+async function resolveWorkspaceFromSession(supabase: SupabaseClient, user: User) {
+  const activeEnterpriseId = String(user.app_metadata?.active_enterprise_id ?? "");
+  if (uuidPattern.test(activeEnterpriseId)) {
+    const active = await supabase.from("trust_workspaces").select("id,name,created_by").eq("id", activeEnterpriseId).maybeSingle();
+    if (active.data) return active.data;
+  }
+  const owned = await supabase.from("trust_workspaces").select("id,name,created_by").eq("created_by", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
+  if (owned.error) throw new Rc1ProviderError("The session tenant could not be resolved.", 503, "tenant_resolution_failed");
+  if (owned.data) return owned.data;
+  const membership = await supabase.from("workspace_members").select("workspace_id,trust_workspaces(id,name,created_by)").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
+  if (membership.error) throw new Rc1ProviderError("The session tenant could not be resolved.", 503, "tenant_resolution_failed");
+  const workspace = membership.data?.trust_workspaces as unknown as { id: string; name: string | null; created_by: string } | null;
+  if (!workspace) throw new Rc1ProviderError("Tenant is not available to the authenticated user.", 403, "tenant_access_denied");
+  return workspace;
+}
+
 export async function startHopaeTrustAssessment(input: {
   supabase: SupabaseClient;
   user: User;
   body: Record<string, unknown>;
   appUrl: string;
 }) {
-  const workspaceId = requiredReference(input.body.tenant_id ?? input.body.workspace_id, "tenant_id", true);
+  const sessionWorkspace = await resolveWorkspaceFromSession(input.supabase, input.user);
+  const workspaceId = requiredReference(sessionWorkspace.id, "tenant_id", true);
   const workflowId = requiredReference(input.body.workflow_id, "workflow_id", true);
   const requestedAction = requiredReference(input.body.requested_action, "requested_action");
   const requestedPurpose = requiredReference(input.body.requested_purpose, "requested_purpose");
   const hopaeProviderId = requiredReference(process.env.HOPAE_PROVIDER_ID, "configured_hopae_provider_id");
-  const entityId = input.body.entity_id ? requiredReference(input.body.entity_id, "entity_id", true) : input.user.id;
+  // Hopae verifies the authenticated human. A caller cannot attach that result
+  // to an arbitrary Trust Object; agent authority may reference the human
+  // evidence later through its persisted Trust Contract lineage.
+  const entityId = input.user.id;
   const correlationId = crypto.randomUUID();
   let adapter;
   try { adapter = getSelectedProviderAdapter(correlationId); } catch (error) {
@@ -64,7 +84,7 @@ export async function startHopaeTrustAssessment(input: {
 
   const databaseStarted = Date.now();
   const [workspaceResult, workflowResult, policiesResult] = await Promise.all([
-    input.supabase.from("trust_workspaces").select("id,name,created_by").eq("id", workspaceId).maybeSingle(),
+    Promise.resolve({ data: sessionWorkspace, error: null }),
     input.supabase.from("trust_cases").select("id,workspace_id,status,created_by").eq("id", workflowId).eq("workspace_id", workspaceId).maybeSingle(),
     input.supabase.from("governance_policies").select("id,name,trigger_type,action_type,requires_human_review,allowed_actions,allowed_purposes,minimum_evidence,authority_expires_at,authority_revoked").eq("workspace_id", workspaceId).limit(100),
   ]);

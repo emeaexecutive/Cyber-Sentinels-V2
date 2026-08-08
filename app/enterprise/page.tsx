@@ -120,7 +120,10 @@ export default function EnterprisePage() {
               </article>
             ))}
           </div>
-          <Link href="/security" className="mt-6 inline-flex text-sm font-semibold text-cyan-200 hover:text-white">Review security controls →</Link>
+          <div className="mt-6 flex flex-wrap gap-4">
+            <Link href="/security" className="inline-flex text-sm font-semibold text-cyan-200 hover:text-white">Review security controls →</Link>
+            <Link href="/enterprise/trust-platform" className="inline-flex text-sm font-semibold text-cyan-200 hover:text-white">Open Epic 36 coordination view →</Link>
+          </div>
         </section>
       </div>
     </main>

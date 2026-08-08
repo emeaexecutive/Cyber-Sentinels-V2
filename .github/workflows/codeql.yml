@@ -19,9 +19,11 @@ jobs:
       matrix:
         language: [javascript-typescript]
     steps:
-      - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3.37.4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@dfbc6164313353db46c80e2fcfd38820bd2c3c46 # v3.37.4
         with:
           languages: ${{ matrix.language }}
-      - uses: github/codeql-action/autobuild@v3.37.4
-      - uses: github/codeql-action/analyze@v3.37.4
+      - uses: github/codeql-action/autobuild@dfbc6164313353db46c80e2fcfd38820bd2c3c46 # v3.37.4
+      - uses: github/codeql-action/analyze@dfbc6164313353db46c80e2fcfd38820bd2c3c46 # v3.37.4

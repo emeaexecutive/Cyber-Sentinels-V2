@@ -1,0 +1,136 @@
+import "server-only";
+
+import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { createOperationalEntity, type ExternalIdentityReference, type OperationalEntity } from "./operational-entity";
+
+type Row = Record<string, unknown>;
+
+export type OperationalEntityLiveDetail = {
+  entity: OperationalEntity;
+  externalIdentities: ExternalIdentityReference[];
+  providerRelationships: Row[];
+  providerTransitions: Row[];
+  providerChangeEvents: Row[];
+  transactions: Row[];
+  enforcementEvents: Row[];
+  replay: Row[];
+  trustMemory: Row[];
+};
+
+function strings(value: unknown) {
+  return Array.isArray(value) ? value.map(String) : [];
+}
+
+function externalIdentity(row: Row): ExternalIdentityReference {
+  return {
+    referenceId: String(row.external_identity_id),
+    provider: String(row.provider),
+    providerEntityId: String(row.provider_entity_id),
+    builderPlatform: String(row.builder_platform),
+    providerNativeLifecycle: String(row.provider_native_lifecycle) as ExternalIdentityReference["providerNativeLifecycle"],
+    providerOwner: row.provider_owner ? String(row.provider_owner) : null,
+    providerBusinessPurpose: row.provider_business_purpose ? String(row.provider_business_purpose) : null,
+    certificationState: String(row.certification_state),
+    permissionsSummary: strings(row.permissions_summary),
+    observedAt: String(row.observed_at),
+    sourceTimestamp: String(row.source_timestamp),
+    evidenceDigest: String(row.evidence_digest),
+    correctedByReferenceId: row.corrected_by_reference_id ? String(row.corrected_by_reference_id) : null,
+    supersedesReferenceId: row.supersedes_reference_id ? String(row.supersedes_reference_id) : null,
+  };
+}
+
+async function resolveTenantId(supabase: SupabaseClient, user: User) {
+  const active = String(user.app_metadata?.active_enterprise_id ?? "");
+  if (active) {
+    const workspace = await supabase.from("trust_workspaces").select("id").eq("id", active).maybeSingle();
+    if (workspace.error) throw workspace.error;
+    if (workspace.data) return String(workspace.data.id);
+  }
+  const owned = await supabase.from("trust_workspaces").select("id").eq("created_by", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
+  if (owned.error) throw owned.error;
+  if (owned.data) return String(owned.data.id);
+  const membership = await supabase.from("workspace_members").select("workspace_id").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
+  if (membership.error) throw membership.error;
+  if (!membership.data?.workspace_id) throw new Error("SESSION_TENANT_UNAVAILABLE");
+  return String(membership.data.workspace_id);
+}
+
+export async function loadOperationalEntities(input: { supabase: SupabaseClient; user: User }): Promise<OperationalEntity[]> {
+  const enterpriseId = await resolveTenantId(input.supabase, input.user);
+  const [entities, identities] = await Promise.all([
+    input.supabase.from("operational_entities").select("*").eq("enterprise_id", enterpriseId).order("updated_at", { ascending: false }),
+    input.supabase.from("operational_entity_external_identities").select("*").eq("enterprise_id", enterpriseId).order("observed_at", { ascending: true }),
+  ]);
+  if (entities.error) throw entities.error;
+  if (identities.error) throw identities.error;
+  const identityRows = (identities.data ?? []) as Row[];
+  return ((entities.data ?? []) as Row[]).map((row) => createOperationalEntity({
+    entityId: String(row.entity_id),
+    enterpriseId,
+    entityType: String(row.entity_type) as OperationalEntity["entityType"],
+    displayReference: String(row.display_reference),
+    canonicalTrustObjectId: String(row.canonical_trust_object_id),
+    lifecycleState: String(row.lifecycle_state) as OperationalEntity["lifecycleState"],
+    accountableOwnerId: String(row.accountable_owner_id),
+    organizationReference: String(row.organization_reference),
+    providerReferences: strings(row.provider_references),
+    externalIdentityReferences: identityRows.filter((identityRow) => String(identityRow.operational_entity_id) === String(row.entity_id)).map(externalIdentity),
+    identityProfileReference: String(row.identity_profile_reference),
+    currentAuthorityReferences: strings(row.current_authority_references),
+    environmentReferences: strings(row.environment_references),
+    workflowReferences: strings(row.workflow_references),
+    currentTrustState: String(row.current_trust_state),
+    currentEvidenceState: String(row.current_evidence_state),
+    currentConsequenceClassification: String(row.current_consequence_classification) as OperationalEntity["currentConsequenceClassification"],
+    suspendedAt: row.suspended_at ? String(row.suspended_at) : null,
+    revokedAt: row.revoked_at ? String(row.revoked_at) : null,
+    supersedesEntityVersionId: row.supersedes_entity_version_id ? String(row.supersedes_entity_version_id) : null,
+    canonicalDigest: String(row.canonical_digest),
+    createdAt: String(row.created_at),
+    updatedAt: String(row.updated_at),
+  }));
+}
+
+export async function loadOperationalEntityDetail(input: {
+  supabase: SupabaseClient;
+  user: User;
+  entityId: string;
+}): Promise<OperationalEntityLiveDetail | null> {
+  const enterpriseId = await resolveTenantId(input.supabase, input.user);
+  const entities = await loadOperationalEntities(input);
+  const entity = entities.find((candidate) => candidate.entityId === input.entityId);
+  if (!entity) return null;
+
+  const [relationships, transitions, changes, transactions, memory] = await Promise.all([
+    input.supabase.from("provider_relationships").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("effective_from", { ascending: true }),
+    input.supabase.from("provider_transitions").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("initiated_at", { ascending: true }),
+    input.supabase.from("provider_change_events").select("*").eq("enterprise_id", enterpriseId).contains("affected_operational_entity_ids", [input.entityId]).order("occurred_at", { ascending: true }),
+    input.supabase.from("canonical_trust_transactions").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("requested_at", { ascending: true }),
+    input.supabase.from("trust_memory_index").select("*").eq("enterprise_id", enterpriseId).eq("subject_id", input.entityId).order("occurred_at", { ascending: true }),
+  ]);
+  for (const result of [relationships, transitions, changes, transactions, memory]) if (result.error) throw result.error;
+
+  const transactionRows = (transactions.data ?? []) as Row[];
+  const transactionIds = transactionRows.map((row) => String(row.transaction_id));
+  const [enforcement, replay] = transactionIds.length
+    ? await Promise.all([
+        input.supabase.from("canonical_enforcement_events").select("*").eq("enterprise_id", enterpriseId).in("transaction_id", transactionIds).order("occurred_at", { ascending: true }),
+        input.supabase.from("trust_replay_sessions").select("*").eq("workspace_id", enterpriseId).in("canonical_transaction_id", transactionIds).order("created_at", { ascending: true }),
+      ])
+    : [{ data: [], error: null }, { data: [], error: null }];
+  if (enforcement.error) throw enforcement.error;
+  if (replay.error) throw replay.error;
+
+  return {
+    entity,
+    externalIdentities: [...entity.externalIdentityReferences],
+    providerRelationships: (relationships.data ?? []) as Row[],
+    providerTransitions: (transitions.data ?? []) as Row[],
+    providerChangeEvents: (changes.data ?? []) as Row[],
+    transactions: transactionRows,
+    enforcementEvents: (enforcement.data ?? []) as Row[],
+    replay: (replay.data ?? []) as Row[],
+    trustMemory: (memory.data ?? []) as Row[],
+  };
+}
