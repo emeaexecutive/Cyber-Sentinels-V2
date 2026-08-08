@@ -98,17 +98,7 @@ async function main() {
   assert(listResponse.status === 200, `list status ${listResponse.status}`);
   if (!listHtml.includes(entityId)) {
     const title = listHtml.match(/<title>([^<]*)<\/title>/i)?.[1] ?? "missing";
-    const excerpt = listHtml
-      .replaceAll(previewUrl, "[REDACTED_PREVIEW_URL]")
-      .replaceAll(anonKey, "[REDACTED]")
-      .replaceAll(serviceKey, "[REDACTED]")
-      .replace(/<script[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[\s\S]*?<\/style>/gi, " ")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 500);
-    console.error(JSON.stringify({ listLength: listHtml.length, cookieCount: cookies.length, title, excerpt, hasOperationalHeading: listHtml.includes("Operational entities"), hasEmptyState: listHtml.includes("No governed Operational Entities"), hasSignIn: listHtml.includes("Sign in"), hasProtectedUnavailable: listHtml.includes("Protected surface unavailable") }));
+    console.error(JSON.stringify({ listLength: listHtml.length, cookieCount: cookies.length, title, hasOperationalHeading: listHtml.includes("Operational entities"), hasEmptyState: listHtml.includes("No governed Operational Entities"), hasSignIn: listHtml.includes("Sign in"), hasProtectedUnavailable: listHtml.includes("Protected surface unavailable") }));
     console.error(serverLog.replaceAll(previewUrl, "[REDACTED_PREVIEW_URL]").replaceAll(anonKey, "[REDACTED]").replaceAll(serviceKey, "[REDACTED]").slice(-2000));
   }
   assert(listHtml.includes(entityId), "list renders live entity reference");
