@@ -1,5 +1,7 @@
 # Provider-neutral evidence staging proof
 
+> Historical pre-commit staging qualification. The clean committed reconstruction is recorded in `PROVIDER_NEUTRAL_EVIDENCE_PREVIEW_PROOF.md` and is the authoritative PR #29 release artifact.
+
 ## Release identity
 
 - Repository branch: `feat/product-closure-canonical-transaction`
