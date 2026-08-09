@@ -458,7 +458,7 @@ export default async function CommandCenterPage({
             <div>
               <h2 className="text-xl font-semibold">Decision Engine&trade;</h2>
               <p className="mt-2 text-sm text-zinc-500">
-                Recommended actions across live passports.
+                Recommended actions across current persisted passports.
               </p>
             </div>
             <Link
@@ -492,7 +492,7 @@ export default async function CommandCenterPage({
             <div>
               <h2 className="text-xl font-semibold">Policy Engine&trade;</h2>
               <p className="mt-2 text-sm text-zinc-500">
-                Rules-based trust governance across live passports.
+                Rules-based trust governance across current persisted passports.
               </p>
             </div>
             <Link
@@ -692,7 +692,7 @@ export default async function CommandCenterPage({
         <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-xl font-semibold">Live Trust Radar Preview</h2>
+              <h2 className="text-xl font-semibold">Trust Signal Radar Preview</h2>
               <p className="mt-2 text-sm text-zinc-500">
                 Flag recorded across the trust workflow.
               </p>
@@ -701,17 +701,15 @@ export default async function CommandCenterPage({
               href="/trust-radar"
               className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:text-white"
             >
-              Open Live Trust Radar
+              Open Trust Signal Radar
             </Link>
           </div>
 
           <div className="mt-6 grid gap-3 md:grid-cols-2">
-            {radarSignals.map((signal, index) => (
+            {radarSignals.map((signal) => (
               <div
                 key={signal.id}
-                className={`rounded-xl border border-zinc-800 bg-black p-4 ${
-                  index === 0 ? "animate-pulse" : ""
-                }`}
+                className="rounded-xl border border-zinc-800 bg-black p-4"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>

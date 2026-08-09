@@ -20,7 +20,7 @@ type MetricResult = {
 const autonomyLevels = [
   [
     "Observe",
-    "The agent or workflow can read assigned context and surface live state without recommending action.",
+    "The agent or workflow can read assigned context and surface current persisted state without recommending action.",
   ],
   [
     "Advise",
@@ -32,7 +32,7 @@ const autonomyLevels = [
   ],
   [
     "Act Autonomously",
-    "The agent can execute within an approved scope, with continuous logging and signal monitoring.",
+    "Not generally enabled: a configured executor may act only within approved scope when runtime logging and signal triggers are proven.",
   ],
 ];
 
@@ -191,14 +191,14 @@ export default async function AutonomyGovernancePage({
                 Governance Dashboard
               </p>
               <h2 className="mt-2 text-2xl font-semibold">
-                Live control signals across delegated action.
+                Current persisted control signals across delegated action.
               </h2>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-500">
                 The implemented surface records profiles, audit events and signals. Broader agent execution controls remain deferred until product, policy and data boundaries are ready.
               </p>
             </div>
             {metricsUnavailable ? (
-              <p className="text-sm text-amber-200">Some live metrics unavailable.</p>
+              <p className="text-sm text-amber-200">Some persisted metrics unavailable.</p>
             ) : null}
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

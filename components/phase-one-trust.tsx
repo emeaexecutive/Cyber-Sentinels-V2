@@ -124,12 +124,12 @@ export function AgentPassportCard({
   return id ? <Link href={`/agents/${encodeURIComponent(id)}`}>{content}</Link> : content;
 }
 
-export function RecruiterDashboardCards() {
+export function RecruiterDashboardCards({ metrics }: { metrics?: { candidatesInReview: number; interviewSessions: number; reportsReady: number; escalations: number } }) {
   const cards = [
-    ["Candidates in review", "12", "Identity, liveness and profile consistency checks."],
-    ["Interview sessions", "5", "Live sessions with webcam, voice and liveness placeholders."],
-    ["Reports ready", "8", "Explainable hiring trust reports ready for recruiter review."],
-    ["Escalations", "3", "Cases that require human review before decisioning."],
+    ["Candidates in review", metrics ? String(metrics.candidatesInReview) : "NOT CALCULATED", "Persisted candidate profiles requiring review."],
+    ["Interview sessions", metrics ? String(metrics.interviewSessions) : "NOT CALCULATED", "Persisted interview-session records."],
+    ["Reports ready", metrics ? String(metrics.reportsReady) : "NOT CALCULATED", "Completed persisted sessions available for review."],
+    ["Escalations", metrics ? String(metrics.escalations) : "NOT CALCULATED", "Persisted cases requiring human review."],
   ];
 
   return (
@@ -146,27 +146,10 @@ export function RecruiterDashboardCards() {
 }
 
 export function AdminReviewQueuePlaceholder() {
-  const rows = [
-    ["Candidate liveness mismatch", "interview", "manual review"],
-    ["Recruiter domain needs confirmation", "recruiter", "pending"],
-    ["Media verification evidence incomplete", "verification evidence", "evidence needed"],
-  ];
-
   return (
-    <div className="grid gap-3">
-      {rows.map(([title, type, status]) => (
-        <div key={title} className="rounded-lg border border-zinc-800 bg-black p-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="font-medium text-zinc-100">{title}</p>
-              <p className="mt-1 text-xs text-zinc-600">{type}</p>
-            </div>
-            <span className="rounded-full border border-amber-800 px-2.5 py-1 text-xs text-amber-200">
-              {status}
-            </span>
-          </div>
-        </div>
-      ))}
+    <div className="rounded-lg border border-zinc-800 bg-black p-4">
+      <p className="font-medium text-zinc-100">NOT CONFIGURED</p>
+      <p className="mt-2 text-sm text-zinc-500">This analytics page has no persisted review-queue source. Open the protected Verification Queue for current records.</p>
     </div>
   );
 }

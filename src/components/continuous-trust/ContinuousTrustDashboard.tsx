@@ -183,7 +183,7 @@ export function ContinuousTrustDashboard({
 
       <section className={panel}>
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold">Live runtime trust states</h2>
+          <h2 className="text-lg font-semibold">Persisted runtime trust states</h2>
           <span className="text-xs text-zinc-500">Bounded to 100</span>
         </div>
         <div className="mt-4 overflow-x-auto">

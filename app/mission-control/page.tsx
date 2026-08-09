@@ -32,7 +32,7 @@ function indicatorClass(value: string) {
 }
 
 function formatTime(value: string | null | undefined) {
-  if (!value) return "live";
+  if (!value) return "Not recorded";
 
   return new Date(value).toLocaleString("en-US", {
     dateStyle: "medium",
@@ -146,20 +146,20 @@ export default async function MissionControlPage() {
     global_activity:
       snapshot.metrics.signalsToday + snapshot.metrics.apiCallsToday,
     permission_pressure: stepUpRequired + revocationEvents,
-    human_presence_strength: snapshot.metrics.averageTrustScore || 84,
+    human_presence_strength: snapshot.metrics.averageTrustScore,
   });
   const metrics = [
     ["Operational Trust state", realityOS.state],
-    ["Launch readiness", `${demoLaunchReadiness.score}%`],
-    ["Evidence Chain events", demoTrustLedgerEvents.length],
+    ["Launch readiness simulation", snapshot.isDemo ? `SIMULATED ${demoLaunchReadiness.score}%` : "NOT MEASURED HERE"],
+    ["Evidence Chain demo events", snapshot.isDemo ? `SIMULATED ${demoTrustLedgerEvents.length}` : "NOT APPLICABLE"],
     ["Active verifications", snapshot.metrics.activeVerifications],
     ["Registered agents", agents.length],
-    ["Permissions firewall", "ACTIVE"],
+    ["Permissions firewall", "NOT MEASURED HERE"],
     ["Step-Up required", stepUpRequired],
-    ["Revocation Engine", revocationEvents || "ACTIVE"],
+    ["Revocation Engine", revocationEvents || "NOT RECORDED"],
     ["Recovery Queue", recoveryQueue],
-    ["Export Center", exportCenter || "READY"],
-    ["Verifier Network", verifierNetwork || "READY"],
+    ["Export Center", exportCenter || "NOT RECORDED"],
+    ["Verifier Network", verifierNetwork || "NOT RECORDED"],
     ["Operational Trust updates", trustFeedItems.length],
     ["Critical alerts", snapshot.metrics.criticalAlerts],
     ["Flags today", snapshot.metrics.signalsToday],
@@ -169,9 +169,9 @@ export default async function MissionControlPage() {
     ["API calls today", snapshot.metrics.apiCallsToday],
     ["Manual reviews", snapshot.metrics.manualReviews],
     ["Trust drift events", snapshot.metrics.trustDriftEvents],
-    ["Workflow Drift", snapshot.metrics.realityDriftEvents || "WATCH"],
-    ["Identity flags", snapshot.metrics.hpgSignals || "STABLE"],
-    ["Counterpart Risk", snapshot.metrics.cloneRiskEvents || "WATCH"],
+    ["Workflow Drift", snapshot.metrics.realityDriftEvents || "UNKNOWN"],
+    ["Identity flags", snapshot.metrics.hpgSignals || "UNKNOWN"],
+    ["Counterpart Risk", snapshot.metrics.cloneRiskEvents || "UNKNOWN"],
   ];
 
   return (
@@ -226,8 +226,8 @@ export default async function MissionControlPage() {
           </p>
           {snapshot.isDemo ? (
             <p className="mt-3 text-sm text-zinc-600">
-              Showing demo live system data until operational tables contain
-              activity.
+              Showing explicitly simulated data until operational tables contain
+              activity. Simulation is not live provider or tenant evidence.
             </p>
           ) : null}
         </section>
@@ -252,7 +252,7 @@ export default async function MissionControlPage() {
               className="rounded-lg border border-zinc-800 bg-zinc-950 p-4 hover:border-zinc-500"
             >
               <p className="text-lg font-semibold">{label}</p>
-              <p className="mt-2 text-sm text-zinc-500">Open live surface</p>
+              <p className="mt-2 text-sm text-zinc-500">Open operational surface</p>
             </Link>
           ))}
         </section>

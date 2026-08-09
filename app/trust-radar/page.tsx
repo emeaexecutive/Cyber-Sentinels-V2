@@ -69,12 +69,12 @@ export default async function TrustRadarPage() {
               Proof before permission in motion.
             </p>
             <h1 className="mt-4 text-4xl font-semibold sm:text-5xl md:text-6xl">
-              Live Trust Radar™
+              Trust Signal Radar™
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-400">
-              Live Trust Radar visualises real-time trust events across humans,
-              AI agents, synthetic media, candidate verification and Reality
-              Passports.
+              This view polls persisted trust signals across humans, AI agents,
+              provider-supplied media indicators, candidate verification and
+              Reality Passports. It is not a real-time event stream.
             </p>
           </div>
 
@@ -85,12 +85,12 @@ export default async function TrustRadarPage() {
             <div className="mt-5 flex items-center gap-3">
               <span className="h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.9)]" />
               <p className="text-2xl font-semibold text-emerald-100">
-                Trust Layer Active
+                {usingDemoSignals ? "DEMO DATA ONLY" : signals.length ? "Persisted signals available" : "NO SIGNALS RECORDED"}
               </p>
             </div>
             <p className="mt-4 text-sm leading-6 text-emerald-100/70">
-              Auto-refreshing every 12 seconds. Newest signals are ordered at
-              the top of the radar stream.
+              The page refreshes every 12 seconds. Refreshing a page is not
+              continuous trust evaluation; only persisted events are shown.
             </p>
           </div>
         </section>

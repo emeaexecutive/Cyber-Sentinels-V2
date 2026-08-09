@@ -78,6 +78,35 @@ function transactionInput(overrides = {}) {
   };
 }
 
+function operationalEntity(overrides = {}) {
+  return {
+    entityId: subjectId,
+    enterpriseId: tenantId,
+    entityType: "ai_agent",
+    displayReference: "Settlement Agent",
+    canonicalTrustObjectId: subjectId,
+    lifecycleState: "active",
+    accountableOwnerId: "owner:settlement",
+    organizationReference: "organization:acme",
+    providerReferences: ["hopae_connect"],
+    externalIdentityReferences: [],
+    identityProfileReference: subjectId,
+    currentAuthorityReferences: [authority().contractId],
+    environmentReferences: ["sandbox"],
+    workflowReferences: ["settle_invoice"],
+    currentTrustState: "verified",
+    currentEvidenceState: "current",
+    currentConsequenceClassification: "low",
+    createdAt: requestedAt,
+    updatedAt: requestedAt,
+    suspendedAt: null,
+    revokedAt: null,
+    supersedesEntityVersionId: null,
+    canonicalDigest: "e".repeat(64),
+    ...overrides,
+  };
+}
+
 function dependencies(options = {}) {
   const calls = [];
   const refs = { graph: "graph-1", replay: "replay-1", memory: "memory-1", ack: "ack-1", outcome: "outcome-1" };
@@ -98,6 +127,12 @@ function dependencies(options = {}) {
     async recordExternalAcknowledgement() { calls.push("recordExternalAcknowledgement"); return refs.ack; },
     async recordExternalOutcome(_record, result) { calls.push(`recordExternalOutcome:${result.state}`); return refs.outcome; },
   };
+  if (options.operationalEntity) {
+    deps.resolveOperationalEntity = async () => {
+      calls.push("resolveOperationalEntity");
+      return options.operationalEntity;
+    };
+  }
   return { deps, calls };
 }
 
@@ -111,6 +146,11 @@ test("runs one ALLOW transaction in canonical order and keeps acknowledgement se
   assert.equal(receipt.externalExecution.acknowledgementReference, "ack-1");
   assert.equal(receipt.externalExecution.outcomeReference, "outcome-1");
   assert.notEqual(receipt.externalExecution.acknowledgementReference, receipt.externalExecution.outcomeReference);
+  assert.equal(receipt.consequence, "low");
+  assert.ok(["LOW", "MODERATE", "HIGH"].includes(receipt.confidenceInConclusion));
+  assert.equal(receipt.timestamp, requestedAt);
+  assert.match(receipt.digest, /^[a-f0-9]{64}$/);
+  assert.ok(receipt.evidenceReferences.some((reference) => reference.id === "10000000-0000-4000-8000-000000000007"));
   assert.deepEqual(calls, [
     "authenticateActor", "resolveTenantFromSession", "findByIdempotency", "resolveTrustObject",
     "collectConfiguredEvidence", "resolveAuthority", "resolvePolicyVersion", "loadPreviousTransaction",
@@ -221,4 +261,44 @@ test("missing a contract-required evidence type is persisted as incomplete", asy
   const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "missing-required-evidence" }), deps);
   assert.equal(receipt.decision, "REVIEW");
   assert.equal(receipt.evidenceComplete, false);
+});
+
+test("a revoked Operational Entity fails closed before external execution", async () => {
+  const { deps, calls } = dependencies({ operationalEntity: operationalEntity({ lifecycleState: "revoked", revokedAt: requestedAt }) });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "revoked-entity" }), deps);
+  assert.equal(receipt.decision, "DENY");
+  assert.ok(receipt.reasonCodes.includes("ENTITY_REVOKED"));
+  assert.equal(calls.includes("collectConfiguredEvidence"), false);
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
+test("missing accountable ownership fails closed", async () => {
+  const { deps, calls } = dependencies({ operationalEntity: operationalEntity({ accountableOwnerId: "" }) });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "missing-owner" }), deps);
+  assert.equal(receipt.decision, "DENY");
+  assert.ok(receipt.reasonCodes.includes("ACCOUNTABLE_OWNER_MISSING"));
+  assert.equal(calls.includes("collectConfiguredEvidence"), false);
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
+test("high-consequence actions require independent evidence and route to REVIEW", async () => {
+  const highConsequence = operationalEntity({ currentConsequenceClassification: "high" });
+  const { deps, calls } = dependencies({ operationalEntity: highConsequence });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "high-consequence-single-source" }), deps);
+  assert.equal(receipt.consequence, "high");
+  assert.equal(receipt.decision, "REVIEW");
+  assert.ok(receipt.reasonCodes.includes("INDEPENDENT_EVIDENCE_REQUIRED_FOR_CONSEQUENCE"));
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
+test("an explicit runtime continuity contradiction routes to REVIEW without execution", async () => {
+  const { deps, calls } = dependencies();
+  const input = transactionInput({
+    idempotencyKey: "runtime-continuity-conflict",
+    managedControl: { enforcementState: { runtimeObservation: "not_enforced", destinationObservation: "unknown" } },
+  });
+  const receipt = await executeCanonicalTrustTransaction(input, deps);
+  assert.equal(receipt.decision, "REVIEW");
+  assert.ok(receipt.reasonCodes.includes("RUNTIME_OR_DESTINATION_CONTINUITY_CONFLICT"));
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
 });

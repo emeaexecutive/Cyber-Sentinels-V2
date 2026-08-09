@@ -42,6 +42,12 @@ function getOptionalText(body: Record<string, unknown>, field: string) {
   return value.trim();
 }
 
+function getOptionalEvidenceReference(body: Record<string, unknown>) {
+  const value = getOptionalText(body, "evidence_reference") ?? getOptionalText(body, "submitted_evidence");
+  if (value && !/^[a-zA-Z0-9_.:/-]{8,240}$/.test(value)) throw new Error("Invalid input");
+  return value;
+}
+
 function getAllowed<T extends readonly string[]>(
   body: Record<string, unknown>,
   field: string,
@@ -70,6 +76,9 @@ function signalForStatus(status: string) {
 
 export async function POST(req: Request) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
     const body = (await req.json().catch(() => null)) as Record<
       string,
       unknown
@@ -93,7 +102,7 @@ export async function POST(req: Request) {
       "recovery_reason",
       recoveryTriggers
     ) as RecoveryTrigger;
-    const submittedEvidence = getOptionalText(body, "submitted_evidence");
+    const submittedEvidence = getOptionalEvidenceReference(body);
     const riskLevel = getAllowed(body, "risk_level", riskLevels, "high");
     const result = evaluateTrustRecovery({
       subject_type: subjectType,
@@ -102,14 +111,17 @@ export async function POST(req: Request) {
       submitted_evidence: submittedEvidence,
       risk_level: riskLevel,
     });
-    const supabase = await createClient();
-
     // High-risk recovery is only evaluated here; restoration must happen in an admin workflow.
-    await createSignal(supabase, signalForStatus(result.recovery_status));
+    await createSignal(supabase, signalForStatus(result.recovery_status), {
+      subject_type: subjectType,
+      subject_id: subjectId,
+      evidence_reference: submittedEvidence,
+      recovery_status: result.recovery_status,
+    });
     await createAuditLog(
       supabase,
       "trust_recovery_requested",
-      "trust_recovery_api",
+      user.email ?? user.id,
       {
         subject_type: subjectType,
         subject_id: subjectId,
@@ -117,6 +129,7 @@ export async function POST(req: Request) {
         recovery_status: result.recovery_status,
         risk_level: riskLevel,
         evidence_submitted: Boolean(submittedEvidence),
+        evidence_reference: submittedEvidence,
       }
     );
 

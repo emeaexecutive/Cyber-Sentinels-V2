@@ -470,8 +470,8 @@ export default async function PassportViewerPage({
 
         {query.ai_governance ? (
           <div className="mt-6 rounded-lg border border-amber-900 bg-amber-950/20 p-4 text-sm text-amber-100">
-            {query.ai_governance === "missing_openai_key"
-              ? "AI-assisted governance analysis is unavailable because OPENAI_API_KEY is not configured."
+            {query.ai_governance === "deterministic_mode" || query.ai_governance === "missing_openai_key"
+              ? "Deterministic governance mode is active because no grounded AI result is available. Human review remains required."
               : "AI-assisted governance analysis could not be generated. Human review remains available."}
           </div>
         ) : null}

@@ -45,7 +45,7 @@ export default async function OperationalEntitiesPage() {
               ) : <p className="mt-2 text-sm text-slate-500">No external registry evidence recorded.</p>}
               <p className="mt-3 text-xs leading-5 text-slate-500">Registry presence is evidence; it does not establish trust or delegated authority by itself.</p>
             </div>
-            <div className="mt-6"><Link className="inline-flex text-sm font-semibold text-slate-900 underline" href={`/operational-entities/${encodeURIComponent(entity.entityId)}`}>View live trust record</Link></div>
+            <div className="mt-6"><Link className="inline-flex text-sm font-semibold text-slate-900 underline" href={`/operational-entities/${encodeURIComponent(entity.entityId)}`}>View persisted trust record</Link></div>
           </article>
         ))}
         {!entities.length ? <p className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600">No governed Operational Entities are recorded in this tenant. No provider evidence has been inferred.</p> : null}

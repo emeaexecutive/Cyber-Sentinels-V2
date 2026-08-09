@@ -333,11 +333,11 @@ export const OPERATIONAL_TRUST_INTELLIGENCE_ASSERTION = {
 } as const;
 
 export const trustChangeTypes = [
-  "IDENTITY_CHANGED", "OWNER_CHANGED", "AUTHORITY_EXPANDED", "AUTHORITY_REDUCED",
+  "IDENTITY_CHANGED", "OWNER_CHANGED", "ACCOUNTABLE_OWNER_CHANGED", "AUTHORITY_CHANGED", "AUTHORITY_EXPANDED", "AUTHORITY_REDUCED",
   "AUTHORITY_REVOKED", "AUTHORITY_EXPIRED", "PROVIDER_CHANGED", "PROVIDER_CONFLICT",
-  "RUNTIME_CHANGED", "ENVIRONMENT_CHANGED", "EVIDENCE_STALE", "EVIDENCE_CORRECTED",
+  "RUNTIME_CHANGED", "ENVIRONMENT_CHANGED", "TOOL_SCOPE_CHANGED", "TARGET_SCOPE_CHANGED", "EVIDENCE_CHANGED", "EVIDENCE_STALE", "EVIDENCE_CORRECTED",
   "EVIDENCE_CONTRADICTED", "BEHAVIOUR_CHANGED", "OUTCOME_CONTRADICTED", "INCIDENT_OPENED",
-  "INCIDENT_RESOLVED", "RECOVERY_EVIDENCE_RECEIVED", "POLICY_CHANGED", "ENTITY_SUPERSEDED",
+  "OUTCOME_CONFIRMED", "INCIDENT_RESOLVED", "RECOVERY_EVIDENCE_RECEIVED", "POLICY_CHANGED", "ENTITY_SUPERSEDED",
 ] as const;
 export type TrustChangeType = (typeof trustChangeTypes)[number];
 export type TrustMateriality = "IMMATERIAL" | "LOW" | "MODERATE" | "HIGH" | "CRITICAL" | "UNKNOWN";
@@ -504,7 +504,7 @@ export function evaluateTrustStability(input: { events: TrustChangeEvent[]; asOf
 }
 
 export type TrustPredictionType = "LIKELY_REVIEW_REQUIRED" | "LIKELY_EVIDENCE_EXPIRY" | "LIKELY_AUTHORITY_EXPIRY" | "LIKELY_CONTINUITY_BREAK" | "LIKELY_PROVIDER_EVIDENCE_GAP" | "LIKELY_POLICY_ESCALATION" | "NO_MATERIAL_CHANGE_EXPECTED" | "INSUFFICIENT_EVIDENCE";
-export type TrustPrediction = { prediction: TrustPredictionType; timeHorizon: string; supportingEvidence: string[]; historicalBasis: string[]; confidence: TrustConclusionConfidence; limitations: string[]; generatedAt: string; expiresAt: string; autonomousEnforcementAllowed: false };
+export type TrustPrediction = { prediction: TrustPredictionType; horizon: string; supportingEvidence: string[]; historicalBasis: string[]; confidence: TrustConclusionConfidence; limitations: string[]; generatedAt: string; expiresAt: string; autonomousEnforcementAllowed: false };
 export function predictOperationalTrust(input: { generatedAt: string; horizonHours: number; evidenceExpiresAt?: string | null; authorityExpiresAt?: string | null; providerGap: boolean; unresolvedMaterialDrift: boolean; policyEscalationExpected: boolean; supportingEvidence: string[]; historicalBasis: string[] }): TrustPrediction {
   const generated = Date.parse(input.generatedAt);
   const horizonEnd = generated + input.horizonHours * 3_600_000;
@@ -515,7 +515,7 @@ export function predictOperationalTrust(input: { generatedAt: string; horizonHou
   else if (input.authorityExpiresAt && Date.parse(input.authorityExpiresAt) <= horizonEnd) prediction = "LIKELY_AUTHORITY_EXPIRY";
   else if (input.evidenceExpiresAt && Date.parse(input.evidenceExpiresAt) <= horizonEnd) prediction = "LIKELY_EVIDENCE_EXPIRY";
   else if (input.policyEscalationExpected) prediction = "LIKELY_POLICY_ESCALATION";
-  return { prediction, timeHorizon: `${input.horizonHours} hours`, supportingEvidence: [...new Set(input.supportingEvidence)], historicalBasis: [...new Set(input.historicalBasis)], confidence: prediction === "INSUFFICIENT_EVIDENCE" ? "INSUFFICIENT" : input.historicalBasis.length ? "MODERATE" : "LOW", limitations: ["Predicts bounded operational states only.", "Cannot predict malicious intent or future attacks.", "Cannot autonomously enforce a decision."], generatedAt: new Date(generated).toISOString(), expiresAt: new Date(horizonEnd).toISOString(), autonomousEnforcementAllowed: false };
+  return { prediction, horizon: `${input.horizonHours} hours`, supportingEvidence: [...new Set(input.supportingEvidence)], historicalBasis: [...new Set(input.historicalBasis)], confidence: prediction === "INSUFFICIENT_EVIDENCE" ? "INSUFFICIENT" : input.historicalBasis.length ? "MODERATE" : "LOW", limitations: ["Predicts bounded operational states only.", "Cannot predict malicious intent or future attacks.", "Cannot autonomously enforce a decision."], generatedAt: new Date(generated).toISOString(), expiresAt: new Date(horizonEnd).toISOString(), autonomousEnforcementAllowed: false };
 }
 
 export type TrustRecoveryState = "DEGRADED" | "REMEDIATION_REQUIRED" | "EVIDENCE_RECEIVED" | "RE_EVALUATION" | "RESTORED" | "REMAINS_DEGRADED" | "SUSPENDED";
@@ -552,7 +552,7 @@ export function explainOperationalTrust(input: { narrative: GroundedNarrativeSen
   return { whatHappened: input.narrative, whatChanged: input.drift.findings.map((finding) => ({ text: `${finding.condition} changed from ${finding.previousValue} to ${finding.currentValue}.`, evidenceReferences: finding.evidenceReferences })), whyTrustChanged: [{ text: `Trust health became ${input.health.overallState} because ${input.health.reasonCodes.join(", ")}.`, evidenceReferences: input.health.evidenceReferences }], supportingEvidence: [...new Set([...input.drift.evidenceReferences, ...input.health.evidenceReferences])], unknowns: [...input.unknowns], actionTaken: input.actionTaken, restorationRequirements: [...input.restorationRequirements] };
 }
 
-export type TrustRecommendation = "REFRESH_IDENTITY_EVIDENCE" | "RECONFIRM_ACCOUNTABLE_OWNER" | "REISSUE_AUTHORITY" | "REVOKE_AUTHORITY" | "REQUEST_HUMAN_REVIEW" | "REQUEST_RUNTIME_ATTESTATION" | "VERIFY_DESTINATION_OUTCOME" | "RESOLVE_PROVIDER_CONFLICT" | "INVESTIGATE_MIGRATION_GAP" | "NO_ACTION_REQUIRED";
+export type TrustRecommendation = "REFRESH_IDENTITY_EVIDENCE" | "RECONFIRM_OWNER" | "REISSUE_AUTHORITY" | "REVOKE_AUTHORITY" | "REQUEST_HUMAN_REVIEW" | "REQUEST_RUNTIME_ATTESTATION" | "VERIFY_DESTINATION_OUTCOME" | "RESOLVE_PROVIDER_CONFLICT" | "INVESTIGATE_MIGRATION_GAP" | "NO_ACTION_REQUIRED";
 export function recommendTrustAction(input: { drift: TrustDriftAssessment; health: TrustHealthAssessment }): { recommendation: TrustRecommendation; reasonCodes: string[]; executesAutomatically: false } {
   const conditions = new Set(input.drift.findings.map((finding) => finding.condition));
   let recommendation: TrustRecommendation = "NO_ACTION_REQUIRED";
@@ -560,8 +560,8 @@ export function recommendTrustAction(input: { drift: TrustDriftAssessment; healt
   else if (conditions.has("runtime")) recommendation = "REQUEST_RUNTIME_ATTESTATION";
   else if (conditions.has("authority")) recommendation = /revoked/i.test(input.drift.findings.find((finding) => finding.condition === "authority")?.currentValue ?? "") ? "REISSUE_AUTHORITY" : "REQUEST_HUMAN_REVIEW";
   else if (conditions.has("identity")) recommendation = "REFRESH_IDENTITY_EVIDENCE";
-  else if (conditions.has("accountableOwner")) recommendation = "RECONFIRM_ACCOUNTABLE_OWNER";
-  else if (conditions.has("outcome")) recommendation = "VERIFY_DESTINATION_OUTCOME";
+  else if (conditions.has("accountableOwner")) recommendation = "RECONFIRM_OWNER";
+  else if (conditions.has("outcome") && input.health.dimensions.OUTCOME.state !== "SUPPORTED") recommendation = "VERIFY_DESTINATION_OUTCOME";
   else if (["REVIEW_REQUIRED", "SUSPENDED"].includes(input.health.overallState)) recommendation = "REQUEST_HUMAN_REVIEW";
   return { recommendation, reasonCodes: [...new Set([...input.drift.reasonCodes, ...input.health.reasonCodes])], executesAutomatically: false };
 }

@@ -3,7 +3,7 @@ import { DecisionSummary } from "@/components/executive-summary";
 import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { reviewedOutcomesToTrustMemoryEvents } from "@/lib/governance/reviewed-outcomes";
 import { createClient } from "@/lib/supabase/server";
-import { buildTrustMemorySnapshot, buildWhyTrustChanged, demoTrustMemoryEvents } from "@/lib/trust-memory/trust-memory";
+import { buildTrustMemorySnapshot, buildWhyTrustChanged } from "@/lib/trust-memory/trust-memory";
 import { loadValidationCases, runValidationBenchmark } from "@/lib/validation/benchmark-harness";
 
 export const dynamic = "force-dynamic";
@@ -35,7 +35,7 @@ export default async function AdminTrustMemoryPage() {
   const cases = await loadValidationCases();
   const benchmark = await runValidationBenchmark({ cases });
   const reviewedEvents = reviewedOutcomesToTrustMemoryEvents(benchmark.reviewedOutcomes);
-  const snapshot = buildTrustMemorySnapshot([...reviewedEvents, ...demoTrustMemoryEvents]);
+  const snapshot = buildTrustMemorySnapshot(reviewedEvents);
   const events = snapshot.events.slice(0, 20);
   const reviewedImpact = events.filter((event) => event.reviewed_outcome_ref).length;
   const evidenceCount = events.reduce((total, event) => total + event.evidence_refs.length, 0);

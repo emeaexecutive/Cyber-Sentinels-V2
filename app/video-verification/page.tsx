@@ -20,13 +20,14 @@ export default function VideoVerificationPage() {
         </p>
 
         <h1 className="mt-6 max-w-4xl text-5xl font-bold">
-          Verify human video, candidate identity and media provenance.
+          Evaluate configured-provider video, identity and provenance evidence.
         </h1>
 
         <p className="mt-6 max-w-3xl text-zinc-400">
-          The platform combines liveness, media-risk indicators, provenance,
-          evidence completeness, audit logs and governance review into a Trust
-          Passport workflow built for explainable operational review.
+          Cyber Sentinels consumes and evaluates verification evidence from
+          configured providers. Provider liveness, media-risk and identity
+          assertions remain attributed evidence; they are not native biometric,
+          document or deepfake detection by Cyber Sentinels.
         </p>
 
         <section className="mt-10 grid gap-4 md:grid-cols-4">

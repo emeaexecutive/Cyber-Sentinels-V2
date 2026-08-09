@@ -39,7 +39,7 @@ export default async function ContinuousTrustRuntimePage() {
             Operational trust as conditions change
           </h1>
           <p className="mt-4 max-w-4xl leading-7 text-zinc-400">
-            Live state, normalized signals, drift, evidence, alerts, provider health,
+            Persisted state, normalized signals, drift, evidence, alerts, provider health,
             and accountable manual review derive from tenant-scoped production records.
             Missing measurements remain explicit.
           </p>

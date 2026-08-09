@@ -49,7 +49,7 @@ export default async function DashboardPage() {
 
   const providerReadiness = summarizeProviderReadiness(buildProviderReadinessChecklist());
   const metrics = [
-    ["Live Trust · Current Trust Posture", countValue(liveTrust), "/dashboard/trust-runtime", "Immutable Trust DNA profile snapshots"],
+    ["Current Trust Posture", countValue(liveTrust), "/dashboard/trust-runtime", "Immutable Trust DNA profile snapshots"],
     ["Evidence Graph · Evidence Summary", countValue(evidenceGraph), "/admin/evidence-graph", "Tenant-scoped normalized evidence nodes"],
     ["Replay Activity", countValue(replay), "/dashboard/replay", "Forensic entity timelines and audit exports"],
     ["Trust DNA · Trust Memory", countValue(trustDna), "/dashboard/trust-posture", "Explainable dimension measurements"],
