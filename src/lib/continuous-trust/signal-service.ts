@@ -27,6 +27,9 @@ function subjectType(entityType: TrustSignal["entityType"]): TrustEventSubjectTy
   if (entityType === "DEVICE") return "DEVICE";
   if (entityType === "ORGANISATION") return "ORGANIZATION";
   if (entityType === "ENTERPRISE_WORKFLOW") return "WORKLOAD";
+  if (entityType === "WORKLOAD") return "WORKLOAD";
+  if (entityType === "MODEL_ENDPOINT") return "AI_AGENT";
+  if (entityType === "MACHINE") return "DEVICE";
   return "SERVICE";
 }
 

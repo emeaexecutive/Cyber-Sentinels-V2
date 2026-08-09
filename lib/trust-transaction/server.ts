@@ -95,6 +95,25 @@ function safeEvidence(row: Row): StoredProviderEvidence {
   };
 }
 
+function safeNativeEvidence(row: Row): StoredProviderEvidence {
+  return {
+    reference: String(row.evidence_id),
+    type: "NATIVE_ENTITY_IDENTITY_PROOF",
+    providerId: "cyber_sentinels_native",
+    providerEventId: String(row.challenge_id),
+    providerSessionId: String(row.verification_id),
+    outcome: "PASSED",
+    observedAt: String(row.verified_at),
+    expiresAt: row.expires_at ? String(row.expires_at) : null,
+    sourceDigest: String(row.evidence_digest),
+    assuranceLevel: 0.95,
+    correlationId: String(row.verification_id),
+    sourcePartyId: "cyber_sentinels",
+    sourceClassification: "technology_provider_asserted",
+    schemaVersion: String(row.verification_algorithm_version ?? "native-entity-verification-v1"),
+  };
+}
+
 function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
   const evidence = Array.isArray(row.evidence_references) ? row.evidence_references : [];
   const authorityLineage = Array.isArray(row.authority_lineage_references) ? row.authority_lineage_references : [];
@@ -407,12 +426,24 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
         canonicalDigest: "legacy_unresolved",
       });
     },
-    async loadConfiguredEvidence({ enterpriseId, subjectId, providerExecutionId }) {
+    async loadConfiguredEvidence({ enterpriseId, subjectId, operationalEntityId, providerExecutionId }) {
+      const nativeResult = await db.from("native_entity_identity_evidence")
+        .select("evidence_id,verification_id,challenge_id,verified_at,expires_at,evidence_digest,verification_algorithm_version")
+        .eq("enterprise_id", enterpriseId)
+        .eq("operational_entity_id", operationalEntityId ?? subjectId)
+        .is("revoked_at", null)
+        .order("verified_at", { ascending: false })
+        .limit(20);
+      if (nativeResult.error) fail("Native evidence collection", nativeResult.error);
+      const nativeEvidence = (nativeResult.data ?? []).map(safeNativeEvidence);
       let workflowId: string | null = null;
       let providerSessionId: string | null = null;
       if (providerExecutionId) {
         const execution = await db.from("provider_execution_records").select("provider_id,provider_session_id,status,tenant_id,workflow_id").eq("execution_id", providerExecutionId).eq("tenant_id", enterpriseId).maybeSingle();
-        if (execution.error) fail("Provider execution resolution", execution.error);
+        if (execution.error) {
+          if (nativeEvidence.length) return nativeEvidence;
+          fail("Provider execution resolution", execution.error);
+        }
         if (!execution.data || execution.data.status !== "completed" || execution.data.provider_id !== "hopae_connect") throw new CanonicalTransactionError("The configured provider execution is incomplete or outside the tenant.", 409, "PROVIDER_EVIDENCE_INCOMPLETE");
         providerSessionId = String(execution.data.provider_session_id ?? "");
         workflowId = String(execution.data.workflow_id ?? "");
@@ -421,22 +452,32 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
         if (!verification.data) throw new CanonicalTransactionError("The configured provider execution is not bound to this Trust Object.", 409, "PROVIDER_EVIDENCE_SUBJECT_MISMATCH");
       } else {
         const verification = await db.from("hopae_verifications").select("workflow_id,verification_id").eq("workspace_id", enterpriseId).eq("entity_id", subjectId).eq("provider_session_status", "COMPLETED").order("updated_at", { ascending: false }).limit(1).maybeSingle();
-        if (verification.error) fail("Provider verification resolution", verification.error);
+        if (verification.error) {
+          if (nativeEvidence.length) return nativeEvidence;
+          fail("Provider verification resolution", verification.error);
+        }
         workflowId = verification.data?.workflow_id ? String(verification.data.workflow_id) : null;
         providerSessionId = verification.data?.verification_id ? String(verification.data.verification_id) : null;
       }
-      if (!workflowId || !uuidPattern.test(workflowId)) return [];
+      if (!workflowId || !uuidPattern.test(workflowId)) return nativeEvidence;
       let query = db.from("normalized_identity_evidence").select("evidence_id,evidence_type,provider_id,provider_event_id,provider_session_id,outcome,observed_at,expires_at,source_digest,assurance_level,correlation_id").eq("tenant_id", enterpriseId).eq("trust_session_id", workflowId).order("observed_at", { ascending: false }).limit(20);
       if (providerSessionId) query = query.eq("provider_session_id", providerSessionId);
       const result = await query;
-      if (result.error) fail("Configured evidence collection", result.error);
-      return (result.data ?? []).map(safeEvidence);
+      if (result.error) {
+        if (nativeEvidence.length) return nativeEvidence;
+        fail("Configured evidence collection", result.error);
+      }
+      return [...nativeEvidence, ...(result.data ?? []).map(safeEvidence)].sort((left, right) => right.observedAt.localeCompare(left.observedAt));
     },
     async loadAuthority(enterpriseId, subjectType, subjectId) {
-      const result = await db.from("trust_contracts").select("contract").eq("enterprise_id", enterpriseId).eq("subject_type", subjectType).eq("subject_id", subjectId).eq("revocation_state", "active").order("issued_at", { ascending: false }).limit(1).maybeSingle();
+      const result = await db.from("trust_contracts").select("contract,revocation_state,revoked_at").eq("enterprise_id", enterpriseId).eq("subject_type", subjectType).eq("subject_id", subjectId).order("issued_at", { ascending: false }).limit(1).maybeSingle();
       if (result.error) fail("Authority resolution", result.error);
-      if (!result.data?.contract) throw new CanonicalTransactionError("No active Trust Contract grants authority to this Trust Object.", 409, "AUTHORITY_NOT_FOUND");
-      return result.data.contract as TrustContract;
+      if (!result.data?.contract) throw new CanonicalTransactionError("No Trust Contract exists for this Trust Object; the action is not authorized.", 409, "AUTHORITY_NOT_FOUND");
+      return {
+        ...(result.data.contract as TrustContract),
+        revocationState: String(result.data.revocation_state ?? (result.data.contract as TrustContract).revocationState) as TrustContract["revocationState"],
+        revokedAt: result.data.revoked_at ? String(result.data.revoked_at) : (result.data.contract as TrustContract).revokedAt,
+      };
     },
     async loadPolicy(enterpriseId, policyId, policyVersion) {
       const result = await db.from("trust_policy_versions").select("policy_id,version,active,valid_from,valid_until,policy_hash").eq("enterprise_id", enterpriseId).eq("policy_id", policyId).eq("version", policyVersion).maybeSingle();
