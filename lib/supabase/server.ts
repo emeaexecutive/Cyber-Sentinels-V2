@@ -92,7 +92,7 @@ async function withAuthTimeout<T>(task: () => Promise<T>): Promise<T> {
   }
 }
 
-export async function createClient() {
+export async function createClient(responseHeaders?: Headers) {
   const { supabaseUrl, supabaseAnonKey } = getPublicSupabaseEnv(
     "Supabase server client"
   );
@@ -107,10 +107,13 @@ export async function createClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet: CookieToSet[]) {
+        setAll(cookiesToSet: CookieToSet[], headers: Record<string, string>) {
           try {
             cookiesToSet.forEach(({ name, value, options }) => {
               cookieStore.set(name, value, options);
+            });
+            Object.entries(headers).forEach(([name, value]) => {
+              responseHeaders?.set(name, value);
             });
           } catch {
             // Ignore when called from a Server Component.
