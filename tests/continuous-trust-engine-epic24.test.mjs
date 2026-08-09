@@ -62,7 +62,7 @@ test("the normalized model covers every required signal and entity category", ()
   ]) assert.ok(trustSignalTypes.includes(required));
   assert.deepEqual(continuousEntityTypes, [
     "HUMAN", "AI_AGENT", "DEVICE", "ORGANISATION", "CREDENTIAL", "SESSION",
-    "ENTERPRISE_WORKFLOW",
+    "ENTERPRISE_WORKFLOW", "SERVICE", "APPLICATION", "MODEL_ENDPOINT", "MACHINE", "WORKLOAD",
   ]);
   assert.equal(trustDnaDimensions.length, 12);
 });

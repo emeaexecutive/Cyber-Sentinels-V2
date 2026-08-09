@@ -15,6 +15,14 @@ export type OperationalEntityLiveDetail = {
   enforcementEvents: Row[];
   replay: Row[];
   trustMemory: Row[];
+  nativeVerification: {
+    manifests: Row[];
+    credentials: Row[];
+    verifications: Row[];
+    evidence: Row[];
+    replay: Row[];
+    ownerBindings: Row[];
+  };
 };
 
 function strings(value: unknown) {
@@ -40,7 +48,7 @@ function externalIdentity(row: Row): ExternalIdentityReference {
   };
 }
 
-async function resolveTenantId(supabase: SupabaseClient, user: User) {
+export async function resolveOperationalEntityTenantId(supabase: SupabaseClient, user: User) {
   const active = String(user.app_metadata?.active_enterprise_id ?? "");
   if (active) {
     const workspace = await supabase.from("trust_workspaces").select("id").eq("id", active).maybeSingle();
@@ -57,7 +65,7 @@ async function resolveTenantId(supabase: SupabaseClient, user: User) {
 }
 
 export async function loadOperationalEntities(input: { supabase: SupabaseClient; user: User }): Promise<OperationalEntity[]> {
-  const enterpriseId = await resolveTenantId(input.supabase, input.user);
+  const enterpriseId = await resolveOperationalEntityTenantId(input.supabase, input.user);
   const [entities, identities] = await Promise.all([
     input.supabase.from("operational_entities").select("*").eq("enterprise_id", enterpriseId).order("updated_at", { ascending: false }),
     input.supabase.from("operational_entity_external_identities").select("*").eq("enterprise_id", enterpriseId).order("observed_at", { ascending: true }),
@@ -97,19 +105,25 @@ export async function loadOperationalEntityDetail(input: {
   user: User;
   entityId: string;
 }): Promise<OperationalEntityLiveDetail | null> {
-  const enterpriseId = await resolveTenantId(input.supabase, input.user);
+  const enterpriseId = await resolveOperationalEntityTenantId(input.supabase, input.user);
   const entities = await loadOperationalEntities(input);
   const entity = entities.find((candidate) => candidate.entityId === input.entityId);
   if (!entity) return null;
 
-  const [relationships, transitions, changes, transactions, memory] = await Promise.all([
+  const [relationships, transitions, changes, transactions, memory, nativeManifests, nativeCredentials, nativeVerifications, nativeEvidence, nativeReplay, ownerBindings] = await Promise.all([
     input.supabase.from("provider_relationships").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("effective_from", { ascending: true }),
     input.supabase.from("provider_transitions").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("initiated_at", { ascending: true }),
     input.supabase.from("provider_change_events").select("*").eq("enterprise_id", enterpriseId).contains("affected_operational_entity_ids", [input.entityId]).order("occurred_at", { ascending: true }),
     input.supabase.from("canonical_trust_transactions").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("requested_at", { ascending: true }),
     input.supabase.from("trust_memory_index").select("*").eq("enterprise_id", enterpriseId).eq("subject_id", input.entityId).order("occurred_at", { ascending: true }),
+    input.supabase.from("operational_entity_manifests").select("manifest_id,manifest_version,manifest_digest,signing_key_id,status,issued_at,expires_at,supersedes_manifest_id").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("issued_at", { ascending: false }).limit(20),
+    input.supabase.from("operational_entity_native_credentials").select("credential_id,signing_key_id,algorithm,credential_fingerprint,state,valid_from,expires_at,revoked_at,rotated_from_credential_id").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("valid_from", { ascending: false }).limit(20),
+    input.supabase.from("operational_entity_native_verifications").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("verified_at", { ascending: false }).limit(20),
+    input.supabase.from("native_entity_identity_evidence").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("verified_at", { ascending: false }).limit(50),
+    input.supabase.from("operational_entity_native_replay_events").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("occurred_at", { ascending: true }).limit(200),
+    input.supabase.from("operational_entity_owner_bindings").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("effective_from", { ascending: false }).limit(20),
   ]);
-  for (const result of [relationships, transitions, changes, transactions, memory]) if (result.error) throw result.error;
+  for (const result of [relationships, transitions, changes, transactions, memory, nativeManifests, nativeCredentials, nativeVerifications, nativeEvidence, nativeReplay, ownerBindings]) if (result.error) throw result.error;
 
   const transactionRows = (transactions.data ?? []) as Row[];
   const transactionIds = transactionRows.map((row) => String(row.transaction_id));
@@ -132,5 +146,13 @@ export async function loadOperationalEntityDetail(input: {
     enforcementEvents: (enforcement.data ?? []) as Row[],
     replay: (replay.data ?? []) as Row[],
     trustMemory: (memory.data ?? []) as Row[],
+    nativeVerification: {
+      manifests: (nativeManifests.data ?? []) as Row[],
+      credentials: (nativeCredentials.data ?? []) as Row[],
+      verifications: (nativeVerifications.data ?? []) as Row[],
+      evidence: (nativeEvidence.data ?? []) as Row[],
+      replay: (nativeReplay.data ?? []) as Row[],
+      ownerBindings: (ownerBindings.data ?? []) as Row[],
+    },
   };
 }

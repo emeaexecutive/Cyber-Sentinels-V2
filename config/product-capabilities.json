@@ -12,6 +12,19 @@
     "qualificationLevel": "WORKING"
   },
   {
+    "name": "Native Operational Entity verification",
+    "publicClaim": "Cyber Sentinels can generate cryptographically verifiable first-party identity evidence for a canonical Operational Entity without requiring an external identity provider; this proves key possession and manifest binding, not trust or authority.",
+    "implementationModule": "lib/operational-entities/native-verification.ts",
+    "algorithm": "native-entity-verification-v1 and entity-continuity-fingerprint-v1 using Ed25519, public JWK, signed manifests and single-use challenges",
+    "tests": ["tests/native-operational-entity-verification.test.mjs", "tests/native-operational-entity-verification-integration.test.mjs"],
+    "api": ["app/api/operational-entities/[entityId]/native-verification/route.ts"],
+    "ui": ["app/operational-entities/[entityId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
+    "persistence": ["operational_entity_manifests", "operational_entity_native_credentials", "operational_entity_native_challenges", "operational_entity_native_verifications", "native_entity_identity_evidence", "evidence_objects", "operational_entity_native_replay_events", "trust_memory_index"],
+    "providerDependency": null,
+    "continuousTrigger": ["successful or failed native proof", "credential, owner or manifest revocation", "continuous trust signal processing"],
+    "qualificationLevel": "WORKING"
+  },
+  {
     "name": "Identity evidence correlation",
     "publicClaim": "Configured-provider identity evidence is normalized, correlated and retained with its provider attribution.",
     "implementationModule": "lib/identity-signals/orchestrator.ts",

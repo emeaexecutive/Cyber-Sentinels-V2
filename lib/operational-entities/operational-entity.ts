@@ -2,8 +2,11 @@ export type OperationalEntityType =
   | "human"
   | "ai_agent"
   | "service_account"
+  | "service"
   | "api_client"
   | "application"
+  | "model_endpoint"
+  | "machine"
   | "device"
   | "workload"
   | "robot"
@@ -411,9 +414,11 @@ export function evaluateOperationalEntityContinuity(input: {
   return { state: "approved_change", reasons };
 }
 
+export const AGENT_ALPHA_OPERATIONAL_ENTITY_ID = "entity:alpha";
+
 export const operationalEntityFixtures: OperationalEntity[] = [
   createOperationalEntity({
-    entityId: "entity:alpha",
+    entityId: AGENT_ALPHA_OPERATIONAL_ENTITY_ID,
     enterpriseId: "enterprise:acme",
     entityType: "ai_agent",
     displayReference: "Agent Alpha",
@@ -504,3 +509,9 @@ export const operationalEntityFixtures: OperationalEntity[] = [
     canonicalDigest: "digest:gamma",
   }),
 ];
+
+export function resolveCanonicalAgentAlpha(): OperationalEntity {
+  const alpha = operationalEntityFixtures.find((entity) => entity.entityId === AGENT_ALPHA_OPERATIONAL_ENTITY_ID);
+  if (!alpha) throw new Error("Canonical Agent Alpha is unavailable.");
+  return alpha;
+}

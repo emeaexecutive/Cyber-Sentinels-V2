@@ -31,6 +31,11 @@ export const continuousEntityTypes = [
   "CREDENTIAL",
   "SESSION",
   "ENTERPRISE_WORKFLOW",
+  "SERVICE",
+  "APPLICATION",
+  "MODEL_ENDPOINT",
+  "MACHINE",
+  "WORKLOAD",
 ] as const;
 
 export const trustSignalSeverities = ["INFORMATIONAL", "LOW", "MEDIUM", "HIGH", "CRITICAL"] as const;

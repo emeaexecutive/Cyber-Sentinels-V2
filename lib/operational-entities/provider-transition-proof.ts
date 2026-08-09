@@ -6,7 +6,7 @@ import {
   type ManagedControlEvidence,
   type ProviderTransitionTrustMemoryEvent,
 } from "./federated-evidence.ts";
-import { createOperationalEntity, type ExternalIdentityReference } from "./operational-entity.ts";
+import { createOperationalEntity, resolveCanonicalAgentAlpha, type ExternalIdentityReference } from "./operational-entity.ts";
 import {
   advanceProviderTransition,
   assertProviderNeutralCanonicalId,
@@ -22,8 +22,9 @@ import {
   type PortableProviderEvidence,
 } from "./provider-transition.ts";
 
+const canonicalAgentAlpha = resolveCanonicalAgentAlpha();
 const enterpriseId = "11111111-1111-4111-8111-111111111111";
-const alphaId = "entity:agent-alpha";
+const alphaId = canonicalAgentAlpha.entityId;
 const oldDecisionReference = "decision:alpha:provider-a";
 const newDecisionReference = "decision:alpha:provider-b";
 
@@ -34,7 +35,7 @@ function externalIdentity(input: { provider: string; providerEntityId: string; r
     providerEntityId: input.providerEntityId,
     builderPlatform: "provider-neutral-agent-platform",
     providerNativeLifecycle: "active",
-    providerOwner: "owner:alpha",
+    providerOwner: canonicalAgentAlpha.accountableOwnerId,
     providerBusinessPurpose: "controlled consequential release",
     certificationState: "observed",
     permissionsSummary: ["request:release", "read:deployment-status"],
@@ -98,11 +99,11 @@ function snapshotEvidence(provider: string): ManagedControlEvidence[] {
 export function buildAgentAlphaProviderTransitionProof() {
   const providerAIdentity = externalIdentity({ provider: "provider-a", providerEntityId: "native-alpha-a-1042", referenceId: "external:provider-a:alpha:v1", observedAt: "2026-08-01T14:00:00.000Z" });
   const providerBIdentity = externalIdentity({ provider: "provider-b", providerEntityId: "native-alpha-b-8871", referenceId: "external:provider-b:alpha:v1", observedAt: "2026-08-02T15:00:00.000Z" });
-  const initialEntity = createOperationalEntity({ entityId: alphaId, enterpriseId, entityType: "ai_agent", displayReference: "Agent Alpha", canonicalTrustObjectId: "trust-object:agent-alpha", lifecycleState: "active", accountableOwnerId: "owner:alpha", organizationReference: "organization:customer", providerReferences: ["provider-a"], externalIdentityReferences: [providerAIdentity], identityProfileReference: "identity-profile:agent-alpha", currentAuthorityReferences: ["authority:alpha:v3"], environmentReferences: ["environment:production"], workflowReferences: ["controlled consequential release"], currentTrustState: "verified", currentEvidenceState: "current", currentConsequenceClassification: "high", canonicalDigest: "c".repeat(64) });
+  const initialEntity = createOperationalEntity({ ...canonicalAgentAlpha, enterpriseId, providerReferences: ["provider-a"], externalIdentityReferences: [providerAIdentity], currentAuthorityReferences: ["authority:alpha:v3"], environmentReferences: ["environment:production"], workflowReferences: ["controlled consequential release"], currentTrustState: "verified", currentEvidenceState: "current", currentConsequenceClassification: "high", canonicalDigest: "c".repeat(64) });
   const providerA = relationship("provider-a", "provider-a:contract:17", "2026-08-01T00:00:00.000Z");
   const providerB = relationship("provider-b", "provider-b:contract:44", "2026-08-02T15:00:00.000Z");
   const oldEvidence = (["identity", "authority", "policy", "execution", "runtime", "destination", "incident", "outcome"] as PortableEvidenceClass[]).map((kind, index) => portableEvidence("provider-a", "operator:customer", oldDecisionReference, kind, index));
-  const oldSnapshot = createDecisionTimeSnapshot({ frozenAt: "2026-08-01T14:31:00.000Z", operationalEntityVersion: initialEntity.canonicalDigest, externalIdentityReferences: [providerAIdentity], accountableHuman: "owner:alpha", authorityLineageReferences: ["authority:alpha:v3", "approver:security-lead"], responsibilityLineage: { businessOwner: "business-owner:alpha", controlOwner: "control-owner:release", policyApprover: "approver:security-lead", controlOperator: "operator:customer", technologyProvider: "provider-a", identityAuthorizationProvider: "provider-a", operationalEntity: alphaId, runtimeProvider: "runtime:customer", destinationSystem: "destination:release-system", evidenceProvider: "provider-a", independentConfirmationSource: "destination:release-system", reviewer: "reviewer:trust-ops" }, providerHealth: { "provider-a": "available" }, providerEvidence: snapshotEvidence("provider-a"), evidenceIndependence: "independently_confirmed", policyVersion: "policy:release:v5", configurationRulesetDigest: "e".repeat(64), enforcementState: { policyDecision: "ALLOW", controlOwnerApproval: "approval:release:9", operatorRequest: "operator-request:88", technologyProviderRequest: "provider-request:a:551", providerAcknowledgement: "provider-ack:a:551", providerEnforcementClaim: "success", runtimeObservation: "enforced", destinationObservation: "enforced", businessOutcome: "release completed" }, contradictions: ["contradiction:historical:resolved-late"], reviewerState: "approved" });
+  const oldSnapshot = createDecisionTimeSnapshot({ frozenAt: "2026-08-01T14:31:00.000Z", operationalEntityVersion: initialEntity.canonicalDigest, externalIdentityReferences: [providerAIdentity], accountableHuman: initialEntity.accountableOwnerId, authorityLineageReferences: ["authority:alpha:v3", "approver:security-lead"], responsibilityLineage: { businessOwner: initialEntity.accountableOwnerId, controlOwner: "control-owner:release", policyApprover: "approver:security-lead", controlOperator: "operator:customer", technologyProvider: "provider-a", identityAuthorizationProvider: "provider-a", operationalEntity: alphaId, runtimeProvider: "runtime:customer", destinationSystem: "destination:release-system", evidenceProvider: "provider-a", independentConfirmationSource: "destination:release-system", reviewer: "reviewer:trust-ops" }, providerHealth: { "provider-a": "available" }, providerEvidence: snapshotEvidence("provider-a"), evidenceIndependence: "independently_confirmed", policyVersion: "policy:release:v5", configurationRulesetDigest: "e".repeat(64), enforcementState: { policyDecision: "ALLOW", controlOwnerApproval: "approval:release:9", operatorRequest: "operator-request:88", technologyProviderRequest: "provider-request:a:551", providerAcknowledgement: "provider-ack:a:551", providerEnforcementClaim: "success", runtimeObservation: "enforced", destinationObservation: "enforced", businessOutcome: "release completed" }, contradictions: ["contradiction:historical:resolved-late"], reviewerState: "approved" });
   const oldSnapshotDigestBefore = decisionSnapshotDigest(oldSnapshot);
   let transition = createProviderTransition({ transitionId: "provider-transition:alpha:a-to-b", enterpriseId, operationalEntity: initialEntity, previousProvider: providerA, newProvider: providerB, historicalEvidence: oldEvidence, oldDecisions: [{ decisionReference: oldDecisionReference, snapshot: oldSnapshot }], initiatedAt: "2026-08-02T14:00:00.000Z", actorReference: "actor:trust-admin" });
   transition = advanceProviderTransition({ transition, state: "in_progress", occurredAt: "2026-08-02T14:05:00.000Z", actorReference: "actor:trust-admin" });
@@ -116,7 +117,7 @@ export function buildAgentAlphaProviderTransitionProof() {
   const currentEntity = createOperationalEntity({ ...initialEntity, providerReferences: ["provider-a", "provider-b"], externalIdentityReferences: [providerAIdentity, providerBIdentity], updatedAt: "2026-08-02T15:20:00.000Z" });
   const correlation = correlateExternalIdentity({ externalIdentity: providerBIdentity, knownEntities: [currentEntity], assertedOperationalEntityId: alphaId, highImpact: true });
   const replay = buildProviderTransitionReplay({ customer: enterpriseId, operationalEntityId: alphaId, operator: "operator:customer", events: [
-    ["registered", "AGENT_REGISTERED", "owner:alpha", "customer", "Operational Entity", "identity", "independently_confirmed", 1, "2026-08-01T13:50:00.000Z"],
+    ["registered", "AGENT_REGISTERED", initialEntity.accountableOwnerId, "customer", "Operational Entity", "identity", "independently_confirmed", 1, "2026-08-01T13:50:00.000Z"],
     ["a-identity", "PROVIDER_A_IDENTITY_OBSERVED", "provider-a", "provider-a", "identity adapter", "identity", "single_source", .9, "2026-08-01T14:00:00.000Z"],
     ["authority", "AUTHORITY_ISSUED", "approver:security-lead", "customer", "Authority Lineage", "authority", "independently_confirmed", 1, "2026-08-01T14:10:00.000Z"],
     ["request-a", "ACTION_REQUESTED", alphaId, "provider-a", "canonical transaction", "execution", "multi_source", .95, "2026-08-01T14:30:00.000Z"],

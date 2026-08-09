@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { projectOperationalEntityIntelligence } from "@/lib/operational-entities/intelligence";
 import { loadOperationalEntities, loadOperationalEntityDetail } from "@/lib/operational-entities/server";
+import { NativeEntityVerificationPanel } from "@/components/native-entity-verification-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,8 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
   if (!user) redirect("/login?next=/demo/trust-runtime");
   const entities = await loadOperationalEntities({ supabase, user });
   const requested = (await searchParams).entityId;
-  const selected = entities.find((entity) => entity.entityId === requested) ?? entities[0] ?? null;
+  const persistedAgentAlpha = entities.find((entity) => entity.displayReference.trim().toLowerCase() === "agent alpha") ?? null;
+  const selected = entities.find((entity) => entity.entityId === requested) ?? persistedAgentAlpha ?? entities[0] ?? null;
   const detail = selected ? await loadOperationalEntityDetail({ supabase, user, entityId: selected.entityId }) : null;
 
   if (!detail) {
@@ -42,12 +44,16 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
   const latest = detail.transactions.at(-1) ?? null;
   const snapshot = latest?.decision_time_snapshot && typeof latest.decision_time_snapshot === "object" ? latest.decision_time_snapshot as Record<string, unknown> : {};
   const enforcement = snapshot.enforcementState && typeof snapshot.enforcementState === "object" ? snapshot.enforcementState as Record<string, unknown> : {};
+  const latestNative = detail.nativeVerification.verifications[0] ?? null;
+  const nativeCredential = detail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE") ?? detail.nativeVerification.credentials[0] ?? null;
+  const nativeManifest = detail.nativeVerification.manifests.find((manifest) => manifest.status === "ACTIVE") ?? detail.nativeVerification.manifests[0] ?? null;
   const transactionId = text(latest?.transaction_id, "");
   const transactionHref = transactionId ? `/trust/transactions/${encodeURIComponent(transactionId)}` : `/operational-entities/${encodeURIComponent(detail.entity.entityId)}`;
   const evidence = Array.isArray(latest?.evidence_references) ? latest.evidence_references as Array<Record<string, unknown>> : [];
   const items: Array<[string, unknown, string]> = [
     ["OPERATIONAL ENTITY", detail.entity.displayReference, `/operational-entities/${encodeURIComponent(detail.entity.entityId)}`],
-    ["IDENTITY", detail.externalIdentities.length ? `${detail.externalIdentities.length} persisted reference(s)` : "NOT YET VERIFIED", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}#external-identities`],
+    ["IDENTITY", latestNative ? `${text(latestNative.status)} · native cryptographic evidence` : detail.externalIdentities.length ? `${detail.externalIdentities.length} external reference(s)` : "NOT YET VERIFIED", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}#native-verification`],
+    ["PROOF", latestNative ? "CRYPTOGRAPHIC · Ed25519" : "NOT YET ESTABLISHED", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}#native-verification`],
     ["ACCOUNTABLE OWNER", detail.entity.accountableOwnerId || "UNKNOWN", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}`],
     ["AUTHORITY", latest?.authority_reference ?? "NOT RECORDED", transactionHref],
     ["EVIDENCE", evidence.length ? `${evidence.length} normalized reference(s)` : "INSUFFICIENT EVIDENCE", `${transactionHref}#provider-evidence`],
@@ -61,6 +67,11 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
     ["RECOMMENDATION", intelligence.recommendation.recommendation, `/operational-entities/${encodeURIComponent(detail.entity.entityId)}`],
     ["REPLAY", detail.replay.length ? `${detail.replay.length} persisted session(s)` : "NOT RECORDED", transactionHref],
     ["TRUST MEMORY", detail.trustMemory.length ? `${detail.trustMemory.length} material record(s)` : "NO MATERIAL RECORD", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}`],
+    ["NATIVE VERIFICATION", latestNative?.status ?? "NOT YET VERIFIED", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}#native-verification`],
+    ["CREDENTIAL FINGERPRINT", nativeCredential?.credential_fingerprint ?? "NOT REGISTERED", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}#native-verification`],
+    ["MANIFEST DIGEST", nativeManifest?.manifest_digest ?? "NOT REGISTERED", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}#native-verification`],
+    ["CONTINUITY FINGERPRINT", latestNative?.continuity_fingerprint ?? "NOT ESTABLISHED", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}#native-verification`],
+    ["RUNTIME BINDING", latestNative?.runtime_binding ?? "RUNTIME_UNVERIFIED", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}#native-verification`],
   ];
 
   return (
@@ -70,6 +81,19 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
           <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">Authenticated internal demonstration · Persisted data only</p><h1 className="mt-3 text-4xl font-semibold">Trust Runtime transaction proof</h1><p className="mt-3 max-w-3xl text-slate-400">This surface projects the selected tenant’s stored Operational Entity, canonical decisions, evidence, execution records, Replay and Trust Memory. It never runs a fixture on page load.</p></div>
           <form className="flex gap-2" action="/demo/trust-runtime"><label className="sr-only" htmlFor="entityId">Operational Entity</label><select id="entityId" name="entityId" defaultValue={detail.entity.entityId} className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2">{entities.map((entity) => <option key={entity.entityId} value={entity.entityId}>{entity.displayReference}</option>)}</select><button className="rounded-lg bg-cyan-300 px-4 py-2 font-semibold text-slate-950">Load</button></form>
         </header>
+
+        {(process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview") ? <NativeEntityVerificationPanel
+          enterpriseId={detail.entity.enterpriseId}
+          operationalEntityId={detail.entity.entityId}
+          canonicalTrustObjectId={detail.entity.canonicalTrustObjectId}
+          displayName={detail.entity.displayReference}
+          entityType={detail.entity.entityType}
+          accountableOwnerId={detail.entity.accountableOwnerId}
+          organizationId={detail.entity.organizationReference}
+          authorityReference={detail.entity.currentAuthorityReferences[0] ?? null}
+          environmentReference={detail.entity.environmentReferences[0] ?? null}
+          activeCredentialId={nativeCredential ? String(nativeCredential.credential_id) : null}
+        /> : null}
 
         <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {items.map(([label, item, href]) => <Link href={href} key={label} className={`${panel} transition hover:border-cyan-500`}><p className="text-xs font-semibold tracking-[0.12em] text-slate-500">{label}</p><p className="mt-3 break-words text-lg font-semibold text-slate-100">{text(item)}</p><p className="mt-3 text-xs text-cyan-300">Open underlying record →</p></Link>)}
@@ -87,6 +111,33 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
             <div className="mt-5 space-y-4">{intelligence.narrative.map((sentence) => <div key={sentence.text}><p className="text-slate-300">{sentence.text}</p><p className="mt-1 break-all font-mono text-xs text-slate-600">{sentence.evidenceReferences.join(", ")}</p></div>)}</div>
             <dl className="mt-6 space-y-4 text-sm"><div><dt className="text-slate-500">What changed?</dt><dd className="mt-1">{intelligence.drift.reasonCodes.join(", ") || "NO MATERIAL DRIFT RECORDED"}</dd></div><div><dt className="text-slate-500">What is unknown?</dt><dd className="mt-1">{intelligence.explanation.unknowns.join(", ") || "No unknown condition was derived from the current snapshot."}</dd></div><div><dt className="text-slate-500">What would restore trust?</dt><dd className="mt-1">{intelligence.explanation.restorationRequirements.join(", ") || "NO ACTION REQUIRED"}</dd></div></dl>
           </aside>
+        </section>
+
+        <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <article className={panel}>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">CPTO question</p>
+            <h2 className="mt-3 text-2xl font-semibold">How do you know that is the same agent?</h2>
+            <dl className="mt-5 space-y-3 text-sm">
+              {([
+                ["Canonical entity ID", detail.entity.entityId],
+                ["Credential fingerprint", nativeCredential?.credential_fingerprint],
+                ["Signed challenge", latestNative?.challenge_id],
+                ["Manifest digest", nativeManifest?.manifest_digest],
+                ["Continuity fingerprint", latestNative?.continuity_fingerprint],
+                ["Runtime binding", latestNative?.runtime_binding],
+                ["Accountable owner", detail.entity.accountableOwnerId],
+                ["Authority", latest?.authority_reference],
+                ["Evidence references", latestNative?.evidence_references],
+              ] as Array<[string, unknown]>).map(([label, item]) => <div key={label}><dt className="text-slate-500">{label}</dt><dd className="mt-1 break-all font-mono text-xs text-slate-200">{text(item)}</dd></div>)}
+            </dl>
+          </article>
+          <article className={panel}>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">Attack result</p>
+            <h2 className="mt-3 text-2xl font-semibold">What happens if somebody copies its ID?</h2>
+            <p className="mt-5 leading-7 text-slate-300">The ID is a public reference, not a credential. A copy cannot answer the tenant-, entity-, audience-, nonce-, timestamp-, manifest-, and key-bound challenge without possession of the registered private Ed25519 key.</p>
+            <div className="mt-5 rounded-xl border border-red-900/60 bg-red-950/20 p-4"><p className="font-semibold text-red-200">Copied ID alone → INVALID_SIGNATURE / WRONG_ENTITY → no native evidence → no authority shortcut.</p></div>
+            <p className="mt-4 text-sm text-slate-500">Cyber Sentinels never receives or stores the private key. Native evidence is first-party evidence and is not classified as independent corroboration of itself.</p>
+          </article>
         </section>
       </div>
     </main>
