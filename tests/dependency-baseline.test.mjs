@@ -141,9 +141,22 @@ test("GitHub workflows use immutable action pins and least-privilege triggers", 
   assert.match(workflows[2], /contents:\s*read/);
   assert.match(workflows[2], /security-events:\s*write/);
   assert.match(workflows[2], /language:\s*\[javascript-typescript\]/);
-  for (const group of ["react-ecosystem", "css-toolchain", "development-tooling", "security-actions", "workflow-runtime-actions"]) {
+  for (const group of [
+    "react-ecosystem",
+    "next-ecosystem",
+    "css-toolchain",
+    "supabase-tooling",
+    "development-tooling",
+    "codeql",
+    "security-scanners",
+    "workflow-runtime-actions",
+  ]) {
     assert.match(dependabot, new RegExp(`^\\s+${group}:`, "m"));
   }
+  assert.match(dependabot, /next-ecosystem:[\s\S]*?- "next"[\s\S]*?- "eslint-config-next"/);
+  assert.match(dependabot, /supabase-tooling:\s*\n\s*dependency-type: "development"[\s\S]*?- "supabase"/);
+  assert.match(dependabot, /codeql:[\s\S]*?- "github\/codeql-action"/);
+  assert.doesNotMatch(dependabot, /@supabase\/ssr/);
   assert.doesNotMatch(dependabot, /stripe[\s\S]{0,120}(?:patterns|dependency-type):/i);
 });
 
