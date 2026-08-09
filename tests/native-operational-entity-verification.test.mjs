@@ -17,12 +17,14 @@ import {
   verifySignedManifest,
 } from "../lib/operational-entities/native-verification.ts";
 import { classifyEvidenceIndependence } from "../lib/operational-entities/federated-evidence.ts";
+import { resolveCanonicalAgentAlpha } from "../lib/operational-entities/operational-entity.ts";
 import { executeCanonicalTrustTransaction } from "../src/lib/trust-transaction/canonical.ts";
 
 const now = "2026-08-08T12:00:00.000Z";
+const canonicalAgentAlpha = resolveCanonicalAgentAlpha();
 const enterpriseId = "30000000-0000-4000-8000-000000000001";
-const entityId = "entity:agent-alpha";
-const subjectId = "30000000-0000-4000-8000-000000000002";
+const entityId = canonicalAgentAlpha.entityId;
+const subjectId = canonicalAgentAlpha.canonicalTrustObjectId;
 const actorId = "30000000-0000-4000-8000-000000000003";
 
 function keyMaterial(signingKeyId = "key:alpha:v1") {
@@ -42,7 +44,7 @@ function manifestClaims(key, overrides = {}) {
     entityType: "AI_AGENT",
     displayName: "Agent Alpha",
     enterpriseId,
-    owner: { accountableOwnerId: "owner:alice", organizationId: "organization:acme" },
+    owner: { accountableOwnerId: canonicalAgentAlpha.accountableOwnerId, organizationId: canonicalAgentAlpha.organizationReference },
     software: {
       applicationId: "application:alpha",
       version: "1.2.3",
@@ -66,7 +68,7 @@ function manifestClaims(key, overrides = {}) {
       deploymentIdentifier: "deployment:alpha:v1",
       runtimeVersion: "node-22",
     },
-    authority: { authorityReference: "authority:alpha:v1" },
+    authority: { authorityReference: canonicalAgentAlpha.currentAuthorityReferences[0] },
     credentials: { publicCredentialReferences: [key.signingKeyId] },
     declaredCapabilities: ["read_repository", "write_repository"],
     issuedAt: "2026-08-08T11:00:00.000Z",
@@ -230,6 +232,26 @@ test("expired and replayed challenges fail and cannot yield evidence", () => {
   assert.equal(replay.reasonCodes[0], "CHALLENGE_REPLAY");
 });
 
+test("two simultaneous submissions of one challenge have exactly one winner", async () => {
+  const fixture = verificationFixture();
+  const persisted = { status: "ISSUED", evidenceIds: [] };
+  const start = Promise.resolve();
+  async function consume() {
+    await start;
+    if (persisted.status !== "ISSUED") return { status: "FAILED", reasonCodes: ["CHALLENGE_REPLAY"], evidence: null };
+    const result = verifyNativeEntity({ ...fixture.input, challenge: { ...fixture.challenge, status: persisted.status } });
+    if (result.evidence) {
+      persisted.status = "VERIFIED";
+      persisted.evidenceIds.push(result.evidence.evidenceId);
+    }
+    return result;
+  }
+  const results = await Promise.all([consume(), consume()]);
+  assert.equal(results.filter((result) => result.status === "VERIFIED").length, 1);
+  assert.equal(results.filter((result) => result.reasonCodes[0] === "CHALLENGE_REPLAY").length, 1);
+  assert.equal(persisted.evidenceIds.length, 1);
+});
+
 test("nonce and manifest tampering are detected", () => {
   const fixture = verificationFixture();
   assert.equal(verifyNativeEntity({ ...fixture.input, proof: { ...fixture.proof, nonce: randomBytes(32).toString("base64url") } }).reasonCodes[0], "NONCE_MISMATCH");
@@ -238,9 +260,10 @@ test("nonce and manifest tampering are detected", () => {
   assert.equal(verifyNativeEntity({ ...fixture.input, manifest: tampered }).reasonCodes[0], "MANIFEST_TAMPERED");
 });
 
-test("revoked and expired credentials fail closed", () => {
+test("revoked, retired and expired credentials fail closed", () => {
   const fixture = verificationFixture();
   assert.equal(verifyNativeEntity({ ...fixture.input, credential: { ...fixture.credential, state: "REVOKED", revokedAt: now } }).reasonCodes[0], "REVOKED_CREDENTIAL");
+  assert.equal(verifyNativeEntity({ ...fixture.input, credential: { ...fixture.credential, state: "RETIRED" } }).reasonCodes[0], "RETIRED_CREDENTIAL");
   const expired = verifyNativeEntity({ ...fixture.input, credential: { ...fixture.credential, state: "EXPIRED", expiresAt: "2026-08-08T11:59:00.000Z" } });
   assert.equal(expired.status, "EXPIRED");
   assert.equal(expired.reasonCodes[0], "EXPIRED_CREDENTIAL");
@@ -261,6 +284,9 @@ test("ownership, runtime and build claims remain separate from cryptographic ide
   const ownerRemoved = verifyNativeEntity({ ...fixture.input, ownerState: "REVOKED" });
   assert.equal(ownerRemoved.status, "PARTIALLY_VERIFIED");
   assert.ok(ownerRemoved.unverifiedClaims.includes("accountable_owner"));
+  const ownerConflict = verifyNativeEntity({ ...fixture.input, ownerState: "CONFLICTING" });
+  assert.equal(ownerConflict.status, "REVIEW_REQUIRED");
+  assert.ok(ownerConflict.conflictingClaims.includes("accountable_owner"));
   const runtimeChanged = verifyNativeEntity({ ...fixture.input, runtimeObservation: { ...fixture.input.runtimeObservation, environment: "production" } });
   assert.equal(runtimeChanged.status, "REVIEW_REQUIRED");
   assert.ok(runtimeChanged.changedAttributes.includes("RUNTIME_CHANGED") || runtimeChanged.conflictingClaims.includes("runtime_binding"));
@@ -345,21 +371,41 @@ function canonicalReceipt({ nativeEvidence, externalEvidence = null, authorityRe
     subjectType: "ai_agent", subjectId, workflowId: "30000000-0000-4000-8000-000000000007", authorizedObjective: requestedAction, requiredIdentityState: "verified", requiredAuthority: [requestedAction], requiredEnvironmentState: "verified",
     permittedScope: [requestedAction], permittedProviders: ["cyber_sentinels_native", "external_provider"], requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF"], maximumEvidenceAgeSeconds: 3600,
     monitoringRequirements: [], humanReviewThresholds: [], contradictionPolicy: "pause", incidentThreshold: "critical", expiresAt: "2026-08-09T12:00:00.000Z",
-    revokedAt: authorityRevoked ? "2026-08-08T11:59:00.000Z" : null, revocationState: authorityRevoked ? "revoked" : "active", issuer: "owner:alice", approver: "owner:alice", policyId: "policy:native", policyVersion: "1",
+    revokedAt: authorityRevoked ? "2026-08-08T11:59:00.000Z" : null, revocationState: authorityRevoked ? "revoked" : "active", issuer: canonicalAgentAlpha.accountableOwnerId, approver: canonicalAgentAlpha.accountableOwnerId, policyId: "policy:native", policyVersion: "1",
     evidenceReferences: [{ type: "authority_grant", id: "authority:native" }], issuedAt: "2026-08-08T11:00:00.000Z",
   };
   const entity = {
-    entityId, enterpriseId, entityType: "ai_agent", displayReference: "Agent Alpha", canonicalTrustObjectId: subjectId, lifecycleState: "active", accountableOwnerId: "owner:alice", organizationReference: "organization:acme",
-    providerReferences: [], externalIdentityReferences: [], identityProfileReference: subjectId, currentAuthorityReferences: [authority.contractId], environmentReferences: ["staging"], workflowReferences: ["read_repository"],
-    currentTrustState: environmentState === "verified" ? "verified" : "degraded", currentEvidenceState: "current", currentConsequenceClassification: consequence, createdAt: now, updatedAt: now, suspendedAt: null, revokedAt: null, supersedesEntityVersionId: null, canonicalDigest: "e".repeat(64),
+    ...canonicalAgentAlpha,
+    enterpriseId,
+    currentAuthorityReferences: [authority.contractId],
+    environmentReferences: ["staging"],
+    workflowReferences: [requestedAction],
+    currentTrustState: environmentState === "verified" ? "verified" : "degraded",
+    currentEvidenceState: "current",
+    currentConsequenceClassification: consequence,
   };
   const deps = {
     async authenticateActor() { return { id: actorId, type: "human", authority: `session:${actorId}` }; },
     async resolveTenantFromSession() { return { id: enterpriseId, name: "Acme" }; },
     async findByIdempotency() { return null; }, async resolveOperationalEntity() { return entity; }, async loadTrustObject() { return trustObject; }, async loadConfiguredEvidence() { return evidence; }, async loadAuthority() { return authority; },
     async loadPolicy() { return { id: "policy:native", version: "1", active: true, validFrom: "2026-08-08T00:00:00.000Z", validUntil: null, policyHash: "f".repeat(64) }; }, async loadPreviousTransaction() { return null; },
-    async persistDecision(record) { eventLog.push(["decision", record.decision]); return { ...record, persistenceStatus: "CREATED" }; }, async extendEvidenceGraph(record) { eventLog.push(["evidence_graph", record.transactionId]); return `graph:${record.transactionId}`; }, async appendReplay(record) { eventLog.push(["replay", record.decision]); return `replay:${record.transactionId}`; }, async emitTrustMemory(record) { eventLog.push(["trust_memory", record.trustState]); return `memory:${record.transactionId}`; },
-    async requestExternalExecution() { return { configured: false, requestReference: null, acknowledgement: null, outcome: null }; }, async recordExternalAcknowledgement() { return null; }, async recordExternalOutcome() { return null; },
+    async persistDecision(record) { eventLog.push({ stage: "decision", record }); return { ...record, persistenceStatus: "CREATED" }; },
+    async extendEvidenceGraph(record) { const reference = `graph:${record.transactionId}`; eventLog.push({ stage: "evidence_graph", record, reference }); return reference; },
+    async appendReplay(record) { const reference = `replay:${record.transactionId}`; eventLog.push({ stage: "replay", record, reference }); return reference; },
+    async emitTrustMemory(record) { const reference = `memory:${record.transactionId}`; eventLog.push({ stage: "trust_memory", record, reference }); return reference; },
+    async requestExternalExecution(record) {
+      const requestReference = `execution:${record.transactionId}`;
+      const result = {
+        configured: true,
+        requestReference,
+        acknowledgement: { externalReference: requestReference, acknowledgedAt: now },
+        outcome: { state: "SUCCEEDED", externalReference: requestReference, occurredAt: now, reason: "Test-safe Alpha action completed." },
+      };
+      eventLog.push({ stage: "execution", record, reference: requestReference });
+      return result;
+    },
+    async recordExternalAcknowledgement(record, result) { const reference = `acknowledgement:${record.transactionId}`; eventLog.push({ stage: "acknowledgement", record, result, reference }); return reference; },
+    async recordExternalOutcome(record, result) { const reference = `outcome:${record.transactionId}`; eventLog.push({ stage: "outcome", record, result, reference }); return reference; },
   };
   return executeCanonicalTrustTransaction({
     trustObject: { subjectType: "ai_agent", subjectId }, operationalEntityId: entityId,
@@ -369,30 +415,61 @@ function canonicalReceipt({ nativeEvidence, externalEvidence = null, authorityRe
 }
 
 test("provider-free canonical runtime ALLOWs with native identity, owner and authority evidence", async () => {
-  const native = verifyNativeEntity(verificationFixture().input);
-  const receipt = await canonicalReceipt({ nativeEvidence: native.evidence });
-  assert.equal(receipt.decision, "ALLOW");
-  assert.equal(receipt.evidence[0].providerId, "cyber_sentinels_native");
-  assert.equal(receipt.evidence[0].type, "NATIVE_ENTITY_IDENTITY_PROOF");
+  const prior = process.env.HOPAE_ENABLED;
+  process.env.HOPAE_ENABLED = "false";
+  try {
+    const native = verifyNativeEntity(verificationFixture().input);
+    const receipt = await canonicalReceipt({ nativeEvidence: native.evidence });
+    assert.equal(receipt.decision, "ALLOW");
+    assert.equal(receipt.evidence.length, 1);
+    assert.equal(receipt.evidence[0].providerId, "cyber_sentinels_native");
+    assert.equal(receipt.evidence[0].type, "NATIVE_ENTITY_IDENTITY_PROOF");
+  } finally {
+    if (prior === undefined) delete process.env.HOPAE_ENABLED;
+    else process.env.HOPAE_ENABLED = prior;
+  }
 });
 
-test("Agent Alpha completes proof, attacks, drift, authority denial, rotation and canonical recovery", async () => {
+test("Agent Alpha native identity proof reaches canonical trust transaction", async (context) => {
   const events = [];
   const alpha = verificationFixture();
   const verified = verifyNativeEntity(alpha.input);
   assert.equal(verified.status, "VERIFIED");
   assert.ok(verified.evidence);
+  assert.equal(alpha.manifest.operationalEntityId, canonicalAgentAlpha.entityId);
+  assert.equal(alpha.challenge.operationalEntityId, canonicalAgentAlpha.entityId);
+  assert.equal(alpha.credential.operationalEntityId, canonicalAgentAlpha.entityId);
+  assert.equal(verified.evidence.operationalEntityId, canonicalAgentAlpha.entityId);
+  assert.equal(verified.evidence.manifestDigest, alpha.manifest.manifestDigest);
+  assert.equal(verified.evidence.credentialFingerprint, alpha.credential.credentialFingerprint);
 
   const allowed = await canonicalReceipt({ nativeEvidence: verified.evidence, eventLog: events });
   assert.equal(allowed.decision, "ALLOW");
   assert.equal(allowed.action.type, "read_repository");
+  assert.equal(allowed.operationalEntityId, canonicalAgentAlpha.entityId);
+  assert.equal(allowed.accountableOwnerId, canonicalAgentAlpha.accountableOwnerId);
+  assert.equal(allowed.trustObject.subjectId, canonicalAgentAlpha.canonicalTrustObjectId);
+  assert.equal(allowed.evidence[0].reference, verified.evidence.evidenceId);
+  assert.equal(allowed.evidence[0].sourceDigest, verified.evidence.evidenceDigest);
+  assert.equal(allowed.evidence[0].providerEventId, alpha.challenge.challengeId);
+  assert.equal(allowed.authorityReference, "30000000-0000-4000-8000-000000000006");
+  assert.equal(allowed.evidenceGraphReference, `graph:${allowed.transactionId}`);
   assert.ok(allowed.replayReference);
   assert.ok(allowed.trustMemoryReference);
+  assert.equal(allowed.externalExecution.requested, true);
+  assert.equal(allowed.externalExecution.outcome, "SUCCEEDED");
+  for (const stage of ["decision", "evidence_graph", "replay", "trust_memory", "execution", "acknowledgement", "outcome"]) {
+    const persisted = events.find((event) => event.stage === stage && event.record.transactionId === allowed.transactionId);
+    assert.ok(persisted, `${stage} must retain the canonical Alpha transaction`);
+    assert.equal(persisted.record.operationalEntityId, canonicalAgentAlpha.entityId);
+    assert.ok(persisted.record.evidenceReferences.some((reference) => reference.id === verified.evidence.evidenceId));
+  }
 
   const replayed = verifyNativeEntity({ ...alpha.input, challenge: { ...alpha.challenge, status: "VERIFIED" } });
   assert.equal(replayed.status, "FAILED");
   assert.equal(replayed.reasonCodes[0], "CHALLENGE_REPLAY");
   assert.equal(replayed.evidence, null);
+  assert.equal(events.filter((event) => event.stage === "decision").length, 1, "replay must not create a second canonical decision");
 
   const attacker = keyMaterial("key:attacker:copied-alpha-id");
   const copiedIdProof = {
@@ -454,8 +531,22 @@ test("Agent Alpha completes proof, attacks, drift, authority denial, rotation an
 
   const recovered = await canonicalReceipt({ nativeEvidence: reverified.evidence, eventLog: events });
   assert.equal(recovered.decision, "ALLOW");
-  assert.equal(events.filter(([type]) => type === "replay").length, 4);
-  assert.equal(events.filter(([type]) => type === "trust_memory").length, 4);
+  assert.equal(events.filter((event) => event.stage === "replay").length, 4);
+  assert.equal(events.filter((event) => event.stage === "trust_memory").length, 4);
+  context.diagnostic(JSON.stringify({
+    operationalEntityId: canonicalAgentAlpha.entityId,
+    tenantId: enterpriseId,
+    challengeId: alpha.challenge.challengeId,
+    manifestDigest: alpha.manifest.manifestDigest,
+    credentialFingerprint: alpha.credential.credentialFingerprint,
+    nativeEvidenceId: verified.evidence.evidenceId,
+    canonicalTransactionId: allowed.transactionId,
+    evidenceGraphReference: allowed.evidenceGraphReference,
+    replayReference: allowed.replayReference,
+    trustMemoryReference: allowed.trustMemoryReference,
+    decision: allowed.decision,
+    executionOutcome: allowed.externalExecution.outcome,
+  }));
 });
 
 test("external evidence still works when native evidence is unavailable, and combined provenance is not self-independent", async () => {

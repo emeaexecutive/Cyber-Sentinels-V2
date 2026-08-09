@@ -31,7 +31,7 @@ test("private keys are prohibited and challenge storage retains only the nonce h
   assert.doesNotMatch(challengeTable, /\n\s*nonce text/i);
   assert.match(migration, /not\(public_jwk \? 'd'\)/);
   assert.match(core, /PRIVATE_CREDENTIAL_PROHIBITED/);
-  assert.match(panel, /private Ed25519 key is generated in this browser/i);
+  assert.match(panel, /private Ed25519 key is generated as non-extractable browser memory/i);
   assert.doesNotMatch(panel, /privateKey\s*:/);
 });
 
@@ -146,9 +146,11 @@ test("Replay, Trust Memory, revocation and continuous reevaluation retain exact 
 });
 
 test("the Operational Entity and CPTO demo surfaces expose proof, unknowns and copied-ID failure", async () => {
-  const [entityPage, demo] = await Promise.all([
+  const [entityPage, demo, panel, entityModel] = await Promise.all([
     read("app/operational-entities/[entityId]/page.tsx"),
     read("app/demo/trust-runtime/page.tsx"),
+    read("components/native-entity-verification-panel.tsx"),
+    read("lib/operational-entities/operational-entity.ts"),
   ]);
   for (const label of ["Native Verification", "Last Verified", "Signing Credential", "Manifest Version", "Owner Binding", "Runtime Binding", "Software Provenance", "Continuity", "Changed Attributes", "Verified Claims", "Unverified Claims", "Conflicts", "Evidence and reason codes"]) {
     assert.match(entityPage, new RegExp(label, "i"));
@@ -157,4 +159,16 @@ test("the Operational Entity and CPTO demo surfaces expose proof, unknowns and c
   assert.match(demo, /How do you know that is the same agent\?/);
   assert.match(demo, /What happens if somebody copies its ID\?/);
   assert.match(demo, /INVALID_SIGNATURE \/ WRONG_ENTITY/);
+  assert.match(entityModel, /AGENT_ALPHA_OPERATIONAL_ENTITY_ID = "entity:alpha"/);
+  assert.match(entityModel, /resolveCanonicalAgentAlpha/);
+  assert.match(demo, /persistedAgentAlpha/);
+  assert.match(demo, /NativeEntityVerificationPanel/);
+  assert.doesNotMatch(demo, /createOperationalEntity/);
+  for (const action of ["VERIFY AGENT ALPHA", "COPY ALPHA ID", "REPLAY OLD PROOF", "ALTER MANIFEST", "CHANGE RUNTIME", "REVOKE AUTHORITY", "ROTATE KEY + RECOVER"]) {
+    assert.match(panel, new RegExp(action.replaceAll("+", "\\+")));
+  }
+  assert.match(panel, /fetch\("\/api\/trust\/execute"/);
+  assert.match(panel, /fetch\("\/api\/trust-fabric\/contracts"/);
+  assert.match(panel, /privateSigningKey/);
+  assert.doesNotMatch(panel, /JSON\.stringify\([^\n]*privateSigningKey|privateKey\s*:/);
 });

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { projectOperationalEntityIntelligence } from "@/lib/operational-entities/intelligence";
 import { loadOperationalEntities, loadOperationalEntityDetail } from "@/lib/operational-entities/server";
+import { NativeEntityVerificationPanel } from "@/components/native-entity-verification-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,8 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
   if (!user) redirect("/login?next=/demo/trust-runtime");
   const entities = await loadOperationalEntities({ supabase, user });
   const requested = (await searchParams).entityId;
-  const selected = entities.find((entity) => entity.entityId === requested) ?? entities[0] ?? null;
+  const persistedAgentAlpha = entities.find((entity) => entity.displayReference.trim().toLowerCase() === "agent alpha") ?? null;
+  const selected = entities.find((entity) => entity.entityId === requested) ?? persistedAgentAlpha ?? entities[0] ?? null;
   const detail = selected ? await loadOperationalEntityDetail({ supabase, user, entityId: selected.entityId }) : null;
 
   if (!detail) {
@@ -51,6 +53,7 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
   const items: Array<[string, unknown, string]> = [
     ["OPERATIONAL ENTITY", detail.entity.displayReference, `/operational-entities/${encodeURIComponent(detail.entity.entityId)}`],
     ["IDENTITY", latestNative ? `${text(latestNative.status)} · native cryptographic evidence` : detail.externalIdentities.length ? `${detail.externalIdentities.length} external reference(s)` : "NOT YET VERIFIED", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}#native-verification`],
+    ["PROOF", latestNative ? "CRYPTOGRAPHIC · Ed25519" : "NOT YET ESTABLISHED", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}#native-verification`],
     ["ACCOUNTABLE OWNER", detail.entity.accountableOwnerId || "UNKNOWN", `/operational-entities/${encodeURIComponent(detail.entity.entityId)}`],
     ["AUTHORITY", latest?.authority_reference ?? "NOT RECORDED", transactionHref],
     ["EVIDENCE", evidence.length ? `${evidence.length} normalized reference(s)` : "INSUFFICIENT EVIDENCE", `${transactionHref}#provider-evidence`],
@@ -78,6 +81,19 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
           <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">Authenticated internal demonstration · Persisted data only</p><h1 className="mt-3 text-4xl font-semibold">Trust Runtime transaction proof</h1><p className="mt-3 max-w-3xl text-slate-400">This surface projects the selected tenant’s stored Operational Entity, canonical decisions, evidence, execution records, Replay and Trust Memory. It never runs a fixture on page load.</p></div>
           <form className="flex gap-2" action="/demo/trust-runtime"><label className="sr-only" htmlFor="entityId">Operational Entity</label><select id="entityId" name="entityId" defaultValue={detail.entity.entityId} className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2">{entities.map((entity) => <option key={entity.entityId} value={entity.entityId}>{entity.displayReference}</option>)}</select><button className="rounded-lg bg-cyan-300 px-4 py-2 font-semibold text-slate-950">Load</button></form>
         </header>
+
+        {(process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview") ? <NativeEntityVerificationPanel
+          enterpriseId={detail.entity.enterpriseId}
+          operationalEntityId={detail.entity.entityId}
+          canonicalTrustObjectId={detail.entity.canonicalTrustObjectId}
+          displayName={detail.entity.displayReference}
+          entityType={detail.entity.entityType}
+          accountableOwnerId={detail.entity.accountableOwnerId}
+          organizationId={detail.entity.organizationReference}
+          authorityReference={detail.entity.currentAuthorityReferences[0] ?? null}
+          environmentReference={detail.entity.environmentReferences[0] ?? null}
+          activeCredentialId={nativeCredential ? String(nativeCredential.credential_id) : null}
+        /> : null}
 
         <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {items.map(([label, item, href]) => <Link href={href} key={label} className={`${panel} transition hover:border-cyan-500`}><p className="text-xs font-semibold tracking-[0.12em] text-slate-500">{label}</p><p className="mt-3 break-words text-lg font-semibold text-slate-100">{text(item)}</p><p className="mt-3 text-xs text-cyan-300">Open underlying record →</p></Link>)}

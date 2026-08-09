@@ -18,6 +18,16 @@ Native evidence has provenance `CYBER_SENTINELS_NATIVE`. It is not independent c
 - `trust_memory_index` receives only material, idempotent native events.
 - `operational_entity_native_replay_events` preserves the attributable native-verification chronology that precedes or supplements a canonical transaction Replay.
 
+## Agent Alpha canonical path
+
+Agent Alpha is the existing `entity:alpha` Operational Entity defined by `AGENT_ALPHA_OPERATIONAL_ENTITY_ID` and resolved by `resolveCanonicalAgentAlpha` in `lib/operational-entities/operational-entity.ts`. Native qualification does not register or model another Alpha. Persisted Preview execution resolves the tenant's existing `Agent Alpha` row through `lib/operational-entities/server.ts`; the demo selects that row by its stored display reference and passes its actual entity ID, tenant UUID, accountable owner, trust-object reference, Authority Lineage reference, environment, evidence, Replay, and Trust Memory into the existing services.
+
+The executable path is:
+
+`operational_entities` → `operational_entity_native_credentials` → `operational_entity_manifests` → `operational_entity_native_challenges` → `native_entity_identity_evidence` / `evidence_objects` → `lib/trust-transaction/server.ts` → `executeCanonicalTrustTransaction` → canonical decision/execution/outcome → canonical Replay and Trust Memory.
+
+The release-gate test `Agent Alpha native identity proof reaches canonical trust transaction` asserts that the same `operationalEntityId`, manifest digest, credential fingerprint, native evidence reference, owner, authority, graph reference, Replay reference, and Trust Memory reference survive this path.
+
 ## Supported subjects
 
 The signed manifest supports `AI_AGENT`, `WORKLOAD`, `SERVICE`, `APPLICATION`, `MODEL_ENDPOINT`, `MACHINE`, and `DEVICE`. Each verification is tenant-bound and targets an existing `OperationalEntityId`; a provider-native identifier can never become that ID.
@@ -64,6 +74,8 @@ Named changes include signing key, owner, build, model, runtime, capability expa
 Rotation registers a new public credential as `PENDING`, references the active credential and accountable authorization, verifies a fresh manifest/challenge with the new key, then atomically activates the new key and retires the old key. Historical evidence remains attributable to the old fingerprint. Replay records rotation and reverification; Trust Memory records `SIGNING_KEY_ROTATED` once.
 
 Credential, manifest, and owner-binding revocation invalidate associated current evidence and trigger Continuous Trust reevaluation. Existing entity suspension and Authority Lineage revocation continue to fail closed in the canonical transaction.
+
+A retired signing credential produces `RETIRED_CREDENTIAL`; it cannot be reused after a successful rotation.
 
 ## Trust boundaries and limitations
 

@@ -520,6 +520,7 @@ export function verifyNativeEntity(input: {
   if (input.manifestState && input.manifestState !== "ACTIVE") return fail("MANIFEST_NOT_ACTIVE");
   try { verifySignedManifest(input.manifest, input.credential, now); } catch (error) { return fail(error instanceof NativeVerificationError ? error.code : "INVALID_SIGNATURE"); }
   if (input.credential.state === "REVOKED") return fail("REVOKED_CREDENTIAL");
+  if (input.credential.state === "RETIRED") return fail("RETIRED_CREDENTIAL");
   let verificationTime: number;
   try {
     verificationTime = timestamp(now, "VERIFICATION_TIMESTAMP_INVALID");

@@ -111,11 +111,13 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
         {nativeDemoEnabled ? <NativeEntityVerificationPanel
           enterpriseId={detail.entity.enterpriseId}
           operationalEntityId={detail.entity.entityId}
+          canonicalTrustObjectId={detail.entity.canonicalTrustObjectId}
           displayName={detail.entity.displayReference}
           entityType={detail.entity.entityType}
           accountableOwnerId={detail.entity.accountableOwnerId}
           organizationId={detail.entity.organizationReference}
           authorityReference={detail.entity.currentAuthorityReferences[0] ?? null}
+          environmentReference={detail.entity.environmentReferences[0] ?? null}
           activeCredentialId={activeNativeCredential ? String(activeNativeCredential.credential_id) : null}
         /> : null}
       </section>

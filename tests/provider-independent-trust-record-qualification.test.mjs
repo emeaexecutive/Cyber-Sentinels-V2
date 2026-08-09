@@ -5,12 +5,14 @@ import test from "node:test";
 import { classifyEvidenceIndependence, evaluateEnforcementConfirmation, placeholderProviderAdapter } from "../lib/operational-entities/federated-evidence.ts";
 import { buildAgentAlphaProviderTransitionProof } from "../lib/operational-entities/provider-transition-proof.ts";
 import { correlateExternalIdentity, assertProviderNeutralCanonicalId, decisionSnapshotDigest } from "../lib/operational-entities/provider-transition.ts";
-import { createOperationalEntity } from "../lib/operational-entities/operational-entity.ts";
+import { AGENT_ALPHA_OPERATIONAL_ENTITY_ID, createOperationalEntity, resolveCanonicalAgentAlpha } from "../lib/operational-entities/operational-entity.ts";
 
 const proof = buildAgentAlphaProviderTransitionProof();
 
 test("Agent Alpha remains one provider-neutral Operational Entity across replacement", () => {
-  assert.equal(proof.initialEntity.entityId, "entity:agent-alpha");
+  assert.equal(proof.initialEntity.entityId, AGENT_ALPHA_OPERATIONAL_ENTITY_ID);
+  assert.equal(proof.initialEntity.entityId, resolveCanonicalAgentAlpha().entityId);
+  assert.equal(proof.initialEntity.accountableOwnerId, resolveCanonicalAgentAlpha().accountableOwnerId);
   assert.equal(proof.currentEntity.entityId, proof.initialEntity.entityId);
   assert.equal(proof.initialEntity.canonicalTrustObjectId, proof.currentEntity.canonicalTrustObjectId);
   assert.equal(proof.currentEntity.currentTrustState, "verified");
