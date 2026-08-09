@@ -1,0 +1,428 @@
+import "server-only";
+
+import type { User } from "@supabase/supabase-js";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { createCanonicalTrustTransactionDependencies } from "@/lib/trust-transaction/server";
+import { executeCanonicalTrustTransaction } from "@/src/lib/trust-transaction/canonical";
+import { hashCanonical } from "@/src/lib/trust-core/hash";
+import type { TrustContract } from "@/src/lib/trust-fabric/types";
+import {
+  calculateDelegationBlastRadius,
+  evaluateDelegatedAction,
+  evaluateDelegationPolicy,
+  validateDelegatedAuthoritySubset,
+  verifyDelegationAcceptance,
+  verifySignedDelegation,
+  type AuthorityDelegation,
+  type DelegationAcceptance,
+  type NativeIdentityState,
+  type ParentAuthority,
+} from "./delegated-authority";
+import type { NativeCredential, PublicJwk } from "./native-verification";
+
+type Row = Record<string, any>;
+type EnterpriseRole = "owner" | "admin" | "reviewer" | "observer";
+export type DelegatedAuthorityContext = { enterpriseId: string; user: User; role: EnterpriseRole; supabase?: any };
+
+export class DelegatedAuthorityServerError extends Error {
+  constructor(message: string, readonly code: string, readonly status = 400) {
+    super(message);
+    this.name = "DelegatedAuthorityServerError";
+  }
+}
+
+function ensureRole(role: EnterpriseRole, allowed: EnterpriseRole[]) {
+  if (!allowed.includes(role)) throw new DelegatedAuthorityServerError("This enterprise role cannot perform the delegated-authority action.", "ENTERPRISE_ROLE_DENIED", 403);
+}
+
+function fail(operation: string, error: unknown): never {
+  console.error(`${operation} failed.`, { code: (error as { code?: string })?.code });
+  throw new DelegatedAuthorityServerError(`${operation} failed safely.`, "DELEGATED_AUTHORITY_PERSISTENCE_FAILED", 503);
+}
+
+function uuid(value: unknown, field: string) {
+  const result = String(value ?? "");
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result)) throw new DelegatedAuthorityServerError(`${field} is invalid.`, "DELEGATION_INPUT_INVALID");
+  return result;
+}
+
+function reference(value: unknown, field: string) {
+  const result = String(value ?? "").trim();
+  if (!/^[A-Za-z0-9_.:/-]{1,240}$/.test(result)) throw new DelegatedAuthorityServerError(`${field} is invalid.`, "OPERATIONAL_ENTITY_INPUT_INVALID");
+  return result;
+}
+
+function rowCredential(row: Row): NativeCredential {
+  return {
+    credentialId: String(row.credential_id), enterpriseId: String(row.enterprise_id), operationalEntityId: String(row.operational_entity_id),
+    signingKeyId: String(row.signing_key_id), algorithm: "Ed25519", publicJwk: row.public_jwk as PublicJwk,
+    credentialFingerprint: String(row.credential_fingerprint), state: String(row.state) as NativeCredential["state"],
+    validFrom: String(row.valid_from), expiresAt: row.expires_at ? String(row.expires_at) : null,
+    revokedAt: row.revoked_at ? String(row.revoked_at) : null, rotatedFromCredentialId: row.rotated_from_credential_id ? String(row.rotated_from_credential_id) : null,
+  };
+}
+
+function rowDelegation(row: Row): AuthorityDelegation {
+  return {
+    delegationId: String(row.delegation_id), enterpriseId: String(row.enterprise_id), delegatorOperationalEntityId: String(row.delegator_operational_entity_id),
+    delegateOperationalEntityId: String(row.delegate_operational_entity_id), parentAuthorityId: String(row.parent_authority_id),
+    parentDelegationId: row.parent_delegation_id ? String(row.parent_delegation_id) : null, objective: String(row.objective),
+    scope: { permittedActions: row.permitted_actions?.map(String) ?? [], permittedTools: row.permitted_tools?.map(String) ?? [], permittedTargets: row.permitted_targets?.map(String) ?? [], environments: row.environments?.map(String) ?? [], dataBoundary: String(row.data_boundary) as AuthorityDelegation["scope"]["dataBoundary"], financialLimit: row.financial_limit === null ? null : Number(row.financial_limit), executionLimit: row.execution_limit === null ? null : Number(row.execution_limit) },
+    canRedelegate: Boolean(row.can_redelegate), maximumDelegationDepth: Number(row.maximum_delegation_depth), depth: Number(row.delegation_depth),
+    issuedAt: String(row.issued_at), notBefore: String(row.not_before), expiresAt: String(row.expires_at), revokedAt: row.revoked_at ? String(row.revoked_at) : null,
+    policyVersion: String(row.policy_version), authorityVersion: String(row.authority_version), nonce: String(row.nonce), signingKeyId: String(row.signing_key_id),
+    delegationDigest: String(row.delegation_digest), signature: String(row.signature), status: String(row.status) as AuthorityDelegation["status"], evidenceReferences: row.evidence_references?.map(String) ?? [],
+  };
+}
+
+function rowAcceptance(row: Row): DelegationAcceptance {
+  return {
+    acceptanceId: String(row.acceptance_id), enterpriseId: String(row.enterprise_id), delegationId: String(row.delegation_id), delegationDigest: String(row.delegation_digest),
+    delegateOperationalEntityId: String(row.delegate_operational_entity_id), credentialFingerprint: String(row.credential_fingerprint), manifestDigest: String(row.manifest_digest),
+    signingKeyId: String(row.signing_key_id), acceptedAt: String(row.accepted_at), nonce: String(row.nonce), signature: String(row.signature), acceptanceDigest: String(row.acceptance_digest),
+  };
+}
+
+async function currentIdentity(enterpriseId: string, operationalEntityId: string): Promise<{ identity: NativeIdentityState; credential: NativeCredential; manifestId: string }> {
+  const db = createServiceRoleClient();
+  const verification = await db.from("operational_entity_native_verifications").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", operationalEntityId).order("verified_at", { ascending: false }).limit(1).maybeSingle();
+  if (verification.error) fail("Native identity resolution", verification.error);
+  if (!verification.data) throw new DelegatedAuthorityServerError("Current native identity evidence is required.", "IDENTITY_PROOF_FAILED", 409);
+  const [credential, owner, evidence] = await Promise.all([
+    db.from("operational_entity_native_credentials").select("*").eq("enterprise_id", enterpriseId).eq("credential_id", verification.data.credential_id).maybeSingle(),
+    db.from("operational_entity_owner_bindings").select("state,accountable_owner_id").eq("enterprise_id", enterpriseId).eq("operational_entity_id", operationalEntityId).order("effective_from", { ascending: false }).limit(1).maybeSingle(),
+    db.from("native_entity_identity_evidence").select("evidence_id,revoked_at").eq("enterprise_id", enterpriseId).eq("verification_id", verification.data.verification_id).maybeSingle(),
+  ]);
+  for (const result of [credential, owner, evidence]) if (result.error) fail("Native identity binding resolution", result.error);
+  if (!credential.data || evidence.data?.revoked_at) throw new DelegatedAuthorityServerError("The native identity credential is unavailable or revoked.", "IDENTITY_PROOF_FAILED", 409);
+  return {
+    credential: rowCredential(credential.data),
+    manifestId: String(verification.data.manifest_id),
+    identity: {
+      operationalEntityId, enterpriseId, status: String(verification.data.status) as NativeIdentityState["status"], ownerState: String(owner.data?.state ?? "UNKNOWN"), accountableOwnerId: String(owner.data?.accountable_owner_id ?? "UNKNOWN"),
+      runtimeBinding: String(verification.data.runtime_binding), manifestDigest: String(verification.data.manifest_digest), credentialFingerprint: String(verification.data.credential_fingerprint),
+      evidenceReference: `native_identity_evidence:${String(evidence.data?.evidence_id ?? verification.data.verification_id)}`, expiresAt: String(verification.data.expires_at),
+    },
+  };
+}
+
+function parentAuthorityFrom(contractRow: Row, operationalEntityId: string, accountableOwnerId: string): ParentAuthority {
+  const contract = contractRow.contract as TrustContract & { authorityScope?: Partial<ParentAuthority["scope"]>; canDelegate?: boolean; maximumDelegationDepth?: number; authorityVersion?: string };
+  const configured = contract.authorityScope ?? {};
+  return {
+    authorityId: String(contractRow.contract_id), enterpriseId: String(contractRow.enterprise_id), operationalEntityId, accountableOwnerId,
+    objective: String(contract.authorizedObjective),
+    scope: {
+      permittedActions: configured.permittedActions ?? contract.permittedScope,
+      permittedTools: configured.permittedTools ?? contract.permittedScope,
+      permittedTargets: configured.permittedTargets ?? [],
+      environments: configured.environments ?? [],
+      dataBoundary: configured.dataBoundary ?? "PUBLIC",
+      financialLimit: configured.financialLimit ?? null,
+      executionLimit: configured.executionLimit ?? null,
+    },
+    canDelegate: contract.canDelegate === true, maximumDelegationDepth: Number(contract.maximumDelegationDepth ?? 0), issuedAt: String(contract.issuedAt), notBefore: String(contract.issuedAt), expiresAt: String(contract.expiresAt),
+    revokedAt: contractRow.revocation_state === "revoked" ? String(contractRow.revoked_at ?? new Date().toISOString()) : null,
+    policyVersion: String(contract.policyVersion), authorityVersion: String(contract.authorityVersion ?? contract.policyVersion), evidenceReferences: contract.evidenceReferences.map((item) => `${item.type}:${item.id}`),
+  };
+}
+
+async function parentAuthorityFor(enterpriseId: string, authorityId: string, expectedDelegatorId?: string) {
+  const db = createServiceRoleClient();
+  let contractQuery = db.from("trust_contracts").select("*").eq("enterprise_id", enterpriseId).eq("contract_id", authorityId);
+  if (expectedDelegatorId) contractQuery = contractQuery.eq("subject_id", expectedDelegatorId);
+  const contract = await contractQuery.maybeSingle();
+  const rootEntityId = String(contract.data?.subject_id ?? "");
+  const entity = rootEntityId ? await db.from("operational_entities").select("accountable_owner_id").eq("enterprise_id", enterpriseId).eq("entity_id", rootEntityId).maybeSingle() : { data: null, error: null };
+  if (contract.error || entity.error) fail("Parent authority resolution", contract.error ?? entity.error);
+  if (!contract.data || !entity.data) throw new DelegatedAuthorityServerError("The parent authority is not bound to this delegator and tenant.", "PARENT_AUTHORITY_NOT_FOUND", 404);
+  return { parent: parentAuthorityFrom(contract.data, rootEntityId, String(entity.data.accountable_owner_id)), contract: contract.data as Row };
+}
+
+async function appendReplay(context: DelegatedAuthorityContext, entityId: string, eventType: string, reasonCodes: string[], payload: Record<string, unknown>, evidenceReferences: string[] = []) {
+  const db = createServiceRoleClient();
+  const occurredAt = new Date().toISOString();
+  const base = { event_id: crypto.randomUUID(), enterprise_id: context.enterpriseId, operational_entity_id: entityId, event_type: eventType, actor_reference: `user:${context.user.id}`, attribution: "CYBER_SENTINELS_INTERPRETATION", evidence_references: evidenceReferences, reason_codes: reasonCodes, payload, occurred_at: occurredAt };
+  const inserted = await db.from("operational_entity_native_replay_events").insert({ ...base, event_digest: hashCanonical(base) });
+  if (inserted.error) fail("Delegated authority Replay append", inserted.error);
+}
+
+async function remember(context: DelegatedAuthorityContext, subjectId: string, memoryType: string, sourceId: string, summary: Record<string, unknown>) {
+  const db = createServiceRoleClient();
+  const result = await db.from("trust_memory_index").insert({ enterprise_id: context.enterpriseId, subject_id: subjectId, domain_key: "AUTHORITY", memory_type: memoryType, source_id: sourceId, occurred_at: new Date().toISOString(), summary });
+  if (result.error && result.error.code !== "23505") fail("Delegated authority Trust Memory", result.error);
+}
+
+async function extendGraph(context: DelegatedAuthorityContext, delegation: AuthorityDelegation, edgeType: string) {
+  const db = createServiceRoleClient();
+  const nodes = [
+    { node_type: "OPERATIONAL_ENTITY", external_id: delegation.delegatorOperationalEntityId, label: delegation.delegatorOperationalEntityId },
+    { node_type: "OPERATIONAL_ENTITY", external_id: delegation.delegateOperationalEntityId, label: delegation.delegateOperationalEntityId },
+    { node_type: "AUTHORITY_DELEGATION", external_id: delegation.delegationId, label: delegation.objective },
+    { node_type: "TRUST_CONTRACT", external_id: delegation.parentAuthorityId, label: delegation.parentAuthorityId },
+  ];
+  const upsert = await db.from("evidence_graph_nodes").upsert(nodes.map((node) => ({ ...node, enterprise_id: context.enterpriseId, domain_key: "AUTHORITY", metadata: {} })), { onConflict: "enterprise_id,node_type,external_id" }).select("node_id,node_type,external_id");
+  if (upsert.error) fail("Delegation Evidence Graph nodes", upsert.error);
+  const by = new Map((upsert.data ?? []).map((node) => [`${node.node_type}:${node.external_id}`, String(node.node_id)]));
+  const delegationNode = by.get(`AUTHORITY_DELEGATION:${delegation.delegationId}`);
+  const delegatorNode = by.get(`OPERATIONAL_ENTITY:${delegation.delegatorOperationalEntityId}`);
+  const delegateNode = by.get(`OPERATIONAL_ENTITY:${delegation.delegateOperationalEntityId}`);
+  const parentNode = by.get(`TRUST_CONTRACT:${delegation.parentAuthorityId}`);
+  if (!delegationNode || !delegatorNode || !delegateNode || !parentNode) throw new DelegatedAuthorityServerError("Delegation Evidence Graph nodes were not resolved.", "EVIDENCE_GRAPH_WRITE_FAILED", 503);
+  const edges = edgeType === "DELEGATION_ACCEPTED_BY_ENTITY"
+    ? [{ from_node_id: delegationNode, to_node_id: delegateNode, edge_type: edgeType }]
+    : edgeType === "DELEGATION_REVOKED" || edgeType === "DELEGATION_EXPIRED"
+      ? [{ from_node_id: delegationNode, to_node_id: delegateNode, edge_type: edgeType }]
+      : [
+          { from_node_id: delegatorNode, to_node_id: delegationNode, edge_type: "ENTITY_DELEGATED_AUTHORITY" },
+          { from_node_id: delegationNode, to_node_id: delegateNode, edge_type: "ENTITY_RECEIVED_DELEGATED_AUTHORITY" },
+          { from_node_id: delegationNode, to_node_id: parentNode, edge_type: "DELEGATION_DERIVED_FROM_AUTHORITY" },
+        ];
+  const inserted = await db.from("evidence_graph_edges").upsert(edges.map((edge) => ({ ...edge, enterprise_id: context.enterpriseId, evidence_id: null })), { onConflict: "enterprise_id,from_node_id,to_node_id,edge_type,evidence_id" });
+  if (inserted.error) fail("Delegation Evidence Graph edges", inserted.error);
+}
+
+async function extendActionGraph(context: DelegatedAuthorityContext, delegation: AuthorityDelegation, evaluationId: string, transactionId: string) {
+  const db = createServiceRoleClient();
+  const nodes = await db.from("evidence_graph_nodes").upsert([
+    { enterprise_id: context.enterpriseId, node_type: "AUTHORITY_DELEGATION", external_id: delegation.delegationId, domain_key: "AUTHORITY", label: delegation.objective, metadata: {} },
+    { enterprise_id: context.enterpriseId, node_type: "CANONICAL_TRANSACTION", external_id: transactionId, domain_key: "AUTHORITY", label: evaluationId, metadata: { evaluationId } },
+  ], { onConflict: "enterprise_id,node_type,external_id" }).select("node_id,node_type,external_id");
+  if (nodes.error) fail("Delegated action Evidence Graph nodes", nodes.error);
+  const delegationNode = nodes.data?.find((node) => node.node_type === "AUTHORITY_DELEGATION")?.node_id;
+  const actionNode = nodes.data?.find((node) => node.node_type === "CANONICAL_TRANSACTION")?.node_id;
+  if (!delegationNode || !actionNode) throw new DelegatedAuthorityServerError("Delegated action graph nodes were not resolved.", "EVIDENCE_GRAPH_WRITE_FAILED", 503);
+  const edge = await db.from("evidence_graph_edges").insert({ enterprise_id: context.enterpriseId, from_node_id: actionNode, to_node_id: delegationNode, edge_type: "ACTION_AUTHORIZED_BY_DELEGATION", evidence_id: null, correlation_id: null });
+  if (edge.error && edge.error.code !== "23505") fail("Delegated action Evidence Graph edge", edge.error);
+}
+
+export async function registerCanonicalNativeAgent(context: DelegatedAuthorityContext, raw: Record<string, unknown>) {
+  ensureRole(context.role, ["owner", "admin"]);
+  const displayReference = String(raw.displayReference ?? "").trim();
+  if (!displayReference || displayReference.length > 240) throw new DelegatedAuthorityServerError("displayReference is invalid.", "OPERATIONAL_ENTITY_INPUT_INVALID");
+  const entity = {
+    entityId: reference(raw.entityId, "entityId"),
+    displayReference,
+    accountableOwnerId: reference(raw.accountableOwnerId, "accountableOwnerId"),
+    organizationReference: reference(raw.organizationReference, "organizationReference"),
+    environmentReference: reference(raw.environmentReference, "environmentReference"),
+    workflowReference: reference(raw.workflowReference, "workflowReference"),
+  };
+  const canonicalDigest = hashCanonical({ ...entity, enterpriseId: context.enterpriseId, entityType: "ai_agent", lifecycleState: "active", authorityReferences: [] });
+  const db = createServiceRoleClient();
+  const registered = await db.rpc("register_native_agent_operational_entity_v1", { p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id, p_entity: { ...entity, canonicalDigest } });
+  if (registered.error) fail("Canonical native agent registration", registered.error);
+  if (String((registered.data as Row)?.status) === "DUPLICATE") throw new DelegatedAuthorityServerError("The Operational Entity already exists.", "OPERATIONAL_ENTITY_ALREADY_EXISTS", 409);
+  await appendReplay(context, entity.entityId, entity.displayReference.toLowerCase() === "agent beta" ? "BETA_REGISTERED" : "ENTITY_CHANGED", ["CANONICAL_OPERATIONAL_ENTITY_REGISTERED", "NATIVE_IDENTITY_PROOF_REQUIRED"], { entityId: entity.entityId, accountableOwnerId: entity.accountableOwnerId, canonicalDigest });
+  return { ...(registered.data as Row), canonicalDigest, entityType: "ai_agent", authorityState: "NONE", nativeIdentityState: "PENDING" };
+}
+
+export async function createAuthorityDelegation(context: DelegatedAuthorityContext, delegatorId: string, raw: Record<string, unknown>) {
+  ensureRole(context.role, ["owner", "admin"]);
+  const supplied = raw.delegation as AuthorityDelegation;
+  if (!supplied || typeof supplied !== "object") throw new DelegatedAuthorityServerError("A signed delegation is required.", "DELEGATION_INPUT_INVALID");
+  const delegation: AuthorityDelegation = { ...supplied, delegationId: uuid(supplied.delegationId, "delegationId"), enterpriseId: context.enterpriseId, delegatorOperationalEntityId: delegatorId, status: "PENDING", revokedAt: null };
+  uuid(delegation.parentAuthorityId, "parentAuthorityId");
+  if (delegation.parentDelegationId) uuid(delegation.parentDelegationId, "parentDelegationId");
+  const db = createServiceRoleClient();
+  const parentDelegationResult = delegation.parentDelegationId
+    ? await db.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", context.enterpriseId).eq("delegation_id", delegation.parentDelegationId).eq("delegate_operational_entity_id", delegatorId).maybeSingle()
+    : { data: null, error: null };
+  if (parentDelegationResult.error) fail("Parent delegation resolution", parentDelegationResult.error);
+  const parentDelegation = parentDelegationResult.data ? rowDelegation(parentDelegationResult.data) : null;
+  const [{ parent }, delegatorIdentity, delegateIdentity] = await Promise.all([
+    parentAuthorityFor(context.enterpriseId, delegation.parentAuthorityId, parentDelegation ? undefined : delegatorId), currentIdentity(context.enterpriseId, delegatorId), currentIdentity(context.enterpriseId, delegation.delegateOperationalEntityId),
+  ]);
+  verifySignedDelegation({ delegation, credential: delegatorIdentity.credential, expectedEnterpriseId: context.enterpriseId, expectedDelegatorId: delegatorId, expectedDelegateId: delegation.delegateOperationalEntityId });
+  const immediateScope = parentDelegation?.scope ?? parent.scope;
+  const subset = validateDelegatedAuthoritySubset({ parentScope: immediateScope, delegatedScope: delegation.scope, parentNotBefore: parentDelegation?.notBefore ?? parent.notBefore, parentExpiresAt: parentDelegation?.expiresAt ?? parent.expiresAt, delegatedNotBefore: delegation.notBefore, delegatedExpiresAt: delegation.expiresAt, parentMaximumDelegationDepth: parentDelegation?.maximumDelegationDepth ?? parent.maximumDelegationDepth, requestedDepth: delegation.depth });
+  const ancestors = delegation.parentDelegationId
+    ? await db.from("operational_entity_authority_delegations").select("delegator_operational_entity_id,delegate_operational_entity_id").eq("enterprise_id", context.enterpriseId).or(`delegation_id.eq.${delegation.parentDelegationId},parent_delegation_id.eq.${delegation.parentDelegationId}`)
+    : { data: [], error: null };
+  if (ancestors.error) fail("Delegation ancestor resolution", ancestors.error);
+  const lineageIds = [...new Set((ancestors.data ?? []).flatMap((row) => [String(row.delegator_operational_entity_id), String(row.delegate_operational_entity_id)]))];
+  const policy = evaluateDelegationPolicy({ parentAuthority: parent, parentDelegation, delegation, subsetValidation: subset, delegatorIdentity: delegatorIdentity.identity, delegateIdentity: delegateIdentity.identity, humanApprovalRequired: Boolean(raw.humanApprovalRequired), humanApprovalPresent: false, lineageEntityIds: lineageIds });
+  const row = {
+    delegation_id: delegation.delegationId, enterprise_id: context.enterpriseId, delegator_operational_entity_id: delegatorId, delegate_operational_entity_id: delegation.delegateOperationalEntityId,
+    parent_authority_id: delegation.parentAuthorityId, parent_delegation_id: delegation.parentDelegationId, objective: delegation.objective,
+    permitted_actions: delegation.scope.permittedActions, permitted_tools: delegation.scope.permittedTools, permitted_targets: delegation.scope.permittedTargets, environments: delegation.scope.environments,
+    data_boundary: delegation.scope.dataBoundary, financial_limit: delegation.scope.financialLimit, execution_limit: delegation.scope.executionLimit,
+    can_redelegate: delegation.canRedelegate, maximum_delegation_depth: delegation.maximumDelegationDepth, delegation_depth: delegation.depth,
+    issued_at: delegation.issuedAt, not_before: delegation.notBefore, expires_at: delegation.expiresAt, revoked_at: null,
+    policy_version: delegation.policyVersion, authority_version: delegation.authorityVersion, nonce: delegation.nonce, signing_key_id: delegation.signingKeyId,
+    delegation_digest: delegation.delegationDigest, signature: delegation.signature, status: policy.decision === "REJECT" ? "REJECTED" : "PENDING",
+    policy_decision: policy.decision, policy_reason_codes: policy.reasonCodes, evidence_references: [...new Set([...delegation.evidenceReferences, delegatorIdentity.identity.evidenceReference, delegateIdentity.identity.evidenceReference])], proposed_by: context.user.id,
+  };
+  const inserted = await db.from("operational_entity_authority_delegations").insert(row);
+  if (inserted.error) fail("Authority delegation creation", inserted.error);
+  await appendReplay(context, delegatorId, "DELEGATION_PROPOSED", policy.reasonCodes, { delegationId: delegation.delegationId, delegateOperationalEntityId: delegation.delegateOperationalEntityId, delegationDigest: delegation.delegationDigest });
+  if (policy.decision !== "REJECT") {
+    await appendReplay(context, delegatorId, "DELEGATION_VALIDATED", [...policy.reasonCodes, ...subset.reasonCodes], { delegationId: delegation.delegationId, subset });
+    await extendGraph(context, delegation, "ENTITY_DELEGATED_AUTHORITY");
+  }
+  return { delegationId: delegation.delegationId, status: row.status, policy, subset };
+}
+
+export async function reviewAuthorityDelegation(context: DelegatedAuthorityContext, delegatorId: string, delegationId: string, approve: boolean) {
+  ensureRole(context.role, ["owner", "admin"]);
+  const db = createServiceRoleClient();
+  const result = await db.from("operational_entity_authority_delegations").update({ policy_decision: approve ? "ACTIVATE" : "REJECT", status: approve ? "PENDING" : "REJECTED", policy_reason_codes: [approve ? "HUMAN_APPROVAL_RECORDED" : "HUMAN_REVIEW_REJECTED"], reviewed_by: context.user.id, reviewed_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("enterprise_id", context.enterpriseId).eq("delegator_operational_entity_id", delegatorId).eq("delegation_id", uuid(delegationId, "delegationId")).eq("status", "PENDING").select("delegation_id,status,policy_decision").maybeSingle();
+  if (result.error) fail("Delegation review", result.error);
+  if (!result.data) throw new DelegatedAuthorityServerError("The pending delegation was not found.", "DELEGATION_NOT_FOUND", 404);
+  return result.data;
+}
+
+export async function acceptAuthorityDelegation(context: DelegatedAuthorityContext, delegateId: string, raw: Record<string, unknown>) {
+  ensureRole(context.role, ["owner", "admin"]);
+  const acceptance = raw.acceptance as DelegationAcceptance;
+  if (!acceptance || typeof acceptance !== "object") throw new DelegatedAuthorityServerError("A signed Beta acceptance is required.", "ACCEPTANCE_REQUIRED");
+  uuid(acceptance.acceptanceId, "acceptanceId");
+  const delegationId = uuid(acceptance.delegationId, "delegationId");
+  const db = createServiceRoleClient();
+  const stored = await db.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", context.enterpriseId).eq("delegation_id", delegationId).eq("delegate_operational_entity_id", delegateId).maybeSingle();
+  if (stored.error) fail("Delegation acceptance resolution", stored.error);
+  if (!stored.data) throw new DelegatedAuthorityServerError("The delegation was not found for this entity.", "DELEGATION_NOT_FOUND", 404);
+  const delegation = rowDelegation(stored.data);
+  const beta = await currentIdentity(context.enterpriseId, delegateId);
+  verifyDelegationAcceptance({ acceptance: { ...acceptance, enterpriseId: context.enterpriseId, delegateOperationalEntityId: delegateId }, delegation, credential: beta.credential, identity: beta.identity });
+  const consumed = await db.rpc("accept_operational_entity_delegation_v1", { p_enterprise_id: context.enterpriseId, p_delegation_id: delegationId, p_delegate_operational_entity_id: delegateId, p_actor_id: context.user.id, p_acceptance: acceptance });
+  if (consumed.error) fail("Atomic delegation acceptance", consumed.error);
+  if (String((consumed.data as Row)?.status) === "DUPLICATE") throw new DelegatedAuthorityServerError("This delegation has already been accepted.", "DUPLICATE_ACCEPTANCE", 409);
+  await appendReplay(context, delegateId, "BETA_ACCEPTED", ["BETA_IDENTITY_VERIFIED", "DELEGATION_ACCEPTANCE_VERIFIED"], { delegationId, acceptanceId: acceptance.acceptanceId }, [`delegation:${delegationId}`]);
+  await appendReplay(context, delegateId, "DELEGATION_ACTIVATED", ["DELEGATION_POLICY_SATISFIED"], { delegationId }, [`acceptance:${acceptance.acceptanceId}`]);
+  await remember(context, delegateId, "DELEGATION_ACTIVATED", delegationId, { from: delegation.delegatorOperationalEntityId, delegationDigest: delegation.delegationDigest, scope: delegation.scope });
+  await extendGraph(context, delegation, "DELEGATION_ACCEPTED_BY_ENTITY");
+  return consumed.data;
+}
+
+export async function revokeAuthorityDelegation(context: DelegatedAuthorityContext, delegatorId: string, delegationId: string, reason: string) {
+  ensureRole(context.role, ["owner", "admin"]);
+  const safeReason = reason.trim();
+  if (!safeReason || safeReason.length > 500) throw new DelegatedAuthorityServerError("A bounded revocation reason is required.", "REVOCATION_REASON_REQUIRED");
+  const db = createServiceRoleClient();
+  const now = new Date().toISOString();
+  const updated = await db.from("operational_entity_authority_delegations").update({ status: "REVOKED", revoked_at: now, revocation_reason: safeReason, updated_at: now }).eq("enterprise_id", context.enterpriseId).eq("delegator_operational_entity_id", delegatorId).eq("delegation_id", uuid(delegationId, "delegationId")).in("status", ["PENDING", "ACTIVE"]).select("*").maybeSingle();
+  if (updated.error) fail("Delegation revocation", updated.error);
+  if (!updated.data) throw new DelegatedAuthorityServerError("The active delegation was not found.", "DELEGATION_NOT_FOUND", 404);
+  const delegation = rowDelegation(updated.data);
+  await appendReplay(context, delegation.delegateOperationalEntityId, "DELEGATION_REVOKED", ["DELEGATION_REVOKED"], { delegationId, reason });
+  await remember(context, delegation.delegateOperationalEntityId, "DELEGATION_REVOKED", delegationId, { reason, identityState: "UNCHANGED" });
+  await extendGraph(context, delegation, "DELEGATION_REVOKED");
+  return { delegationId, status: "REVOKED", revokedAt: now, identityState: "UNCHANGED" };
+}
+
+export async function revokeParentAuthority(context: DelegatedAuthorityContext, delegatorId: string, authorityId: string, reason: string) {
+  ensureRole(context.role, ["owner", "admin"]);
+  const safeReason = reason.trim();
+  if (!safeReason || safeReason.length > 500) throw new DelegatedAuthorityServerError("A bounded revocation reason is required.", "REVOCATION_REASON_REQUIRED");
+  const parentId = uuid(authorityId, "parentAuthorityId");
+  await parentAuthorityFor(context.enterpriseId, parentId, delegatorId);
+  const db = createServiceRoleClient();
+  const revoked = await db.rpc("revoke_trust_contract_with_delegation_cascade_v1", { p_enterprise_id: context.enterpriseId, p_parent_authority_id: parentId, p_actor_id: context.user.id, p_reason: safeReason });
+  if (revoked.error) fail("Parent authority revocation", revoked.error);
+  const rows = Array.isArray((revoked.data as Row)?.affectedDelegations) ? (revoked.data as Row).affectedDelegations as Row[] : [];
+  await appendReplay(context, delegatorId, "PARENT_AUTHORITY_REVOKED", ["PARENT_AUTHORITY_REVOKED", "CANONICAL_REEVALUATION_REQUIRED"], { parentAuthorityId: parentId, reason: safeReason, affectedDelegations: rows });
+  await remember(context, delegatorId, "PARENT_AUTHORITY_REVOKED", parentId, { reason: safeReason, affectedDelegations: rows });
+  for (const affected of rows) {
+    const delegateId = String(affected.delegateOperationalEntityId);
+    const delegationId = String(affected.delegationId);
+    await appendReplay(context, delegateId, "DELEGATION_INVALIDATED", ["PARENT_AUTHORITY_REVOKED"], { parentAuthorityId: parentId, delegationId, identityState: "UNCHANGED" });
+  }
+  const blastRadius = await authorityBlastRadius(context, parentId);
+  return { ...(revoked.data as Row), blastRadius, identityState: "UNCHANGED" };
+}
+
+export async function loadDelegatedAuthority(context: DelegatedAuthorityContext, entityId: string, delegationId?: string) {
+  const db = createServiceRoleClient();
+  let query = db.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", context.enterpriseId).or(`delegator_operational_entity_id.eq.${entityId},delegate_operational_entity_id.eq.${entityId}`).order("issued_at", { ascending: false }).limit(100);
+  if (delegationId) query = query.eq("delegation_id", uuid(delegationId, "delegationId"));
+  const delegations = await query;
+  if (delegations.error) fail("Delegated authority retrieval", delegations.error);
+  const ids = (delegations.data ?? []).map((row) => String(row.delegation_id));
+  const [acceptances, evaluations] = ids.length ? await Promise.all([
+    db.from("operational_entity_delegation_acceptances").select("*").eq("enterprise_id", context.enterpriseId).in("delegation_id", ids),
+    db.from("operational_entity_delegated_action_evaluations").select("*").eq("enterprise_id", context.enterpriseId).in("delegation_id", ids).order("evaluated_at", { ascending: false }).limit(100),
+  ]) : [{ data: [], error: null }, { data: [], error: null }];
+  if (acceptances.error || evaluations.error) fail("Delegated authority lineage retrieval", acceptances.error ?? evaluations.error);
+  return { delegations: delegations.data ?? [], acceptances: acceptances.data ?? [], evaluations: evaluations.data ?? [] };
+}
+
+export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityContext, delegateId: string, raw: Record<string, unknown>) {
+  ensureRole(context.role, ["owner", "admin"]);
+  const delegationId = uuid(raw.delegationId, "delegationId");
+  const db = createServiceRoleClient();
+  const [storedDelegation, storedAcceptance, beta] = await Promise.all([
+    db.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", context.enterpriseId).eq("delegation_id", delegationId).eq("delegate_operational_entity_id", delegateId).maybeSingle(),
+    db.from("operational_entity_delegation_acceptances").select("*").eq("enterprise_id", context.enterpriseId).eq("delegation_id", delegationId).maybeSingle(),
+    currentIdentity(context.enterpriseId, delegateId),
+  ]);
+  if (storedDelegation.error || storedAcceptance.error) fail("Delegated action resolution", storedDelegation.error ?? storedAcceptance.error);
+  if (!storedDelegation.data || !storedAcceptance.data) throw new DelegatedAuthorityServerError("An active, accepted delegation is required.", "DELEGATED_AUTHORITY_NOT_FOUND", 404);
+  const delegation = rowDelegation(storedDelegation.data);
+  const acceptance = rowAcceptance(storedAcceptance.data);
+  const { parent, contract } = await parentAuthorityFor(context.enterpriseId, delegation.parentAuthorityId, delegation.delegatorOperationalEntityId);
+  const requested = raw.request as Record<string, unknown>;
+  if (!requested || typeof requested !== "object") throw new DelegatedAuthorityServerError("A bounded delegated action is required.", "DELEGATED_ACTION_INVALID");
+  const action = {
+    type: String(requested.type ?? ""), tool: String(requested.tool ?? ""), target: String(requested.target ?? ""), environment: String(requested.environment ?? ""),
+    purpose: String(requested.purpose ?? ""), dataBoundary: String(requested.dataBoundary ?? "PUBLIC") as AuthorityDelegation["scope"]["dataBoundary"],
+    financialAmount: requested.financialAmount === undefined ? undefined : Number(requested.financialAmount), executionCount: requested.executionCount === undefined ? undefined : Number(requested.executionCount), workflowId: String(requested.workflowId ?? ""),
+  };
+  const evaluatedAt = new Date().toISOString();
+  const result = evaluateDelegatedAction({ parentAuthority: parent, delegation, acceptance, delegateIdentity: beta.identity, action, now: evaluatedAt });
+  const evaluationId = crypto.randomUUID();
+  const decisionDigest = hashCanonical({ evaluationId, delegationId, delegateId, action, result: { decision: result.decision, reasonCodes: result.reasonCodes }, evaluatedAt });
+  const persisted = await db.rpc("persist_delegated_action_evaluation_v1", { p_enterprise_id: context.enterpriseId, p_delegation_id: delegationId, p_delegate_operational_entity_id: delegateId, p_actor_id: context.user.id, p_evaluation: { evaluationId, canonicalTransactionId: null, actionType: action.type, actionTarget: action.target, actionTool: action.tool, environment: action.environment, decision: result.decision, reasonCodes: result.reasonCodes, authorityLineage: result.authorityLineage, decisionSnapshot: result.decisionSnapshot, decisionDigest, evaluatedAt } });
+  if (persisted.error) fail("Transaction-safe delegated action evaluation", persisted.error);
+  const gateDecision = String((persisted.data as Row)?.decision) as "ALLOW" | "REVIEW" | "DENY";
+  const gateReasons = ((persisted.data as Row)?.reasonCodes as string[] | undefined) ?? result.reasonCodes;
+  await appendReplay(context, delegateId, "BETA_ACTION_REQUESTED", gateReasons, { evaluationId, delegationId, action });
+  if (gateDecision !== "ALLOW") {
+    await appendReplay(context, delegateId, "BETA_SCOPE_VIOLATION_DENIED", gateReasons, { evaluationId, delegationId, action, decision: gateDecision });
+    if (gateReasons.includes("DELEGATION_EXPIRED")) await extendGraph(context, delegation, "DELEGATION_EXPIRED");
+    return { evaluationId, decision: gateDecision, reasonCodes: gateReasons, authorityLineage: result.authorityLineage, canonicalTransaction: null, executionRequested: false };
+  }
+
+  const baseDependencies = createCanonicalTrustTransactionDependencies({ supabase: context.supabase, user: context.user });
+  const delegatedContract: TrustContract = {
+    ...(contract.contract as TrustContract), contractId: delegation.delegationId, enterpriseId: context.enterpriseId,
+    subject: { type: "ai_agent", id: delegateId, displayName: delegateId }, subjectType: "ai_agent", subjectId: delegateId,
+    workflow: { id: action.workflowId, objective: action.purpose }, workflowId: action.workflowId, authorizedObjective: action.purpose,
+    requiredAuthority: [action.type], permittedScope: delegation.scope.permittedActions, expiresAt: delegation.expiresAt, revokedAt: delegation.revokedAt,
+    revocationState: delegation.revokedAt ? "revoked" : "active", issuer: delegation.delegatorOperationalEntityId, approver: parent.accountableOwnerId,
+    policyVersion: delegation.policyVersion, evidenceReferences: [
+      { type: "authority_delegation", id: delegation.delegationId, version: delegation.authorityVersion },
+      { type: "parent_authority", id: delegation.parentAuthorityId, version: parent.authorityVersion },
+      { type: "native_identity_evidence", id: beta.identity.evidenceReference },
+    ],
+  };
+  const dependencies = {
+    ...baseDependencies,
+    async loadAuthority(enterpriseId: string, subjectType: string, subjectId: string) {
+      if (enterpriseId !== context.enterpriseId || subjectType !== "ai_agent" || subjectId !== delegateId) throw new DelegatedAuthorityServerError("Delegated authority tenant or subject mismatch.", "WRONG_TENANT", 403);
+      return delegatedContract;
+    },
+    async requestExternalExecution() { return { configured: false, requestReference: null, acknowledgement: null, outcome: null }; },
+  };
+  const receipt = await executeCanonicalTrustTransaction({
+    trustObject: { subjectType: "ai_agent", subjectId: delegateId }, operationalEntityId: delegateId,
+    action: { type: action.type, purpose: action.purpose, resource: action.target, environment: action.environment, payloadDigest: String(requested.payloadDigest ?? "") },
+    idempotencyKey: String(requested.idempotencyKey ?? ""),
+    managedControl: { responsibilityLineage: { controlOwner: beta.identity.accountableOwnerId, policyApprover: parent.accountableOwnerId, controlOperator: delegateId, identityAuthorizationProvider: "cyber_sentinels_native", runtimeProvider: beta.identity.runtimeBinding, destinationSystem: action.target, evidenceProvider: "cyber_sentinels_native" }, configurationRulesetDigest: delegation.delegationDigest },
+  }, dependencies);
+  await extendActionGraph(context, delegation, evaluationId, receipt.transactionId);
+  const decisionEvent = receipt.decision === "ALLOW" ? "BETA_ACTION_ALLOWED" : receipt.decision === "REVIEW" ? "BETA_ACTION_REVIEW_REQUIRED" : "BETA_ACTION_DENIED";
+  await appendReplay(context, delegateId, decisionEvent, [...gateReasons, ...receipt.reasonCodes], { evaluationId, delegationId, transactionId: receipt.transactionId, action, decision: receipt.decision }, [`transaction:${receipt.transactionId}`]);
+  return { evaluationId, decision: receipt.decision, reasonCodes: [...new Set([...gateReasons, ...receipt.reasonCodes])], authorityLineage: result.authorityLineage, canonicalTransaction: receipt, executionRequested: receipt.externalExecution.requested };
+}
+
+export async function authorityBlastRadius(context: DelegatedAuthorityContext, authorityId: string) {
+  const db = createServiceRoleClient();
+  const [delegations, entities, transactions] = await Promise.all([
+    db.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", context.enterpriseId),
+    db.from("operational_entities").select("entity_id,workflow_references").eq("enterprise_id", context.enterpriseId),
+    db.from("canonical_trust_transactions").select("transaction_id,operational_entity_id,external_state").eq("enterprise_id", context.enterpriseId).in("external_state", ["NOT_REQUESTED", "REQUESTED"]),
+  ]);
+  if (delegations.error || entities.error || transactions.error) fail("Delegation blast-radius resolution", delegations.error ?? entities.error ?? transactions.error);
+  return calculateDelegationBlastRadius({ rootAuthorityId: uuid(authorityId, "authorityId"), delegations: (delegations.data ?? []).map(rowDelegation), workflowReferences: Object.fromEntries((entities.data ?? []).map((row) => [String(row.entity_id), (row.workflow_references ?? []).map(String)])), pendingTransactionReferences: Object.fromEntries((entities.data ?? []).map((row) => [String(row.entity_id), (transactions.data ?? []).filter((tx) => tx.operational_entity_id === row.entity_id).map((tx) => String(tx.transaction_id))])) });
+}

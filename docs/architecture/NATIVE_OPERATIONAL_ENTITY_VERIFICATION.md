@@ -61,7 +61,7 @@ Challenge consumption uses a tenant/entity-scoped `SELECT ... FOR UPDATE` transa
 9. Produce verified, unverified, and conflicting claims with exact reason codes.
 10. Atomically consume the challenge, persist evidence, extend the Evidence Graph, append Replay/Trust Memory, and trigger canonical reevaluation.
 
-A valid proof may be `PARTIALLY_VERIFIED` when owner, runtime, build, or authority claims remain unverified. Cryptographic identity never bypasses canonical authority or policy.
+A valid proof may be `PARTIALLY_VERIFIED` when owner, runtime or build claims remain unverified. A manifest authority reference is recorded but never evaluated by native identity verification, and its absence does not degrade cryptographic identity. Cryptographic identity never bypasses canonical authority or policy.
 
 ## Continuity and change detection
 

@@ -576,8 +576,8 @@ export function verifyNativeEntity(input: {
   else if (runtimeBinding !== "RUNTIME_MATCH") unverified.push("runtime_binding");
   if (softwareProvenance === "MISMATCH") conflicts.push("software_provenance");
   else if (softwareProvenance !== "VERIFIED_DIGEST") unverified.push("software_provenance");
-  if (!input.manifest.authority.authorityReference) unverified.push("authority_binding");
   const reasonCodes = ["NATIVE_SIGNATURE_VERIFIED", "MANIFEST_BINDING_VERIFIED", "CHALLENGE_SINGLE_USE_REQUIRED"];
+  reasonCodes.push(input.manifest.authority.authorityReference ? "DECLARED_AUTHORITY_REFERENCE_RECORDED_NOT_VERIFIED" : "AUTHORITY_NOT_ASSERTED_BY_IDENTITY_PROOF");
   if (input.ownerState === "CONFIRMED") reasonCodes.push("OWNER_BINDING_CONFIRMED");
   else if (input.ownerState === "REVOKED") reasonCodes.push("OWNER_REVOKED");
   else if (input.ownerState === "EXPIRED") reasonCodes.push("OWNER_EXPIRED");

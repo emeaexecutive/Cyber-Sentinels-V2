@@ -1,5 +1,6 @@
 -- EPIC 18: Enterprise Trust Architecture. Forward-only, additive consolidation.
 create extension if not exists pgcrypto;
+set search_path=public,extensions;
 
 create table public.trust_domain_versions (
   id uuid primary key default gen_random_uuid(), domain_key text not null, version text not null,

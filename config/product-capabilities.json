@@ -25,6 +25,19 @@
     "qualificationLevel": "WORKING"
   },
   {
+    "name": "Native delegated Operational Entity authority",
+    "publicClaim": "Cyber Sentinels can verify two independent native Operational Entities, validate and accept a signed attenuated authority delegation, and evaluate exact delegated actions with lineage, Replay and Trust Memory. This is implemented and locally qualified, not Production-proven.",
+    "implementationModule": "lib/operational-entities/delegated-authority.ts",
+    "algorithm": "delegated-authority-subset-v1 and delegation-lineage-validation-v1 using existing Ed25519 identity credentials and canonical Authority Lineage",
+    "tests": ["tests/native-delegated-authority.test.mjs", "tests/native-delegated-authority-integration.test.mjs"],
+    "api": ["app/api/operational-entities/[entityId]/delegated-authority/route.ts"],
+    "ui": ["app/operational-entities/[entityId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
+    "persistence": ["operational_entity_authority_delegations", "operational_entity_delegation_acceptances", "operational_entity_delegated_action_evaluations", "trust_contracts", "evidence_graph_nodes", "evidence_graph_edges", "operational_entity_native_replay_events", "trust_memory_index", "canonical_trust_transactions"],
+    "providerDependency": null,
+    "continuousTrigger": ["delegation activation, expiry or revocation", "parent authority expiry or revocation", "native identity or runtime continuity change"],
+    "qualificationLevel": "WORKING"
+  },
+  {
     "name": "Identity evidence correlation",
     "publicClaim": "Configured-provider identity evidence is normalized, correlated and retained with its provider attribution.",
     "implementationModule": "lib/identity-signals/orchestrator.ts",
