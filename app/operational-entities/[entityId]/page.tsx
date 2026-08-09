@@ -33,6 +33,10 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
   const activeManifest = detail.nativeVerification.manifests.find((manifest) => manifest.status === "ACTIVE");
   const currentOwnerBinding = detail.nativeVerification.ownerBindings[0];
   const nativeEvidence = detail.nativeVerification.evidence[0];
+  const delegatedAuthority = detail.delegatedAuthority.delegated;
+  const receivedAuthority = detail.delegatedAuthority.received;
+  const latestReceivedAuthority = receivedAuthority[0];
+  const latestDelegatedEvaluation = detail.delegatedAuthority.evaluations.find((item) => item.delegation_id === latestReceivedAuthority?.delegation_id);
   const nativeDemoEnabled = process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
   const responsibilityItems: Array<[string, unknown]> = [
     ["Control Owner", responsibility.controlOwner ?? detail.entity.accountableOwnerId],
@@ -66,6 +70,33 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {intelligenceItems.map(([label, item]) => <article key={label} className={panel}><p className="text-xs uppercase tracking-wide text-slate-500">{label}</p><p className="mt-3 break-words text-lg font-semibold">{value(item)}</p></article>)}
+      </section>
+
+      <section id="delegated-authority" className={panel}>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700">Authority Lineage · Native cryptographic delegation</p>
+        <h2 className="mt-2 text-xl font-semibold">Delegated Authority</h2>
+        <p className="mt-2 text-sm text-slate-600">Authority issued by this entity. Delegation transfers only an attenuated subset; it does not transfer identity or accountability.</p>
+        <div className="mt-4 space-y-3">
+          {delegatedAuthority.map((delegation) => <article key={String(delegation.delegation_id)} className="rounded-xl border border-slate-200 p-4 text-sm">
+            <p className="font-semibold">Delegate: {value(delegation.delegate_operational_entity_id)} · {value(delegation.status)}</p>
+            <dl className="mt-3 grid gap-3 md:grid-cols-3"><div><dt>Scope</dt><dd>{value(delegation.permitted_actions)}</dd></div><div><dt>Target</dt><dd>{value(delegation.permitted_targets)}</dd></div><div><dt>Expiry</dt><dd>{value(delegation.expires_at)}</dd></div><div><dt>Redelegation</dt><dd>{value(delegation.can_redelegate)}</dd></div><div><dt>Policy</dt><dd>{value(delegation.policy_version)}</dd></div><div><dt>Evidence</dt><dd className="break-all">{value(delegation.evidence_references)}</dd></div></dl>
+          </article>)}
+          {!delegatedAuthority.length ? <p className="text-sm text-slate-500">No authority delegated by this entity.</p> : null}
+        </div>
+      </section>
+
+      <section id="authority-received" className={panel}>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-700">Authority received</p>
+        <h2 className="mt-2 text-xl font-semibold">Why can this entity do this?</h2>
+        <p className="mt-2 text-sm text-slate-600">The answer is reconstructed from the current parent authority, signed delegation, native identity evidence, acceptance, policy, and exact requested action.</p>
+        <div className="mt-4 space-y-3">
+          {receivedAuthority.map((delegation) => <article key={String(delegation.delegation_id)} className="rounded-xl border border-slate-200 p-4 text-sm">
+            <p className="font-semibold">From {value(delegation.delegator_operational_entity_id)} · {value(delegation.status)}</p>
+            <dl className="mt-3 grid gap-3 md:grid-cols-3"><div><dt>Parent Authority</dt><dd className="break-all">{value(delegation.parent_authority_id)}</dd></div><div><dt>Scope</dt><dd>{value(delegation.permitted_actions)}</dd></div><div><dt>Targets</dt><dd>{value(delegation.permitted_targets)}</dd></div><div><dt>Expiry</dt><dd>{value(delegation.expires_at)}</dd></div><div><dt>Depth</dt><dd>{value(delegation.delegation_depth)} / {value(delegation.maximum_delegation_depth)}</dd></div><div><dt>Current State</dt><dd>{value(delegation.status)}</dd></div></dl>
+          </article>)}
+          {!receivedAuthority.length ? <p className="text-sm text-slate-500">Identity may be verified, but no delegated authority is active.</p> : null}
+        </div>
+        {latestReceivedAuthority ? <div className="mt-5 rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-950"><p className="font-semibold">WHY CAN BETA DO THIS?</p><p className="mt-2">Enterprise authority → accountable owner → {value(latestReceivedAuthority.delegator_operational_entity_id)} → signed delegation → {detail.entity.displayReference} → exact action.</p><p className="mt-2 break-all">Delegation: {value(latestReceivedAuthority.delegation_id)} · Digest: {value(latestReceivedAuthority.delegation_digest)} · Latest decision: {value(latestDelegatedEvaluation?.decision)}</p></div> : null}
       </section>
 
       <section className={panel}>

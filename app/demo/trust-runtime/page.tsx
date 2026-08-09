@@ -25,8 +25,11 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
   const entities = await loadOperationalEntities({ supabase, user });
   const requested = (await searchParams).entityId;
   const persistedAgentAlpha = entities.find((entity) => entity.displayReference.trim().toLowerCase() === "agent alpha") ?? null;
+  const persistedAgentBeta = entities.find((entity) => entity.displayReference.trim().toLowerCase() === "agent beta") ?? null;
   const selected = entities.find((entity) => entity.entityId === requested) ?? persistedAgentAlpha ?? entities[0] ?? null;
   const detail = selected ? await loadOperationalEntityDetail({ supabase, user, entityId: selected.entityId }) : null;
+  const alphaDetail = persistedAgentAlpha && persistedAgentAlpha.entityId !== selected?.entityId ? await loadOperationalEntityDetail({ supabase, user, entityId: persistedAgentAlpha.entityId }) : detail;
+  const betaDetail = persistedAgentBeta && persistedAgentBeta.entityId !== selected?.entityId ? await loadOperationalEntityDetail({ supabase, user, entityId: persistedAgentBeta.entityId }) : detail;
 
   if (!detail) {
     return (
@@ -47,6 +50,13 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
   const latestNative = detail.nativeVerification.verifications[0] ?? null;
   const nativeCredential = detail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE") ?? detail.nativeVerification.credentials[0] ?? null;
   const nativeManifest = detail.nativeVerification.manifests.find((manifest) => manifest.status === "ACTIVE") ?? detail.nativeVerification.manifests[0] ?? null;
+  const alphaNative = alphaDetail?.nativeVerification.verifications[0] ?? null;
+  const betaNative = betaDetail?.nativeVerification.verifications[0] ?? null;
+  const betaDelegation = betaDetail?.delegatedAuthority.received[0] ?? null;
+  const betaEvaluations = betaDetail?.delegatedAuthority.evaluations ?? [];
+  const betaRead = betaEvaluations.find((evaluation) => evaluation.action_type === "read" && evaluation.action_target === "repository:a") ?? null;
+  const betaWrite = betaEvaluations.find((evaluation) => evaluation.action_type === "write" && evaluation.action_target === "repository:a") ?? null;
+  const parentInvalid = betaEvaluations.find((evaluation) => values(evaluation.reason_codes).includes("PARENT_AUTHORITY_REVOKED")) ?? null;
   const transactionId = text(latest?.transaction_id, "");
   const transactionHref = transactionId ? `/trust/transactions/${encodeURIComponent(transactionId)}` : `/operational-entities/${encodeURIComponent(detail.entity.entityId)}`;
   const evidence = Array.isArray(latest?.evidence_references) ? latest.evidence_references as Array<Record<string, unknown>> : [];
@@ -138,6 +148,22 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
             <div className="mt-5 rounded-xl border border-red-900/60 bg-red-950/20 p-4"><p className="font-semibold text-red-200">Copied ID alone → INVALID_SIGNATURE / WRONG_ENTITY → no native evidence → no authority shortcut.</p></div>
             <p className="mt-4 text-sm text-slate-500">Cyber Sentinels never receives or stores the private key. Native evidence is first-party evidence and is not classified as independent corroboration of itself.</p>
           </article>
+        </section>
+
+        <section id="multi-agent-delegation" className="mt-8 rounded-2xl border border-cyan-900 bg-slate-950 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">CPTO demonstration · Alice → Alpha → Beta</p>
+          <h2 className="mt-3 text-3xl font-semibold">Native delegated authority, without conflating identity and permission</h2>
+          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+            <article className={panel}><p className="text-xs text-slate-500">AGENT ALPHA</p><p className="mt-2 text-xl font-semibold">Identity {text(alphaNative?.status, "NOT YET VERIFIED")}</p><p className="mt-2 text-sm text-slate-400">Authority {alphaDetail?.entity.currentAuthorityReferences.length ? "ACTIVE" : "NOT RECORDED"} · Owner {text(alphaDetail?.entity.accountableOwnerId)}</p></article>
+            <article className={panel}><p className="text-xs text-slate-500">AGENT BETA</p><p className="mt-2 text-xl font-semibold">Identity {text(betaNative?.status, "NOT YET VERIFIED")}</p><p className="mt-2 text-sm text-slate-400">Authority {text(betaDelegation?.status, "NONE")} · Source {text(betaDelegation?.delegator_operational_entity_id, "NONE")}</p></article>
+            <article className={panel}><p className="text-xs text-slate-500">SIGNED DELEGATION</p><p className="mt-2 text-xl font-semibold">READ repository A</p><p className="mt-2 break-all text-sm text-slate-400">Parent {text(betaDelegation?.parent_authority_id, "NOT RECORDED")} · Digest {text(betaDelegation?.delegation_digest, "NOT RECORDED")}</p></article>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            <article className="rounded-xl border border-emerald-900/60 bg-emerald-950/20 p-4"><p className="text-xs text-emerald-300">BETA READS REPO A</p><p className="mt-2 text-2xl font-semibold">{text(betaRead?.decision, "NOT RUN")}</p><p className="mt-2 text-sm text-slate-400">{values(betaRead?.reason_codes).join(", ") || "No persisted decision."}</p></article>
+            <article className="rounded-xl border border-red-900/60 bg-red-950/20 p-4"><p className="text-xs text-red-300">BETA WRITES REPO A</p><p className="mt-2 text-2xl font-semibold">{text(betaWrite?.decision, "NOT RUN")}</p><p className="mt-2 text-sm text-slate-400">{values(betaWrite?.reason_codes).join(", ") || "Expected ACTION_OUT_OF_DELEGATED_SCOPE after execution."}</p></article>
+            <article className="rounded-xl border border-amber-900/60 bg-amber-950/20 p-4"><p className="text-xs text-amber-300">PARENT AUTHORITY REVOKED</p><p className="mt-2 text-2xl font-semibold">{text(parentInvalid?.decision, "NOT RUN")}</p><p className="mt-2 text-sm text-slate-400">Beta identity remains {text(betaNative?.status, "UNKNOWN")}; delegated authority becomes invalid.</p></article>
+          </div>
+          <div className="mt-5 rounded-xl border border-slate-700 p-5"><p className="font-semibold text-cyan-200">WHY?</p><p className="mt-2 text-slate-300">Enterprise authority → Alice → Agent Alpha → signed attenuated delegation → Agent Beta → exact action. Parent revocation breaks the authority chain, not Beta’s cryptographic identity.</p><p className="mt-3 text-lg font-semibold">Beta is still Beta. Its cryptographic identity has not failed. What changed is that its delegated authority is no longer valid.</p></div>
         </section>
       </div>
     </main>

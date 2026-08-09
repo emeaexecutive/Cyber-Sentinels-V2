@@ -23,6 +23,12 @@ export type OperationalEntityLiveDetail = {
     replay: Row[];
     ownerBindings: Row[];
   };
+  delegatedAuthority: {
+    delegated: Row[];
+    received: Row[];
+    acceptances: Row[];
+    evaluations: Row[];
+  };
 };
 
 function strings(value: unknown) {
@@ -110,7 +116,7 @@ export async function loadOperationalEntityDetail(input: {
   const entity = entities.find((candidate) => candidate.entityId === input.entityId);
   if (!entity) return null;
 
-  const [relationships, transitions, changes, transactions, memory, nativeManifests, nativeCredentials, nativeVerifications, nativeEvidence, nativeReplay, ownerBindings] = await Promise.all([
+  const [relationships, transitions, changes, transactions, memory, nativeManifests, nativeCredentials, nativeVerifications, nativeEvidence, nativeReplay, ownerBindings, delegated, received] = await Promise.all([
     input.supabase.from("provider_relationships").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("effective_from", { ascending: true }),
     input.supabase.from("provider_transitions").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("initiated_at", { ascending: true }),
     input.supabase.from("provider_change_events").select("*").eq("enterprise_id", enterpriseId).contains("affected_operational_entity_ids", [input.entityId]).order("occurred_at", { ascending: true }),
@@ -122,8 +128,20 @@ export async function loadOperationalEntityDetail(input: {
     input.supabase.from("native_entity_identity_evidence").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("verified_at", { ascending: false }).limit(50),
     input.supabase.from("operational_entity_native_replay_events").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("occurred_at", { ascending: true }).limit(200),
     input.supabase.from("operational_entity_owner_bindings").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("effective_from", { ascending: false }).limit(20),
+    input.supabase.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", enterpriseId).eq("delegator_operational_entity_id", input.entityId).order("issued_at", { ascending: false }).limit(100),
+    input.supabase.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", enterpriseId).eq("delegate_operational_entity_id", input.entityId).order("issued_at", { ascending: false }).limit(100),
   ]);
-  for (const result of [relationships, transitions, changes, transactions, memory, nativeManifests, nativeCredentials, nativeVerifications, nativeEvidence, nativeReplay, ownerBindings]) if (result.error) throw result.error;
+  for (const result of [relationships, transitions, changes, transactions, memory, nativeManifests, nativeCredentials, nativeVerifications, nativeEvidence, nativeReplay, ownerBindings, delegated, received]) if (result.error) throw result.error;
+
+  const delegationIds = [...new Set([...(delegated.data ?? []), ...(received.data ?? [])].map((row) => String(row.delegation_id)))];
+  const [acceptances, delegatedEvaluations] = delegationIds.length
+    ? await Promise.all([
+        input.supabase.from("operational_entity_delegation_acceptances").select("*").eq("enterprise_id", enterpriseId).in("delegation_id", delegationIds),
+        input.supabase.from("operational_entity_delegated_action_evaluations").select("*").eq("enterprise_id", enterpriseId).in("delegation_id", delegationIds).order("evaluated_at", { ascending: false }).limit(100),
+      ])
+    : [{ data: [], error: null }, { data: [], error: null }];
+  if (acceptances.error) throw acceptances.error;
+  if (delegatedEvaluations.error) throw delegatedEvaluations.error;
 
   const transactionRows = (transactions.data ?? []) as Row[];
   const transactionIds = transactionRows.map((row) => String(row.transaction_id));
@@ -153,6 +171,12 @@ export async function loadOperationalEntityDetail(input: {
       evidence: (nativeEvidence.data ?? []) as Row[],
       replay: (nativeReplay.data ?? []) as Row[],
       ownerBindings: (ownerBindings.data ?? []) as Row[],
+    },
+    delegatedAuthority: {
+      delegated: (delegated.data ?? []) as Row[],
+      received: (received.data ?? []) as Row[],
+      acceptances: (acceptances.data ?? []) as Row[],
+      evaluations: (delegatedEvaluations.data ?? []) as Row[],
     },
   };
 }
