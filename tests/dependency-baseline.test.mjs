@@ -109,7 +109,7 @@ test("the CSS toolchain remains coordinated with Tailwind and production PostCSS
 
   assert.equal(lock.packages["node_modules/postcss"].version, "8.5.25");
   assert.equal(lock.packages["node_modules/autoprefixer"].version, "10.5.4");
-  assert.equal(lock.packages["node_modules/tailwindcss"].version, "3.4.17");
+  assert.equal(lock.packages["node_modules/tailwindcss"].version, "3.4.19");
   assert.match(postcss, /tailwindcss:\s*\{\}/);
   assert.match(postcss, /autoprefixer:\s*\{\}/);
   assert.match(tailwind, /\.\/app\/\*\*\/\*\.\{ts,tsx\}/);
