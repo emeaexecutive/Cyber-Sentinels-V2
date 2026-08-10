@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { assertSafeStagingEnvironment, type EnvironmentSafetyInput } from "./environment-safety.ts";
 
 export const liveStagingGuardErrorCodes = [

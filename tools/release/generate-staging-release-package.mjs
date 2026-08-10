@@ -274,7 +274,7 @@ const pending = migrations.filter((migration) => migration.timestamp > productio
 const firstPending = pending[0];
 const targetHead = pending.at(-1)?.timestamp;
 if (!firstPending || !targetHead) throw new Error("Pending migration chain is empty");
-if (applied.length !== 45 || pending.length !== 29) {
+if (applied.length !== 45 || pending.length !== 41) {
   throw new Error(`Unexpected applied/pending split: ${applied.length}/${pending.length}`);
 }
 
@@ -326,12 +326,12 @@ const phaseDefinitions = [
   },
   {
     id: "F",
-    name: "Enterprise Trust Fabric",
+    name: "Enterprise Trust Fabric and Alpha/Beta product proof",
     start: "202608010002",
-    end: "202608010002",
+    end: "202608100005",
     duration: "MEDIUM",
     lockRisk: "MEDIUM",
-    compatibility: "Adds composition records over canonical domain sources; it does not replace Trust Object ownership, Replay or Trust Memory.",
+    compatibility: "Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory.",
   },
   {
     id: "G",
@@ -946,8 +946,9 @@ const destructiveLines = [
 ];
 writeFileSync(join(docsRoot, "DESTRUCTIVE_SQL_REVIEW.md"), destructiveLines.join("\n"), "utf8");
 
-const packageFiles = readdirSync(packageRoot)
-  .filter((name) => name !== "SHA256SUMS")
+const packageFiles = readdirSync(packageRoot, { withFileTypes: true })
+  .filter((entry) => entry.isFile() && entry.name !== "SHA256SUMS")
+  .map((entry) => entry.name)
   .sort();
 const checksumLines = [];
 for (const migration of pending) checksumLines.push(`${migration.hash}  ${migration.path}`);

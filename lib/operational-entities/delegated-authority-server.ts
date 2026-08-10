@@ -108,8 +108,8 @@ async function currentIdentity(enterpriseId: string, operationalEntityId: string
 }
 
 function parentAuthorityFrom(contractRow: Row, operationalEntityId: string, accountableOwnerId: string): ParentAuthority {
-  const contract = contractRow.contract as TrustContract & { authorityScope?: Partial<ParentAuthority["scope"]>; canDelegate?: boolean; maximumDelegationDepth?: number; authorityVersion?: string };
-  const configured = contract.authorityScope ?? {};
+  const contract = contractRow.contract as TrustContract;
+  const configured: Partial<ParentAuthority["scope"]> = contract.authorityScope ?? {};
   return {
     authorityId: String(contractRow.contract_id), enterpriseId: String(contractRow.enterprise_id), operationalEntityId, accountableOwnerId,
     objective: String(contract.authorizedObjective),
@@ -162,9 +162,11 @@ async function extendGraph(context: DelegatedAuthorityContext, delegation: Autho
     { node_type: "AUTHORITY_DELEGATION", external_id: delegation.delegationId, label: delegation.objective },
     { node_type: "TRUST_CONTRACT", external_id: delegation.parentAuthorityId, label: delegation.parentAuthorityId },
   ];
-  const upsert = await db.from("evidence_graph_nodes").upsert(nodes.map((node) => ({ ...node, enterprise_id: context.enterpriseId, domain_key: "AUTHORITY", metadata: {} })), { onConflict: "enterprise_id,node_type,external_id" }).select("node_id,node_type,external_id");
-  if (upsert.error) fail("Delegation Evidence Graph nodes", upsert.error);
-  const by = new Map((upsert.data ?? []).map((node) => [`${node.node_type}:${node.external_id}`, String(node.node_id)]));
+  const insertedNodes = await db.from("evidence_graph_nodes").upsert(nodes.map((node) => ({ ...node, enterprise_id: context.enterpriseId, domain_key: "AUTHORITY", metadata: {} })), { onConflict: "enterprise_id,node_type,external_id", ignoreDuplicates: true });
+  if (insertedNodes.error) fail("Delegation Evidence Graph nodes", insertedNodes.error);
+  const resolvedNodes = await db.from("evidence_graph_nodes").select("node_id,node_type,external_id").eq("enterprise_id", context.enterpriseId).in("external_id", nodes.map((node) => node.external_id));
+  if (resolvedNodes.error) fail("Delegation Evidence Graph resolution", resolvedNodes.error);
+  const by = new Map((resolvedNodes.data ?? []).map((node) => [`${node.node_type}:${node.external_id}`, String(node.node_id)]));
   const delegationNode = by.get(`AUTHORITY_DELEGATION:${delegation.delegationId}`);
   const delegatorNode = by.get(`OPERATIONAL_ENTITY:${delegation.delegatorOperationalEntityId}`);
   const delegateNode = by.get(`OPERATIONAL_ENTITY:${delegation.delegateOperationalEntityId}`);
@@ -179,22 +181,35 @@ async function extendGraph(context: DelegatedAuthorityContext, delegation: Autho
           { from_node_id: delegationNode, to_node_id: delegateNode, edge_type: "ENTITY_RECEIVED_DELEGATED_AUTHORITY" },
           { from_node_id: delegationNode, to_node_id: parentNode, edge_type: "DELEGATION_DERIVED_FROM_AUTHORITY" },
         ];
-  const inserted = await db.from("evidence_graph_edges").upsert(edges.map((edge) => ({ ...edge, enterprise_id: context.enterpriseId, evidence_id: null })), { onConflict: "enterprise_id,from_node_id,to_node_id,edge_type,evidence_id" });
-  if (inserted.error) fail("Delegation Evidence Graph edges", inserted.error);
+  for (const edge of edges) {
+    const existing = await db.from("evidence_graph_edges").select("edge_id").eq("enterprise_id", context.enterpriseId).eq("from_node_id", edge.from_node_id).eq("to_node_id", edge.to_node_id).eq("edge_type", edge.edge_type).limit(1);
+    if (existing.error) fail("Delegation Evidence Graph edge lookup", existing.error);
+    if (existing.data?.length) continue;
+    const inserted = await db.from("evidence_graph_edges").insert({ ...edge, enterprise_id: context.enterpriseId, evidence_id: null, correlation_id: null });
+    if (inserted.error) fail("Delegation Evidence Graph edges", inserted.error);
+  }
 }
 
-async function extendActionGraph(context: DelegatedAuthorityContext, delegation: AuthorityDelegation, evaluationId: string, transactionId: string) {
+async function extendActionGraph(context: DelegatedAuthorityContext, delegation: AuthorityDelegation, evaluationId: string, transactionId: string, authorized: boolean) {
   const db = createServiceRoleClient();
-  const nodes = await db.from("evidence_graph_nodes").upsert([
+  const graphNodes = [
     { enterprise_id: context.enterpriseId, node_type: "AUTHORITY_DELEGATION", external_id: delegation.delegationId, domain_key: "AUTHORITY", label: delegation.objective, metadata: {} },
     { enterprise_id: context.enterpriseId, node_type: "CANONICAL_TRANSACTION", external_id: transactionId, domain_key: "AUTHORITY", label: evaluationId, metadata: { evaluationId } },
-  ], { onConflict: "enterprise_id,node_type,external_id" }).select("node_id,node_type,external_id");
-  if (nodes.error) fail("Delegated action Evidence Graph nodes", nodes.error);
+  ];
+  const insertedNodes = await db.from("evidence_graph_nodes").upsert(graphNodes, { onConflict: "enterprise_id,node_type,external_id", ignoreDuplicates: true });
+  if (insertedNodes.error) fail("Delegated action Evidence Graph nodes", insertedNodes.error);
+  const nodes = await db.from("evidence_graph_nodes").select("node_id,node_type,external_id").eq("enterprise_id", context.enterpriseId).in("external_id", [delegation.delegationId, transactionId]);
+  if (nodes.error) fail("Delegated action Evidence Graph resolution", nodes.error);
   const delegationNode = nodes.data?.find((node) => node.node_type === "AUTHORITY_DELEGATION")?.node_id;
   const actionNode = nodes.data?.find((node) => node.node_type === "CANONICAL_TRANSACTION")?.node_id;
   if (!delegationNode || !actionNode) throw new DelegatedAuthorityServerError("Delegated action graph nodes were not resolved.", "EVIDENCE_GRAPH_WRITE_FAILED", 503);
-  const edge = await db.from("evidence_graph_edges").insert({ enterprise_id: context.enterpriseId, from_node_id: actionNode, to_node_id: delegationNode, edge_type: "ACTION_AUTHORIZED_BY_DELEGATION", evidence_id: null, correlation_id: null });
-  if (edge.error && edge.error.code !== "23505") fail("Delegated action Evidence Graph edge", edge.error);
+  const edgeType = authorized ? "ACTION_AUTHORIZED_BY_DELEGATION" : "APPLIES_TO";
+  const existing = await db.from("evidence_graph_edges").select("edge_id").eq("enterprise_id", context.enterpriseId).eq("from_node_id", actionNode).eq("to_node_id", delegationNode).eq("edge_type", edgeType).limit(1);
+  if (existing.error) fail("Delegated action Evidence Graph edge lookup", existing.error);
+  if (!existing.data?.length) {
+    const edge = await db.from("evidence_graph_edges").insert({ enterprise_id: context.enterpriseId, from_node_id: actionNode, to_node_id: delegationNode, edge_type: edgeType, evidence_id: null, correlation_id: null });
+    if (edge.error) fail("Delegated action Evidence Graph edge", edge.error);
+  }
 }
 
 export async function registerCanonicalNativeAgent(context: DelegatedAuthorityContext, raw: Record<string, unknown>) {
@@ -328,6 +343,7 @@ export async function revokeParentAuthority(context: DelegatedAuthorityContext, 
     const delegateId = String(affected.delegateOperationalEntityId);
     const delegationId = String(affected.delegationId);
     await appendReplay(context, delegateId, "DELEGATION_INVALIDATED", ["PARENT_AUTHORITY_REVOKED"], { parentAuthorityId: parentId, delegationId, identityState: "UNCHANGED" });
+    await remember(context, delegateId, "DELEGATED_AUTHORITY_INVALIDATED", delegationId, { parentAuthorityId: parentId, reason: safeReason, identityState: "VERIFIED" });
   }
   const blastRadius = await authorityBlastRadius(context, parentId);
   return { ...(revoked.data as Row), blastRadius, identityState: "UNCHANGED" };
@@ -367,7 +383,9 @@ export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityC
   const action = {
     type: String(requested.type ?? ""), tool: String(requested.tool ?? ""), target: String(requested.target ?? ""), environment: String(requested.environment ?? ""),
     purpose: String(requested.purpose ?? ""), dataBoundary: String(requested.dataBoundary ?? "PUBLIC") as AuthorityDelegation["scope"]["dataBoundary"],
-    financialAmount: requested.financialAmount === undefined ? undefined : Number(requested.financialAmount), executionCount: requested.executionCount === undefined ? undefined : Number(requested.executionCount), workflowId: String(requested.workflowId ?? ""),
+    ...(requested.financialAmount === undefined ? {} : { financialAmount: Number(requested.financialAmount) }),
+    ...(requested.executionCount === undefined ? {} : { executionCount: Number(requested.executionCount) }),
+    workflowId: String(requested.workflowId ?? ""),
   };
   const evaluatedAt = new Date().toISOString();
   const result = evaluateDelegatedAction({ parentAuthority: parent, delegation, acceptance, delegateIdentity: beta.identity, action, now: evaluatedAt });
@@ -378,19 +396,13 @@ export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityC
   const gateDecision = String((persisted.data as Row)?.decision) as "ALLOW" | "REVIEW" | "DENY";
   const gateReasons = ((persisted.data as Row)?.reasonCodes as string[] | undefined) ?? result.reasonCodes;
   await appendReplay(context, delegateId, "BETA_ACTION_REQUESTED", gateReasons, { evaluationId, delegationId, action });
-  if (gateDecision !== "ALLOW") {
-    await appendReplay(context, delegateId, "BETA_SCOPE_VIOLATION_DENIED", gateReasons, { evaluationId, delegationId, action, decision: gateDecision });
-    if (gateReasons.includes("DELEGATION_EXPIRED")) await extendGraph(context, delegation, "DELEGATION_EXPIRED");
-    return { evaluationId, decision: gateDecision, reasonCodes: gateReasons, authorityLineage: result.authorityLineage, canonicalTransaction: null, executionRequested: false };
-  }
-
   const baseDependencies = createCanonicalTrustTransactionDependencies({ supabase: context.supabase, user: context.user });
   const delegatedContract: TrustContract = {
     ...(contract.contract as TrustContract), contractId: delegation.delegationId, enterpriseId: context.enterpriseId,
     subject: { type: "ai_agent", id: delegateId, displayName: delegateId }, subjectType: "ai_agent", subjectId: delegateId,
     workflow: { id: action.workflowId, objective: action.purpose }, workflowId: action.workflowId, authorizedObjective: action.purpose,
-    requiredAuthority: [action.type], permittedScope: delegation.scope.permittedActions, expiresAt: delegation.expiresAt, revokedAt: delegation.revokedAt,
-    revocationState: delegation.revokedAt ? "revoked" : "active", issuer: delegation.delegatorOperationalEntityId, approver: parent.accountableOwnerId,
+    requiredAuthority: [action.type], permittedScope: delegation.scope.permittedActions, expiresAt: delegation.expiresAt, revokedAt: parent.revokedAt ?? delegation.revokedAt,
+    revocationState: parent.revokedAt || delegation.revokedAt ? "revoked" : "active", issuer: delegation.delegatorOperationalEntityId, approver: parent.accountableOwnerId,
     policyVersion: delegation.policyVersion, evidenceReferences: [
       { type: "authority_delegation", id: delegation.delegationId, version: delegation.authorityVersion },
       { type: "parent_authority", id: delegation.parentAuthorityId, version: parent.authorityVersion },
@@ -409,7 +421,11 @@ export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityC
     trustObject: { subjectType: "ai_agent", subjectId: delegateId }, operationalEntityId: delegateId,
     action: { type: action.type, purpose: action.purpose, resource: action.target, environment: action.environment, payloadDigest: String(requested.payloadDigest ?? "") },
     idempotencyKey: String(requested.idempotencyKey ?? ""),
-    managedControl: { responsibilityLineage: { controlOwner: beta.identity.accountableOwnerId, policyApprover: parent.accountableOwnerId, controlOperator: delegateId, identityAuthorizationProvider: "cyber_sentinels_native", runtimeProvider: beta.identity.runtimeBinding, destinationSystem: action.target, evidenceProvider: "cyber_sentinels_native" }, configurationRulesetDigest: delegation.delegationDigest },
+    managedControl: {
+      responsibilityLineage: { controlOwner: beta.identity.accountableOwnerId, policyApprover: parent.accountableOwnerId, controlOperator: delegateId, identityAuthorizationProvider: "cyber_sentinels_native", runtimeProvider: beta.identity.runtimeBinding, destinationSystem: action.target, evidenceProvider: "cyber_sentinels_native" },
+      configurationRulesetDigest: delegation.delegationDigest,
+      authorization: { decision: gateDecision, reasonCodes: gateReasons },
+    },
   }, dependencies);
   const binding = receipt.decision === "ALLOW" ? await db.rpc("bind_native_enforcement_decision_v1", {
     p_enterprise_id: context.enterpriseId,
@@ -420,9 +436,13 @@ export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityC
     p_bound_at: new Date().toISOString(),
   }) : { data: null, error: null };
   if (binding.error) fail("Native enforcement decision binding", binding.error);
-  await extendActionGraph(context, delegation, evaluationId, receipt.transactionId);
+  await extendActionGraph(context, delegation, evaluationId, receipt.transactionId, receipt.decision === "ALLOW");
   const decisionEvent = receipt.decision === "ALLOW" ? "BETA_ACTION_ALLOWED" : receipt.decision === "REVIEW" ? "BETA_ACTION_REVIEW_REQUIRED" : "BETA_ACTION_DENIED";
   await appendReplay(context, delegateId, decisionEvent, [...gateReasons, ...receipt.reasonCodes], { evaluationId, delegationId, transactionId: receipt.transactionId, action, decision: receipt.decision }, [`transaction:${receipt.transactionId}`]);
+  if (receipt.decision === "DENY" && gateReasons.includes("ACTION_OUT_OF_DELEGATED_SCOPE")) {
+    await appendReplay(context, delegateId, "BETA_SCOPE_VIOLATION_DENIED", gateReasons, { evaluationId, delegationId, transactionId: receipt.transactionId, action, decision: receipt.decision }, [`transaction:${receipt.transactionId}`]);
+  }
+  if (gateReasons.includes("DELEGATION_EXPIRED")) await extendGraph(context, delegation, "DELEGATION_EXPIRED");
   return { evaluationId, decision: receipt.decision, reasonCodes: [...new Set([...gateReasons, ...receipt.reasonCodes])], authorityLineage: result.authorityLineage, canonicalTransaction: receipt, enforcementDecisionBinding: binding.data, executionRequested: receipt.externalExecution.requested };
 }
 

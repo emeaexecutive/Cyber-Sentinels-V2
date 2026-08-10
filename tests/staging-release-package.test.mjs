@@ -24,7 +24,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 const packageRoot = path.join(repoRoot, "supabase", "release", "enterprise-trust-fabric-staging");
 const migrationRoot = path.join(repoRoot, "supabase", "migrations");
 const productionHead = "202606090003";
-const targetHead = "202608010002";
+const targetHead = "202608100005";
 
 const releasePlan = JSON.parse(await readFile(path.join(packageRoot, "release-plan.json"), "utf8"));
 const phaseManifest = JSON.parse(await readFile(path.join(packageRoot, "phase-manifest.json"), "utf8"));
@@ -41,7 +41,7 @@ test("release heads, counts and safety boundaries are explicit", () => {
   assert.equal(releasePlan.firstPendingMigration, "202606100001");
   assert.equal(releasePlan.targetHead, targetHead);
   assert.equal(releasePlan.appliedMigrationCount, 45);
-  assert.equal(releasePlan.pendingMigrationCount, 29);
+  assert.equal(releasePlan.pendingMigrationCount, 41);
   assert.equal(releasePlan.reviewOnly, true);
   assert.equal(releasePlan.migrationExecutionPermitted, false);
   assert.equal(releasePlan.productionMutationPermitted, false);
@@ -54,7 +54,7 @@ test("migration order contains every and only pending migration chronologically"
     .sort()
     .map((name) => `supabase/migrations/${name}`);
   assert.deepEqual(order, local);
-  assert.equal(order.length, 29);
+  assert.equal(order.length, 41);
   const timestamps = order.map((entry) => path.basename(entry).split("_")[0]);
   assert.deepEqual(timestamps, [...timestamps].sort());
   assert.equal(new Set(timestamps).size, timestamps.length);

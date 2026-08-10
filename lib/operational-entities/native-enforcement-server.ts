@@ -191,8 +191,10 @@ async function extendOutcomeGraph(input: {
     { node_type: "ENFORCEMENT_OUTCOME", external_id: input.outcomeId, domain_key: "RUNTIME", label: "Evidence-correlated outcome", metadata: {} },
     ...(input.incidentId ? [{ node_type: "CONTROL_FAILURE", external_id: input.incidentId, domain_key: "GOVERNANCE", label: "Execution after DENY", metadata: {} }] : []),
   ];
-  const written = await db.from("evidence_graph_nodes").upsert(nodes.map((node) => ({ ...node, enterprise_id: input.context.enterpriseId })), { onConflict: "enterprise_id,node_type,external_id" }).select("node_id,node_type,external_id");
-  if (written.error) fail("Native enforcement Evidence Graph nodes", written.error);
+  const insertedNodes = await db.from("evidence_graph_nodes").upsert(nodes.map((node) => ({ ...node, enterprise_id: input.context.enterpriseId })), { onConflict: "enterprise_id,node_type,external_id", ignoreDuplicates: true });
+  if (insertedNodes.error) fail("Native enforcement Evidence Graph nodes", insertedNodes.error);
+  const written = await db.from("evidence_graph_nodes").select("node_id,node_type,external_id").eq("enterprise_id", input.context.enterpriseId).in("external_id", nodes.map((node) => node.external_id));
+  if (written.error) fail("Native enforcement Evidence Graph node resolution", written.error);
   const ids = new Map((written.data ?? []).map((node) => [`${node.node_type}:${node.external_id}`, String(node.node_id)]));
   const txNode = ids.get(`TRUST_TRANSACTION:${input.transactionId}`);
   const outcomeNode = ids.get(`ENFORCEMENT_OUTCOME:${input.outcomeId}`);

@@ -130,6 +130,44 @@ async function appendNativeEvent(context: NativeContext, operationalEntityId: st
   return eventId;
 }
 
+async function extendNativeIdentityGraph(context: NativeContext, input: {
+  entityId: string;
+  displayName: string;
+  accountableOwnerId: string;
+  credentialFingerprint: string;
+  manifestDigest: string;
+  evidenceId: string;
+}) {
+  const db = createServiceRoleClient();
+  const nodes = [
+    { node_type: "HUMAN", external_id: input.accountableOwnerId, label: input.accountableOwnerId },
+    { node_type: "OPERATIONAL_ENTITY", external_id: input.entityId, label: input.displayName },
+    { node_type: "CREDENTIAL", external_id: input.credentialFingerprint, label: `Ed25519 ${input.credentialFingerprint.slice(0, 12)}` },
+    { node_type: "OPERATIONAL_ENTITY_MANIFEST", external_id: input.manifestDigest, label: `Manifest ${input.manifestDigest.slice(0, 12)}` },
+    { node_type: "NATIVE_IDENTITY_EVIDENCE", external_id: input.evidenceId, label: `Native identity proof ${input.evidenceId}` },
+  ];
+  const insertedNodes = await db.from("evidence_graph_nodes").upsert(nodes.map((node) => ({ ...node, enterprise_id: context.enterpriseId, domain_key: "IDENTITY", metadata: {} })), { onConflict: "enterprise_id,node_type,external_id", ignoreDuplicates: true });
+  if (insertedNodes.error) fail("Native identity Evidence Graph nodes", insertedNodes.error);
+  const stored = await db.from("evidence_graph_nodes").select("node_id,node_type,external_id").eq("enterprise_id", context.enterpriseId).in("external_id", nodes.map((node) => node.external_id));
+  if (stored.error) fail("Native identity Evidence Graph resolution", stored.error);
+  const by = new Map((stored.data ?? []).map((node) => [`${node.node_type}:${node.external_id}`, String(node.node_id)]));
+  const owner = by.get(`HUMAN:${input.accountableOwnerId}`);
+  const entity = by.get(`OPERATIONAL_ENTITY:${input.entityId}`);
+  const credential = by.get(`CREDENTIAL:${input.credentialFingerprint}`);
+  const manifest = by.get(`OPERATIONAL_ENTITY_MANIFEST:${input.manifestDigest}`);
+  const evidence = by.get(`NATIVE_IDENTITY_EVIDENCE:${input.evidenceId}`);
+  if (!owner || !entity || !credential || !manifest || !evidence) fail("Native identity Evidence Graph resolution", { code: "GRAPH_NODE_MISSING" });
+  const edges = [
+    { from_node_id: owner, to_node_id: entity, edge_type: "ASSERTS" },
+    { from_node_id: credential, to_node_id: entity, edge_type: "ASSERTS" },
+    { from_node_id: manifest, to_node_id: entity, edge_type: "APPLIES_TO" },
+    { from_node_id: evidence, to_node_id: credential, edge_type: "SUPPORTED" },
+    { from_node_id: evidence, to_node_id: entity, edge_type: "SUPPORTED" },
+  ];
+  const inserted = await db.from("evidence_graph_edges").insert(edges.map((edge) => ({ ...edge, enterprise_id: context.enterpriseId, evidence_id: input.evidenceId, correlation_id: null })));
+  if (inserted.error && inserted.error.code !== "23505") fail("Native identity Evidence Graph edges", inserted.error);
+}
+
 function replayEvent(context: NativeContext, input: {
   eventType: string;
   attribution: string;
@@ -363,8 +401,14 @@ export async function submitNativeProof(context: NativeContext, operationalEntit
   const wasPreviouslyVerified = Boolean(priorVerification.data);
   const verifiedCredential = nativeCredential(credentialResult.data as Row);
   const isRotation = verifiedCredential.state === "PENDING" && Boolean(verifiedCredential.rotatedFromCredentialId);
+  const normalizedDisplayName = String(entity.display_reference ?? "").trim().toLowerCase();
+  const establishedIdentityEvent = normalizedDisplayName === "agent alpha"
+    ? "ALPHA_VERIFIED"
+    : normalizedDisplayName === "agent beta"
+      ? "BETA_VERIFIED"
+      : "NATIVE_IDENTITY_VERIFIED";
   const replay = replayEvent(context, {
-    eventType: isRotation ? "CREDENTIAL_ROTATED" : wasPreviouslyVerified ? "REVERIFICATION_COMPLETED" : "NATIVE_IDENTITY_VERIFIED",
+    eventType: isRotation ? "CREDENTIAL_ROTATED" : wasPreviouslyVerified ? "REVERIFICATION_COMPLETED" : establishedIdentityEvent,
     attribution: "CYBER_SENTINELS_INTERPRETATION", evidenceReferences: result.evidenceReferences, reasonCodes: result.reasonCodes,
     payload: { verificationId: result.verificationId, evidenceId: result.evidence.evidenceId, continuityResult: result.continuityResult, changedAttributes: result.changedAttributes },
     occurredAt: result.verifiedAt,
@@ -400,8 +444,13 @@ export async function submitNativeProof(context: NativeContext, operationalEntit
     sourceId: result.verificationId, domainKey: evidenceDomain(entity.entity_type), occurredAt: result.verifiedAt,
     summary: { verificationId: result.verificationId, changedAttributes: result.changedAttributes, softwareProvenance: result.softwareProvenance },
   });
+  const establishedIdentityMemory = normalizedDisplayName === "agent alpha"
+    ? "ALPHA_NATIVE_IDENTITY_ESTABLISHED"
+    : normalizedDisplayName === "agent beta"
+      ? "BETA_NATIVE_IDENTITY_ESTABLISHED"
+      : "NATIVE_ENTITY_VERIFIED";
   const memory = {
-    memoryType: isRotation ? "SIGNING_KEY_ROTATED" : wasPreviouslyVerified ? "ENTITY_REVERIFIED" : "NATIVE_ENTITY_VERIFIED", sourceId: result.verificationId,
+    memoryType: isRotation ? "SIGNING_KEY_ROTATED" : wasPreviouslyVerified ? "ENTITY_REVERIFIED" : establishedIdentityMemory, sourceId: result.verificationId,
     domainKey: evidenceDomain(entity.entity_type), occurredAt: result.verifiedAt, summary: { evidenceId: result.evidence.evidenceId, continuityResult: result.continuityResult, changedAttributes: result.changedAttributes },
   };
   const consumed = await db.rpc("consume_native_entity_challenge_v1", {
@@ -417,6 +466,14 @@ export async function submitNativeProof(context: NativeContext, operationalEntit
   });
   if (consumed.error) fail("Atomic native challenge consumption", consumed.error);
   if (String((consumed.data as Row)?.status) !== "VERIFIED") throw new NativeVerificationServerError("The challenge was already consumed.", "CHALLENGE_REPLAY", 409);
+  await extendNativeIdentityGraph(context, {
+    entityId: operationalEntityId,
+    displayName: String(entity.display_reference),
+    accountableOwnerId: String(entity.accountable_owner_id),
+    credentialFingerprint: result.credentialFingerprint,
+    manifestDigest: result.manifestDigest,
+    evidenceId: result.evidence.evidenceId,
+  });
   let canonicalReevaluation = "TRIGGERED";
   try {
     await ingestContinuousTrustSignal({

@@ -12,6 +12,8 @@ export type ReplayWriteJob = {
   actorId: string;
   severity: "info" | "warning" | "critical";
   metadata: Record<string, unknown>;
+  workspaceId?: string | null;
+  ownerUserId?: string | null;
 };
 
 const queue: ReplayWriteJob[] = [];
@@ -38,6 +40,8 @@ export async function writeReplayEvent(supabase: SupabaseClient, job: ReplayWrit
       actor_type: item.actorType,
       actor_id: item.actorId,
       severity: item.severity,
+      workspace_id: item.workspaceId ?? null,
+      owner_user_id: item.ownerUserId ?? null,
       metadata: {
         ...item.metadata,
         replay_event_id: `${item.subjectType}:${item.subjectId}:${item.eventType}:${item.actorId}`,

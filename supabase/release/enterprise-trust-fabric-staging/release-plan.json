@@ -7,9 +7,9 @@
   "syntheticDataOnly": true,
   "productionHead": "202606090003",
   "firstPendingMigration": "202606100001",
-  "targetHead": "202608010002",
+  "targetHead": "202608100005",
   "appliedMigrationCount": 45,
-  "pendingMigrationCount": 29,
+  "pendingMigrationCount": 41,
   "phaseOrder": [
     "A",
     "B",

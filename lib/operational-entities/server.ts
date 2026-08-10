@@ -15,6 +15,7 @@ export type OperationalEntityLiveDetail = {
   enforcementEvents: Row[];
   replay: Row[];
   trustMemory: Row[];
+  evidenceGraph: { nodes: Row[]; edges: Row[] };
   nativeVerification: {
     manifests: Row[];
     credentials: Row[];
@@ -125,12 +126,14 @@ export async function loadOperationalEntityDetail(input: {
   const entity = entities.find((candidate) => candidate.entityId === input.entityId);
   if (!entity) return null;
 
-  const [relationships, transitions, changes, transactions, memory, nativeManifests, nativeCredentials, nativeVerifications, nativeEvidence, nativeReplay, ownerBindings, delegated, received] = await Promise.all([
+  const [relationships, transitions, changes, transactions, memory, graphNodes, graphEdges, nativeManifests, nativeCredentials, nativeVerifications, nativeEvidence, nativeReplay, ownerBindings, delegated, received] = await Promise.all([
     input.supabase.from("provider_relationships").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("effective_from", { ascending: true }),
     input.supabase.from("provider_transitions").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("initiated_at", { ascending: true }),
     input.supabase.from("provider_change_events").select("*").eq("enterprise_id", enterpriseId).contains("affected_operational_entity_ids", [input.entityId]).order("occurred_at", { ascending: true }),
     input.supabase.from("canonical_trust_transactions").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("requested_at", { ascending: true }),
     input.supabase.from("trust_memory_index").select("*").eq("enterprise_id", enterpriseId).eq("subject_id", input.entityId).order("occurred_at", { ascending: true }),
+    input.supabase.from("evidence_graph_nodes").select("*").eq("enterprise_id", enterpriseId).order("created_at", { ascending: true }).limit(500),
+    input.supabase.from("evidence_graph_edges").select("*").eq("enterprise_id", enterpriseId).order("created_at", { ascending: true }).limit(1000),
     input.supabase.from("operational_entity_manifests").select("manifest_id,manifest_version,manifest_digest,signing_key_id,status,issued_at,expires_at,supersedes_manifest_id").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("issued_at", { ascending: false }).limit(20),
     input.supabase.from("operational_entity_native_credentials").select("credential_id,signing_key_id,algorithm,credential_fingerprint,state,valid_from,expires_at,revoked_at,rotated_from_credential_id").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("valid_from", { ascending: false }).limit(20),
     input.supabase.from("operational_entity_native_verifications").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).order("verified_at", { ascending: false }).limit(20),
@@ -140,7 +143,7 @@ export async function loadOperationalEntityDetail(input: {
     input.supabase.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", enterpriseId).eq("delegator_operational_entity_id", input.entityId).order("issued_at", { ascending: false }).limit(100),
     input.supabase.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", enterpriseId).eq("delegate_operational_entity_id", input.entityId).order("issued_at", { ascending: false }).limit(100),
   ]);
-  for (const result of [relationships, transitions, changes, transactions, memory, nativeManifests, nativeCredentials, nativeVerifications, nativeEvidence, nativeReplay, ownerBindings, delegated, received]) if (result.error) throw result.error;
+  for (const result of [relationships, transitions, changes, transactions, memory, graphNodes, graphEdges, nativeManifests, nativeCredentials, nativeVerifications, nativeEvidence, nativeReplay, ownerBindings, delegated, received]) if (result.error) throw result.error;
 
   const delegationIds = [...new Set([...(delegated.data ?? []), ...(received.data ?? [])].map((row) => String(row.delegation_id)))];
   const [acceptances, delegatedEvaluations] = delegationIds.length
@@ -185,6 +188,7 @@ export async function loadOperationalEntityDetail(input: {
     enforcementEvents: (enforcement.data ?? []) as Row[],
     replay: (replay.data ?? []) as Row[],
     trustMemory: (memory.data ?? []) as Row[],
+    evidenceGraph: { nodes: (graphNodes.data ?? []) as Row[], edges: (graphEdges.data ?? []) as Row[] },
     nativeVerification: {
       manifests: (nativeManifests.data ?? []) as Row[],
       credentials: (nativeCredentials.data ?? []) as Row[],

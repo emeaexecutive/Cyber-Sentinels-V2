@@ -26,7 +26,7 @@ const nextConfig = {
       ? []
       : [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
     const securityHeaders = [
-      {
+      ...(process.env.NODE_ENV === "development" ? [] : [{
         key: "Content-Security-Policy",
         value: [
           "default-src 'self'",
@@ -42,7 +42,7 @@ const nextConfig = {
           "form-action 'self'",
           "upgrade-insecure-requests",
         ].join("; "),
-      },
+      }]),
       { key: "X-Frame-Options", value: "DENY" },
       { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
       { key: "X-Content-Type-Options", value: "nosniff" },

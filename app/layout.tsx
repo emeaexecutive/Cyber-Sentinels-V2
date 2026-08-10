@@ -11,6 +11,7 @@ import {
 import { hasAdminVerifiedCookie, isAdminAllowlisted } from "@/lib/admin-auth";
 import { buildPlatformHealth } from "@/lib/core/platform-health";
 import { createNavigationClient } from "@/lib/supabase/server";
+import { isMissingAuthSessionError } from "@/lib/supabase/auth-errors";
 import { ReportIssue } from "@/components/report-issue";
 import { PublicPageAdoptionRail } from "@/components/public-page-adoption-rail";
 import { ConsentManager } from "@/src/components/consent/ConsentManager";
@@ -145,14 +146,17 @@ async function getNavigationState(): Promise<NavigationState> {
     if (!supabase) {
       return { accessLevel: "public" };
     }
-    const { data, error } = await supabase.auth.getSession();
+    const { data, error } = await supabase.auth.getUser();
 
     if (error) {
+      if (isMissingAuthSessionError(error)) {
+        return { accessLevel: "public" };
+      }
       warnNavigationAuthUnavailable(error);
       return { accessLevel: "public" };
     }
 
-    const user = data.session?.user ?? null;
+    const user = data.user ?? null;
 
     if (!user) {
       return { accessLevel: "public" };

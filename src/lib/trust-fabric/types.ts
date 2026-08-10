@@ -186,6 +186,15 @@ export type TrustContract = {
   incidentThreshold: "material" | "critical" | "emergency"; expiresAt: string; revokedAt: string | null;
   revocationState: "active" | "revoked"; issuer: string; approver: string; policyId: string; policyVersion: string;
   evidenceReferences: FabricReference[]; issuedAt: string; supersedesContractId?: string | null;
+  /** Native delegated-authority fields retained in the canonical Trust Contract. */
+  authorityScope?: {
+    permittedActions: string[]; permittedTools: string[]; permittedTargets: string[]; environments: string[];
+    dataBoundary: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "RESTRICTED";
+    financialLimit: number | null; executionLimit: number | null;
+  };
+  canDelegate?: boolean;
+  maximumDelegationDepth?: number;
+  authorityVersion?: string;
 };
 export type TrustContractEvaluationInput = {
   contract: TrustContract; evaluatedAt: string; identityState: FabricTrustState; authorityState: FabricTrustState;

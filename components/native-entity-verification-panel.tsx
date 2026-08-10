@@ -235,7 +235,7 @@ export function NativeEntityVerificationPanel(props: Props) {
         subject_id: props.canonicalTrustObjectId,
         operational_entity_id: props.operationalEntityId,
         requested_action: requestedAction,
-        requested_purpose: requestedAction,
+        requested_purpose: "controlled_repository_access",
         resource: requestedAction === "initiate_payment" ? "payment:restricted:agent-alpha" : "repository:agent-alpha",
         environment: props.environmentReference ?? "preview",
         payload_digest: await sha256Hex(canonicalize({ operationalEntityId: props.operationalEntityId, requestedAction, at: new Date().toISOString() })),
@@ -414,9 +414,9 @@ export function NativeEntityVerificationPanel(props: Props) {
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">Native identity proof</p>
       <h2 className="mt-2 text-xl font-semibold">{isAgentAlpha ? "Cryptographically verify existing Agent Alpha" : `Cryptographically verify ${props.displayName}`}</h2>
       <p className="mt-3 text-sm leading-6 text-slate-300">The private Ed25519 key is generated as non-extractable browser memory, used by this non-Production signer, never sent to Cyber Sentinels, never persisted, and discarded when the page closes. Runtime fields are enterprise-asserted; no build or source integrity is fabricated.</p>
-      <p className="mt-3 rounded-lg border border-cyan-900/60 bg-slate-950/60 p-3 text-sm text-cyan-100"><strong>Why do we know this is Alpha?</strong> Alpha proves possession of the private key corresponding to its registered public credential using a single-use challenge bound to this Operational Entity and manifest.</p>
+      <p className="mt-3 rounded-lg border border-cyan-900/60 bg-slate-950/60 p-3 text-sm text-cyan-100"><strong>How do we know this is {isAgentAlpha ? "Alpha" : props.displayName.replace(/^Agent\s+/i, "")}?</strong> {props.displayName} proves possession of the private key corresponding to its registered public credential using a single-use challenge bound to this Operational Entity and manifest.</p>
       <div className="mt-4 flex flex-wrap gap-2">
-        <button type="button" onClick={verifyEntity} disabled={state === "running"} className="rounded-lg bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">{state === "running" ? "RUNNING..." : props.activeCredentialId ? "ROTATE AND VERIFY CURRENT ENTITY" : isAgentAlpha ? "VERIFY AGENT ALPHA" : "VERIFY ENTITY"}</button>
+        <button type="button" onClick={verifyEntity} disabled={state === "running"} className="rounded-lg bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">{state === "running" ? "RUNNING..." : props.activeCredentialId ? `ROTATE AND VERIFY ${props.displayName.toUpperCase()}` : isAgentAlpha ? "VERIFY AGENT ALPHA" : `VERIFY ${props.displayName.toUpperCase()}`}</button>
         {isAgentAlpha ? <>
           <button type="button" onClick={copyAlphaId} disabled={attackDisabled} className="rounded-lg border border-slate-700 px-3 py-2 text-sm disabled:opacity-40">COPY ALPHA ID</button>
           <button type="button" onClick={replayOldProof} disabled={attackDisabled} className="rounded-lg border border-slate-700 px-3 py-2 text-sm disabled:opacity-40">REPLAY OLD PROOF</button>

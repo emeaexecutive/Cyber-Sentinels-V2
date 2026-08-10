@@ -46,6 +46,8 @@ export async function GET(
         sourceDigest: item.sourceDigest,
       })),
       authorityReference: receipt.authorityReference,
+      delegationReference: receipt.authorityLineageReferences.find((item) => item.type === "authority_delegation")?.id ?? null,
+      parentAuthorityReference: receipt.authorityLineageReferences.find((item) => item.type === "parent_authority")?.id ?? null,
       policy: receipt.policy,
       decisionDigest: receipt.digest,
       evidenceGraphReference: receipt.evidenceGraphReference,

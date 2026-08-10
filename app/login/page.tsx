@@ -215,11 +215,11 @@ export default function LoginPage() {
 
     let active = true;
 
-    withAuthTimeout(supabase.auth.getSession())
+    withAuthTimeout(supabase.auth.getUser())
       .then(async ({ data }) => {
         if (!active) return;
 
-        if (data.session?.user) {
+        if (data.user) {
           setSessionRestoreState("restored");
           window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
           await recordAuthEvent(

@@ -2,9 +2,9 @@
 
 - Production migration head: `202606090003`.
 - First pending migration: `202606100001`.
-- Target migration head: `202608010002`.
+- Target migration head: `202608100005`.
 - Applied migrations: 45.
-- Pending migrations: 29.
+- Pending migrations: 41.
 - Ordering: lexical timestamp order; every local timestamp is unique.
 - Row-volume evidence: unknown; no Production row counts were inspected.
 
@@ -84,6 +84,18 @@
 | `202607310001` | `202607310001_environment_attestation_scope_continuity.sql` | Environment Attestation Scope Continuity (Epic 26) | `202607240004` | data backfill, feature schema, function or RPC, index creation, policy hardening, table creation, view or projection; creates 34, alters 1 | bounded update/backfill path; row volume unknown | yes | HIGH | Stop before next phase; restore isolated staging or forward-repair |
 | `202608010001` | `202608010001_ai_serious_incident_regulatory_lineage.sql` | Ai Serious Incident Regulatory Lineage (Epic 27) | `202607310001` | constraint hardening, data backfill, feature schema, function or RPC, index creation, policy hardening, table creation, view or projection; creates 50, alters 3 | bounded update/backfill path; row volume unknown | yes | HIGH | Stop before next phase; restore isolated staging or forward-repair |
 | `202608010002` | `202608010002_enterprise_trust_fabric.sql` | Enterprise Trust Fabric (Epic 28) | `202608010001` | data backfill, feature schema, function or RPC, index creation, policy hardening, table creation, view or projection; creates 22, alters 4 | bounded update/backfill path; row volume unknown | yes | HIGH | Stop before next phase; restore isolated staging or forward-repair |
+| `202608060001` | `202608060001_rc2_enterprise_operational_readiness.sql` | Rc2 Enterprise Operational Readiness (Epic 28) | `202608010002` | constraint hardening, data backfill, feature schema, function or RPC, index creation, table creation; creates 6, alters 2 | bounded update/backfill path; row volume unknown | yes | HIGH | Stop before next phase; restore isolated staging or forward-repair |
+| `202608060002` | `202608060002_end_to_end_trust_transaction.sql` | End To End Trust Transaction (Epic 28) | `202608060001` | data backfill, feature schema, function or RPC, index creation, policy hardening, table creation; creates 26, alters 5 | bounded update/backfill path; row volume unknown | yes | HIGH | Stop before next phase; restore isolated staging or forward-repair |
+| `202608080001` | `202608080001_provider_neutral_evidence_independence.sql` | Provider Neutral Evidence Independence (Epic 28) | `202608060002` | data backfill, feature schema, function or RPC, index creation, policy hardening, table creation; creates 25, alters 2 | bounded update/backfill path; row volume unknown | yes | HIGH | Stop before next phase; restore isolated staging or forward-repair |
+| `202608080002` | `202608080002_provider_neutral_workspace_rls_forward_repair.sql` | Provider Neutral Workspace Rls Forward Repair (Epic 28) | `202608080001` | data backfill, feature schema; creates 0, alters 0 | bounded update/backfill path; row volume unknown | no | LOW | Stop before next phase; restore isolated staging or forward-repair |
+| `202608080003` | `202608080003_native_operational_entity_verification.sql` | Native Operational Entity Verification (Epic 28) | `202608080002` | constraint hardening, data backfill, feature schema, function or RPC, index creation, policy hardening, table creation; creates 41, alters 2 | bounded update/backfill path; row volume unknown | yes | HIGH | Stop before next phase; restore isolated staging or forward-repair |
+| `202608090001` | `202608090001_native_delegated_authority.sql` | Native Delegated Authority (Epic 28) | `202608080003` | constraint hardening, data backfill, feature schema, function or RPC, index creation, policy hardening, table creation; creates 19, alters 4 | bounded update/backfill path; row volume unknown | yes | HIGH | Stop before next phase; restore isolated staging or forward-repair |
+| `202608090002` | `202608090002_native_enforcement_outcome_proof.sql` | Native Enforcement Outcome Proof (Epic 28) | `202608090001` | constraint hardening, data backfill, feature schema, function or RPC, index creation, policy hardening, table creation; creates 26, alters 6 | bounded update/backfill path; row volume unknown | yes | HIGH | Stop before next phase; restore isolated staging or forward-repair |
+| `202608100001` | `202608100001_pgcrypto_routine_search_path.sql` | Pgcrypto Routine Search Path (Epic 28) | `202608090002` | additive schema; creates 0, alters 0 | none | no | LOW | Stop before next phase; restore isolated staging or forward-repair |
+| `202608100002` | `202608100002_runtime_persistence_compatibility.sql` | Runtime Persistence Compatibility (Epic 28) | `202608100001` | compatibility repair, data backfill, feature schema, function or RPC; creates 2, alters 0 | bounded update/backfill path; row volume unknown | no | LOW | Stop before next phase; restore isolated staging or forward-repair |
+| `202608100003` | `202608100003_alpha_beta_persistence_repairs.sql` | Alpha Beta Persistence Repairs (Epic 28) | `202608100002` | feature schema, function or RPC; creates 1, alters 0 | deterministic seed/configuration inserts | no | LOW | Stop before next phase; restore isolated staging or forward-repair |
+| `202608100004` | `202608100004_continuous_trust_legacy_consensus_fk_repair.sql` | Continuous Trust Legacy Consensus Fk Repair (Epic 28) | `202608100003` | data backfill, feature schema, function or RPC; creates 1, alters 0 | bounded update/backfill path; row volume unknown | no | LOW | Stop before next phase; restore isolated staging or forward-repair |
+| `202608100005` | `202608100005_optional_legacy_consensus_pointer.sql` | Optional Legacy Consensus Pointer (Epic 28) | `202608100004` | additive schema; creates 0, alters 1 | none | no | MEDIUM | Stop before next phase; restore isolated staging or forward-repair |
 
 ## Detailed per-migration inventory
 
@@ -1345,6 +1357,210 @@
 - Data impact/backfill: bounded update/backfill path; row volume unknown.
 - Destructive review signals: dropPolicy:1, replaceFunction:4, update:4, insert:7.
 
+### 202608060001 — 202608060001_rc2_enterprise_operational_readiness.sql
+
+- Purpose / feature: Rc2 Enterprise Operational Readiness; Epic 28.
+- Classification: constraint hardening, data backfill, feature schema, function or RPC, index creation, table creation.
+- Expected order / dependency boundary: after `202608010002`.
+- Tables created: `public.enterprise_policy_governance_events`.
+- Tables altered: `public.enterprise_policy_governance_events`, `public.workspace_members`.
+- Views: none.
+- Functions/RPCs: `public.prevent_enterprise_policy_governance_mutation`, `public.record_enterprise_policy_governance_event_v1`, `public.user_has_trust_workspace_role`.
+- Policies: none.
+- Indexes: `public.enterprise_policy_governance_events_policy_idx`.
+- Constraints: `if`, `workspace_members_role_check`.
+- Triggers: `public.enterprise_policy_governance_events.enterprise_policy_governance_append_only`.
+- Grant/revoke categories: `GRANT ALL PRIVILEGES ON`, `GRANT EXECUTE ON FUNCTION`, `GRANT SELECT ON`, `REVOKE ALL ON`, `REVOKE ALL ON FUNCTION`.
+- Data impact/backfill: bounded update/backfill path; row volume unknown.
+- Destructive review signals: dropConstraint:1, replaceFunction:3, update:3, insert:2.
+
+### 202608060002 — 202608060002_end_to_end_trust_transaction.sql
+
+- Purpose / feature: End To End Trust Transaction; Epic 28.
+- Classification: data backfill, feature schema, function or RPC, index creation, policy hardening, table creation.
+- Expected order / dependency boundary: after `202608060001`.
+- Tables created: `public.canonical_trust_transaction_events`, `public.canonical_trust_transactions`, `public.external_action_acknowledgements`, `public.external_action_outcomes`, `public.external_action_requests`.
+- Tables altered: `public.evidence_graph_edges`, `public.evidence_graph_nodes`, `public.public`, `public.trust_memory_index`, `public.trust_replay_sessions`.
+- Views: none.
+- Functions/RPCs: `public.append_canonical_trust_transaction_replay_v1`, `public.emit_canonical_trust_transaction_memory_v1`, `public.extend_canonical_trust_transaction_graph_v1`, `public.persist_canonical_trust_transaction_decision_v1`, `public.record_canonical_external_acknowledgement_v1`, `public.record_canonical_external_outcome_v1`, `public.request_canonical_external_execution_v1`.
+- Policies: `public.canonical_trust_transaction_events.tenant reads canonical_trust_transaction_events`, `public.canonical_trust_transactions.tenant reads canonical_trust_transactions`, `public.external_action_acknowledgements.tenant reads external_action_acknowledgements`, `public.external_action_outcomes.tenant reads external_action_outcomes`, `public.external_action_requests.tenant reads external_action_requests`.
+- Indexes: `public.canonical_transaction_events_timeline_idx`, `public.canonical_trust_transactions_decision_idx`, `public.canonical_trust_transactions_subject_idx`, `public.external_action_outcomes_idempotency_uidx`, `public.trust_replay_canonical_transaction_uidx`.
+- Constraints: none.
+- Triggers: `public.canonical_trust_transaction_events.canonical_trust_transaction_events_append_only`, `public.external_action_acknowledgements.external_action_acknowledgements_append_only`, `public.external_action_outcomes.external_action_outcomes_append_only`, `public.external_action_requests.external_action_requests_append_only`.
+- Grant/revoke categories: `GRANT ALL PRIVILEGES ON`, `GRANT EXECUTE ON FUNCTION`, `GRANT SELECT ON`, `REVOKE ALL ON`, `REVOKE ALL ON FUNCTION`.
+- Data impact/backfill: bounded update/backfill path; row volume unknown.
+- Destructive review signals: replaceFunction:7, update:10, insert:23.
+
+### 202608080001 — 202608080001_provider_neutral_evidence_independence.sql
+
+- Purpose / feature: Provider Neutral Evidence Independence; Epic 28.
+- Classification: data backfill, feature schema, function or RPC, index creation, policy hardening, table creation.
+- Expected order / dependency boundary: after `202608060002`.
+- Tables created: `public.canonical_enforcement_events`, `public.operational_entities`, `public.operational_entity_external_identities`, `public.provider_change_events`, `public.provider_relationships`, `public.provider_transitions`.
+- Tables altered: `public.canonical_trust_transactions`, `public.public`.
+- Views: none.
+- Functions/RPCs: `public.persist_canonical_trust_transaction_decision_v1`, `public.preserve_canonical_decision_snapshot_v1`, `public.preserve_provider_transition_history_v1`.
+- Policies: `public.canonical_enforcement_events.tenant reads canonical_enforcement_events`, `public.operational_entities.tenant reads operational_entities`, `public.operational_entity_external_identities.tenant reads operational_entity_external_identities`, `public.provider_change_events.tenant reads provider_change_events`, `public.provider_relationships.tenant reads provider_relationships`, `public.provider_transitions.tenant reads provider_transitions`.
+- Indexes: `public.canonical_enforcement_events_timeline_idx`, `public.operational_entity_external_identity_timeline_idx`, `public.provider_change_events_timeline_idx`, `public.provider_relationships_entity_idx`, `public.provider_transitions_entity_idx`.
+- Constraints: none.
+- Triggers: `public.canonical_enforcement_events.canonical_enforcement_events_append_only`, `public.canonical_trust_transactions.canonical_decision_snapshot_immutable`, `public.operational_entity_external_identities.operational_entity_external_identities_append_only`, `public.provider_change_events.provider_change_events_append_only`, `public.provider_transitions.provider_transition_history_immutable`.
+- Grant/revoke categories: `GRANT ALL PRIVILEGES ON`, `GRANT EXECUTE ON FUNCTION`, `GRANT SELECT ON`, `REVOKE ALL ON`, `REVOKE ALL ON FUNCTION`.
+- Data impact/backfill: bounded update/backfill path; row volume unknown.
+- Destructive review signals: replaceFunction:3, update:6, insert:4.
+
+### 202608080002 — 202608080002_provider_neutral_workspace_rls_forward_repair.sql
+
+- Purpose / feature: Provider Neutral Workspace Rls Forward Repair; Epic 28.
+- Classification: data backfill, feature schema.
+- Expected order / dependency boundary: after `202608080001`.
+- Tables created: none.
+- Tables altered: none.
+- Views: none.
+- Functions/RPCs: none.
+- Policies: none.
+- Indexes: none.
+- Constraints: none.
+- Triggers: none.
+- Grant/revoke categories: none.
+- Data impact/backfill: bounded update/backfill path; row volume unknown.
+- Destructive review signals: update:2.
+
+### 202608080003 — 202608080003_native_operational_entity_verification.sql
+
+- Purpose / feature: Native Operational Entity Verification; Epic 28.
+- Classification: constraint hardening, data backfill, feature schema, function or RPC, index creation, policy hardening, table creation.
+- Expected order / dependency boundary: after `202608080002`.
+- Tables created: `public.native_entity_identity_evidence`, `public.operational_entity_manifests`, `public.operational_entity_native_challenges`, `public.operational_entity_native_credentials`, `public.operational_entity_native_replay_events`, `public.operational_entity_native_runtime_observations`, `public.operational_entity_native_software_observations`, `public.operational_entity_native_verification_attempts`, `public.operational_entity_native_verifications`, `public.operational_entity_owner_bindings`.
+- Tables altered: `public.public`, `public.trust_signals`.
+- Views: none.
+- Functions/RPCs: `public.consume_native_entity_challenge_v1`, `public.preserve_native_evidence_payload_v1`, `public.preserve_native_manifest_payload_v1`, `public.register_native_entity_manifest_v1`.
+- Policies: `public.native_entity_identity_evidence.tenant reads native_entity_identity_evidence`, `public.operational_entity_manifests.tenant reads operational_entity_manifests`, `public.operational_entity_native_challenges.tenant reads operational_entity_native_challenges`, `public.operational_entity_native_credentials.tenant reads operational_entity_native_credentials`, `public.operational_entity_native_replay_events.tenant reads operational_entity_native_replay_events`, `public.operational_entity_native_runtime_observations.tenant reads operational_entity_native_runtime_observations`, `public.operational_entity_native_software_observations.tenant reads operational_entity_native_software_observations`, `public.operational_entity_native_verification_attempts.tenant reads operational_entity_native_verification_attempts`, `public.operational_entity_native_verifications.tenant reads operational_entity_native_verifications`, `public.operational_entity_owner_bindings.tenant reads operational_entity_owner_bindings`.
+- Indexes: `public.native_entity_identity_evidence_current_idx`, `public.operational_entity_manifests_active_idx`, `public.operational_entity_manifests_one_active_idx`, `public.operational_entity_native_challenges_lookup_idx`, `public.operational_entity_native_credentials_active_idx`, `public.operational_entity_native_credentials_one_active_idx`, `public.operational_entity_native_replay_idx`, `public.operational_entity_native_verifications_entity_idx`, `public.operational_entity_owner_bindings_current_idx`.
+- Constraints: `if`, `trust_signals_entity_type_check`.
+- Triggers: `public.native_entity_identity_evidence.native_entity_identity_evidence_preserve_payload`, `public.operational_entity_manifests.operational_entity_manifests_preserve_payload`, `public.operational_entity_native_replay_events.operational_entity_native_replay_events_append_only`, `public.operational_entity_native_runtime_observations.operational_entity_native_runtime_observations_append_only`, `public.operational_entity_native_software_observations.operational_entity_native_software_observations_append_only`, `public.operational_entity_native_verification_attempts.operational_entity_native_verification_attempts_append_only`, `public.operational_entity_native_verifications.operational_entity_native_verifications_append_only`, `public.operational_entity_owner_bindings.operational_entity_owner_bindings_append_only`.
+- Grant/revoke categories: `GRANT ALL PRIVILEGES ON`, `GRANT EXECUTE ON FUNCTION`, `GRANT SELECT ON`, `REVOKE ALL ON`, `REVOKE ALL ON FUNCTION`.
+- Data impact/backfill: bounded update/backfill path; row volume unknown.
+- Destructive review signals: dropConstraint:1, replaceFunction:4, update:13, insert:14.
+
+### 202608090001 — 202608090001_native_delegated_authority.sql
+
+- Purpose / feature: Native Delegated Authority; Epic 28.
+- Classification: constraint hardening, data backfill, feature schema, function or RPC, index creation, policy hardening, table creation.
+- Expected order / dependency boundary: after `202608080003`.
+- Tables created: `public.operational_entity_authority_delegations`, `public.operational_entity_delegated_action_evaluations`, `public.operational_entity_delegation_acceptances`.
+- Tables altered: `public.evidence_graph_edges`, `public.operational_entity_native_replay_events`, `public.public`, `public.trust_contracts`.
+- Views: none.
+- Functions/RPCs: `public.accept_operational_entity_delegation_v1`, `public.persist_delegated_action_evaluation_v1`, `public.preserve_authority_delegation_payload_v1`, `public.preserve_trust_contract_content_v2`, `public.register_native_agent_operational_entity_v1`, `public.revoke_trust_contract_with_delegation_cascade_v1`.
+- Policies: `public.operational_entity_authority_delegations.tenant reads operational_entity_authority_delegations`, `public.operational_entity_delegated_action_evaluations.tenant reads operational_entity_delegated_action_evaluations`, `public.operational_entity_delegation_acceptances.tenant reads operational_entity_delegation_acceptances`.
+- Indexes: `public.operational_entity_authority_delegations_delegate_idx`, `public.operational_entity_authority_delegations_delegator_idx`, `public.operational_entity_authority_delegations_parent_idx`.
+- Constraints: `evidence_graph_edges_edge_type_check`, `if`, `operational_entity_native_replay_events_event_type_check`, `trust_contracts_revocation_timestamp_check`.
+- Triggers: `public.operational_entity_authority_delegations.operational_entity_authority_delegations_preserve_payload`, `public.operational_entity_delegated_action_evaluations.operational_entity_delegated_action_evaluations_append_only`, `public.operational_entity_delegation_acceptances.operational_entity_delegation_acceptances_append_only`, `public.trust_contracts.trust_contracts_preserve_content`.
+- Grant/revoke categories: `GRANT ALL PRIVILEGES ON`, `GRANT EXECUTE ON FUNCTION`, `GRANT SELECT ON`, `REVOKE ALL ON`, `REVOKE ALL ON FUNCTION`.
+- Data impact/backfill: bounded update/backfill path; row volume unknown.
+- Destructive review signals: dropConstraint:2, replaceFunction:6, update:8, insert:7.
+
+### 202608090002 — 202608090002_native_enforcement_outcome_proof.sql
+
+- Purpose / feature: Native Enforcement Outcome Proof; Epic 28.
+- Classification: constraint hardening, data backfill, feature schema, function or RPC, index creation, policy hardening, table creation.
+- Expected order / dependency boundary: after `202608090001`.
+- Tables created: `public.controlled_destination_records`, `public.native_destination_observations`, `public.native_enforcement_acknowledgements`, `public.native_enforcement_decision_bindings`, `public.native_enforcement_human_approvals`, `public.native_enforcement_outcomes`, `public.native_enforcement_requests`, `public.native_execution_claims`, `public.native_execution_contradictions`, `public.native_runtime_execution_observations`.
+- Tables altered: `public.canonical_trust_transaction_events`, `public.evidence_graph_edges`, `public.operational_entity_authority_delegations`, `public.operational_entity_delegated_action_evaluations`, `public.operational_entity_native_replay_events`, `public.public`.
+- Views: none.
+- Functions/RPCs: `public.bind_native_enforcement_decision_v1`, `public.persist_native_enforcement_correlation_v1`, `public.reserve_native_enforcement_request_v1`.
+- Policies: `public.controlled_destination_records.tenant reads controlled_destination_records`, `public.native_destination_observations.tenant reads native_destination_observations`, `public.native_enforcement_acknowledgements.tenant reads native_enforcement_acknowledgements`, `public.native_enforcement_decision_bindings.tenant reads native_enforcement_decision_bindings`, `public.native_enforcement_human_approvals.tenant reads native_enforcement_human_approvals`, `public.native_enforcement_outcomes.tenant reads native_enforcement_outcomes`, `public.native_enforcement_requests.tenant reads native_enforcement_requests`, `public.native_execution_claims.tenant reads native_execution_claims`, `public.native_execution_contradictions.tenant reads native_execution_contradictions`, `public.native_runtime_execution_observations.tenant reads native_runtime_execution_observations`.
+- Indexes: `public.native_destination_observations_transaction_idx`, `public.native_enforcement_outcomes_transaction_idx`, `public.native_enforcement_requests_transaction_idx`.
+- Constraints: `canonical_trust_transaction_events_event_type_check`, `evidence_graph_edges_edge_type_check`, `if`, `operational_entity_authority_delegations_enterprise_id_delegation_id_key`, `operational_entity_delegated_action_evaluations_enterprise_id_evaluation_id_key`, `operational_entity_native_replay_events_event_type_check`.
+- Triggers: none.
+- Grant/revoke categories: `GRANT ALL PRIVILEGES ON`, `GRANT EXECUTE ON FUNCTION`, `GRANT SELECT ON`, `REVOKE ALL ON`, `REVOKE ALL ON FUNCTION`.
+- Data impact/backfill: bounded update/backfill path; row volume unknown.
+- Destructive review signals: dropConstraint:3, replaceFunction:3, update:1, insert:8.
+
+### 202608100001 — 202608100001_pgcrypto_routine_search_path.sql
+
+- Purpose / feature: Pgcrypto Routine Search Path; Epic 28.
+- Classification: additive schema.
+- Expected order / dependency boundary: after `202608090002`.
+- Tables created: none.
+- Tables altered: none.
+- Views: none.
+- Functions/RPCs: none.
+- Policies: none.
+- Indexes: none.
+- Constraints: none.
+- Triggers: none.
+- Grant/revoke categories: none.
+- Data impact/backfill: none.
+- Destructive review signals: none.
+
+### 202608100002 — 202608100002_runtime_persistence_compatibility.sql
+
+- Purpose / feature: Runtime Persistence Compatibility; Epic 28.
+- Classification: compatibility repair, data backfill, feature schema, function or RPC.
+- Expected order / dependency boundary: after `202608100001`.
+- Tables created: none.
+- Tables altered: none.
+- Views: none.
+- Functions/RPCs: `public.append_canonical_trust_transaction_replay_v1`, `public.normalize_legacy_evidence_object_v1`.
+- Policies: none.
+- Indexes: none.
+- Constraints: none.
+- Triggers: none.
+- Grant/revoke categories: `GRANT EXECUTE ON FUNCTION`, `REVOKE ALL ON FUNCTION`.
+- Data impact/backfill: bounded update/backfill path; row volume unknown.
+- Destructive review signals: replaceFunction:2, update:1, insert:2.
+
+### 202608100003 — 202608100003_alpha_beta_persistence_repairs.sql
+
+- Purpose / feature: Alpha Beta Persistence Repairs; Epic 28.
+- Classification: feature schema, function or RPC.
+- Expected order / dependency boundary: after `202608100002`.
+- Tables created: none.
+- Tables altered: none.
+- Views: none.
+- Functions/RPCs: `public.project_continuous_trust_signal_v1`.
+- Policies: none.
+- Indexes: none.
+- Constraints: none.
+- Triggers: none.
+- Grant/revoke categories: `GRANT EXECUTE ON FUNCTION`, `REVOKE ALL ON FUNCTION`.
+- Data impact/backfill: deterministic seed/configuration inserts.
+- Destructive review signals: replaceFunction:1, insert:2.
+
+### 202608100004 — 202608100004_continuous_trust_legacy_consensus_fk_repair.sql
+
+- Purpose / feature: Continuous Trust Legacy Consensus Fk Repair; Epic 28.
+- Classification: data backfill, feature schema, function or RPC.
+- Expected order / dependency boundary: after `202608100003`.
+- Tables created: none.
+- Tables altered: none.
+- Views: none.
+- Functions/RPCs: `public.apply_trust_state_decision_v1`.
+- Policies: none.
+- Indexes: none.
+- Constraints: none.
+- Triggers: none.
+- Grant/revoke categories: `GRANT EXECUTE ON FUNCTION`, `REVOKE ALL ON FUNCTION`.
+- Data impact/backfill: bounded update/backfill path; row volume unknown.
+- Destructive review signals: replaceFunction:1, update:1, insert:9.
+
+### 202608100005 — 202608100005_optional_legacy_consensus_pointer.sql
+
+- Purpose / feature: Optional Legacy Consensus Pointer; Epic 28.
+- Classification: additive schema.
+- Expected order / dependency boundary: after `202608100004`.
+- Tables created: none.
+- Tables altered: `public.subject_trust_state`.
+- Views: none.
+- Functions/RPCs: none.
+- Policies: none.
+- Indexes: none.
+- Constraints: none.
+- Triggers: none.
+- Grant/revoke categories: none.
+- Data impact/backfill: none.
+- Destructive review signals: none.
+
 ## Pending lock and performance risk
 
 | Migration | Lock level | Likely rewrite | Index build | Row-volume sensitivity | Transaction duration | PostgREST cache | Function compile | RLS risk | Application compatibility |
@@ -1377,7 +1593,19 @@
 | `202607240004_enterprise_trust_centre.sql` | MEDIUM | possible on altered tables; prove in staging | 1 non-concurrent index declaration(s); relation sizes unknown | unknown; no Production row count used | MEDIUM until measured | refresh/verify after phase | 1 function/RPC definition(s); compile and privilege validation required | MEDIUM: new/changed policies and grants | Builds versioned Trust Architecture, Intelligence, Graph, DNA, Replay, Continuous Trust and Trust Centre projections. |
 | `202607310001_environment_attestation_scope_continuity.sql` | HIGH | possible on altered tables; prove in staging | 10 non-concurrent index declaration(s); relation sizes unknown | unknown; no Production row count used | HIGH until measured | refresh/verify after phase | 2 function/RPC definition(s); compile and privilege validation required | MEDIUM: new/changed policies and grants | Adds Environment Attestation and Scope Continuity after all trust and replay prerequisites. |
 | `202608010001_ai_serious_incident_regulatory_lineage.sql` | HIGH | possible on altered tables; prove in staging | 11 non-concurrent index declaration(s); relation sizes unknown | unknown; no Production row count used | HIGH until measured | refresh/verify after phase | 5 function/RPC definition(s); compile and privilege validation required | MEDIUM: new/changed policies and grants | Adds protected serious-incident evidence and regulatory lineage without turning screening into a legal decision. |
-| `202608010002_enterprise_trust_fabric.sql` | HIGH | possible on altered tables; prove in staging | 6 non-concurrent index declaration(s); relation sizes unknown | unknown; no Production row count used | HIGH until measured | refresh/verify after phase | 4 function/RPC definition(s); compile and privilege validation required | HIGH: replacement must preserve valid tenant reads | Adds composition records over canonical domain sources; it does not replace Trust Object ownership, Replay or Trust Memory. |
+| `202608010002_enterprise_trust_fabric.sql` | HIGH | possible on altered tables; prove in staging | 6 non-concurrent index declaration(s); relation sizes unknown | unknown; no Production row count used | HIGH until measured | refresh/verify after phase | 4 function/RPC definition(s); compile and privilege validation required | HIGH: replacement must preserve valid tenant reads | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
+| `202608060001_rc2_enterprise_operational_readiness.sql` | HIGH | possible on altered tables; prove in staging | 1 non-concurrent index declaration(s); relation sizes unknown | unknown; no Production row count used | HIGH until measured | refresh/verify after phase | 3 function/RPC definition(s); compile and privilege validation required | MEDIUM: new/changed policies and grants | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
+| `202608060002_end_to_end_trust_transaction.sql` | HIGH | possible on altered tables; prove in staging | 5 non-concurrent index declaration(s); relation sizes unknown | unknown; no Production row count used | HIGH until measured | refresh/verify after phase | 7 function/RPC definition(s); compile and privilege validation required | MEDIUM: new/changed policies and grants | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
+| `202608080001_provider_neutral_evidence_independence.sql` | HIGH | possible on altered tables; prove in staging | 5 non-concurrent index declaration(s); relation sizes unknown | unknown; no Production row count used | HIGH until measured | refresh/verify after phase | 3 function/RPC definition(s); compile and privilege validation required | MEDIUM: new/changed policies and grants | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
+| `202608080002_provider_neutral_workspace_rls_forward_repair.sql` | LOW | no existing-table rewrite identified statically | none | unknown; no Production row count used | LOW expected | no schema-cache change expected | none | LOW | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
+| `202608080003_native_operational_entity_verification.sql` | HIGH | possible on altered tables; prove in staging | 9 non-concurrent index declaration(s); relation sizes unknown | unknown; no Production row count used | HIGH until measured | refresh/verify after phase | 4 function/RPC definition(s); compile and privilege validation required | MEDIUM: new/changed policies and grants | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
+| `202608090001_native_delegated_authority.sql` | HIGH | possible on altered tables; prove in staging | 3 non-concurrent index declaration(s); relation sizes unknown | unknown; no Production row count used | HIGH until measured | refresh/verify after phase | 6 function/RPC definition(s); compile and privilege validation required | MEDIUM: new/changed policies and grants | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
+| `202608090002_native_enforcement_outcome_proof.sql` | HIGH | possible on altered tables; prove in staging | 3 non-concurrent index declaration(s); relation sizes unknown | unknown; no Production row count used | HIGH until measured | refresh/verify after phase | 3 function/RPC definition(s); compile and privilege validation required | MEDIUM: new/changed policies and grants | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
+| `202608100001_pgcrypto_routine_search_path.sql` | LOW | no existing-table rewrite identified statically | none | unknown; no Production row count used | LOW expected | no schema-cache change expected | none | LOW | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
+| `202608100002_runtime_persistence_compatibility.sql` | LOW | no existing-table rewrite identified statically | none | unknown; no Production row count used | LOW expected | refresh/verify after phase | 2 function/RPC definition(s); compile and privilege validation required | LOW | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
+| `202608100003_alpha_beta_persistence_repairs.sql` | LOW | no existing-table rewrite identified statically | none | unknown; no Production row count used | LOW expected | refresh/verify after phase | 1 function/RPC definition(s); compile and privilege validation required | LOW | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
+| `202608100004_continuous_trust_legacy_consensus_fk_repair.sql` | LOW | no existing-table rewrite identified statically | none | unknown; no Production row count used | LOW expected | refresh/verify after phase | 1 function/RPC definition(s); compile and privilege validation required | LOW | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
+| `202608100005_optional_legacy_consensus_pointer.sql` | MEDIUM | possible on altered tables; prove in staging | none | unknown; no Production row count used | MEDIUM until measured | refresh/verify after phase | none | LOW | Adds composition records and the canonical Alpha/Beta verification, delegation, transaction, enforcement and persistence repairs without replacing Trust Object ownership, Replay or Trust Memory. |
 
 ## Applied to Production
 
@@ -1447,7 +1675,7 @@
 - Phase B: `202607200001` — `202607200001_canonical_trust_event_foundation.sql` — SHA-256 `d1b692baa6fff1601c9ee9d227d228de4e9de2f1021c3d13b5d14b9ea479e55e`
 - Phase B: `202607200002` — `202607200002_enterprise_trust_consent_manager.sql` — SHA-256 `b00fb4d39a7a7cf050513be84996bd319ac07ca22602cd489be3c199b639dc15`
 - Phase B: `202607200003` — `202607200003_provider_consensus_engine.sql` — SHA-256 `c72673265d36bac4da172da2d5ba52984f9349fce99894ed350f56ee9bc5c348`
-- Phase C: `202607210001` — `202607210001_enterprise_trust_architecture.sql` — SHA-256 `78c15860513ec3a02a22bcdd0f92a4f73504502154e03e1a6c4290622de764a2`
+- Phase C: `202607210001` — `202607210001_enterprise_trust_architecture.sql` — SHA-256 `bfe896cfa061ee9090a47b37da8e25ee7ef50a4fb02fc87634157e3a28cea438`
 - Phase C: `202607210002` — `202607210002_continuous_trust_runtime.sql` — SHA-256 `bc15e19815363832641bfb0f71f4f3cb5294a27cf490cfb0c6c784f94b1de2df`
 - Phase C: `202607230001` — `202607230001_trust_intelligence_engine.sql` — SHA-256 `11091673b46238053d06ba75cfd46764e05022e4a0f9b10ed33c96e3e02f2717`
 - Phase C: `202607230002` — `202607230002_enterprise_trust_graph.sql` — SHA-256 `6ac18a050e6ddc02953e9545f7aa260555ab0d1c0cf79d1ce7e0c0b98ce7c819`
@@ -1458,6 +1686,18 @@
 - Phase D: `202607310001` — `202607310001_environment_attestation_scope_continuity.sql` — SHA-256 `3d7cef02dca539d7f64c2bf1c0f0d938ce533d3b83ac874276172dbea9ea7d8e`
 - Phase E: `202608010001` — `202608010001_ai_serious_incident_regulatory_lineage.sql` — SHA-256 `7831be488d85281673ecfd29500029fbad32d3b8759c6e51bba4384788d028e2`
 - Phase F: `202608010002` — `202608010002_enterprise_trust_fabric.sql` — SHA-256 `773a5be556a139848684b09d61fbc2a76da05c38f29f1de9798ccbba5f9deb6b`
+- Phase F: `202608060001` — `202608060001_rc2_enterprise_operational_readiness.sql` — SHA-256 `7e7f41732657df57f4b5bbd1bc2e12672c6f9ba8c5e8888d4f4757f4652a3a7e`
+- Phase F: `202608060002` — `202608060002_end_to_end_trust_transaction.sql` — SHA-256 `06f6cf6d29674dc7d59e0fd14b3a5593579973dab84453f4f04c2d5ebcc84ac9`
+- Phase F: `202608080001` — `202608080001_provider_neutral_evidence_independence.sql` — SHA-256 `ad1c6365662b6436ca341037569d700f17fe3b6dad11ecf05469d08812896574`
+- Phase F: `202608080002` — `202608080002_provider_neutral_workspace_rls_forward_repair.sql` — SHA-256 `bc491c3d3b04952165ccb964812b08ffbb3dd4718fc020c93a46036418cf4bc8`
+- Phase F: `202608080003` — `202608080003_native_operational_entity_verification.sql` — SHA-256 `86078e2e872a97ca57d603655f325e7efc34e94f7a28097d64c7db196e413992`
+- Phase F: `202608090001` — `202608090001_native_delegated_authority.sql` — SHA-256 `23d07a96caad1a194259482f158d68c7fca0f2bde64f8cef7f0921979c5c6c49`
+- Phase F: `202608090002` — `202608090002_native_enforcement_outcome_proof.sql` — SHA-256 `60392718191efc1e85879d3457cc84519d4523f43624b10ad63d05c382481a0e`
+- Phase F: `202608100001` — `202608100001_pgcrypto_routine_search_path.sql` — SHA-256 `ee75cf38a55cd09ce944caace711d28f7645be7bf6609a25a9747b28a3b5e286`
+- Phase F: `202608100002` — `202608100002_runtime_persistence_compatibility.sql` — SHA-256 `4b0cb5fcebd19116cd8c53f4ba4cf6af52bc826c939a2e076b7dc97343152a4b`
+- Phase F: `202608100003` — `202608100003_alpha_beta_persistence_repairs.sql` — SHA-256 `acb65e529eb86e1ee865d777397b8cfd0f179a4df17e3bed99e6da6cbac18095`
+- Phase F: `202608100004` — `202608100004_continuous_trust_legacy_consensus_fk_repair.sql` — SHA-256 `f23cc866cbbae5ac41db1dcf15762fd0036b0c1b4cabb09b1554a2f89992f9b9`
+- Phase F: `202608100005` — `202608100005_optional_legacy_consensus_pointer.sql` — SHA-256 `56cc082141dfbf09e9b675e7b008a504c73738693cf8152364b0e62b50d628e6`
 
 ## Historical correction continuity
 

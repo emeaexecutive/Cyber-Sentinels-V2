@@ -50,6 +50,7 @@ export type CanonicalTrustTransactionInput = {
     enforcementState?: Partial<EnforcementChain>;
     contradictions?: string[];
     reviewerState?: string;
+    authorization?: { decision: CanonicalTransactionDecision; reasonCodes: string[] };
   };
 };
 
@@ -421,12 +422,14 @@ export function evaluateCanonicalTrustDecision(input: {
   const requestedEnforcement = input.transactionInput.managedControl?.enforcementState;
   const continuityConflict = requestedEnforcement?.runtimeObservation === "not_enforced" || requestedEnforcement?.destinationObservation === "not_enforced";
   const activeIncidentReview = input.trustObject.activeIncidents.length > 0;
+  const delegatedAuthorization = input.transactionInput.managedControl?.authorization;
   let decision: CanonicalTransactionDecision = "ALLOW";
-  if (inactiveEntity || missingAccountability || !input.authorityScopeValid || negativeEvidence || evaluation.reasonCodes.some((reason) => hardDenyReasons.has(reason)) || evaluation.outcome === "revoked") decision = "DENY";
-  else if (unreadyEntity || !evidenceComplete || !input.evidenceFresh || evidenceConflict || highConsequenceIndependenceGap || continuityConflict || activeIncidentReview || ["paused", "review_required", "satisfied_with_degraded_evidence"].includes(evaluation.outcome)) decision = "REVIEW";
+  if (delegatedAuthorization?.decision === "DENY" || inactiveEntity || missingAccountability || !input.authorityScopeValid || negativeEvidence || evaluation.reasonCodes.some((reason) => hardDenyReasons.has(reason)) || evaluation.outcome === "revoked") decision = "DENY";
+  else if (delegatedAuthorization?.decision === "REVIEW" || unreadyEntity || !evidenceComplete || !input.evidenceFresh || evidenceConflict || highConsequenceIndependenceGap || continuityConflict || activeIncidentReview || ["paused", "review_required", "satisfied_with_degraded_evidence"].includes(evaluation.outcome)) decision = "REVIEW";
   const trustState: CanonicalOperationalState = decision === "ALLOW" ? "verified" : decision === "REVIEW" ? "degraded" : "suspended";
   const reasonCodes = [...new Set([
     ...evaluation.reasonCodes,
+    ...(delegatedAuthorization?.reasonCodes ?? []),
     ...entityStateReason,
     ...(missingAccountability ? ["ACCOUNTABLE_OWNER_MISSING"] : []),
     ...(input.authorityScopeValid ? ["AUTHORITY_SCOPE_VALID"] : ["AUTHORITY_SCOPE_INVALID"]),

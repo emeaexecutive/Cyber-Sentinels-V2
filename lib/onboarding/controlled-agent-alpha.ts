@@ -6,6 +6,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { createTrustPolicy } from "@/src/lib/trust-architecture/service";
 import { enterpriseTrustFabricRepository } from "@/src/lib/trust-fabric/repository";
 import { validateTrustContract } from "@/src/lib/trust-fabric/validation";
+import { hashCanonical } from "@/src/lib/trust-core/hash";
 
 const policyId = "controlled-agent-alpha";
 const policyVersion = "1.0.0";
@@ -78,19 +79,19 @@ export async function ensureControlledAgentAlpha(input: {
   const enterpriseId = String(workspace.id);
   await ensureOwnerMembership(db, input.user, enterpriseId);
 
-  const existingEntity = await db
+  const existingAlpha = await db
     .from("operational_entities")
     .select("entity_id")
     .eq("enterprise_id", enterpriseId)
     .ilike("display_reference", "Agent Alpha")
     .limit(1)
     .maybeSingle();
-  if (existingEntity.error) fail("entity_lookup", existingEntity.error);
-  const entityId = existingEntity.data?.entity_id
-    ? String(existingEntity.data.entity_id)
+  if (existingAlpha.error) fail("alpha_entity_lookup", existingAlpha.error);
+  const entityId = existingAlpha.data?.entity_id
+    ? String(existingAlpha.data.entity_id)
     : `agent-alpha:${enterpriseId}`;
 
-  if (!existingEntity.data) {
+  if (!existingAlpha.data) {
     await registerCanonicalNativeAgent(
       {
         supabase: input.supabase,
@@ -101,9 +102,34 @@ export async function ensureControlledAgentAlpha(input: {
       {
         displayReference: "Agent Alpha",
         entityId,
-        accountableOwnerId: `user:${input.user.id}`,
+        accountableOwnerId: "owner:alice",
         organizationReference: `workspace:${enterpriseId}`,
-        environmentReference: "controlled-runtime",
+        environmentReference: "preview-alpha-runtime",
+        workflowReference: "controlled-repositories",
+      },
+    );
+  }
+
+  const existingBeta = await db
+    .from("operational_entities")
+    .select("entity_id")
+    .eq("enterprise_id", enterpriseId)
+    .ilike("display_reference", "Agent Beta")
+    .limit(1)
+    .maybeSingle();
+  if (existingBeta.error) fail("beta_entity_lookup", existingBeta.error);
+  const betaEntityId = existingBeta.data?.entity_id
+    ? String(existingBeta.data.entity_id)
+    : `agent-beta:${enterpriseId}`;
+  if (!existingBeta.data) {
+    await registerCanonicalNativeAgent(
+      { supabase: input.supabase, user: input.user, enterpriseId, role: "owner" },
+      {
+        displayReference: "Agent Beta",
+        entityId: betaEntityId,
+        accountableOwnerId: "owner:bob",
+        organizationReference: `workspace:${enterpriseId}`,
+        environmentReference: "preview-beta-runtime",
         workflowReference: "controlled-repository-a",
       },
     );
@@ -129,7 +155,7 @@ export async function ensureControlledAgentAlpha(input: {
         active: true,
         validFrom: new Date(Date.now() - 1_000).toISOString(),
         rules: {
-          purpose: "controlled_repository_a",
+          purpose: "controlled_repository_access",
           allowedActions: ["read_repository"],
           requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF"],
           providerDependency: "none",
@@ -140,11 +166,16 @@ export async function ensureControlledAgentAlpha(input: {
 
   const repository = enterpriseTrustFabricRepository();
   const contracts = await repository.contracts(enterpriseId);
+  const previousSubjectContract = contracts.find((candidate) => candidate.subject.id === entityId);
   let contract = contracts.find(
     (candidate) =>
       candidate.subject.id === entityId &&
       candidate.revocationState === "active" &&
-      Date.parse(candidate.expiresAt) > Date.now(),
+      Date.parse(candidate.expiresAt) > Date.now() &&
+      candidate.canDelegate === true &&
+      candidate.maximumDelegationDepth === 1 &&
+      candidate.authorityScope?.permittedTargets.includes("repository:a") &&
+      candidate.authorityScope?.permittedTargets.includes("repository:b"),
   );
   if (!contract) {
     const issuedAt = new Date().toISOString();
@@ -153,10 +184,10 @@ export async function ensureControlledAgentAlpha(input: {
         contractId: crypto.randomUUID(),
         subject: { type: "ai_agent", id: entityId, displayName: "Agent Alpha" },
         workflow: {
-          id: "controlled-repository-a",
-          objective: "Read controlled Repository A after native verification.",
+          id: "controlled-repositories",
+          objective: "Read controlled Repositories A and B after native verification.",
         },
-        authorizedObjective: "read_repository",
+        authorizedObjective: "controlled_repository_access",
         requiredIdentityState: "verified",
         requiredAuthority: ["workspace_owner"],
         requiredEnvironmentState: "degraded",
@@ -177,7 +208,19 @@ export async function ensureControlledAgentAlpha(input: {
         policyVersion,
         evidenceReferences: [],
         issuedAt,
-        supersedesContractId: null,
+        supersedesContractId: previousSubjectContract?.contractId ?? null,
+        authorityScope: {
+          permittedActions: ["read_repository"],
+          permittedTools: ["repository.reader"],
+          permittedTargets: ["repository:a", "repository:b"],
+          environments: ["preview-alpha-runtime", "preview-beta-runtime"],
+          dataBoundary: "INTERNAL",
+          financialLimit: 0,
+          executionLimit: 100,
+        },
+        canDelegate: true,
+        maximumDelegationDepth: 1,
+        authorityVersion: "alpha-authority-v1",
       },
       enterpriseId,
     );
@@ -187,6 +230,20 @@ export async function ensureControlledAgentAlpha(input: {
       contract,
       crypto.randomUUID(),
     );
+    const replayBase = {
+      event_id: crypto.randomUUID(),
+      enterprise_id: enterpriseId,
+      operational_entity_id: entityId,
+      event_type: "ALPHA_AUTHORITY_ISSUED",
+      actor_reference: `user:${input.user.id}`,
+      attribution: "CYBER_SENTINELS_INTERPRETATION",
+      evidence_references: [`trust_contract:${contract.contractId}`],
+      reason_codes: ["PARENT_AUTHORITY_ACTIVE", "DELEGATION_PERMITTED"],
+      payload: { authorityId: contract.contractId, scope: contract.authorityScope, policyVersion: contract.policyVersion },
+      occurred_at: issuedAt,
+    };
+    const replay = await db.from("operational_entity_native_replay_events").insert({ ...replayBase, event_digest: hashCanonical(replayBase) });
+    if (replay.error) fail("alpha_authority_replay", replay.error);
   }
 
   const authorityUpdate = await db
@@ -196,7 +253,7 @@ export async function ensureControlledAgentAlpha(input: {
     .eq("entity_id", entityId);
   if (authorityUpdate.error) fail("entity_authority_binding", authorityUpdate.error);
 
-  return { enterpriseId, entityId, authorityId: contract.contractId };
+  return { enterpriseId, entityId, betaEntityId, authorityId: contract.contractId };
 }
 
 export type ControlledAgentAlphaResult = Awaited<

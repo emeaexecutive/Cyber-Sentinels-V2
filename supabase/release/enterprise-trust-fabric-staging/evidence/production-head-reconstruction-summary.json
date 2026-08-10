@@ -4,8 +4,8 @@
   "targetReference": "agpyhygpfmppjkxwcpac",
   "syntheticMode": true,
   "startingHead": "202606090003",
-  "finalMigrationHead": "202608010002",
-  "pendingMigrations": 29,
+  "finalMigrationHead": "202608100005",
+  "pendingMigrations": 41,
   "validation": {
     "baseline": "PASS",
     "phaseA": "PASS",

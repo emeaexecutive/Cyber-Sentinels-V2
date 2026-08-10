@@ -1,6 +1,6 @@
 # Enterprise Trust Fabric staging release package
 
-This is the canonical Epic 29.2 review package for reconstructing the isolated staging boundary in Epic 29.3. It references 29 canonical migrations from `202606100001` through `202608010002`; it contains no copied migration SQL and performs no migration automatically.
+This is the canonical Epic 29.2 review package for reconstructing the isolated staging boundary in Epic 29.3. It references 41 canonical migrations from `202606100001` through `202608100005`; it contains no copied migration SQL and performs no migration automatically.
 
 The required starting ledger head is `202606090003`. Before any future execution, verify the actual staging project outside SQL, set the session-scoped release identity values required by `preflight.sql`, and run the environment safety guard. Production, unknown identities, missing synthetic mode and unexpected ledger heads fail closed.
 

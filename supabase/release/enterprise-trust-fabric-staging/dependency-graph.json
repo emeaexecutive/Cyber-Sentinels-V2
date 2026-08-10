@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "productionHead": "202606090003",
-  "targetHead": "202608010002",
+  "targetHead": "202608100005",
   "ordering": "lexical migration timestamp",
   "requiredManagedSchemas": [
     "auth",
@@ -387,7 +387,14 @@
         "202607240004",
         "202607310001",
         "202608010001",
-        "202608010002"
+        "202608010002",
+        "202608060001",
+        "202608060002",
+        "202608080001",
+        "202608080002",
+        "202608080003",
+        "202608090001",
+        "202608090002"
       ],
       "laterReferences": [],
       "guardedOptionalPublicReferences": [],
@@ -605,7 +612,9 @@
         "table:public.provider_registry",
         "table:public.provider_state_audit"
       ],
-      "downstreamConsumers": [],
+      "downstreamConsumers": [
+        "202608080001"
+      ],
       "laterReferences": [],
       "guardedOptionalPublicReferences": [],
       "unresolvedPublicPrerequisites": []
@@ -834,7 +843,10 @@
         "202607210002",
         "202607230001",
         "202607240003",
-        "202608010002"
+        "202608010002",
+        "202608080003",
+        "202608100003",
+        "202608100004"
       ],
       "laterReferences": [],
       "guardedOptionalPublicReferences": [],
@@ -988,7 +1000,9 @@
         "202607210001",
         "202607210002",
         "202607230001",
-        "202608010002"
+        "202608010002",
+        "202608100004",
+        "202608100005"
       ],
       "laterReferences": [],
       "guardedOptionalPublicReferences": [],
@@ -1116,7 +1130,16 @@
         "202607240004",
         "202607310001",
         "202608010001",
-        "202608010002"
+        "202608010002",
+        "202608060001",
+        "202608060002",
+        "202608080001",
+        "202608080003",
+        "202608090001",
+        "202608090002",
+        "202608100001",
+        "202608100003",
+        "202608100004"
       ],
       "laterReferences": [],
       "guardedOptionalPublicReferences": [],
@@ -1419,7 +1442,9 @@
         "trigger:public.trust_dimension_scores.trust_dimension_scores_append_only",
         "trigger:public.trust_score_history.trust_score_history_append_only"
       ],
-      "downstreamConsumers": [],
+      "downstreamConsumers": [
+        "202608100001"
+      ],
       "laterReferences": [],
       "guardedOptionalPublicReferences": [],
       "unresolvedPublicPrerequisites": []
@@ -1465,7 +1490,9 @@
         "trigger:public.trust_evidence.trust_evidence_replay_capture_v2",
         "trigger:public.trust_profiles.trust_dna_replay_capture_v2"
       ],
-      "downstreamConsumers": [],
+      "downstreamConsumers": [
+        "202608100001"
+      ],
       "laterReferences": [],
       "guardedOptionalPublicReferences": [],
       "unresolvedPublicPrerequisites": []
@@ -1568,7 +1595,10 @@
         "trigger:public.trust_processing_failures.trust_processing_failures_append_only",
         "trigger:public.trust_signals.trust_signals_append_only"
       ],
-      "downstreamConsumers": [],
+      "downstreamConsumers": [
+        "202608080003",
+        "202608100003"
+      ],
       "laterReferences": [],
       "guardedOptionalPublicReferences": [],
       "unresolvedPublicPrerequisites": []
@@ -1697,7 +1727,8 @@
         "view:public.scope_continuity_replay"
       ],
       "downstreamConsumers": [
-        "202608010001"
+        "202608010001",
+        "202608100001"
       ],
       "laterReferences": [],
       "guardedOptionalPublicReferences": [],
@@ -1806,7 +1837,10 @@
         "trigger:public.incident_submission_packages.incident_submission_packages_serious_incident_append_only",
         "view:public.incident_reporting_replay"
       ],
-      "downstreamConsumers": [],
+      "downstreamConsumers": [
+        "202608090002",
+        "202608100001"
+      ],
       "laterReferences": [],
       "guardedOptionalPublicReferences": [],
       "unresolvedPublicPrerequisites": []
@@ -1873,6 +1907,706 @@
         "trigger:public.trust_fabric_decisions.trust_fabric_decisions_append_only",
         "view:public.enterprise_trust_objects"
       ],
+      "downstreamConsumers": [
+        "202608060001",
+        "202608060002",
+        "202608080001",
+        "202608080002",
+        "202608090001",
+        "202608090002"
+      ],
+      "laterReferences": [],
+      "guardedOptionalPublicReferences": [],
+      "unresolvedPublicPrerequisites": []
+    },
+    {
+      "timestamp": "202608060001",
+      "migration": "supabase/migrations/202608060001_rc2_enterprise_operational_readiness.sql",
+      "phase": "F",
+      "sequencePredecessor": "202608010002",
+      "prerequisiteMigrations": [
+        "202606080004",
+        "202607160001",
+        "202607210001",
+        "202608010002"
+      ],
+      "prerequisiteTables": [
+        "public.trust_architecture_audit_log",
+        "public.trust_cases",
+        "public.trust_policy_versions",
+        "public.trust_workspaces",
+        "public.workspace_members"
+      ],
+      "prerequisiteColumns": [
+        "public.trust_policy_versions.policy_version_id",
+        "public.trust_workspaces.id"
+      ],
+      "prerequisiteFunctions": [
+        "public.ensure_policy_definition_v2",
+        "public.trust_architecture_audit_log",
+        "public.trust_policy_versions",
+        "public.trust_workspaces",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisitePolicyHelpers": [
+        "public.ensure_policy_definition_v2",
+        "public.trust_policy_versions",
+        "public.trust_workspaces",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisiteExtensions": [
+        "pgcrypto"
+      ],
+      "createdObjects": [
+        "function:public.prevent_enterprise_policy_governance_mutation",
+        "function:public.record_enterprise_policy_governance_event_v1",
+        "function:public.user_has_trust_workspace_role",
+        "index:public.enterprise_policy_governance_events_policy_idx",
+        "table:public.enterprise_policy_governance_events",
+        "trigger:public.enterprise_policy_governance_events.enterprise_policy_governance_append_only"
+      ],
+      "downstreamConsumers": [],
+      "laterReferences": [],
+      "guardedOptionalPublicReferences": [],
+      "unresolvedPublicPrerequisites": []
+    },
+    {
+      "timestamp": "202608060002",
+      "migration": "supabase/migrations/202608060002_end_to_end_trust_transaction.sql",
+      "phase": "F",
+      "sequencePredecessor": "202608060001",
+      "prerequisiteMigrations": [
+        "202606080003",
+        "202606080004",
+        "202607160001",
+        "202607210001",
+        "202608010002"
+      ],
+      "prerequisiteTables": [
+        "public.evidence_graph_edges",
+        "public.evidence_graph_nodes",
+        "public.trust_architecture_audit_log",
+        "public.trust_fabric_decisions",
+        "public.trust_memory_index",
+        "public.trust_replay_sessions",
+        "public.trust_workspaces"
+      ],
+      "prerequisiteColumns": [
+        "public.canonical_trust_transactions.enterprise_id",
+        "public.external_action_requests.request_id",
+        "public.trust_workspaces.id"
+      ],
+      "prerequisiteFunctions": [
+        "public.evidence_graph_edges",
+        "public.evidence_graph_nodes",
+        "public.prevent_trust_architecture_history_mutation",
+        "public.trust_architecture_audit_log",
+        "public.trust_fabric_decisions",
+        "public.trust_memory_index",
+        "public.trust_replay_sessions",
+        "public.trust_workspaces",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisitePolicyHelpers": [
+        "public.trust_workspaces",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisiteExtensions": [
+        "pgcrypto"
+      ],
+      "createdObjects": [
+        "function:public.append_canonical_trust_transaction_replay_v1",
+        "function:public.emit_canonical_trust_transaction_memory_v1",
+        "function:public.extend_canonical_trust_transaction_graph_v1",
+        "function:public.persist_canonical_trust_transaction_decision_v1",
+        "function:public.record_canonical_external_acknowledgement_v1",
+        "function:public.record_canonical_external_outcome_v1",
+        "function:public.request_canonical_external_execution_v1",
+        "index:public.canonical_transaction_events_timeline_idx",
+        "index:public.canonical_trust_transactions_decision_idx",
+        "index:public.canonical_trust_transactions_subject_idx",
+        "index:public.external_action_outcomes_idempotency_uidx",
+        "index:public.trust_replay_canonical_transaction_uidx",
+        "policy:public.canonical_trust_transaction_events.tenant reads canonical_trust_transaction_events",
+        "policy:public.canonical_trust_transactions.tenant reads canonical_trust_transactions",
+        "policy:public.external_action_acknowledgements.tenant reads external_action_acknowledgements",
+        "policy:public.external_action_outcomes.tenant reads external_action_outcomes",
+        "policy:public.external_action_requests.tenant reads external_action_requests",
+        "table:public.canonical_trust_transaction_events",
+        "table:public.canonical_trust_transactions",
+        "table:public.external_action_acknowledgements",
+        "table:public.external_action_outcomes",
+        "table:public.external_action_requests",
+        "trigger:public.canonical_trust_transaction_events.canonical_trust_transaction_events_append_only",
+        "trigger:public.external_action_acknowledgements.external_action_acknowledgements_append_only",
+        "trigger:public.external_action_outcomes.external_action_outcomes_append_only",
+        "trigger:public.external_action_requests.external_action_requests_append_only"
+      ],
+      "downstreamConsumers": [
+        "202608080001",
+        "202608090001",
+        "202608090002",
+        "202608100001",
+        "202608100002"
+      ],
+      "laterReferences": [],
+      "guardedOptionalPublicReferences": [],
+      "unresolvedPublicPrerequisites": []
+    },
+    {
+      "timestamp": "202608080001",
+      "migration": "supabase/migrations/202608080001_provider_neutral_evidence_independence.sql",
+      "phase": "F",
+      "sequencePredecessor": "202608060002",
+      "prerequisiteMigrations": [
+        "202606080004",
+        "202607160001",
+        "202607170002",
+        "202607210001",
+        "202608010002",
+        "202608060002"
+      ],
+      "prerequisiteTables": [
+        "public.canonical_trust_transaction_events",
+        "public.canonical_trust_transactions",
+        "public.provider_registry",
+        "public.trust_architecture_audit_log",
+        "public.trust_fabric_decisions",
+        "public.trust_workspaces"
+      ],
+      "prerequisiteColumns": [
+        "public.canonical_enforcement_events.enforcement_event_id",
+        "public.canonical_trust_transactions.enterprise_id",
+        "public.operational_entities.enterprise_id",
+        "public.operational_entity_external_identities.external_identity_id",
+        "public.provider_registry.provider_id",
+        "public.provider_relationships.relationship_id",
+        "public.trust_workspaces.id"
+      ],
+      "prerequisiteFunctions": [
+        "public.canonical_trust_transaction_events",
+        "public.canonical_trust_transactions",
+        "public.persist_canonical_trust_transaction_decision_v1",
+        "public.prevent_trust_architecture_history_mutation",
+        "public.provider_registry",
+        "public.trust_architecture_audit_log",
+        "public.trust_fabric_decisions",
+        "public.trust_workspaces",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisitePolicyHelpers": [
+        "public.trust_workspaces",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisiteExtensions": [
+        "pgcrypto"
+      ],
+      "createdObjects": [
+        "function:public.persist_canonical_trust_transaction_decision_v1",
+        "function:public.preserve_canonical_decision_snapshot_v1",
+        "function:public.preserve_provider_transition_history_v1",
+        "index:public.canonical_enforcement_events_timeline_idx",
+        "index:public.operational_entity_external_identity_timeline_idx",
+        "index:public.provider_change_events_timeline_idx",
+        "index:public.provider_relationships_entity_idx",
+        "index:public.provider_transitions_entity_idx",
+        "policy:public.canonical_enforcement_events.tenant reads canonical_enforcement_events",
+        "policy:public.operational_entities.tenant reads operational_entities",
+        "policy:public.operational_entity_external_identities.tenant reads operational_entity_external_identities",
+        "policy:public.provider_change_events.tenant reads provider_change_events",
+        "policy:public.provider_relationships.tenant reads provider_relationships",
+        "policy:public.provider_transitions.tenant reads provider_transitions",
+        "table:public.canonical_enforcement_events",
+        "table:public.operational_entities",
+        "table:public.operational_entity_external_identities",
+        "table:public.provider_change_events",
+        "table:public.provider_relationships",
+        "table:public.provider_transitions",
+        "trigger:public.canonical_enforcement_events.canonical_enforcement_events_append_only",
+        "trigger:public.canonical_trust_transactions.canonical_decision_snapshot_immutable",
+        "trigger:public.operational_entity_external_identities.operational_entity_external_identities_append_only",
+        "trigger:public.provider_change_events.provider_change_events_append_only",
+        "trigger:public.provider_transitions.provider_transition_history_immutable"
+      ],
+      "downstreamConsumers": [
+        "202608080003",
+        "202608090001",
+        "202608090002"
+      ],
+      "laterReferences": [],
+      "guardedOptionalPublicReferences": [],
+      "unresolvedPublicPrerequisites": []
+    },
+    {
+      "timestamp": "202608080002",
+      "migration": "supabase/migrations/202608080002_provider_neutral_workspace_rls_forward_repair.sql",
+      "phase": "F",
+      "sequencePredecessor": "202608080001",
+      "prerequisiteMigrations": [
+        "202607160001",
+        "202608010002"
+      ],
+      "prerequisiteTables": [],
+      "prerequisiteColumns": [],
+      "prerequisiteFunctions": [
+        "public.ensure_policy_definition_v2",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisitePolicyHelpers": [
+        "public.ensure_policy_definition_v2",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisiteExtensions": [],
+      "createdObjects": [],
+      "downstreamConsumers": [],
+      "laterReferences": [],
+      "guardedOptionalPublicReferences": [],
+      "unresolvedPublicPrerequisites": []
+    },
+    {
+      "timestamp": "202608080003",
+      "migration": "supabase/migrations/202608080003_native_operational_entity_verification.sql",
+      "phase": "F",
+      "sequencePredecessor": "202608080002",
+      "prerequisiteMigrations": [
+        "202607160001",
+        "202607200001",
+        "202607210001",
+        "202607240003",
+        "202608080001"
+      ],
+      "prerequisiteTables": [
+        "public.evidence_objects",
+        "public.operational_entities",
+        "public.trust_architecture_audit_log",
+        "public.trust_memory_index",
+        "public.trust_signals"
+      ],
+      "prerequisiteColumns": [
+        "public.operational_entities.enterprise_id",
+        "public.operational_entity_manifests.manifest_id",
+        "public.operational_entity_native_challenges.challenge_id",
+        "public.operational_entity_native_credentials.credential_id",
+        "public.operational_entity_native_verifications.verification_id",
+        "public.operational_entity_owner_bindings.owner_binding_id"
+      ],
+      "prerequisiteFunctions": [
+        "public.evidence_objects",
+        "public.operational_entities",
+        "public.prevent_trust_architecture_history_mutation",
+        "public.trust_architecture_audit_log",
+        "public.trust_memory_index",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisitePolicyHelpers": [
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisiteExtensions": [
+        "pgcrypto"
+      ],
+      "createdObjects": [
+        "function:public.consume_native_entity_challenge_v1",
+        "function:public.preserve_native_evidence_payload_v1",
+        "function:public.preserve_native_manifest_payload_v1",
+        "function:public.register_native_entity_manifest_v1",
+        "index:public.native_entity_identity_evidence_current_idx",
+        "index:public.operational_entity_manifests_active_idx",
+        "index:public.operational_entity_manifests_one_active_idx",
+        "index:public.operational_entity_native_challenges_lookup_idx",
+        "index:public.operational_entity_native_credentials_active_idx",
+        "index:public.operational_entity_native_credentials_one_active_idx",
+        "index:public.operational_entity_native_replay_idx",
+        "index:public.operational_entity_native_verifications_entity_idx",
+        "index:public.operational_entity_owner_bindings_current_idx",
+        "policy:public.native_entity_identity_evidence.tenant reads native_entity_identity_evidence",
+        "policy:public.operational_entity_manifests.tenant reads operational_entity_manifests",
+        "policy:public.operational_entity_native_challenges.tenant reads operational_entity_native_challenges",
+        "policy:public.operational_entity_native_credentials.tenant reads operational_entity_native_credentials",
+        "policy:public.operational_entity_native_replay_events.tenant reads operational_entity_native_replay_events",
+        "policy:public.operational_entity_native_runtime_observations.tenant reads operational_entity_native_runtime_observations",
+        "policy:public.operational_entity_native_software_observations.tenant reads operational_entity_native_software_observations",
+        "policy:public.operational_entity_native_verification_attempts.tenant reads operational_entity_native_verification_attempts",
+        "policy:public.operational_entity_native_verifications.tenant reads operational_entity_native_verifications",
+        "policy:public.operational_entity_owner_bindings.tenant reads operational_entity_owner_bindings",
+        "table:public.native_entity_identity_evidence",
+        "table:public.operational_entity_manifests",
+        "table:public.operational_entity_native_challenges",
+        "table:public.operational_entity_native_credentials",
+        "table:public.operational_entity_native_replay_events",
+        "table:public.operational_entity_native_runtime_observations",
+        "table:public.operational_entity_native_software_observations",
+        "table:public.operational_entity_native_verification_attempts",
+        "table:public.operational_entity_native_verifications",
+        "table:public.operational_entity_owner_bindings",
+        "trigger:public.native_entity_identity_evidence.native_entity_identity_evidence_preserve_payload",
+        "trigger:public.operational_entity_manifests.operational_entity_manifests_preserve_payload",
+        "trigger:public.operational_entity_native_replay_events.operational_entity_native_replay_events_append_only",
+        "trigger:public.operational_entity_native_runtime_observations.operational_entity_native_runtime_observations_append_only",
+        "trigger:public.operational_entity_native_software_observations.operational_entity_native_software_observations_append_only",
+        "trigger:public.operational_entity_native_verification_attempts.operational_entity_native_verification_attempts_append_only",
+        "trigger:public.operational_entity_native_verifications.operational_entity_native_verifications_append_only",
+        "trigger:public.operational_entity_owner_bindings.operational_entity_owner_bindings_append_only"
+      ],
+      "downstreamConsumers": [
+        "202608090001",
+        "202608090002"
+      ],
+      "laterReferences": [],
+      "guardedOptionalPublicReferences": [],
+      "unresolvedPublicPrerequisites": []
+    },
+    {
+      "timestamp": "202608090001",
+      "migration": "supabase/migrations/202608090001_native_delegated_authority.sql",
+      "phase": "F",
+      "sequencePredecessor": "202608080003",
+      "prerequisiteMigrations": [
+        "202606080004",
+        "202607160001",
+        "202607210001",
+        "202608010002",
+        "202608060002",
+        "202608080001",
+        "202608080003"
+      ],
+      "prerequisiteTables": [
+        "public.canonical_trust_transactions",
+        "public.evidence_graph_edges",
+        "public.evidence_graph_nodes",
+        "public.operational_entities",
+        "public.operational_entity_manifests",
+        "public.operational_entity_native_credentials",
+        "public.operational_entity_native_replay_events",
+        "public.operational_entity_native_verifications",
+        "public.trust_architecture_audit_log",
+        "public.trust_contracts",
+        "public.trust_subjects",
+        "public.trust_workspaces"
+      ],
+      "prerequisiteColumns": [
+        "public.canonical_trust_transactions.enterprise_id",
+        "public.operational_entities.enterprise_id",
+        "public.operational_entity_authority_delegations.delegation_id",
+        "public.operational_entity_manifests.manifest_id",
+        "public.operational_entity_native_credentials.credential_id",
+        "public.trust_contracts.enterprise_id",
+        "public.trust_workspaces.id"
+      ],
+      "prerequisiteFunctions": [
+        "public.canonical_trust_transactions",
+        "public.evidence_graph_nodes",
+        "public.operational_entities",
+        "public.operational_entity_manifests",
+        "public.operational_entity_native_credentials",
+        "public.prevent_trust_architecture_history_mutation",
+        "public.trust_architecture_audit_log",
+        "public.trust_contracts",
+        "public.trust_subjects",
+        "public.trust_workspaces",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisitePolicyHelpers": [
+        "public.trust_workspaces",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisiteExtensions": [
+        "pgcrypto"
+      ],
+      "createdObjects": [
+        "function:public.accept_operational_entity_delegation_v1",
+        "function:public.persist_delegated_action_evaluation_v1",
+        "function:public.preserve_authority_delegation_payload_v1",
+        "function:public.preserve_trust_contract_content_v2",
+        "function:public.register_native_agent_operational_entity_v1",
+        "function:public.revoke_trust_contract_with_delegation_cascade_v1",
+        "index:public.operational_entity_authority_delegations_delegate_idx",
+        "index:public.operational_entity_authority_delegations_delegator_idx",
+        "index:public.operational_entity_authority_delegations_parent_idx",
+        "policy:public.operational_entity_authority_delegations.tenant reads operational_entity_authority_delegations",
+        "policy:public.operational_entity_delegated_action_evaluations.tenant reads operational_entity_delegated_action_evaluations",
+        "policy:public.operational_entity_delegation_acceptances.tenant reads operational_entity_delegation_acceptances",
+        "table:public.operational_entity_authority_delegations",
+        "table:public.operational_entity_delegated_action_evaluations",
+        "table:public.operational_entity_delegation_acceptances",
+        "trigger:public.operational_entity_authority_delegations.operational_entity_authority_delegations_preserve_payload",
+        "trigger:public.operational_entity_delegated_action_evaluations.operational_entity_delegated_action_evaluations_append_only",
+        "trigger:public.operational_entity_delegation_acceptances.operational_entity_delegation_acceptances_append_only",
+        "trigger:public.trust_contracts.trust_contracts_preserve_content"
+      ],
+      "downstreamConsumers": [
+        "202608090002"
+      ],
+      "laterReferences": [],
+      "guardedOptionalPublicReferences": [],
+      "unresolvedPublicPrerequisites": []
+    },
+    {
+      "timestamp": "202608090002",
+      "migration": "supabase/migrations/202608090002_native_enforcement_outcome_proof.sql",
+      "phase": "F",
+      "sequencePredecessor": "202608090001",
+      "prerequisiteMigrations": [
+        "202606080004",
+        "202607160001",
+        "202607210001",
+        "202608010001",
+        "202608010002",
+        "202608060002",
+        "202608080001",
+        "202608080003",
+        "202608090001"
+      ],
+      "prerequisiteTables": [
+        "public.canonical_trust_transaction_events",
+        "public.canonical_trust_transactions",
+        "public.evidence_graph_edges",
+        "public.incident_chronology_events",
+        "public.incident_regulatory_assessments",
+        "public.operational_entities",
+        "public.operational_entity_authority_delegations",
+        "public.operational_entity_delegated_action_evaluations",
+        "public.operational_entity_native_replay_events",
+        "public.operational_entity_native_verifications",
+        "public.trust_contracts",
+        "public.trust_memory_index",
+        "public.trust_workspaces"
+      ],
+      "prerequisiteColumns": [
+        "public.canonical_trust_transactions.enterprise_id",
+        "public.incident_regulatory_assessments.id",
+        "public.native_enforcement_requests.enterprise_id",
+        "public.operational_entities.enterprise_id",
+        "public.operational_entity_authority_delegations.enterprise_id",
+        "public.operational_entity_delegated_action_evaluations.enterprise_id",
+        "public.trust_contracts.enterprise_id",
+        "public.trust_workspaces.id"
+      ],
+      "prerequisiteFunctions": [
+        "public.canonical_trust_transaction_events",
+        "public.canonical_trust_transactions",
+        "public.incident_chronology_events",
+        "public.incident_regulatory_assessments",
+        "public.operational_entities",
+        "public.operational_entity_authority_delegations",
+        "public.operational_entity_delegated_action_evaluations",
+        "public.prevent_trust_architecture_history_mutation",
+        "public.trust_contracts",
+        "public.trust_memory_index",
+        "public.trust_workspaces",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisitePolicyHelpers": [
+        "public.operational_entity_authority_delegations",
+        "public.trust_workspaces",
+        "public.user_can_access_trust_workspace"
+      ],
+      "prerequisiteExtensions": [
+        "pgcrypto"
+      ],
+      "createdObjects": [
+        "function:public.bind_native_enforcement_decision_v1",
+        "function:public.persist_native_enforcement_correlation_v1",
+        "function:public.reserve_native_enforcement_request_v1",
+        "index:public.native_destination_observations_transaction_idx",
+        "index:public.native_enforcement_outcomes_transaction_idx",
+        "index:public.native_enforcement_requests_transaction_idx",
+        "policy:public.controlled_destination_records.tenant reads controlled_destination_records",
+        "policy:public.native_destination_observations.tenant reads native_destination_observations",
+        "policy:public.native_enforcement_acknowledgements.tenant reads native_enforcement_acknowledgements",
+        "policy:public.native_enforcement_decision_bindings.tenant reads native_enforcement_decision_bindings",
+        "policy:public.native_enforcement_human_approvals.tenant reads native_enforcement_human_approvals",
+        "policy:public.native_enforcement_outcomes.tenant reads native_enforcement_outcomes",
+        "policy:public.native_enforcement_requests.tenant reads native_enforcement_requests",
+        "policy:public.native_execution_claims.tenant reads native_execution_claims",
+        "policy:public.native_execution_contradictions.tenant reads native_execution_contradictions",
+        "policy:public.native_runtime_execution_observations.tenant reads native_runtime_execution_observations",
+        "table:public.controlled_destination_records",
+        "table:public.native_destination_observations",
+        "table:public.native_enforcement_acknowledgements",
+        "table:public.native_enforcement_decision_bindings",
+        "table:public.native_enforcement_human_approvals",
+        "table:public.native_enforcement_outcomes",
+        "table:public.native_enforcement_requests",
+        "table:public.native_execution_claims",
+        "table:public.native_execution_contradictions",
+        "table:public.native_runtime_execution_observations"
+      ],
+      "downstreamConsumers": [
+        "202608100001"
+      ],
+      "laterReferences": [],
+      "guardedOptionalPublicReferences": [],
+      "unresolvedPublicPrerequisites": []
+    },
+    {
+      "timestamp": "202608100001",
+      "migration": "supabase/migrations/202608100001_pgcrypto_routine_search_path.sql",
+      "phase": "F",
+      "sequencePredecessor": "202608090002",
+      "prerequisiteMigrations": [
+        "202607210001",
+        "202607240001",
+        "202607240002",
+        "202607310001",
+        "202608010001",
+        "202608060002",
+        "202608090002"
+      ],
+      "prerequisiteTables": [],
+      "prerequisiteColumns": [],
+      "prerequisiteFunctions": [
+        "public.append_canonical_trust_transaction_replay_v1",
+        "public.append_replay_event_internal_v2",
+        "public.append_serious_incident_record_v1",
+        "public.bind_native_enforcement_decision_v1",
+        "public.emit_canonical_trust_transaction_memory_v1",
+        "public.extend_canonical_trust_transaction_graph_v1",
+        "public.normalize_legacy_evidence_object_v1",
+        "public.persist_canonical_trust_transaction_decision_v1",
+        "public.persist_native_enforcement_correlation_v1",
+        "public.persist_scope_continuity_decision_v1",
+        "public.persist_serious_incident_case_v1",
+        "public.persist_trust_dna_v2",
+        "public.record_canonical_external_acknowledgement_v1",
+        "public.record_canonical_external_outcome_v1",
+        "public.request_canonical_external_execution_v1",
+        "public.reserve_native_enforcement_request_v1"
+      ],
+      "prerequisitePolicyHelpers": [],
+      "prerequisiteExtensions": [
+        "pgcrypto"
+      ],
+      "createdObjects": [],
+      "downstreamConsumers": [],
+      "laterReferences": [],
+      "guardedOptionalPublicReferences": [],
+      "unresolvedPublicPrerequisites": []
+    },
+    {
+      "timestamp": "202608100002",
+      "migration": "supabase/migrations/202608100002_runtime_persistence_compatibility.sql",
+      "phase": "F",
+      "sequencePredecessor": "202608100001",
+      "prerequisiteMigrations": [
+        "202606080003",
+        "202608060002"
+      ],
+      "prerequisiteTables": [
+        "public.canonical_trust_transaction_events",
+        "public.canonical_trust_transactions",
+        "public.trust_replay_sessions"
+      ],
+      "prerequisiteColumns": [],
+      "prerequisiteFunctions": [
+        "public.append_canonical_trust_transaction_replay_v1",
+        "public.canonical_trust_transaction_events",
+        "public.normalize_legacy_evidence_object_v1",
+        "public.trust_replay_sessions"
+      ],
+      "prerequisitePolicyHelpers": [],
+      "prerequisiteExtensions": [
+        "pgcrypto"
+      ],
+      "createdObjects": [
+        "function:public.append_canonical_trust_transaction_replay_v1",
+        "function:public.normalize_legacy_evidence_object_v1"
+      ],
+      "downstreamConsumers": [],
+      "laterReferences": [],
+      "guardedOptionalPublicReferences": [],
+      "unresolvedPublicPrerequisites": []
+    },
+    {
+      "timestamp": "202608100003",
+      "migration": "supabase/migrations/202608100003_alpha_beta_persistence_repairs.sql",
+      "phase": "F",
+      "sequencePredecessor": "202608100002",
+      "prerequisiteMigrations": [
+        "202607200001",
+        "202607210001",
+        "202607240003"
+      ],
+      "prerequisiteTables": [
+        "public.evidence_objects",
+        "public.trust_references",
+        "public.trust_signals"
+      ],
+      "prerequisiteColumns": [],
+      "prerequisiteFunctions": [
+        "public.evidence_objects",
+        "public.project_continuous_trust_signal_v1",
+        "public.trust_references"
+      ],
+      "prerequisitePolicyHelpers": [],
+      "prerequisiteExtensions": [],
+      "createdObjects": [
+        "function:public.project_continuous_trust_signal_v1"
+      ],
+      "downstreamConsumers": [],
+      "laterReferences": [],
+      "guardedOptionalPublicReferences": [],
+      "unresolvedPublicPrerequisites": []
+    },
+    {
+      "timestamp": "202608100004",
+      "migration": "supabase/migrations/202608100004_continuous_trust_legacy_consensus_fk_repair.sql",
+      "phase": "F",
+      "sequencePredecessor": "202608100003",
+      "prerequisiteMigrations": [
+        "202607200001",
+        "202607200003",
+        "202607210001"
+      ],
+      "prerequisiteTables": [
+        "public.consensus_decisions",
+        "public.evidence_graph_edges",
+        "public.evidence_graph_nodes",
+        "public.subject_trust_state",
+        "public.trust_architecture_audit_log",
+        "public.trust_decision_contracts",
+        "public.trust_memory_index",
+        "public.trust_state_decisions",
+        "public.trust_subjects"
+      ],
+      "prerequisiteColumns": [],
+      "prerequisiteFunctions": [
+        "public.append_trust_event_v1",
+        "public.apply_trust_state_decision_v1",
+        "public.evidence_graph_edges",
+        "public.evidence_graph_nodes",
+        "public.subject_trust_state",
+        "public.trust_architecture_audit_log",
+        "public.trust_decision_contracts",
+        "public.trust_memory_index",
+        "public.trust_state_decisions",
+        "public.trust_subjects"
+      ],
+      "prerequisitePolicyHelpers": [],
+      "prerequisiteExtensions": [],
+      "createdObjects": [
+        "function:public.apply_trust_state_decision_v1"
+      ],
+      "downstreamConsumers": [],
+      "laterReferences": [],
+      "guardedOptionalPublicReferences": [],
+      "unresolvedPublicPrerequisites": []
+    },
+    {
+      "timestamp": "202608100005",
+      "migration": "supabase/migrations/202608100005_optional_legacy_consensus_pointer.sql",
+      "phase": "F",
+      "sequencePredecessor": "202608100004",
+      "prerequisiteMigrations": [
+        "202607200003"
+      ],
+      "prerequisiteTables": [
+        "public.subject_trust_state"
+      ],
+      "prerequisiteColumns": [],
+      "prerequisiteFunctions": [],
+      "prerequisitePolicyHelpers": [],
+      "prerequisiteExtensions": [],
+      "createdObjects": [],
       "downstreamConsumers": [],
       "laterReferences": [],
       "guardedOptionalPublicReferences": [],
