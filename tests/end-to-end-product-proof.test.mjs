@@ -28,6 +28,7 @@ test("normal login and auth recovery enter the canonical Operational Entity prod
 test("first-run initialization creates authority but never fabricates identity evidence or an ALLOW", async () => {
   const onboarding = await read("lib/onboarding/controlled-agent-alpha.ts");
   assert.match(onboarding, /registerCanonicalNativeAgent/);
+  assert.match(onboarding, /const db = createServiceRoleClient\(\)[\s\S]*ownedWorkspace\(db, input\.user\)/);
   assert.match(onboarding, /requiredEvidenceTypes: \["NATIVE_ENTITY_IDENTITY_PROOF"\]/);
   assert.match(onboarding, /permittedScope: \["read_repository"\]/);
   assert.doesNotMatch(onboarding, /native_entity_identity_evidence/);

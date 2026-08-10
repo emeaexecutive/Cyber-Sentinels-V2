@@ -44,7 +44,7 @@ async function signIn(page: Page) {
   await page.getByLabel("Email", { exact: true }).fill(email);
   await page.getByPlaceholder("Password", { exact: true }).fill(password);
   await waitForTurnstile(page);
-  const button = page.getByRole("button", { name: "Sign in", exact: true });
+  const button = page.getByRole("button", { name: "Sign in", exact: true }).last();
   await expect(button).toBeEnabled();
   await button.click();
   await page.waitForURL("**/operational-entities");
@@ -87,7 +87,8 @@ test("new and returning users complete a provider-free trust transaction from lo
   await page.getByPlaceholder("Confirm password", { exact: true }).fill(password);
   await waitForTurnstile(page);
   await page.getByRole("button", { name: "Create account", exact: true }).last().click();
-  await expect(page.getByText("Check your email to verify your account before continuing.", { exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("status").filter({ hasText: "Check your email to verify" }))
+    .toHaveText("Check your email to verify your account before continuing.", { timeout: 30_000 });
 
   const users = await admin.auth.admin.listUsers({ page: 1, perPage: 1_000 });
   if (users.error) throw users.error;

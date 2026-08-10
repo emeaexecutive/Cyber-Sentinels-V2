@@ -70,11 +70,14 @@ export async function ensureControlledAgentAlpha(input: {
   supabase: SupabaseClient;
   user: User;
 }) {
-  const workspace = await ownedWorkspace(input.supabase, input.user);
-  const enterpriseId = String(workspace.id);
-  await ensureOwnerMembership(input.supabase, input.user, enterpriseId);
-
+  // The actor is established with the cookie-bound client above this boundary.
+  // Bootstrap writes use the server-only client because a user cannot be a
+  // workspace member until the workspace and first owner membership exist.
   const db = createServiceRoleClient();
+  const workspace = await ownedWorkspace(db, input.user);
+  const enterpriseId = String(workspace.id);
+  await ensureOwnerMembership(db, input.user, enterpriseId);
+
   const existingEntity = await db
     .from("operational_entities")
     .select("entity_id")
