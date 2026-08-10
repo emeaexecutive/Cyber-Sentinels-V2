@@ -179,6 +179,23 @@ test("DENY for invalid authority scope suspends trust and never executes", async
   assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
 });
 
+test("a delegated authorization denial persists its exact reason in the canonical receipt", async () => {
+  const { deps, calls } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "delegated-scope-denial",
+    managedControl: {
+      authorization: {
+        decision: "DENY",
+        reasonCodes: ["ACTION_OUT_OF_DELEGATED_SCOPE"],
+      },
+    },
+  }), deps);
+  assert.equal(receipt.decision, "DENY");
+  assert.ok(receipt.reasonCodes.includes("ACTION_OUT_OF_DELEGATED_SCOPE"));
+  assert.equal(receipt.externalExecution.requested, false);
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
 test("an idempotent retry returns the stored receipt before evaluation or relay", async () => {
   const first = dependencies();
   const stored = await executeCanonicalTrustTransaction(transactionInput(), first.deps);

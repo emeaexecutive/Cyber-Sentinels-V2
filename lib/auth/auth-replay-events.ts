@@ -100,6 +100,7 @@ export async function recordAuthReplayEvent(
     actorType: "human",
     actorId: input.user.id,
     severity: decision === "block" ? "critical" : decision === "review" || decision === "step_up" ? "warning" : "info",
+    ownerUserId: input.user.id,
     metadata,
   });
 }

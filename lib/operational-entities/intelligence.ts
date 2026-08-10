@@ -62,6 +62,12 @@ function transactionReference(transaction: Row) {
   return `transaction:${text(transaction.transaction_id, "not-recorded")}`;
 }
 
+function nativeOutcomeFor(detail: OperationalEntityLiveDetail, transaction: Row | null) {
+  if (!transaction) return null;
+  const transactionId = text(transaction.transaction_id, "");
+  return [...(detail.nativeEnforcement?.outcomes ?? [])].reverse().find((outcome) => text(outcome.transaction_id, "") === transactionId) ?? null;
+}
+
 function snapshotConditionState(detail: OperationalEntityLiveDetail, transaction: Row): TrustConditionState {
   const snapshot = object(transaction.decision_time_snapshot);
   const enforcement = object(snapshot.enforcementState);
@@ -78,6 +84,7 @@ function snapshotConditionState(detail: OperationalEntityLiveDetail, transaction
     : [];
   const snapshotRecordsIncidentState = Object.hasOwn(snapshot, "activeIncidentReferences");
   const allEvidence = [...new Set([...evidenceReferences, transactionRef])];
+  const nativeOutcome = nativeOutcomeFor(detail, transaction);
   return {
     stateReference: transactionRef,
     identity: externalIdentityReferences.sort().join("|") || "UNKNOWN",
@@ -91,7 +98,7 @@ function snapshotConditionState(detail: OperationalEntityLiveDetail, transaction
     evidenceFreshness: transaction.evidence_fresh === true ? "CURRENT" : transaction.evidence_fresh === false ? "STALE" : "UNKNOWN",
     evidenceIndependence: text(transaction.evidence_independence),
     behaviour: `DECISION_${text(transaction.decision)}`,
-    outcome: text(transaction.external_state, "NOT_RECORDED"),
+    outcome: text(nativeOutcome?.outcome ?? transaction.external_state, "NOT_RECORDED"),
     incidentState: activeIncidentReferences.length
       ? activeIncidentReferences.sort().join("|")
       : snapshotRecordsIncidentState ? "NONE_RECORDED_AT_DECISION_TIME" : "UNKNOWN",
@@ -107,7 +114,7 @@ function snapshotConditionState(detail: OperationalEntityLiveDetail, transaction
       evidenceFreshness: evidenceReferences,
       evidenceIndependence: evidenceReferences,
       behaviour: [transactionRef],
-      outcome: transaction.external_state ? [transactionRef] : [],
+      outcome: nativeOutcome ? [`native-outcome:${text(nativeOutcome.outcome_id)}`] : transaction.external_state ? [transactionRef] : [],
       incidentState: snapshotRecordsIncidentState ? [transactionRef, ...activeIncidentReferences] : [],
     },
   };
@@ -135,6 +142,8 @@ function healthFromDetail(detail: OperationalEntityLiveDetail, latest: Row | nul
   const snapshot = object(latest?.decision_time_snapshot);
   const enforcement = object(snapshot.enforcementState);
   const independence = text(latest?.evidence_independence);
+  const nativeOutcome = nativeOutcomeFor(detail, latest);
+  const nativeOutcomeRef = nativeOutcome ? `native-outcome:${text(nativeOutcome.outcome_id)}` : transactionRef;
   const dimensions = {} as TrustHealthAssessment["dimensions"];
   dimensions.IDENTITY = detail.externalIdentities.length
     ? healthDimension("SUPPORTED", ["IDENTITY_EVIDENCE_RECORDED"], detail.externalIdentities.map((item) => item.referenceId))
@@ -152,17 +161,29 @@ function healthFromDetail(detail: OperationalEntityLiveDetail, latest: Row | nul
       : evidence.length
         ? healthDimension(latest.evidence_complete === true || latest.evidence_fresh === true ? "PARTIAL" : "DEGRADED", strings(latest.reason_codes), evidenceRefs)
         : healthDimension("UNKNOWN", ["EVIDENCE_NOT_RECORDED"], []);
-  dimensions.CONTINUITY = enforcement.runtimeObservation === "enforced" && enforcement.destinationObservation === "enforced"
+  dimensions.CONTINUITY = nativeOutcome?.outcome === "CONTROL_FAILURE_CRITICAL" || strings(nativeOutcome?.contradiction_codes).length
+    ? healthDimension("CONFLICTING", ["NATIVE_EXECUTION_CONTROL_FAILURE", ...strings(nativeOutcome?.contradiction_codes)], [nativeOutcomeRef])
+    : nativeOutcome?.correlation_state === "CONFIRMED"
+      ? healthDimension("SUPPORTED", ["RUNTIME_AND_DESTINATION_OBSERVED"], [nativeOutcomeRef])
+      : enforcement.runtimeObservation === "enforced" && enforcement.destinationObservation === "enforced"
     ? healthDimension("SUPPORTED", ["RUNTIME_AND_DESTINATION_OBSERVED"], [transactionRef])
     : enforcement.runtimeObservation === "not_enforced" || enforcement.destinationObservation === "not_enforced"
       ? healthDimension("CONFLICTING", ["RUNTIME_OR_DESTINATION_CONTRADICTED"], [transactionRef])
       : healthDimension("UNKNOWN", ["RUNTIME_CONTINUITY_NOT_OBSERVED"], []);
-  dimensions.OUTCOME = latest?.external_state === "SUCCEEDED"
+  dimensions.OUTCOME = nativeOutcome?.outcome === "CONTROL_FAILURE_CRITICAL"
+    ? healthDimension("DEGRADED", ["EXECUTION_OCCURRED_AFTER_DENY", "CONTROL_FAILURE_CRITICAL"], [nativeOutcomeRef])
+    : nativeOutcome?.outcome === "CONFIRMED"
+      ? healthDimension("SUPPORTED", ["DESTINATION_EXECUTION_CONFIRMED"], [nativeOutcomeRef])
+      : nativeOutcome?.outcome === "UNKNOWN"
+        ? healthDimension("UNKNOWN", strings(nativeOutcome.reason_codes).length ? strings(nativeOutcome.reason_codes) : ["EXECUTION_UNCONFIRMED"], [nativeOutcomeRef])
+        : latest?.external_state === "SUCCEEDED"
     ? healthDimension("SUPPORTED", ["EXTERNAL_OUTCOME_SUCCEEDED"], [transactionRef])
     : latest?.external_state === "FAILED"
       ? healthDimension("DEGRADED", ["EXTERNAL_OUTCOME_FAILED"], [transactionRef])
       : healthDimension("UNKNOWN", ["DESTINATION_OUTCOME_NOT_CONFIRMED"], []);
-  dimensions.INCIDENT = Array.isArray(snapshot.activeIncidentReferences)
+  dimensions.INCIDENT = nativeOutcome?.incident_id
+    ? healthDimension("DEGRADED", ["ACTIVE_CONTROL_FAILURE_INCIDENT"], [`incident:${text(nativeOutcome.incident_id)}`])
+    : Array.isArray(snapshot.activeIncidentReferences)
     ? snapshot.activeIncidentReferences.length
       ? healthDimension("DEGRADED", ["ACTIVE_INCIDENT_RECORDED"], snapshot.activeIncidentReferences.map(String))
       : healthDimension("SUPPORTED", ["NO_ACTIVE_INCIDENT_AT_DECISION_TIME"], [transactionRef])
@@ -186,7 +207,7 @@ function changeType(transaction: Row): TrustChangeType {
 }
 
 function historyEvents(detail: OperationalEntityLiveDetail): TrustChangeEvent[] {
-  return detail.transactions.map((transaction) => {
+  const transactionEvents = detail.transactions.map((transaction) => {
     const refs = evidenceRows(transaction).map((item) => text(item.reference, "")).filter(Boolean);
     const effectiveAt = text(transaction.requested_at, detail.entity.updatedAt);
     return createTrustChangeEvent({
@@ -208,6 +229,22 @@ function historyEvents(detail: OperationalEntityLiveDetail): TrustChangeEvent[] 
       recommendedEvaluation: text(transaction.decision) === "ALLOW" ? "CONTINUE" : text(transaction.decision) === "DENY" ? "SUSPEND" : "REVIEW",
     });
   });
+  const outcomeEvents = (detail.nativeEnforcement?.outcomes ?? []).map((outcome) => createTrustChangeEvent({
+    enterpriseId: detail.entity.enterpriseId,
+    operationalEntityId: detail.entity.entityId,
+    transactionId: text(outcome.transaction_id),
+    changeType: outcome.outcome === "CONTROL_FAILURE_CRITICAL" ? "INCIDENT_OPENED" : "OUTCOME_CONFIRMED",
+    previousStateReference: `transaction:${text(outcome.transaction_id)}`,
+    currentStateReference: `native-outcome:${text(outcome.outcome_id)}`,
+    evidenceReferences: (detail.nativeEnforcement?.destinationObservations ?? []).filter((item) => item.transaction_id === outcome.transaction_id).map((item) => `destination-observation:${text(item.observation_id)}`),
+    authorityReferences: [], providerReferences: [], incidentReferences: outcome.incident_id ? [`incident:${text(outcome.incident_id)}`] : [],
+    detectedAt: text(outcome.correlated_at, detail.entity.updatedAt), effectiveAt: text(outcome.correlated_at, detail.entity.updatedAt),
+    materiality: outcome.outcome === "CONTROL_FAILURE_CRITICAL" ? "HIGH" : "IMMATERIAL",
+    confidence: outcome.outcome === "CONFIRMED" ? "HIGH" : "LOW",
+    reasonCodes: [...strings(outcome.reason_codes), ...strings(outcome.contradiction_codes)],
+    recommendedEvaluation: outcome.outcome === "CONTROL_FAILURE_CRITICAL" ? "SUSPEND" : outcome.outcome === "CONFIRMED" ? "CONTINUE" : "REVIEW",
+  }));
+  return [...transactionEvents, ...outcomeEvents];
 }
 
 function deriveRecovery(detail: OperationalEntityLiveDetail): TrustRecoveryRecord | null {
@@ -247,6 +284,8 @@ function evidenceIndex(detail: OperationalEntityLiveDetail) {
       if (reference) entries.push({ reference, label: `${text(item.providerId)} provider evidence`, href: `/trust/transactions/${encodeURIComponent(transactionId)}#provider-evidence` });
     }
   }
+  for (const outcome of detail.nativeEnforcement?.outcomes ?? []) entries.push({ reference: `native-outcome:${text(outcome.outcome_id)}`, label: `Native execution outcome ${text(outcome.outcome)}`, href: `/trust/transactions/${encodeURIComponent(text(outcome.transaction_id))}` });
+  for (const observation of detail.nativeEnforcement?.destinationObservations ?? []) entries.push({ reference: `destination-observation:${text(observation.observation_id)}`, label: `Destination observation ${text(observation.result)}`, href: `/trust/transactions/${encodeURIComponent(text(observation.transaction_id))}` });
   return [...new Map(entries.map((entry) => [entry.reference, entry])).values()];
 }
 
@@ -261,16 +300,17 @@ export function projectOperationalEntityIntelligence(detail: OperationalEntityLi
   const independence = text(latest?.evidence_independence);
   const snapshot = object(latest?.decision_time_snapshot);
   const enforcement = object(snapshot.enforcementState);
+  const nativeOutcome = nativeOutcomeFor(detail, latest);
   const confidence = deriveTrustConfidence({
     evidenceCompleteness: latest?.evidence_complete === true ? 1 : evidence.length ? 0.35 : 0,
     evidenceFreshness: latest?.evidence_fresh === true ? 1 : latest?.evidence_fresh === false ? 0.2 : 0,
     sourceIndependence: independence === "independently_confirmed" ? 1 : independence === "multi_source" ? 0.85 : evidence.length ? 0.4 : 0,
     providerAgreement: independence === "conflicting" ? 0 : 1,
     authorityCertainty: latest?.authority_reference ? 1 : 0,
-    outcomeConfirmation: latest?.external_state === "SUCCEEDED" ? 1 : latest?.external_state === "FAILED" ? 0 : 0.25,
+    outcomeConfirmation: nativeOutcome?.outcome === "CONFIRMED" ? 1 : nativeOutcome?.outcome === "CONTROL_FAILURE_CRITICAL" ? 0 : nativeOutcome?.outcome === "UNKNOWN" ? 0.1 : latest?.external_state === "SUCCEEDED" ? 1 : latest?.external_state === "FAILED" ? 0 : 0.25,
     continuity: enforcement.runtimeObservation === "enforced" && enforcement.destinationObservation === "enforced" ? 1 : enforcement.runtimeObservation ? 0.4 : 0,
-    unresolvedContradictions: strings(snapshot.contradictions).length,
-    evidenceReferences: evidence.map((item) => text(item.reference, "")).filter(Boolean),
+    unresolvedContradictions: strings(snapshot.contradictions).length + strings(nativeOutcome?.contradiction_codes).length,
+    evidenceReferences: [...evidence.map((item) => text(item.reference, "")).filter(Boolean), ...(nativeOutcome ? [`native-outcome:${text(nativeOutcome.outcome_id)}`] : [])],
   });
   const changes = historyEvents(detail);
   const stability = evaluateTrustStability({ events: changes, asOf: generatedAt, windowsHours: [24, 168, 720] });
@@ -294,13 +334,21 @@ export function projectOperationalEntityIntelligence(detail: OperationalEntityLi
         { text: `Evidence is ${latest.evidence_complete === true ? "sufficient" : "insufficient"} and ${latest.evidence_fresh === true ? "current" : "stale or unavailable"} for that decision.`, evidenceReferences: evidence.map((item) => text(item.reference, "")).filter(Boolean).length ? evidence.map((item) => text(item.reference, "")).filter(Boolean) : [latestReference] },
       ]
     : [{ text: `${detail.entity.displayReference} has no persisted canonical decision.`, evidenceReferences: [detail.entity.canonicalDigest] }];
+  if (nativeOutcome) narrative.push({
+    text: nativeOutcome.outcome === "CONFIRMED"
+      ? `${detail.entity.displayReference}'s exact action was observed at the destination and deterministically confirmed.`
+      : nativeOutcome.outcome === "CONTROL_FAILURE_CRITICAL"
+        ? `Destination evidence shows execution after DENY; the original decision remains unchanged and the control is critically degraded.`
+        : `${detail.entity.displayReference} was authorized but destination execution could not be confirmed.`,
+    evidenceReferences: [`native-outcome:${text(nativeOutcome.outcome_id)}`],
+  });
   const recovery = deriveRecovery(detail);
   const explanation = explainOperationalTrust({
     narrative,
     drift,
     health,
     unknowns: health.reasonCodes.filter((reason) => /UNKNOWN|NOT_RECORDED|NOT_CONFIRMED|NOT_OBSERVED/.test(reason)),
-    actionTaken: latest ? (text(latest.decision) === "ALLOW" ? `Execution state: ${text(latest.external_state, "NOT_RECORDED")}.` : "No execution is permitted by the latest decision.") : "No action is recorded.",
+    actionTaken: latest ? (nativeOutcome ? `Native outcome: ${text(nativeOutcome.outcome)}.` : text(latest.decision) === "ALLOW" ? `Execution state: ${text(latest.external_state, "NOT_RECORDED")}.` : "No execution is permitted by the latest decision.") : "No action is recorded.",
     restorationRequirements: recommendation.recommendation === "NO_ACTION_REQUIRED" ? [] : [recommendation.recommendation],
   });
   return {

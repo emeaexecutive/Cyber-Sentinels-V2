@@ -2,8 +2,8 @@
   "categories": [
     {
       "category": "migration head",
-      "empty": "202608010002",
-      "productionHead": "202608010002",
+      "empty": "202608100005",
+      "productionHead": "202608100005",
       "match": true,
       "explanation": "Both reconstruction paths converge on the same target head"
     },

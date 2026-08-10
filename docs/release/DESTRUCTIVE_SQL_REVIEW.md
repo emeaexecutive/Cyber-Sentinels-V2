@@ -33,6 +33,18 @@ No pending migration contains `DROP TABLE`, `DROP COLUMN`, `TRUNCATE`, destructi
 | `202607310001_environment_attestation_scope_continuity.sql` | replaceFunction:2, update:1, insert:14 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
 | `202608010001_ai_serious_incident_regulatory_lineage.sql` | dropConstraint:2, replaceFunction:5, update:1, insert:44 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
 | `202608010002_enterprise_trust_fabric.sql` | dropPolicy:1, replaceFunction:4, update:4, insert:7 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202608060001_rc2_enterprise_operational_readiness.sql` | dropConstraint:1, replaceFunction:3, update:3, insert:2 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202608060002_end_to_end_trust_transaction.sql` | replaceFunction:7, update:10, insert:23 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202608080001_provider_neutral_evidence_independence.sql` | replaceFunction:3, update:6, insert:4 | requires staging evidence | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202608080002_provider_neutral_workspace_rls_forward_repair.sql` | update:2 | requires staging evidence | LOW; row volume unknown; new-object catalog locks only; PostgREST cache refresh required after phase |
+| `202608080003_native_operational_entity_verification.sql` | dropConstraint:1, replaceFunction:4, update:13, insert:14 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202608090001_native_delegated_authority.sql` | dropConstraint:2, replaceFunction:6, update:8, insert:7 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202608090002_native_enforcement_outcome_proof.sql` | dropConstraint:3, replaceFunction:3, update:1, insert:8 | requires Production approval | HIGH; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
+| `202608100001_pgcrypto_routine_search_path.sql` | none | false positive: no destructive token | LOW; row volume unknown; new-object catalog locks only; PostgREST cache refresh required after phase |
+| `202608100002_runtime_persistence_compatibility.sql` | replaceFunction:2, update:1, insert:2 | requires staging evidence | LOW; row volume unknown; new-object catalog locks only; PostgREST cache refresh required after phase |
+| `202608100003_alpha_beta_persistence_repairs.sql` | replaceFunction:1, insert:2 | requires staging evidence | LOW; row volume unknown; new-object catalog locks only; PostgREST cache refresh required after phase |
+| `202608100004_continuous_trust_legacy_consensus_fk_repair.sql` | replaceFunction:1, update:1, insert:9 | requires staging evidence | LOW; row volume unknown; new-object catalog locks only; PostgREST cache refresh required after phase |
+| `202608100005_optional_legacy_consensus_pointer.sql` | none | false positive: no destructive token | MEDIUM; row volume unknown; existing-table catalog locks possible; PostgREST cache refresh required after phase |
 
 ## Production approval boundary
 

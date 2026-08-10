@@ -197,8 +197,8 @@ export function NativeEntityVerificationPanel(props: Props) {
       subject: challenge.subject,
       manifestDigest: challenge.manifestDigest,
       signingKeyId: challenge.signingKeyId,
-      issuedAt: challenge.issuedAt,
-      expiresAt: challenge.expiresAt,
+      issuedAt: new Date(String(challenge.issuedAt)).toISOString(),
+      expiresAt: new Date(String(challenge.expiresAt)).toISOString(),
     });
     return {
       challengeId: challenge.challengeId,
@@ -235,7 +235,7 @@ export function NativeEntityVerificationPanel(props: Props) {
         subject_id: props.canonicalTrustObjectId,
         operational_entity_id: props.operationalEntityId,
         requested_action: requestedAction,
-        requested_purpose: requestedAction,
+        requested_purpose: "controlled_repository_access",
         resource: requestedAction === "initiate_payment" ? "payment:restricted:agent-alpha" : "repository:agent-alpha",
         environment: props.environmentReference ?? "preview",
         payload_digest: await sha256Hex(canonicalize({ operationalEntityId: props.operationalEntityId, requestedAction, at: new Date().toISOString() })),
@@ -312,7 +312,11 @@ export function NativeEntityVerificationPanel(props: Props) {
         authority: receipt.authorityReference,
         consequence: receipt.consequence,
         decision: receipt.decision,
+        reasonCodes: receipt.reasonCodes,
         confidence: receipt.confidenceInConclusion,
+        transactionId: receipt.transactionId,
+        historyUrl: receipt.historyUrl,
+        evidenceGraph: receipt.evidenceGraphReference,
         replay: receipt.replayReference,
         trustMemory: receipt.trustMemoryReference,
         execution: receipt.externalExecution,
@@ -358,7 +362,7 @@ export function NativeEntityVerificationPanel(props: Props) {
       const runtime = { ...current.runtimeObservation, environment: "preview-runtime-changed", observedAt: proof.submittedAt };
       const verification = await action({ action: "submit_proof", proof, runtimeObservation: runtime });
       const receipt = await executeCanonicalAction("initiate_payment");
-      publish("CHANGE_RUNTIME", { identity: (verification.result as Record<string, unknown>)?.status, changedAttributes: (verification.result as Record<string, unknown>)?.changedAttributes, runtimeBinding: (verification.result as Record<string, unknown>)?.runtimeBinding, decision: receipt.decision, consequence: receipt.consequence, confidence: receipt.confidenceInConclusion });
+      publish("CHANGE_RUNTIME_AND_OUT_OF_SCOPE_ACTION", { identity: (verification.result as Record<string, unknown>)?.status, changedAttributes: (verification.result as Record<string, unknown>)?.changedAttributes, runtimeBinding: (verification.result as Record<string, unknown>)?.runtimeBinding, decision: receipt.decision, reasonCodes: receipt.reasonCodes, consequence: receipt.consequence, confidence: receipt.confidenceInConclusion, transactionId: receipt.transactionId, historyUrl: receipt.historyUrl, replay: receipt.replayReference, trustMemory: receipt.trustMemoryReference });
     });
   }
 
@@ -371,7 +375,7 @@ export function NativeEntityVerificationPanel(props: Props) {
       const proof = await signedProof(challenge, current.keyPair.privateKey, current.manifestDigest, current.signingKeyId);
       const verification = await action({ action: "submit_proof", proof, runtimeObservation: { ...current.runtimeObservation, observedAt: proof.submittedAt } });
       const receipt = await executeCanonicalAction("read_repository");
-      publish("REVOKE_AUTHORITY", { identity: (verification.result as Record<string, unknown>)?.status, authority: contract.revocationState, authorityContractId: contract.contractId, decision: receipt.decision, reasonCodes: receipt.reasonCodes });
+      publish("REVOKE_AUTHORITY", { identity: (verification.result as Record<string, unknown>)?.status, authority: contract.revocationState, authorityContractId: contract.contractId, decision: receipt.decision, reasonCodes: receipt.reasonCodes, transactionId: receipt.transactionId, historyUrl: receipt.historyUrl, replay: receipt.replayReference, trustMemory: receipt.trustMemoryReference });
     });
   }
 
@@ -392,29 +396,37 @@ export function NativeEntityVerificationPanel(props: Props) {
       const verification = await action({ action: "submit_proof", proof, runtimeObservation: runtime });
       const receipt = await executeCanonicalAction("read_repository");
       session.current = { keyPair, credentialId: String(credential.credentialId), signingKeyId, manifest: created.manifest, manifestDigest: created.manifestDigest, proof, runtimeObservation: runtime };
-      publish("ROTATE_KEY", { identity: (verification.result as Record<string, unknown>)?.status, oldCredentialState: "RETIRED", newCredentialFingerprint: credential.credentialFingerprint, authority: authority.revocationState, decision: receipt.decision, recovery: receipt.trustState, replay: receipt.replayReference, trustMemory: receipt.trustMemoryReference });
+      publish("ROTATE_KEY", { identity: (verification.result as Record<string, unknown>)?.status, oldCredentialState: "RETIRED", newCredentialFingerprint: credential.credentialFingerprint, authority: authority.revocationState, decision: receipt.decision, reasonCodes: receipt.reasonCodes, recovery: receipt.trustState, transactionId: receipt.transactionId, historyUrl: receipt.historyUrl, replay: receipt.replayReference, trustMemory: receipt.trustMemoryReference });
     });
   }
 
   const attackDisabled = state === "running" || !session.current;
+  const resultStages = Array.isArray(result?.stages)
+    ? result.stages as Array<Record<string, unknown>>
+    : [];
+  const latestHistoryUrl = [...resultStages]
+    .reverse()
+    .map((stage) => String(stage.historyUrl ?? ""))
+    .find(Boolean);
 
   return (
     <div className="mt-5 rounded-xl border border-cyan-700/60 bg-cyan-950/20 p-5 text-slate-100">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">Native identity proof</p>
       <h2 className="mt-2 text-xl font-semibold">{isAgentAlpha ? "Cryptographically verify existing Agent Alpha" : `Cryptographically verify ${props.displayName}`}</h2>
       <p className="mt-3 text-sm leading-6 text-slate-300">The private Ed25519 key is generated as non-extractable browser memory, used by this non-Production signer, never sent to Cyber Sentinels, never persisted, and discarded when the page closes. Runtime fields are enterprise-asserted; no build or source integrity is fabricated.</p>
-      <p className="mt-3 rounded-lg border border-cyan-900/60 bg-slate-950/60 p-3 text-sm text-cyan-100"><strong>Why do we know this is Alpha?</strong> Alpha proves possession of the private key corresponding to its registered public credential using a single-use challenge bound to this Operational Entity and manifest.</p>
+      <p className="mt-3 rounded-lg border border-cyan-900/60 bg-slate-950/60 p-3 text-sm text-cyan-100"><strong>How do we know this is {isAgentAlpha ? "Alpha" : props.displayName.replace(/^Agent\s+/i, "")}?</strong> {props.displayName} proves possession of the private key corresponding to its registered public credential using a single-use challenge bound to this Operational Entity and manifest.</p>
       <div className="mt-4 flex flex-wrap gap-2">
-        <button type="button" onClick={verifyEntity} disabled={state === "running"} className="rounded-lg bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">{state === "running" ? "RUNNING..." : props.activeCredentialId ? "ROTATE AND VERIFY CURRENT ENTITY" : isAgentAlpha ? "VERIFY AGENT ALPHA" : "VERIFY ENTITY"}</button>
+        <button type="button" onClick={verifyEntity} disabled={state === "running"} className="rounded-lg bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">{state === "running" ? "RUNNING..." : props.activeCredentialId ? `ROTATE AND VERIFY ${props.displayName.toUpperCase()}` : isAgentAlpha ? "VERIFY AGENT ALPHA" : `VERIFY ${props.displayName.toUpperCase()}`}</button>
         {isAgentAlpha ? <>
           <button type="button" onClick={copyAlphaId} disabled={attackDisabled} className="rounded-lg border border-slate-700 px-3 py-2 text-sm disabled:opacity-40">COPY ALPHA ID</button>
           <button type="button" onClick={replayOldProof} disabled={attackDisabled} className="rounded-lg border border-slate-700 px-3 py-2 text-sm disabled:opacity-40">REPLAY OLD PROOF</button>
           <button type="button" onClick={alterManifest} disabled={attackDisabled} className="rounded-lg border border-slate-700 px-3 py-2 text-sm disabled:opacity-40">ALTER MANIFEST</button>
-          <button type="button" onClick={changeRuntime} disabled={attackDisabled} className="rounded-lg border border-slate-700 px-3 py-2 text-sm disabled:opacity-40">CHANGE RUNTIME</button>
+          <button type="button" onClick={changeRuntime} disabled={attackDisabled} className="rounded-lg border border-slate-700 px-3 py-2 text-sm disabled:opacity-40">CHANGE RUNTIME + TEST DENY</button>
           <button type="button" onClick={revokeAuthority} disabled={attackDisabled} className="rounded-lg border border-red-800 px-3 py-2 text-sm text-red-200 disabled:opacity-40">REVOKE AUTHORITY</button>
           <button type="button" onClick={rotateKey} disabled={attackDisabled} className="rounded-lg border border-emerald-800 px-3 py-2 text-sm text-emerald-200 disabled:opacity-40">ROTATE KEY + RECOVER</button>
         </> : null}
       </div>
+      {latestHistoryUrl ? <a href={latestHistoryUrl} className="mt-4 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-950">Open transaction, Replay and receipt</a> : null}
       {result ? <pre className="mt-4 max-h-96 overflow-auto rounded-lg bg-slate-950 p-4 text-xs text-cyan-100">{JSON.stringify(result, null, 2)}</pre> : null}
       {state === "failed" ? <p className="mt-4 text-sm font-medium text-red-300">{error}</p> : null}
     </div>

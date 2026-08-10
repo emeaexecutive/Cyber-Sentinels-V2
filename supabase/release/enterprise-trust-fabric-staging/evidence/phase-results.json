@@ -47,9 +47,9 @@
     },
     {
       "id": "F",
-      "name": "Enterprise Trust Fabric",
+      "name": "Enterprise Trust Fabric and Alpha/Beta product proof",
       "result": "PASS",
-      "migrationsApplied": 1,
+      "migrationsApplied": 13,
       "validationSql": [
         "post-apply-validation.sql"
       ]

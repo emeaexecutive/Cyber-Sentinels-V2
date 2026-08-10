@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CanonicalTransactionError, loadCanonicalTrustTransactionHistory } from "@/lib/trust-transaction/server";
+import { PrintReceiptButton } from "@/components/print-receipt-button";
 
 export const dynamic = "force-dynamic";
 
@@ -34,9 +35,13 @@ export default async function TrustTransactionHistoryPage({ params }: { params: 
     if (error instanceof CanonicalTransactionError && error.status === 404) notFound();
     throw error;
   }
-  const { receipt, events, externalRequest, acknowledgements, outcomes } = history;
+  const { receipt, events, externalRequest, acknowledgements, outcomes, nativeEnforcement } = history;
   const responsibility = receipt.responsibilityLineage;
   const enforcement = receipt.decisionTimeSnapshot.enforcementState;
+  const nativeRequest = nativeEnforcement.requests.at(-1) as Record<string, unknown> | undefined;
+  const nativeAcknowledgement = nativeEnforcement.acknowledgements.at(-1) as Record<string, unknown> | undefined;
+  const destinationObservation = nativeEnforcement.destinationObservations.at(-1) as Record<string, unknown> | undefined;
+  const nativeOutcome = nativeEnforcement.outcomes.at(-1) as Record<string, unknown> | undefined;
   const currentProvider = responsibility.technologyProvider;
   const evidenceSourceCount = new Set(receipt.decisionTimeSnapshot.providerEvidence.map((item) => item.sourcePartyId)).size;
   const independentSourceCount = new Set(receipt.decisionTimeSnapshot.providerEvidence.filter((item) => item.sourcePartyId !== responsibility.controlOperator && item.sourcePartyId !== responsibility.technologyProvider).map((item) => item.sourcePartyId)).size;
@@ -105,15 +110,18 @@ export default async function TrustTransactionHistoryPage({ params }: { params: 
             <p className="mt-4 text-xs leading-5 text-zinc-500">Multiple systems owned by the same provider do not count as independent confirmation.</p>
           </article>
           <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Enforcement</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Native trust-to-action proof</p>
             <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
-              <div><dt className="text-zinc-500">Requested</dt><dd className="mt-1 text-zinc-200">{receipt.externalExecution.requested ? "Recorded" : "Not requested"}</dd></div>
-              <div><dt className="text-zinc-500">Acknowledged</dt><dd className="mt-1 text-zinc-200">{receipt.externalExecution.acknowledgementReference ? "Recorded" : "Unknown"}</dd></div>
-              <div><dt className="text-zinc-500">Claimed</dt><dd className="mt-1 text-zinc-200">{receipt.externalExecution.outcome}</dd></div>
-              <div><dt className="text-zinc-500">Runtime Observed</dt><dd className="mt-1 text-zinc-200">{value(enforcement.runtimeObservation)}</dd></div>
-              <div><dt className="text-zinc-500">Destination Observed</dt><dd className="mt-1 text-zinc-200">{value(enforcement.destinationObservation)}</dd></div>
-              <div><dt className="text-zinc-500">Confirmed / Contradicted / Unknown</dt><dd className="mt-1 text-zinc-200">{enforcement.destinationObservation === "enforced" && enforcement.runtimeObservation === "enforced" ? "Confirmed" : "Unknown"}</dd></div>
+              <div><dt className="text-zinc-500">Decision</dt><dd className="mt-1 font-semibold text-zinc-100">{receipt.decision}</dd></div>
+              <div><dt className="text-zinc-500">Enforcement</dt><dd className="mt-1 text-zinc-200">{value(nativeAcknowledgement?.status ?? nativeRequest?.request_state ?? "NOT REQUESTED")}</dd></div>
+              <div><dt className="text-zinc-500">Execution claim</dt><dd className="mt-1 text-zinc-200">{nativeEnforcement.executionClaims.length ? value((nativeEnforcement.executionClaims.at(-1) as Record<string, unknown>).result) : "UNKNOWN"}</dd></div>
+              <div><dt className="text-zinc-500">Runtime observation</dt><dd className="mt-1 text-zinc-200">{nativeEnforcement.runtimeObservations.length ? value((nativeEnforcement.runtimeObservations.at(-1) as Record<string, unknown>).result) : value(enforcement.runtimeObservation)}</dd></div>
+              <div><dt className="text-zinc-500">Destination</dt><dd className="mt-1 text-zinc-200">{destinationObservation ? `${value(destinationObservation.result)} · ${value(destinationObservation.destination_id)}` : "NOT OBSERVED"}</dd></div>
+              <div><dt className="text-zinc-500">Outcome</dt><dd className={`mt-1 font-semibold ${nativeOutcome?.outcome === "CONTROL_FAILURE_CRITICAL" ? "text-rose-300" : "text-zinc-100"}`}>{value(nativeOutcome?.outcome ?? "UNKNOWN")}</dd></div>
+              <div><dt className="text-zinc-500">Correlation</dt><dd className="mt-1 text-zinc-200">{value(nativeOutcome?.correlation_state ?? "UNCONFIRMED")}</dd></div>
+              <div><dt className="text-zinc-500">Control status</dt><dd className="mt-1 text-zinc-200">{value(nativeOutcome?.control_status ?? "UNKNOWN")}</dd></div>
             </dl>
+            <p className="mt-4 text-xs leading-5 text-zinc-500">An ALLOW decision is not proof of execution. Outcome is derived from separately persisted acknowledgement, runtime, destination and contradiction evidence.</p>
           </article>
           <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Provider history</p>
@@ -185,7 +193,12 @@ export default async function TrustTransactionHistoryPage({ params }: { params: 
           </div>
         </section>
 
-        <div className="mt-8 flex flex-wrap gap-3"><Link href="/trust-centre" className="brand-secondary-action brand-action-large text-sm">Trust Centre</Link><Link href="/replay" className="brand-secondary-action brand-action-large text-sm">Replay</Link></div>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <a href={`/api/trust/transactions/${receipt.transactionId}/receipt`} download className="brand-primary-action brand-action-large text-sm">Download receipt JSON</a>
+          <PrintReceiptButton />
+          <Link href="/trust-centre" className="brand-secondary-action brand-action-large text-sm">Trust Centre</Link>
+          <Link href="/replay" className="brand-secondary-action brand-action-large text-sm">Replay</Link>
+        </div>
       </div>
     </main>
   );

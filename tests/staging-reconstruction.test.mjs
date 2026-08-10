@@ -18,16 +18,16 @@ async function readEvidenceJson(name) {
 
 test("migration order matches the canonical release package", () => {
   assert.deepEqual(order, order.slice().sort());
-  assert.equal(order.length, 29);
+  assert.equal(order.length, 41);
   assert.equal(order[0], "supabase/migrations/202606100001_runtime_validation_logs.sql");
-  assert.equal(order.at(-1), "supabase/migrations/202608010002_enterprise_trust_fabric.sql");
+  assert.equal(order.at(-1), "supabase/migrations/202608100005_optional_legacy_consensus_pointer.sql");
   assert.equal(releasePlan.productionHead, "202606090003");
-  assert.equal(releasePlan.targetHead, "202608010002");
+  assert.equal(releasePlan.targetHead, "202608100005");
 });
 
 test("Production head and target head are explicit and phase order is enforced", () => {
   assert.equal(releasePlan.productionHead, "202606090003");
-  assert.equal(releasePlan.targetHead, "202608010002");
+  assert.equal(releasePlan.targetHead, "202608100005");
   assert.deepEqual(phaseManifest.phases.map((phase) => phase.id), ["A", "B", "C", "D", "E", "F", "G"]);
   for (const phase of phaseManifest.phases) {
     assert.match(phase.stopCondition, /stop/i);

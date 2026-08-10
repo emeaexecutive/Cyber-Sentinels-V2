@@ -308,10 +308,13 @@ export async function middleware(req: NextRequest) {
         getAll() {
           return req.cookies.getAll();
         },
-        setAll(cookiesToSet: CookieToSet[]) {
+        setAll(cookiesToSet: CookieToSet[], headers: Record<string, string>) {
           cookiesToSet.forEach(({ name, value, options }) => {
             req.cookies.set(name, value);
             response.cookies.set(name, value, options);
+          });
+          Object.entries(headers).forEach(([name, value]) => {
+            response.headers.set(name, value);
           });
         },
       },

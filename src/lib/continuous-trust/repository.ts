@@ -9,7 +9,15 @@ import type { ContinuousTrustAssessment, ContinuousTrustPolicy, PreviousRuntimeS
 import { defaultContinuousTrustPolicy } from "./types.ts";
 
 function fail(operation: string, error: unknown): never {
-  console.error("Continuous Trust persistence failed.", { operation, code: (error as { code?: string })?.code ?? "UNKNOWN" });
+  const candidate = error as { code?: string; message?: string };
+  const constraint = candidate.message?.match(/constraint "([^"]+)"/i)?.[1] ?? null;
+  const column = candidate.message?.match(/null value in column "([^"]+)"/i)?.[1] ?? null;
+  console.error("Continuous Trust persistence failed.", {
+    operation,
+    code: candidate.code ?? "UNKNOWN",
+    constraint,
+    column,
+  });
   throw Object.assign(new Error(`${operation} failed safely.`), { status: 500, code: "CONTINUOUS_TRUST_PERSISTENCE_FAILED" });
 }
 

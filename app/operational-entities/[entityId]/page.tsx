@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { loadOperationalEntityDetail } from "@/lib/operational-entities/server";
+import { loadOperationalEntities, loadOperationalEntityDetail } from "@/lib/operational-entities/server";
 import { projectOperationalEntityIntelligence } from "@/lib/operational-entities/intelligence";
 import { NativeEntityVerificationPanel } from "@/components/native-entity-verification-panel";
+import { AlphaBetaProductProof } from "@/components/alpha-beta-product-proof";
 
 export const dynamic = "force-dynamic";
 
@@ -22,13 +23,28 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
   if (!user) redirect(`/login?next=${encodeURIComponent(`/operational-entities/${entityId}`)}`);
   const detail = await loadOperationalEntityDetail({ supabase, user, entityId });
   if (!detail) notFound();
+  const entities = await loadOperationalEntities({ supabase, user });
+  const alphaEntity = entities.find((candidate) => candidate.displayReference.trim().toLowerCase() === "agent alpha");
+  const betaEntity = entities.find((candidate) => candidate.displayReference.trim().toLowerCase() === "agent beta");
+  const betaDetail = detail.entity.displayReference.trim().toLowerCase() === "agent alpha" && betaEntity
+    ? await loadOperationalEntityDetail({ supabase, user, entityId: betaEntity.entityId })
+    : null;
   const intelligence = projectOperationalEntityIntelligence(detail);
 
   const latestTransaction = detail.transactions.at(-1);
   const responsibility = (latestTransaction?.responsibility_lineage ?? {}) as Record<string, unknown>;
   const latestTransition = detail.providerTransitions.at(-1);
   const latestEnforcement = detail.enforcementEvents.at(-1);
+  const latestNativeRequest = detail.nativeEnforcement.requests.at(-1);
+  const latestNativeAcknowledgement = detail.nativeEnforcement.acknowledgements.at(-1);
+  const latestExecutionClaim = detail.nativeEnforcement.executionClaims.at(-1);
+  const latestRuntimeObservation = detail.nativeEnforcement.runtimeObservations.at(-1);
+  const latestDestinationObservation = detail.nativeEnforcement.destinationObservations.at(-1);
+  const latestNativeOutcome = detail.nativeEnforcement.outcomes.at(-1);
   const latestNativeVerification = detail.nativeVerification.verifications[0];
+  const nativeIdentityLabel = latestNativeVerification?.status === "VERIFIED"
+    ? "IDENTITY VERIFIED"
+    : latestNativeVerification?.status ?? "NOT YET VERIFIED";
   const activeNativeCredential = detail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE");
   const activeManifest = detail.nativeVerification.manifests.find((manifest) => manifest.status === "ACTIVE");
   const currentOwnerBinding = detail.nativeVerification.ownerBindings[0];
@@ -38,6 +54,17 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
   const latestReceivedAuthority = receivedAuthority[0];
   const latestDelegatedEvaluation = detail.delegatedAuthority.evaluations.find((item) => item.delegation_id === latestReceivedAuthority?.delegation_id);
   const nativeDemoEnabled = process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
+  const currentAuthorityId = detail.entity.currentAuthorityReferences[0] ?? (latestReceivedAuthority?.parent_authority_id ? String(latestReceivedAuthority.parent_authority_id) : null);
+  const authorityResult = currentAuthorityId
+    ? await supabase.from("trust_contracts").select("contract,revocation_state,revoked_at,issued_at,expires_at").eq("enterprise_id", detail.entity.enterpriseId).eq("contract_id", currentAuthorityId).maybeSingle()
+    : { data: null, error: null };
+  if (authorityResult.error) throw authorityResult.error;
+  const parentAuthority = (authorityResult.data?.contract ?? null) as Record<string, unknown> | null;
+  const delegationState = (delegation: Record<string, unknown>) =>
+    authorityResult.data?.revocation_state === "revoked" && String(delegation.parent_authority_id) === currentAuthorityId
+      ? "INVALIDATED (PARENT AUTHORITY REVOKED)"
+      : value(delegation.status);
+  const graphLabels = new Map(detail.evidenceGraph.nodes.map((node) => [String(node.node_id), `${value(node.node_type)}:${value(node.label ?? node.external_id)}`]));
   const responsibilityItems: Array<[string, unknown]> = [
     ["Control Owner", responsibility.controlOwner ?? detail.entity.accountableOwnerId],
     ["Control Operator", responsibility.controlOperator],
@@ -62,11 +89,47 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Operational Entity · Persisted tenant data</p>
         <h1 className="mt-2 text-3xl font-semibold">{detail.entity.displayReference}</h1>
         <p className="mt-3 max-w-3xl break-all font-mono text-xs text-slate-500">{detail.entity.entityId}</p>
+        <nav className="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
+          {alphaEntity ? <Link className="underline" href={`/operational-entities/${encodeURIComponent(alphaEntity.entityId)}`}>Agent Alpha</Link> : null}
+          {betaEntity ? <Link className="underline" href={`/operational-entities/${encodeURIComponent(betaEntity.entityId)}`}>Agent Beta</Link> : null}
+          <Link className="underline" href="/operational-entities">Product home</Link>
+        </nav>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[["Lifecycle", detail.entity.lifecycleState], ["Trust state", detail.entity.currentTrustState], ["Evidence state", detail.entity.currentEvidenceState], ["Consequence", detail.entity.currentConsequenceClassification]].map(([label, item]) => <article key={label} className={panel}><p className="text-xs uppercase tracking-wide text-slate-500">{label}</p><p className="mt-3 break-words text-lg font-semibold">{value(item)}</p></article>)}
       </section>
+
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {([[
+          "Entity type", detail.entity.entityType,
+        ], ["Accountable owner", detail.entity.accountableOwnerId], ["Native identity", nativeIdentityLabel], ["Authority", authorityResult.data?.revocation_state ?? "UNKNOWN"], ["Continuity", latestNativeVerification?.continuity_result ?? "NOT YET EVALUATED"]] as Array<[string, unknown]>).map(([label, item]) => <article key={label} className={panel}><p className="text-xs uppercase tracking-wide text-slate-500">{label}</p><p className="mt-3 break-all text-sm font-semibold">{value(item)}</p></article>)}
+      </section>
+
+      <section id="parent-authority" className={panel}>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-700">Canonical parent authority</p>
+        <h2 className="mt-2 text-xl font-semibold">Alpha authority lineage</h2>
+        {parentAuthority ? <dl className="mt-5 grid gap-4 text-sm md:grid-cols-2 lg:grid-cols-4">
+          <div><dt>Authority ID</dt><dd className="break-all">{value(currentAuthorityId)}</dd></div>
+          <div><dt>Issuer</dt><dd>{value(parentAuthority.issuer)}</dd></div>
+          <div><dt>Accountable approver</dt><dd>{value(parentAuthority.approver)}</dd></div>
+          <div><dt>State</dt><dd>{value(authorityResult.data?.revocation_state)}</dd></div>
+          <div><dt>Actions</dt><dd>{value((parentAuthority.authorityScope as Record<string, unknown> | undefined)?.permittedActions ?? parentAuthority.permittedScope)}</dd></div>
+          <div><dt>Targets</dt><dd>{value((parentAuthority.authorityScope as Record<string, unknown> | undefined)?.permittedTargets)}</dd></div>
+          <div><dt>Tools</dt><dd>{value((parentAuthority.authorityScope as Record<string, unknown> | undefined)?.permittedTools)}</dd></div>
+          <div><dt>Environments</dt><dd>{value((parentAuthority.authorityScope as Record<string, unknown> | undefined)?.environments)}</dd></div>
+          <div><dt>Delegation</dt><dd>{parentAuthority.canDelegate === true ? `Permitted · depth ${value(parentAuthority.maximumDelegationDepth)}` : "Not permitted"}</dd></div>
+          <div><dt>Expiry</dt><dd>{value(parentAuthority.expiresAt)}</dd></div>
+          <div><dt>Policy / version</dt><dd>{value(parentAuthority.policyId)} · {value(parentAuthority.policyVersion)}</dd></div>
+          <div><dt>Authority version</dt><dd>{value(parentAuthority.authorityVersion)}</dd></div>
+        </dl> : <p className="mt-4 text-sm text-slate-600">UNKNOWN — no persisted parent authority is linked to this entity.</p>}
+      </section>
+
+      {nativeDemoEnabled && detail.entity.displayReference.trim().toLowerCase() === "agent alpha" && betaDetail && currentAuthorityId ? <AlphaBetaProductProof
+        enterpriseId={detail.entity.enterpriseId}
+        alpha={{ entityId: detail.entity.entityId, displayName: "Agent Alpha", accountableOwnerId: detail.entity.accountableOwnerId, organizationId: detail.entity.organizationReference, authorityReference: currentAuthorityId, activeCredentialId: activeNativeCredential ? String(activeNativeCredential.credential_id) : null, runtimeEnvironment: "preview-alpha-runtime" }}
+        beta={{ entityId: betaDetail.entity.entityId, displayName: "Agent Beta", accountableOwnerId: betaDetail.entity.accountableOwnerId, organizationId: betaDetail.entity.organizationReference, authorityReference: null, activeCredentialId: betaDetail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE") ? String(betaDetail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE")?.credential_id) : null, runtimeEnvironment: "preview-beta-runtime" }}
+      /> : null}
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {intelligenceItems.map(([label, item]) => <article key={label} className={panel}><p className="text-xs uppercase tracking-wide text-slate-500">{label}</p><p className="mt-3 break-words text-lg font-semibold">{value(item)}</p></article>)}
@@ -78,7 +141,7 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
         <p className="mt-2 text-sm text-slate-600">Authority issued by this entity. Delegation transfers only an attenuated subset; it does not transfer identity or accountability.</p>
         <div className="mt-4 space-y-3">
           {delegatedAuthority.map((delegation) => <article key={String(delegation.delegation_id)} className="rounded-xl border border-slate-200 p-4 text-sm">
-            <p className="font-semibold">Delegate: {value(delegation.delegate_operational_entity_id)} · {value(delegation.status)}</p>
+            <p className="font-semibold">Delegate: {value(delegation.delegate_operational_entity_id)} · {delegationState(delegation)}</p>
             <dl className="mt-3 grid gap-3 md:grid-cols-3"><div><dt>Scope</dt><dd>{value(delegation.permitted_actions)}</dd></div><div><dt>Target</dt><dd>{value(delegation.permitted_targets)}</dd></div><div><dt>Expiry</dt><dd>{value(delegation.expires_at)}</dd></div><div><dt>Redelegation</dt><dd>{value(delegation.can_redelegate)}</dd></div><div><dt>Policy</dt><dd>{value(delegation.policy_version)}</dd></div><div><dt>Evidence</dt><dd className="break-all">{value(delegation.evidence_references)}</dd></div></dl>
           </article>)}
           {!delegatedAuthority.length ? <p className="text-sm text-slate-500">No authority delegated by this entity.</p> : null}
@@ -91,8 +154,8 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
         <p className="mt-2 text-sm text-slate-600">The answer is reconstructed from the current parent authority, signed delegation, native identity evidence, acceptance, policy, and exact requested action.</p>
         <div className="mt-4 space-y-3">
           {receivedAuthority.map((delegation) => <article key={String(delegation.delegation_id)} className="rounded-xl border border-slate-200 p-4 text-sm">
-            <p className="font-semibold">From {value(delegation.delegator_operational_entity_id)} · {value(delegation.status)}</p>
-            <dl className="mt-3 grid gap-3 md:grid-cols-3"><div><dt>Parent Authority</dt><dd className="break-all">{value(delegation.parent_authority_id)}</dd></div><div><dt>Scope</dt><dd>{value(delegation.permitted_actions)}</dd></div><div><dt>Targets</dt><dd>{value(delegation.permitted_targets)}</dd></div><div><dt>Expiry</dt><dd>{value(delegation.expires_at)}</dd></div><div><dt>Depth</dt><dd>{value(delegation.delegation_depth)} / {value(delegation.maximum_delegation_depth)}</dd></div><div><dt>Current State</dt><dd>{value(delegation.status)}</dd></div></dl>
+            <p className="font-semibold">From {value(delegation.delegator_operational_entity_id)} · {delegationState(delegation)}</p>
+            <dl className="mt-3 grid gap-3 md:grid-cols-3"><div><dt>Parent Authority</dt><dd className="break-all">{value(delegation.parent_authority_id)}</dd></div><div><dt>Scope</dt><dd>{value(delegation.permitted_actions)}</dd></div><div><dt>Targets</dt><dd>{value(delegation.permitted_targets)}</dd></div><div><dt>Expiry</dt><dd>{value(delegation.expires_at)}</dd></div><div><dt>Depth</dt><dd>{value(delegation.delegation_depth)} / {value(delegation.maximum_delegation_depth)}</dd></div><div><dt>Current State</dt><dd>{delegationState(delegation)}</dd></div></dl>
           </article>)}
           {!receivedAuthority.length ? <p className="text-sm text-slate-500">Identity may be verified, but no delegated authority is active.</p> : null}
         </div>
@@ -115,7 +178,7 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
       <section id="native-verification" className={panel}>
         <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
           <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700">Cyber Sentinels native evidence generation</p><h2 className="mt-2 text-xl font-semibold">Native Verification</h2></div>
-          <span className="w-fit rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold">{value(latestNativeVerification?.status ?? "NOT YET VERIFIED")}</span>
+          <span className="w-fit rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold">{value(nativeIdentityLabel)}</span>
         </div>
         <dl className="mt-5 grid gap-4 text-sm md:grid-cols-2 lg:grid-cols-4">
           {([
@@ -162,7 +225,7 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
 
       <section className="grid gap-6 lg:grid-cols-2">
         <article className={panel}><h2 className="text-xl font-semibold">Decision</h2><dl className="mt-4 space-y-3 text-sm"><div><dt>Outcome</dt><dd className="font-semibold">{value(latestTransaction?.decision)}</dd></div><div><dt>Policy version</dt><dd>{value(latestTransaction?.policy_version)}</dd></div><div><dt>Evidence Independence</dt><dd>{value(latestTransaction?.evidence_independence)}</dd></div><div><dt>Conclusion confidence</dt><dd>{intelligence.confidence.level}</dd></div><div><dt>Reason codes</dt><dd>{value(latestTransaction?.reason_codes)}</dd></div><div><dt>Decision digest</dt><dd className="break-all font-mono text-xs">{value((latestTransaction?.decision_time_snapshot as Record<string, unknown> | undefined)?.decisionDigest)}</dd></div></dl></article>
-        <article className={panel}><h2 className="text-xl font-semibold">Enforcement and Outcome</h2><dl className="mt-4 space-y-3 text-sm"><div><dt>Latest stage</dt><dd>{value(latestEnforcement?.enforcement_stage)}</dd></div><div><dt>Attribution</dt><dd>{value(latestEnforcement?.attribution)}</dd></div><div><dt>Claim state</dt><dd>{value(latestEnforcement?.claim_state)}</dd></div><div><dt>Source classification</dt><dd>{value(latestEnforcement?.source_classification)}</dd></div></dl></article>
+        <article className={panel}><h2 className="text-xl font-semibold">Enforcement and Outcome</h2><dl className="mt-4 space-y-3 text-sm"><div><dt>Decision</dt><dd className="font-semibold">{value(latestTransaction?.decision)}</dd></div><div><dt>Enforcement request</dt><dd>{value(latestNativeRequest?.request_state ?? latestEnforcement?.enforcement_stage)}</dd></div><div><dt>Acknowledgement</dt><dd>{value(latestNativeAcknowledgement?.status)}</dd></div><div><dt>Execution claim</dt><dd>{value(latestExecutionClaim?.result ?? latestEnforcement?.claim_state)}</dd></div><div><dt>Runtime observation</dt><dd>{value(latestRuntimeObservation?.result)}</dd></div><div><dt>Destination observation</dt><dd>{value(latestDestinationObservation?.result)}</dd></div><div><dt>Outcome</dt><dd className="font-semibold">{value(latestNativeOutcome?.outcome)}</dd></div><div><dt>Control status</dt><dd>{value(latestNativeOutcome?.control_status)}</dd></div><div><dt>Contradictions</dt><dd>{value(latestNativeOutcome?.contradiction_codes)}</dd></div></dl><p className="mt-4 text-xs text-slate-500">ALLOW is never treated as execution. Destination and runtime evidence are independently persisted and deterministically correlated.</p></article>
       </section>
 
       <section className={panel}>
@@ -174,6 +237,28 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
       <section className="grid gap-6 lg:grid-cols-2">
         <article className={panel}><h2 className="text-xl font-semibold">Replay</h2><p className="mt-3 text-sm text-slate-600">{detail.replay.length} tenant-scoped session(s).</p>{detail.replay.map((event) => <p key={String(event.id)} className="mt-3 break-all font-mono text-xs">{value(event.id)} · {value(event.canonical_transaction_id)}</p>)}</article>
         <article className={panel}><h2 className="text-xl font-semibold">Trust Memory</h2><p className="mt-3 text-sm text-slate-600">{detail.trustMemory.length} material record(s).</p>{detail.trustMemory.map((memory) => <p key={String(memory.memory_id)} className="mt-3 break-all font-mono text-xs">{value(memory.memory_type)} · {value(memory.source_id)}</p>)}</article>
+      </section>
+
+      <section id="native-replay" className={panel}>
+        <h2 className="text-xl font-semibold">Native identity and authority Replay</h2>
+        <p className="mt-3 text-sm text-slate-600">Persisted events reconstruct verification, delegation, decisions, and revocation.</p>
+        {detail.nativeVerification.replay.map((event) => <p key={String(event.event_id)} className="mt-3 break-all font-mono text-xs">{value(event.occurred_at)} · {value(event.event_type)} · {value(event.reason_codes)}</p>)}
+        {!detail.nativeVerification.replay.length ? <p className="mt-3 text-sm text-slate-500">No native Replay events persisted yet.</p> : null}
+      </section>
+
+      <section id="evidence-graph" className={panel}>
+        <h2 className="text-xl font-semibold">Evidence Graph</h2>
+        <p className="mt-3 text-sm text-slate-600">Persisted nodes and typed edges from the existing tenant Evidence Graph.</p>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div><h3 className="font-semibold">Nodes</h3>{detail.evidenceGraph.nodes.map((node) => <p key={String(node.node_id)} className="mt-2 break-all font-mono text-xs">{value(node.node_type)} · {value(node.external_id)} · {value(node.label)}</p>)}</div>
+          <div><h3 className="font-semibold">Edges</h3>{detail.evidenceGraph.edges.map((edge) => <p key={String(edge.edge_id)} className="mt-2 break-all font-mono text-xs">{graphLabels.get(String(edge.from_node_id)) ?? value(edge.from_node_id)} → {value(edge.edge_type)} → {graphLabels.get(String(edge.to_node_id)) ?? value(edge.to_node_id)}</p>)}</div>
+        </div>
+      </section>
+
+      <section id="transactions" className={panel}>
+        <h2 className="text-xl font-semibold">Canonical transactions and receipts</h2>
+        <div className="mt-4 space-y-3">{detail.transactions.map((transaction) => <article key={String(transaction.transaction_id)} className="rounded-xl border border-slate-200 p-4 text-sm"><p className="font-semibold">{value(transaction.decision)} · {value(transaction.action_type)} · {value(transaction.action_resource)}</p><p className="mt-2 break-all text-xs text-slate-600">Reasons: {value(transaction.reason_codes)} · Policy: {value(transaction.policy_id)}:{value(transaction.policy_version)}</p><div className="mt-3 flex gap-3"><Link className="font-semibold underline" href={`/trust/transactions/${String(transaction.transaction_id)}`}>Transaction, WHY and Replay</Link><a className="font-semibold underline" href={`/api/trust/transactions/${String(transaction.transaction_id)}/receipt`}>Receipt JSON</a></div></article>)}</div>
+        {!detail.transactions.length ? <p className="mt-3 text-sm text-slate-500">No canonical transactions persisted yet.</p> : null}
       </section>
 
       <Link href="/operational-entities" className="inline-flex font-semibold underline">Back to Operational Entities</Link>

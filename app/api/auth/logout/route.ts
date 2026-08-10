@@ -11,7 +11,8 @@ import {
 import { recordAuthReplayEvent } from "@/lib/auth/auth-replay-events";
 
 async function logout(req: Request) {
-  const supabase = await createClient();
+  const authHeaders = new Headers();
+  const supabase = await createClient(authHeaders);
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -41,6 +42,13 @@ async function logout(req: Request) {
   const response = NextResponse.redirect(new URL("/login", req.url), {
     status: 303,
   });
+  response.headers.set(
+    "Cache-Control",
+    authHeaders.get("Cache-Control") ??
+      "private, no-cache, no-store, must-revalidate, max-age=0"
+  );
+  response.headers.set("Expires", authHeaders.get("Expires") ?? "0");
+  response.headers.set("Pragma", authHeaders.get("Pragma") ?? "no-cache");
   const cookieStore = await cookies();
 
   cookieStore

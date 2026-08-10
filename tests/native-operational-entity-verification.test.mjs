@@ -37,6 +37,23 @@ function keyMaterial(signingKeyId = "key:alpha:v1") {
   return { publicJwk, privateKey, signingKeyId };
 }
 
+test("challenge signing normalizes equivalent database timestamp representations", () => {
+  const challenge = issueNativeChallenge({
+    enterpriseId,
+    operationalEntityId: entityId,
+    audience: "https://preview.example/native-verification",
+    manifestDigest: "a".repeat(64),
+    signingKeyId: "key:alpha:v1",
+    now,
+  });
+  const databaseChallenge = {
+    ...challenge,
+    issuedAt: challenge.issuedAt.replace("Z", "+00:00"),
+    expiresAt: challenge.expiresAt.replace("Z", "+00:00"),
+  };
+  assert.deepEqual(challengeSigningPayload(databaseChallenge), challengeSigningPayload(challenge));
+});
+
 function manifestClaims(key, overrides = {}) {
   const base = {
     manifestVersion: "1.0",

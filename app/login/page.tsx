@@ -14,6 +14,7 @@ const SESSION_START_KEY = "cyber_sentinels_session_started_at";
 const REMEMBER_SESSION_KEY = "cyber_sentinels_remember_session";
 const authTimeoutMs = 8000;
 const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
+const turnstileRequired = process.env.NODE_ENV === "production";
 const authAttemptWindowMs = 60_000;
 const authAttemptLimit = 8;
 
@@ -56,7 +57,7 @@ function safeAuthMessage(error: unknown, fallback: string) {
 
 function getSafeRedirect(path: string | null) {
   if (!path || !path.startsWith("/") || path.startsWith("//")) {
-    return "/passport";
+    return "/operational-entities";
   }
 
   return path;
@@ -141,7 +142,7 @@ export default function LoginPage() {
   >("checking");
   const [signupSucceeded, setSignupSucceeded] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
-  const [nextPath, setNextPath] = useState("/passport");
+  const [nextPath, setNextPath] = useState("/operational-entities");
   const [loadingAction, setLoadingAction] = useState<
     "password" | "create-account" | "magic-link" | "reset" | null
   >(null);
@@ -214,11 +215,11 @@ export default function LoginPage() {
 
     let active = true;
 
-    withAuthTimeout(supabase.auth.getSession())
+    withAuthTimeout(supabase.auth.getUser())
       .then(async ({ data }) => {
         if (!active) return;
 
-        if (data.session?.user) {
+        if (data.user) {
           setSessionRestoreState("restored");
           window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
           await recordAuthEvent(
@@ -245,6 +246,10 @@ export default function LoginPage() {
 
 
   function allowAuthAttempt(action: string) {
+    if (turnstileRequired && !turnstileSiteKey) {
+      setMessage("Security check is temporarily unavailable.");
+      return false;
+    }
     if (turnstileSiteKey && !turnstileToken) {
       setMessage("Security check failed. Please try again.");
       return false;
@@ -272,7 +277,7 @@ export default function LoginPage() {
   }
 
   async function verifyTurnstileForAuth() {
-    if (!turnstileSiteKey) return true;
+    if (!turnstileSiteKey) return !turnstileRequired;
 
     try {
       const response = await fetch("/api/auth/turnstile", {
@@ -407,13 +412,13 @@ export default function LoginPage() {
     }
 
     try {
-      const { error } = await withAuthTimeout(
+      const { data, error } = await withAuthTimeout(
         supabase.auth.signUp({
           email: trimmedEmail,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-              nextPath || "/passport"
+              nextPath || "/operational-entities"
             )}`,
           },
         })
@@ -421,6 +426,15 @@ export default function LoginPage() {
 
       if (error) {
         setMessage(safeAuthMessage(error, "Could not create the account. Please review the details and try again."));
+        return;
+      }
+
+      if (data.session?.user) {
+        window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
+        await recordAuthEvent("signup_session_created", nextPath, true, {
+          authenticated_to: nextPath,
+        });
+        router.replace(nextPath);
         return;
       }
 
@@ -466,7 +480,7 @@ export default function LoginPage() {
           email: trimmedEmail,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-              nextPath || "/passport"
+              nextPath || "/operational-entities"
             )}`,
           },
         })
@@ -517,7 +531,7 @@ export default function LoginPage() {
           email: trimmedEmail,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-              nextPath || "/passport"
+              nextPath || "/operational-entities"
             )}`,
           },
         })
@@ -742,6 +756,10 @@ export default function LoginPage() {
                 <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
                 <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-callback="onCyberSentinelsLoginTurnstile" />
               </div>
+            ) : turnstileRequired ? (
+              <p className="rounded-xl border border-amber-900 bg-amber-950/20 p-3 text-sm text-amber-200" role="alert">
+                Security check is temporarily unavailable. Try again later or contact support with the time of this attempt.
+              </p>
             ) : null}
 
             {authMode === "create-account" ? (
