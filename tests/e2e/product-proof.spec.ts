@@ -6,6 +6,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 const vercelProtectionBypass = process.env.VERCEL_PROTECTION_BYPASS ?? "";
 const vercelProtectionCookie = process.env.VERCEL_PROTECTION_COOKIE ?? "";
+const signupMailbox = process.env.E2E_SIGNUP_MAILBOX?.trim() ?? "";
 const configured = Boolean(baseURL && supabaseUrl && serviceRoleKey);
 const productionSupabaseReference = "kecgtsfibkypjuaxqbjx";
 
@@ -83,7 +84,10 @@ test.beforeAll(async () => {
   admin = createClient(supabaseUrl, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
-  email = `product-proof-${crypto.randomUUID()}@example.test`;
+  const suffix = `product-proof-${crypto.randomUUID()}`;
+  email = signupMailbox
+    ? signupMailbox.replace("@", `+${suffix}@`)
+    : `${suffix}@example.test`;
 });
 
 test.afterAll(async () => {
