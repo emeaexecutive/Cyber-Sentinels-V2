@@ -15,9 +15,10 @@ export async function POST(req: Request) {
     ? requestedCorrelationId
     : crypto.randomUUID();
   const requestHostname = new URL(req.url).hostname;
+  const configuredPreviewHostname = process.env.TURNSTILE_EXPECTED_HOSTNAME?.trim().toLowerCase() ?? "";
   const expectedHostname = process.env.VERCEL_ENV === "preview" &&
-    process.env.TURNSTILE_EXPECTED_HOSTNAME?.trim().toLowerCase() === "localhost"
-    ? "localhost"
+    ["localhost", "example.com"].includes(configuredPreviewHostname)
+    ? configuredPreviewHostname
     : requestHostname;
   const rateLimited = checkRequestRateLimit(
     req,

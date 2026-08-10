@@ -8,7 +8,7 @@ test("Turnstile verification is bound to the actual request hostname", async () 
   const route = await read("app/api/auth/turnstile/route.ts");
   assert.match(route, /requestHostname = new URL\(req\.url\)\.hostname/);
   assert.match(route, /process\.env\.VERCEL_ENV === "preview"/);
-  assert.match(route, /TURNSTILE_EXPECTED_HOSTNAME[\s\S]*=== "localhost"/);
+  assert.match(route, /\["localhost", "example\.com"\]\.includes\(configuredPreviewHostname\)/);
   assert.match(route, /verifyTurnstileToken\([\s\S]*expectedHostname/);
   assert.match(route, /x-correlation-id/);
   assert.doesNotMatch(route, /turnstileToken[^\n]*console/);
