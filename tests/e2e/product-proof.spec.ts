@@ -5,6 +5,7 @@ const baseURL = process.env.E2E_BASE_URL ?? "";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 const vercelProtectionBypass = process.env.VERCEL_PROTECTION_BYPASS ?? "";
+const vercelProtectionCookie = process.env.VERCEL_PROTECTION_COOKIE ?? "";
 const configured = Boolean(baseURL && supabaseUrl && serviceRoleKey);
 const productionSupabaseReference = "kecgtsfibkypjuaxqbjx";
 
@@ -56,6 +57,19 @@ async function settleConsent(page: Page) {
 }
 
 async function establishProtectedPreviewSession(page: Page) {
+  if (vercelProtectionCookie) {
+    const target = new URL(baseURL);
+    await page.context().addCookies([{
+      name: "_vercel_jwt",
+      value: vercelProtectionCookie,
+      domain: target.hostname,
+      path: "/",
+      httpOnly: true,
+      secure: true,
+      sameSite: "Lax",
+    }]);
+    return;
+  }
   if (!vercelProtectionBypass) return;
   const target = new URL("/login", baseURL);
   target.searchParams.set("x-vercel-set-bypass-cookie", "true");
