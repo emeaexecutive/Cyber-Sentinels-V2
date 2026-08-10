@@ -39,6 +39,7 @@ The previous normal login default was `/passport`. The canonical default is now 
 - Production remains fail-closed when the Turnstile secret is missing or invalid.
 - Development can continue without provider credentials; this bypass is limited to `NODE_ENV !== "production"`.
 - Preview uses a Production-mode build and therefore requires a Preview Turnstile key/secret pair. Automated Preview browser qualification should use Cloudflare's documented test key pair or a Preview-domain key, never a global bypass.
+- The product-proof branch Preview uses Cloudflare's official always-pass test pair as a branch-specific Vercel override. The override keeps client token generation and server Siteverify validation active, applies to no other branch, and cannot reach Production.
 - The client never receives the Turnstile secret.
 - Diagnostics record only correlation ID, bounded reason code, result and hostname. Tokens, passwords, Supabase access/refresh tokens and private keys are not logged.
 

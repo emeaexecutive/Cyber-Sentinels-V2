@@ -4,6 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 const baseURL = process.env.E2E_BASE_URL ?? "";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+const vercelProtectionBypass = process.env.VERCEL_PROTECTION_BYPASS ?? "";
 const configured = Boolean(baseURL && supabaseUrl && serviceRoleKey);
 const productionSupabaseReference = "kecgtsfibkypjuaxqbjx";
 
@@ -27,17 +28,41 @@ test.skip(!configured, "A non-Production E2E URL and Supabase project are requir
 let admin: SupabaseClient;
 let userId = "";
 let email = "";
-let verificationUrl = "";
 const password = "ProductProof!2026-OnlyForTest";
+
+async function waitForTurnstile(page: Page) {
+  const widget = page.locator(".cf-turnstile");
+  if (!(await widget.isVisible().catch(() => false))) return;
+  await expect.poll(
+    async () => page.locator('input[name="cf-turnstile-response"]').inputValue().catch(() => ""),
+    { timeout: 30_000, message: "Preview Turnstile did not issue a browser token." },
+  ).not.toBe("");
+}
 
 async function signIn(page: Page) {
   await page.goto("/login");
   await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.getByPlaceholder("Password", { exact: true }).fill(password);
+  await waitForTurnstile(page);
   const button = page.getByRole("button", { name: "Sign in", exact: true });
   await expect(button).toBeEnabled();
   await button.click();
   await page.waitForURL("**/operational-entities");
+}
+
+async function settleConsent(page: Page) {
+  const rejectOptional = page.getByRole("button", { name: "Reject Optional", exact: true });
+  if (await rejectOptional.isVisible().catch(() => false)) await rejectOptional.click();
+}
+
+async function establishProtectedPreviewSession(page: Page) {
+  if (!vercelProtectionBypass) return;
+  const target = new URL("/login", baseURL);
+  target.searchParams.set("x-vercel-set-bypass-cookie", "true");
+  const response = await page.request.get(target.toString(), {
+    headers: { "x-vercel-protection-bypass": vercelProtectionBypass },
+  });
+  expect(response.ok()).toBeTruthy();
 }
 
 test.beforeAll(async () => {
@@ -45,17 +70,6 @@ test.beforeAll(async () => {
     auth: { autoRefreshToken: false, persistSession: false },
   });
   email = `product-proof-${crypto.randomUUID()}@example.test`;
-  const created = await admin.auth.admin.generateLink({
-    type: "signup",
-    email,
-    password,
-    options: {
-      redirectTo: `${baseURL.replace(/\/$/u, "")}/auth/callback?next=/operational-entities`,
-    },
-  });
-  if (created.error || !created.data.user) throw created.error ?? new Error("E2E user creation failed.");
-  userId = created.data.user.id;
-  verificationUrl = created.data.properties.action_link;
 });
 
 test.afterAll(async () => {
@@ -63,10 +77,27 @@ test.afterAll(async () => {
 });
 
 test("new and returning users complete a provider-free trust transaction from login to receipt", async ({ page, context }, testInfo) => {
+  await establishProtectedPreviewSession(page);
   await page.goto("/login");
+  await settleConsent(page);
   await expect(page.getByText("No active session found.", { exact: true })).toBeVisible();
-  await page.goto(verificationUrl);
-  await page.waitForURL("**/operational-entities");
+  await page.getByRole("button", { name: "Create account", exact: true }).first().click();
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByPlaceholder("Password", { exact: true }).fill(password);
+  await page.getByPlaceholder("Confirm password", { exact: true }).fill(password);
+  await waitForTurnstile(page);
+  await page.getByRole("button", { name: "Create account", exact: true }).last().click();
+  await expect(page.getByText("Check your email to verify your account before continuing.", { exact: true })).toBeVisible({ timeout: 30_000 });
+
+  const users = await admin.auth.admin.listUsers({ page: 1, perPage: 1_000 });
+  if (users.error) throw users.error;
+  const createdUser = users.data.users.find((user) => user.email === email);
+  if (!createdUser) throw new Error("Preview signup user was not persisted.");
+  userId = createdUser.id;
+  const confirmed = await admin.auth.admin.updateUserById(userId, { email_confirm: true });
+  if (confirmed.error) throw confirmed.error;
+  await page.goto("/api/auth/logout");
+  await signIn(page);
   await expect(page.getByRole("heading", { name: "Every consequential entity and action is grounded in one canonical runtime." })).toBeVisible();
 
   const initializer = page.getByRole("button", { name: "Create controlled Agent Alpha" });

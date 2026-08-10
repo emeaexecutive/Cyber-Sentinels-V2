@@ -47,7 +47,7 @@ test("browser proof covers fresh login, continuity, ALLOW, DENY, Replay, receipt
   const [spec, config] = await Promise.all([
     read("tests/e2e/product-proof.spec.ts"), read("playwright.config.ts"),
   ]);
-  for (const proof of ["PRODUCT_PROOF_E2E_REFUSES_PRODUCTION", "generateLink", "signIn", "Create controlled Agent Alpha", "VERIFY AGENT ALPHA", '\"decision\": \"ALLOW\"', "native-allow.png", "CHANGE RUNTIME + TEST DENY", '\"decision\": \"DENY\"', "native-deny.png", "Replay written", "Download receipt JSON", "canonical-receipt.png", "/api/auth/logout", "Trust Memory materiality", "returning-user-proof.png"]) {
+  for (const proof of ["PRODUCT_PROOF_E2E_REFUSES_PRODUCTION", "x-vercel-set-bypass-cookie", "Check your email to verify your account before continuing.", "updateUserById", "signIn", "Create controlled Agent Alpha", "VERIFY AGENT ALPHA", '\"decision\": \"ALLOW\"', "native-allow.png", "CHANGE RUNTIME + TEST DENY", '\"decision\": \"DENY\"', "native-deny.png", "Replay written", "Download receipt JSON", "canonical-receipt.png", "/api/auth/logout", "Trust Memory materiality", "returning-user-proof.png"]) {
     assert.ok(spec.includes(proof), `missing E2E proof: ${proof}`);
   }
   assert.match(config, /desktop-chromium/);
