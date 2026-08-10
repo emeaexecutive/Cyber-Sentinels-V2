@@ -293,16 +293,16 @@
     "qualificationLevel": "STAGING_PROVEN"
   },
   {
-    "name": "Outcome verification",
-    "publicClaim": "External request, acknowledgement and outcome are persisted separately; a provider assertion is not independently confirmed truth.",
-    "implementationModule": "src/lib/trust-transaction/canonical.ts",
-    "algorithm": "requestExternalExecutionIfAllowed, recordExternalAcknowledgement and recordExternalOutcome",
-    "tests": ["tests/canonical-trust-transaction.test.mjs", "tests/canonical-trust-transaction-integration.test.mjs"],
-    "api": ["app/api/trust/execute/route.ts"],
-    "ui": ["app/trust/transactions/[transactionId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["external_action_requests", "external_action_acknowledgements", "external_action_outcomes"],
-    "providerDependency": "TRUST_ACTION_RELAY_URL and destination observation for live proof",
-    "qualificationLevel": "PARTIALLY_IMPLEMENTED"
+    "name": "Native enforcement and outcome proof",
+    "publicClaim": "For controlled internal Repository A, Cyber Sentinels separates immutable ALLOW/REVIEW/DENY from enforcement, acknowledgement, execution claim, runtime observation, MAC-protected destination observation and deterministic outcome correlation. It does not claim arbitrary third-party enforcement.",
+    "implementationModule": "lib/operational-entities/native-enforcement.ts",
+    "algorithm": "enforcement-eligibility-v1, execution-correlation-v1 and outcome-confirmation-v1",
+    "tests": ["tests/native-enforcement-outcome-proof.test.mjs", "tests/native-enforcement-outcome-proof-integration.test.mjs", "tests/canonical-trust-transaction-integration.test.mjs"],
+    "api": ["app/api/operational-entities/[entityId]/enforcement/route.ts"],
+    "ui": ["app/trust/transactions/[transactionId]/page.tsx", "app/operational-entities/[entityId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
+    "persistence": ["native_enforcement_decision_bindings", "native_enforcement_requests", "native_enforcement_acknowledgements", "native_execution_claims", "native_runtime_execution_observations", "controlled_destination_records", "native_destination_observations", "native_execution_contradictions", "native_enforcement_outcomes", "incident_regulatory_assessments", "trust_memory_index"],
+    "providerDependency": null,
+    "qualificationLevel": "WORKING"
   },
   {
     "name": "Replay",

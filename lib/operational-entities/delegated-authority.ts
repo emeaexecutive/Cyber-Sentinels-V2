@@ -90,6 +90,7 @@ export type NativeIdentityState = {
   runtimeBinding: string;
   manifestDigest: string;
   credentialFingerprint: string;
+  continuityFingerprint?: string;
   evidenceReference: string;
   expiresAt: string;
 };

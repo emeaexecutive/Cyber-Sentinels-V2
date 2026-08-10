@@ -101,6 +101,7 @@ async function currentIdentity(enterpriseId: string, operationalEntityId: string
     identity: {
       operationalEntityId, enterpriseId, status: String(verification.data.status) as NativeIdentityState["status"], ownerState: String(owner.data?.state ?? "UNKNOWN"), accountableOwnerId: String(owner.data?.accountable_owner_id ?? "UNKNOWN"),
       runtimeBinding: String(verification.data.runtime_binding), manifestDigest: String(verification.data.manifest_digest), credentialFingerprint: String(verification.data.credential_fingerprint),
+      continuityFingerprint: String(verification.data.continuity_fingerprint),
       evidenceReference: `native_identity_evidence:${String(evidence.data?.evidence_id ?? verification.data.verification_id)}`, expiresAt: String(verification.data.expires_at),
     },
   };
@@ -410,10 +411,19 @@ export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityC
     idempotencyKey: String(requested.idempotencyKey ?? ""),
     managedControl: { responsibilityLineage: { controlOwner: beta.identity.accountableOwnerId, policyApprover: parent.accountableOwnerId, controlOperator: delegateId, identityAuthorizationProvider: "cyber_sentinels_native", runtimeProvider: beta.identity.runtimeBinding, destinationSystem: action.target, evidenceProvider: "cyber_sentinels_native" }, configurationRulesetDigest: delegation.delegationDigest },
   }, dependencies);
+  const binding = receipt.decision === "ALLOW" ? await db.rpc("bind_native_enforcement_decision_v1", {
+    p_enterprise_id: context.enterpriseId,
+    p_evaluation_id: evaluationId,
+    p_transaction_id: receipt.transactionId,
+    p_operational_entity_id: delegateId,
+    p_actor_id: context.user.id,
+    p_bound_at: new Date().toISOString(),
+  }) : { data: null, error: null };
+  if (binding.error) fail("Native enforcement decision binding", binding.error);
   await extendActionGraph(context, delegation, evaluationId, receipt.transactionId);
   const decisionEvent = receipt.decision === "ALLOW" ? "BETA_ACTION_ALLOWED" : receipt.decision === "REVIEW" ? "BETA_ACTION_REVIEW_REQUIRED" : "BETA_ACTION_DENIED";
   await appendReplay(context, delegateId, decisionEvent, [...gateReasons, ...receipt.reasonCodes], { evaluationId, delegationId, transactionId: receipt.transactionId, action, decision: receipt.decision }, [`transaction:${receipt.transactionId}`]);
-  return { evaluationId, decision: receipt.decision, reasonCodes: [...new Set([...gateReasons, ...receipt.reasonCodes])], authorityLineage: result.authorityLineage, canonicalTransaction: receipt, executionRequested: receipt.externalExecution.requested };
+  return { evaluationId, decision: receipt.decision, reasonCodes: [...new Set([...gateReasons, ...receipt.reasonCodes])], authorityLineage: result.authorityLineage, canonicalTransaction: receipt, enforcementDecisionBinding: binding.data, executionRequested: receipt.externalExecution.requested };
 }
 
 export async function authorityBlastRadius(context: DelegatedAuthorityContext, authorityId: string) {

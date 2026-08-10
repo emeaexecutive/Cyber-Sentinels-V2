@@ -29,6 +29,15 @@ export type OperationalEntityLiveDetail = {
     acceptances: Row[];
     evaluations: Row[];
   };
+  nativeEnforcement: {
+    requests: Row[];
+    acknowledgements: Row[];
+    executionClaims: Row[];
+    runtimeObservations: Row[];
+    destinationObservations: Row[];
+    outcomes: Row[];
+    contradictions: Row[];
+  };
 };
 
 function strings(value: unknown) {
@@ -153,6 +162,18 @@ export async function loadOperationalEntityDetail(input: {
     : [{ data: [], error: null }, { data: [], error: null }];
   if (enforcement.error) throw enforcement.error;
   if (replay.error) throw replay.error;
+  const [nativeRequests, nativeAcknowledgements, nativeClaims, nativeRuntime, nativeDestinations, nativeOutcomes, nativeContradictions] = transactionIds.length
+    ? await Promise.all([
+        input.supabase.from("native_enforcement_requests").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).in("transaction_id", transactionIds).order("requested_at", { ascending: true }),
+        input.supabase.from("native_enforcement_acknowledgements").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).in("transaction_id", transactionIds).order("acknowledged_at", { ascending: true }),
+        input.supabase.from("native_execution_claims").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).in("transaction_id", transactionIds).order("claimed_at", { ascending: true }),
+        input.supabase.from("native_runtime_execution_observations").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).in("transaction_id", transactionIds).order("observed_at", { ascending: true }),
+        input.supabase.from("native_destination_observations").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).in("transaction_id", transactionIds).order("observed_at", { ascending: true }),
+        input.supabase.from("native_enforcement_outcomes").select("*").eq("enterprise_id", enterpriseId).eq("operational_entity_id", input.entityId).in("transaction_id", transactionIds).order("correlated_at", { ascending: true }),
+        input.supabase.from("native_execution_contradictions").select("*").eq("enterprise_id", enterpriseId).in("transaction_id", transactionIds).order("detected_at", { ascending: true }),
+      ])
+    : Array.from({ length: 7 }, () => ({ data: [], error: null }));
+  for (const result of [nativeRequests, nativeAcknowledgements, nativeClaims, nativeRuntime, nativeDestinations, nativeOutcomes, nativeContradictions]) if (result.error) throw result.error;
 
   return {
     entity,
@@ -177,6 +198,15 @@ export async function loadOperationalEntityDetail(input: {
       received: (received.data ?? []) as Row[],
       acceptances: (acceptances.data ?? []) as Row[],
       evaluations: (delegatedEvaluations.data ?? []) as Row[],
+    },
+    nativeEnforcement: {
+      requests: (nativeRequests.data ?? []) as Row[],
+      acknowledgements: (nativeAcknowledgements.data ?? []) as Row[],
+      executionClaims: (nativeClaims.data ?? []) as Row[],
+      runtimeObservations: (nativeRuntime.data ?? []) as Row[],
+      destinationObservations: (nativeDestinations.data ?? []) as Row[],
+      outcomes: (nativeOutcomes.data ?? []) as Row[],
+      contradictions: (nativeContradictions.data ?? []) as Row[],
     },
   };
 }

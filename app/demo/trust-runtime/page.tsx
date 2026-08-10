@@ -57,6 +57,13 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
   const betaRead = betaEvaluations.find((evaluation) => evaluation.action_type === "read" && evaluation.action_target === "repository:a") ?? null;
   const betaWrite = betaEvaluations.find((evaluation) => evaluation.action_type === "write" && evaluation.action_target === "repository:a") ?? null;
   const parentInvalid = betaEvaluations.find((evaluation) => values(evaluation.reason_codes).includes("PARENT_AUTHORITY_REVOKED")) ?? null;
+  const latestEnforcementRequest = detail.nativeEnforcement.requests.at(-1) ?? null;
+  const latestEnforcementAcknowledgement = detail.nativeEnforcement.acknowledgements.at(-1) ?? null;
+  const latestDestinationObservation = detail.nativeEnforcement.destinationObservations.at(-1) ?? null;
+  const latestNativeOutcome = detail.nativeEnforcement.outcomes.at(-1) ?? null;
+  const betaConfirmedOutcome = betaDetail?.nativeEnforcement.outcomes.find((outcome) => outcome.outcome === "CONFIRMED") ?? null;
+  const betaCriticalOutcome = betaDetail?.nativeEnforcement.outcomes.find((outcome) => outcome.outcome === "CONTROL_FAILURE_CRITICAL") ?? null;
+  const betaUnconfirmedOutcome = betaDetail?.nativeEnforcement.outcomes.find((outcome) => outcome.outcome === "UNKNOWN") ?? null;
   const transactionId = text(latest?.transaction_id, "");
   const transactionHref = transactionId ? `/trust/transactions/${encodeURIComponent(transactionId)}` : `/operational-entities/${encodeURIComponent(detail.entity.entityId)}`;
   const evidence = Array.isArray(latest?.evidence_references) ? latest.evidence_references as Array<Record<string, unknown>> : [];
@@ -69,8 +76,9 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
     ["EVIDENCE", evidence.length ? `${evidence.length} normalized reference(s)` : "INSUFFICIENT EVIDENCE", `${transactionHref}#provider-evidence`],
     ["CONSEQUENCE", snapshot.consequence ?? detail.entity.currentConsequenceClassification, transactionHref],
     ["DECISION", latest?.decision ?? "NOT RECORDED", transactionHref],
-    ["EXECUTION", latest?.external_state ?? "NOT REQUESTED", transactionHref],
-    ["OUTCOME", enforcement.businessOutcome ?? latest?.external_state ?? "UNKNOWN", transactionHref],
+    ["EXECUTION", latestEnforcementAcknowledgement?.status ?? latestEnforcementRequest?.request_state ?? latest?.external_state ?? "NOT REQUESTED", transactionHref],
+    ["DESTINATION", latestDestinationObservation?.result ?? "NOT OBSERVED", transactionHref],
+    ["OUTCOME", latestNativeOutcome?.outcome ?? enforcement.businessOutcome ?? latest?.external_state ?? "UNKNOWN", transactionHref],
     ["TRUST DRIFT", intelligence.drift.state, `/operational-entities/${encodeURIComponent(detail.entity.entityId)}`],
     ["TRUST HEALTH", intelligence.health.overallState, `/operational-entities/${encodeURIComponent(detail.entity.entityId)}`],
     ["TRUST CONFIDENCE", intelligence.confidence.level, transactionHref],
@@ -164,6 +172,23 @@ export default async function TrustRuntimeDemoPage({ searchParams }: { searchPar
             <article className="rounded-xl border border-amber-900/60 bg-amber-950/20 p-4"><p className="text-xs text-amber-300">PARENT AUTHORITY REVOKED</p><p className="mt-2 text-2xl font-semibold">{text(parentInvalid?.decision, "NOT RUN")}</p><p className="mt-2 text-sm text-slate-400">Beta identity remains {text(betaNative?.status, "UNKNOWN")}; delegated authority becomes invalid.</p></article>
           </div>
           <div className="mt-5 rounded-xl border border-slate-700 p-5"><p className="font-semibold text-cyan-200">WHY?</p><p className="mt-2 text-slate-300">Enterprise authority → Alice → Agent Alpha → signed attenuated delegation → Agent Beta → exact action. Parent revocation breaks the authority chain, not Beta’s cryptographic identity.</p><p className="mt-3 text-lg font-semibold">Beta is still Beta. Its cryptographic identity has not failed. What changed is that its delegated authority is no longer valid.</p></div>
+        </section>
+
+        <section id="native-enforcement-outcome" className="mt-8 rounded-2xl border border-violet-900 bg-slate-950 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-300">CPTO demonstration · Decision is not execution</p>
+          <h2 className="mt-3 text-3xl font-semibold">Can Cyber Sentinels prove the authorized action actually occurred?</h2>
+          <p className="mt-3 max-w-4xl text-slate-400">For controlled internal Repository A, the product preserves the immutable decision, enforcement request, acknowledgement, execution claim, runtime observation, MAC-protected destination observation, deterministic correlation and outcome as separate records.</p>
+          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+            <article className="rounded-xl border border-emerald-900/60 bg-emerald-950/20 p-5"><p className="text-xs font-semibold text-emerald-300">DEMO A · BETA READ</p><p className="mt-3 text-xl font-semibold">ALLOW → ACCEPTED → OBSERVED → {text(betaConfirmedOutcome?.outcome, "NOT YET EXECUTED")}</p><p className="mt-3 text-sm text-slate-400">Confirmation requires an exact destination observation. Adapter acknowledgement alone is insufficient.</p></article>
+            <article className="rounded-xl border border-amber-900/60 bg-amber-950/20 p-5"><p className="text-xs font-semibold text-amber-300">DEMO B · BETA WRITE</p><p className="mt-3 text-xl font-semibold">DENY → NO ENFORCEMENT</p><p className="mt-3 text-sm text-slate-400">READ-only delegated authority cannot authorize WRITE_TEST_RECORD. No request, acknowledgement, destination action or success outcome is created.</p></article>
+            <article className="rounded-xl border border-rose-900/60 bg-rose-950/20 p-5"><p className="text-xs font-semibold text-rose-300">DEMO C · DENY BUT EXECUTED</p><p className="mt-3 text-xl font-semibold">{text(betaCriticalOutcome?.outcome, "CONTROL FAILURE NOT INJECTED")}</p><p className="mt-3 text-sm text-slate-400">A controlled non-Production bypass writes real destination evidence, preserves DENY, opens an incident, records Trust Memory and degrades trust intelligence.</p></article>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-5">
+            {([[
+              "DECISION", latest?.decision ?? "UNKNOWN",
+            ], ["ENFORCEMENT", latestEnforcementAcknowledgement?.status ?? latestEnforcementRequest?.request_state ?? "NOT REQUESTED"], ["EXECUTION", detail.nativeEnforcement.executionClaims.at(-1)?.result ?? "UNKNOWN"], ["DESTINATION", latestDestinationObservation?.result ?? "NOT OBSERVED"], ["OUTCOME", latestNativeOutcome?.outcome ?? betaUnconfirmedOutcome?.outcome ?? "UNKNOWN"]] as Array<[string, unknown]>).map(([label, item]) => <div key={label} className="rounded-xl border border-slate-800 bg-black/40 p-4"><p className="text-xs text-slate-500">{label}</p><p className="mt-2 font-semibold">{text(item)}</p></div>)}
+          </div>
+          <p className="mt-5 text-sm text-slate-500">This does not claim arbitrary third-party enforcement. Native proof covers the controlled destination and separately authenticated destination evidence ingested through the tenant-scoped API.</p>
         </section>
       </div>
     </main>

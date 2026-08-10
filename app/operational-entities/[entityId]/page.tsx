@@ -28,6 +28,12 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
   const responsibility = (latestTransaction?.responsibility_lineage ?? {}) as Record<string, unknown>;
   const latestTransition = detail.providerTransitions.at(-1);
   const latestEnforcement = detail.enforcementEvents.at(-1);
+  const latestNativeRequest = detail.nativeEnforcement.requests.at(-1);
+  const latestNativeAcknowledgement = detail.nativeEnforcement.acknowledgements.at(-1);
+  const latestExecutionClaim = detail.nativeEnforcement.executionClaims.at(-1);
+  const latestRuntimeObservation = detail.nativeEnforcement.runtimeObservations.at(-1);
+  const latestDestinationObservation = detail.nativeEnforcement.destinationObservations.at(-1);
+  const latestNativeOutcome = detail.nativeEnforcement.outcomes.at(-1);
   const latestNativeVerification = detail.nativeVerification.verifications[0];
   const activeNativeCredential = detail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE");
   const activeManifest = detail.nativeVerification.manifests.find((manifest) => manifest.status === "ACTIVE");
@@ -162,7 +168,7 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
 
       <section className="grid gap-6 lg:grid-cols-2">
         <article className={panel}><h2 className="text-xl font-semibold">Decision</h2><dl className="mt-4 space-y-3 text-sm"><div><dt>Outcome</dt><dd className="font-semibold">{value(latestTransaction?.decision)}</dd></div><div><dt>Policy version</dt><dd>{value(latestTransaction?.policy_version)}</dd></div><div><dt>Evidence Independence</dt><dd>{value(latestTransaction?.evidence_independence)}</dd></div><div><dt>Conclusion confidence</dt><dd>{intelligence.confidence.level}</dd></div><div><dt>Reason codes</dt><dd>{value(latestTransaction?.reason_codes)}</dd></div><div><dt>Decision digest</dt><dd className="break-all font-mono text-xs">{value((latestTransaction?.decision_time_snapshot as Record<string, unknown> | undefined)?.decisionDigest)}</dd></div></dl></article>
-        <article className={panel}><h2 className="text-xl font-semibold">Enforcement and Outcome</h2><dl className="mt-4 space-y-3 text-sm"><div><dt>Latest stage</dt><dd>{value(latestEnforcement?.enforcement_stage)}</dd></div><div><dt>Attribution</dt><dd>{value(latestEnforcement?.attribution)}</dd></div><div><dt>Claim state</dt><dd>{value(latestEnforcement?.claim_state)}</dd></div><div><dt>Source classification</dt><dd>{value(latestEnforcement?.source_classification)}</dd></div></dl></article>
+        <article className={panel}><h2 className="text-xl font-semibold">Enforcement and Outcome</h2><dl className="mt-4 space-y-3 text-sm"><div><dt>Decision</dt><dd className="font-semibold">{value(latestTransaction?.decision)}</dd></div><div><dt>Enforcement request</dt><dd>{value(latestNativeRequest?.request_state ?? latestEnforcement?.enforcement_stage)}</dd></div><div><dt>Acknowledgement</dt><dd>{value(latestNativeAcknowledgement?.status)}</dd></div><div><dt>Execution claim</dt><dd>{value(latestExecutionClaim?.result ?? latestEnforcement?.claim_state)}</dd></div><div><dt>Runtime observation</dt><dd>{value(latestRuntimeObservation?.result)}</dd></div><div><dt>Destination observation</dt><dd>{value(latestDestinationObservation?.result)}</dd></div><div><dt>Outcome</dt><dd className="font-semibold">{value(latestNativeOutcome?.outcome)}</dd></div><div><dt>Control status</dt><dd>{value(latestNativeOutcome?.control_status)}</dd></div><div><dt>Contradictions</dt><dd>{value(latestNativeOutcome?.contradiction_codes)}</dd></div></dl><p className="mt-4 text-xs text-slate-500">ALLOW is never treated as execution. Destination and runtime evidence are independently persisted and deterministically correlated.</p></article>
       </section>
 
       <section className={panel}>

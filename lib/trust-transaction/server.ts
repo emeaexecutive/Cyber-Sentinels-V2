@@ -527,14 +527,24 @@ export async function loadCanonicalTrustTransactionHistory(input: { supabase: Su
   if (!uuidPattern.test(input.transactionId)) throw new CanonicalTransactionError("Transaction reference is invalid.", 400, "INVALID_TRANSACTION_REFERENCE");
   const tenant = await resolveSessionTenant(input.supabase, input.user);
   const db = createServiceRoleClient();
-  const [transaction, events, externalRequest, acknowledgements, outcomes] = await Promise.all([
+  const [transaction, events, externalRequest, acknowledgements, outcomes, nativeRequests, nativeAcknowledgements, nativeClaims, nativeRuntime, nativeDestinations, nativeOutcomes, nativeContradictions] = await Promise.all([
     db.from("canonical_trust_transactions").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).maybeSingle(),
     db.from("canonical_trust_transaction_events").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("occurred_at", { ascending: true }),
     db.from("external_action_requests").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).maybeSingle(),
     db.from("external_action_acknowledgements").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("acknowledged_at", { ascending: true }),
     db.from("external_action_outcomes").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("occurred_at", { ascending: true }),
+    db.from("native_enforcement_requests").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("requested_at", { ascending: true }),
+    db.from("native_enforcement_acknowledgements").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("acknowledged_at", { ascending: true }),
+    db.from("native_execution_claims").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("claimed_at", { ascending: true }),
+    db.from("native_runtime_execution_observations").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("observed_at", { ascending: true }),
+    db.from("native_destination_observations").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("observed_at", { ascending: true }),
+    db.from("native_enforcement_outcomes").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("correlated_at", { ascending: true }),
+    db.from("native_execution_contradictions").select("*").eq("enterprise_id", tenant.id).eq("transaction_id", input.transactionId).order("detected_at", { ascending: true }),
   ]);
-  for (const result of [transaction, events, externalRequest, acknowledgements, outcomes]) if (result.error) fail("Transaction history read", result.error);
+  for (const result of [transaction, events, externalRequest, acknowledgements, outcomes, nativeRequests, nativeAcknowledgements, nativeClaims, nativeRuntime, nativeDestinations, nativeOutcomes, nativeContradictions]) if (result.error) fail("Transaction history read", result.error);
   if (!transaction.data) throw new CanonicalTransactionError("Transaction not found in the session tenant.", 404, "TRANSACTION_NOT_FOUND");
-  return { tenant, receipt: receiptFromRow(transaction.data), transaction: transaction.data, events: events.data ?? [], externalRequest: externalRequest.data ?? null, acknowledgements: acknowledgements.data ?? [], outcomes: outcomes.data ?? [] };
+  return {
+    tenant, receipt: receiptFromRow(transaction.data), transaction: transaction.data, events: events.data ?? [], externalRequest: externalRequest.data ?? null, acknowledgements: acknowledgements.data ?? [], outcomes: outcomes.data ?? [],
+    nativeEnforcement: { requests: nativeRequests.data ?? [], acknowledgements: nativeAcknowledgements.data ?? [], executionClaims: nativeClaims.data ?? [], runtimeObservations: nativeRuntime.data ?? [], destinationObservations: nativeDestinations.data ?? [], outcomes: nativeOutcomes.data ?? [], contradictions: nativeContradictions.data ?? [] },
+  };
 }
