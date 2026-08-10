@@ -2,25 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { DEFAULT_AUTH_REDIRECT, resolveSafeInternalRedirect } from "@/lib/auth/safe-redirect";
 import { createClient } from "@/lib/supabase/client";
-
-function getSafeRedirect(path: string | null) {
-  if (!path || !path.startsWith("/") || path.startsWith("//")) {
-    return "/passport";
-  }
-
-  return path;
-}
 
 export default function VerifyEmailPage() {
   const [email, setEmail] = useState("");
-  const [nextPath, setNextPath] = useState("/passport");
+  const [nextPath, setNextPath] = useState(DEFAULT_AUTH_REDIRECT);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    setNextPath(getSafeRedirect(searchParams.get("next")));
+    setNextPath(resolveSafeInternalRedirect(searchParams.get("next"), window.location.origin));
   }, []);
 
   async function resendVerificationEmail() {

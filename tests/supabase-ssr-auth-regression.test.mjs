@@ -183,10 +183,11 @@ test("PKCE is the default server flow and persists a verifier cookie", async () 
 });
 
 test("the application propagates auth-cookie cache headers across every server boundary", async () => {
-  const [middleware, server, callback, logout] = await Promise.all([
+  const [middleware, server, callback, callbackHandler, logout] = await Promise.all([
     read("middleware.ts"),
     read("lib/supabase/server.ts"),
     read("app/auth/callback/route.ts"),
+    read("lib/auth/callback-handler.ts"),
     read("app/api/auth/logout/route.ts"),
   ]);
 
@@ -194,24 +195,27 @@ test("the application propagates auth-cookie cache headers across every server b
   assert.match(middleware, /response\.headers\.set\(name, value\)/);
   assert.match(server, /createClient\(responseHeaders\?: Headers\)/);
   assert.match(server, /responseHeaders\?\.set\(name, value\)/);
-  assert.match(callback, /createClient\(authHeaders\)/);
-  assert.match(callback, /private, no-cache, no-store, must-revalidate, max-age=0/);
+  assert.match(callback, /handleAuthCallback\(req, \{ createClient, captureOperationalIssue \}\)/);
+  assert.match(callbackHandler, /createClient\(authHeaders\)/);
+  assert.match(callbackHandler, /private, no-cache, no-store, must-revalidate, max-age=0/);
   assert.match(logout, /createClient\(authHeaders\)/);
   assert.match(logout, /response\.cookies\.set\(cookie\.name, ""/);
   assert.match(logout, /adminVerifiedCookieName, ""/);
 });
 
 test("login, callback, protected-route, enterprise, and admin contracts remain wired", async () => {
-  const [login, callback, middleware, browserClient] = await Promise.all([
+  const [login, callback, callbackHandler, middleware, browserClient] = await Promise.all([
     read("app/login/page.tsx"),
     read("app/auth/callback/route.ts"),
+    read("lib/auth/callback-handler.ts"),
     read("middleware.ts"),
     read("lib/supabase/client.ts"),
   ]);
 
   assert.match(login, /auth\.signInWithPassword/);
   assert.match(login, /router\.push\(nextPath\)/);
-  assert.match(callback, /auth\.exchangeCodeForSession\(code\)/);
+  assert.match(callback, /handleAuthCallback/);
+  assert.match(callbackHandler, /auth\.exchangeCodeForSession\(code\)/);
   assert.match(browserClient, /auth\.getSession/);
   assert.match(browserClient, /auth\.refreshSession/);
   for (const route of [

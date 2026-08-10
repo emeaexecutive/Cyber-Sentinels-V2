@@ -19,7 +19,7 @@
     "test:identity-signals-ui": "node --experimental-strip-types --test tests/identity-signals-ui.test.mjs",
     "test:trust-events": "node --experimental-strip-types --test tests/trust-event-foundation.test.mjs tests/trust-event-api.test.mjs tests/rls/trust-event-foundation.test.mjs",
     "test:cookie-consent": "node --experimental-strip-types --test tests/cookie-consent-recovery.test.mjs",
-    "test:supabase-auth": "node --test tests/supabase-ssr-auth-regression.test.mjs",
+    "test:supabase-auth": "tsx --test tests/supabase-ssr-auth-regression.test.mjs tests/auth-callback-redirect-security.test.mjs",
     "test:product-proof": "node --test tests/end-to-end-product-proof.test.mjs",
     "test:e2e": "playwright test",
     "test:consent": "node --experimental-strip-types --test tests/consent-manager.test.mjs tests/consent-api-ui.test.mjs tests/cookie-consent-recovery.test.mjs tests/rls/consent-manager.test.mjs",
