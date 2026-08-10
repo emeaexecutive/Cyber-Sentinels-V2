@@ -623,6 +623,10 @@ test("HTML workflow redirects cannot leave the current origin", () => {
     getSafeSameOriginUrl(request, "javascript:alert(1)", "/dashboard").toString(),
     "https://www.cybersentinels.com/dashboard",
   );
+  assert.equal(
+    getSafeSameOriginUrl(request, "/\\attacker.example", "/dashboard").toString(),
+    "https://www.cybersentinels.com/dashboard",
+  );
 });
 
 test("Siteverify success fails closed when the response hostname does not match", async () => {

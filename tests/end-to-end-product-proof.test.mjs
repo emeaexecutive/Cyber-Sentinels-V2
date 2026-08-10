@@ -15,12 +15,14 @@ test("Turnstile verification is bound to the actual request hostname", async () 
 });
 
 test("normal login and auth recovery enter the canonical Operational Entity product", async () => {
-  const [login, callback, browser, server, layout] = await Promise.all([
+  const [login, callback, redirect, browser, server, layout] = await Promise.all([
     read("app/login/page.tsx"), read("app/auth/callback/route.ts"),
+    read("lib/auth/safe-redirect.ts"),
     read("lib/supabase/client.ts"), read("lib/supabase/server.ts"), read("app/layout.tsx"),
   ]);
-  assert.match(login, /return "\/operational-entities"/);
-  assert.match(callback, /return "\/operational-entities"/);
+  assert.match(login, /resolveSafeInternalRedirect/);
+  assert.match(callback, /handleAuthCallback/);
+  assert.match(redirect, /DEFAULT_AUTH_REDIRECT = "\/operational-entities"/);
   assert.match(browser, /next=\/operational-entities/);
   assert.match(server, /next=\/operational-entities/);
   assert.match(login, /supabase\.auth\.getUser\(\)/);

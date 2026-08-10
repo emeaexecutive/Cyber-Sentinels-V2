@@ -4,6 +4,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { resolveSafeInternalRedirect } from "@/lib/auth/safe-redirect";
 import { createClient } from "@/lib/supabase/client";
 
 const RATE_LIMIT_MESSAGE =
@@ -53,14 +54,6 @@ function safeAuthMessage(error: unknown, fallback: string) {
   if (normalized.includes("email not confirmed")) return "Verify your email before signing in.";
   if (normalized.includes("user already registered")) return "An account already exists for this email. Sign in or reset your password.";
   return fallback;
-}
-
-function getSafeRedirect(path: string | null) {
-  if (!path || !path.startsWith("/") || path.startsWith("//")) {
-    return "/operational-entities";
-  }
-
-  return path;
 }
 
 function getBoundaryCopy(path: string) {
@@ -184,7 +177,10 @@ export default function LoginPage() {
     );
 
     const searchParams = new URLSearchParams(window.location.search);
-    const resolvedNextPath = getSafeRedirect(searchParams.get("next"));
+    const resolvedNextPath = resolveSafeInternalRedirect(
+      searchParams.get("next"),
+      window.location.origin,
+    );
 
     const restoresSession =
       window.localStorage.getItem(REMEMBER_SESSION_KEY) !== "false";
