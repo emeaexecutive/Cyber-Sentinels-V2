@@ -395,8 +395,11 @@ export function challengeSigningPayload(challenge: Pick<NativeChallenge, "challe
     subject: challenge.subject,
     manifestDigest: challenge.manifestDigest,
     signingKeyId: challenge.signingKeyId,
-    issuedAt: challenge.issuedAt,
-    expiresAt: challenge.expiresAt,
+    // PostgreSQL/PostgREST may return the same instant with a +00:00 offset
+    // instead of the Z form sent when the challenge was issued. Sign the
+    // normalized instants so persistence cannot change the signed bytes.
+    issuedAt: new Date(challenge.issuedAt).toISOString(),
+    expiresAt: new Date(challenge.expiresAt).toISOString(),
   }), "utf8");
 }
 

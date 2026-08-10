@@ -197,8 +197,8 @@ export function NativeEntityVerificationPanel(props: Props) {
       subject: challenge.subject,
       manifestDigest: challenge.manifestDigest,
       signingKeyId: challenge.signingKeyId,
-      issuedAt: challenge.issuedAt,
-      expiresAt: challenge.expiresAt,
+      issuedAt: new Date(String(challenge.issuedAt)).toISOString(),
+      expiresAt: new Date(String(challenge.expiresAt)).toISOString(),
     });
     return {
       challengeId: challenge.challengeId,
