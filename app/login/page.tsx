@@ -412,7 +412,7 @@ export default function LoginPage() {
     }
 
     try {
-      const { error } = await withAuthTimeout(
+      const { data, error } = await withAuthTimeout(
         supabase.auth.signUp({
           email: trimmedEmail,
           password,
@@ -426,6 +426,15 @@ export default function LoginPage() {
 
       if (error) {
         setMessage(safeAuthMessage(error, "Could not create the account. Please review the details and try again."));
+        return;
+      }
+
+      if (data.session?.user) {
+        window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
+        await recordAuthEvent("signup_session_created", nextPath, true, {
+          authenticated_to: nextPath,
+        });
+        router.replace(nextPath);
         return;
       }
 

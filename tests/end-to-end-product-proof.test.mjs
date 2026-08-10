@@ -25,6 +25,16 @@ test("normal login and auth recovery enter the canonical Operational Entity prod
   assert.match(server, /next=\/operational-entities/);
 });
 
+test("email signup requires verification and permits only explicit local and Vercel callbacks", async () => {
+  const [config, login] = await Promise.all([
+    read("supabase/config.toml"), read("app/login/page.tsx"),
+  ]);
+  assert.match(config, /site_url = "https:\/\/cybersentinels\.com"/);
+  assert.match(config, /https:\/\/\*-keith-speres-projects\.vercel\.app\/\*\*/);
+  assert.match(config, /\[auth\.email\][\s\S]*enable_confirmations = true/);
+  assert.match(login, /if \(data\.session\?\.user\)[\s\S]*router\.replace\(nextPath\)/);
+});
+
 test("first-run initialization creates authority but never fabricates identity evidence or an ALLOW", async () => {
   const onboarding = await read("lib/onboarding/controlled-agent-alpha.ts");
   assert.match(onboarding, /registerCanonicalNativeAgent/);

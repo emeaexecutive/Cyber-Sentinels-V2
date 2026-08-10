@@ -95,6 +95,7 @@ test("new and returning users complete a provider-free trust transaction from lo
   await page.goto("/login");
   await settleConsent(page);
   await expect(page.getByText("No active session found.", { exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("login.png"), fullPage: true });
   await page.getByRole("button", { name: "Create account", exact: true }).first().click();
   await page.getByLabel("Email", { exact: true }).fill(email);
   await page.getByPlaceholder("Password", { exact: true }).fill(password);
@@ -114,6 +115,7 @@ test("new and returning users complete a provider-free trust transaction from lo
   await page.goto("/api/auth/logout");
   await signIn(page);
   await expect(page.getByRole("heading", { name: "Every consequential entity and action is grounded in one canonical runtime." })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("product-landing.png"), fullPage: true });
 
   const initializer = page.getByRole("button", { name: "Create controlled Agent Alpha" });
   if (await initializer.isVisible()) {
@@ -122,6 +124,7 @@ test("new and returning users complete a provider-free trust transaction from lo
   }
 
   await expect(page.getByRole("heading", { name: "Agent Alpha", exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("operational-entity.png"), fullPage: true });
   const verify = page.getByRole("button", { name: "VERIFY AGENT ALPHA", exact: true });
   const rotateAndVerify = page.getByRole("button", { name: "ROTATE AND VERIFY CURRENT ENTITY", exact: true });
   if (await verify.isVisible()) await verify.click();
@@ -132,6 +135,7 @@ test("new and returning users complete a provider-free trust transaction from lo
   const proof = page.locator("pre");
   await expect(proof).toContainText("NATIVE_IDENTITY_PROOF");
   await expect(proof).toContainText('"decision": "ALLOW"');
+  await expect(proof).toContainText('"authority":');
   await page.screenshot({ path: testInfo.outputPath("native-allow.png"), fullPage: true });
 
   const secondTab = await context.newPage();
@@ -148,7 +152,7 @@ test("new and returning users complete a provider-free trust transaction from lo
   await historyLink.click();
 
   await expect(page.getByText("Canonical trust transaction", { exact: true })).toBeVisible();
-  await expect(page.getByText("DENY", { exact: true })).toBeVisible();
+  await expect(page.getByText("DENY", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Authority resolved", { exact: true })).toBeVisible();
   await expect(page.getByText("Replay written", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Download receipt JSON", exact: true })).toBeVisible();
