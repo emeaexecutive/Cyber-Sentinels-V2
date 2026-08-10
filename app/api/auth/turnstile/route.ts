@@ -14,7 +14,11 @@ export async function POST(req: Request) {
   const correlationId = /^[A-Za-z0-9_.:-]{1,128}$/.test(requestedCorrelationId)
     ? requestedCorrelationId
     : crypto.randomUUID();
-  const expectedHostname = new URL(req.url).hostname;
+  const requestHostname = new URL(req.url).hostname;
+  const expectedHostname = process.env.VERCEL_ENV === "preview" &&
+    process.env.TURNSTILE_EXPECTED_HOSTNAME?.trim().toLowerCase() === "localhost"
+    ? "localhost"
+    : requestHostname;
   const rateLimited = checkRequestRateLimit(
     req,
     "/api/auth/turnstile",
@@ -52,7 +56,8 @@ export async function POST(req: Request) {
     correlationId,
     ok: result.ok,
     reason: result.reason,
-    hostname: expectedHostname,
+    hostname: requestHostname,
+    expectedHostname,
   });
 
   if (!result.ok) {
