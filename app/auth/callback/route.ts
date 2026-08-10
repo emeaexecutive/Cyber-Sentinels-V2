@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 function getSafeRedirect(path: string | null) {
   if (!path || !path.startsWith("/") || path.startsWith("//")) {
-    return "/passport";
+    return "/operational-entities";
   }
 
   return path;

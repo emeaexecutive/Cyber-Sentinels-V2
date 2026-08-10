@@ -312,7 +312,11 @@ export function NativeEntityVerificationPanel(props: Props) {
         authority: receipt.authorityReference,
         consequence: receipt.consequence,
         decision: receipt.decision,
+        reasonCodes: receipt.reasonCodes,
         confidence: receipt.confidenceInConclusion,
+        transactionId: receipt.transactionId,
+        historyUrl: receipt.historyUrl,
+        evidenceGraph: receipt.evidenceGraphReference,
         replay: receipt.replayReference,
         trustMemory: receipt.trustMemoryReference,
         execution: receipt.externalExecution,
@@ -358,7 +362,7 @@ export function NativeEntityVerificationPanel(props: Props) {
       const runtime = { ...current.runtimeObservation, environment: "preview-runtime-changed", observedAt: proof.submittedAt };
       const verification = await action({ action: "submit_proof", proof, runtimeObservation: runtime });
       const receipt = await executeCanonicalAction("initiate_payment");
-      publish("CHANGE_RUNTIME", { identity: (verification.result as Record<string, unknown>)?.status, changedAttributes: (verification.result as Record<string, unknown>)?.changedAttributes, runtimeBinding: (verification.result as Record<string, unknown>)?.runtimeBinding, decision: receipt.decision, consequence: receipt.consequence, confidence: receipt.confidenceInConclusion });
+      publish("CHANGE_RUNTIME_AND_OUT_OF_SCOPE_ACTION", { identity: (verification.result as Record<string, unknown>)?.status, changedAttributes: (verification.result as Record<string, unknown>)?.changedAttributes, runtimeBinding: (verification.result as Record<string, unknown>)?.runtimeBinding, decision: receipt.decision, reasonCodes: receipt.reasonCodes, consequence: receipt.consequence, confidence: receipt.confidenceInConclusion, transactionId: receipt.transactionId, historyUrl: receipt.historyUrl, replay: receipt.replayReference, trustMemory: receipt.trustMemoryReference });
     });
   }
 
@@ -371,7 +375,7 @@ export function NativeEntityVerificationPanel(props: Props) {
       const proof = await signedProof(challenge, current.keyPair.privateKey, current.manifestDigest, current.signingKeyId);
       const verification = await action({ action: "submit_proof", proof, runtimeObservation: { ...current.runtimeObservation, observedAt: proof.submittedAt } });
       const receipt = await executeCanonicalAction("read_repository");
-      publish("REVOKE_AUTHORITY", { identity: (verification.result as Record<string, unknown>)?.status, authority: contract.revocationState, authorityContractId: contract.contractId, decision: receipt.decision, reasonCodes: receipt.reasonCodes });
+      publish("REVOKE_AUTHORITY", { identity: (verification.result as Record<string, unknown>)?.status, authority: contract.revocationState, authorityContractId: contract.contractId, decision: receipt.decision, reasonCodes: receipt.reasonCodes, transactionId: receipt.transactionId, historyUrl: receipt.historyUrl, replay: receipt.replayReference, trustMemory: receipt.trustMemoryReference });
     });
   }
 
@@ -392,11 +396,18 @@ export function NativeEntityVerificationPanel(props: Props) {
       const verification = await action({ action: "submit_proof", proof, runtimeObservation: runtime });
       const receipt = await executeCanonicalAction("read_repository");
       session.current = { keyPair, credentialId: String(credential.credentialId), signingKeyId, manifest: created.manifest, manifestDigest: created.manifestDigest, proof, runtimeObservation: runtime };
-      publish("ROTATE_KEY", { identity: (verification.result as Record<string, unknown>)?.status, oldCredentialState: "RETIRED", newCredentialFingerprint: credential.credentialFingerprint, authority: authority.revocationState, decision: receipt.decision, recovery: receipt.trustState, replay: receipt.replayReference, trustMemory: receipt.trustMemoryReference });
+      publish("ROTATE_KEY", { identity: (verification.result as Record<string, unknown>)?.status, oldCredentialState: "RETIRED", newCredentialFingerprint: credential.credentialFingerprint, authority: authority.revocationState, decision: receipt.decision, reasonCodes: receipt.reasonCodes, recovery: receipt.trustState, transactionId: receipt.transactionId, historyUrl: receipt.historyUrl, replay: receipt.replayReference, trustMemory: receipt.trustMemoryReference });
     });
   }
 
   const attackDisabled = state === "running" || !session.current;
+  const resultStages = Array.isArray(result?.stages)
+    ? result.stages as Array<Record<string, unknown>>
+    : [];
+  const latestHistoryUrl = [...resultStages]
+    .reverse()
+    .map((stage) => String(stage.historyUrl ?? ""))
+    .find(Boolean);
 
   return (
     <div className="mt-5 rounded-xl border border-cyan-700/60 bg-cyan-950/20 p-5 text-slate-100">
@@ -410,11 +421,12 @@ export function NativeEntityVerificationPanel(props: Props) {
           <button type="button" onClick={copyAlphaId} disabled={attackDisabled} className="rounded-lg border border-slate-700 px-3 py-2 text-sm disabled:opacity-40">COPY ALPHA ID</button>
           <button type="button" onClick={replayOldProof} disabled={attackDisabled} className="rounded-lg border border-slate-700 px-3 py-2 text-sm disabled:opacity-40">REPLAY OLD PROOF</button>
           <button type="button" onClick={alterManifest} disabled={attackDisabled} className="rounded-lg border border-slate-700 px-3 py-2 text-sm disabled:opacity-40">ALTER MANIFEST</button>
-          <button type="button" onClick={changeRuntime} disabled={attackDisabled} className="rounded-lg border border-slate-700 px-3 py-2 text-sm disabled:opacity-40">CHANGE RUNTIME</button>
+          <button type="button" onClick={changeRuntime} disabled={attackDisabled} className="rounded-lg border border-slate-700 px-3 py-2 text-sm disabled:opacity-40">CHANGE RUNTIME + TEST DENY</button>
           <button type="button" onClick={revokeAuthority} disabled={attackDisabled} className="rounded-lg border border-red-800 px-3 py-2 text-sm text-red-200 disabled:opacity-40">REVOKE AUTHORITY</button>
           <button type="button" onClick={rotateKey} disabled={attackDisabled} className="rounded-lg border border-emerald-800 px-3 py-2 text-sm text-emerald-200 disabled:opacity-40">ROTATE KEY + RECOVER</button>
         </> : null}
       </div>
+      {latestHistoryUrl ? <a href={latestHistoryUrl} className="mt-4 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-950">Open transaction, Replay and receipt</a> : null}
       {result ? <pre className="mt-4 max-h-96 overflow-auto rounded-lg bg-slate-950 p-4 text-xs text-cyan-100">{JSON.stringify(result, null, 2)}</pre> : null}
       {state === "failed" ? <p className="mt-4 text-sm font-medium text-red-300">{error}</p> : null}
     </div>

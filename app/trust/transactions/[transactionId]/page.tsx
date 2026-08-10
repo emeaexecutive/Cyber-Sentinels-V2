@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CanonicalTransactionError, loadCanonicalTrustTransactionHistory } from "@/lib/trust-transaction/server";
+import { PrintReceiptButton } from "@/components/print-receipt-button";
 
 export const dynamic = "force-dynamic";
 
@@ -192,7 +193,12 @@ export default async function TrustTransactionHistoryPage({ params }: { params: 
           </div>
         </section>
 
-        <div className="mt-8 flex flex-wrap gap-3"><Link href="/trust-centre" className="brand-secondary-action brand-action-large text-sm">Trust Centre</Link><Link href="/replay" className="brand-secondary-action brand-action-large text-sm">Replay</Link></div>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <a href={`/api/trust/transactions/${receipt.transactionId}/receipt`} download className="brand-primary-action brand-action-large text-sm">Download receipt JSON</a>
+          <PrintReceiptButton />
+          <Link href="/trust-centre" className="brand-secondary-action brand-action-large text-sm">Trust Centre</Link>
+          <Link href="/replay" className="brand-secondary-action brand-action-large text-sm">Replay</Link>
+        </div>
       </div>
     </main>
   );

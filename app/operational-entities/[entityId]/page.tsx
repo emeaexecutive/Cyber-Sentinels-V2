@@ -35,6 +35,9 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
   const latestDestinationObservation = detail.nativeEnforcement.destinationObservations.at(-1);
   const latestNativeOutcome = detail.nativeEnforcement.outcomes.at(-1);
   const latestNativeVerification = detail.nativeVerification.verifications[0];
+  const nativeIdentityLabel = latestNativeVerification?.status === "VERIFIED"
+    ? "IDENTITY VERIFIED"
+    : latestNativeVerification?.status ?? "NOT YET VERIFIED";
   const activeNativeCredential = detail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE");
   const activeManifest = detail.nativeVerification.manifests.find((manifest) => manifest.status === "ACTIVE");
   const currentOwnerBinding = detail.nativeVerification.ownerBindings[0];
@@ -72,6 +75,12 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[["Lifecycle", detail.entity.lifecycleState], ["Trust state", detail.entity.currentTrustState], ["Evidence state", detail.entity.currentEvidenceState], ["Consequence", detail.entity.currentConsequenceClassification]].map(([label, item]) => <article key={label} className={panel}><p className="text-xs uppercase tracking-wide text-slate-500">{label}</p><p className="mt-3 break-words text-lg font-semibold">{value(item)}</p></article>)}
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {([[
+          "Entity type", detail.entity.entityType,
+        ], ["Accountable owner", detail.entity.accountableOwnerId], ["Native identity", nativeIdentityLabel], ["Authority", detail.entity.currentAuthorityReferences.length ? "ACTIVE" : "NOT RECORDED"], ["Continuity", latestNativeVerification?.continuity_result ?? "NOT YET EVALUATED"]] as Array<[string, unknown]>).map(([label, item]) => <article key={label} className={panel}><p className="text-xs uppercase tracking-wide text-slate-500">{label}</p><p className="mt-3 break-all text-sm font-semibold">{value(item)}</p></article>)}
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -121,7 +130,7 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
       <section id="native-verification" className={panel}>
         <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
           <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700">Cyber Sentinels native evidence generation</p><h2 className="mt-2 text-xl font-semibold">Native Verification</h2></div>
-          <span className="w-fit rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold">{value(latestNativeVerification?.status ?? "NOT YET VERIFIED")}</span>
+          <span className="w-fit rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold">{value(nativeIdentityLabel)}</span>
         </div>
         <dl className="mt-5 grid gap-4 text-sm md:grid-cols-2 lg:grid-cols-4">
           {([

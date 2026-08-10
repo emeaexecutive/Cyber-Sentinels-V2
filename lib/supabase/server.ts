@@ -69,7 +69,7 @@ async function handleInvalidRefreshSession(error: unknown) {
   }
 
   await clearAuthCookies();
-  redirect("/login?next=/command-center");
+  redirect("/login?next=/operational-entities");
 }
 
 async function withAuthTimeout<T>(task: () => Promise<T>): Promise<T> {

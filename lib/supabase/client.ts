@@ -43,7 +43,7 @@ function expireBrowserSession() {
     .forEach((name) => {
       document.cookie = `${name}=; Path=/; Max-Age=0; SameSite=Lax`;
     });
-  window.location.assign("/login?next=/command-center");
+  window.location.assign("/login?next=/operational-entities");
 }
 
 async function handleAuthResult<T>(task: () => Promise<T>) {
