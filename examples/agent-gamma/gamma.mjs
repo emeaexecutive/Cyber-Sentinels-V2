@@ -8,11 +8,19 @@ import {
 
 const apiKey = process.env.CYBER_SENTINELS_API_KEY;
 const baseUrl = process.env.CYBER_SENTINELS_BASE_URL;
+const vercelAutomationBypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 if (!apiKey || !baseUrl) {
   throw new Error("CYBER_SENTINELS_API_KEY and CYBER_SENTINELS_BASE_URL are required.");
 }
 
-const cs = new CyberSentinels({ apiKey, baseUrl, timeoutMs: 60_000 });
+const qualificationFetch = vercelAutomationBypassSecret
+  ? (input, init = {}) => {
+      const headers = new Headers(init.headers);
+      headers.set("x-vercel-protection-bypass", vercelAutomationBypassSecret);
+      return fetch(input, { ...init, headers });
+    }
+  : fetch;
+const cs = new CyberSentinels({ apiKey, baseUrl, timeoutMs: 60_000, fetch: qualificationFetch });
 const mark = (label, value) => process.stdout.write(`${label}: ${JSON.stringify(value)}\n`);
 const timings = [];
 const timed = async (stage, operation) => {

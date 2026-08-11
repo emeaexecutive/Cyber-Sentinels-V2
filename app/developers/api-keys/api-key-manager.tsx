@@ -14,6 +14,14 @@ type Key = {
 };
 
 const allScopes = ["agents:write", "agents:verify", "authority:read", "trust:request", "trust:read", "outcomes:write"];
+const scopePurpose: Record<string, string> = {
+  "agents:write": "Register Gamma, credentials, and manifests",
+  "agents:verify": "Issue challenges and submit proof of possession",
+  "authority:read": "Read Gamma's effective authority",
+  "trust:request": "Request canonical ALLOW, REVIEW, or DENY decisions",
+  "trust:read": "Retrieve transactions, Replay, receipts, and trust state",
+  "outcomes:write": "Submit explicitly classified outcome assertions",
+};
 const date = (value: string | null) => value ? new Date(value).toLocaleString() : "Never";
 
 export function ApiKeyManager({ enterpriseId }: { enterpriseId: string }) {
@@ -74,14 +82,15 @@ export function ApiKeyManager({ enterpriseId }: { enterpriseId: string }) {
       <h2 className="text-xl font-semibold">Create API client</h2>
       <label className="grid gap-2 text-sm text-zinc-300">Label<input required name="label" maxLength={80} placeholder="Agent Gamma staging" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3" /></label>
       <label className="grid gap-2 text-sm text-zinc-300">Environment<select name="environment" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3"><option value="test">Test</option><option value="live">Live</option></select></label>
-      <fieldset className="grid gap-2"><legend className="text-sm text-zinc-300">Scopes</legend>{allScopes.map((scope) => <label key={scope} className="flex gap-2 text-sm text-zinc-400"><input type="checkbox" name="scopes" value={scope} defaultChecked />{scope}</label>)}</fieldset>
+      <fieldset className="grid gap-2"><legend className="text-sm text-zinc-300">Scopes</legend><p className="text-xs text-zinc-500">The complete Agent Gamma journey requires all six scopes.</p>{allScopes.map((scope) => <label key={scope} className="flex items-start gap-2 text-sm text-zinc-400"><input className="mt-1" type="checkbox" name="scopes" value={scope} defaultChecked /><span><span className="font-mono text-zinc-300">{scope}</span><span className="block text-xs text-zinc-500">{scopePurpose[scope]}</span></span></label>)}</fieldset>
       <button className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">Create and reveal once</button>
       <p className="text-xs leading-5 text-zinc-500">Secrets have 256 bits of entropy, are one-way hashed at rest, tenant scoped, and never used from browser SDK sessions.</p>
     </form>
     <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
       <h2 className="text-xl font-semibold">Tenant API clients</h2>
       {message ? <p className="mt-4 rounded-lg border border-zinc-800 bg-black p-3 text-sm text-zinc-300">{message}</p> : null}
-      {secret ? <div className="mt-4 rounded-lg border border-amber-700 bg-amber-950/20 p-4"><p className="text-sm font-semibold text-amber-100">Secret shown once</p><code className="mt-2 block break-all text-xs text-amber-200">{secret}</code></div> : null}
+      {secret ? <div className="mt-4 rounded-lg border border-amber-700 bg-amber-950/20 p-4"><p className="text-sm font-semibold text-amber-100">SECRET SHOWN ONCE</p><p className="mt-2 text-xs text-amber-100">Copy this value now. Reloading or leaving this page permanently hides it.</p><code className="mt-2 block break-all text-xs text-amber-200">{secret}</code><p className="mt-4 text-xs text-zinc-300">Set it in your shell; never paste it into a script or commit it:</p><pre className="mt-2 overflow-x-auto whitespace-pre rounded bg-black p-3 text-xs text-cyan-100">{`$env:CYBER_SENTINELS_BASE_URL="${globalThis.location?.origin ?? "https://<approved-non-production-host>"}"
+$env:CYBER_SENTINELS_API_KEY="<paste the one-time secret>"`}</pre></div> : null}
       <div className="mt-5 grid gap-3">{keys.map((key) => <article key={key.id} className="rounded-lg border border-zinc-800 bg-black p-4">
         <div className="flex justify-between gap-3"><div><p className="font-medium">{key.label}</p><p className="mt-1 font-mono text-xs text-zinc-500">{key.key_prefix}.••••••••</p></div><span className="text-xs text-cyan-200">{key.status}</span></div>
         <p className="mt-3 text-xs text-zinc-500">Scopes: {key.scopes.join(", ")}</p><p className="mt-2 text-xs text-zinc-500">Created {date(key.created_at)} · Last used {date(key.last_used_at)} · Expires {date(key.expires_at)}</p>

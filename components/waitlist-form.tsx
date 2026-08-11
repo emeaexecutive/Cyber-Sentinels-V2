@@ -1,27 +1,15 @@
 "use client";
 
-import Script from "next/script";
-import { useEffect, useState } from "react";
-
-declare global {
-  interface Window {
-    onCyberSentinelsWaitlistTurnstile?: (token: string) => void;
-  }
-}
+import { useState } from "react";
+import { TurnstileField } from "@/components/turnstile-field";
 
 const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 export function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-
-  useEffect(() => {
-    window.onCyberSentinelsWaitlistTurnstile = (token: string) => setTurnstileToken(token);
-    return () => {
-      delete window.onCyberSentinelsWaitlistTurnstile;
-    };
-  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,6 +23,8 @@ export function WaitlistForm() {
     if (res.ok) {
       setEmail("");
       setTurnstileToken("");
+    } else {
+      setTurnstileResetKey((value) => value + 1);
     }
   }
 
@@ -49,16 +39,17 @@ export function WaitlistForm() {
           placeholder="Enter your email for early access"
           className="min-h-12 flex-1 rounded-2xl border border-sentinel-line bg-black/40 px-4 text-sm outline-none placeholder:text-sentinel-muted"
         />
-        <button disabled={status === "loading"} className="min-h-12 rounded-2xl bg-sentinel-white px-6 text-sm font-semibold text-black hover:bg-sentinel-green">
+        <button disabled={status === "loading" || !turnstileToken} className="min-h-12 rounded-2xl bg-sentinel-white px-6 text-sm font-semibold text-black hover:bg-sentinel-green disabled:cursor-not-allowed disabled:opacity-50">
           {status === "loading" ? "Joining..." : "Join waitlist"}
         </button>
       </div>
-      {turnstileSiteKey ? (
-        <div className="mt-3">
-          <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
-          <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-callback="onCyberSentinelsWaitlistTurnstile" />
-        </div>
-      ) : null}
+      <div className="mt-3">
+        <TurnstileField
+          siteKey={turnstileSiteKey}
+          onTokenChange={setTurnstileToken}
+          resetKey={turnstileResetKey}
+        />
+      </div>
       {status === "success" && <p className="mt-3 px-2 text-sm text-sentinel-green">You are on the Cyber Sentinels V2 waitlist.</p>}
       {status === "error" && <p className="mt-3 px-2 text-sm text-red-300">Security check failed. Please try again.</p>}
     </form>

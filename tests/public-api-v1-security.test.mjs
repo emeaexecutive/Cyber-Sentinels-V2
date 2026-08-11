@@ -55,6 +55,17 @@ test("developer API-key UI binds every lifecycle request to the resolved session
   assert.equal(apiKeyManagerSource.match(/"x-enterprise-id": enterpriseId/g)?.length, 3);
 });
 
+test("developer API-key UI documents one-time handling and the complete Gamma scope set", () => {
+  assert.match(apiKeyManagerSource, /SECRET SHOWN ONCE/);
+  assert.match(apiKeyManagerSource, /CYBER_SENTINELS_BASE_URL/);
+  assert.match(apiKeyManagerSource, /CYBER_SENTINELS_API_KEY/);
+  assert.match(apiKeyManagerSource, /<paste the one-time secret>/);
+  for (const scope of ["agents:write", "agents:verify", "authority:read", "trust:request", "trust:read", "outcomes:write"]) {
+    assert.match(apiKeyManagerSource, new RegExp(scope));
+  }
+  assert.doesNotMatch(apiKeyManagerSource, /cs_(test|live)_[A-Za-z0-9_-]{12}\.[A-Za-z0-9_-]{43}/);
+});
+
 test("outcome source self is server-resolved to the authenticated API client", () => {
   assert.match(runtimeSource, /requestedSourceId === "self" \? `api-client:\$\{principal\.clientId\}`/);
   assert.match(runtimeSource, /sourceId !== `api-client:\$\{principal\.clientId\}`/);

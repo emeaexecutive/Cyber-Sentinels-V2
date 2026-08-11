@@ -6,7 +6,7 @@ Authentication uses Supabase Auth with `@supabase/ssr`. `middleware.ts`, `lib/su
 
 ## Login and registration
 
-`app/login/page.tsx` is a Client Component supporting password sign-in, sign-up and email OTP. Public form bot protection uses Turnstile when configured. A development-auth path exists only when `NEXT_PUBLIC_ENABLE_DEV_AUTH=true` and the code's environment conditions allow it.
+`app/login/page.tsx` is a Client Component supporting password sign-in, sign-up and email OTP. Each auth action obtains a Turnstile token and verifies it server-side through `/api/auth/turnstile` before calling Supabase Auth. Controlled Preview qualification can use Cloudflare's official dummy pair only with explicit `TURNSTILE_MODE=preview-test`; the server rejects that mode and all recognised dummy credentials in Production. A development-auth path exists only when `NEXT_PUBLIC_ENABLE_DEV_AUTH=true` and the code's environment conditions allow it.
 
 Successful OAuth/OTP callback requests reach `GET /auth/callback`. The handler requires a code, restricts redirects to safe local paths, calls `exchangeCodeForSession()` and redirects to the requested local destination or `/passport`.
 

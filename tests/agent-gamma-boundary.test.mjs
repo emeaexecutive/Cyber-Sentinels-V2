@@ -11,6 +11,9 @@ test("Agent Gamma is a separate SDK-only process with its own Ed25519 private ke
   assert.match(gamma, /@cyber-sentinels\/sdk/);
   assert.doesNotMatch(gamma, /@\/|lib\/|src\/|supabase|service.role|postgres|database/i);
   assert.match(gamma, /private_key_stored/);
+  assert.match(gamma, /VERCEL_AUTOMATION_BYPASS_SECRET/);
+  assert.match(gamma, /x-vercel-protection-bypass/);
+  assert.doesNotMatch(gamma, /VERCEL_PROTECTION_BYPASS/);
 });
 
 test("Gamma proves ALLOW, DENY, transaction, Replay, receipt and fail-closed attacks", () => {

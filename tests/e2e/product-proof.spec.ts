@@ -4,7 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 const baseURL = process.env.E2E_BASE_URL ?? "";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-const vercelProtectionBypass = process.env.VERCEL_PROTECTION_BYPASS ?? "";
+const vercelProtectionBypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET ?? "";
 const vercelProtectionCookie = process.env.VERCEL_PROTECTION_COOKIE ?? "";
 const signupMailbox = process.env.E2E_SIGNUP_MAILBOX?.trim() ?? "";
 const allowAdminBootstrapAfterSignupRateLimit = process.env.E2E_ALLOW_ADMIN_BOOTSTRAP_AFTER_SIGNUP_RATE_LIMIT === "true";

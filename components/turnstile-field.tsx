@@ -211,7 +211,7 @@ export function TurnstileField({ siteKey, onTokenChange, resetKey = 0 }: Turnsti
         }}
       />
       <input type="hidden" name="cf-turnstile-response" value={token} />
-      <div ref={containerRef} />
+      <div ref={containerRef} className="cf-turnstile" />
       {widgetError ? <p className="text-sm text-amber-200" role="alert">{widgetError}</p> : null}
       <p className="text-xs text-zinc-500">Protected by Cloudflare Turnstile.</p>
     </div>

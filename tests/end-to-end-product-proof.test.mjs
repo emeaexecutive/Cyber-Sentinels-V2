@@ -5,10 +5,15 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("Turnstile verification is bound to the actual request hostname", async () => {
-  const route = await read("app/api/auth/turnstile/route.ts");
+  const [route, verifier] = await Promise.all([
+    read("app/api/auth/turnstile/route.ts"),
+    read("lib/bot-protection.ts"),
+  ]);
   assert.match(route, /requestHostname = new URL\(req\.url\)\.hostname/);
-  assert.match(route, /process\.env\.VERCEL_ENV === "preview"/);
-  assert.match(route, /\["localhost", "example\.com"\]\.includes\(configuredPreviewHostname\)/);
+  assert.match(route, /getExpectedTurnstileHostname\(requestHostname\)/);
+  assert.match(verifier, /process\.env\.VERCEL_ENV === "production"/);
+  assert.match(verifier, /process\.env\.VERCEL_ENV !== "preview"/);
+  assert.match(verifier, /officialTestHostnames = new Set\(\["localhost", "example\.com"\]\)/);
   assert.match(route, /verifyTurnstileToken\([\s\S]*expectedHostname/);
   assert.match(route, /x-correlation-id/);
   assert.doesNotMatch(route, /turnstileToken[^\n]*console/);

@@ -40,6 +40,7 @@ Set all required variables in the Vercel Production environment:
 - `NEXT_PUBLIC_APP_URL`
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
 - `TURNSTILE_SECRET_KEY`
+- `TURNSTILE_MODE=live`
 - `ADMIN_EMAILS`
 - `ADMIN_ACCESS_CODE`
 - `STRIPE_SECRET_KEY`
@@ -62,6 +63,10 @@ Set the same required variables in the Vercel Preview environment:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+- `TURNSTILE_SECRET_KEY`
+- `TURNSTILE_MODE` (`live`, or `preview-test` for controlled qualification)
+- `TURNSTILE_EXPECTED_HOSTNAME` (required only for `preview-test`; `localhost` or `example.com` as returned by Cloudflare's official dummy verifier)
 - `ADMIN_EMAILS`
 - `ADMIN_ACCESS_CODE`
 - `STRIPE_SECRET_KEY`
@@ -69,6 +74,12 @@ Set the same required variables in the Vercel Preview environment:
 - `STRIPE_PRO_MONTHLY_PRICE_ID`
 
 For preview deployments, either set `NEXT_PUBLIC_SITE_URL` to the intended preview URL or use the stable preview domain. Supabase auth redirects must include the preview callback URL before auth-dependent preview testing.
+
+Preview automation may use Cloudflare's official dummy site/secret pair only when
+`VERCEL_ENV=preview` and `TURNSTILE_MODE=preview-test`. Both keys must be explicit,
+branch-scoped deployment environment variables; the application never falls back
+to embedded credentials. Production rejects dummy credentials and `preview-test`
+mode before calling Siteverify.
 
 ## Runtime Validation
 

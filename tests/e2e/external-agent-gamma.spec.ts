@@ -6,6 +6,8 @@ import { expect, test, type Page } from "@playwright/test";
 const baseURL = process.env.E2E_BASE_URL ?? "";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+const vercelAutomationBypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET ?? "";
+const vercelProtectionCookie = process.env.VERCEL_PROTECTION_COOKIE ?? "";
 const configured = Boolean(baseURL && supabaseUrl && serviceRoleKey);
 const productionSupabaseReference = "kecgtsfibkypjuaxqbjx";
 const password = "GammaProof!2026-OnlyForTest";
@@ -37,6 +39,19 @@ async function signIn(page: Page, accountEmail = email) {
   await page.waitForURL("**/operational-entities");
 }
 
+async function establishProtectedPreviewSession(page: Page) {
+  if (vercelProtectionCookie) {
+    const target = new URL(baseURL);
+    await page.context().addCookies([{ name: "_vercel_jwt", value: vercelProtectionCookie, domain: target.hostname, path: "/", httpOnly: true, secure: true, sameSite: "Lax" }]);
+    return;
+  }
+  if (!vercelAutomationBypassSecret) return;
+  const target = new URL("/login", baseURL);
+  target.searchParams.set("x-vercel-set-bypass-cookie", "true");
+  const response = await page.request.get(target.toString(), { headers: { "x-vercel-protection-bypass": vercelAutomationBypassSecret } });
+  expect(response.ok()).toBeTruthy();
+}
+
 async function runGamma(apiKey: string) {
   const cwd = join(process.cwd(), "examples", "agent-gamma");
   return await new Promise<{ code: number | null; stdout: string; stderr: string }>((resolve, reject) => {
@@ -61,6 +76,27 @@ async function runGamma(apiKey: string) {
   });
 }
 
+async function runPowerShellGamma(apiKey: string) {
+  const executable = process.platform === "win32" ? "powershell.exe" : "pwsh";
+  const script = join(process.cwd(), "examples", "powershell", "agent-gamma.ps1");
+  const args = ["-NoLogo", "-NoProfile", "-NonInteractive", ...(process.platform === "win32" ? ["-ExecutionPolicy", "Bypass"] : []), "-File", script];
+  return await new Promise<{ code: number | null; stdout: string; stderr: string }>((resolve, reject) => {
+    const child = spawn(executable, args, {
+      cwd: process.cwd(),
+      env: { ...process.env, CYBER_SENTINELS_API_KEY: apiKey, CYBER_SENTINELS_BASE_URL: baseURL },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", (chunk: string) => { stdout += chunk; if (stdout.length > 250_000) child.kill(); });
+    child.stderr.on("data", (chunk: string) => { stderr += chunk; if (stderr.length > 100_000) child.kill(); });
+    child.once("error", reject);
+    child.once("close", (code) => resolve({ code, stdout, stderr }));
+  });
+}
+
 function marker(output: string, name: string) {
   const line = output.split(/\r?\n/).find((candidate) => candidate.startsWith(`${name}: `));
   if (!line) throw new Error(`Gamma did not emit ${name}.`);
@@ -70,7 +106,12 @@ function marker(output: string, name: string) {
 async function publicRequest(path: string, apiKey: string, init: RequestInit = {}) {
   return fetch(new URL(path, baseURL), {
     ...init,
-    headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json", ...(init.headers ?? {}) },
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      "content-type": "application/json",
+      ...(vercelAutomationBypassSecret ? { "x-vercel-protection-bypass": vercelAutomationBypassSecret } : {}),
+      ...(init.headers ?? {}),
+    },
   });
 }
 
@@ -93,6 +134,7 @@ test.afterAll(async () => {
 
 test("Agent Gamma completes the public SDK journey as a separate process and attacks fail closed", async ({ page, browser }, testInfo) => {
   test.setTimeout(600_000);
+  await establishProtectedPreviewSession(page);
   await signIn(page);
 
   await expect(page.getByRole("heading", { name: "Every consequential entity and action is grounded in one canonical runtime." })).toBeVisible();
@@ -120,9 +162,9 @@ test("Agent Gamma completes the public SDK journey as a separate process and att
   const apiKey = createdBody.api_key;
   expect(apiKey).toMatch(/^cs_test_/);
   expect(tenantId).toMatch(/^[0-9a-f-]{36}$/i);
-  await expect(page.getByText("Secret shown once", { exact: true })).toBeVisible();
+  await expect(page.getByText("SECRET SHOWN ONCE", { exact: true })).toBeVisible();
   await page.reload();
-  await expect(page.getByText("Secret shown once", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("SECRET SHOWN ONCE", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Agent Gamma live proof", { exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("gamma-api-key-created.png"), fullPage: true });
 
@@ -135,6 +177,16 @@ test("Agent Gamma completes the public SDK journey as a separate process and att
   expect(marker(gamma.stdout, "OUTCOME")).toMatchObject({ evidence_independence: "AGENT_ASSERTED", independent_destination_evidence: false });
   expect(marker(gamma.stdout, "ATTACKS")).toEqual({ challenge_replay: "REJECTED", wrong_private_key: "REJECTED" });
   expect(marker(gamma.stdout, "GAMMA_RESULT")).toBe("PUBLIC_API_ONLY_END_TO_END_COMPLETE");
+
+  const powershellGamma = await runPowerShellGamma(apiKey);
+  expect(powershellGamma.code, `${powershellGamma.stdout}\n${powershellGamma.stderr}`.replaceAll(apiKey, "[REDACTED]")).toBe(0);
+  for (const name of ["PREFLIGHT", "REGISTERED", "CREDENTIAL", "MANIFEST", "IDENTITY", "CHALLENGE_REPLAY", "AUTHORITY", "ALLOW", "IDEMPOTENCY", "DENY", "TRANSACTION", "REPLAY", "RECEIPT", "TRUST_STATE", "OUTCOME", "GAMMA_RESULT"]) marker(powershellGamma.stdout, name);
+  expect(marker(powershellGamma.stdout, "IDENTITY").identity).toBe("VERIFIED");
+  expect(marker(powershellGamma.stdout, "ALLOW").decision).toBe("ALLOW");
+  expect(marker(powershellGamma.stdout, "DENY").decision).toBe("DENY");
+  expect(marker(powershellGamma.stdout, "IDEMPOTENCY").idempotent_replay).toBe(true);
+  expect(marker(powershellGamma.stdout, "CHALLENGE_REPLAY").result).toBe("REJECTED");
+  expect(marker(powershellGamma.stdout, "GAMMA_RESULT")).toBe("PUBLIC_HTTPS_API_ONLY_END_TO_END_COMPLETE");
 
   const registered = marker(gamma.stdout, "REGISTERED");
   const allowed = marker(gamma.stdout, "ALLOW");
@@ -149,8 +201,16 @@ test("Agent Gamma completes the public SDK journey as a separate process and att
   expect(wrongKey.status).toBe(401);
   const callerClaimsTenant = await publicRequest("/api/v1/agents", apiKey, { method: "POST", body: JSON.stringify({ display_name: "Attack", entity_type: "AI_AGENT", owner_reference: "owner:attack", runtime: { environment: "staging", framework: "custom" }, model: { provider: "declared", identifier: "declared" }, tenant_id: tenantId }) });
   expect(callerClaimsTenant.status).toBe(400);
-  const callerClaimsDecision = await publicRequest("/api/v1/trust/decisions", apiKey, { method: "POST", headers: { "idempotency-key": `gamma-attack-${crypto.randomUUID()}` }, body: JSON.stringify({ operational_entity_id: String(marker(gamma.stdout, "AUTHORITY").operational_entity_id ?? agentId), action: { type: "read_repository", target: "repository:a", purpose: "attack", environment: "staging" }, idempotency_key: "caller-forged", trust_score: 100, decision: "ALLOW", verified: true }) });
-  expect(callerClaimsDecision.status).toBe(400);
+  for (const forged of [{ verified: true }, { trust_state: "VERIFIED" }, { decision: "ALLOW" }]) {
+    const idempotencyKey = `gamma-forged-${crypto.randomUUID()}`;
+    const callerClaimsDecision = await publicRequest("/api/v1/trust/decisions", apiKey, { method: "POST", headers: { "idempotency-key": idempotencyKey }, body: JSON.stringify({ operational_entity_id: agentId, action: { type: "read_repository", target: "repository:a", purpose: "attack", environment: "staging" }, idempotency_key: idempotencyKey, ...forged }) });
+    expect(callerClaimsDecision.status).toBe(400);
+  }
+
+  const wrongCredentialChallenge = await publicRequest(`/api/v1/agents/${encodeURIComponent(agentId)}/challenge`, apiKey, { method: "POST", body: "{}" });
+  expect(wrongCredentialChallenge.status).toBe(201);
+  const wrongCredential = await publicRequest(`/api/v1/agents/${encodeURIComponent(agentId)}/proof`, apiKey, { method: "POST", body: JSON.stringify({ challenge_id: "challenge:wrong", credential_id: "credential:wrong", signature: "a".repeat(86), signed_payload: { signing_key_id: "wrong" } }) });
+  expect(wrongCredential.status).toBe(409);
 
   const scopedKeyResponse = await page.request.post("/api/developer/api-keys", { headers: { "x-enterprise-id": tenantId }, data: { label: "Wrong scope proof", environment: "test", scopes: ["agents:write"] } });
   expect(scopedKeyResponse.status()).toBe(201);
@@ -173,6 +233,7 @@ test("Agent Gamma completes the public SDK journey as a separate process and att
 
   const otherContext = await browser.newContext();
   const otherPage = await otherContext.newPage();
+  await establishProtectedPreviewSession(otherPage);
   await signIn(otherPage, otherEmail);
   const otherInitializer = otherPage.getByRole("button", { name: "Continue with canonical Alpha and Beta" });
   await expect(otherInitializer).toBeVisible();

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import Script from "next/script";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { TurnstileField } from "@/components/turnstile-field";
 import { resolveSafeInternalRedirect } from "@/lib/auth/safe-redirect";
 import { createClient } from "@/lib/supabase/client";
 
@@ -25,15 +25,6 @@ const primaryAuthModes: { id: Extract<AuthMode, "sign-in" | "create-account">; l
   { id: "sign-in", label: "Sign in" },
   { id: "create-account", label: "Create account" },
 ];
-
-declare global {
-  interface Window {
-    onCyberSentinelsLoginTurnstile?: (token: string) => void;
-    turnstile?: {
-      reset: () => void;
-    };
-  }
-}
 
 function isRateLimitError(message: string) {
   const normalizedMessage = message.toLowerCase();
@@ -135,6 +126,7 @@ export default function LoginPage() {
   >("checking");
   const [signupSucceeded, setSignupSucceeded] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [nextPath, setNextPath] = useState("/operational-entities");
   const [loadingAction, setLoadingAction] = useState<
     "password" | "create-account" | "magic-link" | "reset" | null
@@ -169,8 +161,6 @@ export default function LoginPage() {
   }
 
   useEffect(() => {
-    window.onCyberSentinelsLoginTurnstile = (token: string) => setTurnstileToken(token);
-
     setShowDevAuth(
       process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH === "true" &&
         window.location.hostname === "localhost"
@@ -287,7 +277,7 @@ export default function LoginPage() {
       };
 
       setTurnstileToken("");
-      window.turnstile?.reset();
+      setTurnstileResetKey((value) => value + 1);
 
       if (!response.ok || !result.ok) {
         setMessage(
@@ -749,8 +739,11 @@ export default function LoginPage() {
 
             {turnstileSiteKey ? (
               <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
-                <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
-                <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-callback="onCyberSentinelsLoginTurnstile" />
+                <TurnstileField
+                  siteKey={turnstileSiteKey}
+                  onTokenChange={setTurnstileToken}
+                  resetKey={turnstileResetKey}
+                />
               </div>
             ) : turnstileRequired ? (
               <p className="rounded-xl border border-amber-900 bg-amber-950/20 p-3 text-sm text-amber-200" role="alert">

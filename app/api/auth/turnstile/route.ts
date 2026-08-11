@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   checkRequestRateLimit,
+  getExpectedTurnstileHostname,
   getClientIp,
   getTurnstileTokenFromJson,
   verifyTurnstileToken,
@@ -15,11 +16,7 @@ export async function POST(req: Request) {
     ? requestedCorrelationId
     : crypto.randomUUID();
   const requestHostname = new URL(req.url).hostname;
-  const configuredPreviewHostname = process.env.TURNSTILE_EXPECTED_HOSTNAME?.trim().toLowerCase() ?? "";
-  const expectedHostname = process.env.VERCEL_ENV === "preview" &&
-    ["localhost", "example.com"].includes(configuredPreviewHostname)
-    ? configuredPreviewHostname
-    : requestHostname;
+  const expectedHostname = getExpectedTurnstileHostname(requestHostname);
   const rateLimited = checkRequestRateLimit(
     req,
     "/api/auth/turnstile",
@@ -62,7 +59,7 @@ export async function POST(req: Request) {
   });
 
   if (!result.ok) {
-    const unavailable = ["turnstile_not_configured", "provider_unavailable", "provider_error"].includes(
+    const unavailable = ["turnstile_not_configured", "turnstile_configuration_invalid", "provider_unavailable", "provider_error"].includes(
       result.reason
     );
     return NextResponse.json(
