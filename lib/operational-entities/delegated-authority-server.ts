@@ -2,6 +2,7 @@ import "server-only";
 
 import type { User } from "@supabase/supabase-js";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { emitPublicApiWebhookEvent } from "@/lib/public-api/v1/webhook-delivery";
 import { createCanonicalTrustTransactionDependencies } from "@/lib/trust-transaction/server";
 import { executeCanonicalTrustTransaction } from "@/src/lib/trust-transaction/canonical";
 import { hashCanonical } from "@/src/lib/trust-core/hash";
@@ -324,6 +325,7 @@ export async function revokeAuthorityDelegation(context: DelegatedAuthorityConte
   await appendReplay(context, delegation.delegateOperationalEntityId, "DELEGATION_REVOKED", ["DELEGATION_REVOKED"], { delegationId, reason });
   await remember(context, delegation.delegateOperationalEntityId, "DELEGATION_REVOKED", delegationId, { reason, identityState: "UNCHANGED" });
   await extendGraph(context, delegation, "DELEGATION_REVOKED");
+  await emitPublicApiWebhookEvent(context.enterpriseId, "authority.revoked", `delegation:${delegationId}`);
   return { delegationId, status: "REVOKED", revokedAt: now, identityState: "UNCHANGED" };
 }
 
@@ -346,6 +348,7 @@ export async function revokeParentAuthority(context: DelegatedAuthorityContext, 
     await remember(context, delegateId, "DELEGATED_AUTHORITY_INVALIDATED", delegationId, { parentAuthorityId: parentId, reason: safeReason, identityState: "VERIFIED" });
   }
   const blastRadius = await authorityBlastRadius(context, parentId);
+  await emitPublicApiWebhookEvent(context.enterpriseId, "authority.revoked", `authority:${parentId}`);
   return { ...(revoked.data as Row), blastRadius, identityState: "UNCHANGED" };
 }
 

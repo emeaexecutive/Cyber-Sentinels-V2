@@ -523,6 +523,104 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
   };
 }
 
+/**
+ * Adapts a tenant-bound external API client into the same canonical
+ * transaction dependency graph used by cookie-authenticated humans. The
+ * principal and tenant are resolved by API-key authentication before this
+ * boundary; no browser session is consulted here.
+ */
+export function createCanonicalTrustTransactionDependenciesForApiClient(input: {
+  enterpriseId: string;
+  clientId: string;
+}): CanonicalTrustTransactionDependencies {
+  const syntheticUser = {
+    id: input.clientId,
+    aud: "authenticated",
+    role: "authenticated",
+    app_metadata: { active_enterprise_id: input.enterpriseId, principal_type: "api_client" },
+    user_metadata: {},
+    identities: [],
+    created_at: new Date(0).toISOString(),
+  } as User;
+  const dependencies = createCanonicalTrustTransactionDependencies({
+    supabase: {} as SupabaseClient,
+    user: syntheticUser,
+  });
+  const db = createServiceRoleClient();
+  dependencies.authenticateActor = async () => ({
+    id: input.clientId,
+    type: "ai_agent",
+    authority: `api-client:${input.clientId}`,
+  });
+  dependencies.resolveTenantFromSession = async () => ({
+    id: input.enterpriseId,
+    name: `tenant:${input.enterpriseId}`,
+  });
+  dependencies.loadTrustObject = async (enterpriseId, subjectType, subjectId) => {
+    const [entity, verification, evidence, authority] = await Promise.all([
+      db.from("operational_entities").select("entity_id,display_reference,canonical_digest,lifecycle_state").eq("enterprise_id", enterpriseId).eq("entity_id", subjectId).maybeSingle(),
+      db.from("operational_entity_native_verifications").select("verification_id,status,verified_at,expires_at,runtime_binding").eq("enterprise_id", enterpriseId).eq("operational_entity_id", subjectId).order("verified_at", { ascending: false }).limit(1).maybeSingle(),
+      db.from("native_entity_identity_evidence").select("evidence_id,expires_at,revoked_at").eq("enterprise_id", enterpriseId).eq("operational_entity_id", subjectId).is("revoked_at", null).order("verified_at", { ascending: false }).limit(1).maybeSingle(),
+      db.from("trust_contracts").select("contract_id,revocation_state,expires_at").eq("enterprise_id", enterpriseId).eq("subject_type", subjectType).eq("subject_id", subjectId).order("issued_at", { ascending: false }).limit(1).maybeSingle(),
+    ]);
+    for (const result of [entity, verification, evidence, authority]) {
+      if (result.error) fail("External API Trust Object resolution", result.error);
+    }
+    if (!entity.data) throw new CanonicalTransactionError("The Operational Entity was not found in this tenant.", 404, "TRUST_OBJECT_NOT_FOUND");
+    const now = Date.now();
+    const identityVerified = Boolean(
+      evidence.data &&
+      Date.parse(String(evidence.data.expires_at)) > now &&
+      verification.data &&
+      ["VERIFIED", "PARTIALLY_VERIFIED"].includes(String(verification.data.status)),
+    );
+    const authorityActive = Boolean(
+      authority.data &&
+      authority.data.revocation_state === "active" &&
+      Date.parse(String(authority.data.expires_at)) > now,
+    );
+    const identityState: FabricTrustState = identityVerified ? "verified" : "degraded";
+    const authorityState: FabricTrustState = authorityActive ? "verified" : "degraded";
+    const trustState: FabricTrustState = identityVerified && authorityActive ? "verified" : "degraded";
+    const reference = evidence.data ? { type: "native_identity_evidence", id: String(evidence.data.evidence_id) } : null;
+    return {
+      enterpriseId,
+      subjectType,
+      subjectId,
+      displayIdentity: String(entity.data.display_reference ?? subjectId),
+      subject: { type: subjectType, id: subjectId, displayName: String(entity.data.display_reference ?? subjectId) },
+      identityState,
+      authorityState,
+      environmentState: "degraded",
+      scopeState: authorityState,
+      evidenceCompleteness: identityVerified ? "complete" : "insufficient",
+      trustState,
+      providerState: "unknown",
+      activeContradictions: [],
+      activeIncidents: [],
+      activeReviews: [],
+      correctiveActions: [],
+      trustDnaReference: null,
+      continuousTrustReference: null,
+      policyId: "resolved-from-trust-contract",
+      canonicalDigest: String(entity.data.canonical_digest),
+      currentTrustState: trustState,
+      trustDnaProfileReference: null,
+      continuousTrustStateReference: null,
+      contradictionSummary: { count: 0, highestState: null, references: [] },
+      activeReviewSummary: { count: 0, required: false, references: [] },
+      incidentSummary: { count: 0, highestState: null, references: [] },
+      replayReference: null,
+      trustMemoryReference: null,
+      evidenceGraphNodeReference: reference,
+      lastEvaluatedAt: String(verification.data?.verified_at ?? new Date(0).toISOString()),
+      policyVersion: "resolved-from-trust-contract",
+      correlationId: crypto.randomUUID(),
+    } satisfies EnterpriseTrustObject;
+  };
+  return dependencies;
+}
+
 export async function loadCanonicalTrustTransactionHistory(input: { supabase: SupabaseClient; user: User; transactionId: string }) {
   if (!uuidPattern.test(input.transactionId)) throw new CanonicalTransactionError("Transaction reference is invalid.", 400, "INVALID_TRANSACTION_REFERENCE");
   const tenant = await resolveSessionTenant(input.supabase, input.user);

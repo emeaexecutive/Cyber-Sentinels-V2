@@ -22,11 +22,12 @@ const flow = [
 ];
 
 const endpoints = [
-  ["POST", "/api/trust-events"],
-  ["GET", "/api/agents"],
-  ["POST", "/api/passports"],
-  ["GET", "/api/passports/[id]"],
-  ["GET", "/api/signals"],
+  ["POST", "/api/v1/agents"],
+  ["POST", "/api/v1/agents/{agentId}/challenge"],
+  ["POST", "/api/v1/agents/{agentId}/proof"],
+  ["POST", "/api/v1/trust/decisions"],
+  ["GET", "/api/v1/trust/transactions/{transactionId}/replay"],
+  ["GET", "/api/v1/trust/transactions/{transactionId}/receipt"],
 ];
 
 export default function DevelopersPage() {
@@ -85,12 +86,17 @@ export default function DevelopersPage() {
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-xl font-semibold">Trust Event Example</h2>
+            <h2 className="text-xl font-semibold">Exact action request</h2>
             <pre className="mt-5 overflow-x-auto rounded-lg border border-zinc-800 bg-black p-4 text-sm leading-7 text-zinc-300">
 {`{
-  "actor_type": "agent",
-  "event_type": "permission_change",
-  "risk_level": "medium"
+  "operational_entity_id": "agent:…",
+  "action": {
+    "type": "read_repository",
+    "target": "repository:a",
+    "purpose": "deployment_evidence_review",
+    "environment": "staging"
+  },
+  "idempotency_key": "gamma-action-001"
 }`}
             </pre>
           </div>
@@ -98,10 +104,14 @@ export default function DevelopersPage() {
 
         <section className="mt-10 grid gap-6 lg:grid-cols-2">
           <div className="rounded-lg border border-zinc-800 bg-black p-5">
-            <h2 className="text-xl font-semibold">SDK Placeholder</h2>
+            <h2 className="text-xl font-semibold">TypeScript SDK v0.1.0</h2>
             <p className="mt-3 text-sm leading-6 text-zinc-500">
-              SDKs and webhook support planned for future releases.
+              Register and cryptographically verify external agents, request
+              ALLOW / REVIEW / DENY, and retrieve transaction, Replay and
+              receipt evidence. Signed outbound decision and trust-change
+              webhook events are supported when a tenant endpoint is configured.
             </p>
+            <div className="mt-4 flex gap-4 text-sm"><Link className="text-cyan-200 underline" href="/developers/quickstart">Agent Gamma quickstart</Link><a className="text-cyan-200 underline" href="/api/v1/openapi.json">OpenAPI 3.1</a></div>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-black p-5">
             <h2 className="text-xl font-semibold">Security & Governance</h2>
