@@ -631,8 +631,12 @@ test("HTML workflow redirects cannot leave the current origin", () => {
 
 test("Siteverify success fails closed when the response hostname does not match", async () => {
   const previousSecret = process.env.TURNSTILE_SECRET_KEY;
+  const previousSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const previousMode = process.env.TURNSTILE_MODE;
   const previousFetch = globalThis.fetch;
   process.env.TURNSTILE_SECRET_KEY = "test-secret";
+  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = "live-site-key";
+  process.env.TURNSTILE_MODE = "live";
   globalThis.fetch = async () => Response.json({
     success: true,
     hostname: "unexpected.example",
@@ -652,13 +656,21 @@ test("Siteverify success fails closed when the response hostname does not match"
     globalThis.fetch = previousFetch;
     if (previousSecret === undefined) delete process.env.TURNSTILE_SECRET_KEY;
     else process.env.TURNSTILE_SECRET_KEY = previousSecret;
+    if (previousSiteKey === undefined) delete process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+    else process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = previousSiteKey;
+    if (previousMode === undefined) delete process.env.TURNSTILE_MODE;
+    else process.env.TURNSTILE_MODE = previousMode;
   }
 });
 
 test("Siteverify success without a valid hostname fails closed", async () => {
   const previousSecret = process.env.TURNSTILE_SECRET_KEY;
+  const previousSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const previousMode = process.env.TURNSTILE_MODE;
   const previousFetch = globalThis.fetch;
   process.env.TURNSTILE_SECRET_KEY = "test-secret";
+  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = "live-site-key";
+  process.env.TURNSTILE_MODE = "live";
   globalThis.fetch = async () => Response.json({ success: true });
 
   try {
@@ -673,6 +685,10 @@ test("Siteverify success without a valid hostname fails closed", async () => {
     globalThis.fetch = previousFetch;
     if (previousSecret === undefined) delete process.env.TURNSTILE_SECRET_KEY;
     else process.env.TURNSTILE_SECRET_KEY = previousSecret;
+    if (previousSiteKey === undefined) delete process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+    else process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = previousSiteKey;
+    if (previousMode === undefined) delete process.env.TURNSTILE_MODE;
+    else process.env.TURNSTILE_MODE = previousMode;
   }
 });
 

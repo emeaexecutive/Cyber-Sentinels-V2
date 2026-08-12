@@ -82,10 +82,10 @@ test("auth affordances remain visible and administrative navigation is role-gate
   for (const label of [
     "Sign in",
     "Create account",
-    "Confirm Password",
+    "Confirm password",
     "Use magic link",
     "Forgot password",
-    "Check your email to verify your account before continuing",
+    "Check your email",
   ]) {
     assert.match(login, new RegExp(label, "i"));
   }

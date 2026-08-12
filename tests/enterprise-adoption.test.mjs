@@ -9,7 +9,8 @@ import {
   trustEvidencePackPdf,
 } from "../lib/trust-transparency.ts";
 
-const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
+const read = async (path) =>
+  (await readFile(new URL(`../${path}`, import.meta.url), "utf8")).replace(/\r\n/g, "\n");
 
 const report = {
   schemaVersion: 1,

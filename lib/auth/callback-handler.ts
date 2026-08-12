@@ -1,9 +1,22 @@
 import { NextResponse } from "next/server";
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { resolveSafeInternalRedirect } from "./safe-redirect.ts";
+import {
+  normalizePasswordResetCorrelationId,
+  PASSWORD_RECOVERY_COOKIE,
+  PASSWORD_RECOVERY_PATH,
+  passwordRecoveryCookieOptions,
+} from "./password-recovery.ts";
 
 type AuthCallbackClient = {
   auth: {
-    exchangeCodeForSession(code: string): Promise<{ error: unknown }>;
+    exchangeCodeForSession(code: string): Promise<{
+      data?: unknown;
+      error: unknown;
+    }>;
+    onAuthStateChange(
+      callback: (event: AuthChangeEvent, session: Session | null) => void | Promise<void>,
+    ): { data: { subscription: { unsubscribe(): void } } };
   };
 };
 
@@ -11,7 +24,7 @@ type AuthCallbackDependencies = {
   createClient(headers: Headers): Promise<AuthCallbackClient>;
   captureOperationalIssue(
     surface: string,
-    severity: "warning" | "error",
+    severity: "info" | "warning" | "error",
     message: string,
     context: Record<string, string | number | boolean | null | undefined>,
   ): void;
@@ -36,12 +49,18 @@ export async function handleAuthCallback(
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
   const next = resolveSafeInternalRedirect(url.searchParams.get("next"), url.origin);
+  const recoveryIntent = next === PASSWORD_RECOVERY_PATH;
+  const correlationId =
+    normalizePasswordResetCorrelationId(url.searchParams.get("request_id")) ??
+    crypto.randomUUID();
   const authHeaders = new Headers();
 
   if (!code) {
     return authRedirect(
       new URL(
-        `/login?next=${encodeURIComponent(next)}&error=missing_verification_code`,
+        recoveryIntent
+          ? "/login?error=recovery_link_invalid"
+          : `/login?next=${encodeURIComponent(next)}&error=missing_verification_code`,
         url.origin,
       ),
       authHeaders,
@@ -50,9 +69,37 @@ export async function handleAuthCallback(
 
   try {
     const supabase = await dependencies.createClient(authHeaders);
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    let passwordRecovery = false;
+    const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") passwordRecovery = true;
+    });
+    let exchangeResult: { error: unknown };
+    try {
+      exchangeResult = await supabase.auth.exchangeCodeForSession(code);
+    } finally {
+      authListener.subscription.unsubscribe();
+    }
+    const { error } = exchangeResult;
 
-    if (!error) return authRedirect(new URL(next, url.origin), authHeaders);
+    if (!error) {
+      if (passwordRecovery) {
+        const response = authRedirect(new URL(PASSWORD_RECOVERY_PATH, url.origin), authHeaders);
+        response.cookies.set(
+          PASSWORD_RECOVERY_COOKIE,
+          correlationId,
+          passwordRecoveryCookieOptions(),
+        );
+        dependencies.captureOperationalIssue(
+          "password_recovery",
+          "info",
+          "PASSWORD_RECOVERY_CALLBACK",
+          { correlation_id: correlationId, redirect_type: "recovery" },
+        );
+        return response;
+      }
+
+      return authRedirect(new URL(next, url.origin), authHeaders);
+    }
 
     dependencies.captureOperationalIssue(
       "auth_callback",
@@ -74,7 +121,9 @@ export async function handleAuthCallback(
 
   return authRedirect(
     new URL(
-      `/login?next=${encodeURIComponent(next)}&error=verification_failed`,
+      recoveryIntent
+        ? "/login?error=recovery_link_invalid"
+        : `/login?next=${encodeURIComponent(next)}&error=verification_failed`,
       url.origin,
     ),
     authHeaders,

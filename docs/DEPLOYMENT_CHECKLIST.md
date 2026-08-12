@@ -23,6 +23,8 @@ Use this checklist for each design-partner environment. Repository inspection ca
 - [ ] Confirm production domain, redirect URLs, build command and Node version.
 - [ ] Verify Vercel environment separation for development, preview and production.
 - [ ] Confirm Cloudflare DNS/proxy/TLS mode and Turnstile keys where enabled.
+- [ ] Keep `TURNSTILE_MODE=live` in Production; if a controlled Preview uses `preview-test`, scope the official dummy pair and `TURNSTILE_EXPECTED_HOSTNAME` to that Preview branch only.
+- [ ] Confirm Production rejects Cloudflare test credentials before Siteverify.
 - [ ] Test security headers, cache exclusions for authenticated routes and rollback procedure.
 
 ## Providers and webhooks
