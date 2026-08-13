@@ -18,11 +18,12 @@ export type TrustOSStatusItem = {
 
 const baseAreas = [
   ["Overview", "/dashboard"],
-  ["Operations", "/workspace"],
-  ["Trust Centre", "/trust-centre"],
-  ["Trust", "/trust-center"],
-  ["Runtime", "/dashboard/session-integrity"],
-  ["Governance", "/dashboard/governance"],
+  ["Entities", "/operational-entities"],
+  ["Decisions", "/trust/transactions"],
+  ["Evidence", "/evidence"],
+  ["Replay", "/trust-replay"],
+  ["Developers", "/developers"],
+  ["Account", "/account"],
 ] as const;
 
 function statusLabel(status: TrustOSStatus) {
@@ -54,7 +55,7 @@ export function EnterpriseTrustOSShell({
   const showContext = !["/login", "/verify-email", "/admin/access"].some((route) => pathname.startsWith(route));
   const areas = accessLevel === "admin"
     ? [...baseAreas, ["Providers", "/admin/provider-status"] as const, ["Administration", "/admin/access"] as const]
-    : [...baseAreas, ["Providers", "/trust-center#providers"] as const, ["Administration", "/team-access"] as const];
+    : baseAreas;
 
   useEffect(() => {
     function handleShortcut(event: KeyboardEvent) {

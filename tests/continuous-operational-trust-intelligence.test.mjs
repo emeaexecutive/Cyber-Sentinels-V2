@@ -242,7 +242,7 @@ test("source, UI and capability truth preserve the derived-only architecture", a
   assert.doesNotMatch(source, /will attack/i);
   assert.match(matrix, /Blast Radius and Trust Cascade/);
   for (const heading of ["Operational entities", "Trust changes", "Attention required", "Network impact"]) assert.match(centre, new RegExp(heading, "i"));
-  for (const projection of ["Trust Health", "Trust Drift", "Trust Confidence", "Trust Stability", "Trust Prediction", "Trust Narrative", "Trust Recommendation", "Trust Recovery", "WHY?"]) assert.match(entity, new RegExp(projection.replace("?", "\\?")));
+  for (const projection of ["Current Decision", "Current Trust", "What Changed / Drift", "Evidence Confidence", "Next Recommended Action", "Trust Stability", "Trust Prediction", "Trust Narrative", "Trust Recovery", "WHY?"]) assert.match(entity, new RegExp(projection.replace("?", "\\?")));
   assert.match(architecture, /Operational Entity remains the canonical spine/);
   assert.match(architecture, /Trust Cascade is DERIVED/);
 });

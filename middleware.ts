@@ -16,6 +16,7 @@ type CookieToSet = {
 };
 
 const userPagePrefixes = [
+  "/account",
   "/agents",
   "/billing",
   "/clearances",
@@ -37,8 +38,10 @@ const userPagePrefixes = [
   "/recruiter/dashboard",
   "/replay",
   "/dashboard",
+  "/evidence",
   "/dashboard/interview-risk",
   "/developers/api-keys",
+  "/operational-entities",
   "/workspace",
   "/agents/register",
   "/timeline",

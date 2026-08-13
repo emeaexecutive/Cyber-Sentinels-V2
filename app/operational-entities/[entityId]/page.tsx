@@ -73,13 +73,16 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
     ["Evidence Provider", responsibility.evidenceProvider],
     ["Authority", latestTransaction?.authority_reference ?? detail.entity.currentAuthorityReferences],
   ];
-  const intelligenceItems: Array<[string, unknown]> = [
-    ["Trust Health", intelligence.health.overallState],
-    ["Trust Drift", intelligence.drift.state],
-    ["Trust Confidence", intelligence.confidence.level],
+  const primaryIntelligence: Array<[string, unknown]> = [
+    ["Current Decision", latestTransaction?.decision ?? "NO DECISION RECORDED"],
+    ["Current Trust", intelligence.health.overallState],
+    ["What Changed / Drift", intelligence.drift.state],
+    ["Evidence Confidence", intelligence.confidence.level],
+    ["Next Recommended Action", intelligence.recommendation.recommendation],
+  ];
+  const deeperIntelligence: Array<[string, unknown]> = [
     ["Trust Stability", intelligence.stability.state],
     ["Trust Prediction", intelligence.prediction.prediction],
-    ["Trust Recommendation", intelligence.recommendation.recommendation],
     ["Trust Recovery", intelligence.recovery?.state ?? "NOT_REQUIRED_OR_NOT_RECORDED"],
   ];
 
@@ -88,7 +91,7 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
       <header>
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Operational Entity · Persisted tenant data</p>
         <h1 className="mt-2 text-3xl font-semibold">{detail.entity.displayReference}</h1>
-        <p className="mt-3 max-w-3xl break-all font-mono text-xs text-slate-500">{detail.entity.entityId}</p>
+        <details className="mt-3 max-w-3xl text-xs text-slate-500"><summary className="cursor-pointer font-semibold">Technical entity reference</summary><p className="mt-2 break-all font-mono">{detail.entity.entityId}</p></details>
         <nav className="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
           {alphaEntity ? <Link className="underline" href={`/operational-entities/${encodeURIComponent(alphaEntity.entityId)}`}>Agent Alpha</Link> : null}
           {betaEntity ? <Link className="underline" href={`/operational-entities/${encodeURIComponent(betaEntity.entityId)}`}>Agent Beta</Link> : null}
@@ -131,8 +134,13 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
         beta={{ entityId: betaDetail.entity.entityId, displayName: "Agent Beta", accountableOwnerId: betaDetail.entity.accountableOwnerId, organizationId: betaDetail.entity.organizationReference, authorityReference: null, activeCredentialId: betaDetail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE") ? String(betaDetail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE")?.credential_id) : null, runtimeEnvironment: "preview-beta-runtime" }}
       /> : null}
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {intelligenceItems.map(([label, item]) => <article key={label} className={panel}><p className="text-xs uppercase tracking-wide text-slate-500">{label}</p><p className="mt-3 break-words text-lg font-semibold">{value(item)}</p></article>)}
+      <section aria-labelledby="current-operational-intelligence">
+        <h2 id="current-operational-intelligence" className="text-xl font-semibold">Current operational intelligence</h2>
+        <p className="mt-2 max-w-3xl text-sm text-slate-600">Decision first, then trust condition, material change, evidence confidence, and the next safe action. These values are projections of persisted records, not a parallel trust engine.</p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {primaryIntelligence.map(([label, item]) => <article key={label} className={panel}><p className="text-xs uppercase tracking-wide text-slate-500">{label}</p><p className="mt-3 break-words text-base font-semibold">{value(item)}</p></article>)}
+        </div>
+        <details className={`${panel} mt-4`}><summary className="cursor-pointer font-semibold">Deeper trust intelligence</summary><dl className="mt-4 grid gap-4 text-sm sm:grid-cols-3">{deeperIntelligence.map(([label, item]) => <div key={label}><dt className="text-slate-500">{label}</dt><dd className="mt-1 font-semibold">{value(item)}</dd></div>)}</dl></details>
       </section>
 
       <section id="delegated-authority" className={panel}>

@@ -72,7 +72,7 @@
     "test:category-leadership": "node --experimental-strip-types --test tests/category-leadership.test.mjs",
     "test:enterprise-adoption": "node --experimental-strip-types --test tests/enterprise-adoption.test.mjs",
     "test:enterprise-experience": "node --test tests/enterprise-experience.test.mjs",
-    "test:ui-ux": "node --test tests/ui-ux-readiness.test.mjs tests/login-experience.test.mjs",
+    "test:ui-ux": "node --experimental-strip-types --test tests/ui-ux-readiness.test.mjs tests/login-experience.test.mjs tests/product-route-classification.test.mjs",
     "test:request-demo": "tsx --test tests/request-demo-api.test.mjs",
     "test:turnstile": "tsx --test tests/turnstile-configuration.test.mjs",
     "test:trust-intelligence": "node --experimental-strip-types --test tests/trust-intelligence.test.mjs tests/trust-intelligence-integration.test.mjs tests/trust-intelligence-api.test.mjs tests/rls/trust-intelligence.test.mjs tests/load/trust-intelligence-load.test.mjs",
