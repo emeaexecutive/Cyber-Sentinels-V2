@@ -5,8 +5,8 @@ Last verified: 2026-08-14. This document is the release-owner classification rec
 | Project ref | Classification | Observed state | Permitted use |
 | --- | --- | --- | --- |
 | `kecgtsfibkypjuaxqbjx` | **PRODUCTION** | `ACTIVE_HEALTHY` | Read-only release checks unless the owner gives separate, explicit Production authority. Never use for Preview qualification. |
-| `agpyhygpfmppjkxwcpac` | **STAGING** | `ACTIVE_HEALTHY`, locally linked, default branch only | Canonical non-Production integration and qualification environment. |
-| `hoxcqzeqnflebwrqupue` | **PREVIEW — PR #56** | `ACTIVE_HEALTHY`; branch reports `MIGRATIONS_FAILED` | Password-recovery Preview only. Do not promote while the branch migration gate is red. |
+| `agpyhygpfmppjkxwcpac` | **STAGING** | `ACTIVE_HEALTHY`; Product Closure bootstrap and security reconciliation applied | Canonical non-Production integration and Product Closure qualification environment. |
+| `hoxcqzeqnflebwrqupue` | **PREVIEW — PR #56** | `ACTIVE_HEALTHY`; branch reports `MIGRATIONS_FAILED`; immutable parent is Production | Password-recovery Preview only. Do not promote while the Supabase branch gate is red. |
 | `xicwnshrnzpjrpgjqcao` | **PREVIEW — PR #55** | `ACTIVE_HEALTHY`; functions deployed | External-agent trust SDK Preview only. Its successful checks do not qualify another branch. |
 | `qkubvouilwggilabwpzp` | **UNKNOWN / OUT OF SCOPE** | `INACTIVE`; named TracFace | Not a Cyber Sentinels release target. Do not mutate or reference. |
 
@@ -18,6 +18,14 @@ Last verified: 2026-08-14. This document is the release-owner classification rec
 - Production is `kecgtsfibkypjuaxqbjx`; scripts and CI guards must fail closed if its ref appears in a non-Production operation.
 - Secrets, SMTP credentials, tokens, and password material never belong in this map or qualification output.
 - A project absent from this table is `UNKNOWN` until the release owner verifies it.
+
+## Product Closure Preview
+
+- Vercel branch: `fix/cpto-qualified-preview`.
+- Public Supabase URL and publishable/anonymous keys: branch-scoped to **STAGING**.
+- Service-role key: branch-scoped fail-closed marker; a canonical-staging service credential was not available from the connected secret stores. The global Production service secret is therefore not inherited.
+- Turnstile: official Preview test configuration, branch-scoped only.
+- Supabase automated Preview integration: cancelled because it is attached to the Production-parented Supabase project. Canonical staging was migrated and qualified directly; Production was not mutated.
 
 ## Transactional email truth
 
