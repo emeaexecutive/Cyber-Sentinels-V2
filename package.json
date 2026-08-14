@@ -109,7 +109,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "pretest": "npm run test:environment-safety && npm run test:dependency-baseline && npm run test:react-upgrade && npm run test:product-proof && npm run test:turnstile",
+    "test:workspace-bootstrap": "node --test tests/customer-workspace-bootstrap.test.mjs tests/product-closure-security-reconciliation.test.mjs",
+    "pretest": "npm run test:environment-safety && npm run test:dependency-baseline && npm run test:react-upgrade && npm run test:product-proof && npm run test:turnstile && npm run test:workspace-bootstrap",
     "test": "npm run test:supabase-auth && npm run test:request-demo && npm run test:providers && npm run test:hopae && npm run test:provider-rls && npm run test:identity-signals && npm run test:identity-signal-rls && npm run test:identity-runtime-hardening && npm run test:identity-signals-ui && npm run test:trust-events && npm run test:consent && npm run test:consensus-engine && npm run test:trust-architecture && npm run test:trust-centre && npm run test:continuous-trust && npm run test:continuous-trust-engine && npm run test:trust-intelligence && npm run test:enterprise-trust-graph && npm run test:trust-dna && npm run test:replay && npm run test:scope-continuity && npm run test:epic-26-lease-hash && npm run test:serious-incidents && npm run test:audit-runner && npm run test:detection && npm run test:ml-validation && npm run test:ori && npm run test:ori-rls && npm run test:trust-explanation && npm run test:decision-intelligence && npm run test:enterprise-platform && npm run test:trust-decision-intelligence && npm run test:standards-readiness && npm run test:trust-lifecycle && npm run test:continuous-trust-validation && npm run test:public-surface && npm run test:pricing-surface && npm run test:technical-truth && npm run test:product-truth && npm run test:native-verification && npm run test:native-delegation && npm run test:native-enforcement && npm run test:public-positioning && npm run test:trust-os && npm run test:trust-fabric && npm run test:enterprise-trust-fabric && npm run test:epic-26-27-integration && npm run test:provider-health-reconciliation && npm run test:trust-relationships-reconciliation && npm run test:migration-namespace && npm run test:release-manager && npm run test:legacy-source-contracts && npm run test:enterprise-storytelling && npm run test:enterprise-readiness && npm run test:release-candidate && npm run test:design-partner && npm run test:category-leadership && npm run test:enterprise-adoption && npm run test:enterprise-experience && npm run test:ui-ux && npm run test:canonical-trust-transaction && npm run test:provider-portability-qualification && npm run test:continuous-operational-intelligence && npm run test:rc1 && npm run test:rc1-performance && npm run test:rc2-operational-readiness && npm run test:rc2 && npm run test:rc3 && npm run test:rc4 && npm run test:rc5 && npm run test:rc6 && npm run test:rc7",
     "verify:17.1d": "tsx scripts/verify-epic-17-1d.ts",
     "verify:17.1e": "tsx scripts/verify-epic-17-1e.ts",
@@ -167,6 +168,7 @@
   },
   "overrides": {
     "js-yaml": "4.3.1",
+    "nanoid": "3.3.18",
     "postcss": "$postcss",
     "sharp": "0.35.3"
   }
