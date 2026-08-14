@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { ensureCustomerWorkspace } from "@/lib/onboarding/customer-workspace";
 import { createOperationalEntity, type ExternalIdentityReference, type OperationalEntity } from "./operational-entity";
 
 type Row = Record<string, unknown>;
@@ -65,19 +66,8 @@ function externalIdentity(row: Row): ExternalIdentityReference {
 }
 
 export async function resolveOperationalEntityTenantId(supabase: SupabaseClient, user: User) {
-  const active = String(user.app_metadata?.active_enterprise_id ?? "");
-  if (active) {
-    const workspace = await supabase.from("trust_workspaces").select("id").eq("id", active).maybeSingle();
-    if (workspace.error) throw workspace.error;
-    if (workspace.data) return String(workspace.data.id);
-  }
-  const owned = await supabase.from("trust_workspaces").select("id").eq("created_by", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
-  if (owned.error) throw owned.error;
-  if (owned.data) return String(owned.data.id);
-  const membership = await supabase.from("workspace_members").select("workspace_id").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
-  if (membership.error) throw membership.error;
-  if (!membership.data?.workspace_id) throw new Error("SESSION_TENANT_UNAVAILABLE");
-  return String(membership.data.workspace_id);
+  const workspace = await ensureCustomerWorkspace({ supabase, user });
+  return workspace.workspaceId;
 }
 
 export async function loadOperationalEntities(input: { supabase: SupabaseClient; user: User }): Promise<OperationalEntity[]> {

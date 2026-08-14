@@ -1,21 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { CreateOperationalEntityForm } from "@/components/create-operational-entity-form";
 import { createClient } from "@/lib/supabase/server";
-import { ensureControlledAgentAlpha } from "@/lib/onboarding/controlled-agent-alpha";
+import { CustomerWorkspaceError, ensureCustomerWorkspace } from "@/lib/onboarding/customer-workspace";
 import type { OperationalEntity } from "@/lib/operational-entities/operational-entity";
 import { loadOperationalEntities, resolveOperationalEntityTenantId } from "@/lib/operational-entities/server";
 
 export const dynamic = "force-dynamic";
-
-async function initializeControlledAgentAlpha() {
-  "use server";
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/operational-entities");
-  const result = await ensureControlledAgentAlpha({ supabase, user });
-  redirect(`/operational-entities/${encodeURIComponent(result.entityId)}`);
-}
 
 export default async function OperationalEntitiesPage() {
   const supabase = await createClient();
@@ -23,12 +14,16 @@ export default async function OperationalEntitiesPage() {
   if (!user) redirect("/login?next=/operational-entities");
   let entities: OperationalEntity[] = [];
   let loadError = "";
+  let correlationId = "";
+  let enterpriseId = "";
   const identityByEntity = new Map<string, string>();
   const decisionByEntity = new Map<string, { decision: string; requestedAt: string }>();
   const authorityByReference = new Map<string, string>();
   try {
+    const workspace = await ensureCustomerWorkspace({ supabase, user });
+    enterpriseId = workspace.workspaceId;
     entities = await loadOperationalEntities({ supabase, user });
-    const enterpriseId = await resolveOperationalEntityTenantId(supabase, user);
+    enterpriseId = await resolveOperationalEntityTenantId(supabase, user);
     const entityIds = entities.map((entity) => entity.entityId);
     const authorityReferences = [...new Set(entities.flatMap((entity) => entity.currentAuthorityReferences))];
     if (entityIds.length) {
@@ -48,17 +43,13 @@ export default async function OperationalEntitiesPage() {
       }
     }
   } catch (error) {
-    if (error instanceof Error && error.message === "SESSION_TENANT_UNAVAILABLE") {
-      entities = [];
-    } else {
-      console.error("Operational Entity product entry failed safely.", {
-        code: (error as { code?: string })?.code ?? "UNKNOWN",
-      });
-      loadError = "Operational Entities could not be loaded. Retry before creating evidence.";
-    }
+    correlationId = error instanceof CustomerWorkspaceError ? error.correlationId : crypto.randomUUID();
+    console.error("Operational Entity product entry failed safely.", {
+      correlationId,
+      code: (error as { code?: string })?.code ?? "UNKNOWN",
+    });
+    loadError = "Operational Entities could not be loaded. Retry before creating evidence.";
   }
-  const hasAlpha = entities.some((entity) => entity.displayReference.trim().toLowerCase() === "agent alpha");
-  const hasBeta = entities.some((entity) => entity.displayReference.trim().toLowerCase() === "agent beta");
 
   return (
     <main className="mx-auto flex min-h-screen max-w-6xl flex-col gap-6 px-6 py-16">
@@ -68,9 +59,11 @@ export default async function OperationalEntitiesPage() {
         <p className="max-w-3xl text-sm leading-6 text-slate-600">Identity platforms tell you which AI agents exist and what they can access. Cyber Sentinels preserves whether consequential actions remained within delegated authority and what happened next. Your provider may operate the controls. You own the trust record.</p>
       </header>
       {loadError ? (
-        <p className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-900" role="alert">
-          {loadError}
-        </p>
+        <section className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-900" role="alert">
+          <p>{loadError}</p>
+          <p className="mt-2 text-xs">Support reference: {correlationId}</p>
+          <Link className="mt-4 inline-flex font-semibold underline" href="/operational-entities">Retry</Link>
+        </section>
       ) : null}
       <section className="grid gap-4 md:grid-cols-2">
         {entities.map((entity) => {
@@ -108,18 +101,14 @@ export default async function OperationalEntitiesPage() {
             <div className="mt-6"><Link className="inline-flex text-sm font-semibold text-slate-900 underline" href={`/operational-entities/${encodeURIComponent(entity.entityId)}`}>View persisted trust record</Link></div>
           </article>;
         })}
-        {(!hasAlpha || !hasBeta) && !loadError ? (
+        {!entities.length && !loadError && enterpriseId ? (
           <article className="rounded-2xl border border-cyan-200 bg-cyan-50 p-6 text-sm text-slate-700 md:col-span-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-800">First trust transaction</p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-950">Resolve canonical Agent Alpha and Agent Beta</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-800">Empty workspace</p>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-950">Create your first Operational Entity</h2>
             <p className="mt-3 max-w-3xl leading-6">
-              This resolves the tenant&apos;s existing Alpha/Beta records or initializes the canonical first-run pair, then binds Alpha to a persisted authority for READ on Repositories A and B. Beta receives no authority until both agents prove identity, Alpha signs a strict READ Repository A subset, and Beta accepts it. No identity evidence or decision is fabricated here.
+              Register the real agent or system that will request a consequential action. Registration creates a tenant-scoped record only; identity, authority and trust remain unverified until evidence is supplied.
             </p>
-            <form action={initializeControlledAgentAlpha} className="mt-5">
-              <button type="submit" className="rounded-lg bg-slate-950 px-5 py-3 font-semibold text-white hover:bg-slate-800">
-                Continue with canonical Alpha and Beta
-              </button>
-            </form>
+            <CreateOperationalEntityForm workspaceId={enterpriseId} />
           </article>
         ) : null}
       </section>
