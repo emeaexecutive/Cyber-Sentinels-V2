@@ -1,7 +1,6 @@
 import "server-only";
 
 import type { SupabaseClient, User } from "@supabase/supabase-js";
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 type WorkspaceRow = { id: string };
 
@@ -62,11 +61,7 @@ export async function ensureCustomerWorkspace(input: {
   correlationId?: string;
 }) {
   const correlationId = input.correlationId ?? crypto.randomUUID();
-  const { user } = input;
-  // The caller establishes the actor with the cookie-bound client before this
-  // boundary. Bootstrap needs an atomic server-side path because a new owner
-  // cannot satisfy membership-gated SELECT until the first membership exists.
-  const supabase = createServiceRoleClient();
+  const { supabase, user } = input;
   const activeWorkspaceId = String(user.app_metadata?.active_enterprise_id ?? "");
 
   if (activeWorkspaceId) {
