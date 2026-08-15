@@ -24,6 +24,8 @@ import type {
   TrustFabricDecisionEnvelope,
 } from "../trust-fabric/types.ts";
 import { deriveTrustConfidence, type TrustConclusionConfidence } from "../../../lib/trust-intelligence.ts";
+import type { CapabilityGovernanceEvaluation } from "../../../lib/operational-entities/capability-governance.ts";
+import type { InterAgentConflictEvaluation } from "../../../lib/operational-entities/inter-agent-authority-conflict.ts";
 
 export type CanonicalTransactionDecision = "ALLOW" | "REVIEW" | "DENY";
 export type CanonicalOperationalState = "verified" | "degraded" | "suspended";
@@ -51,6 +53,8 @@ export type CanonicalTrustTransactionInput = {
     contradictions?: string[];
     reviewerState?: string;
     authorization?: { decision: CanonicalTransactionDecision; reasonCodes: string[] };
+    capabilityGovernance?: CapabilityGovernanceEvaluation;
+    interAgentAuthorityConflict?: InterAgentConflictEvaluation;
   };
 };
 
@@ -318,10 +322,23 @@ export function evaluateCanonicalTrustDecision(input: {
   requestedAt: string;
   correlationId: string;
 }): CanonicalDecisionRecord {
-  const evidenceReferences = input.evidence.map((item) => ({ type: "normalized_provider_evidence", id: item.reference }));
+  const capabilityGovernance = input.transactionInput.managedControl?.capabilityGovernance;
+  const interAgentConflict = input.transactionInput.managedControl?.interAgentAuthorityConflict;
+  const managedControlEvidenceReferences = [
+    ...(capabilityGovernance?.evidenceReferences.map((id) => ({ type: "capability_governance_evidence", id })) ?? []),
+    ...(interAgentConflict?.evidenceReferences.map((id) => ({ type: "inter_agent_relationship_evidence", id })) ?? []),
+  ];
+  const evidenceReferences = [
+    ...input.evidence.map((item) => ({ type: "normalized_provider_evidence", id: item.reference })),
+    ...managedControlEvidenceReferences,
+  ];
   const evidenceTypes = new Set(input.evidence.map((item) => item.type));
   const evidenceComplete = input.authority.requiredEvidenceTypes.every((type) => evidenceTypes.has(type));
-  const evidenceDigest = hashCanonical(input.evidence.map((item) => ({ reference: item.reference, event: item.providerEventId, digest: item.sourceDigest, outcome: item.outcome, observedAt: item.observedAt, expiresAt: item.expiresAt })));
+  const evidenceDigest = hashCanonical({
+    providerEvidence: input.evidence.map((item) => ({ reference: item.reference, event: item.providerEventId, digest: item.sourceDigest, outcome: item.outcome, observedAt: item.observedAt, expiresAt: item.expiresAt })),
+    capabilityGovernanceDigest: capabilityGovernance?.snapshot.digest ?? null,
+    interAgentConflictDigest: interAgentConflict?.snapshot.digest ?? null,
+  });
   const authorityEvidenceReferences = input.authority.evidenceReferences;
   const evaluation = evaluateTrustContract({
     contract: input.authority,
@@ -423,14 +440,24 @@ export function evaluateCanonicalTrustDecision(input: {
   const continuityConflict = requestedEnforcement?.runtimeObservation === "not_enforced" || requestedEnforcement?.destinationObservation === "not_enforced";
   const activeIncidentReview = input.trustObject.activeIncidents.length > 0;
   const delegatedAuthorization = input.transactionInput.managedControl?.authorization;
+  const managedControlEntityBindingInvalid = Boolean(
+    capabilityGovernance && capabilityGovernance.snapshot.operationalEntityId !== input.operationalEntity.entityId,
+  ) || Boolean(
+    interAgentConflict
+    && interAgentConflict.snapshot.sourceAgent !== input.operationalEntity.entityId
+    && interAgentConflict.snapshot.targetAgent !== input.operationalEntity.entityId,
+  );
   let decision: CanonicalTransactionDecision = "ALLOW";
-  if (delegatedAuthorization?.decision === "DENY" || inactiveEntity || missingAccountability || !input.authorityScopeValid || negativeEvidence || evaluation.reasonCodes.some((reason) => hardDenyReasons.has(reason)) || evaluation.outcome === "revoked") decision = "DENY";
-  else if (delegatedAuthorization?.decision === "REVIEW" || unreadyEntity || !evidenceComplete || !input.evidenceFresh || evidenceConflict || highConsequenceIndependenceGap || continuityConflict || activeIncidentReview || ["paused", "review_required", "satisfied_with_degraded_evidence"].includes(evaluation.outcome)) decision = "REVIEW";
+  if (delegatedAuthorization?.decision === "DENY" || capabilityGovernance?.decision === "DENY" || interAgentConflict?.decision === "DENY" || managedControlEntityBindingInvalid || inactiveEntity || missingAccountability || !input.authorityScopeValid || negativeEvidence || evaluation.reasonCodes.some((reason) => hardDenyReasons.has(reason)) || evaluation.outcome === "revoked") decision = "DENY";
+  else if (delegatedAuthorization?.decision === "REVIEW" || capabilityGovernance?.decision === "REVIEW" || interAgentConflict?.decision === "REVIEW" || unreadyEntity || !evidenceComplete || !input.evidenceFresh || evidenceConflict || highConsequenceIndependenceGap || continuityConflict || activeIncidentReview || ["paused", "review_required", "satisfied_with_degraded_evidence"].includes(evaluation.outcome)) decision = "REVIEW";
   const trustState: CanonicalOperationalState = decision === "ALLOW" ? "verified" : decision === "REVIEW" ? "degraded" : "suspended";
   const reasonCodes = [...new Set([
     ...evaluation.reasonCodes,
     ...(delegatedAuthorization?.reasonCodes ?? []),
+    ...(capabilityGovernance?.reasonCodes ?? []),
+    ...(interAgentConflict?.reasonCodes ?? []),
     ...entityStateReason,
+    ...(managedControlEntityBindingInvalid ? ["MANAGED_CONTROL_ENTITY_BINDING_INVALID"] : []),
     ...(missingAccountability ? ["ACCOUNTABLE_OWNER_MISSING"] : []),
     ...(input.authorityScopeValid ? ["AUTHORITY_SCOPE_VALID"] : ["AUTHORITY_SCOPE_INVALID"]),
     ...(input.evidence.length ? [] : ["EVIDENCE_MISSING"]),
@@ -484,7 +511,12 @@ export function evaluateCanonicalTrustDecision(input: {
     operationalEntityVersion: input.operationalEntity.canonicalDigest,
     externalIdentityReferences: input.operationalEntity.externalIdentityReferences,
     accountableHuman: input.operationalEntity.accountableOwnerId,
-    authorityLineageReferences: [input.authority.contractId, ...authorityEvidenceReferences.map((reference) => `${reference.type}:${reference.id}`)],
+    authorityLineageReferences: [
+      input.authority.contractId,
+      ...authorityEvidenceReferences.map((reference) => `${reference.type}:${reference.id}`),
+      ...(capabilityGovernance?.evidenceReferences.map((reference) => `capability_governance_evidence:${reference}`) ?? []),
+      ...(interAgentConflict?.evidenceReferences.map((reference) => `inter_agent_relationship_evidence:${reference}`) ?? []),
+    ],
     responsibilityLineage,
     providerHealth: input.transactionInput.managedControl?.providerHealth ?? Object.fromEntries(input.evidence.map((item) => [item.providerId, "evidence_received"])),
     providerEvidence: managedEvidence,
@@ -497,6 +529,8 @@ export function evaluateCanonicalTrustDecision(input: {
     consequence,
     confidenceInConclusion: confidence.level,
     decisionDigest: decisionEnvelope.deterministicDigest,
+    capabilityGovernance: capabilityGovernance?.snapshot ?? null,
+    interAgentAuthorityConflict: interAgentConflict?.snapshot ?? null,
     reviewerState: input.transactionInput.managedControl?.reviewerState ?? (decision === "REVIEW" ? "required" : "not_required"),
   });
   return {

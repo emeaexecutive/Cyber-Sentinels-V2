@@ -5,6 +5,9 @@ import { loadOperationalEntities, loadOperationalEntityDetail } from "@/lib/oper
 import { projectOperationalEntityIntelligence } from "@/lib/operational-entities/intelligence";
 import { NativeEntityVerificationPanel } from "@/components/native-entity-verification-panel";
 import { AlphaBetaProductProof } from "@/components/alpha-beta-product-proof";
+import { OperationalEntityGovernanceSummary } from "@/components/operational-entity-governance-summary";
+import type { CapabilityGovernanceDecisionSnapshot } from "@/lib/operational-entities/capability-governance";
+import type { InterAgentConflictDecisionSnapshot } from "@/lib/operational-entities/inter-agent-authority-conflict";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +18,7 @@ const value = (input: unknown) => {
   if (typeof input === "object") return JSON.stringify(input);
   return String(input);
 };
+const textValue = (input: unknown) => typeof input === "string" ? input : null;
 
 export default async function OperationalEntityDetailPage({ params }: { params: Promise<{ entityId: string }> }) {
   const supabase = await createClient();
@@ -32,6 +36,9 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
   const intelligence = projectOperationalEntityIntelligence(detail);
 
   const latestTransaction = detail.transactions.at(-1);
+  const decisionSnapshot = (latestTransaction?.decision_time_snapshot ?? {}) as Record<string, unknown>;
+  const capabilityGovernance = decisionSnapshot.capabilityGovernance as CapabilityGovernanceDecisionSnapshot | null | undefined;
+  const interAgentConflict = decisionSnapshot.interAgentAuthorityConflict as InterAgentConflictDecisionSnapshot | null | undefined;
   const responsibility = (latestTransaction?.responsibility_lineage ?? {}) as Record<string, unknown>;
   const latestTransition = detail.providerTransitions.at(-1);
   const latestEnforcement = detail.enforcementEvents.at(-1);
@@ -142,6 +149,16 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
         </div>
         <details className={`${panel} mt-4`}><summary className="cursor-pointer font-semibold">Deeper trust intelligence</summary><dl className="mt-4 grid gap-4 text-sm sm:grid-cols-3">{deeperIntelligence.map(([label, item]) => <div key={label}><dt className="text-slate-500">{label}</dt><dd className="mt-1 font-semibold">{value(item)}</dd></div>)}</dl></details>
       </section>
+
+      <OperationalEntityGovernanceSummary
+        entityName={detail.entity.displayReference}
+        identityStatus={textValue(latestNativeVerification?.status)}
+        authorityStatus={textValue(authorityResult.data?.revocation_state)}
+        canonicalDecision={textValue(latestTransaction?.decision)}
+        capabilityGovernance={capabilityGovernance}
+        interAgentConflict={interAgentConflict}
+        transactionHref={latestTransaction ? `/trust/transactions/${String(latestTransaction.transaction_id)}` : null}
+      />
 
       <section id="delegated-authority" className={panel}>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700">Authority Lineage · Native cryptographic delegation</p>

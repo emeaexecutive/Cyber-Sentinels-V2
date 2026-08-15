@@ -5,6 +5,8 @@ import {
   type OperationalEntity,
 } from "./operational-entity.ts";
 import { hashCanonical } from "../../src/lib/trust-core/hash.ts";
+import type { CapabilityGovernanceDecisionSnapshot } from "./capability-governance.ts";
+import type { InterAgentConflictDecisionSnapshot } from "./inter-agent-authority-conflict.ts";
 
 export type ExternalIdentityChangeType =
   | "EXTERNAL_IDENTITY_APPEARED"
@@ -179,7 +181,17 @@ export type MaterialProviderTrustMemoryEvent =
   | "MIGRATION_EVIDENCE_GAP"
   | "HISTORIC_EVIDENCE_RECOVERED"
   | "PROVIDER_CORRECTION"
-  | "FALSE_POSITIVE_CONFLICT_RESOLVED";
+  | "FALSE_POSITIVE_CONFLICT_RESOLVED"
+  | "CAPABILITY_CLASS_CHANGED"
+  | "CAPABILITY_EVALUATION_EXPIRED"
+  | "MODEL_ENVIRONMENT_CHANGED"
+  | "MODEL_REAUTHORIZED"
+  | "INTER_AGENT_CONFLICT_FIRST_OBSERVED"
+  | "INTER_AGENT_CONFLICT_ESCALATED"
+  | "AUTHORITY_CONSTRAINED_DUE_TO_CONFLICT"
+  | "HUMAN_ARBITRATION_COMPLETED"
+  | "CONFLICT_RESOLVED"
+  | "AUTHORITY_RESTORED";
 
 export type ProviderTransitionTrustMemoryEvent =
   | "PROVIDER_REPLACEMENT_STARTED"
@@ -212,6 +224,8 @@ export type DecisionTimeSnapshot = Readonly<{
   consequence?: OperationalConsequenceClassification;
   confidenceInConclusion?: "HIGH" | "MODERATE" | "LOW" | "INSUFFICIENT";
   decisionDigest?: string;
+  capabilityGovernance?: CapabilityGovernanceDecisionSnapshot | null;
+  interAgentAuthorityConflict?: InterAgentConflictDecisionSnapshot | null;
   reviewerState: string;
 }>;
 
@@ -358,7 +372,9 @@ const materialProviderTrustMemoryEvents = new Set<MaterialProviderTrustMemoryEve
   "CONTROL_ACTIVATED", "PROVIDER_ASSIGNED", "OPERATOR_ASSIGNED", "CONTROL_INDEPENDENTLY_CONFIRMED",
   "OPERATOR_PROVIDER_CONFLICT", "ENFORCEMENT_UNCONFIRMED", "DESTINATION_CONTRADICTION", "PROVIDER_REPLACED",
   "EVIDENCE_PORTABILITY_COMPLETED", "MIGRATION_EVIDENCE_GAP", "HISTORIC_EVIDENCE_RECOVERED", "PROVIDER_CORRECTION",
-  "FALSE_POSITIVE_CONFLICT_RESOLVED",
+  "FALSE_POSITIVE_CONFLICT_RESOLVED", "CAPABILITY_CLASS_CHANGED", "CAPABILITY_EVALUATION_EXPIRED", "MODEL_ENVIRONMENT_CHANGED",
+  "MODEL_REAUTHORIZED", "INTER_AGENT_CONFLICT_FIRST_OBSERVED", "INTER_AGENT_CONFLICT_ESCALATED",
+  "AUTHORITY_CONSTRAINED_DUE_TO_CONFLICT", "HUMAN_ARBITRATION_COMPLETED", "CONFLICT_RESOLVED", "AUTHORITY_RESTORED",
 ]);
 
 const providerTransitionTrustMemoryEvents = new Set<ProviderTransitionTrustMemoryEvent>([
