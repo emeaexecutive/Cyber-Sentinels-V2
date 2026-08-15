@@ -129,7 +129,7 @@ export function AlphaBetaProductProof({ enterpriseId, alpha, beta, gamma }: Prop
       enterpriseId,
       owner: { accountableOwnerId: entity.accountableOwnerId, organizationId: entity.organizationId },
       software: { applicationId, version: applicationVersion, buildDigest, sourceDigest: null, artifactDigest: null, packageReference: null },
-      ai: { modelProvider: null, modelIdentifier: `agent-${entitySlug}-model`, modelVersion: "1", agentFramework: "native-proof", declaredTools: entity.displayName === "Agent Gamma" ? ["repository.reader", "configuration.writer"] : ["repository.reader"] },
+      ai: { modelProvider: null, modelIdentifier: `agent-${entitySlug}-model`, modelVersion: "1", agentFramework: "native-proof", declaredTools: entity.displayName === "Agent Gamma" ? ["configuration.writer", "repository.reader"] : ["repository.reader"] },
       runtime: { runtimeType: "browser-agent-simulator", environment: entity.runtimeEnvironment, region: "eu", workloadIdentifier: `workload:${entity.entityId}`, deploymentIdentifier: `deployment:${entity.entityId}`, runtimeVersion },
       authority: { authorityReference: entity.authorityReference },
       credentials: { publicCredentialReferences: [signingKeyId] },

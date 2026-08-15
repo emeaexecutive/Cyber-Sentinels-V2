@@ -91,6 +91,12 @@ test("browser proof covers the persisted Alpha to Beta journey on desktop and mo
   assert.match(config, /mobile-chromium/);
 });
 
+test("Gamma manifest tools retain canonical sorted order", async () => {
+  const productProof = await read("components/alpha-beta-product-proof.tsx");
+  assert.match(productProof, /\["configuration\.writer", "repository\.reader"\]/);
+  assert.doesNotMatch(productProof, /\["repository\.reader", "configuration\.writer"\]/);
+});
+
 test("authentication Replay and Continuous Trust evidence writes satisfy their canonical persistence contracts", async () => {
   const [writer, authReplay, migration, consensusRepair, optionalLegacyPointer] = await Promise.all([
     read("lib/replay/replay-writer.ts"),
