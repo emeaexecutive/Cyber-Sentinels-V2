@@ -5,14 +5,18 @@
 
 begin;
 
-drop policy if exists "tenant members read trust workspaces"
-  on public.trust_workspaces;
-
-create policy "tenant members read trust workspaces"
-  on public.trust_workspaces for select to authenticated
-  using (
-    created_by = (select auth.uid())
-    or public.user_can_access_trust_workspace(id)
-  );
+select public.ensure_policy_definition_v2(
+  'public',
+  'trust_workspaces',
+  'tenant members read trust workspaces',
+  'SELECT',
+  array['authenticated']::name[],
+  'created_by = (select auth.uid()) or public.user_can_access_trust_workspace(id)',
+  null,
+  'intentional_replace',
+  '20260815172500-customer-workspace-creator-returning',
+  'Permit INSERT ... RETURNING for the authenticated creator while preserving membership-based tenant reads.',
+  true
+);
 
 commit;
