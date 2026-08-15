@@ -46,17 +46,25 @@ test("email signup requires verification and permits only explicit local and Ver
 });
 
 test("first-run initialization creates authority but never fabricates identity evidence or an ALLOW", async () => {
-  const onboarding = await read("lib/onboarding/controlled-agent-alpha.ts");
+  const [onboarding, route] = await Promise.all([
+    read("lib/onboarding/controlled-agent-alpha.ts"),
+    read("app/api/operational-entities/canonical-journey/route.ts"),
+  ]);
   assert.match(onboarding, /registerCanonicalNativeAgent/);
   assert.match(onboarding, /const db = createServiceRoleClient\(\)[\s\S]*ownedWorkspace\(db, input\.user\)/);
   assert.match(onboarding, /requiredEvidenceTypes: \["NATIVE_ENTITY_IDENTITY_PROOF"\]/);
   assert.match(onboarding, /permittedScope: \["read_repository"\]/);
   assert.match(onboarding, /displayReference: "Agent Beta"/);
+  assert.match(onboarding, /displayReference: "Agent Gamma"/);
+  assert.match(onboarding, /gamma-authority-v1/);
   assert.match(onboarding, /permittedTargets: \["repository:a", "repository:b"\]/);
   assert.match(onboarding, /canDelegate: true/);
   assert.match(onboarding, /maximumDelegationDepth: 1/);
   assert.doesNotMatch(onboarding, /native_entity_identity_evidence/);
   assert.doesNotMatch(onboarding, /decision:\s*"ALLOW"/);
+  assert.match(route, /CANONICAL_JOURNEY_REFUSES_PRODUCTION/);
+  assert.match(route, /kecgtsfibkypjuaxqbjx/);
+  assert.match(route, /auth\.getUser\(\)/);
 });
 
 test("portable canonical receipts are tenant-authenticated, minimized and downloadable", async () => {
@@ -76,7 +84,7 @@ test("browser proof covers the persisted Alpha to Beta journey on desktop and mo
   const [spec, config] = await Promise.all([
     read("tests/e2e/product-proof.spec.ts"), read("playwright.config.ts"),
   ]);
-  for (const proof of ["PRODUCT_PROOF_E2E_REFUSES_PRODUCTION", "x-vercel-set-bypass-cookie", "Check your email to verify your account before continuing.", "updateUserById", "signIn", "Continue with canonical Alpha and Beta", "verify-alpha", "verify-beta", "create-delegation", "beta-read", "beta-write", "ACTION_OUT_OF_DELEGATED_SCOPE", "revoke-alpha", "beta-read-revoked", "PARENT_AUTHORITY_REVOKED", "alpha-beta-identity.png", "alpha-beta-delegation.png", "beta-read-allow.png", "beta-write-deny.png", "authority-revoked.png", "canonical-receipt.png", "/api/auth/logout", "Trust Memory materiality", "returning-user-proof.png"]) {
+  for (const proof of ["PRODUCT_PROOF_E2E_REFUSES_PRODUCTION", "x-vercel-set-bypass-cookie", "Check your email to verify your account before continuing.", "updateUserById", "signIn", "Continue with canonical Alpha, Beta and Gamma", "verify-alpha", "verify-beta", "verify-gamma", "create-delegation", "beta-read", "compatible-case", "conflict-case", "beta-write", "ACTION_OUT_OF_DELEGATED_SCOPE", "revoke-alpha", "beta-read-revoked", "PARENT_AUTHORITY_REVOKED", "INTER_AGENT_CONFLICT_FIRST_OBSERVED", "alpha-beta-identity.png", "alpha-beta-delegation.png", "beta-read-allow.png", "beta-gamma-compatible.png", "beta-gamma-conflict-review.png", "beta-write-deny.png", "authority-revoked.png", "canonical-receipt.png", "/api/auth/logout", "Trust Memory materiality", "returning-user-proof.png"]) {
     assert.ok(spec.includes(proof), `missing E2E proof: ${proof}`);
   }
   assert.match(config, /desktop-chromium/);

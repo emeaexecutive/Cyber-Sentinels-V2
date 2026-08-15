@@ -30,8 +30,12 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
   const entities = await loadOperationalEntities({ supabase, user });
   const alphaEntity = entities.find((candidate) => candidate.displayReference.trim().toLowerCase() === "agent alpha");
   const betaEntity = entities.find((candidate) => candidate.displayReference.trim().toLowerCase() === "agent beta");
+  const gammaEntity = entities.find((candidate) => candidate.displayReference.trim().toLowerCase() === "agent gamma");
   const betaDetail = detail.entity.displayReference.trim().toLowerCase() === "agent alpha" && betaEntity
     ? await loadOperationalEntityDetail({ supabase, user, entityId: betaEntity.entityId })
+    : null;
+  const gammaDetail = detail.entity.displayReference.trim().toLowerCase() === "agent alpha" && gammaEntity
+    ? await loadOperationalEntityDetail({ supabase, user, entityId: gammaEntity.entityId })
     : null;
   const intelligence = projectOperationalEntityIntelligence(detail);
 
@@ -102,6 +106,7 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
         <nav className="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
           {alphaEntity ? <Link className="underline" href={`/operational-entities/${encodeURIComponent(alphaEntity.entityId)}`}>Agent Alpha</Link> : null}
           {betaEntity ? <Link className="underline" href={`/operational-entities/${encodeURIComponent(betaEntity.entityId)}`}>Agent Beta</Link> : null}
+          {gammaEntity ? <Link className="underline" href={`/operational-entities/${encodeURIComponent(gammaEntity.entityId)}`}>Agent Gamma</Link> : null}
           <Link className="underline" href="/operational-entities">Product home</Link>
         </nav>
       </header>
@@ -135,10 +140,11 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
         </dl> : <p className="mt-4 text-sm text-slate-600">UNKNOWN — no persisted parent authority is linked to this entity.</p>}
       </section>
 
-      {nativeDemoEnabled && detail.entity.displayReference.trim().toLowerCase() === "agent alpha" && betaDetail && currentAuthorityId ? <AlphaBetaProductProof
+      {nativeDemoEnabled && detail.entity.displayReference.trim().toLowerCase() === "agent alpha" && betaDetail && gammaDetail && currentAuthorityId ? <AlphaBetaProductProof
         enterpriseId={detail.entity.enterpriseId}
         alpha={{ entityId: detail.entity.entityId, displayName: "Agent Alpha", accountableOwnerId: detail.entity.accountableOwnerId, organizationId: detail.entity.organizationReference, authorityReference: currentAuthorityId, activeCredentialId: activeNativeCredential ? String(activeNativeCredential.credential_id) : null, runtimeEnvironment: "preview-alpha-runtime" }}
         beta={{ entityId: betaDetail.entity.entityId, displayName: "Agent Beta", accountableOwnerId: betaDetail.entity.accountableOwnerId, organizationId: betaDetail.entity.organizationReference, authorityReference: null, activeCredentialId: betaDetail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE") ? String(betaDetail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE")?.credential_id) : null, runtimeEnvironment: "preview-beta-runtime" }}
+        gamma={{ entityId: gammaDetail.entity.entityId, displayName: "Agent Gamma", accountableOwnerId: gammaDetail.entity.accountableOwnerId, organizationId: gammaDetail.entity.organizationReference, authorityReference: gammaDetail.entity.currentAuthorityReferences[0] ?? null, activeCredentialId: gammaDetail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE") ? String(gammaDetail.nativeVerification.credentials.find((credential) => credential.state === "ACTIVE")?.credential_id) : null, runtimeEnvironment: "preview-gamma-runtime" }}
       /> : null}
 
       <section aria-labelledby="current-operational-intelligence">

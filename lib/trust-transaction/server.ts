@@ -161,7 +161,14 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
         reviewerState: "legacy_unresolved",
       }) as DecisionTimeSnapshot;
   const evidenceReferences = evidence
-    .map((item: Row) => ({ type: "normalized_provider_evidence", id: String(item.reference ?? "") }))
+    .map((item: Row) => ({
+      type: item.providerId === "capability_governance_evidence"
+        ? "capability_governance_evidence"
+        : item.providerId === "inter_agent_relationship_evidence"
+          ? "inter_agent_relationship_evidence"
+          : "normalized_provider_evidence",
+      id: String(item.reference ?? ""),
+    }))
     .filter((item: { id: string }) => item.id);
   const authorityEvidenceReferences = authorityLineage
     .map((item: unknown) => item && typeof item === "object"
@@ -240,6 +247,28 @@ async function resolveSessionTenant(supabase: SupabaseClient, user: User) {
 }
 
 function decisionPayload(record: CanonicalDecisionRecord) {
+  const capability = record.decisionTimeSnapshot.capabilityGovernance;
+  const conflict = record.decisionTimeSnapshot.interAgentAuthorityConflict;
+  const managedEvidenceReferences = [
+    ...(capability?.evidenceReferences.map((reference) => ({
+      reference,
+      providerId: "capability_governance_evidence",
+      providerEventId: reference,
+      sourceDigest: capability.digest,
+      outcome: capability.decision,
+      observedAt: capability.evaluatedAt,
+      expiresAt: null,
+    })) ?? []),
+    ...(conflict?.evidenceReferences.map((reference) => ({
+      reference,
+      providerId: "inter_agent_relationship_evidence",
+      providerEventId: reference,
+      sourceDigest: conflict.digest,
+      outcome: conflict.decision,
+      observedAt: conflict.evaluatedAt,
+      expiresAt: null,
+    })) ?? []),
+  ];
   return {
     transactionId: record.transactionId,
     enterpriseId: record.enterpriseId,
@@ -268,7 +297,10 @@ function decisionPayload(record: CanonicalDecisionRecord) {
     policyId: record.policy.id,
     policyVersion: record.policy.version,
     policyHash: record.policy.policyHash,
-    evidenceReferences: record.evidence.map((item) => ({ reference: item.reference, providerId: item.providerId, providerEventId: item.providerEventId, sourceDigest: item.sourceDigest, outcome: item.outcome, observedAt: item.observedAt, expiresAt: item.expiresAt })),
+    evidenceReferences: [
+      ...record.evidence.map((item) => ({ reference: item.reference, providerId: item.providerId, providerEventId: item.providerEventId, sourceDigest: item.sourceDigest, outcome: item.outcome, observedAt: item.observedAt, expiresAt: item.expiresAt })),
+      ...managedEvidenceReferences,
+    ],
     evidenceDigest: record.evidenceDigest,
     evidenceComplete: record.evidenceComplete,
     evidenceFresh: record.evidenceFresh,

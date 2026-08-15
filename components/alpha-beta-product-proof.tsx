@@ -5,7 +5,7 @@ import { canonicalize } from "@/src/lib/trust-core/canonicalize";
 
 type EntityInput = {
   entityId: string;
-  displayName: "Agent Alpha" | "Agent Beta";
+  displayName: "Agent Alpha" | "Agent Beta" | "Agent Gamma";
   accountableOwnerId: string;
   organizationId: string;
   authorityReference: string | null;
@@ -13,7 +13,7 @@ type EntityInput = {
   runtimeEnvironment: string;
 };
 
-type Props = { enterpriseId: string; alpha: EntityInput; beta: EntityInput };
+type Props = { enterpriseId: string; alpha: EntityInput; beta: EntityInput; gamma: EntityInput };
 type BrowserIdentity = {
   keyPair: CryptoKeyPair;
   signingKeyId: string;
@@ -60,9 +60,10 @@ function normalizedScope() {
   };
 }
 
-export function AlphaBetaProductProof({ enterpriseId, alpha, beta }: Props) {
+export function AlphaBetaProductProof({ enterpriseId, alpha, beta, gamma }: Props) {
   const alphaIdentity = useRef<BrowserIdentity | null>(null);
   const betaIdentity = useRef<BrowserIdentity | null>(null);
+  const gammaIdentity = useRef<BrowserIdentity | null>(null);
   const delegationRecord = useRef<Record<string, unknown> | null>(null);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
@@ -116,8 +117,9 @@ export function AlphaBetaProductProof({ enterpriseId, alpha, beta }: Props) {
     const credential = (registration.result ?? {}) as Record<string, unknown>;
     const issuedAt = new Date().toISOString();
     const applicationId = `application:${entity.entityId}`;
-    const applicationVersion = entity.displayName === "Agent Alpha" ? "alpha-1" : "beta-1";
-    const runtimeVersion = entity.displayName === "Agent Alpha" ? "alpha-runtime-1" : "beta-runtime-1";
+    const entitySlug = entity.displayName.split(" ").at(-1)?.toLowerCase() ?? "agent";
+    const applicationVersion = `${entitySlug}-1`;
+    const runtimeVersion = `${entitySlug}-runtime-1`;
     const buildDigest = await sha256Hex(canonicalize({ applicationId, applicationVersion, runtimeVersion, proofClient: "alpha-beta-product-proof-v1" }));
     const manifestClaims = {
       manifestVersion: "1.0",
@@ -127,11 +129,11 @@ export function AlphaBetaProductProof({ enterpriseId, alpha, beta }: Props) {
       enterpriseId,
       owner: { accountableOwnerId: entity.accountableOwnerId, organizationId: entity.organizationId },
       software: { applicationId, version: applicationVersion, buildDigest, sourceDigest: null, artifactDigest: null, packageReference: null },
-      ai: { modelProvider: null, modelIdentifier: entity.displayName === "Agent Alpha" ? "agent-alpha-model" : "agent-beta-model", modelVersion: "1", agentFramework: "native-proof", declaredTools: ["repository.reader"] },
+      ai: { modelProvider: null, modelIdentifier: `agent-${entitySlug}-model`, modelVersion: "1", agentFramework: "native-proof", declaredTools: entity.displayName === "Agent Gamma" ? ["repository.reader", "configuration.writer"] : ["repository.reader"] },
       runtime: { runtimeType: "browser-agent-simulator", environment: entity.runtimeEnvironment, region: "eu", workloadIdentifier: `workload:${entity.entityId}`, deploymentIdentifier: `deployment:${entity.entityId}`, runtimeVersion },
       authority: { authorityReference: entity.authorityReference },
       credentials: { publicCredentialReferences: [signingKeyId] },
-      declaredCapabilities: ["read_repository"],
+      declaredCapabilities: entity.displayName === "Agent Gamma" ? ["read_repository", "replace_configuration"] : ["read_repository"],
       issuedAt,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       nonce: nonce(),
@@ -282,6 +284,42 @@ export function AlphaBetaProductProof({ enterpriseId, alpha, beta }: Props) {
     record(stage, { identity: "VERIFIED", delegation: result.decision === "ALLOW" ? "ACTIVE" : "EVALUATED", decision: result.decision, reasonCodes: result.reasonCodes, evaluationId: result.evaluationId, transactionId: transaction.transactionId, historyUrl: transaction.historyUrl, receiptUrl: transaction.transactionId ? `/api/trust/transactions/${String(transaction.transactionId)}/receipt` : null, authorityLineage: result.authorityLineage, evidenceGraph: transaction.evidenceGraphReference, replay: transaction.replayReference, trustMemory: transaction.trustMemoryReference, consequence: transaction.consequence });
   }
 
+  async function governedAgentCase(caseType: "compatible" | "conflict", stage: string) {
+    const delegation = delegationRecord.current;
+    if (!delegation) throw new Error("Activate the Alpha to Beta delegation first.");
+    if (!gammaIdentity.current) throw new Error("Verify Gamma before evaluating the relationship.");
+    const response = await post(`/api/operational-entities/${encodeURIComponent(beta.entityId)}/delegated-authority`, {
+      action: "evaluate_inter_agent_action",
+      caseType,
+      delegationId: delegation.delegationId,
+      targetEntityId: gamma.entityId,
+      idempotencyKey: `alpha-beta-gamma-${caseType}-${crypto.randomUUID()}`,
+    });
+    const result = (response.result ?? {}) as Record<string, unknown>;
+    const source = (result.source ?? {}) as Record<string, unknown>;
+    const sourceTransaction = (source.canonicalTransaction ?? {}) as Record<string, unknown>;
+    const conflict = (result.interAgentAuthorityConflict ?? {}) as Record<string, unknown>;
+    const capability = (result.capabilityGovernance ?? {}) as Record<string, unknown>;
+    record(stage, {
+      caseType,
+      decision: source.decision,
+      transactionId: sourceTransaction.transactionId,
+      historyUrl: sourceTransaction.historyUrl,
+      receiptUrl: sourceTransaction.transactionId ? `/api/trust/transactions/${String(sourceTransaction.transactionId)}/receipt` : null,
+      capabilityDecision: capability.decision,
+      capabilityEvidence: result.evidence,
+      conflictState: conflict.conflictState,
+      conflictDecision: conflict.decision,
+      policyResponse: conflict.policyResponse,
+      reasonCodes: conflict.reasonCodes,
+      authorityIntersection: conflict.authorityIntersection,
+      target: result.target,
+      evidenceGraph: sourceTransaction.evidenceGraphReference,
+      replay: sourceTransaction.replayReference,
+      trustMemory: sourceTransaction.trustMemoryReference,
+    });
+  }
+
   async function revokeParentAuthority() {
     const delegation = delegationRecord.current;
     if (!delegation) throw new Error("Activate the Alpha to Beta delegation first.");
@@ -294,13 +332,14 @@ export function AlphaBetaProductProof({ enterpriseId, alpha, beta }: Props) {
 
   return (
     <section id="alpha-beta-proof" className="rounded-2xl border border-cyan-200 bg-cyan-50 p-6 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-800">Alpha → Beta end-to-end product proof</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-800">Alpha → Beta + independent Gamma end-to-end product proof</p>
       <h2 className="mt-2 text-2xl font-semibold text-slate-950">Identity, bounded authority, decision, evidence, Replay, memory, receipt.</h2>
       <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-700">Every button calls the persisted native verification, delegated-authority, canonical transaction, Evidence Graph, Replay, Trust Memory, and receipt paths. Private Ed25519 keys remain non-extractable browser memory.</p>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         <article className="rounded-xl border border-cyan-200 bg-white p-4"><p className="text-xs uppercase text-slate-500">Alpha</p><p className="mt-2 font-semibold">{alpha.entityId}</p><p className="mt-1 text-sm text-slate-600">Owner: Alice · {alpha.accountableOwnerId}</p></article>
         <article className="rounded-xl border border-cyan-200 bg-white p-4"><p className="text-xs uppercase text-slate-500">Beta</p><p className="mt-2 font-semibold">{beta.entityId}</p><p className="mt-1 text-sm text-slate-600">Owner: Bob · {beta.accountableOwnerId}</p></article>
+        <article className="rounded-xl border border-cyan-200 bg-white p-4"><p className="text-xs uppercase text-slate-500">Gamma</p><p className="mt-2 font-semibold">{gamma.entityId}</p><p className="mt-1 text-sm text-slate-600">Owner: Grace · independently authorized</p></article>
         <article className="rounded-xl border border-cyan-200 bg-white p-4"><p className="text-xs uppercase text-slate-500">Alpha authority</p><p className="mt-2 break-all text-xs font-semibold">{alpha.authorityReference ?? "UNKNOWN"}</p><p className="mt-1 text-sm text-slate-600">READ Repository A + Repository B · delegable depth 1</p></article>
         <article className="rounded-xl border border-cyan-200 bg-white p-4"><p className="text-xs uppercase text-slate-500">Beta authority</p><p className="mt-2 font-semibold">READ Repository A only</p><p className="mt-1 text-sm text-slate-600">Must be signed by Alpha and accepted by Beta.</p></article>
       </div>
@@ -308,8 +347,11 @@ export function AlphaBetaProductProof({ enterpriseId, alpha, beta }: Props) {
       <div className="mt-5 flex flex-wrap gap-2">
         <button data-testid="verify-alpha" type="button" disabled={Boolean(busy)} onClick={() => perform("alpha", async () => { const identity = await verifyEntity(alpha); alphaIdentity.current = identity; record("alphaIdentity", { entityId: alpha.entityId, owner: "Alice", status: identity.verification.status, credentialFingerprint: identity.credentialFingerprint, manifestDigest: identity.manifestDigest, evidenceReferences: identity.verification.evidenceReferences, runtime: alpha.runtimeEnvironment }); })} className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">VERIFY AGENT ALPHA</button>
         <button data-testid="verify-beta" type="button" disabled={Boolean(busy) || !alphaIdentity.current} onClick={() => perform("beta", async () => { const identity = await verifyEntity(beta); betaIdentity.current = identity; record("betaIdentity", { entityId: beta.entityId, owner: "Bob", status: identity.verification.status, credentialFingerprint: identity.credentialFingerprint, manifestDigest: identity.manifestDigest, evidenceReferences: identity.verification.evidenceReferences, runtime: beta.runtimeEnvironment, distinctFromAlpha: identity.credentialFingerprint !== alphaIdentity.current?.credentialFingerprint }); })} className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">VERIFY AGENT BETA</button>
+        <button data-testid="verify-gamma" type="button" disabled={Boolean(busy) || !betaIdentity.current} onClick={() => perform("gamma", async () => { const identity = await verifyEntity(gamma); gammaIdentity.current = identity; record("gammaIdentity", { entityId: gamma.entityId, owner: "Grace", status: identity.verification.status, credentialFingerprint: identity.credentialFingerprint, manifestDigest: identity.manifestDigest, evidenceReferences: identity.verification.evidenceReferences, runtime: gamma.runtimeEnvironment, distinctFromAlphaAndBeta: ![alphaIdentity.current?.credentialFingerprint, betaIdentity.current?.credentialFingerprint].includes(identity.credentialFingerprint) }); })} className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">VERIFY AGENT GAMMA</button>
         <button data-testid="create-delegation" type="button" disabled={Boolean(busy) || !alphaIdentity.current || !betaIdentity.current} onClick={() => perform("delegation", createAndAcceptDelegation)} className="rounded-lg bg-violet-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">CREATE ALPHA TO BETA DELEGATION</button>
         <button data-testid="beta-read" type="button" disabled={Boolean(busy) || !delegationRecord.current} onClick={() => perform("betaRead", () => betaAction("read_repository", "betaRead"))} className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">BETA READ REPOSITORY A</button>
+        <button data-testid="compatible-case" type="button" disabled={Boolean(busy) || !delegationRecord.current || !gammaIdentity.current} onClick={() => perform("compatible", () => governedAgentCase("compatible", "compatible"))} className="rounded-lg bg-emerald-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">BETA + GAMMA COMPATIBLE READ</button>
+        <button data-testid="conflict-case" type="button" disabled={Boolean(busy) || !delegationRecord.current || !gammaIdentity.current} onClick={() => perform("conflict", () => governedAgentCase("conflict", "conflict"))} className="rounded-lg bg-amber-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">EVALUATE PROTECTED CONFLICT</button>
         <button data-testid="beta-write" type="button" disabled={Boolean(busy) || !delegationRecord.current} onClick={() => perform("betaWrite", () => betaAction("write_repository", "betaWrite"))} className="rounded-lg bg-amber-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">BETA WRITE REPOSITORY A</button>
         <button data-testid="revoke-alpha" type="button" disabled={Boolean(busy) || !delegationRecord.current} onClick={() => perform("revocation", revokeParentAuthority)} className="rounded-lg bg-rose-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">REVOKE ALPHA AUTHORITY</button>
         <button data-testid="beta-read-revoked" type="button" disabled={Boolean(busy) || !proof.revocation} onClick={() => perform("betaReadAfterRevocation", () => betaAction("read_repository", "betaReadAfterRevocation"))} className="rounded-lg border border-rose-700 bg-white px-4 py-2 text-sm font-semibold text-rose-800 disabled:opacity-50">BETA READ AFTER REVOCATION</button>

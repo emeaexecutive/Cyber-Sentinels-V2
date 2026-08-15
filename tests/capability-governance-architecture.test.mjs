@@ -11,6 +11,9 @@ const transactionMigration = readFileSync("supabase/migrations/202608060002_end_
 const page = readFileSync("app/operational-entities/[entityId]/page.tsx", "utf8");
 const governanceSummary = readFileSync("components/operational-entity-governance-summary.tsx", "utf8");
 const registry = readFileSync("docs/architecture/TRUST_ALGORITHM_REGISTRY.md", "utf8");
+const persistedRuntime = readFileSync("lib/operational-entities/delegated-authority-server.ts", "utf8");
+const delegatedRoute = readFileSync("app/api/operational-entities/[entityId]/delegated-authority/route.ts", "utf8");
+const transactionServer = readFileSync("lib/trust-transaction/server.ts", "utf8");
 
 test("extensions feed the canonical ALLOW REVIEW DENY transaction instead of creating another engine", () => {
   assert.match(canonical, /capabilityGovernance\?\.decision === "DENY"/);
@@ -42,6 +45,23 @@ test("existing Evidence Graph Replay and Trust Memory semantics are reused", () 
   assert.match(canonical, /extendEvidenceGraph/);
   assert.match(canonical, /appendReplay/);
   assert.match(canonical, /emitMaterialTrustMemory/);
+});
+
+test("authenticated persistence uses existing evidence, graph, Replay, memory, and canonical transaction stores", () => {
+  assert.match(delegatedRoute, /evaluatePersistedInterAgentAction/);
+  assert.match(persistedRuntime, /from\("evidence_objects"\)\.insert/);
+  assert.match(persistedRuntime, /from\("evidence_graph_nodes"\)/);
+  assert.match(persistedRuntime, /from\("evidence_graph_edges"\)/);
+  assert.match(persistedRuntime, /appendReplay/);
+  assert.match(persistedRuntime, /remember\(context, sourceEntityId, "INTER_AGENT_CONFLICT_FIRST_OBSERVED"/);
+  assert.match(persistedRuntime, /evaluateCapabilityGovernance/);
+  assert.match(persistedRuntime, /evaluateInterAgentAuthorityConflict/);
+  assert.match(persistedRuntime, /evaluateStoredDelegatedAction/);
+  assert.match(persistedRuntime, /executeCanonicalTrustTransaction/);
+  assert.match(transactionServer, /capability_governance_evidence/);
+  assert.match(transactionServer, /inter_agent_relationship_evidence/);
+  assert.doesNotMatch(delegatedRoute, /body\.decision|input\.decision|raw\.decision/);
+  assert.doesNotMatch(persistedRuntime, /decision:\s*raw\.|decision:\s*String\(raw/);
 });
 
 test("Operational Entity UI presents model governance and authority relationships without raw JSON as the primary UX", () => {
