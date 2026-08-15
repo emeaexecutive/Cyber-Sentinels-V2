@@ -374,6 +374,19 @@ export async function ensureControlledAgentAlpha(input: {
       gammaContract,
       crypto.randomUUID(),
     );
+  }
+
+  const existingGammaReplay = await db
+    .from("operational_entity_native_replay_events")
+    .select("event_id")
+    .eq("enterprise_id", enterpriseId)
+    .eq("operational_entity_id", gammaEntityId)
+    .eq("event_type", "GAMMA_AUTHORITY_ISSUED")
+    .contains("evidence_references", [`trust_contract:${gammaContract.contractId}`])
+    .limit(1)
+    .maybeSingle();
+  if (existingGammaReplay.error) fail("gamma_authority_replay_lookup", existingGammaReplay.error);
+  if (!existingGammaReplay.data) {
     const replayBase = {
       event_id: crypto.randomUUID(),
       enterprise_id: enterpriseId,
@@ -388,7 +401,7 @@ export async function ensureControlledAgentAlpha(input: {
         scope: gammaContract.authorityScope,
         policyVersion: gammaContract.policyVersion,
       },
-      occurred_at: issuedAt,
+      occurred_at: gammaContract.issuedAt,
     };
     const gammaReplay = await db
       .from("operational_entity_native_replay_events")
