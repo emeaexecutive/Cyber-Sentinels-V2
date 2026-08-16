@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { canonicalNavigation } from "@/lib/navigation/canonical-navigation";
 import { deriveTrustOSContext, type TrustOSAccessLevel } from "@/lib/trust-os/context";
 
 const CommandPalette = dynamic(() => import("@/components/trust-os/command-palette"));
@@ -16,15 +17,7 @@ export type TrustOSStatusItem = {
   boundary?: string;
 };
 
-const baseAreas = [
-  ["Overview", "/dashboard"],
-  ["Entities", "/operational-entities"],
-  ["Decisions", "/trust/transactions"],
-  ["Evidence", "/evidence"],
-  ["Replay", "/trust-replay"],
-  ["Developers", "/developers"],
-  ["Account", "/account"],
-] as const;
+const baseAreas = canonicalNavigation.authenticated.map(({ label, href }) => [label, href] as const);
 
 function statusLabel(status: TrustOSStatus) {
   if (status === "healthy") return "Healthy";

@@ -38,3 +38,25 @@ test("footer cookie preferences remains a keyboard and touch-friendly dialog tri
   assert.match(trigger, /cs:open-consent-preferences/);
   assert.match(tailwind, /\.\/src\/\*\*\/\*\.\{ts,tsx\}/);
 });
+
+test("authenticated navigation and Account consume the product shell theme contract", async () => {
+  const [navigation, shell, account, styles] = await Promise.all([
+    read("lib/navigation/canonical-navigation.ts"),
+    read("components/trust-os/enterprise-shell.tsx"),
+    read("app/account/page.tsx"),
+    read("app/globals.css"),
+  ]);
+
+  for (const label of ["Overview", "Operational Entities", "Decisions", "Evidence", "Replay", "Developers", "Account"]) {
+    assert.match(navigation, new RegExp(`label: "${label}"`));
+  }
+  assert.match(shell, /canonicalNavigation\.authenticated/);
+  assert.doesNotMatch(shell, /const baseAreas = \[/);
+  assert.match(account, /className="account-page/);
+  assert.match(account, /className="account-card/);
+  assert.doesNotMatch(account, /bg-white|text-slate-950/);
+  assert.match(styles, /\.account-card[^{]*\{[^}]*background: var\(--brand-surface\)/s);
+  assert.match(styles, /\.trust-os-content[^{]*\{[^}]*background: #f8fafc/s);
+  assert.match(styles, /\.account-page[^{]*\{[^}]*background: var\(--brand-canvas\)/s);
+  assert.match(styles, /\.account-link[^{]*\{[^}]*min-height: 2\.75rem/s);
+});

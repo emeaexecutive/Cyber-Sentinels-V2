@@ -43,7 +43,7 @@ test("footer owns detailed discovery without exact header duplication", async ()
 
 test("authenticated and admin navigation branches remain canonical and role-gated", async () => {
   const [source,contract] = await Promise.all([read("components/global-navigation.tsx"),read("lib/navigation/canonical-navigation.ts")]);
-  for (const marker of ["Overview", "Operational Entities", "Decisions / Transactions", "Evidence", "Replay", "Developers", "Account", "Administration"]) assert.match(contract, new RegExp(marker));
+  for (const marker of ["Overview", "Operational Entities", "Decisions", "Evidence", "Replay", "Developers", "Account", "Administration"]) assert.match(contract, new RegExp(marker));
   const authenticated = contract.match(/authenticated: \[([\s\S]*?)\n  \]/)?.[1] ?? "";
   assert.equal((authenticated.match(/access: "authenticated"/g) ?? []).length, 7);
   for (const marker of ["Verify Admin", "LogoutButton"]) assert.match(source, new RegExp(marker));

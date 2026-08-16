@@ -591,10 +591,77 @@ p {
 
 .trust-os-content {
   min-width: 0;
+  background: #f8fafc;
+  color: #0f172a;
 }
 
 .trust-os-content > main {
   min-height: auto;
+}
+
+/* Account surfaces inherit one product-shell theme contract. */
+.account-page {
+  background: var(--brand-canvas);
+  color: #f8fafc;
+}
+
+.account-page h1,
+.account-card h2 {
+  color: #f8fafc;
+}
+
+.account-description,
+.account-label {
+  color: #b8c0cc;
+}
+
+.account-label {
+  font-weight: 500;
+}
+
+.account-value {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.account-card {
+  min-width: 0;
+  border: 1px solid var(--brand-border);
+  border-radius: 1rem;
+  background: var(--brand-surface);
+  padding: 1.5rem;
+}
+
+.account-card h2 {
+  font-size: 1.25rem;
+  font-weight: 650;
+}
+
+.account-card-inset {
+  min-width: 0;
+  border: 1px solid var(--brand-border);
+  border-radius: 0.75rem;
+  background: var(--brand-surface-raised);
+  padding: 1rem;
+}
+
+.account-warning-card {
+  border-color: #92400e;
+  background: rgba(120, 53, 15, 0.2);
+}
+
+.account-link {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  color: #a5f3fc;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}
+
+.account-link:hover {
+  color: #ecfeff;
 }
 
 @media (min-width: 1024px) {

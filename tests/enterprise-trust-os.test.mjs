@@ -5,10 +5,14 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("authenticated shell exposes the seven canonical workspace areas", async () => {
-  const source = await read("components/trust-os/enterprise-shell.tsx");
-  for (const area of ["Overview", "Entities", "Decisions", "Evidence", "Replay", "Developers", "Account"]) {
-    assert.match(source, new RegExp(`"${area}"`));
+  const [source, contract] = await Promise.all([
+    read("components/trust-os/enterprise-shell.tsx"),
+    read("lib/navigation/canonical-navigation.ts"),
+  ]);
+  for (const area of ["Overview", "Operational Entities", "Decisions", "Evidence", "Replay", "Developers", "Account"]) {
+    assert.match(contract, new RegExp(`"${area}"`));
   }
+  assert.match(source, /canonicalNavigation\.authenticated\.map/);
   assert.match(source, /aria-label="Enterprise workspace areas"/);
 });
 
@@ -90,7 +94,7 @@ test("public navigation remains separate from the authenticated Trust OS", async
   ]);
   assert.match(layout, /accessLevel === "public" \? children/);
   assert.match(contract, /Operational Entities/);
-  assert.match(contract, /Decisions \/ Transactions/);
+  assert.match(contract, /Decisions/);
   assert.match(contract, /Administration/);
   assert.match(navigation, /canonicalNavigation\.authenticated\.map/);
   assert.match(navigation, /canonicalNavigation\.admin\.map/);
