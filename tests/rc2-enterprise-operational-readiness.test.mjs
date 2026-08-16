@@ -101,10 +101,11 @@ test("security review and controlled pilot cover the required enterprise demonst
 });
 
 test("protected operations API, UI, health metadata and governance migration are wired", async () => {
-  const [page, api, healthRoute, middleware, migration, repository] = await Promise.all([
+  const [page, api, healthRoute, readyRoute, middleware, migration, repository] = await Promise.all([
     read("app/enterprise/operations/page.tsx"),
     read("app/api/admin/enterprise-operations/route.ts"),
     read("app/api/health/route.ts"),
+    read("app/api/ready/route.ts"),
     read("middleware.ts"),
     read("supabase/migrations/202608060001_rc2_enterprise_operational_readiness.sql"),
     read("src/lib/trust-architecture/repository.ts"),
@@ -113,7 +114,9 @@ test("protected operations API, UI, health metadata and governance migration are
   assert.match(api, /requireAdminApiAccess/);
   assert.match(api, /private, no-store/);
   assert.match(healthRoute, /release_version/);
+  assert.match(healthRoute, /VERCEL_GIT_COMMIT_SHA\?\.trim\(\) \|\|[\s\S]*BUILD_VERSION\?\.trim\(\)/);
   assert.match(healthRoute, /liveness/);
+  assert.match(readyRoute, /VERCEL_GIT_COMMIT_SHA\?\.trim\(\) \|\|[\s\S]*BUILD_VERSION\?\.trim\(\)/);
   assert.match(middleware, /enterprise\/operations/);
   assert.match(migration, /enterprise_policy_governance_events/);
   assert.match(migration, /user_has_trust_workspace_role/);
