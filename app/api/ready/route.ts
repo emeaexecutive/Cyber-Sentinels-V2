@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getMissingEnv } from "@/lib/env";
+import { buildEnterpriseTrustReadinessResponse, evaluateEnterpriseTrustRegistry } from "@/lib/readiness/enterprise-trust-registry";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export const dynamic = "force-dynamic";
@@ -39,61 +40,19 @@ export async function GET() {
   }
 
   try {
-    const { count, error } = await createServiceRoleClient()
+    const { data, error } = await createServiceRoleClient()
       .from("trust_domain_versions")
-      .select("domain_key", { count: "exact", head: true })
-      .eq("version", "1.0.0")
-      .eq("active", true);
+      .select("domain_key, version, active");
 
-    if (error) {
-      const migrationMissing = error.code === "42P01";
-      return NextResponse.json(
-        {
-          schemaVersion: "readiness-v2",
-          status: migrationMissing ? "NOT_READY" : "BLOCKED",
-          reasonCode: migrationMissing
-            ? "EPIC_18_MIGRATION_NOT_DEPLOYED"
-            : "AUTHORITATIVE_DATA_PLANE_UNAVAILABLE",
-          checks: {
-            environment: "READY",
-            enterpriseTrustArchitecture: migrationMissing ? "NOT_READY" : "BLOCKED",
-            repositoryRuntime: runtimeCommit ? "VERIFIED_FROM_RUNTIME" : "NOT_CONFIGURED",
-            externalControls: "BLOCKED",
-          },
-          runtime: { commitSha: runtimeCommit },
-          externalControls: {
-            state: "BLOCKED",
-            reasonCode: "AUTHORITATIVE_CONTROL_PLANE_EVIDENCE_REQUIRED",
-          },
-          generatedAt,
-        },
-        { status: 503, headers: { "cache-control": "no-store" } },
-      );
-    }
-
-    const architectureReady = count === 10;
-    return NextResponse.json(
-      {
-        schemaVersion: "readiness-v2",
-        status: architectureReady ? "READY" : "NOT_READY",
-        reasonCode: architectureReady
-          ? "ENTERPRISE_TRUST_ARCHITECTURE_AVAILABLE"
-          : "ENTERPRISE_TRUST_DOMAIN_REGISTRY_INCOMPLETE",
-        checks: {
-          environment: "READY",
-          enterpriseTrustArchitecture: architectureReady ? "READY" : "NOT_READY",
-          repositoryRuntime: runtimeCommit ? "VERIFIED_FROM_RUNTIME" : "NOT_CONFIGURED",
-          externalControls: "BLOCKED",
-        },
-        runtime: { commitSha: runtimeCommit },
-        externalControls: {
-          state: "BLOCKED",
-          reasonCode: "AUTHORITATIVE_CONTROL_PLANE_EVIDENCE_REQUIRED",
-        },
-        generatedAt,
-      },
-      { status: architectureReady ? 200 : 503, headers: { "cache-control": "no-store" } },
+    const readiness = buildEnterpriseTrustReadinessResponse(
+      evaluateEnterpriseTrustRegistry(data, error),
+      runtimeCommit,
+      generatedAt,
     );
+    return NextResponse.json(readiness.body, {
+      status: readiness.statusCode,
+      headers: { "cache-control": "no-store" },
+    });
   } catch {
     return NextResponse.json(
       {

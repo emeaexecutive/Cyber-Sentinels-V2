@@ -2,7 +2,7 @@
 create extension if not exists pgcrypto;
 set search_path=public,extensions;
 
-create table public.trust_domain_versions (
+create table if not exists public.trust_domain_versions (
   id uuid primary key default gen_random_uuid(), domain_key text not null, version text not null,
   display_name text not null, description text not null, active boolean not null default false,
   effective_at timestamptz not null, supersedes_id uuid references public.trust_domain_versions(id) on delete restrict,
@@ -20,7 +20,8 @@ insert into public.trust_domain_versions(domain_key,version,display_name,descrip
 ('NETWORK','1.0.0','Network','Network posture and transport observations.',true,'2026-07-21T00:00:00Z'),
 ('DATA','1.0.0','Data','Data provenance, handling and integrity.',true,'2026-07-21T00:00:00Z'),
 ('CONSENT','1.0.0','Consent','Consent choices, receipts and policy state.',true,'2026-07-21T00:00:00Z'),
-('GOVERNANCE','1.0.0','Governance','Policies, reviews, exceptions and audit state.',true,'2026-07-21T00:00:00Z');
+('GOVERNANCE','1.0.0','Governance','Policies, reviews, exceptions and audit state.',true,'2026-07-21T00:00:00Z')
+on conflict(domain_key,version) do nothing;
 
 create table public.trust_subjects (
   subject_record_id uuid primary key default gen_random_uuid(), enterprise_id uuid not null references public.trust_workspaces(id) on delete cascade,
@@ -30,8 +31,9 @@ create table public.trust_subjects (
 );
 
 -- Consolidate the EPIC 17.1D evidence store rather than creating a second ledger.
-insert into public.provider_capability_versions(enterprise_id,provider_key,capability_version,capability_json,effective_at) values
-(null,'hopae_connect','consensus-capability-v2','{"state":"ENVIRONMENT_AWARE","baseWeight":0.9,"cryptographicVerificationRequired":true,"serverVerificationRequired":true,"positiveEvidence":"ONLY_WHEN_ACTIVE_SIGNED_SERVER_VERIFIED_AND_PERSISTED"}','2026-07-21T00:00:00Z');
+insert into public.provider_capability_versions(enterprise_id,provider_key,capability_version,capability_json,effective_at)
+select null,'hopae_connect','consensus-capability-v2','{"state":"ENVIRONMENT_AWARE","baseWeight":0.9,"cryptographicVerificationRequired":true,"serverVerificationRequired":true,"positiveEvidence":"ONLY_WHEN_ACTIVE_SIGNED_SERVER_VERIFIED_AND_PERSISTED"}','2026-07-21T00:00:00Z'
+where not exists(select 1 from public.provider_capability_versions where enterprise_id is null and provider_key='hopae_connect' and capability_version='consensus-capability-v2');
 
 alter table public.evidence_objects
   add column evidence_id uuid,

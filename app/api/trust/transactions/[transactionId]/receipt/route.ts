@@ -4,6 +4,7 @@ import {
   CanonicalTransactionError,
   loadCanonicalTrustTransactionHistory,
 } from "@/lib/trust-transaction/server";
+import { loadProtectedWorkflowReceiptContext } from "@/lib/protected-workflows/server";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,7 @@ export async function GET(
       user,
       transactionId,
     });
+    const protectedWorkflow = await loadProtectedWorkflowReceiptContext(receipt.enterpriseId, receipt.transactionId);
     const portableReceipt = {
       receiptVersion: "canonical-trust-transaction-v1",
       transactionId: receipt.transactionId,
@@ -53,6 +55,7 @@ export async function GET(
       evidenceGraphReference: receipt.evidenceGraphReference,
       replayReference: receipt.replayReference,
       trustMemoryReference: receipt.trustMemoryReference,
+      protectedWorkflow,
     };
     return NextResponse.json(portableReceipt, {
       headers: {

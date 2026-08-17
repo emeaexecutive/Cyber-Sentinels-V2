@@ -21,6 +21,7 @@ export const canonicalNavigation = {
   ],
   dashboard: [
     { href: "/dashboard", label: "Overview", access: "authenticated" },
+    { href: "/dashboard/track-block", label: "Track + Block™", access: "authenticated" },
     { href: "/dashboard/governance", label: "Governance", access: "authenticated" },
     { href: "/dashboard/environment-scope", label: "Environment & Scope", access: "authenticated" },
     { href: "/dashboard/serious-incidents", label: "Serious Incidents", access: "authenticated" },
