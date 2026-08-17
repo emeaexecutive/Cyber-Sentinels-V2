@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   checkRequestRateLimit,
+  getExpectedTurnstileHostname,
   getClientIp,
   getTurnstileTokenFromJson,
   verifyTurnstileToken,
@@ -21,12 +22,28 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const turnstile = await verifyTurnstileToken(getTurnstileTokenFromJson(body), getClientIp(req));
+    const turnstile = await verifyTurnstileToken(
+      getTurnstileTokenFromJson(body),
+      getClientIp(req),
+      getExpectedTurnstileHostname(new URL(req.url).hostname),
+    );
 
     if (!turnstile.ok) {
+      const unavailable = [
+        "turnstile_not_configured",
+        "turnstile_configuration_invalid",
+        "provider_unavailable",
+        "provider_error",
+      ].includes(turnstile.reason);
       return NextResponse.json(
-        { ok: false, error: "Security check failed. Please try again." },
-        { status: 400 }
+        {
+          ok: false,
+          code: turnstile.reason.toUpperCase(),
+          error: unavailable
+            ? "Security check is temporarily unavailable."
+            : "Security check failed. Please try again.",
+        },
+        { status: unavailable ? 503 : 400 }
       );
     }
 

@@ -75,6 +75,8 @@ export type OperationalEntityManifestClaims = {
 export type OperationalEntityManifest = OperationalEntityManifestClaims & {
   manifestDigest: string;
   signature: string;
+  signatureProfile?: "NATIVE_MANIFEST_V1" | "PUBLIC_MANIFEST_V1";
+  signedPublicManifest?: Record<string, unknown>;
 };
 
 export type NativeCredential = {
@@ -272,6 +274,15 @@ function claimsForValidation(manifest: OperationalEntityManifest | OperationalEn
 }
 
 export function manifestSigningPayload(manifest: OperationalEntityManifest | OperationalEntityManifestClaims) {
+  if (
+    "signatureProfile" in manifest &&
+    manifest.signatureProfile === "PUBLIC_MANIFEST_V1" &&
+    manifest.signedPublicManifest &&
+    typeof manifest.signedPublicManifest === "object" &&
+    !Array.isArray(manifest.signedPublicManifest)
+  ) {
+    return Buffer.from(canonicalize(manifest.signedPublicManifest), "utf8");
+  }
   return Buffer.from(canonicalize(claimsForDigest(manifest)), "utf8");
 }
 

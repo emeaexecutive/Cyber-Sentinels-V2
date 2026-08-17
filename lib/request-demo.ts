@@ -379,6 +379,7 @@ export function createRequestDemoHandler(dependencies: RequestDemoDependencies) 
           "provider_unavailable",
           "provider_error",
           "turnstile_not_configured",
+          "turnstile_configuration_invalid",
         ].includes(turnstile.reason);
         const code: RequestDemoErrorCode = unavailable
           ? "REQUEST_DEMO_TURNSTILE_UNAVAILABLE"

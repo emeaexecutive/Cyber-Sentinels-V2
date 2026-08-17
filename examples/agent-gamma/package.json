@@ -1,0 +1,16 @@
+{
+  "name": "cyber-sentinels-agent-gamma",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A customer-controlled external agent using only the public Cyber Sentinels SDK and HTTP API.",
+  "scripts": {
+    "start": "node gamma.mjs"
+  },
+  "dependencies": {
+    "@cyber-sentinels/sdk": "file:../../packages/cyber-sentinels-sdk"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

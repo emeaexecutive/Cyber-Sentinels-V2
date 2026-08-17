@@ -339,5 +339,41 @@
     "persistence": ["operational_entities", "canonical_trust_transactions", "trust_replay_sessions", "trust_memory_index"],
     "providerDependency": null,
     "qualificationLevel": "WORKING"
+  },
+  {
+    "name": "EXTERNAL_AGENT_API",
+    "publicClaim": "A tenant-scoped external agent can use the versioned public API to register, prove Ed25519 key possession, resolve bounded authority, request canonical ALLOW/REVIEW/DENY decisions, and retrieve transactions, Replay and receipts. This is non-Production Preview-qualified and does not imply arbitrary external enforcement or universal agent compatibility.",
+    "implementationModule": "lib/public-api/v1/runtime.ts",
+    "algorithm": "public-api-v1 facade over native Operational Entity verification and the canonical trust transaction runtime",
+    "tests": ["tests/public-api-v1-security.test.mjs", "tests/public-api-v1-openapi.test.mjs", "tests/e2e/external-agent-gamma.spec.ts"],
+    "api": ["app/api/v1/agents/route.ts", "app/api/v1/trust/decisions/route.ts", "app/api/v1/trust/transactions/[transactionId]/route.ts"],
+    "ui": ["app/developers/page.tsx", "app/developers/quickstart/page.tsx"],
+    "persistence": ["api_keys", "public_api_agent_bindings", "canonical_trust_transactions", "canonical_trust_transaction_events", "public_api_outcome_submissions"],
+    "providerDependency": null,
+    "qualificationLevel": "WORKING"
+  },
+  {
+    "name": "TYPESCRIPT_SDK",
+    "publicClaim": "The separately versioned 0.1.0 TypeScript SDK provides typed public-HTTP operations, timeouts, abort signals, idempotency and explicit ALLOW/REVIEW/DENY handling without executing customer code or logging API secrets.",
+    "implementationModule": "packages/cyber-sentinels-sdk/src/index.ts",
+    "algorithm": "typed fetch client with bounded error mapping, cancellation and canonical Ed25519 signing helpers",
+    "tests": ["tests/cyber-sentinels-sdk.test.mjs", "tests/agent-gamma-boundary.test.mjs", "tests/e2e/external-agent-gamma.spec.ts"],
+    "api": ["app/api/v1/openapi.json/route.ts"],
+    "ui": ["app/developers/quickstart/page.tsx"],
+    "persistence": [],
+    "providerDependency": null,
+    "qualificationLevel": "WORKING"
+  },
+  {
+    "name": "EXTERNAL_AGENT_NATIVE_VERIFICATION",
+    "publicClaim": "A customer-controlled external process can generate its own Ed25519 keypair and produce Cyber Sentinels native identity evidence through the public API; identity verification does not itself establish trust or authority.",
+    "implementationModule": "lib/operational-entities/native-verification.ts",
+    "algorithm": "native-entity-verification-v1 via public credential, signed manifest and tenant-, agent-, manifest- and credential-bound single-use challenge",
+    "tests": ["tests/native-operational-entity-verification.test.mjs", "tests/public-api-v1-security.test.mjs", "tests/e2e/external-agent-gamma.spec.ts"],
+    "api": ["app/api/v1/agents/[agentId]/credentials/route.ts", "app/api/v1/agents/[agentId]/challenge/route.ts", "app/api/v1/agents/[agentId]/proof/route.ts"],
+    "ui": ["app/developers/quickstart/page.tsx"],
+    "persistence": ["operational_entity_native_credentials", "operational_entity_manifests", "operational_entity_native_challenges", "operational_entity_native_verifications", "native_entity_identity_evidence"],
+    "providerDependency": null,
+    "qualificationLevel": "WORKING"
   }
 ]

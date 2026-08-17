@@ -568,7 +568,7 @@ function emailAndBotProtectionChecks() {
     fileContains("app", "api", "waitlist", "route.ts", /checkRequestRateLimit/);
   const proWaitlistProtected = fileContains("app", "pro-waitlist", "page.tsx", /TurnstileField/);
   const authPracticalGuard = fileContains("app", "login", "page.tsx", /allowAuthAttempt/) &&
-    fileContains("app", "login", "page.tsx", /cf-turnstile/);
+    fileContains("app", "login", "page.tsx", /TurnstileField/);
   const publicFormsProtected = enterpriseProtected && waitlistProtected && proWaitlistProtected;
   const emailProviderConfigured = hasEnv("RESEND_API_KEY");
   const authModesRender =

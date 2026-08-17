@@ -4,7 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 const baseURL = process.env.E2E_BASE_URL ?? "";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-const vercelProtectionBypass = process.env.VERCEL_PROTECTION_BYPASS ?? "";
+const vercelProtectionBypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET ?? "";
 const vercelProtectionCookie = process.env.VERCEL_PROTECTION_COOKIE ?? "";
 const signupMailbox = process.env.E2E_SIGNUP_MAILBOX?.trim() ?? "";
 const allowAdminBootstrapAfterSignupRateLimit = process.env.E2E_ALLOW_ADMIN_BOOTSTRAP_AFTER_SIGNUP_RATE_LIMIT === "true";
@@ -150,7 +150,7 @@ test("new and returning users complete the Alpha to Beta trust journey from logi
     await page.waitForURL("**/operational-entities/**");
   }
 
-  await expect(page.getByRole("heading", { name: "Agent Alpha", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Agent Alpha", exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("operational-entity.png"), fullPage: true });
   const alphaIdentity = await runProofStage(page, "verify-alpha", "alphaIdentity");
   await expect(alphaIdentity).toContainText('"status": "VERIFIED"');
@@ -171,7 +171,7 @@ test("new and returning users complete the Alpha to Beta trust journey from logi
 
   const secondTab = await context.newPage();
   await secondTab.goto(page.url());
-  await expect(secondTab.getByRole("heading", { name: "Agent Alpha", exact: true })).toBeVisible();
+  await expect(secondTab.getByRole("heading", { level: 1, name: "Agent Alpha", exact: true })).toBeVisible();
   await secondTab.close();
 
   const allowed = await runProofStage(page, "beta-read", "betaRead");

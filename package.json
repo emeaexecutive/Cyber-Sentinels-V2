@@ -22,6 +22,7 @@
     "test:supabase-auth": "tsx --test tests/supabase-ssr-auth-regression.test.mjs tests/auth-callback-redirect-security.test.mjs tests/password-recovery.test.mjs",
     "test:password-recovery-powershell": "node --test tests/powershell-password-recovery.test.mjs",
     "test:product-proof": "node --test tests/end-to-end-product-proof.test.mjs",
+    "test:external-agent-platform": "tsx --test tests/public-api-v1-security.test.mjs tests/public-api-v1-openapi.test.mjs tests/cyber-sentinels-sdk.test.mjs tests/agent-gamma-boundary.test.mjs tests/external-agent-client-parity.test.mjs tests/multimodal-evidence-contract.test.mjs",
     "test:e2e": "playwright test",
     "test:consent": "node --experimental-strip-types --test tests/consent-manager.test.mjs tests/consent-api-ui.test.mjs tests/cookie-consent-recovery.test.mjs tests/rls/consent-manager.test.mjs",
     "test:continuous-trust": "node --experimental-strip-types --test tests/continuous-trust-runtime.test.mjs tests/rls/continuous-trust-runtime.test.mjs",

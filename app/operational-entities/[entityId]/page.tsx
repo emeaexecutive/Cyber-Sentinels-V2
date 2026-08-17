@@ -30,6 +30,9 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
     ? await loadOperationalEntityDetail({ supabase, user, entityId: betaEntity.entityId })
     : null;
   const intelligence = projectOperationalEntityIntelligence(detail);
+  const normalizedEntityName = detail.entity.displayReference.trim().toLowerCase();
+  const isAlpha = normalizedEntityName === "agent alpha";
+  const isBeta = normalizedEntityName === "agent beta";
 
   const latestTransaction = detail.transactions.at(-1);
   const responsibility = (latestTransaction?.responsibility_lineage ?? {}) as Record<string, unknown>;
@@ -106,6 +109,20 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
         ], ["Accountable owner", detail.entity.accountableOwnerId], ["Native identity", nativeIdentityLabel], ["Authority", authorityResult.data?.revocation_state ?? "UNKNOWN"], ["Continuity", latestNativeVerification?.continuity_result ?? "NOT YET EVALUATED"]] as Array<[string, unknown]>).map(([label, item]) => <article key={label} className={panel}><p className="text-xs uppercase tracking-wide text-slate-500">{label}</p><p className="mt-3 break-all text-sm font-semibold">{value(item)}</p></article>)}
       </section>
 
+      {isAlpha || isBeta ? <section className={panel} aria-label={`${detail.entity.displayReference} product proof`}>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700">Alpha / Beta live product proof</p>
+        <h2 className="mt-2 text-xl font-semibold">{detail.entity.displayReference}</h2>
+        <dl className="mt-4 grid gap-4 text-sm md:grid-cols-2 lg:grid-cols-3">
+          <div><dt>Identity</dt><dd className="mt-1 font-semibold"><a className="underline" href="#native-verification">{value(nativeIdentityLabel)}</a></dd></div>
+          <div><dt>Owner</dt><dd className="mt-1 font-semibold">{isAlpha ? "Alice" : "Bob"} · {detail.entity.accountableOwnerId}</dd></div>
+          <div><dt>{isAlpha ? "Authority" : "Authority received"}</dt><dd className="mt-1 font-semibold"><a className="underline" href={isAlpha ? "#parent-authority" : "#authority-received"}>{isAlpha ? value(authorityResult.data?.revocation_state) : value(latestReceivedAuthority?.status)}</a></dd></div>
+          <div><dt>{isAlpha ? "Delegated authority" : "Delegated from Alpha"}</dt><dd className="mt-1"><a className="underline" href={isAlpha ? "#delegated-authority" : "#authority-received"}>{isAlpha ? `${delegatedAuthority.length} delegation(s)` : value(latestReceivedAuthority?.delegator_operational_entity_id)}</a></dd></div>
+          <div><dt>{isBeta ? "Scope / expiry" : "Current trust state"}</dt><dd className="mt-1">{isBeta ? `${value(latestReceivedAuthority?.permitted_actions)} · ${value(latestReceivedAuthority?.expires_at)}` : detail.entity.currentTrustState}</dd></div>
+          <div><dt>{isBeta ? "Current trust state" : "Recent decisions"}</dt><dd className="mt-1"><a className="underline" href="#transactions">{isBeta ? detail.entity.currentTrustState : `${detail.transactions.length} canonical transaction(s)`}</a></dd></div>
+          {isBeta ? <div><dt>Recent decisions</dt><dd className="mt-1"><a className="underline" href="#transactions">{detail.transactions.length} canonical transaction(s)</a></dd></div> : null}
+        </dl>
+      </section> : null}
+
       <section id="parent-authority" className={panel}>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-700">Canonical parent authority</p>
         <h2 className="mt-2 text-xl font-semibold">Alpha authority lineage</h2>
@@ -151,7 +168,7 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
       <section id="authority-received" className={panel}>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-700">Authority received</p>
         <h2 className="mt-2 text-xl font-semibold">Why can this entity do this?</h2>
-        <p className="mt-2 text-sm text-slate-600">The answer is reconstructed from the current parent authority, signed delegation, native identity evidence, acceptance, policy, and exact requested action.</p>
+        <p className="mt-2 text-sm text-slate-600">Enterprise authority flows through the accountable owner and signed delegation; the answer is reconstructed from current native identity evidence, acceptance, policy, and the exact requested action.</p>
         <div className="mt-4 space-y-3">
           {receivedAuthority.map((delegation) => <article key={String(delegation.delegation_id)} className="rounded-xl border border-slate-200 p-4 text-sm">
             <p className="font-semibold">From {value(delegation.delegator_operational_entity_id)} · {delegationState(delegation)}</p>
@@ -159,7 +176,16 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
           </article>)}
           {!receivedAuthority.length ? <p className="text-sm text-slate-500">Identity may be verified, but no delegated authority is active.</p> : null}
         </div>
-        {latestReceivedAuthority ? <div className="mt-5 rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-950"><p className="font-semibold">WHY CAN BETA DO THIS?</p><p className="mt-2">Enterprise authority → accountable owner → {value(latestReceivedAuthority.delegator_operational_entity_id)} → signed delegation → {detail.entity.displayReference} → exact action.</p><p className="mt-2 break-all">Delegation: {value(latestReceivedAuthority.delegation_id)} · Digest: {value(latestReceivedAuthority.delegation_digest)} · Latest decision: {value(latestDelegatedEvaluation?.decision)}</p></div> : null}
+        {latestReceivedAuthority ? <div className="mt-5 rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-950"><p className="font-semibold">WHY CAN BETA DO THIS?</p><nav aria-label="Beta authority lineage" className="mt-3 flex flex-wrap items-center gap-2 font-semibold">
+          <Link className="underline" href="/operational-entities">Enterprise</Link><span>→</span>
+          <a className="underline" href="#parent-authority">Alice</a><span>→</span>
+          {alphaEntity ? <Link className="underline" href={`/operational-entities/${encodeURIComponent(alphaEntity.entityId)}`}>Alpha</Link> : <span>Alpha</span>}<span>→</span>
+          <a className="underline" href="#parent-authority">Alpha Authority</a><span>→</span>
+          <a className="underline" href="#authority-received">Signed Delegation</a><span>→</span>
+          <a className="underline" href="#native-replay">Beta Acceptance</a><span>→</span>
+          <a className="underline" href="#native-verification">Beta</a><span>→</span>
+          <a className="underline" href="#transactions">Exact Action</a>
+        </nav><p className="mt-3 break-all">Delegation: {value(latestReceivedAuthority.delegation_id)} · Digest: {value(latestReceivedAuthority.delegation_digest)} · Latest decision: {value(latestDelegatedEvaluation?.decision)}</p></div> : null}
       </section>
 
       <section className={panel}>

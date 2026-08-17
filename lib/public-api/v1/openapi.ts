@@ -1,0 +1,90 @@
+import { PUBLIC_API_VERSION } from "./contracts";
+
+const errorResponse = {
+  description: "Developer-safe error. Internal stack traces and secrets are never returned.",
+  content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } },
+};
+const json = (schema: Record<string, unknown>, description = "Successful response") => ({
+  description,
+  content: { "application/json": { schema } },
+});
+const agentParameter = { name: "agentId", in: "path", required: true, schema: { type: "string", maxLength: 180 } };
+const transactionParameter = { name: "transactionId", in: "path", required: true, schema: { type: "string", format: "uuid" } };
+const errors = { "400": errorResponse, "401": errorResponse, "403": errorResponse, "409": errorResponse, "429": errorResponse, "500": errorResponse, "503": errorResponse };
+
+export const publicApiOpenApi = {
+  openapi: "3.1.0",
+  info: {
+    title: "Cyber Sentinels External Agent Trust API",
+    version: "0.1.0",
+    description: "Tenant-scoped facade over the canonical Operational Entity, native verification, authority, trust transaction, Evidence Graph, Replay, receipt, and Trust Memory runtime. API keys are server-side credentials. ALLOW is a decision, not proof of execution.",
+  },
+  servers: [{ url: "https://cybersentinels.com", description: "Production host; qualify changes on Preview first." }],
+  security: [{ bearerApiKey: [] }],
+  tags: [{ name: "Agents" }, { name: "Trust" }],
+  paths: {
+    "/api/v1/agents": {
+      post: {
+        operationId: "registerAgent", tags: ["Agents"], summary: "Register an external AI agent",
+        description: "The server derives the tenant and canonical identifiers. Caller-supplied trust, verification, authority, score, or decision fields are rejected. Registration limit: 20/minute/client.",
+        requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/RegisterAgentRequest" } } } },
+        responses: { "201": json({ $ref: "#/components/schemas/RegisteredAgent" }), ...errors },
+      },
+    },
+    "/api/v1/agents/{agentId}/credentials": {
+      post: { operationId: "registerAgentCredential", tags: ["Agents"], summary: "Register or rotate an Ed25519 public credential", parameters: [agentParameter], requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/RegisterCredentialRequest" } } } }, responses: { "201": json({ type: "object" }), ...errors } },
+    },
+    "/api/v1/agents/{agentId}/manifest": {
+      post: { operationId: "registerAgentManifest", tags: ["Agents"], summary: "Register a signed Manifest v1", description: "The signature covers the canonical public manifest. The server derives tenant-only claims and the manifest digest.", parameters: [agentParameter], requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/SignedManifest" } } } }, responses: { "201": json({ type: "object" }), ...errors } },
+    },
+    "/api/v1/agents/{agentId}/challenge": {
+      post: { operationId: "issueAgentChallenge", tags: ["Agents"], summary: "Issue a short-lived single-use challenge", description: "Challenge limit: 30/minute/client. The body must be an empty JSON object.", parameters: [agentParameter], requestBody: { required: true, content: { "application/json": { schema: { type: "object", additionalProperties: false } } } }, responses: { "201": json({ $ref: "#/components/schemas/Challenge" }), ...errors } },
+    },
+    "/api/v1/agents/{agentId}/proof": {
+      post: { operationId: "submitAgentProof", tags: ["Agents"], summary: "Prove possession of the manifest-bound Ed25519 key", description: "Proof limit: 30/minute/client. A challenge is tenant-, agent-, credential-, manifest-, audience-, and time-bound and can be consumed once.", parameters: [agentParameter], requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/Proof" } } } }, responses: { "200": json({ type: "object" }), ...errors } },
+    },
+    "/api/v1/agents/{agentId}/authority": {
+      get: { operationId: "getAgentAuthority", tags: ["Agents"], summary: "Resolve developer-safe current authority", parameters: [agentParameter], responses: { "200": json({ $ref: "#/components/schemas/Authority" }), ...errors } },
+    },
+    "/api/v1/agents/{agentId}/trust-state": {
+      get: { operationId: "getAgentTrustState", tags: ["Agents"], summary: "Read the current multi-dimensional trust state", parameters: [agentParameter], responses: { "200": json({ type: "object" }), ...errors } },
+    },
+    "/api/v1/trust/decisions": {
+      post: { operationId: "requestTrustDecision", tags: ["Trust"], summary: "Request a canonical ALLOW, REVIEW, or DENY for an exact action", description: "Decision limit: 60/minute/client. Idempotency is scoped to the authenticated API client. Same key plus same body returns the same logical transaction; changed reuse returns 409 IDEMPOTENCY_CONFLICT.", parameters: [{ name: "Idempotency-Key", in: "header", required: true, schema: { type: "string", minLength: 8, maxLength: 120 } }], requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/DecisionRequest" } } } }, responses: { "200": json({ $ref: "#/components/schemas/Decision" }, "Idempotent replay"), "201": json({ $ref: "#/components/schemas/Decision" }, "Decision created"), ...errors } },
+    },
+    "/api/v1/trust/transactions/{transactionId}": {
+      get: { operationId: "getTrustTransaction", tags: ["Trust"], summary: "Retrieve a sanitized canonical transaction", parameters: [transactionParameter], responses: { "200": json({ type: "object" }), ...errors } },
+    },
+    "/api/v1/trust/transactions/{transactionId}/replay": {
+      get: { operationId: "getTrustTransactionReplay", tags: ["Trust"], summary: "Retrieve chronological canonical Replay events", parameters: [transactionParameter], responses: { "200": json({ type: "object", required: ["transaction_id", "events"], properties: { transaction_id: { type: "string", format: "uuid" }, events: { type: "array", items: { type: "object" } } }, additionalProperties: false }), ...errors } },
+    },
+    "/api/v1/trust/transactions/{transactionId}/receipt": {
+      get: { operationId: "getTrustTransactionReceipt", tags: ["Trust"], summary: "Retrieve the minimized canonical receipt", parameters: [transactionParameter], responses: { "200": json({ type: "object" }), ...errors } },
+    },
+    "/api/v1/trust/transactions/{transactionId}/outcomes": {
+      post: { operationId: "submitTrustTransactionOutcome", tags: ["Trust"], summary: "Submit an approved-source outcome assertion", description: "Outcome limit: 60/minute/client. Agent assertions are explicitly classified AGENT_ASSERTED and never become independent destination evidence.", parameters: [transactionParameter], requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/OutcomeRequest" } } } }, responses: { "201": json({ type: "object" }), ...errors } },
+    },
+  },
+  components: {
+    securitySchemes: { bearerApiKey: { type: "http", scheme: "bearer", bearerFormat: "Cyber Sentinels API key" } },
+    schemas: {
+      Error: { type: "object", required: ["error"], properties: { error: { type: "object", required: ["code", "message", "correlation_id"], properties: { code: { type: "string" }, message: { type: "string" }, correlation_id: { type: "string", format: "uuid" } }, additionalProperties: false } }, additionalProperties: false },
+      RegisterAgentRequest: { type: "object", required: ["display_name", "entity_type", "owner_reference", "runtime", "model"], properties: { display_name: { type: "string", maxLength: 120 }, entity_type: { const: "AI_AGENT" }, owner_reference: { type: "string", maxLength: 180 }, runtime: { type: "object", required: ["environment", "framework"], properties: { environment: { type: "string" }, framework: { type: "string" } }, additionalProperties: false }, model: { type: "object", required: ["provider", "identifier"], properties: { provider: { type: "string" }, identifier: { type: "string" } }, additionalProperties: false } }, additionalProperties: false },
+      RegisteredAgent: { type: "object", required: ["agent_id", "operational_entity_id", "status", "next_step", "manifest_context"], properties: { agent_id: { type: "string" }, operational_entity_id: { type: "string" }, status: { type: "string" }, next_step: { type: "string" }, manifest_context: { type: "object" } }, additionalProperties: false },
+      RegisterCredentialRequest: { type: "object", required: ["public_jwk", "kid", "algorithm"], properties: { public_jwk: { type: "object", required: ["kty", "crv", "x"], properties: { kty: { const: "OKP" }, crv: { const: "Ed25519" }, x: { type: "string" }, kid: { type: "string" }, alg: { const: "EdDSA" }, use: { const: "sig" }, key_ops: { type: "array", prefixItems: [{ const: "verify" }], maxItems: 1 } }, not: { required: ["d"] }, additionalProperties: false }, kid: { type: "string" }, algorithm: { enum: ["Ed25519", "EdDSA"] }, expires_at: { type: ["string", "null"], format: "date-time" }, rotate_from_credential_id: { type: "string" } }, additionalProperties: false },
+      SignedManifest: { type: "object", required: ["manifest_version", "operational_entity_id", "entity_type", "owner_reference", "model", "runtime", "environment", "declared_capabilities", "credential_id", "issued_at", "expires_at", "nonce", "signature"], properties: { manifest_version: { const: "1.0" }, operational_entity_id: { type: "string" }, entity_type: { const: "AI_AGENT" }, owner_reference: { type: "string" }, model: { type: "object" }, runtime: { type: "object" }, environment: { type: "string" }, declared_capabilities: { type: "array", items: { type: "string" }, maxItems: 128 }, credential_id: { type: "string" }, issued_at: { type: "string", format: "date-time" }, expires_at: { type: "string", format: "date-time" }, nonce: { type: "string" }, signature: { type: "string" } }, additionalProperties: false },
+      Challenge: { type: "object", required: ["challenge_id", "nonce", "audience", "operational_entity_id", "manifest_digest", "issued_at", "expires_at"], properties: { challenge_id: { type: "string", format: "uuid" }, nonce: { type: "string" }, audience: { type: "string" }, issuer: { const: "cyber-sentinels" }, subject: { type: "string" }, operational_entity_id: { type: "string" }, manifest_digest: { type: "string", pattern: "^[a-f0-9]{64}$" }, signing_key_id: { type: "string" }, issued_at: { type: "string", format: "date-time" }, expires_at: { type: "string", format: "date-time" } }, additionalProperties: false },
+      Proof: { type: "object", required: ["challenge_id", "credential_id", "signature", "signed_payload"], properties: { challenge_id: { type: "string", format: "uuid" }, credential_id: { type: "string" }, signature: { type: "string" }, signed_payload: { type: "object" } }, additionalProperties: false },
+      Authority: { type: "object", required: ["status", "actions", "targets", "tools", "environment", "expires_at", "authority_reference", "delegated_from", "delegation_depth"], properties: { status: { enum: ["ACTIVE", "PENDING_IDENTITY", "INVALIDATED"] }, actions: { type: "array", items: { type: "string" } }, targets: { type: "array", items: { type: "string" } }, tools: { type: "array", items: { type: "string" } }, environment: { type: "array", items: { type: "string" } }, expires_at: { type: "string", format: "date-time" }, authority_reference: { type: "string", format: "uuid" }, delegated_from: { type: ["string", "null"] }, delegation_depth: { type: "integer", minimum: 0 } }, additionalProperties: false },
+      DecisionRequest: { type: "object", required: ["operational_entity_id", "action", "idempotency_key"], properties: { operational_entity_id: { type: "string" }, action: { type: "object", required: ["type", "target", "purpose", "environment"], properties: { type: { type: "string" }, target: { type: "string" }, purpose: { type: "string" }, environment: { type: "string" } }, additionalProperties: false }, idempotency_key: { type: "string", minLength: 8, maxLength: 120 } }, additionalProperties: false },
+      Decision: { type: "object", required: ["transaction_id", "decision", "reason_codes", "transaction_url", "replay_url", "receipt_url", "review_required"], properties: { transaction_id: { type: "string", format: "uuid" }, decision: { enum: ["ALLOW", "REVIEW", "DENY"] }, reason_codes: { type: "array", items: { type: "string" } }, consequence: { type: "string" }, confidence: { type: "string" }, authority_reference: { type: "string" }, policy_version: { type: "string" }, transaction_url: { type: "string", format: "uri" }, replay_url: { type: "string", format: "uri" }, receipt_url: { type: "string", format: "uri" }, review_required: { type: "boolean" }, execution_authorization: { type: ["object", "null"] } }, additionalProperties: true },
+      OutcomeRequest: { type: "object", required: ["source_id", "destination", "action_reference", "target", "result", "observed_at", "evidence_reference"], properties: { source_id: { type: "string" }, destination: { type: "string" }, action_reference: { type: "string" }, target: { type: "string" }, result: { enum: ["SUCCEEDED", "FAILED", "UNKNOWN"] }, observed_at: { type: "string", format: "date-time" }, evidence_reference: { type: "string" }, digest: { type: "string", pattern: "^[a-f0-9]{64}$" } }, additionalProperties: false },
+    },
+  },
+  "x-cyber-sentinels": {
+    apiVersionDate: PUBLIC_API_VERSION,
+    errorFormat: { error: { code: "STRING", message: "STRING", correlation_id: "UUID" } },
+    rateLimits: { registration: "20/min", challenge: "30/min", proof: "30/min", decision: "60/min", read: "240/min", outcome: "60/min" },
+    webhooks: { events: ["decision.review_required", "decision.denied", "authority.revoked", "trust.material_change", "outcome.contradiction"], signatureHeader: "X-Cyber-Sentinels-Signature", replayProtection: "Reject duplicate event_id values and timestamps outside your tolerance window." },
+  },
+} as const;

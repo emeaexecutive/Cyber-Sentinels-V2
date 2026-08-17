@@ -2,6 +2,7 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { emitPublicApiWebhookEvent } from "@/lib/public-api/v1/webhook-delivery";
 import { hashCanonical } from "@/src/lib/trust-core/hash";
 import type { DelegatedAuthorityContext } from "./delegated-authority-server";
 import {
@@ -255,6 +256,7 @@ async function correlateAndPersist(context: DelegatedAuthorityContext, entityId:
   if (correlation.outcome === "CONTROL_FAILURE_CRITICAL") {
     await appendNativeReplay(context, entityId, "UNAUTHORIZED_EXECUTION_OBSERVED", correlation.contradictionCodes, { transactionId, outcomeId: persistedOutcomeId }, [`outcome:${persistedOutcomeId}`]);
     await appendNativeReplay(context, entityId, "CONTROL_FAILURE_DETECTED", correlation.reasonCodes, { transactionId, outcomeId: persistedOutcomeId, incidentId }, [`outcome:${persistedOutcomeId}`]);
+    await emitPublicApiWebhookEvent(context.enterpriseId, "outcome.contradiction", `transaction:${transactionId}`);
   }
   if (correlation.reasonCodes.includes("CONTROL_RECOVERY_CONFIRMED")) await appendNativeReplay(context, entityId, "CONTROL_RECOVERY_CONFIRMED", correlation.reasonCodes, { transactionId, outcomeId: persistedOutcomeId }, [`outcome:${persistedOutcomeId}`]);
   return { outcomeId: persistedOutcomeId, ...correlation, incidentId };
