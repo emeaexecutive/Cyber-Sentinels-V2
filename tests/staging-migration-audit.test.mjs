@@ -32,10 +32,10 @@ function grouped(items, key) {
 }
 
 test("Production split and migration timestamp inventory remain exact", () => {
-  assert.equal(migrations.length, 86);
-  assert.equal(pending.length, 41);
+  assert.equal(migrations.length, 88);
+  assert.equal(pending.length, 43);
   assert.equal(pending[0].timestamp, "202606100001");
-  assert.equal(pending.at(-1).timestamp, "202608100005");
+  assert.equal(pending.at(-1).timestamp, "20260814153045");
   assert.equal(new Set(migrations.map((migration) => migration.timestamp)).size, migrations.length);
 });
 
@@ -145,7 +145,7 @@ test("pending relation and function DDL is schema-qualified", () => {
       const identifier = match[1].replaceAll('"', "");
       const suffix = migration.sql.slice((match.index ?? 0) + match[0].length, (match.index ?? 0) + match[0].length + 4);
       if (identifier.toLowerCase() === "public" && suffix.startsWith(".%I")) continue;
-      assert.match(identifier, /^(?:public|auth|storage)\./i, `${migration.name} has ambiguous DDL identifier: ${identifier}`);
+      assert.match(identifier, /^(?:public|private|auth|storage)\./i, `${migration.name} has ambiguous DDL identifier: ${identifier}`);
     }
   }
 });

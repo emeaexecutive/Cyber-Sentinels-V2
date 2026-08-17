@@ -7,11 +7,40 @@ const read = (path) => readFileSync(path, "utf8").replace(/\r\n/g, "\n");
 test("forward Supabase policy changes use the canonical drift-detecting idempotency guard", () => {
   const migrationFiles = readdirSync("supabase/migrations")
     .filter((name) => name >= "202608010002" && name.endsWith(".sql"));
-  const sql = migrationFiles.map((file) => read(`supabase/migrations/${file}`)).join("\n");
+  const reconciliation = "20260814153045_staging_product_closure_security_reconciliation.sql";
+  const sql = migrationFiles
+    .filter((file) => file !== reconciliation)
+    .map((file) => read(`supabase/migrations/${file}`))
+    .join("\n");
   assert.match(sql, /ensure_policy_definition_v1/);
   assert.match(sql, /Conflicting policy definition/);
   assert.match(sql, /return 'UNCHANGED'/);
   assert.doesNotMatch(sql, /drop policy if exists/i);
+
+  // Product Closure intentionally removes a closed set of obsolete policy
+  // copies after the canonical forward repair. Deletion cannot be represented
+  // by ensure_policy_definition_v2, so keep the exception exact and audited.
+  const cleanup = read(`supabase/migrations/${reconciliation}`);
+  const droppedPolicies = [...cleanup.matchAll(/drop policy if exists "([^"]+)"/gi)]
+    .map((match) => match[1])
+    .sort();
+  assert.deepEqual(droppedPolicies, [
+    "authenticated manage trust_workspaces",
+    "authenticated manage workspace_members",
+    "authenticated users create own workspaces",
+    "tenant members read trust workspaces",
+    "tenant members read workspace membership",
+    "users create owned trust workspaces",
+    "workspace owners administer trust workspaces",
+    "workspace owners and members read workspaces",
+    "workspace owners and self add members",
+    "workspace owners create membership",
+    "workspace owners update members",
+    "workspace owners update membership",
+    "workspace owners update workspaces",
+    "workspace participants read members",
+  ]);
+  assert.match(cleanup, /Workspace policy reconciliation left overlapping permissive policies/);
 });
 
 test("RLS policies do not trust user-controlled auth metadata", () => {

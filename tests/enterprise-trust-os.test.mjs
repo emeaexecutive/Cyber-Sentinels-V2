@@ -6,7 +6,7 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("authenticated shell exposes the seven canonical workspace areas", async () => {
   const source = await read("components/trust-os/enterprise-shell.tsx");
-  for (const area of ["Overview", "Operations", "Trust", "Runtime", "Governance", "Providers", "Administration"]) {
+  for (const area of ["Overview", "Entities", "Decisions", "Evidence", "Replay", "Developers", "Account"]) {
     assert.match(source, new RegExp(`"${area}"`));
   }
   assert.match(source, /aria-label="Enterprise workspace areas"/);
@@ -89,7 +89,8 @@ test("public navigation remains separate from the authenticated Trust OS", async
     read("lib/navigation/canonical-navigation.ts"),
   ]);
   assert.match(layout, /accessLevel === "public" \? children/);
-  assert.match(contract, /Enterprise Workspace/);
+  assert.match(contract, /Operational Entities/);
+  assert.match(contract, /Decisions \/ Transactions/);
   assert.match(contract, /Administration/);
   assert.match(navigation, /canonicalNavigation\.authenticated\.map/);
   assert.match(navigation, /canonicalNavigation\.admin\.map/);
