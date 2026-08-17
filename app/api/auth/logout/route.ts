@@ -9,6 +9,10 @@ import {
   isInvalidRefreshTokenError,
 } from "@/lib/supabase/server";
 import { recordAuthReplayEvent } from "@/lib/auth/auth-replay-events";
+import {
+  PASSWORD_RECOVERY_COOKIE,
+  passwordRecoveryCookieOptions,
+} from "@/lib/auth/password-recovery";
 
 async function logout(req: Request) {
   const authHeaders = new Headers();
@@ -65,6 +69,11 @@ async function logout(req: Request) {
     ...getAdminCookieOptions(),
     maxAge: 0,
   });
+  response.cookies.set(
+    PASSWORD_RECOVERY_COOKIE,
+    "",
+    passwordRecoveryCookieOptions(0),
+  );
 
   return response;
 }

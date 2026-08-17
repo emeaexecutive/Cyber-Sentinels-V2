@@ -4,13 +4,22 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TurnstileField } from "@/components/turnstile-field";
+import {
+  classifyAuthFailure,
+  maskEmailAddress,
+  rateLimitedMessage,
+  type LoginExperienceState,
+} from "@/lib/auth/login-experience";
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_RESET_GENERIC_MESSAGE,
+  validateNewPassword,
+} from "@/lib/auth/password-recovery";
 import { resolveSafeInternalRedirect } from "@/lib/auth/safe-redirect";
 import { createClient } from "@/lib/supabase/client";
 
-const RATE_LIMIT_MESSAGE =
-  "Email login is temporarily rate-limited. Use password login or wait before requesting another magic link.";
 const CONNECTION_FAILURE_MESSAGE =
-  "Cyber Sentinels could not connect. Please try again shortly.";
+  "We couldn't connect. Please try again shortly.";
 const SESSION_START_KEY = "cyber_sentinels_session_started_at";
 const REMEMBER_SESSION_KEY = "cyber_sentinels_remember_session";
 const authTimeoutMs = 8000;
@@ -19,52 +28,7 @@ const turnstileRequired = process.env.NODE_ENV === "production";
 const authAttemptWindowMs = 60_000;
 const authAttemptLimit = 8;
 
-type AuthMode = "sign-in" | "create-account" | "magic-link" | "forgot-password";
-
-const primaryAuthModes: { id: Extract<AuthMode, "sign-in" | "create-account">; label: string }[] = [
-  { id: "sign-in", label: "Sign in" },
-  { id: "create-account", label: "Create account" },
-];
-
-function isRateLimitError(message: string) {
-  const normalizedMessage = message.toLowerCase();
-
-  return (
-    normalizedMessage.includes("rate limit") ||
-    normalizedMessage.includes("email rate limit exceeded") ||
-    normalizedMessage.includes("too many requests")
-  );
-}
-
-function safeAuthMessage(error: unknown, fallback: string) {
-  const message = error instanceof Error ? error.message : typeof error === "string" ? error : "";
-  const normalized = message.toLowerCase();
-
-  if (isRateLimitError(message)) return RATE_LIMIT_MESSAGE;
-  if (normalized.includes("invalid login credentials")) return "Email or password is incorrect.";
-  if (normalized.includes("email not confirmed")) return "Verify your email before signing in.";
-  if (normalized.includes("user already registered")) return "An account already exists for this email. Sign in or reset your password.";
-  return fallback;
-}
-
-function getBoundaryCopy(path: string) {
-  if (path.startsWith("/admin") || path.startsWith("/back-office")) {
-    return "Admin and internal tooling require verified staff access before any operational controls are shown.";
-  }
-
-  if (
-    path.startsWith("/dashboard") ||
-    path.startsWith("/workspace") ||
-    path.startsWith("/passport") ||
-    path.startsWith("/trust") ||
-    path.startsWith("/replay") ||
-    path.startsWith("/verification/receipt")
-  ) {
-    return "This destination contains operational trust data, including verification evidence, reviewer actions or customer workflow records.";
-  }
-
-  return "Protected workflow pages require sign-in before evidence, reviews or receipts are shown.";
-}
+type AuthMode = "sign-in" | "create-account" | "forgot-password";
 
 async function withAuthTimeout<T>(task: Promise<T>): Promise<T> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -121,9 +85,7 @@ export default function LoginPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [rememberSession, setRememberSession] = useState(true);
   const [message, setMessage] = useState("");
-  const [sessionRestoreState, setSessionRestoreState] = useState<
-    "checking" | "restored" | "signed-out" | "unavailable"
-  >("checking");
+  const [experienceState, setExperienceState] = useState<LoginExperienceState>("SIGNED_OUT");
   const [signupSucceeded, setSignupSucceeded] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
@@ -132,32 +94,36 @@ export default function LoginPage() {
     "password" | "create-account" | "magic-link" | "reset" | null
   >(null);
   const [showDevAuth, setShowDevAuth] = useState(false);
-  const boundaryCopy = getBoundaryCopy(nextPath);
   const trimmedEmail = email.trim();
   const passwordsMismatch =
     authMode === "create-account" && Boolean(confirmPassword) && password !== confirmPassword;
   const canCreateAccount =
     Boolean(trimmedEmail) &&
-    password.length >= 6 &&
+    password.length >= PASSWORD_MIN_LENGTH &&
     Boolean(confirmPassword) &&
     password === confirmPassword &&
     loadingAction === null;
   const canSendEmailOnlyAction = Boolean(trimmedEmail) && loadingAction === null;
-  const modeTitle =
-    authMode === "sign-in"
-      ? "Sign in"
-      : authMode === "create-account"
-        ? "Create account"
-        : authMode === "magic-link"
-          ? "Use magic link"
-          : "Reset password";
+  const maskedEmail = maskEmailAddress(trimmedEmail);
 
   function switchAuthMode(mode: AuthMode) {
     setAuthMode(mode);
     setMessage("");
+    setExperienceState("SIGNED_OUT");
     setSignupSucceeded(false);
     setPassword("");
     setConfirmPassword("");
+  }
+
+  function showAuthFailure(error: unknown, fallback: string) {
+    const failure = classifyAuthFailure(error, fallback);
+    setExperienceState(failure.state);
+    setMessage(failure.message);
+  }
+
+  function showSecurityFailure() {
+    setExperienceState("SECURITY_VERIFICATION_FAILED");
+    setMessage("We couldn't complete the security check. Please try again.");
   }
 
   useEffect(() => {
@@ -180,7 +146,7 @@ export default function LoginPage() {
     if (searchParams.get("expired") === "1") {
       window.localStorage.removeItem(SESSION_START_KEY);
       setMessage("Session expired for security. Please sign in again.");
-      setSessionRestoreState("signed-out");
+      setExperienceState("SIGNED_OUT");
       return;
     }
 
@@ -192,10 +158,22 @@ export default function LoginPage() {
       setMessage("We could not complete email verification. Please request a new link or sign in with your password.");
     }
 
+    if (searchParams.get("mode") === "forgot-password") {
+      setAuthMode("forgot-password");
+    }
+
+    if (searchParams.get("password_updated") === "1") {
+      setMessage("Password updated successfully. Sign in with your new password.");
+    }
+
+    if (searchParams.get("error") === "recovery_link_invalid") {
+      setAuthMode("forgot-password");
+      setMessage("Reset link expired or invalid. Request a new password reset email.");
+    }
+
     const supabase = getSupabaseClient();
 
     if (!supabase) {
-      setSessionRestoreState("unavailable");
       return;
     }
 
@@ -206,7 +184,7 @@ export default function LoginPage() {
         if (!active) return;
 
         if (data.user) {
-          setSessionRestoreState("restored");
+          setExperienceState("AUTHENTICATED");
           window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
           await recordAuthEvent(
             "session_restoration",
@@ -218,11 +196,11 @@ export default function LoginPage() {
           return;
         }
 
-        setSessionRestoreState("signed-out");
+        setExperienceState("SIGNED_OUT");
       })
       .catch((error) => {
         console.error("Supabase session restoration failed.", error);
-        if (active) setSessionRestoreState("unavailable");
+        if (active) setExperienceState("SIGNED_OUT");
       });
 
     return () => {
@@ -233,11 +211,11 @@ export default function LoginPage() {
 
   function allowAuthAttempt(action: string) {
     if (turnstileRequired && !turnstileSiteKey) {
-      setMessage("Security check is temporarily unavailable.");
+      showSecurityFailure();
       return false;
     }
     if (turnstileSiteKey && !turnstileToken) {
-      setMessage("Security check failed. Please try again.");
+      showSecurityFailure();
       return false;
     }
 
@@ -255,7 +233,8 @@ export default function LoginPage() {
     window.localStorage.setItem(key, JSON.stringify({ count, resetAt: parsed.resetAt }));
 
     if (count > authAttemptLimit) {
-      setMessage("Too many attempts. Please wait and try again.");
+      setExperienceState("RATE_LIMITED");
+      setMessage(rateLimitedMessage);
       return false;
     }
 
@@ -280,17 +259,18 @@ export default function LoginPage() {
       setTurnstileResetKey((value) => value + 1);
 
       if (!response.ok || !result.ok) {
-        setMessage(
-          response.status === 429
-            ? "Too many security checks. Please wait and try again."
-            : result.error || "Security check failed. Please try again."
-        );
+        if (response.status === 429) {
+          setExperienceState("RATE_LIMITED");
+          setMessage(rateLimitedMessage);
+        } else {
+          showSecurityFailure();
+        }
         return false;
       }
 
       return true;
     } catch {
-      setMessage("Security check is temporarily unavailable.");
+      showSecurityFailure();
       return false;
     }
   }
@@ -300,6 +280,7 @@ export default function LoginPage() {
       return createClient();
     } catch (error) {
       console.error("Supabase browser client creation failed.", error);
+      setExperienceState("AUTHENTICATION_FAILED");
       setMessage(CONNECTION_FAILURE_MESSAGE);
       return null;
     }
@@ -309,11 +290,13 @@ export default function LoginPage() {
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail) {
+      setExperienceState("AUTHENTICATION_FAILED");
       setMessage("Please enter your email address.");
       return;
     }
 
     if (!password) {
+      setExperienceState("AUTHENTICATION_FAILED");
       setMessage("Please enter your password.");
       return;
     }
@@ -321,6 +304,7 @@ export default function LoginPage() {
     if (!allowAuthAttempt("password")) return;
 
     setMessage("");
+    setExperienceState("SIGNING_IN");
     setLoadingAction("password");
 
     if (!(await verifyTurnstileForAuth())) {
@@ -344,7 +328,7 @@ export default function LoginPage() {
       );
 
       if (error) {
-        setMessage(safeAuthMessage(error, "Could not sign in. Please try again."));
+        showAuthFailure(error, "We couldn't sign you in. Please try again.");
         return;
       }
 
@@ -353,10 +337,11 @@ export default function LoginPage() {
       await recordAuthEvent("login", nextPath, rememberSession, {
         method: "password",
       });
+      setExperienceState("AUTHENTICATED");
       router.push(nextPath);
     } catch (error) {
       console.error("Supabase password sign-in failed.", error);
-      setMessage(safeAuthMessage(error, "Could not sign in. Please try again."));
+      showAuthFailure(error, "We couldn't sign you in. Please try again.");
     } finally {
       setLoadingAction(null);
     }
@@ -366,16 +351,20 @@ export default function LoginPage() {
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail) {
+      setExperienceState("AUTHENTICATION_FAILED");
       setMessage("Please enter your email address.");
       return;
     }
 
-    if (!password || password.length < 6) {
-      setMessage("Create a password with at least 6 characters.");
+    const passwordPolicyError = validateNewPassword(password);
+    if (passwordPolicyError) {
+      setExperienceState("AUTHENTICATION_FAILED");
+      setMessage(passwordPolicyError);
       return;
     }
 
     if (password !== confirmPassword) {
+      setExperienceState("AUTHENTICATION_FAILED");
       setMessage("Passwords do not match.");
       return;
     }
@@ -383,6 +372,7 @@ export default function LoginPage() {
     if (!allowAuthAttempt("create-account")) return;
 
     setMessage("");
+    setExperienceState("SIGNING_IN");
     setLoadingAction("create-account");
 
     if (!(await verifyTurnstileForAuth())) {
@@ -411,7 +401,7 @@ export default function LoginPage() {
       );
 
       if (error) {
-        setMessage(safeAuthMessage(error, "Could not create the account. Please review the details and try again."));
+        showAuthFailure(error, "We couldn't create your account. Please try again.");
         return;
       }
 
@@ -420,15 +410,17 @@ export default function LoginPage() {
         await recordAuthEvent("signup_session_created", nextPath, true, {
           authenticated_to: nextPath,
         });
+        setExperienceState("AUTHENTICATED");
         router.replace(nextPath);
         return;
       }
 
       setSignupSucceeded(true);
-      setMessage("Check your email to verify your account before continuing.");
+      setExperienceState("EMAIL_VERIFICATION_REQUIRED");
+      setMessage("");
     } catch (error) {
       console.error("Supabase account creation failed.", error);
-      setMessage(safeAuthMessage(error, "Could not create the account. Please try again."));
+      showAuthFailure(error, "We couldn't create your account. Please try again.");
     } finally {
       setLoadingAction(null);
     }
@@ -445,6 +437,7 @@ export default function LoginPage() {
     if (!allowAuthAttempt("create-account")) return;
 
     setMessage("");
+    setExperienceState("SIGNING_IN");
     setLoadingAction("create-account");
 
     if (!(await verifyTurnstileForAuth())) {
@@ -473,14 +466,15 @@ export default function LoginPage() {
       );
 
       if (error) {
-        setMessage(safeAuthMessage(error, "Could not resend the verification email. Please try again shortly."));
+        showAuthFailure(error, "We couldn't resend the email. Please try again.");
         return;
       }
 
-      setMessage("Verification email resent. Check your inbox and spam or junk folder.");
+      setExperienceState("EMAIL_VERIFICATION_REQUIRED");
+      setMessage("Email sent again.");
     } catch (error) {
       console.error("Supabase verification resend failed.", error);
-      setMessage(safeAuthMessage(error, "Could not resend the verification email. Please try again shortly."));
+      showAuthFailure(error, "We couldn't resend the email. Please try again.");
     } finally {
       setLoadingAction(null);
     }
@@ -490,6 +484,7 @@ export default function LoginPage() {
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail) {
+      setExperienceState("AUTHENTICATION_FAILED");
       setMessage("Please enter your email address.");
       return;
     }
@@ -497,6 +492,7 @@ export default function LoginPage() {
     if (!allowAuthAttempt("magic-link")) return;
 
     setMessage("");
+    setExperienceState("SIGNING_IN");
     setLoadingAction("magic-link");
 
     if (!(await verifyTurnstileForAuth())) {
@@ -524,14 +520,15 @@ export default function LoginPage() {
       );
 
       if (error) {
-        setMessage(safeAuthMessage(error, "Could not send the magic link. Please try again."));
+        showAuthFailure(error, "We couldn't send the sign-in link. Please try again.");
         return;
       }
 
-      setMessage("Check your email for a secure sign-in link.");
+      setExperienceState("SIGNED_OUT");
+      setMessage("Check your email for your sign-in link.");
     } catch (error) {
       console.error("Supabase magic-link sign-in failed.", error);
-      setMessage(safeAuthMessage(error, "Could not send the magic link. Please try again."));
+      showAuthFailure(error, "We couldn't send the sign-in link. Please try again.");
     } finally {
       setLoadingAction(null);
     }
@@ -541,6 +538,7 @@ export default function LoginPage() {
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail) {
+      setExperienceState("AUTHENTICATION_FAILED");
       setMessage("Please enter your email address.");
       return;
     }
@@ -548,223 +546,167 @@ export default function LoginPage() {
     if (!allowAuthAttempt("reset")) return;
 
     setMessage("");
+    setExperienceState("SIGNING_IN");
     setLoadingAction("reset");
 
-    if (!(await verifyTurnstileForAuth())) {
-      setLoadingAction(null);
-      return;
-    }
-
-    const supabase = getSupabaseClient();
-
-    if (!supabase) {
-      setLoadingAction(null);
-      return;
-    }
-
     try {
-      const { error } = await withAuthTimeout(
-        supabase.auth.resetPasswordForEmail(trimmedEmail, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        })
-      );
+      const correlationId = crypto.randomUUID();
+      const response = await fetch("/api/auth/password-reset/request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-correlation-id": correlationId,
+        },
+        body: JSON.stringify({ email: trimmedEmail, turnstileToken }),
+      });
+      const result = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        code?: string;
+        error?: string;
+        message?: string;
+      };
+      setTurnstileToken("");
+      setTurnstileResetKey((value) => value + 1);
 
-      if (error) {
-        setMessage(safeAuthMessage(error, "Could not send the password reset email. Please try again shortly."));
+      if (!response.ok || !result.ok) {
+        if (response.status === 429) {
+          setExperienceState("RATE_LIMITED");
+          setMessage("Too many reset emails have been requested. Please wait and try again.");
+        } else if (result.code?.startsWith("TURNSTILE")) {
+          showSecurityFailure();
+        } else {
+          setExperienceState("AUTHENTICATION_FAILED");
+          setMessage("We couldn't send the reset email. Please try again.");
+        }
         return;
       }
 
-      setMessage("If the account exists, password reset instructions have been sent.");
-    } catch (error) {
-      console.error("Supabase password reset email failed.", error);
-      setMessage(safeAuthMessage(error, "Could not send the password reset email. Please try again shortly."));
+      setExperienceState("SIGNED_OUT");
+      setMessage(result.message || PASSWORD_RESET_GENERIC_MESSAGE);
+    } catch {
+      setExperienceState("AUTHENTICATION_FAILED");
+      setMessage("We couldn't send the reset email. Please try again.");
     } finally {
       setLoadingAction(null);
     }
   }
 
   const actionDisabled = loadingAction !== null;
+  const securityPending = Boolean(turnstileSiteKey && !turnstileToken);
+  const submitDisabled = actionDisabled || securityPending;
+  const messageIsError = [
+    "AUTHENTICATION_FAILED",
+    "SECURITY_VERIFICATION_FAILED",
+    "RATE_LIMITED",
+  ].includes(experienceState);
 
   return (
-    <main className="min-h-screen bg-[#04070c] px-5 py-10 text-white sm:px-6 md:px-8 md:py-12">
-      <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-start">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.16em] text-cyan-200">
-            Account Access
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold">
-            Sign in or create an account
-          </h1>
-          <p className="mt-4 max-w-2xl leading-7 text-zinc-300">
-            Access protected verification workflows, operational evidence and governance review systems.
-          </p>
-          <p className="mt-3 text-sm text-zinc-400">
-            Enterprise workspaces require verified email access.
-          </p>
+    <main className="flex min-h-screen items-center justify-center bg-[#04070c] px-5 py-10 text-white sm:px-6">
+      <section className="w-full max-w-md rounded-2xl border border-zinc-800 bg-black p-6 shadow-2xl shadow-black/40 sm:p-8">
+        <Link href="/" className="text-xs font-semibold tracking-[0.22em] text-cyan-200">
+          CYBER SENTINELS
+        </Link>
 
-          <div className="mt-6 rounded-lg border border-zinc-800 bg-black p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
-              Protected operational area
+        {signupSucceeded ? (
+          <div className="mt-8" role="status" aria-live="polite">
+            <h1 className="text-3xl font-semibold tracking-tight">Check your email</h1>
+            <p className="mt-4 text-sm leading-6 text-zinc-400">
+              We&apos;ve sent a verification link to:
             </p>
-            <p className="mt-2 text-sm leading-6 text-zinc-300">
-              {boundaryCopy}
-            </p>
-            <p className="mt-2 text-xs text-zinc-500">
-              After sign-in, Cyber Sentinels returns you to {nextPath}.
-            </p>
-          </div>
-        </section>
-
-        <section className="rounded-lg border border-zinc-800 bg-black p-6">
-          <div className="grid gap-5">
-            <div>
-              <h2 className="text-lg font-semibold text-zinc-100">{modeTitle}</h2>
-              <p className="mt-2 text-sm leading-6 text-zinc-400">
-                Sign in with your verified workspace email, or choose another secure account option.
-              </p>
-              <div className="mt-4 rounded-xl border border-zinc-900 bg-zinc-950/50 p-3">
-                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
-                  Session continuity
-                </p>
-                <p className="mt-2 text-sm text-zinc-400">
-                  {sessionRestoreState === "checking"
-                    ? "Checking for a trusted session..."
-                    : sessionRestoreState === "restored"
-                      ? "Trusted session restored."
-                      : sessionRestoreState === "unavailable"
-                        ? "Session restoration is unavailable; sign in again."
-                        : "No active session found."}
-                </p>
-                {sessionRestoreState === "checking" ? (
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-zinc-900">
-                    <div className="h-full w-1/2 rounded-full bg-cyan-400/70" />
-                  </div>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 rounded-xl border border-zinc-900 bg-zinc-950/60 p-2">
-              {primaryAuthModes.map((mode) => {
-                const selected = authMode === mode.id;
-
-                return (
-                  <button
-                    key={mode.id}
-                    onClick={() => switchAuthMode(mode.id)}
-                    type="button"
-                    aria-pressed={selected}
-                    className={`min-h-11 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                      selected
-                        ? "bg-white text-black"
-                        : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
-                    }`}
-                  >
-                    {mode.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {authMode === "magic-link" || authMode === "forgot-password" ? (
-              <div className="rounded-xl border border-zinc-900 bg-zinc-950/40 p-4">
-                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
-                  {authMode === "magic-link" ? "Email sign-in" : "Password recovery"}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-zinc-400">
-                  {authMode === "magic-link"
-                    ? "Send a secure sign-in link to your verified workspace email."
-                    : "Send password reset instructions without disclosing whether an account exists."}
-                </p>
-              </div>
-            ) : null}
-
-            <label className="grid gap-2 text-sm font-medium text-zinc-300">
-              Email
-              <input
-                value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  setSignupSucceeded(false);
-                }}
-                type="email"
-                placeholder="name@company.com"
-                autoComplete="email"
-                className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white"
-              />
-            </label>
-
-            {authMode === "sign-in" || authMode === "create-account" ? (
-              <label className="grid gap-2 text-sm font-medium text-zinc-300">
-                Password
-                <span className="flex overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
-                  <input
-                    value={password}
-                    onChange={(event) => {
-                      setPassword(event.target.value);
-                      setSignupSucceeded(false);
-                    }}
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
-                    autoComplete={authMode === "create-account" ? "new-password" : "current-password"}
-                    className="min-w-0 flex-1 bg-transparent p-4 text-white outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((current) => !current)}
-                    className="border-l border-zinc-800 px-4 text-xs font-semibold text-zinc-400 hover:text-white"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? "Hide" : "Show"}
-                  </button>
-                </span>
-              </label>
-            ) : null}
-
-            {authMode === "sign-in" ? (
-              <label className="flex items-start gap-3 rounded-xl border border-zinc-900 bg-zinc-950/50 p-4 text-sm text-zinc-300">
-                <input
-                  checked={rememberSession}
-                  onChange={(event) => setRememberSession(event.target.checked)}
-                  type="checkbox"
-                  className="mt-1"
-                />
-                <span>
-                  <span className="font-medium text-zinc-100">Remember this browser</span>
-                  <span className="mt-1 block text-xs leading-5 text-zinc-500">
-                    Restore trusted sessions automatically when Supabase session cookies remain valid.
-                  </span>
-                </span>
-              </label>
-            ) : null}
-
+            <p className="mt-1 font-medium text-zinc-100">{maskedEmail}</p>
             {turnstileSiteKey ? (
-              <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
+              <div className="mt-5">
                 <TurnstileField
                   siteKey={turnstileSiteKey}
                   onTokenChange={setTurnstileToken}
+                  onErrorChange={(error) => {
+                    if (error) showSecurityFailure();
+                  }}
                   resetKey={turnstileResetKey}
+                  quiet
                 />
               </div>
-            ) : turnstileRequired ? (
-              <p className="rounded-xl border border-amber-900 bg-amber-950/20 p-3 text-sm text-amber-200" role="alert">
-                Security check is temporarily unavailable. Try again later or contact support with the time of this attempt.
-              </p>
             ) : null}
+            <button
+              onClick={resendVerificationEmail}
+              disabled={submitDisabled || !trimmedEmail}
+              className="brand-secondary-action mt-7 w-full p-4 disabled:opacity-50"
+              type="button"
+            >
+              {loadingAction === "create-account" ? "Sending..." : "Resend email"}
+            </button>
+            <p className="mt-6 text-center text-sm text-zinc-400">Already verified?</p>
+            <button
+              onClick={() => switchAuthMode("sign-in")}
+              disabled={actionDisabled}
+              className="mt-2 w-full rounded-xl border border-zinc-700 px-4 py-3 text-sm font-semibold text-white hover:border-zinc-500 disabled:opacity-50"
+              type="button"
+            >
+              Continue to sign in
+            </button>
+            {message ? <p className="mt-4 text-sm text-zinc-300">{message}</p> : null}
+          </div>
+        ) : (
+          <div className="mt-8">
+            <h1 className="text-3xl font-semibold tracking-tight">
+              {authMode === "create-account"
+                ? "Create your Cyber Sentinels account"
+                : authMode === "forgot-password"
+                  ? "Reset your password"
+                  : "Sign in"}
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-zinc-400">
+              {authMode === "create-account"
+                ? "Set up your workspace access."
+                : authMode === "forgot-password"
+                  ? "We'll email you instructions to choose a new password."
+                  : "Access your Cyber Sentinels workspace."}
+            </p>
 
-            {authMode === "create-account" ? (
-              <div className="grid gap-3 rounded-xl border border-cyan-900 bg-cyan-950/10 p-4">
-                <p className="text-xs uppercase tracking-[0.16em] text-zinc-600">
-                  New workspace access
-                </p>
-                <label className="grid gap-2 text-sm font-medium text-zinc-300">
-                  Confirm Password
-                  <span className="flex overflow-hidden rounded-xl border border-zinc-800 bg-black">
+            <div className="mt-7 grid gap-5">
+              <label className="grid gap-2 text-sm font-medium text-zinc-200">
+                {authMode === "create-account" ? "Work email" : "Email"}
+                <input
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  type="email"
+                  placeholder="name@company.com"
+                  autoComplete="email"
+                  className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-white outline-none focus:border-cyan-700"
+                />
+              </label>
+
+              {authMode === "sign-in" || authMode === "create-account" ? (
+                <label className="grid gap-2 text-sm font-medium text-zinc-200">
+                  Password
+                  <span className="flex overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 focus-within:border-cyan-700">
+                    <input
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Password"
+                      autoComplete={authMode === "create-account" ? "new-password" : "current-password"}
+                      className="min-w-0 flex-1 bg-transparent p-4 text-white outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((current) => !current)}
+                      className="px-4 text-xs font-semibold text-zinc-400 hover:text-white"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? "Hide" : "Show"}
+                    </button>
+                  </span>
+                </label>
+              ) : null}
+
+              {authMode === "create-account" ? (
+                <label className="grid gap-2 text-sm font-medium text-zinc-200">
+                  Confirm password
+                  <span className="flex overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 focus-within:border-cyan-700">
                     <input
                       value={confirmPassword}
-                      onChange={(event) => {
-                        setConfirmPassword(event.target.value);
-                        setSignupSucceeded(false);
-                      }}
+                      onChange={(event) => setConfirmPassword(event.target.value)}
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirm password"
                       autoComplete="new-password"
@@ -773,157 +715,151 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword((current) => !current)}
-                      className="border-l border-zinc-800 px-4 text-xs font-semibold text-zinc-400 hover:text-white"
+                      className="px-4 text-xs font-semibold text-zinc-400 hover:text-white"
                       aria-label={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"}
                     >
                       {showConfirmPassword ? "Hide" : "Show"}
                     </button>
                   </span>
+                  {passwordsMismatch ? <span className="text-sm text-red-300">Passwords do not match.</span> : null}
                 </label>
-                {passwordsMismatch ? (
-                  <p className="text-sm text-red-300">Passwords do not match.</p>
-                ) : null}
-                <p className="text-xs leading-5 text-zinc-500">
-                  Account creation sends an email verification link before protected workflows are available.
-                </p>
-              </div>
-            ) : null}
-
-            {authMode === "sign-in" ? (
-              <button
-                onClick={signInWithPassword}
-                disabled={actionDisabled}
-                className="brand-primary-action w-full p-4 disabled:opacity-50"
-                type="button"
-              >
-                {loadingAction === "password" ? "Signing in..." : "Sign in"}
-              </button>
-            ) : null}
-
-            {authMode === "create-account" ? (
-              <button
-                onClick={createAccountWithPassword}
-                disabled={actionDisabled || !canCreateAccount}
-                className="brand-secondary-action w-full p-4 disabled:opacity-50"
-                type="button"
-              >
-                {loadingAction === "create-account" ? "Creating..." : "Create account"}
-              </button>
-            ) : null}
-
-            {authMode === "magic-link" ? (
-              <button
-                onClick={signInWithMagicLink}
-                disabled={!canSendEmailOnlyAction}
-                className="nav-control w-full justify-center p-4 disabled:opacity-50"
-                type="button"
-              >
-                {loadingAction === "magic-link" ? "Sending magic link..." : "Send magic link"}
-              </button>
-            ) : null}
-
-            {authMode === "forgot-password" ? (
-              <button
-                onClick={sendPasswordResetEmail}
-                disabled={!canSendEmailOnlyAction}
-                className="nav-control w-full justify-center p-4 disabled:opacity-50"
-                type="button"
-              >
-                {loadingAction === "reset" ? "Sending reset..." : "Send password reset"}
-              </button>
-            ) : null}
-
-            {signupSucceeded ? (
-              <div className="rounded-xl border border-cyan-900 bg-cyan-950/20 p-4">
-                <p className="text-sm font-semibold text-cyan-100">
-                  Check your email to verify your account before continuing.
-                </p>
-                <p className="mt-2 text-sm leading-6 text-zinc-400">
-                  We sent the verification link to {trimmedEmail || "your email address"}.
-                  Check spam or junk mail, and make sure the email address is correct before requesting another link.
-                </p>
-                <button
-                  onClick={resendVerificationEmail}
-                  disabled={actionDisabled || !trimmedEmail}
-                  className="mt-4 rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-500 disabled:opacity-50"
-                  type="button"
-                >
-                  {loadingAction === "create-account" ? "Sending..." : "Resend verification"}
-                </button>
-              </div>
-            ) : null}
-
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-800 pt-4 text-sm">
-              {authMode !== "sign-in" ? (
-                <button
-                  onClick={() => switchAuthMode("sign-in")}
-                  disabled={actionDisabled}
-                  className="font-medium text-zinc-300 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
-                  type="button"
-                >
-                  Back to sign in
-                </button>
               ) : null}
 
-              {authMode !== "create-account" ? (
-                <button
-                  onClick={() => switchAuthMode("create-account")}
-                  disabled={actionDisabled}
-                  className="text-zinc-400 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
-                  type="button"
-                >
-                  Create account
-                </button>
-              ) : null}
-
-              {authMode !== "magic-link" ? (
-                <button
-                  onClick={() => switchAuthMode("magic-link")}
-                  disabled={actionDisabled}
-                  className="text-zinc-400 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
-                  type="button"
-                >
-                  Use magic link
-                </button>
-              ) : null}
-
-              {authMode !== "forgot-password" ? (
-                <button
-                  onClick={() => switchAuthMode("forgot-password")}
-                  disabled={actionDisabled}
-                  className="text-zinc-400 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
-                  type="button"
-                >
-                  Forgot password?
-                </button>
-              ) : null}
-            </div>
-
-            {message ? <p role="status" aria-live="polite" className="text-sm text-zinc-300">{message}</p> : null}
-
-            {showDevAuth ? (
-              <div className="grid gap-2 border border-yellow-500/40 p-4">
-                <p className="text-sm font-semibold text-yellow-300">
-                  Local development only.
+              {turnstileSiteKey ? (
+                <TurnstileField
+                  siteKey={turnstileSiteKey}
+                  onTokenChange={setTurnstileToken}
+                  onErrorChange={(error) => {
+                    if (error) showSecurityFailure();
+                  }}
+                  resetKey={turnstileResetKey}
+                  quiet
+                />
+              ) : turnstileRequired ? (
+                <p className="rounded-xl border border-red-900 bg-red-950/20 p-3 text-sm text-red-200" role="alert">
+                  We couldn&apos;t complete the security check. Please try again.
                 </p>
-                <button
-                  onClick={() => router.push("/passport?dev=true")}
-                  type="button"
-                  className="rounded-xl bg-yellow-300 p-4 font-semibold text-black"
-                >
-                  Continue as Dev Tester
-                </button>
-              </div>
-            ) : null}
+              ) : null}
 
-            <div className="flex flex-wrap justify-between gap-3 text-sm">
-              <Link href="/" className="text-zinc-400 underline">
-                Back to homepage
-              </Link>
+              {authMode === "sign-in" ? (
+                <>
+                  <button
+                    onClick={signInWithPassword}
+                    disabled={submitDisabled}
+                    className="brand-primary-action w-full p-4 disabled:opacity-50"
+                    type="button"
+                  >
+                    {loadingAction === "password" ? "Signing in..." : "Sign in"}
+                  </button>
+                  <div className="flex items-center justify-between gap-4 text-sm">
+                    <label className="flex items-center gap-2 text-zinc-300">
+                      <input
+                        checked={rememberSession}
+                        onChange={(event) => setRememberSession(event.target.checked)}
+                        type="checkbox"
+                      />
+                      Remember me
+                    </label>
+                    <button
+                      onClick={() => switchAuthMode("forgot-password")}
+                      className="text-zinc-300 underline-offset-4 hover:text-white hover:underline"
+                      type="button"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-zinc-600" aria-hidden="true">
+                    <span className="h-px flex-1 bg-zinc-800" />
+                    or
+                    <span className="h-px flex-1 bg-zinc-800" />
+                  </div>
+                  <button
+                    onClick={signInWithMagicLink}
+                    disabled={submitDisabled || !canSendEmailOnlyAction}
+                    className="w-full rounded-xl border border-zinc-700 px-4 py-3 text-sm font-semibold text-white hover:border-zinc-500 disabled:opacity-50"
+                    type="button"
+                  >
+                    {loadingAction === "magic-link" ? "Sending..." : "Use magic link"}
+                  </button>
+                  <p className="text-center text-sm text-zinc-400">
+                    New to Cyber Sentinels?{" "}
+                    <button
+                      onClick={() => switchAuthMode("create-account")}
+                      className="font-semibold text-white underline-offset-4 hover:underline"
+                      type="button"
+                    >
+                      Create account
+                    </button>
+                  </p>
+                </>
+              ) : null}
+
+              {authMode === "create-account" ? (
+                <>
+                  <button
+                    onClick={createAccountWithPassword}
+                    disabled={submitDisabled || !canCreateAccount}
+                    className="brand-primary-action w-full p-4 disabled:opacity-50"
+                    type="button"
+                  >
+                    {loadingAction === "create-account" ? "Creating..." : "Create account"}
+                  </button>
+                  <button
+                    onClick={() => switchAuthMode("sign-in")}
+                    className="text-sm text-zinc-300 underline-offset-4 hover:text-white hover:underline"
+                    type="button"
+                  >
+                    Already have an account? Sign in
+                  </button>
+                </>
+              ) : null}
+
+              {authMode === "forgot-password" ? (
+                <>
+                  <button
+                    onClick={sendPasswordResetEmail}
+                    disabled={submitDisabled || !canSendEmailOnlyAction}
+                    className="brand-primary-action w-full p-4 disabled:opacity-50"
+                    type="button"
+                  >
+                    {loadingAction === "reset" ? "Sending..." : "Send reset link"}
+                  </button>
+                  <button
+                    onClick={() => switchAuthMode("sign-in")}
+                    className="text-sm text-zinc-300 underline-offset-4 hover:text-white hover:underline"
+                    type="button"
+                  >
+                    Back to sign in
+                  </button>
+                </>
+              ) : null}
+
+              {message ? (
+                <p
+                  role={messageIsError ? "alert" : "status"}
+                  aria-live="polite"
+                  className={messageIsError ? "text-sm text-red-300" : "text-sm text-zinc-300"}
+                >
+                  {message}
+                </p>
+              ) : null}
+
+              {showDevAuth ? (
+                <div className="grid gap-2 border-t border-zinc-800 pt-5">
+                  <p className="text-xs text-yellow-300">Local development only</p>
+                  <button
+                    onClick={() => router.push("/passport?dev=true")}
+                    type="button"
+                    className="rounded-xl border border-yellow-500/40 p-3 text-sm font-semibold text-yellow-200"
+                  >
+                    Continue as Dev Tester
+                  </button>
+                </div>
+              ) : null}
             </div>
           </div>
-        </section>
-      </div>
+        )}
+      </section>
     </main>
   );
 }

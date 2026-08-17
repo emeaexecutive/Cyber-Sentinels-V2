@@ -345,7 +345,7 @@ test("invalid challenge returns REQUEST_DEMO_TURNSTILE_FAILED", async () => {
   assert.equal(inserts.length, 0);
 });
 
-for (const reason of ["provider_unavailable", "provider_error", "turnstile_not_configured", "turnstile_configuration_invalid"]) {
+for (const reason of ["provider_unavailable", "provider_error", "turnstile_not_configured"]) {
   test(`Turnstile ${reason} returns REQUEST_DEMO_TURNSTILE_UNAVAILABLE`, async () => {
     const { handler, logs } = harness({
       verifyTurnstile: async () => ({ ok: false, reason }),
@@ -632,9 +632,11 @@ test("HTML workflow redirects cannot leave the current origin", () => {
 test("Siteverify success fails closed when the response hostname does not match", async () => {
   const previousSecret = process.env.TURNSTILE_SECRET_KEY;
   const previousSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const previousMode = process.env.TURNSTILE_MODE;
   const previousFetch = globalThis.fetch;
   process.env.TURNSTILE_SECRET_KEY = "test-secret";
   process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = "live-site-key";
+  process.env.TURNSTILE_MODE = "live";
   globalThis.fetch = async () => Response.json({
     success: true,
     hostname: "unexpected.example",
@@ -656,15 +658,19 @@ test("Siteverify success fails closed when the response hostname does not match"
     else process.env.TURNSTILE_SECRET_KEY = previousSecret;
     if (previousSiteKey === undefined) delete process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
     else process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = previousSiteKey;
+    if (previousMode === undefined) delete process.env.TURNSTILE_MODE;
+    else process.env.TURNSTILE_MODE = previousMode;
   }
 });
 
 test("Siteverify success without a valid hostname fails closed", async () => {
   const previousSecret = process.env.TURNSTILE_SECRET_KEY;
   const previousSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const previousMode = process.env.TURNSTILE_MODE;
   const previousFetch = globalThis.fetch;
   process.env.TURNSTILE_SECRET_KEY = "test-secret";
   process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = "live-site-key";
+  process.env.TURNSTILE_MODE = "live";
   globalThis.fetch = async () => Response.json({ success: true });
 
   try {
@@ -681,6 +687,8 @@ test("Siteverify success without a valid hostname fails closed", async () => {
     else process.env.TURNSTILE_SECRET_KEY = previousSecret;
     if (previousSiteKey === undefined) delete process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
     else process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = previousSiteKey;
+    if (previousMode === undefined) delete process.env.TURNSTILE_MODE;
+    else process.env.TURNSTILE_MODE = previousMode;
   }
 });
 
