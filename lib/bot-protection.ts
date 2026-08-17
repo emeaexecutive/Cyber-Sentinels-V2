@@ -14,6 +14,7 @@ export type TurnstileVerificationResult = {
   reason:
     | "verified"
     | "turnstile_not_configured"
+    | "turnstile_configuration_invalid"
     | "missing_token"
     | "invalid_token"
     | "hostname_mismatch"
@@ -37,16 +38,100 @@ type RateLimitOptions = {
 
 const rateLimitBuckets = new Map<string, RateLimitBucket>();
 
+const officialTestSiteKeyPattern = /^[123]x0{20}(?:AA|AB|BB|FF)$/;
+const officialTestSecretKeyPattern = /^[123]x0{31}AA$/;
+const officialTestHostnames = new Set(["localhost", "example.com"]);
+
+export type TurnstileConfigurationState = {
+  ok: boolean;
+  mode: "live" | "preview-test";
+  usesOfficialTestCredentials: boolean;
+  reason?: "missing_configuration" | "invalid_mode" | "test_credentials_forbidden" | "test_credentials_incomplete" | "test_hostname_invalid";
+};
+
+export function isOfficialTurnstileTestSiteKey(value: string | null | undefined) {
+  return officialTestSiteKeyPattern.test(String(value ?? "").trim());
+}
+
+export function isOfficialTurnstileTestSecretKey(value: string | null | undefined) {
+  return officialTestSecretKeyPattern.test(String(value ?? "").trim());
+}
+
+export function getTurnstileConfigurationState(): TurnstileConfigurationState {
+  const siteKey = getTurnstileSiteKey();
+  const secretKey = String(process.env.TURNSTILE_SECRET_KEY ?? "").trim();
+  const configuredMode = String(process.env.TURNSTILE_MODE ?? "live").trim().toLowerCase();
+  const usesTestSiteKey = isOfficialTurnstileTestSiteKey(siteKey);
+  const usesTestSecretKey = isOfficialTurnstileTestSecretKey(secretKey);
+  const usesOfficialTestCredentials = usesTestSiteKey || usesTestSecretKey;
+
+  if (!siteKey || !secretKey) {
+    return {
+      ok: false,
+      mode: configuredMode === "preview-test" ? "preview-test" : "live",
+      usesOfficialTestCredentials,
+      reason: "missing_configuration",
+    };
+  }
+
+  if (!(["live", "preview-test"] as const).includes(configuredMode as "live" | "preview-test")) {
+    return { ok: false, mode: "live", usesOfficialTestCredentials, reason: "invalid_mode" };
+  }
+
+  if (process.env.VERCEL_ENV === "production" && (configuredMode === "preview-test" || usesOfficialTestCredentials)) {
+    return {
+      ok: false,
+      mode: configuredMode === "preview-test" ? "preview-test" : "live",
+      usesOfficialTestCredentials,
+      reason: "test_credentials_forbidden",
+    };
+  }
+
+  if (configuredMode === "preview-test") {
+    if (process.env.VERCEL_ENV !== "preview") {
+      return { ok: false, mode: "preview-test", usesOfficialTestCredentials, reason: "test_credentials_forbidden" };
+    }
+    if (!usesTestSiteKey || !usesTestSecretKey) {
+      return { ok: false, mode: "preview-test", usesOfficialTestCredentials, reason: "test_credentials_incomplete" };
+    }
+    const expectedHostname = String(process.env.TURNSTILE_EXPECTED_HOSTNAME ?? "").trim().toLowerCase();
+    if (!officialTestHostnames.has(expectedHostname)) {
+      return { ok: false, mode: "preview-test", usesOfficialTestCredentials, reason: "test_hostname_invalid" };
+    }
+    return { ok: true, mode: "preview-test", usesOfficialTestCredentials: true };
+  }
+
+  if (usesOfficialTestCredentials) {
+    return { ok: false, mode: "live", usesOfficialTestCredentials, reason: "test_credentials_forbidden" };
+  }
+
+  return { ok: true, mode: "live", usesOfficialTestCredentials: false };
+}
+
+export function getExpectedTurnstileHostname(requestHostname: string) {
+  const configuration = getTurnstileConfigurationState();
+  if (configuration.ok && configuration.mode === "preview-test") {
+    return String(process.env.TURNSTILE_EXPECTED_HOSTNAME).trim().toLowerCase();
+  }
+  return requestHostname.trim().toLowerCase();
+}
+
 export function getClientIp(req: Request) {
   return getTrustedClientIp(req);
 }
 
 export function isTurnstileConfigured() {
-  return Boolean(String(process.env.TURNSTILE_SECRET_KEY ?? "").trim());
+  const configuration = getTurnstileConfigurationState();
+  return configuration.reason === "missing_configuration"
+    ? Boolean(String(process.env.TURNSTILE_SECRET_KEY ?? "").trim())
+    : configuration.ok;
 }
 
 export function isTurnstileSiteKeyConfigured() {
-  return Boolean(String(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? process.env.TURNSTILE_SITE_KEY ?? "").trim());
+  const configuration = getTurnstileConfigurationState();
+  return configuration.reason === "missing_configuration"
+    ? Boolean(getTurnstileSiteKey())
+    : configuration.ok;
 }
 
 export function getTurnstileSiteKey() {
@@ -54,7 +139,7 @@ export function getTurnstileSiteKey() {
 }
 
 export function canBypassBotProtection() {
-  return process.env.NODE_ENV !== "production";
+  return process.env.NODE_ENV !== "production" && !process.env.VERCEL_ENV;
 }
 
 function safeTurnstileErrorCodes(value: unknown) {
@@ -93,10 +178,19 @@ export async function verifyTurnstileToken(
 ): Promise<TurnstileVerificationResult> {
   const secret = String(process.env.TURNSTILE_SECRET_KEY ?? "").trim();
 
+  const configuration = getTurnstileConfigurationState();
+  if (!configuration.ok && configuration.reason !== "missing_configuration") {
+    return { ok: false, skipped: false, reason: "turnstile_configuration_invalid" };
+  }
+
   if (!secret) {
     return canBypassBotProtection()
       ? { ok: true, skipped: true, reason: "turnstile_not_configured" }
       : { ok: false, skipped: false, reason: "turnstile_not_configured" };
+  }
+
+  if (!configuration.ok) {
+    return { ok: false, skipped: false, reason: "turnstile_not_configured" };
   }
 
   if (!token) {

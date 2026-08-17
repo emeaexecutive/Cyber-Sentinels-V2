@@ -8,14 +8,15 @@ import {
 
 const origin = "https://preview.cybersentinels.example";
 
-function callbackRequest({ code = "valid-test-code", next } = {}) {
+function callbackRequest({ code = "valid-test-code", next, requestId } = {}) {
   const url = new URL("/auth/callback", origin);
   if (code !== null) url.searchParams.set("code", code);
   if (next !== undefined) url.searchParams.set("next", next);
+  if (requestId !== undefined) url.searchParams.set("request_id", requestId);
   return new Request(url);
 }
 
-function callbackDependencies({ exchangeError = null, throwOnCreate = false } = {}) {
+function callbackDependencies({ exchangeError = null, redirectType = null, throwOnCreate = false } = {}) {
   const issues = [];
   return {
     issues,
@@ -23,10 +24,16 @@ function callbackDependencies({ exchangeError = null, throwOnCreate = false } = 
       async createClient(headers) {
         if (throwOnCreate) throw new Error("test client unavailable");
         headers.set("Set-Cookie", "sb-test-auth=rotated; Path=/; HttpOnly; Secure; SameSite=Lax");
+        let authCallback = () => undefined;
         return {
           auth: {
+            onAuthStateChange(callback) {
+              authCallback = callback;
+              return { data: { subscription: { unsubscribe() {} } } };
+            },
             async exchangeCodeForSession() {
-              return { error: exchangeError };
+              if (redirectType === "recovery") await authCallback("PASSWORD_RECOVERY", null);
+              return { data: { redirectType }, error: exchangeError };
             },
           },
         };
@@ -147,6 +154,45 @@ test("GET callback preserves a valid same-origin next path", async () => {
   assert.equal(finalUrl.pathname, "/trust/transactions/123");
   assert.equal(finalUrl.search, "?view=evidence");
   assert.equal(finalUrl.hash, "#decision");
+});
+
+test("PKCE recovery redirect type creates dedicated single-purpose recovery state", async () => {
+  const { dependencies, issues } = callbackDependencies({ redirectType: "recovery" });
+  const response = await handleAuthCallback(
+    callbackRequest({
+      next: "/account/reset-password",
+      requestId: "reset-correlation-123",
+    }),
+    dependencies,
+  );
+  const finalUrl = assertSameOriginLocation(response);
+  assert.equal(finalUrl.pathname, "/account/reset-password");
+  assert.match(response.headers.get("set-cookie") ?? "", /cyber_password_recovery=reset-correlation-123/);
+  assert.match(response.headers.get("set-cookie") ?? "", /HttpOnly/i);
+  assert.match(response.headers.get("set-cookie") ?? "", /SameSite=Lax/i);
+  assert.equal(issues[0]?.[2], "PASSWORD_RECOVERY_CALLBACK");
+});
+
+test("a user-controlled recovery destination cannot create recovery state", async () => {
+  const { dependencies } = callbackDependencies({ redirectType: "magiclink" });
+  const response = await handleAuthCallback(
+    callbackRequest({ next: "/account/reset-password" }),
+    dependencies,
+  );
+  const finalUrl = assertSameOriginLocation(response);
+  assert.equal(finalUrl.pathname, "/account/reset-password");
+  assert.doesNotMatch(response.headers.get("set-cookie") ?? "", /cyber_password_recovery=/);
+});
+
+test("expired recovery callbacks return to the reset request without a hybrid session", async () => {
+  const { dependencies } = callbackDependencies({ exchangeError: new Error("expired code") });
+  const response = await handleAuthCallback(
+    callbackRequest({ next: "/account/reset-password" }),
+    dependencies,
+  );
+  const finalUrl = assertSameOriginLocation(response);
+  assert.equal(finalUrl.pathname, "/login");
+  assert.equal(finalUrl.searchParams.get("error"), "recovery_link_invalid");
 });
 
 test("callback error-path redirect safety rejects malicious next when code is missing", async () => {

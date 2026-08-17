@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 type TurnstileFieldProps = {
   siteKey?: string | null;
   onTokenChange?(token: string): void;
+  onErrorChange?(message: string): void;
+  quiet?: boolean;
   resetKey?: number;
 };
 
@@ -20,6 +22,7 @@ export type TurnstileRenderOptions = {
   "retry-interval": number;
   "refresh-expired": "auto";
   "refresh-timeout": "auto";
+  appearance: "interaction-only";
 };
 
 export type TurnstileApi = {
@@ -118,14 +121,16 @@ export function createTurnstileOptions(input: {
     "retry-interval": 2_000,
     "refresh-expired": "auto",
     "refresh-timeout": "auto",
+    appearance: "interaction-only",
   };
 }
 
-export function TurnstileField({ siteKey, onTokenChange, resetKey = 0 }: TurnstileFieldProps) {
+export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = false, resetKey = 0 }: TurnstileFieldProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const apiRef = useRef<TurnstileApi | null>(null);
   const onTokenChangeRef = useRef(onTokenChange);
+  const onErrorChangeRef = useRef(onErrorChange);
   const [token, setToken] = useState("");
   const [widgetError, setWidgetError] = useState("");
 
@@ -133,9 +138,18 @@ export function TurnstileField({ siteKey, onTokenChange, resetKey = 0 }: Turnsti
     onTokenChangeRef.current = onTokenChange;
   }, [onTokenChange]);
 
+  useEffect(() => {
+    onErrorChangeRef.current = onErrorChange;
+  }, [onErrorChange]);
+
   const publishToken = useCallback((nextToken: string) => {
     setToken(nextToken);
     onTokenChangeRef.current?.(nextToken);
+  }, []);
+
+  const publishError = useCallback((nextError: string) => {
+    setWidgetError(nextError);
+    onErrorChangeRef.current?.(nextError);
   }, []);
 
   const renderWidget = useCallback((turnstile: TurnstileApi) => {
@@ -148,23 +162,23 @@ export function TurnstileField({ siteKey, onTokenChange, resetKey = 0 }: Turnsti
         createTurnstileOptions({
           siteKey,
           onToken: publishToken,
-          onError: setWidgetError,
+          onError: publishError,
         }),
       );
     } catch {
-      setWidgetError("The security check could not start. Please reload and try again.");
+      publishError("The security check could not start. Please reload and try again.");
     }
-  }, [publishToken, siteKey]);
+  }, [publishError, publishToken, siteKey]);
 
   useEffect(() => {
     if (!siteKey) return;
     const container = containerRef.current;
-    setWidgetError("");
+    publishError("");
     const stopWaiting = waitForTurnstileApi({
       readApi: () => (window as Window & { turnstile?: TurnstileApi }).turnstile,
       onReady: renderWidget,
       onTimeout: () => {
-        setWidgetError("The security check could not load. Check blockers or your network, then reload.");
+        publishError("The security check could not load. Check blockers or your network, then reload.");
       },
     });
 
@@ -182,15 +196,15 @@ export function TurnstileField({ siteKey, onTokenChange, resetKey = 0 }: Turnsti
       apiRef.current = null;
       onTokenChangeRef.current?.("");
     };
-  }, [renderWidget, siteKey]);
+  }, [publishError, renderWidget, siteKey]);
 
   useEffect(() => {
     if (resetKey > 0 && apiRef.current && widgetIdRef.current) {
       publishToken("");
-      setWidgetError("");
+      publishError("");
       apiRef.current.reset(widgetIdRef.current);
     }
-  }, [publishToken, resetKey]);
+  }, [publishError, publishToken, resetKey]);
 
   if (!siteKey) {
     return (
@@ -207,13 +221,13 @@ export function TurnstileField({ siteKey, onTokenChange, resetKey = 0 }: Turnsti
         strategy="afterInteractive"
         onError={() => {
           publishToken("");
-          setWidgetError("The security check could not load. Check blockers or your network, then reload.");
+          publishError("The security check could not load. Check blockers or your network, then reload.");
         }}
       />
       <input type="hidden" name="cf-turnstile-response" value={token} />
-      <div ref={containerRef} />
-      {widgetError ? <p className="text-sm text-amber-200" role="alert">{widgetError}</p> : null}
-      <p className="text-xs text-zinc-500">Protected by Cloudflare Turnstile.</p>
+      <div ref={containerRef} className="cf-turnstile" />
+      {!quiet && widgetError ? <p className="text-sm text-amber-200" role="alert">{widgetError}</p> : null}
+      {!quiet ? <p className="text-xs text-zinc-500">Protected by Cloudflare Turnstile.</p> : null}
     </div>
   );
 }

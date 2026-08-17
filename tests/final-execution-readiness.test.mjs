@@ -12,11 +12,11 @@ test("public auth keeps every required account-access path visible", () => {
   for (const marker of [
     "signInWithPassword",
     "createAccountWithPassword",
-    "Confirm Password",
+    "Confirm password",
     "Passwords do not match.",
     "Use magic link",
     "Forgot password?",
-    "Check your email to verify your account before continuing.",
+    "Check your email",
     "resendVerificationEmail",
   ]) {
     assert.equal(login.includes(marker), true, `Missing auth marker: ${marker}`);

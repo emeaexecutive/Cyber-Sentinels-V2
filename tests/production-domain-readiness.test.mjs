@@ -87,12 +87,16 @@ test("account and privacy settings surfaces are explicitly non-indexable", () =>
 test("auth actions verify Turnstile server-side when configured", () => {
   const login = read("app/login/page.tsx");
   const route = read("app/api/auth/turnstile/route.ts");
+  const passwordResetRoute = read("app/api/auth/password-reset/request/route.ts");
 
   assert.match(login, /fetch\("\/api\/auth\/turnstile"/);
   assert.equal(
     (login.match(/await verifyTurnstileForAuth\(\)/g) ?? []).length,
-    5
+    4
   );
+  assert.match(passwordResetRoute, /verifyTurnstileToken/);
+  assert.match(passwordResetRoute, /checkRequestRateLimit/);
+  assert.match(passwordResetRoute, /supabase\.auth\.resetPasswordForEmail/);
   assert.match(route, /verifyTurnstileToken/);
   assert.match(route, /checkRequestRateLimit/);
   assert.match(route, /token\.length > 2048/);

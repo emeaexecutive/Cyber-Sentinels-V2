@@ -73,7 +73,7 @@ test("homepage, auth affordances and admin protection remain locked", () => {
   assert.match(homepage, /Operational Trust Intelligence™/);
   assert.match(homepage, /Cyber Sentinels is building/);
   assert.doesNotMatch(homepage, /Private Beta|Enterprise Pilot Ready/i);
-  for (const marker of ["Sign in", "Create account", "Confirm Password", "Use magic link", "Forgot password"]) {
+  for (const marker of ["Sign in", "Create account", "Confirm password", "Use magic link", "Forgot password"]) {
     assert.match(login, new RegExp(marker, "i"));
   }
   assert.match(verifyEmail, /Please verify your email before continuing/);

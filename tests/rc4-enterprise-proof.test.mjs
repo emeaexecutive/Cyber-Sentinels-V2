@@ -8,7 +8,8 @@ import {
 } from "../lib/performance/runtime-profiler.ts";
 import { loadValidationCases, runValidationBenchmark } from "../lib/validation/benchmark-harness.ts";
 
-const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
+const read = async (path) =>
+  (await readFile(new URL(`../${path}`, import.meta.url), "utf8")).replace(/\r\n/g, "\n");
 
 test("validation loader excludes metadata schemas and metrics remain gated", async () => {
   const cases = await loadValidationCases();

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 
-const read = (path) => readFileSync(path, "utf8");
+const read = (path) => readFileSync(path, "utf8").replace(/\r\n/g, "\n");
 
 test("forward Supabase policy changes use the canonical drift-detecting idempotency guard", () => {
   const migrationFiles = readdirSync("supabase/migrations")
