@@ -262,6 +262,12 @@ function protectedSurfaceUnavailable() {
 
 export async function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
+  if (
+    pathname === "/operational-entities/release-proof"
+    && (process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview")
+  ) {
+    return preventIndexing(NextResponse.next());
+  }
   // Provider callbacks authenticate with a timestamped HMAC in the route.
   // Browser GET access to the provider registry remains session-protected.
   if (

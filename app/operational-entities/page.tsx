@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CreateOperationalEntityForm } from "@/components/create-operational-entity-form";
+import { CanonicalJourneyInitializer } from "@/components/canonical-journey-initializer";
 import { createClient } from "@/lib/supabase/server";
 import { CustomerWorkspaceError, ensureCustomerWorkspace } from "@/lib/onboarding/customer-workspace";
 import type { OperationalEntity } from "@/lib/operational-entities/operational-entity";
@@ -108,6 +109,9 @@ export default async function OperationalEntitiesPage() {
             <p className="mt-3 max-w-3xl leading-6">
               Register the real agent or system that will request a consequential action. Registration creates a tenant-scoped record only; identity, authority and trust remain unverified until evidence is supplied.
             </p>
+            {(process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview")
+              ? <CanonicalJourneyInitializer />
+              : null}
             <CreateOperationalEntityForm workspaceId={enterpriseId} />
           </article>
         ) : null}

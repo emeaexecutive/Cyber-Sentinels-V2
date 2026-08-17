@@ -18,6 +18,10 @@ import { ConsentManager } from "@/src/components/consent/ConsentManager";
 import { ConsentPreferencesLink } from "@/src/components/consent/ConsentPreferencesLink";
 import "./globals.css";
 
+// The root chrome is identity-aware. Public pages such as /developers must be
+// rendered per request so an authenticated customer keeps the product shell.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.cybersentinels.com"),
   title: "Cyber Sentinels | Operational Trust Infrastructure",

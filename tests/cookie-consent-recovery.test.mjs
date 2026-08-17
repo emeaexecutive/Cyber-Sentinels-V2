@@ -258,6 +258,13 @@ test("existing consent migrations retain narrow append-only RLS and no duplicate
   assert.match(migration, /persist_consent_change_v1/i);
 });
 
+test("consent receipt evidence supplies continuous-trust freshness metadata", async () => {
+  const migration = await readFile(new URL("../supabase/migrations/20260815181500_consent_evidence_freshness.sql", import.meta.url), "utf8");
+  assert.match(migration, /observed_at,freshness_policy_seconds/i);
+  assert.match(migration, /new\.occurred_at,31536000/i);
+  assert.match(migration, /materialize_consent_receipt_evidence_v1/i);
+});
+
 test("hiring migration guards absent legacy interview columns", async () => {
   const migration = await readFile(new URL("../supabase/migrations/202606090001_hiring_security_interview_integrity.sql", import.meta.url), "utf8");
   assert.match(migration, /information_schema\.columns[\s\S]*column_name = 'candidate_id'[\s\S]*column_name = 'candidate_profile_id'/i);

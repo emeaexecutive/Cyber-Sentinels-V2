@@ -8,6 +8,7 @@ import {
   authorityBlastRadius,
   createAuthorityDelegation,
   evaluateStoredDelegatedAction,
+  evaluatePersistedInterAgentAction,
   loadDelegatedAuthority,
   reviewAuthorityDelegation,
   revokeAuthorityDelegation,
@@ -67,6 +68,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ ent
     if (action === "revoke_delegation") return response({ ok: true, result: await revokeAuthorityDelegation(context, entityId, String(input.delegationId ?? ""), String(input.reason ?? "")) });
     if (action === "revoke_parent_authority") return response({ ok: true, result: await revokeParentAuthority(context, entityId, String(input.parentAuthorityId ?? ""), String(input.reason ?? "")) });
     if (action === "evaluate_delegated_action") return response({ ok: true, result: await evaluateStoredDelegatedAction(context, entityId, input) }, 201);
+    if (action === "evaluate_inter_agent_action") return response({ ok: true, result: await evaluatePersistedInterAgentAction(context, entityId, input) }, 201);
     throw new DelegatedAuthorityServerError("The delegated-authority action is unsupported.", "DELEGATION_ACTION_UNSUPPORTED");
   } catch (error) {
     return failure(error);

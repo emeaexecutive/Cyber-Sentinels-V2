@@ -144,13 +144,14 @@ test("new and returning users complete the Alpha to Beta trust journey from logi
   await expect(page.getByRole("heading", { name: "Every consequential entity and action is grounded in one canonical runtime." })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("product-landing.png"), fullPage: true });
 
-  const initializer = page.getByRole("button", { name: "Continue with canonical Alpha and Beta" });
+  const initializer = page.getByRole("button", { name: "Continue with canonical Alpha, Beta and Gamma" });
   if (await initializer.isVisible()) {
     await initializer.click();
     await page.waitForURL("**/operational-entities/**");
   }
 
   await expect(page.getByRole("heading", { name: "Agent Alpha", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Agent Gamma", exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("operational-entity.png"), fullPage: true });
   const alphaIdentity = await runProofStage(page, "verify-alpha", "alphaIdentity");
   await expect(alphaIdentity).toContainText('"status": "VERIFIED"');
@@ -159,6 +160,10 @@ test("new and returning users complete the Alpha to Beta trust journey from logi
   await expect(betaIdentity).toContainText('"status": "VERIFIED"');
   await expect(betaIdentity).toContainText('"owner": "Bob"');
   await expect(betaIdentity).toContainText('"distinctFromAlpha": true');
+  const gammaIdentity = await runProofStage(page, "verify-gamma", "gammaIdentity");
+  await expect(gammaIdentity).toContainText('"status": "VERIFIED"');
+  await expect(gammaIdentity).toContainText('"owner": "Grace"');
+  await expect(gammaIdentity).toContainText('"distinctFromAlphaAndBeta": true');
   await page.screenshot({ path: testInfo.outputPath("alpha-beta-identity.png"), fullPage: true });
 
   const delegation = await runProofStage(page, "create-delegation", "delegation");
@@ -179,6 +184,21 @@ test("new and returning users complete the Alpha to Beta trust journey from logi
   await expect(allowed).toContainText('"transactionId"');
   await expect(allowed).toContainText('"receiptUrl"');
   await page.screenshot({ path: testInfo.outputPath("beta-read-allow.png"), fullPage: true });
+
+  const compatible = await runProofStage(page, "compatible-case", "compatible");
+  await expect(compatible).toContainText('"decision": "ALLOW"');
+  await expect(compatible).toContainText('"capabilityDecision": "ALLOW"');
+  await expect(compatible).toContainText('"conflictState": "NO_CONFLICT"');
+  await expect(compatible).toContainText('"conflictDecision": "ALLOW"');
+  await page.screenshot({ path: testInfo.outputPath("beta-gamma-compatible.png"), fullPage: true });
+
+  const conflict = await runProofStage(page, "conflict-case", "conflict");
+  await expect(conflict).toContainText('"decision": "REVIEW"');
+  await expect(conflict).toContainText('"conflictState": "INTER_AGENT_CONFLICT"');
+  await expect(conflict).toContainText('"conflictDecision": "REVIEW"');
+  await expect(conflict).toContainText("HIGH_CONSEQUENCE_CONFLICT_REQUIRES_REVIEW");
+  await expect(conflict).toContainText('"transactionId"');
+  await page.screenshot({ path: testInfo.outputPath("beta-gamma-conflict-review.png"), fullPage: true });
 
   const outOfScope = await runProofStage(page, "beta-write", "betaWrite");
   await expect(outOfScope).toContainText('"decision": "DENY"');
@@ -226,6 +246,7 @@ test("new and returning users complete the Alpha to Beta trust journey from logi
   await expect(page.getByText("BETA_VERIFIED").first()).toBeVisible();
   await expect(page.getByText("DELEGATED_AUTHORITY_INVALIDATED").first()).toBeVisible();
   await expect(page.getByText("PARENT_AUTHORITY_REVOKED").first()).toBeVisible();
+  await expect(page.getByText("INTER_AGENT_CONFLICT_FIRST_OBSERVED").first()).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("beta-persisted-state.png"), fullPage: true });
 
   await page.goto("/api/auth/logout");

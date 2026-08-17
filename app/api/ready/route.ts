@@ -12,7 +12,10 @@ const requiredEnvironment = [
 
 export async function GET() {
   const generatedAt = new Date().toISOString();
-  const runtimeCommit = process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null;
+  const runtimeCommit =
+    process.env.VERCEL_GIT_COMMIT_SHA?.trim() ||
+    process.env.BUILD_VERSION?.trim() ||
+    null;
   const missingEnvironment = getMissingEnv([...requiredEnvironment]);
 
   if (missingEnvironment.length > 0) {

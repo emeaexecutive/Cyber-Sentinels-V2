@@ -7,6 +7,18 @@ import { executeCanonicalTrustTransaction } from "@/src/lib/trust-transaction/ca
 import { hashCanonical } from "@/src/lib/trust-core/hash";
 import type { TrustContract } from "@/src/lib/trust-fabric/types";
 import {
+  evaluateCapabilityGovernance,
+  type CapabilityGovernanceEvaluation,
+  type ModelGovernanceProjection,
+} from "./capability-governance";
+import {
+  evaluateInterAgentAuthorityConflict,
+  type AgentAuthorityEnvelope,
+  type AgentRelationshipEvidence,
+  type InterAgentConflictEvaluation,
+} from "./inter-agent-authority-conflict";
+import { classifyOperationalConsequence, type OperationalEntity } from "./operational-entity";
+import {
   calculateDelegationBlastRadius,
   evaluateDelegatedAction,
   evaluateDelegationPolicy,
@@ -364,7 +376,17 @@ export async function loadDelegatedAuthority(context: DelegatedAuthorityContext,
   return { delegations: delegations.data ?? [], acceptances: acceptances.data ?? [], evaluations: evaluations.data ?? [] };
 }
 
-export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityContext, delegateId: string, raw: Record<string, unknown>) {
+type EvaluatedGovernanceControls = {
+  capabilityGovernance?: CapabilityGovernanceEvaluation;
+  interAgentAuthorityConflict?: InterAgentConflictEvaluation;
+};
+
+export async function evaluateStoredDelegatedAction(
+  context: DelegatedAuthorityContext,
+  delegateId: string,
+  raw: Record<string, unknown>,
+  evaluatedGovernance: EvaluatedGovernanceControls = {},
+) {
   ensureRole(context.role, ["owner", "admin"]);
   const delegationId = uuid(raw.delegationId, "delegationId");
   const db = createServiceRoleClient();
@@ -425,6 +447,8 @@ export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityC
       responsibilityLineage: { controlOwner: beta.identity.accountableOwnerId, policyApprover: parent.accountableOwnerId, controlOperator: delegateId, identityAuthorizationProvider: "cyber_sentinels_native", runtimeProvider: beta.identity.runtimeBinding, destinationSystem: action.target, evidenceProvider: "cyber_sentinels_native" },
       configurationRulesetDigest: delegation.delegationDigest,
       authorization: { decision: gateDecision, reasonCodes: gateReasons },
+      capabilityGovernance: evaluatedGovernance.capabilityGovernance,
+      interAgentAuthorityConflict: evaluatedGovernance.interAgentAuthorityConflict,
     },
   }, dependencies);
   const binding = receipt.decision === "ALLOW" ? await db.rpc("bind_native_enforcement_decision_v1", {
@@ -444,6 +468,556 @@ export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityC
   }
   if (gateReasons.includes("DELEGATION_EXPIRED")) await extendGraph(context, delegation, "DELEGATION_EXPIRED");
   return { evaluationId, decision: receipt.decision, reasonCodes: [...new Set([...gateReasons, ...receipt.reasonCodes])], authorityLineage: result.authorityLineage, canonicalTransaction: receipt, enforcementDecisionBinding: binding.data, executionRequested: receipt.externalExecution.requested };
+}
+
+type PersistedGovernanceCase = "compatible" | "conflict";
+
+async function persistGovernanceEvidence(input: {
+  context: DelegatedAuthorityContext;
+  subjectId: string;
+  evidenceType: string;
+  providerKey: string;
+  sourceKey: string;
+  normalizedFacts: Record<string, unknown>;
+  occurredAt: string;
+  expiresAt: string | null;
+  reasonCodes: string[];
+}) {
+  const db = createServiceRoleClient();
+  const evidenceId = crypto.randomUUID();
+  const payloadHash = hashCanonical(input.normalizedFacts);
+  const inserted = await db.from("evidence_objects").insert({
+    id: evidenceId,
+    evidence_id: evidenceId,
+    enterprise_id: input.context.enterpriseId,
+    envelope_id: null,
+    provider_key: input.providerKey,
+    evidence_classification: input.evidenceType,
+    storage_boundary: "NORMALIZED_LEDGER",
+    object_reference: null,
+    object_encrypted: false,
+    normalized_facts: input.normalizedFacts,
+    occurred_at: input.occurredAt,
+    retention_expires_at: input.expiresAt,
+    legal_hold: false,
+    domain_key: "AI_AGENT",
+    subject_id: input.subjectId,
+    subject_type: "ai_agent",
+    evidence_type: input.evidenceType,
+    source_type: "NATIVE_RUNTIME_EVALUATION",
+    source_key: input.sourceKey,
+    result: "POSITIVE",
+    assurance_level: "HIGH",
+    cryptographically_verified: true,
+    server_verified: true,
+    received_at: input.occurredAt,
+    expires_at: input.expiresAt,
+    payload_hash: payloadHash,
+    canonicalization: "JCS",
+    hash_algorithm: "SHA-256",
+    reason_codes: input.reasonCodes,
+    observed_at: input.occurredAt,
+    freshness_policy_seconds: 3_600,
+    revoked_at: null,
+    superseded_by_evidence_id: null,
+  });
+  if (inserted.error) fail("Governance evidence persistence", inserted.error);
+  return { evidenceId, payloadHash };
+}
+
+async function activeManifest(enterpriseId: string, operationalEntityId: string) {
+  const db = createServiceRoleClient();
+  const result = await db.from("operational_entity_manifests")
+    .select("manifest_id,manifest,manifest_digest,expires_at")
+    .eq("enterprise_id", enterpriseId)
+    .eq("operational_entity_id", operationalEntityId)
+    .eq("status", "ACTIVE")
+    .order("issued_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (result.error) fail("Governed model manifest resolution", result.error);
+  if (!result.data) throw new DelegatedAuthorityServerError("A current native manifest is required for capability governance.", "CAPABILITY_EVIDENCE_REQUIRED", 409);
+  return result.data as Row;
+}
+
+async function persistRelationshipGraph(input: {
+  context: DelegatedAuthorityContext;
+  sourceEntityId: string;
+  targetEntityId: string;
+  evidenceId: string;
+  conflict: boolean;
+  correlationId: string;
+}) {
+  const db = createServiceRoleClient();
+  const nodes = [
+    { enterprise_id: input.context.enterpriseId, node_type: "OPERATIONAL_ENTITY", external_id: input.sourceEntityId, domain_key: "AI_AGENT", label: input.sourceEntityId, metadata: {}, correlation_id: input.correlationId },
+    { enterprise_id: input.context.enterpriseId, node_type: "OPERATIONAL_ENTITY", external_id: input.targetEntityId, domain_key: "AI_AGENT", label: input.targetEntityId, metadata: {}, correlation_id: input.correlationId },
+    { enterprise_id: input.context.enterpriseId, node_type: "EVIDENCE", external_id: input.evidenceId, domain_key: "AI_AGENT", label: "Inter-agent relationship evidence", metadata: {}, correlation_id: input.correlationId },
+  ];
+  const stored = await db.from("evidence_graph_nodes").upsert(nodes, { onConflict: "enterprise_id,node_type,external_id", ignoreDuplicates: true });
+  if (stored.error) fail("Inter-agent Evidence Graph nodes", stored.error);
+  const resolved = await db.from("evidence_graph_nodes")
+    .select("node_id,node_type,external_id")
+    .eq("enterprise_id", input.context.enterpriseId)
+    .in("external_id", [input.sourceEntityId, input.targetEntityId, input.evidenceId]);
+  if (resolved.error) fail("Inter-agent Evidence Graph resolution", resolved.error);
+  const sourceNode = resolved.data?.find((node) => node.node_type === "OPERATIONAL_ENTITY" && node.external_id === input.sourceEntityId)?.node_id;
+  const targetNode = resolved.data?.find((node) => node.node_type === "OPERATIONAL_ENTITY" && node.external_id === input.targetEntityId)?.node_id;
+  const evidenceNode = resolved.data?.find((node) => node.node_type === "EVIDENCE" && node.external_id === input.evidenceId)?.node_id;
+  if (!sourceNode || !targetNode || !evidenceNode) throw new DelegatedAuthorityServerError("Inter-agent Evidence Graph nodes were not resolved.", "EVIDENCE_GRAPH_WRITE_FAILED", 503);
+  const edges = [
+    { from_node_id: evidenceNode, to_node_id: targetNode, edge_type: "INVOLVES" },
+    { from_node_id: sourceNode, to_node_id: targetNode, edge_type: input.conflict ? "CONFLICTS_WITH" : "CORRELATED_WITH" },
+  ];
+  for (const edge of edges) {
+    const existing = await db.from("evidence_graph_edges")
+      .select("edge_id")
+      .eq("enterprise_id", input.context.enterpriseId)
+      .eq("from_node_id", edge.from_node_id)
+      .eq("to_node_id", edge.to_node_id)
+      .eq("edge_type", edge.edge_type)
+      .eq("evidence_id", input.evidenceId)
+      .limit(1);
+    if (existing.error) fail("Inter-agent Evidence Graph edge lookup", existing.error);
+    if (existing.data?.length) continue;
+    const inserted = await db.from("evidence_graph_edges").insert({
+      enterprise_id: input.context.enterpriseId,
+      ...edge,
+      evidence_id: input.evidenceId,
+      correlation_id: input.correlationId,
+    });
+    if (inserted.error) fail("Inter-agent Evidence Graph edge", inserted.error);
+  }
+}
+
+function modelProjection(input: {
+  enterpriseId: string;
+  entityId: string;
+  manifestRow: Row;
+  assessmentId: string;
+  assessmentDigest: string;
+  environmentEvidenceId: string;
+  environmentDigest: string;
+  evaluatedAt: string;
+}): ModelGovernanceProjection {
+  const manifest = input.manifestRow.manifest as Row;
+  const ai = (manifest.ai ?? {}) as Row;
+  const software = (manifest.software ?? {}) as Row;
+  const runtime = (manifest.runtime ?? {}) as Row;
+  const modelId = String(ai.modelIdentifier ?? "");
+  const modelVersion = String(ai.modelVersion ?? "");
+  const modelHash = String(software.buildDigest ?? software.artifactDigest ?? "") || null;
+  const environmentReference = input.environmentEvidenceId;
+  const expiresAt = String(input.manifestRow.expires_at ?? manifest.expiresAt ?? "") || null;
+  const toolSet = Array.isArray(ai.declaredTools) ? ai.declaredTools.map(String) : [];
+  return {
+    enterpriseId: input.enterpriseId,
+    operationalEntityId: input.entityId,
+    modelId,
+    modelVersion,
+    modelHash,
+    fineTuneReference: null,
+    deploymentOrigin: String(runtime.deploymentIdentifier ?? runtime.workloadIdentifier ?? "native-runtime"),
+    hostingOperator: "customer_native_runtime",
+    modelFamily: null,
+    openClosedClassification: "self_hosted",
+    capabilityAssessments: [{
+      assessmentId: input.assessmentId,
+      enterpriseId: input.enterpriseId,
+      operationalEntityId: input.entityId,
+      assessmentProvider: "cyber_sentinels_native",
+      sourcePartyId: `workspace:${input.enterpriseId}`,
+      assessmentType: "manifest_bound_runtime_capability",
+      capabilityClass: "repository_operation",
+      capabilityThreshold: "native_identity_and_authority_bound",
+      capabilityDimensions: {
+        nativeIdentityVerified: true,
+        manifestBound: true,
+        delegatedScopeEnforced: true,
+        tenantIsolationEnforced: true,
+      },
+      evaluationReference: `native-manifest:${String(input.manifestRow.manifest_id)}`,
+      environmentReference,
+      assessedModelId: modelId,
+      assessedModelVersion: modelVersion,
+      assessedModelHash: modelHash,
+      assessmentTimestamp: input.evaluatedAt,
+      validFrom: input.evaluatedAt,
+      validUntil: expiresAt,
+      evidenceDigest: input.assessmentDigest,
+      confidence: 0.95,
+      attribution: "enterprise_attested_native_runtime",
+    }],
+    applicableOversightRegimes: ["enterprise_authority_policy"],
+    safeguardsActive: ["delegated_scope_enforcement", "tenant_isolation"],
+    environmentAttestation: {
+      attestationReference: environmentReference,
+      enterpriseId: input.enterpriseId,
+      environment: String(runtime.environment ?? ""),
+      runtimeReference: String(runtime.workloadIdentifier ?? runtime.deploymentIdentifier ?? "native-runtime"),
+      hostingOperator: "customer_native_runtime",
+      toolSet,
+      observedAt: input.evaluatedAt,
+      expiresAt,
+      evidenceProvider: "cyber_sentinels_native",
+      sourcePartyId: `workspace:${input.enterpriseId}`,
+      evidenceDigest: input.environmentDigest,
+    },
+    enterpriseRiskClassification: "governed",
+    evidenceTimestamp: input.evaluatedAt,
+    evidenceExpiry: expiresAt,
+    continuityReference: `native-manifest:${String(input.manifestRow.manifest_id)}`,
+    permissionScope: Array.isArray(manifest.declaredCapabilities) ? manifest.declaredCapabilities.map(String) : [],
+  };
+}
+
+export async function evaluatePersistedInterAgentAction(
+  context: DelegatedAuthorityContext,
+  sourceEntityId: string,
+  raw: Record<string, unknown>,
+) {
+  ensureRole(context.role, ["owner", "admin"]);
+  const caseType = String(raw.caseType ?? "") as PersistedGovernanceCase;
+  if (!(["compatible", "conflict"] as string[]).includes(caseType)) throw new DelegatedAuthorityServerError("A supported governance case is required.", "GOVERNANCE_CASE_INVALID");
+  const delegationId = uuid(raw.delegationId, "delegationId");
+  const targetEntityId = reference(raw.targetEntityId, "targetEntityId");
+  if (sourceEntityId === targetEntityId) throw new DelegatedAuthorityServerError("Inter-agent evaluation requires distinct entities.", "RELATIONSHIP_ENTITY_BINDING_INVALID");
+  const requestedIdempotencyKey = reference(raw.idempotencyKey, "idempotencyKey");
+  const evaluatedAt = new Date().toISOString();
+  const correlationId = crypto.randomUUID();
+  const db = createServiceRoleClient();
+
+  const [storedDelegation, storedAcceptance, sourceIdentity, targetIdentity, sourceManifest, targetManifest] = await Promise.all([
+    db.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", context.enterpriseId).eq("delegation_id", delegationId).eq("delegate_operational_entity_id", sourceEntityId).maybeSingle(),
+    db.from("operational_entity_delegation_acceptances").select("*").eq("enterprise_id", context.enterpriseId).eq("delegation_id", delegationId).eq("delegate_operational_entity_id", sourceEntityId).maybeSingle(),
+    currentIdentity(context.enterpriseId, sourceEntityId),
+    currentIdentity(context.enterpriseId, targetEntityId),
+    activeManifest(context.enterpriseId, sourceEntityId),
+    activeManifest(context.enterpriseId, targetEntityId),
+  ]);
+  if (storedDelegation.error || storedAcceptance.error) fail("Governed relationship authority resolution", storedDelegation.error ?? storedAcceptance.error);
+  if (!storedDelegation.data || !storedAcceptance.data) throw new DelegatedAuthorityServerError("An active accepted source delegation is required.", "DELEGATED_AUTHORITY_NOT_FOUND", 404);
+  const delegation = rowDelegation(storedDelegation.data);
+  const { parent: sourceParent } = await parentAuthorityFor(context.enterpriseId, delegation.parentAuthorityId, delegation.delegatorOperationalEntityId);
+
+  const baseDependencies = createCanonicalTrustTransactionDependencies({ supabase: context.supabase, user: context.user });
+  if (!baseDependencies.resolveOperationalEntity) throw new DelegatedAuthorityServerError("Canonical Operational Entity resolution is unavailable.", "OPERATIONAL_ENTITY_RESOLUTION_UNAVAILABLE", 503);
+  const resolutionInput = (entityId: string) => ({
+    requestedEntityId: entityId,
+    legacyHumanId: null,
+    agentId: null,
+    serviceIdentity: null,
+    deviceIdentity: null,
+    trustObjectReference: entityId,
+    tenantId: context.enterpriseId,
+    knownEntities: [],
+  });
+  const [sourceEntity, targetEntity] = await Promise.all([
+    baseDependencies.resolveOperationalEntity(context.enterpriseId, resolutionInput(sourceEntityId)),
+    baseDependencies.resolveOperationalEntity(context.enterpriseId, resolutionInput(targetEntityId)),
+  ]) as [OperationalEntity, OperationalEntity];
+  const targetAuthorityId = uuid(targetEntity.currentAuthorityReferences[0], "targetAuthorityId");
+  const { parent: targetAuthority } = await parentAuthorityFor(context.enterpriseId, targetAuthorityId, targetEntityId);
+
+  const assessmentFacts = {
+    operationalEntityId: sourceEntityId,
+    manifestId: String(sourceManifest.manifest_id),
+    manifestDigest: String(sourceManifest.manifest_digest),
+    identityEvidenceReference: sourceIdentity.identity.evidenceReference,
+    assessmentType: "manifest_bound_runtime_capability",
+    capabilityClass: "repository_operation",
+    safeguards: ["delegated_scope_enforcement", "tenant_isolation"],
+    assessedAt: evaluatedAt,
+  };
+  const capabilityEvidence = await persistGovernanceEvidence({
+    context,
+    subjectId: sourceEntityId,
+    evidenceType: "CAPABILITY_ASSESSMENT",
+    providerKey: "cyber_sentinels_native",
+    sourceKey: `native-manifest:${String(sourceManifest.manifest_id)}`,
+    normalizedFacts: assessmentFacts,
+    occurredAt: evaluatedAt,
+    expiresAt: String(sourceManifest.expires_at ?? "") || null,
+    reasonCodes: ["ATTRIBUTED_CAPABILITY_ASSESSMENT", "NATIVE_IDENTITY_BOUND"],
+  });
+  const sourceRuntime = ((sourceManifest.manifest as Row).runtime ?? {}) as Row;
+  const environmentFacts = {
+    operationalEntityId: sourceEntityId,
+    manifestId: String(sourceManifest.manifest_id),
+    environment: String(sourceRuntime.environment ?? ""),
+    runtimeReference: String(sourceRuntime.workloadIdentifier ?? sourceRuntime.deploymentIdentifier ?? "native-runtime"),
+    observedAt: evaluatedAt,
+  };
+  const environmentEvidence = await persistGovernanceEvidence({
+    context,
+    subjectId: sourceEntityId,
+    evidenceType: "MODEL_ENVIRONMENT_ATTESTATION",
+    providerKey: "cyber_sentinels_native",
+    sourceKey: `native-manifest:${String(sourceManifest.manifest_id)}`,
+    normalizedFacts: environmentFacts,
+    occurredAt: evaluatedAt,
+    expiresAt: String(sourceManifest.expires_at ?? "") || null,
+    reasonCodes: ["NATIVE_RUNTIME_ENVIRONMENT_ATTESTED"],
+  });
+  const projection = modelProjection({
+    enterpriseId: context.enterpriseId,
+    entityId: sourceEntityId,
+    manifestRow: sourceManifest,
+    assessmentId: capabilityEvidence.evidenceId,
+    assessmentDigest: capabilityEvidence.payloadHash,
+    environmentEvidenceId: environmentEvidence.evidenceId,
+    environmentDigest: environmentEvidence.payloadHash,
+    evaluatedAt,
+  });
+  const capabilityGovernance = evaluateCapabilityGovernance({
+    entity: sourceEntity,
+    current: projection,
+    policy: {
+      policyReference: `trust-policy:${delegation.policyVersion}`,
+      requestedAction: "read_repository",
+      requiredCapabilityClass: "repository_operation",
+      allowedCapabilityClasses: ["repository_operation"],
+      requiredSafeguards: ["delegated_scope_enforcement", "tenant_isolation"],
+      requireModelHash: true,
+      requireEnvironmentAttestation: true,
+      requireHumanReviewForEvidenceConflict: true,
+      denyWhenSafeguardMissing: true,
+    },
+    evaluatedAt,
+  });
+
+  const sharedResource = caseType === "compatible" ? "repository:a" : "repository:a/protected-configuration";
+  const sourceRequest = {
+    type: "read_repository",
+    tool: "repository.reader",
+    target: "repository:a",
+    resource: sharedResource,
+    environment: "preview-beta-runtime",
+    dataBoundary: caseType === "conflict" ? "RESTRICTED" as const : "INTERNAL" as const,
+  };
+  const targetRequest = {
+    type: caseType === "compatible" ? "read_repository" : "replace_configuration",
+    tool: caseType === "compatible" ? "repository.reader" : "configuration.writer",
+    target: "repository:a",
+    resource: sharedResource,
+    environment: "preview-gamma-runtime",
+    dataBoundary: caseType === "conflict" ? "RESTRICTED" as const : "INTERNAL" as const,
+  };
+  const sourceConsequence = classifyOperationalConsequence({
+    entity: sourceEntity,
+    requestedAction: sourceRequest.type,
+    target: sourceRequest.target,
+    tool: sourceRequest.tool,
+    resource: sourceRequest.resource,
+    environment: sourceRequest.environment,
+    dataBoundary: sourceRequest.dataBoundary.toLowerCase(),
+    authority: { scope: delegation.scope.permittedActions },
+    policy: { requiresHumanApproval: false },
+    businessContext: caseType === "compatible" ? "read repository" : "preserve protected configuration",
+    incidentContext: null,
+  });
+  const targetConsequence = classifyOperationalConsequence({
+    entity: targetEntity,
+    requestedAction: targetRequest.type,
+    target: targetRequest.target,
+    tool: targetRequest.tool,
+    resource: targetRequest.resource,
+    environment: targetRequest.environment,
+    dataBoundary: targetRequest.dataBoundary.toLowerCase(),
+    authority: { scope: targetAuthority.scope.permittedActions },
+    policy: { requiresHumanApproval: false },
+    businessContext: caseType === "compatible" ? "read repository" : "replace protected configuration",
+    incidentContext: null,
+  });
+  const sourceEnvelope: AgentAuthorityEnvelope = {
+    enterpriseId: context.enterpriseId,
+    operationalEntityId: sourceEntityId,
+    authorityReference: delegation.delegationId,
+    authorityScope: delegation.scope,
+    objective: {
+      objectiveReference: `${requestedIdempotencyKey}:source-objective`,
+      purpose: caseType === "compatible" ? "read repository" : "preserve protected configuration",
+      effect: caseType === "compatible" ? "read" : "preserve",
+      resource: sharedResource,
+    },
+    requestedAction: { ...sourceRequest, consequenceClassification: sourceConsequence.classification },
+    validFrom: delegation.notBefore,
+    expiresAt: delegation.expiresAt,
+    revokedAt: sourceParent.revokedAt ?? delegation.revokedAt,
+  };
+  const targetEnvelope: AgentAuthorityEnvelope = {
+    enterpriseId: context.enterpriseId,
+    operationalEntityId: targetEntityId,
+    authorityReference: targetAuthority.authorityId,
+    authorityScope: targetAuthority.scope,
+    objective: {
+      objectiveReference: `${requestedIdempotencyKey}:target-objective`,
+      purpose: caseType === "compatible" ? "read repository" : "replace protected configuration",
+      effect: caseType === "compatible" ? "read" : "replace",
+      resource: sharedResource,
+    },
+    requestedAction: { ...targetRequest, consequenceClassification: targetConsequence.classification },
+    validFrom: targetAuthority.notBefore,
+    expiresAt: targetAuthority.expiresAt,
+    revokedAt: targetAuthority.revokedAt,
+  };
+  const relationshipFacts = {
+    sourceAgent: sourceEntityId,
+    targetAgent: targetEntityId,
+    sourceAuthorityReference: delegation.delegationId,
+    targetAuthorityReference: targetAuthority.authorityId,
+    sharedWorkflow: "governed-repository-operations",
+    sourceObjective: sourceEnvelope.objective,
+    targetObjective: targetEnvelope.objective,
+    sourceRequest: sourceEnvelope.requestedAction,
+    targetRequest: targetEnvelope.requestedAction,
+    sharedResources: [sharedResource],
+    observedAt: evaluatedAt,
+  };
+  const relationshipStored = await persistGovernanceEvidence({
+    context,
+    subjectId: sourceEntityId,
+    evidenceType: "INTER_AGENT_RELATIONSHIP_EVIDENCE",
+    providerKey: "cyber_sentinels_native",
+    sourceKey: `native-authority:${delegation.delegationId}:${targetAuthority.authorityId}`,
+    normalizedFacts: relationshipFacts,
+    occurredAt: evaluatedAt,
+    expiresAt: [delegation.expiresAt, targetAuthority.expiresAt].sort()[0],
+    reasonCodes: ["ATTRIBUTED_RELATIONSHIP_OBSERVATION", "AUTHORITY_INTERSECTION_EVALUATED"],
+  });
+  const relationshipEvidence: AgentRelationshipEvidence = {
+    relationshipEvidenceId: relationshipStored.evidenceId,
+    enterpriseId: context.enterpriseId,
+    sourceAgent: sourceEntityId,
+    targetAgent: targetEntityId,
+    sharedWorkflow: "governed-repository-operations",
+    sourceDelegatedObjective: sourceEnvelope.objective.objectiveReference,
+    targetDelegatedObjective: targetEnvelope.objective.objectiveReference,
+    sourceAuthorityReference: delegation.delegationId,
+    targetAuthorityReference: targetAuthority.authorityId,
+    authorityIntersection: [],
+    sharedResources: [sharedResource],
+    sharedCredentialsOrTools: [],
+    interactionType: caseType === "compatible" ? "parallel_read" : "protected_configuration_change",
+    relationshipType: caseType === "compatible" ? "cooperation" : "conflict",
+    observedConditions: [],
+    evidenceSource: "canonical_native_authority_runtime",
+    evidenceProvider: "cyber_sentinels_native",
+    sourcePartyId: `workspace:${context.enterpriseId}`,
+    observedAt: evaluatedAt,
+    evidenceDigest: relationshipStored.payloadHash,
+    independentlyObserved: false,
+  };
+  const interAgentAuthorityConflict = evaluateInterAgentAuthorityConflict({
+    sourceEntity,
+    targetEntity,
+    sourceAuthority: sourceEnvelope,
+    targetAuthority: targetEnvelope,
+    relationshipEvidence: [relationshipEvidence],
+    policy: {
+      policyReference: "enterprise-agent-conflict-policy:1.0.0",
+      highImpactThreshold: "high",
+      denyConditions: ["AGENT_DISABLES_PEER", "AGENT_IMPERSONATION_ATTEMPT", "CREDENTIAL_INTERFERENCE"],
+      requireHumanArbitrationForHighImpact: true,
+    },
+    evaluatedAt,
+  });
+
+  await persistRelationshipGraph({
+    context,
+    sourceEntityId,
+    targetEntityId,
+    evidenceId: relationshipStored.evidenceId,
+    conflict: interAgentAuthorityConflict.conflictState === "INTER_AGENT_CONFLICT",
+    correlationId,
+  });
+  const eventType = interAgentAuthorityConflict.conflictState === "NO_CONFLICT"
+    ? "INTER_AGENT_COMPATIBILITY_EVALUATED"
+    : "INTER_AGENT_CONFLICT_EVALUATED";
+  await appendReplay(context, sourceEntityId, "RELATIONSHIP_OBSERVED", ["ATTRIBUTED_RELATIONSHIP_OBSERVATION"], relationshipFacts, [`evidence:${relationshipStored.evidenceId}`]);
+  await appendReplay(context, sourceEntityId, "AUTHORITY_INTERSECTION_EVALUATED", interAgentAuthorityConflict.reasonCodes, { authorityIntersection: interAgentAuthorityConflict.authorityIntersection, relationshipEvidenceId: relationshipStored.evidenceId });
+  await appendReplay(context, sourceEntityId, eventType, interAgentAuthorityConflict.reasonCodes, { conflictState: interAgentAuthorityConflict.conflictState, policyResponse: interAgentAuthorityConflict.policyResponse, relationshipEvidenceId: relationshipStored.evidenceId });
+
+  if (interAgentAuthorityConflict.conflictState === "INTER_AGENT_CONFLICT") {
+    const pair = [sourceEntityId, targetEntityId].sort().join(":");
+    await remember(context, sourceEntityId, "INTER_AGENT_CONFLICT_FIRST_OBSERVED", pair, {
+      targetEntityId,
+      relationshipEvidenceId: relationshipStored.evidenceId,
+      snapshotDigest: interAgentAuthorityConflict.snapshot.digest,
+    });
+    if (interAgentAuthorityConflict.policyResponse !== "CONTINUE") {
+      await remember(context, sourceEntityId, "AUTHORITY_CONSTRAINED_DUE_TO_CONFLICT", `${pair}:authority-constrained`, {
+        targetEntityId,
+        policyResponse: interAgentAuthorityConflict.policyResponse,
+        snapshotDigest: interAgentAuthorityConflict.snapshot.digest,
+      });
+    }
+  }
+
+  const sourceResult = await evaluateStoredDelegatedAction(context, sourceEntityId, {
+    delegationId,
+    request: {
+      type: sourceRequest.type,
+      tool: sourceRequest.tool,
+      target: sourceRequest.target,
+      environment: sourceRequest.environment,
+      purpose: "controlled_repository_access",
+      dataBoundary: caseType === "conflict" ? "RESTRICTED" : "INTERNAL",
+      executionCount: 1,
+      workflowId: "governed-repository-operations",
+      payloadDigest: hashCanonical({ relationshipEvidenceId: relationshipStored.evidenceId, sourceEnvelope, evaluatedAt }),
+      idempotencyKey: `${requestedIdempotencyKey}:source`,
+    },
+  }, { capabilityGovernance, interAgentAuthorityConflict });
+
+  const targetReceipt = await executeCanonicalTrustTransaction({
+    trustObject: { subjectType: "ai_agent", subjectId: targetEntityId },
+    operationalEntityId: targetEntityId,
+    action: {
+      type: targetRequest.type,
+      purpose: "governed_repository_operations",
+      resource: targetRequest.target,
+      environment: targetRequest.environment,
+      payloadDigest: hashCanonical({ relationshipEvidenceId: relationshipStored.evidenceId, targetEnvelope, evaluatedAt }),
+    },
+    idempotencyKey: `${requestedIdempotencyKey}:target`,
+    managedControl: {
+      responsibilityLineage: {
+        controlOwner: targetIdentity.identity.accountableOwnerId,
+        policyApprover: targetAuthority.accountableOwnerId,
+        controlOperator: targetEntityId,
+        identityAuthorizationProvider: "cyber_sentinels_native",
+        runtimeProvider: targetIdentity.identity.runtimeBinding,
+        destinationSystem: targetRequest.target,
+        evidenceProvider: "cyber_sentinels_native",
+      },
+      configurationRulesetDigest: hashCanonical({ policy: "enterprise-agent-conflict-policy:1.0.0", targetAuthority: targetAuthority.authorityId }),
+      interAgentAuthorityConflict,
+    },
+  }, baseDependencies);
+  await appendReplay(context, targetEntityId, eventType, interAgentAuthorityConflict.reasonCodes, {
+    relationshipEvidenceId: relationshipStored.evidenceId,
+    transactionId: targetReceipt.transactionId,
+    decision: targetReceipt.decision,
+  }, [`transaction:${targetReceipt.transactionId}`]);
+
+  return {
+    caseType,
+    capabilityGovernance,
+    interAgentAuthorityConflict,
+    evidence: {
+      capabilityAssessment: capabilityEvidence.evidenceId,
+      environmentAttestation: environmentEvidence.evidenceId,
+      relationship: relationshipStored.evidenceId,
+    },
+    source: sourceResult,
+    target: {
+      operationalEntityId: targetEntityId,
+      manifestId: String(targetManifest.manifest_id),
+      decision: targetReceipt.decision,
+      canonicalTransaction: targetReceipt,
+    },
+  };
 }
 
 export async function authorityBlastRadius(context: DelegatedAuthorityContext, authorityId: string) {

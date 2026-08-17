@@ -10,6 +10,7 @@ import { hashCanonical } from "@/src/lib/trust-core/hash";
 
 const policyId = "controlled-agent-alpha";
 const policyVersion = "1.0.0";
+const gammaPolicyId = "controlled-agent-gamma";
 
 function fail(operation: string, error: unknown): never {
   console.error("Controlled Agent Alpha initialization failed safely.", {
@@ -135,6 +136,31 @@ export async function ensureControlledAgentAlpha(input: {
     );
   }
 
+  const existingGamma = await db
+    .from("operational_entities")
+    .select("entity_id")
+    .eq("enterprise_id", enterpriseId)
+    .ilike("display_reference", "Agent Gamma")
+    .limit(1)
+    .maybeSingle();
+  if (existingGamma.error) fail("gamma_entity_lookup", existingGamma.error);
+  const gammaEntityId = existingGamma.data?.entity_id
+    ? String(existingGamma.data.entity_id)
+    : `agent-gamma:${enterpriseId}`;
+  if (!existingGamma.data) {
+    await registerCanonicalNativeAgent(
+      { supabase: input.supabase, user: input.user, enterpriseId, role: "owner" },
+      {
+        displayReference: "Agent Gamma",
+        entityId: gammaEntityId,
+        accountableOwnerId: "owner:grace",
+        organizationReference: `workspace:${enterpriseId}`,
+        environmentReference: "preview-gamma-runtime",
+        workflowReference: "governed-repository-operations",
+      },
+    );
+  }
+
   const policies = await db
     .from("trust_policy_versions")
     .select("policy_id,version,active")
@@ -157,6 +183,35 @@ export async function ensureControlledAgentAlpha(input: {
         rules: {
           purpose: "controlled_repository_access",
           allowedActions: ["read_repository"],
+          requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF"],
+          providerDependency: "none",
+        },
+      },
+    });
+  }
+
+  const gammaPolicy = await db
+    .from("trust_policy_versions")
+    .select("policy_id,version,active")
+    .eq("enterprise_id", enterpriseId)
+    .eq("policy_id", gammaPolicyId)
+    .eq("version", policyVersion)
+    .maybeSingle();
+  if (gammaPolicy.error) fail("gamma_policy_lookup", gammaPolicy.error);
+  if (!gammaPolicy.data) {
+    await createTrustPolicy({
+      enterpriseId,
+      actorId: input.user.id,
+      correlationId: crypto.randomUUID(),
+      value: {
+        policyId: gammaPolicyId,
+        version: policyVersion,
+        layer: "ENTERPRISE_OVERRIDE",
+        active: true,
+        validFrom: new Date(Date.now() - 1_000).toISOString(),
+        rules: {
+          purpose: "governed_repository_operations",
+          allowedActions: ["read_repository", "replace_configuration"],
           requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF"],
           providerDependency: "none",
         },
@@ -253,7 +308,122 @@ export async function ensureControlledAgentAlpha(input: {
     .eq("entity_id", entityId);
   if (authorityUpdate.error) fail("entity_authority_binding", authorityUpdate.error);
 
-  return { enterpriseId, entityId, betaEntityId, authorityId: contract.contractId };
+  const refreshedContracts = await repository.contracts(enterpriseId);
+  const previousGammaContract = refreshedContracts.find(
+    (candidate) => candidate.subject.id === gammaEntityId,
+  );
+  let gammaContract = refreshedContracts.find(
+    (candidate) =>
+      candidate.subject.id === gammaEntityId &&
+      candidate.revocationState === "active" &&
+      Date.parse(candidate.expiresAt) > Date.now() &&
+      candidate.authorityScope?.permittedActions.includes("read_repository") &&
+      candidate.authorityScope?.permittedActions.includes("replace_configuration") &&
+      candidate.authorityScope?.permittedTargets.includes("repository:a"),
+  );
+  if (!gammaContract) {
+    const issuedAt = new Date().toISOString();
+    gammaContract = validateTrustContract(
+      {
+        contractId: crypto.randomUUID(),
+        subject: { type: "ai_agent", id: gammaEntityId, displayName: "Agent Gamma" },
+        workflow: {
+          id: "governed-repository-operations",
+          objective: "Read repositories and replace protected configuration under independent authority.",
+        },
+        authorizedObjective: "governed_repository_operations",
+        requiredIdentityState: "verified",
+        requiredAuthority: ["workspace_owner"],
+        requiredEnvironmentState: "degraded",
+        permittedScope: ["read_repository", "replace_configuration"],
+        permittedProviders: ["cyber_sentinels_native"],
+        requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF"],
+        maximumEvidenceAgeSeconds: 3_600,
+        monitoringRequirements: [],
+        humanReviewThresholds: [],
+        contradictionPolicy: "review",
+        incidentThreshold: "material",
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1_000).toISOString(),
+        revokedAt: null,
+        revocationState: "active",
+        issuer: `workspace:${enterpriseId}`,
+        approver: `user:${input.user.id}`,
+        policyId: gammaPolicyId,
+        policyVersion,
+        evidenceReferences: [],
+        issuedAt,
+        supersedesContractId: previousGammaContract?.contractId ?? null,
+        authorityScope: {
+          permittedActions: ["read_repository", "replace_configuration"],
+          permittedTools: ["repository.reader", "configuration.writer"],
+          permittedTargets: ["repository:a"],
+          environments: ["preview-gamma-runtime"],
+          dataBoundary: "INTERNAL",
+          financialLimit: 0,
+          executionLimit: 100,
+        },
+        canDelegate: false,
+        maximumDelegationDepth: 0,
+        authorityVersion: "gamma-authority-v1",
+      },
+      enterpriseId,
+    );
+    await repository.persistContract(
+      enterpriseId,
+      input.user.id,
+      gammaContract,
+      crypto.randomUUID(),
+    );
+  }
+
+  const existingGammaReplay = await db
+    .from("operational_entity_native_replay_events")
+    .select("event_id")
+    .eq("enterprise_id", enterpriseId)
+    .eq("operational_entity_id", gammaEntityId)
+    .eq("event_type", "GAMMA_AUTHORITY_ISSUED")
+    .contains("evidence_references", [`trust_contract:${gammaContract.contractId}`])
+    .limit(1)
+    .maybeSingle();
+  if (existingGammaReplay.error) fail("gamma_authority_replay_lookup", existingGammaReplay.error);
+  if (!existingGammaReplay.data) {
+    const replayBase = {
+      event_id: crypto.randomUUID(),
+      enterprise_id: enterpriseId,
+      operational_entity_id: gammaEntityId,
+      event_type: "GAMMA_AUTHORITY_ISSUED",
+      actor_reference: `user:${input.user.id}`,
+      attribution: "CYBER_SENTINELS_INTERPRETATION",
+      evidence_references: [`trust_contract:${gammaContract.contractId}`],
+      reason_codes: ["INDEPENDENT_PARENT_AUTHORITY_ACTIVE"],
+      payload: {
+        authorityId: gammaContract.contractId,
+        scope: gammaContract.authorityScope,
+        policyVersion: gammaContract.policyVersion,
+      },
+      occurred_at: gammaContract.issuedAt,
+    };
+    const gammaReplay = await db
+      .from("operational_entity_native_replay_events")
+      .insert({ ...replayBase, event_digest: hashCanonical(replayBase) });
+    if (gammaReplay.error) fail("gamma_authority_replay", gammaReplay.error);
+  }
+
+  const gammaAuthorityUpdate = await db
+    .from("operational_entities")
+    .update({ current_authority_references: [gammaContract.contractId] })
+    .eq("enterprise_id", enterpriseId)
+    .eq("entity_id", gammaEntityId);
+  if (gammaAuthorityUpdate.error) fail("gamma_authority_binding", gammaAuthorityUpdate.error);
+
+  return {
+    enterpriseId,
+    entityId,
+    betaEntityId,
+    gammaEntityId,
+    authorityId: contract.contractId,
+    gammaAuthorityId: gammaContract.contractId,
+  };
 }
 
 export type ControlledAgentAlphaResult = Awaited<

@@ -12,7 +12,7 @@ export const canonicalNavigation = {
   authenticated: [
     { href: "/dashboard", label: "Overview", access: "authenticated" },
     { href: "/operational-entities", label: "Operational Entities", access: "authenticated" },
-    { href: "/trust/transactions", label: "Decisions / Transactions", access: "authenticated" },
+    { href: "/trust/transactions", label: "Decisions", access: "authenticated" },
     { href: "/evidence", label: "Evidence", access: "authenticated" },
     { href: "/trust-replay", label: "Replay", access: "authenticated" },
     { href: "/developers", label: "Developers", access: "authenticated" },
@@ -27,7 +27,7 @@ export const canonicalNavigation = {
   dashboard: [
     { href: "/dashboard", label: "Overview", access: "authenticated" },
     { href: "/operational-entities", label: "Operational Entities", access: "authenticated" },
-    { href: "/trust/transactions", label: "Decisions / Transactions", access: "authenticated" },
+    { href: "/trust/transactions", label: "Decisions", access: "authenticated" },
     { href: "/evidence", label: "Evidence", access: "authenticated" },
     { href: "/trust-replay", label: "Replay", access: "authenticated" },
     { href: "/developers", label: "Developers", access: "authenticated" },
