@@ -87,6 +87,8 @@ test("Replay, Trust Memory and receipts reuse canonical stores", () => {
   assert.match(server, /onConflict: "enterprise_id,memory_type,source_id"/);
   assert.match(server, /receipt_reference: `\/api\/trust\/transactions\/\$\{transaction\.data\.transaction_id\}\/receipt`/);
   assert.match(server, /evidence_references/);
+  assert.match(server, /observed_at: evidence\.observedAt/);
+  assert.match(server, /freshness_policy_seconds: 86_400/);
   assert.doesNotMatch(server, /track_block_(decisions|signals|replay|trust_memory)/i);
 });
 
