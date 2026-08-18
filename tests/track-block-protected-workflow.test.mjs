@@ -81,6 +81,7 @@ test("all workflow APIs use authenticated tenant context and server ownership", 
 
 test("Replay, Trust Memory and receipts reuse canonical stores", () => {
   const server = read("lib/protected-workflows/server.ts");
+  const canonicalServer = read("lib/trust-transaction/server.ts");
   for (const event of ["WORKFLOW_STARTED", "CONSENT_CONFIRMED", "EVIDENCE_OBSERVED", "CANONICAL_DECISION", "CHALLENGE_REQUIRED", "STEP_UP_STARTED", "PAUSED", "BLOCKED", "RESUMED", "WORKFLOW_COMPLETED"]) assert.match(server, new RegExp(event));
   assert.match(server, /from\("trust_replay_sessions"\)/);
   assert.match(server, /from\("trust_memory_index"\)\.upsert/);
@@ -91,6 +92,7 @@ test("Replay, Trust Memory and receipts reuse canonical stores", () => {
   assert.match(server, /freshness_policy_seconds: 86_400/);
   assert.match(server, /ensureEvidenceGraphNode/);
   assert.doesNotMatch(server, /from\("evidence_graph_nodes"\)\.upsert/);
+  assert.match(canonicalServer, /else if \(!uuidPattern\.test\(subjectId\)\) \{\s*return nativeEvidence;/);
   assert.doesNotMatch(server, /track_block_(decisions|signals|replay|trust_memory)/i);
 });
 
