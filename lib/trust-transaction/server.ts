@@ -450,6 +450,8 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
         const verification = await db.from("hopae_verifications").select("verification_id").eq("workspace_id", enterpriseId).eq("workflow_id", workflowId).eq("verification_id", providerSessionId).eq("entity_id", subjectId).eq("provider_session_status", "COMPLETED").maybeSingle();
         if (verification.error) fail("Provider subject binding", verification.error);
         if (!verification.data) throw new CanonicalTransactionError("The configured provider execution is not bound to this Trust Object.", 409, "PROVIDER_EVIDENCE_SUBJECT_MISMATCH");
+      } else if (!uuidPattern.test(subjectId)) {
+        return nativeEvidence;
       } else {
         const verification = await db.from("hopae_verifications").select("workflow_id,verification_id").eq("workspace_id", enterpriseId).eq("entity_id", subjectId).eq("provider_session_status", "COMPLETED").order("updated_at", { ascending: false }).limit(1).maybeSingle();
         if (verification.error) {
