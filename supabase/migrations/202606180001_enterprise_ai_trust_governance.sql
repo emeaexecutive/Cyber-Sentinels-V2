@@ -103,10 +103,7 @@ create table if not exists public.provenance_events (
   risk_level text not null default 'low',
   created_by text,
   metadata jsonb not null default '{}'::jsonb,
-  created_at timestamptz not null default now(),
-  constraint provenance_events_subject_check check (
-    subject_type in ('human', 'ai_agent', 'workflow', 'enterprise')
-  )
+  created_at timestamptz not null default now()
 );
 
 -- Production already contains an earlier provenance ledger shape. Reconcile it
