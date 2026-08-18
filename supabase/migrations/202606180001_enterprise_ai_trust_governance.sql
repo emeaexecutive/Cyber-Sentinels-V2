@@ -109,6 +109,52 @@ create table if not exists public.provenance_events (
   )
 );
 
+-- Production already contains an earlier provenance ledger shape. Reconcile it
+-- forward without removing or rewriting any legacy columns or event detail.
+alter table public.provenance_events
+  add column if not exists subject_type text,
+  add column if not exists subject_id uuid,
+  add column if not exists event_title text,
+  add column if not exists event_description text,
+  add column if not exists risk_level text default 'low',
+  add column if not exists created_by text,
+  add column if not exists metadata jsonb default '{}'::jsonb;
+
+update public.provenance_events
+set subject_type = coalesce(subject_type, 'enterprise'),
+    event_title = coalesce(event_title, event_type),
+    event_description = coalesce(event_description, event_type),
+    risk_level = coalesce(risk_level, 'low'),
+    metadata = coalesce(metadata, '{}'::jsonb),
+    created_at = coalesce(created_at, now())
+where subject_type is null
+   or event_title is null
+   or event_description is null
+   or risk_level is null
+   or metadata is null
+   or created_at is null;
+
+alter table public.provenance_events
+  alter column subject_type set not null,
+  alter column event_title set not null,
+  alter column risk_level set not null,
+  alter column metadata set not null,
+  alter column created_at set not null;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.provenance_events'::regclass
+      and conname = 'provenance_events_subject_check'
+  ) then
+    alter table public.provenance_events
+      add constraint provenance_events_subject_check
+      check (subject_type in ('human', 'ai_agent', 'workflow', 'enterprise')) not valid;
+  end if;
+end
+$$;
+
 alter table public.trust_certifications
   add column if not exists created_by uuid default auth.uid();
 alter table public.trust_certifications
@@ -134,6 +180,54 @@ alter table public.trust_alerts
   add column if not exists subject_id uuid;
 alter table public.trust_alerts
   add column if not exists created_at timestamptz default now();
+alter table public.trust_alerts
+  add column if not exists alert_title text,
+  add column if not exists alert_description text,
+  add column if not exists risk_level text default 'low',
+  add column if not exists source text,
+  add column if not exists metadata jsonb default '{}'::jsonb,
+  add column if not exists reviewed_by text,
+  add column if not exists resolved_at timestamptz,
+  add column if not exists updated_at timestamptz default now(),
+  add column if not exists enterprise_id uuid;
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'trust_alerts'
+      and column_name = 'title'
+  ) then
+    execute 'update public.trust_alerts set alert_title = coalesce(alert_title, title)';
+  end if;
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'trust_alerts'
+      and column_name = 'description'
+  ) then
+    execute 'update public.trust_alerts set alert_description = coalesce(alert_description, description)';
+  end if;
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'trust_alerts'
+      and column_name = 'severity'
+  ) then
+    execute 'update public.trust_alerts set risk_level = coalesce(risk_level, severity)';
+  end if;
+end
+$$;
+
+update public.trust_alerts
+set alert_title = coalesce(alert_title, alert_type),
+    risk_level = coalesce(risk_level, 'low'),
+    metadata = coalesce(metadata, '{}'::jsonb),
+    created_at = coalesce(created_at, now()),
+    updated_at = coalesce(updated_at, now())
+where alert_title is null
+   or risk_level is null
+   or metadata is null
+   or created_at is null
+   or updated_at is null;
 
 create index if not exists trust_certifications_type_status_idx
   on public.trust_certifications (certification_type, status, created_at desc);

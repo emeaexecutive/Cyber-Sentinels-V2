@@ -4,7 +4,7 @@
 
 create extension if not exists pgcrypto;
 
-create table public.trust_signals (
+create table if not exists public.trust_signals (
   id uuid primary key,
   tenant_id uuid not null references public.trust_workspaces(id) on delete restrict,
   entity_id text not null,
@@ -39,11 +39,134 @@ create table public.trust_signals (
   check(metadata::text !~* '(access.?token|refresh.?token|authorization|api.?key|client.?secret|webhook.?secret|password|passcode|private.?key|raw.?payload|raw.?proof|document.?image|biometric|selfie|face.?image|passport.?image|precise.?location|latitude|longitude|full.?ip)')
 );
 
-create index trust_signals_entity_time_idx
+-- Production contains a zero-row legacy trust_signals projection. Reuse the
+-- canonical table name, but never invent tenant ownership for legacy rows.
+alter table public.trust_signals
+  add column if not exists tenant_id uuid,
+  add column if not exists entity_id text,
+  add column if not exists entity_type text,
+  add column if not exists source text,
+  add column if not exists provider text,
+  add column if not exists observed_at timestamptz,
+  add column if not exists received_at timestamptz,
+  add column if not exists severity text,
+  add column if not exists confidence numeric(5,4),
+  add column if not exists status text,
+  add column if not exists fingerprint text,
+  add column if not exists idempotency_key_hash text,
+  add column if not exists correlation_id uuid,
+  add column if not exists causation_id uuid,
+  add column if not exists actor_id uuid,
+  add column if not exists metadata jsonb default '{}'::jsonb;
+
+do $$
+begin
+  if exists (
+    select 1 from public.trust_signals
+    where tenant_id is null
+       or entity_id is null
+       or entity_type is null
+       or source is null
+       or observed_at is null
+       or received_at is null
+       or severity is null
+       or confidence is null
+       or status is null
+       or fingerprint is null
+       or idempotency_key_hash is null
+       or correlation_id is null
+       or actor_id is null
+  ) then
+    raise exception 'Legacy trust_signals rows require an explicit tenant-safe forward mapping';
+  end if;
+end
+$$;
+
+alter table public.trust_signals
+  alter column tenant_id set not null,
+  alter column entity_id set not null,
+  alter column entity_type set not null,
+  alter column source set not null,
+  alter column observed_at set not null,
+  alter column received_at set not null,
+  alter column severity set not null,
+  alter column confidence set not null,
+  alter column status set not null,
+  alter column fingerprint set not null,
+  alter column idempotency_key_hash set not null,
+  alter column correlation_id set not null,
+  alter column actor_id set not null,
+  alter column metadata set not null,
+  alter column created_at set not null;
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_tenant_id_fkey') then
+    alter table public.trust_signals add constraint trust_signals_tenant_id_fkey
+      foreign key (tenant_id) references public.trust_workspaces(id) on delete restrict not valid;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_tenant_id_id_key') then
+    alter table public.trust_signals add constraint trust_signals_tenant_id_id_key unique (tenant_id, id);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_tenant_id_source_idempotency_key_hash_key') then
+    alter table public.trust_signals add constraint trust_signals_tenant_id_source_idempotency_key_hash_key
+      unique (tenant_id, source, idempotency_key_hash);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_entity_type_check') then
+    alter table public.trust_signals add constraint trust_signals_entity_type_check check(entity_type in (
+      'HUMAN','AI_AGENT','DEVICE','ORGANISATION','CREDENTIAL','SESSION','ENTERPRISE_WORKFLOW'
+    )) not valid;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_signal_type_check') then
+    alter table public.trust_signals add constraint trust_signals_signal_type_check check(signal_type in (
+      'IDENTITY','DOCUMENT','EMAIL','PHONE','DEVICE','SESSION','BROWSER','NETWORK','VPN','LOCATION',
+      'BEHAVIOUR','LIVENESS','DEEPFAKE','PROVIDER','ENTERPRISE_POLICY','MANUAL_REVIEW','AI_AGENT',
+      'AUTHORITY','CREDENTIAL','INTEGRATION','SYSTEM'
+    )) not valid;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_source_check') then
+    alter table public.trust_signals add constraint trust_signals_source_check
+      check(length(source) between 1 and 160) not valid;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_severity_check') then
+    alter table public.trust_signals add constraint trust_signals_severity_check
+      check(severity in ('INFORMATIONAL','LOW','MEDIUM','HIGH','CRITICAL')) not valid;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_confidence_check') then
+    alter table public.trust_signals add constraint trust_signals_confidence_check
+      check(confidence between 0 and 1) not valid;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_status_check') then
+    alter table public.trust_signals add constraint trust_signals_status_check check(status in (
+      'POSITIVE','NEGATIVE','INCONCLUSIVE','UNAVAILABLE','REVOKED','INFORMATIONAL'
+    )) not valid;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_fingerprint_check') then
+    alter table public.trust_signals add constraint trust_signals_fingerprint_check
+      check(fingerprint ~ '^[a-f0-9]{64}$') not valid;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_idempotency_key_hash_check') then
+    alter table public.trust_signals add constraint trust_signals_idempotency_key_hash_check
+      check(idempotency_key_hash ~ '^[a-f0-9]{64}$') not valid;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_observed_at_check') then
+    alter table public.trust_signals add constraint trust_signals_observed_at_check
+      check(observed_at <= received_at + interval '5 minutes') not valid;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'trust_signals_metadata_check') then
+    alter table public.trust_signals add constraint trust_signals_metadata_check check(
+      jsonb_typeof(metadata) = 'object'
+      and metadata::text !~* '(access.?token|refresh.?token|authorization|api.?key|client.?secret|webhook.?secret|password|passcode|private.?key|raw.?payload|raw.?proof|document.?image|biometric|selfie|face.?image|passport.?image|precise.?location|latitude|longitude|full.?ip)'
+    ) not valid;
+  end if;
+end
+$$;
+
+create index if not exists trust_signals_entity_time_idx
   on public.trust_signals(tenant_id,entity_id,observed_at desc,id desc);
-create index trust_signals_processing_source_idx
+create index if not exists trust_signals_processing_source_idx
   on public.trust_signals(tenant_id,signal_type,status,received_at desc);
-create index trust_signals_fingerprint_idx
+create index if not exists trust_signals_fingerprint_idx
   on public.trust_signals(tenant_id,entity_id,fingerprint,received_at desc);
 
 create table public.trust_signal_processing (

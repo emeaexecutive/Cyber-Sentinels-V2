@@ -43,7 +43,10 @@ const ids = {
 
 const client = new Client({
   connectionString,
-  ssl: { rejectUnauthorized: false },
+  ssl:
+    process.env.PROVIDER_NEUTRAL_PREVIEW_DB_SSL === "false"
+      ? false
+      : { rejectUnauthorized: false },
 });
 
 async function transactionAs(role, userId, callback) {

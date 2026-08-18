@@ -40,6 +40,103 @@ create table if not exists public.hopae_webhook_events (
   processed_at timestamptz
 );
 
+-- Reconcile the earlier Production Hopae tables without discarding their
+-- provider-native columns or payload history.
+alter table public.hopae_verifications
+  add column if not exists owner_user_id uuid,
+  add column if not exists owner_email text,
+  add column if not exists redirect_uri text,
+  add column if not exists normalized_user_data jsonb,
+  add column if not exists identity_assurance_uplift integer default 0,
+  add column if not exists provenance_confidence boolean default false,
+  add column if not exists upstream_identity_proof jsonb,
+  add column if not exists passport_id uuid,
+  add column if not exists trust_report_id uuid;
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'hopae_verifications'
+      and column_name = 'user_id'
+  ) then
+    execute 'update public.hopae_verifications set owner_user_id = coalesce(owner_user_id, user_id)';
+  end if;
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'hopae_verifications'
+      and column_name = 'normalized_user'
+  ) then
+    execute 'update public.hopae_verifications set normalized_user_data = coalesce(normalized_user_data, normalized_user)';
+  end if;
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'hopae_verifications'
+      and column_name = 'cyber_passport_id'
+  ) then
+    execute 'update public.hopae_verifications set passport_id = coalesce(passport_id, cyber_passport_id)';
+  end if;
+end
+$$;
+
+update public.hopae_verifications
+set provider_id = coalesce(provider_id, 'hopae_connect'),
+    flow_details = coalesce(flow_details, '{}'::jsonb),
+    match_data = coalesce(match_data, '{}'::jsonb),
+    normalized_user_data = coalesce(normalized_user_data, '{}'::jsonb),
+    identity_assurance_uplift = coalesce(identity_assurance_uplift, 0),
+    provenance_confidence = coalesce(provenance_confidence, false),
+    created_at = coalesce(created_at, now()),
+    updated_at = coalesce(updated_at, now())
+where provider_id is null
+   or flow_details is null
+   or match_data is null
+   or normalized_user_data is null
+   or identity_assurance_uplift is null
+   or provenance_confidence is null
+   or passport_id is null
+   or created_at is null
+   or updated_at is null;
+
+alter table public.hopae_webhook_events
+  add column if not exists event_id text,
+  add column if not exists signature_timestamp bigint,
+  add column if not exists raw_event jsonb,
+  add column if not exists processed_at timestamptz;
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'hopae_webhook_events'
+      and column_name = 'payload'
+  ) then
+    execute 'update public.hopae_webhook_events set raw_event = coalesce(raw_event, payload)';
+  end if;
+end
+$$;
+
+update public.hopae_webhook_events
+set signature_timestamp = coalesce(
+      signature_timestamp,
+      extract(epoch from coalesce(received_at, now()))::bigint
+    ),
+    raw_event = coalesce(raw_event, '{}'::jsonb),
+    received_at = coalesce(received_at, now())
+where signature_timestamp is null
+   or raw_event is null
+   or received_at is null;
+
+alter table public.hopae_webhook_events
+  alter column signature_timestamp set not null,
+  alter column raw_event set not null,
+  alter column received_at set not null;
+
+create unique index if not exists hopae_verifications_verification_id_uidx
+  on public.hopae_verifications (verification_id);
+create unique index if not exists hopae_webhook_events_event_id_uidx
+  on public.hopae_webhook_events (event_id) where event_id is not null;
+
 create index if not exists hopae_verifications_owner_idx
   on public.hopae_verifications (owner_user_id, created_at desc);
 create index if not exists hopae_webhook_verification_idx
