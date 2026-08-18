@@ -97,6 +97,31 @@ async function appendReplay(db: SupabaseClient, row: Row, actorId: string, event
   return result.data as Row;
 }
 
+async function ensureEvidenceGraphNode(db: SupabaseClient, values: {
+  enterprise_id: string;
+  node_type: string;
+  external_id: string;
+  domain_key: string;
+  label: string;
+  correlation_id: string;
+}) {
+  const lookup = () => db.from("evidence_graph_nodes").select("node_id")
+    .eq("enterprise_id", values.enterprise_id)
+    .eq("node_type", values.node_type)
+    .eq("external_id", values.external_id)
+    .maybeSingle();
+  const existing = await lookup();
+  if (existing.error) persistenceFailure("Evidence Graph node resolution", existing.error);
+  if (existing.data) return existing.data as Row;
+  const inserted = await db.from("evidence_graph_nodes").insert(values).select("node_id").single();
+  if (!inserted.error) return inserted.data as Row;
+  if (inserted.error.code === "23505") {
+    const raced = await lookup();
+    if (!raced.error && raced.data) return raced.data as Row;
+  }
+  persistenceFailure("Evidence Graph node extension", inserted.error);
+}
+
 function replayEventForIntervention(intervention: WorkflowIntervention) {
   return ({ CHALLENGE: "CHALLENGE_REQUIRED", STEP_UP_VERIFY: "STEP_UP_STARTED", PAUSE: "PAUSED", BLOCK: "BLOCKED", RESUME: "RESUMED", TERMINATE: "WORKFLOW_COMPLETED" } as Partial<Record<WorkflowIntervention, string>>)[intervention] ?? intervention;
 }
@@ -213,10 +238,9 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
         reason_codes: [`TRACK_BLOCK_${evidence.category.toUpperCase()}_OBSERVED`],
       }).select("evidence_id,occurred_at,received_at,payload_hash,result").single();
       if (stored.error) persistenceFailure("Canonical Evidence append", stored.error);
-      const workflowNode = await db.from("evidence_graph_nodes").upsert({ enterprise_id: input.workspaceId, node_type: "PROTECTED_WORKFLOW", external_id: workflowId, domain_key: "WORKFLOW", label: `Protected workflow ${workflowId}`, correlation_id: correlationId }, { onConflict: "enterprise_id,node_type,external_id" }).select("node_id").single();
-      const evidenceNode = await db.from("evidence_graph_nodes").upsert({ enterprise_id: input.workspaceId, node_type: "EVIDENCE", external_id: evidenceId, domain_key: "WORKFLOW", label: evidence.category, correlation_id: correlationId }, { onConflict: "enterprise_id,node_type,external_id" }).select("node_id").single();
-      if (workflowNode.error || evidenceNode.error) persistenceFailure("Evidence Graph node extension", workflowNode.error ?? evidenceNode.error);
-      const edge = await db.from("evidence_graph_edges").insert({ enterprise_id: input.workspaceId, from_node_id: evidenceNode.data.node_id, to_node_id: workflowNode.data.node_id, edge_type: "APPLIES_TO", evidence_id: evidenceId, correlation_id: correlationId });
+      const workflowNode = await ensureEvidenceGraphNode(db, { enterprise_id: input.workspaceId, node_type: "PROTECTED_WORKFLOW", external_id: workflowId, domain_key: "WORKFLOW", label: `Protected workflow ${workflowId}`, correlation_id: correlationId });
+      const evidenceNode = await ensureEvidenceGraphNode(db, { enterprise_id: input.workspaceId, node_type: "EVIDENCE", external_id: evidenceId, domain_key: "WORKFLOW", label: evidence.category, correlation_id: correlationId });
+      const edge = await db.from("evidence_graph_edges").insert({ enterprise_id: input.workspaceId, from_node_id: evidenceNode.node_id, to_node_id: workflowNode.node_id, edge_type: "APPLIES_TO", evidence_id: evidenceId, correlation_id: correlationId });
       if (edge.error && edge.error.code !== "23505") persistenceFailure("Evidence Graph edge extension", edge.error);
       const link = await db.from("trust_references").insert({ enterprise_id: input.workspaceId, source_type: "PROTECTED_WORKFLOW_EVIDENCE", source_id: evidenceId, ref_type: "PROTECTED_WORKFLOW", ref_id: workflowId, ref_version: "1.0" });
       if (link.error && link.error.code !== "23505") persistenceFailure("Evidence workflow reference", link.error);
