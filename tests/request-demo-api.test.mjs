@@ -33,6 +33,8 @@ function request(fields = {}) {
     name: "Test Person",
     work_email: "test@example.com",
     company: "Example Company",
+    current_problem_category: "ai_identity",
+    message: "Verify a controlled AI-assisted workflow.",
     "cf-turnstile-response": "verified-token",
     ...fields,
   });
@@ -49,6 +51,8 @@ function multipartRequest(fields = {}) {
     name: "Test Person",
     work_email: "test@example.com",
     company: "Example Company",
+    current_problem_category: "ai_identity",
+    message: "Verify a controlled AI-assisted workflow.",
     "cf-turnstile-response": "verified-token",
     ...fields,
   })) {
@@ -185,6 +189,12 @@ test("Request Demo frontend sets the Turnstile callback token on FormData", asyn
   assert.doesNotMatch(field, /console\.(?:debug|log)\(/);
   assert.match(field, /fetch\("\/api\/enterprise-access"/);
   assert.match(field, /disabled=\{!turnstileToken \|\| submitting\}/);
+  assert.equal((field.match(/className="text-cyan-300">\*<\/span>/g) ?? []).length, 5);
+  assert.match(field, /<input required name="name"/);
+  assert.match(field, /<input required name="work_email"/);
+  assert.match(field, /<input required name="company"/);
+  assert.match(field, /<select required name="current_problem_category"/);
+  assert.match(field, /<textarea required name="message"/);
   assert.match(field, /if \(submissionInFlightRef\.current\) return/);
   assert.match(field, /"response-field": false/);
   assert.match(field, /retry: "auto"/);
@@ -357,19 +367,28 @@ for (const reason of ["provider_unavailable", "provider_error", "turnstile_not_c
   });
 }
 
-test("invalid required fields return REQUEST_DEMO_VALIDATION_FAILED", async () => {
-  let siteverifyCalls = 0;
-  const { handler, logs } = harness({
-    verifyTurnstile: async () => {
-      siteverifyCalls += 1;
-      return { ok: true, reason: "verified" };
-    },
+for (const fieldName of [
+  "name",
+  "work_email",
+  "company",
+  "current_problem_category",
+  "message",
+]) {
+  test(`empty ${fieldName} returns 400 REQUEST_DEMO_VALIDATION_FAILED`, async () => {
+    let siteverifyCalls = 0;
+    const { handler, logs, inserts } = harness({
+      verifyTurnstile: async () => {
+        siteverifyCalls += 1;
+        return { ok: true, reason: "verified" };
+      },
+    });
+    const response = await handler(request({ [fieldName]: "" }), correlationId);
+    await assertFailure(response, 400, "REQUEST_DEMO_VALIDATION_FAILED");
+    assertSafeLog(logs[0]);
+    assert.equal(siteverifyCalls, 0);
+    assert.equal(inserts.length, 0);
   });
-  const response = await handler(request({ company: "" }), correlationId);
-  await assertFailure(response, 400, "REQUEST_DEMO_VALIDATION_FAILED");
-  assertSafeLog(logs[0]);
-  assert.equal(siteverifyCalls, 0);
-});
+}
 
 test("unsupported request encoding returns controlled validation failure", async () => {
   const { handler, logs, inserts } = harness();
@@ -729,7 +748,7 @@ test("rate limit returns REQUEST_DEMO_RATE_LIMITED", async () => {
   assertSafeLog(logs[0]);
 });
 
-test("valid URL-encoded submission verifies Turnstile, persists, and redirects", async () => {
+test("valid complete URL-encoded request verifies Turnstile, persists, and redirects", async () => {
   const { handler, logs, inserts } = harness();
   const response = await handler(request(), correlationId);
   assert.equal(response.status, 303);

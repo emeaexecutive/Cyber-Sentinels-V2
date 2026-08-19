@@ -162,7 +162,13 @@ function buildPayload(formData: FormData): RequestDemoPayload {
 }
 
 function validPayload(payload: RequestDemoPayload) {
-  if (!payload.name || !payload.work_email || !payload.company) return false;
+  if (
+    !payload.name
+    || !payload.work_email
+    || !payload.company
+    || !payload.current_problem_category
+    || !payload.message
+  ) return false;
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.work_email)) return false;
   return (Object.keys(fieldLimits) as Array<keyof RequestDemoPayload>)
     .every((key) => payload[key].length <= fieldLimits[key]);

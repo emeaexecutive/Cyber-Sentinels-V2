@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 const migration = await readFile(new URL("../../supabase/migrations/202607200002_enterprise_trust_consent_manager.sql", import.meta.url), "utf8");
 const trustEventFoundation = await readFile(new URL("../../supabase/migrations/202607200001_canonical_trust_event_foundation.sql", import.meta.url), "utf8");
+const evidenceFreshnessRepair = await readFile(new URL("../../supabase/migrations/20260819082001_consent_evidence_freshness_repair.sql", import.meta.url), "utf8");
 const tables = ["consent_policy_versions","consent_categories","consent_purposes","consent_providers","consent_cookies","consent_tracker_catalogue","consent_preferences","consent_receipts","consent_events","consent_region_profiles","consent_audit_log"];
 test("all consent tables use RLS and service-only mutation", () => { for (const table of tables) assert.match(migration,new RegExp(`'${table}'`)); assert.match(migration,/enable row level security/i); assert.match(migration,/revoke all on public\.%I from anon, authenticated/i); assert.doesNotMatch(migration,/grant (insert|update|delete)[^;]+authenticated/i); });
 test("users read only their own consent state and anonymous access stays server controlled", () => { assert.match(migration,/users read own consent preferences[\s\S]*user_id=auth\.uid\(\)/i); assert.match(migration,/users read own consent receipts[\s\S]*user_id=auth\.uid\(\)/i); assert.match(migration,/user_can_access_trust_workspace/i); assert.doesNotMatch(migration,/to anon[\s\S]*using/i); });
@@ -21,3 +22,19 @@ test("consent RPC dependencies, parameters, and stable result shape are migratio
   }
 });
 test("EEA, UK and unknown region rows use strict configuration", () => { assert.match(migration,/'EEA','\{"optionalDefault":false/); assert.match(migration,/'UK','\{"optionalDefault":false/); assert.match(migration,/'GLOBAL_DEFAULT','\{"optionalDefault":false/); });
+test("consent receipt evidence explicitly records observation time and bounded freshness", () => {
+  const consentFunction = evidenceFreshnessRepair.match(
+    /create or replace function public\.materialize_consent_receipt_evidence_v1\(\)[\s\S]*?end \$\$;/i,
+  )?.[0];
+  assert.ok(consentFunction, "consent evidence materialization replacement is required");
+  assert.match(consentFunction, /insert into public\.evidence_objects/i);
+  assert.match(consentFunction, /occurred_at,observed_at,\s*freshness_policy_seconds/i);
+  assert.match(consentFunction, /new\.occurred_at,new\.occurred_at,(\d+)/i);
+  const freshness = Number(consentFunction.match(/new\.occurred_at,new\.occurred_at,(\d+)/i)?.[1]);
+  assert.ok(freshness >= 60 && freshness <= 31_536_000);
+  assert.match(consentFunction, /new\.receipt_id/);
+  assert.match(consentFunction, /'CONSENT'/);
+  assert.match(consentFunction, /new\.receipt_hash,\s*'JCS','SHA-256'/i);
+  assert.match(consentFunction, /CONSENT_RECEIPT_INTEGRITY_RECORDED/);
+  assert.doesNotMatch(evidenceFreshnessRepair, /alter table public\.evidence_objects[\s\S]*set default/i);
+});

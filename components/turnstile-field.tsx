@@ -290,12 +290,12 @@ export function EnterpriseAccessForm({ buttonLabel, designPartner }: EnterpriseA
   return (
     <form onSubmit={submit} className="grid gap-4">
       <input type="hidden" name="design_partner_interest" value={designPartner ? "true" : "false"} />
-      <label className="grid gap-2 text-sm text-zinc-300">Name<input required name="name" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
-      <label className="grid gap-2 text-sm text-zinc-300">Work email<input required name="work_email" type="email" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
-      <label className="grid gap-2 text-sm text-zinc-300">Company<input required name="company" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
+      <label className="grid gap-2 text-sm text-zinc-300"><span>Name <span aria-hidden="true" className="text-cyan-300">*</span></span><input required name="name" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
+      <label className="grid gap-2 text-sm text-zinc-300"><span>Work email <span aria-hidden="true" className="text-cyan-300">*</span></span><input required name="work_email" type="email" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
+      <label className="grid gap-2 text-sm text-zinc-300"><span>Company <span aria-hidden="true" className="text-cyan-300">*</span></span><input required name="company" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
       <label className="grid gap-2 text-sm text-zinc-300">
-        Operational trust concern
-        <select name="current_problem_category" defaultValue="" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white">
+        <span>Operational trust concern <span aria-hidden="true" className="text-cyan-300">*</span></span>
+        <select required name="current_problem_category" defaultValue="" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white">
           <option value="" disabled>Select the closest concern</option>
           <option value="ai_identity">AI-agent governance and authorization</option>
           <option value="auditability">Replay continuity and Evidence Chain</option>
@@ -305,7 +305,7 @@ export function EnterpriseAccessForm({ buttonLabel, designPartner }: EnterpriseA
           <option value="other">Other</option>
         </select>
       </label>
-      <label className="grid gap-2 text-sm text-zinc-300">Requirements<textarea name="message" rows={5} placeholder="Workflow, verification evidence, review or pilot requirements" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
+      <label className="grid gap-2 text-sm text-zinc-300"><span>Requirements <span aria-hidden="true" className="text-cyan-300">*</span></span><textarea required name="message" rows={5} placeholder="Workflow, verification evidence, review or pilot requirements" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
       <TurnstileField
         siteKey={siteKey}
         onTokenChange={setTurnstileToken}
