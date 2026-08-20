@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { executeCanonicalTrustTransaction } from "../src/lib/trust-transaction/canonical.ts";
+import { authorizeValeTrust } from "../src/lib/trust-fabric/vale.ts";
+import { normalizeProviderNeutralEvidence } from "../lib/providers/adapters.ts";
 
 const requestedAt = "2026-08-06T10:00:00.000Z";
 const tenantId = "10000000-0000-4000-8000-000000000001";
@@ -114,7 +116,7 @@ function dependencies(options = {}) {
     async authenticateActor() { calls.push("authenticateActor"); return { id: actorId, type: "human", authority: `session:${actorId}` }; },
     async resolveTenantFromSession() { calls.push("resolveTenantFromSession"); return { id: tenantId, name: "Acme" }; },
     async findByIdempotency() { calls.push("findByIdempotency"); return options.previousReceipt ?? null; },
-    async loadTrustObject() { calls.push("resolveTrustObject"); return trustObject(); },
+    async loadTrustObject() { calls.push("resolveTrustObject"); return options.trustObject ?? trustObject(); },
     async loadConfiguredEvidence() { calls.push("collectConfiguredEvidence"); return options.evidence ?? [evidence()]; },
     async loadAuthority() { calls.push("resolveAuthority"); return options.authority ?? authority(); },
     async loadPolicy() { calls.push("resolvePolicyVersion"); return { id: "policy-settlement", version: "1.0.0", active: true, validFrom: "2026-08-01T00:00:00.000Z", validUntil: null, policyHash: "c".repeat(64) }; },
@@ -318,4 +320,182 @@ test("an explicit runtime continuity contradiction routes to REVIEW without exec
   assert.equal(receipt.decision, "REVIEW");
   assert.ok(receipt.reasonCodes.includes("RUNTIME_OR_DESTINATION_CONTINUITY_CONFLICT"));
   assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
+test("review-gated transactions downgrade continuity to review-required instead of interruption", async () => {
+  const { deps } = dependencies({ evidence: [], operationalEntity: operationalEntity({ currentConsequenceClassification: "high" }) });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "continuity-review-gated-1" }), deps);
+  assert.equal(receipt.decision, "REVIEW");
+  assert.equal(receipt.continuitySignals.identityContinuity, "review_required");
+  assert.equal(receipt.continuitySignals.monitoringCoverage, "not_observed");
+  assert.equal(receipt.continuitySignals.consequentialImpactLineage.humanReviewRequired, true);
+});
+
+test("AI deployment gates route material change to review with reauthorization required", async () => {
+  const { deps } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "deployment-gate-review-1",
+    decisionType: "AI_DEPLOYMENT_TRUST_GATE",
+    deploymentContext: {
+      environment: "production",
+      release: "2026.08.19",
+      materialChanges: ["MODEL_CHANGED", "TOOL_PERMISSION_CHANGED"],
+      assuranceEvidence: [{
+        providerKey: "internal_assurance",
+        assessmentId: "assessment-001",
+        subject: "agent:alpha",
+        environment: "production",
+        scope: "deployment",
+        methodReference: "safety-eval",
+        occurredAt: requestedAt,
+        receivedAt: requestedAt,
+        expiresAt: "2026-08-20T10:00:00.000Z",
+        modelVersion: "v1",
+        toolSet: ["repo.read"],
+        permissionContext: "read",
+        assurance: 0.82,
+        confidence: "high",
+        evidenceDigest: "d".repeat(64),
+        findingReferences: ["finding-1"],
+        retestReference: null,
+      }],
+    },
+  }), deps);
+  assert.equal(receipt.decision, "REVIEW");
+  assert.equal(receipt.deploymentGate?.assuranceFreshness, "ASSURANCE_INVALIDATED_BY_CHANGE");
+  assert.equal(receipt.deploymentGate?.reauthorizationRequired, true);
+  assert.ok(receipt.reasonCodes.includes("REAUTHORIZATION_REQUIRED"));
+  assert.ok(receipt.reasonCodes.includes("ASSURANCE_INVALIDATED_BY_CHANGE"));
+});
+
+test("Mythos-style assurance evidence is ingested as provider-neutral evidence without becoming a separate decision engine", async () => {
+  const normalized = normalizeProviderNeutralEvidence({
+    providerId: "mythos-compatible-test-provider",
+    providerName: "Mythos-compatible test provider",
+    evidenceType: "AI_BEHAVIOR_ASSESSMENT",
+    observedAt: requestedAt,
+    outcome: "PASSED",
+    evidenceDigest: "e".repeat(64),
+    correlationId: "assurance-correlation-1",
+    providerClass: "AI_ASSURANCE_PROVIDER",
+    providerKey: "mythos-compatible-test-provider",
+    environment: "production",
+    scope: "deployment",
+    modelVersion: "v2",
+    permissionContext: "read",
+    assurance: 0.91,
+    confidence: "high",
+    findingReferences: ["finding-2"],
+    retestReference: "retest-2",
+  });
+  assert.equal(normalized.providerClass, "AI_ASSURANCE_PROVIDER");
+  assert.equal(normalized.providerKey, "mythos-compatible-test-provider");
+  assert.equal(normalized.environment, "production");
+  assert.equal(normalized.scope, "deployment");
+  assert.equal(normalized.modelVersion, "v2");
+  assert.equal(normalized.assurance, 0.91);
+  assert.deepEqual(normalized.findingReferences, ["finding-2"]);
+  assert.equal(normalized.retestReference, "retest-2");
+});
+
+test("canonical receipts expose provider-neutral continuity signals for investor-facing trust evidence", async () => {
+  const normalized = normalizeProviderNeutralEvidence({
+    providerId: "runtime_security",
+    providerName: "Runtime Security",
+    evidenceType: "runtime_security_observation",
+    observedAt: requestedAt,
+    outcome: "PASSED",
+    evidenceDigest: "c".repeat(64),
+    correlationId: "correlation-1",
+  });
+  assert.equal(normalized.providerId, "runtime_security");
+  assert.equal(normalized.monitoringCoverage, "covered");
+  assert.equal(normalized.identityContinuity, "continuous");
+  assert.equal(normalized.signingBoundary, "provider_signed");
+  const { deps } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "test-key-001" }), deps);
+  assert.ok(receipt.continuitySignals);
+  assert.equal(receipt.continuitySignals.identityContinuity, "continuous");
+  assert.equal(receipt.continuitySignals.monitoringCoverage, "covered");
+  assert.equal(receipt.continuitySignals.signedHumanIntent, "not_provided");
+  assert.equal(receipt.continuitySignals.consequentialImpactLineage.target, "invoice:4488");
+});
+
+test("VALE routes robotics conflicts through the one canonical transaction and canonical artifacts", async () => {
+  const robotTrustObject = {
+    ...trustObject(),
+    subjectType: "machine_identity",
+    subject: { type: "machine_identity", id: subjectId, displayName: "Robot Beta" },
+    activeContradictions: [],
+  };
+  const robotAuthority = authority({
+    subjectType: "machine_identity",
+    subject: robotTrustObject.subject,
+    authorizedObjective: "warehouse_move",
+    permittedScope: ["MOVE"],
+    requiredAuthority: ["MOVE"],
+  });
+  const { deps, calls } = dependencies({
+    trustObject: robotTrustObject,
+    authority: robotAuthority,
+    operationalEntity: operationalEntity({ entityType: "robot", currentConsequenceClassification: "high" }),
+  });
+  const receipt = await authorizeValeTrust({
+    tenantId,
+    actorLineage: [
+      { operationalEntityId: "human:alice", type: "HUMAN", role: "operator", accountablePrincipalId: "human:alice" },
+      { operationalEntityId: "agent:alpha", type: "AI_AGENT", role: "planner", accountablePrincipalId: "human:alice" },
+      { operationalEntityId: subjectId, type: "ROBOT", role: "warehouse_robot", accountablePrincipalId: "human:alice" },
+    ],
+    intent: { action: "MOVE", resource: "warehouse:pallet-123", purpose: "warehouse_move", environment: "sandbox", destination: "warehouse:zone-b", signedBy: "human:alice", signedAt: requestedAt, signatureReference: "intent:alice-001" },
+    machine: { identityState: "MACHINE_IDENTITY_VERIFIED", attestationState: "CURRENT", firmwareHash: "f".repeat(64) },
+    model: { provider: "model:test", modelId: "navigation", version: "v1", weightsHash: "e".repeat(64) },
+    monitoring: { expectedProviders: ["fleet", "camera"], observedProviders: ["fleet"], telemetryGapSeconds: 8, connection: "INTERMITTENT" },
+    sensors: [
+      { source: "vision", observationClass: "MODEL_PERCEPTION", observation: "PATH_CLEAR", observedAt: requestedAt, digest: "1".repeat(64), freshness: "current" },
+      { source: "lidar", observationClass: "INDEPENDENT_OBSERVATION", observation: "OBSTACLE_PRESENT", observedAt: requestedAt, digest: "2".repeat(64), freshness: "current" },
+    ],
+    execution: { commandTarget: "warehouse:zone-c", stages: [{ stage: "COMMAND_SENT", status: "observed", occurredAt: requestedAt, evidenceReference: "command:001" }] },
+    oversight: "HUMAN_IN_THE_LOOP",
+    conflicts: ["PHYSICAL_PATH_CONFLICT"],
+    idempotencyKey: "vale-canonical-robot-001",
+    requestedAt,
+  }, deps);
+  assert.equal(receipt.decision, "REVIEW");
+  for (const reason of ["INTENT_EXECUTION_MISMATCH", "MONITORING_COVERAGE_GAP", "ACTION_DURING_EVIDENCE_GAP", "SENSOR_DISAGREEMENT", "PHYSICAL_PATH_CONFLICT"]) assert.ok(receipt.reasonCodes.includes(reason));
+  assert.equal(receipt.evidenceGraphReference, "graph-1");
+  assert.equal(receipt.replayReference, "replay-1");
+  assert.equal(receipt.trustMemoryReference, "memory-1");
+  assert.equal(receipt.continuitySignals.signedHumanIntent, "provided");
+  assert.equal(receipt.continuitySignals.monitoringCoverage, "partial");
+  assert.ok(receipt.executionContinuity.some((stage) => stage.stage === "COMMAND_SENT"));
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
+test("a current reassessment with a retest reference clears deployment reauthorization in the canonical gate", async () => {
+  const { deps } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "deployment-gate-revalidated-1",
+    decisionType: "AI_DEPLOYMENT_TRUST_GATE",
+    deploymentContext: {
+      materialChanges: ["MODEL_CHANGED"],
+      assuranceEvidence: [{
+        providerKey: "mythos-compatible-test-provider", assessmentId: "assessment-retest", subject: subjectId,
+        environment: "sandbox", scope: "deployment", methodReference: "safety-eval", occurredAt: requestedAt,
+        receivedAt: requestedAt, expiresAt: "2026-08-20T10:00:00.000Z", modelVersion: "v2", toolSet: ["repo.read"],
+        permissionContext: "read", assurance: 0.93, confidence: "high", evidenceDigest: "9".repeat(64), findingReferences: [], retestReference: "retest:assessment-retest",
+      }],
+    },
+  }), deps);
+  assert.equal(receipt.deploymentGate?.assuranceFreshness, "ASSURANCE_CURRENT");
+  assert.equal(receipt.deploymentGate?.reauthorizationRequired, false);
+  assert.equal(receipt.reasonCodes.includes("REAUTHORIZATION_REQUIRED"), false);
+});
+
+test("canonical execution continuity keeps intent, request, authorization, acknowledgement and outcome distinct", async () => {
+  const { deps } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "execution-continuity-001" }), deps);
+  const stages = receipt.executionContinuity.map((item) => item.stage);
+  for (const stage of ["INTENDED_ACTION", "REQUESTED_ACTION", "AUTHORIZED_ACTION", "COMMAND_SENT", "COMMAND_ACKNOWLEDGED", "ACTION_EXECUTED", "CONSEQUENCE_OBSERVED"]) assert.ok(stages.includes(stage));
+  assert.equal(new Set(stages).size, stages.length);
 });

@@ -1,12 +1,24 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const PUBLIC_WEBHOOK_EVENT_TYPES = [
+  "decision.created",
   "decision.review_required",
   "decision.denied",
+  "authority.changed",
+  "monitoring.coverage_gap",
+  "deployment.reauthorization_required",
+  "intent.execution_mismatch",
+  "execution.outcome",
+  "data.impact_detected",
+  "receipt.available",
   "authority.revoked",
   "trust.material_change",
   "outcome.contradiction",
 ] as const;
+
+export function publicWebhookBackoffSeconds(attempt: number) {
+  return Math.min(3_600, 30 * (2 ** Math.max(0, attempt - 1)));
+}
 
 export function signPublicWebhookPayload(payload: Record<string, unknown>, secret: string) {
   const body = JSON.stringify(payload);
@@ -33,4 +45,8 @@ export function verifyPublicWebhookPayload(input: {
   const valid = expected.length === supplied.length && timingSafeEqual(expected, supplied);
   if (valid) input.seenEventIds?.add(eventId);
   return valid;
+}
+
+export function verifyPublicWebhookPayloadWithRotation(input: Omit<Parameters<typeof verifyPublicWebhookPayload>[0], "secret"> & { secrets: readonly string[] }) {
+  return input.secrets.some((secret) => verifyPublicWebhookPayload({ ...input, secret }));
 }

@@ -33,6 +33,14 @@ await cs.agents.getTrustState(gamma.agent_id);`}</pre></li>
     <section className="mt-12"><h2 className="text-2xl font-semibold">PowerShell quickstart</h2><p className="mt-2 text-sm text-zinc-400">Use the repository-owned script. It validates configuration and API identity before registration, keeps its Ed25519 private key external, rejects Production, detects Vercel SSO, and exits non-zero on the first failure.</p><pre className={`${code} mt-4`}>{`$env:CYBER_SENTINELS_BASE_URL="${base}"
 $env:CYBER_SENTINELS_API_KEY="<paste the one-time secret>"
 pwsh -NoProfile -File ./examples/powershell/agent-gamma.ps1`}</pre></section>
+    <section className="mt-12"><h2 className="text-2xl font-semibold">Provider-neutral evidence</h2><p className="mt-2 text-sm text-zinc-400">Use an EVIDENCE_PROVIDER key. The server derives tenant, receipt time, verification state and canonical result; the provider cannot submit a Cyber Sentinels decision.</p><pre className={`${code} mt-4`}>{`await cs.evidence.submit({
+  provider: { key: "mythos-compatible-test-provider", class: "AI_ASSURANCE_PROVIDER", event_id: "assessment-001", finding: "ASSURANCE_ASSESSMENT" },
+  type: "CAPABILITY_EVALUATION",
+  subject: { type: "AI_AGENT", id: gamma.operational_entity_id },
+  evidence: { model_version: "v2", environment: "preview", confidence: "high" }
+});
+
+await cs.outcomes.submit({ transactionId: result.transaction_id, outcome: "SUCCEEDED", evidence: { destination: "repository:a", target: "repository:a", reference: "destination:event-001" } });`}</pre></section>
     <section className="mt-12"><h2 className="text-2xl font-semibold">Equivalent curl sequence</h2><pre className={`${code} mt-4`}>{`export CS_BASE="${base}"
 export CS_KEY="<shown-once-key>"
 curl -X POST "$CS_BASE/api/v1/agents" -H "Authorization: Bearer $CS_KEY" -H "Content-Type: application/json" --data '{"display_name":"Agent Gamma","entity_type":"AI_AGENT","owner_reference":"owner:gamma","runtime":{"environment":"staging","framework":"custom"},"model":{"provider":"declared-provider","identifier":"declared-model"}}'
@@ -43,6 +51,7 @@ curl -X POST "$CS_BASE/api/v1/agents/$AGENT_ID/proof" -H "Authorization: Bearer 
 curl "$CS_BASE/api/v1/agents/$AGENT_ID/authority" -H "Authorization: Bearer $CS_KEY"
 curl "$CS_BASE/api/v1/agents/$AGENT_ID/trust-state" -H "Authorization: Bearer $CS_KEY"
 curl -X POST "$CS_BASE/api/v1/trust/decisions" -H "Authorization: Bearer $CS_KEY" -H "Idempotency-Key: gamma-action-001" -H "Content-Type: application/json" --data '{"operational_entity_id":"'$AGENT_ID'","action":{"type":"read_repository","target":"repository:a","purpose":"deployment_evidence_review","environment":"staging"},"idempotency_key":"gamma-action-001"}'
+curl -X POST "$CS_BASE/api/v1/evidence" -H "Authorization: Bearer $CS_EVIDENCE_KEY" -H "Content-Type: application/json" --data @provider-evidence.json
 curl "$CS_BASE/api/v1/trust/transactions/$TRANSACTION_ID" -H "Authorization: Bearer $CS_KEY"
 curl "$CS_BASE/api/v1/trust/transactions/$TRANSACTION_ID/replay" -H "Authorization: Bearer $CS_KEY"
 curl "$CS_BASE/api/v1/trust/transactions/$TRANSACTION_ID/receipt" -H "Authorization: Bearer $CS_KEY"

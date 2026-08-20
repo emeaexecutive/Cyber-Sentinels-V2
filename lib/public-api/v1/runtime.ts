@@ -21,8 +21,19 @@ import {
 import { createTrustPolicy } from "@/src/lib/trust-architecture/service";
 import { enterpriseTrustFabricRepository } from "@/src/lib/trust-fabric/repository";
 import { validateTrustContract } from "@/src/lib/trust-fabric/validation";
-import { hashCanonical } from "@/src/lib/trust-core/hash";
-import { executeCanonicalTrustTransaction } from "@/src/lib/trust-transaction/canonical";
+import { deterministicUuid, hashCanonical } from "@/src/lib/trust-core/hash";
+import {
+  createReferenceProviderAdapter,
+  getReferenceProviderAdapter,
+  PROVIDER_CLASSES,
+  type ProviderAdapterInput,
+  type ProviderClass,
+} from "@/lib/providers/adapters";
+import {
+  executeCanonicalTrustTransaction,
+  type CanonicalContextEvidence,
+  type ExecutionContinuityRecord,
+} from "@/src/lib/trust-transaction/canonical";
 import { createCanonicalTrustTransactionDependenciesForApiClient } from "@/lib/trust-transaction/server";
 import type { PublicApiPrincipal } from "./authentication";
 import {
@@ -39,6 +50,20 @@ const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}
 const referencePattern = /^[A-Za-z0-9_.:/@-]{1,240}$/;
 const publicPolicyId = "external-agent-trust-v1";
 const publicPolicyVersion = "0.1.0";
+
+function assertNoCallerAuthorityClaims(value: unknown) {
+  const forbidden = new Set(["tenant", "tenant_id", "enterprise_id", "verified", "trust_score", "cyber_sentinels_trust_score", "decision", "allow", "deny"]);
+  const queue: unknown[] = [value];
+  while (queue.length) {
+    const current = queue.pop();
+    if (!current || typeof current !== "object") continue;
+    if (Array.isArray(current)) { queue.push(...current); continue; }
+    for (const [key, nested] of Object.entries(current as Record<string, unknown>)) {
+      if (forbidden.has(key.toLowerCase())) throw new PublicApiError("CALLER_AUTHORITY_CLAIM_REJECTED", `Caller-supplied ${key} is not accepted.`, 400);
+      queue.push(nested);
+    }
+  }
+}
 
 function context(principal: PublicApiPrincipal): DelegatedAuthorityContext {
   return {
@@ -514,12 +539,84 @@ function executionAuthorization(receipt: Row) {
 }
 
 export async function requestExternalDecision(principal: PublicApiPrincipal, body: Record<string, unknown>, idempotencyKey: string, origin: string) {
-  assertOnlyFields(body, ["operational_entity_id", "action", "idempotency_key"]);
+  assertOnlyFields(body, ["operational_entity_id", "action", "idempotency_key", "decision_type", "context"]);
   const agentId = requiredText(body.operational_entity_id, "operational_entity_id", 180, referencePattern);
   await entityFor(principal, agentId);
   const action = body.action as Record<string, unknown>;
   if (!action || typeof action !== "object" || Array.isArray(action)) throw new PublicApiError("INVALID_INPUT", "action is required.", 400);
   assertOnlyFields(action, ["type", "target", "purpose", "environment"]);
+  const decisionType = body.decision_type ? requiredText(body.decision_type, "decision_type", 120, /^[A-Za-z0-9_.:-]+$/) : null;
+  const deploymentContext = body.context && typeof body.context === "object" && !Array.isArray(body.context)
+    ? (body.context as Record<string, unknown>)
+    : null;
+  if (deploymentContext) assertOnlyFields(deploymentContext, ["environment", "release", "material_changes", "assurance_evidence", "mission", "monitoring", "sensor_evidence", "signed_intent", "command_target", "execution_stages", "oversight"]);
+  const materialChanges = deploymentContext && Array.isArray(deploymentContext.material_changes)
+    ? deploymentContext.material_changes.filter((item): item is string => typeof item === "string")
+    : deploymentContext && Array.isArray(deploymentContext.materialChanges)
+      ? deploymentContext.materialChanges.filter((item): item is string => typeof item === "string")
+      : [];
+  const assuranceEvidence = deploymentContext && Array.isArray(deploymentContext.assurance_evidence)
+    ? deploymentContext.assurance_evidence.map((item) => ({
+        providerKey: typeof (item as Record<string, unknown>).provider_key === "string" ? String((item as Record<string, unknown>).provider_key) : "provider:unknown",
+        assessmentId: typeof (item as Record<string, unknown>).assessment_id === "string" ? String((item as Record<string, unknown>).assessment_id) : crypto.randomUUID(),
+        subject: typeof (item as Record<string, unknown>).subject === "string" ? String((item as Record<string, unknown>).subject) : "unknown",
+        environment: typeof (item as Record<string, unknown>).environment === "string" ? String((item as Record<string, unknown>).environment) : "unknown",
+        scope: typeof (item as Record<string, unknown>).scope === "string" ? String((item as Record<string, unknown>).scope) : "deployment",
+        methodReference: typeof (item as Record<string, unknown>).method_reference === "string" ? String((item as Record<string, unknown>).method_reference) : "unknown",
+        occurredAt: typeof (item as Record<string, unknown>).occurred_at === "string" ? String((item as Record<string, unknown>).occurred_at) : new Date().toISOString(),
+        receivedAt: typeof (item as Record<string, unknown>).received_at === "string" ? String((item as Record<string, unknown>).received_at) : new Date().toISOString(),
+        expiresAt: typeof (item as Record<string, unknown>).expires_at === "string" ? String((item as Record<string, unknown>).expires_at) : new Date(Date.now() + 24 * 60 * 60 * 1_000).toISOString(),
+        modelVersion: typeof (item as Record<string, unknown>).model_version === "string" ? String((item as Record<string, unknown>).model_version) : null,
+        toolSet: Array.isArray((item as Record<string, unknown>).tool_set) ? ((item as Record<string, unknown>).tool_set as unknown[]).filter((tool): tool is string => typeof tool === "string") : [],
+        permissionContext: typeof (item as Record<string, unknown>).permission_context === "string" ? String((item as Record<string, unknown>).permission_context) : null,
+        assurance: typeof (item as Record<string, unknown>).assurance === "number" ? (item as Record<string, unknown>).assurance as number : null,
+        confidence: typeof (item as Record<string, unknown>).confidence === "string" ? String((item as Record<string, unknown>).confidence) : "medium",
+        evidenceDigest: typeof (item as Record<string, unknown>).evidence_digest === "string" ? String((item as Record<string, unknown>).evidence_digest) : hashCanonical(item),
+        findingReferences: Array.isArray((item as Record<string, unknown>).finding_references) ? ((item as Record<string, unknown>).finding_references as unknown[]).filter((entry): entry is string => typeof entry === "string") : [],
+        retestReference: typeof (item as Record<string, unknown>).retest_reference === "string" ? String((item as Record<string, unknown>).retest_reference) : null,
+      }))
+    : [];
+  const monitoring = deploymentContext?.monitoring && typeof deploymentContext.monitoring === "object" && !Array.isArray(deploymentContext.monitoring)
+    ? deploymentContext.monitoring as Record<string, unknown>
+    : null;
+  if (monitoring) assertOnlyFields(monitoring, ["expected_providers", "observed_providers", "telemetry_gap_seconds", "connection"]);
+  const expectedProviders = Array.isArray(monitoring?.expected_providers) ? monitoring.expected_providers.filter((item): item is string => typeof item === "string") : [];
+  const observedProviders = Array.isArray(monitoring?.observed_providers) ? monitoring.observed_providers.filter((item): item is string => typeof item === "string") : [];
+  const monitoringCoverage = expectedProviders.length > 0 && expectedProviders.every((provider) => observedProviders.includes(provider))
+    ? "covered" as const
+    : observedProviders.length > 0 ? "partial" as const : "not_observed" as const;
+  const signedIntent = deploymentContext?.signed_intent && typeof deploymentContext.signed_intent === "object" && !Array.isArray(deploymentContext.signed_intent)
+    ? deploymentContext.signed_intent as Record<string, unknown>
+    : null;
+  if (signedIntent) assertOnlyFields(signedIntent, ["signature_reference", "destination"]);
+  const executionStages = Array.isArray(deploymentContext?.execution_stages)
+    ? deploymentContext.execution_stages.map((value) => {
+        const item = value as Record<string, unknown>;
+        assertOnlyFields(item, ["stage", "status", "occurred_at", "evidence_reference"]);
+        const stage = requiredText(item.stage, "execution_stages.stage", 80, /^[A-Z_]+$/) as ExecutionContinuityRecord["stage"];
+        const status = requiredText(item.status, "execution_stages.status", 40, /^[a-z_]+$/) as ExecutionContinuityRecord["status"];
+        return { stage, status, occurredAt: optionalIso(item.occurred_at, "execution_stages.occurred_at"), evidenceReference: item.evidence_reference ? requiredText(item.evidence_reference, "execution_stages.evidence_reference", 240, referencePattern) : null };
+      })
+    : [];
+  const sensors = Array.isArray(deploymentContext?.sensor_evidence) ? deploymentContext.sensor_evidence.map((value) => value as Record<string, unknown>) : [];
+  const sensorObservations = new Set(sensors.map((item) => String(item.observation ?? "")).filter(Boolean));
+  const contradictions = [
+    ...(signedIntent?.destination && deploymentContext?.command_target && signedIntent.destination !== deploymentContext.command_target ? ["INTENT_EXECUTION_MISMATCH"] : []),
+    ...(expectedProviders.some((provider) => !observedProviders.includes(provider)) ? ["MONITORING_COVERAGE_GAP"] : []),
+    ...(Number(monitoring?.telemetry_gap_seconds ?? 0) > 0 && executionStages.some((item) => ["COMMAND_SENT", "ACTION_EXECUTED", "WORLD_STATE_CHANGED", "CONSEQUENCE_OBSERVED"].includes(item.stage)) ? ["ACTION_DURING_EVIDENCE_GAP"] : []),
+    ...(sensorObservations.size > 1 ? ["SENSOR_DISAGREEMENT"] : []),
+  ];
+  const contextEvidence: CanonicalContextEvidence[] = [
+    ...sensors.map((item) => ({
+      providerClass: "SENSOR_EVIDENCE_PROVIDER",
+      providerKey: typeof item.source === "string" ? item.source : "sensor:unattributed",
+      evidenceType: sensorObservations.size > 1 ? "SENSOR_DISAGREEMENT" : "SENSOR_OBSERVATION",
+      observedAt: typeof item.observed_at === "string" && Number.isFinite(Date.parse(item.observed_at)) ? new Date(item.observed_at).toISOString() : new Date().toISOString(),
+      outcome: "OBSERVED",
+      evidenceDigest: typeof item.digest === "string" && /^[a-f0-9]{64}$/.test(item.digest) ? item.digest : hashCanonical(item),
+      metadata: item,
+    })),
+  ];
   const normalized = {
     type: requiredText(action.type, "action.type", 120, referencePattern),
     target: requiredText(action.target, "action.target", 240, referencePattern),
@@ -534,6 +631,21 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
     const receipt = await executeCanonicalTrustTransaction({
       trustObject: { subjectType: "ai_agent", subjectId: agentId },
       operationalEntityId: agentId,
+      decisionType,
+      deploymentContext: decisionType === "AI_DEPLOYMENT_TRUST_GATE" ? {
+        environment: deploymentContext?.environment && typeof deploymentContext.environment === "string" ? deploymentContext.environment : normalized.environment,
+        release: deploymentContext?.release && typeof deploymentContext.release === "string" ? deploymentContext.release : undefined,
+        materialChanges,
+        assuranceEvidence,
+      } : null,
+      managedControl: {
+        contradictions,
+        monitoringCoverage: monitoring ? monitoringCoverage : undefined,
+        humanIntent: signedIntent?.signature_reference ? { signed: true, status: "provided", reference: requiredText(signedIntent.signature_reference, "signed_intent.signature_reference", 240, referencePattern) } : undefined,
+        oversightMode: deploymentContext?.oversight && ["HUMAN_IN_THE_LOOP", "HUMAN_ON_THE_LOOP", "HUMAN_OVER_THE_LOOP", "AUTONOMOUS"].includes(String(deploymentContext.oversight)) ? deploymentContext.oversight as "HUMAN_IN_THE_LOOP" | "HUMAN_ON_THE_LOOP" | "HUMAN_OVER_THE_LOOP" | "AUTONOMOUS" : undefined,
+        executionStages,
+        contextEvidence,
+      },
       action: {
         type: normalized.type,
         purpose: normalized.purpose,
@@ -546,7 +658,7 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
       enterpriseId: principal.tenantId,
       clientId: principal.clientId,
     }));
-    await emitDecisionWebhooks(principal.tenantId, receipt as unknown as Row);
+    if (!receipt.idempotentReplay) await emitDecisionWebhooks(principal.tenantId, receipt as unknown as Row);
     const decision = receipt.decision as PublicDecision;
     return {
       transaction_id: receipt.transactionId,
@@ -556,6 +668,15 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
       confidence: receipt.confidenceInConclusion,
       authority_reference: receipt.authorityReference,
       policy_version: receipt.policy.version,
+      continuity: {
+        identity_continuity: receipt.continuitySignals.identityContinuity,
+        monitoring_coverage: receipt.continuitySignals.monitoringCoverage,
+        signed_human_intent: receipt.continuitySignals.signedHumanIntent,
+        consequential_impact_lineage: receipt.continuitySignals.consequentialImpactLineage,
+      },
+      deployment_gate: receipt.deploymentGate,
+      provider_neutral_evidence: receipt.providerNeutralEvidence,
+      execution_continuity: receipt.executionContinuity,
       transaction_url: `${origin}/api/v1/trust/transactions/${receipt.transactionId}`,
       receipt_url: `${origin}/api/v1/trust/transactions/${receipt.transactionId}/receipt`,
       replay_url: `${origin}/api/v1/trust/transactions/${receipt.transactionId}/replay`,
@@ -606,6 +727,9 @@ export async function getExternalTransaction(principal: PublicApiPrincipal, tran
     decision: row.decision,
     reason_codes: row.reason_codes ?? [],
     enforcement_state: row.decision_time_snapshot?.enforcementState ?? { policyDecision: row.decision },
+    continuity: row.continuity_signals ?? null,
+    execution_continuity: row.execution_continuity ?? [],
+    deployment_gate: row.deployment_gate ?? null,
     outcome: { public_submissions: history.outcomes, canonical_outcomes: history.nativeOutcomes },
     timestamps: { requested_at: row.requested_at, created_at: row.created_at, updated_at: row.updated_at },
     digests: { request: row.request_digest, evidence: row.evidence_digest, decision: row.decision_time_snapshot?.decisionDigest ?? null },
@@ -650,6 +774,15 @@ export async function getExternalReceipt(principal: PublicApiPrincipal, transact
     authority_lineage_references: row.authority_lineage_references ?? [],
     policy: { id: row.policy_id, version: row.policy_version, hash: row.policy_hash },
     decision_digest: row.decision_time_snapshot?.decisionDigest ?? null,
+    continuity: {
+      identity_continuity: row.continuity_signals?.identityContinuity ?? "review_required",
+      monitoring_coverage: row.continuity_signals?.monitoringCoverage ?? "not_observed",
+      signed_human_intent: row.continuity_signals?.signedHumanIntent ?? "not_provided",
+      consequential_impact_lineage: row.continuity_signals?.consequentialImpactLineage ?? null,
+    },
+    provider_neutral_evidence: row.provider_neutral_evidence ?? [],
+    deployment_gate: row.deployment_gate ?? null,
+    execution_continuity: row.execution_continuity ?? [],
     evidence_graph_reference: `evidence-graph:${row.transaction_id}`,
     replay_reference: `replay:${row.transaction_id}`,
     trust_memory_reference: row.material_change ? `trust-memory:${row.transaction_id}` : null,
@@ -699,6 +832,7 @@ export async function submitExternalOutcome(principal: PublicApiPrincipal, trans
     submission_digest: submissionDigest,
   }).select("submission_id").single();
   if (inserted.error && inserted.error.code !== "23505") throw new PublicApiError("OUTCOME_UNAVAILABLE", "The outcome could not be recorded safely.", 503);
+  await emitPublicApiWebhookEvent(principal.tenantId, "execution.outcome", `transaction:${transactionId}`);
   return {
     submission_id: inserted.data?.submission_id ?? null,
     transaction_id: transactionId,
@@ -709,10 +843,100 @@ export async function submitExternalOutcome(principal: PublicApiPrincipal, trans
   };
 }
 
+export async function submitExternalEvidence(principal: PublicApiPrincipal, body: Record<string, unknown>) {
+  assertNoCallerAuthorityClaims(body);
+  assertOnlyFields(body, ["provider", "type", "subject", "evidence", "occurred_at", "expires_at", "digest"]);
+  const provider = body.provider as Record<string, unknown>;
+  const subject = body.subject as Record<string, unknown>;
+  const evidence = body.evidence as Record<string, unknown>;
+  if (!provider || typeof provider !== "object" || Array.isArray(provider)) throw new PublicApiError("INVALID_INPUT", "provider is required.", 400);
+  if (!subject || typeof subject !== "object" || Array.isArray(subject)) throw new PublicApiError("INVALID_INPUT", "subject is required.", 400);
+  if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) throw new PublicApiError("INVALID_INPUT", "evidence is required.", 400);
+  assertOnlyFields(provider, ["key", "class", "event_id", "finding"]);
+  assertOnlyFields(subject, ["type", "id"]);
+  const providerKey = requiredText(provider.key, "provider.key", 180, referencePattern);
+  const providerClass = requiredText(provider.class, "provider.class", 80, /^[A-Z_]+$/) as ProviderClass;
+  if (!PROVIDER_CLASSES.includes(providerClass)) throw new PublicApiError("PROVIDER_CLASS_UNSUPPORTED", "provider.class is unsupported.", 400);
+  const occurredAt = optionalIso(body.occurred_at, "occurred_at") ?? new Date().toISOString();
+  const expiresAt = optionalIso(body.expires_at, "expires_at");
+  const adapter = getReferenceProviderAdapter(providerKey) ?? createReferenceProviderAdapter(providerKey, providerClass);
+  if (adapter.providerClass !== providerClass) throw new PublicApiError("PROVIDER_CLASS_MISMATCH", "The provider class does not match the registered adapter.", 400);
+  const input: ProviderAdapterInput = {
+    providerKey,
+    eventId: requiredText(provider.event_id, "provider.event_id", 180, referencePattern),
+    subject: {
+      type: requiredText(subject.type, "subject.type", 80, /^[A-Z_]+$/),
+      id: requiredText(subject.id, "subject.id", 180, referencePattern),
+    },
+    evidenceType: requiredText(body.type, "type", 120, /^[A-Z0-9_.:-]+$/),
+    finding: requiredText(provider.finding, "provider.finding", 120, /^[A-Z0-9_.:-]+$/),
+    evidence,
+    occurredAt,
+    expiresAt,
+    digest: body.digest ? requiredText(body.digest, "digest", 64, /^[a-f0-9]{64}$/) : null,
+  };
+  const mapped = await adapter.mapEvidence(input);
+  const evidenceId = deterministicUuid({ tenantId: principal.tenantId, providerKey, eventId: input.eventId });
+  const domainKey = providerClass === "IDENTITY_PROVIDER" ? "IDENTITY"
+    : providerClass === "AI_ASSURANCE_PROVIDER" || providerClass === "MODEL_EVALUATION_PROVIDER" ? "ASSURANCE"
+      : providerClass === "DSPM_PROVIDER" ? "DATA"
+        : providerClass.includes("ROBOTICS") || providerClass === "SENSOR_EVIDENCE_PROVIDER" || providerClass === "EDGE_ATTESTATION_PROVIDER" ? "ROBOTICS"
+          : providerClass === "OUTCOME_PROVIDER" ? "OUTCOME" : "RUNTIME";
+  const db = createServiceRoleClient();
+  const inserted = await db.from("evidence_objects").insert({
+    evidence_id: evidenceId,
+    enterprise_id: principal.tenantId,
+    provider_key: mapped.providerKey,
+    evidence_classification: `${mapped.providerClass}_OBSERVATION`,
+    storage_boundary: "NORMALIZED_LEDGER",
+    normalized_facts: mapped.normalizedFacts,
+    occurred_at: mapped.occurredAt,
+    observed_at: mapped.occurredAt,
+    freshness_policy_seconds: 86_400,
+    retention_expires_at: mapped.expiresAt,
+    domain_key: domainKey,
+    subject_id: mapped.subject.id,
+    subject_type: mapped.subject.type,
+    evidence_type: mapped.evidenceType,
+    source_type: "PROVIDER",
+    source_key: mapped.providerKey,
+    result: mapped.result,
+    assurance_level: "NONE",
+    cryptographically_verified: mapped.cryptographicallyVerified,
+    server_verified: mapped.serverVerified,
+    received_at: mapped.receivedAt,
+    expires_at: mapped.expiresAt,
+    payload_hash: mapped.payloadHash,
+    canonicalization: "JCS",
+    hash_algorithm: "SHA-256",
+    reason_codes: mapped.reasonCodes,
+  }).select("evidence_id").single();
+  if (inserted.error && inserted.error.code !== "23505") throw new PublicApiError("EVIDENCE_UNAVAILABLE", "The evidence could not be recorded safely.", 503);
+  return {
+    evidence_id: evidenceId,
+    status: inserted.error?.code === "23505" ? "DUPLICATE" : "RECORDED",
+    provider: { key: mapped.providerKey, class: mapped.providerClass },
+    subject: mapped.subject,
+    type: mapped.evidenceType,
+    classification: "PROVIDER_FINDING",
+    canonical_result: mapped.result,
+    reason_codes: mapped.reasonCodes,
+    evidence_graph_reference: `evidence:${evidenceId}`,
+  };
+}
+
 async function emitDecisionWebhooks(tenantId: string, receipt: Row) {
-  const tasks: Promise<void>[] = [];
+  const tasks: Promise<void>[] = [
+    emitPublicApiWebhookEvent(tenantId, "decision.created", `transaction:${receipt.transactionId}`),
+    emitPublicApiWebhookEvent(tenantId, "receipt.available", `transaction:${receipt.transactionId}`),
+  ];
   if (receipt.decision === "REVIEW") tasks.push(emitPublicApiWebhookEvent(tenantId, "decision.review_required", `transaction:${receipt.transactionId}`));
   if (receipt.decision === "DENY") tasks.push(emitPublicApiWebhookEvent(tenantId, "decision.denied", `transaction:${receipt.transactionId}`));
   if (receipt.materialChange) tasks.push(emitPublicApiWebhookEvent(tenantId, "trust.material_change", `transaction:${receipt.transactionId}`));
+  if (receipt.changedConditions?.includes("AUTHORITY_CHANGED")) tasks.push(emitPublicApiWebhookEvent(tenantId, "authority.changed", `transaction:${receipt.transactionId}`));
+  if (receipt.reasonCodes?.includes("MONITORING_COVERAGE_GAP") || receipt.reasonCodes?.includes("ACTION_DURING_EVIDENCE_GAP")) tasks.push(emitPublicApiWebhookEvent(tenantId, "monitoring.coverage_gap", `transaction:${receipt.transactionId}`));
+  if (receipt.reasonCodes?.includes("REAUTHORIZATION_REQUIRED")) tasks.push(emitPublicApiWebhookEvent(tenantId, "deployment.reauthorization_required", `transaction:${receipt.transactionId}`));
+  if (receipt.reasonCodes?.includes("INTENT_EXECUTION_MISMATCH")) tasks.push(emitPublicApiWebhookEvent(tenantId, "intent.execution_mismatch", `transaction:${receipt.transactionId}`));
+  if (receipt.reasonCodes?.some((code: string) => /DATA|PRIVACY|RESTRICTED/.test(code))) tasks.push(emitPublicApiWebhookEvent(tenantId, "data.impact_detected", `transaction:${receipt.transactionId}`));
   await Promise.all(tasks);
 }

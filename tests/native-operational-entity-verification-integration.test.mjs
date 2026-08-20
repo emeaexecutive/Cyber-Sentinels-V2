@@ -114,10 +114,12 @@ test("native evidence participates in the existing canonical evidence collector 
   const server = await read("lib/trust-transaction/server.ts");
   const collector = server.slice(server.indexOf("async loadConfiguredEvidence"), server.indexOf("async loadAuthority"));
   assert.match(collector, /native_entity_identity_evidence/);
+  assert.match(collector, /evidence_objects/);
   assert.match(server, /providerId: "cyber_sentinels_native"/);
-  assert.match(collector, /if \(nativeEvidence\.length\) return nativeEvidence/);
+  assert.match(collector, /const baselineEvidence = \[\.\.\.nativeEvidence, \.\.\.\(canonicalResult\.data \?\? \[\]\)\.map\(safeCanonicalEvidenceObject\)\]/);
+  assert.match(collector, /if \(baselineEvidence\.length\) return baselineEvidence/);
   assert.match(collector, /hopae_verifications/);
-  assert.match(collector, /\[\.\.\.nativeEvidence, \.\.\.\(result\.data \?\? \[\]\)\.map\(safeEvidence\)\]/);
+  assert.match(collector, /\[\.\.\.baselineEvidence, \.\.\.\(result\.data \?\? \[\]\)\.map\(safeEvidence\)\]/);
 });
 
 test("canonical authority resolution retains revoked contracts so exact actions deterministically DENY", async () => {

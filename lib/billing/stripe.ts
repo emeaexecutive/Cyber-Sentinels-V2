@@ -11,7 +11,11 @@ import type { UserPlan } from "@/types/billing";
 type ServiceRoleClient = ReturnType<typeof createServiceRoleClient>;
 
 export function createStripeClient() {
-  return new Stripe(getStripeSecretKeyEnv("Stripe API"), {
+  const secretKey = getStripeSecretKeyEnv("Stripe API");
+  if (process.env.STRIPE_LIVE?.trim().toUpperCase() === "YES" || !secretKey.startsWith("sk_test_")) {
+    throw new Error("STRIPE_LIVE_DISABLED_FOR_PREVIEW_QUALIFICATION");
+  }
+  return new Stripe(secretKey, {
     apiVersion: "2026-07-29.dahlia",
   });
 }

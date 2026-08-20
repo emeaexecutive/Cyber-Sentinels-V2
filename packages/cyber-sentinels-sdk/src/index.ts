@@ -5,6 +5,7 @@ export type ApiScope =
   | "authority:read"
   | "trust:request"
   | "trust:read"
+  | "evidence:write"
   | "outcomes:write";
 
 export type RequestOptions = { signal?: AbortSignal; timeoutMs?: number };
@@ -133,6 +134,31 @@ export type DecisionRequest = {
   operational_entity_id: string;
   action: { type: string; target: string; purpose: string; environment: string };
   idempotency_key: string;
+  decision_type?: string;
+  context?: Record<string, unknown>;
+};
+
+export type EvidenceSubmission = {
+  provider: { key: string; class: string; event_id: string; finding: string };
+  type: string;
+  subject: { type: string; id: string };
+  evidence: Record<string, unknown>;
+  occurred_at?: string;
+  expires_at?: string | null;
+  digest?: string;
+};
+
+export type OutcomeSubmission = {
+  transactionId: string;
+  outcome: "SUCCEEDED" | "FAILED" | "UNKNOWN";
+  evidence: {
+    destination: string;
+    target: string;
+    reference: string;
+    actionReference?: string;
+    observedAt?: string;
+    digest?: string;
+  };
 };
 
 export type DecisionResult = {
@@ -259,6 +285,7 @@ export class CyberSentinels {
     registerManifest: (agentId: string, input: SignedPublicManifest, options?: RequestOptions) => Promise<Record<string, unknown>>;
     issueChallenge: (agentId: string, options?: RequestOptions) => Promise<Challenge>;
     submitProof: (agentId: string, input: ProofSubmission, options?: RequestOptions) => Promise<Record<string, unknown>>;
+    verify: (agentId: string, input: ProofSubmission, options?: RequestOptions) => Promise<Record<string, unknown>>;
     getAuthority: (agentId: string, options?: RequestOptions) => Promise<Record<string, unknown>>;
     getTrustState: (agentId: string, options?: RequestOptions) => Promise<Record<string, unknown>>;
   };
@@ -269,6 +296,15 @@ export class CyberSentinels {
     getReplay: (id: string, options?: RequestOptions) => Promise<Record<string, unknown>>;
     getReceipt: (id: string, options?: RequestOptions) => Promise<Record<string, unknown>>;
     submitOutcome: (id: string, input: Record<string, unknown>, options?: RequestOptions) => Promise<Record<string, unknown>>;
+  };
+  readonly authority: {
+    get: (agentId: string, options?: RequestOptions) => Promise<Record<string, unknown>>;
+  };
+  readonly evidence: {
+    submit: (input: EvidenceSubmission, options?: RequestOptions) => Promise<Record<string, unknown>>;
+  };
+  readonly outcomes: {
+    submit: (input: OutcomeSubmission, options?: RequestOptions) => Promise<Record<string, unknown>>;
   };
 
   readonly #apiKey: string;
@@ -288,6 +324,7 @@ export class CyberSentinels {
       registerManifest: (agentId, input, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/manifest`, input, requestOptions),
       issueChallenge: (agentId, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/challenge`, {}, requestOptions),
       submitProof: (agentId, input, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/proof`, input, requestOptions),
+      verify: (agentId, input, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/proof`, input, requestOptions),
       getAuthority: (agentId, requestOptions) => this.#request("GET", `/api/v1/agents/${encodeURIComponent(agentId)}/authority`, undefined, requestOptions),
       getTrustState: (agentId, requestOptions) => this.#request("GET", `/api/v1/agents/${encodeURIComponent(agentId)}/trust-state`, undefined, requestOptions),
     };
@@ -300,6 +337,24 @@ export class CyberSentinels {
       getReplay: (id, requestOptions) => this.#request("GET", `/api/v1/trust/transactions/${encodeURIComponent(id)}/replay`, undefined, requestOptions),
       getReceipt: (id, requestOptions) => this.#request("GET", `/api/v1/trust/transactions/${encodeURIComponent(id)}/receipt`, undefined, requestOptions),
       submitOutcome: (id, input, requestOptions) => this.#request("POST", `/api/v1/trust/transactions/${encodeURIComponent(id)}/outcomes`, input, requestOptions),
+    };
+    this.authority = {
+      get: (agentId, requestOptions) => this.#request("GET", `/api/v1/agents/${encodeURIComponent(agentId)}/authority`, undefined, requestOptions),
+    };
+    this.evidence = {
+      submit: (input, requestOptions) => this.#request("POST", "/api/v1/evidence", input, requestOptions),
+    };
+    this.outcomes = {
+      submit: (input, requestOptions) => this.#request("POST", `/api/v1/trust/transactions/${encodeURIComponent(input.transactionId)}/outcomes`, {
+        source_id: "self",
+        destination: input.evidence.destination,
+        action_reference: input.evidence.actionReference ?? `transaction:${input.transactionId}`,
+        target: input.evidence.target,
+        result: input.outcome,
+        observed_at: input.evidence.observedAt ?? new Date().toISOString(),
+        evidence_reference: input.evidence.reference,
+        ...(input.evidence.digest ? { digest: input.evidence.digest } : {}),
+      }, requestOptions),
     };
   }
 

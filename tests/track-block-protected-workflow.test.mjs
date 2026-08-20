@@ -92,7 +92,8 @@ test("Replay, Trust Memory and receipts reuse canonical stores", () => {
   assert.match(server, /freshness_policy_seconds: 86_400/);
   assert.match(server, /ensureEvidenceGraphNode/);
   assert.doesNotMatch(server, /from\("evidence_graph_nodes"\)\.upsert/);
-  assert.match(canonicalServer, /else if \(!uuidPattern\.test\(subjectId\)\) \{\s*return nativeEvidence;/);
+  assert.match(canonicalServer, /from\("evidence_objects"\)/);
+  assert.match(canonicalServer, /else if \(!uuidPattern\.test\(subjectId\)\) \{\s*return baselineEvidence;/);
   assert.doesNotMatch(server, /track_block_(decisions|signals|replay|trust_memory)/i);
 });
 

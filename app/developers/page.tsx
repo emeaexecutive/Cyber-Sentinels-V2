@@ -26,9 +26,17 @@ const endpoints = [
   ["POST", "/api/v1/agents/{agentId}/challenge"],
   ["POST", "/api/v1/agents/{agentId}/proof"],
   ["POST", "/api/v1/trust/decisions"],
+  ["POST", "/api/v1/evidence"],
   ["GET", "/api/v1/trust/transactions/{transactionId}/replay"],
   ["GET", "/api/v1/trust/transactions/{transactionId}/receipt"],
 ];
+
+const connectors = [
+  { title: "CONNECT AN AGENT", preset: "AGENT_RUNTIME", scopes: "agents:write, agents:verify, authority:read, trust:request, trust:read, outcomes:write", call: "cs.agents.register() â†’ cs.agents.verify()" },
+  { title: "CONNECT AN APPLICATION", preset: "APPLICATION", scopes: "trust:request, trust:read, outcomes:write", call: "cs.trust.authorize()" },
+  { title: "CONNECT AN EVIDENCE PROVIDER", preset: "EVIDENCE_PROVIDER", scopes: "evidence:write, trust:read", call: "cs.evidence.submit()" },
+  { title: "CONNECT A ROBOT / EDGE RUNTIME", preset: "ROBOTICS_RUNTIME", scopes: "authority:read, trust:request, trust:read, evidence:write, outcomes:write", call: "cs.evidence.submit() â†’ cs.trust.authorize()" },
+] as const;
 
 export default function DevelopersPage() {
   return (
@@ -41,6 +49,11 @@ export default function DevelopersPage() {
           primary={{ href: "/developers/docs", label: "Read API Docs" }}
           secondary={{ href: "/developers/authentication", label: "View Authentication" }}
         />
+
+        <section className="mt-10">
+          <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm uppercase tracking-[0.2em] text-zinc-500">Connector onboarding</p><h2 className="mt-2 text-2xl font-semibold">Four paths, one canonical Trust API</h2></div><Link href="/developers/api-keys" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100">Create scoped key</Link></div>
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">{connectors.map((connector) => <article key={connector.title} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5"><p className="text-xs font-semibold tracking-[0.16em] text-cyan-200">{connector.title}</p><p className="mt-3 text-sm text-zinc-300">API key preset: <code>{connector.preset}</code></p><p className="mt-2 text-xs leading-5 text-zinc-500">Scopes: {connector.scopes}</p><pre className="mt-4 overflow-x-auto rounded bg-black p-3 text-xs text-zinc-300">npm install @cyber-sentinels/sdk{"\n"}{connector.call}</pre><p className="mt-3 text-xs text-zinc-500">The result links to the canonical transaction, Replay, and receipt. Provider findings never become provider-owned decisions.</p></article>)}</div>
+        </section>
 
         <section className="mt-10">
           <p className="text-sm uppercase tracking-[0.2em] text-zinc-500">

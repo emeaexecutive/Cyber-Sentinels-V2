@@ -10,6 +10,7 @@ export const PUBLIC_V1_ROUTE_CONTRACT = [
   ["get", "/api/v1/agents/{agentId}/authority"],
   ["get", "/api/v1/agents/{agentId}/trust-state"],
   ["post", "/api/v1/trust/decisions"],
+  ["post", "/api/v1/evidence"],
   ["get", "/api/v1/trust/transactions/{transactionId}"],
   ["get", "/api/v1/trust/transactions/{transactionId}/replay"],
   ["get", "/api/v1/trust/transactions/{transactionId}/receipt"],
@@ -21,6 +22,7 @@ export const PUBLIC_API_SCOPES = [
   "authority:read",
   "trust:request",
   "trust:read",
+  "evidence:write",
   "outcomes:write",
 ] as const;
 
