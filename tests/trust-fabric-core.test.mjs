@@ -4,7 +4,7 @@ import test from "node:test";
 
 import { entityIdentityModel, normalizeEntityIdentity } from "../lib/core/entity-identity.ts";
 import { evaluateAuthorityGraph } from "../lib/core/authority-graph.ts";
-import { buildEnterpriseOperationalReadinessDemo, buildTrustFabricDemo, projectValeContext, TRUST_FABRIC_SERVICES } from "../lib/core/trust-fabric.ts";
+import { buildEnterpriseOperationalReadinessDemo, buildTrustFabricDemo, projectValeContext, TRUST_FABRIC_SERVICES, VALE_CANONICAL_OWNERSHIP } from "../lib/core/trust-fabric.ts";
 import { createProviderConsensus } from "../lib/providers/provider-consensus.ts";
 import { WORKFLOW_TEMPLATE_IDS, workflowTemplates } from "../lib/workflows/workflow-templates.ts";
 
@@ -123,6 +123,13 @@ test("VALE projects human-agent-robot evidence into a canonical transaction with
   assert.ok(projection.evidenceTypes.includes("SENSOR_DISAGREEMENT"));
   assert.equal(Object.hasOwn(projection, "decision"), false);
   assert.equal(Object.hasOwn(projection, "receipt"), false);
+  assert.deepEqual(VALE_CANONICAL_OWNERSHIP, {
+    VALE_FINAL_DECISION_ENGINE: "canonical",
+    VALE_RECEIPT: "canonical receipt",
+    VALE_GRAPH: "canonical Evidence Graph",
+    VALE_REPLAY: "canonical Replay",
+    VALE_MEMORY: "canonical Trust Memory",
+  });
 
   const valeSource = await readFile(new URL("../src/lib/trust-fabric/vale.ts", import.meta.url), "utf8");
   assert.doesNotMatch(valeSource, /function evaluateValeTrust|ValeReceiptStore|ValeEvidenceGraph|ValeReplay|ValeMemory/);

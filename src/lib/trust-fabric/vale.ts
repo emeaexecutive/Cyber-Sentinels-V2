@@ -17,6 +17,15 @@ export const VALE_ARCHITECTURE = [
   "EVIDENCE",
 ] as const;
 
+/** VALE derives context only; canonical Trust Fabric services own artifacts. */
+export const VALE_CANONICAL_OWNERSHIP = {
+  VALE_FINAL_DECISION_ENGINE: "canonical",
+  VALE_RECEIPT: "canonical receipt",
+  VALE_GRAPH: "canonical Evidence Graph",
+  VALE_REPLAY: "canonical Replay",
+  VALE_MEMORY: "canonical Trust Memory",
+} as const;
+
 export type ValeActorType =
   | "HUMAN"
   | "EMPLOYEE"

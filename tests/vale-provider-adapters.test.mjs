@@ -10,6 +10,11 @@ import {
 const occurredAt = "2026-08-20T08:00:00.000Z";
 
 test("one provider adapter contract covers all required reference provider classes", async () => {
+  assert.deepEqual(PROVIDER_CLASSES, [
+    "IDENTITY_PROVIDER", "RUNTIME_SECURITY_PROVIDER", "AI_ASSURANCE_PROVIDER", "EDR_PROVIDER",
+    "DSPM_PROVIDER", "NETWORK_SECURITY_PROVIDER", "ROBOTICS_RUNTIME_PROVIDER", "ROBOTICS_SAFETY_PROVIDER",
+    "SENSOR_EVIDENCE_PROVIDER", "MODEL_EVALUATION_PROVIDER", "EDGE_ATTESTATION_PROVIDER", "OUTCOME_PROVIDER",
+  ]);
   const expected = new Map([
     ["neuraltrust-compatible-test-provider", "RUNTIME_SECURITY_PROVIDER"],
     ["mythos-compatible-test-provider", "AI_ASSURANCE_PROVIDER"],

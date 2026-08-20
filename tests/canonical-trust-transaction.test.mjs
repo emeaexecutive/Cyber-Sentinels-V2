@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { executeCanonicalTrustTransaction } from "../src/lib/trust-transaction/canonical.ts";
 import { authorizeValeTrust } from "../src/lib/trust-fabric/vale.ts";
-import { normalizeProviderNeutralEvidence } from "../lib/providers/adapters.ts";
+import { normalizeProviderNeutralEvidence, referenceProviderAdapters } from "../lib/providers/adapters.ts";
 
 const requestedAt = "2026-08-06T10:00:00.000Z";
 const tenantId = "10000000-0000-4000-8000-000000000001";
@@ -396,6 +396,41 @@ test("Mythos-style assurance evidence is ingested as provider-neutral evidence w
   assert.equal(normalized.assurance, 0.91);
   assert.deepEqual(normalized.findingReferences, ["finding-2"]);
   assert.equal(normalized.retestReference, "retest-2");
+});
+
+test("a NeuralTrust-compatible BLOCK remains runtime evidence for the canonical evaluator", async () => {
+  const mapped = await referenceProviderAdapters["neuraltrust-compatible-test-provider"].mapEvidence({
+    providerKey: "neuraltrust-compatible-test-provider",
+    eventId: "runtime-event-001",
+    subject: { type: "AI_AGENT", id: subjectId },
+    evidenceType: "TOOL_CALL_POLICY_FINDING",
+    finding: "BLOCK",
+    evidence: { tool: "mcp:warehouse", access: "blocked", policy_reference: "runtime-policy:7" },
+    occurredAt: requestedAt,
+  }, requestedAt);
+  assert.equal(mapped.result, "INCONCLUSIVE");
+  assert.equal(Object.hasOwn(mapped, "decision"), false);
+
+  const runtimeEvidence = evidence({
+    reference: mapped.evidenceId,
+    type: mapped.evidenceType,
+    providerId: mapped.providerKey,
+    providerEventId: "runtime-event-001",
+    providerSessionId: "runtime-session-001",
+    outcome: "INCONCLUSIVE",
+    sourceDigest: mapped.payloadHash,
+    assuranceLevel: null,
+    correlationId: "10000000-0000-4000-8000-000000000019",
+    sourceClassification: "unconfirmed",
+  });
+  const { deps } = dependencies({
+    evidence: [evidence(), runtimeEvidence],
+    authority: authority({ permittedProviders: ["hopae_connect", "neuraltrust-compatible-test-provider"] }),
+  });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "runtime-provider-block-evidence-001" }), deps);
+  assert.equal(receipt.decision, "REVIEW");
+  assert.equal(receipt.providerNeutralEvidence.some((item) => item.providerId === "neuraltrust-compatible-test-provider"), true);
+  assert.equal(receipt.reasonCodes.includes("NEGATIVE_PROVIDER_EVIDENCE"), false);
 });
 
 test("canonical receipts expose provider-neutral continuity signals for investor-facing trust evidence", async () => {

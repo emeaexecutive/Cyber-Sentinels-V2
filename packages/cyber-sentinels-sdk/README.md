@@ -17,4 +17,33 @@ const result = await cs.trust.authorize(request);
 if (result.decision !== "ALLOW") {
   // The caller decides whether to stop or enter a review workflow.
 }
+
+await cs.evidence.submit({
+  provider: {
+    key: "runtime-compatible-provider",
+    class: "RUNTIME_SECURITY_PROVIDER",
+    event_id: "runtime-event-001",
+    finding: "TOOL_CALL_POLICY_FINDING",
+  },
+  type: "RUNTIME_SECURITY_OBSERVATION",
+  subject: { type: "AI_AGENT", id: request.operational_entity_id },
+  evidence: { tool: "mcp:warehouse", observation: "BLOCK" },
+});
+
+await cs.outcomes.submit({
+  transactionId: result.transaction_id,
+  outcome: "SUCCEEDED",
+  evidence: {
+    destination: "repository:a",
+    target: "repository:a",
+    reference: "destination:event-001",
+  },
+});
+
+await cs.authority.get(request.operational_entity_id);
+await cs.trust.getTransaction(result.transaction_id);
+await cs.trust.getReceipt(result.transaction_id);
 ```
+
+Provider findings are evidence, not Cyber Sentinels decisions. `authorize()`
+returns the canonical decision and never executes the customer action.

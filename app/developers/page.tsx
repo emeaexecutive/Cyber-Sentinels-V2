@@ -32,10 +32,10 @@ const endpoints = [
 ];
 
 const connectors = [
-  { title: "CONNECT AN AGENT", preset: "AGENT_RUNTIME", scopes: "agents:write, agents:verify, authority:read, trust:request, trust:read, outcomes:write", call: "cs.agents.register() â†’ cs.agents.verify()" },
-  { title: "CONNECT AN APPLICATION", preset: "APPLICATION", scopes: "trust:request, trust:read, outcomes:write", call: "cs.trust.authorize()" },
-  { title: "CONNECT AN EVIDENCE PROVIDER", preset: "EVIDENCE_PROVIDER", scopes: "evidence:write, trust:read", call: "cs.evidence.submit()" },
-  { title: "CONNECT A ROBOT / EDGE RUNTIME", preset: "ROBOTICS_RUNTIME", scopes: "authority:read, trust:request, trust:read, evidence:write, outcomes:write", call: "cs.evidence.submit() â†’ cs.trust.authorize()" },
+  { title: "CONNECT AN AGENT", preset: "AGENT_RUNTIME", scopes: "agents:write, agents:verify, authority:read, trust:request, trust:read, outcomes:write", request: "await cs.agents.register({ ... })", test: "await cs.agents.verify(agentId, proof)" },
+  { title: "CONNECT AN APPLICATION", preset: "APPLICATION", scopes: "trust:request, trust:read, outcomes:write", request: "await cs.trust.authorize({ actor, action, resource, context })", test: "await cs.trust.getTransaction(result.transaction_id)" },
+  { title: "CONNECT AN EVIDENCE PROVIDER", preset: "EVIDENCE_PROVIDER", scopes: "evidence:write, trust:read", request: "await cs.evidence.submit({ provider, type, subject, evidence })", test: "await cs.trust.getReceipt(transactionId)" },
+  { title: "CONNECT A ROBOT / EDGE RUNTIME", preset: "ROBOTICS_RUNTIME", scopes: "authority:read, trust:request, trust:read, evidence:write, outcomes:write", request: "await cs.evidence.submit({ provider, type, subject, evidence })", test: "await cs.trust.authorize({ actor, action, resource, context })" },
 ] as const;
 
 export default function DevelopersPage() {
@@ -52,7 +52,7 @@ export default function DevelopersPage() {
 
         <section className="mt-10">
           <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm uppercase tracking-[0.2em] text-zinc-500">Connector onboarding</p><h2 className="mt-2 text-2xl font-semibold">Four paths, one canonical Trust API</h2></div><Link href="/developers/api-keys" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100">Create scoped key</Link></div>
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">{connectors.map((connector) => <article key={connector.title} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5"><p className="text-xs font-semibold tracking-[0.16em] text-cyan-200">{connector.title}</p><p className="mt-3 text-sm text-zinc-300">API key preset: <code>{connector.preset}</code></p><p className="mt-2 text-xs leading-5 text-zinc-500">Scopes: {connector.scopes}</p><pre className="mt-4 overflow-x-auto rounded bg-black p-3 text-xs text-zinc-300">npm install @cyber-sentinels/sdk{"\n"}{connector.call}</pre><p className="mt-3 text-xs text-zinc-500">The result links to the canonical transaction, Replay, and receipt. Provider findings never become provider-owned decisions.</p></article>)}</div>
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">{connectors.map((connector) => <article key={connector.title} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5"><p className="text-xs font-semibold tracking-[0.16em] text-cyan-200">{connector.title}</p><p className="mt-3 text-sm text-zinc-300">API key preset: <code>{connector.preset}</code></p><p className="mt-2 text-xs leading-5 text-zinc-500">Required scopes: {connector.scopes}</p><pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded bg-black p-3 text-xs leading-5 text-zinc-300">npm install @cyber-sentinels/sdk{"\n\n"}{connector.request}{"\n"}{connector.test}</pre><p className="mt-3 text-xs text-zinc-500">Test result: inspect <code>result.transaction_url</code> and <code>result.receipt_url</code>. Provider findings remain evidence, never provider-owned decisions.</p><div className="mt-3 flex gap-4 text-xs"><Link href="/developers/quickstart" className="text-cyan-200 underline">Run test call</Link><a href="/api/v1/openapi.json" className="text-cyan-200 underline">OpenAPI result</a></div></article>)}</div>
         </section>
 
         <section className="mt-10">

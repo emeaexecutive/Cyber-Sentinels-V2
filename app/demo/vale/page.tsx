@@ -6,6 +6,8 @@ const evidence = [
   ["Machine / model", "Identity, firmware and model attestations attached"],
   ["Runtime provider", "NeuralTrust-compatible tool/runtime observation"],
   ["Assurance provider", "Mythos-compatible deployment assessment"],
+  ["Model change", "Navigation model v1 to v2 invalidates the previous assurance until reassessment"],
+  ["Deployment gate", "Material model, tool, or permission change requires reauthorization"],
   ["Monitoring", "Fleet telemetry becomes partial before command execution"],
   ["Sensor evidence", "Vision: PATH_CLEAR / LiDAR: OBSTACLE_PRESENT"],
   ["Conflict", "New command targets restricted Zone C"],

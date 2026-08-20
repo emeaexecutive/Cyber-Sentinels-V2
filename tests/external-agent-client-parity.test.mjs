@@ -22,6 +22,7 @@ const clientTokens = {
   "/api/v1/agents/{agentId}/authority": ["/authority", 'Get-AgentPath $agentId "authority"', "/authority"],
   "/api/v1/agents/{agentId}/trust-state": ["/trust-state", 'Get-AgentPath $agentId "trust-state"', "/trust-state"],
   "/api/v1/trust/decisions": ["/api/v1/trust/decisions", "/api/v1/trust/decisions", "/api/v1/trust/decisions"],
+  "/api/v1/evidence": ["/api/v1/evidence", "/api/v1/evidence", "/api/v1/evidence"],
   "/api/v1/trust/transactions/{transactionId}": ["/api/v1/trust/transactions/", "/api/v1/trust/transactions/", "/api/v1/trust/transactions/"],
   "/api/v1/trust/transactions/{transactionId}/replay": ["/replay", "/replay", "/replay"],
   "/api/v1/trust/transactions/{transactionId}/receipt": ["/receipt", "/receipt", "/receipt"],

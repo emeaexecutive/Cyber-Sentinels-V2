@@ -334,6 +334,25 @@ function Invoke-CyberSentinelsApi {
     catch { throw (New-CyberSentinelsException "Cyber Sentinels returned invalid JSON." "INVALID_API_RESPONSE" $response.Status $response.CorrelationId) }
 }
 
+function Submit-CyberSentinelsEvidence {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][object]$Evidence,
+        [string]$EvidenceApiKey = $env:CYBER_SENTINELS_EVIDENCE_API_KEY
+    )
+
+    if ([string]::IsNullOrWhiteSpace($EvidenceApiKey)) {
+        throw (New-CyberSentinelsException "CYBER_SENTINELS_EVIDENCE_API_KEY is not set." "EVIDENCE_API_KEY_MISSING")
+    }
+    $response = Invoke-CyberSentinelsHttp $script:HttpClient "POST" (New-Object Uri("$($script:BaseUri)/api/v1/evidence")) $Evidence $EvidenceApiKey
+    if ($response.Status -lt 200 -or $response.Status -ge 300) {
+        $safe = Read-SafeApiError $response
+        throw (New-CyberSentinelsException "$($safe.Message) [$($safe.Code), HTTP $($response.Status)]." $safe.Code $response.Status $safe.CorrelationId)
+    }
+    try { return $response.Body | ConvertFrom-Json }
+    catch { throw (New-CyberSentinelsException "Cyber Sentinels returned invalid evidence JSON." "INVALID_API_RESPONSE" $response.Status $response.CorrelationId) }
+}
+
 function Find-OpenSsl {
     if ($env:OPENSSL_PATH -and [IO.File]::Exists($env:OPENSSL_PATH)) { return $env:OPENSSL_PATH }
     $command = Get-Command "openssl" -ErrorAction SilentlyContinue
