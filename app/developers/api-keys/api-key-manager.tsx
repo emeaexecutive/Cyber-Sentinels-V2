@@ -13,13 +13,21 @@ type Key = {
   created_at: string;
 };
 
-const allScopes = ["agents:write", "agents:verify", "authority:read", "trust:request", "trust:read", "outcomes:write"];
+const allScopes = ["agents:write", "agents:verify", "authority:read", "trust:request", "trust:read", "evidence:write", "outcomes:write"];
+const presets = {
+  AGENT_RUNTIME: ["agents:write", "agents:verify", "authority:read", "trust:request", "trust:read", "outcomes:write"],
+  APPLICATION: ["trust:request", "trust:read", "outcomes:write"],
+  EVIDENCE_PROVIDER: ["evidence:write", "trust:read"],
+  ROBOTICS_RUNTIME: ["authority:read", "trust:request", "trust:read", "evidence:write", "outcomes:write"],
+  READ_ONLY_AUDITOR: ["authority:read", "trust:read"],
+} as const;
 const scopePurpose: Record<string, string> = {
   "agents:write": "Register Gamma, credentials, and manifests",
   "agents:verify": "Issue challenges and submit proof of possession",
   "authority:read": "Read Gamma's effective authority",
   "trust:request": "Request canonical ALLOW, REVIEW, or DENY decisions",
   "trust:read": "Retrieve transactions, Replay, receipts, and trust state",
+  "evidence:write": "Submit provider-attributed evidence without decision authority",
   "outcomes:write": "Submit explicitly classified outcome assertions",
 };
 const date = (value: string | null) => value ? new Date(value).toLocaleString() : "Never";
@@ -27,6 +35,7 @@ const date = (value: string | null) => value ? new Date(value).toLocaleString() 
 export function ApiKeyManager({ enterpriseId }: { enterpriseId: string }) {
   const [keys, setKeys] = useState<Key[]>([]);
   const [secret, setSecret] = useState<string | null>(null);
+  const [selectedScopes, setSelectedScopes] = useState<string[]>([...presets.AGENT_RUNTIME]);
   const [message, setMessage] = useState("Loading tenant API clients…");
 
   const load = useCallback(async () => {
@@ -82,7 +91,8 @@ export function ApiKeyManager({ enterpriseId }: { enterpriseId: string }) {
       <h2 className="text-xl font-semibold">Create API client</h2>
       <label className="grid gap-2 text-sm text-zinc-300">Label<input required name="label" maxLength={80} placeholder="Agent Gamma staging" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3" /></label>
       <label className="grid gap-2 text-sm text-zinc-300">Environment<select name="environment" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3"><option value="test">Test</option><option value="live">Live</option></select></label>
-      <fieldset className="grid gap-2"><legend className="text-sm text-zinc-300">Scopes</legend><p className="text-xs text-zinc-500">The complete Agent Gamma journey requires all six scopes.</p>{allScopes.map((scope) => <label key={scope} className="flex items-start gap-2 text-sm text-zinc-400"><input className="mt-1" type="checkbox" name="scopes" value={scope} defaultChecked /><span><span className="font-mono text-zinc-300">{scope}</span><span className="block text-xs text-zinc-500">{scopePurpose[scope]}</span></span></label>)}</fieldset>
+      <label className="grid gap-2 text-sm text-zinc-300">Preset<select aria-label="API key preset" className="rounded-lg border border-zinc-800 bg-zinc-950 p-3" defaultValue="AGENT_RUNTIME" onChange={(event) => setSelectedScopes([...presets[event.target.value as keyof typeof presets]])}>{Object.keys(presets).map((preset) => <option key={preset} value={preset}>{preset.replaceAll("_", " ")}</option>)}</select></label>
+      <fieldset className="grid gap-2"><legend className="text-sm text-zinc-300">Scopes</legend><p className="text-xs text-zinc-500">Presets select least-privilege scopes; fine-grained controls remain editable.</p>{allScopes.map((scope) => <label key={scope} className="flex items-start gap-2 text-sm text-zinc-400"><input className="mt-1" type="checkbox" name="scopes" value={scope} checked={selectedScopes.includes(scope)} onChange={(event) => setSelectedScopes((current) => event.target.checked ? [...new Set([...current, scope])] : current.filter((item) => item !== scope))} /><span><span className="font-mono text-zinc-300">{scope}</span><span className="block text-xs text-zinc-500">{scopePurpose[scope]}</span></span></label>)}</fieldset>
       <button className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-black">Create and reveal once</button>
       <p className="text-xs leading-5 text-zinc-500">Secrets have 256 bits of entropy, are one-way hashed at rest, tenant scoped, and never used from browser SDK sessions.</p>
     </form>

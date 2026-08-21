@@ -12,13 +12,14 @@ import {
   type PublicApiPrincipal,
 } from "./authentication";
 
-type RouteClass = "registration" | "challenge" | "proof" | "decision" | "read" | "outcome";
+type RouteClass = "registration" | "challenge" | "proof" | "decision" | "read" | "evidence" | "outcome";
 const limits: Record<RouteClass, { limit: number; windowSeconds: number }> = {
   registration: { limit: 20, windowSeconds: 60 },
   challenge: { limit: 30, windowSeconds: 60 },
   proof: { limit: 30, windowSeconds: 60 },
   decision: { limit: 60, windowSeconds: 60 },
   read: { limit: 240, windowSeconds: 60 },
+  evidence: { limit: 120, windowSeconds: 60 },
   outcome: { limit: 60, windowSeconds: 60 },
 };
 

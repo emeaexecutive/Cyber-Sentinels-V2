@@ -29,6 +29,12 @@ test("OpenAPI documents auth, errors, idempotency, limits, webhooks and strict d
   assert.match(JSON.stringify(publicApiOpenApi), /decision\.review_required/);
   assert.match(JSON.stringify(publicApiOpenApi), /correlation_id/);
   assert.match(JSON.stringify(publicApiOpenApi), /240\/min/);
+  assert.ok(publicApiOpenApi.components.schemas.Decision.properties.continuity);
+  assert.ok(publicApiOpenApi.components.schemas.Decision.properties.provider_neutral_evidence);
+  assert.ok(publicApiOpenApi.paths["/api/v1/evidence"].post);
+  assert.equal(publicApiOpenApi.components.schemas.EvidenceRequest.additionalProperties, false);
+  assert.match(JSON.stringify(publicApiOpenApi), /PROVIDER FINDING|Provider findings/);
+  for (const event of ["decision.created", "monitoring.coverage_gap", "deployment.reauthorization_required", "intent.execution_mismatch", "execution.outcome", "receipt.available"]) assert.match(JSON.stringify(publicApiOpenApi), new RegExp(event.replace(".", "\\.")));
 });
 
 test("quickstart curl paths are all real OpenAPI operations", async () => {

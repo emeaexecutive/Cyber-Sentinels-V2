@@ -42,11 +42,11 @@ function evidenceItems(value: unknown) {
   return Array.isArray(value) ? (value as JsonRecord[]) : [];
 }
 
-function DetailRow({ label: rowLabel, value }: { label: string; value: unknown }) {
+function DetailRow({ label: rowLabel, value, emphasis = false }: { label: string; value: unknown; emphasis?: boolean }) {
   return (
     <div className="rounded-lg border border-zinc-800 bg-black p-4">
       <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">{rowLabel}</p>
-      <p className="mt-2 text-sm text-zinc-300">{label(value)}</p>
+      <p className={`mt-2 text-sm ${emphasis ? "font-semibold text-cyan-100" : "text-zinc-300"}`}>{label(value)}</p>
     </div>
   );
 }
@@ -240,6 +240,14 @@ export default async function TrustReceiptPage({
   ]);
 
   const snapshot = (receipt.evidence_snapshot ?? {}) as JsonRecord;
+  const continuityPayload = (snapshot.continuity ?? (receipt as JsonRecord).continuity ?? (receipt as JsonRecord).continuity_signals) as JsonRecord | null;
+  const providerNeutralEvidence = Array.isArray(snapshot.provider_neutral_evidence ?? (receipt as JsonRecord).provider_neutral_evidence)
+    ? ((snapshot.provider_neutral_evidence ?? (receipt as JsonRecord).provider_neutral_evidence) as JsonRecord[])
+    : [];
+  const deploymentGate = (snapshot.deployment_gate ?? (receipt as JsonRecord).deployment_gate ?? null) as JsonRecord | null;
+  const executionContinuity = Array.isArray(snapshot.execution_continuity ?? (receipt as JsonRecord).execution_continuity)
+    ? ((snapshot.execution_continuity ?? (receipt as JsonRecord).execution_continuity) as JsonRecord[])
+    : [];
   const relationships = [...(receiptRelationships ?? []), ...(subjectRelationships ?? [])];
   const openGovernance = (governanceActions ?? []).filter((action) =>
     ["pending", "in_review", "escalated"].includes(String(action.action_status ?? "pending"))
@@ -569,6 +577,73 @@ export default async function TrustReceiptPage({
               </div>
             ))}
           </div>
+        </section>
+
+        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-300 print:text-zinc-600">
+                Continuity signals
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">Operational trust posture explained for reviewers</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400 print:text-zinc-700">
+                Identity continuity, monitoring coverage, signed human intent, provider-neutral evidence and deployment-gate state are shown directly here so the receipt explains the operational trust posture in plain language.
+              </p>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <DetailRow label="Identity continuity" value={label(continuityPayload?.identity_continuity ?? continuityPayload?.identityContinuity, "Not recorded")} />
+            <DetailRow label="Monitoring coverage" value={label(continuityPayload?.monitoring_coverage ?? continuityPayload?.monitoringCoverage, "Not recorded")} />
+            <DetailRow label="Signed human intent" value={label(continuityPayload?.signed_human_intent ?? continuityPayload?.signedHumanIntent, "Not recorded")} />
+            <DetailRow label="Impact lineage" value={label((continuityPayload?.consequential_impact_lineage as JsonRecord | null)?.target ?? (continuityPayload?.consequentialImpactLineage as JsonRecord | null)?.target, "Not recorded")} />
+          </div>
+          {deploymentGate ? (
+            <div className="mt-5 rounded-lg border border-cyan-950 bg-black p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.16em] text-cyan-300">Deployment trust gate</p>
+                  <h3 className="mt-2 text-lg font-semibold text-white">{label(deploymentGate.decisionType ?? "AI_DEPLOYMENT_TRUST_GATE", "AI deployment trust gate")}</h3>
+                </div>
+                <span className="rounded-full border border-cyan-800 px-3 py-1 text-xs font-semibold text-cyan-200">{label(deploymentGate.assuranceFreshness, "ASSURANCE_UNPROVEN")}</span>
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+                <DetailRow label="Material changes" value={Array.isArray(deploymentGate.materialChanges) && deploymentGate.materialChanges.length ? deploymentGate.materialChanges.join(", ") : "None recorded"} emphasis />
+                <DetailRow label="Assurance evidence" value={deploymentGate.assuranceEvidenceCount ?? 0} emphasis />
+                <DetailRow label="Current assurance" value={deploymentGate.currentAssuranceCount ?? 0} emphasis />
+                <DetailRow label="Reauthorization" value={deploymentGate.reauthorizationRequired ? "Required" : "Not required"} emphasis />
+              </div>
+              {Array.isArray(deploymentGate.pendingRevalidation) && deploymentGate.pendingRevalidation.length ? (
+                <p className="mt-4 text-sm leading-6 text-zinc-400">Pending revalidation: {label(deploymentGate.pendingRevalidation.join(", "), "None")}</p>
+              ) : null}
+            </div>
+          ) : null}
+          {providerNeutralEvidence.length ? (
+            <div className="mt-5 grid gap-3 lg:grid-cols-2">
+              {providerNeutralEvidence.map((entry, index) => (
+                <article key={`${entry.provider_id ?? entry.providerId ?? index}`} className="rounded-lg border border-zinc-800 bg-black p-4 print:border-zinc-300 print:bg-white">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="font-medium text-zinc-100">{label(entry.provider_name ?? entry.providerName ?? entry.provider_id ?? entry.providerId, "Evidence provider")}</p>
+                    <span className="rounded-full border border-cyan-800 px-2.5 py-1 text-xs text-cyan-200">
+                      {label(entry.monitoring_coverage ?? entry.monitoringCoverage, "not_observed")}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-zinc-400 print:text-zinc-700">
+                    {label(entry.evidence_type ?? entry.evidenceType, "Evidence")} · {label(entry.outcome, "outcome pending")}
+                  </p>
+                  <div className="mt-3 grid gap-2 text-sm text-zinc-500">
+                    <p>Provider class: {label(entry.provider_class ?? entry.providerClass, "unattributed")}</p>
+                    <p>Environment: {label(entry.environment, "not recorded")}</p>
+                    <p>Model / version: {label(entry.model_version ?? entry.modelVersion, "not recorded")}</p>
+                    <p>Assurance: {label(entry.assurance, "not recorded")}</p>
+                    <p>Identity continuity: {label(entry.identity_continuity ?? entry.identityContinuity, "not recorded")}</p>
+                    <p>Signing boundary: {label(entry.signing_boundary ?? entry.signingBoundary, "not recorded")}</p>
+                    <p>Observed at: {label(entry.observed_at ?? entry.observedAt, "not recorded")}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : null}
+          {executionContinuity.length ? <div className="mt-5"><p className="text-xs uppercase tracking-[0.16em] text-zinc-500">Execution continuity</p><div className="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-4">{executionContinuity.map((stage, index) => <DetailRow key={`${stage.stage ?? "stage"}:${index}`} label={label(stage.stage, "Execution stage")} value={label(stage.status, "not recorded")} />)}</div></div> : null}
         </section>
 
         <section className="mt-8 rounded-lg border border-cyan-950 bg-zinc-950 p-5 print:border-zinc-300 print:bg-white">

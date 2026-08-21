@@ -4,7 +4,7 @@ import test from "node:test";
 
 import { entityIdentityModel, normalizeEntityIdentity } from "../lib/core/entity-identity.ts";
 import { evaluateAuthorityGraph } from "../lib/core/authority-graph.ts";
-import { buildEnterpriseOperationalReadinessDemo, buildTrustFabricDemo, TRUST_FABRIC_SERVICES } from "../lib/core/trust-fabric.ts";
+import { buildEnterpriseOperationalReadinessDemo, buildTrustFabricDemo, projectValeContext, TRUST_FABRIC_SERVICES, VALE_CANONICAL_OWNERSHIP } from "../lib/core/trust-fabric.ts";
 import { createProviderConsensus } from "../lib/providers/provider-consensus.ts";
 import { WORKFLOW_TEMPLATE_IDS, workflowTemplates } from "../lib/workflows/workflow-templates.ts";
 
@@ -95,6 +95,45 @@ test("Trust Fabric demo connects authority, consensus, decision, Replay, graph, 
   for (const service of ["Identity", "Authority", "Trust Engine", "Provider Orchestrator", "Evidence Graph", "Trust Memory\u2122", "Governance"]) {
     assert.ok(TRUST_FABRIC_SERVICES.some(([name]) => name === service));
   }
+});
+
+test("VALE projects human-agent-robot evidence into a canonical transaction without owning a decision or receipt", async () => {
+  const projection = projectValeContext({
+    tenantId: "tenant:demo",
+    actorLineage: [
+      { operationalEntityId: "human:alice", type: "HUMAN", role: "operator", accountablePrincipalId: "human:alice" },
+      { operationalEntityId: "agent:alpha", type: "AI_AGENT", role: "planner", accountablePrincipalId: "human:alice" },
+      { operationalEntityId: "robot:beta", type: "ROBOT", role: "warehouse_robot", accountablePrincipalId: "human:alice" },
+    ],
+    intent: { action: "MOVE", resource: "warehouse:pallet-123", purpose: "warehouse_move", environment: "preview", destination: "warehouse:zone-b", signedBy: "human:alice", signedAt: now, signatureReference: "intent:alice-001" },
+    machine: { identityState: "MACHINE_IDENTITY_VERIFIED", attestationState: "CURRENT", firmwareHash: "f".repeat(64) },
+    model: { provider: "provider:test", modelId: "navigation", version: "v1", weightsHash: "a".repeat(64) },
+    monitoring: { expectedProviders: ["fleet", "camera"], observedProviders: ["fleet"], telemetryGapSeconds: 8, connection: "INTERMITTENT" },
+    sensors: [
+      { source: "vision", observationClass: "MODEL_PERCEPTION", observation: "PATH_CLEAR", observedAt: now, digest: "b".repeat(64), freshness: "current" },
+      { source: "lidar", observationClass: "INDEPENDENT_OBSERVATION", observation: "OBSTACLE_PRESENT", observedAt: now, digest: "c".repeat(64), freshness: "current" },
+    ],
+    execution: { commandTarget: "warehouse:zone-c", stages: [{ stage: "COMMAND_SENT", status: "observed", occurredAt: now, evidenceReference: "command:001" }] },
+    oversight: "HUMAN_IN_THE_LOOP",
+    conflicts: ["PHYSICAL_PATH_CONFLICT"],
+    idempotencyKey: "vale-projection-001",
+  });
+  assert.equal(projection.canonicalTransactionInput.trustObject.subjectType, "machine_identity");
+  assert.ok(projection.evidenceTypes.includes("INTENT_EXECUTION_MISMATCH"));
+  assert.ok(projection.evidenceTypes.includes("SENSOR_DISAGREEMENT"));
+  assert.equal(Object.hasOwn(projection, "decision"), false);
+  assert.equal(Object.hasOwn(projection, "receipt"), false);
+  assert.deepEqual(VALE_CANONICAL_OWNERSHIP, {
+    VALE_FINAL_DECISION_ENGINE: "canonical",
+    VALE_RECEIPT: "canonical receipt",
+    VALE_GRAPH: "canonical Evidence Graph",
+    VALE_REPLAY: "canonical Replay",
+    VALE_MEMORY: "canonical Trust Memory",
+  });
+
+  const valeSource = await readFile(new URL("../src/lib/trust-fabric/vale.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(valeSource, /function evaluateValeTrust|ValeReceiptStore|ValeEvidenceGraph|ValeReplay|ValeMemory/);
+  assert.match(valeSource, /executeCanonicalTrustTransaction\(projectValeContext\(input\)\.canonicalTransactionInput/);
 });
 
 test("enterprise operational demo covers the ten requested steps with explicit reality states", () => {

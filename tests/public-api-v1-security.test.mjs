@@ -60,7 +60,7 @@ test("developer API-key UI documents one-time handling and the complete Gamma sc
   assert.match(apiKeyManagerSource, /CYBER_SENTINELS_BASE_URL/);
   assert.match(apiKeyManagerSource, /CYBER_SENTINELS_API_KEY/);
   assert.match(apiKeyManagerSource, /<paste the one-time secret>/);
-  for (const scope of ["agents:write", "agents:verify", "authority:read", "trust:request", "trust:read", "outcomes:write"]) {
+  for (const scope of ["agents:write", "agents:verify", "authority:read", "trust:request", "trust:read", "evidence:write", "outcomes:write"]) {
     assert.match(apiKeyManagerSource, new RegExp(scope));
   }
   assert.doesNotMatch(apiKeyManagerSource, /cs_(test|live)_[A-Za-z0-9_-]{12}\.[A-Za-z0-9_-]{43}/);
@@ -95,7 +95,7 @@ test("public agents are bound to one API client so Gamma cannot claim Alpha or B
 test("rate limits are atomic and separated by endpoint class", () => {
   assert.match(migration, /consume_public_api_rate_limit_v1/);
   assert.match(migration, /on conflict\(client_id,route_class,window_started_at\) do update/);
-  for (const routeClass of ["registration", "challenge", "proof", "decision", "read", "outcome"]) {
+  for (const routeClass of ["registration", "challenge", "proof", "decision", "read", "evidence", "outcome"]) {
     assert.match(handlerSource, new RegExp(`${routeClass}: \\{ limit:`));
   }
   assert.match(handlerSource, /RATE_LIMIT_EXCEEDED/);
@@ -108,7 +108,7 @@ test("decision idempotency is client scoped and changed retries map to 409", () 
 });
 
 test("caller-controlled decision, trust and verification fields are rejected", () => {
-  assert.match(runtimeSource, /assertOnlyFields\(body, \["operational_entity_id", "action", "idempotency_key"\]\)/);
+  assert.match(runtimeSource, /assertOnlyFields\(body, \["operational_entity_id", "action", "idempotency_key", "decision_type", "context"\]\)/);
   for (const forbidden of ["risk_level", "trust_score", "confidence_score", "verified", "evidence_independence", "ALLOW"]) {
     assert.doesNotMatch(runtimeSource.slice(runtimeSource.indexOf("requestExternalDecision"), runtimeSource.indexOf("transactionRows")), new RegExp(`body\\.${forbidden}`));
   }

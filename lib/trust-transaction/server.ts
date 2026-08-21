@@ -160,6 +160,61 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
         decisionDigest: "not_recorded",
         reviewerState: "legacy_unresolved",
       }) as DecisionTimeSnapshot;
+  const continuitySignals = {
+    identityContinuity: String((row.continuity_signals?.identityContinuity ?? row.continuity_signals?.identity_continuity) ?? "review_required"),
+    monitoringCoverage: String((row.continuity_signals?.monitoringCoverage ?? row.continuity_signals?.monitoring_coverage) ?? "not_observed"),
+    signedHumanIntent: String((row.continuity_signals?.signedHumanIntent ?? row.continuity_signals?.signed_human_intent) ?? "not_provided"),
+    consequentialImpactLineage: row.continuity_signals?.consequentialImpactLineage ?? row.continuity_signals?.consequential_impact_lineage ?? {
+      target: String(row.action_resource ?? "unknown"),
+      consequence: decisionTimeSnapshot.consequence ?? "unknown",
+      evidenceProvider: String(row.evidence_provider ?? "legacy_unresolved"),
+      humanReviewRequired: String(row.decision) === "REVIEW",
+    },
+  } as SafeCanonicalTransactionReceipt["continuitySignals"];
+  const deploymentGate = row.deployment_gate && typeof row.deployment_gate === "object"
+    ? {
+        decisionType: String(row.deployment_gate.decisionType ?? "AI_DEPLOYMENT_TRUST_GATE"),
+        materialChanges: Array.isArray(row.deployment_gate.materialChanges) ? row.deployment_gate.materialChanges.map(String) : [],
+        assuranceFreshness: String(row.deployment_gate.assuranceFreshness ?? "ASSURANCE_UNPROVEN") as SafeCanonicalTransactionReceipt["deploymentGate"] extends null ? never : NonNullable<SafeCanonicalTransactionReceipt["deploymentGate"]>["assuranceFreshness"],
+        assuranceEvidenceCount: Number(row.deployment_gate.assuranceEvidenceCount ?? 0),
+        currentAssuranceCount: Number(row.deployment_gate.currentAssuranceCount ?? 0),
+        staleEvidenceCount: Number(row.deployment_gate.staleEvidenceCount ?? 0),
+        reauthorizationRequired: Boolean(row.deployment_gate.reauthorizationRequired),
+        pendingRevalidation: Array.isArray(row.deployment_gate.pendingRevalidation) ? row.deployment_gate.pendingRevalidation.map(String) : [],
+      }
+    : null;
+  const providerNeutralEvidence = Array.isArray(row.provider_neutral_evidence)
+    ? row.provider_neutral_evidence.map((item: Row) => ({
+        providerId: String(item.provider_id ?? item.providerId ?? "external_unattributed"),
+        providerName: String(item.provider_name ?? item.providerName ?? item.provider_id ?? item.providerId ?? "external_unattributed"),
+        evidenceType: String(item.evidence_type ?? item.evidenceType ?? "unknown"),
+        observedAt: String(item.observed_at ?? item.observedAt ?? row.requested_at ?? ""),
+        outcome: String(item.outcome ?? "UNKNOWN"),
+        evidenceDigest: String(item.evidence_digest ?? item.evidenceDigest ?? ""),
+        correlationId: item.correlation_id ?? item.correlationId ?? null,
+        monitoringCoverage: String(item.monitoring_coverage ?? item.monitoringCoverage ?? "not_observed") as SafeCanonicalTransactionReceipt["providerNeutralEvidence"][number]["monitoringCoverage"],
+        identityContinuity: String(item.identity_continuity ?? item.identityContinuity ?? "review_required") as SafeCanonicalTransactionReceipt["providerNeutralEvidence"][number]["identityContinuity"],
+        signingBoundary: String(item.signing_boundary ?? item.signingBoundary ?? "unsigned") as SafeCanonicalTransactionReceipt["providerNeutralEvidence"][number]["signingBoundary"],
+        providerClass: item.provider_class ?? item.providerClass ?? null,
+        providerKey: item.provider_key ?? item.providerKey ?? null,
+        environment: item.environment ?? null,
+        scope: item.scope ?? null,
+        modelVersion: item.model_version ?? item.modelVersion ?? null,
+        permissionContext: item.permission_context ?? item.permissionContext ?? null,
+        assurance: item.assurance === null || item.assurance === undefined ? null : Number(item.assurance),
+        confidence: item.confidence ?? null,
+        findingReferences: Array.isArray(item.finding_references ?? item.findingReferences) ? (item.finding_references ?? item.findingReferences).map(String) : [],
+        retestReference: item.retest_reference ?? item.retestReference ?? null,
+      }))
+    : [];
+  const executionContinuity = Array.isArray(row.execution_continuity)
+    ? row.execution_continuity.map((item: Row) => ({
+        stage: String(item.stage),
+        status: String(item.status),
+        occurredAt: item.occurredAt ?? item.occurred_at ?? null,
+        evidenceReference: item.evidenceReference ?? item.evidence_reference ?? null,
+      })) as SafeCanonicalTransactionReceipt["executionContinuity"]
+    : [];
   const evidenceReferences = evidence
     .map((item: Row) => ({ type: "normalized_provider_evidence", id: String(item.reference ?? "") }))
     .filter((item: { id: string }) => item.id);
@@ -201,6 +256,10 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
     responsibilityLineage,
     evidenceIndependence: (["single_source", "same_party_multi_system", "provider_and_operator_same_party", "multi_source", "independently_confirmed", "conflicting", "insufficient"].includes(String(row.evidence_independence)) ? String(row.evidence_independence) : "insufficient") as SafeCanonicalTransactionReceipt["evidenceIndependence"],
     decisionTimeSnapshot,
+    continuitySignals,
+    providerNeutralEvidence,
+    deploymentGate,
+    executionContinuity,
     consequence: decisionTimeSnapshot.consequence ?? "unknown",
     confidenceInConclusion: decisionTimeSnapshot.confidenceInConclusion ?? "INSUFFICIENT",
     timestamp: String(row.requested_at),
@@ -248,7 +307,7 @@ function decisionPayload(record: CanonicalDecisionRecord) {
     accountableOwnerId: record.accountableOwnerId,
     entityType: record.entityType,
     entityLifecycleState: record.entityLifecycleState,
-    actorType: "human",
+    actorType: record.actorType,
     subjectType: record.trustObject.subjectType,
     subjectId: record.trustObject.subjectId,
     workflowId: record.workflowId,
@@ -279,6 +338,30 @@ function decisionPayload(record: CanonicalDecisionRecord) {
     responsibilityLineage: record.responsibilityLineage,
     evidenceIndependence: record.evidenceIndependence,
     decisionTimeSnapshot: record.decisionTimeSnapshot,
+    continuitySignals: record.continuitySignals,
+    providerNeutralEvidence: record.providerNeutralEvidence,
+    deploymentGate: record.deploymentGate,
+    executionContinuity: record.executionContinuity,
+  };
+}
+
+function safeCanonicalEvidenceObject(row: Row): StoredProviderEvidence {
+  const result = String(row.result ?? "INCONCLUSIVE");
+  return {
+    reference: String(row.evidence_id),
+    type: String(row.evidence_type),
+    providerId: String(row.provider_key),
+    providerEventId: String(row.evidence_id),
+    providerSessionId: String(row.evidence_id),
+    outcome: result === "POSITIVE" ? "PASSED" : ["NEGATIVE", "REVOKED"].includes(result) ? "FAILED" : "INCONCLUSIVE",
+    observedAt: String(row.observed_at ?? row.occurred_at),
+    expiresAt: row.expires_at ? String(row.expires_at) : null,
+    sourceDigest: String(row.payload_hash),
+    assuranceLevel: ({ NONE: 0, LOW: 0.25, MEDIUM: 0.5, HIGH: 0.75, VERY_HIGH: 1 } as Record<string, number>)[String(row.assurance_level)] ?? null,
+    correlationId: String(row.evidence_id),
+    sourcePartyId: String(row.source_key ?? row.provider_key),
+    sourceClassification: row.server_verified ? "provider_asserted" : "unconfirmed",
+    schemaVersion: "canonical-evidence-object-v1",
   };
 }
 
@@ -427,6 +510,13 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
       });
     },
     async loadConfiguredEvidence({ enterpriseId, subjectId, operationalEntityId, providerExecutionId }) {
+      const canonicalResult = await db.from("evidence_objects")
+        .select("evidence_id,provider_key,evidence_type,result,observed_at,occurred_at,expires_at,payload_hash,assurance_level,source_key,server_verified")
+        .eq("enterprise_id", enterpriseId)
+        .eq("subject_id", operationalEntityId ?? subjectId)
+        .order("occurred_at", { ascending: false })
+        .limit(50);
+      if (canonicalResult.error) fail("Canonical evidence collection", canonicalResult.error);
       const nativeResult = await db.from("native_entity_identity_evidence")
         .select("evidence_id,verification_id,challenge_id,verified_at,expires_at,evidence_digest,verification_algorithm_version")
         .eq("enterprise_id", enterpriseId)
@@ -436,12 +526,13 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
         .limit(20);
       if (nativeResult.error) fail("Native evidence collection", nativeResult.error);
       const nativeEvidence = (nativeResult.data ?? []).map(safeNativeEvidence);
+      const baselineEvidence = [...nativeEvidence, ...(canonicalResult.data ?? []).map(safeCanonicalEvidenceObject)];
       let workflowId: string | null = null;
       let providerSessionId: string | null = null;
       if (providerExecutionId) {
         const execution = await db.from("provider_execution_records").select("provider_id,provider_session_id,status,tenant_id,workflow_id").eq("execution_id", providerExecutionId).eq("tenant_id", enterpriseId).maybeSingle();
         if (execution.error) {
-          if (nativeEvidence.length) return nativeEvidence;
+          if (baselineEvidence.length) return baselineEvidence;
           fail("Provider execution resolution", execution.error);
         }
         if (!execution.data || execution.data.status !== "completed" || execution.data.provider_id !== "hopae_connect") throw new CanonicalTransactionError("The configured provider execution is incomplete or outside the tenant.", 409, "PROVIDER_EVIDENCE_INCOMPLETE");
@@ -451,25 +542,25 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
         if (verification.error) fail("Provider subject binding", verification.error);
         if (!verification.data) throw new CanonicalTransactionError("The configured provider execution is not bound to this Trust Object.", 409, "PROVIDER_EVIDENCE_SUBJECT_MISMATCH");
       } else if (!uuidPattern.test(subjectId)) {
-        return nativeEvidence;
+        return baselineEvidence;
       } else {
         const verification = await db.from("hopae_verifications").select("workflow_id,verification_id").eq("workspace_id", enterpriseId).eq("entity_id", subjectId).eq("provider_session_status", "COMPLETED").order("updated_at", { ascending: false }).limit(1).maybeSingle();
         if (verification.error) {
-          if (nativeEvidence.length) return nativeEvidence;
+          if (baselineEvidence.length) return baselineEvidence;
           fail("Provider verification resolution", verification.error);
         }
         workflowId = verification.data?.workflow_id ? String(verification.data.workflow_id) : null;
         providerSessionId = verification.data?.verification_id ? String(verification.data.verification_id) : null;
       }
-      if (!workflowId || !uuidPattern.test(workflowId)) return nativeEvidence;
+      if (!workflowId || !uuidPattern.test(workflowId)) return baselineEvidence;
       let query = db.from("normalized_identity_evidence").select("evidence_id,evidence_type,provider_id,provider_event_id,provider_session_id,outcome,observed_at,expires_at,source_digest,assurance_level,correlation_id").eq("tenant_id", enterpriseId).eq("trust_session_id", workflowId).order("observed_at", { ascending: false }).limit(20);
       if (providerSessionId) query = query.eq("provider_session_id", providerSessionId);
       const result = await query;
       if (result.error) {
-        if (nativeEvidence.length) return nativeEvidence;
+        if (baselineEvidence.length) return baselineEvidence;
         fail("Configured evidence collection", result.error);
       }
-      return [...nativeEvidence, ...(result.data ?? []).map(safeEvidence)].sort((left, right) => right.observedAt.localeCompare(left.observedAt));
+      return [...baselineEvidence, ...(result.data ?? []).map(safeEvidence)].sort((left, right) => right.observedAt.localeCompare(left.observedAt));
     },
     async loadAuthority(enterpriseId, subjectType, subjectId) {
       const result = await db.from("trust_contracts").select("contract,revocation_state,revoked_at").eq("enterprise_id", enterpriseId).eq("subject_type", subjectType).eq("subject_id", subjectId).order("issued_at", { ascending: false }).limit(1).maybeSingle();

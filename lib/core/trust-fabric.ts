@@ -10,6 +10,7 @@ import {
   type ProviderConsensusResult,
   type ProviderConsensusSignalInput,
 } from "../providers/provider-consensus.ts";
+export { authorizeValeTrust, projectValeContext, VALE_CANONICAL_OWNERSHIP } from "../../src/lib/trust-fabric/vale.ts";
 import { validateTrustMemoryIntegrity } from "../trust-memory/trust-memory.ts";
 import { getWorkflowTemplate, type WorkflowTemplateId } from "../workflows/workflow-templates.ts";
 
