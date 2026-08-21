@@ -45,6 +45,25 @@ test("release qualification flags missing release stop rules", () => {
   assert.equal(result.codes[0], "RELEASE_STOP_RULES_MISSING");
 });
 
+test("external Preview capacity is a fail-closed release exception, never a green check", () => {
+  const result = evaluateReleaseQualification(completeInput({
+    qualificationEnvironment: "disposable_preview",
+    supabaseProjectRef: "svcioqohebfoeuxzjcxy",
+    previewCapacityState: "unavailable",
+    databaseProof: "previously_qualified",
+  }));
+
+  assert.equal(result.status, "fail");
+  assert.deepEqual(result.codes, ["EXTERNAL_PREVIEW_CAPACITY_UNAVAILABLE"]);
+  assert.equal(result.previewQualification?.status, "failed");
+  assert.deepEqual(result.releaseException, {
+    classification: "EXTERNAL_PREVIEW_CAPACITY_UNAVAILABLE",
+    databaseProof: "PREVIOUSLY_QUALIFIED",
+    currentPreviewControlPlane: "BLOCKED_CAPACITY",
+    required: true,
+  });
+});
+
 test("disposable Preview skips only the exact unsupported Free-tier template operation", () => {
   const result = evaluateReleaseQualification(completeInput({
     qualificationEnvironment: "disposable_preview",

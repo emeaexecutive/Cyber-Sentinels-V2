@@ -6,10 +6,17 @@ import { createCanonicalTrustTransactionDependencies } from "@/lib/trust-transac
 import { executeCanonicalTrustTransaction, type CanonicalTrustTransactionDependencies, type StoredProviderEvidence } from "@/src/lib/trust-transaction/canonical";
 import { hashCanonical } from "@/src/lib/trust-core/hash";
 import {
+  evaluatePolicyAssistance,
+  evaluateWorkforceContinuity,
+  parsePolicyEvidence,
+  parseWorkforceContinuityEvidence,
+  type PolicyEvidence,
+  type WorkforceContinuityEvidence,
+} from "@/src/lib/protected-workflows/policy-continuity";
+import {
   aiAssistancePolicies,
   assertWorkflowMutable,
   canTransitionWorkflow,
-  evaluateAiAssistance,
   interventionForDecision,
   parseWorkflowEvidence,
   protectedWorkflowTypes,
@@ -52,11 +59,6 @@ function metadata(value: unknown) {
   const result = value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
   if (JSON.stringify(result).length > 16_000) throw new ProtectedWorkflowError("metadata is too large.", 413, "METADATA_TOO_LARGE");
   return result;
-}
-
-function aiPolicy(row: Row): AiAssistancePolicy {
-  const value = String((row.metadata as Row | null)?.aiAssistancePolicy ?? "restricted");
-  return aiAssistancePolicies.includes(value as AiAssistancePolicy) ? value as AiAssistancePolicy : "restricted";
 }
 
 function withoutConfidence(evidence: WorkflowEvidenceInput) {
@@ -123,7 +125,51 @@ async function ensureEvidenceGraphNode(db: SupabaseClient, values: {
 }
 
 function replayEventForIntervention(intervention: WorkflowIntervention) {
-  return ({ CHALLENGE: "CHALLENGE_REQUIRED", STEP_UP_VERIFY: "STEP_UP_STARTED", PAUSE: "PAUSED", BLOCK: "BLOCKED", RESUME: "RESUMED", TERMINATE: "WORKFLOW_COMPLETED" } as Partial<Record<WorkflowIntervention, string>>)[intervention] ?? intervention;
+  return ({ CHALLENGE: "CHALLENGE_REQUIRED", STEP_UP_VERIFICATION: "STEP_UP_STARTED", STEP_UP_VERIFY: "STEP_UP_STARTED", REVIEW: "CHALLENGE_REQUIRED", PAUSE: "PAUSED", BLOCK: "BLOCKED", RESUME: "RESUMED", TERMINATE: "WORKFLOW_COMPLETED" } as Partial<Record<WorkflowIntervention, string>>)[intervention] ?? intervention;
+}
+
+function materialEventForEvidence(evidence: WorkflowEvidenceInput) {
+  if (evidence.evidenceType === "POLICY_EVIDENCE" && evidence.metadata?.candidateAcknowledgement === "ACKNOWLEDGED") return "POLICY_ACKNOWLEDGED";
+  if (evidence.evidenceType === "ai_assistance_declared") return "AI_ASSISTANCE_DECLARED";
+  if (["ai_assistance_policy_conflict", "policy_conflict"].includes(String(evidence.evidenceType))) return "AI_ASSISTANCE_POLICY_CONFLICT";
+  if (evidence.evidenceType !== "WORKFORCE_CONTINUITY") return null;
+  const finding = String(evidence.metadata?.finding ?? "");
+  if (finding === "DEVICE_PROVENANCE_MISMATCH" || finding === "LOGIN_DEVICE_CHANGED") return "DEVICE_PROVENANCE_CHANGED";
+  if (finding === "REMOTE_ACCESS_PATH_OBSERVED") return "REMOTE_ACCESS_PATH_OBSERVED";
+  if (evidence.metadata?.state === "CONTINUITY_VERIFIED") return "WORKFORCE_IDENTITY_REVERIFIED";
+  return "IDENTITY_CONTINUITY_CHANGED";
+}
+
+function replayEventForEvidence(evidence: WorkflowEvidenceInput) {
+  return materialEventForEvidence(evidence) ?? (evidence.category === "consent" ? "CONSENT_CONFIRMED" : evidence.category === "manual_review" ? "HUMAN_REVIEW" : "EVIDENCE_OBSERVED");
+}
+
+function workflowEvidenceProjections(rows: Row[], decisionTransactionReference: string | null) {
+  const policyEvidence = rows
+    .filter((item) => String((item.normalized_facts as Row | null)?.evidenceType) === "POLICY_EVIDENCE")
+    .map((item) => ({ ...((item.normalized_facts as Row).metadata as PolicyEvidence), evidenceReference: item.evidence_id, decisionTransactionReference }));
+  const continuityRecords = rows
+    .filter((item) => String((item.normalized_facts as Row | null)?.evidenceType) === "WORKFORCE_CONTINUITY")
+    .map((item) => ({ ...((item.normalized_facts as Row).metadata as WorkforceContinuityEvidence), evidenceReference: item.evidence_id }));
+  const identityContinuity = evaluateWorkforceContinuity(continuityRecords);
+  const aiEvidence = rows.filter((item) => String((item.normalized_facts as Row | null)?.category) === "ai_assistance");
+  return {
+    policyEvidence,
+    identityContinuity,
+    disputeReplay: {
+      policyInForce: policyEvidence.at(-1)?.policyId ?? null,
+      policyVersion: policyEvidence.at(-1)?.policyVersion ?? null,
+      candidateAcknowledgement: policyEvidence.at(-1)?.candidateAcknowledgement ?? "NOT_RECORDED",
+      assistanceDeclared: aiEvidence.some((item) => ["ai_assistance_declared", "disclosure_present"].includes(String((item.normalized_facts as Row).evidenceType))),
+      assistanceObserved: aiEvidence.some((item) => ["ai_assistance_observed", "possible_realtime_answer_assistance", "realtime_assistance_possible"].includes(String((item.normalized_facts as Row).evidenceType))),
+      identityContinuousThroughInterview: continuityRecords.find((item) => item.stage === "INTERVIEW_IDENTITY")?.state ?? "CONTINUITY_UNPROVEN",
+      sameIdentityOnboarded: continuityRecords.find((item) => item.stage === "ONBOARDING_IDENTITY")?.state ?? "CONTINUITY_UNPROVEN",
+      issuedDevice: continuityRecords.find((item) => item.stage === "ISSUED_DEVICE") ?? null,
+      firstAccess: continuityRecords.find((item) => item.stage === "FIRST_ACCESS") ?? null,
+      trustChangedAt: continuityRecords.find((item) => item.state !== "CONTINUITY_VERIFIED")?.observedAt ?? null,
+      responseReasonCodes: identityContinuity.reasonCodes,
+    },
+  };
 }
 
 async function canonicalSubject(db: SupabaseClient, workspaceId: string, entityId: string) {
@@ -202,12 +248,30 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
         consentReference = requested;
         const consentEvidence = withoutConfidence(evidence);
         evidence = { ...consentEvidence, source: "consent_manager", sourceParty: "cyber_sentinels", observedAt: String(receipt.occurred_at), classification: "confirmed", severity: "informational", metadata: { consentReference: receipt.receipt_id, policyVersion: receipt.policy_version, action: receipt.consent_action } };
-      } else if (!consentReference) {
+      } else if (evidence.category !== "policy" && !consentReference) {
         throw new ProtectedWorkflowError("Consent must be confirmed before monitoring evidence is accepted.", 409, "MONITORING_CONSENT_REQUIRED");
+      }
+      if (evidence.evidenceType === "POLICY_EVIDENCE") {
+        let policy: PolicyEvidence;
+        try {
+          policy = parsePolicyEvidence(evidence.metadata, { workspace: input.workspaceId, workflow: workflowId, policyReference: String(row.policy_reference), observedAt: evidence.observedAt });
+        } catch (error) {
+          throw new ProtectedWorkflowError(error instanceof Error ? error.message : "Policy evidence is invalid.", 400, "POLICY_EVIDENCE_INVALID");
+        }
+        evidence = { ...withoutConfidence(evidence), classification: "policy_in_force", severity: "informational", metadata: policy };
+      }
+      if (evidence.evidenceType === "WORKFORCE_CONTINUITY") {
+        let continuity: WorkforceContinuityEvidence;
+        try {
+          continuity = parseWorkforceContinuityEvidence(evidence.metadata, { workspace: input.workspaceId, workflow: workflowId, operationalEntityId: String(row.subject_entity_id), source: evidence.source, observedAt: evidence.observedAt });
+        } catch (error) {
+          throw new ProtectedWorkflowError(error instanceof Error ? error.message : "Workforce continuity evidence is invalid.", 400, "WORKFORCE_CONTINUITY_EVIDENCE_INVALID");
+        }
+        evidence = { ...evidence, classification: continuity.state, metadata: continuity };
       }
       const evidenceId = crypto.randomUUID();
       const correlationId = crypto.randomUUID();
-      const facts = { category: evidence.category, evidenceType: evidence.evidenceType ?? null, source: evidence.source, sourceParty: evidence.sourceParty, confidence: evidence.confidence ?? null, classification: evidence.classification, severity: evidence.severity, workflowId, metadata: evidence.metadata };
+      const facts = { category: evidence.category, evidenceType: evidence.evidenceType ?? null, source: evidence.source, sourceParty: evidence.sourceParty, confidence: evidence.confidence ?? null, classification: evidence.classification, severity: evidence.severity, workspace: input.workspaceId, workflowId, operationalEntityId: row.subject_entity_id, metadata: evidence.metadata };
       const digest = hashCanonical(facts);
       const stored = await db.from("evidence_objects").insert({
         id: evidenceId,
@@ -248,10 +312,15 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
       const now = new Date().toISOString();
       const updated = await db.from("protected_workflows").update({ consent_reference: consentReference, status: nextStatus, started_at: row.started_at ?? (consentReference ? now : null), last_activity_at: now, updated_at: now }).eq("workspace_id", input.workspaceId).eq("id", workflowId).eq("updated_at", row.updated_at).select("*").maybeSingle();
       if (updated.error || !updated.data) persistenceFailure("Protected workflow evidence projection", updated.error ?? new Error("Concurrent workflow mutation"));
-      await appendReplay(db, updated.data as Row, actorId, evidence.category === "consent" ? "CONSENT_CONFIRMED" : evidence.category === "manual_review" ? "HUMAN_REVIEW" : "EVIDENCE_OBSERVED", correlationId);
+      await appendReplay(db, updated.data as Row, actorId, replayEventForEvidence(evidence), correlationId);
       if (evidence.category === "manual_review") {
         const memory = await db.from("trust_memory_index").upsert({ enterprise_id: input.workspaceId, subject_id: row.subject_entity_id, domain_key: "WORKFLOW", memory_type: "HUMAN_REVIEW_COMPLETED", source_id: String(evidence.metadata?.reviewId), occurred_at: evidence.observedAt, summary: { workflowId, reviewId: evidence.metadata?.reviewId, decision: evidence.metadata?.decision }, correlation_id: correlationId }, { onConflict: "enterprise_id,memory_type,source_id", ignoreDuplicates: true });
         if (memory.error) persistenceFailure("Human review Trust Memory append", memory.error);
+      }
+      const materialEvent = materialEventForEvidence(evidence);
+      if (materialEvent) {
+        const memory = await db.from("trust_memory_index").upsert({ enterprise_id: input.workspaceId, subject_id: row.subject_entity_id, domain_key: "WORKFLOW", memory_type: materialEvent, source_id: evidenceId, occurred_at: evidence.observedAt, summary: { workflowId, evidenceId, policyId: evidence.metadata?.policyId ?? null, policyVersion: evidence.metadata?.policyVersion ?? null, stage: evidence.metadata?.stage ?? null, state: evidence.metadata?.state ?? null, finding: evidence.metadata?.finding ?? null }, correlation_id: correlationId }, { onConflict: "enterprise_id,memory_type,source_id", ignoreDuplicates: true });
+        if (memory.error) persistenceFailure("Material workflow Trust Memory append", memory.error);
       }
       return { evidence: stored.data, workflow: updated.data };
     },
@@ -271,19 +340,29 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
         const facts = item.normalized_facts as Row;
         return facts.evidenceType === "ai_assistance_declared" || facts.metadata?.declared === true;
       });
-      let aiAuthorization: "REVIEW" | "DENY" | null = null;
-      const aiReasonCodes: string[] = [];
-      for (const item of aiRows) {
-        const facts = item.normalized_facts as Row;
-        const result = evaluateAiAssistance({ policy: aiPolicy(row), declared: aiDeclared, observed: true, confidence: typeof facts.confidence === "number" ? facts.confidence : undefined, corroborated: facts.metadata?.corroborated === true, highConsequence: ["privileged_access", "financial_approval"].includes(String(row.workflow_type)) });
-        aiReasonCodes.push(...result.reasonCodes);
-        if (result.authorization === "DENY" || (result.authorization === "REVIEW" && aiAuthorization !== "DENY")) aiAuthorization = result.authorization;
-      }
+      const policyRows = evidenceRows.filter((item) => String((item.normalized_facts as Row)?.evidenceType) === "POLICY_EVIDENCE");
+      const policyEvidence = (policyRows.at(-1)?.normalized_facts as Row | undefined)?.metadata as PolicyEvidence | undefined;
+      const assistanceObserved = aiRows.some((item) => ["ai_assistance_observed", "possible_realtime_answer_assistance", "realtime_assistance_possible"].includes(String((item.normalized_facts as Row)?.evidenceType)));
+      const disclosurePresent = aiRows.some((item) => ["ai_assistance_declared", "disclosure_present"].includes(String((item.normalized_facts as Row)?.evidenceType)));
+      const corroborated = aiRows.some((item) => (item.normalized_facts as Row)?.metadata?.corroborated === true && Boolean((item.normalized_facts as Row)?.metadata?.independentEvidenceReference));
+      const policyEvaluation = evaluatePolicyAssistance({ policy: policyEvidence ?? null, assistanceObserved, assistanceDeclared: aiDeclared, disclosurePresent, corroborated });
+      const continuityEvidence = evidenceRows
+        .filter((item) => String((item.normalized_facts as Row)?.evidenceType) === "WORKFORCE_CONTINUITY")
+        .map((item) => (item.normalized_facts as Row).metadata as WorkforceContinuityEvidence);
+      const continuityEvaluation = evaluateWorkforceContinuity(continuityEvidence);
+      const delegatedReasonCodes = [...new Set([...policyEvaluation.reasonCodes, ...continuityEvaluation.reasonCodes])];
+      const delegatedAuthorization = policyEvaluation.authorization === "REVIEW" || continuityEvaluation.authorization === "REVIEW"
+        ? { decision: "REVIEW" as const, reasonCodes: delegatedReasonCodes }
+        : undefined;
       const canonicalEvidence: StoredProviderEvidence[] = evidenceRows.map((item) => {
         const facts = item.normalized_facts as Row;
-        const ai = String(facts.category) === "ai_assistance" ? evaluateAiAssistance({ policy: aiPolicy(row), declared: aiDeclared, observed: true, confidence: typeof facts.confidence === "number" ? facts.confidence : undefined, corroborated: facts.metadata?.corroborated === true, highConsequence: ["privileged_access", "financial_approval"].includes(String(row.workflow_type)) }) : null;
-        const outcome = ai?.authorization ? "INCONCLUSIVE" : item.result === "NEGATIVE" ? "FAILED" : item.result === "POSITIVE" || (ai && !ai.authorization) ? "PASSED" : "INCONCLUSIVE";
+        const nonAdverseObservation = ["ai_assistance", "identity", "device", "network", "remote_access"].includes(String(facts.category));
+        const outcome = item.result === "POSITIVE" ? "PASSED" : nonAdverseObservation ? "INCONCLUSIVE" : item.result === "NEGATIVE" ? "FAILED" : "INCONCLUSIVE";
         return { reference: String(item.evidence_id), type: String(item.evidence_type), providerId: String(item.source_key), providerEventId: String(item.evidence_id), providerSessionId: workflowId, outcome, observedAt: String(item.occurred_at), expiresAt: item.expires_at ? String(item.expires_at) : null, sourceDigest: String(item.payload_hash), assuranceLevel: ({ NONE: null, LOW: 0.4, MEDIUM: 0.7, HIGH: 0.9, VERY_HIGH: 0.98 } as Row)[String(item.assurance_level)] ?? null, correlationId: String(item.evidence_id), sourcePartyId: String(facts.sourceParty ?? item.source_key), sourceClassification: "provider_asserted", schemaVersion: "track-block-evidence-v1" };
+      });
+      const contextEvidence = evidenceRows.map((item) => {
+        const facts = item.normalized_facts as Row;
+        return { providerClass: String(facts.category === "ai_assistance" ? "AI_ASSISTANCE_PROVIDER" : "APPLICATION_SIGNAL"), providerKey: String(item.source_key), evidenceType: String(facts.metadata?.finding ?? facts.evidenceType ?? item.evidence_type), observedAt: String(item.occurred_at), outcome: String(item.result), evidenceDigest: String(item.payload_hash), metadata: { evidenceReference: item.evidence_id, workflowId, operationalEntityId: row.subject_entity_id } };
       });
       const dependencies = createCanonicalTrustTransactionDependencies({ supabase: input.supabase, user: input.user });
       const baseLoad = dependencies.loadConfiguredEvidence.bind(dependencies);
@@ -300,7 +379,7 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
         action: { type: actionType, purpose, resource: resourceValue, environment, payloadDigest: hashCanonical({ workflowId, actionType, purpose, resourceValue, environment, snapshotDigest }) },
         idempotencyKey: `track-block:${workflowId}:eval:${snapshotDigest.slice(0, 24)}`,
         previousTransactionId: row.latest_canonical_transaction_id,
-        managedControl: { authorization: aiAuthorization ? { decision: aiAuthorization, reasonCodes: [...new Set(aiReasonCodes)] } : undefined, reviewerState: row.metadata?.humanReviewRequired === true ? "required" : undefined },
+        managedControl: { authorization: delegatedAuthorization, contextEvidence, contradictions: continuityEvaluation.findings, reviewerState: row.metadata?.humanReviewRequired === true ? "required" : undefined },
       }, adapted);
       const now = new Date().toISOString();
       const completionRequested = body.complete === true;
@@ -309,7 +388,17 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
       if (updated.error || !updated.data) persistenceFailure("Canonical decision workflow projection", updated.error ?? new Error("Concurrent workflow mutation"));
       await appendReplay(db, updated.data as Row, actorId, "CANONICAL_DECISION", receipt.correlationId, receipt.transactionId);
       if (projectedStatus === "completed") await appendReplay(db, updated.data as Row, actorId, "WORKFLOW_COMPLETED", receipt.correlationId, receipt.transactionId);
-      return { workflow: updated.data, receipt, suggestedIntervention: interventionForDecision({ decision: receipt.decision, humanReviewRequired: row.metadata?.humanReviewRequired === true, policyPermitsBlock: row.metadata?.policyPermitsBlock === true, policyPermitsTerminate: row.metadata?.policyPermitsTerminate === true }) };
+      const preferred = receipt.decision === "REVIEW" ? continuityEvaluation.intervention : undefined;
+      const materialDecisionEvents = [
+        ...(receipt.changedConditions.includes("POLICY_CHANGED") ? ["POLICY_VERSION_CHANGED"] : []),
+        ...(receipt.reasonCodes.includes("AI_ASSISTANCE_POLICY_CONFLICT") ? ["AI_ASSISTANCE_POLICY_CONFLICT"] : []),
+        ...(preferred === "STEP_UP_VERIFICATION" ? ["STEP_UP_VERIFICATION_REQUIRED"] : []),
+      ];
+      for (const memoryType of materialDecisionEvents) {
+        const memory = await db.from("trust_memory_index").upsert({ enterprise_id: input.workspaceId, subject_id: row.subject_entity_id, domain_key: "WORKFLOW", memory_type: memoryType, source_id: receipt.transactionId, occurred_at: now, summary: { workflowId, canonicalTransactionId: receipt.transactionId, policyId: receipt.policy.id, policyVersion: receipt.policy.version, reasonCodes: receipt.reasonCodes }, correlation_id: receipt.correlationId }, { onConflict: "enterprise_id,memory_type,source_id", ignoreDuplicates: true });
+        if (memory.error) persistenceFailure("Canonical workflow Trust Memory append", memory.error);
+      }
+      return { workflow: updated.data, receipt, policyEvidence: policyEvidence ?? null, identityContinuity: continuityEvaluation, suggestedIntervention: interventionForDecision({ decision: receipt.decision, preferred, humanReviewRequired: row.metadata?.humanReviewRequired === true, policyPermitsBlock: row.metadata?.policyPermitsBlock === true, policyPermitsTerminate: row.metadata?.policyPermitsTerminate === true }) };
     },
 
     async intervene(workflowId: string, raw: unknown) {
@@ -338,7 +427,7 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
       const now = new Date().toISOString();
       const updated = await db.from("protected_workflows").update({ status: nextStatus, latest_intervention: requested, last_activity_at: now, ended_at: ["terminated", "completed"].includes(nextStatus) ? now : row.ended_at, updated_at: now }).eq("workspace_id", input.workspaceId).eq("id", workflowId).eq("updated_at", row.updated_at).select("*").maybeSingle();
       if (updated.error || !updated.data) persistenceFailure("Intervention workflow projection", updated.error ?? new Error("Concurrent workflow mutation"));
-      const materialMemory = ({ STEP_UP_VERIFY: "STEP_UP_REQUIRED", PAUSE: "WORKFLOW_PAUSED", BLOCK: "WORKFLOW_BLOCKED", RESUME: "TRUST_RECOVERED" } as Partial<Record<WorkflowIntervention, string>>)[requested];
+      const materialMemory = ({ STEP_UP_VERIFICATION: "STEP_UP_VERIFICATION_REQUIRED", STEP_UP_VERIFY: "STEP_UP_VERIFICATION_REQUIRED", PAUSE: "WORKFLOW_PAUSED", BLOCK: "WORKFLOW_BLOCKED", RESUME: "TRUST_RECOVERED" } as Partial<Record<WorkflowIntervention, string>>)[requested];
       if (materialMemory) {
         const memory = await db.from("trust_memory_index").upsert({ enterprise_id: input.workspaceId, subject_id: row.subject_entity_id, domain_key: "WORKFLOW", memory_type: materialMemory, source_id: intervention.data.id, occurred_at: now, summary: { workflowId, intervention: requested, canonicalTransactionId: transaction.data.transaction_id }, correlation_id: correlationId }, { onConflict: "enterprise_id,memory_type,source_id", ignoreDuplicates: true });
         if (memory.error) persistenceFailure("Material Trust Memory append", memory.error);
@@ -360,7 +449,8 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
       const transactions = transactionIds.length ? await db.from("canonical_trust_transactions").select("transaction_id,decision,reason_codes,authority_reference,policy_id,policy_version,evidence_references,evidence_graph_reference,replay_reference,trust_memory_reference,requested_at").eq("enterprise_id", input.workspaceId).in("transaction_id", transactionIds).order("requested_at", { ascending: true }) : { data: [] as Row[], error: null };
       if (transactions.error) persistenceFailure("Protected workflow canonical transactions", transactions.error);
       const transactionRows = (transactions.data ?? []) as Row[];
-      return { workflow: row, consent: row.consent_reference ? { receiptReference: row.consent_reference } : null, evidence: evidence.data ?? [], canonicalTransactions: transactionRows, interventions: interventions.data ?? [], replay: replay.data ?? [], trustMemory: memory.data ?? [], references: references.data ?? [], receipts: transactionRows.map((item) => ({ transactionId: item.transaction_id, href: `/api/trust/transactions/${item.transaction_id}/receipt` })) };
+      const projections = workflowEvidenceProjections((evidence.data ?? []) as Row[], transactionRows.at(-1)?.transaction_id ?? null);
+      return { workflow: row, consent: row.consent_reference ? { receiptReference: row.consent_reference } : null, evidence: evidence.data ?? [], canonicalTransactions: transactionRows, interventions: interventions.data ?? [], replay: replay.data ?? [], trustMemory: memory.data ?? [], references: references.data ?? [], receipts: transactionRows.map((item) => ({ transactionId: item.transaction_id, href: `/api/trust/transactions/${item.transaction_id}/receipt` })), ...projections };
     },
   };
 }
@@ -381,12 +471,14 @@ export async function loadProtectedWorkflowReceiptContext(workspaceId: string, t
     db.from("trust_memory_index").select("memory_id,memory_type,source_id,occurred_at").eq("enterprise_id", workspaceId).contains("summary", { workflowId }).order("occurred_at", { ascending: true }),
   ]);
   for (const result of [workflowResult, evidence, interventions, replay, memory]) if (result.error) persistenceFailure("Protected workflow receipt context", result.error);
+  const evidenceRows = (evidence.data ?? []) as Row[];
   return {
     workflow: workflowResult.data,
-    evidence: (evidence.data ?? []).map((item) => ({ evidenceId: item.evidence_id, evidenceType: item.evidence_type, category: (item.normalized_facts as Row | null)?.category ?? null, digest: item.payload_hash, observedAt: item.occurred_at })),
+    evidence: evidenceRows.map((item) => ({ evidenceId: item.evidence_id, evidenceType: item.evidence_type, category: (item.normalized_facts as Row | null)?.category ?? null, digest: item.payload_hash, observedAt: item.occurred_at })),
     interventions: interventions.data ?? [],
     governanceReviewReferences: (evidence.data ?? []).map((item) => (item.normalized_facts as Row | null)?.metadata?.reviewId).filter(Boolean),
     replay: replay.data ?? [],
     trustMemory: memory.data ?? [],
+    ...workflowEvidenceProjections(evidenceRows, transactionId),
   };
 }

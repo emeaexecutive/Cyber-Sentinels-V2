@@ -19,6 +19,8 @@ export type ReleaseQualificationInput = {
   authSchemaQualified?: boolean;
   canonicalStagingRealEmailQualified?: boolean;
   productionEmailQualified?: boolean;
+  previewCapacityState?: "available" | "unavailable";
+  databaseProof?: "current" | "previously_qualified" | "unproven";
 };
 
 export type ReleaseQualificationResult = {
@@ -28,6 +30,12 @@ export type ReleaseQualificationResult = {
     status: "pass" | "skipped" | "failed";
     code: string;
     reason?: string;
+  };
+  releaseException?: {
+    classification: "EXTERNAL_PREVIEW_CAPACITY_UNAVAILABLE";
+    databaseProof: "PREVIOUSLY_QUALIFIED" | "UNPROVEN";
+    currentPreviewControlPlane: "BLOCKED_CAPACITY";
+    required: true;
   };
 };
 
@@ -49,10 +57,27 @@ export function evaluateReleaseQualification(input: ReleaseQualificationInput): 
   if (!input.branchIsStagingFoundation) codes.push("BRANCH_MISMATCH");
 
   let previewQualification: ReleaseQualificationResult["previewQualification"];
+  let releaseException: ReleaseQualificationResult["releaseException"];
   if (input.qualificationEnvironment !== undefined) {
     let effectiveEnvironment = input.qualificationEnvironment;
 
-    if (effectiveEnvironment === "unknown") {
+    if (
+      effectiveEnvironment === "disposable_preview" &&
+      input.previewCapacityState === "unavailable"
+    ) {
+      codes.push("EXTERNAL_PREVIEW_CAPACITY_UNAVAILABLE");
+      previewQualification = {
+        status: "failed",
+        code: "EXTERNAL_PREVIEW_CAPACITY_UNAVAILABLE",
+        reason: "The external Supabase Preview control plane has no available compute capacity. Prior database qualification is retained as evidence, but it does not make the current hosted Preview check pass.",
+      };
+      releaseException = {
+        classification: "EXTERNAL_PREVIEW_CAPACITY_UNAVAILABLE",
+        databaseProof: input.databaseProof === "previously_qualified" ? "PREVIOUSLY_QUALIFIED" : "UNPROVEN",
+        currentPreviewControlPlane: "BLOCKED_CAPACITY",
+        required: true,
+      };
+    } else if (effectiveEnvironment === "unknown") {
       codes.push("QUALIFICATION_ENVIRONMENT_UNKNOWN");
     } else if (!input.supabaseProjectRef) {
       codes.push("SUPABASE_PROJECT_REF_MISSING");
@@ -147,5 +172,6 @@ export function evaluateReleaseQualification(input: ReleaseQualificationInput): 
     status: codes.length === 0 ? "pass" : "fail",
     codes,
     ...(previewQualification ? { previewQualification } : {}),
+    ...(releaseException ? { releaseException } : {}),
   };
 }

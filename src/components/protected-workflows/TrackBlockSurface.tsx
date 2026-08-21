@@ -10,9 +10,9 @@ function value(input: unknown, fallback = "Not observed") {
   return String(input).replaceAll("_", " ");
 }
 
-export function TrackBlockSurface({ enterpriseId }: { enterpriseId: string }) {
+export function TrackBlockSurface({ enterpriseId, initialData = null }: { enterpriseId: string; initialData?: RecordValue | null }) {
   const [workflowId, setWorkflowId] = useState("");
-  const [data, setData] = useState<RecordValue | null>(null);
+  const [data, setData] = useState<RecordValue | null>(() => initialData);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -32,6 +32,9 @@ export function TrackBlockSurface({ enterpriseId }: { enterpriseId: string }) {
   const interventions = (data?.interventions ?? []) as RecordValue[];
   const latestTransaction = transactions.at(-1);
   const latestIntervention = interventions.at(-1);
+  const policyEvidence = ((data?.policyEvidence ?? []) as RecordValue[]).at(-1);
+  const continuity = data?.identityContinuity as RecordValue | undefined;
+  const demo = data?.demo === true;
   const category = (name: string) => evidence.filter((item) => item.normalized_facts?.category === name);
 
   return <div className="mt-8 space-y-6">
@@ -61,11 +64,21 @@ export function TrackBlockSurface({ enterpriseId }: { enterpriseId: string }) {
         ].map(([label, result]) => <article key={label} className="rounded-xl border border-white/10 bg-white/[0.035] p-4"><p className="text-xs font-semibold uppercase tracking-wider text-cyan-300">{label}</p><p className="mt-2 break-words text-sm text-zinc-200">{result}</p></article>)}
       </section>
 
+      <section aria-label="Policy Evidence" className="grid gap-4 rounded-2xl border border-white/10 bg-slate-950/60 p-5 lg:grid-cols-2">
+        <div><p className="text-xs font-semibold uppercase tracking-wider text-cyan-300">Policy Evidence</p><h2 className="mt-2 text-xl font-semibold">Policy in force</h2><dl className="mt-4 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-sm"><dt className="text-zinc-500">Policy</dt><dd>{policyEvidence ? `${value(policyEvidence.policyId)} · ${value(policyEvidence.policyVersion)}` : "Not recorded"}</dd><dt className="text-zinc-500">Effective</dt><dd>{value(policyEvidence?.policyEffectiveAt)}</dd><dt className="text-zinc-500">Permitted</dt><dd>{policyEvidence?.permittedAiAssistance?.length ? policyEvidence.permittedAiAssistance.join(", ") : "None listed"}</dd><dt className="text-zinc-500">Prohibited</dt><dd>{policyEvidence?.prohibitedAiAssistance?.length ? policyEvidence.prohibitedAiAssistance.join(", ") : "None listed"}</dd><dt className="text-zinc-500">Acknowledged</dt><dd>{value(policyEvidence?.candidateAcknowledgement, "Not recorded")}</dd></dl></div>
+        <div><p className="text-xs font-semibold uppercase tracking-wider text-cyan-300">Decision provenance</p><p className="mt-2 text-sm text-zinc-300">Observation → applicable policy and immutable version → disclosure and consent → corroborating evidence → canonical decision.</p><p className="mt-3 text-sm text-zinc-500">AI-assistance or vendor identity alone is not a policy violation and cannot determine an adverse action.</p>{latestTransaction?.reason_codes?.length ? <ul className="mt-4 space-y-1 text-sm text-zinc-300">{latestTransaction.reason_codes.map((reason: string) => <li key={reason}>• {value(reason)}</li>)}</ul> : null}</div>
+      </section>
+
+      <section aria-label="Identity Continuity" className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+        <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-wider text-cyan-300">Identity Continuity</p><h2 className="mt-2 text-xl font-semibold">Candidate → workforce → privileged access</h2></div><p className="text-sm text-zinc-300">Current state: {value(continuity?.currentState, "Unproven")}</p></div>
+        <ol className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">{continuity?.timeline?.length ? continuity.timeline.map((item: RecordValue) => <li key={`${item.stage}-${item.observedAt}`} className="rounded-lg border border-white/10 p-4"><p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">{value(item.stage)}</p><p className="mt-2 font-medium text-zinc-100">{value(item.state)}</p><p className="mt-1 text-sm text-zinc-400">Source: {value(item.source)}</p>{item.finding ? <p className="mt-2 text-sm text-amber-300">Finding: {value(item.finding)}</p> : null}</li>) : <li className="text-sm text-zinc-400">No continuity stages have been recorded.</li>}</ol>
+      </section>
+
       <nav aria-label="Workflow evidence links" className="flex flex-wrap gap-3 rounded-xl border border-white/10 bg-black/20 p-4">
         <a href="#track-block-evidence" className="brand-secondary-action">View Evidence</a>
-        {latestTransaction ? <Link href={`/trust/transactions/${latestTransaction.transaction_id}`} className="brand-secondary-action">View Authority Lineage</Link> : <span aria-disabled="true" className="brand-secondary-action opacity-50">View Authority Lineage</span>}
+        {latestTransaction && !demo ? <Link href={`/trust/transactions/${latestTransaction.transaction_id}`} className="brand-secondary-action">View Authority Lineage</Link> : <span aria-disabled="true" className="brand-secondary-action opacity-50">View Authority Lineage</span>}
         <Link href="/trust-replay" className="brand-secondary-action">Open Replay</Link>
-        {latestTransaction ? <Link href={`/trust/transactions/${latestTransaction.transaction_id}`} className="brand-secondary-action">View Receipt</Link> : <span aria-disabled="true" className="brand-secondary-action opacity-50">View Receipt</span>}
+        {latestTransaction && !demo ? <Link href={`/trust/transactions/${latestTransaction.transaction_id}`} className="brand-secondary-action">View Receipt</Link> : <span aria-disabled="true" className="brand-secondary-action opacity-50">View Receipt</span>}
       </nav>
 
       <section id="track-block-evidence" className="rounded-2xl border border-white/10 bg-slate-950/60 p-5">
