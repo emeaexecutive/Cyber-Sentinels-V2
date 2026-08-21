@@ -11,8 +11,8 @@ export const protectedWorkflowStatuses = [
 export type ProtectedWorkflowStatus = (typeof protectedWorkflowStatuses)[number];
 
 export const workflowInterventions = [
-  "MONITOR", "WARNING", "CHALLENGE", "STEP_UP_VERIFY", "PAUSE", "BLOCK",
-  "TERMINATE", "RESUME",
+  "MONITOR", "WARNING", "CHALLENGE", "STEP_UP_VERIFICATION", "PAUSE", "REVIEW",
+  "BLOCK", "TERMINATE", "RESUME", "STEP_UP_VERIFY",
 ] as const;
 export type WorkflowIntervention = (typeof workflowInterventions)[number];
 
@@ -28,8 +28,13 @@ export const aiAssistanceEvidenceTypes = [
   "ai_assistance_declared",
   "ai_assistance_policy_conflict",
   "possible_realtime_answer_assistance",
+  "realtime_assistance_possible",
+  "policy_conflict",
+  "disclosure_missing",
+  "disclosure_present",
 ] as const;
 export type AiAssistanceEvidenceType = (typeof aiAssistanceEvidenceTypes)[number];
+export type WorkflowEvidenceType = AiAssistanceEvidenceType | "POLICY_EVIDENCE" | "WORKFORCE_CONTINUITY";
 
 export const aiAssistanceProviderMetadata = [
   "Parakeet", "ChatGPT", "Claude", "Gemini", "unknown", "other",
@@ -59,7 +64,7 @@ export interface ProtectedWorkflowSignalProvider {
 
 export type WorkflowEvidenceInput = {
   category: WorkflowEvidenceCategory;
-  evidenceType?: AiAssistanceEvidenceType;
+  evidenceType?: WorkflowEvidenceType;
   source: string;
   sourceParty: string;
   observedAt: string;
@@ -111,9 +116,11 @@ export function parseWorkflowEvidence(value: unknown): WorkflowEvidenceInput {
   const category = String(input.category ?? "") as WorkflowEvidenceCategory;
   if (!workflowEvidenceCategories.includes(category)) throw new TypeError("Evidence category is invalid.");
   const rawEvidenceType = input.evidenceType ?? input.evidence_type;
-  const evidenceType = rawEvidenceType === undefined ? undefined : String(rawEvidenceType) as AiAssistanceEvidenceType;
-  if (category === "ai_assistance" && (!evidenceType || !aiAssistanceEvidenceTypes.includes(evidenceType))) throw new TypeError("AI-assistance evidence type is invalid.");
-  if (category !== "ai_assistance" && evidenceType !== undefined) throw new TypeError("evidenceType is only valid for AI-assistance evidence.");
+  const evidenceType = rawEvidenceType === undefined ? undefined : String(rawEvidenceType) as WorkflowEvidenceType;
+  if (category === "ai_assistance" && (!evidenceType || !aiAssistanceEvidenceTypes.includes(evidenceType as AiAssistanceEvidenceType))) throw new TypeError("AI-assistance evidence type is invalid.");
+  if (category === "policy" && evidenceType !== "POLICY_EVIDENCE") throw new TypeError("Policy evidence must use POLICY_EVIDENCE.");
+  if (["identity", "device", "network", "remote_access"].includes(category) && evidenceType !== undefined && evidenceType !== "WORKFORCE_CONTINUITY") throw new TypeError("Continuity evidence must use WORKFORCE_CONTINUITY.");
+  if (!["ai_assistance", "policy", "identity", "device", "network", "remote_access"].includes(category) && evidenceType !== undefined) throw new TypeError("evidenceType is not valid for this evidence category.");
   const observedAt = String(input.observedAt ?? input.observed_at ?? "");
   if (!Number.isFinite(Date.parse(observedAt)) || Date.parse(observedAt) > Date.now() + 60_000) throw new TypeError("observedAt is invalid.");
   const severity = String(input.severity ?? "") as WorkflowEvidenceInput["severity"];
@@ -164,12 +171,9 @@ export function evaluateAiAssistance(input: {
   if (!input.observed) return { authorization: null, reasonCodes: [] as string[] };
   if (input.policy === "allowed") return { authorization: null, reasonCodes: ["AI_ASSISTANCE_ALLOWED"] };
   if (input.policy === "allowed_if_declared" && input.declared) return { authorization: null, reasonCodes: ["AI_ASSISTANCE_DECLARED"] };
-  if (input.policy === "prohibited" && input.corroborated && input.highConsequence && (input.confidence ?? 0) >= 0.8) {
-    return { authorization: "DENY" as const, reasonCodes: ["CORROBORATED_PROHIBITED_AI_HIGH_CONSEQUENCE"] };
-  }
   return {
     authorization: "REVIEW" as const,
-    reasonCodes: [input.policy === "allowed_if_declared" ? "AI_DECLARATION_REQUIRED" : "AI_ASSISTANCE_POLICY_REVIEW_REQUIRED"],
+    reasonCodes: [input.policy === "allowed_if_declared" ? "AI_DECLARATION_REQUIRED" : "APPLICABLE_POLICY_EVIDENCE_REQUIRED"],
   };
 }
 
@@ -183,7 +187,7 @@ export function interventionForDecision(input: {
   const preferred = input.preferred;
   if (input.decision === "ALLOW") return preferred === "RESUME" ? "RESUME" : "MONITOR";
   if (input.decision === "REVIEW") {
-    if (preferred && ["WARNING", "CHALLENGE", "STEP_UP_VERIFY", "PAUSE"].includes(preferred)) return preferred;
+    if (preferred && ["WARNING", "CHALLENGE", "STEP_UP_VERIFICATION", "STEP_UP_VERIFY", "PAUSE", "REVIEW"].includes(preferred)) return preferred;
     return input.humanReviewRequired ? "PAUSE" : "CHALLENGE";
   }
   if (input.humanReviewRequired) return "PAUSE";
@@ -193,7 +197,7 @@ export function interventionForDecision(input: {
 }
 
 export function statusForIntervention(intervention: WorkflowIntervention): ProtectedWorkflowStatus {
-  if (["CHALLENGE", "STEP_UP_VERIFY"].includes(intervention)) return "challenge_required";
+  if (["CHALLENGE", "STEP_UP_VERIFICATION", "STEP_UP_VERIFY", "REVIEW"].includes(intervention)) return "challenge_required";
   if (intervention === "PAUSE") return "paused";
   if (intervention === "BLOCK") return "blocked";
   if (intervention === "TERMINATE") return "terminated";
@@ -205,6 +209,7 @@ export function workflowEvidenceResult(evidence: WorkflowEvidenceInput) {
   if (evidence.category === "consent" && /confirmed|acknowledged/i.test(evidence.classification)) return "POSITIVE" as const;
   if (evidence.category === "policy") return "POSITIVE" as const;
   if (evidence.category === "ai_assistance") return "INCONCLUSIVE" as const;
+  if (evidence.evidenceType === "WORKFORCE_CONTINUITY") return /verified/i.test(evidence.classification) ? "POSITIVE" as const : "INCONCLUSIVE" as const;
   if (["high", "critical"].includes(evidence.severity) && evidence.confidence !== undefined && evidence.confidence >= 0.8 && evidence.metadata?.corroborated === true) return "NEGATIVE" as const;
   return evidence.severity === "informational" ? "POSITIVE" as const : "INCONCLUSIVE" as const;
 }

@@ -35,7 +35,7 @@ test("allowed AI assistance records evidence without adverse classification", ()
 });
 
 test("AI-assistance evidence is explicitly typed and provider metadata stays outcome-neutral", () => {
-  assert.deepEqual(aiAssistanceEvidenceTypes, ["ai_assistance_observed", "ai_assistance_declared", "ai_assistance_policy_conflict", "possible_realtime_answer_assistance"]);
+  assert.deepEqual(aiAssistanceEvidenceTypes, ["ai_assistance_observed", "ai_assistance_declared", "ai_assistance_policy_conflict", "possible_realtime_answer_assistance", "realtime_assistance_possible", "policy_conflict", "disclosure_missing", "disclosure_present"]);
   assert.deepEqual(aiAssistanceProviderMetadata, ["Parakeet", "ChatGPT", "Claude", "Gemini", "unknown", "other"]);
   const base = { category: "ai_assistance", evidenceType: "possible_realtime_answer_assistance", source: "application_signal", sourceParty: "configured_provider", observedAt: new Date().toISOString(), classification: "possible_assistance", severity: "medium", confidence: 0.42 };
   const parakeet = parseWorkflowEvidence({ ...base, metadata: { provider: "Parakeet", corroborated: false } });
@@ -46,7 +46,7 @@ test("AI-assistance evidence is explicitly typed and provider metadata stays out
     evaluateAiAssistance({ policy: "allowed_if_declared", declared: false, observed: true, confidence: other.confidence, corroborated: false, highConsequence: true }),
   );
   assert.throws(() => parseWorkflowEvidence({ ...base, evidenceType: "provider_says_block" }), /evidence type is invalid/);
-  assert.throws(() => parseWorkflowEvidence({ ...base, category: "session" }), /only valid for AI-assistance/);
+  assert.throws(() => parseWorkflowEvidence({ ...base, category: "session" }), /not valid for this evidence category/);
   assert.match(read("src/lib/protected-workflows/model.ts"), /interface ProtectedWorkflowSignalProvider/);
 });
 

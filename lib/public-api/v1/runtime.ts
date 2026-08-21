@@ -35,6 +35,10 @@ import {
   type ExecutionContinuityRecord,
 } from "@/src/lib/trust-transaction/canonical";
 import { createCanonicalTrustTransactionDependenciesForApiClient } from "@/lib/trust-transaction/server";
+import {
+  parsePolicyEvidence,
+  parseWorkforceContinuityEvidence,
+} from "@/src/lib/protected-workflows/policy-continuity";
 import type { PublicApiPrincipal } from "./authentication";
 import {
   assertOnlyFields,
@@ -868,7 +872,7 @@ export async function submitExternalEvidence(principal: PublicApiPrincipal, body
       type: requiredText(subject.type, "subject.type", 80, /^[A-Z_]+$/),
       id: requiredText(subject.id, "subject.id", 180, referencePattern),
     },
-    evidenceType: requiredText(body.type, "type", 120, /^[A-Z0-9_.:-]+$/),
+    evidenceType: requiredText(body.type, "type", 120, /^[A-Za-z0-9_.:-]+$/),
     finding: requiredText(provider.finding, "provider.finding", 120, /^[A-Z0-9_.:-]+$/),
     evidence,
     occurredAt,
@@ -877,30 +881,62 @@ export async function submitExternalEvidence(principal: PublicApiPrincipal, body
   };
   const mapped = await adapter.mapEvidence(input);
   const evidenceId = deterministicUuid({ tenantId: principal.tenantId, providerKey, eventId: input.eventId });
-  const domainKey = providerClass === "IDENTITY_PROVIDER" ? "IDENTITY"
+  let domainKey = providerClass === "IDENTITY_PROVIDER" ? "IDENTITY"
     : providerClass === "AI_ASSURANCE_PROVIDER" || providerClass === "MODEL_EVALUATION_PROVIDER" ? "ASSURANCE"
       : providerClass === "DSPM_PROVIDER" ? "DATA"
         : providerClass.includes("ROBOTICS") || providerClass === "SENSOR_EVIDENCE_PROVIDER" || providerClass === "EDGE_ATTESTATION_PROVIDER" ? "ROBOTICS"
           : providerClass === "OUTCOME_PROVIDER" ? "OUTCOME" : "RUNTIME";
   const db = createServiceRoleClient();
+  let normalizedFacts = mapped.normalizedFacts;
+  let sourceType = "PROVIDER";
+  let subjectId = mapped.subject.id;
+  let subjectType = mapped.subject.type;
+  let canonicalResult = mapped.result;
+  let storedEvidenceType = mapped.evidenceType;
+  const trackBlockType = input.evidenceType.toUpperCase();
+  if (["POLICY_EVIDENCE", "POLICY_ACKNOWLEDGEMENT", "DEVICE_PROVENANCE", "WORKFORCE_CONTINUITY"].includes(trackBlockType)) {
+    const workflowId = requiredText(evidence.workflow_id ?? evidence.workflowId, "evidence.workflow_id", 36, uuidPattern);
+    const workflow = await db.from("protected_workflows").select("id,workspace_id,subject_entity_id,policy_reference").eq("workspace_id", principal.tenantId).eq("id", workflowId).maybeSingle();
+    if (workflow.error) throw new PublicApiError("EVIDENCE_UNAVAILABLE", "The workflow evidence boundary could not be resolved.", 503);
+    if (!workflow.data || String(workflow.data.subject_entity_id) !== mapped.subject.id) throw new PublicApiError("WORKFLOW_EVIDENCE_TENANT_MISMATCH", "The workflow evidence is outside this tenant or Operational Entity.", 404);
+    sourceType = "PROTECTED_WORKFLOW_SIGNAL";
+    subjectId = String(workflow.data.subject_entity_id);
+    subjectType = "OPERATIONAL_ENTITY";
+    domainKey = "WORKFLOW";
+    try {
+      if (["POLICY_EVIDENCE", "POLICY_ACKNOWLEDGEMENT"].includes(trackBlockType)) {
+        const policy = parsePolicyEvidence(evidence, { workspace: principal.tenantId, workflow: workflowId, policyReference: String(workflow.data.policy_reference), observedAt: mapped.occurredAt });
+        normalizedFacts = { category: "policy", evidenceType: "POLICY_EVIDENCE", source: mapped.providerKey, sourceParty: mapped.providerKey, confidence: null, classification: "policy_in_force", severity: "informational", workspace: principal.tenantId, workflowId, operationalEntityId: subjectId, metadata: policy };
+        canonicalResult = "POSITIVE";
+        storedEvidenceType = "TRACK_BLOCK_POLICY_EVIDENCE";
+      } else {
+        const continuity = parseWorkforceContinuityEvidence(evidence, { workspace: principal.tenantId, workflow: workflowId, operationalEntityId: subjectId, source: mapped.providerKey, observedAt: mapped.occurredAt });
+        normalizedFacts = { category: trackBlockType === "DEVICE_PROVENANCE" ? "device" : "identity", evidenceType: "WORKFORCE_CONTINUITY", source: mapped.providerKey, sourceParty: mapped.providerKey, confidence: null, classification: continuity.state, severity: continuity.state === "CONTINUITY_VERIFIED" ? "informational" : "medium", workspace: principal.tenantId, workflowId, operationalEntityId: subjectId, metadata: continuity };
+        canonicalResult = continuity.state === "CONTINUITY_VERIFIED" ? "POSITIVE" : "INCONCLUSIVE";
+        storedEvidenceType = "TRACK_BLOCK_WORKFORCE_CONTINUITY";
+      }
+    } catch (error) {
+      throw new PublicApiError("WORKFLOW_EVIDENCE_INVALID", error instanceof Error ? error.message : "Workflow evidence is invalid.", 400);
+    }
+  }
   const inserted = await db.from("evidence_objects").insert({
     evidence_id: evidenceId,
     enterprise_id: principal.tenantId,
     provider_key: mapped.providerKey,
     evidence_classification: `${mapped.providerClass}_OBSERVATION`,
     storage_boundary: "NORMALIZED_LEDGER",
-    normalized_facts: mapped.normalizedFacts,
+    normalized_facts: normalizedFacts,
     occurred_at: mapped.occurredAt,
     observed_at: mapped.occurredAt,
     freshness_policy_seconds: 86_400,
     retention_expires_at: mapped.expiresAt,
     domain_key: domainKey,
-    subject_id: mapped.subject.id,
-    subject_type: mapped.subject.type,
-    evidence_type: mapped.evidenceType,
-    source_type: "PROVIDER",
+    subject_id: subjectId,
+    subject_type: subjectType,
+    evidence_type: storedEvidenceType,
+    source_type: sourceType,
     source_key: mapped.providerKey,
-    result: mapped.result,
+    result: canonicalResult,
     assurance_level: "NONE",
     cryptographically_verified: mapped.cryptographicallyVerified,
     server_verified: mapped.serverVerified,
@@ -917,9 +953,9 @@ export async function submitExternalEvidence(principal: PublicApiPrincipal, body
     status: inserted.error?.code === "23505" ? "DUPLICATE" : "RECORDED",
     provider: { key: mapped.providerKey, class: mapped.providerClass },
     subject: mapped.subject,
-    type: mapped.evidenceType,
+    type: storedEvidenceType,
     classification: "PROVIDER_FINDING",
-    canonical_result: mapped.result,
+    canonical_result: canonicalResult,
     reason_codes: mapped.reasonCodes,
     evidence_graph_reference: `evidence:${evidenceId}`,
   };
