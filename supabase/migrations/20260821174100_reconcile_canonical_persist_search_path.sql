@@ -1,56 +1,6 @@
--- VALE and provider context are projections on the existing canonical trust
--- transaction. These columns do not introduce a decision, receipt, graph,
--- Replay, Trust Memory, or evidence store.
-alter table public.canonical_trust_transactions
-  add column if not exists continuity_signals jsonb not null default '{}'::jsonb
-    check (jsonb_typeof(continuity_signals) = 'object'),
-  add column if not exists provider_neutral_evidence jsonb not null default '[]'::jsonb
-    check (jsonb_typeof(provider_neutral_evidence) = 'array'),
-  add column if not exists deployment_gate jsonb
-    check (deployment_gate is null or jsonb_typeof(deployment_gate) = 'object'),
-  add column if not exists execution_continuity jsonb not null default '[]'::jsonb
-    check (jsonb_typeof(execution_continuity) = 'array');
-
-alter table public.public_api_webhook_events
-  add column if not exists next_attempt_at timestamptz,
-  add column if not exists max_attempts integer not null default 8 check (max_attempts between 1 and 20);
-
-alter table public.public_api_webhook_events
-  drop constraint if exists public_api_webhook_events_event_type_check;
-alter table public.public_api_webhook_events
-  add constraint public_api_webhook_events_event_type_check check(event_type in (
-    'decision.created',
-    'decision.review_required',
-    'decision.denied',
-    'authority.changed',
-    'monitoring.coverage_gap',
-    'deployment.reauthorization_required',
-    'intent.execution_mismatch',
-    'execution.outcome',
-    'data.impact_detected',
-    'receipt.available',
-    'authority.revoked',
-    'trust.material_change',
-    'outcome.contradiction'
-  ));
-create index if not exists public_api_webhook_retry_idx
-  on public.public_api_webhook_events(delivery_state,next_attempt_at,attempt_count)
-  where delivery_state = 'QUEUED';
-
-create or replace function public.preserve_canonical_decision_snapshot_v1()
-returns trigger language plpgsql set search_path=public as $$
-begin
-  if old.decision_time_snapshot is distinct from new.decision_time_snapshot
-    or old.responsibility_lineage is distinct from new.responsibility_lineage
-    or old.evidence_independence is distinct from new.evidence_independence
-    or old.continuity_signals is distinct from new.continuity_signals
-    or old.provider_neutral_evidence is distinct from new.provider_neutral_evidence
-    or old.deployment_gate is distinct from new.deployment_gate
-    or old.execution_continuity is distinct from new.execution_continuity
-  then raise exception 'Canonical decision-time snapshot is immutable'; end if;
-  return new;
-end $$;
-
+-- Forward reconciliation for environments that applied the original
+-- 20260820085027 definition before its pgcrypto search path was corrected.
+-- Keep this definition identical to the corrected canonical function.
 create or replace function public.persist_canonical_trust_transaction_decision_v1(p_transaction jsonb,p_decision jsonb)
 returns jsonb language plpgsql security definer set search_path=public,extensions as $$
 declare
@@ -105,7 +55,3 @@ begin
 end $$;
 revoke all on function public.persist_canonical_trust_transaction_decision_v1(jsonb,jsonb) from public,anon,authenticated;
 grant execute on function public.persist_canonical_trust_transaction_decision_v1(jsonb,jsonb) to service_role;
-
-comment on column public.canonical_trust_transactions.continuity_signals is 'Canonical receipt continuity projection; VALE and providers do not own a separate receipt.';
-comment on column public.canonical_trust_transactions.provider_neutral_evidence is 'Provider-attributed evidence snapshot. A provider finding is not a Cyber Sentinels decision.';
-comment on column public.canonical_trust_transactions.execution_continuity is 'Distinct intent, request, authorization, command, execution, world-state, and consequence stages.';
