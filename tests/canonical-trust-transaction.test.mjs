@@ -181,6 +181,75 @@ test("DENY for invalid authority scope suspends trust and never executes", async
   assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
 });
 
+test("repository authority persists an out-of-scope write as canonical DENY with reconstructable artifacts", async () => {
+  const repositoryAuthority = authority({
+    workflow: { id: workflowId, objective: "controlled_repository_access" },
+    authorizedObjective: "controlled_repository_access",
+    requiredAuthority: ["read_repository"],
+    permittedScope: ["read_repository"],
+    monitoringRequirements: [],
+  });
+  const { deps, calls } = dependencies({ authority: repositoryAuthority });
+  let persistedAction = null;
+  const persist = deps.persistDecision;
+  deps.persistDecision = async (record) => {
+    persistedAction = record.action.type;
+    return persist(record);
+  };
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "repository-write-deny-1",
+    action: {
+      type: "write_repository",
+      purpose: "controlled_repository_access",
+      resource: "repository:a",
+      environment: "sandbox",
+      payloadDigest: "f".repeat(64),
+    },
+  }), deps);
+
+  assert.equal(receipt.decision, "DENY");
+  assert.equal(receipt.trustState, "suspended");
+  assert.equal(receipt.action.type, "write_repository");
+  assert.equal(persistedAction, "write_repository");
+  assert.ok(receipt.reasonCodes.includes("AUTHORITY_SCOPE_INVALID"));
+  assert.equal(receipt.evidenceGraphReference, "graph-1");
+  assert.equal(receipt.replayReference, "replay-1");
+  assert.equal(receipt.trustMemoryReference, "memory-1");
+  assert.match(receipt.transactionId, /^[0-9a-f-]{36}$/i);
+  assert.match(receipt.decisionReference, /^[0-9a-f-]{36}$/i);
+  for (const step of ["persistDecision", "extendEvidenceGraph", "appendReplay", "emitMaterialTrustMemory"]) assert.ok(calls.includes(step));
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+  assert.equal(calls.includes("recordExternalAcknowledgement"), false);
+  assert.equal(calls.some((item) => item.startsWith("recordExternalOutcome")), false);
+});
+
+test("repository authority allows read through the same canonical evaluator", async () => {
+  const repositoryAuthority = authority({
+    workflow: { id: workflowId, objective: "controlled_repository_access" },
+    authorizedObjective: "controlled_repository_access",
+    requiredAuthority: ["read_repository"],
+    permittedScope: ["read_repository"],
+    monitoringRequirements: [],
+  });
+  const { deps, calls } = dependencies({ authority: repositoryAuthority });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "repository-read-allow-1",
+    action: {
+      type: "read_repository",
+      purpose: "controlled_repository_access",
+      resource: "repository:a",
+      environment: "sandbox",
+      payloadDigest: "e".repeat(64),
+    },
+  }), deps);
+
+  assert.equal(receipt.decision, "ALLOW");
+  assert.equal(receipt.action.type, "read_repository");
+  assert.ok(receipt.reasonCodes.includes("AUTHORITY_SCOPE_VALID"));
+  assert.ok(calls.includes("persistDecision"));
+  assert.ok(calls.includes("requestExternalExecutionIfAllowed"));
+});
+
 test("a delegated authorization denial persists its exact reason in the canonical receipt", async () => {
   const { deps, calls } = dependencies();
   const receipt = await executeCanonicalTrustTransaction(transactionInput({

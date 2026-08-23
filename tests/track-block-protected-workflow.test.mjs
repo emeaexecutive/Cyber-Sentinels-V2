@@ -79,6 +79,26 @@ test("all workflow APIs use authenticated tenant context and server ownership", 
   assert.doesNotMatch(routes, /body\.(workspace|tenant|owner)/);
 });
 
+test("canonical workflow subject resolution excludes same-id workflow projections", () => {
+  const server = read("lib/protected-workflows/server.ts");
+  assert.match(server, /select\("entity_id,canonical_trust_object_id,entity_type,lifecycle_state"\)/);
+  assert.match(server, /\.eq\("subject_id", entity\.data\.canonical_trust_object_id\)\.eq\("subject_type", entity\.data\.entity_type\)\.maybeSingle\(\)/);
+});
+
+test("canonical DENY selects the policy-controlled intervention", () => {
+  assert.equal(interventionForDecision({ decision: "DENY", policyPermitsBlock: true }), "BLOCK");
+  const server = read("lib/protected-workflows/server.ts");
+  assert.match(server, /from\("workflow_interventions"\)\.insert/);
+  assert.match(server, /canonical_transaction_id: transaction\.data\.transaction_id/);
+});
+
+test("the local Production harness reports only allowlisted canonical failure diagnostics", () => {
+  const harness = read("tools/production-proof-local.mjs");
+  for (const field of ["httpStatus", "apiCode", "apiMessage", "postgresCode", "rpcFunction", "correlationId", "responseShape", "requestSchemaValidation", "responseSchemaValidation"]) assert.match(harness, new RegExp(field));
+  assert.match(harness, /CANONICAL_EVALUATION_DIAGNOSTICS: \$\{JSON\.stringify\(result\.CANONICAL_EVALUATION_DIAGNOSTICS\)\}/);
+  assert.match(harness, /forbiddenSensitiveValue\(candidate\)/);
+});
+
 test("Replay, Trust Memory and receipts reuse canonical stores", () => {
   const server = read("lib/protected-workflows/server.ts");
   const canonicalServer = read("lib/trust-transaction/server.ts");

@@ -173,10 +173,10 @@ function workflowEvidenceProjections(rows: Row[], decisionTransactionReference: 
 }
 
 async function canonicalSubject(db: SupabaseClient, workspaceId: string, entityId: string) {
-  const entity = await db.from("operational_entities").select("entity_id,canonical_trust_object_id,lifecycle_state").eq("enterprise_id", workspaceId).eq("entity_id", entityId).maybeSingle();
+  const entity = await db.from("operational_entities").select("entity_id,canonical_trust_object_id,entity_type,lifecycle_state").eq("enterprise_id", workspaceId).eq("entity_id", entityId).maybeSingle();
   if (entity.error) persistenceFailure("Operational Entity resolution", entity.error);
   if (!entity.data) throw new ProtectedWorkflowError("The subject Operational Entity is unknown in this workspace.", 404, "OPERATIONAL_ENTITY_NOT_FOUND");
-  const object = await db.from("enterprise_trust_objects").select("subject_type,subject_id").eq("enterprise_id", workspaceId).eq("subject_id", entity.data.canonical_trust_object_id).maybeSingle();
+  const object = await db.from("enterprise_trust_objects").select("subject_type,subject_id").eq("enterprise_id", workspaceId).eq("subject_id", entity.data.canonical_trust_object_id).eq("subject_type", entity.data.entity_type).maybeSingle();
   if (object.error) persistenceFailure("Canonical Trust Object resolution", object.error);
   if (!object.data) throw new ProtectedWorkflowError("The Operational Entity has no canonical Trust Object.", 409, "CANONICAL_TRUST_OBJECT_REQUIRED");
   return { entity: entity.data as Row, trustObject: object.data as Row };
