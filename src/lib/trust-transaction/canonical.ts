@@ -25,6 +25,20 @@ import type {
 } from "../trust-fabric/types.ts";
 import { deriveTrustConfidence, type TrustConclusionConfidence } from "../../../lib/trust-intelligence.ts";
 import { normalizeProviderNeutralEvidence, type ProviderNeutralEvidence } from "../../../lib/providers/adapters.ts";
+import {
+  evaluateAuthorityIntegrity,
+  type AuthorityIntegrityAssessment,
+  type AuthorityIntegrityEvaluationInput,
+} from "../../../lib/trust-fabric/authority-integrity.ts";
+import {
+  createPreActionTrustForecastInput,
+  type TrustForecast,
+  type TrustForecastEvaluationInput,
+  type ForecastSubjectType,
+} from "../../../lib/trust-fabric/trust-forecast.ts";
+import { createTrustTwin, type TrustTwin } from "../../../lib/trust-fabric/trust-twin.ts";
+import type { AdaptiveVerificationRequirement } from "../../../lib/trust-fabric/adaptive-verification.ts";
+import { createSentinelTrustBrief, type SentinelTrustBrief } from "../../../lib/trust-fabric/sentinel-agents.ts";
 
 export type CanonicalTransactionDecision = "ALLOW" | "REVIEW" | "DENY";
 export type CanonicalOperationalState = "verified" | "degraded" | "suspended";
@@ -68,6 +82,11 @@ export type DeploymentGateSummary = {
   staleEvidenceCount: number;
   reauthorizationRequired: boolean;
   pendingRevalidation: string[];
+  forecastReference: string | null;
+  forecastState: TrustForecast["state"] | null;
+  deploymentRecommendation: TrustForecast["deploymentRecommendation"] | null;
+  requiredControls: TrustForecast["requiredControls"];
+  evidenceGaps: string[];
 };
 
 export type CanonicalContextEvidence = {
@@ -126,6 +145,8 @@ export type CanonicalTrustTransactionInput = {
     oversightMode?: "HUMAN_IN_THE_LOOP" | "HUMAN_ON_THE_LOOP" | "HUMAN_OVER_THE_LOOP" | "AUTONOMOUS";
     executionStages?: ExecutionContinuityRecord[];
     contextEvidence?: CanonicalContextEvidence[];
+    authorityIntegrity?: AuthorityIntegrityEvaluationInput | null;
+    trustForecast?: TrustForecastEvaluationInput | null;
   };
 };
 
@@ -163,6 +184,7 @@ export type PreviousCanonicalTransaction = {
   evidenceDigest: string;
   authorityReference: string;
   policyVersion: string;
+  trustTwin?: TrustTwin | null;
 };
 export type CanonicalContinuitySignals = {
   identityContinuity: "continuous" | "review_required" | "interrupted";
@@ -218,6 +240,11 @@ export type CanonicalDecisionRecord = {
   providerNeutralEvidence: ProviderNeutralEvidence[];
   deploymentGate: DeploymentGateSummary | null;
   executionContinuity: ExecutionContinuityRecord[];
+  authorityIntegrity: AuthorityIntegrityAssessment | null;
+  trustForecast: TrustForecast | null;
+  trustTwin: TrustTwin | null;
+  adaptiveVerification: AdaptiveVerificationRequirement | null;
+  sentinelTrustBrief: SentinelTrustBrief | null;
 };
 export type PersistedCanonicalDecision = CanonicalDecisionRecord & {
   persistenceStatus: "CREATED" | "DUPLICATE";
@@ -262,6 +289,11 @@ export type SafeCanonicalTransactionReceipt = {
   providerNeutralEvidence: ProviderNeutralEvidence[];
   deploymentGate: DeploymentGateSummary | null;
   executionContinuity: ExecutionContinuityRecord[];
+  authorityIntegrity: AuthorityIntegrityAssessment | null;
+  trustForecast: TrustForecast | null;
+  trustTwin: TrustTwin | null;
+  adaptiveVerification: AdaptiveVerificationRequirement | null;
+  sentinelTrustBrief: SentinelTrustBrief | null;
   consequence: OperationalConsequenceClassification;
   confidenceInConclusion: TrustConclusionConfidence;
   timestamp: string;
@@ -386,6 +418,7 @@ function deriveDeploymentGate(input: {
   deploymentContext: DeploymentGateContext | null | undefined;
   requestedAt: string;
   evidenceFresh: boolean;
+  trustForecast: TrustForecast | null;
 }): DeploymentGateSummary | null {
   if (input.decisionType !== "AI_DEPLOYMENT_TRUST_GATE") return null;
   const materialChanges = Array.isArray(input.deploymentContext?.materialChanges)
@@ -415,7 +448,9 @@ function deriveDeploymentGate(input: {
   } else {
     assuranceFreshness = "ASSURANCE_CURRENT";
   }
-  const reauthorizationRequired = materialChanges.length > 0 && assuranceFreshness !== "ASSURANCE_CURRENT";
+  const forecastChanges = input.trustForecast?.materialChanges ?? [];
+  const reauthorizationRequired = (materialChanges.length > 0 && assuranceFreshness !== "ASSURANCE_CURRENT")
+    || input.trustForecast?.reauthorizationRequired === true;
   return {
     decisionType: "AI_DEPLOYMENT_TRUST_GATE",
     materialChanges,
@@ -424,7 +459,12 @@ function deriveDeploymentGate(input: {
     currentAssuranceCount: activeEvidence.length,
     staleEvidenceCount: staleEvidence.length,
     reauthorizationRequired,
-    pendingRevalidation: reauthorizationRequired ? (materialChanges.length > 0 ? materialChanges : ["assurance-evidence"]) : [],
+    pendingRevalidation: reauthorizationRequired ? [...new Set([...materialChanges, ...forecastChanges, ...(materialChanges.length || forecastChanges.length ? [] : ["assurance-evidence"])])] : [],
+    forecastReference: input.trustForecast?.forecastId ?? null,
+    forecastState: input.trustForecast?.state ?? null,
+    deploymentRecommendation: input.trustForecast?.deploymentRecommendation ?? null,
+    requiredControls: input.trustForecast?.requiredControls ?? [],
+    evidenceGaps: input.trustForecast?.evidenceGaps ?? [],
   };
 }
 
@@ -457,10 +497,11 @@ function deriveContinuitySignals(input: {
   providerNeutralEvidence: ProviderNeutralEvidence[];
 }): CanonicalContinuitySignals {
   const providerNeutralEvidence = input.providerNeutralEvidence;
+  const observedProviderEvidence = providerNeutralEvidence.filter((item) => !item.evidenceType.startsWith("TRUST_CONDITION_"));
   const monitoringCoverage = input.transactionInput.managedControl?.monitoringCoverage
-    ?? (providerNeutralEvidence.length > 0 && (input.authority.monitoringRequirements.length > 0 || providerNeutralEvidence.some((item) => /runtime|monitor/i.test(item.evidenceType)))
+    ?? (observedProviderEvidence.length > 0 && (input.authority.monitoringRequirements.length > 0 || observedProviderEvidence.some((item) => /runtime|monitor/i.test(item.evidenceType)))
       ? "covered"
-      : providerNeutralEvidence.length > 0
+      : observedProviderEvidence.length > 0
         ? "partial"
         : "not_observed");
   const reviewRequired = input.decision === "REVIEW" || input.transactionInput.managedControl?.humanIntent?.status === "pending";
@@ -581,8 +622,110 @@ export function evaluateCanonicalTrustDecision(input: {
     ? input.operationalEntity.currentConsequenceClassification
     : consequenceEvaluation.classification;
   const negativeEvidence = input.evidence.some((item) => item.outcome === "FAILED");
+  const authorityIntegrity = input.transactionInput.managedControl?.authorityIntegrity
+    ? evaluateAuthorityIntegrity(input.transactionInput.managedControl.authorityIntegrity)
+    : null;
+  if (authorityIntegrity && authorityIntegrity.actionTimeEvidence.enterpriseId !== input.tenant.id) throw new Error("AUTHORITY_INTEGRITY_TENANT_SCOPE_MISMATCH");
+  const suppliedForecastInput = input.transactionInput.managedControl?.trustForecast;
+  const subjectTypeMap: Record<string, ForecastSubjectType> = {
+    human: "HUMAN",
+    ai_agent: "AI_AGENT",
+    software_agent: "SOFTWARE_AGENT",
+    workload: "WORKLOAD",
+    machine: "MACHINE",
+    robot: "ROBOT",
+  };
+  const authorityIntegrityFindings = authorityIntegrity?.findings.map((item) => item.code) ?? [];
+  const contextualForecastFindings = (input.transactionInput.managedControl?.contextEvidence ?? [])
+    .flatMap((item) => [item.evidenceType, item.outcome])
+    .filter((finding) => ["MODEL_CONTROLLED_SECURITY_BOUNDARY", "MONITORING_COVERAGE_GAP", "IDENTITY_DISCONTINUITY", "STALE_AUTHORITY_STILL_ACTIVE"].includes(finding));
+  const derivedForecastInput = createPreActionTrustForecastInput({
+    enterpriseId: input.tenant.id,
+    subject: { type: subjectTypeMap[input.operationalEntity.entityType] ?? subjectTypeMap[input.transactionInput.trustObject.subjectType] ?? "WORKLOAD", id: input.operationalEntity.entityId },
+    evaluatedAt: input.requestedAt,
+    policyReference: `${input.policy.id}:${input.policy.version}`,
+    actorReference: `actor:${input.actor.id}`,
+    authorityReference: input.authority.contractId,
+    authorityScopeValid: input.authorityScopeValid,
+    actionReference: `${input.transactionInput.action.type}:${input.transactionInput.action.resource}`,
+    toolReference: input.transactionInput.action.type,
+    parameterProvenanceReference: input.transactionInput.action.payloadDigest ? `digest:${input.transactionInput.action.payloadDigest}` : null,
+    runtimeReference: `${input.operationalEntity.entityType}:${input.operationalEntity.lifecycleState}`,
+    monitoringCoverage: input.transactionInput.managedControl?.monitoringCoverage ?? "unknown",
+    destinationReference: input.transactionInput.action.resource,
+    humanApproval: input.transactionInput.managedControl?.humanIntent?.signed || input.transactionInput.managedControl?.humanIntent?.status === "provided"
+      ? "provided"
+      : input.authority.humanReviewThresholds.length
+        ? input.transactionInput.managedControl?.humanIntent?.status ?? "not_provided"
+        : "not_required",
+    consequence,
+    evidenceReferences: input.evidence.map((item) => item.reference),
+    evidenceFresh: input.evidenceFresh,
+    evidenceComplete,
+    recentChanges: input.transactionInput.deploymentContext?.materialChanges ?? [],
+    authorityIntegrityFindings: [...new Set([...authorityIntegrityFindings, ...contextualForecastFindings])],
+    canonicalTransactionReference: input.correlationId,
+  });
+  const forecastInput = suppliedForecastInput ?? derivedForecastInput;
+  const trustTwin = createTrustTwin({
+    enterpriseId: input.tenant.id,
+    entity: { id: input.operationalEntity.entityId, type: forecastInput.subject.type },
+    owner: input.operationalEntity.accountableOwnerId,
+    purpose: input.transactionInput.action.purpose,
+    evaluatedAt: input.requestedAt,
+    actionContext: { type: input.transactionInput.action.type, purpose: input.transactionInput.action.purpose, environment: input.transactionInput.action.environment },
+    authorityContext: { reference: input.authority.contractId, scopeValid: input.authorityScopeValid },
+    forecastInput: {
+      ...forecastInput,
+      authorityIntegrityFindings: [...new Set([...(forecastInput.authorityIntegrityFindings ?? []), ...authorityIntegrityFindings])],
+    },
+    consequenceReach: {
+      systems: [...new Set([...input.operationalEntity.environmentReferences, ...input.operationalEntity.workflowReferences, input.transactionInput.action.resource])],
+      credentials: [input.authority.contractId],
+      tools: [input.transactionInput.action.type],
+      dataClasses: [consequence, /restricted|payment|financial|health|personal|credential|secret/i.test(`${input.transactionInput.action.resource} ${input.transactionInput.action.purpose}`) ? "restricted" : "standard"],
+      destinations: [input.transactionInput.action.resource],
+      downstreamAgents: [],
+      productionResources: /prod/i.test(input.transactionInput.action.environment) ? [input.transactionInput.action.resource] : [],
+      financialExposure: /payment|financial|transfer|currency|eur|usd|gbp/i.test(`${input.transactionInput.action.type} ${input.transactionInput.action.purpose} ${input.transactionInput.action.resource}`) ? [input.transactionInput.action.resource] : [],
+      humanImpactingSystems: input.operationalEntity.entityType === "robot" ? [input.transactionInput.action.resource] : [],
+    },
+    budgetContext: {
+      consequenceSeverity: consequence.toUpperCase(),
+      dataSensitivity: /restricted|payment|financial|health|personal|credential|secret/i.test(`${input.transactionInput.action.resource} ${input.transactionInput.action.purpose}`) ? "RESTRICTED" : "STANDARD",
+      privilegeLevel: input.authorityScopeValid ? "WITHIN_CURRENT_SCOPE" : "OUTSIDE_CURRENT_SCOPE",
+      financialExposure: /payment|financial|transfer|currency|eur|usd|gbp/i.test(`${input.transactionInput.action.type} ${input.transactionInput.action.purpose} ${input.transactionInput.action.resource}`) ? "MATERIAL" : "NONE_OBSERVED",
+      reversibility: /read|inspect|list|query/i.test(input.transactionInput.action.type) ? "HIGH" : "UNKNOWN",
+      humanSafetyImpact: input.operationalEntity.entityType === "robot" ? "POTENTIAL" : "NONE_OBSERVED",
+      regulatorySensitivity: /payment|financial|health|personal/i.test(`${input.transactionInput.action.resource} ${input.transactionInput.action.purpose}`) ? "SENSITIVE" : "STANDARD",
+      authorityScope: input.authorityScopeValid ? "WITHIN_CURRENT_SCOPE" : "OUTSIDE_CURRENT_SCOPE",
+      policyTolerance: ["high", "critical"].includes(consequence) ? "STRICT" : "STANDARD",
+      monitoringConfidence: input.transactionInput.managedControl?.monitoringCoverage === "covered" ? 1 : input.transactionInput.managedControl?.monitoringCoverage === "partial" ? 0.5 : 0,
+    },
+    verificationPolicy: { policyReference: `${input.policy.id}:${input.policy.version}`, policyVersion: input.policy.version },
+    verificationEvidence: [
+      ...input.evidence.map((item) => ({ evidenceType: item.type, providerClass: /identity|mfa|session/i.test(item.type) ? "IDENTITY_PROVIDER" : /runtime|attestation|monitor/i.test(item.type) ? "RUNTIME_SECURITY_PROVIDER" : "APPLICATION_SIGNAL", providerKey: item.providerId, observedAt: item.observedAt, expiresAt: item.expiresAt, outcome: item.outcome, evidenceReferences: [item.reference], assurance: item.assuranceLevel, retestReference: null })),
+      ...(input.transactionInput.managedControl?.contextEvidence ?? []).map((item) => ({ evidenceType: item.evidenceType, providerClass: item.providerClass, providerKey: item.providerKey, observedAt: item.observedAt, expiresAt: null, outcome: item.outcome, evidenceReferences: [`digest:${item.evidenceDigest}`], assurance: null, retestReference: typeof item.metadata?.retestReference === "string" ? item.metadata.retestReference : null })),
+      ...(input.transactionInput.deploymentContext?.assuranceEvidence ?? []).map((item) => ({ evidenceType: `${item.methodReference} runtime attestation model tool configuration`, providerClass: "AI_ASSURANCE_PROVIDER", providerKey: item.providerKey, observedAt: item.occurredAt, expiresAt: item.expiresAt, outcome: item.confidence, evidenceReferences: [`digest:${item.evidenceDigest}`], assurance: item.assurance, retestReference: item.retestReference })),
+      ...(input.transactionInput.managedControl?.humanIntent?.reference ? [{ evidenceType: "SIGNED_HUMAN_INTENT", providerClass: "APPLICATION_SIGNAL", providerKey: "human_intent", observedAt: input.requestedAt, expiresAt: null, outcome: input.transactionInput.managedControl.humanIntent.status ?? "provided", evidenceReferences: [input.transactionInput.managedControl.humanIntent.reference], assurance: 1, retestReference: null }] : []),
+    ],
+    proposedChanges: [...new Set([...(input.transactionInput.deploymentContext?.materialChanges ?? []), ...authorityIntegrityFindings, ...contextualForecastFindings])],
+    previousTwin: input.previous?.trustTwin ?? null,
+  });
+  const trustForecast = trustTwin.trustForecast;
+  const sentinelTrustBrief = createSentinelTrustBrief({
+    enterpriseId: input.tenant.id,
+    currentTwin: trustTwin,
+    evaluatedAt: input.requestedAt,
+  });
+  if (trustTwin.enterpriseId !== input.tenant.id) throw new Error("TRUST_TWIN_TENANT_SCOPE_MISMATCH");
+  if (trustForecast && trustForecast.enterpriseId !== input.tenant.id) throw new Error("TRUST_FORECAST_TENANT_SCOPE_MISMATCH");
   const contextEvidenceTypes = new Set((input.transactionInput.managedControl?.contextEvidence ?? []).map((item) => item.evidenceType));
-  const contextContradictions = input.transactionInput.managedControl?.contradictions ?? [];
+  const contextContradictions = [
+    ...(input.transactionInput.managedControl?.contradictions ?? []),
+    ...(authorityIntegrity?.findings.map((item) => item.code) ?? []),
+    ...(authorityIntegrity?.requiredActions.filter((item) => item !== "NO_ACTION_REQUIRED") ?? []),
+  ];
   const contextReviewRequired = [...contextEvidenceTypes, ...contextContradictions].some((type) =>
     /(?:MISMATCH|GAP|CONFLICT|DISAGREEMENT|UNPROVEN|INVALID|STALE|DRIFT|SPOOFING|INJECTION|OFFLINE|REVALIDATION_REQUIRED|UNCERTAIN|UNAVAILABLE)/.test(type),
   );
@@ -615,7 +758,11 @@ export function evaluateCanonicalTrustDecision(input: {
     deploymentContext: input.transactionInput.deploymentContext,
     requestedAt: input.requestedAt,
     evidenceFresh: input.evidenceFresh,
+    trustForecast,
   });
+  const forecastRequiresReview = input.transactionInput.decisionType === "AI_DEPLOYMENT_TRUST_GATE"
+    && trustForecast !== null
+    && ["REVIEW_REQUIRED", "HOLD", "DO_NOT_RELEASE"].includes(trustForecast.deploymentRecommendation);
   let decision: CanonicalTransactionDecision = "ALLOW";
   if (delegatedAuthorization?.decision === "DENY" || inactiveEntity || missingAccountability || !input.authorityScopeValid || negativeEvidence || evaluation.reasonCodes.some((reason) => hardDenyReasons.has(reason)) || evaluation.outcome === "revoked") decision = "DENY";
   else if (
@@ -628,6 +775,8 @@ export function evaluateCanonicalTrustDecision(input: {
     || continuityConflict
     || activeIncidentReview
     || contextReviewRequired
+    || Boolean(authorityIntegrity?.findings.length)
+    || forecastRequiresReview
     || (input.transactionInput.managedControl?.oversightMode === "AUTONOMOUS" && ["high", "critical"].includes(consequence))
     || deploymentGate?.reauthorizationRequired
     || ["paused", "review_required", "satisfied_with_degraded_evidence"].includes(evaluation.outcome)
@@ -651,10 +800,21 @@ export function evaluateCanonicalTrustDecision(input: {
     ...(input.transactionInput.managedControl?.oversightMode ? [`OVERSIGHT_${input.transactionInput.managedControl.oversightMode}`] : []),
     ...(deploymentGate?.reauthorizationRequired ? ["REAUTHORIZATION_REQUIRED"] : []),
     ...(deploymentGate?.assuranceFreshness === "ASSURANCE_INVALIDATED_BY_CHANGE" ? ["ASSURANCE_INVALIDATED_BY_CHANGE"] : []),
+    ...(trustForecast ? [`TRUST_FORECAST_${trustForecast.state}`, `TRUST_FORECAST_RECOMMENDS_${trustForecast.deploymentRecommendation}`] : []),
+    ...(forecastRequiresReview ? ["TRUST_FORECAST_REQUIRES_CANONICAL_REVIEW"] : []),
+    `ADAPTIVE_VERIFICATION_DEPTH_${trustTwin.adaptiveVerification.requiredVerificationDepth}`,
+    `ADAPTIVE_VERIFICATION_STATUS_${trustTwin.adaptiveVerification.verificationStatus}`,
+    ...(trustTwin.adaptiveVerification.trustGap.exists ? ["TRUST_GAP_OPEN", ...trustTwin.adaptiveVerification.missingEvidence.map((item) => `MISSING_${item}`)] : []),
     `CONSEQUENCE_${consequence.toUpperCase()}`,
     `CONCLUSION_CONFIDENCE_${confidence.level}`,
   ])].sort();
-  const changedConditions = conditionChanges(input.previous, evidenceDigest, input.authority.contractId, input.policy.version);
+  const changedConditions = [
+    ...conditionChanges(input.previous, evidenceDigest, input.authority.contractId, input.policy.version),
+    ...(authorityIntegrity?.trustMemoryEvents.length ? ["AUTHORITY_INTEGRITY_MATERIAL_EVENT"] : []),
+    ...(trustForecast?.trustMemoryEvents.length ? ["TRUST_FORECAST_MATERIAL_EVENT"] : []),
+    ...(trustTwin.trustMemoryEvents.length ? ["TRUST_TWIN_MATERIAL_EVENT"] : []),
+    ...(trustTwin.adaptiveVerification.trustMemoryEvents.length ? ["ADAPTIVE_VERIFICATION_MATERIAL_EVENT"] : []),
+  ];
   const materialChange = !input.previous || input.previous.trustState !== trustState || changedConditions.length > 0;
   const transactionId = deterministicUuid({ enterpriseId: input.tenant.id, idempotencyKey: input.transactionInput.idempotencyKey });
   const decisionEnvelope = createDecisionEnvelope({
@@ -730,6 +890,29 @@ export function evaluateCanonicalTrustDecision(input: {
       evidenceDigest: item.evidenceDigest,
       providerClass: item.providerClass,
       providerKey: item.providerKey,
+      evidenceContext: item.metadata ?? null,
+    })),
+    ...(authorityIntegrity?.providerNeutralEvidence ?? []).map((item) => normalizeProviderNeutralEvidence({
+      providerId: item.providerId,
+      providerName: item.providerId.replace(/[_-]/g, " "),
+      evidenceType: item.evidenceType,
+      observedAt: item.observedAt,
+      outcome: item.outcome,
+      evidenceDigest: item.evidenceDigest,
+      providerClass: "APPLICATION_SIGNAL",
+      providerKey: item.providerId,
+      evidenceContext: item.metadata,
+    })),
+    ...(trustForecast?.providerNeutralEvidence ?? []).map((item) => normalizeProviderNeutralEvidence({
+      providerId: item.providerId,
+      providerName: item.providerId.replace(/[_-]/g, " "),
+      evidenceType: item.evidenceType,
+      observedAt: item.observedAt,
+      outcome: item.outcome,
+      evidenceDigest: item.evidenceDigest,
+      providerClass: "APPLICATION_SIGNAL",
+      providerKey: item.providerId,
+      evidenceContext: item.metadata,
     })),
   ];
   const requestedExecutionStages = input.transactionInput.managedControl?.executionStages ?? [];
@@ -767,6 +950,10 @@ export function evaluateCanonicalTrustDecision(input: {
     consequence,
     confidenceInConclusion: confidence.level,
     decisionDigest: decisionEnvelope.deterministicDigest,
+    authorityIntegrity,
+    trustForecast,
+    trustTwin,
+    sentinelTrustBrief,
     reviewerState: input.transactionInput.managedControl?.reviewerState ?? (decision === "REVIEW" ? "required" : "not_required"),
   });
   return {
@@ -811,6 +998,11 @@ export function evaluateCanonicalTrustDecision(input: {
     providerNeutralEvidence,
     deploymentGate,
     executionContinuity,
+    authorityIntegrity,
+    trustForecast,
+    trustTwin,
+    adaptiveVerification: trustTwin.adaptiveVerification,
+    sentinelTrustBrief,
   };
 }
 
@@ -882,6 +1074,11 @@ export function returnSafeTransactionReceipt(input: {
     providerNeutralEvidence: persisted.providerNeutralEvidence,
     deploymentGate: persisted.deploymentGate,
     executionContinuity,
+    authorityIntegrity: persisted.authorityIntegrity,
+    trustForecast: persisted.trustForecast,
+    trustTwin: persisted.trustTwin,
+    adaptiveVerification: persisted.adaptiveVerification,
+    sentinelTrustBrief: persisted.sentinelTrustBrief,
     consequence: persisted.consequence,
     confidenceInConclusion: persisted.confidenceInConclusion,
     timestamp: persisted.timestamp,

@@ -96,6 +96,7 @@ export type ProviderNeutralEvidence = {
   confidence?: string | null;
   findingReferences?: string[] | null;
   retestReference?: string | null;
+  evidenceContext?: Record<string, unknown> | null;
 };
 
 export function normalizeProviderNeutralEvidence(input: {
@@ -116,6 +117,7 @@ export function normalizeProviderNeutralEvidence(input: {
   confidence?: string | null;
   findingReferences?: string[] | null;
   retestReference?: string | null;
+  evidenceContext?: Record<string, unknown> | null;
 }): ProviderNeutralEvidence {
   const providerId = input.providerId || "external_unattributed";
   const monitoringCoverage = /runtime|monitor/i.test(input.evidenceType) || providerId === "runtime_security" ? "covered" : "partial";
@@ -142,6 +144,7 @@ export function normalizeProviderNeutralEvidence(input: {
     confidence: input.confidence ?? null,
     findingReferences: Array.isArray(input.findingReferences) ? input.findingReferences.filter((item): item is string => typeof item === "string") : [],
     retestReference: input.retestReference ?? null,
+    evidenceContext: input.evidenceContext ? structuredClone(input.evidenceContext) : null,
   };
 }
 

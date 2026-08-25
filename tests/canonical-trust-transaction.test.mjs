@@ -4,6 +4,9 @@ import test from "node:test";
 import { executeCanonicalTrustTransaction } from "../src/lib/trust-transaction/canonical.ts";
 import { authorizeValeTrust } from "../src/lib/trust-fabric/vale.ts";
 import { normalizeProviderNeutralEvidence, referenceProviderAdapters } from "../lib/providers/adapters.ts";
+import { hashCanonical } from "../src/lib/trust-core/hash.ts";
+import { createAgentAlphaTrustTwinDemo } from "../lib/trust-fabric/trust-twin.ts";
+import { createSentinelOperations } from "../lib/trust-fabric/sentinel-agents.ts";
 
 const requestedAt = "2026-08-06T10:00:00.000Z";
 const tenantId = "10000000-0000-4000-8000-000000000001";
@@ -138,6 +141,34 @@ function dependencies(options = {}) {
   return { deps, calls };
 }
 
+test("authority-integrity findings flow through the canonical evaluator and existing artifacts", async () => {
+  const parameterSchema = [{ parameterName: "tenant_id", parameterCategory: "tenant_boundary", allowedProvenanceClasses: ["authority_bound"], materiality: "critical", required: true, modelVisible: false, mutableAfterApproval: false, defaultState: "server_resolved" }];
+  const securityCriticalFields = ["tenant_id"];
+  const toolSchema = { toolId: "tool:repository", toolVersion: "2.0.0", parameterSchema, securityCriticalFields, schemaDigest: hashCanonical({ parameterSchema, securityCriticalFields }), sourceProvider: "capability_registry", reviewedAt: requestedAt };
+  const { deps, calls } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "authority-integrity-canonical-1",
+    managedControl: {
+      authorityIntegrity: {
+        enterpriseId: tenantId, actionId: "action:canonical-1", actionTimestamp: requestedAt, principalReference: `human:${actorId}`,
+        agentPassportReference: `agent-passport:${subjectId}`, authorityLineageReference: authority().contractId, capabilityProvenanceReference: "capability:repository:2",
+        toolSchema, parameters: [{ tool: "tool:repository", toolVersion: "2.0.0", parameterName: "tenant_id", parameterCategory: "tenant_boundary", parameterProvenance: "model_controlled", valueDigestOrMaskedValue: "sha256:" + "9".repeat(64), materiality: "critical", timestamp: requestedAt, evidenceProvider: "runtime_provider", policyReference: "policy-settlement:1.0.0", configurationPinning: "model_selectable" }],
+        modelProposalDigest: "1".repeat(64), finalParametersDigest: "2".repeat(64), runtimeParametersDigest: "3".repeat(64), trustedContextDigest: "4".repeat(64),
+        tenant: { authoritativeTenant: tenantId, authoritativeWorkspace: tenantId, sourceIdentity: `session:${actorId}`, runtimeTenant: tenantId, requestedTenant: tenantId, modelSuppliedTenant: null, destinationTenant: tenantId },
+        credentialDestination: null, runtime: null, authorizationChanges: [], delegatedSubject: { originatingHuman: `human:${actorId}`, originatingSystem: null, organization: "organization:acme", agent: `agent:${subjectId}`, delegatedSubject: "invoice-owner:4488", actingSubject: `agent:${subjectId}`, delegationEvidence: "delegation:invoice-4488", task: "settle_invoice", purpose: "settle_invoice", authorizationDecision: "ALLOW" },
+        policyReference: "policy-settlement:1.0.0", trustInvariantReferences: ["SECURITY_BOUNDARY_PARAMETERS_ARE_NOT_MODEL_CONTROLLED"], outcomeEvidenceReferences: [],
+      },
+    },
+  }), deps);
+  assert.equal(receipt.decision, "REVIEW");
+  assert.ok(receipt.reasonCodes.includes("MODEL_CONTROLLED_SECURITY_BOUNDARY"));
+  assert.equal(receipt.authorityIntegrity?.findings[0].malicious, false);
+  assert.equal(receipt.decisionTimeSnapshot.authorityIntegrity?.actionTimeEvidence.toolSchema.schemaDigest, toolSchema.schemaDigest);
+  assert.ok(receipt.providerNeutralEvidence.some((item) => item.evidenceType === "MODEL_CONTROLLED_SECURITY_BOUNDARY"));
+  for (const artifact of ["extendEvidenceGraph", "appendReplay", "emitMaterialTrustMemory"]) assert.ok(calls.includes(artifact));
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
 test("runs one ALLOW transaction in canonical order and keeps acknowledgement separate from outcome", async () => {
   const { deps, calls } = dependencies();
   const receipt = await executeCanonicalTrustTransaction(transactionInput(), deps);
@@ -248,6 +279,54 @@ test("repository authority allows read through the same canonical evaluator", as
   assert.ok(receipt.reasonCodes.includes("AUTHORITY_SCOPE_VALID"));
   assert.ok(calls.includes("persistDecision"));
   assert.ok(calls.includes("requestExternalExecutionIfAllowed"));
+});
+
+test("Agent Alpha golden path predicts pressure, requests proof, and leaves the canonical deny to the Fabric", async () => {
+  const demo = createAgentAlphaTrustTwinDemo();
+  const operations = createSentinelOperations({
+    enterpriseId: demo.baseline.enterpriseId,
+    twins: [demo.baseline],
+    simulations: [demo.projected],
+    generatedAt: "2026-08-24T09:20:00.000Z",
+  });
+  const brief = operations.trustBriefs[0];
+
+  assert.equal(brief.attention, "INVESTIGATING");
+  assert.equal(demo.projected.projectedTwin.trustPressure.value, 81);
+  assert.equal(demo.projected.projectedTwin.trustBudget.remaining, 19);
+  assert.ok(brief.hypothesis.requiredProof.includes("VERIFY_RUNTIME"));
+  assert.ok(brief.hypothesis.requiredProof.includes("VERIFY_DESTINATION"));
+  for (const control of ["REDUCE_AUTHORITY", "PIN_DESTINATION", "REFRESH_RUNTIME_ATTESTATION"]) {
+    assert.ok(demo.controlled.proposedChanges.some((change) => change.changeType === control));
+  }
+  assert.equal(brief.canonicalDecision, null);
+  assert.equal(brief.canonicalBoundary.decisionAuthority, "CANONICAL_TRUST_FABRIC_ONLY");
+
+  const repositoryAuthority = authority({
+    workflow: { id: workflowId, objective: "controlled_repository_access" },
+    authorizedObjective: "controlled_repository_access",
+    requiredAuthority: ["read_repository"],
+    permittedScope: ["read_repository"],
+    monitoringRequirements: [],
+  });
+  const { deps, calls } = dependencies({ authority: repositoryAuthority });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "agent-alpha-golden-write-deny-1",
+    action: {
+      type: "write_repository",
+      purpose: "controlled_repository_access",
+      resource: "repository:a",
+      environment: "sandbox",
+      payloadDigest: "9".repeat(64),
+    },
+  }), deps);
+
+  assert.equal(receipt.decision, "DENY");
+  assert.ok(receipt.reasonCodes.includes("AUTHORITY_SCOPE_INVALID"));
+  assert.equal(receipt.externalExecution.requested, false);
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+  for (const artifact of ["persistDecision", "extendEvidenceGraph", "appendReplay", "emitMaterialTrustMemory"]) assert.ok(calls.includes(artifact));
+  assert.match(receipt.digest, /^[a-f0-9]{64}$/);
 });
 
 test("a delegated authorization denial persists its exact reason in the canonical receipt", async () => {
@@ -602,4 +681,88 @@ test("canonical execution continuity keeps intent, request, authorization, ackno
   const stages = receipt.executionContinuity.map((item) => item.stage);
   for (const stage of ["INTENDED_ACTION", "REQUESTED_ACTION", "AUTHORIZED_ACTION", "COMMAND_SENT", "COMMAND_ACKNOWLEDGED", "ACTION_EXECUTED", "CONSEQUENCE_OBSERVED"]) assert.ok(stages.includes(stage));
   assert.equal(new Set(stages).size, stages.length);
+});
+
+test("canonical evaluation automatically persists a pre-action Trust Forecast for consequential agent action", async () => {
+  const { deps } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "automatic-pre-action-forecast-001" }), deps);
+  assert.equal(receipt.trustForecast?.snapshotType, "PRE_ACTION_TRUST_FORECAST");
+  assert.equal(receipt.trustForecast?.subject.type, "AI_AGENT");
+  assert.ok(receipt.trustForecast?.conditions.some((item) => item.dimension === "AUTHORITY_STABILITY"));
+  assert.equal(receipt.decisionTimeSnapshot.trustForecast?.forecastId, receipt.trustForecast?.forecastId);
+  assert.equal(receipt.trustForecast?.canonicalDecisionBoundary.forecastCanDeny, false);
+  assert.ok(receipt.providerNeutralEvidence.some((item) => item.evidenceType === "TRUST_CONDITION_TOOL_PARAMETER_PROVENANCE"));
+});
+
+test("Trust Forecast evidence flows through the existing deployment gate and canonical artifacts", async () => {
+  const { deps, calls } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "trust-forecast-deployment-gate-001",
+    decisionType: "AI_DEPLOYMENT_TRUST_GATE",
+    deploymentContext: { materialChanges: [], assuranceEvidence: [] },
+    managedControl: {
+      trustForecast: {
+        enterpriseId: tenantId,
+        subject: { type: "AI_AGENT", id: subjectId },
+        horizon: "PRE_DEPLOYMENT",
+        evaluatedAt: requestedAt,
+        policyReference: "policy-settlement:1.0.0",
+        conditions: [{
+          dimension: "AUTHORITY_STABILITY",
+          status: "ELEVATED",
+          confidence: 0.92,
+          evidenceReferences: ["evidence:authority-expansion"],
+          lastVerifiedAt: requestedAt,
+          freshness: "CURRENT",
+          trend: "DETERIORATING",
+          materiality: "CRITICAL",
+          knownLimitations: [],
+          summary: "Proposed authority expands beyond the approved deployment baseline.",
+          signals: ["PRIVILEGE_INCREASED"],
+          providerIds: ["ci:deployment-candidate"],
+        }],
+      },
+    },
+  }), deps);
+  assert.equal(receipt.decision, "REVIEW");
+  assert.equal(receipt.trustForecast?.state, "ELEVATED");
+  assert.equal(receipt.trustForecast?.canonicalDecisionBoundary.forecastCanDeny, false);
+  assert.equal(receipt.decisionTimeSnapshot.trustForecast?.forecastId, receipt.trustForecast?.forecastId);
+  assert.equal(receipt.deploymentGate?.forecastState, "ELEVATED");
+  assert.equal(receipt.deploymentGate?.deploymentRecommendation, "HOLD");
+  assert.ok(receipt.reasonCodes.includes("TRUST_FORECAST_REQUIRES_CANONICAL_REVIEW"));
+  assert.ok(receipt.providerNeutralEvidence.some((item) => item.evidenceType === "TRUST_CONDITION_AUTHORITY_STABILITY"));
+  for (const artifact of ["extendEvidenceGraph", "appendReplay", "emitMaterialTrustMemory"]) assert.ok(calls.includes(artifact));
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
+test("a forecast recommendation outside the deployment gate cannot directly replace canonical ALLOW", async () => {
+  const { deps, calls } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "trust-forecast-canonical-separation-001",
+    managedControl: {
+      trustForecast: {
+        enterpriseId: tenantId,
+        subject: { type: "AI_AGENT", id: subjectId },
+        horizon: "NEXT_CONSEQUENTIAL_ACTION",
+        evaluatedAt: requestedAt,
+        policyReference: "policy-settlement:1.0.0",
+        conditions: [{
+          dimension: "CONSEQUENCE_EXPOSURE",
+          status: "SEVERE",
+          confidence: 0.95,
+          evidenceReferences: ["evidence:forecast-only"],
+          lastVerifiedAt: requestedAt,
+          freshness: "CURRENT",
+          trend: "RAPIDLY_DETERIORATING",
+          materiality: "CRITICAL",
+          knownLimitations: [],
+          summary: "Forecast-only evidence recommends preventative controls.",
+        }],
+      },
+    },
+  }), deps);
+  assert.equal(receipt.trustForecast?.state, "SEVERE");
+  assert.equal(receipt.decision, "ALLOW");
+  assert.ok(calls.includes("requestExternalExecutionIfAllowed"));
 });

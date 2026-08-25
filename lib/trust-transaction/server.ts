@@ -181,6 +181,11 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
         staleEvidenceCount: Number(row.deployment_gate.staleEvidenceCount ?? 0),
         reauthorizationRequired: Boolean(row.deployment_gate.reauthorizationRequired),
         pendingRevalidation: Array.isArray(row.deployment_gate.pendingRevalidation) ? row.deployment_gate.pendingRevalidation.map(String) : [],
+        forecastReference: row.deployment_gate.forecastReference ? String(row.deployment_gate.forecastReference) : null,
+        forecastState: row.deployment_gate.forecastState ? String(row.deployment_gate.forecastState) as NonNullable<SafeCanonicalTransactionReceipt["deploymentGate"]>["forecastState"] : null,
+        deploymentRecommendation: row.deployment_gate.deploymentRecommendation ? String(row.deployment_gate.deploymentRecommendation) as NonNullable<SafeCanonicalTransactionReceipt["deploymentGate"]>["deploymentRecommendation"] : null,
+        requiredControls: Array.isArray(row.deployment_gate.requiredControls) ? row.deployment_gate.requiredControls as NonNullable<SafeCanonicalTransactionReceipt["deploymentGate"]>["requiredControls"] : [],
+        evidenceGaps: Array.isArray(row.deployment_gate.evidenceGaps) ? row.deployment_gate.evidenceGaps.map(String) : [],
       }
     : null;
   const providerNeutralEvidence = Array.isArray(row.provider_neutral_evidence)
@@ -205,6 +210,7 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
         confidence: item.confidence ?? null,
         findingReferences: Array.isArray(item.finding_references ?? item.findingReferences) ? (item.finding_references ?? item.findingReferences).map(String) : [],
         retestReference: item.retest_reference ?? item.retestReference ?? null,
+        evidenceContext: item.evidence_context ?? item.evidenceContext ?? null,
       }))
     : [];
   const executionContinuity = Array.isArray(row.execution_continuity)
@@ -260,6 +266,11 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
     providerNeutralEvidence,
     deploymentGate,
     executionContinuity,
+    authorityIntegrity: decisionTimeSnapshot.authorityIntegrity ?? null,
+    trustForecast: decisionTimeSnapshot.trustForecast ?? null,
+    trustTwin: decisionTimeSnapshot.trustTwin ?? null,
+    adaptiveVerification: decisionTimeSnapshot.trustTwin?.adaptiveVerification ?? null,
+    sentinelTrustBrief: decisionTimeSnapshot.sentinelTrustBrief ?? null,
     consequence: decisionTimeSnapshot.consequence ?? "unknown",
     confidenceInConclusion: decisionTimeSnapshot.confidenceInConclusion ?? "INSUFFICIENT",
     timestamp: String(row.requested_at),
@@ -580,10 +591,11 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
     },
     async loadPreviousTransaction(enterpriseId, transactionId) {
       if (!transactionId) return null;
-      const result = await db.from("canonical_trust_transactions").select("transaction_id,enterprise_id,trust_state,decision,evidence_digest,authority_reference,policy_version").eq("enterprise_id", enterpriseId).eq("transaction_id", transactionId).maybeSingle();
+      const result = await db.from("canonical_trust_transactions").select("transaction_id,enterprise_id,trust_state,decision,evidence_digest,authority_reference,policy_version,decision_time_snapshot").eq("enterprise_id", enterpriseId).eq("transaction_id", transactionId).maybeSingle();
       if (result.error) fail("Previous transaction resolution", result.error);
       if (!result.data) throw new CanonicalTransactionError("The previous transaction is unknown in this tenant.", 404, "PREVIOUS_TRANSACTION_NOT_FOUND");
-      return { transactionId: String(result.data.transaction_id), enterpriseId: String(result.data.enterprise_id), trustState: String(result.data.trust_state), decision: String(result.data.decision), evidenceDigest: String(result.data.evidence_digest), authorityReference: String(result.data.authority_reference), policyVersion: String(result.data.policy_version) } as PreviousCanonicalTransaction;
+      const previousSnapshot = result.data.decision_time_snapshot && typeof result.data.decision_time_snapshot === "object" ? result.data.decision_time_snapshot as Row : {};
+      return { transactionId: String(result.data.transaction_id), enterpriseId: String(result.data.enterprise_id), trustState: String(result.data.trust_state), decision: String(result.data.decision), evidenceDigest: String(result.data.evidence_digest), authorityReference: String(result.data.authority_reference), policyVersion: String(result.data.policy_version), trustTwin: previousSnapshot.trustTwin ?? null } as PreviousCanonicalTransaction;
     },
     async persistDecision(record) {
       const result = await rpc(db, "Decision persistence", "persist_canonical_trust_transaction_decision_v1", { p_transaction: decisionPayload(record), p_decision: record.decisionEnvelope });
