@@ -5,6 +5,10 @@ import {
   type OperationalEntity,
 } from "./operational-entity.ts";
 import { hashCanonical } from "../../src/lib/trust-core/hash.ts";
+import type { AuthorityIntegrityAssessment } from "../trust-fabric/authority-integrity.ts";
+import type { TrustForecast } from "../trust-fabric/trust-forecast.ts";
+import type { TrustTwin } from "../trust-fabric/trust-twin.ts";
+import type { SentinelTrustBrief } from "../trust-fabric/sentinel-agents.ts";
 
 export type ExternalIdentityChangeType =
   | "EXTERNAL_IDENTITY_APPEARED"
@@ -212,6 +216,10 @@ export type DecisionTimeSnapshot = Readonly<{
   consequence?: OperationalConsequenceClassification;
   confidenceInConclusion?: "HIGH" | "MODERATE" | "LOW" | "INSUFFICIENT";
   decisionDigest?: string;
+  authorityIntegrity?: AuthorityIntegrityAssessment | null;
+  trustForecast?: TrustForecast | null;
+  trustTwin?: TrustTwin | null;
+  sentinelTrustBrief?: SentinelTrustBrief | null;
   reviewerState: string;
 }>;
 
