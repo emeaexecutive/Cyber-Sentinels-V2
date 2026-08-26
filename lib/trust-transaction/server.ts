@@ -186,6 +186,8 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
         deploymentRecommendation: row.deployment_gate.deploymentRecommendation ? String(row.deployment_gate.deploymentRecommendation) as NonNullable<SafeCanonicalTransactionReceipt["deploymentGate"]>["deploymentRecommendation"] : null,
         requiredControls: Array.isArray(row.deployment_gate.requiredControls) ? row.deployment_gate.requiredControls as NonNullable<SafeCanonicalTransactionReceipt["deploymentGate"]>["requiredControls"] : [],
         evidenceGaps: Array.isArray(row.deployment_gate.evidenceGaps) ? row.deployment_gate.evidenceGaps.map(String) : [],
+        modelIntegrityState: row.deployment_gate.modelIntegrityState ? String(row.deployment_gate.modelIntegrityState) as NonNullable<SafeCanonicalTransactionReceipt["deploymentGate"]>["modelIntegrityState"] : null,
+        validationState: row.deployment_gate.validationState ? String(row.deployment_gate.validationState) as NonNullable<SafeCanonicalTransactionReceipt["deploymentGate"]>["validationState"] : null,
       }
     : null;
   const providerNeutralEvidence = Array.isArray(row.provider_neutral_evidence)
@@ -271,6 +273,7 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
     trustTwin: decisionTimeSnapshot.trustTwin ?? null,
     adaptiveVerification: decisionTimeSnapshot.trustTwin?.adaptiveVerification ?? null,
     sentinelTrustBrief: decisionTimeSnapshot.sentinelTrustBrief ?? null,
+    modelStateIntegrity: decisionTimeSnapshot.modelStateIntegrity ?? null,
     consequence: decisionTimeSnapshot.consequence ?? "unknown",
     confidenceInConclusion: decisionTimeSnapshot.confidenceInConclusion ?? "INSUFFICIENT",
     timestamp: String(row.requested_at),

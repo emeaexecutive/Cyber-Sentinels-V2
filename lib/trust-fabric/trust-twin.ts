@@ -15,6 +15,7 @@ import {
   type AdaptiveVerificationRequirement,
   type VerificationEvidenceInput,
 } from "./adaptive-verification.ts";
+import type { ModelStateIntegrityAssessment } from "./model-state-integrity.ts";
 
 export const TRUST_PRESSURE_LEVELS = ["LOW", "MODERATE", "HIGH", "CRITICAL", "UNKNOWN"] as const;
 export const TRUST_PRESSURE_TRENDS = ["RISING", "FALLING", "STABLE", "SPIKING", "UNKNOWN"] as const;
@@ -168,6 +169,17 @@ export type TrustTwin = {
   providerConfidence: number;
   evidenceFreshness: "CURRENT" | "AGING" | "STALE" | "EXPIRED" | "UNAVAILABLE";
   authorizationPropagation: TrustTwinStateValue;
+  approvedModelState: ModelStateIntegrityAssessment["approvedModelState"] | null;
+  observedModelState: ModelStateIntegrityAssessment["observedModelState"] | null;
+  modelIntegrityState: ModelStateIntegrityAssessment["modelIntegrityState"] | "NOT_OBSERVED";
+  templateIntegrity: ModelStateIntegrityAssessment["templateIntegrity"] | null;
+  artifactIntegrity: ModelStateIntegrityAssessment["artifactIntegrity"] | null;
+  runtimeIntegrity: ModelStateIntegrityAssessment["runtimeIntegrity"] | null;
+  endpointIntegrity: ModelStateIntegrityAssessment["endpointIntegrity"] | null;
+  stateChangeProvenance: ModelStateIntegrityAssessment["stateChangeProvenance"] | null;
+  lastModelStateMeasurement: string | null;
+  modelStateEvidenceFreshness: ModelStateIntegrityAssessment["modelStateEvidenceFreshness"] | "UNAVAILABLE";
+  modelStateIntegrity: ModelStateIntegrityAssessment | null;
   adaptiveVerification: AdaptiveVerificationRequirement;
   trustForecast: TrustForecast;
   forecastTrend: TrustForecast["trend"];
@@ -229,6 +241,7 @@ export type TrustTwinEvaluationInput = {
   authorityContext?: { reference: string; scopeValid: boolean };
   verificationEvidence?: VerificationEvidenceInput[];
   verificationPolicy?: Partial<AdaptiveVerificationPolicy> | null;
+  modelStateIntegrity?: ModelStateIntegrityAssessment | null;
 };
 
 export type CounterfactualChange = {
@@ -600,6 +613,25 @@ export function createTrustTwin(input: TrustTwinEvaluationInput): TrustTwin {
   if (!TRUST_TWIN_ENTITY_TYPES.includes(input.entity.type) || input.forecastInput.subject.id !== input.entity.id || input.forecastInput.subject.type !== input.entity.type) throw new Error("TRUST_TWIN_SUBJECT_SCOPE_MISMATCH");
   if (!referencePattern.test(input.entity.id) || !Number.isFinite(Date.parse(input.evaluatedAt))) throw new TypeError("Trust Twin entity or timestamp is invalid.");
   if (input.previousTwin && (input.previousTwin.enterpriseId !== input.enterpriseId || input.previousTwin.entityId !== input.entity.id)) throw new Error("TRUST_TWIN_PREVIOUS_SCOPE_MISMATCH");
+  if (input.modelStateIntegrity && (input.modelStateIntegrity.enterpriseId !== input.enterpriseId || input.modelStateIntegrity.agentId !== input.entity.id)) throw new Error("TRUST_TWIN_MODEL_STATE_SCOPE_MISMATCH");
+  if (input.modelStateIntegrity) {
+    input = {
+      ...input,
+      forecastInput: {
+        ...input.forecastInput,
+        conditions: [
+          ...input.forecastInput.conditions.filter((condition) => condition.dimension !== "MODEL_STATE_INTEGRITY"),
+          ...input.modelStateIntegrity.trustConditions,
+        ],
+        authorityIntegrityFindings: unique([...(input.forecastInput.authorityIntegrityFindings ?? []), ...input.modelStateIntegrity.findings.map((item) => item.code)]),
+      },
+      proposedChanges: unique([...(input.proposedChanges ?? []), ...input.modelStateIntegrity.findings.map((item) => item.code)]),
+      verificationEvidence: [
+        ...(input.verificationEvidence ?? []),
+        ...input.modelStateIntegrity.providerNeutralEvidence.map((item) => ({ challenge: "VERIFY_MODEL_STATE" as const, evidenceType: item.evidenceType, providerClass: item.providerClass ?? "RUNTIME_SECURITY_PROVIDER", providerKey: item.providerKey ?? item.providerId, observedAt: item.observedAt, expiresAt: input.modelStateIntegrity!.observedModelState.expiresAt ?? null, outcome: item.outcome, evidenceReferences: [item.evidenceDigest], assurance: item.assurance, retestReference: item.retestReference })),
+      ],
+    };
+  }
   const reach = deriveReach(input.consequenceReach);
   const pressure = derivePressure(input.forecastInput.conditions, input.evaluatedAt, input.previousTwin);
   const budgetWithoutRestorers = deriveBudget(pressure, input);
@@ -639,13 +671,18 @@ export function createTrustTwin(input: TrustTwinEvaluationInput): TrustTwin {
   });
   const twinId = deterministicUuid({ enterpriseId: input.enterpriseId, entity: input.entity, evaluatedAt: input.evaluatedAt, evidenceReferences, forecastDigest: forecast.forecastDigest });
   const materialEvents = twinEvents(input, pressure, budget, forecast, evidenceReferences);
-  const graphProjection = twinGraph(input, twinId, forecast, pressure, budget, controls, adaptiveVerification);
+  const twinProjection = twinGraph(input, twinId, forecast, pressure, budget, controls, adaptiveVerification);
+  const graphProjection: TrustForecastGraphProjection = input.modelStateIntegrity ? {
+    nodes: [...twinProjection.nodes, ...input.modelStateIntegrity.graphProjection.nodes],
+    edges: [...twinProjection.edges, ...input.modelStateIntegrity.graphProjection.edges],
+  } : twinProjection;
   const replayEvents = [
     { eventType: "TRUST_TWIN_PROJECTED", occurredAt: input.evaluatedAt, evidenceReferences, details: { twinId, source: "CANONICAL_EVIDENCE_PROJECTION" } },
     { eventType: "TRUST_PRESSURE_EVALUATED", occurredAt: input.evaluatedAt, evidenceReferences, details: { value: pressure.value, level: pressure.level, trend: pressure.trend, contributors: pressure.primaryContributors.map((item) => item.code) } },
     { eventType: "TRUST_BUDGET_EVALUATED", occurredAt: input.evaluatedAt, evidenceReferences, details: { total: budget.total, consumed: budget.consumed, remaining: budget.remaining, status: budget.status } },
     ...forecast.replayEvents.map((event) => ({ eventType: event.eventType, occurredAt: event.occurredAt, evidenceReferences: event.evidenceReferences, details: event.details })),
     ...adaptiveVerification.replayEvents,
+    ...(input.modelStateIntegrity?.replayEvents ?? []),
     ...materialEvents.map((event) => ({ eventType: event.eventType, occurredAt: event.occurredAt, evidenceReferences: event.evidenceReferences, details: { twinId } })),
   ];
   const materialMemoryTypes = unique([
@@ -662,6 +699,7 @@ export function createTrustTwin(input: TrustTwinEvaluationInput): TrustTwin {
   const trustMemoryEvents = [
     ...forecast.trustMemoryEvents,
     ...adaptiveVerification.trustMemoryEvents,
+    ...(input.modelStateIntegrity?.trustMemoryEvents ?? []),
     ...materialMemoryTypes.map((eventType) => ({ eventId: hashCanonical([twinId, eventType]), eventType, occurredAt: input.evaluatedAt, evidenceReferences })),
   ].filter((item, index, events) => events.findIndex((candidate) => candidate.eventType === item.eventType) === index);
   const core = {
@@ -686,6 +724,17 @@ export function createTrustTwin(input: TrustTwinEvaluationInput): TrustTwin {
     providerConfidence: forecast.confidence,
     evidenceFreshness: conditions.some((item) => item.freshness === "EXPIRED") ? "EXPIRED" as const : conditions.some((item) => item.freshness === "STALE") ? "STALE" as const : conditions.some((item) => item.freshness === "AGING") ? "AGING" as const : conditions.some((item) => item.freshness === "UNAVAILABLE") ? "UNAVAILABLE" as const : "CURRENT" as const,
     authorizationPropagation: state(conditions, "AUTHORIZATION_PROPAGATION"),
+    approvedModelState: input.modelStateIntegrity?.approvedModelState ?? null,
+    observedModelState: input.modelStateIntegrity?.observedModelState ?? null,
+    modelIntegrityState: input.modelStateIntegrity?.modelIntegrityState ?? "NOT_OBSERVED" as const,
+    templateIntegrity: input.modelStateIntegrity?.templateIntegrity ?? null,
+    artifactIntegrity: input.modelStateIntegrity?.artifactIntegrity ?? null,
+    runtimeIntegrity: input.modelStateIntegrity?.runtimeIntegrity ?? null,
+    endpointIntegrity: input.modelStateIntegrity?.endpointIntegrity ?? null,
+    stateChangeProvenance: input.modelStateIntegrity?.stateChangeProvenance ?? null,
+    lastModelStateMeasurement: input.modelStateIntegrity?.lastModelStateMeasurement ?? null,
+    modelStateEvidenceFreshness: input.modelStateIntegrity?.modelStateEvidenceFreshness ?? "UNAVAILABLE" as const,
+    modelStateIntegrity: input.modelStateIntegrity ?? null,
     adaptiveVerification,
     trustForecast: forecast,
     forecastTrend: forecast.trend,
@@ -700,6 +749,7 @@ export function createTrustTwin(input: TrustTwinEvaluationInput): TrustTwin {
       ...forecast.knownLimitations,
       ...reach.knownLimitations,
       ...adaptiveVerification.knownLimitations,
+      ...(input.modelStateIntegrity?.trustConditions.flatMap((condition) => condition.knownLimitations) ?? []),
       "Trust Pressure and Trust Budget are normalized, explainable heuristics and do not claim exact incident or loss probability.",
       "The Trust Twin is derived from canonical evidence and is not a canonical data store.",
     ]),
@@ -856,6 +906,7 @@ export function simulateCounterfactualTrust(input: { enterpriseId: string; curre
     previousTwin: input.currentTwin,
     proposedChanges: changeTypes,
     verificationEvidence: counterfactualVerificationEvidence(input.changes, input.evaluatedAt),
+    modelStateIntegrity: input.currentTwin.modelStateIntegrity,
   });
   const simulationId = deterministicUuid({ type: "COUNTERFACTUAL_TRUST_SIMULATION", sourceTwinDigest: input.currentTwin.twinDigest, evaluatedAt: input.evaluatedAt, changes: input.changes });
   const evidenceReferences = unique(projectedTwin.evidenceReferences);

@@ -316,7 +316,7 @@ test("authority simulation evaluates synthetic intent without destructive execut
 });
 
 test("condition and subject contracts cover the requested Trust Fabric and VALE surfaces", () => {
-  assert.equal(TRUST_CONDITION_DIMENSIONS.length, 21);
+  assert.equal(TRUST_CONDITION_DIMENSIONS.length, 22);
   assert.deepEqual(TRUST_CONDITION_TRENDS, ["IMPROVING", "UNCHANGED", "DETERIORATING", "RAPIDLY_DETERIORATING", "UNKNOWN"]);
   assert.deepEqual(FORECAST_SUBJECT_TYPES, ["HUMAN", "AI_AGENT", "SOFTWARE_AGENT", "MACHINE", "ROBOT", "WORKLOAD"]);
 });

@@ -7,6 +7,7 @@ import { normalizeProviderNeutralEvidence, referenceProviderAdapters } from "../
 import { hashCanonical } from "../src/lib/trust-core/hash.ts";
 import { createAgentAlphaTrustTwinDemo } from "../lib/trust-fabric/trust-twin.ts";
 import { createSentinelOperations } from "../lib/trust-fabric/sentinel-agents.ts";
+import { createApprovedModelStateBaseline, createCurrentObservedModelState } from "../lib/trust-fabric/model-state-integrity.ts";
 
 const requestedAt = "2026-08-06T10:00:00.000Z";
 const tenantId = "10000000-0000-4000-8000-000000000001";
@@ -140,6 +141,43 @@ function dependencies(options = {}) {
   }
   return { deps, calls };
 }
+
+function canonicalModelState(templateDigest = "sha256:model-template-approved") {
+  const common = {
+    enterpriseId: tenantId, agentId: subjectId, modelProvider: "provider:model-registry", modelId: "settlement-model", modelVersion: "1.0.0",
+    modelArtifactReference: "artifact:settlement-model:1", modelArtifactDigest: "sha256:model-artifact-approved", runtimeProvider: "provider:runtime",
+    runtimeImageReference: "image:settlement-agent:1", runtimeImageDigest: "sha256:runtime-approved", inferenceServer: "server:settlement-inference", inferenceServerVersion: "1.0.0",
+    configurationDigest: "sha256:configuration-approved", adapterConfigurationDigest: "sha256:adapter-approved", inferenceConfigurationDigest: "sha256:inference-approved", toolParserConfigurationDigest: "sha256:tool-parser-approved",
+    templates: { agentSystemPromptDigest: "sha256:system-prompt-approved", modelTemplateDigest: templateDigest, runtimeInferenceConfigurationDigest: "sha256:runtime-inference-approved", sourceReference: "registry:settlement-template", verificationMechanism: "provider-digest" },
+    networkConfigurationReference: "network:settlement-private", networkPosture: "PRIVATE_NETWORK", authenticationConfigurationReference: "auth:settlement", authenticationPosture: "AUTHENTICATED",
+    runtimeEnvironment: "sandbox", evidenceProvider: "runtime-attestation", evidenceReferences: ["evidence:model-state:canonical"], measuredAt: "2026-08-06T09:45:00.000Z", limitations: [],
+    endpointLineage: { endpointReference: "endpoint:settlement", routingProvider: "router:settlement", intermediaryReference: "proxy:settlement", finalInferenceServer: "server:settlement-inference" },
+    router: { routerId: "router:settlement", routerVersion: "1", routingPolicyDigest: "sha256:routing-approved", selectedModel: "settlement-model:1.0.0", fallbackModel: null, selectionReason: "approved primary" },
+  };
+  return common;
+}
+
+test("canonical evaluator remains the sole decision engine for model-state evidence", async () => {
+  const approved = createApprovedModelStateBaseline({ ...canonicalModelState(), agentPassportVersion: "passport:settlement:v1", policyVersion: "policy-settlement:1.0.0", authorityReference: authority().contractId });
+  const observedExact = createCurrentObservedModelState({ ...canonicalModelState(), agentPassportVersion: "passport:settlement:v1", policyVersion: "policy-settlement:1.0.0", authorityReference: authority().contractId, providerAssertions: [] });
+  const observedDrift = createCurrentObservedModelState({ ...canonicalModelState("sha256:model-template-unapproved"), agentPassportVersion: "passport:settlement:v1", policyVersion: "policy-settlement:1.0.0", authorityReference: authority().contractId, providerAssertions: [] });
+
+  const exact = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "model-state-exact", decisionType: "AI_DEPLOYMENT_TRUST_GATE", deploymentContext: { approvedModelState: approved, currentObservedModelState: observedExact, modelValidation: { validationReference: "validation:settlement:v1", validatedBaselineDigest: approved.baselineDigest } } }), dependencies().deps);
+  assert.equal(exact.decisionTimeSnapshot.modelStateIntegrity.modelIntegrityState, "EXACT_MATCH");
+  assert.equal(exact.modelStateIntegrity.canonicalDecisionBoundary.canAllow, false);
+  assert.equal(exact.trustForecast.canonicalDecisionBoundary.forecastCanDeny, false);
+
+  const drift = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "model-state-drift", decisionType: "AI_DEPLOYMENT_TRUST_GATE", deploymentContext: { approvedModelState: approved, currentObservedModelState: observedDrift, modelValidation: { validationReference: "validation:settlement:v1", validatedBaselineDigest: approved.baselineDigest } } }), dependencies().deps);
+  assert.equal(drift.decision, "REVIEW");
+  assert.ok(drift.reasonCodes.includes("MODEL_STATE_DRIFT"));
+  assert.equal(drift.deploymentGate.assuranceFreshness, "ASSURANCE_INVALIDATED_BY_CHANGE");
+  assert.equal(drift.deploymentGate.validationState, "REASSESSMENT_REQUIRED");
+  assert.equal(drift.sentinelTrustBrief.canonicalDecision, null);
+
+  const invalidAuthority = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "model-state-authority-invalid", action: { ...transactionInput().action, type: "transfer_funds" }, decisionType: "AI_DEPLOYMENT_TRUST_GATE", deploymentContext: { approvedModelState: approved, currentObservedModelState: observedExact, modelValidation: { validationReference: "validation:settlement:v1", validatedBaselineDigest: approved.baselineDigest } } }), dependencies().deps);
+  assert.equal(invalidAuthority.decision, "DENY");
+  assert.ok(invalidAuthority.reasonCodes.includes("AUTHORITY_SCOPE_INVALID"));
+});
 
 test("authority-integrity findings flow through the canonical evaluator and existing artifacts", async () => {
   const parameterSchema = [{ parameterName: "tenant_id", parameterCategory: "tenant_boundary", allowedProvenanceClasses: ["authority_bound"], materiality: "critical", required: true, modelVisible: false, mutableAfterApproval: false, defaultState: "server_resolved" }];

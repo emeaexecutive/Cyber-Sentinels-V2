@@ -39,6 +39,14 @@ import {
 import { createTrustTwin, type TrustTwin } from "../../../lib/trust-fabric/trust-twin.ts";
 import type { AdaptiveVerificationRequirement } from "../../../lib/trust-fabric/adaptive-verification.ts";
 import { createSentinelTrustBrief, type SentinelTrustBrief } from "../../../lib/trust-fabric/sentinel-agents.ts";
+import {
+  evaluateModelStateIntegrity,
+  type ApprovedModelStateSnapshot,
+  type CurrentObservedModelState,
+  type ModelStateChangeProvenance,
+  type ModelStateIntegrityAssessment,
+  type ModelStateRetrospectiveAdvisory,
+} from "../../../lib/trust-fabric/model-state-integrity.ts";
 
 export type CanonicalTransactionDecision = "ALLOW" | "REVIEW" | "DENY";
 export type CanonicalOperationalState = "verified" | "degraded" | "suspended";
@@ -71,6 +79,11 @@ export type DeploymentGateContext = {
   assuranceEvidence?: DeploymentAssuranceEvidence[];
   environmentAttestation?: Record<string, unknown> | null;
   providerNeutralFindings?: Record<string, unknown>[] | null;
+  approvedModelState?: ApprovedModelStateSnapshot | null;
+  currentObservedModelState?: CurrentObservedModelState | null;
+  modelStateChangeProvenance?: Partial<ModelStateChangeProvenance> | null;
+  modelValidation?: { validationReference: string; validatedBaselineDigest: string; reassessmentReference?: string | null } | null;
+  retrospectiveModelStateAdvisory?: ModelStateRetrospectiveAdvisory | null;
 };
 
 export type DeploymentGateSummary = {
@@ -87,6 +100,8 @@ export type DeploymentGateSummary = {
   deploymentRecommendation: TrustForecast["deploymentRecommendation"] | null;
   requiredControls: TrustForecast["requiredControls"];
   evidenceGaps: string[];
+  modelIntegrityState: ModelStateIntegrityAssessment["modelIntegrityState"] | null;
+  validationState: ModelStateIntegrityAssessment["validationLineage"]["status"] | null;
 };
 
 export type CanonicalContextEvidence = {
@@ -245,6 +260,7 @@ export type CanonicalDecisionRecord = {
   trustTwin: TrustTwin | null;
   adaptiveVerification: AdaptiveVerificationRequirement | null;
   sentinelTrustBrief: SentinelTrustBrief | null;
+  modelStateIntegrity: ModelStateIntegrityAssessment | null;
 };
 export type PersistedCanonicalDecision = CanonicalDecisionRecord & {
   persistenceStatus: "CREATED" | "DUPLICATE";
@@ -294,6 +310,7 @@ export type SafeCanonicalTransactionReceipt = {
   trustTwin: TrustTwin | null;
   adaptiveVerification: AdaptiveVerificationRequirement | null;
   sentinelTrustBrief: SentinelTrustBrief | null;
+  modelStateIntegrity: ModelStateIntegrityAssessment | null;
   consequence: OperationalConsequenceClassification;
   confidenceInConclusion: TrustConclusionConfidence;
   timestamp: string;
@@ -419,6 +436,7 @@ function deriveDeploymentGate(input: {
   requestedAt: string;
   evidenceFresh: boolean;
   trustForecast: TrustForecast | null;
+  modelStateIntegrity: ModelStateIntegrityAssessment | null;
 }): DeploymentGateSummary | null {
   if (input.decisionType !== "AI_DEPLOYMENT_TRUST_GATE") return null;
   const materialChanges = Array.isArray(input.deploymentContext?.materialChanges)
@@ -449,7 +467,10 @@ function deriveDeploymentGate(input: {
     assuranceFreshness = "ASSURANCE_CURRENT";
   }
   const forecastChanges = input.trustForecast?.materialChanges ?? [];
+  const modelStateRequiresQualification = Boolean(input.modelStateIntegrity && !["EXACT_MATCH", "SUPPORTED_MATCH"].includes(input.modelStateIntegrity.modelIntegrityState));
+  if (modelStateRequiresQualification) assuranceFreshness = "ASSURANCE_INVALIDATED_BY_CHANGE";
   const reauthorizationRequired = (materialChanges.length > 0 && assuranceFreshness !== "ASSURANCE_CURRENT")
+    || modelStateRequiresQualification
     || input.trustForecast?.reauthorizationRequired === true;
   return {
     decisionType: "AI_DEPLOYMENT_TRUST_GATE",
@@ -459,12 +480,14 @@ function deriveDeploymentGate(input: {
     currentAssuranceCount: activeEvidence.length,
     staleEvidenceCount: staleEvidence.length,
     reauthorizationRequired,
-    pendingRevalidation: reauthorizationRequired ? [...new Set([...materialChanges, ...forecastChanges, ...(materialChanges.length || forecastChanges.length ? [] : ["assurance-evidence"])])] : [],
+    pendingRevalidation: reauthorizationRequired ? [...new Set([...materialChanges, ...forecastChanges, ...(input.modelStateIntegrity?.validationLineage.findings ?? []), ...(materialChanges.length || forecastChanges.length || modelStateRequiresQualification ? [] : ["assurance-evidence"])])] : [],
     forecastReference: input.trustForecast?.forecastId ?? null,
     forecastState: input.trustForecast?.state ?? null,
     deploymentRecommendation: input.trustForecast?.deploymentRecommendation ?? null,
     requiredControls: input.trustForecast?.requiredControls ?? [],
     evidenceGaps: input.trustForecast?.evidenceGaps ?? [],
+    modelIntegrityState: input.modelStateIntegrity?.modelIntegrityState ?? null,
+    validationState: input.modelStateIntegrity?.validationLineage.status ?? null,
   };
 }
 
@@ -626,6 +649,23 @@ export function evaluateCanonicalTrustDecision(input: {
     ? evaluateAuthorityIntegrity(input.transactionInput.managedControl.authorityIntegrity)
     : null;
   if (authorityIntegrity && authorityIntegrity.actionTimeEvidence.enterpriseId !== input.tenant.id) throw new Error("AUTHORITY_INTEGRITY_TENANT_SCOPE_MISMATCH");
+  const approvedModelState = input.transactionInput.deploymentContext?.approvedModelState ?? null;
+  const currentObservedModelState = input.transactionInput.deploymentContext?.currentObservedModelState ?? null;
+  const incompleteModelStateEvidence = Boolean(approvedModelState) !== Boolean(currentObservedModelState);
+  const modelStateIntegrity = approvedModelState && currentObservedModelState
+    ? evaluateModelStateIntegrity({
+        enterpriseId: input.tenant.id,
+        approved: approvedModelState,
+        observed: currentObservedModelState,
+        evaluatedAt: input.requestedAt,
+        provenance: input.transactionInput.deploymentContext?.modelStateChangeProvenance,
+        validation: input.transactionInput.deploymentContext?.modelValidation,
+        retrospectiveAdvisory: input.transactionInput.deploymentContext?.retrospectiveModelStateAdvisory,
+        previousAssessment: input.previous?.trustTwin?.modelStateIntegrity ?? null,
+        actionReference: `${input.transactionInput.action.type}:${input.transactionInput.action.resource}`,
+        destinationReference: input.transactionInput.action.resource,
+      })
+    : null;
   const suppliedForecastInput = input.transactionInput.managedControl?.trustForecast;
   const subjectTypeMap: Record<string, ForecastSubjectType> = {
     human: "HUMAN",
@@ -636,6 +676,7 @@ export function evaluateCanonicalTrustDecision(input: {
     robot: "ROBOT",
   };
   const authorityIntegrityFindings = authorityIntegrity?.findings.map((item) => item.code) ?? [];
+  const modelStateFindings = modelStateIntegrity?.findings.map((item) => item.code) ?? (incompleteModelStateEvidence ? ["MODEL_STATE_EVIDENCE_INCOMPLETE"] : []);
   const contextualForecastFindings = (input.transactionInput.managedControl?.contextEvidence ?? [])
     .flatMap((item) => [item.evidenceType, item.outcome])
     .filter((finding) => ["MODEL_CONTROLLED_SECURITY_BOUNDARY", "MONITORING_COVERAGE_GAP", "IDENTITY_DISCONTINUITY", "STALE_AUTHORITY_STILL_ACTIVE"].includes(finding));
@@ -663,7 +704,7 @@ export function evaluateCanonicalTrustDecision(input: {
     evidenceFresh: input.evidenceFresh,
     evidenceComplete,
     recentChanges: input.transactionInput.deploymentContext?.materialChanges ?? [],
-    authorityIntegrityFindings: [...new Set([...authorityIntegrityFindings, ...contextualForecastFindings])],
+    authorityIntegrityFindings: [...new Set([...authorityIntegrityFindings, ...contextualForecastFindings, ...modelStateFindings])],
     canonicalTransactionReference: input.correlationId,
   });
   const forecastInput = suppliedForecastInput ?? derivedForecastInput;
@@ -677,7 +718,7 @@ export function evaluateCanonicalTrustDecision(input: {
     authorityContext: { reference: input.authority.contractId, scopeValid: input.authorityScopeValid },
     forecastInput: {
       ...forecastInput,
-      authorityIntegrityFindings: [...new Set([...(forecastInput.authorityIntegrityFindings ?? []), ...authorityIntegrityFindings])],
+      authorityIntegrityFindings: [...new Set([...(forecastInput.authorityIntegrityFindings ?? []), ...authorityIntegrityFindings, ...modelStateFindings])],
     },
     consequenceReach: {
       systems: [...new Set([...input.operationalEntity.environmentReferences, ...input.operationalEntity.workflowReferences, input.transactionInput.action.resource])],
@@ -709,8 +750,9 @@ export function evaluateCanonicalTrustDecision(input: {
       ...(input.transactionInput.deploymentContext?.assuranceEvidence ?? []).map((item) => ({ evidenceType: `${item.methodReference} runtime attestation model tool configuration`, providerClass: "AI_ASSURANCE_PROVIDER", providerKey: item.providerKey, observedAt: item.occurredAt, expiresAt: item.expiresAt, outcome: item.confidence, evidenceReferences: [`digest:${item.evidenceDigest}`], assurance: item.assurance, retestReference: item.retestReference })),
       ...(input.transactionInput.managedControl?.humanIntent?.reference ? [{ evidenceType: "SIGNED_HUMAN_INTENT", providerClass: "APPLICATION_SIGNAL", providerKey: "human_intent", observedAt: input.requestedAt, expiresAt: null, outcome: input.transactionInput.managedControl.humanIntent.status ?? "provided", evidenceReferences: [input.transactionInput.managedControl.humanIntent.reference], assurance: 1, retestReference: null }] : []),
     ],
-    proposedChanges: [...new Set([...(input.transactionInput.deploymentContext?.materialChanges ?? []), ...authorityIntegrityFindings, ...contextualForecastFindings])],
+    proposedChanges: [...new Set([...(input.transactionInput.deploymentContext?.materialChanges ?? []), ...authorityIntegrityFindings, ...contextualForecastFindings, ...modelStateFindings])],
     previousTwin: input.previous?.trustTwin ?? null,
+    modelStateIntegrity,
   });
   const trustForecast = trustTwin.trustForecast;
   const sentinelTrustBrief = createSentinelTrustBrief({
@@ -725,9 +767,10 @@ export function evaluateCanonicalTrustDecision(input: {
     ...(input.transactionInput.managedControl?.contradictions ?? []),
     ...(authorityIntegrity?.findings.map((item) => item.code) ?? []),
     ...(authorityIntegrity?.requiredActions.filter((item) => item !== "NO_ACTION_REQUIRED") ?? []),
+    ...modelStateFindings,
   ];
   const contextReviewRequired = [...contextEvidenceTypes, ...contextContradictions].some((type) =>
-    /(?:MISMATCH|GAP|CONFLICT|DISAGREEMENT|UNPROVEN|INVALID|STALE|DRIFT|SPOOFING|INJECTION|OFFLINE|REVALIDATION_REQUIRED|UNCERTAIN|UNAVAILABLE)/.test(type),
+    /(?:MISMATCH|GAP|CONFLICT|DISAGREEMENT|UNPROVEN|INVALID|STALE|DRIFT|INCOMPLETE|ORIGIN_UNRESOLVED|REASSESSMENT_REQUIRED|SPOOFING|INJECTION|OFFLINE|REVALIDATION_REQUIRED|UNCERTAIN|UNAVAILABLE)/.test(type),
   );
   const evidenceConflict = evidenceIndependence === "conflicting" || input.trustObject.activeContradictions.length > 0 || contextReviewRequired;
   const independenceScore = evidenceIndependence === "independently_confirmed" ? 1
@@ -759,6 +802,7 @@ export function evaluateCanonicalTrustDecision(input: {
     requestedAt: input.requestedAt,
     evidenceFresh: input.evidenceFresh,
     trustForecast,
+    modelStateIntegrity,
   });
   const forecastRequiresReview = input.transactionInput.decisionType === "AI_DEPLOYMENT_TRUST_GATE"
     && trustForecast !== null
@@ -805,6 +849,7 @@ export function evaluateCanonicalTrustDecision(input: {
     `ADAPTIVE_VERIFICATION_DEPTH_${trustTwin.adaptiveVerification.requiredVerificationDepth}`,
     `ADAPTIVE_VERIFICATION_STATUS_${trustTwin.adaptiveVerification.verificationStatus}`,
     ...(trustTwin.adaptiveVerification.trustGap.exists ? ["TRUST_GAP_OPEN", ...trustTwin.adaptiveVerification.missingEvidence.map((item) => `MISSING_${item}`)] : []),
+    ...(modelStateIntegrity ? [`MODEL_INTEGRITY_${modelStateIntegrity.modelIntegrityState}`, ...modelStateIntegrity.findings.map((item) => item.code)] : []),
     `CONSEQUENCE_${consequence.toUpperCase()}`,
     `CONCLUSION_CONFIDENCE_${confidence.level}`,
   ])].sort();
@@ -814,6 +859,7 @@ export function evaluateCanonicalTrustDecision(input: {
     ...(trustForecast?.trustMemoryEvents.length ? ["TRUST_FORECAST_MATERIAL_EVENT"] : []),
     ...(trustTwin.trustMemoryEvents.length ? ["TRUST_TWIN_MATERIAL_EVENT"] : []),
     ...(trustTwin.adaptiveVerification.trustMemoryEvents.length ? ["ADAPTIVE_VERIFICATION_MATERIAL_EVENT"] : []),
+    ...(modelStateIntegrity?.trustMemoryEvents.length ? ["MODEL_STATE_INTEGRITY_MATERIAL_EVENT"] : []),
   ];
   const materialChange = !input.previous || input.previous.trustState !== trustState || changedConditions.length > 0;
   const transactionId = deterministicUuid({ enterpriseId: input.tenant.id, idempotencyKey: input.transactionInput.idempotencyKey });
@@ -914,6 +960,7 @@ export function evaluateCanonicalTrustDecision(input: {
       providerKey: item.providerId,
       evidenceContext: item.metadata,
     })),
+    ...(modelStateIntegrity?.providerNeutralEvidence ?? []),
   ];
   const requestedExecutionStages = input.transactionInput.managedControl?.executionStages ?? [];
   const executionContinuity: ExecutionContinuityRecord[] = [
@@ -954,6 +1001,7 @@ export function evaluateCanonicalTrustDecision(input: {
     trustForecast,
     trustTwin,
     sentinelTrustBrief,
+    modelStateIntegrity,
     reviewerState: input.transactionInput.managedControl?.reviewerState ?? (decision === "REVIEW" ? "required" : "not_required"),
   });
   return {
@@ -1003,6 +1051,7 @@ export function evaluateCanonicalTrustDecision(input: {
     trustTwin,
     adaptiveVerification: trustTwin.adaptiveVerification,
     sentinelTrustBrief,
+    modelStateIntegrity,
   };
 }
 
@@ -1079,6 +1128,7 @@ export function returnSafeTransactionReceipt(input: {
     trustTwin: persisted.trustTwin,
     adaptiveVerification: persisted.adaptiveVerification,
     sentinelTrustBrief: persisted.sentinelTrustBrief,
+    modelStateIntegrity: persisted.modelStateIntegrity,
     consequence: persisted.consequence,
     confidenceInConclusion: persisted.confidenceInConclusion,
     timestamp: persisted.timestamp,

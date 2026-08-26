@@ -9,6 +9,7 @@ export const VERIFICATION_CHALLENGES = [
   "VERIFY_DEVICE",
   "VERIFY_RUNTIME",
   "VERIFY_AGENT_CONFIGURATION",
+  "VERIFY_MODEL_STATE",
   "VERIFY_AUTHORITY",
   "VERIFY_HUMAN_INTENT",
   "VERIFY_DESTINATION",
@@ -156,6 +157,7 @@ const providerClasses: Record<VerificationChallenge, string[]> = {
   VERIFY_DEVICE: ["EDR_PROVIDER", "IDENTITY_PROVIDER", "APPLICATION_SIGNAL"],
   VERIFY_RUNTIME: ["RUNTIME_SECURITY_PROVIDER", "EDGE_ATTESTATION_PROVIDER", "AI_ASSURANCE_PROVIDER"],
   VERIFY_AGENT_CONFIGURATION: ["AI_ASSURANCE_PROVIDER", "MODEL_EVALUATION_PROVIDER", "CI_CD_PROVIDER"],
+  VERIFY_MODEL_STATE: ["RUNTIME_SECURITY_PROVIDER", "AI_ASSURANCE_PROVIDER", "MODEL_EVALUATION_PROVIDER", "EDGE_ATTESTATION_PROVIDER", "CI_CD_PROVIDER"],
   VERIFY_AUTHORITY: ["IAM_PROVIDER", "IDENTITY_PROVIDER", "APPLICATION_SIGNAL"],
   VERIFY_HUMAN_INTENT: ["HUMAN_APPROVAL_PROVIDER", "APPLICATION_SIGNAL"],
   VERIFY_DESTINATION: ["DSPM_PROVIDER", "NETWORK_SECURITY_PROVIDER", "APPLICATION_SIGNAL"],
@@ -169,6 +171,7 @@ const conditionByChallenge: Record<VerificationChallenge, TrustConditionInput["d
   VERIFY_DEVICE: ["IDENTITY_STABILITY", "RUNTIME_ASSURANCE"],
   VERIFY_RUNTIME: ["RUNTIME_ASSURANCE"],
   VERIFY_AGENT_CONFIGURATION: ["MODEL_CHANGE_RISK", "TOOL_EXPOSURE", "TOOL_PARAMETER_PROVENANCE"],
+  VERIFY_MODEL_STATE: ["MODEL_STATE_INTEGRITY", "MODEL_CHANGE_RISK", "RUNTIME_ASSURANCE"],
   VERIFY_AUTHORITY: ["AUTHORITY_STABILITY", "AUTHORITY_EXPOSURE", "AUTHORIZATION_PROPAGATION"],
   VERIFY_HUMAN_INTENT: ["INTENT_ALIGNMENT", "HUMAN_OVERSIGHT"],
   VERIFY_DESTINATION: ["DESTINATION_EXPOSURE"],
@@ -259,6 +262,7 @@ function challengesFor(input: AdaptiveVerificationInput, depth: VerificationDept
   const challenges: VerificationChallenge[] = ["VERIFY_IDENTITY", "VERIFY_AUTHORITY"];
   if (input.entity.type === "HUMAN") challenges.push("VERIFY_DEVICE");
   if (["AI_AGENT", "SOFTWARE_AGENT"].includes(input.entity.type)) challenges.push("VERIFY_AGENT_CONFIGURATION", "VERIFY_RUNTIME");
+  if ([...(input.materialChanges ?? []), ...input.forecast.materialChanges, ...input.forecast.forecastSignals].some((item) => /MODEL_STATE|MODEL_TEMPLATE|MODEL_ARTIFACT|MODEL_ENDPOINT|MODEL_RUNTIME_AUTH|MODEL_ROUTER|VALIDATION_REASSESSMENT|REVALIDATION/.test(item))) challenges.push("VERIFY_MODEL_STATE");
   if (["WORKLOAD", "MACHINE", "ROBOT"].includes(input.entity.type)) challenges.push("VERIFY_RUNTIME", "VERIFY_MACHINE_STATE");
   if (depth === "STEP_UP" || depth === "GATE") challenges.push("VERIFY_MONITORING");
   if ([...(input.materialChanges ?? []), ...input.forecast.materialChanges, ...input.forecast.forecastSignals].some((item) => /POLICY/.test(item))) challenges.push("VERIFY_POLICY_ACKNOWLEDGEMENT");
@@ -273,6 +277,7 @@ function requirementFor(challenge: VerificationChallenge, input: AdaptiveVerific
     VERIFY_DEVICE: "Demonstrate current device or session continuity without requiring biometrics by default.",
     VERIFY_RUNTIME: "Demonstrate that the runtime remains the runtime qualified for this authority and action.",
     VERIFY_AGENT_CONFIGURATION: "Demonstrate continuity of model, configuration, toolset, provenance, and delegated purpose.",
+    VERIFY_MODEL_STATE: "Demonstrate that the current observed model state corresponds to the approved model-state baseline for this action.",
     VERIFY_AUTHORITY: "Demonstrate current authority lineage and downstream authorization propagation.",
     VERIFY_HUMAN_INTENT: "Demonstrate current accountable human intent or approval for the consequential action.",
     VERIFY_DESTINATION: "Demonstrate that the destination is bound to the approved execution path.",
@@ -298,6 +303,7 @@ function challengeFromEvidence(evidence: VerificationEvidenceInput): Verificatio
   if (/MFA|IDENTITY|SSO|WORKFORCE/.test(type)) return "VERIFY_IDENTITY";
   if (/DEVICE|SESSION/.test(type)) return "VERIFY_DEVICE";
   if (/RUNTIME|ATTESTATION/.test(type)) return "VERIFY_RUNTIME";
+  if (/MODEL_STATE|MODEL_ARTIFACT|MODEL_TEMPLATE_INTEGRITY/.test(type)) return "VERIFY_MODEL_STATE";
   if (/MODEL|TOOL|CONFIGURATION|AGENT/.test(type)) return "VERIFY_AGENT_CONFIGURATION";
   if (/AUTHORITY|IAM|CREDENTIAL|PERMISSION/.test(type)) return "VERIFY_AUTHORITY";
   if (/INTENT|APPROVAL/.test(type)) return "VERIFY_HUMAN_INTENT";
@@ -314,6 +320,7 @@ function invalidatingChange(challenge: VerificationChallenge, changes: string[])
     VERIFY_DEVICE: /DEVICE|SESSION|LOCATION/,
     VERIFY_RUNTIME: /RUNTIME|ENVIRONMENT|FIRMWARE/,
     VERIFY_AGENT_CONFIGURATION: /MODEL|TOOL|CONFIGURATION|PROMPT/,
+    VERIFY_MODEL_STATE: /MODEL_STATE|MODEL_TEMPLATE|MODEL_ARTIFACT|MODEL_ENDPOINT|MODEL_RUNTIME_AUTH|MODEL_ROUTER|VALIDATION|REVALIDATION/,
     VERIFY_AUTHORITY: /AUTHORITY|PRIVILEGE|CREDENTIAL|PERMISSION/,
     VERIFY_HUMAN_INTENT: /INTENT|APPROVER|HUMAN_APPROVAL/,
     VERIFY_DESTINATION: /DESTINATION|DATA_BOUNDARY/,
