@@ -202,6 +202,9 @@ test("authority-integrity findings flow through the canonical evaluator and exis
   assert.ok(receipt.reasonCodes.includes("MODEL_CONTROLLED_SECURITY_BOUNDARY"));
   assert.equal(receipt.authorityIntegrity?.findings[0].malicious, false);
   assert.equal(receipt.decisionTimeSnapshot.authorityIntegrity?.actionTimeEvidence.toolSchema.schemaDigest, toolSchema.schemaDigest);
+  assert.deepEqual(receipt.authorityEvidenceSummary, receipt.decisionTimeSnapshot.authorityIntegrity?.receiptSummary);
+  assert.equal(receipt.authorityEvidenceSummary?.parameterProvenanceSummary[0].provenance, "MODEL_PROPOSED");
+  assert.equal(receipt.authorityEvidenceSummary?.propagationState, "INSUFFICIENT_EVIDENCE");
   assert.ok(receipt.providerNeutralEvidence.some((item) => item.evidenceType === "MODEL_CONTROLLED_SECURITY_BOUNDARY"));
   for (const artifact of ["extendEvidenceGraph", "appendReplay", "emitMaterialTrustMemory"]) assert.ok(calls.includes(artifact));
   assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);

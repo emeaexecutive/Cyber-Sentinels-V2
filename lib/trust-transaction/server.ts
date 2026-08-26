@@ -269,6 +269,7 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
     deploymentGate,
     executionContinuity,
     authorityIntegrity: decisionTimeSnapshot.authorityIntegrity ?? null,
+    authorityEvidenceSummary: decisionTimeSnapshot.authorityIntegrity?.receiptSummary ?? null,
     trustForecast: decisionTimeSnapshot.trustForecast ?? null,
     trustTwin: decisionTimeSnapshot.trustTwin ?? null,
     adaptiveVerification: decisionTimeSnapshot.trustTwin?.adaptiveVerification ?? null,

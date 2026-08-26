@@ -256,6 +256,7 @@ export type CanonicalDecisionRecord = {
   deploymentGate: DeploymentGateSummary | null;
   executionContinuity: ExecutionContinuityRecord[];
   authorityIntegrity: AuthorityIntegrityAssessment | null;
+  authorityEvidenceSummary: AuthorityIntegrityAssessment["receiptSummary"] | null;
   trustForecast: TrustForecast | null;
   trustTwin: TrustTwin | null;
   adaptiveVerification: AdaptiveVerificationRequirement | null;
@@ -306,6 +307,7 @@ export type SafeCanonicalTransactionReceipt = {
   deploymentGate: DeploymentGateSummary | null;
   executionContinuity: ExecutionContinuityRecord[];
   authorityIntegrity: AuthorityIntegrityAssessment | null;
+  authorityEvidenceSummary: AuthorityIntegrityAssessment["receiptSummary"] | null;
   trustForecast: TrustForecast | null;
   trustTwin: TrustTwin | null;
   adaptiveVerification: AdaptiveVerificationRequirement | null;
@@ -753,6 +755,7 @@ export function evaluateCanonicalTrustDecision(input: {
     proposedChanges: [...new Set([...(input.transactionInput.deploymentContext?.materialChanges ?? []), ...authorityIntegrityFindings, ...contextualForecastFindings, ...modelStateFindings])],
     previousTwin: input.previous?.trustTwin ?? null,
     modelStateIntegrity,
+    authorityIntegrity,
   });
   const trustForecast = trustTwin.trustForecast;
   const sentinelTrustBrief = createSentinelTrustBrief({
@@ -1047,6 +1050,7 @@ export function evaluateCanonicalTrustDecision(input: {
     deploymentGate,
     executionContinuity,
     authorityIntegrity,
+    authorityEvidenceSummary: authorityIntegrity?.receiptSummary ?? null,
     trustForecast,
     trustTwin,
     adaptiveVerification: trustTwin.adaptiveVerification,
@@ -1124,6 +1128,7 @@ export function returnSafeTransactionReceipt(input: {
     deploymentGate: persisted.deploymentGate,
     executionContinuity,
     authorityIntegrity: persisted.authorityIntegrity,
+    authorityEvidenceSummary: persisted.authorityEvidenceSummary,
     trustForecast: persisted.trustForecast,
     trustTwin: persisted.trustTwin,
     adaptiveVerification: persisted.adaptiveVerification,
