@@ -9,6 +9,7 @@ import type { AuthorityIntegrityAssessment } from "../trust-fabric/authority-int
 import type { TrustForecast } from "../trust-fabric/trust-forecast.ts";
 import type { TrustTwin } from "../trust-fabric/trust-twin.ts";
 import type { SentinelTrustBrief } from "../trust-fabric/sentinel-agents.ts";
+import type { ModelStateIntegrityAssessment } from "../trust-fabric/model-state-integrity.ts";
 
 export type ExternalIdentityChangeType =
   | "EXTERNAL_IDENTITY_APPEARED"
@@ -220,6 +221,7 @@ export type DecisionTimeSnapshot = Readonly<{
   trustForecast?: TrustForecast | null;
   trustTwin?: TrustTwin | null;
   sentinelTrustBrief?: SentinelTrustBrief | null;
+  modelStateIntegrity?: ModelStateIntegrityAssessment | null;
   reviewerState: string;
 }>;
 

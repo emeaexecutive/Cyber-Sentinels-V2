@@ -339,7 +339,7 @@ function attentionFor(twin: TrustTwin, simulation: CounterfactualTrustSimulation
 function recommendationsFor(twin: TrustTwin): SentinelRecommendation[] {
   const missing = twin.adaptiveVerification.missingEvidence;
   const output: SentinelRecommendation[] = [];
-  if (missing.includes("VERIFY_RUNTIME") || missing.includes("VERIFY_AGENT_CONFIGURATION")) output.push("REQUALIFY_RUNTIME");
+  if (missing.includes("VERIFY_RUNTIME") || missing.includes("VERIFY_AGENT_CONFIGURATION") || missing.includes("VERIFY_MODEL_STATE")) output.push("REQUALIFY_RUNTIME");
   if (missing.includes("VERIFY_DESTINATION")) output.push("PIN_DESTINATION");
   if (missing.includes("VERIFY_AUTHORITY")) output.push("REDUCE_AUTHORITY");
   if (missing.includes("VERIFY_MONITORING")) output.push("RESTORE_MONITORING");
@@ -355,10 +355,12 @@ function observationFor(twin: TrustTwin, evaluatedAt: string, simulation: Counte
     ["identity", twin.identityState], ["authority", twin.authorityState], ["runtime", twin.runtimeState], ["tool", twin.toolState],
     ["monitoring", twin.monitoringState], ["destination", twin.destinationState], ["forecast", twin.trustForecast.state],
     ["pressure", twin.trustPressure.value], ["budget_remaining", twin.trustBudget.remaining], ["verification", twin.adaptiveVerification.requiredVerificationDepth],
+    ["model_integrity", twin.modelIntegrityState], ["model_state_freshness", twin.modelStateEvidenceFreshness],
   ] as const;
   const conditions = unique([
     ...twin.trustForecast.primaryContributors.map((item) => `${item.dimension}:${item.status}`),
     ...twin.adaptiveVerification.missingEvidence.map((item) => `MISSING:${item}`),
+    ...(twin.modelStateIntegrity?.findings.map((item) => item.code) ?? []),
     ...(simulation?.proposedChanges.map((item) => `PROPOSED:${item.changeType}`) ?? []),
   ]);
   const material = Boolean(simulation || twin.materialEvents.length || twin.adaptiveVerification.trustGap.exists || !["STABLE", "WATCH"].includes(twin.trustForecast.state));

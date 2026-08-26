@@ -17,6 +17,7 @@ export const TRUST_CONDITION_DIMENSIONS = [
   "PROVIDER_CONFIDENCE",
   "EVIDENCE_FRESHNESS",
   "CHANGE_VELOCITY",
+  "MODEL_STATE_INTEGRITY",
   "MODEL_CHANGE_RISK",
   "POLICY_CHANGE_RISK",
   "PRIVILEGE_CHANGE_RISK",
@@ -298,6 +299,7 @@ const dimensionWeights: Record<TrustConditionDimension, number> = {
   PROVIDER_CONFIDENCE: 0.8,
   EVIDENCE_FRESHNESS: 1,
   CHANGE_VELOCITY: 0.9,
+  MODEL_STATE_INTEGRITY: 1.4,
   MODEL_CHANGE_RISK: 1,
   POLICY_CHANGE_RISK: 1.1,
   PRIVILEGE_CHANGE_RISK: 1.4,
@@ -459,6 +461,7 @@ function controlsFor(conditions: TrustConditionInput[], changes: string[], findi
   if (signals.has("IDENTITY_DISCONTINUITY") || signals.has("IDENTITY_CHANGED")) add("REVALIDATE_IDENTITY", "revalidate_identity", "STEP_UP_VERIFICATION", 1, "Re-establish identity continuity before release.", ["IDENTITY_DISCONTINUITY", "IDENTITY_CHANGED"]);
   if (signals.has("SIGNED_INTENT_MISMATCH") || signals.has("HUMAN_APPROVAL_POLICY_CHANGED")) add("REQUIRE_HUMAN_APPROVAL", "human_approval_required", "REVIEW", 1, "Obtain fresh signed human approval for the material state.", ["SIGNED_INTENT_MISMATCH", "HUMAN_APPROVAL_POLICY_CHANGED"]);
   if (signals.has("TOOLSET_CHANGED") || signals.has("TOOL_SECURITY_SCHEMA_CHANGE")) add("REQUALIFY_TOOL", "requalify_tool", "REVIEW", 1, "Requalify the changed tool and its security-critical schema.", ["TOOLSET_CHANGED", "TOOL_SECURITY_SCHEMA_CHANGE"]);
+  if (["MODEL_STATE_DRIFT", "RUNTIME_MODEL_ARTIFACT_MISMATCH", "MODEL_STATE_CHANGE_ORIGIN_UNRESOLVED", "MODEL_TEMPLATE_CHANGED", "MODEL_ENDPOINT_CHANGED", "MODEL_RUNTIME_AUTH_CHANGED", "MODEL_ROUTER_UNEXPECTED_SWITCH", "VALIDATION_REASSESSMENT_REQUIRED", "REVALIDATION_REQUIRED"].some((signal) => signals.has(signal))) add("RERUN_DEPLOYMENT_QUALIFICATION", "hold_deployment", "REVIEW", 2, "Re-run the existing deployment qualification with current model-state and validation evidence.", ["MODEL_STATE_DRIFT", "REVALIDATION_REQUIRED"]);
   if (signals.has("UNDECLARED_TOOL") || signals.has("TOOL_PERMISSION_INCREASED")) add("DISABLE_NEW_CAPABILITY", "disable_capability", "PAUSE", 2, "Disable the undeclared or expanded capability until it is qualified.", ["UNDECLARED_TOOL", "TOOL_PERMISSION_INCREASED"]);
   if (signals.has("AUTHORITY_CHANGED") || signals.has("PRIVILEGE_INCREASED") || signals.has("AUTHORITY_BOUNDARY_PRESSURE")) add("REDUCE_AUTHORITY", "reduce_authority", "PAUSE", 2, "Reduce authority to the approved baseline or obtain reauthorization.", ["AUTHORITY_CHANGED", "PRIVILEGE_INCREASED", "AUTHORITY_BOUNDARY_PRESSURE"]);
   if (signals.has("POLICY_CHANGED") || signals.has("POLICY_EVIDENCE_STALE")) add("REFRESH_POLICY_EVIDENCE", "refresh_policy_evidence", "REVIEW", 1, "Refresh policy-version evidence before qualification.", ["POLICY_CHANGED", "POLICY_EVIDENCE_STALE"]);
@@ -577,7 +580,7 @@ export function evaluateTrustForecast(input: TrustForecastEvaluationInput): Trus
   const severeFloor = findings.includes("STALE_AUTHORITY_STILL_ACTIVE")
     || conditions.some((item) => item.dimension === "STALE_AUTHORITY_RISK" && item.status === "SEVERE")
     || (trustTwinContext?.trustPressure.level === "CRITICAL" && trustTwinContext.trustBudget.status === "EXCEEDED");
-  const elevatedSignals = new Set(["MODEL_CONTROLLED_SECURITY_BOUNDARY", "MONITORING_COVERAGE_GAP", "IDENTITY_DISCONTINUITY", "SIGNED_INTENT_MISMATCH"]);
+  const elevatedSignals = new Set(["MODEL_CONTROLLED_SECURITY_BOUNDARY", "MONITORING_COVERAGE_GAP", "IDENTITY_DISCONTINUITY", "SIGNED_INTENT_MISMATCH", "RUNTIME_MODEL_ARTIFACT_MISMATCH", "MODEL_RUNTIME_AUTH_CHANGED", "MODEL_NETWORK_EXPOSURE_CHANGED", "MODEL_ROUTER_UNEXPECTED_SWITCH"]);
   const elevatedFloor = findings.some((finding) => elevatedSignals.has(finding))
     || conditions.some((item) => item.status === "ELEVATED" && ["HIGH", "CRITICAL"].includes(item.materiality))
     || Boolean(trustTwinContext && (["HIGH", "CRITICAL"].includes(trustTwinContext.trustPressure.level) || ["NEAR_LIMIT", "EXCEEDED"].includes(trustTwinContext.trustBudget.status)));

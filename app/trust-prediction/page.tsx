@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createAgentAlphaTrustTwinDemo, type TrustTwin } from "@/lib/trust-fabric/trust-twin";
+import { createApprovedModelStateBaseline, createCurrentObservedModelState, evaluateModelStateIntegrity } from "@/lib/trust-fabric/model-state-integrity";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,42 @@ const forecastStyle: Record<TrustTwin["trustForecast"]["state"], string> = {
 };
 
 function words(value: string) { return value.toLowerCase().replaceAll("_", " "); }
+
+function createModelStateDemo() {
+  const common = {
+    enterpriseId: "7c60bb54-a74c-4ea4-b137-50cb1bc92f4b",
+    agentId: "agent-alpha",
+    modelProvider: "provider:demo-model-registry",
+    modelId: "repository-analysis-model",
+    modelVersion: "2026.08",
+    modelArtifactReference: "artifact:repository-analysis-model-2026-08",
+    modelArtifactDigest: "sha256:demo-artifact-approved",
+    runtimeProvider: "runtime:demo-container-platform",
+    runtimeImageReference: "image:agent-alpha-runtime",
+    runtimeImageDigest: "sha256:demo-runtime-approved",
+    inferenceServer: "inference:agent-alpha",
+    inferenceServerVersion: "1.4.0",
+    configurationDigest: "sha256:demo-configuration-approved",
+    adapterConfigurationDigest: "sha256:demo-adapter-approved",
+    inferenceConfigurationDigest: "sha256:demo-inference-approved",
+    toolParserConfigurationDigest: "sha256:demo-tool-parser-approved",
+    templates: { agentSystemPromptDigest: "sha256:demo-system-prompt", modelTemplateDigest: "sha256:demo-model-template", runtimeInferenceConfigurationDigest: "sha256:demo-runtime-inference", sourceReference: "registry:demo-template", verificationMechanism: "provider-attested-digest" },
+    networkConfigurationReference: "network:private-agent-alpha",
+    networkPosture: "PRIVATE_NETWORK" as const,
+    authenticationConfigurationReference: "auth:managed-agent-alpha",
+    authenticationPosture: "PROVIDER_MANAGED" as const,
+    runtimeEnvironment: "non-production-demo",
+    evidenceProvider: "demo-runtime-attestation",
+    evidenceReferences: ["demo-evidence:model-state"],
+    measuredAt: "2026-08-24T09:00:00.000Z",
+    limitations: ["Static non-production demonstration evidence."],
+    endpointLineage: { endpointReference: "endpoint:agent-alpha", routingProvider: "router:demo", intermediaryReference: "proxy:authenticated", finalInferenceServer: "inference:agent-alpha" },
+    router: { routerId: "router:demo", routerVersion: "1.0", routingPolicyDigest: "sha256:demo-routing-policy", selectedModel: "repository-analysis-model:2026.08", fallbackModel: null, selectionReason: "approved primary route" },
+  };
+  const approved = createApprovedModelStateBaseline({ ...common, agentPassportVersion: "passport:agent-alpha:v1", policyVersion: "policy:repository-read-v1", authorityReference: "authority:agent-alpha:read" });
+  const observed = createCurrentObservedModelState({ ...common, agentPassportVersion: "passport:agent-alpha:v1", policyVersion: "policy:repository-read-v1", authorityReference: "authority:agent-alpha:read", providerAssertions: [] });
+  return evaluateModelStateIntegrity({ enterpriseId: common.enterpriseId, approved, observed, evaluatedAt: common.measuredAt, validation: { validationReference: "validation:agent-alpha:v1", validatedBaselineDigest: approved.baselineDigest } });
+}
 
 function StateBadge({ twin }: { twin: TrustTwin }) {
   return <span className={`rounded-full border px-3 py-1 text-xs font-semibold tracking-[0.12em] ${forecastStyle[twin.trustForecast.state]}`}>{twin.trustForecast.state}</span>;
@@ -67,6 +104,7 @@ function VerificationState({ label, twin }: { label: string; twin: TrustTwin }) 
 export default function TrustPredictionPage() {
   const demo = createAgentAlphaTrustTwinDemo();
   const baseline = demo.baseline;
+  const modelState = createModelStateDemo();
   const projected = demo.projected.projectedTwin;
   const controlled = demo.controlled.projectedTwin;
   return (
@@ -163,6 +201,24 @@ export default function TrustPredictionPage() {
               <div className="mt-4 flex justify-between text-xs text-zinc-600"><span>Total {projected.trustBudget.total}</span><span>Consumed {projected.trustBudget.consumed}</span><span>Remaining {projected.trustBudget.remaining}</span></div>
             </article>
           </div>
+        </section>
+
+        <section aria-labelledby="model-state-title" className="rounded-2xl border border-violet-300/20 bg-violet-300/[0.035] p-6 md:p-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div><p className="text-xs uppercase tracking-[0.2em] text-violet-200">Model State Integrity</p><h2 id="model-state-title" className="mt-2 text-3xl font-semibold">Is this the model state we approved?</h2></div>
+            <span className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-xs font-semibold text-emerald-100">{words(modelState.modelIntegrityState)}</span>
+          </div>
+          <div className="mt-7 grid gap-px overflow-hidden rounded-xl bg-white/10 md:grid-cols-2 xl:grid-cols-3">
+            {[
+              ["Approved model", `${modelState.approvedModelState.modelId} · ${modelState.approvedModelState.modelVersion}`],
+              ["Current state still matches", modelState.modelIntegrityState === "EXACT_MATCH" || modelState.modelIntegrityState === "SUPPORTED_MATCH" ? "Yes" : "Review required"],
+              ["Template changed", modelState.templateIntegrity.overall === "CHANGED" ? "Yes" : "No"],
+              ["Runtime / endpoint / auth", `${modelState.runtimeIntegrity.state} · ${modelState.endpointIntegrity.state} · ${modelState.observedModelState.authenticationPosture}`],
+              ["Change attributed and approved", modelState.stateChangeProvenance.classification === "UNKNOWN_CHANGE" ? "No material change observed" : words(modelState.stateChangeProvenance.classification)],
+              ["Actions in this evidence window", modelState.replayEvents.some((event) => event.eventType === "CONSEQUENTIAL_ACTION_REQUESTED") ? "See canonical replay" : "No action reference in demo window"],
+            ].map(([label, value]) => <div key={label} className="bg-[#0c1119] p-4"><p className="text-xs text-zinc-600">{label}</p><p className="mt-2 text-sm font-semibold text-zinc-100">{value}</p></div>)}
+          </div>
+          <p className="mt-5 text-xs leading-5 text-zinc-500">Digest and bounded metadata only · no model weights · no proprietary template bodies · drift does not imply compromise · canonical authority remains the sole decision path.</p>
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
