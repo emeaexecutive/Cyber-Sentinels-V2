@@ -138,6 +138,18 @@ function authorizationChange(overrides = {}) {
   };
 }
 
+function resolvedStaleEvidence(overrides = {}) {
+  return {
+    reference: "evidence:destination",
+    subjectReference: "agent:alpha",
+    sourceClassification: "destination_observed",
+    serverVerified: true,
+    observation: "old_authority_accepted",
+    observedAt: "2026-08-26T11:04:00.000Z",
+    ...overrides,
+  };
+}
+
 function aimsEvidence(overrides = {}) {
   return {
     enterpriseId,
@@ -269,7 +281,13 @@ test("propagation distinguishes confirmed, partial, pending, possible stale, and
   assert.equal(evaluateAuthorityIntegrity(input({ authorizationChanges: [authorizationChange({ destinationObservation: "not_observed", destinationConfirmedAt: null })] })).authorizationPropagation.state, "PARTIAL_PROPAGATION");
   assert.equal(evaluateAuthorityIntegrity(input({ authorizationChanges: [authorizationChange({ runtimeObservation: "not_observed", destinationObservation: "not_observed", independentlyConfirmed: false, postChangeUseObservedAt: null, runtimeUpdatedAt: null, destinationConfirmedAt: null })] })).authorizationPropagation.state, "PROPAGATION_PENDING");
   assert.equal(evaluateAuthorityIntegrity(input({ authorizationChanges: [authorizationChange({ runtimeObservation: "old_authority_accepted", destinationObservation: "not_observed", postChangeUseObservedAt: null, independentlyConfirmed: false })] })).authorizationPropagation.state, "STALE_AUTHORITY_POSSIBLE");
-  const confirmed = evaluateAuthorityIntegrity(input({ authorizationChanges: [authorizationChange({ runtimeObservation: "old_authority_accepted", destinationObservation: "old_authority_accepted", independentlyConfirmed: false })] }));
+  const assertedOnly = evaluateAuthorityIntegrity(input({ authorizationChanges: [authorizationChange({ runtimeObservation: "old_authority_accepted", destinationObservation: "old_authority_accepted", independentlyConfirmed: false })] }));
+  assert.equal(assertedOnly.authorizationPropagation.state, "STALE_AUTHORITY_POSSIBLE");
+  assert.equal(codes(assertedOnly).includes("STALE_AUTHORITY_STILL_ACTIVE"), false);
+  const confirmed = evaluateAuthorityIntegrity(input({
+    authorizationChanges: [authorizationChange({ runtimeObservation: "old_authority_accepted", destinationObservation: "old_authority_accepted", independentlyConfirmed: false })],
+    resolvedPersistedEvidence: [resolvedStaleEvidence()],
+  }));
   assert.equal(confirmed.authorizationPropagation.state, "STALE_AUTHORITY_CONFIRMED");
   assert.ok(codes(confirmed).includes("STALE_AUTHORITY_STILL_ACTIVE"));
 });

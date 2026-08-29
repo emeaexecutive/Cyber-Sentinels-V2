@@ -15,6 +15,7 @@ const [sdk, typescriptGamma, powershell, quickstart] = await Promise.all([
 
 const clientTokens = {
   "/api/v1/agents": ["/api/v1/agents", "/api/v1/agents", "/api/v1/agents"],
+  "/api/v1/agents/{agentId}": ["GET\", `/api/v1/agents/${encodeURIComponent(agentId)}`", '"/api/v1/agents/$([Uri]::EscapeDataString($agentId))"', "GET  /api/v1/agents/{agentId}"],
   "/api/v1/agents/{agentId}/credentials": ["/credentials", 'Get-AgentPath $agentId "credentials"', "/credentials"],
   "/api/v1/agents/{agentId}/manifest": ["/manifest", 'Get-AgentPath $agentId "manifest"', "/manifest"],
   "/api/v1/agents/{agentId}/challenge": ["/challenge", 'Get-AgentPath $agentId "challenge"', "/challenge"],

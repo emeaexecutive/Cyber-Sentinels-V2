@@ -8,10 +8,18 @@ import {
 
 const apiKey = process.env.CYBER_SENTINELS_API_KEY;
 const baseUrl = process.env.CYBER_SENTINELS_BASE_URL;
+const stagingProjectRef = process.env.CYBER_SENTINELS_STAGING_PROJECT_REF;
+const stagingConfirmation = process.env.CYBER_SENTINELS_CONFIRM_STAGING;
 const vercelAutomationBypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
-if (!apiKey || !baseUrl) {
-  throw new Error("CYBER_SENTINELS_API_KEY and CYBER_SENTINELS_BASE_URL are required.");
+if (!apiKey || !baseUrl || !stagingProjectRef || !stagingConfirmation) {
+  throw new Error("Base URL, API key, staging project reference, and explicit staging confirmation are required.");
 }
+if (!/^cs_test_[A-Za-z0-9_-]{12}\.[A-Za-z0-9_-]{43}$/.test(apiKey)) throw new Error("Only a structurally valid test API key is accepted; the key was not logged.");
+if (stagingProjectRef !== "agpyhygpfmppjkxwcpac" || stagingConfirmation !== "I_CONFIRM_STAGING") throw new Error("The explicit Staging identity confirmation is invalid.");
+const parsedBaseUrl = new URL(baseUrl);
+if (parsedBaseUrl.protocol !== "https:" || parsedBaseUrl.username || parsedBaseUrl.password || parsedBaseUrl.pathname !== "/" || parsedBaseUrl.search || parsedBaseUrl.hash) throw new Error("The base URL must be a credential-free HTTPS origin.");
+if (/cybersentinels\.com$/i.test(parsedBaseUrl.hostname) || parsedBaseUrl.hostname.includes("kecgtsfibkypjuaxqbjx")) throw new Error("Production targets are refused.");
+const normalizedBaseUrl = parsedBaseUrl.origin;
 
 const qualificationFetch = vercelAutomationBypassSecret
   ? (input, init = {}) => {
@@ -20,8 +28,14 @@ const qualificationFetch = vercelAutomationBypassSecret
       return fetch(input, { ...init, headers });
     }
   : fetch;
-const cs = new CyberSentinels({ apiKey, baseUrl, timeoutMs: 60_000, fetch: qualificationFetch });
+const readyResponse = await qualificationFetch(`${normalizedBaseUrl}/api/ready`, { headers: { accept: "application/json" }, redirect: "manual" });
+let readiness = null;
+try { readiness = await readyResponse.json(); } catch { /* fail below without printing an untrusted body */ }
+if (!readyResponse.ok || readiness?.status !== "READY") throw new Error("/api/ready is not READY; no mutating staging request was sent.");
+
+const cs = new CyberSentinels({ apiKey, baseUrl: normalizedBaseUrl, timeoutMs: 60_000, fetch: qualificationFetch });
 const mark = (label, value) => process.stdout.write(`${label}: ${JSON.stringify(value)}\n`);
+mark("READY", { status: readiness.status, project_ref: stagingProjectRef, api_key: "[REDACTED]" });
 const timings = [];
 const timed = async (stage, operation) => {
   const startedAt = performance.now();
@@ -96,6 +110,8 @@ mark("IDENTITY", identity);
 
 const authority = await cs.agents.getAuthority(agent.agent_id);
 mark("AUTHORITY", authority);
+const registeredAgent = await cs.agents.get(agent.agent_id);
+mark("AGENT", { agent_id: registeredAgent.agent_id, authority_reference: registeredAgent.authority_reference });
 
 const allowed = await timed("allow_decision", () => cs.trust.authorize({
   operational_entity_id: agent.operational_entity_id,
@@ -108,7 +124,7 @@ const allowed = await timed("allow_decision", () => cs.trust.authorize({
   idempotency_key: `gamma-allow-${webcrypto.randomUUID()}`,
 }));
 expectDecision(allowed, "ALLOW");
-mark("ALLOW", { transaction_id: allowed.transaction_id, decision: allowed.decision, reason_codes: allowed.reason_codes });
+mark("ALLOW", { decision_id: allowed.decision_id, transaction_id: allowed.transaction_id, receipt_id: allowed.receipt_id, replay_id: allowed.replay_id, correlation_id: allowed.correlation_id, decision: allowed.decision, reason_codes: allowed.reason_codes });
 
 const denied = await timed("deny_decision", () => cs.trust.authorize({
   operational_entity_id: agent.operational_entity_id,
@@ -122,16 +138,20 @@ const denied = await timed("deny_decision", () => cs.trust.authorize({
 }));
 expectDecision(denied, "DENY");
 if (denied.execution_authorization !== null) throw new Error("DENY returned an execution authorization.");
-mark("DENY", { transaction_id: denied.transaction_id, decision: denied.decision, reason_codes: denied.reason_codes });
+mark("DENY", { decision_id: denied.decision_id, transaction_id: denied.transaction_id, receipt_id: denied.receipt_id, replay_id: denied.replay_id, correlation_id: denied.correlation_id, decision: denied.decision, reason_codes: denied.reason_codes });
 
-const [transaction, replay, receipt] = await Promise.all([
+const [transaction, replay, receipt, deniedReplay, deniedReceipt] = await Promise.all([
   timed("transaction_read", () => cs.trust.getTransaction(allowed.transaction_id)),
-  timed("replay_read", () => cs.trust.getReplay(allowed.transaction_id)),
-  timed("receipt_read", () => cs.trust.getReceipt(allowed.transaction_id)),
+  timed("replay_read", () => cs.trust.getReplay(allowed.replay_id)),
+  timed("receipt_read", () => cs.trust.getReceipt(allowed.receipt_id)),
+  timed("deny_replay_read", () => cs.trust.getReplay(denied.replay_id)),
+  timed("deny_receipt_read", () => cs.trust.getReceipt(denied.receipt_id)),
 ]);
-mark("TRANSACTION", { transaction_id: transaction.transaction_id, decision: transaction.decision });
-mark("REPLAY", { event_count: replay.events?.length ?? 0 });
-mark("RECEIPT", { receipt_version: receipt.receipt_version, decision_digest: receipt.decision_digest });
+mark("TRANSACTION", { decision_id: transaction.decision_id, transaction_id: transaction.transaction_id, decision: transaction.decision, correlation_id: transaction.correlation_id });
+mark("REPLAY", { replay_id: replay.replay_id, event_count: replay.events?.length ?? 0 });
+mark("RECEIPT", { receipt_id: receipt.receipt_id, receipt_version: receipt.receipt_version, decision_digest: receipt.decision_digest });
+mark("DENY_REPLAY", { replay_id: deniedReplay.replay_id, event_count: deniedReplay.events?.length ?? 0 });
+mark("DENY_RECEIPT", { receipt_id: deniedReceipt.receipt_id, receipt_version: deniedReceipt.receipt_version, decision_digest: deniedReceipt.decision_digest });
 
 const outcome = await timed("outcome_submit", () => cs.trust.submitOutcome(allowed.transaction_id, {
   source_id: "self",

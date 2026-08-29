@@ -219,7 +219,7 @@ export function createReferenceProviderAdapter(providerKey: string, providerClas
         occurredAt: new Date(input.occurredAt).toISOString(),
         receivedAt: new Date(receivedAt).toISOString(),
         expiresAt: input.expiresAt ? new Date(input.expiresAt).toISOString() : null,
-        payloadHash: input.digest ?? hashCanonical(normalizedFacts),
+        payloadHash: hashCanonical(normalizedFacts),
         cryptographicallyVerified: verification.verified,
         serverVerified: false,
         reasonCodes: [...verification.reasonCodes, "PROVIDER_FINDING_IS_NOT_A_CYBER_SENTINELS_DECISION"],

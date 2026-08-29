@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 
-export const PUBLIC_API_VERSION = "2026-08-10";
+export const PUBLIC_API_VERSION = "2026-08-28";
 export const PUBLIC_V1_ROUTE_CONTRACT = [
   ["post", "/api/v1/agents"],
+  ["get", "/api/v1/agents/{agentId}"],
   ["post", "/api/v1/agents/{agentId}/credentials"],
   ["post", "/api/v1/agents/{agentId}/manifest"],
   ["post", "/api/v1/agents/{agentId}/challenge"],

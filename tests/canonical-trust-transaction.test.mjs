@@ -617,9 +617,39 @@ test("a NeuralTrust-compatible BLOCK remains runtime evidence for the canonical 
     authority: authority({ permittedProviders: ["hopae_connect", "neuraltrust-compatible-test-provider"] }),
   });
   const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "runtime-provider-block-evidence-001" }), deps);
-  assert.equal(receipt.decision, "REVIEW");
+  assert.equal(receipt.decision, "ALLOW");
   assert.equal(receipt.providerNeutralEvidence.some((item) => item.providerId === "neuraltrust-compatible-test-provider"), true);
   assert.equal(receipt.reasonCodes.includes("NEGATIVE_PROVIDER_EVIDENCE"), false);
+});
+
+test("AGENT_ASSERTED evidence cannot satisfy a canonical required evidence type", async () => {
+  const asserted = evidence({
+    providerId: "api-client:alpha",
+    sourcePartyId: "api-client:alpha",
+    sourceClassification: "agent_asserted",
+    serverVerified: false,
+    type: "IDENTITY_SESSION",
+  });
+  const { deps } = dependencies({ evidence: [asserted] });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "agent-asserted-evidence-001" }), deps);
+  assert.equal(receipt.evidenceComplete, false);
+  assert.equal(receipt.evidenceIndependence, "insufficient");
+  assert.equal(receipt.decision, "REVIEW");
+  assert.ok(receipt.reasonCodes.includes("EVIDENCE_INSUFFICIENT"));
+});
+
+test("reference provider adapters always recompute payload digests", async () => {
+  const mapped = await referenceProviderAdapters["mythos-compatible-test-provider"].mapEvidence({
+    providerKey: "mythos-compatible-test-provider",
+    eventId: "digest-recompute-001",
+    subject: { type: "AI_AGENT", id: subjectId },
+    evidenceType: "CAPABILITY_EVALUATION",
+    finding: "ASSESSMENT",
+    evidence: { score: 0.8 },
+    occurredAt: requestedAt,
+    digest: "f".repeat(64),
+  }, requestedAt);
+  assert.notEqual(mapped.payloadHash, "f".repeat(64));
 });
 
 test("canonical receipts expose provider-neutral continuity signals for investor-facing trust evidence", async () => {

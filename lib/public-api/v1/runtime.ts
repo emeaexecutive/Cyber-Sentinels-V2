@@ -24,21 +24,15 @@ import { validateTrustContract } from "@/src/lib/trust-fabric/validation";
 import { deterministicUuid, hashCanonical } from "@/src/lib/trust-core/hash";
 import {
   createReferenceProviderAdapter,
-  getReferenceProviderAdapter,
-  PROVIDER_CLASSES,
   type ProviderAdapterInput,
-  type ProviderClass,
 } from "@/lib/providers/adapters";
 import {
   executeCanonicalTrustTransaction,
   type CanonicalContextEvidence,
+  type DeploymentAssuranceEvidence,
   type ExecutionContinuityRecord,
 } from "@/src/lib/trust-transaction/canonical";
 import { createCanonicalTrustTransactionDependenciesForApiClient } from "@/lib/trust-transaction/server";
-import {
-  parsePolicyEvidence,
-  parseWorkforceContinuityEvidence,
-} from "@/src/lib/protected-workflows/policy-continuity";
 import type { PublicApiPrincipal } from "./authentication";
 import {
   assertOnlyFields,
@@ -48,6 +42,12 @@ import {
   type PublicDecision,
 } from "./contracts";
 import { emitPublicApiWebhookEvent } from "./webhook-delivery";
+import {
+  CLIENT_EVIDENCE_CLASSIFICATION,
+  resolveClientEvidenceProvider,
+  resolveClientEvidenceType,
+  verifyClientEvidenceDigest,
+} from "./client-evidence";
 
 type Row = Record<string, any>;
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -238,6 +238,22 @@ export async function registerExternalAgent(principal: PublicApiPrincipal, body:
       model: { provider, identifier },
       authority_reference: authority.contractId,
     },
+  };
+}
+
+export async function getExternalAgent(principal: PublicApiPrincipal, agentId: string) {
+  const entity = await entityFor(principal, agentId);
+  const authority = await getExternalAuthority(principal, agentId);
+  return {
+    agent_id: String(entity.entity_id),
+    operational_entity_id: String(entity.entity_id),
+    entity_type: String(entity.entity_type).toUpperCase(),
+    display_name: String(entity.display_reference),
+    lifecycle_state: String(entity.lifecycle_state),
+    accountable_owner_reference: String(entity.accountable_owner_id),
+    authority_reference: authority.authority_reference,
+    authority_version: authority.authority_version,
+    authority_status: authority.status,
   };
 }
 
@@ -498,6 +514,7 @@ export async function getExternalAuthority(principal: PublicApiPrincipal, agentI
     environment: scope.environments ?? [],
     expires_at: value.expiresAt,
     authority_reference: value.contractId,
+    authority_version: value.authorityVersion ?? null,
     delegated_from: null,
     delegation_depth: 0,
   };
@@ -542,7 +559,7 @@ function executionAuthorization(receipt: Row) {
   return { ...artifact, signature: `sha256=${createHmac("sha256", secret).update(JSON.stringify(artifact)).digest("hex")}` };
 }
 
-export async function requestExternalDecision(principal: PublicApiPrincipal, body: Record<string, unknown>, idempotencyKey: string, origin: string) {
+export async function requestExternalDecision(principal: PublicApiPrincipal, body: Record<string, unknown>, idempotencyKey: string, origin: string, correlationId?: string) {
   assertOnlyFields(body, ["operational_entity_id", "action", "idempotency_key", "decision_type", "context"]);
   const agentId = requiredText(body.operational_entity_id, "operational_entity_id", 180, referencePattern);
   await entityFor(principal, agentId);
@@ -559,66 +576,60 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
     : deploymentContext && Array.isArray(deploymentContext.materialChanges)
       ? deploymentContext.materialChanges.filter((item): item is string => typeof item === "string")
       : [];
-  const assuranceEvidence = deploymentContext && Array.isArray(deploymentContext.assurance_evidence)
-    ? deploymentContext.assurance_evidence.map((item) => ({
-        providerKey: typeof (item as Record<string, unknown>).provider_key === "string" ? String((item as Record<string, unknown>).provider_key) : "provider:unknown",
-        assessmentId: typeof (item as Record<string, unknown>).assessment_id === "string" ? String((item as Record<string, unknown>).assessment_id) : crypto.randomUUID(),
-        subject: typeof (item as Record<string, unknown>).subject === "string" ? String((item as Record<string, unknown>).subject) : "unknown",
-        environment: typeof (item as Record<string, unknown>).environment === "string" ? String((item as Record<string, unknown>).environment) : "unknown",
-        scope: typeof (item as Record<string, unknown>).scope === "string" ? String((item as Record<string, unknown>).scope) : "deployment",
-        methodReference: typeof (item as Record<string, unknown>).method_reference === "string" ? String((item as Record<string, unknown>).method_reference) : "unknown",
-        occurredAt: typeof (item as Record<string, unknown>).occurred_at === "string" ? String((item as Record<string, unknown>).occurred_at) : new Date().toISOString(),
-        receivedAt: typeof (item as Record<string, unknown>).received_at === "string" ? String((item as Record<string, unknown>).received_at) : new Date().toISOString(),
-        expiresAt: typeof (item as Record<string, unknown>).expires_at === "string" ? String((item as Record<string, unknown>).expires_at) : new Date(Date.now() + 24 * 60 * 60 * 1_000).toISOString(),
-        modelVersion: typeof (item as Record<string, unknown>).model_version === "string" ? String((item as Record<string, unknown>).model_version) : null,
-        toolSet: Array.isArray((item as Record<string, unknown>).tool_set) ? ((item as Record<string, unknown>).tool_set as unknown[]).filter((tool): tool is string => typeof tool === "string") : [],
-        permissionContext: typeof (item as Record<string, unknown>).permission_context === "string" ? String((item as Record<string, unknown>).permission_context) : null,
-        assurance: typeof (item as Record<string, unknown>).assurance === "number" ? (item as Record<string, unknown>).assurance as number : null,
-        confidence: typeof (item as Record<string, unknown>).confidence === "string" ? String((item as Record<string, unknown>).confidence) : "medium",
-        evidenceDigest: typeof (item as Record<string, unknown>).evidence_digest === "string" ? String((item as Record<string, unknown>).evidence_digest) : hashCanonical(item),
-        findingReferences: Array.isArray((item as Record<string, unknown>).finding_references) ? ((item as Record<string, unknown>).finding_references as unknown[]).filter((entry): entry is string => typeof entry === "string") : [],
-        retestReference: typeof (item as Record<string, unknown>).retest_reference === "string" ? String((item as Record<string, unknown>).retest_reference) : null,
-      }))
+  const suppliedAssuranceEvidence = deploymentContext && Array.isArray(deploymentContext.assurance_evidence)
+    ? deploymentContext.assurance_evidence
     : [];
+  if (suppliedAssuranceEvidence.length) {
+    throw new PublicApiError("PROVIDER_AUTHENTICATION_REQUIRED", "Decision-eligible assurance evidence must arrive through an authenticated provider ingestion path.", 403);
+  }
+  const assuranceEvidence: DeploymentAssuranceEvidence[] = [];
   const monitoring = deploymentContext?.monitoring && typeof deploymentContext.monitoring === "object" && !Array.isArray(deploymentContext.monitoring)
     ? deploymentContext.monitoring as Record<string, unknown>
     : null;
   if (monitoring) assertOnlyFields(monitoring, ["expected_providers", "observed_providers", "telemetry_gap_seconds", "connection"]);
   const expectedProviders = Array.isArray(monitoring?.expected_providers) ? monitoring.expected_providers.filter((item): item is string => typeof item === "string") : [];
   const observedProviders = Array.isArray(monitoring?.observed_providers) ? monitoring.observed_providers.filter((item): item is string => typeof item === "string") : [];
-  const monitoringCoverage = expectedProviders.length > 0 && expectedProviders.every((provider) => observedProviders.includes(provider))
-    ? "covered" as const
-    : observedProviders.length > 0 ? "partial" as const : "not_observed" as const;
-  const signedIntent = deploymentContext?.signed_intent && typeof deploymentContext.signed_intent === "object" && !Array.isArray(deploymentContext.signed_intent)
+  const monitoringCoverage = observedProviders.length > 0 ? "partial" as const : "not_observed" as const;
+  const suppliedSignedIntent = deploymentContext?.signed_intent && typeof deploymentContext.signed_intent === "object" && !Array.isArray(deploymentContext.signed_intent)
     ? deploymentContext.signed_intent as Record<string, unknown>
     : null;
-  if (signedIntent) assertOnlyFields(signedIntent, ["signature_reference", "destination"]);
+  if (suppliedSignedIntent) assertOnlyFields(suppliedSignedIntent, ["signature_reference", "destination"]);
+  if (suppliedSignedIntent) {
+    throw new PublicApiError("SIGNED_INTENT_VERIFICATION_REQUIRED", "Signed human intent must be resolved through an existing verified intent path.", 403);
+  }
   const executionStages = Array.isArray(deploymentContext?.execution_stages)
     ? deploymentContext.execution_stages.map((value) => {
         const item = value as Record<string, unknown>;
         assertOnlyFields(item, ["stage", "status", "occurred_at", "evidence_reference"]);
         const stage = requiredText(item.stage, "execution_stages.stage", 80, /^[A-Z_]+$/) as ExecutionContinuityRecord["stage"];
-        const status = requiredText(item.status, "execution_stages.status", 40, /^[a-z_]+$/) as ExecutionContinuityRecord["status"];
+        const claimedStatus = requiredText(item.status, "execution_stages.status", 40, /^[a-z_]+$/) as ExecutionContinuityRecord["status"];
+        const status: ExecutionContinuityRecord["status"] = claimedStatus === "not_applicable" ? "not_applicable" : "asserted";
         return { stage, status, occurredAt: optionalIso(item.occurred_at, "execution_stages.occurred_at"), evidenceReference: item.evidence_reference ? requiredText(item.evidence_reference, "execution_stages.evidence_reference", 240, referencePattern) : null };
       })
     : [];
-  const sensors = Array.isArray(deploymentContext?.sensor_evidence) ? deploymentContext.sensor_evidence.map((value) => value as Record<string, unknown>) : [];
-  const sensorObservations = new Set(sensors.map((item) => String(item.observation ?? "")).filter(Boolean));
+  const sensors = Array.isArray(deploymentContext?.sensor_evidence) ? deploymentContext.sensor_evidence.map((value) => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) throw new PublicApiError("INVALID_INPUT", "sensor_evidence entries must be objects.", 400);
+    const { digest, ...facts } = value as Record<string, unknown>;
+    const computedDigest = hashCanonical(facts);
+    const suppliedDigest = digest ? requiredText(digest, "sensor_evidence.digest", 64, /^[a-f0-9]{64}$/) : null;
+    verifyClientEvidenceDigest(suppliedDigest, computedDigest);
+    return { facts, computedDigest };
+  }) : [];
+  const sensorObservations = new Set(sensors.map((item) => String(item.facts.observation ?? "")).filter(Boolean));
   const contradictions = [
-    ...(signedIntent?.destination && deploymentContext?.command_target && signedIntent.destination !== deploymentContext.command_target ? ["INTENT_EXECUTION_MISMATCH"] : []),
     ...(expectedProviders.some((provider) => !observedProviders.includes(provider)) ? ["MONITORING_COVERAGE_GAP"] : []),
     ...(Number(monitoring?.telemetry_gap_seconds ?? 0) > 0 && executionStages.some((item) => ["COMMAND_SENT", "ACTION_EXECUTED", "WORLD_STATE_CHANGED", "CONSEQUENCE_OBSERVED"].includes(item.stage)) ? ["ACTION_DURING_EVIDENCE_GAP"] : []),
     ...(sensorObservations.size > 1 ? ["SENSOR_DISAGREEMENT"] : []),
   ];
   const contextEvidence: CanonicalContextEvidence[] = [
     ...sensors.map((item) => ({
-      providerClass: "SENSOR_EVIDENCE_PROVIDER",
-      providerKey: typeof item.source === "string" ? item.source : "sensor:unattributed",
-      evidenceType: sensorObservations.size > 1 ? "SENSOR_DISAGREEMENT" : "SENSOR_OBSERVATION",
-      observedAt: typeof item.observed_at === "string" && Number.isFinite(Date.parse(item.observed_at)) ? new Date(item.observed_at).toISOString() : new Date().toISOString(),
-      outcome: "OBSERVED",
-      evidenceDigest: typeof item.digest === "string" && /^[a-f0-9]{64}$/.test(item.digest) ? item.digest : hashCanonical(item),
-      metadata: item,
+      providerClass: "APPLICATION_SIGNAL",
+      providerKey: `api-client:${principal.clientId}`,
+      evidenceType: sensorObservations.size > 1 ? "AGENT_ASSERTED:SENSOR_DISAGREEMENT" : "AGENT_ASSERTED:SENSOR_OBSERVATION",
+      observedAt: typeof item.facts.observed_at === "string" && Number.isFinite(Date.parse(item.facts.observed_at)) ? new Date(item.facts.observed_at).toISOString() : new Date().toISOString(),
+      outcome: "ASSERTED",
+      evidenceDigest: item.computedDigest,
+      metadata: { ...item.facts, classification: CLIENT_EVIDENCE_CLASSIFICATION },
     })),
   ];
   const normalized = {
@@ -627,6 +638,12 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
     purpose: requiredText(action.purpose, "action.purpose", 180, referencePattern),
     environment: requiredText(action.environment, "action.environment", 120, referencePattern),
   };
+  const requestDigest = hashCanonical({
+    operationalEntityId: agentId,
+    action: normalized,
+    decisionType,
+    context: deploymentContext ?? null,
+  });
   const bodyKey = body.idempotency_key ? requiredText(body.idempotency_key, "idempotency_key", 120, /^[A-Za-z0-9_.:-]+$/) : idempotencyKey;
   if (!idempotencyKey || idempotencyKey.length < 8 || bodyKey !== idempotencyKey) {
     throw new PublicApiError("IDEMPOTENCY_KEY_REQUIRED", "A matching Idempotency-Key header is required.", 400);
@@ -645,7 +662,6 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
       managedControl: {
         contradictions,
         monitoringCoverage: monitoring ? monitoringCoverage : undefined,
-        humanIntent: signedIntent?.signature_reference ? { signed: true, status: "provided", reference: requiredText(signedIntent.signature_reference, "signed_intent.signature_reference", 240, referencePattern) } : undefined,
         oversightMode: deploymentContext?.oversight && ["HUMAN_IN_THE_LOOP", "HUMAN_ON_THE_LOOP", "HUMAN_OVER_THE_LOOP", "AUTONOMOUS"].includes(String(deploymentContext.oversight)) ? deploymentContext.oversight as "HUMAN_IN_THE_LOOP" | "HUMAN_ON_THE_LOOP" | "HUMAN_OVER_THE_LOOP" | "AUTONOMOUS" : undefined,
         executionStages,
         contextEvidence,
@@ -655,9 +671,10 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
         purpose: normalized.purpose,
         resource: normalized.target,
         environment: normalized.environment,
-        payloadDigest: hashCanonical({ operationalEntityId: agentId, action: normalized }),
+        payloadDigest: requestDigest,
       },
       idempotencyKey: `${principal.clientId}:${idempotencyKey}`,
+      correlationId,
     }, createCanonicalTrustTransactionDependenciesForApiClient({
       enterpriseId: principal.tenantId,
       clientId: principal.clientId,
@@ -665,13 +682,21 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
     if (!receipt.idempotentReplay) await emitDecisionWebhooks(principal.tenantId, receipt as unknown as Row);
     const decision = receipt.decision as PublicDecision;
     return {
+      decision_id: receipt.decisionReference,
       transaction_id: receipt.transactionId,
+      receipt_id: receipt.transactionId,
+      replay_id: receipt.transactionId,
       decision,
       reason_codes: receipt.reasonCodes,
       consequence: receipt.consequence,
       confidence: receipt.confidenceInConclusion,
+      agent_id: receipt.operationalEntityId,
       authority_reference: receipt.authorityReference,
+      authority_version: receipt.authorityEvidenceSummary?.authorityVersion ?? "external-agent-authority-v1",
+      policy: { id: receipt.policy.id, version: receipt.policy.version },
       policy_version: receipt.policy.version,
+      correlation_id: receipt.correlationId,
+      created_at: receipt.timestamp,
       continuity: {
         identity_continuity: receipt.continuitySignals.identityContinuity,
         monitoring_coverage: receipt.continuitySignals.monitoringCoverage,
@@ -720,7 +745,12 @@ export async function getExternalTransaction(principal: PublicApiPrincipal, tran
   const history = await transactionRows(principal, transactionId);
   const row = history.transaction;
   return {
+    decision_id: row.decision_id,
     transaction_id: row.transaction_id,
+    receipt_id: row.transaction_id,
+    replay_id: row.transaction_id,
+    agent_id: row.operational_entity_id,
+    correlation_id: row.correlation_id,
     entity: { operational_entity_id: row.operational_entity_id, type: row.entity_type, accountable_owner_id: row.accountable_owner_id },
     identity_state: row.decision_time_snapshot?.identityState ?? "captured_in_decision_snapshot",
     authority: { reference: row.authority_reference, lineage: row.authority_lineage_references ?? [] },
@@ -743,7 +773,13 @@ export async function getExternalTransaction(principal: PublicApiPrincipal, tran
 export async function getExternalReplay(principal: PublicApiPrincipal, transactionId: string) {
   const history = await transactionRows(principal, transactionId);
   return {
+    replay_id: transactionId,
+    decision_id: history.transaction.decision_id,
     transaction_id: transactionId,
+    receipt_id: transactionId,
+    agent_id: history.transaction.operational_entity_id,
+    authority_reference: history.transaction.authority_reference,
+    correlation_id: history.transaction.correlation_id,
     events: history.events.map((event: Row) => ({
       timestamp: event.occurred_at,
       actor: event.actor_id ? `principal:${event.actor_id}` : "cyber-sentinels",
@@ -766,7 +802,12 @@ export async function getExternalReceipt(principal: PublicApiPrincipal, transact
   const row = history.transaction;
   return {
     receipt_version: "canonical-trust-transaction-v1",
+    receipt_id: row.transaction_id,
+    decision_id: row.decision_id,
     transaction_id: row.transaction_id,
+    replay_id: row.transaction_id,
+    agent_id: row.operational_entity_id,
+    correlation_id: row.correlation_id,
     entity: { operational_entity_id: row.operational_entity_id, type: row.entity_type, accountable_owner_id: row.accountable_owner_id },
     decision: row.decision,
     trust_state: row.trust_state,
@@ -858,105 +899,106 @@ export async function submitExternalEvidence(principal: PublicApiPrincipal, body
   if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) throw new PublicApiError("INVALID_INPUT", "evidence is required.", 400);
   assertOnlyFields(provider, ["key", "class", "event_id", "finding"]);
   assertOnlyFields(subject, ["type", "id"]);
-  const providerKey = requiredText(provider.key, "provider.key", 180, referencePattern);
-  const providerClass = requiredText(provider.class, "provider.class", 80, /^[A-Z_]+$/) as ProviderClass;
-  if (!PROVIDER_CLASSES.includes(providerClass)) throw new PublicApiError("PROVIDER_CLASS_UNSUPPORTED", "provider.class is unsupported.", 400);
+  const requestedProvider = {
+    key: requiredText(provider.key, "provider.key", 180, referencePattern),
+    class: requiredText(provider.class, "provider.class", 80, /^[A-Z_]+$/),
+  };
+  const { providerKey, providerClass } = resolveClientEvidenceProvider(requestedProvider, principal.clientId);
+  const subjectType = requiredText(subject.type, "subject.type", 80, /^[A-Z_]+$/);
+  if (!["AI_AGENT", "OPERATIONAL_ENTITY"].includes(subjectType)) {
+    throw new PublicApiError("EVIDENCE_SUBJECT_UNSUPPORTED", "Public API evidence must concern an agent registered to this API client.", 400);
+  }
+  const subjectId = requiredText(subject.id, "subject.id", 180, referencePattern);
+  await entityFor(principal, subjectId);
+  const evidenceType = resolveClientEvidenceType(requiredText(body.type, "type", 120, /^[A-Za-z0-9_.:-]+$/));
   const occurredAt = optionalIso(body.occurred_at, "occurred_at") ?? new Date().toISOString();
   const expiresAt = optionalIso(body.expires_at, "expires_at");
-  const adapter = getReferenceProviderAdapter(providerKey) ?? createReferenceProviderAdapter(providerKey, providerClass);
-  if (adapter.providerClass !== providerClass) throw new PublicApiError("PROVIDER_CLASS_MISMATCH", "The provider class does not match the registered adapter.", 400);
+  const adapter = createReferenceProviderAdapter(providerKey, providerClass);
   const input: ProviderAdapterInput = {
     providerKey,
     eventId: requiredText(provider.event_id, "provider.event_id", 180, referencePattern),
-    subject: {
-      type: requiredText(subject.type, "subject.type", 80, /^[A-Z_]+$/),
-      id: requiredText(subject.id, "subject.id", 180, referencePattern),
-    },
-    evidenceType: requiredText(body.type, "type", 120, /^[A-Za-z0-9_.:-]+$/),
+    subject: { type: subjectType, id: subjectId },
+    evidenceType: evidenceType.assertedType,
     finding: requiredText(provider.finding, "provider.finding", 120, /^[A-Z0-9_.:-]+$/),
     evidence,
     occurredAt,
     expiresAt,
-    digest: body.digest ? requiredText(body.digest, "digest", 64, /^[a-f0-9]{64}$/) : null,
+    digest: null,
   };
   const mapped = await adapter.mapEvidence(input);
-  const evidenceId = deterministicUuid({ tenantId: principal.tenantId, providerKey, eventId: input.eventId });
-  let domainKey = providerClass === "IDENTITY_PROVIDER" ? "IDENTITY"
-    : providerClass === "AI_ASSURANCE_PROVIDER" || providerClass === "MODEL_EVALUATION_PROVIDER" ? "ASSURANCE"
-      : providerClass === "DSPM_PROVIDER" ? "DATA"
-        : providerClass.includes("ROBOTICS") || providerClass === "SENSOR_EVIDENCE_PROVIDER" || providerClass === "EDGE_ATTESTATION_PROVIDER" ? "ROBOTICS"
-          : providerClass === "OUTCOME_PROVIDER" ? "OUTCOME" : "RUNTIME";
+  const normalizedFacts = {
+    ...mapped.normalizedFacts,
+    assertion: {
+      classification: CLIENT_EVIDENCE_CLASSIFICATION,
+      assertedEvidenceType: evidenceType.assertedType,
+      authenticatedClientId: principal.clientId,
+      subjectBinding: "PUBLIC_API_AGENT_BINDING",
+    },
+  };
+  const computedDigest = hashCanonical(normalizedFacts);
+  const suppliedDigest = body.digest ? requiredText(body.digest, "digest", 64, /^[a-f0-9]{64}$/) : null;
+  verifyClientEvidenceDigest(suppliedDigest, computedDigest);
+  const evidenceId = deterministicUuid({
+    tenantId: principal.tenantId,
+    clientId: principal.clientId,
+    eventId: input.eventId,
+    subjectId,
+  });
   const db = createServiceRoleClient();
-  let normalizedFacts = mapped.normalizedFacts;
-  let sourceType = "PROVIDER";
-  let subjectId = mapped.subject.id;
-  let subjectType = mapped.subject.type;
-  let canonicalResult = mapped.result;
-  let storedEvidenceType = mapped.evidenceType;
-  const trackBlockType = input.evidenceType.toUpperCase();
-  if (["POLICY_EVIDENCE", "POLICY_ACKNOWLEDGEMENT", "DEVICE_PROVENANCE", "WORKFORCE_CONTINUITY"].includes(trackBlockType)) {
-    const workflowId = requiredText(evidence.workflow_id ?? evidence.workflowId, "evidence.workflow_id", 36, uuidPattern);
-    const workflow = await db.from("protected_workflows").select("id,workspace_id,subject_entity_id,policy_reference").eq("workspace_id", principal.tenantId).eq("id", workflowId).maybeSingle();
-    if (workflow.error) throw new PublicApiError("EVIDENCE_UNAVAILABLE", "The workflow evidence boundary could not be resolved.", 503);
-    if (!workflow.data || String(workflow.data.subject_entity_id) !== mapped.subject.id) throw new PublicApiError("WORKFLOW_EVIDENCE_TENANT_MISMATCH", "The workflow evidence is outside this tenant or Operational Entity.", 404);
-    sourceType = "PROTECTED_WORKFLOW_SIGNAL";
-    subjectId = String(workflow.data.subject_entity_id);
-    subjectType = "OPERATIONAL_ENTITY";
-    domainKey = "WORKFLOW";
-    try {
-      if (["POLICY_EVIDENCE", "POLICY_ACKNOWLEDGEMENT"].includes(trackBlockType)) {
-        const policy = parsePolicyEvidence(evidence, { workspace: principal.tenantId, workflow: workflowId, policyReference: String(workflow.data.policy_reference), observedAt: mapped.occurredAt });
-        normalizedFacts = { category: "policy", evidenceType: "POLICY_EVIDENCE", source: mapped.providerKey, sourceParty: mapped.providerKey, confidence: null, classification: "policy_in_force", severity: "informational", workspace: principal.tenantId, workflowId, operationalEntityId: subjectId, metadata: policy };
-        canonicalResult = "POSITIVE";
-        storedEvidenceType = "TRACK_BLOCK_POLICY_EVIDENCE";
-      } else {
-        const continuity = parseWorkforceContinuityEvidence(evidence, { workspace: principal.tenantId, workflow: workflowId, operationalEntityId: subjectId, source: mapped.providerKey, observedAt: mapped.occurredAt });
-        normalizedFacts = { category: trackBlockType === "DEVICE_PROVENANCE" ? "device" : "identity", evidenceType: "WORKFORCE_CONTINUITY", source: mapped.providerKey, sourceParty: mapped.providerKey, confidence: null, classification: continuity.state, severity: continuity.state === "CONTINUITY_VERIFIED" ? "informational" : "medium", workspace: principal.tenantId, workflowId, operationalEntityId: subjectId, metadata: continuity };
-        canonicalResult = continuity.state === "CONTINUITY_VERIFIED" ? "POSITIVE" : "INCONCLUSIVE";
-        storedEvidenceType = "TRACK_BLOCK_WORKFORCE_CONTINUITY";
-      }
-    } catch (error) {
-      throw new PublicApiError("WORKFLOW_EVIDENCE_INVALID", error instanceof Error ? error.message : "Workflow evidence is invalid.", 400);
-    }
-  }
   const inserted = await db.from("evidence_objects").insert({
     evidence_id: evidenceId,
     enterprise_id: principal.tenantId,
     provider_key: mapped.providerKey,
-    evidence_classification: `${mapped.providerClass}_OBSERVATION`,
+    evidence_classification: CLIENT_EVIDENCE_CLASSIFICATION,
     storage_boundary: "NORMALIZED_LEDGER",
     normalized_facts: normalizedFacts,
     occurred_at: mapped.occurredAt,
     observed_at: mapped.occurredAt,
     freshness_policy_seconds: 86_400,
     retention_expires_at: mapped.expiresAt,
-    domain_key: domainKey,
+    domain_key: "PUBLIC_API_CLIENT_ASSERTION",
     subject_id: subjectId,
     subject_type: subjectType,
-    evidence_type: storedEvidenceType,
-    source_type: sourceType,
+    evidence_type: evidenceType.storedType,
+    source_type: "PUBLIC_API_CLIENT_ASSERTION",
     source_key: mapped.providerKey,
-    result: canonicalResult,
+    result: "INCONCLUSIVE",
     assurance_level: "NONE",
     cryptographically_verified: mapped.cryptographicallyVerified,
     server_verified: mapped.serverVerified,
     received_at: mapped.receivedAt,
     expires_at: mapped.expiresAt,
-    payload_hash: mapped.payloadHash,
+    payload_hash: computedDigest,
     canonicalization: "JCS",
     hash_algorithm: "SHA-256",
     reason_codes: mapped.reasonCodes,
   }).select("evidence_id").single();
-  if (inserted.error && inserted.error.code !== "23505") throw new PublicApiError("EVIDENCE_UNAVAILABLE", "The evidence could not be recorded safely.", 503);
+  if (inserted.error?.code === "23505") {
+    const existing = await db.from("evidence_objects")
+      .select("payload_hash")
+      .eq("enterprise_id", principal.tenantId)
+      .eq("evidence_id", evidenceId)
+      .maybeSingle();
+    if (existing.error) throw new PublicApiError("EVIDENCE_UNAVAILABLE", "The evidence could not be resolved safely.", 503);
+    if (!existing.data || existing.data.payload_hash !== computedDigest) {
+      throw new PublicApiError("EVIDENCE_EVENT_CONFLICT", "The provider event identifier is already bound to different evidence.", 409);
+    }
+  } else if (inserted.error) {
+    throw new PublicApiError("EVIDENCE_UNAVAILABLE", "The evidence could not be recorded safely.", 503);
+  }
   return {
     evidence_id: evidenceId,
     status: inserted.error?.code === "23505" ? "DUPLICATE" : "RECORDED",
-    provider: { key: mapped.providerKey, class: mapped.providerClass },
+    provider: { key: providerKey, class: providerClass },
     subject: mapped.subject,
-    type: storedEvidenceType,
-    classification: "PROVIDER_FINDING",
-    canonical_result: canonicalResult,
-    reason_codes: mapped.reasonCodes,
+    type: evidenceType.storedType,
+    asserted_type: evidenceType.assertedType,
+    classification: CLIENT_EVIDENCE_CLASSIFICATION,
+    canonical_result: "INCONCLUSIVE",
+    independent_evidence: false,
+    server_verified: false,
+    evidence_digest: computedDigest,
+    reason_codes: [...mapped.reasonCodes, "CLIENT_EVIDENCE_IS_AGENT_ASSERTED"],
     evidence_graph_reference: `evidence:${evidenceId}`,
   };
 }

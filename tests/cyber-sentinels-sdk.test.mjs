@@ -63,12 +63,14 @@ test("SDK exposes provider evidence, outcome, authority and verification facades
     requests.push({ url, init });
     return response(201, { ok: true });
   } });
-  await cs.evidence.submit({ provider: { key: "robotics-sensor-test-provider", class: "SENSOR_EVIDENCE_PROVIDER", event_id: "sensor-1", finding: "OBSTACLE_PRESENT" }, type: "SENSOR_DISAGREEMENT", subject: { type: "DEVICE", id: "robot:beta" }, evidence: { vision: "clear", lidar: "obstacle" } });
+  await cs.evidence.submit({ provider: { key: "self", class: "APPLICATION_SIGNAL", event_id: "sensor-1", finding: "OBSTACLE_PRESENT" }, type: "AGENT_ACTIVITY_LOG", subject: { type: "AI_AGENT", id: "agent:alpha" }, evidence: { vision: "clear", lidar: "obstacle" } });
   await cs.outcomes.submit({ transactionId: "10000000-0000-4000-8000-000000000001", outcome: "SUCCEEDED", evidence: { destination: "warehouse:zone-b", target: "pallet:123", reference: "destination:event-1" } });
   await cs.authority.get("agent:alpha");
+  await cs.agents.get("agent:alpha");
   await cs.agents.verify("agent:alpha", { challenge_id: "10000000-0000-4000-8000-000000000002", credential_id: "credential:1", signature: "signature", signed_payload: { challenge_id: "10000000-0000-4000-8000-000000000002", enterprise_id: "10000000-0000-4000-8000-000000000003", operational_entity_id: "agent:alpha", nonce: "nonce", audience: "cyber-sentinels", issuer: "agent:alpha", subject: "agent:alpha", manifest_digest: "a".repeat(64), signing_key_id: "key:1", issued_at: requestedAt, expires_at: requestedAt, submitted_at: requestedAt } });
   assert.match(requests[0].url, /\/api\/v1\/evidence$/);
   assert.match(requests[1].url, /\/outcomes$/);
   assert.match(requests[2].url, /\/authority$/);
-  assert.match(requests[3].url, /\/proof$/);
+  assert.match(requests[3].url, /\/agents\/agent%3Aalpha$/);
+  assert.match(requests[4].url, /\/proof$/);
 });

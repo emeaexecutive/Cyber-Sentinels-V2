@@ -12,8 +12,14 @@ import {
 import { signPublicWebhookPayload, verifyPublicWebhookPayload } from "../lib/public-api/v1/webhooks.ts";
 import { createApiKeyMaterial, verifyApiKeyHash } from "../lib/public-api/v1/api-key-crypto.ts";
 import { assertOnlyFields, boundedJson, PublicApiError } from "../lib/public-api/v1/contracts.ts";
+import {
+  resolveClientEvidenceProvider,
+  resolveClientEvidenceType,
+  verifyClientEvidenceDigest,
+} from "../lib/public-api/v1/client-evidence.ts";
 
 const migration = await readFile(new URL("../supabase/migrations/202608110001_external_agent_trust_api.sql", import.meta.url), "utf8");
+const closureMigration = await readFile(new URL("../supabase/migrations/20260828165913_close_public_api_security_contract.sql", import.meta.url), "utf8");
 const keyCryptoSource = await readFile(new URL("../lib/public-api/v1/api-key-crypto.ts", import.meta.url), "utf8");
 const runtimeSource = await readFile(new URL("../lib/public-api/v1/runtime.ts", import.meta.url), "utf8");
 const handlerSource = await readFile(new URL("../lib/public-api/v1/handler.ts", import.meta.url), "utf8");
@@ -23,6 +29,7 @@ const authorityServerSource = await readFile(new URL("../lib/operational-entitie
 const enforcementServerSource = await readFile(new URL("../lib/operational-entities/native-enforcement-server.ts", import.meta.url), "utf8");
 const apiKeyManagerSource = await readFile(new URL("../app/developers/api-keys/api-key-manager.tsx", import.meta.url), "utf8");
 const apiKeyPageSource = await readFile(new URL("../app/developers/api-keys/page.tsx", import.meta.url), "utf8");
+const canonicalSource = await readFile(new URL("../src/lib/trust-transaction/canonical.ts", import.meta.url), "utf8");
 
 test("API client credentials are tenant scoped, hashed, expirable, revocable, scoped and auditable", () => {
   for (const field of ["tenant_id", "client_id", "key_prefix", "key_hash", "scopes", "expires_at", "revoked_at", "last_used_at", "rotated_from_id"]) {
@@ -92,6 +99,74 @@ test("public agents are bound to one API client so Gamma cannot claim Alpha or B
   assert.match(runtimeSource, /The agent is not bound to this API client/);
 });
 
+test("client evidence is subject-bound and cannot spoof another client or tenant", () => {
+  const section = runtimeSource.slice(runtimeSource.indexOf("submitExternalEvidence"), runtimeSource.lastIndexOf("emitDecisionWebhooks"));
+  assert.match(section, /await entityFor\(principal, subjectId\)/);
+  assert.match(runtimeSource, /eq\("tenant_id", principal\.tenantId\).*eq\("client_id", principal\.clientId\).*eq\("operational_entity_id", agentId\)/s);
+  assert.match(section, /PUBLIC_API_AGENT_BINDING/);
+});
+
+test("public clients cannot forge provider identity or decision-eligible evidence namespaces", () => {
+  assert.deepEqual(resolveClientEvidenceProvider({ key: "self", class: "APPLICATION_SIGNAL" }, "client:alpha"), {
+    providerKey: "api-client:client:alpha",
+    providerClass: "APPLICATION_SIGNAL",
+  });
+  assert.throws(() => resolveClientEvidenceProvider({ key: "cyber_sentinels_native", class: "APPLICATION_SIGNAL" }, "client:alpha"), (error) => error instanceof PublicApiError && error.code === "PROVIDER_IDENTITY_RESERVED");
+  assert.throws(() => resolveClientEvidenceProvider({ key: "self", class: "IDENTITY_PROVIDER" }, "client:alpha"), (error) => error instanceof PublicApiError && error.code === "PROVIDER_AUTHENTICATION_REQUIRED");
+  for (const type of ["NATIVE_ENTITY_IDENTITY_PROOF", "PROVIDER_VERIFIED_IDENTITY", "POLICY_EVIDENCE", "RUNTIME_AUTHORITY_EVIDENCE"]) {
+    assert.throws(() => resolveClientEvidenceType(type), (error) => error instanceof PublicApiError && error.code === "EVIDENCE_TYPE_RESERVED");
+  }
+});
+
+test("client evidence digest is server authoritative and bad caller digests are rejected", () => {
+  const computed = "a".repeat(64);
+  assert.equal(verifyClientEvidenceDigest(null, computed), computed);
+  assert.equal(verifyClientEvidenceDigest(computed, computed), computed);
+  assert.throws(() => verifyClientEvidenceDigest("b".repeat(64), computed), (error) => error instanceof PublicApiError && error.code === "EVIDENCE_DIGEST_MISMATCH");
+  assert.match(runtimeSource, /const computedDigest = hashCanonical\(normalizedFacts\)/);
+  assert.match(runtimeSource, /payload_hash: computedDigest/);
+});
+
+test("AGENT_ASSERTED evidence cannot become independent proof or satisfy canonical completeness", () => {
+  assert.match(runtimeSource, /evidence_classification: CLIENT_EVIDENCE_CLASSIFICATION/);
+  assert.match(runtimeSource, /source_type: "PUBLIC_API_CLIENT_ASSERTION"/);
+  assert.match(runtimeSource, /result: "INCONCLUSIVE"/);
+  assert.match(runtimeSource, /server_verified: false/);
+  assert.match(canonicalSource, /\["agent_asserted", "unconfirmed"\]/);
+  assert.match(canonicalSource, /decisionEligibleEvidence/);
+});
+
+test("decision context cannot forge assurance, monitoring, sensor, or signed-intent provenance", () => {
+  const section = runtimeSource.slice(runtimeSource.indexOf("requestExternalDecision"), runtimeSource.indexOf("transactionRows"));
+  assert.match(section, /Decision-eligible assurance evidence must arrive through an authenticated provider ingestion path/);
+  assert.match(section, /Signed human intent must be resolved through an existing verified intent path/);
+  assert.match(section, /providerClass: "APPLICATION_SIGNAL"/);
+  assert.match(section, /providerKey: `api-client:\$\{principal\.clientId\}`/);
+  assert.match(section, /outcome: "ASSERTED"/);
+  assert.doesNotMatch(section, /monitoringCoverage = .*"covered"/);
+});
+
+test("public client evidence is immutable and evidence:write is a valid prepared API-key scope", () => {
+  assert.match(closureMigration, /'evidence:write'/);
+  assert.match(closureMigration, /PUBLIC_API_CLIENT_ASSERTION/);
+  assert.match(closureMigration, /before update or delete on public\.evidence_objects/);
+  assert.match(closureMigration, /append-only/);
+});
+
+test("public Replay is canonical transaction history, never tenant-created replay sessions", () => {
+  const section = runtimeSource.slice(runtimeSource.indexOf("getExternalReplay"), runtimeSource.indexOf("getExternalReceipt"));
+  assert.match(section, /transactionRows\(principal, transactionId\)/);
+  assert.match(section, /canonical_trust_transaction/);
+  assert.doesNotMatch(section, /trust_replay_sessions/);
+});
+
+test("transactions, receipts, and Replay are tenant-filtered before retrieval", () => {
+  const section = runtimeSource.slice(runtimeSource.indexOf("transactionRows"), runtimeSource.indexOf("submitExternalOutcome"));
+  for (const table of ["canonical_trust_transactions", "canonical_trust_transaction_events", "public_api_outcome_submissions", "native_enforcement_outcomes"]) {
+    assert.match(section, new RegExp(`from\\(\"${table}\"\\).*principal\\.tenantId`, "s"));
+  }
+});
+
 test("rate limits are atomic and separated by endpoint class", () => {
   assert.match(migration, /consume_public_api_rate_limit_v1/);
   assert.match(migration, /on conflict\(client_id,route_class,window_started_at\) do update/);
@@ -105,6 +180,16 @@ test("decision idempotency is client scoped and changed retries map to 409", () 
   assert.match(runtimeSource, /idempotencyKey: `\$\{principal\.clientId\}:\$\{idempotencyKey\}`/);
   assert.match(runtimeSource, /IDEMPOTENCY_CONFLICT/);
   assert.match(runtimeSource, /409/);
+  assert.match(runtimeSource, /context: deploymentContext \?\? null/);
+  assert.match(runtimeSource, /payloadDigest: requestDigest/);
+});
+
+test("public resource identifiers are stable transaction projections", () => {
+  for (const field of ["decision_id", "transaction_id", "receipt_id", "replay_id", "agent_id", "correlation_id"]) {
+    assert.match(runtimeSource, new RegExp(field));
+  }
+  assert.match(runtimeSource, /receipt_id: receipt\.transactionId/);
+  assert.match(runtimeSource, /replay_id: receipt\.transactionId/);
 });
 
 test("caller-controlled decision, trust and verification fields are rejected", () => {

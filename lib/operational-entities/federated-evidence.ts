@@ -49,6 +49,7 @@ export type ResponsibilityLineage = {
 };
 
 export type EvidenceSourceClassification =
+  | "agent_asserted"
   | "operator_asserted"
   | "provider_asserted"
   | "technology_provider_asserted"
@@ -312,7 +313,7 @@ export function classifyEvidenceIndependence(input: {
   controlOperator: string;
   technologyProvider: string;
 }): EvidenceIndependence {
-  const usable = input.evidence.filter((item) => item.claim !== "unknown" && item.sourceClassification !== "unconfirmed");
+  const usable = input.evidence.filter((item) => item.claim !== "unknown" && !["agent_asserted", "unconfirmed"].includes(item.sourceClassification));
   if (!usable.length) return "insufficient";
   const claims = new Set(usable.map((item) => item.claim));
   if (claims.size > 1 || usable.some((item) => item.sourceClassification === "disputed")) return "conflicting";

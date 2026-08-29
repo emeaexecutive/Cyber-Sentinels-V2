@@ -147,6 +147,7 @@ export type CanonicalTrustTransactionInput = {
   previousTransactionId?: string | null;
   operationalEntityId?: string | null;
   requestedAt?: string;
+  correlationId?: string;
   managedControl?: {
     responsibilityLineage?: Partial<ResponsibilityLineage>;
     providerHealth?: Record<string, string>;
@@ -181,6 +182,8 @@ export type StoredProviderEvidence = {
   correlationId: string;
   sourcePartyId?: string;
   sourceClassification?: ManagedControlEvidence["sourceClassification"];
+  serverVerified?: boolean;
+  normalizedEvidence?: Record<string, unknown>;
   schemaVersion?: string;
 };
 export type ResolvedPolicyVersion = {
@@ -373,6 +376,7 @@ function assertInput(input: CanonicalTrustTransactionInput) {
   if (!/^[a-zA-Z0-9_.:-]{8,180}$/.test(input.idempotencyKey)) throw new TypeError("A valid idempotency key is required.");
   if (input.providerExecutionId && !uuidPattern.test(input.providerExecutionId)) throw new TypeError("Provider execution reference is invalid.");
   if (input.previousTransactionId && !uuidPattern.test(input.previousTransactionId)) throw new TypeError("Previous transaction reference is invalid.");
+  if (input.correlationId && !uuidPattern.test(input.correlationId)) throw new TypeError("Correlation reference is invalid.");
 }
 
 function isSameIdempotentRequest(receipt: SafeCanonicalTransactionReceipt, input: CanonicalTrustTransactionInput, actor: AuthenticatedTransactionActor) {
@@ -567,7 +571,8 @@ export function evaluateCanonicalTrustDecision(input: {
   correlationId: string;
 }): CanonicalDecisionRecord {
   const evidenceReferences = input.evidence.map((item) => ({ type: "normalized_provider_evidence", id: item.reference }));
-  const evidenceTypes = new Set(input.evidence.map((item) => item.type));
+  const decisionEligibleEvidence = input.evidence.filter((item) => !["agent_asserted", "unconfirmed"].includes(item.sourceClassification ?? "provider_asserted"));
+  const evidenceTypes = new Set(decisionEligibleEvidence.map((item) => item.type));
   const evidenceComplete = input.authority.requiredEvidenceTypes.every((type) => evidenceTypes.has(type));
   const evidenceDigest = hashCanonical(input.evidence.map((item) => ({ reference: item.reference, event: item.providerEventId, digest: item.sourceDigest, outcome: item.outcome, observedAt: item.observedAt, expiresAt: item.expiresAt })));
   const authorityEvidenceReferences = input.authority.evidenceReferences;
@@ -580,8 +585,8 @@ export function evaluateCanonicalTrustDecision(input: {
     environmentState: input.trustObject.environmentState,
     scopeState: input.authorityScopeValid ? "verified" : "suspended",
     requestedScope: [input.transactionInput.action.type],
-    activeProviders: input.evidence.map((item) => item.providerId),
-    evidence: input.evidence.map((item) => ({ type: item.type, observedAt: item.observedAt, reference: { type: "normalized_provider_evidence", id: item.reference } })),
+    activeProviders: decisionEligibleEvidence.map((item) => item.providerId),
+    evidence: decisionEligibleEvidence.map((item) => ({ type: item.type, observedAt: item.observedAt, reference: { type: "normalized_provider_evidence", id: item.reference } })),
     monitoring: input.authority.monitoringRequirements,
     contradictions: input.trustObject.activeContradictions.map((item) => item.id),
     highestIncidentSeverity: input.trustObject.activeIncidents.length ? "material" : "none",
@@ -647,8 +652,23 @@ export function evaluateCanonicalTrustDecision(input: {
     ? input.operationalEntity.currentConsequenceClassification
     : consequenceEvaluation.classification;
   const negativeEvidence = input.evidence.some((item) => item.outcome === "FAILED");
-  const authorityIntegrity = input.transactionInput.managedControl?.authorityIntegrity
-    ? evaluateAuthorityIntegrity(input.transactionInput.managedControl.authorityIntegrity)
+  const authorityIntegrityInput = input.transactionInput.managedControl?.authorityIntegrity;
+  const resolvedPersistedEvidence = input.evidence.map((item) => {
+    const normalized = item.normalizedEvidence ?? {};
+    const observation = normalized.authorityObservation ?? normalized.authority_observation ?? normalized.observation;
+    return {
+      reference: item.reference,
+      subjectReference: typeof normalized.subjectReference === "string" ? normalized.subjectReference : input.operationalEntity.entityId,
+      sourceClassification: item.sourceClassification ?? "unconfirmed",
+      serverVerified: item.serverVerified === true,
+      observation: ["old_authority_accepted", "old_authority_rejected"].includes(String(observation))
+        ? String(observation) as "old_authority_accepted" | "old_authority_rejected"
+        : "not_observed" as const,
+      observedAt: item.observedAt,
+    };
+  });
+  const authorityIntegrity = authorityIntegrityInput
+    ? evaluateAuthorityIntegrity({ ...authorityIntegrityInput, resolvedPersistedEvidence })
     : null;
   if (authorityIntegrity && authorityIntegrity.actionTimeEvidence.enterpriseId !== input.tenant.id) throw new Error("AUTHORITY_INTEGRITY_TENANT_SCOPE_MISMATCH");
   const approvedModelState = input.transactionInput.deploymentContext?.approvedModelState ?? null;
@@ -1198,13 +1218,14 @@ export async function executeCanonicalTrustTransaction(input: CanonicalTrustTran
     && Boolean(operationalEntity.accountableOwnerId)
     && operationalEntity.accountableOwnerId !== "legacy_unresolved";
   const evidence = entityCanCollectEvidence ? await collectConfiguredEvidence(dependencies, tenant, trustObject, input) : [];
-  const providerEvidenceFresh = validateEvidenceFreshness(evidence, 86_400, requestedAt);
+  const decisionEligibleEvidence = evidence.filter((item) => !["agent_asserted", "unconfirmed"].includes(item.sourceClassification ?? "provider_asserted"));
+  const providerEvidenceFresh = validateEvidenceFreshness(decisionEligibleEvidence, 86_400, requestedAt);
   const authority = await resolveAuthority(dependencies, tenant, trustObject);
-  const evidenceFresh = providerEvidenceFresh && validateEvidenceFreshness(evidence, authority.maximumEvidenceAgeSeconds, requestedAt);
+  const evidenceFresh = providerEvidenceFresh && validateEvidenceFreshness(decisionEligibleEvidence, authority.maximumEvidenceAgeSeconds, requestedAt);
   const authorityScopeValid = validateAuthorityScope(authority, input, requestedAt);
   const policy = await resolvePolicyVersion(dependencies, tenant, authority, requestedAt);
   const previous = await dependencies.loadPreviousTransaction(tenant.id, input.previousTransactionId);
-  const correlationId = crypto.randomUUID();
+  const correlationId = input.correlationId ?? crypto.randomUUID();
   const record = evaluateCanonicalTrustDecision({ tenant, actor, operationalEntity, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, transactionInput: input, requestedAt, correlationId });
   const context: TransactionContext = { input, actor, tenant, operationalEntity, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, record };
   const persisted = await persistDecision(dependencies, record);

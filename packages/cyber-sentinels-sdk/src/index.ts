@@ -139,7 +139,7 @@ export type DecisionRequest = {
 };
 
 export type EvidenceSubmission = {
-  provider: { key: string; class: string; event_id: string; finding: string };
+  provider: { key: "self"; class: "APPLICATION_SIGNAL"; event_id: string; finding: string };
   type: string;
   subject: { type: string; id: string };
   evidence: Record<string, unknown>;
@@ -162,13 +162,21 @@ export type OutcomeSubmission = {
 };
 
 export type DecisionResult = {
+  decision_id: string;
   transaction_id: string;
+  receipt_id: string;
+  replay_id: string;
+  agent_id: string;
   decision: Decision;
   reason_codes: string[];
   consequence: string;
   confidence: string;
   authority_reference: string;
+  authority_version: string | null;
+  policy: { id: string; version: string };
   policy_version: string;
+  correlation_id: string;
+  created_at: string;
   transaction_url: string;
   receipt_url: string;
   replay_url: string;
@@ -281,6 +289,7 @@ function validateOptions(options: ClientOptions) {
 export class CyberSentinels {
   readonly agents: {
     register: (input: RegisterAgentInput, options?: RequestOptions) => Promise<RegisteredAgent>;
+    get: (agentId: string, options?: RequestOptions) => Promise<Record<string, unknown>>;
     registerCredential: (agentId: string, input: RegisterCredentialInput, options?: RequestOptions) => Promise<RegisteredCredential>;
     registerManifest: (agentId: string, input: SignedPublicManifest, options?: RequestOptions) => Promise<Record<string, unknown>>;
     issueChallenge: (agentId: string, options?: RequestOptions) => Promise<Challenge>;
@@ -320,6 +329,7 @@ export class CyberSentinels {
     if (!this.#fetch) throw new TypeError("A Fetch API implementation is required.");
     this.agents = {
       register: (input, requestOptions) => this.#request("POST", "/api/v1/agents", input, requestOptions),
+      get: (agentId, requestOptions) => this.#request("GET", `/api/v1/agents/${encodeURIComponent(agentId)}`, undefined, requestOptions),
       registerCredential: (agentId, input, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/credentials`, input, requestOptions),
       registerManifest: (agentId, input, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/manifest`, input, requestOptions),
       issueChallenge: (agentId, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/challenge`, {}, requestOptions),

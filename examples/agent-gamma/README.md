@@ -8,6 +8,8 @@ server-function import, or verification fixture.
 npm install
 CYBER_SENTINELS_API_KEY="<shown-once-test-key>" \
 CYBER_SENTINELS_BASE_URL="https://<approved-non-production-host>" \
+CYBER_SENTINELS_STAGING_PROJECT_REF="agpyhygpfmppjkxwcpac" \
+CYBER_SENTINELS_CONFIRM_STAGING="I_CONFIRM_STAGING" \
 npm start
 ```
 
@@ -17,5 +19,8 @@ The API key must include all six v0.1 scopes for the full proof: `agents:write`,
 `outcomes:write`. Obtain the exact URL from the PR Preview check. A Vercel SSO
 redirect means external qualification is blocked until an approved automation
 bypass or externally reachable non-Production API endpoint exists.
+The script refuses Production domains, Production/live API keys, and any
+project reference other than the declared Staging project. It exits before
+registration unless `/api/ready` returns `READY`, and it never prints secrets.
 
 For the standalone PowerShell equivalent, see `../powershell/README.md`.

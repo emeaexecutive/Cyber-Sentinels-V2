@@ -105,17 +105,19 @@ test("the existing canonical artifacts are extended without a second receipt or 
   assert.equal((read("supabase/migrations/20260821085309_track_block_policy_identity_continuity.sql").match(/create table/gi) ?? []).length, 0);
 });
 
-test("the provider-neutral Evidence API accepts policy and continuity types through tenant-bound workflows", () => {
+test("the public Evidence API cannot impersonate protected policy and continuity proof", () => {
   const runtime = read("lib/public-api/v1/runtime.ts");
+  const clientEvidence = read("lib/public-api/v1/client-evidence.ts");
+  const protectedWorkflow = read("lib/protected-workflows/server.ts");
   const openapi = read("lib/public-api/v1/openapi.ts");
-  assert.match(runtime, /POLICY_ACKNOWLEDGEMENT/);
-  assert.match(runtime, /DEVICE_PROVENANCE/);
-  assert.match(runtime, /parsePolicyEvidence/);
-  assert.match(runtime, /parseWorkforceContinuityEvidence/);
-  assert.match(runtime, /\.eq\("workspace_id", principal\.tenantId\)/);
-  assert.match(runtime, /WORKFLOW_EVIDENCE_TENANT_MISMATCH/);
-  assert.match(openapi, /policy_acknowledgement/);
-  assert.match(openapi, /device_provenance/);
+  assert.match(clientEvidence, /POLICY_ACKNOWLEDGEMENT/);
+  assert.match(clientEvidence, /DEVICE_PROVENANCE/);
+  assert.match(clientEvidence, /EVIDENCE_TYPE_RESERVED/);
+  assert.match(protectedWorkflow, /parsePolicyEvidence/);
+  assert.match(protectedWorkflow, /parseWorkforceContinuityEvidence/);
+  assert.doesNotMatch(runtime, /parsePolicyEvidence|parseWorkforceContinuityEvidence/);
+  assert.match(runtime, /resolveClientEvidenceType/);
+  assert.match(openapi, /AGENT_ASSERTED/);
   assert.doesNotMatch(runtime, /candidate_(?:api|evidence|receipt)_stack/i);
 });
 

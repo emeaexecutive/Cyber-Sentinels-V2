@@ -204,13 +204,32 @@ function authorizationChange(overrides = {}) {
   };
 }
 
+function resolvedStaleEvidence(overrides = {}) {
+  return {
+    reference: "evidence:destination",
+    subjectReference: "agent:alpha",
+    sourceClassification: "destination_observed",
+    serverVerified: true,
+    observation: "old_authority_accepted",
+    observedAt: "2026-08-24T11:01:00.000Z",
+    ...overrides,
+  };
+}
+
 test("revocation is complete only when destination evidence rejects old authority", () => {
   const rejected = evaluateAuthorityIntegrity(input({ authorizationChanges: [authorizationChange()] }));
   assert.equal(rejected.propagationState, "independently_confirmed");
   assert.equal(findingCodes(rejected).includes("STALE_AUTHORITY_STILL_ACTIVE"), false);
   const accepted = evaluateAuthorityIntegrity(input({ authorizationChanges: [authorizationChange({ runtimeObservation: "old_authority_accepted", destinationObservation: "old_authority_accepted", independentlyConfirmed: false })] }));
-  assert.equal(accepted.propagationState, "failed");
-  assert.ok(findingCodes(accepted).includes("STALE_AUTHORITY_STILL_ACTIVE"));
+  assert.equal(accepted.propagationState, "provider_reports_applied");
+  assert.equal(accepted.authorizationPropagation.state, "STALE_AUTHORITY_POSSIBLE");
+  assert.equal(findingCodes(accepted).includes("STALE_AUTHORITY_STILL_ACTIVE"), false);
+  const confirmed = evaluateAuthorityIntegrity(input({
+    authorizationChanges: [authorizationChange({ runtimeObservation: "old_authority_accepted", destinationObservation: "old_authority_accepted", independentlyConfirmed: false })],
+    resolvedPersistedEvidence: [resolvedStaleEvidence()],
+  }));
+  assert.equal(confirmed.propagationState, "failed");
+  assert.ok(findingCodes(confirmed).includes("STALE_AUTHORITY_STILL_ACTIVE"));
 });
 
 test("provider acknowledgement alone is not propagation complete", () => {

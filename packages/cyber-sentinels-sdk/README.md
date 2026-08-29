@@ -1,9 +1,14 @@
 # Cyber Sentinels TypeScript SDK
 
-Experimental SDK v0.1.0 for server-side external agents. It uses Bearer API
+Repository-local, unpublished SDK v0.1.0 for server-side external agents. It uses Bearer API
 keys, exposes ALLOW/REVIEW/DENY without collapsing them, and never executes
 customer code. See `/developers/quickstart` in the Cyber Sentinels product for
 the complete Agent Gamma flow.
+
+This package is not published to npm. Inside this repository, install the
+example's `file:../../packages/cyber-sentinels-sdk` dependency with
+`npm --prefix examples/agent-gamma install`. Do not use
+`npm install @cyber-sentinels/sdk` until a real publication is announced.
 
 ```ts
 import { CyberSentinels } from "@cyber-sentinels/sdk";
@@ -20,8 +25,8 @@ if (result.decision !== "ALLOW") {
 
 await cs.evidence.submit({
   provider: {
-    key: "runtime-compatible-provider",
-    class: "RUNTIME_SECURITY_PROVIDER",
+    key: "self",
+    class: "APPLICATION_SIGNAL",
     event_id: "runtime-event-001",
     finding: "TOOL_CALL_POLICY_FINDING",
   },
@@ -45,5 +50,6 @@ await cs.trust.getTransaction(result.transaction_id);
 await cs.trust.getReceipt(result.transaction_id);
 ```
 
-Provider findings are evidence, not Cyber Sentinels decisions. `authorize()`
+Public evidence submissions are `AGENT_ASSERTED`, not independent provider
+findings and not Cyber Sentinels decisions. `authorize()`
 returns the canonical decision and never executes the customer action.

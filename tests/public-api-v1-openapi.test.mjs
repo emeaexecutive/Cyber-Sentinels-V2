@@ -33,7 +33,9 @@ test("OpenAPI documents auth, errors, idempotency, limits, webhooks and strict d
   assert.ok(publicApiOpenApi.components.schemas.Decision.properties.provider_neutral_evidence);
   assert.ok(publicApiOpenApi.paths["/api/v1/evidence"].post);
   assert.equal(publicApiOpenApi.components.schemas.EvidenceRequest.additionalProperties, false);
-  assert.match(JSON.stringify(publicApiOpenApi), /PROVIDER FINDING|Provider findings/);
+  assert.match(JSON.stringify(publicApiOpenApi), /AGENT_ASSERTED/);
+  assert.equal(publicApiOpenApi.components.schemas.EvidenceRequest.properties.provider.properties.key.enum[0], "self");
+  for (const field of ["decision_id", "transaction_id", "receipt_id", "replay_id", "agent_id", "authority_reference", "correlation_id", "created_at"]) assert.ok(publicApiOpenApi.components.schemas.Decision.properties[field]);
   for (const event of ["decision.created", "monitoring.coverage_gap", "deployment.reauthorization_required", "intent.execution_mismatch", "execution.outcome", "receipt.available"]) assert.match(JSON.stringify(publicApiOpenApi), new RegExp(event.replace(".", "\\.")));
 });
 

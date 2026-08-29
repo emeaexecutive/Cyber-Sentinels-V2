@@ -536,6 +536,9 @@ function Invoke-AgentGammaJourney {
     if (-not $replayRejected) { throw (New-CyberSentinelsException "The consumed challenge was accepted twice." "CHALLENGE_REPLAY_ACCEPTED") }
     Write-CyberSentinelsMarker "CHALLENGE_REPLAY" ([ordered]@{ result = "REJECTED" })
 
+    $registeredAgent = Invoke-CyberSentinelsApi "GET" "/api/v1/agents/$([Uri]::EscapeDataString($agentId))"
+    Write-CyberSentinelsMarker "AGENT" ([ordered]@{ agent_id = $registeredAgent.agent_id; authority_reference = $registeredAgent.authority_reference })
+
     $authority = Invoke-CyberSentinelsApi "GET" (Get-AgentPath $agentId "authority")
     Write-CyberSentinelsMarker "AUTHORITY" $authority
 

@@ -92,6 +92,10 @@ function safeEvidence(row: Row): StoredProviderEvidence {
     sourceDigest: String(row.source_digest),
     assuranceLevel: row.assurance_level === null ? null : Number(row.assurance_level),
     correlationId: String(row.correlation_id),
+    sourcePartyId: String(row.provider_id),
+    sourceClassification: "identity_provider_asserted",
+    serverVerified: true,
+    normalizedEvidence: {},
   };
 }
 
@@ -110,6 +114,8 @@ function safeNativeEvidence(row: Row): StoredProviderEvidence {
     correlationId: String(row.verification_id),
     sourcePartyId: "cyber_sentinels",
     sourceClassification: "technology_provider_asserted",
+    serverVerified: true,
+    normalizedEvidence: {},
     schemaVersion: String(row.verification_algorithm_version ?? "native-entity-verification-v1"),
   };
 }
@@ -375,7 +381,11 @@ function safeCanonicalEvidenceObject(row: Row): StoredProviderEvidence {
     assuranceLevel: ({ NONE: 0, LOW: 0.25, MEDIUM: 0.5, HIGH: 0.75, VERY_HIGH: 1 } as Record<string, number>)[String(row.assurance_level)] ?? null,
     correlationId: String(row.evidence_id),
     sourcePartyId: String(row.source_key ?? row.provider_key),
-    sourceClassification: row.server_verified ? "provider_asserted" : "unconfirmed",
+    sourceClassification: row.source_type === "PUBLIC_API_CLIENT_ASSERTION"
+      ? "agent_asserted"
+      : row.server_verified ? "provider_asserted" : "unconfirmed",
+    serverVerified: row.server_verified === true,
+    normalizedEvidence: row.normalized_facts && typeof row.normalized_facts === "object" ? row.normalized_facts as Row : {},
     schemaVersion: "canonical-evidence-object-v1",
   };
 }
@@ -526,7 +536,7 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
     },
     async loadConfiguredEvidence({ enterpriseId, subjectId, operationalEntityId, providerExecutionId }) {
       const canonicalResult = await db.from("evidence_objects")
-        .select("evidence_id,provider_key,evidence_type,result,observed_at,occurred_at,expires_at,payload_hash,assurance_level,source_key,server_verified")
+        .select("evidence_id,provider_key,evidence_type,result,observed_at,occurred_at,expires_at,payload_hash,assurance_level,source_key,source_type,server_verified,normalized_facts")
         .eq("enterprise_id", enterpriseId)
         .eq("subject_id", operationalEntityId ?? subjectId)
         .order("occurred_at", { ascending: false })

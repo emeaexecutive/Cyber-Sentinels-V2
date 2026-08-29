@@ -292,6 +292,15 @@ export type AuthorizationChangeEvidence = {
   destinationConfirmedAt?: string | null;
 };
 
+export type ResolvedPersistedAuthorityEvidence = {
+  reference: string;
+  subjectReference: string;
+  sourceClassification: string;
+  serverVerified: boolean;
+  observation: "old_authority_accepted" | "old_authority_rejected" | "not_observed";
+  observedAt: string;
+};
+
 export type AuthorizationPropagationAssurance = {
   state: AuthorizationPropagationAssuranceState;
   timeline: Array<{
@@ -409,6 +418,7 @@ export type AuthorityIntegrityEvaluationInput = {
   credentialDestination?: CredentialDestinationEvidence | null;
   runtime?: RuntimeAuthorityEvidence | null;
   authorizationChanges?: AuthorizationChangeEvidence[];
+  resolvedPersistedEvidence?: ResolvedPersistedAuthorityEvidence[];
   delegatedSubject?: DelegatedSubjectEvidence | null;
   policyReference: string;
   effectiveAccessReference?: string | null;
@@ -561,7 +571,12 @@ function assessParameterAuthority(input: AuthorityIntegrityEvaluationInput): Par
     if (!observation) state = contract.validationRequirement === "REQUIRED" ? "INSUFFICIENT_EVIDENCE" : "UNRESOLVED";
     else if (observation.providerAssertions && new Set(observation.providerAssertions.map((item) => `${item.provenance}:${item.valueDigestOrMaskedValue}`)).size > 1) state = "CONFLICTING";
     else if (observation.observedProvenance === "UNKNOWN") state = "UNRESOLVED";
-    else if (!contract.expectedProvenance.includes(observation.observedProvenance)) state = "PROVENANCE_MISMATCH";
+    else if (!contract.expectedProvenance.includes(observation.observedProvenance)) {
+      state = observation.observedProvenance === "MODEL_PROPOSED"
+        && input.runtime?.overriddenParameterNames.includes(contract.parameterName)
+        ? "SUPPORTED"
+        : "PROVENANCE_MISMATCH";
+    }
     else if (contract.allowedValues.length && !contract.allowedValues.includes(observation.valueDigestOrMaskedValue)) state = "OUT_OF_SCOPE";
     else if (contract.allowedScope.length && (!observation.scopeReference || !contract.allowedScope.includes(observation.scopeReference))) state = "OUT_OF_SCOPE";
     else if (contract.runtimeBinding && contract.runtimeBinding !== observation.runtimeBinding) state = "OUT_OF_SCOPE";
@@ -620,7 +635,35 @@ function assessRuntimeAuthority(input: AuthorityIntegrityEvaluationInput): Runti
   };
 }
 
-function assessAuthorizationPropagation(changes: readonly AuthorizationChangeEvidence[]): AuthorizationPropagationAssurance {
+const trustedStaleAuthoritySources = new Set([
+  "runtime_observed",
+  "destination_observed",
+  "independently_corroborated",
+  "human_reviewed",
+]);
+
+function hasTrustedPersistedStaleEvidence(
+  change: AuthorizationChangeEvidence,
+  evidence: readonly ResolvedPersistedAuthorityEvidence[],
+) {
+  const expectsRuntime = change.runtimeObservation === "old_authority_accepted";
+  const expectsDestination = change.destinationObservation === "old_authority_accepted";
+  return evidence.some((item) => {
+    if (!change.evidenceReferences.includes(item.reference)) return false;
+    if (item.subjectReference !== change.subjectReference || item.serverVerified !== true) return false;
+    if (!trustedStaleAuthoritySources.has(item.sourceClassification)) return false;
+    if (item.observation !== "old_authority_accepted") return false;
+    if (!Number.isFinite(Date.parse(item.observedAt)) || Date.parse(item.observedAt) <= Date.parse(change.effectiveAt)) return false;
+    if (expectsRuntime && item.sourceClassification === "runtime_observed") return true;
+    if (expectsDestination && item.sourceClassification === "destination_observed") return true;
+    return ["independently_corroborated", "human_reviewed"].includes(item.sourceClassification);
+  });
+}
+
+function assessAuthorizationPropagation(
+  changes: readonly AuthorizationChangeEvidence[],
+  persistedEvidence: readonly ResolvedPersistedAuthorityEvidence[],
+): AuthorizationPropagationAssurance {
   const timeline = changes.map((change) => ({
     changeId: change.changeId,
     authorityVersionBefore: change.authorityVersionBefore ?? null,
@@ -634,7 +677,10 @@ function assessAuthorizationPropagation(changes: readonly AuthorizationChangeEvi
     evidenceReferences: [...new Set(change.evidenceReferences)],
   }));
   let state: AuthorizationPropagationAssuranceState = "INSUFFICIENT_EVIDENCE";
-  const confirmedStale = changes.some((change) => Boolean(change.postChangeUseObservedAt) && Date.parse(change.postChangeUseObservedAt!) > Date.parse(change.effectiveAt) && (change.runtimeObservation === "old_authority_accepted" || change.destinationObservation === "old_authority_accepted"));
+  const confirmedStale = changes.some((change) => Boolean(change.postChangeUseObservedAt)
+    && Date.parse(change.postChangeUseObservedAt!) > Date.parse(change.effectiveAt)
+    && (change.runtimeObservation === "old_authority_accepted" || change.destinationObservation === "old_authority_accepted")
+    && hasTrustedPersistedStaleEvidence(change, persistedEvidence));
   const possibleStale = changes.some((change) => change.runtimeObservation === "old_authority_accepted" || change.destinationObservation === "old_authority_accepted");
   if (changes.some((change) => change.runtimeObservation === "conflicting" || change.destinationObservation === "conflicting")) state = "PROPAGATION_CONFLICT";
   else if (confirmedStale) state = "STALE_AUTHORITY_CONFIRMED";
@@ -647,6 +693,9 @@ function assessAuthorizationPropagation(changes: readonly AuthorizationChangeEvi
     ...(!changes.length ? ["No authorization-change evidence was supplied."] : []),
     ...(changes.some((change) => change.providerReportedApplied && change.runtimeObservation === "not_observed") ? ["Control-plane acknowledgement is not runtime enforcement proof."] : []),
     ...(changes.some((change) => change.destinationObservation === "not_observed") ? ["Destination-effective authority is not confirmed."] : []),
+    ...(changes.some((change) => (change.runtimeObservation === "old_authority_accepted" || change.destinationObservation === "old_authority_accepted") && !hasTrustedPersistedStaleEvidence(change, persistedEvidence))
+      ? ["Post-change authority acceptance is asserted but has no trusted persisted evidence."]
+      : []),
   ];
   return { state, timeline, limitations: [...new Set(limitations)] };
 }
@@ -686,10 +735,13 @@ export function mapAimsCompatibleEvidence(input: AimsCompatibleEvidence): AimsCo
   });
 }
 
-function propagationState(changes: readonly AuthorizationChangeEvidence[]): AuthorizationPropagationState {
+function propagationState(
+  changes: readonly AuthorizationChangeEvidence[],
+  persistedEvidence: readonly ResolvedPersistedAuthorityEvidence[] = [],
+): AuthorizationPropagationState {
   if (!changes.length) return "insufficient_evidence";
   if (changes.some((item) => item.runtimeObservation === "conflicting" || item.destinationObservation === "conflicting")) return "conflicting";
-  if (changes.some((item) => item.destinationObservation === "old_authority_accepted")) return "failed";
+  if (changes.some((item) => item.destinationObservation === "old_authority_accepted" && hasTrustedPersistedStaleEvidence(item, persistedEvidence))) return "failed";
   if (changes.every((item) => item.independentlyConfirmed && item.destinationObservation === "old_authority_rejected")) return "independently_confirmed";
   if (changes.every((item) => item.destinationObservation === "old_authority_rejected")) return "destination_rejects_old_authority";
   if (changes.some((item) => item.destinationObservation === "old_authority_rejected" || item.runtimeObservation === "old_authority_rejected")) return "downstream_update_observed";
@@ -753,7 +805,7 @@ function buildGraph(
   if (input.credentialDestination?.credentialReference) addEdge("CREDENTIAL", input.credentialDestination.credentialReference, "ACTION", input.actionId, "AUTHORIZED_BY");
   if (input.credentialDestination?.actualDestination) addEdge("DESTINATION", input.credentialDestination.actualDestination, "ACTION", input.actionId, "OBSERVED_BY");
   for (const change of input.authorizationChanges ?? []) {
-    addNode("AUTHORIZATION_CHANGE", change.changeId, change.changeType, { propagationState: propagationState([change]) });
+    addNode("AUTHORIZATION_CHANGE", change.changeId, change.changeType, { propagationState: propagationState([change], input.resolvedPersistedEvidence ?? []) });
     addEdge("AUTHORIZATION_CHANGE", change.changeId, "AUTHORITY", input.authorityLineageReference, "REVOKES");
   }
   if (runtimeAuthority) {
@@ -815,7 +867,8 @@ export function evaluateAuthorityIntegrity(input: AuthorityIntegrityEvaluationIn
   const findings: AuthorityIntegrityFinding[] = [];
   const parameterAuthority = assessParameterAuthority(input);
   const runtimeAuthority = assessRuntimeAuthority(input);
-  const authorizationPropagation = assessAuthorizationPropagation(input.authorizationChanges ?? []);
+  const persistedAuthorityEvidence = input.resolvedPersistedEvidence ?? [];
+  const authorizationPropagation = assessAuthorizationPropagation(input.authorizationChanges ?? [], persistedAuthorityEvidence);
   const aimsCompatibility = (input.aimsEvidence ?? []).map(mapAimsCompatibleEvidence);
   for (const assessment of parameterAuthority) {
     if (assessment.state === "CONFLICTING") findings.push(finding("PROVIDER_CONFLICT", assessment.parameterName, assessment.evidenceReferences));
@@ -855,7 +908,11 @@ export function evaluateAuthorityIntegrity(input: AuthorityIntegrityEvaluationIn
   const authorizationChanges = input.authorizationChanges ?? [];
   for (const change of authorizationChanges) {
     const postChangeUse = change.postChangeUseObservedAt && Date.parse(change.postChangeUseObservedAt) > Date.parse(change.effectiveAt);
-    if (postChangeUse && (change.runtimeObservation === "old_authority_accepted" || change.destinationObservation === "old_authority_accepted")) findings.push(finding("STALE_AUTHORITY_STILL_ACTIVE", null, change.evidenceReferences));
+    if (postChangeUse
+      && (change.runtimeObservation === "old_authority_accepted" || change.destinationObservation === "old_authority_accepted")
+      && hasTrustedPersistedStaleEvidence(change, persistedAuthorityEvidence)) {
+      findings.push(finding("STALE_AUTHORITY_STILL_ACTIVE", null, change.evidenceReferences));
+    }
   }
   if (input.delegatedSubject && (!input.delegatedSubject.originatingHuman && !input.delegatedSubject.originatingSystem || !input.delegatedSubject.delegationEvidence || !input.delegatedSubject.delegatedSubject)) findings.push(finding("DELEGATED_SUBJECT_CONTEXT_LOST", null, [input.agentPassportReference, input.authorityLineageReference]));
   if (input.retrospectiveReview && input.retrospectiveReview.affectedToolId === input.toolSchema.toolId && input.retrospectiveReview.affectedVersions.includes(input.toolSchema.toolVersion)) findings.push(finding("RETROSPECTIVE_TOOL_AUTHORITY_REVIEW_RECOMMENDED", null, [input.retrospectiveReview.advisoryReference, input.toolSchema.schemaDigest]));
@@ -899,14 +956,14 @@ export function evaluateAuthorityIntegrity(input: AuthorityIntegrityEvaluationIn
     ...(runtimeAuthority ? [{ eventType: "RUNTIME_AUTHORITY_OBSERVED", occurredAt: runtimeAuthority.measurementTime, attribution: "RUNTIME_OBSERVATION", evidenceReferences: [runtimeAuthority.runtimeEvidenceReference], details: { authorityReference: runtimeAuthority.authorityReference, authorityVersion: runtimeAuthority.authorityVersion, runtimeState: runtimeAuthority.runtimeState, destinationState: runtimeAuthority.destinationState } }] : []),
     ...authorizationPropagation.timeline.map((item) => ({ eventType: "AUTHORIZATION_PROPAGATION_TIMELINE_RECORDED", occurredAt: item.requestedAt, attribution: "CYBER_SENTINELS_INTERPRETATION", evidenceReferences: item.evidenceReferences, details: { changeId: item.changeId, state: authorizationPropagation.state, authorityVersionBefore: item.authorityVersionBefore, authorityVersionAfter: item.authorityVersionAfter, controlPlaneAcknowledgedAt: item.controlPlaneAcknowledgedAt, runtimeUpdatedAt: item.runtimeUpdatedAt, credentialUpdatedAt: item.credentialUpdatedAt, downstreamUpdatedAt: item.downstreamUpdatedAt, destinationConfirmedAt: item.destinationConfirmedAt } })),
     ...aimsCompatibility.map((item) => ({ eventType: "AIMS_COMPATIBLE_EVIDENCE_MAPPED", occurredAt: input.actionTimestamp, attribution: "PROVIDER_CLAIM", evidenceReferences: [item.evidenceReference], details: { provider: item.provider, source: item.source, correlationId: item.correlationId, providerIsCanonical: false, aimsDependency: false } })),
-    ...authorizationChanges.map((change) => ({ eventType: "AUTHORIZATION_CHANGE_PROPAGATION_OBSERVED", occurredAt: change.effectiveAt, attribution: "PROVIDER_CLAIM", evidenceReferences: change.evidenceReferences, details: { changeId: change.changeId, changeType: change.changeType, propagationState: propagationState([change]) } })),
+    ...authorizationChanges.map((change) => ({ eventType: "AUTHORIZATION_CHANGE_PROPAGATION_OBSERVED", occurredAt: change.effectiveAt, attribution: "PROVIDER_CLAIM", evidenceReferences: change.evidenceReferences, details: { changeId: change.changeId, changeType: change.changeType, propagationState: propagationState([change], persistedAuthorityEvidence) } })),
     ...findings.map((item) => ({ eventType: item.code, occurredAt: input.actionTimestamp, attribution: "CYBER_SENTINELS_INTERPRETATION", evidenceReferences: item.evidenceReferences, details: { parameterName: item.parameterName, malicious: false } })),
   ];
   const materialCodes = new Set<AuthorityIntegrityFindingCode>(AUTHORITY_INTEGRITY_FINDINGS);
   const trustMemoryEvents = [
     ...input.parameters.filter((item) => item.materiality !== "ordinary" && trustedNonModelProvenance.has(item.parameterProvenance)).map((item) => ({ eventId: hashCanonical([input.actionId, "AUTHORITY_BOUND_PARAMETER_ESTABLISHED", item.parameterName]), eventType: "AUTHORITY_BOUND_PARAMETER_ESTABLISHED", occurredAt: item.timestamp, evidenceReferences: [item.policyReference, input.toolSchema.schemaDigest] })),
     ...parameterAuthority.filter((item) => item.securityCritical && !["MATCH", "SUPPORTED"].includes(item.state)).map((item) => ({ eventId: hashCanonical([input.actionId, "AUTHORITY_PARAMETER_BINDING_CHANGED", item.parameterName, item.state]), eventType: item.state === "PROVENANCE_MISMATCH" && item.observedProvenance === "MODEL_PROPOSED" ? "MODEL_CONTROLLED_SECURITY_BOUNDARY" : "AUTHORITY_PARAMETER_BINDING_CHANGED", occurredAt: input.actionTimestamp, evidenceReferences: item.evidenceReferences })),
-    ...authorizationChanges.map((item) => ({ eventId: hashCanonical([input.actionId, "AUTHORIZATION_CHANGE", item.changeId]), eventType: propagationState([item]) === "destination_rejects_old_authority" || propagationState([item]) === "independently_confirmed" ? "AUTHORIZATION_DOWNGRADE_PROPAGATED" : "AUTHORIZATION_DOWNGRADE_REQUESTED", occurredAt: item.effectiveAt, evidenceReferences: item.evidenceReferences })),
+    ...authorizationChanges.map((item) => ({ eventId: hashCanonical([input.actionId, "AUTHORIZATION_CHANGE", item.changeId]), eventType: propagationState([item], persistedAuthorityEvidence) === "destination_rejects_old_authority" || propagationState([item], persistedAuthorityEvidence) === "independently_confirmed" ? "AUTHORIZATION_DOWNGRADE_PROPAGATED" : "AUTHORIZATION_DOWNGRADE_REQUESTED", occurredAt: item.effectiveAt, evidenceReferences: item.evidenceReferences })),
     ...(["PROPAGATION_CONFIRMED", "PARTIAL_PROPAGATION", "PROPAGATION_PENDING", "STALE_AUTHORITY_POSSIBLE", "STALE_AUTHORITY_CONFIRMED"].includes(authorizationPropagation.state) ? [{ eventId: hashCanonical([input.actionId, authorizationPropagation.state]), eventType: authorizationPropagation.state === "PROPAGATION_CONFIRMED" ? "PROPAGATION_CONFIRMED" : authorizationPropagation.state === "STALE_AUTHORITY_CONFIRMED" ? "STALE_AUTHORITY_CONFIRMED" : authorizationPropagation.state === "STALE_AUTHORITY_POSSIBLE" ? "STALE_AUTHORITY_POSSIBLE" : "PROPAGATION_DELAYED", occurredAt: input.actionTimestamp, evidenceReferences: authorizationPropagation.timeline.flatMap((item) => item.evidenceReferences) }] : []),
     ...(runtimeAuthority?.runtimeState === "MISMATCH" ? [{ eventId: hashCanonical([input.actionId, "RUNTIME_AUTHORITY_MISMATCH"]), eventType: "RUNTIME_AUTHORITY_MISMATCH", occurredAt: runtimeAuthority.measurementTime, evidenceReferences: [runtimeAuthority.runtimeEvidenceReference] }] : []),
     ...(runtimeAuthority?.destinationState === "MISMATCH" ? [{ eventId: hashCanonical([input.actionId, "DESTINATION_AUTHORITY_MISMATCH"]), eventType: "DESTINATION_AUTHORITY_MISMATCH", occurredAt: runtimeAuthority.measurementTime, evidenceReferences: [runtimeAuthority.runtimeEvidenceReference] }] : []),
@@ -934,7 +991,7 @@ export function evaluateAuthorityIntegrity(input: AuthorityIntegrityEvaluationIn
     evaluatedAt: input.actionTimestamp,
     findings,
     requiredActions: [...requiredActions],
-    propagationState: propagationState(authorizationChanges),
+    propagationState: propagationState(authorizationChanges, persistedAuthorityEvidence),
     toolSchemaChange: schemaChange,
     actionTimeEvidence: structuredClone(input),
     providerNeutralEvidence,
