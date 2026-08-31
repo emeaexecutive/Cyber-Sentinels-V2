@@ -7,6 +7,7 @@ const baseUrl = String(process.env.CYBER_SENTINELS_BASE_URL ?? "").replace(/\/$/
 const apiKey = String(process.env.CYBER_SENTINELS_API_KEY ?? "");
 const agentId = String(process.env.CYBER_SENTINELS_AGENT_ID ?? "");
 const reviewReference = String(process.env.CYBER_SENTINELS_REVIEW_REFERENCE ?? "");
+const vercelProtectionCookie = String(process.env.VERCEL_PROTECTION_COOKIE ?? "");
 const iterations = boundedInteger(process.env.CYBER_SENTINELS_PERF_ITERATIONS, 5, 1, 20, "iterations");
 const concurrency = boundedInteger(process.env.CYBER_SENTINELS_PERF_CONCURRENCY, 1, 1, 5, "concurrency");
 
@@ -29,6 +30,7 @@ The harness refuses Cyber Sentinels Production hosts and prints no credentials.`
 
 if (process.versions.node.split(".")[0] !== "22") fail("NODE_22_REQUIRED");
 if (!baseUrl || !apiKey || !agentId) fail("PERFORMANCE_ENV_REQUIRED");
+if (/[\r\n;]/.test(vercelProtectionCookie)) fail("VERCEL_PROTECTION_COOKIE_INVALID");
 
 let parsedBaseUrl;
 try {
@@ -73,6 +75,7 @@ async function request(path, init = {}) {
     headers: {
       authorization: `Bearer ${apiKey}`,
       accept: "application/json",
+      ...(vercelProtectionCookie ? { cookie: `_vercel_jwt=${vercelProtectionCookie}` } : {}),
       ...(init.body ? { "content-type": "application/json" } : {}),
       ...init.headers,
     },
