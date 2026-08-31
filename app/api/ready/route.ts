@@ -10,7 +10,6 @@ const requiredEnvironment = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   "SUPABASE_SERVICE_ROLE_KEY",
-  "PUBLIC_API_KEY_ROTATION_SECRET",
 ] as const;
 
 export async function GET() {
@@ -18,7 +17,8 @@ export async function GET() {
   const runtimeCommit = process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null;
   const missingEnvironment = getMissingEnv([...requiredEnvironment]);
   const publicApiEnvironment = publicApiEnvironmentMetadata();
-  const rotationSecretValid = new TextEncoder().encode(process.env.PUBLIC_API_KEY_ROTATION_SECRET?.trim() ?? "").byteLength >= 32;
+  const rotationSecret = process.env.API_KEY_ROTATION_SECRET?.trim() || process.env.PUBLIC_API_KEY_ROTATION_SECRET?.trim() || "";
+  const rotationSecretValid = new TextEncoder().encode(rotationSecret).byteLength >= 32;
 
   if (missingEnvironment.length > 0) {
     return NextResponse.json(

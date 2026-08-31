@@ -4,7 +4,7 @@ export const PUBLIC_API_KEY_PATTERN = /^cs_(test|live)_([a-zA-Z0-9_-]{12})\.([a-
 
 const scryptParameters = { N: 32_768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 } as const;
 
-function apiKeyKdfInput(secret: string, pepper = process.env.PUBLIC_API_KEY_PEPPER?.trim()) {
+function apiKeyKdfInput(secret: string, pepper = process.env.API_KEY_PEPPER?.trim() || process.env.PUBLIC_API_KEY_PEPPER?.trim()) {
   return pepper ? `${secret}\u0000${pepper}` : secret;
 }
 
@@ -20,7 +20,7 @@ export function createApiKeyMaterial(environment: "test" | "live" = "test") {
   return { rawKey: `${prefix}.${secret}`, prefix, secretHash: digestApiKeySecret(secret) };
 }
 
-function rotationSecret(value = process.env.PUBLIC_API_KEY_ROTATION_SECRET?.trim()) {
+function rotationSecret(value = process.env.API_KEY_ROTATION_SECRET?.trim() || process.env.PUBLIC_API_KEY_ROTATION_SECRET?.trim()) {
   if (!value || Buffer.byteLength(value, "utf8") < 32) {
     throw new Error("PUBLIC_API_KEY_ROTATION_SECRET_REQUIRED");
   }

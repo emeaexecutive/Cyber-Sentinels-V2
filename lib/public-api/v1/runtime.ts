@@ -639,7 +639,9 @@ export async function getExternalTrustState(principal: PublicApiPrincipal, agent
 
 function executionAuthorization(receipt: Row) {
   if (receipt.decision !== "ALLOW") return null;
-  const secret = process.env.PUBLIC_API_EXECUTION_SIGNING_SECRET?.trim() || process.env.TRUST_ACTION_RELAY_SECRET?.trim();
+  const secret = process.env.API_EXECUTION_SIGNING_SECRET?.trim()
+    || process.env.PUBLIC_API_EXECUTION_SIGNING_SECRET?.trim()
+    || process.env.TRUST_ACTION_RELAY_SECRET?.trim();
   if (!secret) return null;
   const artifact = {
     version: "transaction-execution-authorization-v1",
