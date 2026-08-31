@@ -23,6 +23,7 @@ const migration = await readFile(new URL("../supabase/migrations/202608110001_ex
 const closureMigration = await readFile(new URL("../supabase/migrations/20260828165913_close_public_api_security_contract.sql", import.meta.url), "utf8");
 const rateLimitIsolationMigration = await readFile(new URL("../supabase/migrations/20260829094528_harden_public_api_rate_limit_isolation.sql", import.meta.url), "utf8");
 const customerZeroMigration = await readFile(new URL("../supabase/migrations/20260829164824_close_public_api_customer_zero.sql", import.meta.url), "utf8");
+const replaySubjectFixMigration = await readFile(new URL("../supabase/migrations/20260831121500_fix_public_api_replay_subject.sql", import.meta.url), "utf8");
 const keyCryptoSource = await readFile(new URL("../lib/public-api/v1/api-key-crypto.ts", import.meta.url), "utf8");
 const runtimeSource = await readFile(new URL("../lib/public-api/v1/runtime.ts", import.meta.url), "utf8");
 const handlerSource = await readFile(new URL("../lib/public-api/v1/handler.ts", import.meta.url), "utf8");
@@ -375,6 +376,13 @@ test("public resource identifiers are stable transaction projections", () => {
   }
   assert.match(runtimeSource, /receipt_id: receipt\.transactionId/);
   assert.match(runtimeSource, /replay_id: receipt\.transactionId/);
+});
+
+test("public API Replay uses the canonical transaction UUID instead of casting an opaque workflow ID", () => {
+  assert.match(replaySubjectFixMigration, /'trust_transaction',p_transaction_id/);
+  assert.doesNotMatch(replaySubjectFixMigration, /workflow_id\s*::\s*uuid/i);
+  assert.match(replaySubjectFixMigration, /canonical_transaction_id/);
+  assert.match(replaySubjectFixMigration, /REPLAY_WRITTEN/);
 });
 
 test("caller-controlled decision, trust and verification fields are rejected", () => {
