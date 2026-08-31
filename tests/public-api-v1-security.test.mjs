@@ -25,6 +25,7 @@ const rateLimitIsolationMigration = await readFile(new URL("../supabase/migratio
 const customerZeroMigration = await readFile(new URL("../supabase/migrations/20260829164824_close_public_api_customer_zero.sql", import.meta.url), "utf8");
 const replaySubjectFixMigration = await readFile(new URL("../supabase/migrations/20260831121500_fix_public_api_replay_subject.sql", import.meta.url), "utf8");
 const replayEventTypeFixMigration = await readFile(new URL("../supabase/migrations/20260831124000_expand_canonical_replay_event_types.sql", import.meta.url), "utf8");
+const trustMemorySourceFixMigration = await readFile(new URL("../supabase/migrations/20260831125500_fix_public_api_trust_memory_source_id.sql", import.meta.url), "utf8");
 const keyCryptoSource = await readFile(new URL("../lib/public-api/v1/api-key-crypto.ts", import.meta.url), "utf8");
 const runtimeSource = await readFile(new URL("../lib/public-api/v1/runtime.ts", import.meta.url), "utf8");
 const handlerSource = await readFile(new URL("../lib/public-api/v1/handler.ts", import.meta.url), "utf8");
@@ -399,6 +400,13 @@ test("canonical Replay accepts every controlled decision-time projection event c
   ]) assert.match(replayEventTypeFixMigration, new RegExp(`'${eventType}'`));
   assert.match(replayEventTypeFixMigration, /drop constraint if exists canonical_trust_transaction_events_event_type_check/);
   assert.match(replayEventTypeFixMigration, /add constraint canonical_trust_transaction_events_event_type_check/);
+});
+
+test("canonical Trust Memory extracts projection event IDs before text concatenation", () => {
+  assert.match(trustMemorySourceFixMigration, /p_transaction_id::text\s*\|\|\s*':'\s*\|\|\s*\(item->>'eventId'\)/);
+  assert.doesNotMatch(trustMemorySourceFixMigration, /\|\|\s*item->>'eventId'/);
+  assert.match(trustMemorySourceFixMigration, /emit_canonical_trust_transaction_memory_v1/);
+  assert.match(trustMemorySourceFixMigration, /to service_role/);
 });
 
 test("caller-controlled decision, trust and verification fields are rejected", () => {
