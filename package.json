@@ -23,6 +23,7 @@
     "test:password-recovery-powershell": "node --test tests/powershell-password-recovery.test.mjs",
     "test:product-proof": "node --test tests/end-to-end-product-proof.test.mjs",
     "test:external-agent-platform": "tsx --test tests/public-api-v1-security.test.mjs tests/public-api-v1-openapi.test.mjs tests/cyber-sentinels-sdk.test.mjs tests/agent-gamma-boundary.test.mjs tests/external-agent-client-parity.test.mjs tests/multimodal-evidence-contract.test.mjs",
+    "perf:api-v1": "node tools/v1-api-performance.mjs",
     "test:e2e": "playwright test",
     "test:consent": "node --experimental-strip-types --test tests/consent-manager.test.mjs tests/consent-api-ui.test.mjs tests/cookie-consent-recovery.test.mjs tests/production-consent-event-metadata.test.mjs tests/rls/consent-manager.test.mjs && node --import=tsx --experimental-test-module-mocks --test tests/production-consent-event-application.test.mjs",
     "test:consent-rehearsal": "node --import=tsx --experimental-test-module-mocks --test tests/production-consent-event-db-rehearsal.test.mjs",
@@ -147,6 +148,7 @@
     "test:trust-relationships-reconciliation": "node --test tests/trust-relationships-schema-reconciliation.test.mjs",
     "test:migration-namespace": "node --test tests/migration-namespace-reconciliation.test.mjs",
     "security:sbom": "node scripts/generate-dependency-security-artifacts.mjs",
+    "security:secrets:scoped": "node tools/release/scoped-secret-scan.mjs",
     "validate": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {

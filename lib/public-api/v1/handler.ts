@@ -5,6 +5,7 @@ import {
   correlationId,
   PublicApiError,
   publicApiErrorResponse,
+  requestId,
   type PublicApiScope,
 } from "./contracts";
 import {
@@ -12,11 +13,13 @@ import {
   type PublicApiPrincipal,
 } from "./authentication";
 
-type RouteClass = "registration" | "challenge" | "proof" | "decision" | "read" | "evidence" | "outcome";
+type RouteClass = "registration" | "challenge" | "proof" | "authority" | "review" | "decision" | "read" | "evidence" | "outcome";
 const limits: Record<RouteClass, { limit: number; windowSeconds: number }> = {
   registration: { limit: 20, windowSeconds: 60 },
   challenge: { limit: 30, windowSeconds: 60 },
   proof: { limit: 30, windowSeconds: 60 },
+  authority: { limit: 60, windowSeconds: 60 },
+  review: { limit: 60, windowSeconds: 60 },
   decision: { limit: 60, windowSeconds: 60 },
   read: { limit: 240, windowSeconds: 60 },
   evidence: { limit: 120, windowSeconds: 60 },
@@ -26,6 +29,7 @@ const limits: Record<RouteClass, { limit: number; windowSeconds: number }> = {
 export type PublicApiContext = {
   principal: PublicApiPrincipal;
   correlationId: string;
+  requestId: string;
   startedAt: number;
 };
 
@@ -49,8 +53,18 @@ async function consumeRateLimit(principal: PublicApiPrincipal, routeClass: Route
       "The API rate limit has been exceeded.",
       429,
       Number(state.retryAfter ?? 1),
+      state,
     );
   }
+  return state;
+}
+
+function applyRateLimitHeaders(response: Response, state: Record<string, unknown> | undefined) {
+  if (!state) return response;
+  response.headers.set("x-ratelimit-limit", String(state.limit ?? ""));
+  response.headers.set("x-ratelimit-remaining", String(state.remaining ?? ""));
+  response.headers.set("x-ratelimit-reset", String(state.resetAt ?? ""));
+  return response;
 }
 
 async function recordAudit(input: {
@@ -86,22 +100,26 @@ export async function withPublicApi(
   handler: (context: PublicApiContext) => Promise<Response>,
 ) {
   const id = correlationId(request);
+  const currentRequestId = requestId(request);
+  const startedAt = Date.now();
   let context: PublicApiContext | undefined;
+  let rateLimitState: Record<string, unknown> | undefined;
   try {
     const principal = await authenticatePublicApiRequest(request, options.scopes);
-    context = { principal, correlationId: id, startedAt: Date.now() };
-    await consumeRateLimit(principal, options.routeClass);
+    context = { principal, correlationId: id, requestId: currentRequestId, startedAt };
+    rateLimitState = await consumeRateLimit(principal, options.routeClass);
     const response = await handler(context);
     await recordAudit({ context, request, route: options.route, status: response.status });
-    return response;
+    return applyRateLimitHeaders(response, rateLimitState);
   } catch (error) {
+    if (error instanceof PublicApiError && error.rateLimit) rateLimitState = error.rateLimit;
     const safe = error instanceof PublicApiError
       ? error
       : new PublicApiError("INTERNAL_ERROR", "The request could not be completed safely.", 500);
     await recordAudit({ context, request, route: options.route, status: safe.status, errorCode: safe.code });
     if (!(error instanceof PublicApiError)) {
-      console.error("Public API request failed safely.", { route: options.route, correlationId: id, code: (error as { code?: string })?.code ?? "UNKNOWN" });
+      console.error("Public API request failed safely.", { route: options.route, correlationId: id, requestId: currentRequestId, code: "INTERNAL_ERROR" });
     }
-    return publicApiErrorResponse(safe, id);
+    return applyRateLimitHeaders(publicApiErrorResponse(safe, id, currentRequestId), rateLimitState);
   }
 }

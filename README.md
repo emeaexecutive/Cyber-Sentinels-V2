@@ -1,8 +1,23 @@
-# Cyber Sentinels V2
+# Cyber Sentinels
 
-AI Trust Infrastructure for human, agent and content verification.
+Cyber Sentinels is a server-side trust-decision service for external AI agents. An integrating system registers and verifies an agent, reads its current authority, and asks the V1 API whether one exact proposed action is `ALLOW`, `REVIEW`, or `DENY`. Cyber Sentinels records the canonical decision and exposes a receipt and chronological Replay; it does not execute the action for the customer.
 
-## Local setup
+## Public V1 integration
+
+- Customer quickstart: [`docs/EXTERNAL_AGENT_QUICKSTART.md`](docs/EXTERNAL_AGENT_QUICKSTART.md)
+- OpenAPI 3.1: `GET /api/v1/openapi.json` on the approved host
+- Contract and operating semantics: [`docs/API_V1_CONTRACT.md`](docs/API_V1_CONTRACT.md)
+- Customer error guide: [`docs/API_V1_CUSTOMER_ERROR_GUIDE.md`](docs/API_V1_CUSTOMER_ERROR_GUIDE.md)
+- Integration checklist: [`docs/API_V1_INTEGRATION_CHECKLIST.md`](docs/API_V1_INTEGRATION_CHECKLIST.md)
+- TypeScript SDK: [`packages/cyber-sentinels-sdk/README.md`](packages/cyber-sentinels-sdk/README.md)
+
+The TypeScript SDK is repository-local and unpublished. Do not run `npm install @cyber-sentinels/sdk` from a public registry. The supported repository example consumes it through a local `file:` dependency.
+
+The V1 API is a trust-decision and evidence-preservation boundary. It does not replace IAM, KYC, a firewall, a human review system, or downstream execution controls. `VERIFIED` is not `AUTHORIZED`; `REVIEW` is not `ALLOW`; and no response is never an approval.
+
+## Local development
+
+Node 22 and npm 10 are required.
 
 ```bash
 npm install
@@ -10,26 +25,4 @@ cp .env.example .env.local
 npm run dev
 ```
 
-## Deploy to Vercel
-
-1. Push this repo to GitHub.
-2. Import the repo into Vercel.
-3. Add the environment variables from `.env.example`.
-4. Set build command: `npm run build`.
-5. Set output/root directory as the repository root.
-
-## Supabase
-
-Run `supabase/migrations/001_initial_schema.sql` in the Supabase SQL editor.
-
-## Product thesis
-
-Every AI agent, synthetic identity and high-risk digital interaction will need a trust passport before it receives permission.
-
-## Positioning Direction
-
-Cyber Sentinels is not just a fraud detection tool. It is enterprise trust infrastructure for the AI era.
-
-The platform focuses on verifying humans, AI agents, and digital identities across regulated workflows using identity assurance, governance reviews, risk flags, and audit-ready trust trails.
-
-Competitors may focus on scam or fraud detection. Cyber Sentinels should stay broader: persistent trust, identity governance, and human + AI agent verification.
+See [`docs/BUILD_AND_QUALITY_COMMANDS.md`](docs/BUILD_AND_QUALITY_COMMANDS.md) before running release or environment-sensitive commands. Do not apply migrations or deploy from the customer quickstart.

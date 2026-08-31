@@ -9,7 +9,7 @@ import {
 const apiKey = process.env.CYBER_SENTINELS_API_KEY;
 const baseUrl = process.env.CYBER_SENTINELS_BASE_URL;
 const stagingProjectRef = process.env.CYBER_SENTINELS_STAGING_PROJECT_REF;
-const stagingConfirmation = process.env.CYBER_SENTINELS_CONFIRM_STAGING;
+const stagingConfirmation = process.env.I_CONFIRM_STAGING;
 const vercelAutomationBypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 if (!apiKey || !baseUrl || !stagingProjectRef || !stagingConfirmation) {
   throw new Error("Base URL, API key, staging project reference, and explicit staging confirmation are required.");
@@ -108,8 +108,26 @@ const proof = await signChallenge(challenge, agent.manifest_context.enterprise_i
 const identity = await timed("signature_verification", () => cs.agents.submitProof(agent.agent_id, proof));
 mark("IDENTITY", identity);
 
-const authority = await cs.agents.getAuthority(agent.agent_id);
-mark("AUTHORITY", authority);
+const authority = await timed("authority_grant", () => cs.authority.grant(agent.agent_id, {
+  action: "read_repository",
+  target: "repository:a",
+  purpose: "deployment_evidence_review",
+  environment: "staging",
+  expires_at: new Date(Date.now() + 60 * 60_000).toISOString(),
+  data_boundary: "INTERNAL",
+  execution_limit: 100,
+}));
+const [authorityHistory, authorityVersion] = await Promise.all([
+  cs.authority.list(agent.agent_id),
+  cs.authority.getVersion(agent.agent_id, authority.authority_id),
+]);
+mark("AUTHORITY", {
+  authority_id: authority.authority_id,
+  authority_version: authority.authority_version,
+  status: authority.status,
+  history_count: authorityHistory.authorities.length,
+  version_status: authorityVersion.status,
+});
 const registeredAgent = await cs.agents.get(agent.agent_id);
 mark("AGENT", { agent_id: registeredAgent.agent_id, authority_reference: registeredAgent.authority_reference });
 
@@ -125,6 +143,58 @@ const allowed = await timed("allow_decision", () => cs.trust.authorize({
 }));
 expectDecision(allowed, "ALLOW");
 mark("ALLOW", { decision_id: allowed.decision_id, transaction_id: allowed.transaction_id, receipt_id: allowed.receipt_id, replay_id: allowed.replay_id, correlation_id: allowed.correlation_id, decision: allowed.decision, reason_codes: allowed.reason_codes });
+
+const reviewDecision = await timed("review_decision", () => cs.trust.authorize({
+  operational_entity_id: agent.operational_entity_id,
+  action: {
+    type: "read_repository",
+    target: "repository:a",
+    purpose: "deployment_evidence_review",
+    environment: "staging",
+  },
+  context: {
+    previous_transaction_id: allowed.transaction_id,
+    material_changes: ["CUSTOMER_ZERO_HUMAN_REVIEW_REQUIRED"],
+  },
+  idempotency_key: `gamma-review-${webcrypto.randomUUID()}`,
+}));
+expectDecision(reviewDecision, "REVIEW");
+if (!reviewDecision.review_reference || reviewDecision.execution_authorization !== null) {
+  throw new Error("REVIEW did not return a governed reference or incorrectly authorized execution.");
+}
+const requestedReview = await cs.reviews.get(reviewDecision.review_reference);
+const resolvedReview = await timed("review_resolution", () => cs.reviews.resolve(reviewDecision.review_reference, {
+  resolution: "APPROVED",
+  reason: "Customer Zero authorized reviewer approved this exact staging action.",
+  evidence_reference: `customer-zero-review:${webcrypto.randomUUID()}`,
+}));
+if (requestedReview.original_decision !== "REVIEW" || resolvedReview.original_decision !== "REVIEW" || resolvedReview.next_action !== "SUBMIT_NEW_CANONICAL_EVALUATION") {
+  throw new Error("Review resolution mutated the original decision or bypassed the required new evaluation.");
+}
+mark("REVIEW", {
+  review_reference: reviewDecision.review_reference,
+  transaction_id: reviewDecision.transaction_id,
+  original_decision: resolvedReview.original_decision,
+  resolution: resolvedReview.disposition,
+  next_action: resolvedReview.next_action,
+});
+
+const postReview = await timed("post_review_decision", () => cs.trust.authorize({
+  operational_entity_id: agent.operational_entity_id,
+  action: {
+    type: "read_repository",
+    target: "repository:a",
+    purpose: "deployment_evidence_review",
+    environment: "staging",
+  },
+  context: {
+    previous_transaction_id: reviewDecision.transaction_id,
+    human_approval_reference: reviewDecision.review_reference,
+  },
+  idempotency_key: `gamma-post-review-${webcrypto.randomUUID()}`,
+}));
+expectDecision(postReview, "ALLOW");
+mark("POST_REVIEW_ALLOW", { decision_id: postReview.decision_id, transaction_id: postReview.transaction_id, decision: postReview.decision });
 
 const denied = await timed("deny_decision", () => cs.trust.authorize({
   operational_entity_id: agent.operational_entity_id,
@@ -166,6 +236,41 @@ if (outcome.evidence_independence !== "AGENT_ASSERTED" || outcome.independent_de
   throw new Error("Outcome evidence independence was overstated.");
 }
 mark("OUTCOME", { status: outcome.status, evidence_independence: outcome.evidence_independence, independent_destination_evidence: outcome.independent_destination_evidence });
+
+const revocation = await timed("authority_revocation", () => cs.authority.revoke(
+  agent.agent_id,
+  authority.authority_id,
+  "Customer Zero post-decision revocation proof.",
+));
+const revokedAuthority = await cs.authority.getVersion(agent.agent_id, authority.authority_id);
+if (revokedAuthority.status !== "REVOKED") throw new Error("Authority history did not preserve the revoked version.");
+mark("REVOCATION", { authority_id: authority.authority_id, authority_version: authority.authority_version, status: revocation.status, revocation_reference: revocation.revocation_reference });
+
+const postRevocation = await timed("post_revocation_decision", () => cs.trust.authorize({
+  operational_entity_id: agent.operational_entity_id,
+  action: {
+    type: "read_repository",
+    target: "repository:a",
+    purpose: "deployment_evidence_review",
+    environment: "staging",
+  },
+  context: { previous_transaction_id: postReview.transaction_id },
+  idempotency_key: `gamma-post-revocation-${webcrypto.randomUUID()}`,
+}));
+expectDecision(postRevocation, "DENY");
+if (postRevocation.execution_authorization !== null) throw new Error("Post-revocation DENY returned execution authorization.");
+const [postRevocationReceipt, postRevocationReplay] = await Promise.all([
+  cs.trust.getReceipt(postRevocation.receipt_id),
+  cs.trust.getReplay(postRevocation.replay_id),
+]);
+mark("POST_REVOCATION_DENY", {
+  decision_id: postRevocation.decision_id,
+  transaction_id: postRevocation.transaction_id,
+  receipt_id: postRevocationReceipt.receipt_id,
+  replay_id: postRevocationReplay.replay_id,
+  decision: postRevocation.decision,
+  reason_codes: postRevocation.reason_codes,
+});
 
 if (process.env.GAMMA_RUN_ATTACKS === "1") {
   let replayRejected = false;

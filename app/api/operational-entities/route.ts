@@ -13,7 +13,7 @@ export async function GET() {
     const entities = await loadOperationalEntities({ supabase, user });
     return NextResponse.json({ ok: true, entities }, { headers: { "cache-control": "private, no-store" } });
   } catch (error) {
-    console.error("Operational Entity read failed.", error);
+    console.error("Operational Entity read failed safely.", { code: (error as { code?: string })?.code ?? "UNKNOWN" });
     return NextResponse.json({ ok: false, error: "operational_entities_unavailable" }, { status: 503, headers: { "cache-control": "private, no-store" } });
   }
 }

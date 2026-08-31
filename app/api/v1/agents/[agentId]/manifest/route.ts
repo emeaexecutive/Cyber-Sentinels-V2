@@ -8,8 +8,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ age
     route: "/api/v1/agents/{agentId}/manifest",
     routeClass: "registration",
     scopes: ["agents:write"],
-  }, async ({ principal, correlationId }) => {
+  }, async ({ principal, correlationId, requestId }) => {
     const result = await registerExternalManifest(principal, decodeURIComponent(agentId), await boundedJson(request));
-    return publicApiResponse(result, { status: 201 }, correlationId);
+    return publicApiResponse(result, { status: 201 }, correlationId, requestId);
   });
 }

@@ -1,160 +1,79 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { DecisionSummary } from "@/components/executive-summary";
-import { buildProviderReadinessChecklist, summarizeProviderReadiness } from "@/lib/providers/provider-readiness";
-import { createClient } from "@/lib/supabase/server";
+import { resolveIdentityUiEnterprise } from "@/lib/identity-signals/ui-enterprise";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export const dynamic = "force-dynamic";
 
-function countValue(result: { count: number | null; error: unknown }) {
-  return result.error ? "Unavailable" : (result.count ?? 0);
+type Transaction = {
+  transaction_id: string;
+  decision: "ALLOW" | "REVIEW" | "DENY";
+  trust_state: string;
+  subject_type: string;
+  subject_id: string;
+  action_type: string;
+  authority_reference: string;
+  policy_version: string;
+  correlation_id: string;
+  requested_at: string;
+};
+
+function count(result: { count: number | null; error: unknown }) {
+  return result.error ? "Unavailable" : String(result.count ?? 0);
 }
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { user, workspace, role } = await resolveIdentityUiEnterprise();
   if (!user) redirect("/login?next=/dashboard");
+  if (!workspace) return <main className="min-h-screen bg-[#04070c] p-8 text-amber-200">An enterprise workspace is required.</main>;
 
-  const [
-    liveTrust,
-    evidenceGraph,
-    replay,
-    trustDna,
-    recentEvents,
-    verificationQueue,
-    riskAlerts,
-    enterprisePolicies,
-    providerResults,
-    recentDecisions,
-    reviews,
-    integrity,
-    receipts,
-    pendingActions,
-  ] = await Promise.all([
-    supabase.from("trust_profiles").select("*", { count: "exact", head: true }),
-    supabase.from("evidence_nodes").select("*", { count: "exact", head: true }),
-    supabase.from("replay_events").select("*", { count: "exact", head: true }),
-    supabase.from("trust_dimensions").select("*", { count: "exact", head: true }),
-    supabase.from("trust_signals").select("*", { count: "exact", head: true }),
-    supabase.from("verification_cases").select("*", { count: "exact", head: true }),
-    supabase.from("trust_alerts").select("*", { count: "exact", head: true }).in("status", ["open", "acknowledged", "investigating"]),
-    supabase.from("trust_policy_versions").select("*", { count: "exact", head: true }).eq("active", true),
-    supabase.from("provider_results").select("*", { count: "exact", head: true }),
-    supabase.from("trust_history").select("*", { count: "exact", head: true }).eq("event_type", "DECISION_RECORDED"),
-    supabase.from("governance_actions").select("*", { count: "exact", head: true }).in("action_status", ["pending", "in_review", "escalated"]),
-    supabase.from("session_integrity_checks").select("*", { count: "exact", head: true }),
-    supabase.from("verification_receipts").select("*", { count: "exact", head: true }),
-    supabase.from("notifications").select("*", { count: "exact", head: true }).eq("user_id", user.id).eq("is_read", false),
+  const db = createServiceRoleClient();
+  const [transactions, transactionCount, reviews, evidence, memory, providerEvidence, entities, keys] = await Promise.all([
+    db.from("canonical_trust_transactions").select("transaction_id,decision,trust_state,subject_type,subject_id,action_type,authority_reference,policy_version,correlation_id,requested_at").eq("enterprise_id", workspace.id).order("requested_at", { ascending: false }).limit(8),
+    db.from("canonical_trust_transactions").select("transaction_id", { count: "exact", head: true }).eq("enterprise_id", workspace.id),
+    db.from("trust_manual_reviews").select("id", { count: "exact", head: true }).eq("tenant_id", workspace.id).in("status", ["REQUESTED", "IN_REVIEW"]),
+    db.from("evidence_objects").select("evidence_id", { count: "exact", head: true }).eq("enterprise_id", workspace.id),
+    db.from("canonical_trust_transactions").select("transaction_id", { count: "exact", head: true }).eq("enterprise_id", workspace.id).not("trust_memory_reference", "is", null),
+    db.from("evidence_objects").select("evidence_id", { count: "exact", head: true }).eq("enterprise_id", workspace.id).eq("server_verified", true),
+    db.from("operational_entities").select("entity_id", { count: "exact", head: true }).eq("enterprise_id", workspace.id),
+    db.from("api_keys").select("id", { count: "exact", head: true }).eq("tenant_id", workspace.id).eq("status", "active"),
   ]);
-
-  const providerReadiness = summarizeProviderReadiness(buildProviderReadinessChecklist());
+  const unavailable = [transactions, transactionCount, reviews, evidence, memory, providerEvidence, entities, keys].some((result) => result.error);
+  const rows = (transactions.data ?? []) as Transaction[];
   const metrics = [
-    ["Current Trust Posture", countValue(liveTrust), "/dashboard/trust-runtime", "Immutable Trust DNA profile snapshots"],
-    ["Evidence Graph · Evidence Summary", countValue(evidenceGraph), "/admin/evidence-graph", "Tenant-scoped normalized evidence nodes"],
-    ["Replay Activity", countValue(replay), "/dashboard/replay", "Forensic entity timelines and audit exports"],
-    ["Trust DNA · Trust Memory", countValue(trustDna), "/dashboard/trust-posture", "Explainable dimension measurements"],
-    ["Recent Events", countValue(recentEvents), "/trust-events", "Continuous trust signals retained"],
-    ["Verification Queue · Open Reviews", countValue(verificationQueue), "/admin/reviews", "Real verification cases available for review"],
-    ["Risk Alerts", countValue(riskAlerts), "/dashboard/trust-runtime", "Open, acknowledged or investigating alerts"],
-    ["Enterprise Policies", countValue(enterprisePolicies), "/admin/trust-architecture/policies", "Active tenant-visible policy versions"],
-    ["Provider Status", countValue(providerResults), "/admin/provider-status", `${providerReadiness.classifications.productionReady + providerReadiness.classifications.configured} adapter(s) configured`],
-    ["Recent Decisions", countValue(recentDecisions), "/dashboard/trust-architecture", "Decision Intelligence history records"],
+    ["Current Trust Posture", rows[0]?.trust_state ?? "No canonical decision", "/dashboard/decisions", "Latest persisted V1 transaction state"],
+    ["Recent Decisions", count(transactionCount), "/dashboard/decisions", "Persisted V1 Trust Transactions"],
+    ["Open Reviews", count(reviews), "/dashboard/reviews", "Human resolution linked to immutable REVIEW decisions"],
+    ["Evidence Summary", count(evidence), "/evidence-vault", "Provider-attributed and client-asserted Evidence Objects"],
+    ["Operational Entities", count(entities), "/operational-entities", "Tenant-owned governed actors"],
+    ["Replay Activity", count(transactionCount), "/dashboard/replay", "Canonical chronology derived from V1 transaction events"],
+    ["Trust Memory", count(memory), "/dashboard/decisions", "Canonical transactions with a material Trust Memory reference"],
+    ["Provider Status", count(providerEvidence), "/evidence-vault", "Server-verified provider Evidence Objects"],
+    ["Pending Actions", count(reviews), "/dashboard/reviews", "Open governed review actions"],
+    ["Active API clients", count(keys), "/developers/api-keys", "Tenant-scoped V1 credentials"],
   ] as const;
-  const noOperationalActivity = (riskAlerts.count ?? 0) === 0 && (reviews.count ?? 0) === 0;
 
-  return (
-    <main className="min-h-screen bg-sentinel-black px-5 py-8 text-sentinel-white sm:px-6 md:px-8">
-      <section className="mx-auto max-w-7xl">
-        <header className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.16em] text-sentinel-green">Operational Trust</p>
-            <h1 className="mt-2 text-3xl font-semibold md:text-4xl">Review Dashboard</h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-sentinel-muted">
-              Review current posture, risk, evidence, ownership and the next
-              accountable action in one operational path.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="/notifications"
-              className="rounded-lg border border-sentinel-line px-4 py-2 text-sm font-semibold text-sentinel-muted hover:border-sentinel-green hover:text-white"
-            >
-              {countValue(pendingActions)} Pending Actions
-            </Link>
-            {[
-              ["/trust-replay", "Replay Timeline"],
-              ["/dashboard/governance", "Governance Review"],
-            ].map(([href, label], index) => (
-              <Link
-                key={href}
-                href={href}
-                className={`rounded-lg px-4 py-2 text-sm font-semibold ${
-                  index === 0
-                    ? "bg-white text-black"
-                    : "border border-sentinel-line text-sentinel-muted hover:border-sentinel-green hover:text-white"
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
-        </header>
+  return <main className="min-h-screen bg-[#04070c] px-5 py-10 text-white md:px-8">
+    <div className="mx-auto max-w-7xl">
+      <p className="text-xs uppercase tracking-[0.18em] text-cyan-300">V1 canonical operations</p>
+      <h1 className="mt-3 text-4xl font-semibold">{workspace.name ?? "Enterprise"} trust control plane</h1>
+      <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">Current decisions, evidence, authority, reviews, Replay, entities, and API clients are read from the same tenant-scoped V1 records used by the public API.</p>
+      <p className="mt-2 text-xs text-zinc-500">Signed in as {role ?? "workspace member"}.</p>
+      {unavailable ? <p role="alert" className="mt-6 rounded-lg border border-rose-900 bg-rose-950/20 p-4 text-sm text-rose-200">The canonical data plane is temporarily unavailable. No historical data has been substituted.</p> : null}
 
-        <div className="mt-6">
-          <DecisionSummary items={[
-            { label: "Current posture", value: noOperationalActivity ? "No active operational review items" : "Review activity requires attention" },
-            { label: "Current risks", value: `${riskAlerts.count ?? 0} active alert(s); ${reviews.count ?? 0} pending review(s)` },
-            { label: "Recommended action", value: reviews.count ? "Open Governance Review and assign the next action" : "Monitor for new trust changes" },
-            { label: "Evidence available", value: `${integrity.count ?? 0} integrity check(s); ${receipts.count ?? 0} receipt(s)` },
-            { label: "Confidence", value: "Evidence-backed per case; no portfolio certainty claim" },
-            { label: "Responsible owner", value: reviews.count ? "Assigned governance reviewer" : "Workflow owner" },
-          ]} />
-        </div>
-
-        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {metrics.map(([title, value, href, detail]) => (
-            <Link key={title} href={href} className="rounded-lg border border-sentinel-line bg-white/[0.04] p-5 hover:border-sentinel-green">
-              <p className="text-sm text-sentinel-muted">{title}</p>
-              <p className="mt-2 text-2xl font-semibold">{value}</p>
-              <p className="mt-2 text-xs leading-5 text-zinc-500">{detail}</p>
-            </Link>
-          ))}
-        </section>
-
-        {noOperationalActivity ? (
-          <section className="mt-6 rounded-lg border border-sentinel-line bg-sentinel-panel/80 p-5">
-            <h2 className="text-xl font-semibold">No active operational review items</h2>
-            <p className="mt-3 text-sm leading-6 text-sentinel-muted">
-              New flags, reviewer assignments and retained outcomes will appear here as workflows progress.
-            </p>
-          </section>
-        ) : null}
-
-        <section className="mt-8 rounded-lg border border-sentinel-line bg-sentinel-panel/80 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">Pilot review path</h2>
-              <p className="mt-2 text-sm text-sentinel-muted">
-                Operator surfaces connect risk, ownership, evidence and outcome in one review path.
-              </p>
-            </div>
-            <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">Evidence-first workflow</span>
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-4">
-            {[
-              ["/dashboard/interview-risk", "1. Review Flags", "Inspect identity, injection and session integrity flags."],
-              ["/dashboard/governance", "2. Open Governance Review", "Assign review ownership, escalation reason and next action."],
-              ["/trust-replay", "3. Review Verification Chronology", "Reconstruct timestamps, active flags, reviewer actions and verification evidence."],
-              ["/dashboard/trust-posture", "4. Check Workflow Trust", "Confirm current authorization and workflow state before sharing verification receipts or replay evidence."],
-            ].map(([href, title, copy]) => (
-              <Link key={href} href={href} className="rounded-lg border border-sentinel-line bg-black/30 p-4 hover:border-sentinel-green">
-                <p className="font-semibold">{title}</p>
-                <p className="mt-2 text-sm leading-6 text-sentinel-muted">{copy}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
+      <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {metrics.map(([title, value, href, detail]) => <Link key={title} href={href} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5 hover:border-cyan-800"><p className="text-sm text-zinc-400">{title}</p><p className="mt-2 text-3xl font-semibold">{value}</p><p className="mt-2 text-xs leading-5 text-zinc-500">{detail}</p></Link>)}
       </section>
-    </main>
-  );
+
+      <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+        <div className="flex items-center justify-between gap-4"><div><p className="text-xs uppercase tracking-[0.14em] text-cyan-300">Canonical decision ledger</p><h2 className="mt-2 text-2xl font-semibold">Recent V1 transactions</h2></div><Link href="/dashboard/decisions" className="text-sm text-cyan-200">View all</Link></div>
+        <div className="mt-5 grid gap-3">
+          {rows.map((row) => <article key={row.transaction_id} className="rounded-lg border border-zinc-800 bg-black p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="font-medium">{row.action_type} · {row.subject_type}:{row.subject_id}</p><p className="mt-2 break-all font-mono text-xs text-zinc-500">{row.transaction_id}</p></div><span className="rounded-full border border-zinc-700 px-3 py-1 text-xs">{row.decision}</span></div><p className="mt-3 text-xs text-zinc-500">Authority {row.authority_reference} · Policy {row.policy_version} · {new Date(row.requested_at).toLocaleString()}</p><div className="mt-3 flex gap-4 text-xs"><Link className="text-cyan-200" href={`/trust/transactions/${row.transaction_id}`}>Decision and receipt</Link><Link className="text-cyan-200" href={`/dashboard/replay/${row.transaction_id}`}>Replay</Link></div></article>)}
+          {!unavailable && !rows.length ? <p className="rounded-lg border border-dashed border-zinc-700 p-5 text-sm text-zinc-500">No canonical V1 transactions have been persisted for this workspace.</p> : null}
+        </div>
+      </section>
+
+      <section className="mt-8 rounded-lg border border-amber-900/60 bg-amber-950/10 p-5 text-sm text-zinc-400"><p className="font-semibold text-amber-200">Historical surfaces</p><p className="mt-2">Legacy interview, passport, and pre-V1 trust dashboards remain available only as explicitly historical operational records; they do not define current V1 API truth.</p><Link href="/dashboard/trust-runtime" className="mt-3 inline-block text-amber-200">Open historical trust runtime</Link></section>
+    </div>
+  </main>;
 }

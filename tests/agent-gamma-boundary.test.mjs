@@ -16,11 +16,26 @@ test("Agent Gamma is a separate SDK-only process with its own Ed25519 private ke
   assert.doesNotMatch(gamma, /VERCEL_PROTECTION_BYPASS/);
 });
 
-test("Gamma proves ALLOW, DENY, transaction, Replay, receipt and fail-closed attacks", () => {
-  for (const marker of ["REGISTERED", "CREDENTIAL", "MANIFEST", "IDENTITY", "AUTHORITY", "ALLOW", "DENY", "TRANSACTION", "REPLAY", "RECEIPT", "OUTCOME", "GAMMA_RESULT"]) assert.match(gamma, new RegExp(`"${marker}"`));
+test("Gamma proves authority, REVIEW, ALLOW, DENY, revocation, Replay, and receipt lifecycles", () => {
+  for (const marker of ["READY", "REGISTERED", "CREDENTIAL", "MANIFEST", "IDENTITY", "AUTHORITY", "ALLOW", "REVIEW", "POST_REVIEW_ALLOW", "DENY", "TRANSACTION", "REPLAY", "RECEIPT", "OUTCOME", "REVOCATION", "POST_REVOCATION_DENY", "GAMMA_RESULT"]) assert.match(gamma, new RegExp(`"${marker}"`));
+  assert.match(gamma, /cs\.authority\.grant/);
+  assert.match(gamma, /cs\.authority\.revoke/);
+  assert.match(gamma, /cs\.reviews\.resolve/);
+  assert.match(gamma, /original_decision !== "REVIEW"/);
   assert.match(gamma, /submitOutcome\(allowed\.transaction_id/);
   assert.match(gamma, /evidence_independence !== "AGENT_ASSERTED"/);
   assert.match(gamma, /challenge_replay: "REJECTED"/);
   assert.match(gamma, /wrong_private_key: "REJECTED"/);
   assert.match(gamma, /execution_authorization !== null/);
+});
+
+test("Gamma stops before mutation unless the isolated Staging identity and readiness gate pass", () => {
+  assert.match(gamma, /CYBER_SENTINELS_STAGING_PROJECT_REF/);
+  assert.match(gamma, /agpyhygpfmppjkxwcpac/);
+  assert.match(gamma, /process\.env\.I_CONFIRM_STAGING/);
+  assert.match(gamma, /I_CONFIRM_STAGING/);
+  assert.match(gamma, /kecgtsfibkypjuaxqbjx/);
+  assert.match(gamma, /\/api\/ready/);
+  assert.match(gamma, /readiness\?\.status !== "READY"/);
+  assert.doesNotMatch(gamma, /console\.(log|error).*apiKey/);
 });

@@ -7,8 +7,16 @@ import { loadOperationalEntities } from "@/lib/operational-entities/server";
 
 export const dynamic = "force-dynamic";
 
+function controlledOnboardingEnabled() {
+  return process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
+}
+
 async function initializeControlledAgentAlpha() {
   "use server";
+
+  if (!controlledOnboardingEnabled()) {
+    redirect("/operational-entities?controlled_onboarding=disabled");
+  }
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -37,6 +45,7 @@ export default async function OperationalEntitiesPage() {
   }
   const hasAlpha = entities.some((entity) => entity.displayReference.trim().toLowerCase() === "agent alpha");
   const hasBeta = entities.some((entity) => entity.displayReference.trim().toLowerCase() === "agent beta");
+  const canInitializeControlledPair = controlledOnboardingEnabled();
 
   return (
     <main className="mx-auto flex min-h-screen max-w-6xl flex-col gap-6 px-6 py-16">
@@ -80,7 +89,7 @@ export default async function OperationalEntitiesPage() {
             <div className="mt-6"><Link className="inline-flex text-sm font-semibold text-slate-900 underline" href={`/operational-entities/${encodeURIComponent(entity.entityId)}`}>View persisted trust record</Link></div>
           </article>
         ))}
-        {(!hasAlpha || !hasBeta) && !loadError ? (
+        {canInitializeControlledPair && (!hasAlpha || !hasBeta) && !loadError ? (
           <article className="rounded-2xl border border-cyan-200 bg-cyan-50 p-6 text-sm text-slate-700 md:col-span-2">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-800">First trust transaction</p>
             <h2 className="mt-2 text-2xl font-semibold text-slate-950">Resolve canonical Agent Alpha and Agent Beta</h2>

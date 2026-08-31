@@ -8,9 +8,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ age
     route: "/api/v1/agents/{agentId}/proof",
     routeClass: "proof",
     scopes: ["agents:verify"],
-  }, async ({ principal, correlationId }) => {
+  }, async ({ principal, correlationId, requestId }) => {
     const audience = `${new URL(request.url).origin}/api/v1`;
     const result = await submitExternalProof(principal, decodeURIComponent(agentId), await boundedJson(request, 32_768), audience);
-    return publicApiResponse(result, { status: 200 }, correlationId);
+    return publicApiResponse(result, { status: 200 }, correlationId, requestId);
   });
 }

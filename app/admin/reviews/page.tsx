@@ -83,13 +83,13 @@ export default async function AdminReviewsPage({
       <div className="mx-auto max-w-6xl">
         <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
-            Governance Review Queue
+            Historical / pre-V1 review archive
           </p>
           <h1 className="mt-4 text-4xl font-semibold">
-            Verification Events Awaiting Review
+            Legacy Verification and Model Review Records
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">
-            Review pending candidate, recruiter and interview integrity events.
+            These pre-V1 workflows are retained for historical operations only. They do not resolve a canonical V1 REVIEW; use the Canonical Review Console for current API decisions.
           </p>
         </section>
 

@@ -57,6 +57,7 @@ function authority(overrides = {}) {
     contradictionPolicy: "pause", incidentThreshold: "critical",
     expiresAt: "2026-08-07T10:00:00.000Z", revokedAt: null, revocationState: "active",
     issuer: "risk-owner", approver: "governance-owner", policyId: "policy-settlement", policyVersion: "1.0.0",
+    authorityVersion: "authority:settlement:v1",
     evidenceReferences: [{ type: "authority_grant", id: "authority-evidence-1" }], issuedAt: "2026-08-05T10:00:00.000Z",
     ...overrides,
   };
@@ -123,7 +124,7 @@ function dependencies(options = {}) {
     async loadTrustObject() { calls.push("resolveTrustObject"); return options.trustObject ?? trustObject(); },
     async loadConfiguredEvidence() { calls.push("collectConfiguredEvidence"); return options.evidence ?? [evidence()]; },
     async loadAuthority() { calls.push("resolveAuthority"); return options.authority ?? authority(); },
-    async loadPolicy() { calls.push("resolvePolicyVersion"); return { id: "policy-settlement", version: "1.0.0", active: true, validFrom: "2026-08-01T00:00:00.000Z", validUntil: null, policyHash: "c".repeat(64) }; },
+    async loadPolicy() { calls.push("resolvePolicyVersion"); return options.policy ?? { id: "policy-settlement", version: "1.0.0", active: true, validFrom: "2026-08-01T00:00:00.000Z", validUntil: null, policyHash: "c".repeat(64) }; },
     async loadPreviousTransaction() { calls.push("loadPreviousTransaction"); return options.previousTransaction ?? null; },
     async persistDecision(record) { calls.push("persistDecision"); return { ...record, persistenceStatus: "CREATED" }; },
     async extendEvidenceGraph() { calls.push("extendEvidenceGraph"); return refs.graph; },
@@ -210,6 +211,41 @@ test("authority-integrity findings flow through the canonical evaluator and exis
   assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
 });
 
+test("trusted destination evidence that old authority remains active maps to canonical DENY", async () => {
+  const parameterSchema = [{ parameterName: "invoice", parameterCategory: "destination_boundary", allowedProvenanceClasses: ["authority_bound"], materiality: "critical", required: true, modelVisible: false, mutableAfterApproval: false, defaultState: "server_resolved" }];
+  const securityCriticalFields = ["invoice"];
+  const toolSchema = { toolId: "tool:settlement", toolVersion: "1.0.0", parameterSchema, securityCriticalFields, schemaDigest: hashCanonical({ parameterSchema, securityCriticalFields }), sourceProvider: "capability_registry", reviewedAt: requestedAt };
+  const destinationEvidence = evidence({
+    reference: "10000000-0000-4000-8000-000000000022",
+    type: "DESTINATION_AUTHORITY_OBSERVATION",
+    providerId: "destination_provider",
+    providerEventId: "destination-event-old-authority",
+    sourceDigest: "f".repeat(64),
+    sourceClassification: "destination_observed",
+    serverVerified: true,
+    normalizedEvidence: { subjectReference: subjectId, authorityObservation: "old_authority_accepted" },
+  });
+  const authorityIntegrity = {
+    enterpriseId: tenantId, actionId: "action:stale-authority", actionTimestamp: requestedAt, principalReference: `human:${actorId}`,
+    agentPassportReference: `agent-passport:${subjectId}`, authorityLineageReference: authority().contractId, capabilityProvenanceReference: "capability:settlement:1",
+    toolSchema,
+    parameters: [{ tool: "tool:settlement", toolVersion: "1.0.0", parameterName: "invoice", parameterCategory: "destination_boundary", parameterProvenance: "authority_bound", valueDigestOrMaskedValue: "sha256:" + "9".repeat(64), materiality: "critical", timestamp: requestedAt, evidenceProvider: "destination_provider", policyReference: "policy-settlement:1.0.0", configurationPinning: "identity_context_derived" }],
+    modelProposalDigest: "1".repeat(64), finalParametersDigest: "2".repeat(64), runtimeParametersDigest: "3".repeat(64), trustedContextDigest: "4".repeat(64),
+    tenant: { authoritativeTenant: tenantId, authoritativeWorkspace: tenantId, sourceIdentity: `session:${actorId}`, runtimeTenant: tenantId, requestedTenant: tenantId, modelSuppliedTenant: null, destinationTenant: tenantId },
+    credentialDestination: null,
+    runtime: { runtimeProvider: "runtime_provider", runtimeInstance: "runtime:settlement", runtimeSession: "session:settlement", policyReference: "policy-settlement:1.0.0", authorityCeiling: ["settle_invoice"], delegatedChildRuntime: null, credentialReference: null, enforcementDecision: "ALLOW", enforcementResult: "ENFORCED", observedExecution: "settle_invoice", destinationOutcome: "ACCEPTED", overriddenParameterNames: [], authorityReference: authority().contractId, authorityVersion: "authority:settlement:v2", effectivePermissions: ["settle_invoice"], declaredAuthority: ["settle_invoice"], controlPlaneAuthority: ["settle_invoice"], destinationEffectiveAuthority: ["settle_invoice", "transfer_funds"], measurementTime: requestedAt, provider: "runtime_provider", confidence: 0.95, limitations: [] },
+    authorizationChanges: [{ changeId: "change:authority-reduced", changeType: "authority_reduced", subjectReference: subjectId, effectiveAt: "2026-08-06T09:00:00.000Z", receivingProvider: "destination_provider", policyReevaluation: "policy-evaluation:v2", privilegeAttenuation: "attenuation:v2", credentialRefreshOrRevocation: null, runtimeObservation: "not_observed", destinationObservation: "old_authority_accepted", providerReportedApplied: true, independentlyConfirmed: true, postChangeUseObservedAt: "2026-08-06T09:30:00.000Z", evidenceReferences: [destinationEvidence.reference], authorityVersionBefore: "authority:settlement:v1", authorityVersionAfter: "authority:settlement:v2" }],
+    delegatedSubject: null, policyReference: "policy-settlement:1.0.0", trustInvariantReferences: ["REVOKED_AGENT_AUTHORITY_DOES_NOT_SURVIVE_DOWNSTREAM"], outcomeEvidenceReferences: [],
+  };
+  const { deps, calls } = dependencies({ evidence: [evidence(), destinationEvidence] });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "trusted-stale-authority-destination", managedControl: { authorityIntegrity } }), deps);
+  assert.equal(receipt.decision, "DENY");
+  assert.ok(receipt.reasonCodes.includes("STALE_AUTHORITY_CONFIRMED"));
+  assert.ok(receipt.reasonCodes.includes("STALE_AUTHORITY_STILL_ACTIVE"));
+  assert.equal(receipt.decisionTimeSnapshot.consequenceTime.currentConditions.destinationAuthorityState, "MISMATCH");
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
 test("runs one ALLOW transaction in canonical order and keeps acknowledgement separate from outcome", async () => {
   const { deps, calls } = dependencies();
   const receipt = await executeCanonicalTrustTransaction(transactionInput(), deps);
@@ -224,6 +260,10 @@ test("runs one ALLOW transaction in canonical order and keeps acknowledgement se
   assert.ok(["LOW", "MODERATE", "HIGH"].includes(receipt.confidenceInConclusion));
   assert.equal(receipt.timestamp, requestedAt);
   assert.match(receipt.digest, /^[a-f0-9]{64}$/);
+  assert.equal(receipt.authorityVersion, "authority:settlement:v1");
+  assert.equal(receipt.decisionTimeSnapshot.consequenceTime.canonicalDecision, "ALLOW");
+  assert.equal(receipt.decisionTimeSnapshot.consequenceTime.previousAllowStandingAuthorization, false);
+  assert.equal(receipt.decisionTimeSnapshot.consequenceTime.currentConditions.identityAssurance, "CURRENT");
   assert.ok(receipt.evidenceReferences.some((reference) => reference.id === "10000000-0000-4000-8000-000000000007"));
   assert.deepEqual(calls, [
     "authenticateActor", "resolveTenantFromSession", "findByIdempotency", "resolveTrustObject",
@@ -293,6 +333,84 @@ test("repository authority persists an out-of-scope write as canonical DENY with
   assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
   assert.equal(calls.includes("recordExternalAcknowledgement"), false);
   assert.equal(calls.some((item) => item.startsWith("recordExternalOutcome")), false);
+});
+
+test("consequence-time authorization denies authority that was valid earlier but is revoked now", async () => {
+  const previousTransaction = { transactionId: "10000000-0000-4000-8000-000000000019", enterpriseId: tenantId, trustState: "verified", decision: "ALLOW", evidenceDigest: hashCanonical([evidence()]), authorityReference: authority().contractId, authorityVersion: "authority:settlement:v1", policyVersion: "1.0.0", requestedAt: "2026-08-06T09:00:00.000Z", consequence: "low" };
+  const { deps, calls } = dependencies({ previousTransaction, authority: authority({ revocationState: "revoked", revokedAt: "2026-08-06T09:45:00.000Z" }) });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "authority-revoked-at-t2", previousTransactionId: previousTransaction.transactionId }), deps);
+  assert.equal(receipt.decision, "DENY");
+  assert.ok(receipt.reasonCodes.includes("AUTHORITY_REVOKED"));
+  assert.ok(receipt.reasonCodes.includes("PREVIOUS_ALLOW_NOT_STANDING_AUTHORIZATION"));
+  assert.equal(receipt.decisionTimeSnapshot.consequenceTime.decisionDiffersFromPrevious, true);
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
+test("consequence-time authorization denies scope reduced after a prior ALLOW", async () => {
+  const previousTransaction = { transactionId: "10000000-0000-4000-8000-000000000020", enterpriseId: tenantId, trustState: "verified", decision: "ALLOW", evidenceDigest: "d".repeat(64), authorityReference: "10000000-0000-4000-8000-000000000018", authorityVersion: "authority:settlement:v1", policyVersion: "1.0.0" };
+  const reduced = authority({ authorityVersion: "authority:settlement:v2", permittedScope: ["inspect_invoice"], requiredAuthority: ["inspect_invoice"], supersedesContractId: previousTransaction.authorityReference });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "authority-scope-reduced-at-t2", previousTransactionId: previousTransaction.transactionId }), dependencies({ previousTransaction, authority: reduced }).deps);
+  assert.equal(receipt.decision, "DENY");
+  assert.ok(receipt.reasonCodes.includes("AUTHORITY_SCOPE_INVALID"));
+  assert.ok(receipt.changedConditions.includes("AUTHORITY_CHANGED"));
+  assert.ok(receipt.changedConditions.includes("AUTHORITY_VERSION_CHANGED"));
+});
+
+test("delegator revocation uses existing canonical DENY semantics", async () => {
+  const { deps, calls } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "delegator-revoked-at-t2", managedControl: { contradictions: ["PARENT_AUTHORITY_REVOKED"] } }), deps);
+  assert.equal(receipt.decision, "DENY");
+  assert.ok(receipt.reasonCodes.includes("DELEGATOR_AUTHORITY_REVOKED"));
+  assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
+test("incomplete runtime propagation remains REVIEW in the canonical vocabulary", async () => {
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "runtime-propagation-incomplete", managedControl: { contradictions: ["AUTHORITY_PROPAGATION_UNRESOLVED"] } }), dependencies().deps);
+  assert.equal(receipt.decision, "REVIEW");
+  assert.ok(receipt.reasonCodes.includes("AUTHORITY_PROPAGATION_UNRESOLVED"));
+});
+
+test("stale identity assurance and missing current proof require REVIEW", async () => {
+  const stale = evidence({ observedAt: "2026-08-06T07:00:00.000Z", expiresAt: "2026-08-06T09:00:00.000Z" });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "identity-assurance-stale" }), dependencies({ evidence: [stale] }).deps);
+  assert.equal(receipt.decision, "REVIEW");
+  assert.ok(receipt.reasonCodes.includes("EVIDENCE_STALE_OR_UNAVAILABLE"));
+  assert.equal(receipt.decisionTimeSnapshot.consequenceTime.currentConditions.identityAssurance, "STALE_OR_UNAVAILABLE");
+});
+
+test("required human approval must be current and independently resolved", async () => {
+  const governedAuthority = authority({ humanReviewThresholds: ["consequential_action"] });
+  const missing = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "human-approval-missing" }), dependencies({ authority: governedAuthority }).deps);
+  assert.equal(missing.decision, "REVIEW");
+  assert.ok(missing.reasonCodes.includes("REQUIRED_HUMAN_APPROVAL_MISSING"));
+
+  const asserted = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "human-approval-agent-asserted", managedControl: { humanIntent: { signed: true, status: "provided", reference: "review:asserted", sourceClassification: "agent_asserted" } } }), dependencies({ authority: governedAuthority }).deps);
+  assert.equal(asserted.decision, "REVIEW");
+  assert.ok(asserted.reasonCodes.includes("AGENT_ASSERTED_APPROVAL_NOT_AUTHORITATIVE"));
+
+  const current = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "human-approval-current", managedControl: { humanIntent: { signed: true, status: "provided", reference: "review:approved", expiresAt: "2026-08-06T11:00:00.000Z", sourceClassification: "human_reviewed" } } }), dependencies({ authority: governedAuthority }).deps);
+  assert.equal(current.decision, "REVIEW");
+  assert.equal(current.reasonCodes.includes("REQUIRED_HUMAN_APPROVAL_MISSING"), false);
+  assert.equal(current.decisionTimeSnapshot.consequenceTime.currentConditions.humanApprovalState, "CURRENT");
+});
+
+test("a policy change after prior ALLOW is a fresh evaluation, not a reversal or reusable proof", async () => {
+  const previousTransaction = { transactionId: "10000000-0000-4000-8000-000000000021", enterpriseId: tenantId, trustState: "verified", decision: "ALLOW", evidenceDigest: "d".repeat(64), authorityReference: authority().contractId, authorityVersion: "authority:settlement:v1", policyVersion: "0.9.0", requestedAt: "2026-08-06T09:00:00.000Z", consequence: "low" };
+  const currentPolicy = { id: "policy-settlement", version: "1.0.0", active: true, validFrom: "2026-08-01T00:00:00.000Z", validUntil: null, policyHash: "c".repeat(64) };
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "policy-changed-at-t2", previousTransactionId: previousTransaction.transactionId }), dependencies({ previousTransaction, policy: currentPolicy }).deps);
+  assert.equal(receipt.decision, "ALLOW");
+  assert.ok(receipt.changedConditions.includes("POLICY_CHANGED"));
+  assert.ok(receipt.reasonCodes.includes("PREVIOUS_ALLOW_NOT_STANDING_AUTHORIZATION"));
+  assert.equal(receipt.decisionTimeSnapshot.consequenceTime.previousEvaluation.decision, "ALLOW");
+  assert.equal(receipt.decisionTimeSnapshot.consequenceTime.previousAllowStandingAuthorization, false);
+});
+
+test("agent-asserted current-state evidence cannot restore positive eligibility", async () => {
+  const asserted = evidence({ sourceClassification: "agent_asserted", serverVerified: false });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "agent-asserted-everything-fine", decisionContext: { currentEvidenceReferences: [asserted.reference], clientAssertedMaterialChanges: [] } }), dependencies({ evidence: [asserted] }).deps);
+  assert.equal(receipt.decision, "REVIEW");
+  assert.ok(receipt.reasonCodes.includes("EVIDENCE_INSUFFICIENT"));
+  assert.ok(receipt.reasonCodes.includes("EVIDENCE_STALE_OR_UNAVAILABLE"));
 });
 
 test("repository authority allows read through the same canonical evaluator", async () => {
@@ -416,6 +534,31 @@ test("a concurrent duplicate detected at persistence never reaches the external 
   concurrent.deps.persistDecision = async (record) => { concurrent.calls.push("persistDecision:DUPLICATE"); return { ...record, persistenceStatus: "DUPLICATE" }; };
   const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "concurrent-baseline" }), concurrent.deps);
   assert.equal(receipt.idempotentReplay, true);
+  assert.equal(concurrent.calls.includes("extendEvidenceGraph"), false);
+  assert.equal(concurrent.calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
+test("a concurrent idempotency collision rechecks semantic equivalence", async () => {
+  const baseline = dependencies();
+  const stored = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "concurrent-conflict" }), baseline.deps);
+  const concurrent = dependencies();
+  let lookups = 0;
+  concurrent.deps.findByIdempotency = async () => {
+    concurrent.calls.push("findByIdempotency");
+    lookups += 1;
+    return lookups === 1 ? null : stored;
+  };
+  concurrent.deps.persistDecision = async (record) => {
+    concurrent.calls.push("persistDecision:DUPLICATE");
+    return { ...record, persistenceStatus: "DUPLICATE" };
+  };
+  await assert.rejects(
+    executeCanonicalTrustTransaction(transactionInput({
+      idempotencyKey: "concurrent-conflict",
+      action: { ...transactionInput().action, resource: "invoice:different" },
+    }), concurrent.deps),
+    /already bound to a different canonical request/,
+  );
   assert.equal(concurrent.calls.includes("extendEvidenceGraph"), false);
   assert.equal(concurrent.calls.includes("requestExternalExecutionIfAllowed"), false);
 });

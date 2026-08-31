@@ -14,7 +14,7 @@ export default async function DeveloperApiKeysPage() {
   return <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
     <div className="mx-auto max-w-6xl">
       <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-        <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">Developer Access · External Agent Trust API v0.1</p>
+        <p className="text-xs uppercase tracking-[0.24em] text-cyan-200">Developer Access · External Agent Trust API V1</p>
         <h1 className="mt-4 text-4xl font-semibold">API clients and keys</h1>
         <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-400">Create, scope, rotate, and revoke tenant-bound server credentials for external agents. The raw secret is returned once; only its digest and identifying prefix remain.</p>
         <Link href="/developers/quickstart" className="mt-4 inline-flex text-sm font-semibold text-cyan-200 underline">Build Agent Gamma with the quickstart</Link>

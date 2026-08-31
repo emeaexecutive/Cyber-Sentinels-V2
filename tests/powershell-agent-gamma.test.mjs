@@ -157,7 +157,7 @@ for (const [status, code, expected] of [
 test("PowerShell refuses an empty AgentId without constructing /agents//", { skip: !available }, async () => {
   await withServer((request, response) => {
     if (request.url === "/api/v1/openapi.json") return openApi(response);
-    if (request.url === "/api/v1/agents/preflight-probe/authority") return safeError(response, 404, "AGENT_NOT_FOUND");
+    if (request.url === "/api/v1/agents/preflight-probe/authority") return safeError(response, 404, "AGENT_NOT_OWNED");
     if (request.url === "/api/v1/agents" && request.method === "POST") {
       response.writeHead(201, { "content-type": "application/json" });
       return response.end(JSON.stringify({ agent_id: "", operational_entity_id: "", status: "PENDING_IDENTITY_PROOF" }));
@@ -177,6 +177,11 @@ test("PowerShell executes the OpenAPI journey and produces valid external Ed2551
   const enterpriseId = "22222222-2222-4222-8222-222222222222";
   const credentialId = "credential:33333333-3333-4333-8333-333333333333";
   const transactionId = "44444444-4444-4444-8444-444444444444";
+  const authorityId = "88888888-8888-4888-8888-888888888888";
+  const reviewReference = "99999999-9999-4999-8999-999999999999";
+  const reviewTransactionId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+  const postReviewTransactionId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+  const postRevocationTransactionId = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
   const challengeId = "challenge:55555555-5555-4555-8555-555555555555";
   const nonce = "b".repeat(43);
   const manifestDigest = "c".repeat(64);
@@ -184,6 +189,7 @@ test("PowerShell executes the OpenAPI journey and produces valid external Ed2551
   let publicKey;
   let proofSubmissions = 0;
   let allowRequests = 0;
+  let authorityRevoked = false;
   const automationBypass = "vercel-automation-valid-test-value";
 
   await withServer((request, response) => {
@@ -192,12 +198,15 @@ test("PowerShell executes the OpenAPI journey and produces valid external Ed2551
       response.end(JSON.stringify(body));
     };
     if (request.url === "/api/v1/openapi.json") return openApi(response);
-    if (request.url === "/api/v1/agents/preflight-probe/authority") return safeError(response, 404, "AGENT_NOT_FOUND");
+    if (request.url === "/api/v1/agents/preflight-probe/authority") return safeError(response, 404, "AGENT_NOT_OWNED");
     if (request.url === "/api/v1/agents" && request.method === "POST") {
       return send(201, {
         agent_id: agentId, operational_entity_id: agentId, status: "PENDING_IDENTITY_PROOF",
         manifest_context: { enterprise_id: enterpriseId, accountable_owner_id: "owner:gamma-customer" },
       });
+    }
+    if (request.url === `/api/v1/agents/${encodeURIComponent(agentId)}` && request.method === "GET") {
+      return send(200, { agent_id: agentId, operational_entity_id: agentId, authority_reference: "authority:gamma", authority_status: "ACTIVE" });
     }
     if (request.url === `/api/v1/agents/${encodeURIComponent(agentId)}/credentials`) {
       const body = JSON.parse(request.body);
@@ -239,12 +248,35 @@ test("PowerShell executes the OpenAPI journey and produces valid external Ed2551
       assert.equal(verify(null, Buffer.from(canonicalize(signed)), publicKey, Buffer.from(body.signature, "base64url")), true);
       return send(200, { identity: "VERIFIED", trust: "NOT_DETERMINED_BY_IDENTITY", reason_codes: ["NATIVE_SIGNATURE_VERIFIED"] });
     }
+    const authorityPath = `/api/v1/agents/${encodeURIComponent(agentId)}/authorities`;
+    if (request.url === authorityPath && request.method === "POST") {
+      return send(201, { authority_id: authorityId, authority_reference: authorityId, authority_version: `customer-authority:${authorityId}`, status: "ACTIVE" });
+    }
+    if (request.url === authorityPath && request.method === "GET") {
+      return send(200, { authorities: [{ authority_id: authorityId, authority_version: `customer-authority:${authorityId}`, status: authorityRevoked ? "REVOKED" : "ACTIVE" }] });
+    }
+    if (request.url === `${authorityPath}/${authorityId}` && request.method === "GET") {
+      return send(200, { authority_id: authorityId, authority_reference: authorityId, authority_version: `customer-authority:${authorityId}`, status: authorityRevoked ? "REVOKED" : "ACTIVE" });
+    }
+    if (request.url === `${authorityPath}/${authorityId}/revoke` && request.method === "POST") {
+      authorityRevoked = true;
+      return send(200, { authority_id: authorityId, authority_reference: authorityId, status: "REVOKED", revocation_reference: `authority-revocation:${authorityId}` });
+    }
     if (request.url === `/api/v1/agents/${encodeURIComponent(agentId)}/authority`) {
-      return send(200, { operational_entity_id: agentId, status: "ACTIVE", actions: ["read_repository"], targets: ["repository:a"] });
+      return send(200, { operational_entity_id: agentId, status: authorityRevoked ? "REVOKED" : "ACTIVE", actions: ["read_repository"], targets: ["repository:a"] });
+    }
+    if (request.url === `/api/v1/reviews/${reviewReference}` && request.method === "GET") {
+      return send(200, { review_reference: reviewReference, status: "REQUESTED", disposition: null, original_decision: "REVIEW", original_transaction_id: reviewTransactionId, next_action: "WAIT_FOR_AUTHORIZED_REVIEWER" });
+    }
+    if (request.url === `/api/v1/reviews/${reviewReference}/resolve` && request.method === "POST") {
+      return send(200, { review_reference: reviewReference, status: "APPROVED", disposition: "APPROVED", original_decision: "REVIEW", original_transaction_id: reviewTransactionId, next_action: "SUBMIT_NEW_CANONICAL_EVALUATION" });
     }
     if (request.url === "/api/v1/trust/decisions") {
       const body = JSON.parse(request.body);
       if (body.action.type === "read_repository") {
+        if (authorityRevoked) return send(201, { transaction_id: postRevocationTransactionId, receipt_id: postRevocationTransactionId, replay_id: postRevocationTransactionId, decision: "DENY", reason_codes: ["AUTHORITY_REVOKED"], execution_authorization: null, idempotent_replay: false });
+        if (body.context?.material_changes) return send(201, { transaction_id: reviewTransactionId, review_reference: reviewReference, decision: "REVIEW", reason_codes: ["CLIENT_ASSERTED_MATERIAL_CHANGE"], execution_authorization: null, idempotent_replay: false });
+        if (body.context?.human_approval_reference) return send(201, { transaction_id: postReviewTransactionId, decision: "ALLOW", reason_codes: ["HUMAN_APPROVAL_CURRENT"], execution_authorization: { transaction_id: postReviewTransactionId }, idempotent_replay: false });
         allowRequests += 1;
         return send(allowRequests === 1 ? 201 : 200, {
           transaction_id: transactionId, decision: "ALLOW", reason_codes: ["ACTION_AUTHORIZED"],
@@ -256,13 +288,15 @@ test("PowerShell executes the OpenAPI journey and produces valid external Ed2551
     if (request.url === `/api/v1/trust/transactions/${transactionId}`) return send(200, { transaction_id: transactionId, decision: "ALLOW" });
     if (request.url === `/api/v1/trust/transactions/${transactionId}/replay`) return send(200, { transaction_id: transactionId, events: [{ type: "DECISION_RECORDED" }] });
     if (request.url === `/api/v1/trust/transactions/${transactionId}/receipt`) return send(200, { receipt_version: "1.0", decision_digest: "e".repeat(64) });
+    if (request.url === `/api/v1/trust/transactions/${postRevocationTransactionId}/receipt`) return send(200, { receipt_id: postRevocationTransactionId, receipt_version: "1.0", decision_digest: "f".repeat(64) });
+    if (request.url === `/api/v1/trust/transactions/${postRevocationTransactionId}/replay`) return send(200, { replay_id: postRevocationTransactionId, transaction_id: postRevocationTransactionId, events: [{ type: "DECISION_RECORDED" }] });
     if (request.url === `/api/v1/agents/${encodeURIComponent(agentId)}/trust-state`) return send(200, { operational_entity_id: agentId, identity: "VERIFIED" });
     if (request.url === `/api/v1/trust/transactions/${transactionId}/outcomes`) return send(201, { status: "RECORDED", evidence_independence: "AGENT_ASSERTED", independent_destination_evidence: false });
     return safeError(response, 500, "UNEXPECTED_REQUEST");
   }, async ({ baseUrl, requests }) => {
     const result = await runPowerShell({ CYBER_SENTINELS_BASE_URL: baseUrl, CYBER_SENTINELS_API_KEY: apiKey, VERCEL_AUTOMATION_BYPASS_SECRET: automationBypass }, ["-AllowInsecureLocalhost"]);
     assert.equal(result.code, 0, `${result.stdout}\n${result.stderr}`);
-    for (const marker of ["PREFLIGHT", "REGISTERED", "CREDENTIAL", "MANIFEST", "IDENTITY", "CHALLENGE_REPLAY", "AUTHORITY", "ALLOW", "IDEMPOTENCY", "DENY", "TRANSACTION", "REPLAY", "RECEIPT", "TRUST_STATE", "OUTCOME", "GAMMA_RESULT"]) {
+    for (const marker of ["PREFLIGHT", "REGISTERED", "CREDENTIAL", "MANIFEST", "IDENTITY", "CHALLENGE_REPLAY", "AUTHORITY", "ALLOW", "IDEMPOTENCY", "REVIEW", "POST_REVIEW_ALLOW", "DENY", "TRANSACTION", "REPLAY", "RECEIPT", "TRUST_STATE", "OUTCOME", "REVOCATION", "POST_REVOCATION_DENY", "GAMMA_RESULT"]) {
       assert.match(result.stdout, new RegExp(`^${marker}:`, "m"));
     }
     assert.equal(requests.some((request) => request.url.includes("/agents//")), false);

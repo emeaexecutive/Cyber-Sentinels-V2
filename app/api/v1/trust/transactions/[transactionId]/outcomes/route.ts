@@ -8,6 +8,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ tra
     route: "/api/v1/trust/transactions/{transactionId}/outcomes",
     routeClass: "outcome",
     scopes: ["outcomes:write"],
-  }, async ({ principal, correlationId }) =>
-    publicApiResponse(await submitExternalOutcome(principal, transactionId, await boundedJson(request, 16_384)), { status: 201 }, correlationId));
+  }, async ({ principal, correlationId, requestId }) =>
+    publicApiResponse(await submitExternalOutcome(principal, transactionId, await boundedJson(request, 16_384)), { status: 201 }, correlationId, requestId));
 }

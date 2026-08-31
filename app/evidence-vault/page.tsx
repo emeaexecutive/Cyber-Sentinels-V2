@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
+import { resolveIdentityUiEnterprise } from "@/lib/identity-signals/ui-enterprise";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import {
   getEvidenceSummary,
   normalizeEvidenceRows,
@@ -23,6 +25,21 @@ type VerificationCase = {
   subject_type: string | null;
   verification_status: string | null;
   trust_score: number | null;
+};
+
+type CanonicalEvidence = {
+  evidence_id: string;
+  evidence_type: string;
+  source_type: string;
+  source_key: string;
+  provider_key: string | null;
+  evidence_classification: string;
+  server_verified: boolean;
+  cryptographically_verified: boolean;
+  payload_hash: string;
+  subject_id: string;
+  occurred_at: string;
+  expires_at: string | null;
 };
 
 function formatDate(value: string | null) {
@@ -122,8 +139,9 @@ function EmptyState({ label }: { label: string }) {
 export default async function EvidenceVaultPage() {
   const supabase = await createClient();
   await requireAdminPageAccess(supabase, { path: "/evidence-vault" });
+  const { workspace } = await resolveIdentityUiEnterprise();
 
-  const [{ data: evidenceRows }, { data: passports }, { data: cases }] =
+  const [{ data: evidenceRows }, { data: passports }, { data: cases }, canonicalResult] =
     await Promise.all([
       supabase
         .from("evidence_files")
@@ -141,7 +159,11 @@ export default async function EvidenceVaultPage() {
         .order("created_at", { ascending: false })
         .limit(8)
         .returns<VerificationCase[]>(),
+      workspace ? createServiceRoleClient().from("evidence_objects")
+        .select("evidence_id,evidence_type,source_type,source_key,provider_key,evidence_classification,server_verified,cryptographically_verified,payload_hash,subject_id,occurred_at,expires_at")
+        .eq("enterprise_id", workspace.id).order("occurred_at", { ascending: false }).limit(100) : Promise.resolve({ data: [], error: null }),
     ]);
+  const canonicalEvidence = (canonicalResult.data ?? []) as CanonicalEvidence[];
 
   const normalizedEvidence = normalizeEvidenceRows(evidenceRows);
   const evidence = normalizedEvidence;
@@ -193,20 +215,27 @@ export default async function EvidenceVaultPage() {
           </p>
         </section>
 
+        <section className="mt-8 rounded-lg border border-cyan-900/70 bg-cyan-950/10 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">V1 canonical evidence</p>
+          <h2 className="mt-2 text-2xl font-semibold">Evidence Objects used by the current Trust API</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">Provider identity, source classification, verification state, subject, and digest are shown without treating client assertions as independent proof.</p>
+          {canonicalResult.error ? <p role="alert" className="mt-5 rounded-lg border border-rose-900 p-4 text-sm text-rose-200">Canonical evidence is temporarily unavailable. Historical uploads are not substituted as V1 evidence.</p> : null}
+          <div className="mt-5 grid gap-3 md:grid-cols-2">{canonicalEvidence.map((item) => <article key={item.evidence_id} className="rounded-lg border border-zinc-800 bg-black p-4"><div className="flex flex-wrap justify-between gap-3"><div><p className="font-semibold">{item.evidence_type}</p><p className="mt-1 text-xs text-zinc-500">Subject {item.subject_id}</p></div><span className={`rounded-full border px-3 py-1 text-xs ${item.server_verified ? "border-emerald-800 text-emerald-200" : "border-amber-800 text-amber-200"}`}>{item.server_verified ? "SERVER_VERIFIED" : "AGENT_ASSERTED / UNVERIFIED"}</span></div><dl className="mt-4 grid gap-2 text-xs text-zinc-400"><div>Source: {item.source_type}:{item.source_key}</div><div>Provider: {item.provider_key ?? "Not independently attributed"}</div><div>Classification: {item.evidence_classification}</div><div>Cryptographic verification: {item.cryptographically_verified ? "verified" : "not verified"}</div><div className="break-all font-mono text-zinc-600">Digest: {item.payload_hash}</div><div>Occurred: {new Date(item.occurred_at).toLocaleString()}</div></dl></article>)}{!canonicalResult.error && !canonicalEvidence.length ? <p className="rounded-lg border border-dashed border-zinc-700 p-5 text-sm text-zinc-500">No canonical V1 Evidence Objects are stored for this workspace.</p> : null}</div>
+        </section>
+
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-semibold">Upload Ready</h2>
+              <h2 className="text-xl font-semibold">Historical file-vault ingestion</h2>
               <p className="mt-2 text-sm text-zinc-500">
-                File upload is staged for a storage-backed flow. Current vault
-                view tracks submitted evidence records and linked artefacts.
+                This pre-V1 file flow is inactive in Production. Existing records remain visible as historical artefacts and are not canonical API evidence.
               </p>
             </div>
             <button
               disabled
               className="rounded-lg border border-zinc-800 px-4 py-2 text-sm text-zinc-600"
             >
-              Upload placeholder
+              Upload unavailable
             </button>
           </div>
         </section>

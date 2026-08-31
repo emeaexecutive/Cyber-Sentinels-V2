@@ -74,3 +74,54 @@ test("SDK exposes provider evidence, outcome, authority and verification facades
   assert.match(requests[3].url, /\/agents\/agent%3Aalpha$/);
   assert.match(requests[4].url, /\/proof$/);
 });
+
+test("SDK exposes the productized V1 aliases without removing compatibility methods", async () => {
+  const requests = [];
+  const cs = new CyberSentinels({ apiKey: key, baseUrl: "https://preview.example", fetch: async (url, init) => {
+    requests.push({ url, init });
+    return response(200, { transaction_id: "10000000-0000-4000-8000-000000000001", decision: "DENY", reason_codes: [] });
+  } });
+  await cs.agents.get("agent:alpha");
+  await cs.agents.authority("agent:alpha");
+  await cs.decisions.create({ operational_entity_id: "agent:alpha", action: { type: "write_repository", target: "repository:a", purpose: "test", environment: "staging" }, idempotency_key: "alias-test-001" });
+  await cs.transactions.get("10000000-0000-4000-8000-000000000001");
+  await cs.transactions.receipt("10000000-0000-4000-8000-000000000001");
+  await cs.transactions.replay("10000000-0000-4000-8000-000000000001");
+  assert.equal(requests.length, 6);
+  assert.match(requests[2].url, /\/api\/v1\/trust\/decisions$/);
+});
+
+test("SDK rejects a response that advertises an incompatible V1 date", async () => {
+  const cs = new CyberSentinels({ apiKey: key, baseUrl: "https://preview.example", fetch: async () => response(200, {}, { "x-cyber-sentinels-api-version": "2099-01-01" }) });
+  await assert.rejects(cs.agents.get("agent:alpha"), (error) => error.code === "API_VERSION_MISMATCH");
+});
+
+test("SDK surfaces request, correlation, version, and rate-limit response metadata", async () => {
+  let metadata;
+  const cs = new CyberSentinels({ apiKey: key, baseUrl: "https://preview.example", fetch: async () => response(200, {}, {
+    "x-request-id": "22222222-2222-4222-8222-222222222222",
+    "x-correlation-id": "11111111-1111-4111-8111-111111111111",
+    "x-cyber-sentinels-api-version": "2026-08-29",
+    "x-ratelimit-limit": "240",
+    "x-ratelimit-remaining": "239",
+    "x-ratelimit-reset": "2026-08-29T10:01:00.000Z",
+  }) });
+  await cs.agents.get("agent:alpha", { onResponse: (value) => { metadata = value; } });
+  assert.deepEqual(metadata, {
+    status: 200,
+    requestId: "22222222-2222-4222-8222-222222222222",
+    correlationId: "11111111-1111-4111-8111-111111111111",
+    apiVersion: "2026-08-29",
+    rateLimit: { limit: 240, remaining: 239, resetAt: "2026-08-29T10:01:00.000Z", retryAfter: null },
+  });
+});
+
+test("SDK defaults to the canonical non-redirecting Production origin", async () => {
+  let observedUrl;
+  const cs = new CyberSentinels({ apiKey: key, fetch: async (url) => {
+    observedUrl = url;
+    return response(200, {});
+  } });
+  await cs.agents.get("agent:alpha");
+  assert.match(observedUrl, /^https:\/\/www\.cybersentinels\.com\/api\/v1\/agents\//);
+});

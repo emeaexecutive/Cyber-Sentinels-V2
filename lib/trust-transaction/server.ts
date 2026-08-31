@@ -259,6 +259,7 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
     evidenceFresh: Boolean(row.evidence_fresh),
     evidenceReferences: [...evidenceReferences, ...authorityEvidenceReferences],
     authorityReference: String(row.authority_reference),
+    authorityVersion: decisionTimeSnapshot.consequenceTime?.authority.version ?? null,
     authorityLineageReferences: authorityLineage,
     policy: { id: String(row.policy_id), version: String(row.policy_version), hash: String(row.policy_hash) },
     decisionReference: String(row.decision_id),
@@ -605,11 +606,24 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
     },
     async loadPreviousTransaction(enterpriseId, transactionId) {
       if (!transactionId) return null;
-      const result = await db.from("canonical_trust_transactions").select("transaction_id,enterprise_id,trust_state,decision,evidence_digest,authority_reference,policy_version,decision_time_snapshot").eq("enterprise_id", enterpriseId).eq("transaction_id", transactionId).maybeSingle();
+      const result = await db.from("canonical_trust_transactions").select("transaction_id,enterprise_id,trust_state,decision,evidence_digest,authority_reference,policy_version,requested_at,reason_codes,decision_time_snapshot").eq("enterprise_id", enterpriseId).eq("transaction_id", transactionId).maybeSingle();
       if (result.error) fail("Previous transaction resolution", result.error);
       if (!result.data) throw new CanonicalTransactionError("The previous transaction is unknown in this tenant.", 404, "PREVIOUS_TRANSACTION_NOT_FOUND");
       const previousSnapshot = result.data.decision_time_snapshot && typeof result.data.decision_time_snapshot === "object" ? result.data.decision_time_snapshot as Row : {};
-      return { transactionId: String(result.data.transaction_id), enterpriseId: String(result.data.enterprise_id), trustState: String(result.data.trust_state), decision: String(result.data.decision), evidenceDigest: String(result.data.evidence_digest), authorityReference: String(result.data.authority_reference), policyVersion: String(result.data.policy_version), trustTwin: previousSnapshot.trustTwin ?? null } as PreviousCanonicalTransaction;
+      return {
+        transactionId: String(result.data.transaction_id),
+        enterpriseId: String(result.data.enterprise_id),
+        trustState: String(result.data.trust_state),
+        decision: String(result.data.decision),
+        evidenceDigest: String(result.data.evidence_digest),
+        authorityReference: String(result.data.authority_reference),
+        authorityVersion: previousSnapshot.consequenceTime?.authority?.version ?? null,
+        policyVersion: String(result.data.policy_version),
+        requestedAt: result.data.requested_at ? String(result.data.requested_at) : null,
+        consequence: previousSnapshot.consequenceTime?.consequence ?? previousSnapshot.consequence ?? null,
+        reasonCodes: Array.isArray(result.data.reason_codes) ? result.data.reason_codes.map(String) : [],
+        trustTwin: previousSnapshot.trustTwin ?? null,
+      } as PreviousCanonicalTransaction;
     },
     async persistDecision(record) {
       const result = await rpc(db, "Decision persistence", "persist_canonical_trust_transaction_decision_v1", { p_transaction: decisionPayload(record), p_decision: record.decisionEnvelope });

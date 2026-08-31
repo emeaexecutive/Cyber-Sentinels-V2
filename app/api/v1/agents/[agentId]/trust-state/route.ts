@@ -8,6 +8,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ agen
     route: "/api/v1/agents/{agentId}/trust-state",
     routeClass: "read",
     scopes: ["authority:read"],
-  }, async ({ principal, correlationId }) =>
-    publicApiResponse(await getExternalTrustState(principal, decodeURIComponent(agentId)), {}, correlationId));
+  }, async ({ principal, correlationId, requestId }) =>
+    publicApiResponse(await getExternalTrustState(principal, decodeURIComponent(agentId)), {}, correlationId, requestId));
 }

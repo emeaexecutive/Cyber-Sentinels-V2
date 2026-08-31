@@ -7,6 +7,6 @@ export async function POST(request: Request) {
     route: "/api/v1/evidence",
     routeClass: "evidence",
     scopes: ["evidence:write"],
-  }, async ({ principal, correlationId }) =>
-    publicApiResponse(await submitExternalEvidence(principal, await boundedJson(request, 65_536)), { status: 201 }, correlationId));
+  }, async ({ principal, correlationId, requestId }) =>
+    publicApiResponse(await submitExternalEvidence(principal, await boundedJson(request, 65_536)), { status: 201 }, correlationId, requestId));
 }
