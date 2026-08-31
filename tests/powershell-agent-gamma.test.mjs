@@ -26,6 +26,7 @@ function runPowerShell(environment = {}, arguments_ = []) {
         CYBER_SENTINELS_BASE_URL: "",
         CYBER_SENTINELS_API_KEY: "",
         VERCEL_AUTOMATION_BYPASS_SECRET: "",
+        VERCEL_PROTECTION_COOKIE: "",
         VERCEL_PROTECTION_BYPASS: "",
         ...environment,
       },
@@ -191,6 +192,7 @@ test("PowerShell executes the OpenAPI journey and produces valid external Ed2551
   let allowRequests = 0;
   let authorityRevoked = false;
   const automationBypass = "vercel-automation-valid-test-value";
+  const protectionCookie = "vercel-protection-cookie-valid-test-value";
 
   await withServer((request, response) => {
     const send = (status, body) => {
@@ -294,17 +296,19 @@ test("PowerShell executes the OpenAPI journey and produces valid external Ed2551
     if (request.url === `/api/v1/trust/transactions/${transactionId}/outcomes`) return send(201, { status: "RECORDED", evidence_independence: "AGENT_ASSERTED", independent_destination_evidence: false });
     return safeError(response, 500, "UNEXPECTED_REQUEST");
   }, async ({ baseUrl, requests }) => {
-    const result = await runPowerShell({ CYBER_SENTINELS_BASE_URL: baseUrl, CYBER_SENTINELS_API_KEY: apiKey, VERCEL_AUTOMATION_BYPASS_SECRET: automationBypass }, ["-AllowInsecureLocalhost"]);
+    const result = await runPowerShell({ CYBER_SENTINELS_BASE_URL: baseUrl, CYBER_SENTINELS_API_KEY: apiKey, VERCEL_AUTOMATION_BYPASS_SECRET: automationBypass, VERCEL_PROTECTION_COOKIE: protectionCookie }, ["-AllowInsecureLocalhost"]);
     assert.equal(result.code, 0, `${result.stdout}\n${result.stderr}`);
     for (const marker of ["PREFLIGHT", "REGISTERED", "CREDENTIAL", "MANIFEST", "IDENTITY", "CHALLENGE_REPLAY", "AUTHORITY", "ALLOW", "IDEMPOTENCY", "REVIEW", "POST_REVIEW_ALLOW", "DENY", "TRANSACTION", "REPLAY", "RECEIPT", "TRUST_STATE", "OUTCOME", "REVOCATION", "POST_REVOCATION_DENY", "GAMMA_RESULT"]) {
       assert.match(result.stdout, new RegExp(`^${marker}:`, "m"));
     }
     assert.equal(requests.some((request) => request.url.includes("/agents//")), false);
     assert.equal(requests.every((request) => request.headers["x-vercel-protection-bypass"] === automationBypass), true);
+    assert.equal(requests.every((request) => request.headers.cookie === `_vercel_jwt=${protectionCookie}`), true);
     assert.equal(requests.filter((request) => request.url !== "/api/v1/openapi.json").every((request) => request.headers.authorization === `Bearer ${apiKey}`), true);
     assert.equal(requests.every((request) => !request.body.includes(apiKey)), true);
     assert.doesNotMatch(`${result.stdout}\n${result.stderr}`, new RegExp(apiKey.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     assert.doesNotMatch(`${result.stdout}\n${result.stderr}`, new RegExp(automationBypass));
+    assert.doesNotMatch(`${result.stdout}\n${result.stderr}`, new RegExp(protectionCookie));
     assert.match(result.stdout, /"correlation_id":"77777777-7777-4777-8777-777777777777"/);
   });
 });

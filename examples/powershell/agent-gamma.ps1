@@ -115,17 +115,30 @@ function Get-ResponseHeader {
 }
 
 function New-CyberSentinelsHttpClient {
-    param([string]$VercelAutomationBypassSecret = "")
+    param(
+        [string]$VercelAutomationBypassSecret = "",
+        [string]$VercelProtectionCookie = ""
+    )
 
     Add-Type -AssemblyName System.Net.Http
     $handler = New-Object System.Net.Http.HttpClientHandler
     $handler.AllowAutoRedirect = $false
-    $handler.UseCookies = $true
+    # HttpClientHandler otherwise consumes an explicit Cookie header into its
+    # own empty container. Disable that behavior for the process-only preview
+    # cookie so the header is sent exactly as supplied.
+    $handler.UseCookies = -not [bool]$VercelProtectionCookie
     $client = New-Object System.Net.Http.HttpClient($handler)
     $client.Timeout = [TimeSpan]::FromSeconds(60)
     $client.DefaultRequestHeaders.UserAgent.ParseAdd("Cyber-Sentinels-PowerShell-Quickstart/0.1")
     if ($VercelAutomationBypassSecret) {
         [void]$client.DefaultRequestHeaders.TryAddWithoutValidation("x-vercel-protection-bypass", $VercelAutomationBypassSecret)
+    }
+    if ($VercelProtectionCookie) {
+        if ($VercelProtectionCookie -match '[\r\n;]') {
+            $client.Dispose()
+            throw (New-CyberSentinelsException "VERCEL_PROTECTION_COOKIE is malformed." "VERCEL_PROTECTION_COOKIE_MALFORMED")
+        }
+        [void]$client.DefaultRequestHeaders.TryAddWithoutValidation("Cookie", "_vercel_jwt=$VercelProtectionCookie")
     }
     return $client
 }
@@ -239,7 +252,7 @@ function Test-CyberSentinelsConfiguration {
     }
 
     $ownsClient = $null -eq $HttpClient
-    if ($ownsClient) { $HttpClient = New-CyberSentinelsHttpClient $env:VERCEL_AUTOMATION_BYPASS_SECRET }
+    if ($ownsClient) { $HttpClient = New-CyberSentinelsHttpClient $env:VERCEL_AUTOMATION_BYPASS_SECRET $env:VERCEL_PROTECTION_COOKIE }
     try {
         $normalizedBase = $baseUri.GetLeftPart([UriPartial]::Authority).TrimEnd("/")
         $openApiUri = New-Object Uri("$normalizedBase/api/v1/openapi.json")
@@ -676,7 +689,7 @@ $script:TemporaryDirectory = Join-Path ([IO.Path]::GetTempPath()) ("cyber-sentin
 
 try {
     [IO.Directory]::CreateDirectory($script:TemporaryDirectory) | Out-Null
-    $script:HttpClient = New-CyberSentinelsHttpClient $env:VERCEL_AUTOMATION_BYPASS_SECRET
+    $script:HttpClient = New-CyberSentinelsHttpClient $env:VERCEL_AUTOMATION_BYPASS_SECRET $env:VERCEL_PROTECTION_COOKIE
     Invoke-AgentGammaJourney
 }
 catch {
