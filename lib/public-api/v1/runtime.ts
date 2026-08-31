@@ -47,12 +47,14 @@ import {
   resolveClientEvidenceType,
   verifyClientEvidenceDigest,
 } from "./client-evidence";
+import { establishTrustedStagingEvidence } from "./trusted-staging-evidence";
+import { SERVER_VERIFIED_AGENT_CONFIGURATION, SERVER_VERIFIED_MONITORING, SYNTHETIC_STAGING_PROVIDER_KEY } from "./synthetic-staging-provider";
 
 type Row = Record<string, any>;
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const referencePattern = /^[A-Za-z0-9_.:/@-]{1,240}$/;
 const publicPolicyId = "external-agent-trust-v1";
-const publicPolicyVersion = "0.1.0";
+const publicPolicyVersion = "0.2.0";
 
 function boundedReferenceArray(value: unknown, field: string, maximum = 32) {
   if (value === undefined) return [];
@@ -130,7 +132,7 @@ async function ensurePublicApiPolicy(principal: PublicApiPrincipal) {
         rules: {
           purpose: "customer_bounded_authority",
           allowedActions: ["bounded_by_trust_contract"],
-          requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF"],
+          requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF", SERVER_VERIFIED_AGENT_CONFIGURATION, SERVER_VERIFIED_MONITORING],
           providerDependency: "none",
         },
       },
@@ -571,10 +573,10 @@ export async function grantExternalAuthority(principal: PublicApiPrincipal, agen
     requiredAuthority: ["tenant_admin_grant"],
     requiredEnvironmentState: "degraded",
     permittedScope: [action],
-    permittedProviders: ["cyber_sentinels_native"],
-    requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF"],
+    permittedProviders: ["cyber_sentinels_native", SYNTHETIC_STAGING_PROVIDER_KEY],
+    requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF", SERVER_VERIFIED_AGENT_CONFIGURATION, SERVER_VERIFIED_MONITORING],
     maximumEvidenceAgeSeconds: 3_600,
-    monitoringRequirements: [],
+    monitoringRequirements: [SERVER_VERIFIED_MONITORING],
     humanReviewThresholds: [],
     contradictionPolicy: "review",
     incidentThreshold: "material",
@@ -841,6 +843,13 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
   if (!idempotencyKey || idempotencyKey.length < 8 || bodyKey !== idempotencyKey) {
     throw new PublicApiError("IDEMPOTENCY_KEY_REQUIRED", "A matching Idempotency-Key header is required.", 400);
   }
+  const trustedStagingEvidence = await establishTrustedStagingEvidence({
+    principal,
+    agentId,
+    actionEnvironment: normalized.environment,
+    policyId: publicPolicyId,
+    policyVersion: publicPolicyVersion,
+  });
   try {
     const receipt = await executeCanonicalTrustTransaction({
       trustObject: { subjectType: "ai_agent", subjectId: agentId },
@@ -854,7 +863,7 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
       } : null,
       managedControl: {
         contradictions,
-        monitoringCoverage: monitoring ? monitoringCoverage : undefined,
+        monitoringCoverage: trustedStagingEvidence?.monitoringCoverage ?? (monitoring ? monitoringCoverage : undefined),
         oversightMode: deploymentContext?.oversight && ["HUMAN_IN_THE_LOOP", "HUMAN_ON_THE_LOOP", "HUMAN_OVER_THE_LOOP", "AUTONOMOUS"].includes(String(deploymentContext.oversight)) ? deploymentContext.oversight as "HUMAN_IN_THE_LOOP" | "HUMAN_ON_THE_LOOP" | "HUMAN_OVER_THE_LOOP" | "AUTONOMOUS" : undefined,
         executionStages,
         contextEvidence,
@@ -929,7 +938,7 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
       review_required: decision === "REVIEW",
       review_reference: decision === "REVIEW" ? receipt.decisionReference : null,
       blocking_reason_codes: decision === "REVIEW" ? receipt.reasonCodes : [],
-      required_evidence: decision === "REVIEW" ? ["NATIVE_ENTITY_IDENTITY_PROOF"] : [],
+      required_evidence: decision === "REVIEW" ? ["NATIVE_ENTITY_IDENTITY_PROOF", SERVER_VERIFIED_AGENT_CONFIGURATION, SERVER_VERIFIED_MONITORING] : [],
       human_approval_required: decision === "REVIEW",
       execution_authorization: executionAuthorization(receipt as unknown as Row),
       idempotent_replay: receipt.idempotentReplay,

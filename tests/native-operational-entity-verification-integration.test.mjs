@@ -116,7 +116,9 @@ test("native evidence participates in the existing canonical evidence collector 
   assert.match(collector, /native_entity_identity_evidence/);
   assert.match(collector, /evidence_objects/);
   assert.match(server, /providerId: "cyber_sentinels_native"/);
-  assert.match(collector, /const baselineEvidence = \[\.\.\.nativeEvidence, \.\.\.\(canonicalResult\.data \?\? \[\]\)\.map\(safeCanonicalEvidenceObject\)\]/);
+  assert.match(collector, /const baselineEvidence = \[\.\.\.\[\.\.\.nativeEvidence/);
+  assert.match(collector, /item\.providerId.*item\.sourcePartyId.*item\.type/);
+  assert.match(collector, /if \(!latest\.has\(key\)\) latest\.set\(key, item\)/);
   assert.match(collector, /if \(baselineEvidence\.length\) return baselineEvidence/);
   assert.match(collector, /hopae_verifications/);
   assert.match(collector, /\[\.\.\.baselineEvidence, \.\.\.\(result\.data \?\? \[\]\)\.map\(safeEvidence\)\]/);

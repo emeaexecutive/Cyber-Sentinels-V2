@@ -384,6 +384,8 @@ function safeCanonicalEvidenceObject(row: Row): StoredProviderEvidence {
     sourcePartyId: String(row.source_key ?? row.provider_key),
     sourceClassification: row.source_type === "PUBLIC_API_CLIENT_ASSERTION"
       ? "agent_asserted"
+      : row.source_type === "CONTINUOUS_TRUST_SIGNAL" && result === "INCONCLUSIVE"
+        ? "unconfirmed"
       : row.server_verified ? "provider_asserted" : "unconfirmed",
     serverVerified: row.server_verified === true,
     normalizedEvidence: row.normalized_facts && typeof row.normalized_facts === "object" ? row.normalized_facts as Row : {},
@@ -552,7 +554,15 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
         .limit(20);
       if (nativeResult.error) fail("Native evidence collection", nativeResult.error);
       const nativeEvidence = (nativeResult.data ?? []).map(safeNativeEvidence);
-      const baselineEvidence = [...nativeEvidence, ...(canonicalResult.data ?? []).map(safeCanonicalEvidenceObject)];
+      const baselineEvidence = [...[...nativeEvidence, ...(canonicalResult.data ?? []).map(safeCanonicalEvidenceObject)]
+        .reduce((latest, item) => {
+          // Both ledgers are newest-first and append-only. Preserve the first
+          // observation for each provider/source/type tuple so expired history
+          // cannot permanently poison a later current observation.
+          const key = `${item.providerId}:${item.sourcePartyId ?? item.providerId}:${item.type}`;
+          if (!latest.has(key)) latest.set(key, item);
+          return latest;
+        }, new Map<string, StoredProviderEvidence>()).values()];
       let workflowId: string | null = null;
       let providerSessionId: string | null = null;
       if (providerExecutionId) {
