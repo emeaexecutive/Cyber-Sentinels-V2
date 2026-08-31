@@ -127,7 +127,9 @@ export async function establishTrustedStagingEvidence(input: {
   ) unavailable("SYNTHETIC_STAGING_BASELINE_MISMATCH");
 
   const observedAt = new Date(Math.floor(nowMs / 300_000) * 300_000).toISOString();
-  const verifiedAt = new Date().toISOString();
+  // The ID and payload must describe the same bucket-stable observation so an
+  // idempotent API retry cannot produce a hash conflict for the same evidence.
+  const verifiedAt = observedAt;
   const expiresAt = new Date(Date.parse(observedAt) + 10 * 60_000).toISOString();
   const observationCorrelationId = deterministicUuid({
     tenantId: input.principal.tenantId,

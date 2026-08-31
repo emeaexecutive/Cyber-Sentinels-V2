@@ -75,3 +75,9 @@ test("revoked authority is left to the canonical engine and never causes new sta
   assert.match(source, /authority\.data\.revocation_state !== "active"\) return null/);
   assert.match(source, /verifier outage or mint new positive evidence/);
 });
+
+test("staging evidence payloads are deterministic across an idempotent retry", async () => {
+  const source = await import("node:fs/promises").then((fs) => fs.readFile(new URL("../lib/public-api/v1/trusted-staging-evidence.ts", import.meta.url), "utf8"));
+  assert.match(source, /const verifiedAt = observedAt/);
+  assert.doesNotMatch(source, /const verifiedAt = new Date\(\)\.toISOString\(\)/);
+});
