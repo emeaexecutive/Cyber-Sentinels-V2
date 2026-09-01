@@ -232,7 +232,7 @@ try {
 
   const fileAudit = String.raw`
 const fs=require('node:fs');const path=require('node:path');const root='/app';const bad=[];
-function walk(dir){for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const full=path.join(dir,entry.name);const rel=path.relative(root,full).replaceAll('\\','/');if(entry.isDirectory()){if(['.git','artifacts','reports','coverage','test-results','playwright-report'].includes(entry.name))bad.push(rel);else walk(full);}else if(/^\.env(?:\.|$)/.test(entry.name)||/\.(?:pem|key|dump|backup)$/i.test(entry.name)||/(?:credential-export|connection-string|diagnostic-output)/i.test(entry.name))bad.push(rel);}}walk(root);if(bad.length){console.error(JSON.stringify(bad));process.exit(1)}console.log('IMAGE_FILE_AUDIT=PASS');`;
+function walk(dir){for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const full=path.join(dir,entry.name);const rel=path.relative(root,full).replaceAll('\\','/');if(entry.isDirectory()){if(['.git','artifacts','reports','coverage','test-results','playwright-report'].includes(rel))bad.push(rel);else walk(full);}else if(/^\.env(?:\.|$)/.test(entry.name)||/\.(?:pem|key|dump|backup)$/i.test(entry.name)||/(?:credential-export|connection-string|diagnostic-output)/i.test(entry.name))bad.push(rel);}}walk(root);if(bad.length){console.error(JSON.stringify(bad));process.exit(1)}console.log('IMAGE_FILE_AUDIT=PASS');`;
   run(docker, ["run", "--rm", "--entrypoint", "node", image, "-e", fileAudit]);
   run(docker, ["run", "--rm", "--entrypoint", "node", rebuildImage, "-e", fileAudit]);
 
