@@ -33,7 +33,10 @@ logs
 
 tests
 scripts
-tools
+tools/**
+!tools/
+!tools/release/
+!tools/release/release-health.ts
 examples
 supabase
 
