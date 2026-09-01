@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "docker:verify": "node tools/docker-verify.mjs",
     "test:hopae": "node --experimental-strip-types --test tests/hopae-assurance.test.mjs tests/hopae-provider-integration.test.mjs",
     "test:providers": "node --experimental-strip-types --test tests/provider-abstraction.test.mjs",
     "test:provider-rls": "node --test tests/rls/provider-abstraction.test.mjs",
