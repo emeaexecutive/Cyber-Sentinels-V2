@@ -9,8 +9,8 @@ export async function POST(request: Request) {
     route: "/api/v1/agents",
     routeClass: "registration",
     scopes: ["agents:write"],
-  }, async ({ principal, correlationId }) => {
+  }, async ({ principal, correlationId, requestId }) => {
     const result = await registerExternalAgent(principal, await boundedJson(request, 16_384));
-    return publicApiResponse(result, { status: 201 }, correlationId);
+    return publicApiResponse(result, { status: 201 }, correlationId, requestId);
   });
 }

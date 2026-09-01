@@ -8,8 +8,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ tran
     route: "/api/v1/trust/transactions/{transactionId}/receipt",
     routeClass: "read",
     scopes: ["trust:read"],
-  }, async ({ principal, correlationId }) =>
+  }, async ({ principal, correlationId, requestId }) =>
     publicApiResponse(await getExternalReceipt(principal, transactionId), {
       headers: { "content-disposition": `attachment; filename="cyber-sentinels-${transactionId}.json"` },
-    }, correlationId));
+    }, correlationId, requestId));
 }

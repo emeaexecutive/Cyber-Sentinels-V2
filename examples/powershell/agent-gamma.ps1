@@ -115,17 +115,30 @@ function Get-ResponseHeader {
 }
 
 function New-CyberSentinelsHttpClient {
-    param([string]$VercelAutomationBypassSecret = "")
+    param(
+        [string]$VercelAutomationBypassSecret = "",
+        [string]$VercelProtectionCookie = ""
+    )
 
     Add-Type -AssemblyName System.Net.Http
     $handler = New-Object System.Net.Http.HttpClientHandler
     $handler.AllowAutoRedirect = $false
-    $handler.UseCookies = $true
+    # HttpClientHandler otherwise consumes an explicit Cookie header into its
+    # own empty container. Disable that behavior for the process-only preview
+    # cookie so the header is sent exactly as supplied.
+    $handler.UseCookies = -not [bool]$VercelProtectionCookie
     $client = New-Object System.Net.Http.HttpClient($handler)
     $client.Timeout = [TimeSpan]::FromSeconds(60)
     $client.DefaultRequestHeaders.UserAgent.ParseAdd("Cyber-Sentinels-PowerShell-Quickstart/0.1")
     if ($VercelAutomationBypassSecret) {
         [void]$client.DefaultRequestHeaders.TryAddWithoutValidation("x-vercel-protection-bypass", $VercelAutomationBypassSecret)
+    }
+    if ($VercelProtectionCookie) {
+        if ($VercelProtectionCookie -match '[\r\n;]') {
+            $client.Dispose()
+            throw (New-CyberSentinelsException "VERCEL_PROTECTION_COOKIE is malformed." "VERCEL_PROTECTION_COOKIE_MALFORMED")
+        }
+        [void]$client.DefaultRequestHeaders.TryAddWithoutValidation("Cookie", "_vercel_jwt=$VercelProtectionCookie")
     }
     return $client
 }
@@ -239,7 +252,7 @@ function Test-CyberSentinelsConfiguration {
     }
 
     $ownsClient = $null -eq $HttpClient
-    if ($ownsClient) { $HttpClient = New-CyberSentinelsHttpClient $env:VERCEL_AUTOMATION_BYPASS_SECRET }
+    if ($ownsClient) { $HttpClient = New-CyberSentinelsHttpClient $env:VERCEL_AUTOMATION_BYPASS_SECRET $env:VERCEL_PROTECTION_COOKIE }
     try {
         $normalizedBase = $baseUri.GetLeftPart([UriPartial]::Authority).TrimEnd("/")
         $openApiUri = New-Object Uri("$normalizedBase/api/v1/openapi.json")
@@ -256,11 +269,11 @@ function Test-CyberSentinelsConfiguration {
 
         # A tenant-scoped, non-mutating lookup proves authentication and the
         # authority:read scope. A valid full-journey key must return the safe
-        # AGENT_NOT_FOUND response for this deliberately nonexistent ID.
+        # stable AGENT_NOT_OWNED response for this deliberately nonexistent ID.
         $authProbeUri = New-Object Uri("$normalizedBase/api/v1/agents/preflight-probe/authority")
         $authProbe = Invoke-CyberSentinelsHttp $HttpClient "GET" $authProbeUri $null $ApiKey
         $probeError = Read-SafeApiError $authProbe
-        if ($authProbe.Status -ne 404 -or $probeError.Code -ne "AGENT_NOT_FOUND") {
+        if ($authProbe.Status -ne 404 -or $probeError.Code -notin @("AGENT_NOT_OWNED", "AGENT_NOT_FOUND")) {
             if ($authProbe.Status -eq 401) {
                 throw (New-CyberSentinelsException "The API key was rejected. It may be invalid, expired, revoked, or inactive." $probeError.Code 401 $probeError.CorrelationId)
             }
@@ -536,8 +549,24 @@ function Invoke-AgentGammaJourney {
     if (-not $replayRejected) { throw (New-CyberSentinelsException "The consumed challenge was accepted twice." "CHALLENGE_REPLAY_ACCEPTED") }
     Write-CyberSentinelsMarker "CHALLENGE_REPLAY" ([ordered]@{ result = "REJECTED" })
 
-    $authority = Invoke-CyberSentinelsApi "GET" (Get-AgentPath $agentId "authority")
-    Write-CyberSentinelsMarker "AUTHORITY" $authority
+    $encodedAgentId = [Uri]::EscapeDataString($agentId)
+    $registeredAgent = Invoke-CyberSentinelsApi "GET" "/api/v1/agents/$encodedAgentId"
+    Write-CyberSentinelsMarker "AGENT" ([ordered]@{ agent_id = $registeredAgent.agent_id; authority_reference = $registeredAgent.authority_reference })
+
+    $authorityPath = Get-AgentPath $agentId "authorities"
+    $authority = Invoke-CyberSentinelsApi "POST" $authorityPath ([ordered]@{
+        action = "read_repository"; target = "repository:a"; purpose = "deployment_evidence_review"; environment = "staging"
+        expires_at = [DateTime]::UtcNow.AddHours(1).ToString("yyyy-MM-ddTHH:mm:ss.fffZ", [Globalization.CultureInfo]::InvariantCulture)
+        data_boundary = "INTERNAL"; execution_limit = 100
+    })
+    $authorityId = Assert-NonEmptyIdentifier $authority.authority_id "AuthorityId"
+    $authorityHistory = Invoke-CyberSentinelsApi "GET" $authorityPath
+    $authorityVersion = Invoke-CyberSentinelsApi "GET" "$authorityPath/$([Uri]::EscapeDataString($authorityId))"
+    $currentAuthority = Invoke-CyberSentinelsApi "GET" (Get-AgentPath $agentId "authority")
+    Write-CyberSentinelsMarker "AUTHORITY" ([ordered]@{
+        authority_id = $authorityId; authority_version = $authority.authority_version; status = $currentAuthority.status
+        history_count = @($authorityHistory.authorities).Count; version_status = $authorityVersion.status
+    })
 
     $allowIdempotencyKey = "gamma-allow-$([Guid]::NewGuid())"
     $allowRequest = [ordered]@{
@@ -555,6 +584,43 @@ function Invoke-AgentGammaJourney {
         throw (New-CyberSentinelsException "The idempotent retry did not return the original logical transaction." "IDEMPOTENCY_NOT_PROVEN")
     }
     Write-CyberSentinelsMarker "IDEMPOTENCY" ([ordered]@{ transaction_id = $transactionId; idempotent_replay = $true; correlation_id = $allowRetry.correlation_id })
+
+    $reviewIdempotencyKey = "gamma-review-$([Guid]::NewGuid())"
+    $reviewRequest = [ordered]@{
+        operational_entity_id = $operationalEntityId
+        action = [ordered]@{ type = "read_repository"; target = "repository:a"; purpose = "deployment_evidence_review"; environment = "staging" }
+        context = [ordered]@{ previous_transaction_id = $transactionId; material_changes = @("CUSTOMER_ZERO_HUMAN_REVIEW_REQUIRED") }
+        idempotency_key = $reviewIdempotencyKey
+    }
+    $reviewDecision = Invoke-CyberSentinelsApi "POST" "/api/v1/trust/decisions" $reviewRequest @{ "Idempotency-Key" = $reviewIdempotencyKey }
+    if ($reviewDecision.decision -ne "REVIEW" -or $null -ne $reviewDecision.execution_authorization) {
+        throw (New-CyberSentinelsException "Expected canonical REVIEW with no execution authorization." "REVIEW_NOT_PROVEN")
+    }
+    $reviewReference = Assert-NonEmptyIdentifier $reviewDecision.review_reference "ReviewReference"
+    $reviewPath = "/api/v1/reviews/$([Uri]::EscapeDataString($reviewReference))"
+    $requestedReview = Invoke-CyberSentinelsApi "GET" $reviewPath
+    $resolvedReview = Invoke-CyberSentinelsApi "POST" "$reviewPath/resolve" ([ordered]@{
+        resolution = "APPROVED"
+        reason = "Customer Zero authorized reviewer approved this exact staging action."
+        evidence_reference = "customer-zero-review:$([Guid]::NewGuid())"
+    })
+    if ($requestedReview.original_decision -ne "REVIEW" -or $resolvedReview.original_decision -ne "REVIEW" -or $resolvedReview.next_action -ne "SUBMIT_NEW_CANONICAL_EVALUATION") {
+        throw (New-CyberSentinelsException "Review resolution bypassed immutable REVIEW semantics." "REVIEW_IMMUTABILITY_NOT_PROVEN")
+    }
+    Write-CyberSentinelsMarker "REVIEW" ([ordered]@{
+        review_reference = $reviewReference; transaction_id = $reviewDecision.transaction_id; original_decision = $resolvedReview.original_decision
+        resolution = $resolvedReview.disposition; next_action = $resolvedReview.next_action
+    })
+
+    $postReviewIdempotencyKey = "gamma-post-review-$([Guid]::NewGuid())"
+    $postReview = Invoke-CyberSentinelsApi "POST" "/api/v1/trust/decisions" ([ordered]@{
+        operational_entity_id = $operationalEntityId
+        action = [ordered]@{ type = "read_repository"; target = "repository:a"; purpose = "deployment_evidence_review"; environment = "staging" }
+        context = [ordered]@{ previous_transaction_id = $reviewDecision.transaction_id; human_approval_reference = $reviewReference }
+        idempotency_key = $postReviewIdempotencyKey
+    }) @{ "Idempotency-Key" = $postReviewIdempotencyKey }
+    if ($postReview.decision -ne "ALLOW") { throw (New-CyberSentinelsException "The post-review fresh evaluation did not ALLOW." "POST_REVIEW_ALLOW_NOT_PROVEN") }
+    Write-CyberSentinelsMarker "POST_REVIEW_ALLOW" ([ordered]@{ transaction_id = $postReview.transaction_id; decision = $postReview.decision })
 
     $denyIdempotencyKey = "gamma-deny-$([Guid]::NewGuid())"
     $denyRequest = [ordered]@{
@@ -588,6 +654,33 @@ function Invoke-AgentGammaJourney {
         status = $outcome.status; evidence_independence = $outcome.evidence_independence
         independent_destination_evidence = $outcome.independent_destination_evidence
     })
+
+    $revocation = Invoke-CyberSentinelsApi "POST" "$authorityPath/$([Uri]::EscapeDataString($authorityId))/revoke" ([ordered]@{
+        reason = "Customer Zero post-decision revocation proof."
+    })
+    $revokedAuthority = Invoke-CyberSentinelsApi "GET" "$authorityPath/$([Uri]::EscapeDataString($authorityId))"
+    if ($revokedAuthority.status -ne "REVOKED") { throw (New-CyberSentinelsException "Authority history did not preserve revocation." "REVOCATION_NOT_PROVEN") }
+    Write-CyberSentinelsMarker "REVOCATION" ([ordered]@{
+        authority_id = $authorityId; authority_version = $authority.authority_version; status = $revocation.status; revocation_reference = $revocation.revocation_reference
+    })
+
+    $postRevocationKey = "gamma-post-revocation-$([Guid]::NewGuid())"
+    $postRevocation = Invoke-CyberSentinelsApi "POST" "/api/v1/trust/decisions" ([ordered]@{
+        operational_entity_id = $operationalEntityId
+        action = [ordered]@{ type = "read_repository"; target = "repository:a"; purpose = "deployment_evidence_review"; environment = "staging" }
+        context = [ordered]@{ previous_transaction_id = $postReview.transaction_id }
+        idempotency_key = $postRevocationKey
+    }) @{ "Idempotency-Key" = $postRevocationKey }
+    if ($postRevocation.decision -ne "DENY" -or $null -ne $postRevocation.execution_authorization) {
+        throw (New-CyberSentinelsException "A later action remained authorized after revocation." "POST_REVOCATION_DENY_NOT_PROVEN")
+    }
+    $postRevocationTransactionId = Assert-NonEmptyIdentifier $postRevocation.transaction_id "PostRevocationTransactionId"
+    $postRevocationReceipt = Invoke-CyberSentinelsApi "GET" "/api/v1/trust/transactions/$([Uri]::EscapeDataString($postRevocationTransactionId))/receipt"
+    $postRevocationReplay = Invoke-CyberSentinelsApi "GET" "/api/v1/trust/transactions/$([Uri]::EscapeDataString($postRevocationTransactionId))/replay"
+    Write-CyberSentinelsMarker "POST_REVOCATION_DENY" ([ordered]@{
+        transaction_id = $postRevocationTransactionId; decision = $postRevocation.decision; receipt_id = $postRevocationReceipt.receipt_id
+        replay_id = $postRevocationReplay.replay_id; reason_codes = $postRevocation.reason_codes
+    })
     Write-CyberSentinelsMarker "GAMMA_RESULT" "PUBLIC_HTTPS_API_ONLY_END_TO_END_COMPLETE"
 }
 
@@ -596,7 +689,7 @@ $script:TemporaryDirectory = Join-Path ([IO.Path]::GetTempPath()) ("cyber-sentin
 
 try {
     [IO.Directory]::CreateDirectory($script:TemporaryDirectory) | Out-Null
-    $script:HttpClient = New-CyberSentinelsHttpClient $env:VERCEL_AUTOMATION_BYPASS_SECRET
+    $script:HttpClient = New-CyberSentinelsHttpClient $env:VERCEL_AUTOMATION_BYPASS_SECRET $env:VERCEL_PROTECTION_COOKIE
     Invoke-AgentGammaJourney
 }
 catch {

@@ -33,8 +33,53 @@ test("OpenAPI documents auth, errors, idempotency, limits, webhooks and strict d
   assert.ok(publicApiOpenApi.components.schemas.Decision.properties.provider_neutral_evidence);
   assert.ok(publicApiOpenApi.paths["/api/v1/evidence"].post);
   assert.equal(publicApiOpenApi.components.schemas.EvidenceRequest.additionalProperties, false);
-  assert.match(JSON.stringify(publicApiOpenApi), /PROVIDER FINDING|Provider findings/);
+  assert.match(JSON.stringify(publicApiOpenApi), /AGENT_ASSERTED/);
+  assert.equal(publicApiOpenApi.components.schemas.EvidenceRequest.properties.provider.properties.key.enum[0], "self");
+  for (const field of ["decision_id", "transaction_id", "receipt_id", "replay_id", "agent_id", "authority_reference", "policy_reference", "correlation_id", "created_at"]) assert.ok(publicApiOpenApi.components.schemas.Decision.properties[field] || JSON.stringify(publicApiOpenApi).includes(`\"${field}\"`));
   for (const event of ["decision.created", "monitoring.coverage_gap", "deployment.reauthorization_required", "intent.execution_mismatch", "execution.outcome", "receipt.available"]) assert.match(JSON.stringify(publicApiOpenApi), new RegExp(event.replace(".", "\\.")));
+  for (const decision of ["ALLOW", "REVIEW", "DENY"]) assert.match(JSON.stringify(publicApiOpenApi.paths["/api/v1/trust/decisions"]), new RegExp(decision));
+  for (const field of ["request_id", "correlation_id", "api_version"]) assert.match(JSON.stringify(publicApiOpenApi.components.schemas.Error), new RegExp(field));
+  assert.ok(publicApiOpenApi.paths["/api/v1/trust/decisions"].post.responses["413"]);
+  assert.ok(publicApiOpenApi.paths["/api/v1/trust/decisions"].post.responses["429"].headers["Retry-After"]);
+  assert.equal(publicApiOpenApi.paths["/api/v1/trust/transactions/{transactionId}/receipt"].get.responses["200"].content["application/json"].schema.$ref, "#/components/schemas/Receipt");
+  assert.equal(publicApiOpenApi.paths["/api/v1/trust/transactions/{transactionId}/replay"].get.responses["200"].content["application/json"].schema.$ref, "#/components/schemas/Replay");
+  assert.equal(publicApiOpenApi.components.schemas.Replay.properties.events.items.properties.source.const, "canonical_trust_transaction");
+  assert.match(publicApiOpenApi.paths["/api/v1/trust/decisions"].post.description, /REVIEW requires the caller to stop/);
+  assert.match(publicApiOpenApi.paths["/api/v1/agents"].post.description, /PENDING_IDENTITY/);
+  for (const field of ["review_reference", "blocking_reason_codes", "required_evidence", "human_approval_required", "idempotent_replay"]) {
+    assert.ok(publicApiOpenApi.paths["/api/v1/trust/decisions"].post.responses["201"].content["application/json"].schema.allOf[1].properties[field]);
+  }
+  const decisionContext = publicApiOpenApi.components.schemas.DecisionRequest.properties.context.properties;
+  for (const field of ["intent_reference", "previous_transaction_id", "authority_version", "policy_version", "current_evidence_references", "material_change_references", "human_approval_reference"]) assert.ok(decisionContext[field], field);
+  assert.ok(publicApiOpenApi.components.schemas.ConsequenceTime);
+  assert.equal(publicApiOpenApi.components.schemas.ConsequenceTime.properties.previous_allow_standing_authorization.const, false);
+  assert.equal(publicApiOpenApi.paths["/api/v1/trust/decisions"].post.responses["201"].content["application/json"].schema.allOf[1].properties.consequence_time.$ref, "#/components/schemas/ConsequenceTime");
+  for (const field of ["authority_version", "current_condition_references", "material_change_references", "consequence_time"]) assert.ok(publicApiOpenApi.components.schemas.Receipt.properties[field]);
+  for (const field of ["authority_version", "consequence_time", "decision_comparison", "outcome_evidence"]) assert.ok(publicApiOpenApi.components.schemas.Replay.properties[field]);
+  assert.match(publicApiOpenApi.paths["/api/v1/trust/decisions"].post.description, /prior ALLOW.*never standing authorization/i);
+});
+
+test("OpenAPI freezes the least-privilege scope for every authenticated operation", () => {
+  const expected = {
+    "post /api/v1/agents": "agents:write",
+    "get /api/v1/agents/{agentId}": "authority:read",
+    "post /api/v1/agents/{agentId}/credentials": "agents:write",
+    "post /api/v1/agents/{agentId}/manifest": "agents:write",
+    "post /api/v1/agents/{agentId}/challenge": "agents:verify",
+    "post /api/v1/agents/{agentId}/proof": "agents:verify",
+    "get /api/v1/agents/{agentId}/authority": "authority:read",
+    "get /api/v1/agents/{agentId}/trust-state": "authority:read",
+    "post /api/v1/trust/decisions": "trust:request",
+    "post /api/v1/evidence": "evidence:write",
+    "get /api/v1/trust/transactions/{transactionId}": "trust:read",
+    "get /api/v1/trust/transactions/{transactionId}/replay": "trust:read",
+    "get /api/v1/trust/transactions/{transactionId}/receipt": "trust:read",
+    "post /api/v1/trust/transactions/{transactionId}/outcomes": "outcomes:write",
+  };
+  for (const [operation, scope] of Object.entries(expected)) {
+    const [method, path] = operation.split(" ");
+    assert.deepEqual(publicApiOpenApi.paths[path][method]["x-required-scopes"], [scope], operation);
+  }
 });
 
 test("quickstart curl paths are all real OpenAPI operations", async () => {

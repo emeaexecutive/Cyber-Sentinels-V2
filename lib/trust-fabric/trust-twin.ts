@@ -16,6 +16,7 @@ import {
   type VerificationEvidenceInput,
 } from "./adaptive-verification.ts";
 import type { ModelStateIntegrityAssessment } from "./model-state-integrity.ts";
+import type { AuthorityIntegrityAssessment } from "./authority-integrity.ts";
 
 export const TRUST_PRESSURE_LEVELS = ["LOW", "MODERATE", "HIGH", "CRITICAL", "UNKNOWN"] as const;
 export const TRUST_PRESSURE_TRENDS = ["RISING", "FALLING", "STABLE", "SPIKING", "UNKNOWN"] as const;
@@ -35,6 +36,11 @@ export const COUNTERFACTUAL_CHANGE_TYPES = [
   "PIN_DESTINATION",
   "RESTORE_MONITORING",
   "REFRESH_RUNTIME_ATTESTATION",
+  "WIDEN_AUTHORITY",
+  "MODEL_CONTROL_DESTINATION",
+  "DELAY_RUNTIME_AUTHORITY_REFRESH",
+  "DELAY_CREDENTIAL_ROTATION",
+  "PIN_PARAMETER_TO_AUTHORITY",
 ] as const;
 export const TRUST_TWIN_ENTITY_TYPES = ["HUMAN", "AI_AGENT", "SOFTWARE_AGENT", "WORKLOAD", "MACHINE", "ROBOT"] as const;
 
@@ -169,6 +175,16 @@ export type TrustTwin = {
   providerConfidence: number;
   evidenceFreshness: "CURRENT" | "AGING" | "STALE" | "EXPIRED" | "UNAVAILABLE";
   authorizationPropagation: TrustTwinStateValue;
+  declaredAuthority: string[];
+  runtimeEffectiveAuthority: string[];
+  destinationEffectiveAuthority: string[] | null;
+  authorityPropagationState: AuthorityIntegrityAssessment["authorizationPropagation"]["state"] | "NOT_OBSERVED";
+  parameterAuthorityBindings: AuthorityIntegrityAssessment["parameterAuthority"];
+  parameterProvenance: Array<{ parameterName: string; provenance: string | null; state: string }>;
+  authorityEvidenceFreshness: "CURRENT" | "STALE" | "UNAVAILABLE";
+  staleAuthorityRisk: boolean;
+  authorityConflicts: string[];
+  authorityIntegrity: AuthorityIntegrityAssessment | null;
   approvedModelState: ModelStateIntegrityAssessment["approvedModelState"] | null;
   observedModelState: ModelStateIntegrityAssessment["observedModelState"] | null;
   modelIntegrityState: ModelStateIntegrityAssessment["modelIntegrityState"] | "NOT_OBSERVED";
@@ -242,6 +258,7 @@ export type TrustTwinEvaluationInput = {
   verificationEvidence?: VerificationEvidenceInput[];
   verificationPolicy?: Partial<AdaptiveVerificationPolicy> | null;
   modelStateIntegrity?: ModelStateIntegrityAssessment | null;
+  authorityIntegrity?: AuthorityIntegrityAssessment | null;
 };
 
 export type CounterfactualChange = {
@@ -614,6 +631,7 @@ export function createTrustTwin(input: TrustTwinEvaluationInput): TrustTwin {
   if (!referencePattern.test(input.entity.id) || !Number.isFinite(Date.parse(input.evaluatedAt))) throw new TypeError("Trust Twin entity or timestamp is invalid.");
   if (input.previousTwin && (input.previousTwin.enterpriseId !== input.enterpriseId || input.previousTwin.entityId !== input.entity.id)) throw new Error("TRUST_TWIN_PREVIOUS_SCOPE_MISMATCH");
   if (input.modelStateIntegrity && (input.modelStateIntegrity.enterpriseId !== input.enterpriseId || input.modelStateIntegrity.agentId !== input.entity.id)) throw new Error("TRUST_TWIN_MODEL_STATE_SCOPE_MISMATCH");
+  if (input.authorityIntegrity && input.authorityIntegrity.actionTimeEvidence.enterpriseId !== input.enterpriseId) throw new Error("TRUST_TWIN_AUTHORITY_INTEGRITY_SCOPE_MISMATCH");
   if (input.modelStateIntegrity) {
     input = {
       ...input,
@@ -724,6 +742,16 @@ export function createTrustTwin(input: TrustTwinEvaluationInput): TrustTwin {
     providerConfidence: forecast.confidence,
     evidenceFreshness: conditions.some((item) => item.freshness === "EXPIRED") ? "EXPIRED" as const : conditions.some((item) => item.freshness === "STALE") ? "STALE" as const : conditions.some((item) => item.freshness === "AGING") ? "AGING" as const : conditions.some((item) => item.freshness === "UNAVAILABLE") ? "UNAVAILABLE" as const : "CURRENT" as const,
     authorizationPropagation: state(conditions, "AUTHORIZATION_PROPAGATION"),
+    declaredAuthority: input.authorityIntegrity?.runtimeAuthority?.declaredAuthority ?? [],
+    runtimeEffectiveAuthority: input.authorityIntegrity?.runtimeAuthority?.runtimeEffectiveAuthority ?? [],
+    destinationEffectiveAuthority: input.authorityIntegrity?.runtimeAuthority?.destinationEffectiveAuthority ?? null,
+    authorityPropagationState: input.authorityIntegrity?.authorizationPropagation.state ?? "NOT_OBSERVED" as const,
+    parameterAuthorityBindings: input.authorityIntegrity?.parameterAuthority ?? [],
+    parameterProvenance: input.authorityIntegrity?.parameterAuthority.map((item) => ({ parameterName: item.parameterName, provenance: item.observedProvenance, state: item.state })) ?? [],
+    authorityEvidenceFreshness: !input.authorityIntegrity?.runtimeAuthority ? "UNAVAILABLE" as const : Date.parse(input.evaluatedAt) - Date.parse(input.authorityIntegrity.runtimeAuthority.measurementTime) > 86_400_000 ? "STALE" as const : "CURRENT" as const,
+    staleAuthorityRisk: ["STALE_AUTHORITY_POSSIBLE", "STALE_AUTHORITY_CONFIRMED"].includes(input.authorityIntegrity?.authorizationPropagation.state ?? ""),
+    authorityConflicts: input.authorityIntegrity?.findings.filter((item) => /CONFLICT|MISMATCH/.test(item.code)).map((item) => item.code) ?? [],
+    authorityIntegrity: input.authorityIntegrity ?? null,
     approvedModelState: input.modelStateIntegrity?.approvedModelState ?? null,
     observedModelState: input.modelStateIntegrity?.observedModelState ?? null,
     modelIntegrityState: input.modelStateIntegrity?.modelIntegrityState ?? "NOT_OBSERVED" as const,
@@ -865,6 +893,14 @@ function projectChange(conditions: TrustConditionInput[], reach: ConsequenceReac
   }
   if (change.changeType === "RESTORE_MONITORING") updatedCondition(conditions, "MONITORING_COVERAGE", { status: "COMPLETE", trend: "IMPROVING", summary: "Monitoring coverage is restored and verified.", signals: [], evidenceReferences: [reference] });
   if (change.changeType === "REFRESH_RUNTIME_ATTESTATION") updatedCondition(conditions, "RUNTIME_ASSURANCE", { status: "STABLE", trend: "IMPROVING", summary: "Runtime attestation is current for the projected context.", lastVerifiedAt: evaluatedAt, freshness: "CURRENT", signals: [], evidenceReferences: [reference] });
+  if (change.changeType === "WIDEN_AUTHORITY") updatedCondition(conditions, "AUTHORITY_EXPOSURE", { status: "SEVERE", trend: "RAPIDLY_DETERIORATING", summary: "Authority is widened in the isolated counterfactual state.", signals: ["AUTHORITY_CHANGED", "PRIVILEGE_INCREASED"], evidenceReferences: [reference] });
+  if (change.changeType === "MODEL_CONTROL_DESTINATION") updatedCondition(conditions, "DESTINATION_EXPOSURE", { status: "ELEVATED", trend: "RAPIDLY_DETERIORATING", summary: "Destination selection becomes model-controlled in the isolated counterfactual state.", signals: ["MODEL_CONTROLLED_SECURITY_BOUNDARY", "DESTINATION_BINDING_LOST"], evidenceReferences: [reference] });
+  if (change.changeType === "DELAY_RUNTIME_AUTHORITY_REFRESH") {
+    updatedCondition(conditions, "AUTHORIZATION_PROPAGATION", { status: "SEVERE", trend: "RAPIDLY_DETERIORATING", summary: "Runtime-effective authority does not refresh after the simulated control-plane change.", signals: ["AUTHORITY_PROPAGATION_UNRESOLVED", "STALE_AUTHORITY_POSSIBLE"], evidenceReferences: [reference] });
+    updatedCondition(conditions, "STALE_AUTHORITY_RISK", { status: "ELEVATED", trend: "DETERIORATING", summary: "Delayed runtime refresh creates a simulated stale-authority risk.", signals: ["STALE_AUTHORITY_POSSIBLE"], evidenceReferences: [reference] });
+  }
+  if (change.changeType === "DELAY_CREDENTIAL_ROTATION") updatedCondition(conditions, "STALE_AUTHORITY_RISK", { status: "ELEVATED", trend: "DETERIORATING", summary: "Credential rotation is delayed in the isolated counterfactual state.", signals: ["STALE_AUTHORITY_POSSIBLE", "CREDENTIAL_ROTATION_DELAYED"], evidenceReferences: [reference] });
+  if (change.changeType === "PIN_PARAMETER_TO_AUTHORITY") updatedCondition(conditions, "TOOL_PARAMETER_PROVENANCE", { status: "STABLE", trend: "IMPROVING", summary: "The security-critical parameter is pinned to the authority contract in the isolated counterfactual state.", signals: [], evidenceReferences: [reference] });
 }
 
 export function simulateCounterfactualTrust(input: { enterpriseId: string; currentTwin: TrustTwin; changes: CounterfactualChange[]; evaluatedAt: string }): CounterfactualTrustSimulation {
@@ -907,6 +943,7 @@ export function simulateCounterfactualTrust(input: { enterpriseId: string; curre
     proposedChanges: changeTypes,
     verificationEvidence: counterfactualVerificationEvidence(input.changes, input.evaluatedAt),
     modelStateIntegrity: input.currentTwin.modelStateIntegrity,
+    authorityIntegrity: input.currentTwin.authorityIntegrity,
   });
   const simulationId = deterministicUuid({ type: "COUNTERFACTUAL_TRUST_SIMULATION", sourceTwinDigest: input.currentTwin.twinDigest, evaluatedAt: input.evaluatedAt, changes: input.changes });
   const evidenceReferences = unique(projectedTwin.evidenceReferences);

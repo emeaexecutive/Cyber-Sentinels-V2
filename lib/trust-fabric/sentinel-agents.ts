@@ -6,7 +6,7 @@ import type { CounterfactualTrustSimulation, TrustBudget, TrustPressure, TrustTw
 export const SENTINEL_ROLES = ["AUTHORITY", "IDENTITY", "RUNTIME", "EVIDENCE", "DEPLOYMENT", "WORKFORCE", "ROBOTICS"] as const;
 export const SENTINEL_ATTENTION_STATES = ["NORMAL", "WATCHING", "INVESTIGATING", "ESCALATED", "PAUSED"] as const;
 export const TRUST_WEATHER_STATES = ["CLEAR", "WATCH", "DETERIORATING", "SEVERE", "INSUFFICIENT_EVIDENCE"] as const;
-export const SENTINEL_RECOMMENDATIONS = ["NO_ACTION", "OBSERVE", "REQUEST_EVIDENCE", "STEP_UP_VERIFICATION", "REQUALIFY_RUNTIME", "PIN_DESTINATION", "REDUCE_AUTHORITY", "RESTORE_MONITORING", "ROTATE_CREDENTIAL", "REQUIRE_HUMAN_APPROVAL", "REAUTHORIZE", "HOLD_DEPLOYMENT"] as const;
+export const SENTINEL_RECOMMENDATIONS = ["NO_ACTION", "OBSERVE", "REQUEST_EVIDENCE", "STEP_UP_VERIFICATION", "REQUALIFY_RUNTIME", "PIN_PARAMETER_TO_AUTHORITY", "PIN_DESTINATION", "REQUIRE_HUMAN_BINDING", "REQUIRE_RUNTIME_DERIVATION", "RESTORE_POLICY_BINDING", "VERIFY_PARAMETER_PROVENANCE", "VERIFY_PROPAGATION_COMPLETION", "REDUCE_AUTHORITY", "RESTORE_MONITORING", "ROTATE_CREDENTIAL", "REQUIRE_HUMAN_APPROVAL", "REAUTHORIZE", "HOLD_DEPLOYMENT"] as const;
 export const SENTINEL_ALLOWED_OPERATIONS = ["OBSERVE_CANONICAL_EVIDENCE", "READ_TRUST_TWIN", "READ_AUTHORITY_LINEAGE", "READ_EFFECTIVE_ACCESS", "READ_TRUST_MEMORY", "READ_POLICY", "READ_CONSEQUENCE_REACH", "RUN_COUNTERFACTUAL", "RECOMMEND_CONTROL", "ESCALATE_TO_CANONICAL_REVIEW"] as const;
 export const SENTINEL_PROHIBITED_OPERATIONS = ["GRANT_AUTHORITY", "MODIFY_AUTHORITY", "MODIFY_POLICY", "FABRICATE_EVIDENCE", "EXTERNAL_WRITE", "CANONICAL_ALLOW", "CANONICAL_REVIEW", "CANONICAL_DENY", "SELF_APPROVE"] as const;
 
@@ -339,14 +339,17 @@ function attentionFor(twin: TrustTwin, simulation: CounterfactualTrustSimulation
 function recommendationsFor(twin: TrustTwin): SentinelRecommendation[] {
   const missing = twin.adaptiveVerification.missingEvidence;
   const output: SentinelRecommendation[] = [];
-  if (missing.includes("VERIFY_RUNTIME") || missing.includes("VERIFY_AGENT_CONFIGURATION") || missing.includes("VERIFY_MODEL_STATE")) output.push("REQUALIFY_RUNTIME");
-  if (missing.includes("VERIFY_DESTINATION")) output.push("PIN_DESTINATION");
-  if (missing.includes("VERIFY_AUTHORITY")) output.push("REDUCE_AUTHORITY");
+  if (missing.includes("VERIFY_RUNTIME") || missing.includes("VERIFY_AGENT_CONFIGURATION") || missing.includes("VERIFY_MODEL_STATE") || missing.includes("VERIFY_RUNTIME_AUTHORITY")) output.push("REQUALIFY_RUNTIME");
+  if (missing.includes("VERIFY_DESTINATION") || missing.includes("VERIFY_DESTINATION_AUTHORITY")) output.push("PIN_DESTINATION");
+  if (missing.includes("VERIFY_AUTHORITY") || missing.includes("VERIFY_AUTHORITY_STATE")) output.push("REDUCE_AUTHORITY");
+  if (missing.includes("VERIFY_PARAMETER_PROVENANCE")) output.push("VERIFY_PARAMETER_PROVENANCE");
+  if (missing.includes("VERIFY_PROPAGATION_COMPLETION")) output.push("VERIFY_PROPAGATION_COMPLETION");
   if (missing.includes("VERIFY_MONITORING")) output.push("RESTORE_MONITORING");
   if (missing.includes("VERIFY_IDENTITY") || missing.includes("VERIFY_DEVICE")) output.push("STEP_UP_VERIFICATION");
   if (missing.includes("VERIFY_HUMAN_INTENT")) output.push("REQUIRE_HUMAN_APPROVAL");
   if (missing.includes("VERIFY_POLICY_ACKNOWLEDGEMENT")) output.push("REQUEST_EVIDENCE");
   if (twin.trustForecast.deploymentRecommendation === "HOLD") output.push("HOLD_DEPLOYMENT");
+  for (const control of twin.authorityIntegrity?.minimumPreventativeControls ?? []) if (SENTINEL_RECOMMENDATIONS.includes(control as SentinelRecommendation)) output.push(control as SentinelRecommendation);
   return unique(output.length ? output : [twin.trustForecast.state === "STABLE" ? "OBSERVE" : "REQUEST_EVIDENCE"]);
 }
 
@@ -361,6 +364,8 @@ function observationFor(twin: TrustTwin, evaluatedAt: string, simulation: Counte
     ...twin.trustForecast.primaryContributors.map((item) => `${item.dimension}:${item.status}`),
     ...twin.adaptiveVerification.missingEvidence.map((item) => `MISSING:${item}`),
     ...(twin.modelStateIntegrity?.findings.map((item) => item.code) ?? []),
+    ...(twin.authorityIntegrity?.findings.map((item) => item.code) ?? []),
+    ...(twin.authorityIntegrity ? [`AUTHORIZATION_PROPAGATION:${twin.authorityIntegrity.authorizationPropagation.state}`] : []),
     ...(simulation?.proposedChanges.map((item) => `PROPOSED:${item.changeType}`) ?? []),
   ]);
   const material = Boolean(simulation || twin.materialEvents.length || twin.adaptiveVerification.trustGap.exists || !["STABLE", "WATCH"].includes(twin.trustForecast.state));

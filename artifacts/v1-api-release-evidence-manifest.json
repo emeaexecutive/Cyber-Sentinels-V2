@@ -1,0 +1,44 @@
+{
+  "schema_version": "v1-api-release-evidence-1",
+  "generated_for": "local-release-candidate-consolidation",
+  "api_version": "2026-08-29",
+  "expected_branch": "feat/authority-runtime-evidence",
+  "git_sha": null,
+  "deployment": {
+    "id": null,
+    "url": null,
+    "vercel_environment": null,
+    "git_dirty": null
+  },
+  "supabase": {
+    "required_staging_project_ref": "agpyhygpfmppjkxwcpac",
+    "forbidden_production_project_ref": "kecgtsfibkypjuaxqbjx",
+    "observed_project_ref": null,
+    "migration_versions": [
+      "20260828165913",
+      "20260829094528",
+      "20260829164824"
+    ]
+  },
+  "proof": {
+    "agent_id": null,
+    "authority_id": null,
+    "authority_version": null,
+    "revocation_reference": null,
+    "allow": { "decision_id": null, "transaction_id": null, "receipt_id": null, "replay_id": null },
+    "deny": { "decision_id": null, "transaction_id": null, "receipt_id": null, "replay_id": null },
+    "review": { "reference": null, "resolution": null, "original_decision": null, "post_resolution_transaction_id": null },
+    "post_revocation": { "decision": null, "decision_id": null, "transaction_id": null, "receipt_id": null, "replay_id": null },
+    "correlation_ids": []
+  },
+  "qualification": {
+    "tenant_isolation": null,
+    "client_isolation": null,
+    "evidence_adversarial": null,
+    "rate_limit_isolation": null,
+    "idempotency": null,
+    "performance_summary": null
+  },
+  "live_proof_status": "NOT_RUN",
+  "secrets_in_manifest": false
+}

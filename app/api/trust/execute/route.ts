@@ -48,7 +48,7 @@ export async function GET(request: Request) {
     if (error instanceof Rc1ProviderError) {
       return NextResponse.json({ ok: false, error: error.code, message: error.message }, { status: error.status });
     }
-    console.error("Provider session retrieval failed.", error);
+    console.error("Provider session retrieval failed safely.", { correlationId, code: (error as { code?: string })?.code ?? "UNKNOWN" });
     return NextResponse.json({ ok: false, error: "provider_session_unavailable" }, { status: 503 });
   }
 }
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
       if (error instanceof Rc1ProviderError) {
         return NextResponse.json({ ok: false, error: error.code, message: error.message }, { status: error.status });
       }
-      console.error("Trust assessment session creation failed.", error);
+      console.error("Trust assessment session creation failed safely.", { correlationId, code: (error as { code?: string })?.code ?? "UNKNOWN" });
       return NextResponse.json({ ok: false, error: "trust_assessment_unavailable" }, { status: 503 });
     }
   }
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof CanonicalTransactionError) return NextResponse.json({ ok: false, error: error.code, message: error.message }, { status: error.status });
     if (error instanceof TypeError) return NextResponse.json({ ok: false, error: "invalid_execution_input", message: error.message }, { status: 400 });
-    console.error("Canonical trust transaction failed.", { correlationId, message: error instanceof Error ? error.message : "unknown" });
+    console.error("Canonical trust transaction failed safely.", { correlationId, code: (error as { code?: string })?.code ?? "UNKNOWN" });
     return NextResponse.json({ ok: false, error: "trust_transaction_unavailable" }, { status: 503 });
   }
 }

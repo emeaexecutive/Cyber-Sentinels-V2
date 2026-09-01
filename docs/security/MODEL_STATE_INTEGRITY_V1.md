@@ -30,6 +30,8 @@ The deterministic model-state comparison derives match, expected-change, drift, 
 
 The result feeds the existing Trust Forecast and therefore the existing Trust Pressure, Trust Budget, Trust Twin, Adaptive Verification, Sentinel, and AI Deployment Trust Gate paths. These projections may recommend current proof, runtime attestation, requalification, reauthorization, or revalidation. They cannot grant authority and cannot independently deny an action. A valid Authority Lineage also does not authorize an unapproved model state: the canonical evaluator considers authority, model state, validation state, and policy together.
 
+Consequential evaluation can also consume the existing Authority Integrity assessment's runtime-effective authority, destination-effective authority, security-critical parameter provenance, and authorization-propagation state. Model state and authority evidence remain separate explainable conditions; they are not combined into one opaque score. Where deployment policy requires them, the existing deployment gate receives authority gaps and targeted controls through Trust Forecast alongside model-state validation and monitoring coverage.
+
 All new trust-invariant templates are emitted as `RECOMMENDED_DISABLED`. Activation remains an explicit policy-governance action.
 
 ## Existing Fabric persistence

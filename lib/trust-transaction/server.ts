@@ -92,6 +92,10 @@ function safeEvidence(row: Row): StoredProviderEvidence {
     sourceDigest: String(row.source_digest),
     assuranceLevel: row.assurance_level === null ? null : Number(row.assurance_level),
     correlationId: String(row.correlation_id),
+    sourcePartyId: String(row.provider_id),
+    sourceClassification: "identity_provider_asserted",
+    serverVerified: true,
+    normalizedEvidence: {},
   };
 }
 
@@ -110,6 +114,8 @@ function safeNativeEvidence(row: Row): StoredProviderEvidence {
     correlationId: String(row.verification_id),
     sourcePartyId: "cyber_sentinels",
     sourceClassification: "technology_provider_asserted",
+    serverVerified: true,
+    normalizedEvidence: {},
     schemaVersion: String(row.verification_algorithm_version ?? "native-entity-verification-v1"),
   };
 }
@@ -253,6 +259,7 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
     evidenceFresh: Boolean(row.evidence_fresh),
     evidenceReferences: [...evidenceReferences, ...authorityEvidenceReferences],
     authorityReference: String(row.authority_reference),
+    authorityVersion: decisionTimeSnapshot.consequenceTime?.authority.version ?? null,
     authorityLineageReferences: authorityLineage,
     policy: { id: String(row.policy_id), version: String(row.policy_version), hash: String(row.policy_hash) },
     decisionReference: String(row.decision_id),
@@ -269,6 +276,7 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
     deploymentGate,
     executionContinuity,
     authorityIntegrity: decisionTimeSnapshot.authorityIntegrity ?? null,
+    authorityEvidenceSummary: decisionTimeSnapshot.authorityIntegrity?.receiptSummary ?? null,
     trustForecast: decisionTimeSnapshot.trustForecast ?? null,
     trustTwin: decisionTimeSnapshot.trustTwin ?? null,
     adaptiveVerification: decisionTimeSnapshot.trustTwin?.adaptiveVerification ?? null,
@@ -374,7 +382,13 @@ function safeCanonicalEvidenceObject(row: Row): StoredProviderEvidence {
     assuranceLevel: ({ NONE: 0, LOW: 0.25, MEDIUM: 0.5, HIGH: 0.75, VERY_HIGH: 1 } as Record<string, number>)[String(row.assurance_level)] ?? null,
     correlationId: String(row.evidence_id),
     sourcePartyId: String(row.source_key ?? row.provider_key),
-    sourceClassification: row.server_verified ? "provider_asserted" : "unconfirmed",
+    sourceClassification: row.source_type === "PUBLIC_API_CLIENT_ASSERTION"
+      ? "agent_asserted"
+      : row.source_type === "CONTINUOUS_TRUST_SIGNAL" && result === "INCONCLUSIVE"
+        ? "unconfirmed"
+      : row.server_verified ? "provider_asserted" : "unconfirmed",
+    serverVerified: row.server_verified === true,
+    normalizedEvidence: row.normalized_facts && typeof row.normalized_facts === "object" ? row.normalized_facts as Row : {},
     schemaVersion: "canonical-evidence-object-v1",
   };
 }
@@ -525,7 +539,7 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
     },
     async loadConfiguredEvidence({ enterpriseId, subjectId, operationalEntityId, providerExecutionId }) {
       const canonicalResult = await db.from("evidence_objects")
-        .select("evidence_id,provider_key,evidence_type,result,observed_at,occurred_at,expires_at,payload_hash,assurance_level,source_key,server_verified")
+        .select("evidence_id,provider_key,evidence_type,result,observed_at,occurred_at,expires_at,payload_hash,assurance_level,source_key,source_type,server_verified,normalized_facts")
         .eq("enterprise_id", enterpriseId)
         .eq("subject_id", operationalEntityId ?? subjectId)
         .order("occurred_at", { ascending: false })
@@ -540,7 +554,15 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
         .limit(20);
       if (nativeResult.error) fail("Native evidence collection", nativeResult.error);
       const nativeEvidence = (nativeResult.data ?? []).map(safeNativeEvidence);
-      const baselineEvidence = [...nativeEvidence, ...(canonicalResult.data ?? []).map(safeCanonicalEvidenceObject)];
+      const baselineEvidence = [...[...nativeEvidence, ...(canonicalResult.data ?? []).map(safeCanonicalEvidenceObject)]
+        .reduce((latest, item) => {
+          // Both ledgers are newest-first and append-only. Preserve the first
+          // observation for each provider/source/type tuple so expired history
+          // cannot permanently poison a later current observation.
+          const key = `${item.providerId}:${item.sourcePartyId ?? item.providerId}:${item.type}`;
+          if (!latest.has(key)) latest.set(key, item);
+          return latest;
+        }, new Map<string, StoredProviderEvidence>()).values()];
       let workflowId: string | null = null;
       let providerSessionId: string | null = null;
       if (providerExecutionId) {
@@ -594,11 +616,24 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
     },
     async loadPreviousTransaction(enterpriseId, transactionId) {
       if (!transactionId) return null;
-      const result = await db.from("canonical_trust_transactions").select("transaction_id,enterprise_id,trust_state,decision,evidence_digest,authority_reference,policy_version,decision_time_snapshot").eq("enterprise_id", enterpriseId).eq("transaction_id", transactionId).maybeSingle();
+      const result = await db.from("canonical_trust_transactions").select("transaction_id,enterprise_id,trust_state,decision,evidence_digest,authority_reference,policy_version,requested_at,reason_codes,decision_time_snapshot").eq("enterprise_id", enterpriseId).eq("transaction_id", transactionId).maybeSingle();
       if (result.error) fail("Previous transaction resolution", result.error);
       if (!result.data) throw new CanonicalTransactionError("The previous transaction is unknown in this tenant.", 404, "PREVIOUS_TRANSACTION_NOT_FOUND");
       const previousSnapshot = result.data.decision_time_snapshot && typeof result.data.decision_time_snapshot === "object" ? result.data.decision_time_snapshot as Row : {};
-      return { transactionId: String(result.data.transaction_id), enterpriseId: String(result.data.enterprise_id), trustState: String(result.data.trust_state), decision: String(result.data.decision), evidenceDigest: String(result.data.evidence_digest), authorityReference: String(result.data.authority_reference), policyVersion: String(result.data.policy_version), trustTwin: previousSnapshot.trustTwin ?? null } as PreviousCanonicalTransaction;
+      return {
+        transactionId: String(result.data.transaction_id),
+        enterpriseId: String(result.data.enterprise_id),
+        trustState: String(result.data.trust_state),
+        decision: String(result.data.decision),
+        evidenceDigest: String(result.data.evidence_digest),
+        authorityReference: String(result.data.authority_reference),
+        authorityVersion: previousSnapshot.consequenceTime?.authority?.version ?? null,
+        policyVersion: String(result.data.policy_version),
+        requestedAt: result.data.requested_at ? String(result.data.requested_at) : null,
+        consequence: previousSnapshot.consequenceTime?.consequence ?? previousSnapshot.consequence ?? null,
+        reasonCodes: Array.isArray(result.data.reason_codes) ? result.data.reason_codes.map(String) : [],
+        trustTwin: previousSnapshot.trustTwin ?? null,
+      } as PreviousCanonicalTransaction;
     },
     async persistDecision(record) {
       const result = await rpc(db, "Decision persistence", "persist_canonical_trust_transaction_decision_v1", { p_transaction: decisionPayload(record), p_decision: record.decisionEnvelope });

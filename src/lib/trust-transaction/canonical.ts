@@ -147,6 +147,15 @@ export type CanonicalTrustTransactionInput = {
   previousTransactionId?: string | null;
   operationalEntityId?: string | null;
   requestedAt?: string;
+  correlationId?: string;
+  decisionContext?: {
+    intentReference?: string | null;
+    expectedAuthorityVersion?: string | null;
+    expectedPolicyVersion?: string | null;
+    currentEvidenceReferences?: string[];
+    materialChangeReferences?: string[];
+    clientAssertedMaterialChanges?: string[];
+  } | null;
   managedControl?: {
     responsibilityLineage?: Partial<ResponsibilityLineage>;
     providerHealth?: Record<string, string>;
@@ -155,7 +164,13 @@ export type CanonicalTrustTransactionInput = {
     contradictions?: string[];
     reviewerState?: string;
     authorization?: { decision: CanonicalTransactionDecision; reasonCodes: string[] };
-    humanIntent?: { signed?: boolean; status?: "provided" | "not_provided" | "pending"; reference?: string | null };
+    humanIntent?: {
+      signed?: boolean;
+      status?: "provided" | "not_provided" | "pending";
+      reference?: string | null;
+      expiresAt?: string | null;
+      sourceClassification?: ManagedControlEvidence["sourceClassification"];
+    };
     monitoringCoverage?: "covered" | "partial" | "not_observed";
     oversightMode?: "HUMAN_IN_THE_LOOP" | "HUMAN_ON_THE_LOOP" | "HUMAN_OVER_THE_LOOP" | "AUTONOMOUS";
     executionStages?: ExecutionContinuityRecord[];
@@ -181,6 +196,8 @@ export type StoredProviderEvidence = {
   correlationId: string;
   sourcePartyId?: string;
   sourceClassification?: ManagedControlEvidence["sourceClassification"];
+  serverVerified?: boolean;
+  normalizedEvidence?: Record<string, unknown>;
   schemaVersion?: string;
 };
 export type ResolvedPolicyVersion = {
@@ -199,6 +216,10 @@ export type PreviousCanonicalTransaction = {
   evidenceDigest: string;
   authorityReference: string;
   policyVersion: string;
+  requestedAt?: string | null;
+  authorityVersion?: string | null;
+  consequence?: OperationalConsequenceClassification | null;
+  reasonCodes?: string[];
   trustTwin?: TrustTwin | null;
 };
 export type CanonicalContinuitySignals = {
@@ -234,6 +255,7 @@ export type CanonicalDecisionRecord = {
   decisionEnvelope: TrustFabricDecisionEnvelope;
   decisionReference: string;
   authorityReference: string;
+  authorityVersion: string | null;
   authorityEvidenceReferences: FabricReference[];
   policy: ResolvedPolicyVersion;
   evidence: StoredProviderEvidence[];
@@ -256,6 +278,7 @@ export type CanonicalDecisionRecord = {
   deploymentGate: DeploymentGateSummary | null;
   executionContinuity: ExecutionContinuityRecord[];
   authorityIntegrity: AuthorityIntegrityAssessment | null;
+  authorityEvidenceSummary: AuthorityIntegrityAssessment["receiptSummary"] | null;
   trustForecast: TrustForecast | null;
   trustTwin: TrustTwin | null;
   adaptiveVerification: AdaptiveVerificationRequirement | null;
@@ -290,6 +313,7 @@ export type SafeCanonicalTransactionReceipt = {
   evidenceFresh: boolean;
   evidenceReferences: FabricReference[];
   authorityReference: string;
+  authorityVersion: string | null;
   authorityLineageReferences: FabricReference[];
   policy: { id: string; version: string; hash: string };
   decisionReference: string;
@@ -306,6 +330,7 @@ export type SafeCanonicalTransactionReceipt = {
   deploymentGate: DeploymentGateSummary | null;
   executionContinuity: ExecutionContinuityRecord[];
   authorityIntegrity: AuthorityIntegrityAssessment | null;
+  authorityEvidenceSummary: AuthorityIntegrityAssessment["receiptSummary"] | null;
   trustForecast: TrustForecast | null;
   trustTwin: TrustTwin | null;
   adaptiveVerification: AdaptiveVerificationRequirement | null;
@@ -371,6 +396,15 @@ function assertInput(input: CanonicalTrustTransactionInput) {
   if (!/^[a-zA-Z0-9_.:-]{8,180}$/.test(input.idempotencyKey)) throw new TypeError("A valid idempotency key is required.");
   if (input.providerExecutionId && !uuidPattern.test(input.providerExecutionId)) throw new TypeError("Provider execution reference is invalid.");
   if (input.previousTransactionId && !uuidPattern.test(input.previousTransactionId)) throw new TypeError("Previous transaction reference is invalid.");
+  if (input.correlationId && !uuidPattern.test(input.correlationId)) throw new TypeError("Correlation reference is invalid.");
+  const decisionContext = input.decisionContext;
+  if (decisionContext?.intentReference && !referencePattern.test(decisionContext.intentReference)) throw new TypeError("Intent reference is invalid.");
+  for (const reference of [
+    ...(decisionContext?.currentEvidenceReferences ?? []),
+    ...(decisionContext?.materialChangeReferences ?? []),
+  ]) {
+    if (!referencePattern.test(reference)) throw new TypeError("Current-condition reference is invalid.");
+  }
 }
 
 function isSameIdempotentRequest(receipt: SafeCanonicalTransactionReceipt, input: CanonicalTrustTransactionInput, actor: AuthenticatedTransactionActor) {
@@ -423,11 +457,15 @@ export async function resolveAuthority(dependencies: CanonicalTrustTransactionDe
 }
 
 export function validateAuthorityScope(authority: TrustContract, input: CanonicalTrustTransactionInput, at: string) {
+  const bounded = authority.authorityScope;
   return authority.revocationState === "active"
     && Date.parse(authority.issuedAt) <= Date.parse(at)
     && Date.parse(authority.expiresAt) > Date.parse(at)
     && authority.permittedScope.includes(input.action.type)
-    && authority.authorizedObjective === input.action.purpose;
+    && authority.authorizedObjective === input.action.purpose
+    && (!bounded || bounded.permittedActions.includes(input.action.type))
+    && (!bounded || bounded.permittedTargets.includes(input.action.resource))
+    && (!bounded || bounded.environments.includes(input.action.environment));
 }
 
 function deriveDeploymentGate(input: {
@@ -500,11 +538,12 @@ export async function resolvePolicyVersion(dependencies: CanonicalTrustTransacti
   return policy;
 }
 
-function conditionChanges(previous: PreviousCanonicalTransaction | null, evidenceDigest: string, authorityReference: string, policyVersion: string) {
+function conditionChanges(previous: PreviousCanonicalTransaction | null, evidenceDigest: string, authorityReference: string, authorityVersion: string | null, policyVersion: string) {
   if (!previous) return ["INITIAL_TRUST_DECISION"];
   return [
     previous.evidenceDigest !== evidenceDigest ? "EVIDENCE_CHANGED" : null,
     previous.authorityReference !== authorityReference ? "AUTHORITY_CHANGED" : null,
+    previous.authorityVersion !== undefined && previous.authorityVersion !== authorityVersion ? "AUTHORITY_VERSION_CHANGED" : null,
     previous.policyVersion !== policyVersion ? "POLICY_CHANGED" : null,
   ].filter((value): value is string => Boolean(value));
 }
@@ -565,7 +604,8 @@ export function evaluateCanonicalTrustDecision(input: {
   correlationId: string;
 }): CanonicalDecisionRecord {
   const evidenceReferences = input.evidence.map((item) => ({ type: "normalized_provider_evidence", id: item.reference }));
-  const evidenceTypes = new Set(input.evidence.map((item) => item.type));
+  const decisionEligibleEvidence = input.evidence.filter((item) => !["agent_asserted", "unconfirmed"].includes(item.sourceClassification ?? "provider_asserted"));
+  const evidenceTypes = new Set(decisionEligibleEvidence.map((item) => item.type));
   const evidenceComplete = input.authority.requiredEvidenceTypes.every((type) => evidenceTypes.has(type));
   const evidenceDigest = hashCanonical(input.evidence.map((item) => ({ reference: item.reference, event: item.providerEventId, digest: item.sourceDigest, outcome: item.outcome, observedAt: item.observedAt, expiresAt: item.expiresAt })));
   const authorityEvidenceReferences = input.authority.evidenceReferences;
@@ -578,8 +618,8 @@ export function evaluateCanonicalTrustDecision(input: {
     environmentState: input.trustObject.environmentState,
     scopeState: input.authorityScopeValid ? "verified" : "suspended",
     requestedScope: [input.transactionInput.action.type],
-    activeProviders: input.evidence.map((item) => item.providerId),
-    evidence: input.evidence.map((item) => ({ type: item.type, observedAt: item.observedAt, reference: { type: "normalized_provider_evidence", id: item.reference } })),
+    activeProviders: decisionEligibleEvidence.map((item) => item.providerId),
+    evidence: decisionEligibleEvidence.map((item) => ({ type: item.type, observedAt: item.observedAt, reference: { type: "normalized_provider_evidence", id: item.reference } })),
     monitoring: input.authority.monitoringRequirements,
     contradictions: input.trustObject.activeContradictions.map((item) => item.id),
     highestIncidentSeverity: input.trustObject.activeIncidents.length ? "material" : "none",
@@ -645,8 +685,23 @@ export function evaluateCanonicalTrustDecision(input: {
     ? input.operationalEntity.currentConsequenceClassification
     : consequenceEvaluation.classification;
   const negativeEvidence = input.evidence.some((item) => item.outcome === "FAILED");
-  const authorityIntegrity = input.transactionInput.managedControl?.authorityIntegrity
-    ? evaluateAuthorityIntegrity(input.transactionInput.managedControl.authorityIntegrity)
+  const authorityIntegrityInput = input.transactionInput.managedControl?.authorityIntegrity;
+  const resolvedPersistedEvidence = input.evidence.map((item) => {
+    const normalized = item.normalizedEvidence ?? {};
+    const observation = normalized.authorityObservation ?? normalized.authority_observation ?? normalized.observation;
+    return {
+      reference: item.reference,
+      subjectReference: typeof normalized.subjectReference === "string" ? normalized.subjectReference : input.operationalEntity.entityId,
+      sourceClassification: item.sourceClassification ?? "unconfirmed",
+      serverVerified: item.serverVerified === true,
+      observation: ["old_authority_accepted", "old_authority_rejected"].includes(String(observation))
+        ? String(observation) as "old_authority_accepted" | "old_authority_rejected"
+        : "not_observed" as const,
+      observedAt: item.observedAt,
+    };
+  });
+  const authorityIntegrity = authorityIntegrityInput
+    ? evaluateAuthorityIntegrity({ ...authorityIntegrityInput, resolvedPersistedEvidence })
     : null;
   if (authorityIntegrity && authorityIntegrity.actionTimeEvidence.enterpriseId !== input.tenant.id) throw new Error("AUTHORITY_INTEGRITY_TENANT_SCOPE_MISMATCH");
   const approvedModelState = input.transactionInput.deploymentContext?.approvedModelState ?? null;
@@ -753,6 +808,7 @@ export function evaluateCanonicalTrustDecision(input: {
     proposedChanges: [...new Set([...(input.transactionInput.deploymentContext?.materialChanges ?? []), ...authorityIntegrityFindings, ...contextualForecastFindings, ...modelStateFindings])],
     previousTwin: input.previous?.trustTwin ?? null,
     modelStateIntegrity,
+    authorityIntegrity,
   });
   const trustForecast = trustTwin.trustForecast;
   const sentinelTrustBrief = createSentinelTrustBrief({
@@ -762,15 +818,67 @@ export function evaluateCanonicalTrustDecision(input: {
   });
   if (trustTwin.enterpriseId !== input.tenant.id) throw new Error("TRUST_TWIN_TENANT_SCOPE_MISMATCH");
   if (trustForecast && trustForecast.enterpriseId !== input.tenant.id) throw new Error("TRUST_FORECAST_TENANT_SCOPE_MISMATCH");
+  const currentAuthorityVersion = input.authority.authorityVersion ?? null;
+  const expectedAuthorityVersionChanged = Boolean(
+    input.transactionInput.decisionContext?.expectedAuthorityVersion
+    && input.transactionInput.decisionContext.expectedAuthorityVersion !== currentAuthorityVersion,
+  );
+  const expectedPolicyVersionChanged = Boolean(
+    input.transactionInput.decisionContext?.expectedPolicyVersion
+    && input.transactionInput.decisionContext.expectedPolicyVersion !== input.policy.version,
+  );
+  const clientAssertedMaterialChanges = input.transactionInput.decisionContext?.clientAssertedMaterialChanges ?? [];
+  const requestedCurrentEvidenceReferences = input.transactionInput.decisionContext?.currentEvidenceReferences ?? [];
+  const currentEvidenceReferenceSet = new Set(input.evidence.map((item) => item.reference));
+  const unresolvedCurrentEvidenceReferences = requestedCurrentEvidenceReferences.filter((reference) => !currentEvidenceReferenceSet.has(reference));
+  const materialChangeReferences = input.transactionInput.decisionContext?.materialChangeReferences ?? [];
+  const humanIntent = input.transactionInput.managedControl?.humanIntent;
+  const humanApprovalRequired = input.authority.humanReviewThresholds.length > 0;
+  const humanApprovalAuthoritative = Boolean(
+    humanIntent?.signed
+    && humanIntent.reference
+    && humanIntent.status === "provided"
+    && !["agent_asserted", "unconfirmed"].includes(humanIntent.sourceClassification ?? "human_reviewed"),
+  );
+  const humanApprovalStale = Boolean(
+    humanApprovalAuthoritative
+    && humanIntent?.expiresAt
+    && Date.parse(humanIntent.expiresAt) <= Date.parse(input.requestedAt),
+  );
+  const humanApprovalState = !humanApprovalRequired
+    ? "NOT_REQUIRED" as const
+    : humanApprovalStale
+      ? "STALE" as const
+      : humanApprovalAuthoritative
+        ? "CURRENT" as const
+        : humanIntent?.reference
+          ? "AGENT_ASSERTED" as const
+          : "MISSING" as const;
+  const runtimeAuthority = authorityIntegrity?.runtimeAuthority ?? null;
+  const runtimeProvesActionIneffective = Boolean(
+    runtimeAuthority
+    && runtimeAuthority.runtimeState !== "INSUFFICIENT_EVIDENCE"
+    && !runtimeAuthority.runtimeEffectiveAuthority.includes(input.transactionInput.action.type),
+  );
+  const destinationProvesActionIneffective = Boolean(
+    runtimeAuthority?.destinationEffectiveAuthority
+    && runtimeAuthority.destinationState !== "INSUFFICIENT_EVIDENCE"
+    && !runtimeAuthority.destinationEffectiveAuthority.includes(input.transactionInput.action.type),
+  );
   const contextEvidenceTypes = new Set((input.transactionInput.managedControl?.contextEvidence ?? []).map((item) => item.evidenceType));
   const contextContradictions = [
     ...(input.transactionInput.managedControl?.contradictions ?? []),
     ...(authorityIntegrity?.findings.map((item) => item.code) ?? []),
     ...(authorityIntegrity?.requiredActions.filter((item) => item !== "NO_ACTION_REQUIRED") ?? []),
     ...modelStateFindings,
+    ...(expectedAuthorityVersionChanged ? ["EXPECTED_AUTHORITY_VERSION_CHANGED"] : []),
+    ...(expectedPolicyVersionChanged ? ["EXPECTED_POLICY_VERSION_CHANGED"] : []),
+    ...(clientAssertedMaterialChanges.length ? ["AGENT_ASSERTED_MATERIAL_CHANGE_REQUIRES_VERIFICATION"] : []),
+    ...(materialChangeReferences.length ? ["MATERIAL_CHANGE_REFERENCE_REQUIRES_EVALUATION"] : []),
+    ...(unresolvedCurrentEvidenceReferences.length ? ["CURRENT_EVIDENCE_REFERENCE_UNRESOLVED"] : []),
   ];
   const contextReviewRequired = [...contextEvidenceTypes, ...contextContradictions].some((type) =>
-    /(?:MISMATCH|GAP|CONFLICT|DISAGREEMENT|UNPROVEN|INVALID|STALE|DRIFT|INCOMPLETE|ORIGIN_UNRESOLVED|REASSESSMENT_REQUIRED|SPOOFING|INJECTION|OFFLINE|REVALIDATION_REQUIRED|UNCERTAIN|UNAVAILABLE)/.test(type),
+    /(?:MISMATCH|GAP|CONFLICT|DISAGREEMENT|UNPROVEN|INVALID|STALE|DRIFT|INCOMPLETE|UNRESOLVED|REASSESSMENT_REQUIRED|SPOOFING|INJECTION|OFFLINE|REVALIDATION_REQUIRED|UNCERTAIN|UNAVAILABLE)/.test(type),
   );
   const evidenceConflict = evidenceIndependence === "conflicting" || input.trustObject.activeContradictions.length > 0 || contextReviewRequired;
   const independenceScore = evidenceIndependence === "independently_confirmed" ? 1
@@ -789,6 +897,9 @@ export function evaluateCanonicalTrustDecision(input: {
     evidenceReferences: input.evidence.map((item) => item.reference),
   });
   const hardDenyReasons = new Set(["AUTHORITY_REQUIREMENT_UNSATISFIED", "ENVIRONMENT_REQUIREMENT_UNSATISFIED", "SCOPE_OUTSIDE_CONTRACT", "PROVIDER_OUTSIDE_CONTRACT", "INCIDENT_THRESHOLD_REACHED", "CONTRACT_REVOKED", "AUTHORITY_REVOKED"]);
+  const delegatorRevoked = contextContradictions.some((reason) => ["DELEGATOR_REVOKED", "PARENT_AUTHORITY_REVOKED"].includes(reason));
+  const staleAuthorityConfirmed = authorityIntegrity?.authorizationPropagation.state === "STALE_AUTHORITY_CONFIRMED"
+    || authorityIntegrity?.findings.some((finding) => finding.code === "STALE_AUTHORITY_STILL_ACTIVE") === true;
   const inactiveEntity = ["suspended", "revoked", "retired", "expired"].includes(input.operationalEntity.lifecycleState);
   const unreadyEntity = input.operationalEntity.lifecycleState !== "active";
   const highConsequenceIndependenceGap = ["high", "critical"].includes(consequence) && !["multi_source", "independently_confirmed"].includes(evidenceIndependence);
@@ -808,7 +919,7 @@ export function evaluateCanonicalTrustDecision(input: {
     && trustForecast !== null
     && ["REVIEW_REQUIRED", "HOLD", "DO_NOT_RELEASE"].includes(trustForecast.deploymentRecommendation);
   let decision: CanonicalTransactionDecision = "ALLOW";
-  if (delegatedAuthorization?.decision === "DENY" || inactiveEntity || missingAccountability || !input.authorityScopeValid || negativeEvidence || evaluation.reasonCodes.some((reason) => hardDenyReasons.has(reason)) || evaluation.outcome === "revoked") decision = "DENY";
+  if (delegatedAuthorization?.decision === "DENY" || inactiveEntity || missingAccountability || !input.authorityScopeValid || negativeEvidence || delegatorRevoked || staleAuthorityConfirmed || runtimeProvesActionIneffective || destinationProvesActionIneffective || evaluation.reasonCodes.some((reason) => hardDenyReasons.has(reason)) || evaluation.outcome === "revoked") decision = "DENY";
   else if (
     delegatedAuthorization?.decision === "REVIEW"
     || unreadyEntity
@@ -819,6 +930,12 @@ export function evaluateCanonicalTrustDecision(input: {
     || continuityConflict
     || activeIncidentReview
     || contextReviewRequired
+    || expectedAuthorityVersionChanged
+    || expectedPolicyVersionChanged
+    || clientAssertedMaterialChanges.length > 0
+    || materialChangeReferences.length > 0
+    || unresolvedCurrentEvidenceReferences.length > 0
+    || (humanApprovalRequired && humanApprovalState !== "CURRENT")
     || Boolean(authorityIntegrity?.findings.length)
     || forecastRequiresReview
     || (input.transactionInput.managedControl?.oversightMode === "AUTONOMOUS" && ["high", "critical"].includes(consequence))
@@ -831,6 +948,7 @@ export function evaluateCanonicalTrustDecision(input: {
     ...(delegatedAuthorization?.reasonCodes ?? []),
     ...entityStateReason,
     ...(missingAccountability ? ["ACCOUNTABLE_OWNER_MISSING"] : []),
+    ...(input.authority.revocationState === "revoked" ? ["AUTHORITY_REVOKED"] : []),
     ...(input.authorityScopeValid ? ["AUTHORITY_SCOPE_VALID"] : ["AUTHORITY_SCOPE_INVALID"]),
     ...(input.evidence.length ? [] : ["EVIDENCE_MISSING"]),
     ...(evidenceComplete ? ["EVIDENCE_SUFFICIENT"] : ["EVIDENCE_INSUFFICIENT"]),
@@ -838,9 +956,18 @@ export function evaluateCanonicalTrustDecision(input: {
     ...(evidenceConflict ? ["EVIDENCE_CONFLICT"] : []),
     ...(highConsequenceIndependenceGap ? ["INDEPENDENT_EVIDENCE_REQUIRED_FOR_CONSEQUENCE"] : []),
     ...(continuityConflict ? ["RUNTIME_OR_DESTINATION_CONTINUITY_CONFLICT"] : []),
+    ...(runtimeProvesActionIneffective ? ["RUNTIME_AUTHORITY_INEFFECTIVE_FOR_ACTION"] : []),
+    ...(destinationProvesActionIneffective ? ["DESTINATION_AUTHORITY_INEFFECTIVE_FOR_ACTION"] : []),
+    ...(staleAuthorityConfirmed ? ["STALE_AUTHORITY_CONFIRMED"] : []),
+    ...(delegatorRevoked ? ["DELEGATOR_AUTHORITY_REVOKED"] : []),
     ...(activeIncidentReview ? ["ACTIVE_INCIDENT_REQUIRES_REVIEW"] : []),
     ...(negativeEvidence ? ["NEGATIVE_PROVIDER_EVIDENCE"] : []),
     ...contextContradictions,
+    ...(humanApprovalState === "MISSING" ? ["REQUIRED_HUMAN_APPROVAL_MISSING"] : []),
+    ...(humanApprovalState === "STALE" ? ["REQUIRED_HUMAN_APPROVAL_STALE"] : []),
+    ...(humanApprovalState === "AGENT_ASSERTED" ? ["AGENT_ASSERTED_APPROVAL_NOT_AUTHORITATIVE"] : []),
+    ...(input.previous?.decision === "ALLOW" ? ["PREVIOUS_ALLOW_NOT_STANDING_AUTHORIZATION"] : []),
+    "CURRENT_CONDITIONS_REEVALUATED",
     ...(input.transactionInput.managedControl?.oversightMode ? [`OVERSIGHT_${input.transactionInput.managedControl.oversightMode}`] : []),
     ...(deploymentGate?.reauthorizationRequired ? ["REAUTHORIZATION_REQUIRED"] : []),
     ...(deploymentGate?.assuranceFreshness === "ASSURANCE_INVALIDATED_BY_CHANGE" ? ["ASSURANCE_INVALIDATED_BY_CHANGE"] : []),
@@ -854,7 +981,8 @@ export function evaluateCanonicalTrustDecision(input: {
     `CONCLUSION_CONFIDENCE_${confidence.level}`,
   ])].sort();
   const changedConditions = [
-    ...conditionChanges(input.previous, evidenceDigest, input.authority.contractId, input.policy.version),
+    ...conditionChanges(input.previous, evidenceDigest, input.authority.contractId, currentAuthorityVersion, input.policy.version),
+    ...(clientAssertedMaterialChanges.length ? ["CLIENT_REPORTED_MATERIAL_CHANGE"] : []),
     ...(authorityIntegrity?.trustMemoryEvents.length ? ["AUTHORITY_INTEGRITY_MATERIAL_EVENT"] : []),
     ...(trustForecast?.trustMemoryEvents.length ? ["TRUST_FORECAST_MATERIAL_EVENT"] : []),
     ...(trustTwin.trustMemoryEvents.length ? ["TRUST_TWIN_MATERIAL_EVENT"] : []),
@@ -979,6 +1107,65 @@ export function evaluateCanonicalTrustDecision(input: {
     transactionInput: input.transactionInput,
     providerNeutralEvidence,
   });
+  const consequenceTime = {
+    modelVersion: "1.0" as const,
+    evaluatedAt: input.requestedAt,
+    agentIdentityReference: input.operationalEntity.entityId,
+    authority: {
+      reference: input.authority.contractId,
+      version: currentAuthorityVersion,
+      issuedAt: input.authority.issuedAt,
+      expiresAt: input.authority.expiresAt,
+      revocationState: input.authority.revocationState,
+      scopeValid: input.authorityScopeValid,
+    },
+    delegationLineage: [input.authority.contractId, ...authorityEvidenceReferences.map((reference) => `${reference.type}:${reference.id}`)],
+    intent: {
+      reference: input.transactionInput.decisionContext?.intentReference ?? null,
+      action: input.transactionInput.action.type,
+      target: input.transactionInput.action.resource,
+      purpose: input.transactionInput.action.purpose,
+      environment: input.transactionInput.action.environment,
+      requestDigest: input.transactionInput.action.payloadDigest,
+    },
+    currentConditions: {
+      identityAssurance: input.evidenceFresh ? "CURRENT" as const : "STALE_OR_UNAVAILABLE" as const,
+      evidenceComplete,
+      evidenceFresh: input.evidenceFresh,
+      evidenceReferences: input.evidence.map((item) => item.reference),
+      policyReference: input.policy.id,
+      policyVersion: input.policy.version,
+      runtimeAuthorityEvidenceReference: authorityIntegrity?.receiptSummary.runtimeAuthorityEvidenceReference ?? null,
+      runtimeAuthorityState: runtimeAuthority?.runtimeState ?? null,
+      destinationAuthorityEvidenceReference: authorityIntegrity?.receiptSummary.destinationAuthorityEvidenceReference ?? null,
+      destinationAuthorityState: runtimeAuthority?.destinationState ?? null,
+      authorizationPropagationState: authorityIntegrity?.authorizationPropagation.state ?? null,
+      materialChanges: [...new Set([
+        ...changedConditions,
+        ...(input.transactionInput.deploymentContext?.materialChanges ?? []),
+        ...clientAssertedMaterialChanges,
+        ...contextContradictions,
+      ])],
+      materialChangeReferences: [...new Set(materialChangeReferences)],
+      humanApprovalRequired,
+      humanApprovalState,
+      humanApprovalReference: humanIntent?.reference ?? null,
+    },
+    consequence,
+    canonicalDecision: decision,
+    reasonCodes,
+    previousEvaluation: input.previous ? {
+      transactionId: input.previous.transactionId,
+      decision: input.previous.decision,
+      evaluatedAt: input.previous.requestedAt ?? null,
+      authorityReference: input.previous.authorityReference,
+      authorityVersion: input.previous.authorityVersion ?? null,
+      policyVersion: input.previous.policyVersion,
+      consequence: input.previous.consequence ?? null,
+    } : null,
+    decisionDiffersFromPrevious: Boolean(input.previous && input.previous.decision !== decision),
+    previousAllowStandingAuthorization: false as const,
+  };
   const decisionTimeSnapshot = createDecisionTimeSnapshot({
     frozenAt: input.requestedAt,
     operationalEntityVersion: input.operationalEntity.canonicalDigest,
@@ -1002,6 +1189,7 @@ export function evaluateCanonicalTrustDecision(input: {
     trustTwin,
     sentinelTrustBrief,
     modelStateIntegrity,
+    consequenceTime,
     reviewerState: input.transactionInput.managedControl?.reviewerState ?? (decision === "REVIEW" ? "required" : "not_required"),
   });
   return {
@@ -1024,6 +1212,7 @@ export function evaluateCanonicalTrustDecision(input: {
     decisionEnvelope,
     decisionReference: decisionEnvelope.decisionId,
     authorityReference: input.authority.contractId,
+    authorityVersion: currentAuthorityVersion,
     authorityEvidenceReferences,
     policy: input.policy,
     evidence: input.evidence,
@@ -1047,6 +1236,7 @@ export function evaluateCanonicalTrustDecision(input: {
     deploymentGate,
     executionContinuity,
     authorityIntegrity,
+    authorityEvidenceSummary: authorityIntegrity?.receiptSummary ?? null,
     trustForecast,
     trustTwin,
     adaptiveVerification: trustTwin.adaptiveVerification,
@@ -1108,6 +1298,7 @@ export function returnSafeTransactionReceipt(input: {
     evidenceFresh: persisted.evidenceFresh,
     evidenceReferences: persisted.evidenceReferences,
     authorityReference: persisted.authorityReference,
+    authorityVersion: persisted.authorityVersion,
     authorityLineageReferences: persisted.authorityEvidenceReferences,
     policy: { id: persisted.policy.id, version: persisted.policy.version, hash: persisted.policy.policyHash },
     decisionReference: persisted.decisionReference,
@@ -1124,6 +1315,7 @@ export function returnSafeTransactionReceipt(input: {
     deploymentGate: persisted.deploymentGate,
     executionContinuity,
     authorityIntegrity: persisted.authorityIntegrity,
+    authorityEvidenceSummary: persisted.authorityEvidenceSummary,
     trustForecast: persisted.trustForecast,
     trustTwin: persisted.trustTwin,
     adaptiveVerification: persisted.adaptiveVerification,
@@ -1193,19 +1385,23 @@ export async function executeCanonicalTrustTransaction(input: CanonicalTrustTran
     && Boolean(operationalEntity.accountableOwnerId)
     && operationalEntity.accountableOwnerId !== "legacy_unresolved";
   const evidence = entityCanCollectEvidence ? await collectConfiguredEvidence(dependencies, tenant, trustObject, input) : [];
-  const providerEvidenceFresh = validateEvidenceFreshness(evidence, 86_400, requestedAt);
+  const decisionEligibleEvidence = evidence.filter((item) => !["agent_asserted", "unconfirmed"].includes(item.sourceClassification ?? "provider_asserted"));
+  const providerEvidenceFresh = validateEvidenceFreshness(decisionEligibleEvidence, 86_400, requestedAt);
   const authority = await resolveAuthority(dependencies, tenant, trustObject);
-  const evidenceFresh = providerEvidenceFresh && validateEvidenceFreshness(evidence, authority.maximumEvidenceAgeSeconds, requestedAt);
+  const evidenceFresh = providerEvidenceFresh && validateEvidenceFreshness(decisionEligibleEvidence, authority.maximumEvidenceAgeSeconds, requestedAt);
   const authorityScopeValid = validateAuthorityScope(authority, input, requestedAt);
   const policy = await resolvePolicyVersion(dependencies, tenant, authority, requestedAt);
   const previous = await dependencies.loadPreviousTransaction(tenant.id, input.previousTransactionId);
-  const correlationId = crypto.randomUUID();
+  const correlationId = input.correlationId ?? crypto.randomUUID();
   const record = evaluateCanonicalTrustDecision({ tenant, actor, operationalEntity, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, transactionInput: input, requestedAt, correlationId });
   const context: TransactionContext = { input, actor, tenant, operationalEntity, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, record };
   const persisted = await persistDecision(dependencies, record);
   if (persisted.persistenceStatus === "DUPLICATE") {
     const concurrentReceipt = await dependencies.findByIdempotency(tenant.id, input.idempotencyKey);
     if (!concurrentReceipt) throw new Error("IDEMPOTENT_TRANSACTION_RECEIPT_UNAVAILABLE");
+    if (!isSameIdempotentRequest(concurrentReceipt, input, actor)) {
+      throw new TypeError("The idempotency key is already bound to a different canonical request.");
+    }
     return { ...concurrentReceipt, idempotentReplay: true };
   }
   const evidenceGraphReference = await extendEvidenceGraph(dependencies, persisted);

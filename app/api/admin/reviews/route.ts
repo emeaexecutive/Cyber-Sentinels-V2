@@ -51,7 +51,7 @@ export async function GET(req: Request) {
     .limit(100);
 
   if (error || (validationError && validationError.code !== "42P01") || (oriError && oriError.code !== "42P01")) {
-    console.error("admin review queue fetch failed", error);
+    console.error("Historical admin review queue fetch failed safely.", { code: error?.code ?? validationError?.code ?? oriError?.code ?? "UNKNOWN" });
     return NextResponse.json({ ok: false, error: "admin_reviews_fetch_failed" }, { status: 500 });
   }
 
@@ -102,7 +102,7 @@ export async function POST(req: Request) {
       target_expected_class: expectedClass || null,
     });
     if (reviewError) {
-      console.error("ORI reviewer outcome failed", reviewError);
+      console.error("Historical ORI reviewer outcome failed safely.", { code: reviewError.code ?? "UNKNOWN" });
       return NextResponse.json({ ok: false, error: "ori_review_failed" }, { status: 500 });
     }
     recordOriTelemetry({
@@ -137,7 +137,7 @@ export async function POST(req: Request) {
       target_disagreement: stringValue(body.disagreement) || null,
     });
     if (reviewError) {
-      console.error("validation case review failed", reviewError);
+      console.error("Historical validation case review failed safely.", { code: reviewError.code ?? "UNKNOWN" });
       return NextResponse.json({ ok: false, error: "validation_review_failed" }, { status: 500 });
     }
     if (!(req.headers.get("content-type") ?? "").includes("application/json")) {
@@ -170,7 +170,7 @@ export async function POST(req: Request) {
     .single();
 
   if (error) {
-    console.error("admin review insert failed", error);
+    console.error("Historical admin review insert failed safely.", { code: error.code ?? "UNKNOWN" });
     return NextResponse.json({ ok: false, error: "admin_review_failed" }, { status: 500 });
   }
 
@@ -179,7 +179,7 @@ export async function POST(req: Request) {
     .update({ status, notes: notes || null })
     .eq("id", verificationEventId);
   if (eventUpdateError) {
-    console.error("verification event review status update failed", eventUpdateError);
+    console.error("Historical verification event update failed safely.", { code: eventUpdateError.code ?? "UNKNOWN" });
     if (!(req.headers.get("content-type") ?? "").includes("application/json")) {
       return NextResponse.redirect(
         new URL("/admin/reviews?error=event_update_failed", req.url),

@@ -16,6 +16,11 @@ export const VERIFICATION_CHALLENGES = [
   "VERIFY_MONITORING",
   "VERIFY_MACHINE_STATE",
   "VERIFY_POLICY_ACKNOWLEDGEMENT",
+  "VERIFY_AUTHORITY_STATE",
+  "VERIFY_RUNTIME_AUTHORITY",
+  "VERIFY_DESTINATION_AUTHORITY",
+  "VERIFY_PARAMETER_PROVENANCE",
+  "VERIFY_PROPAGATION_COMPLETION",
 ] as const;
 
 export type VerificationDepth = (typeof VERIFICATION_DEPTHS)[number];
@@ -164,6 +169,11 @@ const providerClasses: Record<VerificationChallenge, string[]> = {
   VERIFY_MONITORING: ["RUNTIME_SECURITY_PROVIDER", "EDR_PROVIDER", "APPLICATION_SIGNAL"],
   VERIFY_MACHINE_STATE: ["ROBOTICS_RUNTIME_PROVIDER", "ROBOTICS_SAFETY_PROVIDER", "SENSOR_EVIDENCE_PROVIDER", "EDGE_ATTESTATION_PROVIDER"],
   VERIFY_POLICY_ACKNOWLEDGEMENT: ["POLICY_PROVIDER", "APPLICATION_SIGNAL"],
+  VERIFY_AUTHORITY_STATE: ["IAM_PROVIDER", "IDENTITY_PROVIDER", "APPLICATION_SIGNAL"],
+  VERIFY_RUNTIME_AUTHORITY: ["RUNTIME_SECURITY_PROVIDER", "EDGE_ATTESTATION_PROVIDER", "APPLICATION_SIGNAL"],
+  VERIFY_DESTINATION_AUTHORITY: ["DESTINATION_SYSTEM", "NETWORK_SECURITY_PROVIDER", "APPLICATION_SIGNAL"],
+  VERIFY_PARAMETER_PROVENANCE: ["POLICY_PROVIDER", "RUNTIME_SECURITY_PROVIDER", "HUMAN_APPROVAL_PROVIDER", "APPLICATION_SIGNAL"],
+  VERIFY_PROPAGATION_COMPLETION: ["IAM_PROVIDER", "RUNTIME_SECURITY_PROVIDER", "DESTINATION_SYSTEM", "APPLICATION_SIGNAL"],
 };
 
 const conditionByChallenge: Record<VerificationChallenge, TrustConditionInput["dimension"][]> = {
@@ -178,6 +188,11 @@ const conditionByChallenge: Record<VerificationChallenge, TrustConditionInput["d
   VERIFY_MONITORING: ["MONITORING_COVERAGE"],
   VERIFY_MACHINE_STATE: ["RUNTIME_ASSURANCE", "IDENTITY_STABILITY"],
   VERIFY_POLICY_ACKNOWLEDGEMENT: ["POLICY_CHANGE_RISK"],
+  VERIFY_AUTHORITY_STATE: ["AUTHORITY_STABILITY", "AUTHORITY_EXPOSURE"],
+  VERIFY_RUNTIME_AUTHORITY: ["RUNTIME_ASSURANCE", "AUTHORIZATION_PROPAGATION"],
+  VERIFY_DESTINATION_AUTHORITY: ["DESTINATION_EXPOSURE", "AUTHORIZATION_PROPAGATION"],
+  VERIFY_PARAMETER_PROVENANCE: ["TOOL_PARAMETER_PROVENANCE"],
+  VERIFY_PROPAGATION_COMPLETION: ["AUTHORIZATION_PROPAGATION", "STALE_AUTHORITY_RISK"],
 };
 
 function assertSafe(value: unknown, path = "input") {
@@ -260,6 +275,12 @@ function requiredDepth(input: AdaptiveVerificationInput, consequence: AdaptiveCo
 function challengesFor(input: AdaptiveVerificationInput, depth: VerificationDepth, consequence: AdaptiveConsequenceClass, policy: AdaptiveVerificationPolicy): VerificationChallenge[] {
   if (depth === "OBSERVE") return [];
   const challenges: VerificationChallenge[] = ["VERIFY_IDENTITY", "VERIFY_AUTHORITY"];
+  const authoritySignals = [...(input.materialChanges ?? []), ...input.forecast.materialChanges, ...input.forecast.forecastSignals];
+  if (authoritySignals.some((item) => /AUTHORITY|PRIVILEGE|DELEGAT/.test(item))) challenges.push("VERIFY_AUTHORITY_STATE");
+  if (authoritySignals.some((item) => /RUNTIME_AUTHORITY|STALE_AUTHORITY/.test(item))) challenges.push("VERIFY_RUNTIME_AUTHORITY");
+  if (authoritySignals.some((item) => /DESTINATION_AUTHORITY|DESTINATION_BINDING/.test(item))) challenges.push("VERIFY_DESTINATION_AUTHORITY");
+  if (authoritySignals.some((item) => /PARAMETER|MODEL_CONTROLLED_SECURITY_BOUNDARY/.test(item))) challenges.push("VERIFY_PARAMETER_PROVENANCE");
+  if (authoritySignals.some((item) => /PROPAGATION|STALE_AUTHORITY/.test(item))) challenges.push("VERIFY_PROPAGATION_COMPLETION");
   if (input.entity.type === "HUMAN") challenges.push("VERIFY_DEVICE");
   if (["AI_AGENT", "SOFTWARE_AGENT"].includes(input.entity.type)) challenges.push("VERIFY_AGENT_CONFIGURATION", "VERIFY_RUNTIME");
   if ([...(input.materialChanges ?? []), ...input.forecast.materialChanges, ...input.forecast.forecastSignals].some((item) => /MODEL_STATE|MODEL_TEMPLATE|MODEL_ARTIFACT|MODEL_ENDPOINT|MODEL_RUNTIME_AUTH|MODEL_ROUTER|VALIDATION_REASSESSMENT|REVALIDATION/.test(item))) challenges.push("VERIFY_MODEL_STATE");
@@ -284,6 +305,11 @@ function requirementFor(challenge: VerificationChallenge, input: AdaptiveVerific
     VERIFY_MONITORING: "Demonstrate current monitoring coverage for the consequential path.",
     VERIFY_MACHINE_STATE: "Demonstrate current machine, firmware, sensor, or physical-boundary state where available.",
     VERIFY_POLICY_ACKNOWLEDGEMENT: "Demonstrate evaluation against the current versioned enterprise policy.",
+    VERIFY_AUTHORITY_STATE: "Demonstrate the current declared and control-plane authority version and scope.",
+    VERIFY_RUNTIME_AUTHORITY: "Demonstrate the authority the runtime believed effective at execution time.",
+    VERIFY_DESTINATION_AUTHORITY: "Demonstrate the authority the destination actually enforced for the requested resource.",
+    VERIFY_PARAMETER_PROVENANCE: "Demonstrate that each security-critical parameter follows its authority contract and permitted provenance.",
+    VERIFY_PROPAGATION_COMPLETION: "Demonstrate that an authorization change reached runtime, credential, downstream, and destination enforcement layers.",
   };
   const entityFreshnessFactor = input.entity.type === "ROBOT" || input.entity.type === "MACHINE" ? 0.5 : 1;
   return {
@@ -300,6 +326,11 @@ function requirementFor(challenge: VerificationChallenge, input: AdaptiveVerific
 function challengeFromEvidence(evidence: VerificationEvidenceInput): VerificationChallenge | null {
   if (evidence.challenge && VERIFICATION_CHALLENGES.includes(evidence.challenge)) return evidence.challenge;
   const type = evidence.evidenceType.toUpperCase();
+  if (/PROPAGATION_COMPLETION|DESTINATION_EFFECT_CONFIRMED/.test(type)) return "VERIFY_PROPAGATION_COMPLETION";
+  if (/PARAMETER_PROVENANCE|PARAMETER_AUTHORITY/.test(type)) return "VERIFY_PARAMETER_PROVENANCE";
+  if (/DESTINATION_AUTHORITY/.test(type)) return "VERIFY_DESTINATION_AUTHORITY";
+  if (/RUNTIME_AUTHORITY/.test(type)) return "VERIFY_RUNTIME_AUTHORITY";
+  if (/AUTHORITY_STATE|CONTROL_PLANE_AUTHORITY/.test(type)) return "VERIFY_AUTHORITY_STATE";
   if (/MFA|IDENTITY|SSO|WORKFORCE/.test(type)) return "VERIFY_IDENTITY";
   if (/DEVICE|SESSION/.test(type)) return "VERIFY_DEVICE";
   if (/RUNTIME|ATTESTATION/.test(type)) return "VERIFY_RUNTIME";
@@ -327,6 +358,11 @@ function invalidatingChange(challenge: VerificationChallenge, changes: string[])
     VERIFY_MONITORING: /MONITORING|OBSERVABILITY/,
     VERIFY_MACHINE_STATE: /MACHINE|ROBOT|FIRMWARE|SENSOR|PHYSICAL/,
     VERIFY_POLICY_ACKNOWLEDGEMENT: /POLICY/,
+    VERIFY_AUTHORITY_STATE: /AUTHORITY|PRIVILEGE|DELEGAT|CONTROL_PLANE/,
+    VERIFY_RUNTIME_AUTHORITY: /RUNTIME_AUTHORITY|CREDENTIAL|PROPAGATION|STALE_AUTHORITY/,
+    VERIFY_DESTINATION_AUTHORITY: /DESTINATION_AUTHORITY|DESTINATION_BINDING|PROPAGATION/,
+    VERIFY_PARAMETER_PROVENANCE: /PARAMETER|MODEL_CONTROLLED_SECURITY_BOUNDARY|TOOL_SECURITY_SCHEMA/,
+    VERIFY_PROPAGATION_COMPLETION: /PROPAGATION|REVOCATION|DOWNGRADE|STALE_AUTHORITY|CREDENTIAL_ROTATION/,
   };
   return changes.some((change) => pattern[challenge].test(change));
 }

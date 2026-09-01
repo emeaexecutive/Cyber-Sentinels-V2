@@ -172,3 +172,37 @@ test("service-role secrets remain server-only", () => {
   assert.doesNotMatch(clientFiles, /SUPABASE_SERVICE_ROLE_KEY/);
   assert.match(read("lib/supabase/service-role.ts"), /import "server-only"/);
 });
+
+test("controlled Alpha and Beta onboarding cannot run in Production", () => {
+  const source = read("app/operational-entities/page.tsx");
+
+  assert.match(source, /process\.env\.NODE_ENV === "development"/);
+  assert.match(source, /process\.env\.VERCEL_ENV === "preview"/);
+  assert.match(
+    source,
+    /if \(!controlledOnboardingEnabled\(\)\) \{[\s\S]*?redirect\("\/operational-entities\?controlled_onboarding=disabled"\)/,
+  );
+  assert.match(source, /canInitializeControlledPair && \(!hasAlpha \|\| !hasBeta\)/);
+});
+
+test("customer dashboard surfaces use canonical V1 truth and label legacy records", () => {
+  const overview = read("app/dashboard/page.tsx");
+  const decisions = read("app/dashboard/decisions/page.tsx");
+  const reviews = read("app/dashboard/reviews/page.tsx");
+  const replayList = read("app/dashboard/replay/page.tsx");
+  const replayDetail = read("app/dashboard/replay/[entityId]/page.tsx");
+  const evidence = read("app/evidence-vault/page.tsx");
+  const historicalReviews = read("app/admin/reviews/page.tsx");
+
+  for (const source of [overview, decisions, replayList]) assert.match(source, /canonical_trust_transactions/);
+  assert.match(reviews, /trust_manual_reviews/);
+  assert.match(reviews, /resolve_canonical_manual_review_v1/);
+  assert.match(reviews, /original canonical decision remains REVIEW/);
+  assert.match(replayDetail, /loadCanonicalTrustTransactionHistory/);
+  assert.doesNotMatch(replayDetail, /ReplayService|trust_replay_sessions/);
+  assert.match(evidence, /evidence_objects/);
+  assert.match(evidence, /SERVER_VERIFIED/);
+  assert.match(evidence, /AGENT_ASSERTED \/ UNVERIFIED/);
+  assert.match(overview, /Historical surfaces/);
+  assert.match(historicalReviews, /Historical \/ pre-V1 review archive/);
+});

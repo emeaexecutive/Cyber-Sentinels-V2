@@ -8,6 +8,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ tran
     route: "/api/v1/trust/transactions/{transactionId}",
     routeClass: "read",
     scopes: ["trust:read"],
-  }, async ({ principal, correlationId }) =>
-    publicApiResponse(await getExternalTransaction(principal, transactionId), {}, correlationId));
+  }, async ({ principal, correlationId, requestId }) =>
+    publicApiResponse(await getExternalTransaction(principal, transactionId), {}, correlationId, requestId));
 }

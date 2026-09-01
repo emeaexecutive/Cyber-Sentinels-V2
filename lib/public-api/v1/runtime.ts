@@ -19,26 +19,19 @@ import {
   type PublicJwk,
 } from "@/lib/operational-entities/native-verification";
 import { createTrustPolicy } from "@/src/lib/trust-architecture/service";
-import { enterpriseTrustFabricRepository } from "@/src/lib/trust-fabric/repository";
 import { validateTrustContract } from "@/src/lib/trust-fabric/validation";
 import { deterministicUuid, hashCanonical } from "@/src/lib/trust-core/hash";
 import {
   createReferenceProviderAdapter,
-  getReferenceProviderAdapter,
-  PROVIDER_CLASSES,
   type ProviderAdapterInput,
-  type ProviderClass,
 } from "@/lib/providers/adapters";
 import {
   executeCanonicalTrustTransaction,
   type CanonicalContextEvidence,
+  type DeploymentAssuranceEvidence,
   type ExecutionContinuityRecord,
 } from "@/src/lib/trust-transaction/canonical";
 import { createCanonicalTrustTransactionDependenciesForApiClient } from "@/lib/trust-transaction/server";
-import {
-  parsePolicyEvidence,
-  parseWorkforceContinuityEvidence,
-} from "@/src/lib/protected-workflows/policy-continuity";
 import type { PublicApiPrincipal } from "./authentication";
 import {
   assertOnlyFields,
@@ -48,12 +41,26 @@ import {
   type PublicDecision,
 } from "./contracts";
 import { emitPublicApiWebhookEvent } from "./webhook-delivery";
+import {
+  CLIENT_EVIDENCE_CLASSIFICATION,
+  resolveClientEvidenceProvider,
+  resolveClientEvidenceType,
+  verifyClientEvidenceDigest,
+} from "./client-evidence";
+import { establishTrustedStagingEvidence } from "./trusted-staging-evidence";
+import { SERVER_VERIFIED_AGENT_CONFIGURATION, SERVER_VERIFIED_MONITORING, SYNTHETIC_STAGING_PROVIDER_KEY } from "./synthetic-staging-provider";
 
 type Row = Record<string, any>;
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const referencePattern = /^[A-Za-z0-9_.:/@-]{1,240}$/;
 const publicPolicyId = "external-agent-trust-v1";
-const publicPolicyVersion = "0.1.0";
+const publicPolicyVersion = "0.2.0";
+
+function boundedReferenceArray(value: unknown, field: string, maximum = 32) {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || value.length > maximum) throw new PublicApiError("INVALID_INPUT", `${field} must be a bounded array.`, 400);
+  return [...new Set(value.map((item) => requiredText(item, field, 240, referencePattern)))];
+}
 
 function assertNoCallerAuthorityClaims(value: unknown) {
   const forbidden = new Set(["tenant", "tenant_id", "enterprise_id", "verified", "trust_score", "cyber_sentinels_trust_score", "decision", "allow", "deny"]);
@@ -73,14 +80,19 @@ function context(principal: PublicApiPrincipal): DelegatedAuthorityContext {
   return {
     enterpriseId: principal.tenantId,
     user: principal.user,
-    role: "owner",
+    role: principal.role,
   };
 }
 
 function translateRuntimeError(error: unknown): never {
   const candidate = error as { code?: string; status?: number; message?: string };
-  if (candidate?.code && candidate?.status) {
-    throw new PublicApiError(candidate.code, candidate.message ?? "The request was rejected.", candidate.status);
+  if (
+    candidate?.code
+    && /^[A-Z][A-Z0-9_]{1,79}$/.test(candidate.code)
+    && candidate?.status
+    && [400, 401, 403, 404, 409, 413, 415, 422, 429, 503].includes(candidate.status)
+  ) {
+    throw new PublicApiError(candidate.code, "The canonical trust runtime rejected the request.", candidate.status);
   }
   throw error;
 }
@@ -96,10 +108,7 @@ async function entityFor(principal: PublicApiPrincipal, agentId: string) {
   return entity.data as Row;
 }
 
-async function ensurePublicAgentAuthority(
-  principal: PublicApiPrincipal,
-  entity: { entityId: string; displayName: string; environment: string },
-) {
+async function ensurePublicApiPolicy(principal: PublicApiPrincipal) {
   const db = createServiceRoleClient();
   const policy = await db
     .from("trust_policy_versions")
@@ -121,74 +130,14 @@ async function ensurePublicAgentAuthority(
         active: true,
         validFrom: new Date(Date.now() - 1_000).toISOString(),
         rules: {
-          purpose: "deployment_evidence_review",
-          allowedActions: ["read_repository"],
-          requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF"],
+          purpose: "customer_bounded_authority",
+          allowedActions: ["bounded_by_trust_contract"],
+          requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF", SERVER_VERIFIED_AGENT_CONFIGURATION, SERVER_VERIFIED_MONITORING],
           providerDependency: "none",
         },
       },
     });
   }
-  const repository = enterpriseTrustFabricRepository();
-  const existing = (await repository.contracts(principal.tenantId)).find(
-    (candidate) =>
-      candidate.subject.id === entity.entityId &&
-      candidate.policyId === publicPolicyId &&
-      candidate.revocationState === "active" &&
-      Date.parse(candidate.expiresAt) > Date.now(),
-  );
-  if (existing) return existing;
-  const issuedAt = new Date().toISOString();
-  const contract = validateTrustContract(
-    {
-      contractId: crypto.randomUUID(),
-      subject: { type: "ai_agent", id: entity.entityId, displayName: entity.displayName },
-      workflow: { id: "external-agent-api", objective: "Review deployment evidence in Repository A." },
-      authorizedObjective: "deployment_evidence_review",
-      requiredIdentityState: "verified",
-      requiredAuthority: ["tenant_api_client"],
-      requiredEnvironmentState: "degraded",
-      permittedScope: ["read_repository"],
-      permittedProviders: ["cyber_sentinels_native"],
-      requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF"],
-      maximumEvidenceAgeSeconds: 3_600,
-      monitoringRequirements: [],
-      humanReviewThresholds: [],
-      contradictionPolicy: "review",
-      incidentThreshold: "material",
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1_000).toISOString(),
-      revokedAt: null,
-      revocationState: "active",
-      issuer: `tenant:${principal.tenantId}`,
-      approver: `api-client:${principal.clientId}`,
-      policyId: publicPolicyId,
-      policyVersion: publicPolicyVersion,
-      evidenceReferences: [],
-      issuedAt,
-      supersedesContractId: null,
-      authorityScope: {
-        permittedActions: ["read_repository"],
-        permittedTools: ["repository.reader"],
-        permittedTargets: ["repository:a"],
-        environments: [entity.environment],
-        dataBoundary: "INTERNAL",
-        financialLimit: 0,
-        executionLimit: 100,
-      },
-      canDelegate: false,
-      maximumDelegationDepth: 0,
-      authorityVersion: "external-agent-authority-v1",
-    },
-    principal.tenantId,
-  );
-  await repository.persistContract(principal.tenantId, principal.clientId, contract, crypto.randomUUID());
-  const updated = await db
-    .from("operational_entities")
-    .update({ current_authority_references: [contract.contractId] })
-    .eq("enterprise_id", principal.tenantId)
-    .eq("entity_id", entity.entityId);
-  if (updated.error) throw new PublicApiError("AUTHORITY_UNAVAILABLE", "Agent authority could not be linked safely.", 503);
-  return contract;
 }
 
 export async function registerExternalAgent(principal: PublicApiPrincipal, body: Record<string, unknown>) {
@@ -222,7 +171,6 @@ export async function registerExternalAgent(principal: PublicApiPrincipal, body:
   const db = createServiceRoleClient();
   const bound = await db.from("public_api_agent_bindings").insert({ tenant_id: principal.tenantId, operational_entity_id: agentId, client_id: principal.clientId });
   if (bound.error) throw new PublicApiError("AGENT_BINDING_UNAVAILABLE", "The external agent could not be bound to this API client safely.", 503);
-  const authority = await ensurePublicAgentAuthority(principal, { entityId: agentId, displayName, environment });
   return {
     agent_id: agentId,
     operational_entity_id: agentId,
@@ -236,8 +184,27 @@ export async function registerExternalAgent(principal: PublicApiPrincipal, body:
       environment,
       framework,
       model: { provider, identifier },
-      authority_reference: authority.contractId,
+      authority_reference: null,
     },
+  };
+}
+
+export async function getExternalAgent(principal: PublicApiPrincipal, agentId: string) {
+  const entity = await entityFor(principal, agentId);
+  let authority: Awaited<ReturnType<typeof getExternalAuthority>> | null = null;
+  try { authority = await getExternalAuthority(principal, agentId); } catch (error) {
+    if (!(error instanceof PublicApiError) || error.code !== "AUTHORITY_NOT_FOUND") throw error;
+  }
+  return {
+    agent_id: String(entity.entity_id),
+    operational_entity_id: String(entity.entity_id),
+    entity_type: String(entity.entity_type).toUpperCase(),
+    display_name: String(entity.display_reference),
+    lifecycle_state: String(entity.lifecycle_state),
+    accountable_owner_reference: String(entity.accountable_owner_id),
+    authority_reference: authority?.authority_reference ?? null,
+    authority_version: authority?.authority_version ?? null,
+    authority_status: authority?.status ?? "UNASSIGNED",
   };
 }
 
@@ -477,56 +444,204 @@ export async function submitExternalProof(principal: PublicApiPrincipal, agentId
   }
 }
 
-export async function getExternalAuthority(principal: PublicApiPrincipal, agentId: string) {
-  await entityFor(principal, agentId);
-  const db = createServiceRoleClient();
-  const [contract, verification] = await Promise.all([
-    db.from("trust_contracts").select("contract,revocation_state,revoked_at,expires_at").eq("enterprise_id", principal.tenantId).eq("subject_type", "ai_agent").eq("subject_id", agentId).order("issued_at", { ascending: false }).limit(1).maybeSingle(),
-    db.from("native_entity_identity_evidence").select("evidence_id,expires_at").eq("enterprise_id", principal.tenantId).eq("operational_entity_id", agentId).is("revoked_at", null).order("verified_at", { ascending: false }).limit(1).maybeSingle(),
-  ]);
-  if (contract.error || verification.error) throw new PublicApiError("AUTHORITY_UNAVAILABLE", "Authority could not be resolved safely.", 503);
-  if (!contract.data?.contract) throw new PublicApiError("AUTHORITY_NOT_FOUND", "No authority is assigned to this agent.", 404);
-  const value = contract.data.contract as Row;
+function authorityView(row: Row, identityCurrent: boolean) {
+  const value = row.contract as Row;
   const scope = (value.authorityScope ?? {}) as Row;
-  const active = contract.data.revocation_state === "active" && Date.parse(String(contract.data.expires_at)) > Date.now();
-  const identityCurrent = Boolean(verification.data && Date.parse(String(verification.data.expires_at)) > Date.now());
+  const active = row.revocation_state === "active"
+    && Date.parse(String(row.issued_at)) <= Date.now()
+    && Date.parse(String(row.expires_at)) > Date.now();
   return {
-    status: !active ? "INVALIDATED" : identityCurrent ? "ACTIVE" : "PENDING_IDENTITY",
+    authority_id: String(row.contract_id),
+    authority_reference: String(row.contract_id),
+    authority_version: value.authorityVersion ?? null,
+    status: !active ? row.revocation_state === "revoked" ? "REVOKED" : Date.parse(String(row.expires_at)) <= Date.now() ? "EXPIRED" : "SCHEDULED" : identityCurrent ? "ACTIVE" : "PENDING_IDENTITY",
+    action: String((scope.permittedActions ?? value.permittedScope ?? [])[0] ?? ""),
     actions: scope.permittedActions ?? value.permittedScope ?? [],
+    target: String((scope.permittedTargets ?? [])[0] ?? ""),
     targets: scope.permittedTargets ?? [],
+    purpose: String(value.authorizedObjective ?? ""),
     tools: scope.permittedTools ?? [],
     environment: scope.environments ?? [],
-    expires_at: value.expiresAt,
-    authority_reference: value.contractId,
+    valid_from: String(row.issued_at),
+    expires_at: String(row.expires_at),
+    revoked_at: row.revoked_at ? String(row.revoked_at) : null,
+    supersedes_authority_id: value.supersedesContractId ?? null,
+    issuer: value.issuer,
+    approver: value.approver,
     delegated_from: null,
     delegation_depth: 0,
   };
+}
+
+async function currentIdentity(principal: PublicApiPrincipal, agentId: string) {
+  const db = createServiceRoleClient();
+  const verification = await db.from("native_entity_identity_evidence").select("evidence_id,expires_at").eq("enterprise_id", principal.tenantId).eq("operational_entity_id", agentId).is("revoked_at", null).order("verified_at", { ascending: false }).limit(1).maybeSingle();
+  if (verification.error) throw new PublicApiError("AUTHORITY_UNAVAILABLE", "Authority identity state could not be resolved safely.", 503);
+  return Boolean(verification.data && Date.parse(String(verification.data.expires_at)) > Date.now());
+}
+
+export async function listExternalAuthorities(principal: PublicApiPrincipal, agentId: string) {
+  await entityFor(principal, agentId);
+  const db = createServiceRoleClient();
+  const [contracts, identityCurrent] = await Promise.all([
+    db.from("trust_contracts").select("contract_id,contract,revocation_state,revoked_at,issued_at,expires_at,created_at").eq("enterprise_id", principal.tenantId).eq("subject_type", "ai_agent").eq("subject_id", agentId).order("issued_at", { ascending: false }).limit(100),
+    currentIdentity(principal, agentId),
+  ]);
+  if (contracts.error) throw new PublicApiError("AUTHORITY_UNAVAILABLE", "Authority history could not be resolved safely.", 503);
+  return { authorities: (contracts.data ?? []).map((row) => authorityView(row as Row, identityCurrent)) };
+}
+
+export async function getExternalAuthorityById(principal: PublicApiPrincipal, agentId: string, authorityId: string) {
+  await entityFor(principal, agentId);
+  if (!uuidPattern.test(authorityId)) throw new PublicApiError("AUTHORITY_NOT_FOUND", "The authority is unavailable to this API client.", 404);
+  const db = createServiceRoleClient();
+  const [contract, identityCurrent] = await Promise.all([
+    db.from("trust_contracts").select("contract_id,contract,revocation_state,revoked_at,issued_at,expires_at,created_at").eq("enterprise_id", principal.tenantId).eq("subject_type", "ai_agent").eq("subject_id", agentId).eq("contract_id", authorityId).maybeSingle(),
+    currentIdentity(principal, agentId),
+  ]);
+  if (contract.error) throw new PublicApiError("AUTHORITY_UNAVAILABLE", "Authority could not be resolved safely.", 503);
+  if (!contract.data) throw new PublicApiError("AUTHORITY_NOT_FOUND", "The authority is unavailable to this API client.", 404);
+  return authorityView(contract.data as Row, identityCurrent);
+}
+
+export async function getExternalAuthority(principal: PublicApiPrincipal, agentId: string) {
+  const result = await listExternalAuthorities(principal, agentId);
+  const authority = result.authorities[0];
+  if (!authority) throw new PublicApiError("AUTHORITY_NOT_FOUND", "No authority is assigned to this agent.", 404);
+  return authority;
+}
+
+function authorityAdministration(principal: PublicApiPrincipal) {
+  if (!principal.scopes.includes("authority:write") || !["owner", "admin"].includes(principal.role)) {
+    throw new PublicApiError("AUTHORITY_GRANT_FORBIDDEN", "This API principal cannot administer authority.", 403);
+  }
+  if (!principal.authorityManagementBoundary) {
+    throw new PublicApiError("AUTHORITY_GRANT_FORBIDDEN", "This API key has no authority-management boundary.", 403);
+  }
+  return principal.authorityManagementBoundary;
+}
+
+function authorityRpcFailure(error: { message?: string } | null): never {
+  const message = String(error?.message ?? "");
+  if (/not owned|not found/i.test(message)) throw new PublicApiError("AUTHORITY_NOT_FOUND", "The authority or agent is unavailable to this API client.", 404);
+  if (/verified current agent identity/i.test(message)) throw new PublicApiError("AUTHORITY_GRANT_FORBIDDEN", "Current verified agent identity is required before authority can be granted.", 409);
+  if (/boundary|forbidden|backdating|scheduling|expiry/i.test(message)) throw new PublicApiError("AUTHORITY_GRANT_FORBIDDEN", "The authority grant is outside this principal's administrative boundary.", 403);
+  if (/version conflict/i.test(message)) throw new PublicApiError("IDEMPOTENCY_CONFLICT", "The authority version changed; reload authority history before retrying.", 409);
+  throw new PublicApiError("AUTHORITY_UNAVAILABLE", "Authority could not be changed safely.", 503);
+}
+
+export async function grantExternalAuthority(principal: PublicApiPrincipal, agentId: string, body: Record<string, unknown>, correlationId: string) {
+  const boundary = authorityAdministration(principal);
+  const entity = await entityFor(principal, agentId);
+  assertOnlyFields(body, ["action", "target", "purpose", "environment", "valid_from", "expires_at", "data_boundary", "execution_limit"]);
+  const action = requiredText(body.action, "action", 120, referencePattern);
+  const target = requiredText(body.target, "target", 240, referencePattern);
+  const purpose = requiredText(body.purpose, "purpose", 180, referencePattern);
+  const environment = requiredText(body.environment, "environment", 120, referencePattern);
+  if (!boundary.actions.includes(action) || !boundary.purposes.includes(purpose) || !boundary.environments.includes(environment) || !boundary.targetPrefixes.some((prefix) => target.startsWith(prefix))) {
+    throw new PublicApiError("AUTHORITY_GRANT_FORBIDDEN", "The requested authority exceeds this API key's management boundary.", 403);
+  }
+  const entityEnvironments = Array.isArray(entity.environment_references) ? entity.environment_references.map(String) : [];
+  if (entityEnvironments.length && !entityEnvironments.includes(environment)) {
+    throw new PublicApiError("AUTHORITY_GRANT_FORBIDDEN", "The authority environment does not match the registered agent environment.", 403);
+  }
+  const validFrom = optionalIso(body.valid_from, "valid_from") ?? new Date().toISOString();
+  const expiresAt = optionalIso(body.expires_at, "expires_at");
+  if (!expiresAt) throw new PublicApiError("INVALID_REQUEST", "expires_at is required; indefinite authority is not supported.", 400);
+  if (Date.parse(validFrom) < Date.now() - 60_000 || Date.parse(validFrom) > Date.now() + 300_000) {
+    throw new PublicApiError("AUTHORITY_GRANT_FORBIDDEN", "valid_from cannot backdate authority or schedule it more than five minutes ahead.", 403);
+  }
+  if (Date.parse(expiresAt) <= Date.parse(validFrom) || Date.parse(expiresAt) - Date.parse(validFrom) > boundary.maxTtlSeconds * 1000) {
+    throw new PublicApiError("AUTHORITY_GRANT_FORBIDDEN", "expires_at exceeds the API key's maximum authority lifetime.", 403);
+  }
+  const dataBoundary = String(body.data_boundary ?? "INTERNAL").toUpperCase();
+  if (!["PUBLIC", "INTERNAL"].includes(dataBoundary)) throw new PublicApiError("INVALID_REQUEST", "Public V1 authority supports PUBLIC or INTERNAL data boundaries.", 400);
+  const executionLimit = body.execution_limit === undefined ? 100 : Number(body.execution_limit);
+  if (!Number.isSafeInteger(executionLimit) || executionLimit < 1 || executionLimit > 10_000) throw new PublicApiError("INVALID_REQUEST", "execution_limit must be between 1 and 10000.", 400);
+  if (!await currentIdentity(principal, agentId)) throw new PublicApiError("AUTHORITY_GRANT_FORBIDDEN", "Current verified agent identity is required before authority can be granted.", 409);
+  await ensurePublicApiPolicy(principal);
+  const db = createServiceRoleClient();
+  const latest = await db.from("trust_contracts").select("contract_id").eq("enterprise_id", principal.tenantId).eq("subject_type", "ai_agent").eq("subject_id", agentId).order("issued_at", { ascending: false }).limit(1).maybeSingle();
+  if (latest.error) throw new PublicApiError("AUTHORITY_UNAVAILABLE", "Authority history could not be resolved safely.", 503);
+  const contractId = crypto.randomUUID();
+  const contract = validateTrustContract({
+    contractId,
+    subject: { type: "ai_agent", id: agentId, displayName: String(entity.display_reference ?? agentId) },
+    workflow: { id: "external-agent-api", objective: `Customer-authorized ${action} on ${target}.` },
+    authorizedObjective: purpose,
+    requiredIdentityState: "verified",
+    requiredAuthority: ["tenant_admin_grant"],
+    requiredEnvironmentState: "degraded",
+    permittedScope: [action],
+    permittedProviders: ["cyber_sentinels_native", SYNTHETIC_STAGING_PROVIDER_KEY],
+    requiredEvidenceTypes: ["NATIVE_ENTITY_IDENTITY_PROOF", SERVER_VERIFIED_AGENT_CONFIGURATION, SERVER_VERIFIED_MONITORING],
+    maximumEvidenceAgeSeconds: 3_600,
+    monitoringRequirements: [SERVER_VERIFIED_MONITORING],
+    humanReviewThresholds: [],
+    contradictionPolicy: "review",
+    incidentThreshold: "material",
+    expiresAt,
+    revokedAt: null,
+    revocationState: "active",
+    issuer: `tenant-admin:${principal.createdBy}`,
+    approver: `api-client:${principal.clientId}`,
+    policyId: publicPolicyId,
+    policyVersion: publicPolicyVersion,
+    evidenceReferences: [{ type: "native_identity_evidence", id: agentId }],
+    issuedAt: validFrom,
+    supersedesContractId: latest.data?.contract_id ? String(latest.data.contract_id) : null,
+    authorityScope: { permittedActions: [action], permittedTools: [], permittedTargets: [target], environments: [environment], dataBoundary, financialLimit: 0, executionLimit },
+    canDelegate: false,
+    maximumDelegationDepth: 0,
+    authorityVersion: `customer-authority:${contractId}`,
+  }, principal.tenantId);
+  const recordHash = hashCanonical(contract as unknown as Record<string, unknown>);
+  const persisted = await db.rpc("persist_public_api_authority_v1", { p_tenant_id: principal.tenantId, p_key_id: principal.keyId, p_client_id: principal.clientId, p_agent_id: agentId, p_contract: contract, p_record_hash: recordHash, p_correlation_id: correlationId });
+  if (persisted.error) authorityRpcFailure(persisted.error);
+  return getExternalAuthorityById(principal, agentId, contractId);
+}
+
+export async function revokeExternalAuthority(principal: PublicApiPrincipal, agentId: string, authorityId: string, body: Record<string, unknown>, correlationId: string) {
+  authorityAdministration(principal);
+  await entityFor(principal, agentId);
+  if (!uuidPattern.test(authorityId)) throw new PublicApiError("AUTHORITY_NOT_FOUND", "The authority is unavailable to this API client.", 404);
+  assertOnlyFields(body, ["reason"]);
+  const reason = requiredText(body.reason, "reason", 500, /^[A-Za-z0-9_.:/@,;'() -]+$/);
+  const db = createServiceRoleClient();
+  const result = await db.rpc("revoke_public_api_authority_v1", { p_tenant_id: principal.tenantId, p_key_id: principal.keyId, p_client_id: principal.clientId, p_agent_id: agentId, p_authority_id: authorityId, p_reason: reason, p_correlation_id: correlationId });
+  if (result.error) authorityRpcFailure(result.error);
+  return { authority_id: authorityId, authority_reference: authorityId, status: "REVOKED", revocation_reference: `authority-revocation:${authorityId}`, correlation_id: correlationId };
 }
 
 export async function getExternalTrustState(principal: PublicApiPrincipal, agentId: string) {
   await entityFor(principal, agentId);
   const native = await loadNativeVerification(context(principal), agentId);
   const latest = native.verifications[0] as Row | undefined;
-  const authority = await getExternalAuthority(principal, agentId);
+  let authority: Awaited<ReturnType<typeof getExternalAuthority>> | null = null;
+  try { authority = await getExternalAuthority(principal, agentId); } catch (error) {
+    if (!(error instanceof PublicApiError) || error.code !== "AUTHORITY_NOT_FOUND") throw error;
+  }
   const lastMaterial = [...native.replay]
     .reverse()
     .find((event: Row) => ["ENTITY_CHANGED", "CREDENTIAL_ROTATED", "CREDENTIAL_REVOKED", "AUTHORITY_REVOKED", "MANIFEST_REVOKED"].includes(String(event.event_type))) as Row | undefined;
   return {
     identity: latest?.evidence_references?.length ? "VERIFIED" : "UNVERIFIED",
-    authority: authority.status,
+    authority: authority?.status ?? "UNASSIGNED",
     continuity: latest?.continuity_result ?? "UNKNOWN",
     health: latest?.status === "VERIFIED" ? "HEALTHY" : latest ? "DEGRADED" : "UNKNOWN",
     drift: Array.isArray(latest?.changed_attributes) && latest.changed_attributes.length ? "MATERIAL_CHANGE" : "NONE_OBSERVED",
     confidence: latest?.status === "VERIFIED" ? "HIGH" : latest ? "LIMITED" : "INSUFFICIENT",
     stability: latest?.continuity_result === "CONTINUITY_PRESERVED" ? "STABLE" : "UNESTABLISHED",
-    current_restrictions: authority.status === "ACTIVE" ? [] : ["NO_EXECUTION_AUTHORIZATION"],
+    current_restrictions: authority?.status === "ACTIVE" ? [] : ["NO_EXECUTION_AUTHORIZATION"],
     last_material_change: lastMaterial ? { event_type: lastMaterial.event_type, occurred_at: lastMaterial.occurred_at } : null,
   };
 }
 
 function executionAuthorization(receipt: Row) {
   if (receipt.decision !== "ALLOW") return null;
-  const secret = process.env.PUBLIC_API_EXECUTION_SIGNING_SECRET?.trim() || process.env.TRUST_ACTION_RELAY_SECRET?.trim();
+  const secret = process.env.API_EXECUTION_SIGNING_SECRET?.trim()
+    || process.env.PUBLIC_API_EXECUTION_SIGNING_SECRET?.trim()
+    || process.env.TRUST_ACTION_RELAY_SECRET?.trim();
   if (!secret) return null;
   const artifact = {
     version: "transaction-execution-authorization-v1",
@@ -542,7 +657,48 @@ function executionAuthorization(receipt: Row) {
   return { ...artifact, signature: `sha256=${createHmac("sha256", secret).update(JSON.stringify(artifact)).digest("hex")}` };
 }
 
-export async function requestExternalDecision(principal: PublicApiPrincipal, body: Record<string, unknown>, idempotencyKey: string, origin: string) {
+function consequenceTimeProjection(snapshot: Row | null | undefined) {
+  const value = snapshot?.consequenceTime;
+  if (!value || typeof value !== "object") return null;
+  const conditions = value.currentConditions ?? {};
+  const currentConditionReferences = [...new Set([
+    ...(Array.isArray(conditions.evidenceReferences) ? conditions.evidenceReferences.map(String) : []),
+    conditions.runtimeAuthorityEvidenceReference ? String(conditions.runtimeAuthorityEvidenceReference) : null,
+    conditions.destinationAuthorityEvidenceReference ? String(conditions.destinationAuthorityEvidenceReference) : null,
+    conditions.humanApprovalReference ? String(conditions.humanApprovalReference) : null,
+    ...(Array.isArray(conditions.materialChangeReferences) ? conditions.materialChangeReferences.map(String) : []),
+  ].filter((item): item is string => Boolean(item)))];
+  return {
+    evaluated_at: value.evaluatedAt,
+    agent_identity_reference: value.agentIdentityReference,
+    authority: value.authority,
+    delegation_lineage: value.delegationLineage ?? [],
+    intent: value.intent,
+    current_conditions: {
+      identity_assurance: conditions.identityAssurance,
+      evidence_complete: conditions.evidenceComplete,
+      evidence_fresh: conditions.evidenceFresh,
+      policy_reference: conditions.policyReference,
+      policy_version: conditions.policyVersion,
+      runtime_authority_state: conditions.runtimeAuthorityState,
+      destination_authority_state: conditions.destinationAuthorityState,
+      authorization_propagation_state: conditions.authorizationPropagationState,
+      material_changes: conditions.materialChanges ?? [],
+      material_change_references: conditions.materialChangeReferences ?? [],
+      human_approval_required: conditions.humanApprovalRequired,
+      human_approval_state: conditions.humanApprovalState,
+      current_condition_references: currentConditionReferences,
+    },
+    consequence: value.consequence,
+    canonical_decision: value.canonicalDecision,
+    reason_codes: value.reasonCodes ?? [],
+    previous_evaluation: value.previousEvaluation,
+    decision_differs_from_previous: Boolean(value.decisionDiffersFromPrevious),
+    previous_allow_standing_authorization: false,
+  };
+}
+
+export async function requestExternalDecision(principal: PublicApiPrincipal, body: Record<string, unknown>, idempotencyKey: string, origin: string, correlationId?: string) {
   assertOnlyFields(body, ["operational_entity_id", "action", "idempotency_key", "decision_type", "context"]);
   const agentId = requiredText(body.operational_entity_id, "operational_entity_id", 180, referencePattern);
   await entityFor(principal, agentId);
@@ -553,72 +709,65 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
   const deploymentContext = body.context && typeof body.context === "object" && !Array.isArray(body.context)
     ? (body.context as Record<string, unknown>)
     : null;
-  if (deploymentContext) assertOnlyFields(deploymentContext, ["environment", "release", "material_changes", "assurance_evidence", "mission", "monitoring", "sensor_evidence", "signed_intent", "command_target", "execution_stages", "oversight"]);
+  if (deploymentContext) assertOnlyFields(deploymentContext, [
+    "environment", "release", "material_changes", "mission", "monitoring", "sensor_evidence", "command_target", "execution_stages", "oversight",
+    "intent_reference", "previous_transaction_id", "authority_version", "policy_version", "current_evidence_references", "material_change_references", "human_approval_reference",
+  ]);
   const materialChanges = deploymentContext && Array.isArray(deploymentContext.material_changes)
     ? deploymentContext.material_changes.filter((item): item is string => typeof item === "string")
     : deploymentContext && Array.isArray(deploymentContext.materialChanges)
       ? deploymentContext.materialChanges.filter((item): item is string => typeof item === "string")
       : [];
-  const assuranceEvidence = deploymentContext && Array.isArray(deploymentContext.assurance_evidence)
-    ? deploymentContext.assurance_evidence.map((item) => ({
-        providerKey: typeof (item as Record<string, unknown>).provider_key === "string" ? String((item as Record<string, unknown>).provider_key) : "provider:unknown",
-        assessmentId: typeof (item as Record<string, unknown>).assessment_id === "string" ? String((item as Record<string, unknown>).assessment_id) : crypto.randomUUID(),
-        subject: typeof (item as Record<string, unknown>).subject === "string" ? String((item as Record<string, unknown>).subject) : "unknown",
-        environment: typeof (item as Record<string, unknown>).environment === "string" ? String((item as Record<string, unknown>).environment) : "unknown",
-        scope: typeof (item as Record<string, unknown>).scope === "string" ? String((item as Record<string, unknown>).scope) : "deployment",
-        methodReference: typeof (item as Record<string, unknown>).method_reference === "string" ? String((item as Record<string, unknown>).method_reference) : "unknown",
-        occurredAt: typeof (item as Record<string, unknown>).occurred_at === "string" ? String((item as Record<string, unknown>).occurred_at) : new Date().toISOString(),
-        receivedAt: typeof (item as Record<string, unknown>).received_at === "string" ? String((item as Record<string, unknown>).received_at) : new Date().toISOString(),
-        expiresAt: typeof (item as Record<string, unknown>).expires_at === "string" ? String((item as Record<string, unknown>).expires_at) : new Date(Date.now() + 24 * 60 * 60 * 1_000).toISOString(),
-        modelVersion: typeof (item as Record<string, unknown>).model_version === "string" ? String((item as Record<string, unknown>).model_version) : null,
-        toolSet: Array.isArray((item as Record<string, unknown>).tool_set) ? ((item as Record<string, unknown>).tool_set as unknown[]).filter((tool): tool is string => typeof tool === "string") : [],
-        permissionContext: typeof (item as Record<string, unknown>).permission_context === "string" ? String((item as Record<string, unknown>).permission_context) : null,
-        assurance: typeof (item as Record<string, unknown>).assurance === "number" ? (item as Record<string, unknown>).assurance as number : null,
-        confidence: typeof (item as Record<string, unknown>).confidence === "string" ? String((item as Record<string, unknown>).confidence) : "medium",
-        evidenceDigest: typeof (item as Record<string, unknown>).evidence_digest === "string" ? String((item as Record<string, unknown>).evidence_digest) : hashCanonical(item),
-        findingReferences: Array.isArray((item as Record<string, unknown>).finding_references) ? ((item as Record<string, unknown>).finding_references as unknown[]).filter((entry): entry is string => typeof entry === "string") : [],
-        retestReference: typeof (item as Record<string, unknown>).retest_reference === "string" ? String((item as Record<string, unknown>).retest_reference) : null,
-      }))
-    : [];
+  if (materialChanges.length > 32) throw new PublicApiError("INVALID_INPUT", "context.material_changes must be bounded.", 400);
+  const intentReference = deploymentContext?.intent_reference ? requiredText(deploymentContext.intent_reference, "context.intent_reference", 240, referencePattern) : null;
+  const previousTransactionId = deploymentContext?.previous_transaction_id ? requiredText(deploymentContext.previous_transaction_id, "context.previous_transaction_id", 36, uuidPattern) : null;
+  const expectedAuthorityVersion = deploymentContext?.authority_version ? requiredText(deploymentContext.authority_version, "context.authority_version", 180, referencePattern) : null;
+  const expectedPolicyVersion = deploymentContext?.policy_version ? requiredText(deploymentContext.policy_version, "context.policy_version", 180, referencePattern) : null;
+  const currentEvidenceReferences = boundedReferenceArray(deploymentContext?.current_evidence_references, "context.current_evidence_references");
+  const materialChangeReferences = boundedReferenceArray(deploymentContext?.material_change_references, "context.material_change_references");
+  const humanApprovalReference = deploymentContext?.human_approval_reference ? requiredText(deploymentContext.human_approval_reference, "context.human_approval_reference", 36, uuidPattern) : null;
+  // Decision-eligible assurance evidence must arrive through an authenticated provider ingestion path.
+  const assuranceEvidence: DeploymentAssuranceEvidence[] = [];
   const monitoring = deploymentContext?.monitoring && typeof deploymentContext.monitoring === "object" && !Array.isArray(deploymentContext.monitoring)
     ? deploymentContext.monitoring as Record<string, unknown>
     : null;
   if (monitoring) assertOnlyFields(monitoring, ["expected_providers", "observed_providers", "telemetry_gap_seconds", "connection"]);
   const expectedProviders = Array.isArray(monitoring?.expected_providers) ? monitoring.expected_providers.filter((item): item is string => typeof item === "string") : [];
   const observedProviders = Array.isArray(monitoring?.observed_providers) ? monitoring.observed_providers.filter((item): item is string => typeof item === "string") : [];
-  const monitoringCoverage = expectedProviders.length > 0 && expectedProviders.every((provider) => observedProviders.includes(provider))
-    ? "covered" as const
-    : observedProviders.length > 0 ? "partial" as const : "not_observed" as const;
-  const signedIntent = deploymentContext?.signed_intent && typeof deploymentContext.signed_intent === "object" && !Array.isArray(deploymentContext.signed_intent)
-    ? deploymentContext.signed_intent as Record<string, unknown>
-    : null;
-  if (signedIntent) assertOnlyFields(signedIntent, ["signature_reference", "destination"]);
+  const monitoringCoverage = observedProviders.length > 0 ? "partial" as const : "not_observed" as const;
   const executionStages = Array.isArray(deploymentContext?.execution_stages)
     ? deploymentContext.execution_stages.map((value) => {
         const item = value as Record<string, unknown>;
         assertOnlyFields(item, ["stage", "status", "occurred_at", "evidence_reference"]);
         const stage = requiredText(item.stage, "execution_stages.stage", 80, /^[A-Z_]+$/) as ExecutionContinuityRecord["stage"];
-        const status = requiredText(item.status, "execution_stages.status", 40, /^[a-z_]+$/) as ExecutionContinuityRecord["status"];
+        const claimedStatus = requiredText(item.status, "execution_stages.status", 40, /^[a-z_]+$/) as ExecutionContinuityRecord["status"];
+        const status: ExecutionContinuityRecord["status"] = claimedStatus === "not_applicable" ? "not_applicable" : "asserted";
         return { stage, status, occurredAt: optionalIso(item.occurred_at, "execution_stages.occurred_at"), evidenceReference: item.evidence_reference ? requiredText(item.evidence_reference, "execution_stages.evidence_reference", 240, referencePattern) : null };
       })
     : [];
-  const sensors = Array.isArray(deploymentContext?.sensor_evidence) ? deploymentContext.sensor_evidence.map((value) => value as Record<string, unknown>) : [];
-  const sensorObservations = new Set(sensors.map((item) => String(item.observation ?? "")).filter(Boolean));
+  const sensors = Array.isArray(deploymentContext?.sensor_evidence) ? deploymentContext.sensor_evidence.map((value) => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) throw new PublicApiError("INVALID_INPUT", "sensor_evidence entries must be objects.", 400);
+    const { digest, ...facts } = value as Record<string, unknown>;
+    const computedDigest = hashCanonical(facts);
+    const suppliedDigest = digest ? requiredText(digest, "sensor_evidence.digest", 64, /^[a-f0-9]{64}$/) : null;
+    verifyClientEvidenceDigest(suppliedDigest, computedDigest);
+    return { facts, computedDigest };
+  }) : [];
+  const sensorObservations = new Set(sensors.map((item) => String(item.facts.observation ?? "")).filter(Boolean));
   const contradictions = [
-    ...(signedIntent?.destination && deploymentContext?.command_target && signedIntent.destination !== deploymentContext.command_target ? ["INTENT_EXECUTION_MISMATCH"] : []),
     ...(expectedProviders.some((provider) => !observedProviders.includes(provider)) ? ["MONITORING_COVERAGE_GAP"] : []),
     ...(Number(monitoring?.telemetry_gap_seconds ?? 0) > 0 && executionStages.some((item) => ["COMMAND_SENT", "ACTION_EXECUTED", "WORLD_STATE_CHANGED", "CONSEQUENCE_OBSERVED"].includes(item.stage)) ? ["ACTION_DURING_EVIDENCE_GAP"] : []),
     ...(sensorObservations.size > 1 ? ["SENSOR_DISAGREEMENT"] : []),
   ];
   const contextEvidence: CanonicalContextEvidence[] = [
     ...sensors.map((item) => ({
-      providerClass: "SENSOR_EVIDENCE_PROVIDER",
-      providerKey: typeof item.source === "string" ? item.source : "sensor:unattributed",
-      evidenceType: sensorObservations.size > 1 ? "SENSOR_DISAGREEMENT" : "SENSOR_OBSERVATION",
-      observedAt: typeof item.observed_at === "string" && Number.isFinite(Date.parse(item.observed_at)) ? new Date(item.observed_at).toISOString() : new Date().toISOString(),
-      outcome: "OBSERVED",
-      evidenceDigest: typeof item.digest === "string" && /^[a-f0-9]{64}$/.test(item.digest) ? item.digest : hashCanonical(item),
-      metadata: item,
+      providerClass: "APPLICATION_SIGNAL",
+      providerKey: `api-client:${principal.clientId}`,
+      evidenceType: sensorObservations.size > 1 ? "AGENT_ASSERTED:SENSOR_DISAGREEMENT" : "AGENT_ASSERTED:SENSOR_OBSERVATION",
+      observedAt: typeof item.facts.observed_at === "string" && Number.isFinite(Date.parse(item.facts.observed_at)) ? new Date(item.facts.observed_at).toISOString() : new Date().toISOString(),
+      outcome: "ASSERTED",
+      evidenceDigest: item.computedDigest,
+      metadata: { ...item.facts, classification: CLIENT_EVIDENCE_CLASSIFICATION },
     })),
   ];
   const normalized = {
@@ -627,10 +776,82 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
     purpose: requiredText(action.purpose, "action.purpose", 180, referencePattern),
     environment: requiredText(action.environment, "action.environment", 120, referencePattern),
   };
+  const db = createServiceRoleClient();
+  if (previousTransactionId) {
+    const previous = await db.from("canonical_trust_transactions")
+      .select("transaction_id")
+      .eq("enterprise_id", principal.tenantId)
+      .eq("actor_id", principal.clientId)
+      .eq("operational_entity_id", agentId)
+      .eq("transaction_id", previousTransactionId)
+      .maybeSingle();
+    if (previous.error) throw new PublicApiError("TRANSACTION_UNAVAILABLE", "The prior transaction reference could not be resolved safely.", 503);
+    if (!previous.data) throw new PublicApiError("PREVIOUS_TRANSACTION_NOT_FOUND", "The prior transaction reference is unavailable to this API client and agent.", 404);
+  }
+  // Signed human intent must be resolved through an existing verified intent path.
+  let humanIntent: {
+    signed: boolean;
+    status: "provided" | "pending";
+    reference: string;
+    expiresAt: string | null;
+    sourceClassification: "human_reviewed" | "agent_asserted";
+  } | undefined;
+  if (humanApprovalReference) {
+    const approval = await db.from("trust_manual_reviews")
+      .select("id,status,entity_id,original_transaction_id,expires_at")
+      .eq("tenant_id", principal.tenantId)
+      .eq("requested_client_id", principal.clientId)
+      .eq("entity_id", agentId)
+      .eq("id", humanApprovalReference)
+      .maybeSingle();
+    if (approval.error) throw new PublicApiError("REVIEW_UNAVAILABLE", "The human approval reference could not be resolved safely.", 503);
+    let exactApprovedAction = false;
+    if (approval.data?.status === "APPROVED" && Date.parse(String(approval.data.expires_at)) > Date.now()) {
+      const approvedTransaction = await db.from("canonical_trust_transactions")
+        .select("action_type,action_resource,action_purpose,action_environment")
+        .eq("enterprise_id", principal.tenantId)
+        .eq("actor_id", principal.clientId)
+        .eq("operational_entity_id", agentId)
+        .eq("transaction_id", String(approval.data.original_transaction_id))
+        .maybeSingle();
+      if (approvedTransaction.error) throw new PublicApiError("REVIEW_UNAVAILABLE", "The approval transaction could not be resolved safely.", 503);
+      exactApprovedAction = Boolean(approvedTransaction.data
+        && approvedTransaction.data.action_type === normalized.type
+        && approvedTransaction.data.action_resource === normalized.target
+        && approvedTransaction.data.action_purpose === normalized.purpose
+        && approvedTransaction.data.action_environment === normalized.environment);
+    }
+    humanIntent = exactApprovedAction ? {
+      signed: true,
+      status: "provided",
+      reference: humanApprovalReference,
+      expiresAt: approval.data?.expires_at ? String(approval.data.expires_at) : null,
+      sourceClassification: "human_reviewed",
+    } : {
+      signed: false,
+      status: "pending",
+      reference: humanApprovalReference,
+      expiresAt: approval.data?.expires_at ? String(approval.data.expires_at) : null,
+      sourceClassification: "agent_asserted",
+    };
+  }
+  const requestDigest = hashCanonical({
+    operationalEntityId: agentId,
+    action: normalized,
+    decisionType,
+    context: deploymentContext ?? null,
+  });
   const bodyKey = body.idempotency_key ? requiredText(body.idempotency_key, "idempotency_key", 120, /^[A-Za-z0-9_.:-]+$/) : idempotencyKey;
   if (!idempotencyKey || idempotencyKey.length < 8 || bodyKey !== idempotencyKey) {
     throw new PublicApiError("IDEMPOTENCY_KEY_REQUIRED", "A matching Idempotency-Key header is required.", 400);
   }
+  const trustedStagingEvidence = await establishTrustedStagingEvidence({
+    principal,
+    agentId,
+    actionEnvironment: normalized.environment,
+    policyId: publicPolicyId,
+    policyVersion: publicPolicyVersion,
+  });
   try {
     const receipt = await executeCanonicalTrustTransaction({
       trustObject: { subjectType: "ai_agent", subjectId: agentId },
@@ -644,34 +865,65 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
       } : null,
       managedControl: {
         contradictions,
-        monitoringCoverage: monitoring ? monitoringCoverage : undefined,
-        humanIntent: signedIntent?.signature_reference ? { signed: true, status: "provided", reference: requiredText(signedIntent.signature_reference, "signed_intent.signature_reference", 240, referencePattern) } : undefined,
+        monitoringCoverage: trustedStagingEvidence?.monitoringCoverage ?? (monitoring ? monitoringCoverage : undefined),
         oversightMode: deploymentContext?.oversight && ["HUMAN_IN_THE_LOOP", "HUMAN_ON_THE_LOOP", "HUMAN_OVER_THE_LOOP", "AUTONOMOUS"].includes(String(deploymentContext.oversight)) ? deploymentContext.oversight as "HUMAN_IN_THE_LOOP" | "HUMAN_ON_THE_LOOP" | "HUMAN_OVER_THE_LOOP" | "AUTONOMOUS" : undefined,
         executionStages,
         contextEvidence,
+        humanIntent,
       },
       action: {
         type: normalized.type,
         purpose: normalized.purpose,
         resource: normalized.target,
         environment: normalized.environment,
-        payloadDigest: hashCanonical({ operationalEntityId: agentId, action: normalized }),
+        payloadDigest: requestDigest,
       },
       idempotencyKey: `${principal.clientId}:${idempotencyKey}`,
+      previousTransactionId,
+      decisionContext: {
+        intentReference,
+        expectedAuthorityVersion,
+        expectedPolicyVersion,
+        currentEvidenceReferences,
+        materialChangeReferences,
+        clientAssertedMaterialChanges: materialChanges,
+      },
+      correlationId,
     }, createCanonicalTrustTransactionDependenciesForApiClient({
       enterpriseId: principal.tenantId,
       clientId: principal.clientId,
     }));
-    if (!receipt.idempotentReplay) await emitDecisionWebhooks(principal.tenantId, receipt as unknown as Row);
     const decision = receipt.decision as PublicDecision;
+    if (decision === "REVIEW") {
+      const review = await createServiceRoleClient().rpc("create_public_api_review_v1", {
+        p_tenant_id: principal.tenantId,
+        p_client_id: principal.clientId,
+        p_review_id: receipt.decisionReference,
+        p_transaction_id: receipt.transactionId,
+        p_correlation_id: receipt.correlationId,
+        p_reason: "Canonical Trust Fabric decision requires governed human review.",
+        p_expires_at: new Date(Date.now() + 24 * 60 * 60_000).toISOString(),
+      });
+      if (review.error) throw new PublicApiError("REVIEW_UNAVAILABLE", "The canonical decision was recorded, but its review lifecycle could not be prepared safely. Retry the unchanged request with the same idempotency key.", 503);
+    }
+    if (!receipt.idempotentReplay) await emitDecisionWebhooks(principal.tenantId, receipt as unknown as Row);
     return {
+      decision_id: receipt.decisionReference,
       transaction_id: receipt.transactionId,
+      receipt_id: receipt.transactionId,
+      replay_id: receipt.transactionId,
       decision,
       reason_codes: receipt.reasonCodes,
       consequence: receipt.consequence,
       confidence: receipt.confidenceInConclusion,
+      agent_id: receipt.operationalEntityId,
       authority_reference: receipt.authorityReference,
+      authority_version: receipt.authorityVersion,
+      policy_reference: receipt.policy.id,
+      policy: { id: receipt.policy.id, version: receipt.policy.version },
       policy_version: receipt.policy.version,
+      correlation_id: receipt.correlationId,
+      created_at: receipt.timestamp,
       continuity: {
         identity_continuity: receipt.continuitySignals.identityContinuity,
         monitoring_coverage: receipt.continuitySignals.monitoringCoverage,
@@ -681,13 +933,14 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
       deployment_gate: receipt.deploymentGate,
       provider_neutral_evidence: receipt.providerNeutralEvidence,
       execution_continuity: receipt.executionContinuity,
+      consequence_time: consequenceTimeProjection(receipt.decisionTimeSnapshot as unknown as Row),
       transaction_url: `${origin}/api/v1/trust/transactions/${receipt.transactionId}`,
       receipt_url: `${origin}/api/v1/trust/transactions/${receipt.transactionId}/receipt`,
       replay_url: `${origin}/api/v1/trust/transactions/${receipt.transactionId}/replay`,
       review_required: decision === "REVIEW",
       review_reference: decision === "REVIEW" ? receipt.decisionReference : null,
       blocking_reason_codes: decision === "REVIEW" ? receipt.reasonCodes : [],
-      required_evidence: decision === "REVIEW" ? ["NATIVE_ENTITY_IDENTITY_PROOF"] : [],
+      required_evidence: decision === "REVIEW" ? ["NATIVE_ENTITY_IDENTITY_PROOF", SERVER_VERIFIED_AGENT_CONFIGURATION, SERVER_VERIFIED_MONITORING] : [],
       human_approval_required: decision === "REVIEW",
       execution_authorization: executionAuthorization(receipt as unknown as Row),
       idempotent_replay: receipt.idempotentReplay,
@@ -703,24 +956,93 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
 async function transactionRows(principal: PublicApiPrincipal, transactionId: string) {
   if (!uuidPattern.test(transactionId)) throw new PublicApiError("INVALID_TRANSACTION_ID", "The transaction identifier is invalid.", 400);
   const db = createServiceRoleClient();
-  const [transaction, events, outcomes, nativeOutcomes] = await Promise.all([
-    db.from("canonical_trust_transactions").select("*").eq("enterprise_id", principal.tenantId).eq("transaction_id", transactionId).maybeSingle(),
+  const transaction = await db
+    .from("canonical_trust_transactions")
+    .select("*")
+    .eq("enterprise_id", principal.tenantId)
+    .eq("actor_id", principal.clientId)
+    .eq("transaction_id", transactionId)
+    .maybeSingle();
+  if (transaction.error) throw new PublicApiError("TRANSACTION_UNAVAILABLE", "The transaction could not be retrieved safely.", 503);
+  if (!transaction.data) throw new PublicApiError("TRANSACTION_NOT_FOUND", "The transaction is unavailable to this API client.", 404);
+  const [events, outcomes, nativeOutcomes] = await Promise.all([
     db.from("canonical_trust_transaction_events").select("event_id,event_type,actor_id,reason,evidence_references,authority_reference,policy_id,policy_version,correlation_id,record_digest,occurred_at").eq("enterprise_id", principal.tenantId).eq("transaction_id", transactionId).order("occurred_at", { ascending: true }),
     db.from("public_api_outcome_submissions").select("submission_id,source_id,destination,result,observed_at,evidence_reference,independence,submission_digest").eq("tenant_id", principal.tenantId).eq("transaction_id", transactionId).order("observed_at", { ascending: true }),
     db.from("native_enforcement_outcomes").select("outcome_id,outcome,control_status,reason_codes,contradiction_codes,evidence_independence,correlated_at").eq("enterprise_id", principal.tenantId).eq("transaction_id", transactionId).order("correlated_at", { ascending: true }),
   ]);
-  for (const result of [transaction, events, outcomes, nativeOutcomes]) {
+  for (const result of [events, outcomes, nativeOutcomes]) {
     if (result.error) throw new PublicApiError("TRANSACTION_UNAVAILABLE", "The transaction could not be retrieved safely.", 503);
   }
-  if (!transaction.data) throw new PublicApiError("TRANSACTION_NOT_FOUND", "The transaction was not found in this tenant.", 404);
   return { transaction: transaction.data as Row, events: events.data ?? [], outcomes: outcomes.data ?? [], nativeOutcomes: nativeOutcomes.data ?? [] };
+}
+
+function reviewRpcFailure(error: { message?: string } | null): never {
+  const message = String(error?.message ?? "");
+  if (/not found/i.test(message)) throw new PublicApiError("REVIEW_NOT_FOUND", "The review is unavailable to this API client.", 404);
+  if (/already resolved/i.test(message)) throw new PublicApiError("REVIEW_ALREADY_RESOLVED", "The review has already been resolved.", 409);
+  if (/expired/i.test(message)) throw new PublicApiError("REVIEW_EXPIRED", "The review has expired and cannot be resolved.", 409);
+  if (/authority is not current/i.test(message)) throw new PublicApiError("REVIEW_AUTHORITY_INVALID", "The authority linked to the review is no longer current.", 409);
+  if (/forbidden/i.test(message)) throw new PublicApiError("REVIEW_RESOLUTION_FORBIDDEN", "This API principal cannot resolve the review.", 403);
+  if (/invalid review resolution/i.test(message)) throw new PublicApiError("INVALID_REQUEST", "The review resolution is invalid.", 400);
+  throw new PublicApiError("REVIEW_UNAVAILABLE", "The review could not be changed safely.", 503);
+}
+
+export async function getExternalReview(principal: PublicApiPrincipal, reviewReference: string) {
+  if (!uuidPattern.test(reviewReference)) throw new PublicApiError("REVIEW_NOT_FOUND", "The review is unavailable to this API client.", 404);
+  const db = createServiceRoleClient();
+  const review = await db.from("trust_manual_reviews").select("id,entity_id,status,reason,decision,decision_reason,created_at,completed_at,original_transaction_id,requested_client_id,reviewer_principal_id,correlation_id,expires_at,evidence_reference").eq("tenant_id", principal.tenantId).eq("requested_client_id", principal.clientId).eq("id", reviewReference).maybeSingle();
+  if (review.error) throw new PublicApiError("REVIEW_UNAVAILABLE", "The review could not be retrieved safely.", 503);
+  if (!review.data) throw new PublicApiError("REVIEW_NOT_FOUND", "The review is unavailable to this API client.", 404);
+  const history = await db.from("trust_manual_review_history").select("previous_status,new_status,actor_id,reason,created_at").eq("tenant_id", principal.tenantId).eq("review_id", reviewReference).order("created_at", { ascending: true });
+  if (history.error) throw new PublicApiError("REVIEW_UNAVAILABLE", "The review history could not be retrieved safely.", 503);
+  return {
+    review_reference: String(review.data.id),
+    status: String(review.data.status),
+    disposition: ["APPROVED", "REJECTED"].includes(String(review.data.status)) ? String(review.data.status) : null,
+    original_decision: "REVIEW",
+    original_transaction_id: String(review.data.original_transaction_id),
+    agent_id: String(review.data.entity_id),
+    reason: String(review.data.reason),
+    resolution_reason: review.data.decision_reason ? String(review.data.decision_reason) : null,
+    evidence_reference: review.data.evidence_reference ? String(review.data.evidence_reference) : null,
+    reviewer_principal_id: review.data.reviewer_principal_id ? String(review.data.reviewer_principal_id) : null,
+    correlation_id: String(review.data.correlation_id),
+    created_at: String(review.data.created_at),
+    expires_at: String(review.data.expires_at),
+    resolved_at: review.data.completed_at ? String(review.data.completed_at) : null,
+    next_action: review.data.status === "APPROVED" ? "SUBMIT_NEW_CANONICAL_EVALUATION" : review.data.status === "REJECTED" ? "DO_NOT_EXECUTE" : "WAIT_FOR_AUTHORIZED_REVIEWER",
+    original_decision_immutable: true,
+    history: history.data ?? [],
+  };
+}
+
+export async function resolveExternalReview(principal: PublicApiPrincipal, reviewReference: string, body: Record<string, unknown>, correlationId: string) {
+  if (!uuidPattern.test(reviewReference)) throw new PublicApiError("REVIEW_NOT_FOUND", "The review is unavailable to this API client.", 404);
+  if (!principal.scopes.includes("review:write") || !["owner", "admin", "reviewer"].includes(principal.role)) {
+    throw new PublicApiError("REVIEW_RESOLUTION_FORBIDDEN", "This API principal cannot resolve reviews.", 403);
+  }
+  assertOnlyFields(body, ["resolution", "reason", "evidence_reference"]);
+  const resolution = requiredText(body.resolution, "resolution", 20, /^[A-Z_]+$/);
+  if (!new Set(["APPROVED", "REJECTED"]).has(resolution)) throw new PublicApiError("INVALID_REQUEST", "resolution must be APPROVED or REJECTED.", 400);
+  const reason = requiredText(body.reason, "reason", 1000, /^[A-Za-z0-9_.:/@,;'()!? -]+$/);
+  const evidenceReference = requiredText(body.evidence_reference, "evidence_reference", 240, referencePattern);
+  const db = createServiceRoleClient();
+  const result = await db.rpc("resolve_public_api_review_v1", { p_tenant_id: principal.tenantId, p_key_id: principal.keyId, p_client_id: principal.clientId, p_review_id: reviewReference, p_resolution: resolution, p_reason: reason, p_evidence_reference: evidenceReference, p_correlation_id: correlationId });
+  if (result.error) reviewRpcFailure(result.error);
+  return getExternalReview(principal, reviewReference);
 }
 
 export async function getExternalTransaction(principal: PublicApiPrincipal, transactionId: string) {
   const history = await transactionRows(principal, transactionId);
   const row = history.transaction;
+  const consequenceTime = consequenceTimeProjection(row.decision_time_snapshot);
   return {
+    decision_id: row.decision_id,
     transaction_id: row.transaction_id,
+    receipt_id: row.transaction_id,
+    replay_id: row.transaction_id,
+    agent_id: row.operational_entity_id,
+    correlation_id: row.correlation_id,
     entity: { operational_entity_id: row.operational_entity_id, type: row.entity_type, accountable_owner_id: row.accountable_owner_id },
     identity_state: row.decision_time_snapshot?.identityState ?? "captured_in_decision_snapshot",
     authority: { reference: row.authority_reference, lineage: row.authority_lineage_references ?? [] },
@@ -732,6 +1054,7 @@ export async function getExternalTransaction(principal: PublicApiPrincipal, tran
     reason_codes: row.reason_codes ?? [],
     enforcement_state: row.decision_time_snapshot?.enforcementState ?? { policyDecision: row.decision },
     continuity: row.continuity_signals ?? null,
+    consequence_time: consequenceTime,
     execution_continuity: row.execution_continuity ?? [],
     deployment_gate: row.deployment_gate ?? null,
     outcome: { public_submissions: history.outcomes, canonical_outcomes: history.nativeOutcomes },
@@ -742,8 +1065,24 @@ export async function getExternalTransaction(principal: PublicApiPrincipal, tran
 
 export async function getExternalReplay(principal: PublicApiPrincipal, transactionId: string) {
   const history = await transactionRows(principal, transactionId);
+  const consequenceTime = consequenceTimeProjection(history.transaction.decision_time_snapshot);
   return {
+    replay_id: transactionId,
+    decision_id: history.transaction.decision_id,
     transaction_id: transactionId,
+    receipt_id: transactionId,
+    agent_id: history.transaction.operational_entity_id,
+    authority_reference: history.transaction.authority_reference,
+    authority_version: consequenceTime?.authority?.version ?? null,
+    correlation_id: history.transaction.correlation_id,
+    consequence_time: consequenceTime,
+    decision_comparison: consequenceTime ? {
+      previous_evaluation: consequenceTime.previous_evaluation,
+      current_decision: history.transaction.decision,
+      changed_conditions: consequenceTime.current_conditions.material_changes,
+      decision_differs_from_previous: consequenceTime.decision_differs_from_previous,
+    } : null,
+    outcome_evidence: { public_submissions: history.outcomes, canonical_outcomes: history.nativeOutcomes },
     events: history.events.map((event: Row) => ({
       timestamp: event.occurred_at,
       actor: event.actor_id ? `principal:${event.actor_id}` : "cyber-sentinels",
@@ -764,9 +1103,15 @@ export async function getExternalReplay(principal: PublicApiPrincipal, transacti
 export async function getExternalReceipt(principal: PublicApiPrincipal, transactionId: string) {
   const history = await transactionRows(principal, transactionId);
   const row = history.transaction;
+  const consequenceTime = consequenceTimeProjection(row.decision_time_snapshot);
   return {
     receipt_version: "canonical-trust-transaction-v1",
+    receipt_id: row.transaction_id,
+    decision_id: row.decision_id,
     transaction_id: row.transaction_id,
+    replay_id: row.transaction_id,
+    agent_id: row.operational_entity_id,
+    correlation_id: row.correlation_id,
     entity: { operational_entity_id: row.operational_entity_id, type: row.entity_type, accountable_owner_id: row.accountable_owner_id },
     decision: row.decision,
     trust_state: row.trust_state,
@@ -775,9 +1120,13 @@ export async function getExternalReceipt(principal: PublicApiPrincipal, transact
     reason_codes: row.reason_codes ?? [],
     evidence_references: row.evidence_references ?? [],
     authority_reference: row.authority_reference,
+    authority_version: consequenceTime?.authority?.version ?? null,
     authority_lineage_references: row.authority_lineage_references ?? [],
     policy: { id: row.policy_id, version: row.policy_version, hash: row.policy_hash },
     decision_digest: row.decision_time_snapshot?.decisionDigest ?? null,
+    current_condition_references: consequenceTime?.current_conditions.current_condition_references ?? [],
+    material_change_references: consequenceTime?.current_conditions.material_change_references ?? [],
+    consequence_time: consequenceTime,
     continuity: {
       identity_continuity: row.continuity_signals?.identityContinuity ?? "review_required",
       monitoring_coverage: row.continuity_signals?.monitoringCoverage ?? "not_observed",
@@ -858,105 +1207,106 @@ export async function submitExternalEvidence(principal: PublicApiPrincipal, body
   if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) throw new PublicApiError("INVALID_INPUT", "evidence is required.", 400);
   assertOnlyFields(provider, ["key", "class", "event_id", "finding"]);
   assertOnlyFields(subject, ["type", "id"]);
-  const providerKey = requiredText(provider.key, "provider.key", 180, referencePattern);
-  const providerClass = requiredText(provider.class, "provider.class", 80, /^[A-Z_]+$/) as ProviderClass;
-  if (!PROVIDER_CLASSES.includes(providerClass)) throw new PublicApiError("PROVIDER_CLASS_UNSUPPORTED", "provider.class is unsupported.", 400);
+  const requestedProvider = {
+    key: requiredText(provider.key, "provider.key", 180, referencePattern),
+    class: requiredText(provider.class, "provider.class", 80, /^[A-Z_]+$/),
+  };
+  const { providerKey, providerClass } = resolveClientEvidenceProvider(requestedProvider, principal.clientId);
+  const subjectType = requiredText(subject.type, "subject.type", 80, /^[A-Z_]+$/);
+  if (!["AI_AGENT", "OPERATIONAL_ENTITY"].includes(subjectType)) {
+    throw new PublicApiError("EVIDENCE_SUBJECT_UNSUPPORTED", "Public API evidence must concern an agent registered to this API client.", 400);
+  }
+  const subjectId = requiredText(subject.id, "subject.id", 180, referencePattern);
+  await entityFor(principal, subjectId);
+  const evidenceType = resolveClientEvidenceType(requiredText(body.type, "type", 120, /^[A-Za-z0-9_.:-]+$/));
   const occurredAt = optionalIso(body.occurred_at, "occurred_at") ?? new Date().toISOString();
   const expiresAt = optionalIso(body.expires_at, "expires_at");
-  const adapter = getReferenceProviderAdapter(providerKey) ?? createReferenceProviderAdapter(providerKey, providerClass);
-  if (adapter.providerClass !== providerClass) throw new PublicApiError("PROVIDER_CLASS_MISMATCH", "The provider class does not match the registered adapter.", 400);
+  const adapter = createReferenceProviderAdapter(providerKey, providerClass);
   const input: ProviderAdapterInput = {
     providerKey,
     eventId: requiredText(provider.event_id, "provider.event_id", 180, referencePattern),
-    subject: {
-      type: requiredText(subject.type, "subject.type", 80, /^[A-Z_]+$/),
-      id: requiredText(subject.id, "subject.id", 180, referencePattern),
-    },
-    evidenceType: requiredText(body.type, "type", 120, /^[A-Za-z0-9_.:-]+$/),
+    subject: { type: subjectType, id: subjectId },
+    evidenceType: evidenceType.assertedType,
     finding: requiredText(provider.finding, "provider.finding", 120, /^[A-Z0-9_.:-]+$/),
     evidence,
     occurredAt,
     expiresAt,
-    digest: body.digest ? requiredText(body.digest, "digest", 64, /^[a-f0-9]{64}$/) : null,
+    digest: null,
   };
   const mapped = await adapter.mapEvidence(input);
-  const evidenceId = deterministicUuid({ tenantId: principal.tenantId, providerKey, eventId: input.eventId });
-  let domainKey = providerClass === "IDENTITY_PROVIDER" ? "IDENTITY"
-    : providerClass === "AI_ASSURANCE_PROVIDER" || providerClass === "MODEL_EVALUATION_PROVIDER" ? "ASSURANCE"
-      : providerClass === "DSPM_PROVIDER" ? "DATA"
-        : providerClass.includes("ROBOTICS") || providerClass === "SENSOR_EVIDENCE_PROVIDER" || providerClass === "EDGE_ATTESTATION_PROVIDER" ? "ROBOTICS"
-          : providerClass === "OUTCOME_PROVIDER" ? "OUTCOME" : "RUNTIME";
+  const normalizedFacts = {
+    ...mapped.normalizedFacts,
+    assertion: {
+      classification: CLIENT_EVIDENCE_CLASSIFICATION,
+      assertedEvidenceType: evidenceType.assertedType,
+      authenticatedClientId: principal.clientId,
+      subjectBinding: "PUBLIC_API_AGENT_BINDING",
+    },
+  };
+  const computedDigest = hashCanonical(normalizedFacts);
+  const suppliedDigest = body.digest ? requiredText(body.digest, "digest", 64, /^[a-f0-9]{64}$/) : null;
+  verifyClientEvidenceDigest(suppliedDigest, computedDigest);
+  const evidenceId = deterministicUuid({
+    tenantId: principal.tenantId,
+    clientId: principal.clientId,
+    eventId: input.eventId,
+    subjectId,
+  });
   const db = createServiceRoleClient();
-  let normalizedFacts = mapped.normalizedFacts;
-  let sourceType = "PROVIDER";
-  let subjectId = mapped.subject.id;
-  let subjectType = mapped.subject.type;
-  let canonicalResult = mapped.result;
-  let storedEvidenceType = mapped.evidenceType;
-  const trackBlockType = input.evidenceType.toUpperCase();
-  if (["POLICY_EVIDENCE", "POLICY_ACKNOWLEDGEMENT", "DEVICE_PROVENANCE", "WORKFORCE_CONTINUITY"].includes(trackBlockType)) {
-    const workflowId = requiredText(evidence.workflow_id ?? evidence.workflowId, "evidence.workflow_id", 36, uuidPattern);
-    const workflow = await db.from("protected_workflows").select("id,workspace_id,subject_entity_id,policy_reference").eq("workspace_id", principal.tenantId).eq("id", workflowId).maybeSingle();
-    if (workflow.error) throw new PublicApiError("EVIDENCE_UNAVAILABLE", "The workflow evidence boundary could not be resolved.", 503);
-    if (!workflow.data || String(workflow.data.subject_entity_id) !== mapped.subject.id) throw new PublicApiError("WORKFLOW_EVIDENCE_TENANT_MISMATCH", "The workflow evidence is outside this tenant or Operational Entity.", 404);
-    sourceType = "PROTECTED_WORKFLOW_SIGNAL";
-    subjectId = String(workflow.data.subject_entity_id);
-    subjectType = "OPERATIONAL_ENTITY";
-    domainKey = "WORKFLOW";
-    try {
-      if (["POLICY_EVIDENCE", "POLICY_ACKNOWLEDGEMENT"].includes(trackBlockType)) {
-        const policy = parsePolicyEvidence(evidence, { workspace: principal.tenantId, workflow: workflowId, policyReference: String(workflow.data.policy_reference), observedAt: mapped.occurredAt });
-        normalizedFacts = { category: "policy", evidenceType: "POLICY_EVIDENCE", source: mapped.providerKey, sourceParty: mapped.providerKey, confidence: null, classification: "policy_in_force", severity: "informational", workspace: principal.tenantId, workflowId, operationalEntityId: subjectId, metadata: policy };
-        canonicalResult = "POSITIVE";
-        storedEvidenceType = "TRACK_BLOCK_POLICY_EVIDENCE";
-      } else {
-        const continuity = parseWorkforceContinuityEvidence(evidence, { workspace: principal.tenantId, workflow: workflowId, operationalEntityId: subjectId, source: mapped.providerKey, observedAt: mapped.occurredAt });
-        normalizedFacts = { category: trackBlockType === "DEVICE_PROVENANCE" ? "device" : "identity", evidenceType: "WORKFORCE_CONTINUITY", source: mapped.providerKey, sourceParty: mapped.providerKey, confidence: null, classification: continuity.state, severity: continuity.state === "CONTINUITY_VERIFIED" ? "informational" : "medium", workspace: principal.tenantId, workflowId, operationalEntityId: subjectId, metadata: continuity };
-        canonicalResult = continuity.state === "CONTINUITY_VERIFIED" ? "POSITIVE" : "INCONCLUSIVE";
-        storedEvidenceType = "TRACK_BLOCK_WORKFORCE_CONTINUITY";
-      }
-    } catch (error) {
-      throw new PublicApiError("WORKFLOW_EVIDENCE_INVALID", error instanceof Error ? error.message : "Workflow evidence is invalid.", 400);
-    }
-  }
   const inserted = await db.from("evidence_objects").insert({
     evidence_id: evidenceId,
     enterprise_id: principal.tenantId,
     provider_key: mapped.providerKey,
-    evidence_classification: `${mapped.providerClass}_OBSERVATION`,
+    evidence_classification: CLIENT_EVIDENCE_CLASSIFICATION,
     storage_boundary: "NORMALIZED_LEDGER",
     normalized_facts: normalizedFacts,
     occurred_at: mapped.occurredAt,
     observed_at: mapped.occurredAt,
     freshness_policy_seconds: 86_400,
     retention_expires_at: mapped.expiresAt,
-    domain_key: domainKey,
+    domain_key: "PUBLIC_API_CLIENT_ASSERTION",
     subject_id: subjectId,
     subject_type: subjectType,
-    evidence_type: storedEvidenceType,
-    source_type: sourceType,
+    evidence_type: evidenceType.storedType,
+    source_type: "PUBLIC_API_CLIENT_ASSERTION",
     source_key: mapped.providerKey,
-    result: canonicalResult,
+    result: "INCONCLUSIVE",
     assurance_level: "NONE",
     cryptographically_verified: mapped.cryptographicallyVerified,
     server_verified: mapped.serverVerified,
     received_at: mapped.receivedAt,
     expires_at: mapped.expiresAt,
-    payload_hash: mapped.payloadHash,
+    payload_hash: computedDigest,
     canonicalization: "JCS",
     hash_algorithm: "SHA-256",
     reason_codes: mapped.reasonCodes,
   }).select("evidence_id").single();
-  if (inserted.error && inserted.error.code !== "23505") throw new PublicApiError("EVIDENCE_UNAVAILABLE", "The evidence could not be recorded safely.", 503);
+  if (inserted.error?.code === "23505") {
+    const existing = await db.from("evidence_objects")
+      .select("payload_hash")
+      .eq("enterprise_id", principal.tenantId)
+      .eq("evidence_id", evidenceId)
+      .maybeSingle();
+    if (existing.error) throw new PublicApiError("EVIDENCE_UNAVAILABLE", "The evidence could not be resolved safely.", 503);
+    if (!existing.data || existing.data.payload_hash !== computedDigest) {
+      throw new PublicApiError("EVIDENCE_EVENT_CONFLICT", "The provider event identifier is already bound to different evidence.", 409);
+    }
+  } else if (inserted.error) {
+    throw new PublicApiError("EVIDENCE_UNAVAILABLE", "The evidence could not be recorded safely.", 503);
+  }
   return {
     evidence_id: evidenceId,
     status: inserted.error?.code === "23505" ? "DUPLICATE" : "RECORDED",
-    provider: { key: mapped.providerKey, class: mapped.providerClass },
+    provider: { key: providerKey, class: providerClass },
     subject: mapped.subject,
-    type: storedEvidenceType,
-    classification: "PROVIDER_FINDING",
-    canonical_result: canonicalResult,
-    reason_codes: mapped.reasonCodes,
+    type: evidenceType.storedType,
+    asserted_type: evidenceType.assertedType,
+    classification: CLIENT_EVIDENCE_CLASSIFICATION,
+    canonical_result: "INCONCLUSIVE",
+    independent_evidence: false,
+    server_verified: false,
+    evidence_digest: computedDigest,
+    reason_codes: [...mapped.reasonCodes, "CLIENT_EVIDENCE_IS_AGENT_ASSERTED"],
     evidence_graph_reference: `evidence:${evidenceId}`,
   };
 }

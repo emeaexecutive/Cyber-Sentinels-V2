@@ -49,6 +49,7 @@ export type ResponsibilityLineage = {
 };
 
 export type EvidenceSourceClassification =
+  | "agent_asserted"
   | "operator_asserted"
   | "provider_asserted"
   | "technology_provider_asserted"
@@ -222,6 +223,60 @@ export type DecisionTimeSnapshot = Readonly<{
   trustTwin?: TrustTwin | null;
   sentinelTrustBrief?: SentinelTrustBrief | null;
   modelStateIntegrity?: ModelStateIntegrityAssessment | null;
+  consequenceTime?: Readonly<{
+    modelVersion: "1.0";
+    evaluatedAt: string;
+    agentIdentityReference: string;
+    authority: Readonly<{
+      reference: string;
+      version: string | null;
+      issuedAt: string;
+      expiresAt: string;
+      revocationState: "active" | "revoked";
+      scopeValid: boolean;
+    }>;
+    delegationLineage: readonly string[];
+    intent: Readonly<{
+      reference: string | null;
+      action: string;
+      target: string;
+      purpose: string;
+      environment: string;
+      requestDigest: string;
+    }>;
+    currentConditions: Readonly<{
+      identityAssurance: "CURRENT" | "STALE_OR_UNAVAILABLE";
+      evidenceComplete: boolean;
+      evidenceFresh: boolean;
+      evidenceReferences: readonly string[];
+      policyReference: string;
+      policyVersion: string;
+      runtimeAuthorityEvidenceReference: string | null;
+      runtimeAuthorityState: "MATCH" | "MISMATCH" | "INSUFFICIENT_EVIDENCE" | null;
+      destinationAuthorityEvidenceReference: string | null;
+      destinationAuthorityState: "MATCH" | "MISMATCH" | "INSUFFICIENT_EVIDENCE" | null;
+      authorizationPropagationState: string | null;
+      materialChanges: readonly string[];
+      materialChangeReferences: readonly string[];
+      humanApprovalRequired: boolean;
+      humanApprovalState: "NOT_REQUIRED" | "CURRENT" | "MISSING" | "STALE" | "AGENT_ASSERTED";
+      humanApprovalReference: string | null;
+    }>;
+    consequence: OperationalConsequenceClassification;
+    canonicalDecision: "ALLOW" | "REVIEW" | "DENY";
+    reasonCodes: readonly string[];
+    previousEvaluation: Readonly<{
+      transactionId: string;
+      decision: "ALLOW" | "REVIEW" | "DENY";
+      evaluatedAt: string | null;
+      authorityReference: string;
+      authorityVersion: string | null;
+      policyVersion: string;
+      consequence: OperationalConsequenceClassification | null;
+    }> | null;
+    decisionDiffersFromPrevious: boolean;
+    previousAllowStandingAuthorization: false;
+  }>;
   reviewerState: string;
 }>;
 
@@ -312,7 +367,7 @@ export function classifyEvidenceIndependence(input: {
   controlOperator: string;
   technologyProvider: string;
 }): EvidenceIndependence {
-  const usable = input.evidence.filter((item) => item.claim !== "unknown" && item.sourceClassification !== "unconfirmed");
+  const usable = input.evidence.filter((item) => item.claim !== "unknown" && !["agent_asserted", "unconfirmed"].includes(item.sourceClassification));
   if (!usable.length) return "insufficient";
   const claims = new Set(usable.map((item) => item.claim));
   if (claims.size > 1 || usable.some((item) => item.sourceClassification === "disputed")) return "conflicting";

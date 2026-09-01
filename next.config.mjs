@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Vercel retains its existing output path. Docker alone opts into Next.js
+  // output tracing so the final image contains only the standalone runtime.
+  output: process.env.CYBER_SENTINELS_DOCKER_BUILD === "1" ? "standalone" : undefined,
   async redirects() {
     return [
       {

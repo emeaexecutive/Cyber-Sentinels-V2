@@ -46,7 +46,7 @@ async function auditAdminAccess(
   try {
     await createAuditLog(supabase, eventType, actor, metadata);
   } catch (error) {
-    console.warn("Admin access audit failed", error);
+    console.warn("Admin access audit failed safely.", { code: (error as { code?: string })?.code ?? "UNKNOWN" });
   }
 }
 
@@ -92,7 +92,6 @@ export async function requireAdminPageAccess(
     console.error("Admin page access denied.", {
       path: metadata.path,
       reason: result.reason,
-      actor: result.user?.email ?? result.user?.id ?? "unknown",
     });
     await auditAdminAccess(
       supabase,

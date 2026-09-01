@@ -1,0 +1,23 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        BUILD_VERSION: ${BUILD_VERSION:-docker-local}
+    image: cyber-sentinels-v1:${DOCKER_IMAGE_TAG:-local}
+    init: true
+    env_file:
+      - .env.docker.example
+    ports:
+      - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777
+      - /app/.next/cache:mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: "no"

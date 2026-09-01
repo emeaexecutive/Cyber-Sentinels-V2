@@ -6,6 +6,29 @@ export const PARAMETER_PROVENANCE_CLASSES = [
 ] as const;
 export type ParameterProvenance = (typeof PARAMETER_PROVENANCE_CLASSES)[number];
 
+export const AUTHORITY_PARAMETER_PROVENANCE_CLASSES = [
+  "AUTHORITY_BOUND", "POLICY_BOUND", "HUMAN_BOUND", "RUNTIME_DERIVED", "PROVIDER_BOUND",
+  "MODEL_PROPOSED", "USER_SUPPLIED", "SYSTEM_SUPPLIED", "UNKNOWN",
+] as const;
+export type AuthorityParameterProvenance = (typeof AUTHORITY_PARAMETER_PROVENANCE_CLASSES)[number];
+
+export const PARAMETER_AUTHORITY_STATES = [
+  "MATCH", "SUPPORTED", "OUT_OF_SCOPE", "PROVENANCE_MISMATCH", "UNRESOLVED", "CONFLICTING", "INSUFFICIENT_EVIDENCE",
+] as const;
+export type ParameterAuthorityState = (typeof PARAMETER_AUTHORITY_STATES)[number];
+
+export const AUTHORIZATION_PROPAGATION_ASSURANCE_STATES = [
+  "PROPAGATION_PENDING", "PROPAGATION_CONFIRMED", "PARTIAL_PROPAGATION", "STALE_AUTHORITY_POSSIBLE",
+  "STALE_AUTHORITY_CONFIRMED", "PROPAGATION_CONFLICT", "INSUFFICIENT_EVIDENCE", "UNDER_REVIEW",
+] as const;
+export type AuthorizationPropagationAssuranceState = (typeof AUTHORIZATION_PROPAGATION_ASSURANCE_STATES)[number];
+
+export const AUTHORITY_PREVENTATIVE_CONTROLS = [
+  "PIN_PARAMETER_TO_AUTHORITY", "PIN_DESTINATION", "REQUIRE_HUMAN_BINDING", "REQUIRE_RUNTIME_DERIVATION",
+  "REDUCE_AUTHORITY", "RESTORE_POLICY_BINDING", "VERIFY_PARAMETER_PROVENANCE", "REQUALIFY_TOOL",
+] as const;
+export type AuthorityPreventativeControl = (typeof AUTHORITY_PREVENTATIVE_CONTROLS)[number];
+
 export const SECURITY_BOUNDARY_PARAMETER_TYPES = [
   "ordinary_input", "identity_boundary", "tenant_boundary", "authorization_boundary", "consent_boundary",
   "credential_boundary", "network_boundary", "destination_boundary", "environment_boundary", "privilege_boundary",
@@ -38,6 +61,9 @@ export const AUTHORITY_INTEGRITY_FINDINGS = [
   "CREDENTIAL_DESTINATION_CHANGED", "MODEL_CONTROLLED_PROXY", "CREDENTIAL_SENT_OUTSIDE_BOUND_DESTINATION",
   "DESTINATION_AUTHORITY_UNRESOLVED", "TOOL_SECURITY_SCHEMA_CHANGE", "STALE_AUTHORITY_STILL_ACTIVE",
   "DELEGATED_SUBJECT_CONTEXT_LOST", "RETROSPECTIVE_TOOL_AUTHORITY_REVIEW_RECOMMENDED",
+  "AUTHORITY_PARAMETER_DRIFT", "DESTINATION_BINDING_LOST", "UNRESOLVED_PARAMETER_PROVENANCE",
+  "STALE_AUTHORITY_POSSIBLE", "RUNTIME_AUTHORITY_MISMATCH", "DESTINATION_AUTHORITY_MISMATCH",
+  "AUTHORITY_PROPAGATION_UNRESOLVED", "PROVIDER_CONFLICT",
 ] as const;
 export type AuthorityIntegrityFindingCode = (typeof AUTHORITY_INTEGRITY_FINDINGS)[number];
 
@@ -67,7 +93,7 @@ const trustedNonModelProvenance = new Set<ParameterProvenance>([
   "human_bound", "authority_bound", "policy_bound", "provider_bound", "runtime_derived",
   "configuration_bound", "destination_derived",
 ]);
-const sensitiveKey = /(?:raw|plain(?:text)?|clear(?:text)?).*(?:credential|secret|token|password)|(?:password|secret|token|apiKey)Value/i;
+const sensitiveKey = /(?:raw|plain(?:text)?|clear(?:text)?).*(?:credential|secret|token|password)|(?:password|secret|token|apiKey)Value|(?:access|refresh|api|auth|bearer)[_-]?token/i;
 const sensitiveValue = /-----BEGIN [A-Z ]*PRIVATE KEY-----|\bBearer\s+[A-Za-z0-9._~-]{16,}/i;
 
 export type ToolParameterPolicy = {
@@ -79,6 +105,55 @@ export type ToolParameterPolicy = {
   modelVisible: boolean;
   mutableAfterApproval: boolean;
   defaultState: "none" | "masked" | "server_resolved" | "policy_resolved";
+};
+
+export type ParameterAuthorityContract = {
+  parameterName: string;
+  parameterClass: SecurityBoundaryParameterType;
+  expectedProvenance: AuthorityParameterProvenance[];
+  authorityReference: string;
+  allowedValues: string[];
+  allowedScope: string[];
+  runtimeBinding: string | null;
+  humanBinding: string | null;
+  destinationBinding: string | null;
+  validationRequirement: string | null;
+  securityCritical: boolean;
+};
+
+export type ParameterAuthorityObservation = {
+  parameterName: string;
+  observedProvenance: AuthorityParameterProvenance;
+  valueDigestOrMaskedValue: string;
+  scopeReference: string | null;
+  runtimeBinding: string | null;
+  humanBinding: string | null;
+  destinationBinding: string | null;
+  evidenceProvider: string;
+  evidenceReference: string;
+  observedAt: string;
+  confidence: number;
+  limitations: string[];
+  providerAssertions?: Array<{
+    providerId: string;
+    provenance: AuthorityParameterProvenance;
+    valueDigestOrMaskedValue: string;
+    evidenceReference: string;
+  }>;
+};
+
+export type ParameterAuthorityAssessment = {
+  parameterName: string;
+  parameterClass: SecurityBoundaryParameterType;
+  securityCritical: boolean;
+  expectedProvenance: AuthorityParameterProvenance[];
+  observedProvenance: AuthorityParameterProvenance | null;
+  state: ParameterAuthorityState;
+  authorityReference: string;
+  evidenceReferences: string[];
+  limitations: string[];
+  modelControlExplicitlyPermitted: boolean;
+  recommendedControl: AuthorityPreventativeControl | null;
 };
 
 export type ToolSecuritySchemaEvidence = {
@@ -153,6 +228,43 @@ export type RuntimeAuthorityEvidence = {
   observedExecution: string | null;
   destinationOutcome: string | null;
   overriddenParameterNames: string[];
+  runtimeId?: string;
+  runtimeType?: string;
+  workloadId?: string | null;
+  agentId?: string | null;
+  sessionId?: string | null;
+  authorityReference?: string;
+  authorityVersion?: string;
+  effectivePermissions?: string[];
+  effectiveScope?: string[];
+  credentialReferenceDigest?: string | null;
+  credentialVersion?: string | null;
+  credentialExpiry?: string | null;
+  delegatedPrincipal?: string | null;
+  destinationScope?: string[];
+  measurementTime?: string;
+  provider?: string;
+  confidence?: number;
+  limitations?: string[];
+  declaredAuthority?: string[];
+  controlPlaneAuthority?: string[];
+  destinationEffectiveAuthority?: string[] | null;
+};
+
+export type RuntimeAuthorityComparison = {
+  declaredAuthority: string[];
+  controlPlaneAuthority: string[];
+  runtimeEffectiveAuthority: string[];
+  destinationEffectiveAuthority: string[] | null;
+  runtimeState: "MATCH" | "MISMATCH" | "INSUFFICIENT_EVIDENCE";
+  destinationState: "MATCH" | "MISMATCH" | "INSUFFICIENT_EVIDENCE";
+  authorityReference: string;
+  authorityVersion: string | null;
+  runtimeEvidenceReference: string;
+  credentialReferenceDigest: string | null;
+  measurementTime: string;
+  confidence: number;
+  limitations: string[];
 };
 
 export type AuthorizationChangeEvidence = {
@@ -170,6 +282,97 @@ export type AuthorizationChangeEvidence = {
   independentlyConfirmed: boolean;
   postChangeUseObservedAt: string | null;
   evidenceReferences: string[];
+  authorityVersionBefore?: string | null;
+  authorityVersionAfter?: string | null;
+  requestedAt?: string | null;
+  controlPlaneAcknowledgedAt?: string | null;
+  runtimeUpdatedAt?: string | null;
+  credentialUpdatedAt?: string | null;
+  downstreamUpdatedAt?: string | null;
+  destinationConfirmedAt?: string | null;
+};
+
+export type ResolvedPersistedAuthorityEvidence = {
+  reference: string;
+  subjectReference: string;
+  sourceClassification: string;
+  serverVerified: boolean;
+  observation: "old_authority_accepted" | "old_authority_rejected" | "not_observed";
+  observedAt: string;
+};
+
+export type AuthorizationPropagationAssurance = {
+  state: AuthorizationPropagationAssuranceState;
+  timeline: Array<{
+    changeId: string;
+    authorityVersionBefore: string | null;
+    authorityVersionAfter: string | null;
+    requestedAt: string;
+    controlPlaneAcknowledgedAt: string | null;
+    runtimeUpdatedAt: string | null;
+    credentialUpdatedAt: string | null;
+    downstreamUpdatedAt: string | null;
+    destinationConfirmedAt: string | null;
+    evidenceReferences: string[];
+  }>;
+  limitations: string[];
+};
+
+export type AimsCompatibleEvidence = {
+  enterpriseId: string;
+  provider: string;
+  source: string;
+  evidenceReference: string;
+  observedAt: string;
+  correlationId: string;
+  agentIdentity: string;
+  principal: string;
+  delegator: string | null;
+  authorityGrant: string;
+  authorityScope: string[];
+  authorizationVersion: string;
+  delegationChain: string[];
+  tool: string;
+  action: string;
+  resource: string;
+  executionContext: string;
+  credentialReferenceDigest: string | null;
+  policy: string;
+  authorizationChange: "GRANT" | "RENEWAL" | "SCOPE_CHANGE" | "DOWNGRADE" | "REVOCATION" | "EXPIRY" | "CREDENTIAL_ROTATION" | "POLICY_CHANGE" | null;
+  destination: string;
+  executionResult: string | null;
+  parameterBindings: Array<{ parameterName: string; provenance: AuthorityParameterProvenance; valueDigestOrMaskedValue: string }>;
+};
+
+export type AimsCompatibilityMapping = {
+  compatibilityVersion: "1.0";
+  provider: string;
+  source: string;
+  evidenceReference: string;
+  correlationId: string;
+  canonicalMappings: {
+    agentIdentity: string;
+    principal: string;
+    delegator: string | null;
+    authorityReference: string;
+    authorityScope: string[];
+    authorizationVersion: string;
+    delegationChain: string[];
+    tool: string;
+    action: string;
+    resource: string;
+    executionContext: string;
+    credentialReferenceDigest: string | null;
+    policyReference: string;
+    authorizationChange: AimsCompatibleEvidence["authorizationChange"];
+    destination: string;
+    executionResult: string | null;
+    parameterBindings: AimsCompatibleEvidence["parameterBindings"];
+  };
+  providerIsCanonical: false;
+  aimsDependency: false;
+  missingHopsInvented: false;
+  evidenceDigest: string;
 };
 
 export type DelegatedSubjectEvidence = {
@@ -215,6 +418,7 @@ export type AuthorityIntegrityEvaluationInput = {
   credentialDestination?: CredentialDestinationEvidence | null;
   runtime?: RuntimeAuthorityEvidence | null;
   authorizationChanges?: AuthorizationChangeEvidence[];
+  resolvedPersistedEvidence?: ResolvedPersistedAuthorityEvidence[];
   delegatedSubject?: DelegatedSubjectEvidence | null;
   policyReference: string;
   effectiveAccessReference?: string | null;
@@ -222,6 +426,9 @@ export type AuthorityIntegrityEvaluationInput = {
   outcomeEvidenceReferences: string[];
   remediationEvidenceReferences?: string[];
   retrospectiveReview?: RetrospectiveToolReviewEvidence | null;
+  parameterAuthorityContracts?: ParameterAuthorityContract[];
+  parameterAuthorityObservations?: ParameterAuthorityObservation[];
+  aimsEvidence?: AimsCompatibleEvidence[];
 };
 
 export type AuthorityIntegrityFinding = {
@@ -248,6 +455,22 @@ export type AuthorityIntegrityAssessment = Readonly<{
   graphProjection: Readonly<AuthorityGraphProjection>;
   replayEvents: readonly { eventType: string; occurredAt: string; attribution: string; evidenceReferences: readonly string[]; details: Record<string, unknown> }[];
   trustMemoryEvents: readonly { eventId: string; eventType: string; occurredAt: string; evidenceReferences: readonly string[] }[];
+  parameterAuthority: readonly ParameterAuthorityAssessment[];
+  authorizationPropagation: Readonly<AuthorizationPropagationAssurance>;
+  runtimeAuthority: Readonly<RuntimeAuthorityComparison> | null;
+  aimsCompatibility: readonly AimsCompatibilityMapping[];
+  minimumPreventativeControls: readonly AuthorityPreventativeControl[];
+  receiptSummary: Readonly<{
+    authorityVersion: string | null;
+    delegatedPrincipal: string | null;
+    runtimeAuthorityEvidenceReference: string | null;
+    destinationAuthorityEvidenceReference: string | null;
+    parameterProvenanceSummary: readonly { parameterName: string; state: ParameterAuthorityState; provenance: AuthorityParameterProvenance | null }[];
+    propagationState: AuthorizationPropagationAssuranceState;
+    destinationAuthorityState: RuntimeAuthorityComparison["destinationState"] | null;
+    conflicts: readonly string[];
+    limitations: readonly string[];
+  }>;
 }>;
 
 function deepFreeze<T>(value: T): Readonly<T> {
@@ -287,10 +510,238 @@ function compareToolSchemas(previous: ToolSecuritySchemaEvidence | null | undefi
   return { changed: true, materialChanges: [...new Set(materialChanges)].sort() };
 }
 
-function propagationState(changes: readonly AuthorizationChangeEvidence[]): AuthorizationPropagationState {
+const legacyProvenanceMap: Record<ParameterProvenance, AuthorityParameterProvenance> = {
+  model_controlled: "MODEL_PROPOSED",
+  user_supplied: "USER_SUPPLIED",
+  human_bound: "HUMAN_BOUND",
+  authority_bound: "AUTHORITY_BOUND",
+  policy_bound: "POLICY_BOUND",
+  provider_bound: "PROVIDER_BOUND",
+  runtime_derived: "RUNTIME_DERIVED",
+  configuration_bound: "SYSTEM_SUPPLIED",
+  destination_derived: "SYSTEM_SUPPLIED",
+  unknown: "UNKNOWN",
+};
+
+function sameStringSet(left: readonly string[], right: readonly string[]) {
+  return left.length === right.length && [...new Set(left)].sort().every((item, index) => item === [...new Set(right)].sort()[index]);
+}
+
+function defaultParameterAuthorityContracts(input: AuthorityIntegrityEvaluationInput): ParameterAuthorityContract[] {
+  return input.toolSchema.parameterSchema.map((policy) => ({
+    parameterName: policy.parameterName,
+    parameterClass: policy.parameterCategory,
+    expectedProvenance: [...new Set(policy.allowedProvenanceClasses.map((item) => legacyProvenanceMap[item]))],
+    authorityReference: input.authorityLineageReference,
+    allowedValues: [],
+    allowedScope: [],
+    runtimeBinding: policy.defaultState === "server_resolved" ? input.runtime?.runtimeSession ?? "runtime:server_resolved" : null,
+    humanBinding: policy.parameterCategory === "consent_boundary" ? input.humanApproval?.humanIdentityReference ?? null : null,
+    destinationBinding: policy.parameterCategory === "destination_boundary" ? input.credentialDestination?.requestedDestination ?? input.credentialDestination?.approvedDestinations[0] ?? null : null,
+    validationRequirement: policy.required ? "REQUIRED" : null,
+    securityCritical: input.toolSchema.securityCriticalFields.includes(policy.parameterName),
+  }));
+}
+
+function defaultParameterAuthorityObservations(input: AuthorityIntegrityEvaluationInput): ParameterAuthorityObservation[] {
+  return input.parameters.map((parameter) => ({
+    parameterName: parameter.parameterName,
+    observedProvenance: legacyProvenanceMap[parameter.parameterProvenance],
+    valueDigestOrMaskedValue: parameter.valueDigestOrMaskedValue,
+    scopeReference: null,
+    runtimeBinding: parameter.configurationPinning === "runtime_context_derived" || parameter.configurationPinning === "server_side_derived" ? input.runtime?.runtimeSession ?? "runtime:derived" : null,
+    humanBinding: parameter.parameterProvenance === "human_bound" ? input.humanApproval?.humanIdentityReference ?? null : null,
+    destinationBinding: parameter.parameterCategory === "destination_boundary" ? input.credentialDestination?.actualDestination ?? input.credentialDestination?.requestedDestination ?? null : null,
+    evidenceProvider: parameter.evidenceProvider,
+    evidenceReference: parameter.policyReference,
+    observedAt: parameter.timestamp,
+    confidence: parameter.parameterProvenance === "unknown" ? 0 : 1,
+    limitations: parameter.parameterProvenance === "unknown" ? ["Parameter provenance was not established."] : [],
+  }));
+}
+
+function assessParameterAuthority(input: AuthorityIntegrityEvaluationInput): ParameterAuthorityAssessment[] {
+  const contracts = input.parameterAuthorityContracts ?? defaultParameterAuthorityContracts(input);
+  const observations = input.parameterAuthorityObservations ?? defaultParameterAuthorityObservations(input);
+  const observationsByName = new Map(observations.map((item) => [item.parameterName, item]));
+  const assessments = contracts.map((contract) => {
+    const observation = observationsByName.get(contract.parameterName);
+    const explicitModelControl = contract.expectedProvenance.includes("MODEL_PROPOSED");
+    let state: ParameterAuthorityState = "MATCH";
+    if (!observation) state = contract.validationRequirement === "REQUIRED" ? "INSUFFICIENT_EVIDENCE" : "UNRESOLVED";
+    else if (observation.providerAssertions && new Set(observation.providerAssertions.map((item) => `${item.provenance}:${item.valueDigestOrMaskedValue}`)).size > 1) state = "CONFLICTING";
+    else if (observation.observedProvenance === "UNKNOWN") state = "UNRESOLVED";
+    else if (!contract.expectedProvenance.includes(observation.observedProvenance)) {
+      state = observation.observedProvenance === "MODEL_PROPOSED"
+        && input.runtime?.overriddenParameterNames.includes(contract.parameterName)
+        ? "SUPPORTED"
+        : "PROVENANCE_MISMATCH";
+    }
+    else if (contract.allowedValues.length && !contract.allowedValues.includes(observation.valueDigestOrMaskedValue)) state = "OUT_OF_SCOPE";
+    else if (contract.allowedScope.length && (!observation.scopeReference || !contract.allowedScope.includes(observation.scopeReference))) state = "OUT_OF_SCOPE";
+    else if (contract.runtimeBinding && contract.runtimeBinding !== observation.runtimeBinding) state = "OUT_OF_SCOPE";
+    else if (contract.humanBinding && contract.humanBinding !== observation.humanBinding) state = "OUT_OF_SCOPE";
+    else if (contract.destinationBinding && contract.destinationBinding !== observation.destinationBinding) state = "OUT_OF_SCOPE";
+    else if (observation.observedProvenance === "MODEL_PROPOSED" && explicitModelControl) state = "SUPPORTED";
+    const recommendedControl: AuthorityPreventativeControl | null = state === "PROVENANCE_MISMATCH"
+      ? contract.expectedProvenance.includes("AUTHORITY_BOUND") ? "PIN_PARAMETER_TO_AUTHORITY" : contract.expectedProvenance.includes("RUNTIME_DERIVED") ? "REQUIRE_RUNTIME_DERIVATION" : contract.expectedProvenance.includes("HUMAN_BOUND") ? "REQUIRE_HUMAN_BINDING" : "PIN_PARAMETER_TO_AUTHORITY"
+      : state === "OUT_OF_SCOPE" && contract.destinationBinding ? "PIN_DESTINATION"
+        : state === "UNRESOLVED" || state === "INSUFFICIENT_EVIDENCE" || state === "CONFLICTING" ? "VERIFY_PARAMETER_PROVENANCE"
+          : null;
+    return {
+      parameterName: contract.parameterName,
+      parameterClass: contract.parameterClass,
+      securityCritical: contract.securityCritical,
+      expectedProvenance: [...contract.expectedProvenance],
+      observedProvenance: observation?.observedProvenance ?? null,
+      state,
+      authorityReference: contract.authorityReference,
+      evidenceReferences: [...new Set([observation?.evidenceReference ?? "", ...(observation?.providerAssertions?.map((item) => item.evidenceReference) ?? [])].filter(Boolean))],
+      limitations: [...new Set(observation?.limitations ?? ["No parameter observation was supplied."])],
+      modelControlExplicitlyPermitted: explicitModelControl,
+      recommendedControl,
+    } satisfies ParameterAuthorityAssessment;
+  });
+  for (const observation of observations) {
+    if (contracts.some((contract) => contract.parameterName === observation.parameterName)) continue;
+    assessments.push({ parameterName: observation.parameterName, parameterClass: "other", securityCritical: false, expectedProvenance: [], observedProvenance: observation.observedProvenance, state: "UNRESOLVED", authorityReference: input.authorityLineageReference, evidenceReferences: [observation.evidenceReference], limitations: ["No parameter authority contract was supplied."], modelControlExplicitlyPermitted: false, recommendedControl: "VERIFY_PARAMETER_PROVENANCE" });
+  }
+  return assessments;
+}
+
+function assessRuntimeAuthority(input: AuthorityIntegrityEvaluationInput): RuntimeAuthorityComparison | null {
+  const runtime = input.runtime;
+  if (!runtime) return null;
+  const declaredAuthority = [...new Set(runtime.declaredAuthority ?? runtime.authorityCeiling)];
+  const controlPlaneAuthority = [...new Set(runtime.controlPlaneAuthority ?? runtime.authorityCeiling)];
+  const runtimeEffectiveAuthority = [...new Set(runtime.effectivePermissions ?? runtime.authorityCeiling)];
+  const destinationEffectiveAuthority = runtime.destinationEffectiveAuthority === null || runtime.destinationEffectiveAuthority === undefined
+    ? null
+    : [...new Set(runtime.destinationEffectiveAuthority)];
+  return {
+    declaredAuthority,
+    controlPlaneAuthority,
+    runtimeEffectiveAuthority,
+    destinationEffectiveAuthority,
+    runtimeState: runtimeEffectiveAuthority.length ? sameStringSet(controlPlaneAuthority, runtimeEffectiveAuthority) ? "MATCH" : "MISMATCH" : "INSUFFICIENT_EVIDENCE",
+    destinationState: destinationEffectiveAuthority === null || !destinationEffectiveAuthority.length ? "INSUFFICIENT_EVIDENCE" : sameStringSet(controlPlaneAuthority, destinationEffectiveAuthority) ? "MATCH" : "MISMATCH",
+    authorityReference: runtime.authorityReference ?? input.authorityLineageReference,
+    authorityVersion: runtime.authorityVersion ?? null,
+    runtimeEvidenceReference: `${runtime.provider ?? runtime.runtimeProvider}:${runtime.runtimeId ?? runtime.runtimeInstance}:${runtime.sessionId ?? runtime.runtimeSession}`,
+    credentialReferenceDigest: runtime.credentialReferenceDigest ?? null,
+    measurementTime: runtime.measurementTime ?? input.actionTimestamp,
+    confidence: Math.max(0, Math.min(1, runtime.confidence ?? 1)),
+    limitations: [...new Set(runtime.limitations ?? [])],
+  };
+}
+
+const trustedStaleAuthoritySources = new Set([
+  "runtime_observed",
+  "destination_observed",
+  "independently_corroborated",
+  "human_reviewed",
+]);
+
+function hasTrustedPersistedStaleEvidence(
+  change: AuthorizationChangeEvidence,
+  evidence: readonly ResolvedPersistedAuthorityEvidence[],
+) {
+  const expectsRuntime = change.runtimeObservation === "old_authority_accepted";
+  const expectsDestination = change.destinationObservation === "old_authority_accepted";
+  return evidence.some((item) => {
+    if (!change.evidenceReferences.includes(item.reference)) return false;
+    if (item.subjectReference !== change.subjectReference || item.serverVerified !== true) return false;
+    if (!trustedStaleAuthoritySources.has(item.sourceClassification)) return false;
+    if (item.observation !== "old_authority_accepted") return false;
+    if (!Number.isFinite(Date.parse(item.observedAt)) || Date.parse(item.observedAt) <= Date.parse(change.effectiveAt)) return false;
+    if (expectsRuntime && item.sourceClassification === "runtime_observed") return true;
+    if (expectsDestination && item.sourceClassification === "destination_observed") return true;
+    return ["independently_corroborated", "human_reviewed"].includes(item.sourceClassification);
+  });
+}
+
+function assessAuthorizationPropagation(
+  changes: readonly AuthorizationChangeEvidence[],
+  persistedEvidence: readonly ResolvedPersistedAuthorityEvidence[],
+): AuthorizationPropagationAssurance {
+  const timeline = changes.map((change) => ({
+    changeId: change.changeId,
+    authorityVersionBefore: change.authorityVersionBefore ?? null,
+    authorityVersionAfter: change.authorityVersionAfter ?? null,
+    requestedAt: change.requestedAt ?? change.effectiveAt,
+    controlPlaneAcknowledgedAt: change.controlPlaneAcknowledgedAt ?? (change.receivingProvider ? change.effectiveAt : null),
+    runtimeUpdatedAt: change.runtimeUpdatedAt ?? (change.runtimeObservation === "old_authority_rejected" ? change.postChangeUseObservedAt ?? change.effectiveAt : null),
+    credentialUpdatedAt: change.credentialUpdatedAt ?? null,
+    downstreamUpdatedAt: change.downstreamUpdatedAt ?? null,
+    destinationConfirmedAt: change.destinationConfirmedAt ?? (change.destinationObservation === "old_authority_rejected" ? change.postChangeUseObservedAt ?? change.effectiveAt : null),
+    evidenceReferences: [...new Set(change.evidenceReferences)],
+  }));
+  let state: AuthorizationPropagationAssuranceState = "INSUFFICIENT_EVIDENCE";
+  const confirmedStale = changes.some((change) => Boolean(change.postChangeUseObservedAt)
+    && Date.parse(change.postChangeUseObservedAt!) > Date.parse(change.effectiveAt)
+    && (change.runtimeObservation === "old_authority_accepted" || change.destinationObservation === "old_authority_accepted")
+    && hasTrustedPersistedStaleEvidence(change, persistedEvidence));
+  const possibleStale = changes.some((change) => change.runtimeObservation === "old_authority_accepted" || change.destinationObservation === "old_authority_accepted");
+  if (changes.some((change) => change.runtimeObservation === "conflicting" || change.destinationObservation === "conflicting")) state = "PROPAGATION_CONFLICT";
+  else if (confirmedStale) state = "STALE_AUTHORITY_CONFIRMED";
+  else if (possibleStale) state = "STALE_AUTHORITY_POSSIBLE";
+  else if (changes.length && changes.every((change) => change.runtimeObservation === "old_authority_rejected" && change.destinationObservation === "old_authority_rejected")) state = "PROPAGATION_CONFIRMED";
+  else if (changes.some((change) => change.runtimeObservation === "old_authority_rejected" || change.destinationObservation === "old_authority_rejected")) state = "PARTIAL_PROPAGATION";
+  else if (changes.some((change) => change.providerReportedApplied || change.receivingProvider)) state = "PROPAGATION_PENDING";
+  else if (changes.length) state = "UNDER_REVIEW";
+  const limitations = [
+    ...(!changes.length ? ["No authorization-change evidence was supplied."] : []),
+    ...(changes.some((change) => change.providerReportedApplied && change.runtimeObservation === "not_observed") ? ["Control-plane acknowledgement is not runtime enforcement proof."] : []),
+    ...(changes.some((change) => change.destinationObservation === "not_observed") ? ["Destination-effective authority is not confirmed."] : []),
+    ...(changes.some((change) => (change.runtimeObservation === "old_authority_accepted" || change.destinationObservation === "old_authority_accepted") && !hasTrustedPersistedStaleEvidence(change, persistedEvidence))
+      ? ["Post-change authority acceptance is asserted but has no trusted persisted evidence."]
+      : []),
+  ];
+  return { state, timeline, limitations: [...new Set(limitations)] };
+}
+
+export function mapAimsCompatibleEvidence(input: AimsCompatibleEvidence): AimsCompatibilityMapping {
+  assertNoSecrets(input, "aimsCompatibility");
+  const canonicalMappings = {
+    agentIdentity: input.agentIdentity,
+    principal: input.principal,
+    delegator: input.delegator,
+    authorityReference: input.authorityGrant,
+    authorityScope: [...new Set(input.authorityScope)],
+    authorizationVersion: input.authorizationVersion,
+    delegationChain: [...input.delegationChain],
+    tool: input.tool,
+    action: input.action,
+    resource: input.resource,
+    executionContext: input.executionContext,
+    credentialReferenceDigest: input.credentialReferenceDigest,
+    policyReference: input.policy,
+    authorizationChange: input.authorizationChange,
+    destination: input.destination,
+    executionResult: input.executionResult,
+    parameterBindings: structuredClone(input.parameterBindings),
+  };
+  return deepFreeze({
+    compatibilityVersion: "1.0" as const,
+    provider: input.provider,
+    source: input.source,
+    evidenceReference: input.evidenceReference,
+    correlationId: input.correlationId,
+    canonicalMappings,
+    providerIsCanonical: false as const,
+    aimsDependency: false as const,
+    missingHopsInvented: false as const,
+    evidenceDigest: hashCanonical({ enterpriseId: input.enterpriseId, provider: input.provider, source: input.source, evidenceReference: input.evidenceReference, observedAt: input.observedAt, canonicalMappings }),
+  });
+}
+
+function propagationState(
+  changes: readonly AuthorizationChangeEvidence[],
+  persistedEvidence: readonly ResolvedPersistedAuthorityEvidence[] = [],
+): AuthorizationPropagationState {
   if (!changes.length) return "insufficient_evidence";
   if (changes.some((item) => item.runtimeObservation === "conflicting" || item.destinationObservation === "conflicting")) return "conflicting";
-  if (changes.some((item) => item.destinationObservation === "old_authority_accepted")) return "failed";
+  if (changes.some((item) => item.destinationObservation === "old_authority_accepted" && hasTrustedPersistedStaleEvidence(item, persistedEvidence))) return "failed";
   if (changes.every((item) => item.independentlyConfirmed && item.destinationObservation === "old_authority_rejected")) return "independently_confirmed";
   if (changes.every((item) => item.destinationObservation === "old_authority_rejected")) return "destination_rejects_old_authority";
   if (changes.some((item) => item.destinationObservation === "old_authority_rejected" || item.runtimeObservation === "old_authority_rejected")) return "downstream_update_observed";
@@ -299,7 +750,14 @@ function propagationState(changes: readonly AuthorizationChangeEvidence[]): Auth
   return "change_received";
 }
 
-function buildGraph(input: AuthorityIntegrityEvaluationInput, findings: AuthorityIntegrityFinding[]): AuthorityGraphProjection {
+function buildGraph(
+  input: AuthorityIntegrityEvaluationInput,
+  findings: AuthorityIntegrityFinding[],
+  parameterAuthority: ParameterAuthorityAssessment[],
+  runtimeAuthority: RuntimeAuthorityComparison | null,
+  authorizationPropagation: AuthorizationPropagationAssurance,
+  aimsCompatibility: AimsCompatibilityMapping[],
+): AuthorityGraphProjection {
   const nodes: AuthorityGraphProjection["nodes"] = [];
   const edges: AuthorityGraphProjection["edges"] = [];
   const addNode = (nodeType: string, externalId: string | null | undefined, label: string, metadata: Record<string, unknown> = {}) => {
@@ -328,6 +786,13 @@ function buildGraph(input: AuthorityIntegrityEvaluationInput, findings: Authorit
     addEdge("PARAMETER", parameterId, "ACTION", input.actionId, "APPLIES_TO");
     addEdge("PARAMETER_PROVENANCE", provenanceId, "PARAMETER", parameterId, "ASSERTS");
   }
+  for (const assessment of parameterAuthority) {
+    const bindingId = `${input.actionId}:parameter-binding:${assessment.parameterName}`;
+    addNode("AUTHORITY", assessment.authorityReference, "Parameter authority contract");
+    addNode("PARAMETER_BINDING", bindingId, assessment.parameterName, { state: assessment.state, parameterClass: assessment.parameterClass, securityCritical: assessment.securityCritical, expectedProvenance: assessment.expectedProvenance, observedProvenance: assessment.observedProvenance });
+    addEdge("AUTHORITY", assessment.authorityReference, "PARAMETER_BINDING", bindingId, "APPLIES_TO");
+    addEdge("PARAMETER_BINDING", bindingId, "ACTION", input.actionId, assessment.state === "MATCH" || assessment.state === "SUPPORTED" ? "SUPPORTED" : "CHALLENGED");
+  }
   if (input.delegatedSubject?.delegationEvidence) {
     addNode("DELEGATION", input.delegatedSubject.delegationEvidence, "Delegated subject");
     addEdge("PRINCIPAL", input.principalReference, "DELEGATION", input.delegatedSubject.delegationEvidence, "ASSERTS");
@@ -340,8 +805,42 @@ function buildGraph(input: AuthorityIntegrityEvaluationInput, findings: Authorit
   if (input.credentialDestination?.credentialReference) addEdge("CREDENTIAL", input.credentialDestination.credentialReference, "ACTION", input.actionId, "AUTHORIZED_BY");
   if (input.credentialDestination?.actualDestination) addEdge("DESTINATION", input.credentialDestination.actualDestination, "ACTION", input.actionId, "OBSERVED_BY");
   for (const change of input.authorizationChanges ?? []) {
-    addNode("AUTHORIZATION_CHANGE", change.changeId, change.changeType, { propagationState: propagationState([change]) });
+    addNode("AUTHORIZATION_CHANGE", change.changeId, change.changeType, { propagationState: propagationState([change], input.resolvedPersistedEvidence ?? []) });
     addEdge("AUTHORIZATION_CHANGE", change.changeId, "AUTHORITY", input.authorityLineageReference, "REVOKES");
+  }
+  if (runtimeAuthority) {
+    const authorityVersionId = `${runtimeAuthority.authorityReference}:version:${runtimeAuthority.authorityVersion ?? "unresolved"}`;
+    const runtimeAuthorityId = `${input.actionId}:runtime-authority:${runtimeAuthority.runtimeEvidenceReference}`;
+    const destinationAuthorityId = `${input.actionId}:destination-authority:${input.credentialDestination?.actualDestination ?? "unresolved"}`;
+    addNode("AUTHORITY_VERSION", authorityVersionId, "Authority version", { authorityVersion: runtimeAuthority.authorityVersion, declaredAuthority: runtimeAuthority.declaredAuthority, controlPlaneAuthority: runtimeAuthority.controlPlaneAuthority });
+    addNode("RUNTIME_AUTHORITY", runtimeAuthorityId, "Runtime-effective authority", { state: runtimeAuthority.runtimeState, effectiveAuthority: runtimeAuthority.runtimeEffectiveAuthority, confidence: runtimeAuthority.confidence });
+    addNode("DESTINATION_AUTHORITY", destinationAuthorityId, "Destination-effective authority", { state: runtimeAuthority.destinationState, effectiveAuthority: runtimeAuthority.destinationEffectiveAuthority });
+    addEdge("AUTHORITY_VERSION", authorityVersionId, "RUNTIME_AUTHORITY", runtimeAuthorityId, runtimeAuthority.runtimeState === "MATCH" ? "SUPPORTED" : "CHALLENGED");
+    addEdge("RUNTIME_AUTHORITY", runtimeAuthorityId, "ACTION", input.actionId, "OBSERVED_BY");
+    addEdge("DESTINATION_AUTHORITY", destinationAuthorityId, "ACTION", input.actionId, "OBSERVED_BY");
+  }
+  for (const item of authorizationPropagation.timeline) {
+    const oldAuthorityId = `${input.authorityLineageReference}:version:${item.authorityVersionBefore ?? "before-unresolved"}`;
+    const newAuthorityId = `${input.authorityLineageReference}:version:${item.authorityVersionAfter ?? "after-unresolved"}`;
+    const propagationId = `${item.changeId}:runtime-propagation`;
+    const confirmationId = `${item.changeId}:destination-confirmation`;
+    addNode("AUTHORITY_VERSION", oldAuthorityId, "Previous authority", { version: item.authorityVersionBefore });
+    addNode("AUTHORITY_VERSION", newAuthorityId, "Updated authority", { version: item.authorityVersionAfter });
+    addNode("RUNTIME_PROPAGATION", propagationId, "Runtime propagation", { state: authorizationPropagation.state, runtimeUpdatedAt: item.runtimeUpdatedAt, credentialUpdatedAt: item.credentialUpdatedAt });
+    addNode("DESTINATION_CONFIRMATION", confirmationId, "Destination confirmation", { confirmedAt: item.destinationConfirmedAt });
+    addEdge("AUTHORITY_VERSION", oldAuthorityId, "AUTHORIZATION_CHANGE", item.changeId, "REVOKES");
+    addEdge("AUTHORIZATION_CHANGE", item.changeId, "AUTHORITY_VERSION", newAuthorityId, "SUPERSEDES");
+    addEdge("AUTHORITY_VERSION", newAuthorityId, "RUNTIME_PROPAGATION", propagationId, "TRIGGERED");
+    addEdge("RUNTIME_PROPAGATION", propagationId, "DESTINATION_CONFIRMATION", confirmationId, item.destinationConfirmedAt ? "SUPPORTED" : "CHALLENGED");
+  }
+  for (const mapping of aimsCompatibility) {
+    const delegationId = `${mapping.evidenceReference}:delegation`;
+    addNode("PRINCIPAL", mapping.canonicalMappings.principal, "AIMS-compatible principal", { provider: mapping.provider });
+    addNode("DELEGATION", delegationId, "AIMS-compatible delegation", { chain: mapping.canonicalMappings.delegationChain, source: mapping.source });
+    addNode("AGENT", mapping.canonicalMappings.agentIdentity, "AIMS-compatible agent", { provider: mapping.provider });
+    addEdge("PRINCIPAL", mapping.canonicalMappings.principal, "DELEGATION", delegationId, "ASSERTS");
+    addEdge("DELEGATION", delegationId, "AGENT", mapping.canonicalMappings.agentIdentity, "AUTHORIZED_BY");
+    addEdge("AGENT", mapping.canonicalMappings.agentIdentity, "ACTION", input.actionId, "PARTICIPATED_IN");
   }
   for (const reference of input.remediationEvidenceReferences ?? []) {
     addNode("REMEDIATION", reference, "Remediation evidence");
@@ -362,9 +861,27 @@ function buildGraph(input: AuthorityIntegrityEvaluationInput, findings: Authorit
 export function evaluateAuthorityIntegrity(input: AuthorityIntegrityEvaluationInput): AuthorityIntegrityAssessment {
   assertNoSecrets(input);
   if (input.enterpriseId !== input.tenant.authoritativeTenant) throw new Error("AUTHORITY_INTEGRITY_TENANT_SCOPE_MISMATCH");
+  if ((input.aimsEvidence ?? []).some((item) => item.enterpriseId !== input.enterpriseId)) throw new Error("AIMS_EVIDENCE_TENANT_SCOPE_MISMATCH");
   if (input.toolSchema.schemaDigest !== hashCanonical({ parameterSchema: input.toolSchema.parameterSchema, securityCriticalFields: input.toolSchema.securityCriticalFields })) throw new Error("TOOL_SECURITY_SCHEMA_DIGEST_INVALID");
   const schemaByName = new Map(input.toolSchema.parameterSchema.map((item) => [item.parameterName, item]));
   const findings: AuthorityIntegrityFinding[] = [];
+  const parameterAuthority = assessParameterAuthority(input);
+  const runtimeAuthority = assessRuntimeAuthority(input);
+  const persistedAuthorityEvidence = input.resolvedPersistedEvidence ?? [];
+  const authorizationPropagation = assessAuthorizationPropagation(input.authorizationChanges ?? [], persistedAuthorityEvidence);
+  const aimsCompatibility = (input.aimsEvidence ?? []).map(mapAimsCompatibleEvidence);
+  for (const assessment of parameterAuthority) {
+    if (assessment.state === "CONFLICTING") findings.push(finding("PROVIDER_CONFLICT", assessment.parameterName, assessment.evidenceReferences));
+    if (["UNRESOLVED", "INSUFFICIENT_EVIDENCE"].includes(assessment.state) && assessment.securityCritical) findings.push(finding("UNRESOLVED_PARAMETER_PROVENANCE", assessment.parameterName, assessment.evidenceReferences));
+    if (assessment.state === "PROVENANCE_MISMATCH" && assessment.securityCritical && assessment.observedProvenance === "MODEL_PROPOSED" && !assessment.modelControlExplicitlyPermitted) findings.push(finding("MODEL_CONTROLLED_SECURITY_BOUNDARY", assessment.parameterName, assessment.evidenceReferences));
+    else if (["PROVENANCE_MISMATCH", "OUT_OF_SCOPE"].includes(assessment.state) && assessment.securityCritical) findings.push(finding("AUTHORITY_PARAMETER_DRIFT", assessment.parameterName, assessment.evidenceReferences));
+    if (assessment.parameterClass === "destination_boundary" && assessment.state === "OUT_OF_SCOPE") findings.push(finding("DESTINATION_BINDING_LOST", assessment.parameterName, assessment.evidenceReferences));
+  }
+  if (runtimeAuthority?.runtimeState === "MISMATCH") findings.push(finding("RUNTIME_AUTHORITY_MISMATCH", null, [runtimeAuthority.runtimeEvidenceReference]));
+  if (runtimeAuthority?.destinationState === "MISMATCH") findings.push(finding("DESTINATION_AUTHORITY_MISMATCH", null, [runtimeAuthority.runtimeEvidenceReference]));
+  if (authorizationPropagation.state === "STALE_AUTHORITY_POSSIBLE") findings.push(finding("STALE_AUTHORITY_POSSIBLE", null, authorizationPropagation.timeline.flatMap((item) => item.evidenceReferences)));
+  if (["PROPAGATION_PENDING", "PARTIAL_PROPAGATION", "INSUFFICIENT_EVIDENCE", "UNDER_REVIEW"].includes(authorizationPropagation.state) && authorizationPropagation.timeline.length) findings.push(finding("AUTHORITY_PROPAGATION_UNRESOLVED", null, authorizationPropagation.timeline.flatMap((item) => item.evidenceReferences)));
+  if (authorizationPropagation.state === "PROPAGATION_CONFLICT") findings.push(finding("PROVIDER_CONFLICT", null, authorizationPropagation.timeline.flatMap((item) => item.evidenceReferences)));
   for (const parameter of input.parameters) {
     const policy = schemaByName.get(parameter.parameterName);
     if (!policy) continue;
@@ -391,47 +908,102 @@ export function evaluateAuthorityIntegrity(input: AuthorityIntegrityEvaluationIn
   const authorizationChanges = input.authorizationChanges ?? [];
   for (const change of authorizationChanges) {
     const postChangeUse = change.postChangeUseObservedAt && Date.parse(change.postChangeUseObservedAt) > Date.parse(change.effectiveAt);
-    if (postChangeUse && (change.runtimeObservation === "old_authority_accepted" || change.destinationObservation === "old_authority_accepted")) findings.push(finding("STALE_AUTHORITY_STILL_ACTIVE", null, change.evidenceReferences));
+    if (postChangeUse
+      && (change.runtimeObservation === "old_authority_accepted" || change.destinationObservation === "old_authority_accepted")
+      && hasTrustedPersistedStaleEvidence(change, persistedAuthorityEvidence)) {
+      findings.push(finding("STALE_AUTHORITY_STILL_ACTIVE", null, change.evidenceReferences));
+    }
   }
   if (input.delegatedSubject && (!input.delegatedSubject.originatingHuman && !input.delegatedSubject.originatingSystem || !input.delegatedSubject.delegationEvidence || !input.delegatedSubject.delegatedSubject)) findings.push(finding("DELEGATED_SUBJECT_CONTEXT_LOST", null, [input.agentPassportReference, input.authorityLineageReference]));
   if (input.retrospectiveReview && input.retrospectiveReview.affectedToolId === input.toolSchema.toolId && input.retrospectiveReview.affectedVersions.includes(input.toolSchema.toolVersion)) findings.push(finding("RETROSPECTIVE_TOOL_AUTHORITY_REVIEW_RECOMMENDED", null, [input.retrospectiveReview.advisoryReference, input.toolSchema.schemaDigest]));
+  const uniqueFindings = findings.filter((item, index, all) => all.findIndex((candidate) => candidate.code === item.code && candidate.parameterName === item.parameterName && hashCanonical(candidate.evidenceReferences) === hashCanonical(item.evidenceReferences)) === index);
+  findings.splice(0, findings.length, ...uniqueFindings);
   const materialTrustedBoundary = input.parameters.some((item) => item.materiality !== "ordinary" && trustedNonModelProvenance.has(item.parameterProvenance));
   const approvalChanged = Boolean(input.humanApproval?.consentRequired && materialTrustedBoundary && input.humanApproval.approvedParameterDigest !== input.humanApproval.finalParameterDigest);
   const requiredActions = new Set<"REVALIDATION_REQUIRED" | "REAPPROVAL_REQUIRED" | "NO_ACTION_REQUIRED">();
   if (schemaChange.materialChanges.length) requiredActions.add("REVALIDATION_REQUIRED");
   if (approvalChanged || findings.some((item) => item.code === "CONSENT_BOUNDARY_MODEL_CONTROLLED") || schemaChange.materialChanges.some((item) => /CONSENT|SECURITY_CRITICAL_FIELD_ADDED/.test(item))) requiredActions.add("REAPPROVAL_REQUIRED");
   if (!requiredActions.size) requiredActions.add("NO_ACTION_REQUIRED");
-  const providerNeutralEvidence = findings.map((item) => ({
-    providerId: input.parameters.find((parameter) => parameter.parameterName === item.parameterName)?.evidenceProvider ?? input.toolSchema.sourceProvider,
-    evidenceType: item.code,
-    outcome: "INCONCLUSIVE",
-    observedAt: input.actionTimestamp,
-    evidenceDigest: hashCanonical(item),
-    metadata: { parameterName: item.parameterName, malicious: false, evidenceReferences: item.evidenceReferences },
-  }));
+  const providerNeutralEvidence = [
+    ...findings.map((item) => ({
+      providerId: input.parameters.find((parameter) => parameter.parameterName === item.parameterName)?.evidenceProvider ?? input.toolSchema.sourceProvider,
+      evidenceType: item.code,
+      outcome: "INCONCLUSIVE",
+      observedAt: input.actionTimestamp,
+      evidenceDigest: hashCanonical(item),
+      metadata: { parameterName: item.parameterName, malicious: false, evidenceReferences: item.evidenceReferences },
+    })),
+    ...(runtimeAuthority ? [{
+      providerId: input.runtime?.provider ?? input.runtime?.runtimeProvider ?? "runtime_unattributed",
+      evidenceType: "RUNTIME_AUTHORITY_EVIDENCE",
+      outcome: runtimeAuthority.runtimeState,
+      observedAt: runtimeAuthority.measurementTime,
+      evidenceDigest: hashCanonical(runtimeAuthority),
+      metadata: { runtimeEvidenceReference: runtimeAuthority.runtimeEvidenceReference, destinationState: runtimeAuthority.destinationState, providerIsCanonical: false },
+    }] : []),
+    ...aimsCompatibility.map((item) => ({
+      providerId: item.provider,
+      evidenceType: "AIMS_COMPATIBLE_AUTHORITY_EXECUTION_EVIDENCE",
+      outcome: "INCONCLUSIVE",
+      observedAt: input.aimsEvidence?.find((evidence) => evidence.evidenceReference === item.evidenceReference)?.observedAt ?? input.actionTimestamp,
+      evidenceDigest: item.evidenceDigest,
+      metadata: { evidenceReference: item.evidenceReference, correlationId: item.correlationId, providerIsCanonical: false, aimsDependency: false },
+    })),
+  ];
   const replayEvents = [
     { eventType: "AUTHORITY_BOUND_PARAMETERS_SNAPSHOTTED", occurredAt: input.actionTimestamp, attribution: "CYBER_SENTINELS_INTERPRETATION", evidenceReferences: [input.toolSchema.schemaDigest, input.authorityLineageReference], details: { toolId: input.toolSchema.toolId, toolVersion: input.toolSchema.toolVersion, parameterCount: input.parameters.length } },
-    ...authorizationChanges.map((change) => ({ eventType: "AUTHORIZATION_CHANGE_PROPAGATION_OBSERVED", occurredAt: change.effectiveAt, attribution: "PROVIDER_CLAIM", evidenceReferences: change.evidenceReferences, details: { changeId: change.changeId, changeType: change.changeType, propagationState: propagationState([change]) } })),
+    ...parameterAuthority.map((item) => ({ eventType: "AUTHORITY_PARAMETER_BINDING_EVALUATED", occurredAt: input.actionTimestamp, attribution: "CYBER_SENTINELS_INTERPRETATION", evidenceReferences: item.evidenceReferences, details: { parameterName: item.parameterName, state: item.state, expectedProvenance: item.expectedProvenance, observedProvenance: item.observedProvenance, recommendedControl: item.recommendedControl } })),
+    ...(runtimeAuthority ? [{ eventType: "RUNTIME_AUTHORITY_OBSERVED", occurredAt: runtimeAuthority.measurementTime, attribution: "RUNTIME_OBSERVATION", evidenceReferences: [runtimeAuthority.runtimeEvidenceReference], details: { authorityReference: runtimeAuthority.authorityReference, authorityVersion: runtimeAuthority.authorityVersion, runtimeState: runtimeAuthority.runtimeState, destinationState: runtimeAuthority.destinationState } }] : []),
+    ...authorizationPropagation.timeline.map((item) => ({ eventType: "AUTHORIZATION_PROPAGATION_TIMELINE_RECORDED", occurredAt: item.requestedAt, attribution: "CYBER_SENTINELS_INTERPRETATION", evidenceReferences: item.evidenceReferences, details: { changeId: item.changeId, state: authorizationPropagation.state, authorityVersionBefore: item.authorityVersionBefore, authorityVersionAfter: item.authorityVersionAfter, controlPlaneAcknowledgedAt: item.controlPlaneAcknowledgedAt, runtimeUpdatedAt: item.runtimeUpdatedAt, credentialUpdatedAt: item.credentialUpdatedAt, downstreamUpdatedAt: item.downstreamUpdatedAt, destinationConfirmedAt: item.destinationConfirmedAt } })),
+    ...aimsCompatibility.map((item) => ({ eventType: "AIMS_COMPATIBLE_EVIDENCE_MAPPED", occurredAt: input.actionTimestamp, attribution: "PROVIDER_CLAIM", evidenceReferences: [item.evidenceReference], details: { provider: item.provider, source: item.source, correlationId: item.correlationId, providerIsCanonical: false, aimsDependency: false } })),
+    ...authorizationChanges.map((change) => ({ eventType: "AUTHORIZATION_CHANGE_PROPAGATION_OBSERVED", occurredAt: change.effectiveAt, attribution: "PROVIDER_CLAIM", evidenceReferences: change.evidenceReferences, details: { changeId: change.changeId, changeType: change.changeType, propagationState: propagationState([change], persistedAuthorityEvidence) } })),
     ...findings.map((item) => ({ eventType: item.code, occurredAt: input.actionTimestamp, attribution: "CYBER_SENTINELS_INTERPRETATION", evidenceReferences: item.evidenceReferences, details: { parameterName: item.parameterName, malicious: false } })),
   ];
   const materialCodes = new Set<AuthorityIntegrityFindingCode>(AUTHORITY_INTEGRITY_FINDINGS);
   const trustMemoryEvents = [
     ...input.parameters.filter((item) => item.materiality !== "ordinary" && trustedNonModelProvenance.has(item.parameterProvenance)).map((item) => ({ eventId: hashCanonical([input.actionId, "AUTHORITY_BOUND_PARAMETER_ESTABLISHED", item.parameterName]), eventType: "AUTHORITY_BOUND_PARAMETER_ESTABLISHED", occurredAt: item.timestamp, evidenceReferences: [item.policyReference, input.toolSchema.schemaDigest] })),
-    ...authorizationChanges.map((item) => ({ eventId: hashCanonical([input.actionId, "AUTHORIZATION_CHANGE", item.changeId]), eventType: propagationState([item]) === "destination_rejects_old_authority" || propagationState([item]) === "independently_confirmed" ? "AUTHORIZATION_DOWNGRADE_PROPAGATED" : "AUTHORIZATION_DOWNGRADE_REQUESTED", occurredAt: item.effectiveAt, evidenceReferences: item.evidenceReferences })),
+    ...parameterAuthority.filter((item) => item.securityCritical && !["MATCH", "SUPPORTED"].includes(item.state)).map((item) => ({ eventId: hashCanonical([input.actionId, "AUTHORITY_PARAMETER_BINDING_CHANGED", item.parameterName, item.state]), eventType: item.state === "PROVENANCE_MISMATCH" && item.observedProvenance === "MODEL_PROPOSED" ? "MODEL_CONTROLLED_SECURITY_BOUNDARY" : "AUTHORITY_PARAMETER_BINDING_CHANGED", occurredAt: input.actionTimestamp, evidenceReferences: item.evidenceReferences })),
+    ...authorizationChanges.map((item) => ({ eventId: hashCanonical([input.actionId, "AUTHORIZATION_CHANGE", item.changeId]), eventType: propagationState([item], persistedAuthorityEvidence) === "destination_rejects_old_authority" || propagationState([item], persistedAuthorityEvidence) === "independently_confirmed" ? "AUTHORIZATION_DOWNGRADE_PROPAGATED" : "AUTHORIZATION_DOWNGRADE_REQUESTED", occurredAt: item.effectiveAt, evidenceReferences: item.evidenceReferences })),
+    ...(["PROPAGATION_CONFIRMED", "PARTIAL_PROPAGATION", "PROPAGATION_PENDING", "STALE_AUTHORITY_POSSIBLE", "STALE_AUTHORITY_CONFIRMED"].includes(authorizationPropagation.state) ? [{ eventId: hashCanonical([input.actionId, authorizationPropagation.state]), eventType: authorizationPropagation.state === "PROPAGATION_CONFIRMED" ? "PROPAGATION_CONFIRMED" : authorizationPropagation.state === "STALE_AUTHORITY_CONFIRMED" ? "STALE_AUTHORITY_CONFIRMED" : authorizationPropagation.state === "STALE_AUTHORITY_POSSIBLE" ? "STALE_AUTHORITY_POSSIBLE" : "PROPAGATION_DELAYED", occurredAt: input.actionTimestamp, evidenceReferences: authorizationPropagation.timeline.flatMap((item) => item.evidenceReferences) }] : []),
+    ...(runtimeAuthority?.runtimeState === "MISMATCH" ? [{ eventId: hashCanonical([input.actionId, "RUNTIME_AUTHORITY_MISMATCH"]), eventType: "RUNTIME_AUTHORITY_MISMATCH", occurredAt: runtimeAuthority.measurementTime, evidenceReferences: [runtimeAuthority.runtimeEvidenceReference] }] : []),
+    ...(runtimeAuthority?.destinationState === "MISMATCH" ? [{ eventId: hashCanonical([input.actionId, "DESTINATION_AUTHORITY_MISMATCH"]), eventType: "DESTINATION_AUTHORITY_MISMATCH", occurredAt: runtimeAuthority.measurementTime, evidenceReferences: [runtimeAuthority.runtimeEvidenceReference] }] : []),
     ...findings.filter((item) => materialCodes.has(item.code)).map((item) => ({ eventId: hashCanonical([input.actionId, item.code, item.parameterName]), eventType: item.code, occurredAt: input.actionTimestamp, evidenceReferences: item.evidenceReferences })),
   ].filter((item, index, all) => all.findIndex((candidate) => candidate.eventId === item.eventId) === index);
+  const minimumPreventativeControls = [...new Set([
+    ...parameterAuthority.map((item) => item.recommendedControl).filter((item): item is AuthorityPreventativeControl => Boolean(item)),
+    ...(runtimeAuthority?.runtimeState === "MISMATCH" ? ["REQUIRE_RUNTIME_DERIVATION" as const] : []),
+    ...(runtimeAuthority?.destinationState === "MISMATCH" ? ["PIN_DESTINATION" as const] : []),
+    ...(["STALE_AUTHORITY_CONFIRMED", "STALE_AUTHORITY_POSSIBLE", "PARTIAL_PROPAGATION", "PROPAGATION_PENDING"].includes(authorizationPropagation.state) ? ["REDUCE_AUTHORITY" as const] : []),
+  ])];
+  const receiptSummary = {
+    authorityVersion: runtimeAuthority?.authorityVersion ?? authorizationPropagation.timeline[0]?.authorityVersionAfter ?? null,
+    delegatedPrincipal: input.runtime?.delegatedPrincipal ?? input.delegatedSubject?.delegatedSubject ?? null,
+    runtimeAuthorityEvidenceReference: runtimeAuthority?.runtimeEvidenceReference ?? null,
+    destinationAuthorityEvidenceReference: runtimeAuthority?.destinationEffectiveAuthority === null || runtimeAuthority?.destinationEffectiveAuthority === undefined ? null : runtimeAuthority.runtimeEvidenceReference,
+    parameterProvenanceSummary: parameterAuthority.map((item) => ({ parameterName: item.parameterName, state: item.state, provenance: item.observedProvenance })),
+    propagationState: authorizationPropagation.state,
+    destinationAuthorityState: runtimeAuthority?.destinationState ?? null,
+    conflicts: findings.filter((item) => /CONFLICT|MISMATCH/.test(item.code)).map((item) => item.code),
+    limitations: [...new Set([...authorizationPropagation.limitations, ...(runtimeAuthority?.limitations ?? []), ...parameterAuthority.flatMap((item) => item.limitations)])],
+  };
   const assessment = {
     snapshotVersion: "1.0" as const,
     evaluatedAt: input.actionTimestamp,
     findings,
     requiredActions: [...requiredActions],
-    propagationState: propagationState(authorizationChanges),
+    propagationState: propagationState(authorizationChanges, persistedAuthorityEvidence),
     toolSchemaChange: schemaChange,
     actionTimeEvidence: structuredClone(input),
     providerNeutralEvidence,
-    graphProjection: buildGraph(input, findings),
+    graphProjection: buildGraph(input, findings, parameterAuthority, runtimeAuthority, authorizationPropagation, aimsCompatibility),
     replayEvents,
     trustMemoryEvents,
+    parameterAuthority,
+    authorizationPropagation,
+    runtimeAuthority,
+    aimsCompatibility,
+    minimumPreventativeControls,
+    receiptSummary,
   };
   return deepFreeze(assessment) as AuthorityIntegrityAssessment;
 }

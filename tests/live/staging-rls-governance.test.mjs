@@ -1,14 +1,17 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { assertLiveStagingGuard, LiveStagingGuardError } from "../../tools/release/live-staging-guard.ts";
+
+const runner = await readFile(new URL("../../tools/release/run-live-rls-governance.ts", import.meta.url), "utf8");
 
 const validInput = {
   environmentName: "staging",
   projectReference: "agpyhygpfmppjkxwcpac",
   expectedEnvironmentType: "staging",
   syntheticFixtures: true,
-  migrationHead: "202608010002",
-  expectedMigrationHead: "202608010002",
+  migrationHead: "20260829164824",
+  expectedMigrationHead: "20260829164824",
   approvedHostname: "staging.example.invalid",
   liveTestConfirmation: true,
 };
@@ -47,4 +50,12 @@ test("live guard requires explicit confirmation", () => {
     () => assertLiveStagingGuard({ ...validInput, liveTestConfirmation: false }),
     (error) => error instanceof LiveStagingGuardError && error.code === "LIVE_TEST_CONFIRMATION_REQUIRED",
   );
+});
+
+test("live runner requires explicit exact staging identity without safe-looking fallbacks", () => {
+  assert.match(runner, /CYBER_SENTINELS_STAGING_PROJECT_REF/);
+  assert.match(runner, /I_CONFIRM_STAGING === "I_CONFIRM_STAGING"/);
+  assert.match(runner, /expectedMigrationHead: "20260829164824"/);
+  assert.doesNotMatch(runner, /STAGING_PROJECT_REFERENCE|LIVE_TEST_CONFIRMATION/);
+  assert.doesNotMatch(runner, /\?\?\s*"agpyhygpfmppjkxwcpac"|\?\?\s*"staging\.example\.invalid"/);
 });
