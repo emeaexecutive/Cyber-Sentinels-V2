@@ -129,6 +129,7 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const apiRef = useRef<TurnstileApi | null>(null);
+  const previewTestToken = "XXXX.DUMMY.TOKEN.XXXX";
   const onTokenChangeRef = useRef(onTokenChange);
   const onErrorChangeRef = useRef(onErrorChange);
   const [token, setToken] = useState("");
@@ -155,6 +156,12 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
   const renderWidget = useCallback((turnstile: TurnstileApi) => {
     if (!siteKey || !containerRef.current || widgetIdRef.current) return;
 
+    const isPreviewTestKey = /^1x0{20}(?:AA|AB|BB|FF)$/.test(siteKey.trim());
+    if (isPreviewTestKey) {
+      publishToken(previewTestToken);
+      return;
+    }
+
     try {
       apiRef.current = turnstile;
       widgetIdRef.current = turnstile.render(
@@ -168,7 +175,7 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
     } catch {
       publishError("The security check could not start. Please reload and try again.");
     }
-  }, [publishError, publishToken, siteKey]);
+  }, [previewTestToken, publishError, publishToken, siteKey]);
 
   useEffect(() => {
     if (!siteKey) return;

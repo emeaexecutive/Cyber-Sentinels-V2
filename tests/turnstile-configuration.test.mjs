@@ -75,6 +75,28 @@ test("Preview plus explicit official test configuration verifies through Sitever
   });
 });
 
+test("Preview official test mode accepts the public dummy token without contacting the provider", async () => {
+  await withEnvironment({
+    NODE_ENV: "production",
+    VERCEL_ENV: "preview",
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: passSiteKey,
+    TURNSTILE_SECRET_KEY: passSecretKey,
+    TURNSTILE_MODE: "preview-test",
+    TURNSTILE_EXPECTED_HOSTNAME: "localhost",
+  }, async () => {
+    let called = false;
+    globalThis.fetch = async () => {
+      called = true;
+      return Response.json({ success: true, hostname: "localhost" });
+    };
+
+    const result = await verifyTurnstileToken("XXXX.DUMMY.TOKEN.XXXX", "203.0.113.8", "localhost");
+    assert.equal(result.ok, true);
+    assert.equal(result.reason, "verified");
+    assert.equal(called, false);
+  });
+});
+
 test("Preview missing configuration is an explicit fail-closed configuration error", async () => {
   await withEnvironment({ NODE_ENV: "production", VERCEL_ENV: "preview" }, async () => {
     assert.equal(getTurnstileConfigurationState().reason, "missing_configuration");

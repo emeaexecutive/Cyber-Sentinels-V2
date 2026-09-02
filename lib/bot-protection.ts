@@ -41,6 +41,7 @@ const rateLimitBuckets = new Map<string, RateLimitBucket>();
 const officialTestSiteKeyPattern = /^[123]x0{20}(?:AA|AB|BB|FF)$/;
 const officialTestSecretKeyPattern = /^[123]x0{31}AA$/;
 const officialTestHostnames = new Set(["localhost", "example.com"]);
+const publicDummyTurnstileTokenPattern = /^XXXX\.DUMMY\.TOKEN\.XXXX$/i;
 
 export type TurnstileConfigurationState = {
   ok: boolean;
@@ -200,6 +201,13 @@ export async function verifyTurnstileToken(
 
   if (!token) {
     return { ok: false, skipped: false, reason: "missing_token" };
+  }
+
+  if (configuration.mode === "preview-test" && publicDummyTurnstileTokenPattern.test(token)) {
+    const expected = safeTurnstileHostname(getPreviewTurnstileExpectedHostname());
+    if (expected && (!expectedHostname || expectedHostname.trim().toLowerCase() === expected)) {
+      return { ok: true, skipped: false, reason: "verified", hostname: expected };
+    }
   }
 
   try {
