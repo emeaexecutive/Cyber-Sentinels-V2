@@ -7,6 +7,7 @@ import {
   isOfficialTurnstileTestSiteKey,
   verifyTurnstileToken,
 } from "../lib/bot-protection.ts";
+import { shouldUsePreviewTurnstileFallback } from "../components/turnstile-field.tsx";
 
 const passSiteKey = "1x00000000000000000000AA";
 const passSecretKey = "1x0000000000000000000000000000000AA";
@@ -95,6 +96,12 @@ test("Preview official test mode accepts the public dummy token without contacti
     assert.equal(result.reason, "verified");
     assert.equal(called, false);
   });
+});
+
+test("the client preview fallback is enabled only for Preview official test keys", () => {
+  assert.equal(shouldUsePreviewTurnstileFallback(passSiteKey, "preview"), true);
+  assert.equal(shouldUsePreviewTurnstileFallback(passSiteKey, "production"), false);
+  assert.equal(shouldUsePreviewTurnstileFallback("live-site-key", "preview"), false);
 });
 
 test("Preview missing configuration is an explicit fail-closed configuration error", async () => {

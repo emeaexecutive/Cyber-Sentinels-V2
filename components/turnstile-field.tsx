@@ -91,6 +91,10 @@ function turnstileErrorMessage(errorCode?: string | number) {
   return "Security check failed. Please refresh the page and try again.";
 }
 
+export function shouldUsePreviewTurnstileFallback(siteKey: string | null | undefined, environment: string | undefined) {
+  return Boolean(siteKey && /^1x0{20}(?:AA|AB|BB|FF)$/.test(siteKey.trim()) && environment === "preview");
+}
+
 export function createTurnstileOptions(input: {
   siteKey: string;
   onToken(token: string): void;
@@ -155,7 +159,7 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
   const renderWidget = useCallback((turnstile: TurnstileApi) => {
     if (!siteKey || !containerRef.current || widgetIdRef.current) return;
 
-    const isPreviewTestKey = /^1x0{20}(?:AA|AB|BB|FF)$/.test(siteKey.trim()) && process.env.VERCEL_ENV === "preview";
+    const isPreviewTestKey = shouldUsePreviewTurnstileFallback(siteKey, process.env.VERCEL_ENV);
     if (isPreviewTestKey) {
       publishToken(previewTestToken);
       return;
@@ -181,7 +185,7 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
     const container = containerRef.current;
     publishError("");
 
-    const isPreviewTestKey = /^1x0{20}(?:AA|AB|BB|FF)$/.test(siteKey.trim());
+    const isPreviewTestKey = shouldUsePreviewTurnstileFallback(siteKey, process.env.VERCEL_ENV);
     if (isPreviewTestKey) {
       publishToken(previewTestToken);
       return;
