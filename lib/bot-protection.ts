@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { getTrustedClientIp, hashValue } from "@/lib/security";
-import { isPreviewTurnstileFallbackEnvironment } from "@/lib/turnstile-preview";
 
 type TurnstileVerifyResponse = {
   success?: boolean;
@@ -42,8 +41,6 @@ const rateLimitBuckets = new Map<string, RateLimitBucket>();
 const officialTestSiteKeyPattern = /^[123]x0{20}(?:AA|AB|BB|FF)$/;
 const officialTestSecretKeyPattern = /^[123]x0{31}AA$/;
 const officialTestHostnames = new Set(["localhost", "example.com"]);
-const publicDummyTurnstileTokenPattern = /^XXXX\.DUMMY\.TOKEN\.XXXX$/i;
-
 export type TurnstileConfigurationState = {
   ok: boolean;
   mode: "live" | "preview-test";
@@ -78,14 +75,6 @@ export function getTurnstileConfigurationState(): TurnstileConfigurationState {
       mode: configuredMode === "preview-test" ? "preview-test" : "live",
       usesOfficialTestCredentials,
       reason: "missing_configuration",
-    };
-  }
-
-  if (isPreviewTurnstileFallbackEnvironment(process.env.VERCEL_ENV, process.env.TURNSTILE_EXPECTED_HOSTNAME) && usesOfficialTestCredentials && !secretKey) {
-    return {
-      ok: true,
-      mode: "preview-test",
-      usesOfficialTestCredentials: true,
     };
   }
 
@@ -208,9 +197,6 @@ export async function verifyTurnstileToken(
   }
 
   if (!secret) {
-    if (configuration.mode === "preview-test" && publicDummyTurnstileTokenPattern.test(String(token ?? ""))) {
-      return { ok: true, skipped: false, reason: "verified", hostname: getPreviewTurnstileExpectedHostname() };
-    }
     return canBypassBotProtection()
       ? { ok: true, skipped: true, reason: "turnstile_not_configured" }
       : { ok: false, skipped: false, reason: "turnstile_not_configured" };
@@ -222,13 +208,6 @@ export async function verifyTurnstileToken(
 
   if (!token) {
     return { ok: false, skipped: false, reason: "missing_token" };
-  }
-
-  if (configuration.mode === "preview-test" && publicDummyTurnstileTokenPattern.test(token)) {
-    const expected = safeTurnstileHostname(getPreviewTurnstileExpectedHostname());
-    if (expected && (!expectedHostname || expectedHostname.trim().toLowerCase() === expected)) {
-      return { ok: true, skipped: false, reason: "verified", hostname: expected };
-    }
   }
 
   try {

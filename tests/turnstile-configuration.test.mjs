@@ -76,7 +76,7 @@ test("Preview plus explicit official test configuration verifies through Sitever
   });
 });
 
-test("Preview official test mode accepts the public dummy token without contacting the provider", async () => {
+test("Preview official test mode validates the widget token through Siteverify", async () => {
   await withEnvironment({
     NODE_ENV: "production",
     VERCEL_ENV: "preview",
@@ -86,24 +86,39 @@ test("Preview official test mode accepts the public dummy token without contacti
     TURNSTILE_EXPECTED_HOSTNAME: "localhost",
   }, async () => {
     let called = false;
-    globalThis.fetch = async () => {
+    globalThis.fetch = async (url, init) => {
       called = true;
+      assert.equal(url, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+      assert.equal(init?.method, "POST");
+      assert.equal(init?.body?.get("response"), "XXXX.DUMMY.TOKEN.XXXX");
       return Response.json({ success: true, hostname: "localhost" });
     };
 
     const result = await verifyTurnstileToken("XXXX.DUMMY.TOKEN.XXXX", "203.0.113.8", "localhost");
     assert.equal(result.ok, true);
     assert.equal(result.reason, "verified");
-    assert.equal(called, false);
+    assert.equal(called, true);
   });
 });
 
-test("the client preview fallback is enabled for Preview hosts even without a site key", () => {
-  assert.equal(shouldUsePreviewTurnstileFallback(passSiteKey, "preview"), true);
-  assert.equal(shouldUsePreviewTurnstileFallback(passSiteKey, "production"), false);
-  assert.equal(shouldUsePreviewTurnstileFallback("live-site-key", "preview"), false);
-  assert.equal(shouldUsePreviewTurnstileFallback("", "preview"), true);
-  assert.equal(shouldUsePreviewTurnstileFallback("", "production"), false);
+test("Preview does not bypass the client widget just because it is a preview host", () => {
+  assert.equal(shouldUsePreviewTurnstileFallback(passSiteKey, "preview", "pr.example.vercel.app"), false);
+  assert.equal(shouldUsePreviewTurnstileFallback(passSiteKey, "production", "www.cybersentinels.com"), false);
+  assert.equal(shouldUsePreviewTurnstileFallback("live-site-key", "preview", "pr.example.vercel.app"), false);
+  assert.equal(shouldUsePreviewTurnstileFallback("", "preview", "pr.example.vercel.app"), false);
+  assert.equal(shouldUsePreviewTurnstileFallback("", "production", "www.cybersentinels.com"), false);
+});
+
+test("Preview test mode requires the full secret-backed configuration instead of a host-only fallback", async () => {
+  await withEnvironment({
+    NODE_ENV: "production",
+    VERCEL_ENV: "preview",
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: passSiteKey,
+    TURNSTILE_MODE: "preview-test",
+    TURNSTILE_EXPECTED_HOSTNAME: "localhost",
+  }, async () => {
+    assert.equal(getTurnstileConfigurationState().reason, "missing_configuration");
+  });
 });
 
 test("Preview missing configuration is an explicit fail-closed configuration error", async () => {

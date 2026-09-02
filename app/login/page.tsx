@@ -27,14 +27,7 @@ const authTimeoutMs = 8000;
 const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 function shouldRequireTurnstile() {
-  return (
-    process.env.NODE_ENV === "production" &&
-    !shouldUsePreviewTurnstileFallback(
-      turnstileSiteKey,
-      process.env.VERCEL_ENV,
-      typeof window !== "undefined" ? window.location.hostname : undefined,
-    )
-  );
+  return process.env.NODE_ENV === "production" && !shouldUsePreviewTurnstileFallback();
 }
 const authAttemptWindowMs = 60_000;
 const authAttemptLimit = 8;
