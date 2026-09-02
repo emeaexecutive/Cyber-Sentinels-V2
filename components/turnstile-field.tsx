@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { isPreviewTurnstileFallbackEnvironment } from "@/lib/turnstile-preview";
 
 type TurnstileFieldProps = {
   siteKey?: string | null;
@@ -92,7 +93,7 @@ function turnstileErrorMessage(errorCode?: string | number) {
 }
 
 export function shouldUsePreviewTurnstileFallback(siteKey: string | null | undefined, environment: string | undefined) {
-  return Boolean(siteKey && /^1x0{20}(?:AA|AB|BB|FF)$/.test(siteKey.trim()) && environment === "preview");
+  return Boolean(siteKey && /^1x0{20}(?:AA|AB|BB|FF)$/.test(siteKey.trim()) && isPreviewTurnstileFallbackEnvironment(environment));
 }
 
 export function createTurnstileOptions(input: {

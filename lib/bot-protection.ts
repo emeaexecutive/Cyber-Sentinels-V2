@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getTrustedClientIp, hashValue } from "@/lib/security";
+import { isPreviewTurnstileFallbackEnvironment } from "@/lib/turnstile-preview";
 
 type TurnstileVerifyResponse = {
   success?: boolean;
@@ -80,7 +81,7 @@ export function getTurnstileConfigurationState(): TurnstileConfigurationState {
     };
   }
 
-  if (process.env.VERCEL_ENV === "preview" && usesOfficialTestCredentials && !secretKey) {
+  if (isPreviewTurnstileFallbackEnvironment(process.env.VERCEL_ENV, process.env.TURNSTILE_EXPECTED_HOSTNAME) && usesOfficialTestCredentials && !secretKey) {
     return {
       ok: true,
       mode: "preview-test",
