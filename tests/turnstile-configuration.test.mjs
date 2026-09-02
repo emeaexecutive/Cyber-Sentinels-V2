@@ -98,10 +98,12 @@ test("Preview official test mode accepts the public dummy token without contacti
   });
 });
 
-test("the client preview fallback is enabled only for Preview official test keys", () => {
+test("the client preview fallback is enabled for Preview hosts even without a site key", () => {
   assert.equal(shouldUsePreviewTurnstileFallback(passSiteKey, "preview"), true);
   assert.equal(shouldUsePreviewTurnstileFallback(passSiteKey, "production"), false);
   assert.equal(shouldUsePreviewTurnstileFallback("live-site-key", "preview"), false);
+  assert.equal(shouldUsePreviewTurnstileFallback("", "preview"), true);
+  assert.equal(shouldUsePreviewTurnstileFallback("", "production"), false);
 });
 
 test("Preview missing configuration is an explicit fail-closed configuration error", async () => {

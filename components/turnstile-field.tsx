@@ -93,7 +93,9 @@ function turnstileErrorMessage(errorCode?: string | number) {
 }
 
 export function shouldUsePreviewTurnstileFallback(siteKey: string | null | undefined, environment: string | undefined) {
-  return Boolean(siteKey && /^1x0{20}(?:AA|AB|BB|FF)$/.test(siteKey.trim()) && isPreviewTurnstileFallbackEnvironment(environment));
+  const previewEnvironment = isPreviewTurnstileFallbackEnvironment(environment);
+  const officialTestKey = Boolean(siteKey && /^1x0{20}(?:AA|AB|BB|FF)$/.test(siteKey.trim()));
+  return previewEnvironment && (officialTestKey || !siteKey);
 }
 
 export function createTurnstileOptions(input: {
