@@ -156,6 +156,7 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
     if (!siteKey || !containerRef.current || widgetIdRef.current) return;
 
     const isPreviewTestKey = /^1x0{20}(?:AA|AB|BB|FF)$/.test(siteKey.trim());
+    console.info("TURNSTILE_DEBUG", { siteKey, isPreviewTestKey, hostname: window.location.hostname });
     if (isPreviewTestKey) {
       publishToken(previewTestToken);
       return;
