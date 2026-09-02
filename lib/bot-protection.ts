@@ -57,6 +57,11 @@ export function isOfficialTurnstileTestSecretKey(value: string | null | undefine
   return officialTestSecretKeyPattern.test(String(value ?? "").trim());
 }
 
+function getPreviewTurnstileExpectedHostname() {
+  const configuredHostname = String(process.env.TURNSTILE_EXPECTED_HOSTNAME ?? "localhost").trim().toLowerCase();
+  return configuredHostname || "localhost";
+}
+
 export function getTurnstileConfigurationState(): TurnstileConfigurationState {
   const siteKey = getTurnstileSiteKey();
   const secretKey = String(process.env.TURNSTILE_SECRET_KEY ?? "").trim();
@@ -94,7 +99,7 @@ export function getTurnstileConfigurationState(): TurnstileConfigurationState {
     if (!usesTestSiteKey || !usesTestSecretKey) {
       return { ok: false, mode: "preview-test", usesOfficialTestCredentials, reason: "test_credentials_incomplete" };
     }
-    const expectedHostname = String(process.env.TURNSTILE_EXPECTED_HOSTNAME ?? "").trim().toLowerCase();
+    const expectedHostname = getPreviewTurnstileExpectedHostname();
     if (!officialTestHostnames.has(expectedHostname)) {
       return { ok: false, mode: "preview-test", usesOfficialTestCredentials, reason: "test_hostname_invalid" };
     }
@@ -111,7 +116,7 @@ export function getTurnstileConfigurationState(): TurnstileConfigurationState {
 export function getExpectedTurnstileHostname(requestHostname: string) {
   const configuration = getTurnstileConfigurationState();
   if (configuration.ok && configuration.mode === "preview-test") {
-    return String(process.env.TURNSTILE_EXPECTED_HOSTNAME).trim().toLowerCase();
+    return getPreviewTurnstileExpectedHostname();
   }
   return requestHostname.trim().toLowerCase();
 }
@@ -225,7 +230,9 @@ export async function verifyTurnstileToken(
     };
 
     if (result.success === true) {
-      const expected = safeTurnstileHostname(expectedHostname);
+      const expected = safeTurnstileHostname(
+        configuration.mode === "preview-test" ? getPreviewTurnstileExpectedHostname() : expectedHostname
+      );
       if (!hostname || !expected) {
         return { ok: false, skipped: false, reason: "provider_error", ...diagnostics };
       }

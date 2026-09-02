@@ -136,6 +136,27 @@ test("hostname mismatch denies and provider unavailability fails closed", async 
   });
 });
 
+test("Preview test mode defaults to localhost hostname when expected hostname is unset", async () => {
+  await withEnvironment({
+    NODE_ENV: "production",
+    VERCEL_ENV: "preview",
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: passSiteKey,
+    TURNSTILE_SECRET_KEY: passSecretKey,
+    TURNSTILE_MODE: "preview-test",
+  }, async () => {
+    assert.equal(getTurnstileConfigurationState().ok, true);
+    assert.equal(getExpectedTurnstileHostname("preview.example"), "localhost");
+    globalThis.fetch = async () => Response.json({
+      success: true,
+      hostname: "localhost",
+      challenge_ts: "2026-08-11T10:00:00.000Z",
+    });
+    const result = await verifyTurnstileToken("XXXX.DUMMY.TOKEN.XXXX", "203.0.113.8", "preview.example");
+    assert.equal(result.ok, true);
+    assert.equal(result.reason, "verified");
+  });
+});
+
 test("Preview test mode requires a complete pair and a bounded dummy hostname", async () => {
   await withEnvironment({
     NODE_ENV: "production",
