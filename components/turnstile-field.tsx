@@ -92,8 +92,12 @@ function turnstileErrorMessage(errorCode?: string | number) {
   return "Security check failed. Please refresh the page and try again.";
 }
 
-export function shouldUsePreviewTurnstileFallback(siteKey: string | null | undefined, environment: string | undefined) {
-  const previewEnvironment = isPreviewTurnstileFallbackEnvironment(environment);
+export function shouldUsePreviewTurnstileFallback(
+  siteKey: string | null | undefined,
+  environment: string | undefined,
+  hostname?: string,
+) {
+  const previewEnvironment = isPreviewTurnstileFallbackEnvironment(environment, hostname);
   const officialTestKey = Boolean(siteKey && /^1x0{20}(?:AA|AB|BB|FF)$/.test(siteKey.trim()));
   return previewEnvironment && (officialTestKey || !siteKey);
 }
@@ -160,10 +164,15 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
   }, []);
 
   const renderWidget = useCallback((turnstile: TurnstileApi) => {
-    if (!siteKey || !containerRef.current || widgetIdRef.current) return;
+    if (!containerRef.current || widgetIdRef.current) return;
 
-    const isPreviewTestKey = shouldUsePreviewTurnstileFallback(siteKey, process.env.VERCEL_ENV);
-    if (isPreviewTestKey) {
+    const previewFallback = shouldUsePreviewTurnstileFallback(
+      siteKey,
+      process.env.VERCEL_ENV,
+      typeof window !== "undefined" ? window.location.hostname : undefined,
+    );
+    if (!siteKey && !previewFallback) return;
+    if (previewFallback) {
       publishToken(previewTestToken);
       return;
     }
@@ -173,7 +182,7 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
       widgetIdRef.current = turnstile.render(
         containerRef.current,
         createTurnstileOptions({
-          siteKey,
+          siteKey: siteKey ?? "",
           onToken: publishToken,
           onError: publishError,
         }),
@@ -184,12 +193,16 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
   }, [previewTestToken, publishError, publishToken, siteKey]);
 
   useEffect(() => {
-    if (!siteKey) return;
+    const previewFallback = shouldUsePreviewTurnstileFallback(
+      siteKey,
+      process.env.VERCEL_ENV,
+      typeof window !== "undefined" ? window.location.hostname : undefined,
+    );
+    if (!siteKey && !previewFallback) return;
     const container = containerRef.current;
     publishError("");
 
-    const isPreviewTestKey = shouldUsePreviewTurnstileFallback(siteKey, process.env.VERCEL_ENV);
-    if (isPreviewTestKey) {
+    if (previewFallback) {
       publishToken(previewTestToken);
       return;
     }
@@ -239,7 +252,13 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
     }
   }, [publishError, publishToken, resetKey]);
 
-  if (!siteKey) {
+  const previewFallback = shouldUsePreviewTurnstileFallback(
+    siteKey,
+    process.env.VERCEL_ENV,
+    typeof window !== "undefined" ? window.location.hostname : undefined,
+  );
+
+  if (!siteKey && !previewFallback) {
     return (
       <p className="text-sm text-amber-200" role="alert">
         The security check is temporarily unavailable. Please try again later.
