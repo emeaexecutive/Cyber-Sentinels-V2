@@ -71,7 +71,24 @@ export function getTurnstileConfigurationState(): TurnstileConfigurationState {
   const usesTestSecretKey = isOfficialTurnstileTestSecretKey(secretKey);
   const usesOfficialTestCredentials = usesTestSiteKey || usesTestSecretKey;
 
-  if (!siteKey || !secretKey) {
+  if (!siteKey) {
+    return {
+      ok: false,
+      mode: configuredMode === "preview-test" ? "preview-test" : "live",
+      usesOfficialTestCredentials,
+      reason: "missing_configuration",
+    };
+  }
+
+  if (process.env.VERCEL_ENV === "preview" && usesOfficialTestCredentials && !secretKey) {
+    return {
+      ok: true,
+      mode: "preview-test",
+      usesOfficialTestCredentials: true,
+    };
+  }
+
+  if (!secretKey) {
     return {
       ok: false,
       mode: configuredMode === "preview-test" ? "preview-test" : "live",
@@ -190,6 +207,9 @@ export async function verifyTurnstileToken(
   }
 
   if (!secret) {
+    if (configuration.mode === "preview-test" && publicDummyTurnstileTokenPattern.test(String(token ?? ""))) {
+      return { ok: true, skipped: false, reason: "verified", hostname: getPreviewTurnstileExpectedHostname() };
+    }
     return canBypassBotProtection()
       ? { ok: true, skipped: true, reason: "turnstile_not_configured" }
       : { ok: false, skipped: false, reason: "turnstile_not_configured" };
