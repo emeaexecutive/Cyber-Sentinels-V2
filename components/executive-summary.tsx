@@ -3,6 +3,7 @@ import Link from "next/link";
 type SummaryAction = {
   href: string;
   label: string;
+  download?: boolean;
 };
 
 export function ExecutiveSummary({
@@ -33,7 +34,10 @@ export function ExecutiveSummary({
       </ul>
       <div className="mt-7 flex flex-wrap gap-3">
         <Link href={primary.href} className="brand-primary-action brand-action-large text-sm">{primary.label}</Link>
-        {secondary ? <Link href={secondary.href} className="brand-secondary-action brand-action-large text-sm">{secondary.label}</Link> : null}
+        {secondary ? secondary.download
+          ? <a href={secondary.href} download className="brand-secondary-action brand-action-large text-sm">{secondary.label}</a>
+          : <Link href={secondary.href} className="brand-secondary-action brand-action-large text-sm">{secondary.label}</Link>
+        : null}
       </div>
     </section>
   );
