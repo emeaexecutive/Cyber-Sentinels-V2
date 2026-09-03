@@ -49,10 +49,11 @@ test("Documents library and HTML reader are public, semantic, responsive and acc
   assert.match(visibility, /"\/documents\/operational-trust-whitepaper"/);
 });
 
-test("download links use the stable PDF path and descriptive labels", async () => {
-  const [library, reader] = await Promise.all([
+test("download links use the stable PDF path, native download semantics and descriptive labels", async () => {
+  const [library, reader, summary] = await Promise.all([
     read("app/documents/page.tsx"),
     read("app/documents/operational-trust-whitepaper/page.tsx"),
+    read("components/executive-summary.tsx"),
   ]);
   const source = `${library}\n${reader}`;
   assert.ok((source.match(/\/documents\/cyber-sentinels-operational-trust-whitepaper-v1\.pdf/g) ?? []).length >= 4);
@@ -60,4 +61,7 @@ test("download links use the stable PDF path and descriptive labels", async () =
   assert.match(source, /Download whitepaper PDF/);
   assert.match(source, /whitespace-normal text-center/);
   assert.doesNotMatch(source, />Download</);
+  assert.match(library, /download: true/);
+  assert.match(summary, /secondary\.download/);
+  assert.match(summary, /<a href=\{secondary\.href\} download/);
 });

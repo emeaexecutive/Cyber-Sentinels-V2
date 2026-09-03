@@ -24,7 +24,7 @@ export default function DocumentsPage() {
             "Trace the API lifecycle from identity proof to Receipt and Replay.",
           ]}
           primary={{ href: "/documents/operational-trust-whitepaper", label: "Read the whitepaper" }}
-          secondary={{ href: "/documents/cyber-sentinels-operational-trust-whitepaper-v1.pdf", label: "Download whitepaper PDF" }}
+          secondary={{ href: "/documents/cyber-sentinels-operational-trust-whitepaper-v1.pdf", label: "Download whitepaper PDF", download: true }}
         />
 
         <section className="mt-10 grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
