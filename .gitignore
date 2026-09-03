@@ -18,6 +18,7 @@ exports/
 .DS_Store
 Thumbs.db
 Desktop.ini
+__pycache__/
 
 # TypeScript incremental build caches are generated locally.
 *.tsbuildinfo
