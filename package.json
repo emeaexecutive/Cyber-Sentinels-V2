@@ -47,7 +47,7 @@
     "test:standards-readiness": "node --experimental-strip-types --test tests/standards-readiness.test.mjs",
     "test:trust-lifecycle": "node --experimental-strip-types --test tests/trust-lifecycle.test.mjs",
     "test:continuous-trust-validation": "node --experimental-strip-types --test tests/continuous-trust-validation.test.mjs",
-    "test:public-surface": "node --test tests/public-surface-navigation.test.mjs",
+    "test:public-surface": "node --test tests/public-surface-navigation.test.mjs tests/whitepaper-publication.test.mjs",
     "test:pricing-surface": "node --test tests/pricing-surface.test.mjs",
     "test:technical-truth": "node --test tests/technical-truth-claims.test.mjs",
     "test:product-truth": "node --experimental-strip-types --test tests/product-capability-registry.test.mjs tests/product-truth-runtime.test.mjs tests/product-truth-end-to-end.test.mjs",
