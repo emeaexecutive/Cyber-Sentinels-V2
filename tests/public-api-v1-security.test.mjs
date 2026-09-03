@@ -288,6 +288,9 @@ test("decision context cannot forge assurance, monitoring, sensor, or signed-int
 test("public client evidence is immutable and evidence:write is a valid prepared API-key scope", () => {
   assert.match(closureMigration, /'evidence:write'/);
   assert.match(closureMigration, /PUBLIC_API_CLIENT_ASSERTION/);
+  assert.match(runtimeSource, /domain_key: "AI_AGENT"/);
+  assert.doesNotMatch(runtimeSource, /domain_key: "PUBLIC_API_CLIENT_ASSERTION"/);
+  assert.match(runtimeSource, /source_type: "PUBLIC_API_CLIENT_ASSERTION"/);
   assert.match(closureMigration, /before update or delete on public\.evidence_objects/);
   assert.match(closureMigration, /append-only/);
 });
