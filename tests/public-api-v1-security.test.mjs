@@ -26,6 +26,7 @@ const customerZeroMigration = await readFile(new URL("../supabase/migrations/202
 const replaySubjectFixMigration = await readFile(new URL("../supabase/migrations/20260831121500_fix_public_api_replay_subject.sql", import.meta.url), "utf8");
 const replayEventTypeFixMigration = await readFile(new URL("../supabase/migrations/20260831124000_expand_canonical_replay_event_types.sql", import.meta.url), "utf8");
 const trustMemorySourceFixMigration = await readFile(new URL("../supabase/migrations/20260831125500_fix_public_api_trust_memory_source_id.sql", import.meta.url), "utf8");
+const apiKeyPrivilegeMigration = await readFile(new URL("../supabase/migrations/20260901120000_grant_service_role_api_keys_privileges.sql", import.meta.url), "utf8");
 const keyCryptoSource = await readFile(new URL("../lib/public-api/v1/api-key-crypto.ts", import.meta.url), "utf8");
 const runtimeSource = await readFile(new URL("../lib/public-api/v1/runtime.ts", import.meta.url), "utf8");
 const handlerSource = await readFile(new URL("../lib/public-api/v1/handler.ts", import.meta.url), "utf8");
@@ -62,6 +63,12 @@ test("API key material is high entropy, one-time reconstructable and hash verifi
   assert.equal(verifyApiKeyHash(`${material.rawKey.slice(0, -1)}x`, material.secretHash), false);
   assert.match(material.secretHash, /^scrypt\$[A-Za-z0-9_-]{22}\$[A-Za-z0-9_-]{43}$/);
   assert.match(keyCryptoSource, /PUBLIC_API_KEY_PATTERN = \/\^cs_\(test\|live\)_\(\[a-zA-Z0-9_-\]\{12\}\)/);
+});
+
+test("service_role retains the narrow api_keys table grants required by the public V1 API", () => {
+  assert.match(apiKeyPrivilegeMigration, /grant select, insert, update, delete\s+on table public\.api_keys\s+to service_role/i);
+  assert.doesNotMatch(apiKeyPrivilegeMigration, /grant all privileges/i);
+  assert.doesNotMatch(apiKeyPrivilegeMigration, /grant\s+(select,\s*)?insert,\s*update,\s*delete\s+on table public\.api_keys\s+to (anon|authenticated|public)/i);
 });
 
 test("developer API-key UI binds every lifecycle request to the resolved session tenant", () => {

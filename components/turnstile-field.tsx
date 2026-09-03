@@ -1,6 +1,5 @@
 "use client";
 
-import Script from "next/script";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type TurnstileFieldProps = {
@@ -92,6 +91,10 @@ function turnstileErrorMessage(errorCode?: string | number) {
   return "Security check failed. Please refresh the page and try again.";
 }
 
+export function shouldUsePreviewTurnstileFallback() {
+  return false;
+}
+
 export function createTurnstileOptions(input: {
   siteKey: string;
   onToken(token: string): void;
@@ -153,14 +156,16 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
   }, []);
 
   const renderWidget = useCallback((turnstile: TurnstileApi) => {
-    if (!siteKey || !containerRef.current || widgetIdRef.current) return;
+    if (!containerRef.current || widgetIdRef.current) return;
+
+    if (!siteKey) return;
 
     try {
       apiRef.current = turnstile;
       widgetIdRef.current = turnstile.render(
         containerRef.current,
         createTurnstileOptions({
-          siteKey,
+          siteKey: siteKey ?? "",
           onToken: publishToken,
           onError: publishError,
         }),
@@ -174,16 +179,29 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
     if (!siteKey) return;
     const container = containerRef.current;
     publishError("");
-    const stopWaiting = waitForTurnstileApi({
-      readApi: () => (window as Window & { turnstile?: TurnstileApi }).turnstile,
-      onReady: renderWidget,
-      onTimeout: () => {
-        publishError("The security check could not load. Check blockers or your network, then reload.");
-      },
-    });
+
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      const stopWaiting = waitForTurnstileApi({
+        readApi: () => (window as Window & { turnstile?: TurnstileApi }).turnstile,
+        onReady: renderWidget,
+        onTimeout: () => {
+          publishError("The security check could not load. Check blockers or your network, then reload.");
+        },
+      });
+      container?.setAttribute("data-turnstile-script-loaded", "true");
+      return () => stopWaiting();
+    };
+    script.onerror = () => {
+      publishToken("");
+      publishError("The security check could not load. Check blockers or your network, then reload.");
+    };
+    document.body.appendChild(script);
 
     return () => {
-      stopWaiting();
       const widgetId = widgetIdRef.current;
       if (widgetId) {
         try {
@@ -195,8 +213,9 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
       widgetIdRef.current = null;
       apiRef.current = null;
       onTokenChangeRef.current?.("");
+      if (script.parentNode) script.parentNode.removeChild(script);
     };
-  }, [publishError, renderWidget, siteKey]);
+  }, [publishError, publishToken, renderWidget, siteKey]);
 
   useEffect(() => {
     if (resetKey > 0 && apiRef.current && widgetIdRef.current) {
@@ -216,14 +235,6 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
 
   return (
     <div className="grid gap-2">
-      <Script
-        src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
-        strategy="afterInteractive"
-        onError={() => {
-          publishToken("");
-          publishError("The security check could not load. Check blockers or your network, then reload.");
-        }}
-      />
       <input type="hidden" name="cf-turnstile-response" value={token} />
       <div ref={containerRef} className="cf-turnstile" />
       {!quiet && widgetError ? <p className="text-sm text-amber-200" role="alert">{widgetError}</p> : null}

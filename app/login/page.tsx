@@ -17,6 +17,7 @@ import {
 } from "@/lib/auth/password-recovery";
 import { resolveSafeInternalRedirect } from "@/lib/auth/safe-redirect";
 import { createClient } from "@/lib/supabase/client";
+import { shouldUsePreviewTurnstileFallback } from "@/components/turnstile-field";
 
 const CONNECTION_FAILURE_MESSAGE =
   "We couldn't connect. Please try again shortly.";
@@ -24,7 +25,10 @@ const SESSION_START_KEY = "cyber_sentinels_session_started_at";
 const REMEMBER_SESSION_KEY = "cyber_sentinels_remember_session";
 const authTimeoutMs = 8000;
 const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
-const turnstileRequired = process.env.NODE_ENV === "production";
+
+function shouldRequireTurnstile() {
+  return process.env.NODE_ENV === "production" && !shouldUsePreviewTurnstileFallback();
+}
 const authAttemptWindowMs = 60_000;
 const authAttemptLimit = 8;
 
@@ -210,7 +214,7 @@ export default function LoginPage() {
 
 
   function allowAuthAttempt(action: string) {
-    if (turnstileRequired && !turnstileSiteKey) {
+    if (shouldRequireTurnstile() && !turnstileSiteKey) {
       showSecurityFailure();
       return false;
     }
@@ -242,7 +246,7 @@ export default function LoginPage() {
   }
 
   async function verifyTurnstileForAuth() {
-    if (!turnstileSiteKey) return !turnstileRequired;
+    if (!turnstileSiteKey) return !shouldRequireTurnstile();
 
     try {
       const response = await fetch("/api/auth/turnstile", {
@@ -735,7 +739,7 @@ export default function LoginPage() {
                   resetKey={turnstileResetKey}
                   quiet
                 />
-              ) : turnstileRequired ? (
+              ) : shouldRequireTurnstile() ? (
                 <p className="rounded-xl border border-red-900 bg-red-950/20 p-3 text-sm text-red-200" role="alert">
                   We couldn&apos;t complete the security check. Please try again.
                 </p>
