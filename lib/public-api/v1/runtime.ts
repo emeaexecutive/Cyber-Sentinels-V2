@@ -1264,7 +1264,7 @@ export async function submitExternalEvidence(principal: PublicApiPrincipal, body
     observed_at: mapped.occurredAt,
     freshness_policy_seconds: 86_400,
     retention_expires_at: mapped.expiresAt,
-    domain_key: "PUBLIC_API_CLIENT_ASSERTION",
+    domain_key: "AI_AGENT",
     subject_id: subjectId,
     subject_type: subjectType,
     evidence_type: evidenceType.storedType,
