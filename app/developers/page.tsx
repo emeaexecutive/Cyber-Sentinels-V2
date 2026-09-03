@@ -134,6 +134,7 @@ export default function DevelopersPage() {
                 ["/trust-principles", "Trust Principles"],
                 ["/ai-governance", "AI Governance"],
                 ["/transparency", "Transparency"],
+                ["/documents", "Documents"],
               ].map(([href, label]) => (
                 <Link key={href} href={href} className="rounded-lg border border-cyan-800 px-3 py-2 text-sm text-cyan-100 hover:text-white">
                   {label}

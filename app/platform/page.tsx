@@ -65,6 +65,7 @@ export default function PlatformPage() {
           </VisualFrame>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/developers" className="brand-secondary-action">Developers</Link>
+            <Link href="/documents/operational-trust-whitepaper" className="brand-secondary-action">Technical whitepaper</Link>
             <Link href="/enterprise/pilot" className="brand-primary-action">Start Pilot</Link>
           </div>
         </section>

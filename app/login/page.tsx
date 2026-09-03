@@ -605,11 +605,12 @@ export default function LoginPage() {
   ].includes(experienceState);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#04070c] px-5 py-10 text-white sm:px-6">
+    <main className="flex min-h-screen items-center justify-center bg-[#04070c] px-5 py-12 text-white sm:px-6">
       <section className="w-full max-w-md rounded-2xl border border-zinc-800 bg-black p-6 shadow-2xl shadow-black/40 sm:p-8">
         <Link href="/" className="text-xs font-semibold tracking-[0.22em] text-cyan-200">
           CYBER SENTINELS
         </Link>
+        <p className="mt-2 text-xs leading-5 text-zinc-500">Operational Trust Control Plane</p>
 
         {signupSucceeded ? (
           <div className="mt-8" role="status" aria-live="polite">

@@ -120,7 +120,10 @@ export default async function TrustPage() {
           <p className="operational-eyebrow">AI & Data Sovereignty</p>
           <h2 className="mt-3 text-2xl font-semibold">Customer policy governs data, memory and provider boundaries.</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400">Deployment region, retention, restricted-data handling and provider routing are verified per deployment. No hosting or sovereignty guarantee is inferred from configuration alone.</p>
-          <Link href="/trust/data-sovereignty" className="mt-5 inline-flex text-sm font-semibold text-cyan-200 hover:text-white">Review sovereignty boundaries →</Link>
+          <div className="mt-5 flex flex-wrap gap-5 text-sm font-semibold">
+            <Link href="/trust/data-sovereignty" className="text-cyan-200 hover:text-white">Review sovereignty boundaries →</Link>
+            <Link href="/documents/operational-trust-whitepaper" className="text-cyan-200 hover:text-white">Read the technical architecture →</Link>
+          </div>
         </section>
       </div>
     </main>

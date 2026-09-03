@@ -50,18 +50,17 @@ export default function Home() {
           Operational Trust Intelligence™
         </h1>
         <p className="mt-6 max-w-4xl text-lg leading-8 text-zinc-300 md:text-xl">
-          Cyber Sentinels is building the Operational Trust Intelligence™ platform for intelligent enterprises.
+          The control layer between autonomous intelligence and real-world action.
         </p>
         <p className="mt-4 max-w-4xl text-base leading-8 text-zinc-300">
-          It transforms fragmented identity, security, AI and operational evidence into continuously explainable,
-          evidence-backed trust decisions.
+          Cyber Sentinels is building the Operational Trust Intelligence™ platform for intelligent enterprises. Before an AI agent acts, the control plane verifies identity, bounded authority, policy and current evidence, then returns ALLOW, REVIEW or DENY and preserves why.
         </p>
         <p className="mt-4 max-w-4xl text-sm leading-7 text-zinc-400">
           Evidence-backed. Continuously explainable. Customer-controlled.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="#operational-trust-intelligence" className="brand-secondary-action brand-action-large">
-            Explore the vision
+          <Link href="/documents/operational-trust-whitepaper" className="brand-secondary-action brand-action-large">
+            Read the technical whitepaper
           </Link>
           <Link href="/enterprise-access?intent=design_partner" className="brand-primary-action brand-action-large">
             Join the design-partner programme
