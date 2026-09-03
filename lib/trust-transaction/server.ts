@@ -362,7 +362,9 @@ function decisionPayload(record: CanonicalDecisionRecord) {
     decisionTimeSnapshot: record.decisionTimeSnapshot,
     continuitySignals: record.continuitySignals,
     providerNeutralEvidence: record.providerNeutralEvidence,
-    deploymentGate: record.deploymentGate,
+    // Omit an absent gate so Postgres receives SQL NULL rather than JSON null;
+    // the persisted column accepts only an object when a gate is present.
+    deploymentGate: record.deploymentGate ?? undefined,
     executionContinuity: record.executionContinuity,
   };
 }
