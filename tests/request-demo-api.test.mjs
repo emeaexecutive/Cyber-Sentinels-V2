@@ -203,7 +203,8 @@ test("Request Demo frontend sets the Turnstile callback token on FormData", asyn
   assert.match(field, /"refresh-timeout": "auto"/);
   assert.match(field, /apiRef\.current\?\.remove\?\.\(widgetId\)/);
   assert.match(field, /apiRef\.current\.reset\(widgetIdRef\.current\)/);
-  assert.match(field, /if \(!siteKey \|\| !containerRef\.current \|\| widgetIdRef\.current\) return/);
+  assert.match(field, /if \(!containerRef\.current \|\| widgetIdRef\.current\) return/);
+  assert.match(field, /if \(!siteKey\) return/);
   assert.match(
     botProtection,
     /getTurnstileTokenFromForm\(formData: FormData\) \{\s+return String\(formData\.get\("cf-turnstile-response"\) \?\? ""\)\.trim\(\);/,
