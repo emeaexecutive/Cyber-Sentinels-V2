@@ -50,7 +50,7 @@ export default function Home() {
           Operational Trust Intelligence™
         </h1>
         <p className="mt-6 max-w-4xl text-lg leading-8 text-zinc-300 md:text-xl">
-          The control layer between autonomous intelligence and real-world action.
+          The control layer between intelligent systems and real-world action.
         </p>
         <p className="mt-4 max-w-4xl text-base leading-8 text-zinc-300">
           Cyber Sentinels is building the Operational Trust Intelligence™ platform for intelligent enterprises. Before an AI agent acts, the control plane verifies identity, bounded authority, policy and current evidence, then returns ALLOW, REVIEW or DENY and preserves why.
