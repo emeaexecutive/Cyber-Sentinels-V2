@@ -32,10 +32,10 @@ function grouped(items, key) {
 }
 
 test("Production split and migration timestamp inventory remain exact", () => {
-  assert.equal(migrations.length, 93);
-  assert.equal(pending.length, 48);
+  assert.equal(migrations.length, 105);
+  assert.equal(pending.length, 60);
   assert.equal(pending[0].timestamp, "202606100001");
-  assert.equal(pending.at(-1).timestamp, "20260821085309");
+  assert.equal(pending.at(-1).timestamp, "20260903093116");
   assert.equal(new Set(migrations.map((migration) => migration.timestamp)).size, migrations.length);
 });
 
