@@ -40,7 +40,7 @@ export default function OperationalTrustWhitepaperPage() {
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl lg:text-6xl">Operational Trust Infrastructure for Autonomous Systems</h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-300">An API-first decision and evidence layer for verifying agent identity, evaluating bounded current authority, and preserving accountable operational lineage.</p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <a className="brand-primary-action min-h-11 justify-center" href="/documents/cyber-sentinels-operational-trust-whitepaper-v1.pdf" download>Download Cyber Sentinels whitepaper PDF</a>
+            <a className="brand-primary-action min-h-11 justify-center whitespace-normal text-center" href="/documents/cyber-sentinels-operational-trust-whitepaper-v1.pdf" download>Download Cyber Sentinels whitepaper PDF</a>
             <Link className="brand-secondary-action min-h-11 justify-center" href="/developers/docs">Inspect the API</Link>
           </div>
         </header>
@@ -96,7 +96,7 @@ export default function OperationalTrustWhitepaperPage() {
         <footer className="mt-12 border-t border-zinc-800 pt-8">
           <p className="text-sm leading-7 text-zinc-400">The complete 20-section edition includes route inventory, API-key boundaries, review semantics, provider matrix, deployment architecture and verification references.</p>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <a className="brand-primary-action min-h-11 justify-center" href="/documents/cyber-sentinels-operational-trust-whitepaper-v1.pdf" download>Download Cyber Sentinels whitepaper PDF</a>
+            <a className="brand-primary-action min-h-11 justify-center whitespace-normal text-center" href="/documents/cyber-sentinels-operational-trust-whitepaper-v1.pdf" download>Download Cyber Sentinels whitepaper PDF</a>
             <Link className="brand-secondary-action min-h-11 justify-center" href="/documents">All documents</Link>
           </div>
         </footer>

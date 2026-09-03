@@ -57,5 +57,7 @@ test("download links use the stable PDF path and descriptive labels", async () =
   const source = `${library}\n${reader}`;
   assert.ok((source.match(/\/documents\/cyber-sentinels-operational-trust-whitepaper-v1\.pdf/g) ?? []).length >= 4);
   assert.ok((source.match(/Download Cyber Sentinels whitepaper PDF/g) ?? []).length >= 3);
+  assert.match(source, /Download whitepaper PDF/);
+  assert.match(source, /whitespace-normal text-center/);
   assert.doesNotMatch(source, />Download</);
 });
