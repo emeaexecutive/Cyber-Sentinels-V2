@@ -30,6 +30,8 @@ export const canonicalPublicRoutes = [
   "/developers",
   "/developers/docs",
   "/developers/authentication",
+  "/documents",
+  "/documents/operational-trust-whitepaper",
   "/pricing",
   "/methodology",
   "/journal",

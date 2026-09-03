@@ -70,6 +70,7 @@ test("footer exposes the final seven detailed discovery groups accessibly", asyn
     "AI Agent Operations", "Machine Identity", "Regulated Workflows", "Financial Services", "Insurance", "Critical Infrastructure", "Hiring Security",
     "Security", "Compliance", "Deployment", "Architecture", "Pilot Programme", "Enterprise Support",
     "Developer Overview", "API Documentation", "Authentication", "Webhooks", "Integrations", "Methodology", "Journal", "Regulatory Material",
+    "Documents",
     "About", "Mission", "Our People", "Careers", "Contact", "Media Centre",
     "Help", "Accessibility", "Privacy", "Terms", "Cookies", "Legal", "Modern Slavery", "Status",
   ]) assert.match(source, new RegExp(label));
@@ -113,7 +114,7 @@ test("sitemap and robots share central route visibility", async () => {
   ]);
   assert.match(sitemap, /canonicalPublicRoutes/);
   assert.match(robots, /archivedRoutePrefixes/);
-  for (const route of ["/", "/pricing", "/enterprise", "/enterprise/buyer-documentation", "/enterprise/pilot-checklist", "/developers", "/trust"]) {
+  for (const route of ["/", "/pricing", "/enterprise", "/enterprise/buyer-documentation", "/enterprise/pilot-checklist", "/developers", "/trust", "/documents", "/documents/operational-trust-whitepaper"]) {
     assert.match(visibility, new RegExp(`"${route.replaceAll("/", "\\/")}"`));
   }
   assert.doesNotMatch(visibility.match(/canonicalPublicRoutes = \[([\s\S]*?)\]/)?.[1] ?? "", /\/admin|\/trust-center|\/trust-replay/);

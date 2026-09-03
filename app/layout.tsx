@@ -88,6 +88,7 @@ const footerSections = [
       ["/developers/authentication", "Authentication"],
       ["/developers/docs#webhooks", "Webhooks"],
       ["/developers/docs#integrations", "Integrations"],
+      ["/documents", "Documents"],
       ["/methodology", "Methodology"],
       ["/journal", "Journal"],
       ["/regulatory", "Regulatory Material"],
