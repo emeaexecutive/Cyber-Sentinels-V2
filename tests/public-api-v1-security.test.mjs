@@ -39,6 +39,7 @@ const apiKeyPageSource = await readFile(new URL("../app/developers/api-keys/page
 const apiKeyRouteSource = await readFile(new URL("../app/api/developer/api-keys/route.ts", import.meta.url), "utf8");
 const readinessRouteSource = await readFile(new URL("../app/api/ready/route.ts", import.meta.url), "utf8");
 const canonicalSource = await readFile(new URL("../src/lib/trust-transaction/canonical.ts", import.meta.url), "utf8");
+const canonicalServerSource = await readFile(new URL("../lib/trust-transaction/server.ts", import.meta.url), "utf8");
 
 test("API client credentials are tenant scoped, hashed, expirable, revocable, scoped and auditable", () => {
   for (const field of ["tenant_id", "client_id", "key_prefix", "key_hash", "scopes", "expires_at", "revoked_at", "last_used_at", "rotated_from_id"]) {
@@ -171,6 +172,11 @@ test("readiness fails closed unless the complete canonical API contract is prese
     "rotate_public_api_key_v1",
   ]) assert.match(customerZeroMigration, new RegExp(contract));
   assert.match(customerZeroMigration, /revoke all on function public\.public_api_readiness_v1\(\) from public,anon,authenticated/);
+});
+
+test("absent deployment gates persist as SQL NULL instead of JSON null", () => {
+  assert.match(canonicalServerSource, /deploymentGate:\s*record\.deploymentGate\s*\?\?\s*undefined/);
+  assert.doesNotMatch(canonicalServerSource, /deploymentGate:\s*record\.deploymentGate\s*,/);
 });
 
 test("public authority administration is tenant/client/role/boundary constrained and version preserving", () => {
