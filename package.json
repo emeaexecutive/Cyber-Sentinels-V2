@@ -156,7 +156,7 @@
     "@supabase/ssr": "0.12.4",
     "@supabase/supabase-js": "2.112.2",
     "lucide-react": "^0.468.0",
-    "next": "15.5.21",
+    "next": "15.5.24",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "stripe": "22.4.0"
@@ -168,7 +168,7 @@
     "@types/react-dom": "19.2.4",
     "autoprefixer": "^10.5.4",
     "eslint": "^9.17.0",
-    "eslint-config-next": "15.5.21",
+    "eslint-config-next": "15.5.24",
     "pg": "^8.22.0",
     "postcss": "8.5.25",
     "supabase": "2.111.0",
