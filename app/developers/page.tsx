@@ -52,7 +52,7 @@ export default function DevelopersPage() {
 
         <section className="mt-10">
           <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm uppercase tracking-[0.2em] text-zinc-500">Connector onboarding</p><h2 className="mt-2 text-2xl font-semibold">Four paths, one canonical Trust API</h2></div><Link href="/developers/api-keys" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm text-cyan-100">Create scoped key</Link></div>
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">{connectors.map((connector) => <article key={connector.title} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5"><p className="text-xs font-semibold tracking-[0.16em] text-cyan-200">{connector.title}</p><p className="mt-3 text-sm text-zinc-300">API key preset: <code>{connector.preset}</code></p><p className="mt-2 text-xs leading-5 text-zinc-500">Required scopes: {connector.scopes}</p><pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded bg-black p-3 text-xs leading-5 text-zinc-300">npm --prefix examples/agent-gamma install{"\n\n"}{connector.request}{"\n"}{connector.test}</pre><p className="mt-3 text-xs text-zinc-500">The TypeScript SDK is repository-local and unpublished. Provider/application findings remain AGENT_ASSERTED evidence, never provider-owned decisions.</p><div className="mt-3 flex gap-4 text-xs"><Link href="/developers/quickstart" className="text-cyan-200 underline">Run test call</Link><a href="/api/v1/openapi.json" className="text-cyan-200 underline">OpenAPI result</a></div></article>)}</div>
+          <div className="mt-5 grid min-w-0 gap-4 lg:grid-cols-2">{connectors.map((connector) => <article key={connector.title} className="min-w-0 rounded-lg border border-zinc-800 bg-zinc-950 p-5"><p className="break-words text-xs font-semibold tracking-[0.16em] text-cyan-200">{connector.title}</p><p className="mt-3 break-words text-sm text-zinc-300">API key preset: <code>{connector.preset}</code></p><p className="mt-2 break-words text-xs leading-5 text-zinc-500">Required scopes: {connector.scopes}</p><pre className="mt-4 max-w-full overflow-x-auto whitespace-pre-wrap break-all rounded bg-black p-3 text-xs leading-5 text-zinc-300">npm --prefix examples/agent-gamma install{"\n\n"}{connector.request}{"\n"}{connector.test}</pre><p className="mt-3 break-words text-xs text-zinc-500">The TypeScript SDK is repository-local and unpublished. Provider/application findings remain AGENT_ASSERTED evidence, never provider-owned decisions.</p><div className="mt-3 flex flex-wrap gap-4 text-xs"><Link href="/developers/quickstart" className="text-cyan-200 underline">Run test call</Link><a href="/api/v1/openapi.json" className="text-cyan-200 underline">OpenAPI result</a></div></article>)}</div>
         </section>
 
         <section className="mt-10">
@@ -84,7 +84,7 @@ export default function DevelopersPage() {
         </section>
 
         <section className="mt-10 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="min-w-0 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">API Overview</h2>
             <div className="mt-5 grid gap-3">
               {endpoints.map(([method, path]) => (
@@ -92,15 +92,15 @@ export default function DevelopersPage() {
                   <span className="rounded-full border border-emerald-800 px-2.5 py-1 text-xs text-emerald-200">
                     {method}
                   </span>
-                  <code className="text-sm text-zinc-300">{path}</code>
+                  <code className="min-w-0 break-all text-sm text-zinc-300">{path}</code>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+          <div className="min-w-0 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
             <h2 className="text-xl font-semibold">Exact action request</h2>
-            <pre className="mt-5 overflow-x-auto rounded-lg border border-zinc-800 bg-black p-4 text-sm leading-7 text-zinc-300">
+            <pre className="mt-5 max-w-full overflow-x-auto whitespace-pre-wrap break-all rounded-lg border border-zinc-800 bg-black p-4 text-sm leading-7 text-zinc-300">
 {`{
   "operational_entity_id": "agent:…",
   "action": {

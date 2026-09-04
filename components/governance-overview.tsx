@@ -167,14 +167,14 @@ export function GovernanceOverview({
               <div key={String(alert.id)} className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <p className="text-sm font-medium text-zinc-100">
-                    {alert.alert_title ?? label(alert.alert_type, "Trust alert")}
+                    {alert.title ?? alert.alert_title ?? label(alert.alert_type, "Trust alert")}
                   </p>
                   <span className={`rounded-full border px-2 py-0.5 text-xs ${statusClass(alert.risk_level)}`}>
                     {label(alert.risk_level, "medium")}
                   </span>
                 </div>
                 <p className="mt-2 text-xs leading-5 text-zinc-500">
-                  {alert.alert_description ?? "Review the alert context before changing workflow state."}
+                  {alert.description ?? alert.alert_description ?? "Review the alert context before changing workflow state."}
                 </p>
                 <div className="mt-3 grid gap-1 text-xs leading-5 text-zinc-500">
                   <p>Owner: {rowDetail(alert, "owner_name", "Trust operations")}</p>
