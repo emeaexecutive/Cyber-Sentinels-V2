@@ -16,8 +16,11 @@ test("canonical whitepaper contains the full V1 argument and an honest capabilit
     "AGENT_ASSERTED != INDEPENDENT_EVIDENCE",
   ]) assert.match(source, new RegExp(marker));
   assert.match(source, /An `ALLOW` decision is authorization[\s\S]{0,240}not proof/i);
-  assert.match(source, /World ID \| \*\*ROADMAP\*\*/);
-  assert.match(source, /Stripe Identity \| \*\*ROADMAP\*\*/);
+  assert.match(source, /Hopae \| \*\*NOT CONFIGURED\*\*/);
+  assert.match(source, /World ID \| \*\*ADAPTER ONLY\*\*/);
+  assert.match(source, /Stripe Billing \| \*\*NOT CONFIGURED\*\*/);
+  assert.match(source, /Stripe Identity \| \*\*ADAPTER ONLY\*\*/);
+  assert.match(source, /CrowdStrike \| \*\*ADAPTER ONLY\*\*[\s\S]{0,240}no native CrowdStrike integration/i);
 });
 
 test("public PDF exists at the stable route and is a substantive PDF", async () => {

@@ -11,6 +11,7 @@ import type {
   TrustSignal,
   TrustSignalProcessingStatus,
 } from "./signal-types.ts";
+import { normalizeTrustAlert } from "./alert-contract.ts";
 
 function failure(operation: string, error: unknown): never {
   const candidate = error as { code?: string; message?: string };
@@ -310,7 +311,7 @@ export function continuousTrustSignalRepository() {
         .eq("id", alertId)
         .maybeSingle();
       if (result.error) failure("Continuous Trust alert lookup", result.error);
-      return result.data;
+      return result.data ? normalizeTrustAlert(result.data as Record<string, unknown>) : null;
     },
 
     async transitionAlert(input: {

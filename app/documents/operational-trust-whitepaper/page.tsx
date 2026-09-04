@@ -19,7 +19,7 @@ const sections = [
   ["06", "ALLOW / REVIEW / DENY", "ALLOW authorizes the evaluated request, REVIEW requires accountable intervention or evidence, and DENY means the action is not authorized. None proves downstream execution."],
   ["07", "Evidence independence", "Agent assertions, provider observations, control-plane acknowledgements and independently observed outcomes retain distinct provenance and cannot silently upgrade one another."],
   ["08", "Receipt, Replay and Trust Memory", "Stable identifiers and integrity-linked records preserve what was decided, which versions were active, what evidence existed and how later events extended the lineage."],
-  ["09", "Provider-neutral architecture", "Supabase and Turnstile are working Production dependencies. Hopae and OpenAI are partial within stated boundaries; World ID and Stripe Identity remain roadmap placeholders."],
+  ["09", "Provider-neutral architecture", "Supabase and Turnstile are exercised Production dependencies. Hopae and OpenAI are not configured in Production; World ID, Stripe Identity and CrowdStrike are adapter-only or compatibility boundaries, not native live integrations."],
   ["10", "Security and deployment", "Shown-once hashed API keys, scoped access, rotation, revocation, tenant isolation, rate limiting, forward migrations and safe logs form the V1 operating boundary."],
   ["11", "Current product reality", "The Production API and core trust lifecycle are working. Conditional review, richer provider proof, advanced reporting and arbitrary third-party enforcement are partial or roadmap."],
   ["12", "Accountable autonomy", "The V1 foundation combines identity without self-assertion, authority without silent expansion, current decisions without standing permission and evidence without execution overclaim."],
@@ -27,8 +27,8 @@ const sections = [
 
 const capabilityRows = [
   ["WORKING", "External OpenAPI 3.1 API; scoped API-key authentication; agent registration and Ed25519 proof; bounded authority; ALLOW / REVIEW / DENY; receipts; Replay; Trust Memory; tenant isolation; idempotency; rate limiting; approve/reject review."],
-  ["PARTIAL", "Conditional review representation; Hopae provider operation; optional OpenAI governance assistance; Operations Console and reporting depth."],
-  ["ROADMAP", "World ID and Stripe Identity verification; arbitrary third-party kill/quarantine automation; advanced anomaly intelligence; private or on-premises deployment."],
+  ["PARTIAL", "Conditional review representation; Hopae adapter (Production not configured); optional OpenAI governance assistance (Production not configured); Operations Console and reporting depth."],
+  ["ROADMAP", "World ID, Stripe Identity and native CrowdStrike verification; arbitrary third-party kill/quarantine automation; advanced anomaly intelligence; private or on-premises deployment."],
 ] as const;
 
 export default function OperationalTrustWhitepaperPage() {

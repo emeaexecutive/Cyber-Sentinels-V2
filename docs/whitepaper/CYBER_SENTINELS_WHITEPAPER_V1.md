@@ -219,6 +219,10 @@ The system separates recorded history from current admissibility. A previous `AL
 
 Retention, residency, and deletion requirements depend on the enterprise deployment and policy. V1 exposes the working persistence and retrieval foundations; customer-specific governance and reporting are configured during deployment rather than claimed as a single universal compliance posture.
 
+### Measuring operational trust
+
+Operational trust should be measured as a traceable control system, not as a vague reputation score. The tenant- and time-bounded pilot contract measures unsafe-action blocking, decision reconstruction, evidence coverage, revocation effectiveness, Replay and recovery coverage, authority integrity, review resolution, and decision latency from persisted records. It can prove what happened in a specific controlled workflow. Until live customer data is attached, the scorecard remains demo-only: real customer value and long-term performance are not yet measured.
+
 ## 14. Provider-neutral architecture
 
 Cyber Sentinels accepts signals from multiple providers while keeping its canonical decision independent. Adapters normalize evidence into a common provenance model, but normalization does not erase provider-specific meaning or elevate a provider response into authority.
@@ -227,10 +231,12 @@ Cyber Sentinels accepts signals from multiple providers while keeping its canoni
 |---|---|---|
 | Supabase | **WORKING** | Production data and Auth platform; tenant isolation and persistence remain application and database responsibilities. |
 | Cloudflare Turnstile | **WORKING** | Human-interaction control on exposed auth/request flows; not agent identity proof. |
-| Hopae | **PARTIAL** | Adapter and verification path implemented when configured; no retained claim here of a completed live Production-provider qualification. |
-| OpenAI | **PARTIAL** | Optional assistive governance analysis; never the source of canonical authority or the final decision. |
-| World ID | **ROADMAP** | Registry placeholder; server-side verification is not a completed V1 integration. |
-| Stripe Identity | **ROADMAP** | Registry placeholder; billing integration, if present elsewhere, does not equal identity verification. |
+| Hopae | **NOT CONFIGURED** | The adapter, signed callback, status-refetch, normalization, tenant binding and evidence-linkage path are implemented and contract-tested; Production has no Hopae credentials or retained provider execution. |
+| OpenAI | **NOT CONFIGURED** | Optional assistive governance-analysis code exists, but Production has no model credential; it is never canonical authority or the final decision. |
+| World ID | **ADAPTER ONLY** | The registry and fail-closed callback boundary exist; server-side proof verification is not implemented. |
+| Stripe Billing | **NOT CONFIGURED** | Billing routes and persistence exist, but Production lacks the complete price/webhook configuration required for a qualified billing flow. Billing is not identity evidence. |
+| Stripe Identity | **ADAPTER ONLY** | Detection/registry placeholders exist; no session, callback or server-verification workflow is implemented. |
+| CrowdStrike | **ADAPTER ONLY** | Provider-neutral identity references can preserve attributable external evidence, but there is no native CrowdStrike integration or Production exercise. |
 
 The architecture can accommodate control planes, identity providers, approval systems, and telemetry providers. Their evidence is constrained by source, time, scope, and verification state.
 
@@ -292,7 +298,7 @@ The following matrix describes the Production V1 boundary as of this paper’s v
 | Tenant/client isolation, idempotency, rate limiting | **WORKING** | Qualified API boundaries and safe failure behavior. |
 | Human review approve/reject | **WORKING** | Resolution is bounded to the referenced review. |
 | Conditional approval workflow | **PARTIAL** | Conditions can be represented in authority/action context; a dedicated condition-resolution product flow is roadmap. |
-| Hopae provider operation | **PARTIAL** | Adapter available when configured; live provider proof is deployment-specific. |
+| Hopae provider operation | **PARTIAL** | Adapter is implemented and contract-tested; Production is not configured and has no live provider proof. |
 | Operations Console and reporting | **PARTIAL** | Working transaction, evidence, Replay, review, API-key, and account surfaces; advanced compliance packs remain roadmap. |
 | Authority Graph UI | **ROADMAP** | The authority model and API are working; a dedicated graph exploration interface is not claimed as V1. |
 | Policy Studio | **ROADMAP** | V1 evaluates versioned policy; a general-purpose visual authoring studio is not shipped. |

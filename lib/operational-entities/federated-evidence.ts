@@ -133,6 +133,15 @@ export type ProviderChangeEventType =
   | "MIGRATION_GAP_DETECTED"
   | "NEW_PROVIDER_ASSUMED_CONTROL";
 
+export type ExternalAgentIdentityAssuranceState = "verified" | "review_required" | "mismatch" | "revoked" | "unavailable";
+
+export type ExternalAgentIdentityAssuranceResult = {
+  state: ExternalAgentIdentityAssuranceState;
+  identityState: "verified" | "mismatch" | "revoked" | "unavailable";
+  authorityState: "current" | "expired" | "revoked" | "unavailable";
+  reasons: string[];
+};
+
 export type ProviderChangeEvent = {
   eventId: string;
   enterpriseId: string;
@@ -395,6 +404,59 @@ export function evaluateEnforcementConfirmation(chain: EnforcementChain): Enforc
   if (!chain.providerAcknowledgement || !chain.runtimeObservation || chain.runtimeObservation === "unknown" || !chain.destinationObservation || chain.destinationObservation === "unknown") findings.push("EVIDENCE_INSUFFICIENT", "REQUIRED_EVIDENCE_MISSING");
   const contradicted = findings.some((finding) => ["RUNTIME_CONTRADICTS_PROVIDER", "DESTINATION_CONTRADICTS_PROVIDER", "ACCESS_PERSISTS_AFTER_REVOCATION", "AGENT_ACTIVE_AFTER_SUSPENSION", "ACTION_OCCURRED_AFTER_BLOCK"].includes(finding));
   return { state: contradicted ? "contradicted" : providerSuccess && chain.runtimeObservation === "enforced" && chain.destinationObservation === "enforced" ? "confirmed" : "unknown", findings: [...new Set(findings)] };
+}
+
+export function evaluateExternalAgentIdentityAssurance(input: {
+  externalIdentityReferences: readonly ExternalIdentityReference[];
+  providerEvidence: readonly ManagedControlEvidence[];
+  authorityReference?: string | null;
+  authorityState?: "current" | "expired" | "revoked" | "unavailable";
+  expectedPrincipalReference?: string | null;
+}): ExternalAgentIdentityAssuranceResult {
+  const reasons: string[] = [];
+  const identity = input.externalIdentityReferences[0];
+  const authorityState = input.authorityReference
+    ? input.authorityState ?? "unavailable"
+    : "unavailable";
+  const providerEvidence = input.providerEvidence.find((item) =>
+    item.claim === "success"
+    && ["identity_provider_asserted", "independently_corroborated", "human_reviewed"].includes(item.sourceClassification)
+    && typeof item.normalizedEvidence?.principalReference === "string"
+  );
+  const providerEvidencePrincipal = providerEvidence?.normalizedEvidence?.principalReference as string | undefined;
+  if (!identity) {
+    return { state: "unavailable", identityState: "unavailable", authorityState, reasons: ["No external identity evidence was supplied."] };
+  }
+  if (identity.providerNativeLifecycle === "deactivated" || identity.providerNativeLifecycle === "suspended" || identity.providerNativeLifecycle === "deleted") {
+    reasons.push(`External identity lifecycle is ${identity.providerNativeLifecycle}.`);
+    return { state: "revoked", identityState: "revoked", authorityState, reasons };
+  }
+  if (providerEvidencePrincipal && input.expectedPrincipalReference && providerEvidencePrincipal !== input.expectedPrincipalReference) {
+    reasons.push(`Provider principal ${providerEvidencePrincipal} does not match expected principal ${input.expectedPrincipalReference}.`);
+    return { state: "mismatch", identityState: "mismatch", authorityState, reasons };
+  }
+  if (!providerEvidence) {
+    reasons.push("No successful, attributable identity-provider evidence is available for the external agent.");
+    return { state: "review_required", identityState: "unavailable", authorityState, reasons };
+  }
+  if (authorityState === "expired") {
+    reasons.push("Authority is expired, so identity evidence cannot authorize the action.");
+    return { state: "review_required", identityState: "verified", authorityState: "expired", reasons };
+  }
+  if (authorityState === "revoked") {
+    reasons.push("Authority is revoked, so identity evidence cannot authorize the action.");
+    return { state: "review_required", identityState: "verified", authorityState: "revoked", reasons };
+  }
+  if (authorityState !== "current") {
+    reasons.push("Current authority evidence is unavailable, so verified identity cannot authorize the action.");
+    return { state: "review_required", identityState: "verified", authorityState: "unavailable", reasons };
+  }
+  return {
+    state: "verified",
+    identityState: "verified",
+    authorityState,
+    reasons: ["Identity evidence and authority state are aligned for this external agent."],
+  };
 }
 
 function deepFreeze<T>(value: T): Readonly<T> {

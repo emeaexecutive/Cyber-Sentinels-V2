@@ -11,6 +11,7 @@ import {
   createProviderNeutralReplayEvent,
   detectExternalIdentityChanges,
   detectMigrationGap,
+  evaluateExternalAgentIdentityAssurance,
   evaluateFederatedIdentityContinuity,
   evaluateEnforcementConfirmation,
   exportProviderExitPackage,
@@ -150,6 +151,62 @@ test("Replay attribution and Trust Memory materiality remain explicit and exactl
   const history = appendMaterialTrustMemoryEvent([], event);
   assert.equal(appendMaterialTrustMemoryEvent(history, event).length, 1);
   assert.equal(appendMaterialTrustMemoryEvent(history, { eventId: "memory:2", eventType: "NON_MATERIAL", occurredAt: at }).length, 1);
+});
+
+test("external-agent identity assurance separates identity evidence from authority state", () => {
+  const outcome = evaluateExternalAgentIdentityAssurance({
+    externalIdentityReferences: [identity({ provider: "okta", providerEntityId: "agent-alpha" })],
+    providerEvidence: [evidence({ providerId: "provider:gateway", sourceClassification: "identity_provider_asserted", normalizedEvidence: { outcome: "success", principalReference: "agent-alpha" } })],
+    authorityReference: "authority:alpha",
+    authorityState: "expired",
+    expectedPrincipalReference: "agent-alpha",
+  });
+  assert.equal(outcome.identityState, "verified");
+  assert.equal(outcome.authorityState, "expired");
+  assert.equal(outcome.state, "review_required");
+  assert.ok(outcome.reasons.some((reason) => reason.toLowerCase().includes("authority")));
+});
+
+test("identity mismatch and provider revocation require review or deny without authorizing the action", () => {
+  const mismatch = evaluateExternalAgentIdentityAssurance({
+    externalIdentityReferences: [identity({ provider: "okta", providerEntityId: "agent-alpha" })],
+    providerEvidence: [evidence({ providerId: "provider:gateway", sourceClassification: "identity_provider_asserted", normalizedEvidence: { outcome: "success", principalReference: "agent-beta" } })],
+    authorityReference: "authority:alpha",
+    authorityState: "current",
+    expectedPrincipalReference: "agent-alpha",
+  });
+  assert.equal(mismatch.state, "mismatch");
+  assert.ok(mismatch.reasons.some((reason) => reason.includes("principal")));
+
+  const revoked = evaluateExternalAgentIdentityAssurance({
+    externalIdentityReferences: [identity({ provider: "crowdstrike", providerEntityId: "agent-alpha", providerNativeLifecycle: "deactivated" })],
+    providerEvidence: [],
+    authorityReference: "authority:alpha",
+    authorityState: "current",
+  });
+  assert.equal(revoked.state, "revoked");
+  assert.ok(revoked.reasons.some((reason) => reason.includes("lifecycle")));
+});
+
+test("provider presence cannot verify identity without a successful attributable identity assertion", () => {
+  const untrusted = evaluateExternalAgentIdentityAssurance({
+    externalIdentityReferences: [identity({ providerEntityId: "agent-alpha" })],
+    providerEvidence: [evidence({ claim: "unknown", normalizedEvidence: { principalReference: "agent-alpha" } })],
+    authorityReference: "authority:alpha",
+    authorityState: "current",
+    expectedPrincipalReference: "agent-alpha",
+  });
+  assert.equal(untrusted.identityState, "unavailable");
+  assert.equal(untrusted.state, "review_required");
+
+  const noAuthority = evaluateExternalAgentIdentityAssurance({
+    externalIdentityReferences: [identity({ providerEntityId: "agent-alpha" })],
+    providerEvidence: [evidence({ sourceClassification: "identity_provider_asserted", normalizedEvidence: { principalReference: "agent-alpha" } })],
+    expectedPrincipalReference: "agent-alpha",
+  });
+  assert.equal(noAuthority.identityState, "verified");
+  assert.equal(noAuthority.authorityState, "unavailable");
+  assert.equal(noAuthority.state, "review_required");
 });
 
 test("placeholder provider adapters report not_configured and never fabricate evidence", async () => {

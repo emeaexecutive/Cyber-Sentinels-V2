@@ -73,6 +73,7 @@ QUOTE = ParagraphStyle("CS Quote", fontName=BOLD, fontSize=10.2, leading=14, tex
 TABLE_TEXT = ParagraphStyle("CS Table", fontName=REGULAR, fontSize=6.7, leading=8.3, textColor=INK)
 TABLE_BOLD = ParagraphStyle("CS Table Bold", parent=TABLE_TEXT, fontName=BOLD)
 TABLE_HEAD = ParagraphStyle("CS Table Head", parent=TABLE_TEXT, fontName=BOLD, textColor=WHITE)
+TABLE_WHITE_BOLD = ParagraphStyle("CS Table White Bold", parent=TABLE_TEXT, fontName=BOLD, textColor=WHITE)
 
 
 def markup(text: str) -> str:
@@ -223,7 +224,7 @@ def authority_hero():
     ]
     data = []
     for left, right in rows:
-        style = TABLE_BOLD if not left.startswith("↓") else SMALL
+        style = TABLE_WHITE_BOLD if not left.startswith("↓") else SMALL
         data.append([Paragraph(markup(left), style), Paragraph(markup(right), TABLE_TEXT)])
     table = Table(data, colWidths=[2.45 * inch, 4.2 * inch])
     commands = [("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("LEFTPADDING", (0, 0), (-1, -1), 8), ("RIGHTPADDING", (0, 0), (-1, -1), 8)]
