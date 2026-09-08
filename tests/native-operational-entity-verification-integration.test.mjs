@@ -114,9 +114,10 @@ test("native evidence participates in the existing canonical evidence collector 
   const server = await read("lib/trust-transaction/server.ts");
   const collector = server.slice(server.indexOf("async loadConfiguredEvidence"), server.indexOf("async loadAuthority"));
   assert.match(collector, /native_entity_identity_evidence/);
+  assert.match(collector, /identity_signal_evidence/);
   assert.match(collector, /evidence_objects/);
   assert.match(server, /providerId: "cyber_sentinels_native"/);
-  assert.match(collector, /const baselineEvidence = \[\.\.\.\[\.\.\.nativeEvidence/);
+  assert.match(collector, /const baselineEvidence = \[\.\.\.\[\.\.\.identityEvidence, \.\.\.nativeEvidence/);
   assert.match(collector, /item\.providerId.*item\.sourcePartyId.*item\.type/);
   assert.match(collector, /if \(!latest\.has\(key\)\) latest\.set\(key, item\)/);
   assert.match(collector, /if \(baselineEvidence\.length\) return baselineEvidence/);

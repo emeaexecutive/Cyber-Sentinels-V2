@@ -124,7 +124,7 @@ export default function DevelopersPage() {
               receipt evidence. Signed outbound decision and trust-change
               webhook events are supported when a tenant endpoint is configured.
             </p>
-            <div className="mt-4 flex gap-4 text-sm"><Link className="text-cyan-200 underline" href="/developers/quickstart">Agent Gamma quickstart</Link><a className="text-cyan-200 underline" href="/api/v1/openapi.json">OpenAPI 3.1</a></div>
+            <div className="mt-4 flex gap-4 text-sm"><Link className="text-cyan-200 underline" href="/developers/quickstart">Agent Gamma quickstart</Link><Link className="text-cyan-200 underline" href="/developers/api-reference">OpenAPI reference</Link><a className="text-cyan-200 underline" href="/api/v1/openapi.json">View raw OpenAPI JSON</a></div>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-black p-5">
             <h2 className="text-xl font-semibold">Security & Governance</h2>

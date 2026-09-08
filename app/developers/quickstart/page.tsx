@@ -8,27 +8,31 @@ export default function DeveloperQuickstartPage() {
       <p className="text-xs uppercase tracking-[0.22em] text-cyan-200">External Agent Trust API · V1</p>
       <h1 className="mt-3 text-4xl font-semibold">Agent Alpha: decision, receipt, Replay</h1>
       <p className="mt-4 max-w-3xl text-zinc-400">This executable non-Production journey creates an API-client-bound agent, proves Ed25519 key possession, grants bounded expiring authority through an authorized administrator, then requests ALLOW and DENY from the canonical Trust Fabric. Registration does not prove identity or grant authority, and every later consequential action requires fresh evaluation.</p>
-      <div className="mt-5 flex gap-4 text-sm"><Link className="underline" href="/developers/api-keys">Create API key</Link><a className="underline" href="/api/v1/openapi.json">OpenAPI 3.1 JSON</a></div>
+      <div className="mt-5 flex gap-4 text-sm"><Link className="underline" href="/developers/api-keys">Create API key</Link><Link className="underline" href="/developers/api-reference">OpenAPI reference</Link><a className="underline" href="/api/v1/openapi.json">View raw OpenAPI JSON</a></div>
 
       <ol className="mt-10 grid gap-8">
-        <li><h2 className="text-xl font-semibold">1. Create scoped test keys</h2><p className="mt-2 text-sm text-zinc-400">Sign in, open Developer → API Keys, and use least privilege. The agent flow needs agents:write, agents:verify, authority:read, trust:request, trust:read and outcomes:write. Authority management and governed review use separate owner/admin keys with authority:write and review:read/review:write. Keep shown-once keys in server-side environment variables. If one is lost, rotate it; it cannot be displayed again. The script refuses live keys and Production hosts.</p></li>
-        <li><h2 className="text-xl font-semibold">2. Run the repository-local SDK example</h2><p className="mt-2 text-sm text-amber-200">The SDK is not published to npm. This command installs the repository-local file dependency.</p><pre className={`${code} mt-3`}>{`npm --prefix examples/agent-gamma install
-$env:CYBER_SENTINELS_BASE_URL="https://<exact-approved-preview>"
-$env:CYBER_SENTINELS_API_KEY="<shown-once-test-key>"
-$env:CYBER_SENTINELS_STAGING_PROJECT_REF="agpyhygpfmppjkxwcpac"
-$env:CYBER_SENTINELS_CONFIRM_STAGING="I_CONFIRM_STAGING"
-npm --prefix examples/agent-gamma start`}</pre></li>
-        <li><h2 className="text-xl font-semibold">3. Use the returned public identifiers</h2><pre className={`${code} mt-3`}>{`const agent = await cs.agents.get(agentId);
-const authority = await cs.authority.get(agentId);
-const result = await cs.trust.requestDecision({
-  operational_entity_id: agentId,
+        <li><h2 className="text-xl font-semibold">1. Get an API key</h2><p className="mt-2 text-sm text-zinc-400">Sign in, open Developer → API Keys, and use least privilege. The agent flow needs agents:write, agents:verify, authority:read, trust:request, trust:read and outcomes:write. Authority management and governed review use separate owner/admin keys with authority:write and review:read/review:write. Keep shown-once keys in server-side environment variables. If one is lost, rotate it; it cannot be displayed again. The script refuses live keys and Production hosts.</p></li>
+        <li><h2 className="text-xl font-semibold">2. Register an agent</h2><p className="mt-2 text-sm text-zinc-400">Create an agent record under your API client, then attach the runtime and owner references that the trust workflow will evaluate. Registration does not prove identity or grant authority; it only establishes an operational identity boundary.</p><pre className={`${code} mt-3`}>{`const agent = await cs.agents.register({
+  display_name: "Agent Gamma",
+  entity_type: "AI_AGENT",
+  owner_reference: "team:platform",
+  runtime: { environment: "staging" },
+  model: { provider: "azure-openai", name: "gpt-4o" }
+});`}</pre></li>
+        <li><h2 className="text-xl font-semibold">3. Create a challenge</h2><p className="mt-2 text-sm text-zinc-400">Request a challenge for the registered agent so the client can prove possession of the Ed25519 key pair before any authority or trust decision is evaluated.</p><pre className={`${code} mt-3`}>{`const challenge = await cs.agents.createChallenge(agent.id);`}</pre></li>
+        <li><h2 className="text-xl font-semibold">4. Prove Ed25519 possession</h2><p className="mt-2 text-sm text-zinc-400">Sign the challenge with the private key and submit the proof. This is the identity proof step, not the authority grant itself.</p><pre className={`${code} mt-3`}>{`const proof = await cs.agents.verify(agent.id, challenge, privateKey);`}</pre></li>
+        <li><h2 className="text-xl font-semibold">5. Establish authority</h2><p className="mt-2 text-sm text-zinc-400">An authorized administrator grants bounded, expiring authority to the agent. Authority is a separate versioned scope and expiry boundary from identity proof.</p><pre className={`${code} mt-3`}>{`const authority = await cs.authority.create(agent.id, {
+  scope: ["trust:request", "trust:read"],
+  expires_at: "2026-12-31T23:59:59Z"
+});`}</pre></li>
+        <li><h2 className="text-xl font-semibold">6. Request a trust decision</h2><p className="mt-2 text-sm text-zinc-400">Use the agent identity and the current authority to request a canonical decision for the exact action. The decision request does not accept an authority reference; Cyber Sentinels resolves the current authority for the agent.</p><pre className={`${code} mt-3`}>{`const result = await cs.trust.requestDecision({
+  operational_entity_id: agent.id,
   action: { type: "read_repository", target: "repository:a", purpose: "deployment_evidence_review", environment: "staging" },
   idempotency_key: "agent-alpha-read-001"
-});
-// REVIEW and DENY are completed evaluations, but neither permits execution.
-if (result.decision !== "ALLOW") throw new Error("Stop execution: " + result.decision);
-await cs.trust.getReceipt(result.transaction_id);
-await cs.trust.getReplay(result.transaction_id);`}</pre><p className="mt-3 text-sm text-zinc-400">The decision request does not accept an authority reference. Cyber Sentinels resolves the current authority for the agent.</p></li>
+});`}</pre></li>
+        <li><h2 className="text-xl font-semibold">7. Receive ALLOW / REVIEW / DENY</h2><p className="mt-2 text-sm text-zinc-400">The response is a completed evaluation of the requested action. REVIEW and DENY are terminal outcomes that stop execution; neither is an approval.</p><pre className={`${code} mt-3`}>{`if (result.decision !== "ALLOW") throw new Error("Stop execution: " + result.decision);`}</pre></li>
+        <li><h2 className="text-xl font-semibold">8. Read the receipt</h2><p className="mt-2 text-sm text-zinc-400">Retrieve the minimized canonical receipt for the transaction. The receipt is a projection of the decision, not a proof of downstream execution.</p><pre className={`${code} mt-3`}>{`await cs.trust.getReceipt(result.transaction_id);`}</pre></li>
+        <li><h2 className="text-xl font-semibold">9. Replay the decision</h2><p className="mt-2 text-sm text-zinc-400">Inspect the canonical transaction chronology for evidence, authority, policy, decision, and digest references. This yields the ordered Replay view of the interaction.</p><pre className={`${code} mt-3`}>{`await cs.trust.getReplay(result.transaction_id);`}</pre></li>
       </ol>
 
       <section className="mt-12"><h2 className="text-2xl font-semibold">Client evidence is assertion, not proof</h2><p className="mt-2 text-sm text-zinc-400">Only submit evidence for an agent registered to the same API client. The public route derives the provider identity from the API key and stores the result as AGENT_ASSERTED / INCONCLUSIVE. Verified provider and native evidence use their existing authenticated server paths.</p><pre className={`${code} mt-4`}>{`await cs.evidence.submit({

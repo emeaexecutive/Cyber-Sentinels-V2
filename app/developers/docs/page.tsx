@@ -8,7 +8,8 @@ export const metadata: Metadata = {
 };
 
 const docs = [
-  ["OpenAPI 3.1", "/api/v1/openapi.json", "Exact V1 paths, request/response schemas, scopes, errors, and examples."],
+  ["OpenAPI Reference", "/developers/api-reference", "Human-readable V1 reference rendered from the canonical OpenAPI contract."],
+  ["Raw OpenAPI JSON", "/api/v1/openapi.json", "Machine-readable contract for SDKs, editors, and automation."],
   ["Authentication", "/developers/authentication", "Create scoped keys and keep secrets server-side."],
   ["Trust Events", "/developers/trust-events", "Send structured trust activity into Cyber Sentinels."],
   ["API Keys", "/developers/api-keys", "Manage active and revoked developer keys."],

@@ -36,6 +36,7 @@ export default async function TrustTransactionHistoryPage({ params }: { params: 
     throw error;
   }
   const { receipt, events, externalRequest, acknowledgements, outcomes, nativeEnforcement } = history;
+  const outcomeReview = receipt.decisionOutcomeReview;
   const responsibility = receipt.responsibilityLineage;
   const enforcement = receipt.decisionTimeSnapshot.enforcementState;
   const nativeRequest = nativeEnforcement.requests.at(-1) as Record<string, unknown> | undefined;
@@ -55,6 +56,9 @@ export default async function TrustTransactionHistoryPage({ params }: { params: 
     ["Authority scope checked", receipt.decision === "DENY" ? "see reason codes" : receipt.authorityReference],
     ["Policy version resolved", `${receipt.policy.id}:${receipt.policy.version}`],
     ["Decision persisted", receipt.decisionReference],
+    ["Original decision retained", receipt.decision],
+    ["Later adjudication", outcomeReview?.adjudicatedOutcome ?? "Not adjudicated"],
+    ["Evaluation status", outcomeReview?.evaluationStatus ?? "Not reviewed"],
     ["Evidence Graph linked", receipt.evidenceGraphReference],
     ["Replay written", receipt.replayReference],
     ["Trust Memory materiality", receipt.trustMemoryReference ?? "No material write"],
@@ -133,6 +137,20 @@ export default async function TrustTransactionHistoryPage({ params }: { params: 
               <div><dt className="text-zinc-500">Evidence Gaps</dt><dd className="mt-1 text-zinc-200">{receipt.decisionTimeSnapshot.contradictions.length ? receipt.decisionTimeSnapshot.contradictions.join(", ") : "None recorded"}</dd></div>
             </dl>
           </article>
+          {outcomeReview ? <article className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200">Decision outcome review</p>
+            <h2 className="mt-3 text-2xl font-semibold">Historical decision and later evidence remain separate.</h2>
+            <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
+              <div><dt className="text-zinc-500">Original decision</dt><dd className="mt-1 font-semibold text-zinc-100">{outcomeReview.originalDecision}</dd></div>
+              <div><dt className="text-zinc-500">Adjudicated outcome</dt><dd className="mt-1 font-semibold text-zinc-100">{value(outcomeReview.adjudicatedOutcome)}</dd></div>
+              <div><dt className="text-zinc-500">Evaluation status</dt><dd className="mt-1 text-zinc-200">{outcomeReview.evaluationStatus}</dd></div>
+              <div><dt className="text-zinc-500">Policy version</dt><dd className="mt-1 text-zinc-200">{outcomeReview.policyVersion}</dd></div>
+              <div><dt className="text-zinc-500">Provider outcome</dt><dd className="mt-1 text-zinc-200">{value(outcomeReview.providerOutcome)}</dd></div>
+              <div><dt className="text-zinc-500">Runtime outcome</dt><dd className="mt-1 text-zinc-200">{value(outcomeReview.runtimeOutcome)}</dd></div>
+              <div><dt className="text-zinc-500">Destination outcome</dt><dd className="mt-1 text-zinc-200">{value(outcomeReview.destinationOutcome)}</dd></div>
+              <div><dt className="text-zinc-500">Human override</dt><dd className="mt-1 text-zinc-200">{outcomeReview.humanOverride ? `${outcomeReview.humanOverride.originalDecision} → ${outcomeReview.humanOverride.resultingDecision}` : "Not recorded"}</dd></div>
+            </dl>
+          </article> : null}
         </section>
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[1.15fr_.85fr]">

@@ -59,16 +59,16 @@ test("homepage stays focused and uses the canonical Operational Trust vocabulary
   const homepage = read("app/page.tsx");
 
   assert.match(homepage, /Operational Trust Intelligence™/);
-  assert.match(homepage, /continuously explainable,\s*evidence-backed trust decisions/);
+  assert.match(homepage, /Before an AI agent acts, prove it has the authority to do so\./);
   assert.doesNotMatch(homepage, /Private Beta|Enterprise Pilot Ready|trust universe/i);
 
   for (const label of [
-    "Trust Narrative™",
-    "Trust Drift™",
-    "Trust Recommendation™",
-    "Authority Lineage™",
-    "Replay™",
-    "Trust Memory™",
+    "IDENTITY",
+    "AUTHORITY",
+    "ACTION",
+    "DECISION",
+    "EVIDENCE",
+    "Replay",
   ]) {
     assert.match(homepage, new RegExp(label));
   }

@@ -36,27 +36,26 @@ async function pathExists(path) {
 test("homepage uses the approved category, supporting statement and restrained calls to action", async () => {
   const home = await read("app/page.tsx");
 
-  assert.match(home, /Cyber Sentinels is building the Operational Trust Intelligence™ platform for intelligent enterprises\./);
+  assert.match(home, /Before an AI agent acts, prove it has the authority to do so\./);
   assert.match(
     home,
-    /It transforms fragmented identity, security, AI and operational evidence into continuously explainable,[\s\S]*evidence-backed trust decisions\./,
+    /Cyber Sentinels checks who or what is acting, what it is trying to do, and whether it has authority under the current policy\./,
   );
-  assert.match(home, /Evidence-backed\. Continuously explainable\. Customer-controlled\./);
-  assert.match(home, /Explore the vision/);
-  assert.match(home, /Join the design-partner programme/);
-  assert.match(home, /Request an enterprise conversation/);
+  assert.match(home, /Every decision keeps the evidence needed for audit and Replay\./);
+  assert.match(home, /Request a demo/);
+  assert.match(home, /Explore the API/);
 });
 
 test("public capability vocabulary is grouped into no more than four themes", async () => {
   const home = await read("app/page.tsx");
-  const themeMatches = home.match(/theme: "(?:Understand|Anticipate|Act|Remember)"/g) ?? [];
+  const contextMatches = home.match(/title: "(?:AI agent|Data|Infrastructure|Human)"/g) ?? [];
 
-  assert.equal(themeMatches.length, 4);
+  assert.equal(contextMatches.length, 4);
   for (const description of [
-    "Understand why trust changed and which evidence supports the conclusion.",
-    "Identify material changes that may require additional verification or human review.",
-    "Surface the next evidence-backed action required to restore or maintain operational trust.",
-    "Preserve who acted, what authority existed and how trust evolved over time.",
+    "Can this agent approve this €20,000 payment?",
+    "Can this agent export these customer records?",
+    "Can this agent change this Production configuration?",
+    "Can this person approve this action for this organisation?",
   ]) {
     assert.match(home, new RegExp(description.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }

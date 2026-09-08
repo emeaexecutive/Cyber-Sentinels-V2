@@ -3,6 +3,7 @@ import "server-only";
 import { createHash, createHmac } from "node:crypto";
 import { HopaeAdapter as HardenedHopaeAdapter } from "@/lib/providers/adapters/hopae/hopae-adapter";
 import { inspectHopaeProviderConfig } from "@/lib/providers/adapters/hopae/hopae-config";
+import { inspectWorldIdConfiguration, verifyWorldIdProof } from "@/lib/providers/world-id-verifier";
 import type {
   AdapterCollectionResult,
   AdapterContext,
@@ -27,6 +28,8 @@ const providerNames: Record<string, string> = {
   network_anonymity: "Network anonymity provider",
   geolocation: "Geolocation provider",
 };
+
+const fallbackWorldIdReasonCode: IdentityReasonCode = "WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED";
 
 function provenance(source: SignalEvidenceDraft["provenance"]["source"]) {
   return { source, mappingVersion: "identity-signal-v1", collectedAt: new Date().toISOString() } as const;
@@ -105,11 +108,47 @@ export class DisabledSignalAdapter implements IdentitySignalAdapter {
 export class WorldIdSafeAdapter implements IdentitySignalAdapter {
   readonly providerId = "world_id";
   readonly signals = ["PROOF_OF_PERSONHOOD"] as const;
-  getCapabilities() { return capabilities(this.providerId, this.signals, "PARTIALLY_IMPLEMENTED", "BLOCKED_BY_EXTERNAL_CONFIGURATION", false, ["Server verification is not implemented."]); }
-  async healthCheck(): Promise<IdentityProviderHealth> { return { providerId: this.providerId, available: false, state: "UNAVAILABLE", reasonCode: "WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED", checkedAt: new Date().toISOString() }; }
-  async collectSignal(signalType: IdentitySignalType) { return unavailable(signalType, this.providerId, "INCONCLUSIVE", "WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED", "A proof-shaped input is not verified evidence until the World ID server exchange succeeds."); }
+  getCapabilities() {
+    const configuration = inspectWorldIdConfiguration();
+    return capabilities(this.providerId, this.signals, "PARTIALLY_IMPLEMENTED", configuration.configured ? "AVAILABLE" : "BLOCKED_BY_EXTERNAL_CONFIGURATION", false, ["Positive evidence requires a live World ID 4.0 provider verification exchange."]);
+  }
+  async healthCheck(): Promise<IdentityProviderHealth> {
+    const configuration = inspectWorldIdConfiguration();
+    return { providerId: this.providerId, available: configuration.configured, state: configuration.configured ? "DEGRADED" : "MISCONFIGURED", reasonCode: configuration.configured ? "PROVIDER_VERIFICATION_PENDING" : fallbackWorldIdReasonCode, checkedAt: new Date().toISOString() };
+  }
+  async collectSignal(signalType: IdentitySignalType, context: AdapterContext) {
+    const proof = context.input.worldId ?? context.input.proof;
+    const verification = await verifyWorldIdProof({
+      idkitResponse: proof,
+      tenantId: context.enterpriseId,
+      subjectId: context.subjectId,
+    });
+    if (!verification.ok) {
+      return unavailable(signalType, this.providerId, "INCONCLUSIVE", (verification.reasonCode as IdentityReasonCode) || fallbackWorldIdReasonCode, verification.evidenceReferences?.[0] ?? "World ID verification did not succeed.");
+    }
+    const draft = evidence({ signalType: "PROOF_OF_PERSONHOOD", providerId: this.providerId, status: "PASS", outcome: "VERIFIED", reasonCode: verification.reasonCode as IdentityReasonCode, limitation: verification.providerVerified ? "Provider-verified World ID evidence was accepted." : "Provider verification did not complete.", source: "provider_api", sourceDigest: verification.payloadHash ?? null, payloadHash: verification.payloadHash ?? null, providerEventId: verification.providerReference ?? null, providerReference: verification.providerReference ?? null, providerTransactionId: verification.providerReference ?? null, signatureVerified: verification.providerVerified, attributes: { serverVerified: verification.serverVerified, providerVerified: verification.providerVerified, confidence: verification.confidence, providerReference: verification.providerReference ?? null } });
+    draft.confidence = verification.confidence;
+    draft.serverVerified = verification.serverVerified;
+    draft.signatureVerified = verification.providerVerified;
+    draft.normalizedValue = verification.normalizedEvidence ? {
+      provider: verification.normalizedEvidence.provider,
+      verificationStatus: verification.normalizedEvidence.verificationStatus,
+      protocolVersion: verification.normalizedEvidence.protocolVersion,
+      action: verification.normalizedEvidence.action,
+      environment: verification.normalizedEvidence.environment,
+      applicationId: verification.normalizedEvidence.applicationId,
+      relyingPartyId: verification.normalizedEvidence.relyingPartyId,
+      subjectDigest: verification.normalizedEvidence.subjectDigest,
+      providerReference: verification.normalizedEvidence.providerReference,
+      enterpriseId: context.enterpriseId,
+      credentialIdentifiers: verification.normalizedEvidence.credentialIdentifiers.join(","),
+      userPresenceCompleted: verification.normalizedEvidence.userPresenceCompleted,
+      providerVerifiedAt: verification.normalizedEvidence.providerVerifiedAt,
+    } : null;
+    return { transactionStatus: "SUCCEEDED" as const, providerTransactionId: verification.providerReference ?? null, providerRequestId: verification.providerReference ?? null, limitations: [], evidence: draft };
+  }
   async verifyCallback(input: IdentityCallbackInput) {
-    return [evidence({ signalType: "PROOF_OF_PERSONHOOD", providerId: this.providerId, status: "INCONCLUSIVE", outcome: "INCONCLUSIVE", reasonCode: "WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED", limitation: "Proof received — server verification pending.", payloadHash: callbackHash(input) })];
+    return [evidence({ signalType: "PROOF_OF_PERSONHOOD", providerId: this.providerId, status: "UNSUPPORTED", outcome: "UNSUPPORTED", reasonCode: "SIGNAL_UNSUPPORTED", limitation: "World ID 4.0 uses the authenticated IDKit completion endpoint, not an unauthenticated callback.", payloadHash: callbackHash(input) })];
   }
 }
 

@@ -59,7 +59,7 @@ test("homepage keeps canonical positioning and strengthened wordmark without bet
   const styles = read("app/globals.css");
 
   assert.match(homepage, /Operational Trust Intelligence™/);
-  assert.match(homepage, /Cyber Sentinels is building/);
+  assert.match(homepage, /Before an AI agent acts, prove it has the authority to do so\./);
   assert.doesNotMatch(homepage, /Private Beta|Enterprise Pilot Ready/i);
   assert.match(styles, /\.brand-wordmark/);
   assert.match(styles, /font-weight:\s*800/);
