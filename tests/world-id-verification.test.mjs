@@ -44,7 +44,7 @@ test("World ID requires an explicit durable replay acceptance and claim referenc
   process.env.NEXT_PUBLIC_SUPABASE_URL = "https://replay-test.supabase.co";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "synthetic-test-only-service-key";
   for (const payload of [null, {}, [], { accepted: true }, { accepted: true, claim_id: "" }, { accepted: "true", claim_id: "claim" }]) {
-    globalThis.fetch = async (url) => String(url).includes("developer.world.org")
+    globalThis.fetch = async (url) => String(url) === "https://developer.world.org/api/v4/verify/rp_staging_test"
       ? providerSuccess()
       : new Response(JSON.stringify(payload), { status: 200, headers: { "content-type": "application/json" } });
     const result = await verifyWorldIdProof(verifyInput());
@@ -52,7 +52,7 @@ test("World ID requires an explicit durable replay acceptance and claim referenc
     assert.equal(result.reasonCode, "WORLD_ID_REPLAY_STORE_ERROR");
     assert.equal(result.normalizedEvidence, undefined);
   }
-  globalThis.fetch = async (url) => String(url).includes("developer.world.org")
+  globalThis.fetch = async (url) => String(url) === "https://developer.world.org/api/v4/verify/rp_staging_test"
     ? providerSuccess()
     : new Response(JSON.stringify({ accepted: true, claim_id: "10000000-0000-4000-8000-000000000003" }), { status: 200, headers: { "content-type": "application/json" } });
   assert.equal((await verifyWorldIdProof(verifyInput())).ok, true);

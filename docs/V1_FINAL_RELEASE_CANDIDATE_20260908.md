@@ -54,6 +54,8 @@ The initial local runtime lacked Supabase variables and produced configuration e
 
 Secret scan: repository scanner found no real candidates; extended worktree/index scan found only the explicitly synthetic test-only credential. No raw live proofs, raw live nullifiers, local credentials or environment files belong to the release set. Logs and machine evidence remain outside the commit.
 
+PR #80: https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/80. Release commit 5081b4a37b9aa0a7930b3d8e2c4527ac32daef87 was pushed without force. Its verify, Docker, gitleaks, CodeQL analysis and hosting checks passed, but the CodeQL alert gate flagged two substring URL comparisons in the added test mock. A follow-up replaces both with exact provider URL comparisons; fresh full npm test, lint, typecheck and build all passed after this correction. History is preserved rather than rewriting the already-pushed release commit. The follow-up requires fresh CI and does not clear the database release gate.
+
 ## Exact continuation sequence
 
 1. Commit only the RELEASE REQUIRED files below after final npm test/lint/typecheck/build, secret and migration integrity gates pass. Message: release: close Cyber Sentinels V1 trust control layer.
