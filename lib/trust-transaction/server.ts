@@ -576,12 +576,14 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
       });
     },
     async loadConfiguredEvidence({ enterpriseId, subjectId, operationalEntityId, providerExecutionId }) {
-      const identityResult = await db.from("identity_signal_evidence")
+      // Identity signals belong to UUID subjects; native agent identifiers use
+      // the text-keyed canonical and native evidence ledgers below.
+      const identityResult = uuidPattern.test(subjectId) ? await db.from("identity_signal_evidence")
         .select("id,verification_request_id,provider_transaction_id,signal_type,provider_id,signal_status,outcome,confidence,server_verified,signature_verified,provider_event_id,provider_reference,payload_hash,normalized_value,source_digest,observed_at,expires_at,created_at")
         .eq("enterprise_id", enterpriseId)
         .eq("subject_id", subjectId)
         .order("observed_at", { ascending: false })
-        .limit(50);
+        .limit(50) : { data: [], error: null };
       if (identityResult.error) fail("Identity evidence collection", identityResult.error);
       const canonicalResult = await db.from("evidence_objects")
         .select("evidence_id,provider_key,evidence_type,result,observed_at,occurred_at,expires_at,payload_hash,assurance_level,source_key,source_type,server_verified,normalized_facts")
