@@ -1,4 +1,5 @@
 import "server-only";
+import { currentControlPlaneEvidence, productionControlPlaneContext } from "./control-plane-evidence";
 
 import { createHmac } from "node:crypto";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -852,6 +853,10 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
     policyId: publicPolicyId,
     policyVersion: publicPolicyVersion,
   });
+  const controlPlaneContext = normalized.environment === "production"
+    ? productionControlPlaneContext(principal.tenantId, agentId, publicPolicyId, publicPolicyVersion) : null;
+  const controlPlaneEvidence = await currentControlPlaneEvidence(controlPlaneContext);
+  const dependencies = createCanonicalTrustTransactionDependenciesForApiClient({ enterpriseId: principal.tenantId, clientId: principal.clientId });
   try {
     const receipt = await executeCanonicalTrustTransaction({
       trustObject: { subjectType: "ai_agent", subjectId: agentId },
@@ -865,7 +870,7 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
       } : null,
       managedControl: {
         contradictions,
-        monitoringCoverage: trustedStagingEvidence?.monitoringCoverage ?? (monitoring ? monitoringCoverage : undefined),
+        monitoringCoverage: trustedStagingEvidence?.monitoringCoverage ?? (controlPlaneEvidence.size ? "covered" : monitoring ? monitoringCoverage : undefined),
         oversightMode: deploymentContext?.oversight && ["HUMAN_IN_THE_LOOP", "HUMAN_ON_THE_LOOP", "HUMAN_OVER_THE_LOOP", "AUTONOMOUS"].includes(String(deploymentContext.oversight)) ? deploymentContext.oversight as "HUMAN_IN_THE_LOOP" | "HUMAN_ON_THE_LOOP" | "HUMAN_OVER_THE_LOOP" | "AUTONOMOUS" : undefined,
         executionStages,
         contextEvidence,
@@ -889,10 +894,7 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
         clientAssertedMaterialChanges: materialChanges,
       },
       correlationId,
-    }, createCanonicalTrustTransactionDependenciesForApiClient({
-      enterpriseId: principal.tenantId,
-      clientId: principal.clientId,
-    }));
+    }, dependencies);
     const decision = receipt.decision as PublicDecision;
     if (decision === "REVIEW") {
       const review = await createServiceRoleClient().rpc("create_public_api_review_v1", {

@@ -408,6 +408,18 @@ export async function signManifest(claims: PublicManifestClaims, privateKey: Cry
   return { ...normalized, signature: await signCanonical(normalized as unknown as Record<string, unknown>, privateKey) };
 }
 
+export type HeartbeatClaims = {
+  agent_id: string; credential_id: string; event_id: string; issued_at: string;
+  environment: "production"; authority_id: string; policy_id: string; policy_version: string;
+};
+export type SignedHeartbeat = HeartbeatClaims & { signature: string };
+/** Signs a first-party control-plane heartbeat, not downstream execution proof. */
+export async function signHeartbeat(claims: HeartbeatClaims, tenantId: string, audience: string, privateKey: CryptoKey): Promise<SignedHeartbeat> {
+  const { agent_id, credential_id, event_id, issued_at, environment, authority_id, policy_id, policy_version } = claims;
+  const normalized = { agent_id, credential_id, event_id, issued_at, environment, authority_id, policy_id, policy_version };
+  return { ...normalized, signature: await signCanonical({ domain: "cyber-sentinels:control-plane-heartbeat:v1", audience, tenant_id: tenantId, ...normalized }, privateKey) };
+}
+
 export async function signChallenge(
   challenge: Challenge,
   enterpriseId: string,
@@ -472,6 +484,7 @@ export class CyberSentinels {
     registerManifest: (agentId: string, input: SignedPublicManifest, options?: RequestOptions) => Promise<Record<string, unknown>>;
     issueChallenge: (agentId: string, options?: RequestOptions) => Promise<Challenge>;
     submitProof: (agentId: string, input: ProofSubmission, options?: RequestOptions) => Promise<Record<string, unknown>>;
+    heartbeat: (agentId: string, input: SignedHeartbeat, options?: RequestOptions) => Promise<Record<string, unknown>>;
     verify: (agentId: string, input: ProofSubmission, options?: RequestOptions) => Promise<Record<string, unknown>>;
     getAuthority: (agentId: string, options?: RequestOptions) => Promise<Authority>;
     getTrustState: (agentId: string, options?: RequestOptions) => Promise<Record<string, unknown>>;
@@ -532,6 +545,7 @@ export class CyberSentinels {
       registerManifest: (agentId, input, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/manifest`, input, requestOptions),
       issueChallenge: (agentId, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/challenge`, {}, requestOptions),
       submitProof: (agentId, input, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/proof`, input, requestOptions),
+      heartbeat: (agentId, input, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/heartbeat`, input, requestOptions),
       verify: (agentId, input, requestOptions) => this.#request("POST", `/api/v1/agents/${encodeURIComponent(agentId)}/proof`, input, requestOptions),
       getAuthority,
       getTrustState: (agentId, requestOptions) => this.#request("GET", `/api/v1/agents/${encodeURIComponent(agentId)}/trust-state`, undefined, requestOptions),

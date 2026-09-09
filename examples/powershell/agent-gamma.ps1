@@ -434,6 +434,21 @@ function Write-CyberSentinelsMarker {
     [Console]::Out.WriteLine("${Name}: $json")
 }
 
+# Optional Production operation for an already registered, verified agent with
+# current Production authority. The default Staging journey does not call it.
+function Submit-CyberSentinelsHeartbeat {
+    param([string]$AgentId, [string]$CredentialId, [string]$TenantId, [string]$AuthorityId, [string]$PrivateKeyPath)
+    $claims = [ordered]@{
+        agent_id = $AgentId; credential_id = $CredentialId; event_id = [Guid]::NewGuid().ToString("N")
+        issued_at = [DateTime]::UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ", [Globalization.CultureInfo]::InvariantCulture)
+        environment = "production"; authority_id = $AuthorityId; policy_id = "external-agent-trust-v1"; policy_version = "0.2.0"
+    }
+    $envelope = [ordered]@{ domain = "cyber-sentinels:control-plane-heartbeat:v1"; audience = "https://www.cybersentinels.com/api/v1"; tenant_id = $TenantId }
+    foreach ($name in $claims.Keys) { $envelope[$name] = $claims[$name] }
+    $claims.signature = New-Ed25519Signature $PrivateKeyPath $envelope
+    return Invoke-CyberSentinelsApi "POST" (Get-AgentPath $agentId "heartbeat") $claims
+}
+
 function Invoke-AgentGammaJourney {
     $preflight = Test-CyberSentinelsConfiguration -AllowInsecureLocalhost:$AllowInsecureLocalhost -HttpClient $script:HttpClient
     $script:BaseUri = $preflight.BaseUri

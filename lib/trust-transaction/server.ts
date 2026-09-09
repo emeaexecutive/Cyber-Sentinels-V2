@@ -1,4 +1,6 @@
 import "server-only";
+import { currentControlPlaneEvidence, productionControlPlaneContext } from "@/lib/public-api/v1/control-plane-evidence";
+import { CONTROL_PLANE_PROVENANCE } from "@/lib/operational-entities/control-plane-evidence";
 
 import { createHmac } from "node:crypto";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
@@ -394,6 +396,7 @@ function safeCanonicalEvidenceObject(row: Row): StoredProviderEvidence {
       ? "agent_asserted"
       : row.source_type === "CONTINUOUS_TRUST_SIGNAL" && result === "INCONCLUSIVE"
         ? "unconfirmed"
+      : row.source_type === CONTROL_PLANE_PROVENANCE && row.server_verified ? "technology_provider_asserted"
       : row.server_verified ? "provider_asserted" : "unconfirmed",
     serverVerified: row.server_verified === true,
     normalizedEvidence: row.normalized_facts && typeof row.normalized_facts === "object" ? row.normalized_facts as Row : {},
@@ -592,6 +595,10 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
         .order("occurred_at", { ascending: false })
         .limit(50);
       if (canonicalResult.error) fail("Canonical evidence collection", canonicalResult.error);
+      const canonicalRows = canonicalResult.data ?? [];
+      const controlPlaneIds = canonicalRows.some(row => row.source_type === CONTROL_PLANE_PROVENANCE)
+        ? await currentControlPlaneEvidence(productionControlPlaneContext(enterpriseId, operationalEntityId ?? subjectId, "external-agent-trust-v1", "0.2.0")) : new Set<string>();
+      const eligibleCanonicalRows = canonicalRows.filter(row => row.source_type !== CONTROL_PLANE_PROVENANCE || controlPlaneIds.has(row.evidence_id));
       const nativeResult = await db.from("native_entity_identity_evidence")
         .select("evidence_id,verification_id,challenge_id,verified_at,expires_at,evidence_digest,verification_algorithm_version")
         .eq("enterprise_id", enterpriseId)
@@ -602,7 +609,7 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
       if (nativeResult.error) fail("Native evidence collection", nativeResult.error);
       const nativeEvidence = (nativeResult.data ?? []).map(safeNativeEvidence);
       const identityEvidence = (identityResult.data ?? []).map(safeIdentitySignalEvidence);
-      const baselineEvidence = [...[...identityEvidence, ...nativeEvidence, ...(canonicalResult.data ?? []).map(safeCanonicalEvidenceObject)]
+      const baselineEvidence = [...[...identityEvidence, ...nativeEvidence, ...eligibleCanonicalRows.map(safeCanonicalEvidenceObject)]
         .reduce((latest, item) => {
           // Both ledgers are newest-first and append-only. Preserve the first
           // observation for each provider/source/type tuple so expired history

@@ -22,6 +22,7 @@ const clientTokens = {
   "POST /api/v1/agents/{agentId}/manifest": ["/manifest", 'Get-AgentPath $agentId "manifest"', "POST /api/v1/agents/{agentId}/manifest"],
   "POST /api/v1/agents/{agentId}/challenge": ["/challenge", 'Get-AgentPath $agentId "challenge"', "POST /api/v1/agents/{agentId}/challenge"],
   "POST /api/v1/agents/{agentId}/proof": ["/proof", 'Get-AgentPath $agentId "proof"', "POST /api/v1/agents/{agentId}/proof"],
+  "POST /api/v1/agents/{agentId}/heartbeat": ["/heartbeat", 'Get-AgentPath $agentId "heartbeat"', "POST /api/v1/agents/{agentId}/heartbeat"],
   "GET /api/v1/agents/{agentId}/authority": ["/authority", 'Get-AgentPath $agentId "authority"', "GET  /api/v1/agents/{agentId}/authority"],
   "GET /api/v1/agents/{agentId}/authorities": ["list: (agentId", 'Invoke-CyberSentinelsApi "GET" $authorityPath', "GET  /api/v1/agents/{agentId}/authorities"],
   "POST /api/v1/agents/{agentId}/authorities": ["grant: (agentId", 'Invoke-CyberSentinelsApi "POST" $authorityPath', "POST /api/v1/agents/{agentId}/authorities"],

@@ -37,6 +37,7 @@ export const PUBLIC_V1_ROUTE_CONTRACT = [
   ["post", "/api/v1/agents/{agentId}/manifest"],
   ["post", "/api/v1/agents/{agentId}/challenge"],
   ["post", "/api/v1/agents/{agentId}/proof"],
+  ["post", "/api/v1/agents/{agentId}/heartbeat"],
   ["get", "/api/v1/agents/{agentId}/authority"],
   ["post", "/api/v1/agents/{agentId}/authorities"],
   ["get", "/api/v1/agents/{agentId}/authorities"],

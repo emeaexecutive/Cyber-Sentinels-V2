@@ -48,6 +48,7 @@ POST /api/v1/agents/{agentId}/credentials
 POST /api/v1/agents/{agentId}/manifest
 POST /api/v1/agents/{agentId}/challenge
 POST /api/v1/agents/{agentId}/proof
+POST /api/v1/agents/{agentId}/heartbeat
 GET  /api/v1/agents/{agentId}/authority
 GET  /api/v1/agents/{agentId}/authorities
 POST /api/v1/agents/{agentId}/authorities
