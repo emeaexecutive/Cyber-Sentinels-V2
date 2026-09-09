@@ -1,0 +1,104 @@
+{
+  "checkedAt": "2026-09-09T09:49:56.204Z",
+  "checks": [
+    {
+      "path": "/",
+      "status": 200,
+      "redirect": null
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "redirect": null,
+      "body": {
+        "status": "ok",
+        "probe": "liveness",
+        "schema_version": "health-v2",
+        "release_version": "fce70e052a6d6b9bbe6842755b66c7354e70c8ed",
+        "ok": true,
+        "meta": {
+          "version": "v1",
+          "trace_id": "trace_9b5b9cc4-131e-4530-a534-9e9690f9eed3",
+          "audit_id": "audit_health_cb8a258e-7877-4b94-a2c2-7d1d448faf6d",
+          "timestamp": "2026-09-09T09:49:53.839Z"
+        }
+      }
+    },
+    {
+      "path": "/api/ready",
+      "status": 200,
+      "redirect": null,
+      "body": {
+        "schemaVersion": "readiness-v3",
+        "status": "READY",
+        "reasonCode": "ENTERPRISE_TRUST_ARCHITECTURE_AVAILABLE",
+        "checks": {
+          "environment": "READY",
+          "enterpriseTrustArchitecture": "READY",
+          "repositoryRuntime": "VERIFIED_FROM_RUNTIME",
+          "externalControls": "BLOCKED",
+          "process": "PROCESS_HEALTHY",
+          "dataPlane": "READY",
+          "apiAuthentication": "READY",
+          "canonicalPersistence": "READY",
+          "authority": "READY",
+          "humanReview": "READY",
+          "rateLimiting": "READY",
+          "apiKeyRotation": "READY"
+        },
+        "enterpriseTrustRegistry": {
+          "missingDomains": [],
+          "inactiveDomains": [],
+          "versionMismatchDomains": [],
+          "duplicateDomains": []
+        },
+        "runtime": {
+          "commitSha": "fce70e052a6d6b9bbe6842755b66c7354e70c8ed"
+        },
+        "externalControls": {
+          "state": "BLOCKED",
+          "reasonCode": "AUTHORITATIVE_CONTROL_PLANE_EVIDENCE_REQUIRED"
+        },
+        "generatedAt": "2026-09-09T09:49:54.485Z",
+        "diagnosticState": "PROCESS_HEALTHY",
+        "publicApiEnvironment": {
+          "valid": true,
+          "state": "CONFIGURED",
+          "reasonCode": "PUBLIC_API_ENVIRONMENT_CONFIGURED",
+          "name": "production",
+          "origin": "https://www.cybersentinels.com"
+        }
+      }
+    },
+    {
+      "path": "/api/v1/openapi.json",
+      "status": 200,
+      "redirect": null,
+      "body": {
+        "openapi": "3.1.0",
+        "version": "2026-08-29",
+        "pathCount": 19
+      }
+    },
+    {
+      "path": "/login",
+      "status": 200,
+      "redirect": null
+    },
+    {
+      "path": "/enterprise-access",
+      "status": 200,
+      "redirect": null
+    },
+    {
+      "path": "/developers/docs",
+      "status": 200,
+      "redirect": null
+    },
+    {
+      "path": "/developers/api-keys",
+      "status": 307,
+      "redirect": "/login?next=%2Fdevelopers%2Fapi-keys"
+    }
+  ]
+}

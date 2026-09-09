@@ -1,0 +1,54 @@
+{
+  "id": "dpl_E5FPiv52DeewicTa1kbcWjsv5eSk",
+  "name": "cyber-sentinels-v2",
+  "url": "cyber-sentinels-v2-99jqj3zec-keith-speres-projects.vercel.app",
+  "type": "LAMBDAS",
+  "state": "READY",
+  "createdAt": 1788945924951,
+  "creator": {
+    "uid": "8s6V9COhAgO8vljOoqTak7gj",
+    "username": "emeaexecutive-9603"
+  },
+  "project": {
+    "id": "prj_7v7vbNXHaf7gfAqYjGxRMQEB8FAr",
+    "name": "cyber-sentinels-v2",
+    "framework": "nextjs"
+  },
+  "meta": {
+    "githubCommitAuthorName": "emeaexecutive",
+    "githubCommitAuthorEmail": "emeaexecutive@icloud.com",
+    "githubCommitMessage": "Merge pull request #82 from emeaexecutive/fix/v1-workspace-owner-creation\n\nfix: allow owned workspace creation under tenant read policies",
+    "githubCommitOrg": "emeaexecutive",
+    "githubCommitRef": "fce70e052a6d6b9bbe6842755b66c7354e70c8ed",
+    "githubCommitRepo": "Cyber-Sentinels-V2",
+    "githubCommitSha": "fce70e052a6d6b9bbe6842755b66c7354e70c8ed",
+    "githubDeployment": "1",
+    "githubOrg": "emeaexecutive",
+    "githubRepo": "Cyber-Sentinels-V2",
+    "githubRepoOwnerType": "User",
+    "githubCommitRepoId": "1235827296",
+    "githubRepoId": "1235827296",
+    "githubRepoVisibility": "public",
+    "githubHost": "github.com",
+    "githubCommitAuthorLogin": "emeaexecutive",
+    "githubCommitVerification": "verified",
+    "branchAlias": "cyber-sentinels-v2-git-fce70e052a6-981156-keith-speres-projects.vercel.app",
+    "lambdaRuntimeStats": "{\"nodejs\":5}"
+  },
+  "alias": [
+    "www.cybersentinels.com",
+    "cyber-sentinels-v2.vercel.app",
+    "cybersentinels.com",
+    "cyber-sentinels-v2-keith-speres-projects.vercel.app",
+    "cyber-sentinels-v2-git-fce70e052a6-981156-keith-speres-projects.vercel.app"
+  ],
+  "target": "production",
+  "regions": [
+    "iad1"
+  ],
+  "buildingAt": 1788945926510,
+  "ready": 1788946119562,
+  "readyState": "READY",
+  "source": "cli",
+  "aliasError": null
+}

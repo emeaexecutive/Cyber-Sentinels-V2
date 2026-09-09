@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "verifiedAt": "2026-09-09T11:36:47.181Z",
+  "sourceSha": "b0f6b37d41714efa940852b3ef955e9c7317c513",
+  "deploymentId": "dpl_3yX9aPfmjumxNH2DS56dnzTFL7zc",
+  "agent": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+  "firstTransaction": "eff3b7cf-5dce-5cdc-8292-b4ad572d8ca9",
+  "firstDecision": "ALLOW",
+  "secondTransaction": "819313c8-1e2a-5d85-bdf0-d3d91f86ebab",
+  "secondDecision": "DENY",
+  "authority": "5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+  "authorityRevoked": true,
+  "identityAfterRevocation": "VERIFIED",
+  "originalDecisionImmutable": true,
+  "outcomeReview": "CONTRADICTED",
+  "replayChronology": true,
+  "trustMemory": [
+    "4080faf3-3bad-452b-a235-6841e6bd07df",
+    "2930e58b-b7d5-4a79-b5ac-b1a597a55856",
+    "b5f6114e-350b-454e-9111-13bf8ca951b8"
+  ],
+  "tenantIsolation": true,
+  "temporaryKeysRevoked": true,
+  "temporaryKeyCount": 4,
+  "controlPlaneEvidence": [
+    "1ffefb63-79c2-5dae-af55-2b86c00b6b3b",
+    "3bec814c-1fc7-59ab-8c5d-3f5cc5d52f57"
+  ],
+  "initialHeartbeatEvidence": [
+    "f7125bae-b96b-5065-ae3b-38284c6331ec",
+    "fbfd21e2-9846-5e63-979b-bbd799a8bda7"
+  ],
+  "revokedControlPlaneEvidenceExcluded": true,
+  "monitoringScope": "SIGNED_CONTROL_PLANE_HEARTBEAT_ONLY",
+  "downstreamExecutionObserved": false
+}

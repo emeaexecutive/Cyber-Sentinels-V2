@@ -1,0 +1,184 @@
+{
+  "generatedAt": "2026-09-09T09:49:56.204Z",
+  "verdict": "NO-GO",
+  "v1": "NOT CLOSED",
+  "v2EntryGate": "CLOSED",
+  "mainSha": "fce70e052a6d6b9bbe6842755b66c7354e70c8ed",
+  "sourceFreezeSha": "fce70e052a6d6b9bbe6842755b66c7354e70c8ed",
+  "deploymentId": "dpl_E5FPiv52DeewicTa1kbcWjsv5eSk",
+  "deployedSha": "fce70e052a6d6b9bbe6842755b66c7354e70c8ed",
+  "decisionExecutionSha": "92655fd2f11da622b725050f1f33dcd72f0851d5",
+  "decisionDeploymentId": "dpl_9Vdno9d7Xc34Aw3mcYuRD52Y1NTF",
+  "evidenceRetrievedOnSha": "fce70e052a6d6b9bbe6842755b66c7354e70c8ed",
+  "apiVersion": "2026-08-29",
+  "database": {
+    "project": "kecgtsfibkypjuaxqbjx",
+    "migration": "PASS",
+    "schema": "PASS",
+    "rls": "PASS",
+    "rpcSecurity": "PASS",
+    "originalEntriesUnchanged": true,
+    "finalLedgerCount": 114
+  },
+  "agent": "agent:f5ba7928-39ea-4a54-8030-1f3200a785ab",
+  "identity": "VERIFIED",
+  "challenge": "1f3ae36e-0765-41d2-9629-4c4ecdada3e4",
+  "tenant": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+  "authority": {
+    "authority_id": "b4a52745-151d-4ff8-bafb-bf6767eee821",
+    "authority_reference": "b4a52745-151d-4ff8-bafb-bf6767eee821",
+    "authority_version": "customer-authority:b4a52745-151d-4ff8-bafb-bf6767eee821",
+    "status": "ACTIVE",
+    "action": "read_repository",
+    "actions": [
+      "read_repository"
+    ],
+    "target": "repository:customer-zero-v1-release-evidence",
+    "targets": [
+      "repository:customer-zero-v1-release-evidence"
+    ],
+    "purpose": "deployment_evidence_review",
+    "tools": [],
+    "environment": [
+      "production"
+    ],
+    "valid_from": "2026-09-09T09:15:42.629+00:00",
+    "expires_at": "2026-09-09T10:14:02.51+00:00",
+    "revoked_at": null,
+    "supersedes_authority_id": null,
+    "issuer": "tenant-admin:174b6184-2789-494a-a07e-a87adca5003e",
+    "approver": "api-client:5ad4996a-a495-4808-97af-3c118653eaf9",
+    "delegated_from": null,
+    "delegation_depth": 0,
+    "request_id": "596874ef-2991-4231-bb83-0a2f73ed5d44",
+    "correlation_id": "f1b431c5-fcae-4034-b071-849642c2ea82",
+    "api_version": "2026-08-29"
+  },
+  "action": {
+    "type": "read_repository",
+    "purpose": "deployment_evidence_review",
+    "target": "repository:customer-zero-v1-release-evidence",
+    "environment": "production",
+    "request_digest": "1b7727c179eb7c7295bb42fe18f6ad56315c1f4e1bbbfe80f4d95ab8d51bed19"
+  },
+  "first": {
+    "decision": "REVIEW",
+    "transaction": "a389359e-febd-5e99-ac2f-3e0b141d2399",
+    "receipt": "https://www.cybersentinels.com/api/v1/trust/transactions/a389359e-febd-5e99-ac2f-3e0b141d2399/receipt",
+    "replay": "https://www.cybersentinels.com/api/v1/trust/transactions/a389359e-febd-5e99-ac2f-3e0b141d2399/replay",
+    "evidence": [
+      "77da38ac-a4f2-4f41-a094-797b6362ffb1",
+      "51debea8-b85d-4f18-ac8e-823b10d74e8a"
+    ],
+    "memory": "aa078ed9-e425-4840-9471-351f056eb6e3"
+  },
+  "revocation": {
+    "authority_id": "b4a52745-151d-4ff8-bafb-bf6767eee821",
+    "authority_reference": "b4a52745-151d-4ff8-bafb-bf6767eee821",
+    "authority_version": "customer-authority:b4a52745-151d-4ff8-bafb-bf6767eee821",
+    "status": "REVOKED",
+    "action": "read_repository",
+    "actions": [
+      "read_repository"
+    ],
+    "target": "repository:customer-zero-v1-release-evidence",
+    "targets": [
+      "repository:customer-zero-v1-release-evidence"
+    ],
+    "purpose": "deployment_evidence_review",
+    "tools": [],
+    "environment": [
+      "production"
+    ],
+    "valid_from": "2026-09-09T09:15:42.629+00:00",
+    "expires_at": "2026-09-09T10:14:02.51+00:00",
+    "revoked_at": "2026-09-09T09:18:29.365461+00:00",
+    "supersedes_authority_id": null,
+    "issuer": "tenant-admin:174b6184-2789-494a-a07e-a87adca5003e",
+    "approver": "api-client:5ad4996a-a495-4808-97af-3c118653eaf9",
+    "delegated_from": null,
+    "delegation_depth": 0,
+    "request_id": "a60c0876-9608-472c-9a76-f36bb700306b",
+    "correlation_id": "67cf4fe1-1a59-41cd-bce8-c191179c2854",
+    "api_version": "2026-08-29"
+  },
+  "second": {
+    "decision": "DENY",
+    "transaction": "522ec390-4bc6-5b62-9830-553a0498248c",
+    "receipt": "https://www.cybersentinels.com/api/v1/trust/transactions/522ec390-4bc6-5b62-9830-553a0498248c/receipt",
+    "replay": "https://www.cybersentinels.com/api/v1/trust/transactions/522ec390-4bc6-5b62-9830-553a0498248c/replay",
+    "evidence": [
+      "77da38ac-a4f2-4f41-a094-797b6362ffb1",
+      "51debea8-b85d-4f18-ac8e-823b10d74e8a"
+    ],
+    "memory": "c31b17f1-dac1-4bd7-a2a0-bb7257fbb7d5",
+    "identity": "VERIFIED"
+  },
+  "negativeChecks": {
+    "invalidApiKey": 401,
+    "wrongEd25519Key": {
+      "status": 409,
+      "code": "IDEMPOTENCY_CONFLICT",
+      "rejected": true
+    },
+    "challengeReplay": {
+      "status": 409,
+      "code": "IDEMPOTENCY_CONFLICT",
+      "rejected": true
+    },
+    "missingAuthority": {
+      "status": 409,
+      "code": "AUTHORITY_NOT_FOUND",
+      "rejected": true,
+      "decision": null
+    },
+    "wrongAction": "DENY",
+    "revokedAuthority": "DENY",
+    "tenantIsolation": "PASS"
+  },
+  "outcomeReview": {
+    "status": "PARTIAL: required original-ALLOW example blocked",
+    "observedOriginal": "REVIEW",
+    "laterAdjudication": "DENY",
+    "evaluation": "CONTRADICTED",
+    "originalDecisionDigestAndReasonsImmutable": true,
+    "reviewMemory": "86cc1f0c-1bb1-4666-ad39-f559e6f0b2d3"
+  },
+  "worldId": "IMPLEMENTED / STAGING DATABASE QUALIFIED / READY FOR REAL HUMAN PROVIDER QUALIFICATION / NOT PRODUCTION EXERCISED",
+  "validation": {
+    "sourceHead": "89f22aa8854c61a739e4fc52384ecc1c458efaf5",
+    "local": {
+      "skips": 0,
+      "lint": "PASS",
+      "typecheck": "PASS",
+      "tests": 1343,
+      "failures": 0
+    },
+    "ci": {
+      "supabasePreview": "SKIPPED integration, not a required migration proof",
+      "build": "PASS",
+      "allRequiredChecks": "PASS",
+      "skips": 1,
+      "failures": 0,
+      "skipReason": "Windows-specific audit-runner test; passed in the full local Windows run",
+      "testCases": 1343
+    },
+    "mainSha": "fce70e052a6d6b9bbe6842755b66c7354e70c8ed"
+  },
+  "temporaryKeysRevoked": true,
+  "unresolvedP0": 0,
+  "unresolvedP1": 1,
+  "unresolvedP2": 0,
+  "severityScope": "Release qualification findings, not a blanket assurance about unexercised paths",
+  "blockers": [
+    "The Production authority policy requires SERVER_VERIFIED_AGENT_CONFIGURATION and SERVER_VERIFIED_MONITORING_HEARTBEAT. Their only implemented producer is the synthetic Staging provider, which is prohibited in Production. The legitimate external request therefore returns REVIEW. No evidence was fabricated and no policy was weakened."
+  ],
+  "limitations": [
+    "No ALLOW-to-DENY lifecycle established.",
+    "No original-ALLOW outcome review established.",
+    "No downstream action or model invocation performed.",
+    "Readiness externalControls remains BLOCKED: authoritative control-plane evidence required.",
+    "Manual review resolution after revocation returned REVIEW_AUTHORITY_INVALID; no approval occurred.",
+    "An additional final-runtime cleanup attempt encountered a client ECONNRESET; it is not counted as a completed proof."
+  ]
+}

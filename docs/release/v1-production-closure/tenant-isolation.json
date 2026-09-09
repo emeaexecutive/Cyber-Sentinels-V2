@@ -1,0 +1,85 @@
+{
+  "origin": "https://www.cybersentinels.com",
+  "startedAt": "2026-09-09T09:30:45.282Z",
+  "stages": {
+    "agentB": {
+      "agent_id": "agent:647fb4b1-48c5-4d6d-9f0d-bd2de0461059",
+      "operational_entity_id": "agent:647fb4b1-48c5-4d6d-9f0d-bd2de0461059",
+      "status": "PENDING_IDENTITY_PROOF",
+      "next_step": "REGISTER_CREDENTIAL",
+      "manifest_context": {
+        "enterprise_id": "ab10b640-e72f-4910-a44c-4eb8522bbaa7",
+        "display_name": "CUSTOMER_ZERO_V1_ISOLATION_AGENT_20260909",
+        "accountable_owner_id": "owner:customer-zero-isolation",
+        "organization_id": "tenant:ab10b640-e72f-4910-a44c-4eb8522bbaa7",
+        "environment": "production",
+        "framework": "custom",
+        "model": {
+          "provider": "not_invoked",
+          "identifier": "tenant-isolation-http-client"
+        },
+        "authority_reference": null
+      },
+      "request_id": "7445499f-3834-4d61-96f4-ae541573c039",
+      "correlation_id": "330dce6d-98b4-4475-8225-69910df418f3",
+      "api_version": "2026-08-29"
+    },
+    "ownAgentA": {
+      "agent_id": "agent:f5ba7928-39ea-4a54-8030-1f3200a785ab",
+      "operational_entity_id": "agent:f5ba7928-39ea-4a54-8030-1f3200a785ab",
+      "entity_type": "AI_AGENT",
+      "display_name": "CUSTOMER_ZERO_AGENT_V1_PRODUCTION_20260909",
+      "lifecycle_state": "active",
+      "accountable_owner_reference": "owner:customer-zero-v1",
+      "authority_reference": "b4a52745-151d-4ff8-bafb-bf6767eee821",
+      "authority_version": "customer-authority:b4a52745-151d-4ff8-bafb-bf6767eee821",
+      "authority_status": "REVOKED",
+      "request_id": "b50b654f-5092-4e32-9aa2-892d3ddbbacb",
+      "correlation_id": "7007c44e-2463-4551-b783-60377ee6c800",
+      "api_version": "2026-08-29"
+    },
+    "ownAgentB": {
+      "agent_id": "agent:647fb4b1-48c5-4d6d-9f0d-bd2de0461059",
+      "operational_entity_id": "agent:647fb4b1-48c5-4d6d-9f0d-bd2de0461059",
+      "entity_type": "AI_AGENT",
+      "display_name": "CUSTOMER_ZERO_V1_ISOLATION_AGENT_20260909",
+      "lifecycle_state": "active",
+      "accountable_owner_reference": "owner:customer-zero-isolation",
+      "authority_reference": null,
+      "authority_version": null,
+      "authority_status": "UNASSIGNED",
+      "request_id": "87c5d2d7-1f11-470c-acac-67258a2534d3",
+      "correlation_id": "eec8865f-f654-4501-977e-15bbd4558465",
+      "api_version": "2026-08-29"
+    },
+    "tenantAReadingAgentB": {
+      "status": 404,
+      "code": "AGENT_NOT_OWNED",
+      "rejected": true
+    },
+    "tenantBReadingAgentA": {
+      "status": 404,
+      "code": "AGENT_NOT_OWNED",
+      "rejected": true
+    },
+    "tenantBReadingTransactionA": {
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "rejected": true
+    },
+    "tenantBReadingReceiptA": {
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "rejected": true
+    },
+    "tenantBReadingReplayA": {
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "rejected": true
+    }
+  },
+  "tenantA": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+  "tenantB": "ab10b640-e72f-4910-a44c-4eb8522bbaa7",
+  "result": "PASS",
+  "completedAt": "2026-09-09T09:30:59.811Z"
+}

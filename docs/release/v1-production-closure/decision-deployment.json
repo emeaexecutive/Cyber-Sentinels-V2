@@ -1,0 +1,54 @@
+{
+  "id": "dpl_9Vdno9d7Xc34Aw3mcYuRD52Y1NTF",
+  "name": "cyber-sentinels-v2",
+  "url": "cyber-sentinels-v2-nvc79sb45-keith-speres-projects.vercel.app",
+  "type": "LAMBDAS",
+  "state": "READY",
+  "createdAt": 1788945065156,
+  "creator": {
+    "uid": "8s6V9COhAgO8vljOoqTak7gj",
+    "username": "emeaexecutive-9603"
+  },
+  "project": {
+    "id": "prj_7v7vbNXHaf7gfAqYjGxRMQEB8FAr",
+    "name": "cyber-sentinels-v2",
+    "framework": "nextjs"
+  },
+  "meta": {
+    "githubCommitAuthorName": "emeaexecutive",
+    "githubCommitAuthorEmail": "emeaexecutive@icloud.com",
+    "githubCommitMessage": "Merge pull request #81 from emeaexecutive/fix/v1-native-agent-evidence-uuid\n\nfix: unblock native agent Production decision evidence collection",
+    "githubCommitOrg": "emeaexecutive",
+    "githubCommitRef": "92655fd2f11da622b725050f1f33dcd72f0851d5",
+    "githubCommitRepo": "Cyber-Sentinels-V2",
+    "githubCommitSha": "92655fd2f11da622b725050f1f33dcd72f0851d5",
+    "githubDeployment": "1",
+    "githubOrg": "emeaexecutive",
+    "githubRepo": "Cyber-Sentinels-V2",
+    "githubRepoOwnerType": "User",
+    "githubCommitRepoId": "1235827296",
+    "githubRepoId": "1235827296",
+    "githubRepoVisibility": "public",
+    "githubHost": "github.com",
+    "githubCommitAuthorLogin": "emeaexecutive",
+    "githubCommitVerification": "verified",
+    "branchAlias": "cyber-sentinels-v2-git-92655fd2f11-09f139-keith-speres-projects.vercel.app",
+    "lambdaRuntimeStats": "{\"nodejs\":5}"
+  },
+  "alias": [
+    "www.cybersentinels.com",
+    "cyber-sentinels-v2.vercel.app",
+    "cybersentinels.com",
+    "cyber-sentinels-v2-keith-speres-projects.vercel.app",
+    "cyber-sentinels-v2-git-92655fd2f11-09f139-keith-speres-projects.vercel.app"
+  ],
+  "target": "production",
+  "regions": [
+    "iad1"
+  ],
+  "buildingAt": 1788945066437,
+  "ready": 1788945253497,
+  "readyState": "READY",
+  "source": "cli",
+  "aliasError": null
+}

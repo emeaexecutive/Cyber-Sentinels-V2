@@ -1,0 +1,13 @@
+{
+    "rlsEnabled":  true,
+    "inspection":  "READ_ONLY",
+    "selectPolicy":  "tenant members read evidence metadata",
+    "persistence":  "One atomic array insert; existing unique evidence_id rejects replay",
+    "project":  "kecgtsfibkypjuaxqbjx",
+    "uniqueEvidenceId":  true,
+    "table":  "public.evidence_objects",
+    "serviceRoleInsert":  true,
+    "anonInsert":  false,
+    "authenticatedInsert":  false,
+    "newMigrationRequired":  false
+}

@@ -1,0 +1,13 @@
+{
+    "skips":  0,
+    "failures":  0,
+    "lint":  "PASS",
+    "command":  "npm run validate",
+    "typecheck":  "PASS",
+    "tests":  1340,
+    "ci":  "All required gates PASS; Supabase Preview integration SKIPPED",
+    "sourceHead":  "13ef01d3d2a157ef3f07f096a710ffcbd9b207ec",
+    "exitCode":  0,
+    "secretScan":  "PASS",
+    "build":  "PASS"
+}

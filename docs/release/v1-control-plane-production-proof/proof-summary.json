@@ -1,0 +1,80 @@
+{
+  "generatedAt": "2026-09-09T11:36:47.409Z",
+  "startingMain": "fce70e052a6d6b9bbe6842755b66c7354e70c8ed",
+  "mainSha": "b0f6b37d41714efa940852b3ef955e9c7317c513",
+  "deploymentId": "dpl_3yX9aPfmjumxNH2DS56dnzTFL7zc",
+  "productionApi": "GO",
+  "v1": "CLOSED",
+  "v2EntryGate": "OPEN",
+  "scope": "First-party Production trust API: signed declaration, signed control-plane heartbeat and bounded action authorization",
+  "prs": [
+    84,
+    85
+  ],
+  "filesChanged": 20,
+  "newMigrationRequired": false,
+  "agent": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+  "tenant": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+  "keyId": "e93a65d0-2ef9-42b8-bd3e-7f60342ce06d",
+  "identity": "VERIFIED",
+  "configurationEvidence": "1ffefb63-79c2-5dae-af55-2b86c00b6b3b",
+  "monitoringEvidence": "3bec814c-1fc7-59ab-8c5d-3f5cc5d52f57",
+  "authority": "5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+  "policy": {
+    "id": "external-agent-trust-v1",
+    "version": "0.2.0"
+  },
+  "action": {
+    "type": "read_repository",
+    "target": "repository:customer-zero-v1-release-evidence",
+    "purpose": "deployment_evidence_review",
+    "environment": "production"
+  },
+  "first": {
+    "decision": "ALLOW",
+    "transaction": "eff3b7cf-5dce-5cdc-8292-b4ad572d8ca9",
+    "receipt": "https://www.cybersentinels.com/api/v1/trust/transactions/eff3b7cf-5dce-5cdc-8292-b4ad572d8ca9/receipt",
+    "replay": "https://www.cybersentinels.com/api/v1/trust/transactions/eff3b7cf-5dce-5cdc-8292-b4ad572d8ca9/replay",
+    "memory": "4080faf3-3bad-452b-a235-6841e6bd07df"
+  },
+  "second": {
+    "decision": "DENY",
+    "transaction": "819313c8-1e2a-5d85-bdf0-d3d91f86ebab",
+    "receipt": "https://www.cybersentinels.com/api/v1/trust/transactions/819313c8-1e2a-5d85-bdf0-d3d91f86ebab/receipt",
+    "replay": "https://www.cybersentinels.com/api/v1/trust/transactions/819313c8-1e2a-5d85-bdf0-d3d91f86ebab/replay",
+    "memory": "2930e58b-b7d5-4a79-b5ac-b1a597a55856"
+  },
+  "outcomeReview": {
+    "original": "ALLOW",
+    "adjudicated": "DENY",
+    "evaluation": "CONTRADICTED",
+    "originalDecisionDigestAndReasonsImmutable": true,
+    "memory": "b5f6114e-350b-454e-9111-13bf8ca951b8"
+  },
+  "fullTests": {
+    "skipped": 0,
+    "tests": 1481,
+    "failed": 0,
+    "passed": 1481
+  },
+  "tenantIsolation": "PASS",
+  "negativeTests": "PASS",
+  "temporaryKeysRevoked": 4,
+  "temporaryAuthoritiesRevoked": 2,
+  "unresolvedP0": 0,
+  "unresolvedP1": 0,
+  "unresolvedP2": 0,
+  "severityScope": "Known findings in this V1 release qualification",
+  "worldId": "IMPLEMENTED / STAGING DATABASE QUALIFIED / READY FOR REAL HUMAN PROVIDER QUALIFICATION / NOT PRODUCTION EXERCISED",
+  "limitations": [
+    "Configuration authenticates the signed declaration; no independent runtime attestation is asserted.",
+    "Monitoring covers a real signed control-plane heartbeat; no downstream execution or model invocation was performed.",
+    "The readiness endpoint retains its broader externalControls=BLOCKED marker; no external control/provider qualification is claimed.",
+    "All qualification authority and keys were revoked; the recorded ALLOW is historical and not standing authorization."
+  ],
+  "history": [
+    "PR83 previous run remains REVIEW → DENY because no legitimate Production configuration/monitoring producer existed.",
+    "PR84 added the legitimate producer. An initial real ALLOW → DENY run exposed public error-code normalization drift.",
+    "PR85 corrected the public error vocabulary. The final fresh-agent run passed all gates on the exact corrected main."
+  ]
+}

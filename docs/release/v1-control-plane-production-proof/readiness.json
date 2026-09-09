@@ -1,0 +1,49 @@
+{
+    "schemaVersion":  "readiness-v3",
+    "status":  "READY",
+    "reasonCode":  "ENTERPRISE_TRUST_ARCHITECTURE_AVAILABLE",
+    "checks":  {
+                   "environment":  "READY",
+                   "enterpriseTrustArchitecture":  "READY",
+                   "repositoryRuntime":  "VERIFIED_FROM_RUNTIME",
+                   "externalControls":  "BLOCKED",
+                   "process":  "PROCESS_HEALTHY",
+                   "dataPlane":  "READY",
+                   "apiAuthentication":  "READY",
+                   "canonicalPersistence":  "READY",
+                   "authority":  "READY",
+                   "humanReview":  "READY",
+                   "rateLimiting":  "READY",
+                   "apiKeyRotation":  "READY"
+               },
+    "enterpriseTrustRegistry":  {
+                                    "missingDomains":  [
+
+                                                       ],
+                                    "inactiveDomains":  [
+
+                                                        ],
+                                    "versionMismatchDomains":  [
+
+                                                               ],
+                                    "duplicateDomains":  [
+
+                                                         ]
+                                },
+    "runtime":  {
+                    "commitSha":  "b0f6b37d41714efa940852b3ef955e9c7317c513"
+                },
+    "externalControls":  {
+                             "state":  "BLOCKED",
+                             "reasonCode":  "AUTHORITATIVE_CONTROL_PLANE_EVIDENCE_REQUIRED"
+                         },
+    "generatedAt":  "2026-09-09T11:26:16.171Z",
+    "diagnosticState":  "PROCESS_HEALTHY",
+    "publicApiEnvironment":  {
+                                 "valid":  true,
+                                 "state":  "CONFIGURED",
+                                 "reasonCode":  "PUBLIC_API_ENVIRONMENT_CONFIGURED",
+                                 "name":  "production",
+                                 "origin":  "https://www.cybersentinels.com"
+                             }
+}

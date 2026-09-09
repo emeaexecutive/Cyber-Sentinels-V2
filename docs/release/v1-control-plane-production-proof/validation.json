@@ -1,0 +1,52 @@
+{
+    "prs":  [
+                84,
+                85
+            ],
+    "resolvedLocalInfrastructure":  "One earlier repeated full run timed out in the Windows audit harness; isolated recheck and final complete 1481-case suite passed without weakening tests",
+    "codeql":  "PASS",
+    "typecheck":  "PASS",
+    "mainCI":  {
+                   "verify":  "PASS",
+                   "codeqlRun":  34345110368,
+                   "docker":  "PASS",
+                   "runId":  34345110467,
+                   "secretScan":  "PASS",
+                   "secretScanRun":  34345110419,
+                   "codeql":  "PASS"
+               },
+    "fullLocalSuite":  {
+                           "skipped":  0,
+                           "tests":  1481,
+                           "failed":  0,
+                           "passed":  1481
+                       },
+    "checkedAt":  "2026-09-09T11:33:12.7420554Z",
+    "build":  "PASS",
+    "worldIdSuite":  {
+                         "passed":  18,
+                         "tests":  18
+                     },
+    "heartbeatSuite":  {
+                           "passed":  65,
+                           "tests":  65
+                       },
+    "sourceHead":  "f58441320eb740bcbb225a2848fb976f15549c38",
+    "finalHeadCI":  {
+                        "passed":  1480,
+                        "failed":  0,
+                        "runId":  34344571636,
+                        "tests":  1481,
+                        "skip":  "Windows-only audit-runner case; passed in final full Windows suite",
+                        "skipped":  1
+                    },
+    "docker":  "PASS",
+    "externalAgentSuite":  {
+                               "passed":  138,
+                               "tests":  138
+                           },
+    "startingMain":  "fce70e052a6d6b9bbe6842755b66c7354e70c8ed",
+    "lint":  "PASS",
+    "mergedMain":  "b0f6b37d41714efa940852b3ef955e9c7317c513",
+    "secretScan":  "PASS"
+}

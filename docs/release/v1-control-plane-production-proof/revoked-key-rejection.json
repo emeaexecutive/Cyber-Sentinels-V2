@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "checkedAt": "2026-09-09T11:30:29.445Z",
+  "results": [
+    {
+      "label": "primary",
+      "httpStatus": 401,
+      "code": "API_KEY_REVOKED",
+      "requestId": "bbdd1f62-df12-47a3-bac8-56fd3b313691",
+      "correlationId": "55c6befd-95d9-492e-b3cf-25f2c995224d"
+    },
+    {
+      "label": "isolation",
+      "httpStatus": 401,
+      "code": "API_KEY_REVOKED",
+      "requestId": "6cf448cf-9b20-421c-8464-8b4dfc5b52ce",
+      "correlationId": "577f2cd3-d48b-4aa7-a48c-f755487d6f04"
+    }
+  ]
+}

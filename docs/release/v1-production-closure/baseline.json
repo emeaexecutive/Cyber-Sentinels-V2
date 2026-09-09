@@ -1,0 +1,133 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "redirect": null,
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "path": "/api/health",
+    "status": 200,
+    "redirect": null,
+    "contentType": "application/json",
+    "body": {
+      "status": "ok",
+      "probe": "liveness",
+      "schema_version": "health-v2",
+      "release_version": "98c223f7acb709dcfab8d33a435d7e551cfd4c2c",
+      "ok": true,
+      "meta": {
+        "version": "v1",
+        "trace_id": "trace_17e8194f-5cbb-42cd-9ebf-ccfcc37ac7bc",
+        "audit_id": "audit_health_1574d3c7-a5ed-431f-bbc8-dd9556711087",
+        "timestamp": "2026-09-09T08:53:25.381Z"
+      }
+    }
+  },
+  {
+    "path": "/api/ready",
+    "status": 200,
+    "redirect": null,
+    "contentType": "application/json",
+    "body": {
+      "schemaVersion": "readiness-v3",
+      "status": "READY",
+      "reasonCode": "ENTERPRISE_TRUST_ARCHITECTURE_AVAILABLE",
+      "checks": {
+        "environment": "READY",
+        "enterpriseTrustArchitecture": "READY",
+        "repositoryRuntime": "VERIFIED_FROM_RUNTIME",
+        "externalControls": "BLOCKED",
+        "process": "PROCESS_HEALTHY",
+        "dataPlane": "READY",
+        "apiAuthentication": "READY",
+        "canonicalPersistence": "READY",
+        "authority": "READY",
+        "humanReview": "READY",
+        "rateLimiting": "READY",
+        "apiKeyRotation": "READY"
+      },
+      "enterpriseTrustRegistry": {
+        "missingDomains": [],
+        "inactiveDomains": [],
+        "versionMismatchDomains": [],
+        "duplicateDomains": []
+      },
+      "runtime": {
+        "commitSha": "98c223f7acb709dcfab8d33a435d7e551cfd4c2c"
+      },
+      "externalControls": {
+        "state": "BLOCKED",
+        "reasonCode": "AUTHORITATIVE_CONTROL_PLANE_EVIDENCE_REQUIRED"
+      },
+      "generatedAt": "2026-09-09T08:53:25.313Z",
+      "diagnosticState": "PROCESS_HEALTHY",
+      "publicApiEnvironment": {
+        "valid": true,
+        "state": "CONFIGURED",
+        "reasonCode": "PUBLIC_API_ENVIRONMENT_CONFIGURED",
+        "name": "production",
+        "origin": "https://www.cybersentinels.com"
+      }
+    }
+  },
+  {
+    "path": "/api/v1/openapi.json",
+    "status": 200,
+    "redirect": null,
+    "contentType": "application/json",
+    "body": {
+      "openapi": "3.1.0",
+      "version": "2026-08-29",
+      "pathCount": 19
+    }
+  },
+  {
+    "path": "/login",
+    "status": 200,
+    "redirect": null,
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "path": "/enterprise-access",
+    "status": 200,
+    "redirect": null,
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "path": "/developers/docs",
+    "status": 200,
+    "redirect": null,
+    "contentType": "text/html; charset=utf-8"
+  },
+  {
+    "path": "/developers/api-keys",
+    "status": 307,
+    "redirect": "/login?next=%2Fdevelopers%2Fapi-keys",
+    "contentType": "text/plain"
+  },
+  {
+    "path": "/api/v1/agents",
+    "status": 405,
+    "redirect": null,
+    "contentType": null
+  },
+  {
+    "path": "/api/v1/trust/decisions",
+    "status": 405,
+    "redirect": null,
+    "contentType": null
+  },
+  {
+    "path": "/replay",
+    "status": 307,
+    "redirect": "/login?next=%2Freplay",
+    "contentType": "text/plain"
+  },
+  {
+    "path": "/trust-memory",
+    "status": 404,
+    "redirect": null,
+    "contentType": "text/html; charset=utf-8"
+  }
+]
