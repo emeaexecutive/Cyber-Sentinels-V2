@@ -32,24 +32,26 @@ async function createWorkspace(formData: FormData) {
   if (!name) redirect("/workspace?workspace_error=missing_name");
 
   const slug = `${slugifyWorkspaceName(name)}-${Date.now().toString(36)}`;
-  const { data: workspace } = await supabase
+  const workspaceId = crypto.randomUUID();
+  // The tenant read policy resolves ownership from the stored workspace.
+  // Read it only after the insert has completed, not through RETURNING.
+  const { error: workspaceError } = await supabase
     .from("trust_workspaces")
     .insert({
+      id: workspaceId,
       name,
       slug,
       description,
       created_by: user.id,
-    })
-    .select("id")
-    .single();
+    });
 
-  if (workspace?.id) {
+  if (!workspaceError) {
     await supabase.from("workspace_members").insert({
-      workspace_id: workspace.id,
+      workspace_id: workspaceId,
       user_id: user.id,
       role: "admin",
     });
-    redirect(`/workspace/${workspace.id}`);
+    redirect(`/workspace/${workspaceId}`);
   }
 
   redirect("/workspace?workspace_error=create_failed");
