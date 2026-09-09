@@ -5,6 +5,9 @@ import test from "node:test";
 const verificationRoute = await readFile(new URL("../app/api/identity/verifications/route.ts", import.meta.url), "utf8");
 const context = await readFile(new URL("../lib/identity-signals/enterprise-context.ts", import.meta.url), "utf8");
 const worldCallback = await readFile(new URL("../app/api/providers/world-id/callback/route.ts", import.meta.url), "utf8");
+const worldVerification = await readFile(new URL("../app/api/verify/world/route.ts", import.meta.url), "utf8");
+const worldQualification = await readFile(new URL("../lib/providers/world-id-qualification-server.ts", import.meta.url), "utf8");
+const worldSignature = await readFile(new URL("../app/api/world-id/rp-signature/route.ts", import.meta.url), "utf8");
 const hopaeAlias = await readFile(new URL("../app/api/providers/hopae/callback/route.ts", import.meta.url), "utf8");
 const middleware = await readFile(new URL("../middleware.ts", import.meta.url), "utf8");
 const subjectRoute = await readFile(new URL("../app/api/identity/subjects/route.ts", import.meta.url), "utf8");
@@ -28,9 +31,16 @@ test("identity API derives enterprise authority from authenticated membership", 
 });
 
 test("provider callbacks remain fail-closed and canonical", () => {
-  assert.match(worldCallback, /WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED/);
+  assert.match(worldCallback, /WORLD_ID_CALLBACK_NOT_USED/);
   assert.match(worldCallback, /confidence: 0/);
   assert.match(worldCallback, /serverVerified: false/);
+  assert.match(worldVerification, /requireAuthenticatedUser/);
+  assert.match(worldVerification, /resolveSessionTenant/);
+  assert.match(worldVerification, /executeWorldIdQualification/);
+  assert.match(worldQualification, /orchestrateIdentityVerification/);
+  assert.match(worldQualification, /executeCanonicalTrustTransaction/);
+  assert.match(worldSignature, /supabase\.auth\.getUser/);
+  assert.match(worldSignature, /createWorldIdRpSignature/);
   assert.match(hopaeAlias, /export \{ POST \} from "\.\.\/\.\.\/route"/);
   assert.match(middleware, /\/api\/providers\/hopae\/callback/);
   assert.match(middleware, /\/api\/providers\/world-id\/callback/);

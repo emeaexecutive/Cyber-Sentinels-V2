@@ -131,6 +131,56 @@ export type ExecutionContinuityRecord = {
   evidenceReference: string | null;
 };
 
+export type DecisionOutcomeReviewEvaluationStatus = "SUPPORTED" | "CONTRADICTED" | "HUMAN_OVERRIDDEN" | "PARTIALLY_SUPPORTED" | "UNRESOLVED";
+
+export type HumanOverrideEvidence = {
+  occurred: true;
+  originalDecision: CanonicalTransactionDecision;
+  resultingDecision: CanonicalTransactionDecision;
+  actorReference: string | null;
+  occurredAt: string | null;
+  reason: string | null;
+  evidenceReference: string | null;
+};
+
+export type DecisionOutcomeReview = {
+  originalDecision: CanonicalTransactionDecision;
+  decisionModelProvider: string | null;
+  decisionModelName: string | null;
+  decisionModelVersion: string | null;
+  policyVersion: string;
+  decisionReasonCodes: string[];
+  humanOverride: HumanOverrideEvidence | null;
+  providerOutcome: string | null;
+  runtimeOutcome: string | null;
+  destinationOutcome: string | null;
+  adjudicatedOutcome: CanonicalTransactionDecision | null;
+  evaluationStatus: DecisionOutcomeReviewEvaluationStatus;
+};
+
+export type DecisionOutcomeReviewInput = {
+  originalDecision?: CanonicalTransactionDecision;
+  decisionModelProvider?: string | null;
+  decisionModelName?: string | null;
+  decisionModelVersion?: string | null;
+  policyVersion?: string;
+  decisionReasonCodes?: string[];
+  humanOverride?: {
+    occurred?: boolean;
+    originalDecision?: CanonicalTransactionDecision;
+    resultingDecision: CanonicalTransactionDecision;
+    actorReference?: string | null;
+    occurredAt?: string | null;
+    reason?: string | null;
+    evidenceReference?: string | null;
+  } | null;
+  providerOutcome?: string | null;
+  runtimeOutcome?: string | null;
+  destinationOutcome?: string | null;
+  adjudicatedOutcome?: CanonicalTransactionDecision | null;
+  evaluationStatus: DecisionOutcomeReviewEvaluationStatus;
+};
+
 export type CanonicalTrustTransactionInput = {
   trustObject: { subjectType: EnterpriseSubjectClass; subjectId: string };
   action: {
@@ -156,6 +206,7 @@ export type CanonicalTrustTransactionInput = {
     materialChangeReferences?: string[];
     clientAssertedMaterialChanges?: string[];
   } | null;
+  decisionOutcomeReview?: DecisionOutcomeReviewInput | null;
   managedControl?: {
     responsibilityLineage?: Partial<ResponsibilityLineage>;
     providerHealth?: Record<string, string>;
@@ -277,6 +328,7 @@ export type CanonicalDecisionRecord = {
   providerNeutralEvidence: ProviderNeutralEvidence[];
   deploymentGate: DeploymentGateSummary | null;
   executionContinuity: ExecutionContinuityRecord[];
+  decisionOutcomeReview: DecisionOutcomeReview | null;
   authorityIntegrity: AuthorityIntegrityAssessment | null;
   authorityEvidenceSummary: AuthorityIntegrityAssessment["receiptSummary"] | null;
   trustForecast: TrustForecast | null;
@@ -329,6 +381,7 @@ export type SafeCanonicalTransactionReceipt = {
   providerNeutralEvidence: ProviderNeutralEvidence[];
   deploymentGate: DeploymentGateSummary | null;
   executionContinuity: ExecutionContinuityRecord[];
+  decisionOutcomeReview: DecisionOutcomeReview | null;
   authorityIntegrity: AuthorityIntegrityAssessment | null;
   authorityEvidenceSummary: AuthorityIntegrityAssessment["receiptSummary"] | null;
   trustForecast: TrustForecast | null;
@@ -389,6 +442,9 @@ const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}
 const digestPattern = /^[a-f0-9]{64}$/;
 const referencePattern = /^[a-zA-Z0-9_.:/-]{1,180}$/;
 
+const canonicalDecisionOutcomes = new Set<CanonicalTransactionDecision>(["ALLOW", "REVIEW", "DENY"]);
+const allowedDecisionOutcomeReviewStatuses = new Set<DecisionOutcomeReviewEvaluationStatus>(["SUPPORTED", "CONTRADICTED", "HUMAN_OVERRIDDEN", "PARTIALLY_SUPPORTED", "UNRESOLVED"]);
+
 function assertInput(input: CanonicalTrustTransactionInput) {
   if (!referencePattern.test(input.trustObject.subjectId) || !referencePattern.test(input.action.type) || !referencePattern.test(input.action.purpose)) throw new TypeError("Trust Object, action and purpose references are required.");
   if (!input.action.resource.trim() || input.action.resource.length > 300 || !referencePattern.test(input.action.environment)) throw new TypeError("A bounded action resource and environment are required.");
@@ -405,6 +461,62 @@ function assertInput(input: CanonicalTrustTransactionInput) {
   ]) {
     if (!referencePattern.test(reference)) throw new TypeError("Current-condition reference is invalid.");
   }
+}
+
+function optionalReviewText(value: unknown, field: string) {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== "string" || !value.trim() || value.length > 500) throw new TypeError(`Decision-outcome review ${field} is invalid.`);
+  return value.trim();
+}
+
+export function normalizeDecisionOutcomeReview(input: {
+  review: DecisionOutcomeReviewInput | null | undefined;
+  decision: CanonicalTransactionDecision;
+  policyVersion: string;
+  reasonCodes: string[];
+}): DecisionOutcomeReview | null {
+  const { review, decision, policyVersion, reasonCodes } = input;
+  if (!review) return null;
+  if (typeof review !== "object" || Array.isArray(review)) throw new TypeError("Decision-outcome review must be an object.");
+  const evaluationStatus = review.evaluationStatus;
+  if (!allowedDecisionOutcomeReviewStatuses.has(evaluationStatus)) {
+    throw new TypeError("Unsupported decision-outcome review evaluation status.");
+  }
+  if (review.originalDecision && review.originalDecision !== decision) throw new TypeError("Decision-outcome review original decision does not match the immutable canonical decision.");
+  if (review.policyVersion && review.policyVersion !== policyVersion) throw new TypeError("Decision-outcome review policy version does not match the immutable canonical decision.");
+  if (review.decisionReasonCodes && (review.decisionReasonCodes.length !== reasonCodes.length || review.decisionReasonCodes.some((code, index) => code !== reasonCodes[index]))) {
+    throw new TypeError("Decision-outcome review reason codes do not match the immutable canonical decision.");
+  }
+  if (review.adjudicatedOutcome !== null && review.adjudicatedOutcome !== undefined && !canonicalDecisionOutcomes.has(review.adjudicatedOutcome)) {
+    throw new TypeError("Unsupported adjudicated decision outcome.");
+  }
+  const override = review.humanOverride;
+  if (override && typeof override !== "object") throw new TypeError("Human override evidence must be an object.");
+  if (override?.occurred === false) throw new TypeError("A false human override must be represented by null.");
+  if (override?.originalDecision && override.originalDecision !== decision) throw new TypeError("Human override original decision does not match the immutable canonical decision.");
+  if (override && !canonicalDecisionOutcomes.has(override.resultingDecision)) throw new TypeError("Human override resulting decision is invalid.");
+  return {
+    originalDecision: decision,
+    decisionModelProvider: optionalReviewText(review.decisionModelProvider, "model provider"),
+    decisionModelName: optionalReviewText(review.decisionModelName, "model name"),
+    decisionModelVersion: optionalReviewText(review.decisionModelVersion, "model version"),
+    policyVersion,
+    decisionReasonCodes: [...reasonCodes],
+    humanOverride: override ? {
+      occurred: true,
+      originalDecision: decision,
+      resultingDecision: override.resultingDecision,
+      actorReference: optionalReviewText(override.actorReference, "override actor reference"),
+      occurredAt: optionalReviewText(override.occurredAt, "override timestamp"),
+      reason: optionalReviewText(override.reason, "override reason"),
+      evidenceReference: optionalReviewText(override.evidenceReference, "override evidence reference"),
+    } : null,
+    providerOutcome: optionalReviewText(review.providerOutcome, "provider outcome"),
+    runtimeOutcome: optionalReviewText(review.runtimeOutcome, "runtime outcome"),
+    destinationOutcome: optionalReviewText(review.destinationOutcome, "destination outcome"),
+    adjudicatedOutcome: review.adjudicatedOutcome ?? null,
+    evaluationStatus,
+  };
 }
 
 function isSameIdempotentRequest(receipt: SafeCanonicalTransactionReceipt, input: CanonicalTrustTransactionInput, actor: AuthenticatedTransactionActor) {
@@ -656,7 +768,7 @@ export function evaluateCanonicalTrustDecision(input: {
     sourceClassification: item.sourceClassification ?? "provider_asserted",
     claim: item.outcome === "PASSED" ? "success" : item.outcome === "FAILED" ? "failure" : "unknown",
     providerNativeEventId: item.providerEventId,
-    normalizedEvidence: { type: item.type, outcome: item.outcome, assuranceLevel: item.assuranceLevel },
+    normalizedEvidence: { ...item.normalizedEvidence, type: item.type, outcome: item.outcome, assuranceLevel: item.assuranceLevel },
     evidenceDigest: item.sourceDigest,
     schemaVersion: item.schemaVersion ?? "1.0",
     observedAt: item.observedAt,
@@ -1053,6 +1165,9 @@ export function evaluateCanonicalTrustDecision(input: {
       outcome: item.outcome,
       evidenceDigest: item.sourceDigest,
       correlationId: item.correlationId,
+      providerClass: item.sourceClassification === "identity_provider_asserted" ? "IDENTITY_PROVIDER" : undefined,
+      providerKey: item.providerId,
+      evidenceContext: item.normalizedEvidence ?? null,
     })),
     ...deploymentAssuranceEvidence,
     ...(input.transactionInput.managedControl?.contextEvidence ?? []).map((item) => normalizeProviderNeutralEvidence({
@@ -1192,6 +1307,12 @@ export function evaluateCanonicalTrustDecision(input: {
     consequenceTime,
     reviewerState: input.transactionInput.managedControl?.reviewerState ?? (decision === "REVIEW" ? "required" : "not_required"),
   });
+  const decisionOutcomeReview = normalizeDecisionOutcomeReview({
+    review: input.transactionInput.decisionOutcomeReview,
+    decision,
+    policyVersion: input.policy.version,
+    reasonCodes,
+  });
   return {
     transactionId,
     enterpriseId: input.tenant.id,
@@ -1235,6 +1356,7 @@ export function evaluateCanonicalTrustDecision(input: {
     providerNeutralEvidence,
     deploymentGate,
     executionContinuity,
+    decisionOutcomeReview,
     authorityIntegrity,
     authorityEvidenceSummary: authorityIntegrity?.receiptSummary ?? null,
     trustForecast,
@@ -1314,6 +1436,7 @@ export function returnSafeTransactionReceipt(input: {
     providerNeutralEvidence: persisted.providerNeutralEvidence,
     deploymentGate: persisted.deploymentGate,
     executionContinuity,
+    decisionOutcomeReview: persisted.decisionOutcomeReview,
     authorityIntegrity: persisted.authorityIntegrity,
     authorityEvidenceSummary: persisted.authorityEvidenceSummary,
     trustForecast: persisted.trustForecast,

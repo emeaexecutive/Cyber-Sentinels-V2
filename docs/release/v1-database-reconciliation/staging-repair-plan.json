@@ -1,0 +1,274 @@
+[
+  {
+    "version": "20260814153327",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Owner membership trigger and private function are present and enabled.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Git provenance additionally recovered."
+  },
+  {
+    "version": "20260814153337",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Workspace/member RLS and owner/admin policies remain present; internal writer RPCs remain service-role-only. Later named policies are retained.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Git provenance additionally recovered."
+  },
+  {
+    "version": "20260815172418",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Workspace SELECT permits authenticated creator or tenant member.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Git provenance additionally recovered."
+  },
+  {
+    "version": "20260815172840",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Same creator-or-member SELECT policy is present; exact recorded SQL uses ensure_policy_definition_v2.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Database-recorded historical definition is retained verbatim; no inference about the original operator is required."
+  },
+  {
+    "version": "20260815174612",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Native replay event constraint contains authority creation; superseded by chronology extension.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Git provenance additionally recovered."
+  },
+  {
+    "version": "20260815180521",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Expanded native replay event vocabulary is present.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Git provenance additionally recovered."
+  },
+  {
+    "version": "20260815180807",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Consent evidence writer includes observed_at and freshness_policy_seconds.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Git provenance additionally recovered."
+  },
+  {
+    "version": "20260816135031",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Current append_trust_event_v1 retains consent namespace, tenant existence and metadata checks.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Database-recorded historical definition is retained verbatim; no inference about the original operator is required."
+  },
+  {
+    "version": "20260817175031",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Protected workflow tables, tenant FKs, indexes, policies and immutable-decision triggers are present.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Database-recorded historical definition is retained verbatim; no inference about the original operator is required."
+  },
+  {
+    "version": "20260817175111",
+    "currentLedger": "APPLIED",
+    "actualSchema": "All five named FK indexes are present.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Database-recorded historical definition is retained verbatim; no inference about the original operator is required."
+  },
+  {
+    "version": "20260817175137",
+    "currentLedger": "APPLIED",
+    "actualSchema": "track_block_evidence_workflow_facts_idx is present.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Database-recorded historical definition is retained verbatim; no inference about the original operator is required."
+  },
+  {
+    "version": "20260817175421",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Required runtime columns, both indexes and app_metadata admin policies are present; null count is zero.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Database-recorded historical definition is retained verbatim; no inference about the original operator is required."
+  },
+  {
+    "version": "20260817175448",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Ten active canonical domain versions and tenant-readable registry policy are present.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Database-recorded historical definition is retained verbatim; no inference about the original operator is required."
+  },
+  {
+    "version": "20260817175455",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Exact SQL duplicates 20260817175448; preserve both historical ledger entries without replay.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Database-recorded historical definition is retained verbatim; no inference about the original operator is required."
+  },
+  {
+    "version": "20260818075422",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Target RLS remains enabled and no public policy references user-editable metadata.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Database-recorded historical definition is retained verbatim; no inference about the original operator is required."
+  },
+  {
+    "version": "20260825175059",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Git-equivalent authority propagation migration; graph/replay/memory functions present and later forecast projections supersede bodies.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Git provenance additionally recovered."
+  },
+  {
+    "version": "20260825175143",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Git-equivalent forecast migration; latest graph body matches and later API replay/memory corrections are retained.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Git provenance additionally recovered."
+  },
+  {
+    "version": "20260903093247",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Git-equivalent webhook vocabulary; all thirteen event types are present.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Git provenance additionally recovered."
+  },
+  {
+    "version": "20260904100445",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Git-equivalent alert normalization; alert_title NOT NULL, legacy title absent (and therefore not a NOT NULL blocker), zero blank titles.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Git provenance additionally recovered."
+  },
+  {
+    "version": "20260906155836",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Git-equivalent replay guard; live claim function body matches, table/RLS/index exist; original scope superseded by hardening.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Git provenance additionally recovered."
+  },
+  {
+    "version": "20260906165033",
+    "currentLedger": "APPLIED",
+    "actualSchema": "Git-equivalent hardening; unique(nullifier_digest,action), workspace FK, world_id CHECK and service-role-only RPC verified.",
+    "desiredLedger": "APPLIED_UNCHANGED",
+    "action": "RESTORE_EXACT_SQL_TO_STAGING_HISTORY_ARCHIVE_AND_ISOLATED_CLI_CONTEXT; NO_DATABASE_MUTATION",
+    "whySafe": "Exact definition recovered from ledger; schema effects inspected. Git provenance additionally recovered."
+  },
+  {
+    "version": "20260819082001",
+    "currentLedger": "ABSENT",
+    "actualSchema": "PENDING_OR_PARTIAL",
+    "desiredLedger": "APPLIED",
+    "action": "APPLY_UNCHANGED_LOCAL_SQL_IN_VERSION_ORDER",
+    "whySafe": "Consent writer freshness is present, but provider-observation writer lacks mandatory freshness fields. Apply the unchanged complete repair."
+  },
+  {
+    "version": "20260820085027",
+    "currentLedger": "ABSENT",
+    "actualSchema": "PENDING_OR_PARTIAL",
+    "desiredLedger": "APPLIED",
+    "action": "APPLY_UNCHANGED_LOCAL_SQL_IN_VERSION_ORDER",
+    "whySafe": "Canonical continuity_signals/provider_neutral_evidence/deployment_gate/execution_continuity columns are absent, as is their persistence/snapshot support. Apply additive columns and writer definitions."
+  },
+  {
+    "version": "20260821085309",
+    "currentLedger": "ABSENT",
+    "actualSchema": "PENDING_OR_PARTIAL",
+    "desiredLedger": "APPLIED",
+    "action": "APPLY_UNCHANGED_LOCAL_SQL_IN_VERSION_ORDER",
+    "whySafe": "Current workflow CHECK vocabularies lack REVIEW and STEP_UP_VERIFICATION. Apply the unchanged expanding constraints."
+  },
+  {
+    "version": "20260821174100",
+    "currentLedger": "ABSENT",
+    "actualSchema": "PENDING_OR_PARTIAL",
+    "desiredLedger": "APPLIED",
+    "action": "APPLY_UNCHANGED_LOCAL_SQL_IN_VERSION_ORDER",
+    "whySafe": "Full canonical persistence definition is absent; its local predecessor supplies the same body. Apply in the declared local forward chain without modifying historical SQL; no remote applied version is replayed."
+  },
+  {
+    "version": "20260822124942",
+    "currentLedger": "ABSENT",
+    "actualSchema": "INTENDED_EFFECTS_PRESENT",
+    "desiredLedger": "APPLIED",
+    "action": "RECORD_LOCAL_VERSION_AS_APPLIED_WITHOUT_SQL_EXECUTION",
+    "whySafe": "The stated repair is adding consent to the namespace allow-list. That exact effect and service-role-only grants already exist via 20260816135031, with stronger input validation. Do not replace the stronger live body."
+  },
+  {
+    "version": "20260824181053",
+    "currentLedger": "ABSENT",
+    "actualSchema": "INTENDED_EFFECTS_PRESENT",
+    "desiredLedger": "APPLIED",
+    "action": "RECORD_LOCAL_VERSION_AS_APPLIED_WITHOUT_SQL_EXECUTION",
+    "whySafe": "Recorded SQL at 20260825175059 equals Git SQL; graph/replay/memory effects persist under later function replacements."
+  },
+  {
+    "version": "20260824184543",
+    "currentLedger": "ABSENT",
+    "actualSchema": "INTENDED_EFFECTS_PRESENT",
+    "desiredLedger": "APPLIED",
+    "action": "RECORD_LOCAL_VERSION_AS_APPLIED_WITHOUT_SQL_EXECUTION",
+    "whySafe": "Recorded SQL at 20260825175143 equals Git SQL; forecast graph matches and subsequent replay/memory migrations explain supersession."
+  },
+  {
+    "version": "20260901120000",
+    "currentLedger": "ABSENT",
+    "actualSchema": "INTENDED_EFFECTS_PRESENT",
+    "desiredLedger": "APPLIED",
+    "action": "RECORD_LOCAL_VERSION_AS_APPLIED_WITHOUT_SQL_EXECUTION",
+    "whySafe": "SELECT, INSERT, UPDATE and DELETE on api_keys are already granted to service_role. This migration is only that grant."
+  },
+  {
+    "version": "20260903093116",
+    "currentLedger": "ABSENT",
+    "actualSchema": "INTENDED_EFFECTS_PRESENT",
+    "desiredLedger": "APPLIED",
+    "action": "RECORD_LOCAL_VERSION_AS_APPLIED_WITHOUT_SQL_EXECUTION",
+    "whySafe": "Recorded SQL at 20260903093247 equals Git SQL; exact webhook CHECK vocabulary exists."
+  },
+  {
+    "version": "20260904100313",
+    "currentLedger": "ABSENT",
+    "actualSchema": "INTENDED_EFFECTS_PRESENT",
+    "desiredLedger": "APPLIED",
+    "action": "RECORD_LOCAL_VERSION_AS_APPLIED_WITHOUT_SQL_EXECUTION",
+    "whySafe": "Recorded SQL at 20260904100445 equals Git SQL; canonical title backfill and nullability verified."
+  },
+  {
+    "version": "202609060001",
+    "currentLedger": "ABSENT",
+    "actualSchema": "INTENDED_EFFECTS_PRESENT",
+    "desiredLedger": "APPLIED",
+    "action": "RECORD_LOCAL_VERSION_AS_APPLIED_WITHOUT_SQL_EXECUTION",
+    "whySafe": "Recorded SQL at 20260906155836 is Git-equivalent; live RPC body, RLS, columns and lookup index verified; global scope strengthened by recorded hardening."
+  },
+  {
+    "version": "202609060002",
+    "currentLedger": "ABSENT",
+    "actualSchema": "INTENDED_EFFECTS_PRESENT",
+    "desiredLedger": "APPLIED",
+    "action": "RECORD_LOCAL_VERSION_AS_APPLIED_WITHOUT_SQL_EXECUTION",
+    "whySafe": "Recorded SQL at 20260906165033 is Git-equivalent; all required hardening constraints and RPC ACLs verified."
+  },
+  {
+    "version": "20260907120000",
+    "currentLedger": "ABSENT",
+    "actualSchema": "PENDING_OR_PARTIAL",
+    "desiredLedger": "APPLIED",
+    "action": "APPLY_UNCHANGED_LOCAL_SQL_IN_VERSION_ORDER",
+    "whySafe": "Outcome-review column and attachment RPC are absent. Apply after the canonical column prerequisites."
+  }
+]

@@ -16,7 +16,7 @@ async function pathExists(path) {
 test("homepage uses the technical-truth external statement without unsupported production claims", async () => {
   const source = await read("app/page.tsx");
   assert.match(source, /Operational Trust Intelligence™/i);
-  assert.match(source, /Cyber Sentinels is building/i);
+  assert.match(source, /Before an AI agent acts, prove it has the authority to do so\./i);
   assert.doesNotMatch(source, /production-proven|fully integrated|cryptographically immutable|autonomous|deepfake detection|eIDAS/i);
 });
 

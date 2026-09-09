@@ -3,16 +3,18 @@ import "server-only";
 import { createHmac } from "node:crypto";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import type {
-  AuthenticatedTransactionActor,
-  CanonicalDecisionRecord,
-  CanonicalTrustTransactionDependencies,
-  ExternalExecutionResult,
-  PersistedCanonicalDecision,
-  PreviousCanonicalTransaction,
-  ResolvedPolicyVersion,
-  SafeCanonicalTransactionReceipt,
-  StoredProviderEvidence,
+import {
+  normalizeDecisionOutcomeReview,
+  type DecisionOutcomeReviewInput,
+  type AuthenticatedTransactionActor,
+  type CanonicalDecisionRecord,
+  type CanonicalTrustTransactionDependencies,
+  type ExternalExecutionResult,
+  type PersistedCanonicalDecision,
+  type PreviousCanonicalTransaction,
+  type ResolvedPolicyVersion,
+  type SafeCanonicalTransactionReceipt,
+  type StoredProviderEvidence,
 } from "@/src/lib/trust-transaction/canonical";
 import type { EnterpriseSubjectClass, EnterpriseTrustObject, FabricTrustState, TrustContract } from "@/src/lib/trust-fabric/types";
 import { createOperationalEntity, type OperationalEntity } from "@/lib/operational-entities/operational-entity";
@@ -275,6 +277,9 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
     providerNeutralEvidence,
     deploymentGate,
     executionContinuity,
+    decisionOutcomeReview: row.decision_outcome_review && typeof row.decision_outcome_review === "object"
+      ? row.decision_outcome_review as SafeCanonicalTransactionReceipt["decisionOutcomeReview"]
+      : null,
     authorityIntegrity: decisionTimeSnapshot.authorityIntegrity ?? null,
     authorityEvidenceSummary: decisionTimeSnapshot.authorityIntegrity?.receiptSummary ?? null,
     trustForecast: decisionTimeSnapshot.trustForecast ?? null,
@@ -304,7 +309,7 @@ async function rpc(db: SupabaseClient, operation: string, name: string, args: Re
   return result.data as Row;
 }
 
-async function resolveSessionTenant(supabase: SupabaseClient, user: User) {
+export async function resolveSessionTenant(supabase: SupabaseClient, user: User) {
   const sessionTenant = String(user.app_metadata?.active_enterprise_id ?? "");
   if (uuidPattern.test(sessionTenant)) {
     const active = await supabase.from("trust_workspaces").select("id,name").eq("id", sessionTenant).maybeSingle();
@@ -366,6 +371,7 @@ function decisionPayload(record: CanonicalDecisionRecord) {
     // the persisted column accepts only an object when a gate is present.
     deploymentGate: record.deploymentGate ?? undefined,
     executionContinuity: record.executionContinuity,
+    decisionOutcomeReview: record.decisionOutcomeReview ?? undefined,
   };
 }
 
@@ -392,6 +398,36 @@ function safeCanonicalEvidenceObject(row: Row): StoredProviderEvidence {
     serverVerified: row.server_verified === true,
     normalizedEvidence: row.normalized_facts && typeof row.normalized_facts === "object" ? row.normalized_facts as Row : {},
     schemaVersion: "canonical-evidence-object-v1",
+  };
+}
+
+function safeIdentitySignalEvidence(row: Row): StoredProviderEvidence {
+  const verified = row.signal_status === "PASS"
+    && row.outcome === "VERIFIED"
+    && row.server_verified === true
+    && row.signature_verified === true;
+  const failed = row.signal_status === "FAILED"
+    || row.signal_status === "BLOCKED"
+    || row.outcome === "FAILED";
+  return {
+    reference: String(row.id),
+    type: String(row.signal_type),
+    providerId: String(row.provider_id),
+    providerEventId: String(row.provider_event_id ?? row.id),
+    providerSessionId: String(row.provider_reference ?? row.provider_transaction_id ?? row.verification_request_id),
+    outcome: verified ? "PASSED" : failed ? "FAILED" : "INCONCLUSIVE",
+    observedAt: String(row.observed_at ?? row.created_at),
+    expiresAt: row.expires_at ? String(row.expires_at) : null,
+    sourceDigest: String(row.source_digest ?? row.payload_hash ?? ""),
+    assuranceLevel: Number.isFinite(Number(row.confidence)) ? Math.max(0, Math.min(1, Number(row.confidence) / 100)) : null,
+    correlationId: String(row.verification_request_id),
+    sourcePartyId: String(row.provider_id),
+    sourceClassification: verified ? "identity_provider_asserted" : "unconfirmed",
+    serverVerified: verified,
+    normalizedEvidence: row.normalized_value && typeof row.normalized_value === "object"
+      ? { ...(row.normalized_value as Row), verificationStatus: verified ? "verified" : "unverified" }
+      : { verificationStatus: verified ? "verified" : "unverified" },
+    schemaVersion: "identity-signal-v1",
   };
 }
 
@@ -444,7 +480,7 @@ async function callExternalRelay(record: PersistedCanonicalDecision, requestRefe
   }
 }
 
-export function createCanonicalTrustTransactionDependencies(input: { supabase: SupabaseClient; user: User }): CanonicalTrustTransactionDependencies {
+export function createCanonicalTrustTransactionDependencies(input: { supabase: SupabaseClient; user: User; allowExternalExecution?: boolean }): CanonicalTrustTransactionDependencies {
   const db = createServiceRoleClient();
   return {
     async authenticateActor() {
@@ -540,6 +576,13 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
       });
     },
     async loadConfiguredEvidence({ enterpriseId, subjectId, operationalEntityId, providerExecutionId }) {
+      const identityResult = await db.from("identity_signal_evidence")
+        .select("id,verification_request_id,provider_transaction_id,signal_type,provider_id,signal_status,outcome,confidence,server_verified,signature_verified,provider_event_id,provider_reference,payload_hash,normalized_value,source_digest,observed_at,expires_at,created_at")
+        .eq("enterprise_id", enterpriseId)
+        .eq("subject_id", subjectId)
+        .order("observed_at", { ascending: false })
+        .limit(50);
+      if (identityResult.error) fail("Identity evidence collection", identityResult.error);
       const canonicalResult = await db.from("evidence_objects")
         .select("evidence_id,provider_key,evidence_type,result,observed_at,occurred_at,expires_at,payload_hash,assurance_level,source_key,source_type,server_verified,normalized_facts")
         .eq("enterprise_id", enterpriseId)
@@ -556,7 +599,8 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
         .limit(20);
       if (nativeResult.error) fail("Native evidence collection", nativeResult.error);
       const nativeEvidence = (nativeResult.data ?? []).map(safeNativeEvidence);
-      const baselineEvidence = [...[...nativeEvidence, ...(canonicalResult.data ?? []).map(safeCanonicalEvidenceObject)]
+      const identityEvidence = (identityResult.data ?? []).map(safeIdentitySignalEvidence);
+      const baselineEvidence = [...[...identityEvidence, ...nativeEvidence, ...(canonicalResult.data ?? []).map(safeCanonicalEvidenceObject)]
         .reduce((latest, item) => {
           // Both ledgers are newest-first and append-only. Preserve the first
           // observation for each provider/source/type tuple so expired history
@@ -654,8 +698,12 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
       return String(result.trustMemoryReference);
     },
     async requestExternalExecution(record) {
-      const request = await rpc(db, "External request persistence", "request_canonical_external_execution_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId, p_configured: Boolean(process.env.TRUST_ACTION_RELAY_URL?.trim() && process.env.TRUST_ACTION_RELAY_SECRET?.trim()) });
-      return callExternalRelay(record, String(request.requestReference));
+      const externalExecutionAllowed = input.allowExternalExecution !== false;
+      const configured = externalExecutionAllowed && Boolean(process.env.TRUST_ACTION_RELAY_URL?.trim() && process.env.TRUST_ACTION_RELAY_SECRET?.trim());
+      const request = await rpc(db, "External request persistence", "request_canonical_external_execution_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId, p_configured: configured });
+      return externalExecutionAllowed
+        ? callExternalRelay(record, String(request.requestReference))
+        : { configured: false, requestReference: String(request.requestReference), acknowledgement: null, outcome: null };
     },
     async recordExternalAcknowledgement(record, result) {
       const stored = await rpc(db, "External acknowledgement persistence", "record_canonical_external_acknowledgement_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId, p_external_reference: result.externalReference, p_acknowledged_at: result.acknowledgedAt });
@@ -790,4 +838,55 @@ export async function loadCanonicalTrustTransactionHistory(input: { supabase: Su
     tenant, receipt: receiptFromRow(transaction.data), transaction: transaction.data, events: events.data ?? [], externalRequest: externalRequest.data ?? null, acknowledgements: acknowledgements.data ?? [], outcomes: outcomes.data ?? [],
     nativeEnforcement: { requests: nativeRequests.data ?? [], acknowledgements: nativeAcknowledgements.data ?? [], executionClaims: nativeClaims.data ?? [], runtimeObservations: nativeRuntime.data ?? [], destinationObservations: nativeDestinations.data ?? [], outcomes: nativeOutcomes.data ?? [], contradictions: nativeContradictions.data ?? [] },
   };
+}
+
+export async function attachCanonicalDecisionOutcomeReview(input: {
+  supabase: SupabaseClient;
+  user: User;
+  transactionId: string;
+  review: DecisionOutcomeReviewInput;
+}) {
+  if (!uuidPattern.test(input.transactionId)) throw new CanonicalTransactionError("Transaction reference is invalid.", 400, "INVALID_TRANSACTION_REFERENCE");
+  const current = await input.supabase.auth.getUser();
+  if (current.error || !current.data.user || current.data.user.id !== input.user.id) {
+    throw new CanonicalTransactionError("Authentication required.", 401, "AUTHENTICATION_REQUIRED");
+  }
+  const tenant = await resolveSessionTenant(input.supabase, input.user);
+  const db = createServiceRoleClient();
+  const transaction = await db.from("canonical_trust_transactions")
+    .select("transaction_id,enterprise_id,decision,policy_version,reason_codes,decision_outcome_review")
+    .eq("enterprise_id", tenant.id)
+    .eq("transaction_id", input.transactionId)
+    .maybeSingle();
+  if (transaction.error) fail("Decision-outcome review transaction resolution", transaction.error);
+  if (!transaction.data) throw new CanonicalTransactionError("Transaction not found in the session tenant.", 404, "TRANSACTION_NOT_FOUND");
+
+  const suppliedOverride = input.review.humanOverride;
+  const review = normalizeDecisionOutcomeReview({
+    review: suppliedOverride ? {
+      ...input.review,
+      humanOverride: {
+        ...suppliedOverride,
+        actorReference: `user:${input.user.id}`,
+        occurredAt: suppliedOverride.occurredAt ?? new Date().toISOString(),
+      },
+    } : input.review,
+    decision: String(transaction.data.decision) as SafeCanonicalTransactionReceipt["decision"],
+    policyVersion: String(transaction.data.policy_version),
+    reasonCodes: Array.isArray(transaction.data.reason_codes) ? transaction.data.reason_codes.map(String) : [],
+  });
+  if (!review) throw new CanonicalTransactionError("A decision-outcome review is required.", 400, "DECISION_OUTCOME_REVIEW_REQUIRED");
+
+  const result = await rpc(db, "Decision-outcome review persistence", "attach_canonical_decision_outcome_review_v1", {
+    p_enterprise_id: tenant.id,
+    p_transaction_id: input.transactionId,
+    p_actor_id: input.user.id,
+    p_review: review,
+  });
+  return {
+    transactionId: input.transactionId,
+    originalDecision: review.originalDecision,
+    decisionOutcomeReview: review,
+    persistenceStatus: result.status === "DUPLICATE" ? "DUPLICATE" : "CREATED",
+  } as const;
 }

@@ -114,8 +114,43 @@ function operationalEntity(overrides = {}) {
   };
 }
 
+test("provider-verified World identity evidence is evaluated by the canonical authority and policy engine", async () => {
+  const worldEvidence = evidence({
+    type: "PROOF_OF_PERSONHOOD",
+    providerId: "world_id",
+    providerEventId: "world-id:rp:subject-digest",
+    providerSessionId: "world-id:rp:subject-digest",
+    sourceClassification: "identity_provider_asserted",
+    serverVerified: true,
+    normalizedEvidence: {
+      provider: "world_id",
+      verificationStatus: "verified",
+      environment: "sandbox",
+      action: "cyber-sentinels-verify",
+      applicationId: "app_staging_test",
+      relyingPartyId: "rp_staging_test",
+      subjectDigest: "9".repeat(64),
+    },
+  });
+  const harness = dependencies({
+    evidence: [worldEvidence],
+    authority: authority({ permittedProviders: ["world_id"], requiredEvidenceTypes: ["PROOF_OF_PERSONHOOD"] }),
+  });
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "world-identity-canonical-allow" }), harness.deps);
+  assert.equal(receipt.decision, "ALLOW");
+  assert.equal(receipt.evidence[0].providerId, "world_id");
+  const normalized = receipt.providerNeutralEvidence.find((item) => item.providerId === "world_id");
+  assert.equal(normalized.providerClass, "IDENTITY_PROVIDER");
+  assert.equal(normalized.evidenceContext.verificationStatus, "verified");
+  assert.equal(normalized.evidenceContext.subjectDigest, "9".repeat(64));
+  for (const artifact of ["persistDecision", "extendEvidenceGraph", "appendReplay", "emitMaterialTrustMemory"]) assert.ok(harness.calls.includes(artifact));
+});
+
 function dependencies(options = {}) {
   const calls = [];
+  const persisted = [];
+  const replayed = [];
+  const remembered = [];
   const refs = { graph: "graph-1", replay: "replay-1", memory: "memory-1", ack: "ack-1", outcome: "outcome-1" };
   const deps = {
     async authenticateActor() { calls.push("authenticateActor"); return { id: actorId, type: "human", authority: `session:${actorId}` }; },
@@ -126,10 +161,10 @@ function dependencies(options = {}) {
     async loadAuthority() { calls.push("resolveAuthority"); return options.authority ?? authority(); },
     async loadPolicy() { calls.push("resolvePolicyVersion"); return options.policy ?? { id: "policy-settlement", version: "1.0.0", active: true, validFrom: "2026-08-01T00:00:00.000Z", validUntil: null, policyHash: "c".repeat(64) }; },
     async loadPreviousTransaction() { calls.push("loadPreviousTransaction"); return options.previousTransaction ?? null; },
-    async persistDecision(record) { calls.push("persistDecision"); return { ...record, persistenceStatus: "CREATED" }; },
+    async persistDecision(record) { calls.push("persistDecision"); persisted.push(record); return { ...record, persistenceStatus: "CREATED" }; },
     async extendEvidenceGraph() { calls.push("extendEvidenceGraph"); return refs.graph; },
-    async appendReplay() { calls.push("appendReplay"); return refs.replay; },
-    async emitTrustMemory() { calls.push("emitMaterialTrustMemory"); return refs.memory; },
+    async appendReplay(record) { calls.push("appendReplay"); replayed.push(record); return refs.replay; },
+    async emitTrustMemory(record) { calls.push("emitMaterialTrustMemory"); remembered.push(record); return refs.memory; },
     async requestExternalExecution() { calls.push("requestExternalExecutionIfAllowed"); return options.external ?? { configured: true, requestReference: "request-1", acknowledgement: { externalReference: "relay-ack-1", acknowledgedAt: requestedAt }, outcome: { state: "SUCCEEDED", externalReference: "relay-result-1", occurredAt: requestedAt, reason: "Sandbox completed." } }; },
     async recordExternalAcknowledgement() { calls.push("recordExternalAcknowledgement"); return refs.ack; },
     async recordExternalOutcome(_record, result) { calls.push(`recordExternalOutcome:${result.state}`); return refs.outcome; },
@@ -140,7 +175,7 @@ function dependencies(options = {}) {
       return options.operationalEntity;
     };
   }
-  return { deps, calls };
+  return { deps, calls, persisted, replayed, remembered };
 }
 
 function canonicalModelState(templateDigest = "sha256:model-template-approved") {
@@ -244,6 +279,119 @@ test("trusted destination evidence that old authority remains active maps to can
   assert.ok(receipt.reasonCodes.includes("STALE_AUTHORITY_STILL_ACTIVE"));
   assert.equal(receipt.decisionTimeSnapshot.consequenceTime.currentConditions.destinationAuthorityState, "MISMATCH");
   assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
+});
+
+test("preserves additive decision-outcome review provenance without changing the canonical decision", async () => {
+  const { deps, persisted } = dependencies();
+  const review = {
+    decisionModelProvider: "world_id",
+    decisionModelName: "world-id-provider",
+    decisionModelVersion: "v1",
+    providerOutcome: "VERIFIED",
+    runtimeOutcome: "ALLOW",
+    destinationOutcome: "ACCEPTED",
+    adjudicatedOutcome: "ALLOW",
+    evaluationStatus: "SUPPORTED",
+  };
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "outcome-review-1", decisionOutcomeReview: review }), deps);
+  assert.equal(receipt.decision, "ALLOW");
+  assert.equal(persisted[0].decisionOutcomeReview.originalDecision, "ALLOW");
+  assert.equal(receipt.decisionOutcomeReview?.decisionModelProvider, "world_id");
+  assert.equal(receipt.decisionOutcomeReview?.adjudicatedOutcome, "ALLOW");
+  assert.equal(receipt.decisionOutcomeReview?.evaluationStatus, "SUPPORTED");
+  assert.equal(receipt.decisionOutcomeReview?.policyVersion, "1.0.0");
+  assert.deepEqual(receipt.decisionOutcomeReview?.decisionReasonCodes, receipt.reasonCodes);
+});
+
+for (const evaluationStatus of ["SUPPORTED", "CONTRADICTED", "HUMAN_OVERRIDDEN", "PARTIALLY_SUPPORTED", "UNRESOLVED"]) {
+  test(`accepts the ${evaluationStatus} decision-outcome review state`, async () => {
+    const { deps } = dependencies();
+    const receipt = await executeCanonicalTrustTransaction(transactionInput({
+      idempotencyKey: `outcome-review-${evaluationStatus.toLowerCase().replaceAll("_", "-")}`,
+      decisionOutcomeReview: {
+        adjudicatedOutcome: evaluationStatus === "UNRESOLVED" ? null : "ALLOW",
+        evaluationStatus,
+        ...(evaluationStatus === "HUMAN_OVERRIDDEN" ? { humanOverride: { resultingDecision: "ALLOW" } } : {}),
+      },
+    }), deps);
+    assert.equal(receipt.decisionOutcomeReview?.evaluationStatus, evaluationStatus);
+  });
+}
+
+test("rejects unsupported decision-outcome review statuses", async () => {
+  const { deps } = dependencies();
+  await assert.rejects(
+    () => executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "outcome-review-invalid-status", decisionOutcomeReview: { evaluationStatus: "NOT_A_REAL_STATUS" } }), deps),
+    /Unsupported decision-outcome review evaluation status/i,
+  );
+});
+
+test("Replay preserves an ALLOW original decision and contradictory DENY adjudication independently", async () => {
+  const { deps, persisted, replayed } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "outcome-review-contradicted",
+    decisionOutcomeReview: {
+      providerOutcome: "VERIFIED",
+      runtimeOutcome: "DENY",
+      destinationOutcome: "REJECTED",
+      adjudicatedOutcome: "DENY",
+      evaluationStatus: "CONTRADICTED",
+    },
+  }), deps);
+  assert.equal(receipt.decision, "ALLOW");
+  assert.equal(receipt.decisionOutcomeReview?.originalDecision, "ALLOW");
+  assert.equal(receipt.decisionOutcomeReview?.adjudicatedOutcome, "DENY");
+  assert.equal(persisted[0].decision, "ALLOW");
+  assert.equal(persisted[0].decisionOutcomeReview?.adjudicatedOutcome, "DENY");
+  assert.equal(replayed[0].decision, "ALLOW");
+  assert.equal(replayed[0].decisionOutcomeReview?.adjudicatedOutcome, "DENY");
+  assert.equal(replayed[0].decisionOutcomeReview?.evaluationStatus, "CONTRADICTED");
+});
+
+test("Trust Memory preserves a DENY original decision and later ALLOW human override evidence", async () => {
+  const { deps, persisted, remembered } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "outcome-review-human-override",
+    action: { ...transactionInput().action, type: "transfer_funds" },
+    decisionOutcomeReview: {
+      adjudicatedOutcome: "ALLOW",
+      evaluationStatus: "HUMAN_OVERRIDDEN",
+      humanOverride: {
+        resultingDecision: "ALLOW",
+        actorReference: `user:${actorId}`,
+        occurredAt: requestedAt,
+        reason: "Authorized exception",
+        evidenceReference: "review:override-1",
+      },
+    },
+  }), deps);
+  assert.equal(receipt.decision, "DENY");
+  assert.equal(receipt.decisionOutcomeReview?.originalDecision, "DENY");
+  assert.equal(receipt.decisionOutcomeReview?.adjudicatedOutcome, "ALLOW");
+  assert.equal(receipt.decisionOutcomeReview?.humanOverride?.originalDecision, "DENY");
+  assert.equal(receipt.decisionOutcomeReview?.humanOverride?.resultingDecision, "ALLOW");
+  assert.equal(persisted[0].decision, "DENY");
+  assert.equal(remembered[0].decision, "DENY");
+  assert.equal(remembered[0].decisionOutcomeReview?.humanOverride?.evidenceReference, "review:override-1");
+});
+
+test("does not invent absent decision-model provenance", async () => {
+  const { deps } = dependencies();
+  const receipt = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "outcome-review-null-model-provenance",
+    decisionOutcomeReview: { adjudicatedOutcome: null, evaluationStatus: "UNRESOLVED" },
+  }), deps);
+  assert.equal(receipt.decisionOutcomeReview?.decisionModelProvider, null);
+  assert.equal(receipt.decisionOutcomeReview?.decisionModelName, null);
+  assert.equal(receipt.decisionOutcomeReview?.decisionModelVersion, null);
+});
+
+test("rejects an adjudicated outcome outside the canonical decision enum", async () => {
+  const { deps } = dependencies();
+  await assert.rejects(
+    () => executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "outcome-review-invalid-adjudication", decisionOutcomeReview: { adjudicatedOutcome: "APPROVE", evaluationStatus: "SUPPORTED" } }), deps),
+    /Unsupported adjudicated decision outcome/i,
+  );
 });
 
 test("runs one ALLOW transaction in canonical order and keeps acknowledgement separate from outcome", async () => {

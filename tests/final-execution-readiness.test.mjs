@@ -30,7 +30,7 @@ test("homepage copy is canonical and primary CTA routes exist", () => {
   const homepage = read("app/page.tsx");
   assert.equal(homepage.includes("Operational Trust Intelligence™"), true);
   assert.equal(
-    homepage.includes("Cyber Sentinels is building the Operational Trust Intelligence™ platform for intelligent enterprises."),
+    homepage.includes("Before an AI agent acts, prove it has the authority to do so."),
     true
   );
   assert.equal(homepage.includes("Private Beta"), false);

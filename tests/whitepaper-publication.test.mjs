@@ -7,7 +7,7 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 test("canonical whitepaper contains the full V1 argument and an honest capability matrix", async () => {
   const source = await read("docs/whitepaper/CYBER_SENTINELS_WHITEPAPER_V1.md");
   assert.match(source, /Operational Trust Infrastructure for Autonomous Systems/);
-  assert.match(source, /Technical Whitepaper · Version 1\.0 · September 2026/);
+  assert.match(source, /Technical Whitepaper[^\r\n]+Version 1\.0[^\r\n]+September 2026/);
   assert.equal([...source.matchAll(/^## \d+\. /gm)].length, 20);
   for (const marker of [
     "ALLOW", "REVIEW", "DENY", "Ed25519", "Authority Graph", "Evidence Graph",
@@ -17,7 +17,8 @@ test("canonical whitepaper contains the full V1 argument and an honest capabilit
   ]) assert.match(source, new RegExp(marker));
   assert.match(source, /An `ALLOW` decision is authorization[\s\S]{0,240}not proof/i);
   assert.match(source, /Hopae \| \*\*NOT CONFIGURED\*\*/);
-  assert.match(source, /World ID \| \*\*ADAPTER ONLY\*\*/);
+  assert.match(source, /World ID \| \*\*IMPLEMENTED \/ STAGING DATABASE QUALIFIED\*\*/);
+  assert.match(source, /READY FOR REAL HUMAN PROVIDER QUALIFICATION \/ NOT PRODUCTION EXERCISED/);
   assert.match(source, /Stripe Billing \| \*\*NOT CONFIGURED\*\*/);
   assert.match(source, /Stripe Identity \| \*\*ADAPTER ONLY\*\*/);
   assert.match(source, /CrowdStrike \| \*\*ADAPTER ONLY\*\*[\s\S]{0,240}no native CrowdStrike integration/i);

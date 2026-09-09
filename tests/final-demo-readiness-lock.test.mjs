@@ -71,7 +71,7 @@ test("homepage, auth affordances and admin protection remain locked", () => {
   const testLab = read("app/admin/test-lab/page.tsx");
 
   assert.match(homepage, /Operational Trust Intelligence™/);
-  assert.match(homepage, /Cyber Sentinels is building/);
+  assert.match(homepage, /Before an AI agent acts, prove it has the authority to do so\./);
   assert.doesNotMatch(homepage, /Private Beta|Enterprise Pilot Ready/i);
   for (const marker of ["Sign in", "Create account", "Confirm password", "Use magic link", "Forgot password"]) {
     assert.match(login, new RegExp(marker, "i"));

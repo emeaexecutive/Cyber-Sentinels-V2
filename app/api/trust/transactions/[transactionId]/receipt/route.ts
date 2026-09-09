@@ -42,6 +42,7 @@ export async function GET(
       timestamp: receipt.timestamp,
       action: receipt.action,
       reasonCodes: receipt.reasonCodes,
+      decisionOutcomeReview: receipt.decisionOutcomeReview,
       evidenceReferences: receipt.evidence.map((item) => ({
         reference: item.reference,
         type: item.type,

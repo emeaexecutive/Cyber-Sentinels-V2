@@ -247,8 +247,8 @@ export default async function RootLayout({
               <p>&copy;2026 Cyber Sentinels&trade;. All rights reserved.</p>
               <ConsentPreferencesLink />
               <p className="mt-3 max-w-3xl leading-6">
-                Cyber Sentinels connects identity, authority, runtime risk,
-                enforcement, replay and governance in one operational trust record.
+                Cyber Sentinels links identity, authority, runtime evidence,
+                policy and replay in one operational trust control plane.
               </p>
             </div>
           </footer> : null}

@@ -1,9 +1,9 @@
-# Cyber Sentinels
+﻿# Cyber Sentinels
 
 ## Operational Trust Infrastructure for Autonomous Systems
 
-**Technical Whitepaper · Version 1.0 · September 2026**  
-**Production API:** `https://www.cybersentinels.com/api/v1`  
+**Technical Whitepaper ┬À Version 1.0 ┬À September 2026**
+**Production API:** `https://www.cybersentinels.com/api/v1`
 **OpenAPI contract:** `https://www.cybersentinels.com/api/v1/openapi.json`
 
 > **The control layer between autonomous intelligence and real-world action.**
@@ -20,7 +20,7 @@ Enterprises are moving from software that recommends to software that acts. AI a
 
 Cyber Sentinels provides that decision boundary as an API-first control and evidence layer. A client creates a scoped API key, registers an agent, proves control of an Ed25519 credential, receives a bounded authority grant from an authorized human or service principal, and requests a fresh evaluation for each consequential action. The canonical result is `ALLOW`, `REVIEW`, or `DENY`. The platform persists a transaction record, evidence references, receipt, and Replay view so an operator can reconstruct why the result was reached.
 
-The design keeps important claims separate. Registration is not verification. Verification is not authority. Previous authorization is not standing permission. A provider assertion is not an independent Cyber Sentinels decision. A control plane report is not confirmed downstream outcome evidence. These boundaries make the system useful beside—not in place of—identity providers, policy engines, cloud controls, ticketing systems, and agent orchestration platforms.
+The design keeps important claims separate. Registration is not verification. Verification is not authority. Previous authorization is not standing permission. A provider assertion is not an independent Cyber Sentinels decision. A control plane report is not confirmed downstream outcome evidence. These boundaries make the system useful besideÔÇönot in place ofÔÇöidentity providers, policy engines, cloud controls, ticketing systems, and agent orchestration platforms.
 
 V1 is a working Production API with scoped API-key authentication, agent identity proof, bounded authority, consequence-time decisions, receipts, Replay, Trust Memory persistence, tenant isolation, key rotation, revocation, idempotency, and rate limiting. Human review supports approve or reject resolution. Some provider integrations and advanced response automation remain partial or roadmap items; the capability matrix in this paper states those limits explicitly.
 
@@ -28,9 +28,9 @@ V1 is a working Production API with scoped API-key authentication, agent identit
 
 ## 1. The shift from access control to operational trust
 
-Traditional access control establishes a durable relationship between a principal and a resource. That model is necessary, but an autonomous system may hold valid credentials while its current request is unsafe, outside the operator’s intent, based on stale evidence, or aimed at an unexpected target. The risk is not merely unauthorized access. It is an authorized-looking action with the wrong purpose, timing, consequence, or evidence basis.
+Traditional access control establishes a durable relationship between a principal and a resource. That model is necessary, but an autonomous system may hold valid credentials while its current request is unsafe, outside the operatorÔÇÖs intent, based on stale evidence, or aimed at an unexpected target. The risk is not merely unauthorized access. It is an authorized-looking action with the wrong purpose, timing, consequence, or evidence basis.
 
-The product shift is visible in four stages: **chat → copilots → agents → autonomous operations**. Value increasingly comes from turning complex operational data into real actions across finance, cybersecurity, customer operations, supply chains, cloud infrastructure, HR, procurement, industrial processes, and regulated workflows. Action creates the authority and accountability problem that output-only controls cannot solve.
+The product shift is visible in four stages: **chat ÔåÆ copilots ÔåÆ agents ÔåÆ autonomous operations**. Value increasingly comes from turning complex operational data into real actions across finance, cybersecurity, customer operations, supply chains, cloud infrastructure, HR, procurement, industrial processes, and regulated workflows. Action creates the authority and accountability problem that output-only controls cannot solve.
 
 Operational trust adds a contextual decision point immediately before a consequential action. It combines identity continuity, bounded authority, requested action, environment, target, policy, evidence freshness, and human-oversight requirements. The result applies to one transaction; it does not become a permanent reputation score or universal permission.
 
@@ -63,15 +63,15 @@ The governing principle is simple:
 
 The V1 lifecycle is deliberately explicit:
 
-1. **API client** — an owner creates a tenant- and client-bound key with least-privilege scopes, an environment, and optional expiry.
-2. **Agent registration** — the client registers the operational entity and its declared runtime context.
-3. **Credential and manifest** — the agent submits an Ed25519 public credential and a signed manifest.
-4. **Challenge and proof** — the service issues a one-time challenge; the agent signs the canonical payload to prove key possession.
-5. **Authority grant** — an authorized administrator grants bounded, versioned, expiring authority. The agent cannot self-grant.
-6. **Consequence-time evaluation** — every proposed consequential action is evaluated against current identity, authority, policy, and evidence.
-7. **Decision** — the API returns `ALLOW`, `REVIEW`, or `DENY`, plus reason codes and stable references.
-8. **Evidence and outcome lineage** — clients and providers may append evidence and reported outcomes without rewriting the canonical decision.
-9. **Receipt, Replay, and Trust Memory** — persisted views preserve the transaction’s decision and evidence history.
+1. **API client** ÔÇö an owner creates a tenant- and client-bound key with least-privilege scopes, an environment, and optional expiry.
+2. **Agent registration** ÔÇö the client registers the operational entity and its declared runtime context.
+3. **Credential and manifest** ÔÇö the agent submits an Ed25519 public credential and a signed manifest.
+4. **Challenge and proof** ÔÇö the service issues a one-time challenge; the agent signs the canonical payload to prove key possession.
+5. **Authority grant** ÔÇö an authorized administrator grants bounded, versioned, expiring authority. The agent cannot self-grant.
+6. **Consequence-time evaluation** ÔÇö every proposed consequential action is evaluated against current identity, authority, policy, and evidence.
+7. **Decision** ÔÇö the API returns `ALLOW`, `REVIEW`, or `DENY`, plus reason codes and stable references.
+8. **Evidence and outcome lineage** ÔÇö clients and providers may append evidence and reported outcomes without rewriting the canonical decision.
+9. **Receipt, Replay, and Trust Memory** ÔÇö persisted views preserve the transactionÔÇÖs decision and evidence history.
 
 Revocation is part of the lifecycle, not an administrative afterthought. When an authority or API key is revoked, later requests must fail safely. A prior `ALLOW` never creates standing authorization.
 
@@ -99,7 +99,7 @@ Requests use scoped API keys in server-to-server contexts. Browser session cooki
 
 An API key is shown once at creation. The service persists a keyed hash and non-secret metadata, not the recoverable raw key. Metadata includes tenant, client, scopes, environment, status, creation time, optional expiry, rotation lineage, and last-used information.
 
-Authentication and authorization are separate. A valid key authenticates an API client; its scopes only permit calls to API capabilities. A key with `authority:write` may be used by an already authorized owner or administrator to manage grants, but the scope alone does not create authority over an agent’s real-world actions.
+Authentication and authorization are separate. A valid key authenticates an API client; its scopes only permit calls to API capabilities. A key with `authority:write` may be used by an already authorized owner or administrator to manage grants, but the scope alone does not create authority over an agentÔÇÖs real-world actions.
 
 The gateway rejects missing, malformed, invalid, expired, inactive, and revoked credentials. Rotation creates new shown-once material, records lineage, and revokes the replaced key. Tenant and client bindings are applied at persistence and read boundaries so an identifier learned from another tenant does not become readable merely because it is syntactically valid.
 
@@ -119,7 +119,7 @@ Verification uses possession of an Ed25519 private key. The client registers the
 
 Verification does not grant permission. A verified agent without a covering authority must still receive `REVIEW` or `DENY` for a consequential action. This preserves the second invariant: `VERIFIED != AUTHORIZED`.
 
-The credential record supports rotation and revocation without changing the agent’s stable identity. Manifests retain their own version and digest so later decisions can refer to the declared configuration that was evaluated. Private keys never need to enter Cyber Sentinels.
+The credential record supports rotation and revocation without changing the agentÔÇÖs stable identity. Manifests retain their own version and digest so later decisions can refer to the declared configuration that was evaluated. Private keys never need to enter Cyber Sentinels.
 
 ## 7. Authority Graph
 
@@ -127,16 +127,16 @@ Authority is represented as a bounded, versioned grant rather than a flat role l
 
 ```text
 Accountable grantor
-        │ grants bounded, versioned authority
-        ▼
-Verified agent ── action + target + purpose + environment ──► Consequence-time evaluation
-        │                                                           │
-        │ credential / manifest                                     ├── ALLOW
-        │ continuity                                                 ├── REVIEW
-        └──────────────── evidence ──────────────────────────────────└── DENY
+        Ôöé grants bounded, versioned authority
+        Ôû╝
+Verified agent ÔöÇÔöÇ action + target + purpose + environment ÔöÇÔöÇÔû║ Consequence-time evaluation
+        Ôöé                                                           Ôöé
+        Ôöé credential / manifest                                     Ôö£ÔöÇÔöÇ ALLOW
+        Ôöé continuity                                                 Ôö£ÔöÇÔöÇ REVIEW
+        ÔööÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ evidence ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔööÔöÇÔöÇ DENY
 ```
 
-The graph answers not only “what permission exists?” but “who granted it, to which verified entity, under what constraints, and which version was current when this transaction was evaluated?” Stable authority references and versions are carried into decisions and receipts.
+The graph answers not only ÔÇ£what permission exists?ÔÇØ but ÔÇ£who granted it, to which verified entity, under what constraints, and which version was current when this transaction was evaluated?ÔÇØ Stable authority references and versions are carried into decisions and receipts.
 
 No agent can approve its own proof or grant its own authority. An API scope cannot widen the permitted action, target, or purpose stored in the grant. Expiry and revocation are checked at consequence time. Post-revocation decisions cannot be `ALLOW` based on the revoked grant.
 
@@ -160,7 +160,7 @@ Human oversight is a first-class branch of the decision lifecycle. When policy o
 
 Approval is not an unrestricted override. The resolved review remains associated with the original transaction context, reviewer identity, timestamp, and reason. A later consequential action still requires a new current evaluation. Rejection preserves the non-authorization path and cannot be rewritten into historical `ALLOW` evidence.
 
-V1 supports approve and reject resolution through the API. More expressive conditional approval—such as “allow only below this value and before this time”—is a product direction rather than a completed V1 claim. Today, bounded conditions belong in the authority and action context evaluated by policy.
+V1 supports approve and reject resolution through the API. More expressive conditional approvalÔÇösuch as ÔÇ£allow only below this value and before this timeÔÇØÔÇöis a product direction rather than a completed V1 claim. Today, bounded conditions belong in the authority and action context evaluated by policy.
 
 This approach keeps humans accountable without making every agent action manually operated. Organizations can reserve review for high-impact requests, incomplete evidence, changed identity state, or policy boundaries.
 
@@ -176,7 +176,7 @@ Three separations are enforced:
 
 A client may report that it sent a command or observed a result, but it cannot mark that report as independently verified merely by changing a field. Provider namespaces and digests are validated. Evidence carries provenance, observation time, trust classification, and correlation references where available.
 
-The graph is designed for accountable lineage, not for claiming perfect knowledge. Missing evidence stays missing. Conflicting evidence can drive review or denial. An external provider remains authoritative only for the facts within that provider’s documented boundary; Cyber Sentinels remains authoritative for its own canonical decision record.
+The graph is designed for accountable lineage, not for claiming perfect knowledge. Missing evidence stays missing. Conflicting evidence can drive review or denial. An external provider remains authoritative only for the facts within that providerÔÇÖs documented boundary; Cyber Sentinels remains authoritative for its own canonical decision record.
 
 ## 11. Receipts
 
@@ -189,7 +189,7 @@ A receipt is the stable, machine-readable record of a canonical decision. It bin
 - evidence references and decision timestamp;
 - links to the transaction, receipt, and Replay resources.
 
-Receipts are persisted and integrity-linked. They provide tamper-evident lineage within the service’s security boundary; they are not described as physically immutable or as a blockchain artifact. A receipt proves the decision Cyber Sentinels recorded. It does not by itself prove command delivery, downstream execution, or real-world outcome.
+Receipts are persisted and integrity-linked. They provide tamper-evident lineage within the serviceÔÇÖs security boundary; they are not described as physically immutable or as a blockchain artifact. A receipt proves the decision Cyber Sentinels recorded. It does not by itself prove command delivery, downstream execution, or real-world outcome.
 
 This distinction allows receipts to support audit and incident reconstruction without becoming an overbroad attestation. When independent outcome evidence exists, it can be linked after the decision while preserving the original authorization record.
 
@@ -213,7 +213,7 @@ Replay does not retroactively change the canonical result. New evidence can exte
 
 Trust Memory is the persisted context that allows later evaluations and investigations to reference prior operational trust events without converting history into standing authority. It indexes transaction, evidence, identity, authority, decision, and outcome lineage for bounded retrieval.
 
-Trust Memory supports continuity questions: has this agent rotated credentials, has its authority changed, did similar requests require review, and which evidence sources were present? It is not a universal trust score and does not make a person or machine permanently “trusted.”
+Trust Memory supports continuity questions: has this agent rotated credentials, has its authority changed, did similar requests require review, and which evidence sources were present? It is not a universal trust score and does not make a person or machine permanently ÔÇ£trusted.ÔÇØ
 
 The system separates recorded history from current admissibility. A previous `ALLOW` is historical evidence that a particular request met the constraints then. It cannot authorize a later request. Current identity, authority, policy, and evidence remain decisive.
 
@@ -233,7 +233,7 @@ Cyber Sentinels accepts signals from multiple providers while keeping its canoni
 | Cloudflare Turnstile | **WORKING** | Human-interaction control on exposed auth/request flows; not agent identity proof. |
 | Hopae | **NOT CONFIGURED** | The adapter, signed callback, status-refetch, normalization, tenant binding and evidence-linkage path are implemented and contract-tested; Production has no Hopae credentials or retained provider execution. |
 | OpenAI | **NOT CONFIGURED** | Optional assistive governance-analysis code exists, but Production has no model credential; it is never canonical authority or the final decision. |
-| World ID | **ADAPTER ONLY** | The registry and fail-closed callback boundary exist; server-side proof verification is not implemented. |
+| World ID | **IMPLEMENTED / STAGING DATABASE QUALIFIED** | READY FOR REAL HUMAN PROVIDER QUALIFICATION / NOT PRODUCTION EXERCISED. World v4 verification and durable replay protection are implemented; provider verification does not itself authorize an action. |
 | Stripe Billing | **NOT CONFIGURED** | Billing routes and persistence exist, but Production lacks the complete price/webhook configuration required for a qualified billing flow. Billing is not identity evidence. |
 | Stripe Identity | **ADAPTER ONLY** | Detection/registry placeholders exist; no session, callback or server-verification workflow is implemented. |
 | CrowdStrike | **ADAPTER ONLY** | Provider-neutral identity references can preserve attributable external evidence, but there is no native CrowdStrike integration or Production exercise. |
@@ -246,7 +246,7 @@ Cyber Sentinels can inform operational response without claiming universal downs
 
 Representative use cases include:
 
-**Financial services.** A payment agent requests a €15,000 transfer while its autonomous authority is limited to €10,000. The current decision is `REVIEW`; the evidence and human resolution remain linked.
+**Financial services.** A payment agent requests a Ôé¼15,000 transfer while its autonomous authority is limited to Ôé¼10,000. The current decision is `REVIEW`; the evidence and human resolution remain linked.
 
 **Cloud and cybersecurity.** An infrastructure agent attempts to change a Production firewall while its grant is limited to staging. The action is outside scope and receives `DENY`.
 
@@ -285,7 +285,7 @@ V1 is delivered as a managed Production service. Private cloud, on-premises, and
 
 ## 18. Current product reality
 
-The following matrix describes the Production V1 boundary as of this paper’s version.
+The following matrix describes the Production V1 boundary as of this paperÔÇÖs version.
 
 | Capability | State | Evidence boundary |
 |---|---|---|
@@ -309,7 +309,7 @@ The following matrix describes the Production V1 boundary as of this paper’s v
 
 ## 19. Platform direction
 
-The next phase extends the operational trust boundary without weakening V1’s separations.
+The next phase extends the operational trust boundary without weakening V1ÔÇÖs separations.
 
 Near-term direction includes richer conditional human review, more provider adapters with retained live qualification evidence, clearer authority-graph exploration, expanded operational reporting, and control-plane integrations that can return command acknowledgement and independently observed outcome evidence.
 
@@ -335,4 +335,4 @@ That is the V1 foundation for accountable autonomy: identity without self-assert
 - Developer documentation: `https://www.cybersentinels.com/developers/docs`
 - Authentication guidance: `https://www.cybersentinels.com/developers/authentication`
 
-© 2026 Cyber Sentinels. This paper describes the product boundary at Version 1.0 and is not a certification, legal opinion, or guarantee of downstream execution.
+┬® 2026 Cyber Sentinels. This paper describes the product boundary at Version 1.0 and is not a certification, legal opinion, or guarantee of downstream execution.

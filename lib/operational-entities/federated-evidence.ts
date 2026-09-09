@@ -1,4 +1,4 @@
-import {
+﻿import {
   evaluateOperationalEntityContinuity,
   type ExternalIdentityReference,
   type OperationalConsequenceClassification,

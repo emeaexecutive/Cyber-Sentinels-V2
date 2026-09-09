@@ -9,6 +9,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${baseUrl}${route === "/" ? "" : route}`,
     lastModified: now,
     changeFrequency: route === "/" ? "weekly" : "monthly",
-    priority: route === "/" ? 1 : ["/platform", "/solutions", "/trust", "/enterprise", "/developers", "/pricing"].includes(route) ? 0.8 : 0.5,
+    priority: route === "/" ? 1 : ["/platform", "/solutions", "/trust", "/enterprise", "/developers", "/pricing", "/documents/operational-trust-whitepaper"].includes(route) ? 0.8 : 0.5,
   }));
 }

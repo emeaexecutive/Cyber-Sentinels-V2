@@ -14,6 +14,33 @@ export type RouteVisibilityRecord = {
   reason: string;
 };
 
+export type RouteSurfaceManifestEntry = RouteVisibilityRecord & {
+  family: "public" | "authenticated" | "admin" | "internal" | "archived" | "deprecated";
+};
+
+export const routeSurfaceManifest: RouteSurfaceManifestEntry[] = [
+  { route: "/", visibility: "public", family: "public", indexable: true, reason: "Canonical public homepage." },
+  { route: "/platform", visibility: "public", family: "public", indexable: true, reason: "Primary product platform narrative." },
+  { route: "/solutions", visibility: "public", family: "public", indexable: true, reason: "Workflow outcome framing for buyers." },
+  { route: "/trust", visibility: "public", family: "public", indexable: true, reason: "Canonical public trust narrative." },
+  { route: "/enterprise", visibility: "public", family: "public", indexable: true, reason: "Canonical enterprise story and deployment path." },
+  { route: "/pricing", visibility: "public", family: "public", indexable: true, reason: "Commercial entry point for buyer conversations." },
+  { route: "/developers", visibility: "public", family: "public", indexable: true, reason: "Developer entry point for the public contract." },
+  { route: "/developers/docs", visibility: "public", family: "public", indexable: true, reason: "Public API documentation reference." },
+  { route: "/developers/authentication", visibility: "public", family: "public", indexable: true, reason: "Public integration authentication guidance." },
+  { route: "/documents", visibility: "public", family: "public", indexable: true, reason: "Public documents and evidence library entry." },
+  { route: "/documents/operational-trust-whitepaper", visibility: "public", family: "public", indexable: true, reason: "Canonical public whitepaper route." },
+  { route: "/dashboard", visibility: "authenticated", family: "authenticated", indexable: false, reason: "Authenticated workspace landing page." },
+  { route: "/trust-center", visibility: "authenticated", family: "authenticated", indexable: false, reason: "Authenticated trust operations surface." },
+  { route: "/trust-replay", visibility: "authenticated", family: "authenticated", indexable: false, reason: "Authenticated replay experience." },
+  { route: "/admin", visibility: "admin", family: "admin", indexable: false, reason: "Protected administrator surface." },
+  { route: "/architecture", visibility: "internal", family: "internal", indexable: false, reason: "Internal engineering and architecture surface." },
+  { route: "/agent-passport", visibility: "archived", family: "archived", indexable: false, reason: "Archived experimental route." },
+  { route: "/reality-twin", visibility: "archived", family: "archived", indexable: false, reason: "Archived concept route." },
+  { route: "/about-us", visibility: "deprecated", family: "deprecated", indexable: false, reason: "Deprecated duplicate of the about page." },
+  { route: "/trust-os", visibility: "deprecated", family: "deprecated", indexable: false, reason: "Deprecated duplicate of the platform narrative." },
+];
+
 export const canonicalPublicRoutes = [
   "/",
   "/platform",

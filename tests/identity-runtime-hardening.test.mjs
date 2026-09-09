@@ -46,19 +46,28 @@ test("external platform controls remain blocked without direct evidence", () => 
   assert.equal(classifyOperationalEvidence({ configured: false }).state, "NOT_CONFIGURED");
 });
 
-test("World ID cannot produce verified state without server verification", async () => {
+test("World ID produces positive evidence only after explicit server-side provider verification", async () => {
   const adapter = await readFile(new URL("../lib/identity-signals/adapters.ts", import.meta.url), "utf8");
   const callback = await readFile(new URL("../app/api/providers/world-id/callback/route.ts", import.meta.url), "utf8");
   const proofRoute = await readFile(new URL("../app/api/verify/world/route.ts", import.meta.url), "utf8");
-  for (const source of [adapter, callback, proofRoute]) {
-    assert.match(source, /WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED/);
-    assert.doesNotMatch(source, /serverVerified:\s*true/);
-  }
+  const qualification = await readFile(new URL("../lib/providers/world-id-qualification-server.ts", import.meta.url), "utf8");
+  const verifier = await readFile(new URL("../lib/providers/world-id-verifier.ts", import.meta.url), "utf8");
+  assert.match(adapter, /if \(!verification\.ok\)/);
+  assert.match(adapter, /verification\.providerVerified/);
+  assert.match(proofRoute, /requireAuthenticatedUser/);
+  assert.match(proofRoute, /resolveSessionTenant/);
+  assert.match(proofRoute, /executeWorldIdQualification/);
+  assert.match(qualification, /orchestrateIdentityVerification/);
+  assert.match(qualification, /executeCanonicalTrustTransaction/);
+  assert.match(verifier, /response\.ok/);
+  assert.match(verifier, /providerResponse\?\.success === true/);
+  assert.match(verifier, /providerResults\.find\(\(result\) => result\.success === true\)/);
+  assert.match(verifier, /canonicalizeWorldIdNullifier\(providerNullifier\) === canonicalNullifier/);
+  assert.match(verifier, /await replayStore\.claim\(replayInput\)/);
+  assert.match(callback, /WORLD_ID_CALLBACK_NOT_USED/);
   assert.match(callback, /status:\s*"INCONCLUSIVE"/);
   assert.match(callback, /serverVerified:\s*false/);
-  assert.match(proofRoute, /identityConfidence:\s*0/);
-  assert.match(proofRoute, /sessionIntegrity:\s*0/);
-  assert.match(proofRoute, /Proof received — server verification pending/);
+  assert.doesNotMatch(callback, /serverVerified:\s*true/);
 });
 
 test("Hopae exposes deterministic hardening reason codes and duplicate transaction guard", async () => {

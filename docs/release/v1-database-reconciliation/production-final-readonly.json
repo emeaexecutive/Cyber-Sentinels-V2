@@ -1,0 +1,671 @@
+{
+  "ledger": [
+    {
+      "name": "initial_schema",
+      "version": "001",
+      "statements_md5": "9edf765111ec294859f9cb75b9e1f675",
+      "statement_count": 8
+    },
+    {
+      "name": "private_beta_schema_fix",
+      "version": "202605260001",
+      "statements_md5": "5e8203c62be9d157fc4c10845ab9da39",
+      "statement_count": 91
+    },
+    {
+      "name": "explicit_supabase_api_grants",
+      "version": "20260528",
+      "statements_md5": "bb99f3f98388776bd21c8e5c15cf7360",
+      "statement_count": 3
+    },
+    {
+      "name": "evidence_upload_flow",
+      "version": "202605300001",
+      "statements_md5": "781e0cb895f324353a7ab972d63e9e9f",
+      "statement_count": 16
+    },
+    {
+      "name": "align_evidence_file_url",
+      "version": "202605300002",
+      "statements_md5": "8e9ba42eee04de528642fe170523c5fd",
+      "statement_count": 2
+    },
+    {
+      "name": "add_signal_metadata",
+      "version": "202605300003",
+      "statements_md5": "49f83ba7e82476bb022e87581c3f9ebb",
+      "statement_count": 1
+    },
+    {
+      "name": "real_evidence_file_upload",
+      "version": "202605310001",
+      "statements_md5": "b704f8fb153fbcda77587406d45204e0",
+      "statement_count": 11
+    },
+    {
+      "name": "intent_requests",
+      "version": "202606010001",
+      "statements_md5": "d67b10fe769f0d2b04bb3d371649e755",
+      "statement_count": 6
+    },
+    {
+      "name": "autonomy_profiles",
+      "version": "202606010002",
+      "statements_md5": "b77882fb9050acbfd4c5678167e98af1",
+      "statement_count": 6
+    },
+    {
+      "name": "passport_state_checks",
+      "version": "202606010003",
+      "statements_md5": "0d12be055e5312b7647900b55fa9b663",
+      "statement_count": 6
+    },
+    {
+      "name": "execution_passports",
+      "version": "202606010004",
+      "statements_md5": "4da658738f5fc38484c5631780c77a04",
+      "statement_count": 6
+    },
+    {
+      "name": "trust_graph_engine_help",
+      "version": "202606020001",
+      "statements_md5": "285ff9787cc59cc05dd0d62bee731f0c",
+      "statement_count": 18
+    },
+    {
+      "name": "harden_operational_tables",
+      "version": "202606020002",
+      "statements_md5": "cd1461c9b348af168254b4f4513f8a0a",
+      "statement_count": 30
+    },
+    {
+      "name": "help_question_traceability",
+      "version": "202606020004",
+      "statements_md5": "ce4da9c046cb73247124e610add073fd",
+      "statement_count": 5
+    },
+    {
+      "name": "trust_assistant_questions",
+      "version": "202606020005",
+      "statements_md5": "1666dd8baab917149b162ba03c1b1d01",
+      "statement_count": 10
+    },
+    {
+      "name": "knowledge_articles",
+      "version": "202606020006",
+      "statements_md5": "5ae5e14b1ad558abe89e7ca1883ad5a6",
+      "statement_count": 8
+    },
+    {
+      "name": "data_rights_requests",
+      "version": "202606030001",
+      "statements_md5": "3d366ec06b0210d2aee53dadf98f1fce",
+      "statement_count": 6
+    },
+    {
+      "name": "messages_notifications_appeals",
+      "version": "202606030002",
+      "statements_md5": "65a8cdec4153bb109edb3a54ec754993",
+      "statement_count": 32
+    },
+    {
+      "name": "ai_trust_event_pipeline",
+      "version": "202606030003",
+      "statements_md5": "0ffdcd2551299398572d48dc4c13f87d",
+      "statement_count": 50
+    },
+    {
+      "name": "developer_platform_api_keys",
+      "version": "202606030004",
+      "statements_md5": "9b38e49962bd80bd4799f979ad1fcd9e",
+      "statement_count": 19
+    },
+    {
+      "name": "enterprise_access_requests",
+      "version": "202606030005",
+      "statements_md5": "78fc6aef2fd41e7d0a570fa692efd2f9",
+      "statement_count": 11
+    },
+    {
+      "name": "private_evidence_bucket",
+      "version": "202606030006",
+      "statements_md5": "31f2a6adee4b318edd2761279d499da8",
+      "statement_count": 1
+    },
+    {
+      "name": "feedback_signal_intelligence",
+      "version": "202606040001",
+      "statements_md5": "bc7e91dd6a9fbb02146360f78e547626",
+      "statement_count": 13
+    },
+    {
+      "name": "ensure_enterprise_access_requests_public_submit",
+      "version": "202606040002",
+      "statements_md5": "a8d932556c114b6bcf54f8440e71ca19",
+      "statement_count": 21
+    },
+    {
+      "name": "enterprise_access_problem_category",
+      "version": "202606040003",
+      "statements_md5": "a3cdbd61d0ea9e6ebaea4c056402bdbe",
+      "statement_count": 1
+    },
+    {
+      "name": "enterprise_access_design_partner_signals",
+      "version": "202606050001",
+      "statements_md5": "f1b36121559f0524e9efd7802ce82a05",
+      "statement_count": 3
+    },
+    {
+      "name": "billing_subscriptions_usage_limits",
+      "version": "202606050002",
+      "statements_md5": "8721c2ebc112cfc1b7c854801a618b6b",
+      "statement_count": 20
+    },
+    {
+      "name": "harden_enterprise_access_insert_permissions",
+      "version": "202606050003",
+      "statements_md5": "a6579ee4da323e0d091bc39c91b01d4e",
+      "statement_count": 7
+    },
+    {
+      "name": "submit_enterprise_access_request_rpc",
+      "version": "202606050004",
+      "statements_md5": "180b01aff94985e7a1293ff1f3c74a38",
+      "statement_count": 2
+    },
+    {
+      "name": "trusted_hiring_mvp",
+      "version": "202606060001",
+      "statements_md5": "4109bbe095852bd94e5f23044a43416f",
+      "statement_count": 49
+    },
+    {
+      "name": "ai_agent_identity_direction",
+      "version": "202606070001",
+      "statements_md5": "236123dfeaff879ef83c032a2af5bd62",
+      "statement_count": 22
+    },
+    {
+      "name": "trust_algorithm_runs",
+      "version": "202606070002",
+      "statements_md5": "83a51722cad1bb2d187321a88819d934",
+      "statement_count": 10
+    },
+    {
+      "name": "integration_status",
+      "version": "202606070003",
+      "statements_md5": "4a88f332b3a19c113f0621214f96b430",
+      "statement_count": 10
+    },
+    {
+      "name": "api_test_runs",
+      "version": "202606070004",
+      "statements_md5": "92237553c64a82069f53d6bfbe92f0c2",
+      "statement_count": 10
+    },
+    {
+      "name": "launch_control_notes",
+      "version": "202606070005",
+      "statements_md5": "bcf251b08a2d0b63f48c2263afb68104",
+      "statement_count": 8
+    },
+    {
+      "name": "trust_relationships",
+      "version": "202606080001",
+      "statements_md5": "ba2cf4110a4635d0852737da60ac931d",
+      "statement_count": 12
+    },
+    {
+      "name": "trust_timeline_events",
+      "version": "202606080002",
+      "statements_md5": "72963ab5423906e55dea161ea2f4c1d5",
+      "statement_count": 42
+    },
+    {
+      "name": "trust_replay_sessions",
+      "version": "202606080003",
+      "statements_md5": "26dc069f8c841f82bd917693594af8e9",
+      "statement_count": 11
+    },
+    {
+      "name": "trust_workspaces_cases",
+      "version": "202606080004",
+      "statements_md5": "93f96c9373e8ca0307de08c6e40e82d8",
+      "statement_count": 38
+    },
+    {
+      "name": "operational_governance_engine",
+      "version": "202606080005",
+      "statements_md5": "34506290965913544bf5f5f42222d023",
+      "statement_count": 41
+    },
+    {
+      "name": "operational_hardening_rls",
+      "version": "202606080006",
+      "statements_md5": "6d5374e460e840a82ee6bbde000ff526",
+      "statement_count": 43
+    },
+    {
+      "name": "operational_notifications_coordination",
+      "version": "202606080007",
+      "statements_md5": "950f5c5a8b0966fdefd4c891d9c65ef1",
+      "statement_count": 45
+    },
+    {
+      "name": "hiring_security_interview_integrity",
+      "version": "202606090001",
+      "statements_md5": "87b33f9a307af27f8e7172ca9e0dcb79",
+      "statement_count": 27
+    },
+    {
+      "name": "trust_evidence_chains_receipts",
+      "version": "202606090002",
+      "statements_md5": "8a1095c91d814653566f87f55248c136",
+      "statement_count": 27
+    },
+    {
+      "name": "operational_trust_intelligence",
+      "version": "202606090003",
+      "statements_md5": "1fd4c65c448c0a5a9100a14957000856",
+      "statement_count": 31
+    },
+    {
+      "name": "runtime_validation_logs",
+      "version": "202606100001",
+      "statements_md5": "7c6bfcbd3163bbac7d8c412f25365f72",
+      "statement_count": 14
+    },
+    {
+      "name": "enterprise_ai_trust_governance",
+      "version": "202606180001",
+      "statements_md5": "58305e348fd8ed29bbc2b858c028add9",
+      "statement_count": 63
+    },
+    {
+      "name": "verifiers",
+      "version": "202606190001",
+      "statements_md5": "ce98eef3c105f499fb6f007439df708c",
+      "statement_count": 11
+    },
+    {
+      "name": "session_integrity_signal_separation",
+      "version": "202606190002",
+      "statements_md5": "69e8172c46c28fa206c5df505979905c",
+      "statement_count": 51
+    },
+    {
+      "name": "hopae_connect_upstream_identity",
+      "version": "202606190003",
+      "statements_md5": "ee2dc5d2277993756081a7950bdcd7c8",
+      "statement_count": 24
+    },
+    {
+      "name": "screenshot_support_debugging",
+      "version": "202606270001",
+      "statements_md5": "45462410ffb7bb931057b9fe38afb752",
+      "statement_count": 38
+    },
+    {
+      "name": "production_owner_scoped_rls",
+      "version": "202607010001",
+      "statements_md5": "09e05fdec5f36b6613976f89294690a8",
+      "statement_count": 52
+    },
+    {
+      "name": "critical_trust_infrastructure_alignment",
+      "version": "202607020001",
+      "statements_md5": "c24419f414c9bdefd8c3d6166d9723a3",
+      "statement_count": 7
+    },
+    {
+      "name": "release_1_rc1_provider_evidence_gate",
+      "version": "202607160001",
+      "statements_md5": "2ba606808bbe1053eccb6372235d06ad",
+      "statement_count": 90
+    },
+    {
+      "name": "release_1_rc2_living_trust_privacy",
+      "version": "202607160002",
+      "statements_md5": "c0963c19b39193dfb04356bbf6b6a885",
+      "statement_count": 14
+    },
+    {
+      "name": "release_1_rc6_production_evidence_gate",
+      "version": "202607160003",
+      "statements_md5": "707a0b56ee1344f2034c466cef9effca",
+      "statement_count": 46
+    },
+    {
+      "name": "operational_risk_intelligence_shadow",
+      "version": "202607170001",
+      "statements_md5": "e28549d27c50d4b0ae27d4eb5aa06cb1",
+      "statement_count": 56
+    },
+    {
+      "name": "provider_abstraction_hopae",
+      "version": "202607170002",
+      "statements_md5": "7ee3a204ff902b3cd7490bb945913aed",
+      "statement_count": 31
+    },
+    {
+      "name": "identity_signal_engine",
+      "version": "202607190001",
+      "statements_md5": "0708d1b2789bc07bae3cdcc341a8becd",
+      "statement_count": 35
+    },
+    {
+      "name": "identity_signal_runtime",
+      "version": "202607190002",
+      "statements_md5": "153181c7093b08c11ac8eafce3836bc1",
+      "statement_count": 34
+    },
+    {
+      "name": "canonical_trust_event_foundation",
+      "version": "202607200001",
+      "statements_md5": "b76550ef9308c83a3eb3258045bd0017",
+      "statement_count": 56
+    },
+    {
+      "name": "enterprise_trust_consent_manager",
+      "version": "202607200002",
+      "statements_md5": "17558e1d825c9db918754efbd6d530e2",
+      "statement_count": 53
+    },
+    {
+      "name": "provider_consensus_engine",
+      "version": "202607200003",
+      "statements_md5": "2cf687d229c0ffe5d02d727e75378f3e",
+      "statement_count": 42
+    },
+    {
+      "name": "enterprise_trust_architecture",
+      "version": "202607210001",
+      "statements_md5": "cf5182e0bdeda929842b11666a183632",
+      "statement_count": 80
+    },
+    {
+      "name": "continuous_trust_runtime",
+      "version": "202607210002",
+      "statements_md5": "ad4a32e531ece1be22a1ccd97f4421cb",
+      "statement_count": 46
+    },
+    {
+      "name": "trust_intelligence_engine",
+      "version": "202607230001",
+      "statements_md5": "926a63b7cb74186bdee22f3de31eeee0",
+      "statement_count": 59
+    },
+    {
+      "name": "enterprise_trust_graph",
+      "version": "202607230002",
+      "statements_md5": "c03455da819ccb55d46fb6ef3035f1f8",
+      "statement_count": 39
+    },
+    {
+      "name": "trust_dna_engine",
+      "version": "202607240001",
+      "statements_md5": "c65ff2e7006d87f33591285462e7414e",
+      "statement_count": 25
+    },
+    {
+      "name": "replay_timeline_engine",
+      "version": "202607240002",
+      "statements_md5": "ac2301b89f375f4b33ffeab3eb78c5a2",
+      "statement_count": 24
+    },
+    {
+      "name": "continuous_trust_engine",
+      "version": "202607240003",
+      "statements_md5": "77be0e84fb684acb386ff4aef50660cd",
+      "statement_count": 78
+    },
+    {
+      "name": "enterprise_trust_centre",
+      "version": "202607240004",
+      "statements_md5": "c5e2ce67101eb51390e10cc4407b8161",
+      "statement_count": 13
+    },
+    {
+      "name": "environment_attestation_scope_continuity",
+      "version": "202607310001",
+      "statements_md5": "3f7421cac5ae91c21bf383ebf0558d41",
+      "statement_count": 38
+    },
+    {
+      "name": "ai_serious_incident_regulatory_lineage",
+      "version": "202608010001",
+      "statements_md5": "4e266f4dc43072a4da552902582a8bbd",
+      "statement_count": 49
+    },
+    {
+      "name": "enterprise_trust_fabric",
+      "version": "202608010002",
+      "statements_md5": "a21ce898962f15f5ad8c5d5fa5568c27",
+      "statement_count": 45
+    },
+    {
+      "name": "rc2_enterprise_operational_readiness",
+      "version": "202608060001",
+      "statements_md5": "65367f24bf989f6b98461203bb9779fa",
+      "statement_count": 33
+    },
+    {
+      "name": "end_to_end_trust_transaction",
+      "version": "202608060002",
+      "statements_md5": "b4273b6eabbddc44b43acc6693b45afc",
+      "statement_count": 44
+    },
+    {
+      "name": "provider_neutral_evidence_independence",
+      "version": "202608080001",
+      "statements_md5": "b3484df06b34537a57db89a9ad928e34",
+      "statement_count": 35
+    },
+    {
+      "name": "provider_neutral_workspace_rls_forward_repair",
+      "version": "202608080002",
+      "statements_md5": "70cb553c4b706761b5a0260894068f27",
+      "statement_count": 8
+    },
+    {
+      "name": "native_operational_entity_verification",
+      "version": "202608080003",
+      "statements_md5": "09b2215cae9fbef4c67226a60cfc1610",
+      "statement_count": 41
+    },
+    {
+      "name": "native_delegated_authority",
+      "version": "202608090001",
+      "statements_md5": "0d93a14f12b228a304bbace16aeb5155",
+      "statement_count": 35
+    },
+    {
+      "name": "native_enforcement_outcome_proof",
+      "version": "202608090002",
+      "statements_md5": "dd30e0a1df1a162ef208a7be1c1155f2",
+      "statement_count": 36
+    },
+    {
+      "name": "pgcrypto_routine_search_path",
+      "version": "202608100001",
+      "statements_md5": "204bdf492657ad7ec17d4f3c33d6ff24",
+      "statement_count": 16
+    },
+    {
+      "name": "runtime_persistence_compatibility",
+      "version": "202608100002",
+      "statements_md5": "edcc4d178cc8d1a359349c933ad18683",
+      "statement_count": 4
+    },
+    {
+      "name": "alpha_beta_persistence_repairs",
+      "version": "202608100003",
+      "statements_md5": "7d2c891e5547ec92cb8bb06482287d31",
+      "statement_count": 4
+    },
+    {
+      "name": "continuous_trust_legacy_consensus_fk_repair",
+      "version": "202608100004",
+      "statements_md5": "e40f81ba4e7e0031cfebd2affa331deb",
+      "statement_count": 4
+    },
+    {
+      "name": "optional_legacy_consensus_pointer",
+      "version": "202608100005",
+      "statements_md5": "867113a6cab3edb35cda904d33fcf202",
+      "statement_count": 3
+    },
+    {
+      "name": "external_agent_trust_api",
+      "version": "202608110001",
+      "statements_md5": "c0a86b05bcdec9208a73960edf236ead",
+      "statement_count": 36
+    },
+    {
+      "name": "track_block_protected_workflow",
+      "version": "20260817173631",
+      "statements_md5": "64f377740d9ab6f0467544b30aad441a",
+      "statement_count": 27
+    },
+    {
+      "name": "reconcile_enterprise_trust_domain_registry",
+      "version": "20260817175347",
+      "statements_md5": "3ebfcd16004edccdc7a9f1ed7a0522c8",
+      "statement_count": 10
+    },
+    {
+      "name": "remove_user_metadata_rls_authorization",
+      "version": "20260818075145",
+      "statements_md5": "e81cb6af3d33d79f5736ee54ab25928b",
+      "statement_count": 21
+    },
+    {
+      "name": "consent_evidence_freshness_repair",
+      "version": "20260819082001",
+      "statements_md5": "99914b932bd37a50b983c5e7c90ae93b",
+      "statement_count": 0
+    },
+    {
+      "name": "consent_evidence_freshness_repair",
+      "version": "20260819084252",
+      "statements_md5": "7acd7c8854f2d2657cd36ba0bcb6df84",
+      "statement_count": 1
+    },
+    {
+      "name": "restrict_evidence_trigger_functions",
+      "version": "20260819084329",
+      "statements_md5": "c6558adc22ae8afde0cd49e80b4a3699",
+      "statement_count": 1
+    },
+    {
+      "name": "vale_canonical_provider_preview",
+      "version": "20260820085027",
+      "statements_md5": "745b8b4dfec730ec0d22672ffb289247",
+      "statement_count": 12
+    },
+    {
+      "name": "track_block_policy_identity_continuity",
+      "version": "20260821085309",
+      "statements_md5": "f8b81fccfc255dd4e504bb54a0b3a11a",
+      "statement_count": 6
+    },
+    {
+      "name": "reconcile_canonical_persist_search_path",
+      "version": "20260821174100",
+      "statements_md5": "d5f1fd4d795e54c7f255aba7101cff3d",
+      "statement_count": 3
+    },
+    {
+      "name": "repair_production_consent_event_metadata",
+      "version": "20260822124942",
+      "statements_md5": "39867d75878d725b6a7db98fe85e87bf",
+      "statement_count": 3
+    },
+    {
+      "name": "authority_integrity_authorization_propagation",
+      "version": "20260824181053",
+      "statements_md5": "0ad93cafafc7caa731e7d368004fe956",
+      "statement_count": 1
+    },
+    {
+      "name": "trust_forecast_operational_intelligence",
+      "version": "20260824184543",
+      "statements_md5": "e81748727efa71ece9fe7ae084e1cbc1",
+      "statement_count": 1
+    },
+    {
+      "name": "close_public_api_security_contract",
+      "version": "20260828165913",
+      "statements_md5": "c213c4fa4d3398e06eb258af691ba8c4",
+      "statement_count": 1
+    },
+    {
+      "name": "harden_public_api_rate_limit_isolation",
+      "version": "20260829094528",
+      "statements_md5": "369791683824dc6f61c7f261c3b5030b",
+      "statement_count": 1
+    },
+    {
+      "name": "close_public_api_customer_zero",
+      "version": "20260829164824",
+      "statements_md5": "50d9d32e46d880cf63525f12a27b8dcd",
+      "statement_count": 1
+    },
+    {
+      "name": "fix_public_api_replay_subject",
+      "version": "20260831121500",
+      "statements_md5": "50670f5f3220e0f917d7e12ece268397",
+      "statement_count": 1
+    },
+    {
+      "name": "expand_canonical_replay_event_types",
+      "version": "20260831124000",
+      "statements_md5": "5c763d0801d4193e69b413685cd8e0ff",
+      "statement_count": 1
+    },
+    {
+      "name": "fix_public_api_trust_memory_source_id",
+      "version": "20260831125500",
+      "statements_md5": "4ebfba8033d9486a6b0093e6e5318f01",
+      "statement_count": 1
+    },
+    {
+      "name": "grant_service_role_api_keys_privileges",
+      "version": "20260902083450",
+      "statements_md5": "2adf6f630a0b12535004977e7ccd8d32",
+      "statement_count": 1
+    },
+    {
+      "name": "reconcile_public_api_webhook_event_types",
+      "version": "20260903095127",
+      "statements_md5": "253716f94f2b9ba3051c8d255a8506c7",
+      "statement_count": 1
+    },
+    {
+      "name": "normalize_continuous_trust_alert_contract",
+      "version": "20260904113046",
+      "statements_md5": "f1fb654e5ea83d8825b16120968dc52f",
+      "statement_count": 1
+    }
+  ],
+  "eventTypes": [
+    "ADAPTIVE_VERIFICATION_EVALUATED",
+    "DECISION_PERSISTED",
+    "EVIDENCE_GRAPH_LINKED",
+    "REPLAY_WRITTEN",
+    "REVIEW_REQUESTED",
+    "REVIEW_RESOLVED",
+    "TRUST_BUDGET_EVALUATED",
+    "TRUST_FORECAST_CONTROL_RECOMMENDED",
+    "TRUST_FORECAST_EVALUATED",
+    "TRUST_MEMORY_WRITTEN",
+    "TRUST_PRESSURE_EVALUATED",
+    "TRUST_TWIN_PROJECTED",
+    "TWIN_AUTHORITY_CHANGED"
+  ],
+  "worldTable": null,
+  "reviewColumn": 0,
+  "canonicalRows": 15,
+  "blankAlertTitles": 0
+}

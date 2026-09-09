@@ -33,3 +33,6 @@ supabase/.temp/
 *-credential-export.*
 *-connection-string.*
 *-diagnostic-output.*
+
+.vercel
+.env*

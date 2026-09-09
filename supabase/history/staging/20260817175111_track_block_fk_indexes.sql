@@ -1,0 +1,5 @@
+create index if not exists protected_workflows_consent_idx on public.protected_workflows(consent_reference) where consent_reference is not null;
+create index if not exists protected_workflows_latest_transaction_idx on public.protected_workflows(workspace_id,latest_canonical_transaction_id) where latest_canonical_transaction_id is not null;
+create index if not exists workflow_interventions_transaction_idx on public.workflow_interventions(workspace_id,canonical_transaction_id);
+create index if not exists workflow_interventions_graph_idx on public.workflow_interventions(workspace_id,evidence_graph_reference) where evidence_graph_reference is not null;
+create index if not exists workflow_interventions_replay_idx on public.workflow_interventions(replay_reference) where replay_reference is not null;

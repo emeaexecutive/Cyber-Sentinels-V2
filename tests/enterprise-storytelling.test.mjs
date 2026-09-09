@@ -4,12 +4,12 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("homepage tells the category story through three calm no-blueprint sections", async () => {
+test("homepage tells the action-led story through four calm no-blueprint sections", async () => {
   const source = await read("app/page.tsx");
-  assert.equal((source.match(/<section/g) ?? []).length, 3);
+  assert.equal((source.match(/<section/g) ?? []).length, 4);
   for (const removed of ["ComparisonCard", "LifecycleDiagram", "DecisionFlow", "ArchitectureBlock", "InteractiveTrustWalkthrough"]) assert.doesNotMatch(source, new RegExp(`<${removed}`));
   assert.doesNotMatch(source, /<Timeline/);
-  for (const marker of ["Operational Trust Intelligence™", "Capability vocabulary", "Understand trust as it changes", "Why it matters", "Operational evidence should outlast the alert"]) {
+  for (const marker of ["Operational Trust Infrastructure", "Before an AI agent acts", "Core flow", "Trust is contextual to the action", "Decision, proof and Replay"]) {
     assert.match(source, new RegExp(marker));
   }
 });

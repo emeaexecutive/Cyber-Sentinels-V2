@@ -28,8 +28,10 @@ test("the manifest, lockfile, Node, and npm baseline stay deterministic", () => 
       assert.ok(lock.packages[`node_modules/${name}`], `${name} must resolve in the lockfile`);
     }
   }
-  assert.equal(manifest.dependencies["@worldcoin/idkit"], undefined);
-  assert.equal(lock.packages["node_modules/@worldcoin/idkit"], undefined);
+  assert.equal(manifest.dependencies["@worldcoin/idkit"], "^4.2.3");
+  assert.equal(manifest.dependencies["@worldcoin/idkit-core"], "^4.2.4");
+  assert.equal(lock.packages["node_modules/@worldcoin/idkit"].version, "4.2.3");
+  assert.equal(lock.packages["node_modules/@worldcoin/idkit-core"].version, "4.2.4");
 });
 
 test("the installed graph has no invalid or unexplained dependency problem", () => {
