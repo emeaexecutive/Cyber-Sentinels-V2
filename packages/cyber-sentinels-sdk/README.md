@@ -92,3 +92,32 @@ try {
 ```
 
 For a timed-out decision, retry the unchanged request with the same idempotency key. DNS failure, timeout, 429, 500, and 503 are unavailable states, never `ALLOW`. `REVIEW` is a completed decision but does not permit execution. An approved governed review is subsequent evidence and still requires a new canonical evaluation under current conditions.
+# Production signed control-plane heartbeat
+
+After registering a signed manifest, completing native identity proof and granting current Production authority, use the registered Ed25519 key:
+
+```ts
+const heartbeat = await signHeartbeat({
+  agent_id: agent.agent_id,
+  credential_id: credential.credential_id,
+  event_id: crypto.randomUUID().replaceAll("-", ""),
+  issued_at: new Date().toISOString(),
+  environment: "production",
+  authority_id: authority.authority_id,
+  policy_id: "external-agent-trust-v1",
+  policy_version: "0.2.0",
+}, tenantId, "https://www.cybersentinels.com/api/v1", privateKey);
+const observation = await cs.agents.heartbeat(agent.agent_id, heartbeat);
+```
+
+Import `signHeartbeat` from the SDK alongside `CyberSentinels`. The API key needs `agents:verify` and must own the agent binding. Tenant and audience are signed context, resolved independently by the server; neither is accepted as a body field. The endpoint accepts heartbeats at most 120 seconds old or 30 seconds ahead. Evidence lasts at most 300 seconds, capped by every current baseline expiry. Duplicate event IDs return `409 HEARTBEAT_REPLAY`; send a newly signed event for a new observation.
+
+The response references two atomically stored records with provenance `CYBER_SENTINELS_CONTROL_PLANE_VERIFIED`. Configuration means an authenticated signed declaration. Monitoring means an observed, signed control-plane heartbeat. Neither asserts independent runtime attestation or downstream execution. Every decision rechecks the current baseline; a prior heartbeat cannot authorize after credential, manifest, authority or policy changes.
+
+For curl, create `heartbeat.json` with the SDK or an equivalent Ed25519 signer, then submit it with the same tenant-scoped key:
+
+```sh
+curl --fail-with-body -X POST "$CYBER_SENTINELS_BASE_URL/api/v1/agents/$AGENT_ID/heartbeat" \
+  -H "Authorization: Bearer $CYBER_SENTINELS_API_KEY" \
+  -H 'Content-Type: application/json' --data-binary @heartbeat.json
+```
