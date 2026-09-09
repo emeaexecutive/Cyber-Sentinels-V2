@@ -1,0 +1,49 @@
+{
+  "project": "agpyhygpfmppjkxwcpac",
+  "origin": "https://localhost:3443",
+  "classification": "SCRIPTED_STAGING_QUALIFICATION; no downstream execution or model invocation",
+  "started_at": "2026-09-09T17:03:58.104Z",
+  "stages": {
+    "agent": {
+      "agent_id": "agent:52c361c4-b5a1-442f-976e-6056251f7dab",
+      "operational_entity_id": "agent:52c361c4-b5a1-442f-976e-6056251f7dab",
+      "status": "PENDING_IDENTITY_PROOF",
+      "next_step": "REGISTER_CREDENTIAL",
+      "manifest_context": {
+        "enterprise_id": "f8deb39c-b626-4755-9202-bb58be3f8c94",
+        "display_name": "V2_STAGING_CUSTOMER_ZERO",
+        "accountable_owner_id": "owner:v2-staging-fixture",
+        "organization_id": "tenant:f8deb39c-b626-4755-9202-bb58be3f8c94",
+        "environment": "staging",
+        "framework": "custom",
+        "model": {
+          "provider": "not_invoked",
+          "identifier": "scripted-evidence-client"
+        },
+        "authority_reference": null
+      },
+      "request_id": "64ef8801-1b63-46a4-a49d-484f5329d487",
+      "correlation_id": "d6749f5c-66e5-4ac6-8ee7-252f9608d5a3",
+      "api_version": "2026-08-29"
+    },
+    "credential": {
+      "credential_id": "4017f490-c06b-4a80-b70a-fb3ae8179738",
+      "kid": "v2-69118af5-035b-4882-b8d0-ba1d63b20f63",
+      "algorithm": "Ed25519",
+      "fingerprint": "623a18670bc4a4a8d310f907b5a144252257f98ca954a347e335e035294081c0",
+      "status": "ACTIVE",
+      "private_key_stored": false,
+      "request_id": "ce2481b2-fb8f-4285-b662-656eb2a95cdf",
+      "correlation_id": "f7345239-e41e-4136-9600-d7506a2f0b9a",
+      "api_version": "2026-08-29"
+    }
+  },
+  "negatives": [],
+  "result": "BLOCKED",
+  "error": {
+    "message": "The canonical trust runtime rejected the request.",
+    "code": "IDEMPOTENCY_CONFLICT",
+    "status": 409
+  },
+  "completed_at": "2026-09-09T17:04:08.844Z"
+}

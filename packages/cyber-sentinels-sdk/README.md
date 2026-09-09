@@ -121,3 +121,6 @@ curl --fail-with-body -X POST "$CYBER_SENTINELS_BASE_URL/api/v1/agents/$AGENT_ID
   -H "Authorization: Bearer $CYBER_SENTINELS_API_KEY" \
   -H 'Content-Type: application/json' --data-binary @heartbeat.json
 ```
+# Optional incident evidence (V2 Staging foundation)
+
+Explicit new scopes are required: `incidents:write`, `incidents:read`, `evidence:export`. Existing keys are unchanged. Use `cs.incidents.open`, `.append`, `.get`, `.replay` and `.export`. Evidence uploads still use `cs.evidence.submit`; execution observations, per-layer outcomes and purpose observations must match the referenced evidence type, timestamp, digest and claims. `context` values remain attributed assertions. An incomplete package is a draft. Export readiness is not regulatory approval or independent verification.

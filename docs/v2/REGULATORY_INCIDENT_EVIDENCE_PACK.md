@@ -1,0 +1,19 @@
+# Canonical incident evidence pack
+
+Epic 1 reconstructs existing evidence around canonical V1 transactions. The focused view orders Authority, Actor, Decision, Execution, Incident, Intervention, Outcome and Remediation, alongside existing Evidence, Receipt and Replay references.
+
+Machine-readable JSON includes schema version, incident, generation time, tenant, chronology, actors, authority lineage, original decisions and receipt digests, observations, separate provider/runtime/destination outcomes, interventions, contradictions, gaps and remediation. The server computes an integrity digest over canonical JSON excluding the digest field. It proves package integrity, not that every source claim is true.
+
+Readiness dimensions are independent: evidence completeness, chronology integrity, authority resolution and canonical export readiness. Missing evidence yields a gap; unknown authority remains unresolved; incomplete incidents cannot claim READY. A downloadable incomplete package is explicitly a draft. No caller-supplied verified/complete/ready state is trusted.
+
+For this schema, INCIDENT_TIMELINE_VERIFIED means the required attributed chronology can be reconstructed with intact evidence/link digests and canonical references. It does not verify source clock accuracy, causal attribution or independent provider truth; timestamp confidence remains UNKNOWN. READINESS requires transaction, execution observation, outcome, detection, intervention, containment and remediation coverage. Reports of remediation do not become validated corrective actions. Existing approved corrective-action workflows retain their own gates.
+
+API: POST `/api/v1/incidents`; GET `/api/v1/incidents/{incidentId}`; POST `.../chronology`; GET `.../replay`; POST `.../exports`. Public callers submit observation evidence through the existing `/api/v1/evidence`, and existing outcomes through `/api/v1/trust/transactions/{transactionId}/outcomes`. Chronology claims must match referenced evidence type, timestamp, digest, context, outcome layer/status and observed purpose. `TRANSACTION_LINK` may attach historical source evidence without relabeling its type. Exports also read existing public, native and external outcome records, without combining their provenance.
+
+Exports are limited to 500 chronology records, 500 records per existing outcome source and 1 MB. Larger incidents return an explicit size error; they are never silently truncated into READY. Package digest uses existing JCS/SHA-256, over the package excluding integrity_digest. HTTP envelope metadata is outside the package digest. Exports are persisted in existing incident_submission_packages as internal_draft: REGULATORY_EXPORT_READY describes canonical evidence completeness, not the separate regulatory submission approval state. A concurrent chronology append causes export persistence to reject and require retry.
+
+Regulation-neutral canonical export is not compliance certification, a legal conclusion, a regulator-ready submission or proof of independent verification. No regulator-specific schema, PDF, SIEM, ticketing workflow or intelligence engine is introduced. Existing specialist review and approved submission workflows retain their own gates.
+
+Qualification must exercise original transaction → observation → outcome → incident → evidence link → intervention → remediation → package → Replay → Memory, preserving original decision/digest/purpose. Negative cases include cross-tenant references, unknown transaction, forged verification, bad digest, absent evidence, incomplete chronology and unresolved authority.
+
+Evidence completeness remains independently reported when authority is unresolved; unresolved authority still blocks export readiness. An explicitly attached historical evidence reference that cannot be resolved is an evidence gap even for a TRANSACTION_LINK.

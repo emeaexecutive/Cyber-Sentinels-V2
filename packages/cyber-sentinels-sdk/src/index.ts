@@ -1,6 +1,9 @@
 export type Decision = "ALLOW" | "REVIEW" | "DENY";
 export const API_VERSION = "2026-08-29" as const;
 export type ApiScope =
+  | "incidents:read"
+  | "incidents:write"
+  | "evidence:export"
   | "agents:write"
   | "agents:verify"
   | "authority:read"
@@ -410,7 +413,7 @@ export async function signManifest(claims: PublicManifestClaims, privateKey: Cry
 
 export type HeartbeatClaims = {
   agent_id: string; credential_id: string; event_id: string; issued_at: string;
-  environment: "production"; authority_id: string; policy_id: string; policy_version: string;
+  environment: "production" | "staging"; authority_id: string; policy_id: string; policy_version: string;
 };
 export type SignedHeartbeat = HeartbeatClaims & { signature: string };
 /** Signs a first-party control-plane heartbeat, not downstream execution proof. */
@@ -519,6 +522,13 @@ export class CyberSentinels {
   readonly evidence: {
     submit: (input: EvidenceSubmission, options?: RequestOptions) => Promise<EvidenceResult>;
   };
+  readonly incidents: {
+    open: (input: Record<string, unknown>, options?: RequestOptions) => Promise<Record<string, unknown>>;
+    get: (id: string, options?: RequestOptions) => Promise<Record<string, unknown>>;
+    append: (id: string, input: Record<string, unknown>, options?: RequestOptions) => Promise<Record<string, unknown>>;
+    replay: (id: string, options?: RequestOptions) => Promise<Record<string, unknown>>;
+    export: (id: string, options?: RequestOptions) => Promise<Record<string, unknown>>;
+  };
   readonly outcomes: {
     submit: (input: OutcomeSubmission, options?: RequestOptions) => Promise<OutcomeResult>;
   };
@@ -578,6 +588,13 @@ export class CyberSentinels {
     };
     this.evidence = {
       submit: (input, requestOptions) => this.#request("POST", "/api/v1/evidence", input, requestOptions),
+    };
+    this.incidents = {
+      open: (input, options) => this.#request("POST", "/api/v1/incidents", input, options),
+      get: (id, options) => this.#request("GET", `/api/v1/incidents/${encodeURIComponent(id)}`, undefined, options),
+      append: (id, input, options) => this.#request("POST", `/api/v1/incidents/${encodeURIComponent(id)}/chronology`, input, options),
+      replay: (id, options) => this.#request("GET", `/api/v1/incidents/${encodeURIComponent(id)}/replay`, undefined, options),
+      export: (id, options) => this.#request("POST", `/api/v1/incidents/${encodeURIComponent(id)}/exports`, {}, options),
     };
     this.outcomes = {
       submit: (input, requestOptions) => this.#request("POST", `/api/v1/trust/transactions/${encodeURIComponent(input.transactionId)}/outcomes`, {

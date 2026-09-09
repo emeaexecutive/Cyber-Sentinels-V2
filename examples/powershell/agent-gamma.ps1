@@ -436,6 +436,18 @@ function Write-CyberSentinelsMarker {
 
 # Optional Production operation for an already registered, verified agent with
 # current Production authority. The default Staging journey does not call it.
+function Invoke-CyberSentinelsIncident {
+    param([ValidateSet("open", "get", "append", "replay", "export")][string]$Operation, [string]$IncidentId, [hashtable]$Body = @{})
+    $incidentPath = "/api/v1/incidents/$([Uri]::EscapeDataString($IncidentId))"
+    switch ($Operation) {
+        "open" { return Invoke-CyberSentinelsApi "POST" "/api/v1/incidents" $Body }
+        "get" { return Invoke-CyberSentinelsApi "GET" $incidentPath }
+        "append" { return Invoke-CyberSentinelsApi "POST" "$incidentPath/chronology" $Body }
+        "replay" { return Invoke-CyberSentinelsApi "GET" "$incidentPath/replay" }
+        "export" { return Invoke-CyberSentinelsApi "POST" "$incidentPath/exports" @{} }
+    }
+}
+
 function Submit-CyberSentinelsHeartbeat {
     param([string]$AgentId, [string]$CredentialId, [string]$TenantId, [string]$AuthorityId, [string]$PrivateKeyPath)
     $claims = [ordered]@{

@@ -47,7 +47,7 @@ export function heartbeatSigningPayload(heartbeat: Omit<Heartbeat, "signature"> 
 export function validateControlPlaneSnapshot(snapshot: ControlPlaneSnapshot, context: ControlPlaneContext, now = Date.now()) {
   const { entity, manifest, credential, verification, identityEvidence, authority, policy } = snapshot;
   requireClaim(entity && manifest && credential && verification && identityEvidence && authority && policy, "CONTROL_PLANE_BASELINE_MISSING");
-  requireClaim(context.environment === "production" && entity.lifecycle_state === "active" && entity.environment_references?.includes(context.environment), "CONTROL_PLANE_ENVIRONMENT_MISMATCH");
+  requireClaim(["production", "staging"].includes(context.environment) && entity.lifecycle_state === "active" && entity.environment_references?.includes(context.environment), "CONTROL_PLANE_ENVIRONMENT_MISMATCH");
   requireClaim(entity.entity_id === context.agentId, "CONTROL_PLANE_ENTITY_MISMATCH");
   requireClaim(credential.enterprise_id === context.tenantId && credential.operational_entity_id === context.agentId, "CONTROL_PLANE_CREDENTIAL_BINDING_MISMATCH");
   requireClaim(credential.state === "ACTIVE" && !credential.revoked_at && started(credential.valid_from, now) && current(credential.expires_at, now, true), "CONTROL_PLANE_CREDENTIAL_NOT_CURRENT");

@@ -1,0 +1,14 @@
+{
+  "project": "agpyhygpfmppjkxwcpac",
+  "results": [
+    {
+      "result": "PASS",
+      "role_test": "authenticated, actual Staging workspace ownership and RLS",
+      "rls": true,
+      "foreign_keys": 5,
+      "authenticated_rpc": false,
+      "anon_rpc": false,
+      "service_rpc": true
+    }
+  ]
+}

@@ -16,6 +16,11 @@ const [sdk, typescriptGamma, powershell, quickstart, developerLanding, sdkReadme
 ]);
 
 const clientTokens = {
+  "POST /api/v1/incidents": ["/api/v1/incidents", 'Invoke-CyberSentinelsApi "POST" "/api/v1/incidents"', "POST /api/v1/incidents"],
+  "GET /api/v1/incidents/{incidentId}": ["/api/v1/incidents/${encodeURIComponent(id)}", 'Invoke-CyberSentinelsApi "GET" $incidentPath', "GET  /api/v1/incidents/{incidentId}"],
+  "POST /api/v1/incidents/{incidentId}/chronology": ["/chronology", 'Invoke-CyberSentinelsApi "POST" "$incidentPath/chronology"', "POST /api/v1/incidents/{incidentId}/chronology"],
+  "GET /api/v1/incidents/{incidentId}/replay": ["/replay", 'Invoke-CyberSentinelsApi "GET" "$incidentPath/replay"', "GET  /api/v1/incidents/{incidentId}/replay"],
+  "POST /api/v1/incidents/{incidentId}/exports": ["/exports", 'Invoke-CyberSentinelsApi "POST" "$incidentPath/exports"', "POST /api/v1/incidents/{incidentId}/exports"],
   "POST /api/v1/agents": ["/api/v1/agents", 'Invoke-CyberSentinelsApi "POST" "/api/v1/agents"', "POST /api/v1/agents"],
   "GET /api/v1/agents/{agentId}": ["GET\", `/api/v1/agents/${encodeURIComponent(agentId)}`", 'Invoke-CyberSentinelsApi "GET" "/api/v1/agents/$encodedAgentId"', "GET  /api/v1/agents/{agentId}"],
   "POST /api/v1/agents/{agentId}/credentials": ["/credentials", 'Get-AgentPath $agentId "credentials"', "POST /api/v1/agents/{agentId}/credentials"],

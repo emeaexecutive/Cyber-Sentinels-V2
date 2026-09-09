@@ -1,0 +1,53 @@
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
+const modulePath = process.env.V2_PGLITE_MODULE;
+if (!modulePath) throw new Error('Set V2_PGLITE_MODULE to the pinned local @electric-sql/pglite 0.5.8 module.');
+const { PGlite } = await import(pathToFileURL(modulePath).href);
+const db = new PGlite();
+try {
+  await db.exec(await readFile('tests/fixtures/v2-staging-column-contract.sql','utf8'));
+  await db.exec(await readFile('supabase/migrations/20260909163513_operational_incident_evidence_foundation.sql','utf8'));
+  async function seed(table, values) {
+    const cols = (await db.query("select column_name,data_type from information_schema.columns where table_schema='public' and table_name=$1 and is_nullable='NO' and column_default is null",[table])).rows;
+    const row={...values};
+    for(const c of cols) if(row[c.column_name]===undefined) row[c.column_name]=c.data_type==='uuid'?randomUUID():c.data_type==='boolean'?false:c.data_type==='jsonb'?{}:c.data_type==='ARRAY'?[]:c.data_type.includes('timestamp')?new Date().toISOString():['integer','bigint'].includes(c.data_type)?1:'local-contract-fixture';
+    const fields=Object.keys(row);
+    await db.query(`insert into ${table}(${fields.join(',')}) values(${fields.map((_,i)=>'$'+(i+1)).join(',')})`,fields.map(k=>row[k]));
+  }
+  const tenant=randomUUID(), other=randomUUID(), client=randomUUID(), key=randomUUID(), tx=randomUUID(), incident=randomUUID();
+  await seed('trust_workspaces',{id:tenant}); await seed('trust_workspaces',{id:other});
+  await seed('api_keys',{id:key,tenant_id:tenant,client_id:client,status:'active',scopes:['incidents:write','incidents:read','evidence:export']});
+  await seed('canonical_trust_transactions',{enterprise_id:tenant,transaction_id:tx,actor_id:client,subject_id:'agent:local',decision:'ALLOW',action_purpose:'local_migration_qualification'});
+  const before=(await db.query('select to_jsonb(t) as value from canonical_trust_transactions t where transaction_id=$1',[tx])).rows[0].value;
+  const record={id:randomUUID(),transaction_id:tx,kind:'TRANSACTION_LINK',summary:'Local migration contract fixture',observed_at:new Date().toISOString(),content_digest:'a'.repeat(64),context:{}};
+  const call=(t,c,k,i,op,r)=>db.query('select persist_operational_incident_v2($1,$2,$3,$4,$5,$6)',[t,c,k,i,op,r]);
+  await call(tenant,client,key,incident,'open',record);
+  assert.equal((await db.query('select count(*)::int as n from trust_memory_index')).rows[0].n,1);
+  await assert.rejects(call(other,client,key,incident,'append',record));
+  await assert.rejects(call(tenant,client,key,randomUUID(),'append',record));
+  await assert.rejects(call(tenant,client,key,incident,'append',{...record,id:randomUUID(),transaction_id:randomUUID()}));
+  await assert.rejects(call(tenant,client,key,incident,'append',{...record,id:randomUUID(),kind:'OUTCOME'}));
+  await db.exec("set role authenticated; select set_config('test.tenant','"+other+"',false)");
+  assert.equal((await db.query('select count(*)::int as n from incident_evidence_links')).rows[0].n,0);
+  await db.query("select set_config('test.tenant',$1,false)",[tenant]);
+  assert.equal((await db.query('select count(*)::int as n from incident_evidence_links')).rows[0].n,1);
+  await db.exec('reset role');
+  await assert.rejects(db.query("update incident_evidence_links set relation_type='OUTCOME'"));
+  const after=(await db.query('select to_jsonb(t) as value from canonical_trust_transactions t where transaction_id=$1',[tx])).rows[0].value;
+  assert.deepEqual(after,before);
+  const grants = await db.query("select has_function_privilege('anon','persist_operational_incident_v2(uuid,uuid,uuid,uuid,text,jsonb)','execute') as anon,has_function_privilege('authenticated','persist_operational_incident_v2(uuid,uuid,uuid,uuid,text,jsonb)','execute') as authenticated,has_function_privilege('service_role','persist_operational_incident_v2(uuid,uuid,uuid,uuid,text,jsonb)','execute') as service_role");
+  assert.deepEqual(grants.rows[0], {anon:false,authenticated:false,service_role:true});
+  const constraints=await db.query("select contype,count(*)::int as count from pg_constraint where conrelid='incident_evidence_links'::regclass group by contype order by contype");
+  assert.equal(constraints.rows.find(row=>row.contype==='f').count,5);
+  await assert.rejects(db.exec("set role authenticated; insert into incident_evidence_links(id) values(gen_random_uuid());"));
+  await db.exec('reset role');
+  await assert.rejects(db.exec("set role authenticated; select persist_operational_incident_v2(null,null,null,null,'open','{}');"));
+  await db.exec('reset role');
+  await db.exec("set role authenticated; select * from incident_evidence_links; reset role;");
+  const result={status:'PASS',engine:'PGlite 0.5.8',scope:'Targeted DDL against captured Staging column contract, not full V1 migration replay',migration:'20260909163513',rpcGrants:grants.rows[0],constraints:constraints.rows,authenticatedDirectWrite:'DENIED',authenticatedRpc:'DENIED',authenticatedRead:'ALLOWED_WITH_RLS',atomicOpenAndMemory:'PASS',crossTenantRead:'DENIED',crossTenantMutation:'DENIED',unknownTransaction:'DENIED',missingEvidence:'DENIED',historyMutation:'DENIED',originalTransactionImmutable:true};
+  await mkdir('docs/v2/qualification',{recursive:true});
+  await writeFile('docs/v2/qualification/local-migration.json',JSON.stringify(result,null,2));
+  console.log(JSON.stringify(result));
+} finally { await db.close(); }

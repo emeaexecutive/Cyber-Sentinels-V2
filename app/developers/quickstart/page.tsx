@@ -59,6 +59,11 @@ POST /api/v1/trust/decisions
 GET  /api/v1/reviews/{reviewReference}
 POST /api/v1/reviews/{reviewReference}/resolve
 POST /api/v1/evidence
+POST /api/v1/incidents
+GET  /api/v1/incidents/{incidentId}
+POST /api/v1/incidents/{incidentId}/chronology
+GET  /api/v1/incidents/{incidentId}/replay
+POST /api/v1/incidents/{incidentId}/exports
 GET  /api/v1/trust/transactions/{transactionId}
 GET  /api/v1/trust/transactions/{transactionId}/receipt
 GET  /api/v1/trust/transactions/{transactionId}/replay

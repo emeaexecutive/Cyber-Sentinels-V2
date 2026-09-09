@@ -1,4 +1,5 @@
 import { PUBLIC_API_ERROR_CODES, PUBLIC_API_SCOPES, PUBLIC_API_VERSION } from "./contracts";
+import { incidentPaths } from "../../operational-incidents/openapi";
 
 const responseMetadataProperties = {
   request_id: { type: "string", format: "uuid", description: "Unique identifier for this HTTP request." },
@@ -77,6 +78,7 @@ export const publicApiOpenApi = {
   security: [{ bearerApiKey: [] }],
   tags: [{ name: "Agents" }, { name: "Authority" }, { name: "Review" }, { name: "Evidence" }, { name: "Trust" }],
   paths: {
+    ...incidentPaths,
     "/api/v1/agents": {
       post: {
         operationId: "registerAgent", tags: ["Agents"], summary: "Register an external AI agent", "x-required-scopes": ["agents:write"],
@@ -98,11 +100,11 @@ export const publicApiOpenApi = {
       post: { operationId: "issueAgentChallenge", tags: ["Agents"], summary: "Issue a short-lived single-use challenge", "x-required-scopes": ["agents:verify"], description: "Challenge limit: 30/minute/client. The body must be an empty JSON object.", parameters: [agentParameter], requestBody: { required: true, content: { "application/json": { schema: { type: "object", additionalProperties: false } } } }, responses: { "201": json({ $ref: "#/components/schemas/Challenge" }), ...errors } },
     },
     "/api/v1/agents/{agentId}/heartbeat": {
-      post: { operationId: "submitAgentHeartbeat", tags: ["Agents"], summary: "Verify a signed Production control-plane heartbeat", "x-required-scopes": ["agents:verify"],
+      post: { operationId: "submitAgentHeartbeat", tags: ["Agents"], summary: "Verify a signed control-plane heartbeat", "x-required-scopes": ["agents:verify"],
         description: "First-party verification of the current signed configuration and a real signed control-plane observation. No downstream execution or independent runtime attestation is asserted. Sign canonical JSON containing domain cyber-sentinels:control-plane-heartbeat:v1, audience https://www.cybersentinels.com/api/v1, tenant_id derived from your authenticated workspace, and the eight request claims (excluding signature). The tenant and audience are not request body fields. Use the registered Ed25519 private key. Maximum age 120 seconds, future skew 30 seconds, evidence TTL at most 300 seconds and bounded by baseline expiry. A unique 22–128 character base64url event_id is required; duplicate events return 409 HEARTBEAT_REPLAY. Changed/revoked/expired baselines invalidate evidence for later decisions. Rate limit shares the proof class: 30/minute/client.",
         parameters: [agentParameter], requestBody: { required: true, content: { "application/json": { schema: {
           type: "object", additionalProperties: false, required: ["agent_id", "credential_id", "event_id", "issued_at", "environment", "authority_id", "policy_id", "policy_version", "signature"],
-          properties: { agent_id: { type: "string" }, credential_id: { type: "string" }, event_id: { type: "string", pattern: "^[A-Za-z0-9_-]{22,128}$" }, issued_at: { type: "string", format: "date-time", description: "UTC ISO timestamp with milliseconds and Z suffix" }, environment: { const: "production" }, authority_id: { type: "string" }, policy_id: { type: "string" }, policy_version: { type: "string" }, signature: { type: "string", pattern: "^[A-Za-z0-9_-]{86}$" } },
+          properties: { agent_id: { type: "string" }, credential_id: { type: "string" }, event_id: { type: "string", pattern: "^[A-Za-z0-9_-]{22,128}$" }, issued_at: { type: "string", format: "date-time", description: "UTC ISO timestamp with milliseconds and Z suffix" }, environment: { enum: ["production", "staging"], description: "Staging requires the explicit qualification flag and the pinned Staging database; Production behavior is unchanged." }, authority_id: { type: "string" }, policy_id: { type: "string" }, policy_version: { type: "string" }, signature: { type: "string", pattern: "^[A-Za-z0-9_-]{86}$" } },
         } } } }, responses: { "201": json({ type: "object", properties: { agent_id: { type: "string" }, event_id: { type: "string" }, provenance: { const: "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED" }, observed_at: { type: "string", format: "date-time" }, expires_at: { type: "string", format: "date-time" }, evidence_references: { type: "array", items: { type: "string" } }, evidence_types: { type: "array", items: { type: "string" } }, monitoring_scope: { const: "SIGNED_CONTROL_PLANE_HEARTBEAT_ONLY" }, downstream_execution_observed: { const: false } } }), ...errors } },
     },
     "/api/v1/agents/{agentId}/proof": {

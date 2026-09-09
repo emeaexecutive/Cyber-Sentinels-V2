@@ -3,15 +3,15 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { CONTROL_PLANE_PROVENANCE, ControlPlaneError, eligibleControlPlaneEvidence, persistControlPlaneHeartbeat, type ControlPlaneContext, type ControlPlaneSnapshot } from "@/lib/operational-entities/control-plane-evidence";
 import type { PublicApiPrincipal } from "./authentication";
 import { PublicApiError } from "./contracts";
-import { publicApiEnvironmentMetadata } from "./environment";
+import { publicApiEnvironmentMetadata, stagingControlPlaneQualificationEnabled } from "./environment";
 
 function unavailable(): never {
   throw new PublicApiError("CONTROL_PLANE_UNAVAILABLE", "Control-plane evidence could not be verified or persisted safely.", 503);
 }
 export function productionControlPlaneContext(tenantId: string, agentId: string, policyId: string, policyVersion: string): ControlPlaneContext | null {
   const environment = publicApiEnvironmentMetadata();
-  if (!environment.valid || environment.name !== "production") return null;
-  return { tenantId, agentId, policyId, policyVersion, environment: "production", audience: `${environment.origin}/api/v1` };
+  if (!environment.valid || (environment.name !== "production" && !stagingControlPlaneQualificationEnabled())) return null;
+  return { tenantId, agentId, policyId, policyVersion, environment: environment.name, audience: `${environment.origin}/api/v1` };
 }
 async function loadSnapshot(context: ControlPlaneContext): Promise<ControlPlaneSnapshot> {
   const db = createServiceRoleClient();
