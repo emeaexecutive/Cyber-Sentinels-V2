@@ -1,0 +1,20 @@
+{
+    "sourceHead":  "89f22aa8854c61a739e4fc52384ecc1c458efaf5",
+    "local":  {
+                  "skips":  0,
+                  "lint":  "PASS",
+                  "typecheck":  "PASS",
+                  "tests":  1343,
+                  "failures":  0
+              },
+    "ci":  {
+               "supabasePreview":  "SKIPPED integration, not a required migration proof",
+               "build":  "PASS",
+               "allRequiredChecks":  "PASS",
+               "skips":  1,
+               "failures":  0,
+               "skipReason":  "Windows-specific audit-runner test; passed in the full local Windows run",
+               "testCases":  1343
+           },
+    "mainSha":  "fce70e052a6d6b9bbe6842755b66c7354e70c8ed"
+}

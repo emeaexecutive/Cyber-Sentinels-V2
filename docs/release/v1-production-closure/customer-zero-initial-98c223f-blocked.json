@@ -1,0 +1,183 @@
+{
+  "sourceSha": "98c223f7acb709dcfab8d33a435d7e551cfd4c2c",
+  "deploymentId": "dpl_BCaRLDy3SFyYGVdh2fmRbz48uz3Y",
+  "origin": "https://www.cybersentinels.com",
+  "client": "Separate Node HTTP process; scripted Customer Zero, no downstream operation or model invocation",
+  "startedAt": "2026-09-09T08:52:57.992Z",
+  "stages": {
+    "readiness": {
+      "status": 200,
+      "body": {
+        "schemaVersion": "readiness-v3",
+        "status": "READY",
+        "reasonCode": "ENTERPRISE_TRUST_ARCHITECTURE_AVAILABLE",
+        "checks": {
+          "environment": "READY",
+          "enterpriseTrustArchitecture": "READY",
+          "repositoryRuntime": "VERIFIED_FROM_RUNTIME",
+          "externalControls": "BLOCKED",
+          "process": "PROCESS_HEALTHY",
+          "dataPlane": "READY",
+          "apiAuthentication": "READY",
+          "canonicalPersistence": "READY",
+          "authority": "READY",
+          "humanReview": "READY",
+          "rateLimiting": "READY",
+          "apiKeyRotation": "READY"
+        },
+        "enterpriseTrustRegistry": {
+          "missingDomains": [],
+          "inactiveDomains": [],
+          "versionMismatchDomains": [],
+          "duplicateDomains": []
+        },
+        "runtime": {
+          "commitSha": "98c223f7acb709dcfab8d33a435d7e551cfd4c2c"
+        },
+        "externalControls": {
+          "state": "BLOCKED",
+          "reasonCode": "AUTHORITATIVE_CONTROL_PLANE_EVIDENCE_REQUIRED"
+        },
+        "generatedAt": "2026-09-09T08:52:58.118Z",
+        "diagnosticState": "PROCESS_HEALTHY",
+        "publicApiEnvironment": {
+          "valid": true,
+          "state": "CONFIGURED",
+          "reasonCode": "PUBLIC_API_ENVIRONMENT_CONFIGURED",
+          "name": "production",
+          "origin": "https://www.cybersentinels.com"
+        }
+      }
+    },
+    "invalidApiKey": {
+      "status": 401,
+      "body": {
+        "error": {
+          "code": "API_KEY_INVALID",
+          "message": "The API key is invalid.",
+          "correlation_id": "1886ff57-7bd0-4829-96ee-7d400338db7d"
+        },
+        "request_id": "7154307d-3e42-4e1a-b206-46ed82264c4f",
+        "correlation_id": "1886ff57-7bd0-4829-96ee-7d400338db7d",
+        "api_version": "2026-08-29"
+      }
+    },
+    "agent": {
+      "agent_id": "agent:103dbde4-0ffe-4dca-9d8f-f545abf2d776",
+      "operational_entity_id": "agent:103dbde4-0ffe-4dca-9d8f-f545abf2d776",
+      "status": "PENDING_IDENTITY_PROOF",
+      "next_step": "REGISTER_CREDENTIAL",
+      "manifest_context": {
+        "enterprise_id": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+        "display_name": "CUSTOMER_ZERO_AGENT_V1_PRODUCTION_20260909",
+        "accountable_owner_id": "owner:customer-zero-v1",
+        "organization_id": "tenant:138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+        "environment": "production",
+        "framework": "custom",
+        "model": {
+          "provider": "not_invoked",
+          "identifier": "scripted-authorization-client"
+        },
+        "authority_reference": null
+      },
+      "request_id": "c763d1c2-1d68-496c-ac99-4f8833d152a9",
+      "correlation_id": "dcefe97c-7c5d-4d87-8f50-3a9259de9b83",
+      "api_version": "2026-08-29"
+    },
+    "credential": {
+      "credential_id": "af76443c-7257-494d-845a-7be0d6b6769d",
+      "kid": "cz-e732b122-ed21-49f6-a984-02281c5705fe",
+      "algorithm": "Ed25519",
+      "fingerprint": "a59cac4f2b92954c582b87311b67a6c0471db29e23082f89fcaf19b3fa74b41f",
+      "status": "ACTIVE",
+      "private_key_stored": false,
+      "request_id": "4b52bf69-17e7-4c71-9b95-612cbc77798a",
+      "correlation_id": "52b2bdbc-a174-486e-b23b-35336991bfe3",
+      "api_version": "2026-08-29"
+    },
+    "manifest": {
+      "manifest_id": "3ea98301-de14-44fa-a2c1-7a087627b99e",
+      "manifest_digest": "bb3d6bf2acea9e6d7236dd86ed1f2a82656502e345b111c04a07d868de00c4dd",
+      "status": "ACTIVE",
+      "classification": {
+        "declared": [
+          "entity_type",
+          "owner_reference",
+          "model",
+          "runtime",
+          "environment",
+          "declared_capabilities"
+        ],
+        "verified": [
+          "credential_signature",
+          "operational_entity_binding",
+          "tenant_binding"
+        ],
+        "derived": [
+          "manifest_digest",
+          "credential_fingerprint"
+        ]
+      },
+      "request_id": "60b1e220-0ffc-4ce3-9eeb-830d580e7a45",
+      "correlation_id": "88014169-1353-4bbc-bf93-218039dc61e0",
+      "api_version": "2026-08-29"
+    },
+    "wrongEd25519Key": {
+      "status": 409,
+      "code": "IDEMPOTENCY_CONFLICT",
+      "rejected": true
+    },
+    "challenge": {
+      "challenge_id": "5d6b2238-5db1-485f-b0dc-67a44251c640",
+      "nonce": "YKauXdCJrk2Z-feAHWPSHt0yTCP67fB3S8OgSRLZmvw",
+      "audience": "https://www.cybersentinels.com/api/v1",
+      "issuer": "cyber-sentinels",
+      "subject": "agent:103dbde4-0ffe-4dca-9d8f-f545abf2d776",
+      "operational_entity_id": "agent:103dbde4-0ffe-4dca-9d8f-f545abf2d776",
+      "manifest_digest": "bb3d6bf2acea9e6d7236dd86ed1f2a82656502e345b111c04a07d868de00c4dd",
+      "signing_key_id": "cz-e732b122-ed21-49f6-a984-02281c5705fe",
+      "issued_at": "2026-09-09T08:53:19.036Z",
+      "expires_at": "2026-09-09T08:58:19.036Z",
+      "request_id": "aa927b24-da85-49e7-9a3a-b0808cf4ac76",
+      "correlation_id": "17d35371-a743-44d0-96a3-73976000ee3a",
+      "api_version": "2026-08-29"
+    },
+    "identity": {
+      "identity": "VERIFIED",
+      "trust": "NOT_DETERMINED_BY_IDENTITY",
+      "verification_id": "fb86fc98-4e99-43bc-aa99-e9c092353706",
+      "evidence_references": [
+        "evidence:564949af-a4fc-4130-8b15-0755ea06bdc2"
+      ],
+      "evidence_provenance": "CYBER_SENTINELS_NATIVE",
+      "continuity": "CONTINUITY_ESTABLISHED",
+      "reason_codes": [
+        "AUTHORITY_NOT_ASSERTED_BY_IDENTITY_PROOF",
+        "CHALLENGE_SINGLE_USE_REQUIRED",
+        "DECLARED_ONLY",
+        "MANIFEST_BINDING_VERIFIED",
+        "NATIVE_SIGNATURE_VERIFIED",
+        "OWNER_BINDING_CONFIRMED",
+        "RUNTIME_UNVERIFIED"
+      ],
+      "canonical_reevaluation": "TRIGGERED",
+      "request_id": "df8621fc-f965-47e6-88d7-c6038369aed9",
+      "correlation_id": "91b0fef2-094f-471c-9588-460dea8d7970",
+      "api_version": "2026-08-29"
+    },
+    "challengeReplay": {
+      "status": 409,
+      "code": "IDEMPOTENCY_CONFLICT",
+      "rejected": true
+    }
+  },
+  "http": [],
+  "result": "BLOCKED",
+  "error": {
+    "name": "CyberSentinelsError",
+    "message": "The canonical trust runtime rejected the request.",
+    "code": "READINESS_UNAVAILABLE",
+    "status": 503
+  },
+  "completedAt": "2026-09-09T08:53:31.291Z"
+}

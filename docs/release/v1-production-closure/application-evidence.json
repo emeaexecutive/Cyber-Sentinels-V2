@@ -1,0 +1,881 @@
+{
+  "startedAt": "2026-09-09T09:19:46.837Z",
+  "tenant": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+  "sourceSha": "92655fd2f11da622b725050f1f33dcd72f0851d5",
+  "stages": {
+    "originalReceiptBefore": {
+      "path": "/api/trust/transactions/a389359e-febd-5e99-ac2f-3e0b141d2399/receipt",
+      "status": 200,
+      "body": {
+        "receiptVersion": "canonical-trust-transaction-v1",
+        "transactionId": "a389359e-febd-5e99-ac2f-3e0b141d2399",
+        "entity": {
+          "operationalEntityId": "agent:f5ba7928-39ea-4a54-8030-1f3200a785ab",
+          "type": "ai_agent",
+          "accountableOwnerId": "owner:customer-zero-v1"
+        },
+        "decision": "REVIEW",
+        "trustState": "degraded",
+        "timestamp": "2026-09-09T09:15:46.575+00:00",
+        "action": {
+          "type": "read_repository",
+          "purpose": "deployment_evidence_review",
+          "resource": "repository:customer-zero-v1-release-evidence",
+          "environment": "production",
+          "requestDigest": "1b7727c179eb7c7295bb42fe18f6ad56315c1f4e1bbbfe80f4d95ab8d51bed19"
+        },
+        "reasonCodes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_INSUFFICIENT",
+          "MISSING_VERIFY_AGENT_CONFIGURATION",
+          "MISSING_VERIFY_AUTHORITY",
+          "MISSING_VERIFY_DESTINATION",
+          "MISSING_VERIFY_MONITORING",
+          "MISSING_VERIFY_RUNTIME",
+          "REQUIRED_EVIDENCE_MISSING",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE",
+          "TRUST_GAP_OPEN"
+        ],
+        "decisionOutcomeReview": null,
+        "evidenceReferences": [
+          {
+            "reference": "77da38ac-a4f2-4f41-a094-797b6362ffb1",
+            "sourceDigest": "d6a460cfd7e619972bba63753fd1a07e97235ec6b91c10c0a997f442a3007601"
+          },
+          {
+            "reference": "77da38ac-a4f2-4f41-a094-797b6362ffb1",
+            "sourceDigest": "d6a460cfd7e619972bba63753fd1a07e97235ec6b91c10c0a997f442a3007601"
+          },
+          {
+            "reference": "51debea8-b85d-4f18-ac8e-823b10d74e8a",
+            "sourceDigest": "8348a4bf4dc8536b8d96114228035f7a3c2b3020a19b8601a02c7805b1189c6e"
+          }
+        ],
+        "authorityReference": "b4a52745-151d-4ff8-bafb-bf6767eee821",
+        "delegationReference": null,
+        "parentAuthorityReference": null,
+        "policy": {
+          "id": "external-agent-trust-v1",
+          "version": "0.2.0",
+          "hash": "c0ed3bf7e877d6a8a28af5225f3564efd89e2569ada94a7b76a858e2f1e84464"
+        },
+        "decisionDigest": "ef57b7c454c5553816309761de8e86e6802adf7068c2a3b8b2597f3c2f74d544",
+        "evidenceGraphReference": "23487586-98f1-484f-898a-145121132f28",
+        "replayReference": "e697f57b-ba33-4daa-9908-c9bd8409b0f1",
+        "trustMemoryReference": "aa078ed9-e425-4840-9471-351f056eb6e3",
+        "protectedWorkflow": null
+      }
+    },
+    "outcomeReview": {
+      "path": "/api/trust/transactions/a389359e-febd-5e99-ac2f-3e0b141d2399/outcome-review",
+      "status": 201,
+      "body": {
+        "ok": true,
+        "transactionId": "a389359e-febd-5e99-ac2f-3e0b141d2399",
+        "originalDecision": "REVIEW",
+        "decisionOutcomeReview": {
+          "originalDecision": "REVIEW",
+          "decisionModelProvider": null,
+          "decisionModelName": null,
+          "decisionModelVersion": null,
+          "policyVersion": "0.2.0",
+          "decisionReasonCodes": [
+            "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+            "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+            "AUTHORITY_SCOPE_VALID",
+            "CONCLUSION_CONFIDENCE_MODERATE",
+            "CONSEQUENCE_LOW",
+            "CURRENT_CONDITIONS_REEVALUATED",
+            "EVIDENCE_CURRENT",
+            "EVIDENCE_INSUFFICIENT",
+            "MISSING_VERIFY_AGENT_CONFIGURATION",
+            "MISSING_VERIFY_AUTHORITY",
+            "MISSING_VERIFY_DESTINATION",
+            "MISSING_VERIFY_MONITORING",
+            "MISSING_VERIFY_RUNTIME",
+            "REQUIRED_EVIDENCE_MISSING",
+            "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+            "TRUST_FORECAST_STABLE",
+            "TRUST_GAP_OPEN"
+          ],
+          "humanOverride": {
+            "occurred": true,
+            "originalDecision": "REVIEW",
+            "resultingDecision": "DENY",
+            "actorReference": "user:174b6184-2789-494a-a07e-a87adca5003e",
+            "occurredAt": "2026-09-09T09:19:48.825Z",
+            "reason": "User-authorized controlled release adjudication: deny continued use following authority revocation. The original decision at T1 is preserved; no downstream execution or provider outcome is claimed.",
+            "evidenceReference": "authority-revocation:b4a52745-151d-4ff8-bafb-bf6767eee821"
+          },
+          "providerOutcome": null,
+          "runtimeOutcome": null,
+          "destinationOutcome": null,
+          "adjudicatedOutcome": "DENY",
+          "evaluationStatus": "CONTRADICTED"
+        },
+        "persistenceStatus": "CREATED"
+      }
+    },
+    "originalReceiptAfter": {
+      "path": "/api/trust/transactions/a389359e-febd-5e99-ac2f-3e0b141d2399/receipt",
+      "status": 200,
+      "body": {
+        "receiptVersion": "canonical-trust-transaction-v1",
+        "transactionId": "a389359e-febd-5e99-ac2f-3e0b141d2399",
+        "entity": {
+          "operationalEntityId": "agent:f5ba7928-39ea-4a54-8030-1f3200a785ab",
+          "type": "ai_agent",
+          "accountableOwnerId": "owner:customer-zero-v1"
+        },
+        "decision": "REVIEW",
+        "trustState": "degraded",
+        "timestamp": "2026-09-09T09:15:46.575+00:00",
+        "action": {
+          "type": "read_repository",
+          "purpose": "deployment_evidence_review",
+          "resource": "repository:customer-zero-v1-release-evidence",
+          "environment": "production",
+          "requestDigest": "1b7727c179eb7c7295bb42fe18f6ad56315c1f4e1bbbfe80f4d95ab8d51bed19"
+        },
+        "reasonCodes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_INSUFFICIENT",
+          "MISSING_VERIFY_AGENT_CONFIGURATION",
+          "MISSING_VERIFY_AUTHORITY",
+          "MISSING_VERIFY_DESTINATION",
+          "MISSING_VERIFY_MONITORING",
+          "MISSING_VERIFY_RUNTIME",
+          "REQUIRED_EVIDENCE_MISSING",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE",
+          "TRUST_GAP_OPEN"
+        ],
+        "decisionOutcomeReview": {
+          "humanOverride": {
+            "reason": "User-authorized controlled release adjudication: deny continued use following authority revocation. The original decision at T1 is preserved; no downstream execution or provider outcome is claimed.",
+            "occurred": true,
+            "occurredAt": "2026-09-09T09:19:48.825Z",
+            "actorReference": "user:174b6184-2789-494a-a07e-a87adca5003e",
+            "originalDecision": "REVIEW",
+            "evidenceReference": "authority-revocation:b4a52745-151d-4ff8-bafb-bf6767eee821",
+            "resultingDecision": "DENY"
+          },
+          "policyVersion": "0.2.0",
+          "runtimeOutcome": null,
+          "providerOutcome": null,
+          "evaluationStatus": "CONTRADICTED",
+          "originalDecision": "REVIEW",
+          "decisionModelName": null,
+          "adjudicatedOutcome": "DENY",
+          "destinationOutcome": null,
+          "decisionReasonCodes": [
+            "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+            "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+            "AUTHORITY_SCOPE_VALID",
+            "CONCLUSION_CONFIDENCE_MODERATE",
+            "CONSEQUENCE_LOW",
+            "CURRENT_CONDITIONS_REEVALUATED",
+            "EVIDENCE_CURRENT",
+            "EVIDENCE_INSUFFICIENT",
+            "MISSING_VERIFY_AGENT_CONFIGURATION",
+            "MISSING_VERIFY_AUTHORITY",
+            "MISSING_VERIFY_DESTINATION",
+            "MISSING_VERIFY_MONITORING",
+            "MISSING_VERIFY_RUNTIME",
+            "REQUIRED_EVIDENCE_MISSING",
+            "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+            "TRUST_FORECAST_STABLE",
+            "TRUST_GAP_OPEN"
+          ],
+          "decisionModelVersion": null,
+          "decisionModelProvider": null
+        },
+        "evidenceReferences": [
+          {
+            "reference": "77da38ac-a4f2-4f41-a094-797b6362ffb1",
+            "sourceDigest": "d6a460cfd7e619972bba63753fd1a07e97235ec6b91c10c0a997f442a3007601"
+          },
+          {
+            "reference": "77da38ac-a4f2-4f41-a094-797b6362ffb1",
+            "sourceDigest": "d6a460cfd7e619972bba63753fd1a07e97235ec6b91c10c0a997f442a3007601"
+          },
+          {
+            "reference": "51debea8-b85d-4f18-ac8e-823b10d74e8a",
+            "sourceDigest": "8348a4bf4dc8536b8d96114228035f7a3c2b3020a19b8601a02c7805b1189c6e"
+          }
+        ],
+        "authorityReference": "b4a52745-151d-4ff8-bafb-bf6767eee821",
+        "delegationReference": null,
+        "parentAuthorityReference": null,
+        "policy": {
+          "id": "external-agent-trust-v1",
+          "version": "0.2.0",
+          "hash": "c0ed3bf7e877d6a8a28af5225f3564efd89e2569ada94a7b76a858e2f1e84464"
+        },
+        "decisionDigest": "ef57b7c454c5553816309761de8e86e6802adf7068c2a3b8b2597f3c2f74d544",
+        "evidenceGraphReference": "23487586-98f1-484f-898a-145121132f28",
+        "replayReference": "e697f57b-ba33-4daa-9908-c9bd8409b0f1",
+        "trustMemoryReference": "aa078ed9-e425-4840-9471-351f056eb6e3",
+        "protectedWorkflow": null
+      }
+    },
+    "secondReceipt": {
+      "path": "/api/trust/transactions/522ec390-4bc6-5b62-9830-553a0498248c/receipt",
+      "status": 200,
+      "body": {
+        "receiptVersion": "canonical-trust-transaction-v1",
+        "transactionId": "522ec390-4bc6-5b62-9830-553a0498248c",
+        "entity": {
+          "operationalEntityId": "agent:f5ba7928-39ea-4a54-8030-1f3200a785ab",
+          "type": "ai_agent",
+          "accountableOwnerId": "owner:customer-zero-v1"
+        },
+        "decision": "DENY",
+        "trustState": "suspended",
+        "timestamp": "2026-09-09T09:18:33.947+00:00",
+        "action": {
+          "type": "read_repository",
+          "purpose": "deployment_evidence_review",
+          "resource": "repository:customer-zero-v1-release-evidence",
+          "environment": "production",
+          "requestDigest": "978edd635a5e1ccd2aa4c354d7a31c9dcfc409a95b5527880c5538edc98ba4c9"
+        },
+        "reasonCodes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_GATE",
+          "ADAPTIVE_VERIFICATION_STATUS_GATED_PENDING_PROOF",
+          "AUTHORITY_REVOKED",
+          "AUTHORITY_SCOPE_INVALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CONTRACT_REVOKED",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_INSUFFICIENT",
+          "MISSING_VERIFY_AGENT_CONFIGURATION",
+          "MISSING_VERIFY_AUTHORITY",
+          "MISSING_VERIFY_AUTHORITY_STATE",
+          "MISSING_VERIFY_DESTINATION",
+          "MISSING_VERIFY_MONITORING",
+          "MISSING_VERIFY_RUNTIME",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE",
+          "TRUST_GAP_OPEN"
+        ],
+        "decisionOutcomeReview": null,
+        "evidenceReferences": [
+          {
+            "reference": "77da38ac-a4f2-4f41-a094-797b6362ffb1",
+            "sourceDigest": "d6a460cfd7e619972bba63753fd1a07e97235ec6b91c10c0a997f442a3007601"
+          },
+          {
+            "reference": "77da38ac-a4f2-4f41-a094-797b6362ffb1",
+            "sourceDigest": "d6a460cfd7e619972bba63753fd1a07e97235ec6b91c10c0a997f442a3007601"
+          },
+          {
+            "reference": "51debea8-b85d-4f18-ac8e-823b10d74e8a",
+            "sourceDigest": "8348a4bf4dc8536b8d96114228035f7a3c2b3020a19b8601a02c7805b1189c6e"
+          }
+        ],
+        "authorityReference": "b4a52745-151d-4ff8-bafb-bf6767eee821",
+        "delegationReference": null,
+        "parentAuthorityReference": null,
+        "policy": {
+          "id": "external-agent-trust-v1",
+          "version": "0.2.0",
+          "hash": "c0ed3bf7e877d6a8a28af5225f3564efd89e2569ada94a7b76a858e2f1e84464"
+        },
+        "decisionDigest": "a6b61abe0af913a33e8f111601d956a49436adbf37920bfc4684f7a470d7f14f",
+        "evidenceGraphReference": "263c6020-4c76-455d-9793-b9c9e633f7a9",
+        "replayReference": "85343bea-8549-4435-a4a7-f9c9ca1b3de7",
+        "trustMemoryReference": "c31b17f1-dac1-4bd7-a2a0-bb7257fbb7d5",
+        "protectedWorkflow": null
+      }
+    },
+    "trustMemory": {
+      "path": "/api/trust-architecture/subjects/agent%3Af5ba7928-39ea-4a54-8030-1f3200a785ab/timeline",
+      "status": 200,
+      "body": {
+        "schemaVersion": "enterprise-trust-architecture-v1",
+        "generatedAt": "2026-09-09T09:19:52.796Z",
+        "correlationId": "67041582-f062-4bd7-830a-e49817b65470",
+        "ok": true,
+        "timeline": {
+          "stateDecisions": [
+            {
+              "state_decision_id": "5db5b334-7c33-5d5b-9787-19c68fe0884e",
+              "decision_contract_id": "1ab872a5-be06-5391-a945-af7a4a20b177",
+              "domain_key": "AI_AGENT",
+              "prior_state": "UNKNOWN",
+              "next_state": "EXPIRED",
+              "recommendation_id": "9a4a9891-251f-576a-a3cb-19881da4fdbb",
+              "policy_id": "external-agent-trust-v1",
+              "policy_version": "0.2.0",
+              "decision_hash": "11d5cc6574fafba3e7c0674d51b348d4bf076675f5b732257b6b6329171d1e41",
+              "decided_at": "2026-09-09T09:15:34.545+00:00",
+              "reason_codes": [
+                "EVIDENCE_EXPIRED",
+                "STATE_TRANSITION_APPLIED"
+              ]
+            }
+          ],
+          "memory": [
+            {
+              "memory_id": "4af2e5f4-9b0d-4a32-9823-804d25aaf83d",
+              "memory_type": "NATIVE_ENTITY_VERIFIED",
+              "source_id": "0fb7171a-e74e-470b-b643-c27efeaf7988",
+              "occurred_at": "2026-09-09T09:15:33.99+00:00",
+              "summary": {
+                "evidenceId": "77da38ac-a4f2-4f41-a094-797b6362ffb1",
+                "continuityResult": "CONTINUITY_ESTABLISHED",
+                "changedAttributes": []
+              }
+            },
+            {
+              "memory_id": "4a998356-b3ce-4267-b72e-21b728d80e38",
+              "memory_type": "CONTINUOUS_TRUST_ASSESSMENT",
+              "source_id": "ec4210f7-094e-570c-acbb-afd5b6703b2c",
+              "occurred_at": "2026-09-09T09:15:34.545+00:00",
+              "summary": {
+                "score": "25",
+                "freshness": "EXPIRED",
+                "riskFlags": [],
+                "confidence": "0",
+                "reasonCodes": [
+                  "EVIDENCE_EXPIRED"
+                ],
+                "transitionType": "INITIAL"
+              }
+            },
+            {
+              "memory_id": "a7abd40c-51d3-4a22-8eeb-965c0a0ef884",
+              "memory_type": "TRUST_STATE_DECISION",
+              "source_id": "5db5b334-7c33-5d5b-9787-19c68fe0884e",
+              "occurred_at": "2026-09-09T09:15:34.545+00:00",
+              "summary": {
+                "policyId": "external-agent-trust-v1",
+                "nextState": "EXPIRED",
+                "priorState": "UNKNOWN",
+                "policyVersion": "0.2.0"
+              }
+            },
+            {
+              "memory_id": "8b5bd1f4-70d0-4938-9371-149ee479ee23",
+              "memory_type": "VERIFICATION_STEP_UP_REQUIRED",
+              "source_id": "a389359e-febd-5e99-ac2f-3e0b141d2399:b861022600c63fd416d4d828d2c716418d67d068d114058747adbdab701ba7c7",
+              "occurred_at": "2026-09-09T09:15:46.575+00:00",
+              "summary": {
+                "evidenceReferences": [
+                  "51debea8-b85d-4f18-ac8e-823b10d74e8a",
+                  "77da38ac-a4f2-4f41-a094-797b6362ffb1"
+                ],
+                "knownAtForecastTime": true,
+                "canonicalTransactionId": "a389359e-febd-5e99-ac2f-3e0b141d2399"
+              }
+            },
+            {
+              "memory_id": "9c17e050-fdf2-4c46-822a-28332cf55a91",
+              "memory_type": "VERIFICATION_STALE",
+              "source_id": "a389359e-febd-5e99-ac2f-3e0b141d2399:624c02807c89f861d71891ecfb85f7ffd4c4d947829b7020300abedb81d105a6",
+              "occurred_at": "2026-09-09T09:15:46.575+00:00",
+              "summary": {
+                "evidenceReferences": [
+                  "51debea8-b85d-4f18-ac8e-823b10d74e8a",
+                  "77da38ac-a4f2-4f41-a094-797b6362ffb1"
+                ],
+                "knownAtForecastTime": true,
+                "canonicalTransactionId": "a389359e-febd-5e99-ac2f-3e0b141d2399"
+              }
+            },
+            {
+              "memory_id": "c765334c-45e9-4f76-a97d-35105b67e8af",
+              "memory_type": "TRUST_GAP_DISCOVERED",
+              "source_id": "a389359e-febd-5e99-ac2f-3e0b141d2399:7f1702cf37674a86a3b0870f0147cdd618c8372d0a7e20665c7f5e308df888d9",
+              "occurred_at": "2026-09-09T09:15:46.575+00:00",
+              "summary": {
+                "evidenceReferences": [
+                  "51debea8-b85d-4f18-ac8e-823b10d74e8a",
+                  "77da38ac-a4f2-4f41-a094-797b6362ffb1"
+                ],
+                "knownAtForecastTime": true,
+                "canonicalTransactionId": "a389359e-febd-5e99-ac2f-3e0b141d2399"
+              }
+            },
+            {
+              "memory_id": "aa078ed9-e425-4840-9471-351f056eb6e3",
+              "memory_type": "CANONICAL_TRUST_TRANSACTION",
+              "source_id": "a389359e-febd-5e99-ac2f-3e0b141d2399",
+              "occurred_at": "2026-09-09T09:15:46.575+00:00",
+              "summary": {
+                "action": {
+                  "type": "read_repository",
+                  "purpose": "deployment_evidence_review",
+                  "resource": "repository:customer-zero-v1-release-evidence",
+                  "environment": "production"
+                },
+                "trustState": "degraded",
+                "policyVersion": "0.2.0",
+                "evaluationStatus": null,
+                "observedOutcomes": {
+                  "runtimeOutcome": null,
+                  "providerOutcome": null,
+                  "destinationOutcome": null
+                },
+                "originalDecision": "REVIEW",
+                "changedConditions": [
+                  "INITIAL_TRUST_DECISION",
+                  "TRUST_TWIN_MATERIAL_EVENT",
+                  "ADAPTIVE_VERIFICATION_MATERIAL_EVENT"
+                ],
+                "laterAdjudication": {
+                  "humanOverride": null,
+                  "adjudicatedOutcome": null
+                },
+                "decisionReasonCodes": [
+                  "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+                  "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+                  "AUTHORITY_SCOPE_VALID",
+                  "CONCLUSION_CONFIDENCE_MODERATE",
+                  "CONSEQUENCE_LOW",
+                  "CURRENT_CONDITIONS_REEVALUATED",
+                  "EVIDENCE_CURRENT",
+                  "EVIDENCE_INSUFFICIENT",
+                  "MISSING_VERIFY_AGENT_CONFIGURATION",
+                  "MISSING_VERIFY_AUTHORITY",
+                  "MISSING_VERIFY_DESTINATION",
+                  "MISSING_VERIFY_MONITORING",
+                  "MISSING_VERIFY_RUNTIME",
+                  "REQUIRED_EVIDENCE_MISSING",
+                  "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+                  "TRUST_FORECAST_STABLE",
+                  "TRUST_GAP_OPEN"
+                ],
+                "decisionOutcomeReview": null,
+                "previousTransactionId": null,
+                "trustIntelligenceEventCount": 3
+              }
+            },
+            {
+              "memory_id": "a0ee9e16-e1c5-42f6-b422-a8fbdbdc9f34",
+              "memory_type": "VERIFICATION_STALE",
+              "source_id": "9eb0dc24-2679-5080-a0d8-d054046f0743:698632ec017be63ee57ffaf930f1f58814fa8ce2df73c0b55c73993083192c80",
+              "occurred_at": "2026-09-09T09:18:25.138+00:00",
+              "summary": {
+                "evidenceReferences": [
+                  "51debea8-b85d-4f18-ac8e-823b10d74e8a",
+                  "77da38ac-a4f2-4f41-a094-797b6362ffb1"
+                ],
+                "knownAtForecastTime": true,
+                "canonicalTransactionId": "9eb0dc24-2679-5080-a0d8-d054046f0743"
+              }
+            },
+            {
+              "memory_id": "d770cf2e-4986-4b96-a7e3-ef05192c3cc9",
+              "memory_type": "VERIFICATION_GATE_REQUIRED",
+              "source_id": "9eb0dc24-2679-5080-a0d8-d054046f0743:31691c852952cf019c5105c252a4dafa8546b256f7ae0da4f6be4b7b6058e01f",
+              "occurred_at": "2026-09-09T09:18:25.138+00:00",
+              "summary": {
+                "evidenceReferences": [
+                  "51debea8-b85d-4f18-ac8e-823b10d74e8a",
+                  "77da38ac-a4f2-4f41-a094-797b6362ffb1"
+                ],
+                "knownAtForecastTime": true,
+                "canonicalTransactionId": "9eb0dc24-2679-5080-a0d8-d054046f0743"
+              }
+            },
+            {
+              "memory_id": "aac8c28f-6b64-492b-ba6d-4d800f0172af",
+              "memory_type": "TRUST_GAP_DISCOVERED",
+              "source_id": "9eb0dc24-2679-5080-a0d8-d054046f0743:7abe8c0e631a3da079a8d5dfab584a8ad33334183d0ef0c6e199e27c03b70c4e",
+              "occurred_at": "2026-09-09T09:18:25.138+00:00",
+              "summary": {
+                "evidenceReferences": [
+                  "51debea8-b85d-4f18-ac8e-823b10d74e8a",
+                  "77da38ac-a4f2-4f41-a094-797b6362ffb1"
+                ],
+                "knownAtForecastTime": true,
+                "canonicalTransactionId": "9eb0dc24-2679-5080-a0d8-d054046f0743"
+              }
+            },
+            {
+              "memory_id": "9dc250fe-db91-45b4-b9a5-70ee71b25cca",
+              "memory_type": "CANONICAL_TRUST_TRANSACTION",
+              "source_id": "9eb0dc24-2679-5080-a0d8-d054046f0743",
+              "occurred_at": "2026-09-09T09:18:25.138+00:00",
+              "summary": {
+                "action": {
+                  "type": "write_repository",
+                  "purpose": "deployment_evidence_review",
+                  "resource": "repository:customer-zero-v1-release-evidence",
+                  "environment": "production"
+                },
+                "trustState": "suspended",
+                "policyVersion": "0.2.0",
+                "evaluationStatus": null,
+                "observedOutcomes": {
+                  "runtimeOutcome": null,
+                  "providerOutcome": null,
+                  "destinationOutcome": null
+                },
+                "originalDecision": "DENY",
+                "changedConditions": [
+                  "INITIAL_TRUST_DECISION",
+                  "TRUST_TWIN_MATERIAL_EVENT",
+                  "ADAPTIVE_VERIFICATION_MATERIAL_EVENT"
+                ],
+                "laterAdjudication": {
+                  "humanOverride": null,
+                  "adjudicatedOutcome": null
+                },
+                "decisionReasonCodes": [
+                  "ADAPTIVE_VERIFICATION_DEPTH_GATE",
+                  "ADAPTIVE_VERIFICATION_STATUS_GATED_PENDING_PROOF",
+                  "AUTHORITY_REQUIREMENT_UNSATISFIED",
+                  "AUTHORITY_SCOPE_INVALID",
+                  "CONCLUSION_CONFIDENCE_MODERATE",
+                  "CONSEQUENCE_LOW",
+                  "CURRENT_CONDITIONS_REEVALUATED",
+                  "EVIDENCE_CURRENT",
+                  "EVIDENCE_INSUFFICIENT",
+                  "MISSING_VERIFY_AGENT_CONFIGURATION",
+                  "MISSING_VERIFY_AUTHORITY",
+                  "MISSING_VERIFY_AUTHORITY_STATE",
+                  "MISSING_VERIFY_DESTINATION",
+                  "MISSING_VERIFY_MONITORING",
+                  "MISSING_VERIFY_RUNTIME",
+                  "REQUIRED_EVIDENCE_MISSING",
+                  "SCOPE_OUTSIDE_CONTRACT",
+                  "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+                  "TRUST_FORECAST_STABLE",
+                  "TRUST_GAP_OPEN"
+                ],
+                "decisionOutcomeReview": null,
+                "previousTransactionId": null,
+                "trustIntelligenceEventCount": 3
+              }
+            },
+            {
+              "memory_id": "eda82bed-9aeb-4e8d-918c-1a2ff0b1f475",
+              "memory_type": "TWIN_AUTHORITY_CHANGED",
+              "source_id": "522ec390-4bc6-5b62-9830-553a0498248c:1fca143d51b5bcb7a9e5f2fefbf56f6024f382b6c20e5ccff12153ba53d9f57c",
+              "occurred_at": "2026-09-09T09:18:33.947+00:00",
+              "summary": {
+                "evidenceReferences": [
+                  "51debea8-b85d-4f18-ac8e-823b10d74e8a",
+                  "77da38ac-a4f2-4f41-a094-797b6362ffb1",
+                  "digest:978edd635a5e1ccd2aa4c354d7a31c9dcfc409a95b5527880c5538edc98ba4c9"
+                ],
+                "knownAtForecastTime": true,
+                "canonicalTransactionId": "522ec390-4bc6-5b62-9830-553a0498248c"
+              }
+            },
+            {
+              "memory_id": "b541b15a-1fa2-409a-a8cf-008fb0c4fe35",
+              "memory_type": "VERIFICATION_GATE_REQUIRED",
+              "source_id": "522ec390-4bc6-5b62-9830-553a0498248c:d0a66905268fe4c2ec62aef2900737ce8dfe485668f6cd6e697e201d581b2efc",
+              "occurred_at": "2026-09-09T09:18:33.947+00:00",
+              "summary": {
+                "evidenceReferences": [
+                  "51debea8-b85d-4f18-ac8e-823b10d74e8a",
+                  "77da38ac-a4f2-4f41-a094-797b6362ffb1"
+                ],
+                "knownAtForecastTime": true,
+                "canonicalTransactionId": "522ec390-4bc6-5b62-9830-553a0498248c"
+              }
+            },
+            {
+              "memory_id": "c31b17f1-dac1-4bd7-a2a0-bb7257fbb7d5",
+              "memory_type": "CANONICAL_TRUST_TRANSACTION",
+              "source_id": "522ec390-4bc6-5b62-9830-553a0498248c",
+              "occurred_at": "2026-09-09T09:18:33.947+00:00",
+              "summary": {
+                "action": {
+                  "type": "read_repository",
+                  "purpose": "deployment_evidence_review",
+                  "resource": "repository:customer-zero-v1-release-evidence",
+                  "environment": "production"
+                },
+                "trustState": "suspended",
+                "policyVersion": "0.2.0",
+                "evaluationStatus": null,
+                "observedOutcomes": {
+                  "runtimeOutcome": null,
+                  "providerOutcome": null,
+                  "destinationOutcome": null
+                },
+                "originalDecision": "DENY",
+                "changedConditions": [
+                  "TRUST_TWIN_MATERIAL_EVENT",
+                  "ADAPTIVE_VERIFICATION_MATERIAL_EVENT"
+                ],
+                "laterAdjudication": {
+                  "humanOverride": null,
+                  "adjudicatedOutcome": null
+                },
+                "decisionReasonCodes": [
+                  "ADAPTIVE_VERIFICATION_DEPTH_GATE",
+                  "ADAPTIVE_VERIFICATION_STATUS_GATED_PENDING_PROOF",
+                  "AUTHORITY_REVOKED",
+                  "AUTHORITY_SCOPE_INVALID",
+                  "CONCLUSION_CONFIDENCE_MODERATE",
+                  "CONSEQUENCE_LOW",
+                  "CONTRACT_REVOKED",
+                  "CURRENT_CONDITIONS_REEVALUATED",
+                  "EVIDENCE_CURRENT",
+                  "EVIDENCE_INSUFFICIENT",
+                  "MISSING_VERIFY_AGENT_CONFIGURATION",
+                  "MISSING_VERIFY_AUTHORITY",
+                  "MISSING_VERIFY_AUTHORITY_STATE",
+                  "MISSING_VERIFY_DESTINATION",
+                  "MISSING_VERIFY_MONITORING",
+                  "MISSING_VERIFY_RUNTIME",
+                  "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+                  "TRUST_FORECAST_STABLE",
+                  "TRUST_GAP_OPEN"
+                ],
+                "decisionOutcomeReview": null,
+                "previousTransactionId": "a389359e-febd-5e99-ac2f-3e0b141d2399",
+                "trustIntelligenceEventCount": 3
+              }
+            },
+            {
+              "memory_id": "b289e9fb-9860-4926-930e-292af3f55870",
+              "memory_type": "VERIFICATION_STALE",
+              "source_id": "522ec390-4bc6-5b62-9830-553a0498248c:82daa3874683bace2432669540a5465ad338ba8ab8c1ad716fb7b41033341cb0",
+              "occurred_at": "2026-09-09T09:18:33.947+00:00",
+              "summary": {
+                "evidenceReferences": [
+                  "51debea8-b85d-4f18-ac8e-823b10d74e8a",
+                  "77da38ac-a4f2-4f41-a094-797b6362ffb1"
+                ],
+                "knownAtForecastTime": true,
+                "canonicalTransactionId": "522ec390-4bc6-5b62-9830-553a0498248c"
+              }
+            },
+            {
+              "memory_id": "86cc1f0c-1bb1-4666-ad39-f559e6f0b2d3",
+              "memory_type": "DECISION_OUTCOME_REVIEW",
+              "source_id": "a389359e-febd-5e99-ac2f-3e0b141d2399",
+              "occurred_at": "2026-09-09T09:19:49.060776+00:00",
+              "summary": {
+                "action": {
+                  "type": "read_repository",
+                  "purpose": "deployment_evidence_review",
+                  "resource": "repository:customer-zero-v1-release-evidence",
+                  "environment": "production"
+                },
+                "evaluationStatus": "CONTRADICTED",
+                "observedOutcomes": {
+                  "runtimeOutcome": null,
+                  "providerOutcome": null,
+                  "destinationOutcome": null
+                },
+                "originalDecision": "REVIEW",
+                "laterAdjudication": {
+                  "humanOverride": {
+                    "reason": "User-authorized controlled release adjudication: deny continued use following authority revocation. The original decision at T1 is preserved; no downstream execution or provider outcome is claimed.",
+                    "occurred": true,
+                    "occurredAt": "2026-09-09T09:19:48.825Z",
+                    "actorReference": "user:174b6184-2789-494a-a07e-a87adca5003e",
+                    "originalDecision": "REVIEW",
+                    "evidenceReference": "authority-revocation:b4a52745-151d-4ff8-bafb-bf6767eee821",
+                    "resultingDecision": "DENY"
+                  },
+                  "adjudicatedOutcome": "DENY"
+                },
+                "decisionOutcomeReview": {
+                  "humanOverride": {
+                    "reason": "User-authorized controlled release adjudication: deny continued use following authority revocation. The original decision at T1 is preserved; no downstream execution or provider outcome is claimed.",
+                    "occurred": true,
+                    "occurredAt": "2026-09-09T09:19:48.825Z",
+                    "actorReference": "user:174b6184-2789-494a-a07e-a87adca5003e",
+                    "originalDecision": "REVIEW",
+                    "evidenceReference": "authority-revocation:b4a52745-151d-4ff8-bafb-bf6767eee821",
+                    "resultingDecision": "DENY"
+                  },
+                  "policyVersion": "0.2.0",
+                  "runtimeOutcome": null,
+                  "providerOutcome": null,
+                  "evaluationStatus": "CONTRADICTED",
+                  "originalDecision": "REVIEW",
+                  "decisionModelName": null,
+                  "adjudicatedOutcome": "DENY",
+                  "destinationOutcome": null,
+                  "decisionReasonCodes": [
+                    "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+                    "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+                    "AUTHORITY_SCOPE_VALID",
+                    "CONCLUSION_CONFIDENCE_MODERATE",
+                    "CONSEQUENCE_LOW",
+                    "CURRENT_CONDITIONS_REEVALUATED",
+                    "EVIDENCE_CURRENT",
+                    "EVIDENCE_INSUFFICIENT",
+                    "MISSING_VERIFY_AGENT_CONFIGURATION",
+                    "MISSING_VERIFY_AUTHORITY",
+                    "MISSING_VERIFY_DESTINATION",
+                    "MISSING_VERIFY_MONITORING",
+                    "MISSING_VERIFY_RUNTIME",
+                    "REQUIRED_EVIDENCE_MISSING",
+                    "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+                    "TRUST_FORECAST_STABLE",
+                    "TRUST_GAP_OPEN"
+                  ],
+                  "decisionModelVersion": null,
+                  "decisionModelProvider": null
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "evidenceGraph": {
+      "path": "/api/trust-architecture/subjects/agent%3Af5ba7928-39ea-4a54-8030-1f3200a785ab/graph",
+      "status": 200,
+      "body": {
+        "schemaVersion": "enterprise-trust-architecture-v1",
+        "generatedAt": "2026-09-09T09:19:53.633Z",
+        "correlationId": "156724d8-b449-4745-8dba-b43e1236862d",
+        "ok": true,
+        "graph": {
+          "rootNodeId": "4df5ce17-692c-4029-a4df-ba26900e1509",
+          "depth": 1,
+          "truncated": false,
+          "nodes": [
+            {
+              "nodeId": "1d054dc9-ec02-4c03-b047-b8015f947d3b",
+              "enterpriseId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+              "nodeType": "TRUST_TWIN",
+              "externalId": "6fe9d861-fa43-551a-bf6a-df0e54ad88c6",
+              "domainKey": "GOVERNANCE",
+              "label": "Derived Trust Twin",
+              "metadata": {
+                "source": "CANONICAL_EVIDENCE_PROJECTION",
+                "canonicalTransactionId": "522ec390-4bc6-5b62-9830-553a0498248c"
+              },
+              "createdAt": "2026-09-09T09:18:36.096177+00:00"
+            },
+            {
+              "nodeId": "4df5ce17-692c-4029-a4df-ba26900e1509",
+              "enterpriseId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+              "nodeType": "ENTITY",
+              "externalId": "agent:f5ba7928-39ea-4a54-8030-1f3200a785ab",
+              "domainKey": "IDENTITY",
+              "label": "AI_AGENT",
+              "metadata": {
+                "canonicalTransactionId": "a389359e-febd-5e99-ac2f-3e0b141d2399"
+              },
+              "createdAt": "2026-09-09T09:15:48.021614+00:00"
+            },
+            {
+              "nodeId": "4f967ba9-2b3d-4a0e-9575-6f7ae3b53aea",
+              "enterpriseId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+              "nodeType": "AUTHORITY",
+              "externalId": "b4a52745-151d-4ff8-bafb-bf6767eee821",
+              "domainKey": "AUTHORITY",
+              "label": "Authority lineage",
+              "metadata": {
+                "reference": "b4a52745-151d-4ff8-bafb-bf6767eee821"
+              },
+              "createdAt": "2026-09-09T09:15:48.021614+00:00"
+            },
+            {
+              "nodeId": "7fdbed1b-9e4f-40e6-9def-9a41f092c9c1",
+              "enterpriseId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+              "nodeType": "TRUST_TWIN",
+              "externalId": "ab17c916-9e21-5921-8e03-40f9bacb107c",
+              "domainKey": "GOVERNANCE",
+              "label": "Derived Trust Twin",
+              "metadata": {
+                "source": "CANONICAL_EVIDENCE_PROJECTION",
+                "canonicalTransactionId": "9eb0dc24-2679-5080-a0d8-d054046f0743"
+              },
+              "createdAt": "2026-09-09T09:18:26.595346+00:00"
+            },
+            {
+              "nodeId": "f2425ac6-8fea-4bec-a6ee-bd201867cffc",
+              "enterpriseId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+              "nodeType": "TRUST_TWIN",
+              "externalId": "28720b8c-abcb-5645-809f-ef29c26489cf",
+              "domainKey": "GOVERNANCE",
+              "label": "Derived Trust Twin",
+              "metadata": {
+                "source": "CANONICAL_EVIDENCE_PROJECTION",
+                "canonicalTransactionId": "a389359e-febd-5e99-ac2f-3e0b141d2399"
+              },
+              "createdAt": "2026-09-09T09:15:48.021614+00:00"
+            }
+          ],
+          "edges": [
+            {
+              "edgeId": "7b0f7e0e-b52b-43ad-bc64-c33440692e71",
+              "enterpriseId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+              "fromNodeId": "4df5ce17-692c-4029-a4df-ba26900e1509",
+              "toNodeId": "f2425ac6-8fea-4bec-a6ee-bd201867cffc",
+              "edgeType": "DERIVED_FROM",
+              "evidenceId": null,
+              "createdAt": "2026-09-09T09:15:48.021614+00:00"
+            },
+            {
+              "edgeId": "9df9f14d-a6f8-4f65-8d85-ec69169dc303",
+              "enterpriseId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+              "fromNodeId": "4df5ce17-692c-4029-a4df-ba26900e1509",
+              "toNodeId": "4f967ba9-2b3d-4a0e-9575-6f7ae3b53aea",
+              "edgeType": "APPLIES_TO",
+              "evidenceId": null,
+              "createdAt": "2026-09-09T09:15:48.021614+00:00"
+            },
+            {
+              "edgeId": "fa9f742b-0315-48c8-8089-d52b777066f2",
+              "enterpriseId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+              "fromNodeId": "4df5ce17-692c-4029-a4df-ba26900e1509",
+              "toNodeId": "7fdbed1b-9e4f-40e6-9def-9a41f092c9c1",
+              "edgeType": "DERIVED_FROM",
+              "evidenceId": null,
+              "createdAt": "2026-09-09T09:18:26.595346+00:00"
+            },
+            {
+              "edgeId": "4bb70ec3-d9d0-4c17-8e66-595b3e6befdc",
+              "enterpriseId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+              "fromNodeId": "4df5ce17-692c-4029-a4df-ba26900e1509",
+              "toNodeId": "4f967ba9-2b3d-4a0e-9575-6f7ae3b53aea",
+              "edgeType": "APPLIES_TO",
+              "evidenceId": null,
+              "createdAt": "2026-09-09T09:18:26.595346+00:00"
+            },
+            {
+              "edgeId": "12046ee5-a011-414a-b2d1-fcaed51d00a5",
+              "enterpriseId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+              "fromNodeId": "4df5ce17-692c-4029-a4df-ba26900e1509",
+              "toNodeId": "1d054dc9-ec02-4c03-b047-b8015f947d3b",
+              "edgeType": "DERIVED_FROM",
+              "evidenceId": null,
+              "createdAt": "2026-09-09T09:18:36.096177+00:00"
+            },
+            {
+              "edgeId": "9e9de0bf-3fc1-4d1f-a44c-a51584ff1d15",
+              "enterpriseId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+              "fromNodeId": "4df5ce17-692c-4029-a4df-ba26900e1509",
+              "toNodeId": "4f967ba9-2b3d-4a0e-9575-6f7ae3b53aea",
+              "edgeType": "APPLIES_TO",
+              "evidenceId": null,
+              "createdAt": "2026-09-09T09:18:36.096177+00:00"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
