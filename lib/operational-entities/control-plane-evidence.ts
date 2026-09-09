@@ -72,6 +72,7 @@ export function validateControlPlaneSnapshot(snapshot: ControlPlaneSnapshot, con
     rotatedFromCredentialId: credential.rotated_from_credential_id,
   };
   const value = manifest.manifest as OperationalEntityManifest;
+  requireClaim(value?.owner?.accountableOwnerId === entity.accountable_owner_id, "CONTROL_PLANE_OWNER_MISMATCH");
   try {
     verifySignedManifest(value, nativeCredential, new Date(now).toISOString());
     requireClaim(credentialFingerprint(nativeCredential.publicJwk) === credential.credential_fingerprint, "CONTROL_PLANE_FINGERPRINT_MISMATCH");
@@ -84,9 +85,10 @@ export function validateControlPlaneSnapshot(snapshot: ControlPlaneSnapshot, con
     && manifest.manifest_digest === identityEvidence.manifest_digest
     && credential.credential_fingerprint === verification.credential_fingerprint
     && credential.credential_fingerprint === identityEvidence.credential_fingerprint
-    && manifest.signing_key_id === credential.signing_key_id, "CONTROL_PLANE_BASELINE_LINKAGE_MISMATCH");
+    && manifest.signing_key_id === credential.signing_key_id && identityEvidence.signing_key_id === credential.signing_key_id, "CONTROL_PLANE_BASELINE_LINKAGE_MISMATCH");
   const contract = authority.contract;
-  requireClaim(contract?.policyId === context.policyId && contract?.policyVersion === context.policyVersion
+  requireClaim(contract?.contractId === authority.contract_id && contract?.subject?.type === "ai_agent" && contract?.subject?.id === context.agentId
+    && contract?.policyId === context.policyId && contract?.policyVersion === context.policyVersion
     && policy.policy_id === context.policyId && policy.version === context.policyVersion
     && contract?.authorityScope?.environments?.includes(context.environment), "CONTROL_PLANE_POLICY_AUTHORITY_MISMATCH");
   requireClaim(value.runtime.environment === context.environment && (!value.authority.authorityReference || value.authority.authorityReference === authority.contract_id), "CONTROL_PLANE_MANIFEST_AUTHORITY_MISMATCH");

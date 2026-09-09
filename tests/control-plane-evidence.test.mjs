@@ -35,6 +35,9 @@ function fixture() {
   const heartbeat = { agent_id: context.agentId, credential_id: "credential:real", event_id: randomBytes(24).toString("base64url"), issued_at: new Date(now).toISOString(), environment: "production", authority_id: "authority:real", policy_id: context.policyId, policy_version: context.policyVersion, signature: "" };
   Object.assign(snapshot.verification, { verified_claims: ["credential_possession", "manifest_binding", "entity_binding", "tenant_binding"], unverified_claims: [], conflicting_claims: [], reason_codes: ["OWNER_BINDING_CONFIRMED"] });
   snapshot.identityEvidence.verification_id = snapshot.verification.verification_id;
+  snapshot.identityEvidence.signing_key_id = snapshot.credential.signing_key_id;
+  snapshot.authority.contract.contractId = snapshot.authority.contract_id;
+  snapshot.authority.contract.subject = { type: "ai_agent", id: context.agentId };
   const resign = () => { heartbeat.signature = sign(null, heartbeatSigningPayload(heartbeat, context), privateKey).toString("base64url"); };
   resign();
   return { context, snapshot, heartbeat, privateKey, resign };
@@ -71,6 +74,9 @@ for (const [name, mutate] of Object.entries({
   "tampered manifest": f => { f.snapshot.manifest.manifest.runtime.runtimeType = "evil"; },
   "wrong manifest digest": f => { f.snapshot.verification.manifest_digest = "c".repeat(64); },
   "wrong fingerprint": f => { f.snapshot.credential.credential_fingerprint = "d".repeat(64); },
+  "changed accountable owner": f => { f.snapshot.entity.accountable_owner_id = "owner:other"; },
+  "identity key linkage": f => { f.snapshot.identityEvidence.signing_key_id = "key:other"; },
+  "authority subject linkage": f => { f.snapshot.authority.contract.subject.id = "agent:other"; },
   "partial identity verification": f => { f.snapshot.verification.status = "PARTIALLY_VERIFIED"; f.snapshot.verification.verified_claims = ["credential_possession"]; },
   "owner unconfirmed": f => { f.snapshot.verification.unverified_claims = ["accountable_owner"]; },
   "conflicting runtime": f => { f.snapshot.verification.conflicting_claims = ["runtime_binding"]; },
