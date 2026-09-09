@@ -3,10 +3,23 @@ import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 
-import { PUBLIC_V1_ROUTE_CONTRACT } from "../lib/public-api/v1/contracts.ts";
+import { PUBLIC_V1_ROUTE_CONTRACT, PublicApiError, publicApiErrorResponse } from "../lib/public-api/v1/contracts.ts";
 import { publicApiOpenApi } from "../lib/public-api/v1/openapi.ts";
 
 const root = path.resolve(import.meta.dirname, "..");
+
+test("heartbeat verification failures survive the public HTTP error boundary", async () => {
+  const source = await readFile(new URL("../lib/operational-entities/control-plane-evidence.ts", import.meta.url), "utf8");
+  const codes = new Set([...source.matchAll(/"((?:HEARTBEAT|CONTROL_PLANE)_[A-Z_]+)"/g)].map(match => match[1]));
+  codes.delete("CONTROL_PLANE_PERSISTENCE_FAILED"); // Server maps ledger failure to CONTROL_PLANE_UNAVAILABLE.
+  codes.add("CONTROL_PLANE_UNAVAILABLE"); codes.add("HEARTBEAT_ENVIRONMENT_MISMATCH");
+  for (const code of codes) {
+    const status = code === "CONTROL_PLANE_UNAVAILABLE" ? 503 : 409;
+    const response = publicApiErrorResponse(new PublicApiError(code, "Verification failed", status), "correlation:test");
+    assert.equal(response.status, status);
+    assert.equal((await response.json()).error.code, code, `${code} must not collapse into a generic idempotency error`);
+  }
+});
 
 test("OpenAPI is 3.1 and does not drift from the public route contract", async () => {
   assert.equal(publicApiOpenApi.openapi, "3.1.0");
