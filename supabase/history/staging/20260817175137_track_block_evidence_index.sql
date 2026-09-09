@@ -1,0 +1,1 @@
+create index if not exists track_block_evidence_workflow_facts_idx on public.evidence_objects using gin(normalized_facts) where source_type='PROTECTED_WORKFLOW_SIGNAL';

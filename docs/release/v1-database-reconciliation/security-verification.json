@@ -1,0 +1,126 @@
+{
+  "stagingProject": "agpyhygpfmppjkxwcpac",
+  "rpcPrivileges": [
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "anon": false,
+      "name": "append_canonical_trust_transaction_replay_v1",
+      "config": [
+        "search_path=\"\""
+      ],
+      "public": false,
+      "schema": "public",
+      "identity": "append_canonical_trust_transaction_replay_v1(uuid,uuid,uuid,uuid)",
+      "service_role": true,
+      "authenticated": false,
+      "security_definer": true
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "anon": false,
+      "name": "attach_canonical_decision_outcome_review_v1",
+      "config": [
+        "search_path=public, extensions"
+      ],
+      "public": false,
+      "schema": "public",
+      "identity": "attach_canonical_decision_outcome_review_v1(uuid,uuid,uuid,jsonb)",
+      "service_role": true,
+      "authenticated": false,
+      "security_definer": true
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "anon": false,
+      "name": "claim_world_id_nullifier_v1",
+      "config": [
+        "search_path=public"
+      ],
+      "public": false,
+      "schema": "public",
+      "identity": "claim_world_id_nullifier_v1(uuid,text,text,text,text,text,text,text,timestamp with time zone)",
+      "service_role": true,
+      "authenticated": false,
+      "security_definer": true
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "anon": false,
+      "name": "emit_canonical_trust_transaction_memory_v1",
+      "config": [
+        "search_path=\"\""
+      ],
+      "public": false,
+      "schema": "public",
+      "identity": "emit_canonical_trust_transaction_memory_v1(uuid,uuid,uuid,uuid)",
+      "service_role": true,
+      "authenticated": false,
+      "security_definer": true
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "anon": false,
+      "name": "persist_canonical_trust_transaction_decision_v1",
+      "config": [
+        "search_path=public, extensions"
+      ],
+      "public": false,
+      "schema": "public",
+      "identity": "persist_canonical_trust_transaction_decision_v1(jsonb,jsonb)",
+      "service_role": true,
+      "authenticated": false,
+      "security_definer": true
+    }
+  ],
+  "rlsDisabledTables": [],
+  "reviewColumn": {
+    "type": "jsonb",
+    "table": "canonical_trust_transactions",
+    "column": "decision_outcome_review",
+    "default": null,
+    "nullable": "YES"
+  },
+  "worldConstraints": [
+    {
+      "name": "world_id_nullifier_claims_pkey",
+      "type": "p",
+      "table": "world_id_nullifier_claims",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "world_id_nullifier_claims_nullifier_action_unique",
+      "type": "u",
+      "table": "world_id_nullifier_claims",
+      "validated": true,
+      "definition": "UNIQUE (nullifier_digest, action)"
+    },
+    {
+      "name": "world_id_nullifier_claims_enterprise_fk",
+      "type": "f",
+      "table": "world_id_nullifier_claims",
+      "validated": true,
+      "definition": "FOREIGN KEY (enterprise_id) REFERENCES trust_workspaces(id)"
+    },
+    {
+      "name": "world_id_nullifier_claims_provider_check",
+      "type": "c",
+      "table": "world_id_nullifier_claims",
+      "validated": true,
+      "definition": "CHECK ((provider = 'world_id'::text))"
+    }
+  ],
+  "existingRowCompatibility": [
+    {
+      "constraint_name": "canonical_trust_transactions_decision_outcome_review_check",
+      "violating_rows": 0
+    },
+    {
+      "constraint_name": "canonical_trust_transaction_events_event_type_check",
+      "violating_rows": 0
+    }
+  ],
+  "historicalCanonicalMigrationEdits": 0,
+  "originalStagingLedgerEntriesChanged": 0,
+  "originalProductionLedgerEntriesChanged": 0
+}

@@ -1,0 +1,260 @@
+{
+  "lints": [
+    {
+      "name": "rls_enabled_no_policy",
+      "title": "RLS Enabled No Policy",
+      "level": "INFO",
+      "facing": "EXTERNAL",
+      "categories": [
+        "SECURITY"
+      ],
+      "description": "Detects cases where row level security (RLS) has been enabled on a table but no RLS policies have been created.",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy",
+      "count": 17,
+      "findings": [
+        {
+          "detail": "Table \\`public.consensus_audit_log\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "consensus_audit_log",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.consent_audit_log\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "consent_audit_log",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.hopae_webhook_events\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "hopae_webhook_events",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.migration_policy_decisions\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "migration_policy_decisions",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.operational_measurements\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "operational_measurements",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.ori_feature_registry\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "ori_feature_registry",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.ori_model_registry\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "ori_model_registry",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.ori_model_state_audit\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "ori_model_state_audit",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.provider_operational_health_snapshots\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "provider_operational_health_snapshots",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.provider_registry\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "provider_registry",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.provider_state_audit\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "provider_state_audit",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.release_evidence_checks\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "release_evidence_checks",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.release_validation_cases\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "release_validation_cases",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.release_validation_reviews\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "release_validation_reviews",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.trust_architecture_audit_log\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "trust_architecture_audit_log",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.webhook_event_ledger\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "webhook_event_ledger",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Table \\`public.world_id_nullifier_claims\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "world_id_nullifier_claims",
+            "type": "table",
+            "schema": "public"
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        }
+      ]
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "title": "Signed-In Users Can Execute SECURITY DEFINER Function",
+      "level": "WARN",
+      "facing": "EXTERNAL",
+      "categories": [
+        "SECURITY"
+      ],
+      "description": "Detects `SECURITY DEFINER` functions that are callable by signed-in users. Revoke `EXECUTE`, switch the function to `SECURITY INVOKER`, or move it out of your exposed API schema if signed-in users should not call it.",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable",
+      "count": 3,
+      "findings": [
+        {
+          "detail": "Function `public.identity_workspace_role(workspace_reference uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/identity_workspace_role`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "identity_workspace_role",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "workspace_reference uuid",
+            "security_definer": true
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Function `public.user_can_access_trust_workspace(workspace_reference uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/user_can_access_trust_workspace`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "user_can_access_trust_workspace",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "workspace_reference uuid",
+            "security_definer": true
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        },
+        {
+          "detail": "Function `public.user_has_trust_workspace_role(workspace_reference uuid, allowed_roles text[])` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/user_has_trust_workspace_role`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "user_has_trust_workspace_role",
+            "schema": "public",
+            "language": "sql",
+            "arguments": "workspace_reference uuid, allowed_roles text[]",
+            "security_definer": true
+          },
+          "observed_at": "2026-09-09T07:33:24.190Z"
+        }
+      ]
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "title": "Leaked Password Protection Disabled",
+      "level": "WARN",
+      "facing": "EXTERNAL",
+      "categories": [
+        "SECURITY"
+      ],
+      "description": "Leaked password protection is currently disabled.",
+      "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection",
+      "count": 1,
+      "findings": [
+        {
+          "detail": "Supabase Auth prevents the use of compromised passwords by checking against HaveIBeenPwned.org. Enable this feature to enhance security.",
+          "metadata": {
+            "type": "auth",
+            "entity": "Auth"
+          }
+        }
+      ]
+    },
+    {
+      "name": "auth_insufficient_mfa_options",
+      "title": "Insufficient MFA Options",
+      "level": "WARN",
+      "facing": "EXTERNAL",
+      "categories": [
+        "SECURITY"
+      ],
+      "description": "This project has too few multi-factor authentication (MFA) options enabled.",
+      "remediation": "https://supabase.com/docs/guides/auth/auth-mfa",
+      "count": 1,
+      "findings": [
+        {
+          "detail": "Your project has too few MFA options enabled, which may weaken account security. Enable more MFA methods to enhance security.",
+          "metadata": {
+            "type": "auth",
+            "entity": "Auth"
+          }
+        }
+      ]
+    }
+  ]
+}

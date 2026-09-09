@@ -1,0 +1,70 @@
+{
+  "project": "agpyhygpfmppjkxwcpac",
+  "concurrentCalls": 10,
+  "accepted": 1,
+  "replayRejected": 9,
+  "databaseClaims": 1,
+  "freshClient": {
+    "accepted": false,
+    "claim_id": null,
+    "reason_code": "WORLD_ID_NULLIFIER_REPLAY"
+  },
+  "cleanup": {
+    "remaining_claims": 0,
+    "remaining_workspaces": 0,
+    "remaining_members": 0
+  },
+  "claims": [
+    {
+      "accepted": false,
+      "claim_id": null,
+      "reason_code": "WORLD_ID_NULLIFIER_REPLAY"
+    },
+    {
+      "accepted": true,
+      "claim_id": "7988d892-75f2-45d0-8718-edf5aab00200",
+      "reason_code": null
+    },
+    {
+      "accepted": false,
+      "claim_id": null,
+      "reason_code": "WORLD_ID_NULLIFIER_REPLAY"
+    },
+    {
+      "accepted": false,
+      "claim_id": null,
+      "reason_code": "WORLD_ID_NULLIFIER_REPLAY"
+    },
+    {
+      "accepted": false,
+      "claim_id": null,
+      "reason_code": "WORLD_ID_NULLIFIER_REPLAY"
+    },
+    {
+      "accepted": false,
+      "claim_id": null,
+      "reason_code": "WORLD_ID_NULLIFIER_REPLAY"
+    },
+    {
+      "accepted": false,
+      "claim_id": null,
+      "reason_code": "WORLD_ID_NULLIFIER_REPLAY"
+    },
+    {
+      "accepted": false,
+      "claim_id": null,
+      "reason_code": "WORLD_ID_NULLIFIER_REPLAY"
+    },
+    {
+      "accepted": false,
+      "claim_id": null,
+      "reason_code": "WORLD_ID_NULLIFIER_REPLAY"
+    },
+    {
+      "accepted": false,
+      "claim_id": null,
+      "reason_code": "WORLD_ID_NULLIFIER_REPLAY"
+    }
+  ],
+  "classification": "DATABASE ONLY; no real provider credentials"
+}
