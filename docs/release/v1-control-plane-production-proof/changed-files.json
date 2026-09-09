@@ -1,0 +1,582 @@
+[
+    {
+        "value":  "app/api/v1/agents/[agentId]/heartbeat/route.ts",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  1
+    },
+    {
+        "value":  "app/developers/quickstart/page.tsx",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  2
+    },
+    {
+        "value":  "docs/release/V1_CONTROL_PLANE_EVIDENCE_DESIGN.md",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  3
+    },
+    {
+        "value":  "examples/powershell/agent-gamma.ps1",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  4
+    },
+    {
+        "value":  "lib/operational-entities/control-plane-evidence.ts",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  5
+    },
+    {
+        "value":  "lib/public-api/v1/contracts.ts",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  6
+    },
+    {
+        "value":  "lib/public-api/v1/control-plane-evidence.ts",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  7
+    },
+    {
+        "value":  "lib/public-api/v1/openapi.ts",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  8
+    },
+    {
+        "value":  "lib/public-api/v1/runtime.ts",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  9
+    },
+    {
+        "value":  "lib/trust-transaction/server.ts",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  10
+    },
+    {
+        "value":  "package.json",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  11
+    },
+    {
+        "value":  "packages/cyber-sentinels-sdk/README.md",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  12
+    },
+    {
+        "value":  "packages/cyber-sentinels-sdk/src/index.ts",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  13
+    },
+    {
+        "value":  "tests/control-plane-evidence.test.mjs",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  14
+    },
+    {
+        "value":  "tests/external-agent-client-parity.test.mjs",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  15
+    },
+    {
+        "value":  "tests/public-api-v1-openapi.test.mjs",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  16
+    },
+    {
+        "value":  "tools/release/v1-control-plane-customer-zero.mjs",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  17
+    },
+    {
+        "value":  "tools/release/v1-control-plane-key-session.mjs",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  18
+    },
+    {
+        "value":  "tools/release/v1-control-plane-session-proof.mjs",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  19
+    },
+    {
+        "value":  "tools/release/v1-control-plane-tenant-isolation.mjs",
+        "PSPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane\\release-change-set.log",
+        "PSParentPath":  "C:\\Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+        "PSChildName":  "release-change-set.log",
+        "PSDrive":  {
+                        "CurrentLocation":  "Users\\emeae\\AppData\\Local\\Temp\\cyber-v1-control-plane",
+                        "Name":  "C",
+                        "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                        "Root":  "C:\\",
+                        "Description":  "Windows",
+                        "MaximumSize":  null,
+                        "Credential":  "System.Management.Automation.PSCredential",
+                        "DisplayRoot":  null
+                    },
+        "PSProvider":  {
+                           "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                           "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                           "Name":  "FileSystem",
+                           "PSSnapIn":  "Microsoft.PowerShell.Core",
+                           "ModuleName":  "Microsoft.PowerShell.Core",
+                           "Module":  null,
+                           "Description":  "",
+                           "Capabilities":  52,
+                           "Home":  "C:\\Users\\emeae",
+                           "Drives":  "C"
+                       },
+        "ReadCount":  20
+    }
+]

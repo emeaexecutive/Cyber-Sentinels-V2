@@ -1,0 +1,71 @@
+{
+    "typecheck":  "PASS",
+    "lint":  "PASS",
+    "additionalLocalFullRun":  {
+                                   "unchangedIsolatedRecheck":  "PASS",
+                                   "status":  "FAILED_AT_WINDOWS_AUDIT_TIMEOUT",
+                                   "productFailureObserved":  false,
+                                   "test":  "audit-runner-resilience"
+                               },
+    "codeql":  "PASS",
+    "mainCI":  {
+                   "docker":  "PASS",
+                   "runId":  34343633160,
+                   "verify":  "PASS"
+               },
+    "firstLocalFullSuite":  {
+                                "skipped":  0,
+                                "tests":  1472,
+                                "failed":  0,
+                                "passed":  1472
+                            },
+    "finalHeadCI":  {
+                        "passed":  1479,
+                        "failed":  0,
+                        "runId":  34341905476,
+                        "tests":  1480,
+                        "skip":  "Windows-only audit-runner test; passed in isolated Windows recheck",
+                        "skipped":  1
+                    },
+    "build":  "PASS",
+    "checkedAt":  "2026-09-09T11:10:39.6234220Z",
+    "docker":  "PASS",
+    "sourceHead":  "ff45243da45fc8e30314453ccb1757633bccd525",
+    "worldIdSuite":  {
+                         "tests":  18,
+                         "failed":  0,
+                         "passed":  18
+                     },
+    "secretScan":  "PASS",
+    "heartbeatSuite":  {
+                           "tests":  65,
+                           "failed":  0,
+                           "passed":  65
+                       },
+    "pr":  84,
+    "mergedMain":  "14d20422735fd4587ee6c3a811467f37028598dc",
+    "correction":  {
+                       "pr":  85,
+                       "head":  "f58441320eb740bcbb225a2848fb976f15549c38",
+                       "mergedMain":  "b0f6b37d41714efa940852b3ef955e9c7317c513",
+                       "localFullSuite":  {
+                                              "skipped":  0,
+                                              "tests":  1481,
+                                              "failed":  0,
+                                              "passed":  1481
+                                          },
+                       "externalAgentSuite":  {
+                                                  "tests":  138,
+                                                  "failed":  0,
+                                                  "passed":  138
+                                              },
+                       "lint":  "PASS",
+                       "typecheck":  "PASS",
+                       "ciRun":  34344571636,
+                       "ciVerify":  "PASS",
+                       "ciDocker":  "PASS",
+                       "codeql":  "PASS",
+                       "secretScan":  "PASS",
+                       "preview":  "PASS"
+                   }
+}

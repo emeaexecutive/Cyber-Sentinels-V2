@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "verifiedAt": "2026-09-09T11:36:46.914Z",
+  "manifestSignature": true,
+  "heartbeatSignatures": 4,
+  "acceptedEvents": 2,
+  "atomicPairs": 2,
+  "payloadHashes": true,
+  "configurationDigestsFromSignedClaims": true,
+  "credentialFingerprint": true,
+  "heartbeatFreshness": true,
+  "publicKeyOnly": true
+}

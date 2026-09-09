@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-09-09T11:29:48.577Z",
+  "keys": [
+    {
+      "tenant": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+      "keyId": "e93a65d0-2ef9-42b8-bd3e-7f60342ce06d",
+      "httpStatus": 200,
+      "status": "revoked",
+      "revokedAt": "2026-09-09T11:29:49.117+00:00"
+    },
+    {
+      "tenant": "ab10b640-e72f-4910-a44c-4eb8522bbaa7",
+      "keyId": "68b72b28-e0e2-4e6a-ae2c-6a8de1c4d419",
+      "httpStatus": 200,
+      "status": "revoked",
+      "revokedAt": "2026-09-09T11:29:50.023+00:00"
+    }
+  ]
+}

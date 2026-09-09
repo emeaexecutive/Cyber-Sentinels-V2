@@ -1,0 +1,473 @@
+{
+  "evidence": [
+    {
+      "id": "f7125bae-b96b-5065-ae3b-38284c6331ec",
+      "result": "POSITIVE",
+      "created_at": "2026-09-09T11:26:16.022096+00:00",
+      "domain_key": "AI_AGENT",
+      "expires_at": "2026-09-09T11:31:15.237+00:00",
+      "legal_hold": false,
+      "revoked_at": null,
+      "source_key": "cyber_sentinels",
+      "subject_id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+      "envelope_id": null,
+      "evidence_id": "f7125bae-b96b-5065-ae3b-38284c6331ec",
+      "observed_at": "2026-09-09T11:26:15.923+00:00",
+      "occurred_at": "2026-09-09T11:26:15.923+00:00",
+      "received_at": "2026-09-09T11:26:15.923+00:00",
+      "source_type": "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+      "payload_hash": "4a69b6a664e0992cad0d6bd39daea0624734b9d9847cd1e072949146480b1148",
+      "provider_key": "cyber_sentinels_native",
+      "reason_codes": [
+        "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+        "SIGNED_DECLARATION_AND_HEARTBEAT_ONLY",
+        "DOWNSTREAM_EXECUTION_NOT_OBSERVED"
+      ],
+      "subject_type": "AI_AGENT",
+      "enterprise_id": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+      "evidence_type": "SERVER_VERIFIED_AGENT_CONFIGURATION",
+      "hash_algorithm": "SHA-256",
+      "assurance_level": "VERY_HIGH",
+      "server_verified": true,
+      "canonicalization": "JCS",
+      "normalized_facts": {
+        "subject": {
+          "id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+          "tenantId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82"
+        },
+        "baseline": {
+          "manifestId": "5d53730e-5455-4d84-b1f8-2677f8af5843",
+          "policyHash": "c0ed3bf7e877d6a8a28af5225f3564efd89e2569ada94a7b76a858e2f1e84464",
+          "credentialId": "192bf05f-e161-424b-a971-ab769af7e1ac",
+          "policyVersion": "0.2.0",
+          "manifestDigest": "ebbc514a7dba1bc3315730209d29a3e7ca92e93e5303b9ef3e975d8ff3d785c6",
+          "verificationId": "f93319f8-d1bf-4bef-a143-bb7e75d91c49",
+          "authorityDigest": "e71d0b67b12f9513485f1e1ca4f8f0a21ec785ad6a74bf6cdf5aacccfa5db578",
+          "policyReference": "external-agent-trust-v1",
+          "authorityVersion": "customer-authority:5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+          "authorityReference": "5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+          "identityEvidenceId": "d8880a71-2ff9-4ee2-99f2-1dc7f9b2cfcb",
+          "credentialFingerprint": "734ef43efa204b2270487b61ba204f9d6fbfbdd712f981e4eec17ebe5e6fa993",
+          "identityEvidenceDigest": "804e94e764241c89f5b55393905aa08f70e7a17d7a12d498e74c10a3d399e0e6",
+          "modelConfigurationDigest": "d6add80959c3e652232f0728ca5538ee4fc8db1ca549c45c4780df7c7f7ce9be",
+          "declaredCapabilitiesDigest": "6b57d9afda698e4da024f8d720f71846562db5171f0b1ae6e7d357f90ea05e81",
+          "runtimeConfigurationDigest": "6fb3ad8bd108cd4fcf2ccfc2b318349b4ac0771deae3d86e38a17a3dd59ba79a"
+        },
+        "heartbeat": {
+          "agent_id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+          "event_id": "060a927954b74fac8aad6303721ea030",
+          "issued_at": "2026-09-09T11:26:15.237Z",
+          "policy_id": "external-agent-trust-v1",
+          "signature": "emwaeMt8iQy_3zfIJVLBHnQePfpDvu_R2JbZS2_JDsG6uHG3UEz5tHFnwQWmaHrXb-9nlsfmSQiylYgdf-tkAA",
+          "environment": "production",
+          "authority_id": "5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+          "credential_id": "192bf05f-e161-424b-a971-ab769af7e1ac",
+          "policy_version": "0.2.0"
+        },
+        "monitoring": {
+          "coverage": "covered",
+          "coverageScope": "SIGNED_CONTROL_PLANE_HEARTBEAT_ONLY",
+          "downstreamExecutionObserved": false
+        },
+        "provenance": "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+        "observation": {
+          "audience": "https://www.cybersentinels.com/api/v1",
+          "expiresAt": "2026-09-09T11:31:15.237Z",
+          "observedAt": "2026-09-09T11:26:15.923Z",
+          "environment": "production"
+        },
+        "independence": "FIRST_PARTY_CONTROL_PLANE",
+        "signingDomain": "cyber-sentinels:control-plane-heartbeat:v1",
+        "baselineDigest": "e1e1a36e290c9f9a796559bfda6955df812cd856ee0bc3fba80f2482d9459b0f",
+        "configurationMeaning": "AUTHENTICATED_SIGNED_DECLARATION_ONLY"
+      },
+      "object_encrypted": false,
+      "object_reference": null,
+      "storage_boundary": "NORMALIZED_LEDGER",
+      "retention_expires_at": "2026-09-09T11:31:15.237+00:00",
+      "evidence_classification": "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+      "freshness_policy_seconds": 300,
+      "superseded_by_evidence_id": null,
+      "cryptographically_verified": true
+    },
+    {
+      "id": "fbfd21e2-9846-5e63-979b-bbd799a8bda7",
+      "result": "POSITIVE",
+      "created_at": "2026-09-09T11:26:16.022096+00:00",
+      "domain_key": "RUNTIME",
+      "expires_at": "2026-09-09T11:31:15.237+00:00",
+      "legal_hold": false,
+      "revoked_at": null,
+      "source_key": "cyber_sentinels",
+      "subject_id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+      "envelope_id": null,
+      "evidence_id": "fbfd21e2-9846-5e63-979b-bbd799a8bda7",
+      "observed_at": "2026-09-09T11:26:15.923+00:00",
+      "occurred_at": "2026-09-09T11:26:15.923+00:00",
+      "received_at": "2026-09-09T11:26:15.923+00:00",
+      "source_type": "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+      "payload_hash": "4a69b6a664e0992cad0d6bd39daea0624734b9d9847cd1e072949146480b1148",
+      "provider_key": "cyber_sentinels_native",
+      "reason_codes": [
+        "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+        "SIGNED_DECLARATION_AND_HEARTBEAT_ONLY",
+        "DOWNSTREAM_EXECUTION_NOT_OBSERVED"
+      ],
+      "subject_type": "AI_AGENT",
+      "enterprise_id": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+      "evidence_type": "SERVER_VERIFIED_MONITORING_HEARTBEAT",
+      "hash_algorithm": "SHA-256",
+      "assurance_level": "HIGH",
+      "server_verified": true,
+      "canonicalization": "JCS",
+      "normalized_facts": {
+        "subject": {
+          "id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+          "tenantId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82"
+        },
+        "baseline": {
+          "manifestId": "5d53730e-5455-4d84-b1f8-2677f8af5843",
+          "policyHash": "c0ed3bf7e877d6a8a28af5225f3564efd89e2569ada94a7b76a858e2f1e84464",
+          "credentialId": "192bf05f-e161-424b-a971-ab769af7e1ac",
+          "policyVersion": "0.2.0",
+          "manifestDigest": "ebbc514a7dba1bc3315730209d29a3e7ca92e93e5303b9ef3e975d8ff3d785c6",
+          "verificationId": "f93319f8-d1bf-4bef-a143-bb7e75d91c49",
+          "authorityDigest": "e71d0b67b12f9513485f1e1ca4f8f0a21ec785ad6a74bf6cdf5aacccfa5db578",
+          "policyReference": "external-agent-trust-v1",
+          "authorityVersion": "customer-authority:5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+          "authorityReference": "5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+          "identityEvidenceId": "d8880a71-2ff9-4ee2-99f2-1dc7f9b2cfcb",
+          "credentialFingerprint": "734ef43efa204b2270487b61ba204f9d6fbfbdd712f981e4eec17ebe5e6fa993",
+          "identityEvidenceDigest": "804e94e764241c89f5b55393905aa08f70e7a17d7a12d498e74c10a3d399e0e6",
+          "modelConfigurationDigest": "d6add80959c3e652232f0728ca5538ee4fc8db1ca549c45c4780df7c7f7ce9be",
+          "declaredCapabilitiesDigest": "6b57d9afda698e4da024f8d720f71846562db5171f0b1ae6e7d357f90ea05e81",
+          "runtimeConfigurationDigest": "6fb3ad8bd108cd4fcf2ccfc2b318349b4ac0771deae3d86e38a17a3dd59ba79a"
+        },
+        "heartbeat": {
+          "agent_id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+          "event_id": "060a927954b74fac8aad6303721ea030",
+          "issued_at": "2026-09-09T11:26:15.237Z",
+          "policy_id": "external-agent-trust-v1",
+          "signature": "emwaeMt8iQy_3zfIJVLBHnQePfpDvu_R2JbZS2_JDsG6uHG3UEz5tHFnwQWmaHrXb-9nlsfmSQiylYgdf-tkAA",
+          "environment": "production",
+          "authority_id": "5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+          "credential_id": "192bf05f-e161-424b-a971-ab769af7e1ac",
+          "policy_version": "0.2.0"
+        },
+        "monitoring": {
+          "coverage": "covered",
+          "coverageScope": "SIGNED_CONTROL_PLANE_HEARTBEAT_ONLY",
+          "downstreamExecutionObserved": false
+        },
+        "provenance": "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+        "observation": {
+          "audience": "https://www.cybersentinels.com/api/v1",
+          "expiresAt": "2026-09-09T11:31:15.237Z",
+          "observedAt": "2026-09-09T11:26:15.923Z",
+          "environment": "production"
+        },
+        "independence": "FIRST_PARTY_CONTROL_PLANE",
+        "signingDomain": "cyber-sentinels:control-plane-heartbeat:v1",
+        "baselineDigest": "e1e1a36e290c9f9a796559bfda6955df812cd856ee0bc3fba80f2482d9459b0f",
+        "configurationMeaning": "AUTHENTICATED_SIGNED_DECLARATION_ONLY"
+      },
+      "object_encrypted": false,
+      "object_reference": null,
+      "storage_boundary": "NORMALIZED_LEDGER",
+      "retention_expires_at": "2026-09-09T11:31:15.237+00:00",
+      "evidence_classification": "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+      "freshness_policy_seconds": 300,
+      "superseded_by_evidence_id": null,
+      "cryptographically_verified": true
+    },
+    {
+      "id": "1ffefb63-79c2-5dae-af55-2b86c00b6b3b",
+      "result": "POSITIVE",
+      "created_at": "2026-09-09T11:26:30.989707+00:00",
+      "domain_key": "AI_AGENT",
+      "expires_at": "2026-09-09T11:31:30.384+00:00",
+      "legal_hold": false,
+      "revoked_at": null,
+      "source_key": "cyber_sentinels",
+      "subject_id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+      "envelope_id": null,
+      "evidence_id": "1ffefb63-79c2-5dae-af55-2b86c00b6b3b",
+      "observed_at": "2026-09-09T11:26:30.931+00:00",
+      "occurred_at": "2026-09-09T11:26:30.931+00:00",
+      "received_at": "2026-09-09T11:26:30.931+00:00",
+      "source_type": "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+      "payload_hash": "cf05c7c3c344e5ad9cc273eb962f9f44df25f5a03d981055a3919fafa6f88a19",
+      "provider_key": "cyber_sentinels_native",
+      "reason_codes": [
+        "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+        "SIGNED_DECLARATION_AND_HEARTBEAT_ONLY",
+        "DOWNSTREAM_EXECUTION_NOT_OBSERVED"
+      ],
+      "subject_type": "AI_AGENT",
+      "enterprise_id": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+      "evidence_type": "SERVER_VERIFIED_AGENT_CONFIGURATION",
+      "hash_algorithm": "SHA-256",
+      "assurance_level": "VERY_HIGH",
+      "server_verified": true,
+      "canonicalization": "JCS",
+      "normalized_facts": {
+        "subject": {
+          "id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+          "tenantId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82"
+        },
+        "baseline": {
+          "manifestId": "5d53730e-5455-4d84-b1f8-2677f8af5843",
+          "policyHash": "c0ed3bf7e877d6a8a28af5225f3564efd89e2569ada94a7b76a858e2f1e84464",
+          "credentialId": "192bf05f-e161-424b-a971-ab769af7e1ac",
+          "policyVersion": "0.2.0",
+          "manifestDigest": "ebbc514a7dba1bc3315730209d29a3e7ca92e93e5303b9ef3e975d8ff3d785c6",
+          "verificationId": "f93319f8-d1bf-4bef-a143-bb7e75d91c49",
+          "authorityDigest": "e71d0b67b12f9513485f1e1ca4f8f0a21ec785ad6a74bf6cdf5aacccfa5db578",
+          "policyReference": "external-agent-trust-v1",
+          "authorityVersion": "customer-authority:5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+          "authorityReference": "5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+          "identityEvidenceId": "d8880a71-2ff9-4ee2-99f2-1dc7f9b2cfcb",
+          "credentialFingerprint": "734ef43efa204b2270487b61ba204f9d6fbfbdd712f981e4eec17ebe5e6fa993",
+          "identityEvidenceDigest": "804e94e764241c89f5b55393905aa08f70e7a17d7a12d498e74c10a3d399e0e6",
+          "modelConfigurationDigest": "d6add80959c3e652232f0728ca5538ee4fc8db1ca549c45c4780df7c7f7ce9be",
+          "declaredCapabilitiesDigest": "6b57d9afda698e4da024f8d720f71846562db5171f0b1ae6e7d357f90ea05e81",
+          "runtimeConfigurationDigest": "6fb3ad8bd108cd4fcf2ccfc2b318349b4ac0771deae3d86e38a17a3dd59ba79a"
+        },
+        "heartbeat": {
+          "agent_id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+          "event_id": "9e603a2846dc4e7ba6b409313467a7cd",
+          "issued_at": "2026-09-09T11:26:30.384Z",
+          "policy_id": "external-agent-trust-v1",
+          "signature": "7tTwMwbJpXWcYUXB8VqNdijgrQsARnqrrcTdfAmKWN-uVUtpjrZgAcfWVYEub1qnAvn_CiXl4bXtUNCr3jOtDA",
+          "environment": "production",
+          "authority_id": "5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+          "credential_id": "192bf05f-e161-424b-a971-ab769af7e1ac",
+          "policy_version": "0.2.0"
+        },
+        "monitoring": {
+          "coverage": "covered",
+          "coverageScope": "SIGNED_CONTROL_PLANE_HEARTBEAT_ONLY",
+          "downstreamExecutionObserved": false
+        },
+        "provenance": "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+        "observation": {
+          "audience": "https://www.cybersentinels.com/api/v1",
+          "expiresAt": "2026-09-09T11:31:30.384Z",
+          "observedAt": "2026-09-09T11:26:30.931Z",
+          "environment": "production"
+        },
+        "independence": "FIRST_PARTY_CONTROL_PLANE",
+        "signingDomain": "cyber-sentinels:control-plane-heartbeat:v1",
+        "baselineDigest": "e1e1a36e290c9f9a796559bfda6955df812cd856ee0bc3fba80f2482d9459b0f",
+        "configurationMeaning": "AUTHENTICATED_SIGNED_DECLARATION_ONLY"
+      },
+      "object_encrypted": false,
+      "object_reference": null,
+      "storage_boundary": "NORMALIZED_LEDGER",
+      "retention_expires_at": "2026-09-09T11:31:30.384+00:00",
+      "evidence_classification": "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+      "freshness_policy_seconds": 300,
+      "superseded_by_evidence_id": null,
+      "cryptographically_verified": true
+    },
+    {
+      "id": "3bec814c-1fc7-59ab-8c5d-3f5cc5d52f57",
+      "result": "POSITIVE",
+      "created_at": "2026-09-09T11:26:30.989707+00:00",
+      "domain_key": "RUNTIME",
+      "expires_at": "2026-09-09T11:31:30.384+00:00",
+      "legal_hold": false,
+      "revoked_at": null,
+      "source_key": "cyber_sentinels",
+      "subject_id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+      "envelope_id": null,
+      "evidence_id": "3bec814c-1fc7-59ab-8c5d-3f5cc5d52f57",
+      "observed_at": "2026-09-09T11:26:30.931+00:00",
+      "occurred_at": "2026-09-09T11:26:30.931+00:00",
+      "received_at": "2026-09-09T11:26:30.931+00:00",
+      "source_type": "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+      "payload_hash": "cf05c7c3c344e5ad9cc273eb962f9f44df25f5a03d981055a3919fafa6f88a19",
+      "provider_key": "cyber_sentinels_native",
+      "reason_codes": [
+        "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+        "SIGNED_DECLARATION_AND_HEARTBEAT_ONLY",
+        "DOWNSTREAM_EXECUTION_NOT_OBSERVED"
+      ],
+      "subject_type": "AI_AGENT",
+      "enterprise_id": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+      "evidence_type": "SERVER_VERIFIED_MONITORING_HEARTBEAT",
+      "hash_algorithm": "SHA-256",
+      "assurance_level": "HIGH",
+      "server_verified": true,
+      "canonicalization": "JCS",
+      "normalized_facts": {
+        "subject": {
+          "id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+          "tenantId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82"
+        },
+        "baseline": {
+          "manifestId": "5d53730e-5455-4d84-b1f8-2677f8af5843",
+          "policyHash": "c0ed3bf7e877d6a8a28af5225f3564efd89e2569ada94a7b76a858e2f1e84464",
+          "credentialId": "192bf05f-e161-424b-a971-ab769af7e1ac",
+          "policyVersion": "0.2.0",
+          "manifestDigest": "ebbc514a7dba1bc3315730209d29a3e7ca92e93e5303b9ef3e975d8ff3d785c6",
+          "verificationId": "f93319f8-d1bf-4bef-a143-bb7e75d91c49",
+          "authorityDigest": "e71d0b67b12f9513485f1e1ca4f8f0a21ec785ad6a74bf6cdf5aacccfa5db578",
+          "policyReference": "external-agent-trust-v1",
+          "authorityVersion": "customer-authority:5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+          "authorityReference": "5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+          "identityEvidenceId": "d8880a71-2ff9-4ee2-99f2-1dc7f9b2cfcb",
+          "credentialFingerprint": "734ef43efa204b2270487b61ba204f9d6fbfbdd712f981e4eec17ebe5e6fa993",
+          "identityEvidenceDigest": "804e94e764241c89f5b55393905aa08f70e7a17d7a12d498e74c10a3d399e0e6",
+          "modelConfigurationDigest": "d6add80959c3e652232f0728ca5538ee4fc8db1ca549c45c4780df7c7f7ce9be",
+          "declaredCapabilitiesDigest": "6b57d9afda698e4da024f8d720f71846562db5171f0b1ae6e7d357f90ea05e81",
+          "runtimeConfigurationDigest": "6fb3ad8bd108cd4fcf2ccfc2b318349b4ac0771deae3d86e38a17a3dd59ba79a"
+        },
+        "heartbeat": {
+          "agent_id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+          "event_id": "9e603a2846dc4e7ba6b409313467a7cd",
+          "issued_at": "2026-09-09T11:26:30.384Z",
+          "policy_id": "external-agent-trust-v1",
+          "signature": "7tTwMwbJpXWcYUXB8VqNdijgrQsARnqrrcTdfAmKWN-uVUtpjrZgAcfWVYEub1qnAvn_CiXl4bXtUNCr3jOtDA",
+          "environment": "production",
+          "authority_id": "5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+          "credential_id": "192bf05f-e161-424b-a971-ab769af7e1ac",
+          "policy_version": "0.2.0"
+        },
+        "monitoring": {
+          "coverage": "covered",
+          "coverageScope": "SIGNED_CONTROL_PLANE_HEARTBEAT_ONLY",
+          "downstreamExecutionObserved": false
+        },
+        "provenance": "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+        "observation": {
+          "audience": "https://www.cybersentinels.com/api/v1",
+          "expiresAt": "2026-09-09T11:31:30.384Z",
+          "observedAt": "2026-09-09T11:26:30.931Z",
+          "environment": "production"
+        },
+        "independence": "FIRST_PARTY_CONTROL_PLANE",
+        "signingDomain": "cyber-sentinels:control-plane-heartbeat:v1",
+        "baselineDigest": "e1e1a36e290c9f9a796559bfda6955df812cd856ee0bc3fba80f2482d9459b0f",
+        "configurationMeaning": "AUTHENTICATED_SIGNED_DECLARATION_ONLY"
+      },
+      "object_encrypted": false,
+      "object_reference": null,
+      "storage_boundary": "NORMALIZED_LEDGER",
+      "retention_expires_at": "2026-09-09T11:31:30.384+00:00",
+      "evidence_classification": "CYBER_SENTINELS_CONTROL_PLANE_VERIFIED",
+      "freshness_policy_seconds": 300,
+      "superseded_by_evidence_id": null,
+      "cryptographically_verified": true
+    }
+  ],
+  "manifest": {
+    "manifest": {
+      "ai": {
+        "modelVersion": "v1",
+        "declaredTools": [],
+        "modelProvider": "not_invoked",
+        "agentFramework": "custom",
+        "modelIdentifier": "scripted-authorization-client"
+      },
+      "nonce": "e56ec9rpDy6W0kwhN6_hJ3LgWXAD-Fsry_pxrkX_-kQ",
+      "owner": {
+        "organizationId": "tenant:138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+        "accountableOwnerId": "owner:customer-zero-v1"
+      },
+      "runtime": {
+        "region": "external",
+        "environment": "production",
+        "runtimeType": "node",
+        "runtimeVersion": "v22.23.1",
+        "workloadIdentifier": "customer-zero-v1-process",
+        "deploymentIdentifier": "b0f6b37d41714efa940852b3ef955e9c7317c513"
+      },
+      "issuedAt": "2026-09-09T11:25:48.360Z",
+      "software": {
+        "version": null,
+        "buildDigest": "e132c79c3a056d58719a5c58316c95dfe37fb599e97315edfa4b4e0495c4fbbc",
+        "sourceDigest": null,
+        "applicationId": null,
+        "artifactDigest": null,
+        "packageReference": null
+      },
+      "authority": {
+        "authorityReference": null
+      },
+      "expiresAt": "2026-09-09T12:25:48.360Z",
+      "signature": "D2MZR0n1jeN4pJQUYcvE00nUqKbTfuUJR9Yn2mnT3MjO_2a8-XvrcWjL1-2HHsc_UWYgV6SkNKpzWW6R85XACA",
+      "entityType": "AI_AGENT",
+      "credentials": {
+        "publicCredentialReferences": [
+          "cz-f5e513d9-4236-44f1-822f-5d1462781dfb"
+        ]
+      },
+      "displayName": "CUSTOMER_ZERO_CONTROL_PLANE_PRODUCTION_20260909",
+      "enterpriseId": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+      "signingKeyId": "cz-f5e513d9-4236-44f1-822f-5d1462781dfb",
+      "manifestDigest": "ebbc514a7dba1bc3315730209d29a3e7ca92e93e5303b9ef3e975d8ff3d785c6",
+      "manifestVersion": "1.0",
+      "signatureProfile": "PUBLIC_MANIFEST_V1",
+      "operationalEntityId": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2",
+      "declaredCapabilities": [
+        "read_repository"
+      ],
+      "signedPublicManifest": {
+        "model": {
+          "version": "v1",
+          "provider": "not_invoked",
+          "identifier": "scripted-authorization-client"
+        },
+        "nonce": "e56ec9rpDy6W0kwhN6_hJ3LgWXAD-Fsry_pxrkX_-kQ",
+        "runtime": {
+          "region": "external",
+          "version": "v22.23.1",
+          "framework": "custom",
+          "build_digest": "e132c79c3a056d58719a5c58316c95dfe37fb599e97315edfa4b4e0495c4fbbc",
+          "runtime_type": "node",
+          "workload_identifier": "customer-zero-v1-process",
+          "deployment_identifier": "b0f6b37d41714efa940852b3ef955e9c7317c513"
+        },
+        "issued_at": "2026-09-09T11:25:48.360Z",
+        "expires_at": "2026-09-09T12:25:48.360Z",
+        "entity_type": "AI_AGENT",
+        "environment": "production",
+        "credential_id": "192bf05f-e161-424b-a971-ab769af7e1ac",
+        "owner_reference": "owner:customer-zero-v1",
+        "manifest_version": "1.0",
+        "declared_capabilities": [
+          "read_repository"
+        ],
+        "operational_entity_id": "agent:82b181d2-5325-4aaf-87d1-82c70884f3c2"
+      }
+    },
+    "manifest_id": "5d53730e-5455-4d84-b1f8-2677f8af5843",
+    "manifest_digest": "ebbc514a7dba1bc3315730209d29a3e7ca92e93e5303b9ef3e975d8ff3d785c6"
+  },
+  "authority": {
+    "id": "5775b143-8b35-4652-bdc5-a2e0e5b15b40",
+    "state": "revoked",
+    "revokedAt": "2026-09-09T11:26:45.224702+00:00"
+  },
+  "credential": {
+    "state": "ACTIVE",
+    "expires_at": "2026-09-09T12:25:44.469+00:00",
+    "public_jwk": {
+      "x": "LW1z0tV0chjOCKgYiwasqwUHNyMJFneb3HUvv0gmWYg",
+      "alg": "EdDSA",
+      "crv": "Ed25519",
+      "ext": true,
+      "kid": "cz-f5e513d9-4236-44f1-822f-5d1462781dfb",
+      "kty": "OKP",
+      "use": "sig",
+      "key_ops": [
+        "verify"
+      ]
+    },
+    "credential_id": "192bf05f-e161-424b-a971-ab769af7e1ac",
+    "credential_fingerprint": "734ef43efa204b2270487b61ba204f9d6fbfbdd712f981e4eec17ebe5e6fa993"
+  },
+  "projectRef": "kecgtsfibkypjuaxqbjx",
+  "inspectedAt": "2026-09-09T11:29:00.57824+00:00"
+}
