@@ -56,9 +56,9 @@ test("Provider Operations uses the five RC5 classifications and normalized healt
   assert.match(readiness, /export function providerRealityState/);
 });
 
-test("homepage contains four restrained sections and two bounded CTAs", async () => {
+test("homepage contains five restrained sections and two bounded CTAs", async () => {
   const source = await read("app/page.tsx");
-  assert.equal((source.match(/<section/g) ?? []).length, 4);
+  assert.equal((source.match(/<section/g) ?? []).length, 5);
   assert.equal((source.match(/<Link\s/g) ?? []).length, 2);
   assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 0);
   assert.equal((source.match(/<ComparisonCard/g) ?? []).length, 0);

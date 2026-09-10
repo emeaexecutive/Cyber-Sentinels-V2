@@ -4,7 +4,7 @@ export const canonicalNavigation = {
   public: [
     { href: "/platform", label: "Platform", access: "public" },
     { href: "/solutions", label: "Solutions", access: "public" },
-    { href: "/trust", label: "Trust", access: "public" },
+    { href: "/developers", label: "Developers", access: "public" },
     { href: "/enterprise", label: "Enterprise", access: "public" },
     { href: "/pricing", label: "Pricing", access: "public" },
     { href: "/login", label: "Sign In", access: "public" },

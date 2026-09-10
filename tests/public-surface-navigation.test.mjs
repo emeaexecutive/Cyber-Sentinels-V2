@@ -20,13 +20,13 @@ test("public header contains exactly six direct actions and no dropdown discover
   assert.deepEqual(publicHeaderLinks(source), [
     { href: "/platform", label: "Platform" },
     { href: "/solutions", label: "Solutions" },
-    { href: "/trust", label: "Trust" },
+    { href: "/developers", label: "Developers" },
     { href: "/enterprise", label: "Enterprise" },
     { href: "/pricing", label: "Pricing" },
     { href: "/login", label: "Sign In" },
   ]);
   assert.doesNotMatch(component, /DropdownLinks|aria-haspopup="menu"|role="menuitem"/);
-  assert.doesNotMatch(source.match(/public: \[([\s\S]*?)\n  \]/)?.[0] ?? "", /Resources|Developers|About|Help/);
+  assert.doesNotMatch(source.match(/public: \[([\s\S]*?)\n  \]/)?.[0] ?? "", /Resources|About|Help/);
   assert.doesNotMatch(source, /Founder Control|QA Console|Benchmarking|Test Lab/);
 });
 
@@ -83,7 +83,7 @@ test("homepage preserves the canonical release promise and section ceiling", asy
   const source = await read("app/page.tsx");
   assert.match(source, /Operational Trust Intelligence™/);
   assert.match(source, /Before an AI agent acts, prove it has the authority to do so\./);
-  assert.equal((source.match(/<section/g) ?? []).length, 4);
+  assert.equal((source.match(/<section/g) ?? []).length, 5);
   assert.match(source, /Request a demo/);
   assert.equal((source.match(/<Link/g) ?? []).length, 2);
 });
