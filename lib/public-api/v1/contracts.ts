@@ -59,6 +59,11 @@ export const PUBLIC_API_ERROR_CODES = [
   "INTERNAL_ERROR",
 ] as const;
 export const PUBLIC_V1_ROUTE_CONTRACT = [
+  ["post", "/api/v1/incidents"],
+  ["get", "/api/v1/incidents/{incidentId}"],
+  ["post", "/api/v1/incidents/{incidentId}/chronology"],
+  ["get", "/api/v1/incidents/{incidentId}/replay"],
+  ["post", "/api/v1/incidents/{incidentId}/exports"],
   ["post", "/api/v1/agents"],
   ["get", "/api/v1/agents/{agentId}"],
   ["post", "/api/v1/agents/{agentId}/credentials"],
@@ -82,6 +87,9 @@ export const PUBLIC_V1_ROUTE_CONTRACT = [
   ["post", "/api/v1/reviews/{reviewReference}/resolve"],
 ] as const;
 export const PUBLIC_API_SCOPES = [
+  "incidents:read",
+  "incidents:write",
+  "evidence:export",
   "agents:write",
   "agents:verify",
   "authority:read",

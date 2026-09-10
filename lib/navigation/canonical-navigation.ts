@@ -20,6 +20,7 @@ export const canonicalNavigation = {
     { href: "/trust-replay", label: "Replay", access: "authenticated" },
   ],
   dashboard: [
+    { href: "/dashboard/incident-evidence", label: "Incident Evidence", access: "authenticated" },
     { href: "/dashboard", label: "Overview", access: "authenticated" },
     { href: "/dashboard/track-block", label: "Track + Block™", access: "authenticated" },
     { href: "/dashboard/governance", label: "Governance", access: "authenticated" },

@@ -1,0 +1,45 @@
+const evidenceDirectory = process.env.V2_EVIDENCE_DIRECTORY ?? 'docs/v2/qualification';
+import { request } from '@playwright/test';
+import { readFile,writeFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import { CyberSentinels } from '../../packages/cyber-sentinels-sdk/src/index.ts';
+import { hashCanonical } from '../../src/lib/trust-core/hash.ts';
+const dir=process.env.V2_PRIVATE_DIRECTORY,origin='https://localhost:3443';
+if(process.env.V2_STAGING_PROJECT!=='agpyhygpfmppjkxwcpac'||!dir||process.env.SUPABASE_SERVICE_ROLE_KEY)throw new Error('Public Staging client required');
+const accounts=JSON.parse(await readFile(`${dir}/issued-keys-credential-export.json`,'utf8'));
+const proof=JSON.parse(await readFile(`${evidenceDirectory}/customer-zero.json`,'utf8'));
+const references=JSON.parse(await readFile(`${evidenceDirectory}/control-plane-references.json`,'utf8'));
+const transport=await request.newContext({ignoreHTTPSErrors:true});
+const localFetch=async(url,init={})=>{if(new URL(String(url)).origin!==origin)throw new Error('Non-local target denied');const r=await transport.fetch(String(url),{method:init.method,headers:Object.fromEntries(new Headers(init.headers)),data:init.body,timeout:120000});return new Response(await r.body(),{status:r.status(),headers:r.headers()});};
+const cs=new CyberSentinels({apiKey:accounts[0].api_key,baseUrl:origin,fetch:localFetch,timeoutMs:120000});
+const other=new CyberSentinels({apiKey:accounts[1].api_key,baseUrl:origin,fetch:localFetch,timeoutMs:120000});
+const result={project:'agpyhygpfmppjkxwcpac',negatives:[]};
+const negative=async(name,fn,status)=>{try{await fn();throw new Error('Unexpected acceptance');}catch(e){assert.equal(e.status,status,`${name}: ${e.message}`);result.negatives.push({name,status:e.status,code:e.code});}};
+try {
+ const agentB=await other.agents.register({display_name:'V2_STAGING_ISOLATION_FIXTURE',entity_type:'AI_AGENT',owner_reference:'owner:v2-staging-isolation',runtime:{environment:'staging',framework:'custom'},model:{provider:'not_invoked',identifier:'scripted-isolation-client'}});
+ const at=new Date().toISOString();
+ const evidenceB=await other.evidence.submit({provider:{key:'self',class:'APPLICATION_SIGNAL',event_id:crypto.randomUUID(),finding:'STAGING_FIXTURE_REPORTED'},type:'DETECTION',subject:{type:'AI_AGENT',id:agentB.agent_id},evidence:{context:{}},occurred_at:at});
+ const id=proof.stages.incident.incident_id, tx=proof.stages.firstDecision.transaction_id;
+ await negative('cross-tenant evidence',()=>cs.incidents.append(id,{transaction_id:tx,kind:'DETECTION',summary:'Isolation negative',observed_at:at,evidence_object_id:evidenceB.evidence_id,evidence_digest:evidenceB.evidence_digest,context:{}}),404);
+ await negative('caller authority override rejected without disclosing authority',()=>cs.incidents.append(id,{...proof.stages.observations[0],authority_reference:crypto.randomUUID()}),400);
+ await negative('missing evidence',()=>cs.incidents.append(id,{transaction_id:tx,kind:'DETECTION',summary:'Missing evidence',observed_at:at}),400);
+ await negative('unknown incident matches hidden incident response',()=>other.incidents.get(crypto.randomUUID()),404);
+ result.existingOutcome=await cs.trust.submitOutcome(tx,{source_id:'self',destination:'staging:scripted-destination',action_reference:`transaction:${tx}`,target:'repository:v2-staging-qualification',result:'FAILED',observed_at:at,evidence_reference:proof.stages.observations.find(row=>row.kind==='OUTCOME').evidence_object_id});
+ result.reviewedExport=await cs.incidents.export(id);
+ assert.equal(result.reviewedExport.package.states.export,'REGULATORY_EXPORT_READY');
+ assert.ok(result.reviewedExport.package.existing_outcome_records.some(row=>row.source_table==='public_api_outcome_submissions'));
+ assert.equal(result.reviewedExport.package.decisions[0].decision,'ALLOW');
+ assert.equal(result.reviewedExport.package.decisions[0].decision_outcome_review.evaluationStatus,'CONTRADICTED');
+ const {integrity_digest,...body}=result.reviewedExport.package;assert.equal(hashCanonical(body),integrity_digest);
+ const correlated=await cs.incidents.open({transaction_id:tx,summary:'Staging source-provenance continuity; intentionally incomplete',observed_at:new Date().toISOString()});
+ await cs.incidents.append(correlated.incident_id,proof.stages.observations[0]);
+ await cs.incidents.append(correlated.incident_id,{transaction_id:tx,kind:'TRANSACTION_LINK',summary:'Historical first-party control-plane evidence reference',observed_at:new Date().toISOString(),evidence_object_id:references[0].evidence_id,evidence_digest:references[0].payload_hash});
+ const context=await cs.incidents.replay(correlated.incident_id);
+ const providers=new Set(context.evidence_references.map(row=>row.provider));assert.equal(providers.size,2);
+ assert.ok(providers.has('cyber_sentinels_native'));assert.ok(providers.has(`api-client:${accounts[0].client_id}`));
+ assert.ok(context.timeline.every(row=>row.attribution==='NOT_ESTABLISHED'&&row.global_authorization==='NOT_INFERRED'));
+ assert.equal(context.states.export,'DRAFT');
+ result.crossProvider={incident_id:correlated.incident_id,providers:[...providers],meaning:'Two actual source boundaries: first-party control plane and API-client assertions; no independent external-provider integration claimed',readiness:context.states.export,gaps:context.gaps};
+ result.status='PASS';
+}catch(error){result.status='BLOCKED';result.error={message:error.message,status:error.status,code:error.code};process.exitCode=1;}
+finally{await transport.dispose();await writeFile(`${evidenceDirectory}/additional-proof.json`,JSON.stringify(result,null,2));console.log(JSON.stringify({status:result.status,error:result.error,crossProvider:result.crossProvider,negatives:result.negatives}));}

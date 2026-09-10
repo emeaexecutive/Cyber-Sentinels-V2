@@ -1,0 +1,19 @@
+{
+  "sourceSha": "5e899ad031aebab93f3b70f02dfac6a673f528e5",
+  "tests": 1514,
+  "pass": 1514,
+  "fail": 0,
+  "skip": 0,
+  "todo": 0,
+  "baselineRetained": 1481,
+  "focusedV2Tests": 33,
+  "reviewRegressionTestsAdded": 5,
+  "lintExit": 0,
+  "typecheckExit": 0,
+  "buildExit": 0,
+  "localMigration": "PASS",
+  "stagingCustomerZero": "PASS",
+  "stagingTenantScopes": "PASS",
+  "stagingAuthenticatedRls": "PASS",
+  "secretScan": "PASS"
+}

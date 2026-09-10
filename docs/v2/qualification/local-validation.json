@@ -1,0 +1,15 @@
+{
+  "sourceSha": "580dfff5f75ef3f1a771d8933e283d085a0c0c4f",
+  "tests": 1509,
+  "pass": 1509,
+  "fail": 0,
+  "skipped": 0,
+  "baselineRetained": 1481,
+  "newFocusedTests": 28,
+  "testExit": 0,
+  "lintExit": 0,
+  "typecheckExit": 0,
+  "buildExit": 0,
+  "localMigration": "PASS",
+  "scope": "Local full suite and optimized build; actual Staging qualification documented separately"
+}

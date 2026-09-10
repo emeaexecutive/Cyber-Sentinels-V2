@@ -1,5 +1,13 @@
 export type PublicApiEnvironment = "local" | "test" | "staging" | "production";
 
+export function stagingControlPlaneQualificationEnabled(env: NodeJS.ProcessEnv = process.env) {
+  if (env.CONTROL_PLANE_STAGING_QUALIFICATION !== "true" || env.CYBER_SENTINELS_ENVIRONMENT !== "staging") return false;
+  try {
+    const url = new URL(env.NEXT_PUBLIC_SUPABASE_URL || "");
+    return url.origin === "https://agpyhygpfmppjkxwcpac.supabase.co";
+  } catch { return false; }
+}
+
 export function publicApiEnvironmentMetadata(env: NodeJS.ProcessEnv = process.env) {
   const name = String(env.CYBER_SENTINELS_ENVIRONMENT ?? "").trim().toLowerCase();
   const originValue = String(env.CYBER_SENTINELS_PUBLIC_ORIGIN ?? "").trim();

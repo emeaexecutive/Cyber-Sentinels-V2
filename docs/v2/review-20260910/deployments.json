@@ -1,0 +1,48 @@
+{
+  "production": {
+    "id": "dpl_3yX9aPfmjumxNH2DS56dnzTFL7zc",
+    "state": "READY",
+    "target": "production",
+    "sha": "b0f6b37d41714efa940852b3ef955e9c7317c513",
+    "alias": [
+      "www.cybersentinels.com",
+      "cyber-sentinels-v2.vercel.app",
+      "cybersentinels.com",
+      "cyber-sentinels-v2-keith-speres-projects.vercel.app",
+      "cyber-sentinels-v2-git-b0f6b37d417-e764b5-keith-speres-projects.vercel.app"
+    ]
+  },
+  "preview": {
+    "id": "dpl_2eK7coCiLpyDCqro9NkYrP6DgE1v",
+    "state": "READY",
+    "target": null,
+    "sha": "b227fb434e3390e7461846dda5018a35d84fc147"
+  },
+  "v2Deployments": [
+    {
+      "id": "dpl_2eK7coCiLpyDCqro9NkYrP6DgE1v",
+      "target": null,
+      "state": "READY",
+      "sha": "b227fb434e3390e7461846dda5018a35d84fc147"
+    },
+    {
+      "id": "dpl_Ad6yHN4ADYKGMiJ5gRW1UyFdvweD",
+      "target": null,
+      "state": "CANCELED",
+      "sha": "580dfff5f75ef3f1a771d8933e283d085a0c0c4f"
+    },
+    {
+      "id": "dpl_EhkbZLEBb7T6WskhkC4n6z7sT7Be",
+      "target": null,
+      "state": "READY",
+      "sha": "50aa07238756954be61bb19d2572eb2e4cb41e9c"
+    },
+    {
+      "id": "dpl_HoV2XnDThCTZVcd5bXBCVJKDBvWK",
+      "target": null,
+      "state": "READY",
+      "sha": "50aa07238756954be61bb19d2572eb2e4cb41e9c"
+    }
+  ],
+  "productionAliasChanged": false
+}

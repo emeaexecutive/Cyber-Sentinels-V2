@@ -1,0 +1,38 @@
+{
+  "originalWorkspaceBranch": "fix/homepage-worldid-v1-closure-20260906-141022",
+  "originalWorkspaceHead": "b72955f09c2ccc5558b53771f7680647a0f734b8",
+  "originalWorkspacePreservedStatus": [
+    "M .env.example",
+    " M examples/agent-gamma/package-lock.json",
+    " M tools/production-proof-local.mjs",
+    "?? artifacts/production-migration-reconciliation.json",
+    "?? artifacts/production-proof.json",
+    "?? artifacts/v1-database-reconciliation-ci.json",
+    "?? artifacts/v1-database-reconciliation-final.md",
+    "?? artifacts/v1-production-proof.json",
+    "?? artifacts/v1-release-candidate-manifest.json",
+    "?? docs/PRE_SEED_TECHNICAL_DILIGENCE.md",
+    "?? docs/V1_PRODUCTION_PROOF.md",
+    "?? docs/V1_RELEASE_CANDIDATE_QUALIFICATION.md",
+    "?? docs/release/v1-control-plane-production-proof/",
+    "?? docs/release/v1-production-closure/",
+    "?? tools/release/v1-production-complete-negative.mjs",
+    "?? tools/release/v1-production-customer-zero.mjs",
+    "?? tools/release/v1-production-final-report.mjs",
+    "?? tools/release/v1-production-key-session.mjs",
+    "?? tools/release/v1-production-refresh-proof.mjs",
+    "?? tools/release/v1-production-session-proof.mjs",
+    "?? tools/release/v1-production-tenant-isolation.mjs"
+  ],
+  "stashesPreserved": [
+    "stash@{0}: On feat/operational-trust-whitepaper: v1-homepage-worldid-closure-20260906-141022",
+    "stash@{1}: On fix/readiness-registry-diagnostics: freeze-track-block-prod-closure",
+    "stash@{2}: On feat/external-agent-trust-sdk: merge-chain-backup-before-pr-execution"
+  ],
+  "v2Branch": "v2/operational-trust-intelligence",
+  "reviewedSourceSha": "5e899ad031aebab93f3b70f02dfac6a673f528e5",
+  "mainSha": "046662dbb372e78c8ca2fe8057e6afe9fd56eb78",
+  "mergeBase": "046662dbb372e78c8ca2fe8057e6afe9fd56eb78",
+  "pr": 86,
+  "prBase": "main"
+}

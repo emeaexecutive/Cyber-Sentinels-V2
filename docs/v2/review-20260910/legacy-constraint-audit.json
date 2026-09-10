@@ -1,0 +1,27 @@
+[
+  {
+    "table_name": "evidence_objects",
+    "constraint_name": "evidence_objects_epic18_integrity",
+    "violating_rows": 0
+  },
+  {
+    "table_name": "evidence_objects",
+    "constraint_name": "evidence_objects_freshness_policy_check",
+    "violating_rows": 0
+  },
+  {
+    "table_name": "canonical_trust_transaction_events",
+    "constraint_name": "canonical_trust_transaction_events_event_type_check",
+    "violating_rows": 0
+  },
+  {
+    "table_name": "canonical_trust_transactions",
+    "constraint_name": "canonical_trust_transactions_decision_outcome_review_check",
+    "violating_rows": 0
+  },
+  {
+    "table_name": "evidence_objects",
+    "constraint_name": "evidence_objects_superseded_by_fk",
+    "violating_rows": 0
+  }
+]
