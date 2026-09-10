@@ -157,3 +157,12 @@ c5a83616f1494f231dfc351a8c46810f5413cfba:docs/release/v1-production-closure/proo
 2b6a4214c96553e22ff9325e03191af3cb8107ce:docs/v2/qualification/customer-zero.json:generic-api-key:5429
 2b6a4214c96553e22ff9325e03191af3cb8107ce:docs/v2/qualification/customer-zero.json:generic-api-key:5470
 2b6a4214c96553e22ff9325e03191af3cb8107ce:docs/v2/qualification/customer-zero.json:generic-api-key:5513
+
+# CPTO review: exact public credential fingerprints only
+5e899ad031aebab93f3b70f02dfac6a673f528e5:docs/v2/review-20260910/customer-zero.json:generic-api-key:1530
+5e899ad031aebab93f3b70f02dfac6a673f528e5:docs/v2/review-20260910/customer-zero.json:generic-api-key:1603
+5e899ad031aebab93f3b70f02dfac6a673f528e5:docs/v2/review-20260910/customer-zero.json:generic-api-key:1680
+5e899ad031aebab93f3b70f02dfac6a673f528e5:docs/v2/review-20260910/customer-zero.json:generic-api-key:245
+5e899ad031aebab93f3b70f02dfac6a673f528e5:docs/v2/review-20260910/customer-zero.json:generic-api-key:318
+5e899ad031aebab93f3b70f02dfac6a673f528e5:docs/v2/review-20260910/customer-zero.json:generic-api-key:3475
+5e899ad031aebab93f3b70f02dfac6a673f528e5:docs/v2/review-20260910/customer-zero.json:generic-api-key:395
