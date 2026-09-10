@@ -1,10 +1,11 @@
+const evidenceDirectory = process.env.V2_EVIDENCE_DIRECTORY ?? 'docs/v2/qualification';
 import { chromium, request } from '@playwright/test';
 import { readFile, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const directory=process.env.V2_PRIVATE_DIRECTORY;
 if(process.env.V2_STAGING_PROJECT!=='agpyhygpfmppjkxwcpac'||!directory)throw new Error('Exact Staging target required');
 const accounts=JSON.parse(await readFile(`${directory}/staging-session-credential-export.json`,'utf8'));
-const proof=JSON.parse(await readFile('docs/v2/qualification/customer-zero.json','utf8'));
+const proof=JSON.parse(await readFile(`${evidenceDirectory}/customer-zero.json`,'utf8'));
 assert.equal(proof.result,'PASS');
 const {agent,firstDecision,revocation,incident}=proof.stages;
 const account=accounts[0],origin='https://localhost:3443';
@@ -33,11 +34,11 @@ try {
   if(await rejectOptional.isVisible()) { await rejectOptional.click(); await page.reload({waitUntil:'networkidle'}); }
   assert.equal(response.status(),200);await page.getByRole('heading',{name:'Incident Evidence',exact:true}).waitFor();
   for(const heading of ['01 Authority','02 Actor','03 Decision','04 Execution','05 Incident','06 Intervention','07 Outcome','08 Remediation','Replay chronology','Evidence and receipts'])assert.equal(await page.getByRole('heading',{name:heading,exact:true}).count(),1);
-  assert.deepEqual(errors,[]);await page.screenshot({path:'docs/v2/qualification/incident-evidence-desktop.png',fullPage:true});
-  await page.setViewportSize({width:390,height:844});await page.screenshot({path:'docs/v2/qualification/incident-evidence-mobile.png',fullPage:true});
+  assert.deepEqual(errors,[]);await page.screenshot({path:`${evidenceDirectory}/incident-evidence-desktop.png`,fullPage:true});
+  await page.setViewportSize({width:390,height:844});await page.screenshot({path:`${evidenceDirectory}/incident-evidence-mobile.png`,fullPage:true});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true,'Mobile horizontal overflow');
   result.browser={status:'PASS',headings:10,consoleErrors:errors,mobileOverflow:false};await context.close();
  }finally{await browser.close();}
  result.status='PASS';
 }catch(error){result.status='BLOCKED';result.error=error.message;process.exitCode=1;}
-finally{await http.dispose();await writeFile('docs/v2/qualification/application-proof.json',JSON.stringify(result,null,2));console.log(JSON.stringify({status:result.status,error:result.error,browser:result.browser}));}
+finally{await http.dispose();await writeFile(`${evidenceDirectory}/application-proof.json`,JSON.stringify(result,null,2));console.log(JSON.stringify({status:result.status,error:result.error,browser:result.browser}));}

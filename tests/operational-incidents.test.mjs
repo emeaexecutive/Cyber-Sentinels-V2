@@ -114,3 +114,16 @@ test('later evaluation and existing outcome sources retain their original decisi
   assert.equal(pack.evaluation_phase[0].review.adjudicatedOutcome,'DENY');assert.equal(pack.existing_outcome_records[0].independence,'AGENT_ASSERTED');
   input.existingOutcomes[0].enterprise_id=randomUUID();assert.throws(()=>buildIncidentPackage(input),/Cross-tenant/);
 });
+
+test('an evidence digest cannot be accepted without its reference',()=>{
+  assert.throws(()=>validateIncidentRecord({transaction_id:transaction,summary:'Digest without reference',observed_at:at,evidence_digest:'a'.repeat(64)},true),/requires its evidence reference/);
+});
+for(const [field,value] of [['relation_type','DETECTION'],['transaction_id',transaction],['evidence_object_id',null]]) test(`projection verifies ${field} against the digested link details`,()=>{
+  const input=fixture();const link=input.links.find(row=>row.relation_type==='OUTCOME');
+  if(field==='transaction_id'){const second={...input.transactions[0],transaction_id:randomUUID()};input.transactions.push(second);link[field]=second.transaction_id;}else link[field]=value;
+  assert.equal(buildIncidentPackage(input).states.export,'DRAFT');
+});
+test('retention timestamps are compared as instants, including timezone offsets',()=>{
+  const input=fixture();input.evidence[0].retention_expires_at='2026-09-09T13:00:00.000+01:00';
+  assert.equal(buildIncidentPackage(input).states.export,'DRAFT');
+});

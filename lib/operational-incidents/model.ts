@@ -32,6 +32,7 @@ export function validateIncidentRecord(value: unknown, opening = false): Row {
     }
   }
   const evidence = body.evidence_object_id ? reference(body.evidence_object_id) : null;
+  if (!evidence && body.evidence_digest != null) invalid("An evidence digest requires its evidence reference.");
   if (kind !== "TRANSACTION_LINK" && !evidence) invalid("This chronology event requires evidence.");
   if (evidence && (typeof body.evidence_digest !== "string" || !/^[a-f0-9]{64}$/.test(body.evidence_digest))) invalid("An evidence digest is required.");
   if (kind === "OUTCOME" && (!["provider", "runtime", "destination"].includes(body.outcome_layer) || !["SUCCEEDED", "FAILED", "UNKNOWN"].includes(body.outcome_status))) invalid("Separate outcome layer and status are required.");
@@ -78,11 +79,13 @@ export function buildIncidentPackage(input: { incident: Row; links: Row[]; trans
     const source = evidence.get(link.evidence_object_id);
     const event = input.events.find(row => row.id === link.chronology_event_id && row.incident_id === incident.id);
     const { content_digest: supplied, ...content } = link.details;
-    let integrity = Boolean(event && tx && hashesEqual(hashCanonical(content), String(supplied)) && supplied === link.content_digest);
+    let integrity = Boolean(event && tx && content.id === link.id && content.transaction_id === link.transaction_id
+      && content.kind === link.relation_type && content.evidence_object_id === link.evidence_object_id
+      && hashesEqual(hashCanonical(content), String(supplied)) && supplied === link.content_digest);
     if (source && tx) {
       try { verifyEvidence(source, tenant, tx.subject_id, link.details.evidence_digest); verifyObservationClaims(link.details, source); }
       catch { integrity = false; gaps.push(`EVIDENCE_INTEGRITY:${link.id}`); }
-      if (source.revoked_at || (source.retention_expires_at && source.retention_expires_at <= generatedAt)) { integrity = false; gaps.push(`EVIDENCE_UNAVAILABLE:${link.id}`); }
+      if (source.revoked_at || (source.retention_expires_at && Date.parse(source.retention_expires_at) <= Date.parse(generatedAt))) { integrity = false; gaps.push(`EVIDENCE_UNAVAILABLE:${link.id}`); }
     } else if (link.evidence_object_id || link.relation_type !== "TRANSACTION_LINK") { integrity = false; gaps.push(`MISSING_EVIDENCE:${link.id}`); }
     if (!tx || !event) gaps.push(`MISSING_CANONICAL_REFERENCE:${link.id}`);
     if (!integrity) gaps.push(`CHRONOLOGY_INTEGRITY:${link.id}`);

@@ -1,3 +1,4 @@
+const evidenceDirectory = process.env.V2_EVIDENCE_DIRECTORY ?? 'docs/v2/qualification';
 import { request } from '@playwright/test';
 import {readFile,writeFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
@@ -17,4 +18,4 @@ for(const key of keys){
  result.keys.push({key_id:key.key_id,status:'REVOKED',subsequentRequestStatus:401,error:failure.error});
  }finally{await http.dispose();}
 }
-result.status='PASS';await writeFile('docs/v2/qualification/key-cleanup.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+result.status='PASS';await writeFile(`${evidenceDirectory}/key-cleanup.json`,JSON.stringify(result,null,2));console.log(JSON.stringify(result));

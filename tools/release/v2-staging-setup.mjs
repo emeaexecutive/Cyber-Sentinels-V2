@@ -13,7 +13,7 @@ const anon=all.find(key=>key.name==='anon')?.api_key;
 if(!service||!anon)throw new Error('Staging keys unavailable');
 for(const key of [service,anon])if(JSON.parse(Buffer.from(key.split('.')[1],'base64url')).ref!=='agpyhygpfmppjkxwcpac')throw new Error('Key project mismatch');
 const url='https://agpyhygpfmppjkxwcpac.supabase.co', origin='https://localhost:3443';
-const env={NEXT_PUBLIC_SUPABASE_URL:url,SUPABASE_SERVICE_ROLE_KEY:service,NEXT_PUBLIC_SUPABASE_ANON_KEY:anon,NEXT_PUBLIC_SITE_URL:origin,NEXT_PUBLIC_APP_URL:origin,CYBER_SENTINELS_ENVIRONMENT:'staging',CYBER_SENTINELS_PUBLIC_ORIGIN:origin,CONTROL_PLANE_STAGING_QUALIFICATION:'true',SYNTHETIC_FIXTURES:'false',API_KEY_ROTATION_SECRET:randomBytes(32).toString('hex'),PUBLIC_API_KEY_ROTATION_SECRET:randomBytes(32).toString('hex'),API_EXECUTION_SIGNING_SECRET:randomBytes(32).toString('hex')};
+const env={NEXT_PUBLIC_SUPABASE_URL:url,SUPABASE_SERVICE_ROLE_KEY:service,NEXT_PUBLIC_SUPABASE_ANON_KEY:anon,NEXT_PUBLIC_SITE_URL:origin,NEXT_PUBLIC_APP_URL:origin,CYBER_SENTINELS_ENVIRONMENT:'staging',CYBER_SENTINELS_PUBLIC_ORIGIN:origin,CONTROL_PLANE_STAGING_QUALIFICATION:'true',SYNTHETIC_FIXTURES:'false',CONSENT_COOKIE_SECRET:randomBytes(32).toString('hex'),CONSENT_DEFAULT_ENTERPRISE_ID:'f8deb39c-b626-4755-9202-bb58be3f8c94',API_KEY_ROTATION_SECRET:randomBytes(32).toString('hex'),PUBLIC_API_KEY_ROTATION_SECRET:randomBytes(32).toString('hex'),API_EXECUTION_SIGNING_SECRET:randomBytes(32).toString('hex')};
 await writeFile('.env.local',Object.entries(env).map(([key,value])=>`${key}=${JSON.stringify(value)}`).join('\n')+'\n');
 const admin=createClient(url,service,{auth:{persistSession:false,autoRefreshToken:false}});
 const accounts=[];

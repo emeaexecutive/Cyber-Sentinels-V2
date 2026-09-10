@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "engine": "PGlite 0.5.8",
+  "scope": "Targeted DDL against captured Staging column contract, not full V1 migration replay",
+  "migration": "20260909163513",
+  "rpcGrants": {
+    "anon": false,
+    "authenticated": false,
+    "service_role": true
+  },
+  "constraints": [
+    {
+      "contype": "c",
+      "count": 4
+    },
+    {
+      "contype": "f",
+      "count": 5
+    },
+    {
+      "contype": "n",
+      "count": 9
+    },
+    {
+      "contype": "p",
+      "count": 1
+    },
+    {
+      "contype": "u",
+      "count": 2
+    }
+  ],
+  "authenticatedDirectWrite": "DENIED",
+  "authenticatedRpc": "DENIED",
+  "authenticatedRead": "ALLOWED_WITH_RLS",
+  "atomicOpenAndMemory": "PASS",
+  "crossTenantRead": "DENIED",
+  "crossTenantMutation": "DENIED",
+  "unknownTransaction": "DENIED",
+  "missingEvidence": "DENIED",
+  "historyMutation": "DENIED",
+  "originalTransactionImmutable": true
+}

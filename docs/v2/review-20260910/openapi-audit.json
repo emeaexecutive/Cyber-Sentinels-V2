@@ -1,0 +1,43 @@
+{
+  "openapi": "3.1.0",
+  "apiVersion": "2026-08-29",
+  "pathCount": 25,
+  "operationCount": 26,
+  "newOperations": [
+    {
+      "method": "post",
+      "path": "/api/v1/incidents",
+      "scopes": [
+        "incidents:write"
+      ]
+    },
+    {
+      "method": "get",
+      "path": "/api/v1/incidents/{incidentId}",
+      "scopes": [
+        "incidents:read"
+      ]
+    },
+    {
+      "method": "post",
+      "path": "/api/v1/incidents/{incidentId}/chronology",
+      "scopes": [
+        "incidents:write"
+      ]
+    },
+    {
+      "method": "get",
+      "path": "/api/v1/incidents/{incidentId}/replay",
+      "scopes": [
+        "incidents:read"
+      ]
+    },
+    {
+      "method": "post",
+      "path": "/api/v1/incidents/{incidentId}/exports",
+      "scopes": [
+        "evidence:export"
+      ]
+    }
+  ]
+}

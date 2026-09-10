@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "project": "agpyhygpfmppjkxwcpac",
+  "packageId": "16adc137-3945-411f-89cd-0b153102c895",
+  "version": 2,
+  "storedCanonicalDigest": "f20e9de939f816edc301b44c2d42550ca250fb522a53f90c8b33a78f713635c1",
+  "evidenceReferences": 7,
+  "originalDecision": "ALLOW",
+  "evaluation": "CONTRADICTED",
+  "meaning": "Digest recomputed from persisted Staging package after database triggers"
+}

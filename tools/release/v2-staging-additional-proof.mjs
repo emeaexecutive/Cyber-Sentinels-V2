@@ -1,3 +1,4 @@
+const evidenceDirectory = process.env.V2_EVIDENCE_DIRECTORY ?? 'docs/v2/qualification';
 import { request } from '@playwright/test';
 import { readFile,writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
@@ -6,8 +7,8 @@ import { hashCanonical } from '../../src/lib/trust-core/hash.ts';
 const dir=process.env.V2_PRIVATE_DIRECTORY,origin='https://localhost:3443';
 if(process.env.V2_STAGING_PROJECT!=='agpyhygpfmppjkxwcpac'||!dir||process.env.SUPABASE_SERVICE_ROLE_KEY)throw new Error('Public Staging client required');
 const accounts=JSON.parse(await readFile(`${dir}/issued-keys-credential-export.json`,'utf8'));
-const proof=JSON.parse(await readFile('docs/v2/qualification/customer-zero.json','utf8'));
-const references=JSON.parse(await readFile('docs/v2/qualification/control-plane-references.json','utf8'));
+const proof=JSON.parse(await readFile(`${evidenceDirectory}/customer-zero.json`,'utf8'));
+const references=JSON.parse(await readFile(`${evidenceDirectory}/control-plane-references.json`,'utf8'));
 const transport=await request.newContext({ignoreHTTPSErrors:true});
 const localFetch=async(url,init={})=>{if(new URL(String(url)).origin!==origin)throw new Error('Non-local target denied');const r=await transport.fetch(String(url),{method:init.method,headers:Object.fromEntries(new Headers(init.headers)),data:init.body,timeout:120000});return new Response(await r.body(),{status:r.status(),headers:r.headers()});};
 const cs=new CyberSentinels({apiKey:accounts[0].api_key,baseUrl:origin,fetch:localFetch,timeoutMs:120000});
@@ -41,4 +42,4 @@ try {
  result.crossProvider={incident_id:correlated.incident_id,providers:[...providers],meaning:'Two actual source boundaries: first-party control plane and API-client assertions; no independent external-provider integration claimed',readiness:context.states.export,gaps:context.gaps};
  result.status='PASS';
 }catch(error){result.status='BLOCKED';result.error={message:error.message,status:error.status,code:error.code};process.exitCode=1;}
-finally{await transport.dispose();await writeFile('docs/v2/qualification/additional-proof.json',JSON.stringify(result,null,2));console.log(JSON.stringify({status:result.status,error:result.error,crossProvider:result.crossProvider,negatives:result.negatives}));}
+finally{await transport.dispose();await writeFile(`${evidenceDirectory}/additional-proof.json`,JSON.stringify(result,null,2));console.log(JSON.stringify({status:result.status,error:result.error,crossProvider:result.crossProvider,negatives:result.negatives}));}

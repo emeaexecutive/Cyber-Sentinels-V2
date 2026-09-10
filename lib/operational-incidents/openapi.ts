@@ -6,7 +6,14 @@ const body = { type: "object", additionalProperties: false, required: ["transact
   evidence_object_id: { type: "string", format: "uuid" }, evidence_digest: { type: "string", pattern: "^[a-f0-9]{64}$" },
   context: { type: "object", additionalProperties: false, properties: Object.fromEntries(["provider_account", "session", "api_tool", "model_service", "infrastructure", "credential_reference"].map(key => [key, { type: "string", maxLength: 200 }])) },
   observed_purpose: { type: "string", maxLength: 1000 }, outcome_layer: { enum: ["provider", "runtime", "destination"] }, outcome_status: { enum: ["SUCCEEDED", "FAILED", "UNKNOWN"] },
-} };
+},
+  dependentRequired: { evidence_object_id: ["evidence_digest"], evidence_digest: ["evidence_object_id"] },
+  allOf: [
+    { if: { required: ["kind"], properties: { kind: { not: { const: "TRANSACTION_LINK" } } } }, then: { required: ["evidence_object_id", "evidence_digest"] } },
+    { if: { required: ["kind"], properties: { kind: { const: "OUTCOME" } } }, then: { required: ["outcome_layer", "outcome_status"] }, else: { not: { anyOf: [{ required: ["outcome_layer"] }, { required: ["outcome_status"] }] } } },
+    { if: { required: ["kind"], properties: { kind: { const: "PURPOSE_OBSERVATION" } } }, then: { required: ["observed_purpose"] }, else: { not: { required: ["observed_purpose"] } } },
+  ],
+};
 const response = { description: "Tenant/client-bound incident record or integrity-digested canonical evidence package.", content: { "application/json": { schema: { type: "object" } } } };
 const errors = Object.fromEntries([400, 401, 403, 404, 409, 413, 429, 503].map(status => [status, { description: "Existing public API error envelope; inaccessible and absent resources share 404.", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } }]));
 function operation(operationId: string, scope: string, status: string, parameters: object[], schema?: object) {

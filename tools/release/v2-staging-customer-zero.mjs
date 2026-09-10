@@ -1,3 +1,4 @@
+const evidenceDirectory = process.env.V2_EVIDENCE_DIRECTORY ?? 'docs/v2/qualification';
 // External public API proof. No service-role credentials or database clients.
 import { request } from '@playwright/test';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -11,7 +12,7 @@ const accounts=JSON.parse(await readFile(`${directory}/issued-keys-credential-ex
 const http=await request.newContext({ignoreHTTPSErrors:true});
 const proof={project:'agpyhygpfmppjkxwcpac',origin,classification:'SCRIPTED_STAGING_QUALIFICATION; no downstream execution or model invocation',started_at:new Date().toISOString(),stages:{},negatives:[]};
 const redact=(key,value)=>/^(api_key|signature|private_key|access_token|refresh_token|execution_authorization)$/.test(key)&&value!==null?'[OMITTED]':value;
-const save=()=>writeFile('docs/v2/qualification/customer-zero.json',JSON.stringify(proof,redact,2));
+const save=()=>writeFile(`${evidenceDirectory}/customer-zero.json`,JSON.stringify(proof,redact,2));
 const record=async(name,value)=>{proof.stages[name]=value;await save();console.log(JSON.stringify({stage:name,status:'RECORDED',decision:value?.decision}));return value;};
 const localFetch=async(url,init={})=>{
  if(new URL(String(url)).origin!==origin)throw new Error('Non-local network target rejected');

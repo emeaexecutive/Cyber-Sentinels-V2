@@ -1,0 +1,842 @@
+{
+  "project": "agpyhygpfmppjkxwcpac",
+  "negatives": [
+    {
+      "name": "cross-tenant evidence",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND"
+    },
+    {
+      "name": "caller authority override rejected without disclosing authority",
+      "status": 400,
+      "code": "INVALID_REQUEST"
+    },
+    {
+      "name": "missing evidence",
+      "status": 400,
+      "code": "INVALID_REQUEST"
+    },
+    {
+      "name": "unknown incident matches hidden incident response",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND"
+    }
+  ],
+  "existingOutcome": {
+    "submission_id": "e3f10a9a-b8b7-4569-865e-0334810f3d08",
+    "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+    "status": "RECORDED",
+    "evidence_independence": "AGENT_ASSERTED",
+    "independent_destination_evidence": false,
+    "submission_digest": "c878d8515601d8925f169e31209841b6f0275fcf4f793872cc540da6a7fb7ed6",
+    "request_id": "0b29fa5c-76e3-422c-b55b-171fe812430a",
+    "correlation_id": "731e846e-88dc-4dcd-b105-8d4286b26b7d",
+    "api_version": "2026-08-29"
+  },
+  "reviewedExport": {
+    "package": {
+      "id": "16adc137-3945-411f-89cd-0b153102c895",
+      "schema_version": "cyber-sentinels.incident-evidence.v2.0",
+      "incident_id": "fc75985b-9363-4033-8c99-cbbc5076acc9",
+      "tenant_id": "f8deb39c-b626-4755-9202-bb58be3f8c94",
+      "generated_at": "2026-09-10T07:33:58.094Z",
+      "incident": {
+        "summary": "Staging operational evidence qualification",
+        "discovered_at": "2026-09-10T07:29:56.123+00:00",
+        "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751"
+      },
+      "timeline": [
+        {
+          "id": "9046e9c1-6a86-4b6c-88cb-3b1872cc4080",
+          "kind": "EXECUTION_OBSERVATION",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:40.159Z",
+          "received_at": "2026-09-10T07:30:28.277877+00:00",
+          "summary": "Scripted Staging execution_observation report; no real downstream operation",
+          "evidence_object_id": "bc70d63b-8627-5e4b-b4f9-600f48970072",
+          "source": {
+            "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+            "source_type": "PUBLIC_API_CLIENT_ASSERTION",
+            "classification": "AGENT_ASSERTED",
+            "independently_verified": false
+          },
+          "context": {
+            "dimensions": [
+              {
+                "dimension": "session",
+                "reference": "staging-session-0"
+              },
+              {
+                "dimension": "api_tool",
+                "reference": "scripted-client"
+              },
+              {
+                "dimension": "infrastructure",
+                "reference": "local-test-runtime"
+              }
+            ],
+            "classification": "CALLER_ASSERTED_CONTEXT"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "UNKNOWN",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": null,
+          "outcome_status": null,
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        },
+        {
+          "id": "94d2d817-5092-469c-884f-e40ac0673d5b",
+          "kind": "OUTCOME",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:43.285Z",
+          "received_at": "2026-09-10T07:30:30.541608+00:00",
+          "summary": "Scripted Staging outcome report; no real downstream operation",
+          "evidence_object_id": "f0ced5e7-86c0-5c6a-861a-4e721e561a3c",
+          "source": {
+            "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+            "source_type": "PUBLIC_API_CLIENT_ASSERTION",
+            "classification": "AGENT_ASSERTED",
+            "independently_verified": false
+          },
+          "context": {
+            "dimensions": [
+              {
+                "dimension": "session",
+                "reference": "staging-session-1"
+              },
+              {
+                "dimension": "api_tool",
+                "reference": "scripted-client"
+              },
+              {
+                "dimension": "infrastructure",
+                "reference": "local-test-runtime"
+              }
+            ],
+            "classification": "CALLER_ASSERTED_CONTEXT"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "UNKNOWN",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": "runtime",
+          "outcome_status": "FAILED",
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        },
+        {
+          "id": "25c22b22-9d07-4750-860a-fd0fc65f7087",
+          "kind": "DETECTION",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:45.737Z",
+          "received_at": "2026-09-10T07:30:32.837691+00:00",
+          "summary": "Scripted Staging detection report; no real downstream operation",
+          "evidence_object_id": "34e8431d-b15d-5e6a-94f5-0cda05f31357",
+          "source": {
+            "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+            "source_type": "PUBLIC_API_CLIENT_ASSERTION",
+            "classification": "AGENT_ASSERTED",
+            "independently_verified": false
+          },
+          "context": {
+            "dimensions": [
+              {
+                "dimension": "session",
+                "reference": "staging-session-0"
+              },
+              {
+                "dimension": "api_tool",
+                "reference": "scripted-client"
+              },
+              {
+                "dimension": "infrastructure",
+                "reference": "local-test-runtime"
+              }
+            ],
+            "classification": "CALLER_ASSERTED_CONTEXT"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "UNKNOWN",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": null,
+          "outcome_status": null,
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        },
+        {
+          "id": "1f0179de-88c5-4a54-b026-370b9e6ee517",
+          "kind": "INTERVENTION",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:47.722Z",
+          "received_at": "2026-09-10T07:30:35.291128+00:00",
+          "summary": "Scripted Staging intervention report; no real downstream operation",
+          "evidence_object_id": "58c7af1a-3367-55d3-8feb-19748d0260cf",
+          "source": {
+            "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+            "source_type": "PUBLIC_API_CLIENT_ASSERTION",
+            "classification": "AGENT_ASSERTED",
+            "independently_verified": false
+          },
+          "context": {
+            "dimensions": [
+              {
+                "dimension": "session",
+                "reference": "staging-session-1"
+              },
+              {
+                "dimension": "api_tool",
+                "reference": "scripted-client"
+              },
+              {
+                "dimension": "infrastructure",
+                "reference": "local-test-runtime"
+              }
+            ],
+            "classification": "CALLER_ASSERTED_CONTEXT"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "UNKNOWN",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": null,
+          "outcome_status": null,
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        },
+        {
+          "id": "7548920a-bc61-4975-8aea-d4ee91da693a",
+          "kind": "CONTAINMENT",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:49.728Z",
+          "received_at": "2026-09-10T07:30:37.64015+00:00",
+          "summary": "Scripted Staging containment report; no real downstream operation",
+          "evidence_object_id": "097401d1-53d4-58bc-8eda-27eb9a8a07e0",
+          "source": {
+            "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+            "source_type": "PUBLIC_API_CLIENT_ASSERTION",
+            "classification": "AGENT_ASSERTED",
+            "independently_verified": false
+          },
+          "context": {
+            "dimensions": [
+              {
+                "dimension": "session",
+                "reference": "staging-session-0"
+              },
+              {
+                "dimension": "api_tool",
+                "reference": "scripted-client"
+              },
+              {
+                "dimension": "infrastructure",
+                "reference": "local-test-runtime"
+              }
+            ],
+            "classification": "CALLER_ASSERTED_CONTEXT"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "UNKNOWN",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": null,
+          "outcome_status": null,
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        },
+        {
+          "id": "2a9a8ab1-04e1-4328-8f1c-4588b4ac3731",
+          "kind": "REMEDIATION",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:51.920Z",
+          "received_at": "2026-09-10T07:30:40.067971+00:00",
+          "summary": "Scripted Staging remediation report; no real downstream operation",
+          "evidence_object_id": "c29db6c2-1626-5b16-9938-5d64009ca102",
+          "source": {
+            "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+            "source_type": "PUBLIC_API_CLIENT_ASSERTION",
+            "classification": "AGENT_ASSERTED",
+            "independently_verified": false
+          },
+          "context": {
+            "dimensions": [
+              {
+                "dimension": "session",
+                "reference": "staging-session-1"
+              },
+              {
+                "dimension": "api_tool",
+                "reference": "scripted-client"
+              },
+              {
+                "dimension": "infrastructure",
+                "reference": "local-test-runtime"
+              }
+            ],
+            "classification": "CALLER_ASSERTED_CONTEXT"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "UNKNOWN",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": null,
+          "outcome_status": null,
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        },
+        {
+          "id": "c0fb02cd-8808-45a4-8084-fb8e4053aec5",
+          "kind": "PURPOSE_OBSERVATION",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:54.040Z",
+          "received_at": "2026-09-10T07:30:42.568279+00:00",
+          "summary": "Scripted Staging purpose_observation report; no real downstream operation",
+          "evidence_object_id": "04d3ddaa-8173-54f5-a162-d278ce119056",
+          "source": {
+            "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+            "source_type": "PUBLIC_API_CLIENT_ASSERTION",
+            "classification": "AGENT_ASSERTED",
+            "independently_verified": false
+          },
+          "context": {
+            "dimensions": [
+              {
+                "dimension": "session",
+                "reference": "staging-session-0"
+              },
+              {
+                "dimension": "api_tool",
+                "reference": "scripted-client"
+              },
+              {
+                "dimension": "infrastructure",
+                "reference": "local-test-runtime"
+              }
+            ],
+            "classification": "CALLER_ASSERTED_CONTEXT"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "reported_content_copy",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": null,
+          "outcome_status": null,
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        },
+        {
+          "id": "cf255ac2-f3b7-4fcc-a7c0-85c4565861d2",
+          "kind": "TRANSACTION_LINK",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:56.123Z",
+          "received_at": "2026-09-10T07:29:59.446261+00:00",
+          "summary": "Staging operational evidence qualification",
+          "evidence_object_id": null,
+          "source": {
+            "provider": "Cyber Sentinels",
+            "source_type": "CANONICAL_TRANSACTION",
+            "classification": "CANONICAL_RECORD",
+            "independently_verified": false
+          },
+          "context": {
+            "status": "UNKNOWN"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "UNKNOWN",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": null,
+          "outcome_status": null,
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        }
+      ],
+      "authorization_phase": [
+        {
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "occurred_at": "2026-09-10T07:29:18.228+00:00",
+          "actor": "agent:7460c94e-4b93-47eb-ac8b-8e8cb16d4cd6",
+          "authority": "296e0249-47a6-4b8f-b3f4-fea27284f0f5",
+          "action": "read_repository",
+          "resource": "repository:v2-staging-qualification",
+          "purpose": "incident_evidence_qualification",
+          "policy_id": "external-agent-trust-v1",
+          "policy_version": "0.2.0",
+          "decision": "ALLOW"
+        }
+      ],
+      "evaluation_phase": [
+        {
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "original_decision": "ALLOW",
+          "review": {
+            "humanOverride": {
+              "reason": "Staging qualification adjudication after test authority revocation; original authorization remains unchanged.",
+              "occurred": true,
+              "occurredAt": "2026-09-10T07:31:46.155Z",
+              "actorReference": "user:a116afe9-883b-47b4-a600-26d5d5a5882a",
+              "originalDecision": "ALLOW",
+              "evidenceReference": "authority-revocation:296e0249-47a6-4b8f-b3f4-fea27284f0f5",
+              "resultingDecision": "DENY"
+            },
+            "policyVersion": "0.2.0",
+            "runtimeOutcome": null,
+            "providerOutcome": null,
+            "evaluationStatus": "CONTRADICTED",
+            "originalDecision": "ALLOW",
+            "decisionModelName": null,
+            "adjudicatedOutcome": "DENY",
+            "destinationOutcome": null,
+            "decisionReasonCodes": [
+              "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+              "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+              "AUTHORITY_SCOPE_VALID",
+              "CONCLUSION_CONFIDENCE_MODERATE",
+              "CONSEQUENCE_LOW",
+              "CURRENT_CONDITIONS_REEVALUATED",
+              "EVIDENCE_CURRENT",
+              "EVIDENCE_SUFFICIENT",
+              "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+              "TRUST_FORECAST_STABLE"
+            ],
+            "decisionModelVersion": null,
+            "decisionModelProvider": null
+          }
+        }
+      ],
+      "actors": [
+        "agent:7460c94e-4b93-47eb-ac8b-8e8cb16d4cd6"
+      ],
+      "authority_lineage": [
+        {
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "original_authority": "296e0249-47a6-4b8f-b3f4-fea27284f0f5",
+          "lineage": [
+            {
+              "id": "agent:7460c94e-4b93-47eb-ac8b-8e8cb16d4cd6",
+              "type": "native_identity_evidence"
+            }
+          ],
+          "current_record": {
+            "authority_id": "296e0249-47a6-4b8f-b3f4-fea27284f0f5",
+            "status": "revoked",
+            "revoked_at": "2026-09-10T07:30:49.259253+00:00",
+            "subject_id": "agent:7460c94e-4b93-47eb-ac8b-8e8cb16d4cd6"
+          }
+        }
+      ],
+      "decisions": [
+        {
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "decision": "ALLOW",
+          "declared_purpose": "incident_evidence_qualification",
+          "action": "read_repository",
+          "resource": "repository:v2-staging-qualification",
+          "policy_id": "external-agent-trust-v1",
+          "policy_version": "0.2.0",
+          "reason_codes": [
+            "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+            "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+            "AUTHORITY_SCOPE_VALID",
+            "CONCLUSION_CONFIDENCE_MODERATE",
+            "CONSEQUENCE_LOW",
+            "CURRENT_CONDITIONS_REEVALUATED",
+            "EVIDENCE_CURRENT",
+            "EVIDENCE_SUFFICIENT",
+            "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+            "TRUST_FORECAST_STABLE"
+          ],
+          "decision_outcome_review": {
+            "humanOverride": {
+              "reason": "Staging qualification adjudication after test authority revocation; original authorization remains unchanged.",
+              "occurred": true,
+              "occurredAt": "2026-09-10T07:31:46.155Z",
+              "actorReference": "user:a116afe9-883b-47b4-a600-26d5d5a5882a",
+              "originalDecision": "ALLOW",
+              "evidenceReference": "authority-revocation:296e0249-47a6-4b8f-b3f4-fea27284f0f5",
+              "resultingDecision": "DENY"
+            },
+            "policyVersion": "0.2.0",
+            "runtimeOutcome": null,
+            "providerOutcome": null,
+            "evaluationStatus": "CONTRADICTED",
+            "originalDecision": "ALLOW",
+            "decisionModelName": null,
+            "adjudicatedOutcome": "DENY",
+            "destinationOutcome": null,
+            "decisionReasonCodes": [
+              "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+              "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+              "AUTHORITY_SCOPE_VALID",
+              "CONCLUSION_CONFIDENCE_MODERATE",
+              "CONSEQUENCE_LOW",
+              "CURRENT_CONDITIONS_REEVALUATED",
+              "EVIDENCE_CURRENT",
+              "EVIDENCE_SUFFICIENT",
+              "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+              "TRUST_FORECAST_STABLE"
+            ],
+            "decisionModelVersion": null,
+            "decisionModelProvider": null
+          }
+        }
+      ],
+      "receipts": [
+        {
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "receipt_reference": "/api/v1/trust/transactions/4551db2b-2e91-54f3-987d-eb2c24e84751/receipt",
+          "replay_reference": "/api/v1/trust/transactions/4551db2b-2e91-54f3-987d-eb2c24e84751/replay",
+          "request_digest": "6d3975f572c43263aee0f98567d02f7fee4e11d92141b3bc94ab509bd6fdb95c",
+          "evidence_digest": "bc58ecb343280e209747155c3c7e8d5a67474296e46f0c969439160ff907dea8",
+          "decision_digest": "f96306a948143df6c2f5637ae4f67f263d249a5d6e90f93296c82166435b4e25"
+        }
+      ],
+      "evidence_references": [
+        {
+          "evidence_id": "04d3ddaa-8173-54f5-a162-d278ce119056",
+          "digest": "b8922c53cc7653fb5219b2d0e14e88457d2a540c54637823815538c331a8583c",
+          "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+          "classification": "AGENT_ASSERTED",
+          "observed_at": "2026-09-10T07:29:54.04+00:00",
+          "received_at": "2026-09-10T07:29:55.815+00:00"
+        },
+        {
+          "evidence_id": "097401d1-53d4-58bc-8eda-27eb9a8a07e0",
+          "digest": "2a40486739032db0fbaa4a25a2f0dc70e0b60303545b9a083c6e6ce20aab9c4d",
+          "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+          "classification": "AGENT_ASSERTED",
+          "observed_at": "2026-09-10T07:29:49.728+00:00",
+          "received_at": "2026-09-10T07:29:51.669+00:00"
+        },
+        {
+          "evidence_id": "34e8431d-b15d-5e6a-94f5-0cda05f31357",
+          "digest": "e3658f4b6014e04fb0e7fea1440fa1f8848c714d9d85aaf027dd77c2c038ca9d",
+          "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+          "classification": "AGENT_ASSERTED",
+          "observed_at": "2026-09-10T07:29:45.737+00:00",
+          "received_at": "2026-09-10T07:29:47.471+00:00"
+        },
+        {
+          "evidence_id": "58c7af1a-3367-55d3-8feb-19748d0260cf",
+          "digest": "387a21845e0cbe1261c35a8f19c106aca7e9d143d6e5a0e0fab9270882b8949d",
+          "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+          "classification": "AGENT_ASSERTED",
+          "observed_at": "2026-09-10T07:29:47.722+00:00",
+          "received_at": "2026-09-10T07:29:49.46+00:00"
+        },
+        {
+          "evidence_id": "bc70d63b-8627-5e4b-b4f9-600f48970072",
+          "digest": "f99671f52332d77488c4cad233b5860b8f03a5913581afc337747481e529c6f7",
+          "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+          "classification": "AGENT_ASSERTED",
+          "observed_at": "2026-09-10T07:29:40.159+00:00",
+          "received_at": "2026-09-10T07:29:43.022+00:00"
+        },
+        {
+          "evidence_id": "c29db6c2-1626-5b16-9938-5d64009ca102",
+          "digest": "c148aa5d340f15a039f48a424c7781f4f6f2d06f1d5d3c41e66ff6739f09272f",
+          "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+          "classification": "AGENT_ASSERTED",
+          "observed_at": "2026-09-10T07:29:51.92+00:00",
+          "received_at": "2026-09-10T07:29:53.759+00:00"
+        },
+        {
+          "evidence_id": "f0ced5e7-86c0-5c6a-861a-4e721e561a3c",
+          "digest": "07fdbe64320036a8cc5c8ad03f0fd457d2f7948c1fce14d90ac58b123bd8ebd1",
+          "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+          "classification": "AGENT_ASSERTED",
+          "observed_at": "2026-09-10T07:29:43.285+00:00",
+          "received_at": "2026-09-10T07:29:45.468+00:00"
+        }
+      ],
+      "observations": [
+        {
+          "id": "9046e9c1-6a86-4b6c-88cb-3b1872cc4080",
+          "kind": "EXECUTION_OBSERVATION",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:40.159Z",
+          "received_at": "2026-09-10T07:30:28.277877+00:00",
+          "summary": "Scripted Staging execution_observation report; no real downstream operation",
+          "evidence_object_id": "bc70d63b-8627-5e4b-b4f9-600f48970072",
+          "source": {
+            "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+            "source_type": "PUBLIC_API_CLIENT_ASSERTION",
+            "classification": "AGENT_ASSERTED",
+            "independently_verified": false
+          },
+          "context": {
+            "dimensions": [
+              {
+                "dimension": "session",
+                "reference": "staging-session-0"
+              },
+              {
+                "dimension": "api_tool",
+                "reference": "scripted-client"
+              },
+              {
+                "dimension": "infrastructure",
+                "reference": "local-test-runtime"
+              }
+            ],
+            "classification": "CALLER_ASSERTED_CONTEXT"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "UNKNOWN",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": null,
+          "outcome_status": null,
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        }
+      ],
+      "outcomes": [
+        {
+          "id": "94d2d817-5092-469c-884f-e40ac0673d5b",
+          "kind": "OUTCOME",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:43.285Z",
+          "received_at": "2026-09-10T07:30:30.541608+00:00",
+          "summary": "Scripted Staging outcome report; no real downstream operation",
+          "evidence_object_id": "f0ced5e7-86c0-5c6a-861a-4e721e561a3c",
+          "source": {
+            "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+            "source_type": "PUBLIC_API_CLIENT_ASSERTION",
+            "classification": "AGENT_ASSERTED",
+            "independently_verified": false
+          },
+          "context": {
+            "dimensions": [
+              {
+                "dimension": "session",
+                "reference": "staging-session-1"
+              },
+              {
+                "dimension": "api_tool",
+                "reference": "scripted-client"
+              },
+              {
+                "dimension": "infrastructure",
+                "reference": "local-test-runtime"
+              }
+            ],
+            "classification": "CALLER_ASSERTED_CONTEXT"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "UNKNOWN",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": "runtime",
+          "outcome_status": "FAILED",
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        }
+      ],
+      "existing_outcome_records": [
+        {
+          "tenant_id": "f8deb39c-b626-4755-9202-bb58be3f8c94",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "submission_id": "e3f10a9a-b8b7-4569-865e-0334810f3d08",
+          "source_id": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+          "destination": "staging:scripted-destination",
+          "result": "FAILED",
+          "observed_at": "2026-09-10T07:33:26.325+00:00",
+          "evidence_reference": "f0ced5e7-86c0-5c6a-861a-4e721e561a3c",
+          "independence": "AGENT_ASSERTED",
+          "submission_digest": "c878d8515601d8925f169e31209841b6f0275fcf4f793872cc540da6a7fb7ed6",
+          "enterprise_id": "f8deb39c-b626-4755-9202-bb58be3f8c94",
+          "source_table": "public_api_outcome_submissions"
+        }
+      ],
+      "interventions": [
+        {
+          "id": "1f0179de-88c5-4a54-b026-370b9e6ee517",
+          "kind": "INTERVENTION",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:47.722Z",
+          "received_at": "2026-09-10T07:30:35.291128+00:00",
+          "summary": "Scripted Staging intervention report; no real downstream operation",
+          "evidence_object_id": "58c7af1a-3367-55d3-8feb-19748d0260cf",
+          "source": {
+            "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+            "source_type": "PUBLIC_API_CLIENT_ASSERTION",
+            "classification": "AGENT_ASSERTED",
+            "independently_verified": false
+          },
+          "context": {
+            "dimensions": [
+              {
+                "dimension": "session",
+                "reference": "staging-session-1"
+              },
+              {
+                "dimension": "api_tool",
+                "reference": "scripted-client"
+              },
+              {
+                "dimension": "infrastructure",
+                "reference": "local-test-runtime"
+              }
+            ],
+            "classification": "CALLER_ASSERTED_CONTEXT"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "UNKNOWN",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": null,
+          "outcome_status": null,
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        },
+        {
+          "id": "7548920a-bc61-4975-8aea-d4ee91da693a",
+          "kind": "CONTAINMENT",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:49.728Z",
+          "received_at": "2026-09-10T07:30:37.64015+00:00",
+          "summary": "Scripted Staging containment report; no real downstream operation",
+          "evidence_object_id": "097401d1-53d4-58bc-8eda-27eb9a8a07e0",
+          "source": {
+            "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+            "source_type": "PUBLIC_API_CLIENT_ASSERTION",
+            "classification": "AGENT_ASSERTED",
+            "independently_verified": false
+          },
+          "context": {
+            "dimensions": [
+              {
+                "dimension": "session",
+                "reference": "staging-session-0"
+              },
+              {
+                "dimension": "api_tool",
+                "reference": "scripted-client"
+              },
+              {
+                "dimension": "infrastructure",
+                "reference": "local-test-runtime"
+              }
+            ],
+            "classification": "CALLER_ASSERTED_CONTEXT"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "UNKNOWN",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": null,
+          "outcome_status": null,
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        }
+      ],
+      "remediation": [
+        {
+          "id": "2a9a8ab1-04e1-4328-8f1c-4588b4ac3731",
+          "kind": "REMEDIATION",
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observed_at": "2026-09-10T07:29:51.920Z",
+          "received_at": "2026-09-10T07:30:40.067971+00:00",
+          "summary": "Scripted Staging remediation report; no real downstream operation",
+          "evidence_object_id": "c29db6c2-1626-5b16-9938-5d64009ca102",
+          "source": {
+            "provider": "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c",
+            "source_type": "PUBLIC_API_CLIENT_ASSERTION",
+            "classification": "AGENT_ASSERTED",
+            "independently_verified": false
+          },
+          "context": {
+            "dimensions": [
+              {
+                "dimension": "session",
+                "reference": "staging-session-1"
+              },
+              {
+                "dimension": "api_tool",
+                "reference": "scripted-client"
+              },
+              {
+                "dimension": "infrastructure",
+                "reference": "local-test-runtime"
+              }
+            ],
+            "classification": "CALLER_ASSERTED_CONTEXT"
+          },
+          "declared_purpose": "incident_evidence_qualification",
+          "observed_purpose": "UNKNOWN",
+          "purpose_drift": "UNRESOLVED",
+          "attribution": "NOT_ESTABLISHED",
+          "global_authorization": "NOT_INFERRED",
+          "outcome_layer": null,
+          "outcome_status": null,
+          "integrity": "VERIFIED",
+          "timestamp_confidence": "UNKNOWN"
+        }
+      ],
+      "contradictions": [
+        {
+          "transaction_id": "4551db2b-2e91-54f3-987d-eb2c24e84751",
+          "observation_id": "94d2d817-5092-469c-884f-e40ac0673d5b",
+          "kind": "ALLOW_WITH_REPORTED_FAILURE",
+          "evaluation": "UNRESOLVED"
+        }
+      ],
+      "gaps": [],
+      "states": {
+        "evidence_completeness": "INCIDENT_EVIDENCE_COMPLETE",
+        "chronology_integrity": "VERIFIED",
+        "timeline": "INCIDENT_TIMELINE_VERIFIED",
+        "authority": "RESOLVED",
+        "export": "REGULATORY_EXPORT_READY"
+      },
+      "limitations": [
+        "Source assertions are not independent verification.",
+        "Digest verifies package integrity, not source truth.",
+        "No regulatory approval or compliance certification.",
+        "Correlation is not attribution; ALLOW is not execution."
+      ],
+      "integrity_digest": "f20e9de939f816edc301b44c2d42550ca250fb522a53f90c8b33a78f713635c1"
+    },
+    "stored": {
+      "id": "16adc137-3945-411f-89cd-0b153102c895",
+      "version": 2
+    },
+    "request_id": "9ed70b15-af55-4b15-89a1-e295c602807f",
+    "correlation_id": "67b9084d-8529-440a-ac3e-89074a5db1f1",
+    "api_version": "2026-08-29"
+  },
+  "crossProvider": {
+    "incident_id": "1e92223b-1643-485e-a4d7-847b0ee5f4a3",
+    "providers": [
+      "cyber_sentinels_native",
+      "api-client:2f72ca4c-7688-4541-8648-e88ff4ca9e6c"
+    ],
+    "meaning": "Two actual source boundaries: first-party control plane and API-client assertions; no independent external-provider integration claimed",
+    "readiness": "DRAFT",
+    "gaps": [
+      "EVIDENCE_UNAVAILABLE:951766aa-002b-48a8-8af4-731d08526e20",
+      "CHRONOLOGY_INTEGRITY:951766aa-002b-48a8-8af4-731d08526e20",
+      "MISSING_OUTCOME",
+      "MISSING_DETECTION",
+      "MISSING_INTERVENTION",
+      "MISSING_CONTAINMENT",
+      "MISSING_REMEDIATION"
+    ]
+  },
+  "status": "PASS"
+}
