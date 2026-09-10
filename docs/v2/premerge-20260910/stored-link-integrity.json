@@ -1,0 +1,6 @@
+{
+  "algorithm": "JCS SHA-256 for content; PostgreSQL jsonb SHA-256 for chronology record hash",
+  "linksChecked": 38,
+  "invalidDigests": [],
+  "status": "PASS"
+}

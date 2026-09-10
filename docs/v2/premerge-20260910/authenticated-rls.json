@@ -1,0 +1,10 @@
+[
+  {
+    "result": "PASS",
+    "rls": true,
+    "foreign_keys": 5,
+    "authenticated_rpc": false,
+    "anon_rpc": false,
+    "service_rpc": true
+  }
+]

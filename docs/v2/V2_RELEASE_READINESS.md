@@ -1,3 +1,39 @@
+# Final homepage and V2 review - 2026-09-10
+
+## Delivery state supersedes the earlier review below
+
+PR #86 was already merged externally at 2026-09-10 08:40:52 UTC, before this review started. Current main is `2b331578e3ecb9f3719af89c0253ee1b0eb29490`. The merged V2 head was `98917f092dc90da44161e300c53f49e63a4a72cd`; its CI checks passed. This follow-up remains on `v2/operational-trust-intelligence`. No new PR, merge, Production deployment, Production database operation or Epic 2 work was performed.
+
+**PR #86 pre-merge verdict: BLOCKED / no longer applicable because the PR is merged.** It cannot receive these follow-up changes. GitHub mergeability is UNKNOWN for the merged PR, not YES. The repository workflows run on open pull requests or pushes to main, so their prior green results do not qualify a new follow-up SHA. A human must choose the follow-up review/delivery path; creating another PR remains outside this request.
+
+## Fresh Staging qualification
+
+Project: `agpyhygpfmppjkxwcpac`. [Migration ledger](premerge-20260910/migration-ledger.json): exactly 131 versions, names and newline-normalized statement hashes match the previous qualification. [Database sanity](premerge-20260910/database-sanity.json): unchanged V2 RPC, validated V2 constraints, ready/valid indexes, and zero orphan or cross-tenant links. No schema or migration file changed. One additive table, `incident_evidence_links`, continues to reference canonical V1 transaction, evidence and incident records. No duplicate identity, authority, outcome, Replay, Memory or tenant ledger was introduced.
+
+[Authenticated database checks](premerge-20260910/authenticated-rls.json) prove actual owner SELECT, tenant B invisibility, denied direct writes and denied authenticated/anonymous RPC execution. Five tenant-bound FKs and the append-only trigger remain present. The narrow service-role RPC is the atomic writer, rechecking active key, scope, tenant, client and source references; the role has no direct table mutation grant. [Local migration rehearsal](premerge-20260910/local-migration.json) separately passes atomic persistence, Memory, RLS, reference and history-mutation negatives against the targeted PGlite fixture; this is not a full historical migration replay.
+
+The [five named legacy constraint checks](premerge-20260910/legacy-constraint-audit.json) have zero violating rows. These are the five constraints in the V2 review scope, not a claim that the whole Staging database has only five NOT VALID constraints. Historical validation flags outside this scope are not changed.
+
+[Fresh V1/Epic 1 lifecycle](premerge-20260910/customer-zero.json): registered agent, Ed25519 proof, signed configuration/heartbeat, authority, ALLOW, transaction, receipt and Replay; then persisted observations, incident evidence, intervention, containment, remediation, export; authority revocation produced DENY for the same action. The original V1 ALLOW existed before optional V2 records and remained ALLOW afterward. [Application proof](premerge-20260910/application-proof.json) verifies the authenticated Outcome Review, incident UI, graph and Trust Memory. [Stored package integrity](premerge-20260910/stored-export-integrity.json) recomputes the canonical digest after database persistence and confirms original ALLOW with CONTRADICTED evaluation. [Stored links](premerge-20260910/stored-link-integrity.json) verify JCS content digests and the separate PostgreSQL chronology hashes.
+
+[Scope and ownership proof](premerge-20260910/tenant-scope-proof.json) confirms identical 404 semantics for missing and inaccessible resources and 403 for all five V2 operations using a legacy trust:read key. [Additional proof](premerge-20260910/additional-proof.json) covers cross-tenant evidence rejection, matching evidence type/digest requirements, existing outcome reuse and distinct API-client versus first-party provenance. The separate intentionally incomplete chronology remains DRAFT with missing evidence categories and an expired historical heartbeat explicitly unavailable. Expiration is enforced; no independent external-provider execution or integration is claimed. Several diagnostic attempts created additional append-only Staging fixture chronologies; they are retained as evidence, not deleted or presented as completed incidents. A native evidence record whose normalized facts did not match its digest was correctly rejected during a diagnostic attempt.
+
+All qualification operations are scripted Staging fixtures, with no downstream action or model invocation. Provider, runtime, destination and adjudicated outcomes stay distinct. Purpose interpretation remains PARTIAL; correlation does not establish attribution or global authorization. Export is an evidence pack, not a compliance certification. [Cleanup](premerge-20260910/key-cleanup.json) proves all three issued test keys revoked and subsequently rejected with 401.
+
+[OpenAPI audit](premerge-20260910/openapi-audit.json): 3.1.0, API 2026-08-29, 25 paths / 26 operations. Exact incident routes retain incidents:read, incidents:write and evidence:export scopes. No automatic scope upgrade or API/backend code change in this follow-up.
+
+## Homepage review and changes
+
+The core headline is unchanged: ?Before an AI agent acts, prove it has the authority to do so.? The Finance Copilot example is labelled illustrative, compacted into action, verified identity, EUR 10,000 authority and a DENY for a EUR 20,000 request. Evidence/receipt/Replay now share one quiet footer instead of repeated cards. A semantic V1 heading introduces the existing five-step control flow.
+
+A fifth, clearly Staging-qualified V2 section explains decision -> execution evidence -> outcome -> incident -> Replay, immutable history, incident exports and Trust Memory. Separate source provenance and unknown context are explicit. It makes no campaign detection, autonomous purpose classification, regulatory compliance or completed future-intelligence claim.
+
+Request a demo now opens the actual `intent=demo` form; Explore the API opens `/developers/docs`. The six-item header replaces ambiguous Trust with Developers. Existing Trust discovery remains in the detailed footer. Pricing remains because the existing consultation/pilot/enterprise plans are a real product model. No dependency, image, animation, client component or global style was added.
+
+Validation and final Preview evidence are recorded below when the deployment completes. Browser tests block all non-GET/HEAD requests and seed a labelled browser-only rejected-optional consent fixture; they do not claim server consent persistence or submit demo requests. Automated checks cover WCAG A/AA rules, overflow, headings, keyboard mobile navigation, reduced motion, and CTA destinations at 1440, 1280, 1024, 768, 430 and 390 pixels. Development-mode layout shifts are measured separately from final Preview performance.
+
+## Earlier CPTO review (historical)
+
 # CPTO V2 release readiness — 10 September 2026
 
 Review scope: V2 foundation and Epic 1 only, on PR [86](https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/86). No merge or Production promotion is authorized. The original dirty workspace and three stashes were preserved; work used the existing isolated V2 worktree.

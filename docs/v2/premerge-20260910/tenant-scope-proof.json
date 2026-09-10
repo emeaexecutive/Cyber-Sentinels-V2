@@ -1,0 +1,64 @@
+{
+  "project": "agpyhygpfmppjkxwcpac",
+  "negatives": [
+    {
+      "name": "cross-tenant canonical transaction",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND"
+    },
+    {
+      "name": "cross-tenant context Replay",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND"
+    },
+    {
+      "name": "cross-tenant transaction incident opening",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND"
+    },
+    {
+      "name": "cross-tenant authority revocation",
+      "status": 404,
+      "code": "AGENT_NOT_OWNED"
+    },
+    {
+      "name": "cross-tenant operational outcome",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND"
+    },
+    {
+      "name": "legacy scope POST /api/v1/incidents",
+      "status": 403,
+      "code": "INSUFFICIENT_SCOPE"
+    },
+    {
+      "name": "legacy scope GET /api/v1/incidents/{incidentId}",
+      "status": 403,
+      "code": "INSUFFICIENT_SCOPE"
+    },
+    {
+      "name": "legacy scope POST /api/v1/incidents/{incidentId}/chronology",
+      "status": 403,
+      "code": "INSUFFICIENT_SCOPE"
+    },
+    {
+      "name": "legacy scope GET /api/v1/incidents/{incidentId}/replay",
+      "status": 403,
+      "code": "INSUFFICIENT_SCOPE"
+    },
+    {
+      "name": "legacy scope POST /api/v1/incidents/{incidentId}/exports",
+      "status": 403,
+      "code": "INSUFFICIENT_SCOPE"
+    }
+  ],
+  "existenceInference": "PASS: same 404 code/message",
+  "crossTenantEvaluation": "PASS: authenticated tenant B, same 404 for absent and inaccessible transaction",
+  "legacyScopeKey": {
+    "key_id": "a740f7df-78ea-41de-9343-dc47eb0b1bb8",
+    "scopes": [
+      "trust:read"
+    ]
+  },
+  "status": "PASS"
+}

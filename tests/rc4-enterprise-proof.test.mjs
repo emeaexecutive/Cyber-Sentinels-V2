@@ -89,9 +89,9 @@ test("operational performance profile preserves six RC4 paths and adds three RC5
   assert.equal(database.slowOperationCount, 1);
 });
 
-test("homepage is action-led with four sections, two bounded CTAs and no blueprint visual", async () => {
+test("homepage is action-led with five sections, two bounded CTAs and no blueprint visual", async () => {
   const source = await read("app/page.tsx");
-  assert.equal((source.match(/<section/g) ?? []).length, 4);
+  assert.equal((source.match(/<section/g) ?? []).length, 5);
   assert.equal((source.match(/<Link/g) ?? []).length, 2);
   assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 0);
   assert.equal((source.match(/<ComparisonCard/g) ?? []).length, 0);

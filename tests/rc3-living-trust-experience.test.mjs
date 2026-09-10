@@ -12,8 +12,8 @@ const demo = buildRc2LivingTrustDemo();
 test("primary and mobile navigation expose the six release-candidate destinations", async () => {
   const source = await read("components/global-navigation.tsx");
   const contract = await read("lib/navigation/canonical-navigation.ts");
-  for (const label of ["Platform", "Solutions", "Trust", "Enterprise", "Pricing", "Sign In"]) assert.match(contract, new RegExp(`label: "${label}"`));
-  assert.doesNotMatch(contract.match(/public: \[([\s\S]*?)\n  \]/)?.[0] ?? "", /Developers|Resources|About|Help/);
+  for (const label of ["Platform", "Solutions", "Developers", "Enterprise", "Pricing", "Sign In"]) assert.match(contract, new RegExp(`label: "${label}"`));
+  assert.doesNotMatch(contract.match(/public: \[([\s\S]*?)\n  \]/)?.[0] ?? "", /Resources|About|Help/);
   assert.doesNotMatch(source, /DropdownLinks|aria-haspopup="menu"/);
   assert.match(source, /aria-controls="primary-navigation"/);
   assert.match(source, /sm:hidden/);
@@ -28,9 +28,9 @@ test("footer is the secondary discovery index and preserves company and support 
   assert.match(source, /\/enterprise#support/);
 });
 
-test("homepage contains four blocks and no public implementation graph", async () => {
+test("homepage contains five blocks and no public implementation graph", async () => {
   const source = await read("app/page.tsx");
-  assert.equal((source.match(/<section/g) ?? []).length, 4);
+  assert.equal((source.match(/<section/g) ?? []).length, 5);
   assert.equal((source.match(/data-testid="primary-operational-trust-flow"/g) ?? []).length, 0);
   assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 0);
   assert.doesNotMatch(source, /<InteractiveTrustWalkthrough|<DecisionFlow|<ArchitectureBlock|<ComparisonCard/);
@@ -55,8 +55,8 @@ test("canonical public routes remain indexable while protected and archived rout
 
 test("CISO and CIO buyer journeys preserve canonical proof and readiness surfaces", async () => {
   const [home, demoPage, legacyDemo, platform] = await Promise.all([read("app/page.tsx"), read("app/demo/page.tsx"), read("app/demo/trust-execution-flow/page.tsx"), read("app/platform/page.tsx")]);
-  assert.match(home, /href="\/enterprise-access\?intent=design_partner"/);
-  assert.match(home, /href="\/developers"/);
+  assert.match(home, /href="\/enterprise-access\?intent=demo"/);
+  assert.match(home, /href="\/developers\/docs"/);
   for (const href of ["/replay/demo", "/trust-centre/fabric"]) assert.match(demoPage, new RegExp(`href[:=]"${href.replaceAll("/", "\\/")}"`));
   assert.match(legacyDemo,/redirect\("\/demo"\)/);
   assert.equal((home.match(/<Link/g) ?? []).length, 2);

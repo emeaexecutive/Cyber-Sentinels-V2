@@ -1,0 +1,763 @@
+{
+  "ledger": [
+    {
+      "version": "001",
+      "name": "initial_schema",
+      "statements_sha256": "c27508c069f73e5a544944dda98998352afee2389fbc3505a48215d40d49299f"
+    },
+    {
+      "version": "202605260001",
+      "name": "private_beta_schema_fix",
+      "statements_sha256": "9f13dd4ddfe3e635e468a8785214dcfbd9e63e08bddc7c4e552e0491e5530032"
+    },
+    {
+      "version": "20260528",
+      "name": "explicit_supabase_api_grants",
+      "statements_sha256": "21d4f6f2a8fd7be0aa59c9031de0d1f12d6c677cad33b86c6544f0603faab3ed"
+    },
+    {
+      "version": "202605300001",
+      "name": "evidence_upload_flow",
+      "statements_sha256": "ae9ed1fd5d1c3f881673b552b9f06815d81790cc21ce8e80476b78c2296c3bbe"
+    },
+    {
+      "version": "202605300002",
+      "name": "align_evidence_file_url",
+      "statements_sha256": "5f917c573570e9541e30c0844f4317e452e009d0864fcaeeb6bb42020ca9597e"
+    },
+    {
+      "version": "202605300003",
+      "name": "add_signal_metadata",
+      "statements_sha256": "36498c5e684b1e25b93e5a711af0406e26f4a58a0969d108d113e25dc00cea87"
+    },
+    {
+      "version": "202605310001",
+      "name": "real_evidence_file_upload",
+      "statements_sha256": "bd0303bab87e75b60285526e984b343758b7488c0d91de87437f1e1048d8d65e"
+    },
+    {
+      "version": "202606010001",
+      "name": "intent_requests",
+      "statements_sha256": "de6c9f7db612a864a6012efdb41fbc518ec812415f9afa6fbf0eb47d26e28015"
+    },
+    {
+      "version": "202606010002",
+      "name": "autonomy_profiles",
+      "statements_sha256": "ce51cbc2a0eb96966cb517abfbc8b4d373bab014dafbb3ea8b2828df445c5709"
+    },
+    {
+      "version": "202606010003",
+      "name": "passport_state_checks",
+      "statements_sha256": "8ee0789fbe6f78f78ad07dcc95a88ee023976b979d93b132135212d512e650d3"
+    },
+    {
+      "version": "202606010004",
+      "name": "execution_passports",
+      "statements_sha256": "3ab0444b4ea8918f26b41eb533c6024107279946485701305ba8e63d1f3ba906"
+    },
+    {
+      "version": "202606020001",
+      "name": "trust_graph_engine_help",
+      "statements_sha256": "4f06af516ac4331ed399337ac7a46184c6e058ac2f4d5b01c2a29069dd2d2ef7"
+    },
+    {
+      "version": "202606020002",
+      "name": "harden_operational_tables",
+      "statements_sha256": "54482e9308f2a0d0e18670914884d4fe371054d37bc5e75825bfb8a7292d3a67"
+    },
+    {
+      "version": "202606020004",
+      "name": "help_question_traceability",
+      "statements_sha256": "637634bd96b985c7945fbc930923157c968657bda370014bdec593cc13d52feb"
+    },
+    {
+      "version": "202606020005",
+      "name": "trust_assistant_questions",
+      "statements_sha256": "dd95b8ff1501fda7d4bac364c20866efb3ac150e0c28e3c416620c0680bd9805"
+    },
+    {
+      "version": "202606020006",
+      "name": "knowledge_articles",
+      "statements_sha256": "f32714834fc081921bc25e745fda997175d471742fd182692ea8bfdfd526fd0b"
+    },
+    {
+      "version": "202606030001",
+      "name": "data_rights_requests",
+      "statements_sha256": "512b22ad3c5967bd488600e6fe58229fd143211bd46af6787424d733cb08b752"
+    },
+    {
+      "version": "202606030002",
+      "name": "messages_notifications_appeals",
+      "statements_sha256": "049f737322bc8072fa3e61eb57ff8d6a35f9ca13c8ee2ed9a70f2a157a169c8d"
+    },
+    {
+      "version": "202606030003",
+      "name": "ai_trust_event_pipeline",
+      "statements_sha256": "e3bbba9750177e472cc433a9bd41abe465ec83ecc385d47814d1bb6d8d8b3e91"
+    },
+    {
+      "version": "202606030004",
+      "name": "developer_platform_api_keys",
+      "statements_sha256": "ee0f73060668a627cd407a69674d64831882940c4cfa7ecde60c99af0d08f7d1"
+    },
+    {
+      "version": "202606030005",
+      "name": "enterprise_access_requests",
+      "statements_sha256": "8992fd232d333fbf118bd7fe6cc4c724e42e5220785f95c0fb4b04645053d26a"
+    },
+    {
+      "version": "202606030006",
+      "name": "private_evidence_bucket",
+      "statements_sha256": "27d78eabe8d1c68e31d5b874eb87fbbde4e840e92859ff8a311bd34f8484e742"
+    },
+    {
+      "version": "202606040001",
+      "name": "feedback_signal_intelligence",
+      "statements_sha256": "d180f6677c98b9589b62951770c81920d77205adfc791f3c4d5da239300e4627"
+    },
+    {
+      "version": "202606040002",
+      "name": "ensure_enterprise_access_requests_public_submit",
+      "statements_sha256": "0e93ca730f28fd6fe3bd9ee35f816898308011d6ff75068ced02960e2539f296"
+    },
+    {
+      "version": "202606040003",
+      "name": "enterprise_access_problem_category",
+      "statements_sha256": "5dacf890d582c27310e54e5779ea5d58c6c8f35d2c9de37de966a80f2041aa18"
+    },
+    {
+      "version": "202606050001",
+      "name": "enterprise_access_design_partner_signals",
+      "statements_sha256": "12d12f9eb3b74d35be6044c2d4f739396c5767aca486ba4a2b4b3b5e8304a59e"
+    },
+    {
+      "version": "202606050002",
+      "name": "billing_subscriptions_usage_limits",
+      "statements_sha256": "18b6ea45b6f689a690efd6f13bc0569cf958f7df81b051a8eec1658ecbbde3a7"
+    },
+    {
+      "version": "202606050003",
+      "name": "harden_enterprise_access_insert_permissions",
+      "statements_sha256": "60160e8feb4f39999f970f543008f52817e47c50b3c00c3187bec140e1432d55"
+    },
+    {
+      "version": "202606050004",
+      "name": "submit_enterprise_access_request_rpc",
+      "statements_sha256": "0c99bf67251d647d2bac7d813dde22fee2adf6d554ca7a51290af2e83adca279"
+    },
+    {
+      "version": "202606060001",
+      "name": "trusted_hiring_mvp",
+      "statements_sha256": "0a7b4c047af51a8c3774368b51e57b6cbfe12e9fbde7e93ec0f73198dae64b8b"
+    },
+    {
+      "version": "202606070001",
+      "name": "ai_agent_identity_direction",
+      "statements_sha256": "294f738241d3b4a31b866769cffbdd536e8113ba07d35ecbfd86a07bad797d5f"
+    },
+    {
+      "version": "202606070002",
+      "name": "trust_algorithm_runs",
+      "statements_sha256": "0c69c99e6b54028b339e7e174bf9379e0e4f3885ce3a577c3388c1af65330fd0"
+    },
+    {
+      "version": "202606070003",
+      "name": "integration_status",
+      "statements_sha256": "c337554c6de394eefc346666f66f0080f79586ca63cf9217efe9fbfe02939947"
+    },
+    {
+      "version": "202606070004",
+      "name": "api_test_runs",
+      "statements_sha256": "e4dfa0d59422413acdbc939db004377d4b373601432d03743f1452aa8b19cd8a"
+    },
+    {
+      "version": "202606070005",
+      "name": "launch_control_notes",
+      "statements_sha256": "b20bcd744b63b3c3569c2c7902eda490b8fe780c4875be76484df76fe4be74d3"
+    },
+    {
+      "version": "202606080001",
+      "name": "trust_relationships",
+      "statements_sha256": "492515c217854fea6b98d802b2b01b2a464fe89f9311abfafea5ae97b7e1a0f5"
+    },
+    {
+      "version": "202606080002",
+      "name": "trust_timeline_events",
+      "statements_sha256": "b0f8d0dad73b4b60a2a13b1cde59c10290673eeaed01f294fceab682f4e9659a"
+    },
+    {
+      "version": "202606080003",
+      "name": "trust_replay_sessions",
+      "statements_sha256": "0b9b4c5c035f42d33e54aebbc007804aed0319511f515f5e3123d0071a47e41c"
+    },
+    {
+      "version": "202606080004",
+      "name": "trust_workspaces_cases",
+      "statements_sha256": "92368d6a28b8a93a579488b5490027d31d7ba30ebbbf153d3cfdca90b157e514"
+    },
+    {
+      "version": "202606080005",
+      "name": "operational_governance_engine",
+      "statements_sha256": "cd84623ec4f6e0f29523e9515c58bed8fcb2c96948429b07719a715fec137f40"
+    },
+    {
+      "version": "202606080006",
+      "name": "operational_hardening_rls",
+      "statements_sha256": "df79f970b65213b14aa039e37feb8f99926031f91400d4b0e6855eae45ea44e8"
+    },
+    {
+      "version": "202606080007",
+      "name": "operational_notifications_coordination",
+      "statements_sha256": "af8aec2cb9f26d66e4e8f7da2ac00b53fc12dafa8ea691a0cfeb8d8f85a862f8"
+    },
+    {
+      "version": "202606090001",
+      "name": "hiring_security_interview_integrity",
+      "statements_sha256": "1e7ed4ed6b809d08e1a17073cf3cc0f197dc74cea908f2654a2ff50183effa06"
+    },
+    {
+      "version": "202606090002",
+      "name": "trust_evidence_chains_receipts",
+      "statements_sha256": "e11320ce4e0feb04d76b4243d7752f2b0da183528a7cd6ebe9167d287bfb2d1f"
+    },
+    {
+      "version": "202606090003",
+      "name": "operational_trust_intelligence",
+      "statements_sha256": "4504e55775008eb518d1bb83d17564d040f95c61367bfaf03bc831ea057a2907"
+    },
+    {
+      "version": "202606100001",
+      "name": "runtime_validation_logs",
+      "statements_sha256": "748f082ad5945dc90a0a1b07197f452d0f56d8b7a28582e5da51f9164464c1f2"
+    },
+    {
+      "version": "202606180001",
+      "name": "enterprise_ai_trust_governance",
+      "statements_sha256": "61be95a06e454b9dd88a4d49190911d1907f0fe310396e169f8d56d772dcf293"
+    },
+    {
+      "version": "202606190001",
+      "name": "verifiers",
+      "statements_sha256": "65ef8cc37b4f8d736faf44c5a9f8173c55abb6723212b6b470db45bf655d2c03"
+    },
+    {
+      "version": "202606190002",
+      "name": "session_integrity_signal_separation",
+      "statements_sha256": "6b2a75eedee8e5066e138b93ceb66f12e76431e254994592686eb2217c016897"
+    },
+    {
+      "version": "202606190003",
+      "name": "hopae_connect_upstream_identity",
+      "statements_sha256": "6592af98cc3c3a97d7efb0f9a50cb75e5f1cd0e91139b0f9bbc066cc5061bea5"
+    },
+    {
+      "version": "202606270001",
+      "name": "screenshot_support_debugging",
+      "statements_sha256": "d6287386197d097dc1e422a902171b333fc4e159731089b89d67ee7815822845"
+    },
+    {
+      "version": "202607010001",
+      "name": "production_owner_scoped_rls",
+      "statements_sha256": "817bb2a7c70d7030fb09097aab341257fe3c28a4c8f8836d81cd71deae69c26a"
+    },
+    {
+      "version": "202607020001",
+      "name": "critical_trust_infrastructure_alignment",
+      "statements_sha256": "e279f1af296ccb482feed0cffbe32b58c3f4e69901951f339d48a4796a62c4ce"
+    },
+    {
+      "version": "202607160001",
+      "name": "release_1_rc1_provider_evidence_gate",
+      "statements_sha256": "51e179e438fa8a5bd0c7596015f5f74edaf6b26d14cbb49dfbbca832f0f50029"
+    },
+    {
+      "version": "202607160002",
+      "name": "release_1_rc2_living_trust_privacy",
+      "statements_sha256": "095756c0c4b2943121b22bf58100aaef813f151398457b90b42b156ca5a37ba7"
+    },
+    {
+      "version": "202607160003",
+      "name": "release_1_rc6_production_evidence_gate",
+      "statements_sha256": "307362c03683ea1ae0b2468ab7811658275083e8966a2a3802d5a121c385fde4"
+    },
+    {
+      "version": "202607170001",
+      "name": "operational_risk_intelligence_shadow",
+      "statements_sha256": "128acda404e4d9cc0af9b21fbdff7fb9fede90c26b6be917cf49c22b3c43a979"
+    },
+    {
+      "version": "202607170002",
+      "name": "provider_abstraction_hopae",
+      "statements_sha256": "3d33d16b20a56a0509787168cc1cf2f8b1b50abd56304c23937d1ef39f9e4fa8"
+    },
+    {
+      "version": "202607190001",
+      "name": "identity_signal_engine",
+      "statements_sha256": "9f3e4b5e19c9d35a9ef089924204e7580b305e86a85cf3e7c4727bb3e2077867"
+    },
+    {
+      "version": "202607190002",
+      "name": "identity_signal_runtime",
+      "statements_sha256": "0a3685fb3cab52fee2c9242b88b6c9216b5c32561b32751fa15a4c12e253bca4"
+    },
+    {
+      "version": "202607200001",
+      "name": "canonical_trust_event_foundation",
+      "statements_sha256": "4c8a9c7f8e72f72096b9590425fe962f64c6be435d510fb047350cc150057987"
+    },
+    {
+      "version": "202607200002",
+      "name": "enterprise_trust_consent_manager",
+      "statements_sha256": "6d15f2dca3936587381f01c7bf50913c16ac697822e21192e942d872e97780e0"
+    },
+    {
+      "version": "202607200003",
+      "name": "provider_consensus_engine",
+      "statements_sha256": "0d901a02bd200016c4c9c7f316d0dbb67781f0436e3aedcaffa3a93fd473c3bc"
+    },
+    {
+      "version": "202607210001",
+      "name": "enterprise_trust_architecture",
+      "statements_sha256": "a377894b9f2012ce8755de3f9b76952adb47f09b7333decee55d9d21e30ebea9"
+    },
+    {
+      "version": "202607210002",
+      "name": "continuous_trust_runtime",
+      "statements_sha256": "f5240b30e4958d9a26a063aedb05f7ac33867320d9d2433b499053767e5f074e"
+    },
+    {
+      "version": "202607230001",
+      "name": "trust_intelligence_engine",
+      "statements_sha256": "4a088b2dc7e31cfeeb86e284cbdfcc9a7ba7aae4e3d6bac09d57d074966e5877"
+    },
+    {
+      "version": "202607230002",
+      "name": "enterprise_trust_graph",
+      "statements_sha256": "73b75cde9e282c37602240a73e816243ad644c2a2e3e6ac455c261918276ce71"
+    },
+    {
+      "version": "202607240001",
+      "name": "trust_dna_engine",
+      "statements_sha256": "68ed4bbebdb39b5ece8cedd52ca53267316249ccafe963c02bc08c0dee5f65da"
+    },
+    {
+      "version": "202607240002",
+      "name": "replay_timeline_engine",
+      "statements_sha256": "092d1af0ae238b0057599496cbc3a926a3ed9d88e548d30bb97ed705aa5c4dea"
+    },
+    {
+      "version": "202607240003",
+      "name": "continuous_trust_engine",
+      "statements_sha256": "e1967cdfcf9fbbbe28944446c930e19aefd2258c99fc13b23700487e5dd42e6f"
+    },
+    {
+      "version": "202607240004",
+      "name": "enterprise_trust_centre",
+      "statements_sha256": "6dd458d02f09593a675088be009d56fb012821269669c4b6619365546075dd5d"
+    },
+    {
+      "version": "202607310001",
+      "name": "environment_attestation_scope_continuity",
+      "statements_sha256": "7064464cea6b6edbbf1c31acf7bc99f0a78fd8ef31ea8b8854ae23e01f7d6ab7"
+    },
+    {
+      "version": "202608010001",
+      "name": "ai_serious_incident_regulatory_lineage",
+      "statements_sha256": "58f9f0e085f1fb275429743cf50ff35f4ed3ac87b8dceb21867eb209a78ab6f7"
+    },
+    {
+      "version": "202608010002",
+      "name": "enterprise_trust_fabric",
+      "statements_sha256": "5eaed9ef6383edefabfa2f8354eb3688826b8d4c3ef755e02f5ddedc81b61899"
+    },
+    {
+      "version": "202608060001",
+      "name": "rc2_enterprise_operational_readiness",
+      "statements_sha256": "bc5011e7ea9aed288004362d4149210a77591264a04beed188e09e31ca8b86b6"
+    },
+    {
+      "version": "202608060002",
+      "name": "end_to_end_trust_transaction",
+      "statements_sha256": "1e1e1ddcc48f7005d80c67798f4a07b94a44a2f8e46de6efabe6686a9b934f55"
+    },
+    {
+      "version": "202608080001",
+      "name": "provider_neutral_evidence_independence",
+      "statements_sha256": "c8d86802c4377e4ca9b64db4b318a3955ae6da69a2cd116f7fc44af6643d65ed"
+    },
+    {
+      "version": "202608080002",
+      "name": "provider_neutral_workspace_rls_forward_repair",
+      "statements_sha256": "81db1d9751df405347d3fca1a52c8a95e5645dae51c577900f2101dc124c94e4"
+    },
+    {
+      "version": "202608080003",
+      "name": "native_operational_entity_verification",
+      "statements_sha256": "9900ba4dd9735254749a1ca2344dcba26eb0a9bb3090b221b0cf456a1e2e5ec1"
+    },
+    {
+      "version": "202608090001",
+      "name": "native_delegated_authority",
+      "statements_sha256": "721d2a7e576bf71aef5e3d216b5428ef0772e6a3ece7afb1cc6ebf88856c9379"
+    },
+    {
+      "version": "202608090002",
+      "name": "native_enforcement_outcome_proof",
+      "statements_sha256": "e89798e3b7467e0bdb0f4949247df7053a79dad81abca87229bcc89f7f05cdee"
+    },
+    {
+      "version": "202608100001",
+      "name": "pgcrypto_routine_search_path",
+      "statements_sha256": "c6e26ff217f0dfd7b7e9dbe17ff64703e6a102ef36b44d132a2d98cf448a6ec7"
+    },
+    {
+      "version": "202608100002",
+      "name": "runtime_persistence_compatibility",
+      "statements_sha256": "cdcadfca7c473421bc7e59dd7fa39704d7853f8eeb723b72f6cc4105c5165e52"
+    },
+    {
+      "version": "202608100003",
+      "name": "alpha_beta_persistence_repairs",
+      "statements_sha256": "2de9469159d120ddd28839bc1f0be1d7d90840ead0fa41d23548a1c5ffb1b787"
+    },
+    {
+      "version": "202608100004",
+      "name": "continuous_trust_legacy_consensus_fk_repair",
+      "statements_sha256": "78a270d627ff9f2bd96f898c5e8e6d9f14dc2f51cf73397d54a2810b0ba7da56"
+    },
+    {
+      "version": "202608100005",
+      "name": "optional_legacy_consensus_pointer",
+      "statements_sha256": "a24c4807e0570be2674d0170b3b7a9aaff6d614c91e27dfc933a1156b391392d"
+    },
+    {
+      "version": "202608110001",
+      "name": "external_agent_trust_api",
+      "statements_sha256": "36fcb0933a948a6a3d900a8840cbaa084ad3d97757108b6ab3ee72c859309cb1"
+    },
+    {
+      "version": "20260814153327",
+      "name": "customer_workspace_bootstrap",
+      "statements_sha256": "1440ac2cce2bc96b911ff1edefeef16e7e5926ad25aeac1bca5614a8e4190a14"
+    },
+    {
+      "version": "20260814153337",
+      "name": "staging_product_closure_security_reconciliation",
+      "statements_sha256": "8196fb181de0be473b75efb98cfb88e1089a595e84a63f4bb62f0238a01dbbfd"
+    },
+    {
+      "version": "20260815172418",
+      "name": "customer_workspace_creator_returning",
+      "statements_sha256": "c1c536eeb2af2cb10445031d5af5c28f6bc66165bfb20185f0ac2dc5777a46f3"
+    },
+    {
+      "version": "20260815172840",
+      "name": "customer_workspace_creator_returning_guard_reconciliation",
+      "statements_sha256": "1b676c0b9633f5f1fe4397e220715fb53e8e79da84c3f7c52106c42b33a890e0"
+    },
+    {
+      "version": "20260815174612",
+      "name": "gamma_authority_replay_event",
+      "statements_sha256": "d45b4877390a60ec71d80fc2d8d8bf458905420dbf5becefa0d1f6eaf544ac5f"
+    },
+    {
+      "version": "20260815180521",
+      "name": "native_replay_chronology_extension",
+      "statements_sha256": "8503f64a4fdedc9a751b76a99ee9ec3e96f2055913757b56412e8f6d904de2a5"
+    },
+    {
+      "version": "20260815180807",
+      "name": "consent_evidence_freshness",
+      "statements_sha256": "e761ba32f156ef82d6a5a0b0ebeeb82195a5d8a6579862dc7e511db11c776a26"
+    },
+    {
+      "version": "20260816135031",
+      "name": "staging_repair_append_trust_event_consent_namespace",
+      "statements_sha256": "6b939b735b7895bc27ce27f49d07e1e49578c3d2a9e420908a3c1db024d44cc2"
+    },
+    {
+      "version": "20260817173631",
+      "name": "track_block_protected_workflow",
+      "statements_sha256": "c774ed244acf0347f6590280c18f90381a592419f014427747b9c5cb4959adaf"
+    },
+    {
+      "version": "20260817175031",
+      "name": "track_block_protected_workflow",
+      "statements_sha256": "378b90ad9d6ddca0d02820dbb9e1da7daadfdad54af89b377fff20468b732e24"
+    },
+    {
+      "version": "20260817175111",
+      "name": "track_block_fk_indexes",
+      "statements_sha256": "49225e6fdc1e1a464bbb786699e14ae8365e409bc04f4cd7df8f8fa16e42fc46"
+    },
+    {
+      "version": "20260817175137",
+      "name": "track_block_evidence_index",
+      "statements_sha256": "a8909929d2ef5fd5b9c3c58ade6c8e351d12802f7b1d6b50eadf2ec3d53c03a5"
+    },
+    {
+      "version": "20260817175347",
+      "name": "reconcile_enterprise_trust_domain_registry",
+      "statements_sha256": "48549b0dff448055852b959680c881cfb08203c30fa6b28a253c1272d3ad8394"
+    },
+    {
+      "version": "20260817175421",
+      "name": "runtime_validation_legacy_shape_rehearsal",
+      "statements_sha256": "97523a76e222d5d0bc6fdb13f93e7230d84095e60298b041bde32b1b847d46ed"
+    },
+    {
+      "version": "20260817175448",
+      "name": "reconcile_enterprise_trust_domain_registry_v2",
+      "statements_sha256": "1bc65a58008ca3e15dfc79bd0be7e903fbdc3f7584a0c7a56611aa7ced39a588"
+    },
+    {
+      "version": "20260817175455",
+      "name": "reconcile_enterprise_trust_domain_registry_idempotency",
+      "statements_sha256": "1bc65a58008ca3e15dfc79bd0be7e903fbdc3f7584a0c7a56611aa7ced39a588"
+    },
+    {
+      "version": "20260818075145",
+      "name": "remove_user_metadata_rls_authorization",
+      "statements_sha256": "90c56c0a36034d6f4c0e454d54ab124e3bedcedf1095ca3aaa6cda8d358ba4c9"
+    },
+    {
+      "version": "20260818075422",
+      "name": "remove_user_editable_rls_authorization",
+      "statements_sha256": "11afb84f9bd4616f3894c7f5ca3bbb1b9582a958c8c6630782c5810fa086cadb"
+    },
+    {
+      "version": "20260819082001",
+      "name": "consent_evidence_freshness_repair",
+      "statements_sha256": "66e21cbe9f4e8c5fb2280e933350d4326f304f58d9becb0df12761aa2ce1a571"
+    },
+    {
+      "version": "20260820085027",
+      "name": "vale_canonical_provider_preview",
+      "statements_sha256": "7c8c1423beffd53f58cc60395d736ae59dfb90514295b679675e19861d608982"
+    },
+    {
+      "version": "20260821085309",
+      "name": "track_block_policy_identity_continuity",
+      "statements_sha256": "682f15186410264203a0acfc3222a483e8a371477662642634c1dbb4be84f7d8"
+    },
+    {
+      "version": "20260821174100",
+      "name": "reconcile_canonical_persist_search_path",
+      "statements_sha256": "9cc0a1112bb07aa8ef95349576213b1ed108b8bd5c85427034ed89ec6209093c"
+    },
+    {
+      "version": "20260822124942",
+      "name": "repair_production_consent_event_metadata",
+      "statements_sha256": "2d36c982bb322de41efb47a0c1f6884db83f53492d0dbaba165de877fde5019c"
+    },
+    {
+      "version": "20260824181053",
+      "name": "authority_integrity_authorization_propagation",
+      "statements_sha256": "1fc97dfa3696f2c79cb20d4c78d3e1e94dcb74b6be96d56787b1de6794104fba"
+    },
+    {
+      "version": "20260824184543",
+      "name": "trust_forecast_operational_intelligence",
+      "statements_sha256": "10c105b70937eb69703c857150c73f615a8d76bf6c420c99dd9e9d74887de062"
+    },
+    {
+      "version": "20260825175059",
+      "name": "authority_integrity_authorization_propagation",
+      "statements_sha256": "ec4e81ce01c0acd922aa8d0574f7afa1d258dd4319c308797113a9bfecb81c8b"
+    },
+    {
+      "version": "20260825175143",
+      "name": "trust_forecast_operational_intelligence",
+      "statements_sha256": "da6772eab65881db17db822770c4faf1e963d7e98a82745d8ea51b19f6a8c7e4"
+    },
+    {
+      "version": "20260828165913",
+      "name": "close_public_api_security_contract",
+      "statements_sha256": "f1dde69150327ad76f994c0d62204870803bff7f0ac0ccfcd044e2bc7ae8ce0a"
+    },
+    {
+      "version": "20260829094528",
+      "name": "harden_public_api_rate_limit_isolation",
+      "statements_sha256": "9fdb91f8679ca7178ca361500b95a0aa2a96c1da9eedf62cfb57fa441df7c8fb"
+    },
+    {
+      "version": "20260829164824",
+      "name": "close_public_api_customer_zero",
+      "statements_sha256": "cee1903f79f325da9a6314133bbfa51d3a8bf5747f0b6e90d20d792187ab104d"
+    },
+    {
+      "version": "20260831121500",
+      "name": "fix_public_api_replay_subject",
+      "statements_sha256": "6a6d3752f4e2efbd93c7bc3a31ac93def06e5a4aee364e7acdb3128ce28a0b31"
+    },
+    {
+      "version": "20260831124000",
+      "name": "expand_canonical_replay_event_types",
+      "statements_sha256": "77cfccef805f503321bdd231cd058546c4cfbfae6dce7520547674834b2371fb"
+    },
+    {
+      "version": "20260831125500",
+      "name": "fix_public_api_trust_memory_source_id",
+      "statements_sha256": "15126957746c8ac9608a03c3360172a614af9add9e044c0bf444b0713b4b69bb"
+    },
+    {
+      "version": "20260901120000",
+      "name": "grant_service_role_api_keys_privileges",
+      "statements_sha256": "3528f1860afd5f1df6a22685d9d83c6ebed19c4375e1f65669594d0287296f64"
+    },
+    {
+      "version": "20260903093116",
+      "name": "reconcile_public_api_webhook_event_types",
+      "statements_sha256": "1482ca2895ae0b191cb9c4dfb05c07eb46b54d4dcc0dd8b079fb81299d6549f4"
+    },
+    {
+      "version": "20260903093247",
+      "name": "reconcile_public_api_webhook_event_types",
+      "statements_sha256": "8d7f97e540696e593c10f2696035ec601fa89b7a1270e8d9b58c76b3bab58559"
+    },
+    {
+      "version": "20260904100313",
+      "name": "normalize_continuous_trust_alert_contract",
+      "statements_sha256": "8e22cdf05054a6cd2384bff01a0220725d29eadec6cc25cd4e18b8d9e9588149"
+    },
+    {
+      "version": "20260904100445",
+      "name": "normalize_continuous_trust_alert_contract",
+      "statements_sha256": "72e1a6cd18a5986a34e77b0189155cf3bd71a5ed037d6b282b54fcac76d85bce"
+    },
+    {
+      "version": "202609060001",
+      "name": "world_id_durable_replay_guard",
+      "statements_sha256": "7f6526b246459d82d15ec0ba2699f97cb019dfbf9b493d906bcdd4499c1c7f4e"
+    },
+    {
+      "version": "202609060002",
+      "name": "world_id_replay_hardening",
+      "statements_sha256": "f3d2e476c7f1dd84c43af360bfabde3e466689b2856001e3eee92039ee95d4ff"
+    },
+    {
+      "version": "20260906155836",
+      "name": "world_id_durable_replay_guard",
+      "statements_sha256": "b8803508c42e2001e72efe8d9ce0b7bb9d0fd7b0c034be61ff56fd6e5c39ce81"
+    },
+    {
+      "version": "20260906165033",
+      "name": "world_id_replay_hardening",
+      "statements_sha256": "cbf86209435cc4b71d5d46e4d73ee0ad4e6fe87216ccd8007a000fdd4be0f841"
+    },
+    {
+      "version": "20260907120000",
+      "name": "add_decision_outcome_review_to_canonical_trust",
+      "statements_sha256": "f3bb7acd3687566ab55ba4c4e538f969293f58a17cd614b768e8af59d7e9a47c"
+    },
+    {
+      "version": "20260909163513",
+      "name": "operational_incident_evidence_foundation",
+      "statements_sha256": "fde794a6c70e54cff2111528b75f60976ef5631185a5782bd3a168c29b241114"
+    }
+  ],
+  "constraints": [
+    {
+      "name": "incident_evidence_links_check",
+      "type": "c",
+      "valid": true,
+      "definition": "CHECK (((relation_type = 'TRANSACTION_LINK'::text) OR (evidence_object_id IS NOT NULL)))"
+    },
+    {
+      "name": "incident_evidence_links_content_digest_check",
+      "type": "c",
+      "valid": true,
+      "definition": "CHECK ((content_digest ~ '^[a-f0-9]{64}$'::text))"
+    },
+    {
+      "name": "incident_evidence_links_details_check",
+      "type": "c",
+      "valid": true,
+      "definition": "CHECK (((jsonb_typeof(details) = 'object'::text) AND (octet_length((details)::text) <= 16384)))"
+    },
+    {
+      "name": "incident_evidence_links_enterprise_id_chronology_event_id_key",
+      "type": "u",
+      "valid": true,
+      "definition": "UNIQUE (enterprise_id, chronology_event_id)"
+    },
+    {
+      "name": "incident_evidence_links_enterprise_id_evidence_object_id_fkey",
+      "type": "f",
+      "valid": true,
+      "definition": "FOREIGN KEY (enterprise_id, evidence_object_id) REFERENCES evidence_objects(enterprise_id, evidence_id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "incident_evidence_links_enterprise_id_fkey",
+      "type": "f",
+      "valid": true,
+      "definition": "FOREIGN KEY (enterprise_id) REFERENCES trust_workspaces(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "incident_evidence_links_enterprise_id_id_key",
+      "type": "u",
+      "valid": true,
+      "definition": "UNIQUE (enterprise_id, id)"
+    },
+    {
+      "name": "incident_evidence_links_enterprise_id_incident_id_chronolo_fkey",
+      "type": "f",
+      "valid": true,
+      "definition": "FOREIGN KEY (enterprise_id, incident_id, chronology_event_id) REFERENCES incident_chronology_events(enterprise_id, incident_id, id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "incident_evidence_links_enterprise_id_incident_id_fkey",
+      "type": "f",
+      "valid": true,
+      "definition": "FOREIGN KEY (enterprise_id, incident_id) REFERENCES incident_regulatory_assessments(enterprise_id, id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "incident_evidence_links_enterprise_id_transaction_id_fkey",
+      "type": "f",
+      "valid": true,
+      "definition": "FOREIGN KEY (enterprise_id, transaction_id) REFERENCES canonical_trust_transactions(enterprise_id, transaction_id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "incident_evidence_links_pkey",
+      "type": "p",
+      "valid": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "incident_evidence_links_relation_type_check",
+      "type": "c",
+      "valid": true,
+      "definition": "CHECK ((relation_type = ANY (ARRAY['TRANSACTION_LINK'::text, 'EXECUTION_OBSERVATION'::text, 'OUTCOME'::text, 'DETECTION'::text, 'INTERVENTION'::text, 'CONTAINMENT'::text, 'REMEDIATION'::text, 'PURPOSE_OBSERVATION'::text])))"
+    }
+  ],
+  "indexes": [
+    "CREATE UNIQUE INDEX incident_evidence_links_enterprise_id_chronology_event_id_key ON public.incident_evidence_links USING btree (enterprise_id, chronology_event_id)",
+    "CREATE UNIQUE INDEX incident_evidence_links_enterprise_id_id_key ON public.incident_evidence_links USING btree (enterprise_id, id)",
+    "CREATE INDEX incident_evidence_links_evidence_idx ON public.incident_evidence_links USING btree (enterprise_id, evidence_object_id)",
+    "CREATE UNIQUE INDEX incident_evidence_links_pkey ON public.incident_evidence_links USING btree (id)",
+    "CREATE INDEX incident_evidence_links_timeline_idx ON public.incident_evidence_links USING btree (enterprise_id, incident_id, received_at, id)",
+    "CREATE INDEX incident_evidence_links_transaction_idx ON public.incident_evidence_links USING btree (enterprise_id, transaction_id)"
+  ],
+  "indexes_valid": true,
+  "rpc_definition": "CREATE OR REPLACE FUNCTION public.persist_operational_incident_v2(p_tenant_id uuid, p_client_id uuid, p_key_id uuid, p_incident_id uuid, p_operation text, p_record jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public', 'pg_temp'\nAS $function$\ndeclare\n t public.canonical_trust_transactions%rowtype;\n i public.incident_regulatory_assessments%rowtype;\n e public.evidence_objects%rowtype;\n record_id uuid := (p_record->>'id')::uuid;\n transaction_ref uuid := (p_record->>'transaction_id')::uuid;\n evidence_ref uuid := nullif(p_record->>'evidence_object_id','')::uuid;\n event_time timestamptz := (p_record->>'observed_at')::timestamptz;\n received timestamptz := clock_timestamp();\n record_hash text;\n incident_node uuid;\n event_node uuid;\n version_number integer;\n required_scope text := case when p_operation='export' then 'evidence:export' else 'incidents:write' end;\nbegin\n if not exists(select 1 from public.api_keys k where k.id=p_key_id and k.tenant_id=p_tenant_id\n   and k.client_id=p_client_id and k.status='active' and k.revoked_at is null and not coalesce(k.revoked,false)\n   and (k.expires_at is null or k.expires_at>now()) and required_scope=any(k.scopes)) then\n   raise exception using errcode='42501',message='Operational incident access denied';\n end if;\n if p_operation not in ('open','append','export') or jsonb_typeof(p_record)<>'object'\n   or octet_length(p_record::text)>1048576 then raise exception 'Invalid operational incident record'; end if;\n -- Serialize every writer for an incident, including package generation.\n perform pg_advisory_xact_lock(hashtextextended(p_tenant_id::text||':'||p_incident_id::text,0));\n select * into i from public.incident_regulatory_assessments where enterprise_id=p_tenant_id and id=p_incident_id\n   and evidence_mode='CANONICAL_OPERATIONAL' and created_by=p_client_id;\n if p_operation<>'open' and i.id is null then raise exception using errcode='P0002',message='Resource not found'; end if;\n if p_operation='export' then\n   if p_record->>'schema_version'<>'cyber-sentinels.incident-evidence.v2.0' or p_record->>'incident_id'<>p_incident_id::text\n     or p_record->>'tenant_id'<>p_tenant_id::text then raise exception 'Invalid export binding'; end if;\n   if jsonb_typeof(p_record->'timeline') is distinct from 'array' or\n      (select count(*) from public.incident_evidence_links where enterprise_id=p_tenant_id and incident_id=p_incident_id)\n        <> jsonb_array_length(p_record->'timeline') or exists(\n          select 1 from public.incident_evidence_links l where l.enterprise_id=p_tenant_id and l.incident_id=p_incident_id\n          and not exists(select 1 from jsonb_array_elements(p_record->'timeline') v where v->>'id'=l.id::text)\n        ) then raise exception using errcode='40001',message='Incident changed during export; retry'; end if;\n   select coalesce(max(version),0)+1 into version_number from public.incident_submission_packages where enterprise_id=p_tenant_id and incident_id=p_incident_id;\n   record_hash:=encode(sha256(convert_to(p_record::text,'UTF8')),'hex');\n   insert into public.incident_submission_packages(id,enterprise_id,incident_id,version,state,package_payload,content_digest,package_digest,record_hash,export_schema_version,exported_at,correlation_id)\n   values(record_id,p_tenant_id,p_incident_id,version_number,'internal_draft',p_record,p_record->>'integrity_digest',p_record->>'integrity_digest',record_hash,p_record->>'schema_version',received,record_id);\n   insert into public.trust_memory_index(enterprise_id,subject_id,domain_key,memory_type,source_id,occurred_at,summary)\n   values(p_tenant_id,i.agent_id,'GOVERNANCE','INCIDENT_EVIDENCE_EXPORT',record_id::text,received,jsonb_build_object('incidentId',p_incident_id,'packageId',record_id,'digest',p_record->>'integrity_digest'));\n   return jsonb_build_object('id',record_id,'version',version_number);\n end if;\n select * into t from public.canonical_trust_transactions where enterprise_id=p_tenant_id and transaction_id=transaction_ref and actor_id=p_client_id;\n if t.transaction_id is null then raise exception using errcode='P0002',message='Resource not found'; end if;\n if event_time is null or event_time>received+interval '30 seconds' then raise exception 'Invalid observation timestamp'; end if;\n if p_operation='open' then\n   if i.id is not null then raise exception using errcode='23505',message='Incident already exists'; end if;\n   insert into public.incident_regulatory_assessments(id,enterprise_id,ai_system_id,agent_id,incident_category,jurisdiction,initial_state,canonical_case,immutable_hash,created_by,correlation_id,created_at,evidence_mode)\n   values(p_incident_id,p_tenant_id,null,t.subject_id,'operational_evidence',null,'evidence_collection',\n     jsonb_build_object('transaction_id',transaction_ref,'summary',p_record->>'summary','discovered_at',event_time),\n     encode(sha256(convert_to(p_record::text,'UTF8')),'hex'),p_client_id,p_incident_id,received,'CANONICAL_OPERATIONAL');\n elsif p_record->>'kind'='TRANSACTION_LINK' then\n   null;\n end if;\n if p_record->>'kind' is null or p_record->>'kind' not in ('TRANSACTION_LINK','EXECUTION_OBSERVATION','OUTCOME','DETECTION','INTERVENTION','CONTAINMENT','REMEDIATION','PURPOSE_OBSERVATION') then raise exception 'Invalid chronology kind'; end if;\n if p_record->>'kind'<>'TRANSACTION_LINK' and evidence_ref is null then raise exception 'Evidence required'; end if;\n if evidence_ref is not null then\n   select * into e from public.evidence_objects where enterprise_id=p_tenant_id and evidence_id=evidence_ref and subject_id=t.subject_id;\n   if e.evidence_id is null then raise exception using errcode='P0002',message='Resource not found'; end if;\n   if e.payload_hash is distinct from p_record->>'evidence_digest' then raise exception 'Evidence digest mismatch'; end if;\n end if;\n record_hash:=encode(sha256(convert_to(p_record::text,'UTF8')),'hex');\n insert into public.incident_chronology_events(id,enterprise_id,incident_id,event_type,source,source_type,source_authority,occurred_at,timestamp_confidence,ingested_at,ordering_confidence,evidence_reference,integrity_state,classification,summary,correlation_id,record_hash)\n values(record_id,p_tenant_id,p_incident_id,p_record->>'kind',coalesce(e.provider_key,'Cyber Sentinels'),coalesce(e.source_type,'CANONICAL_TRANSACTION'),\n   'ATTRIBUTED_SOURCE_ONLY',event_time,'unknown',received,'unknown',coalesce(evidence_ref::text,transaction_ref::text),\n   'unverified',case when evidence_ref is null then 'TECHNICAL EVIDENCE' else 'PROVIDER ASSERTION' end,p_record->>'summary',record_id,record_hash);\n insert into public.incident_evidence_links(id,enterprise_id,incident_id,chronology_event_id,transaction_id,evidence_object_id,relation_type,details,content_digest,received_at)\n values(record_id,p_tenant_id,p_incident_id,record_id,transaction_ref,evidence_ref,p_record->>'kind',p_record,p_record->>'content_digest',received);\n insert into public.trust_memory_index(enterprise_id,subject_id,domain_key,memory_type,source_id,occurred_at,summary)\n values(p_tenant_id,t.subject_id,'GOVERNANCE','INCIDENT_'||(p_record->>'kind'),record_id::text,received,\n   jsonb_build_object('incidentId',p_incident_id,'transactionId',transaction_ref,'chronologyEventId',record_id,'originalDecision',t.decision,'originalPurpose',t.action_purpose,'evidenceReference',evidence_ref,'source',e.provider_key,'interpretation',p_record->'observed_purpose'));\n insert into public.evidence_graph_nodes(enterprise_id,node_type,external_id,domain_key,label,metadata)\n values(p_tenant_id,'INCIDENT',p_incident_id::text,'GOVERNANCE','Operational incident','{}') on conflict do nothing;\n select node_id into incident_node from public.evidence_graph_nodes where enterprise_id=p_tenant_id and node_type='INCIDENT' and external_id=p_incident_id::text;\n insert into public.evidence_graph_nodes(enterprise_id,node_type,external_id,domain_key,label,metadata)\n values(p_tenant_id,'INCIDENT_CHRONOLOGY_EVENT',record_id::text,'GOVERNANCE',p_record->>'kind',jsonb_build_object('transactionId',transaction_ref,'evidenceReference',evidence_ref,'source',e.provider_key,'attributionEstablished',false)) returning node_id into event_node;\n insert into public.evidence_graph_edges(enterprise_id,from_node_id,to_node_id,edge_type,evidence_id)\n values(p_tenant_id,incident_node,event_node,'INCLUDES',evidence_ref);\n return jsonb_build_object('id',record_id,'incident_id',p_incident_id);\nend $function$\n",
+  "triggers": [
+    {
+      "name": "incident_evidence_links_append_only",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER incident_evidence_links_append_only BEFORE DELETE OR UPDATE ON public.incident_evidence_links FOR EACH ROW EXECUTE FUNCTION prevent_serious_incident_history_mutation()"
+    }
+  ],
+  "grants": [
+    {
+      "role": "authenticated",
+      "privilege": "SELECT"
+    },
+    {
+      "role": "service_role",
+      "privilege": "SELECT"
+    }
+  ],
+  "orphan_or_cross_tenant_links": 0,
+  "ledger_matches_previous_review": true,
+  "rpc_matches_previous_review": true
+}

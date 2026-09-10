@@ -1,0 +1,776 @@
+{
+  "project": "agpyhygpfmppjkxwcpac",
+  "stages": {
+    "receiptBefore": {
+      "receiptVersion": "canonical-trust-transaction-v1",
+      "transactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+      "entity": {
+        "operationalEntityId": "agent:e5f6d779-6f21-4473-9acd-ed0c44af40db",
+        "type": "ai_agent",
+        "accountableOwnerId": "owner:v2-staging-fixture"
+      },
+      "decision": "ALLOW",
+      "trustState": "verified",
+      "timestamp": "2026-09-10T10:08:46.7+00:00",
+      "action": {
+        "type": "read_repository",
+        "purpose": "incident_evidence_qualification",
+        "resource": "repository:v2-staging-qualification",
+        "environment": "staging",
+        "requestDigest": "fb2d25bb3134e15f976347b294dab45705d2a430e2cbeedc5274712f435fb627"
+      },
+      "reasonCodes": [
+        "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+        "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_SUFFICIENT",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE"
+      ],
+      "decisionOutcomeReview": null,
+      "evidenceReferences": [
+        {
+          "reference": "07db9d4c-4b29-46ec-a89c-fea150338402",
+          "sourceDigest": "5cbf213858c485bd6f666028f8f4bff98a72af0c807b0bfc2bed9077a7f2d800"
+        },
+        {
+          "reference": "b21f4952-c017-5781-9625-b2238c3ef2b3",
+          "sourceDigest": "52551793100a633c05fb13ffc6f86785f2392a6308f2009ea30999978de5b755"
+        },
+        {
+          "reference": "211073a9-56b9-5823-bce3-38b3e263a8f5",
+          "sourceDigest": "52551793100a633c05fb13ffc6f86785f2392a6308f2009ea30999978de5b755"
+        },
+        {
+          "reference": "07db9d4c-4b29-46ec-a89c-fea150338402",
+          "sourceDigest": "5cbf213858c485bd6f666028f8f4bff98a72af0c807b0bfc2bed9077a7f2d800"
+        },
+        {
+          "reference": "c9e622eb-f724-4695-8902-7b81e9345d12",
+          "sourceDigest": "0d35b8e91291913721ed2285f8ef991a047ab233975fb285e0e9bbc69d8f1716"
+        }
+      ],
+      "authorityReference": "6c8f58f4-a1eb-4f71-8c3f-652dcd802b4f",
+      "delegationReference": null,
+      "parentAuthorityReference": null,
+      "policy": {
+        "id": "external-agent-trust-v1",
+        "version": "0.2.0",
+        "hash": "5b2237f61c009d34ab2f560057a620db4507baee88a86fa2055e16ce3798a084"
+      },
+      "decisionDigest": "27eb8cf49ac46b11c996608c9a7162a6edc728193ed6dc07d1933e3697f86e19",
+      "evidenceGraphReference": "f1bcec3a-5732-4839-9c06-37dd713283cf",
+      "replayReference": "4832de12-b6c1-4583-b922-07d41743051f",
+      "trustMemoryReference": "8411be6a-6030-411a-9e76-cdd032d985bc",
+      "protectedWorkflow": null
+    },
+    "outcomeReview": {
+      "ok": true,
+      "transactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+      "originalDecision": "ALLOW",
+      "decisionOutcomeReview": {
+        "originalDecision": "ALLOW",
+        "decisionModelProvider": null,
+        "decisionModelName": null,
+        "decisionModelVersion": null,
+        "policyVersion": "0.2.0",
+        "decisionReasonCodes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+          "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_SUFFICIENT",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE"
+        ],
+        "humanOverride": {
+          "occurred": true,
+          "originalDecision": "ALLOW",
+          "resultingDecision": "DENY",
+          "actorReference": "user:a116afe9-883b-47b4-a600-26d5d5a5882a",
+          "occurredAt": "2026-09-10T10:11:41.287Z",
+          "reason": "Staging qualification adjudication after test authority revocation; original authorization remains unchanged.",
+          "evidenceReference": "authority-revocation:6c8f58f4-a1eb-4f71-8c3f-652dcd802b4f"
+        },
+        "providerOutcome": null,
+        "runtimeOutcome": null,
+        "destinationOutcome": null,
+        "adjudicatedOutcome": "DENY",
+        "evaluationStatus": "CONTRADICTED"
+      },
+      "persistenceStatus": "CREATED"
+    },
+    "receiptAfter": {
+      "receiptVersion": "canonical-trust-transaction-v1",
+      "transactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+      "entity": {
+        "operationalEntityId": "agent:e5f6d779-6f21-4473-9acd-ed0c44af40db",
+        "type": "ai_agent",
+        "accountableOwnerId": "owner:v2-staging-fixture"
+      },
+      "decision": "ALLOW",
+      "trustState": "verified",
+      "timestamp": "2026-09-10T10:08:46.7+00:00",
+      "action": {
+        "type": "read_repository",
+        "purpose": "incident_evidence_qualification",
+        "resource": "repository:v2-staging-qualification",
+        "environment": "staging",
+        "requestDigest": "fb2d25bb3134e15f976347b294dab45705d2a430e2cbeedc5274712f435fb627"
+      },
+      "reasonCodes": [
+        "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+        "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_SUFFICIENT",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE"
+      ],
+      "decisionOutcomeReview": {
+        "humanOverride": {
+          "reason": "Staging qualification adjudication after test authority revocation; original authorization remains unchanged.",
+          "occurred": true,
+          "occurredAt": "2026-09-10T10:11:41.287Z",
+          "actorReference": "user:a116afe9-883b-47b4-a600-26d5d5a5882a",
+          "originalDecision": "ALLOW",
+          "evidenceReference": "authority-revocation:6c8f58f4-a1eb-4f71-8c3f-652dcd802b4f",
+          "resultingDecision": "DENY"
+        },
+        "policyVersion": "0.2.0",
+        "runtimeOutcome": null,
+        "providerOutcome": null,
+        "evaluationStatus": "CONTRADICTED",
+        "originalDecision": "ALLOW",
+        "decisionModelName": null,
+        "adjudicatedOutcome": "DENY",
+        "destinationOutcome": null,
+        "decisionReasonCodes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+          "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_SUFFICIENT",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE"
+        ],
+        "decisionModelVersion": null,
+        "decisionModelProvider": null
+      },
+      "evidenceReferences": [
+        {
+          "reference": "07db9d4c-4b29-46ec-a89c-fea150338402",
+          "sourceDigest": "5cbf213858c485bd6f666028f8f4bff98a72af0c807b0bfc2bed9077a7f2d800"
+        },
+        {
+          "reference": "b21f4952-c017-5781-9625-b2238c3ef2b3",
+          "sourceDigest": "52551793100a633c05fb13ffc6f86785f2392a6308f2009ea30999978de5b755"
+        },
+        {
+          "reference": "211073a9-56b9-5823-bce3-38b3e263a8f5",
+          "sourceDigest": "52551793100a633c05fb13ffc6f86785f2392a6308f2009ea30999978de5b755"
+        },
+        {
+          "reference": "07db9d4c-4b29-46ec-a89c-fea150338402",
+          "sourceDigest": "5cbf213858c485bd6f666028f8f4bff98a72af0c807b0bfc2bed9077a7f2d800"
+        },
+        {
+          "reference": "c9e622eb-f724-4695-8902-7b81e9345d12",
+          "sourceDigest": "0d35b8e91291913721ed2285f8ef991a047ab233975fb285e0e9bbc69d8f1716"
+        }
+      ],
+      "authorityReference": "6c8f58f4-a1eb-4f71-8c3f-652dcd802b4f",
+      "delegationReference": null,
+      "parentAuthorityReference": null,
+      "policy": {
+        "id": "external-agent-trust-v1",
+        "version": "0.2.0",
+        "hash": "5b2237f61c009d34ab2f560057a620db4507baee88a86fa2055e16ce3798a084"
+      },
+      "decisionDigest": "27eb8cf49ac46b11c996608c9a7162a6edc728193ed6dc07d1933e3697f86e19",
+      "evidenceGraphReference": "f1bcec3a-5732-4839-9c06-37dd713283cf",
+      "replayReference": "4832de12-b6c1-4583-b922-07d41743051f",
+      "trustMemoryReference": "8411be6a-6030-411a-9e76-cdd032d985bc",
+      "protectedWorkflow": null
+    },
+    "memory": {
+      "schemaVersion": "enterprise-trust-architecture-v1",
+      "generatedAt": "2026-09-10T10:11:43.856Z",
+      "correlationId": "0bb89e0b-e3b7-4e31-b33c-d5fa60f43410",
+      "ok": true,
+      "timeline": {
+        "stateDecisions": [
+          {
+            "state_decision_id": "595fe28e-5c6b-5584-83cd-2b165e726e58",
+            "decision_contract_id": "3175ef52-1158-5e55-9870-6eef29d46181",
+            "domain_key": "AI_AGENT",
+            "prior_state": "UNKNOWN",
+            "next_state": "EXPIRED",
+            "recommendation_id": "53963c4e-ca12-5ff2-8c2a-ebafaee35989",
+            "policy_id": "external-agent-trust-v1",
+            "policy_version": "0.2.0",
+            "decision_hash": "034f1be3f8cd7ac9eab077a192fd34300ff0d52021afa28fb19ebeb17538cb6d",
+            "decided_at": "2026-09-10T10:08:34.801+00:00",
+            "reason_codes": [
+              "EVIDENCE_EXPIRED",
+              "STATE_TRANSITION_APPLIED"
+            ]
+          }
+        ],
+        "memory": [
+          {
+            "memory_id": "9e622ba3-c8d9-4556-ac52-d191f3e88874",
+            "memory_type": "NATIVE_ENTITY_VERIFIED",
+            "source_id": "af542363-4e12-4002-8206-3cad10e17e18",
+            "occurred_at": "2026-09-10T10:08:34.256+00:00",
+            "summary": {
+              "evidenceId": "07db9d4c-4b29-46ec-a89c-fea150338402",
+              "continuityResult": "CONTINUITY_ESTABLISHED",
+              "changedAttributes": []
+            }
+          },
+          {
+            "memory_id": "7b7d11fe-6ffd-4a4c-bd01-857082d158b5",
+            "memory_type": "CONTINUOUS_TRUST_ASSESSMENT",
+            "source_id": "23be259d-3089-5044-a992-6c5bc3e3100a",
+            "occurred_at": "2026-09-10T10:08:34.801+00:00",
+            "summary": {
+              "score": "25",
+              "freshness": "EXPIRED",
+              "riskFlags": [],
+              "confidence": "0",
+              "reasonCodes": [
+                "EVIDENCE_EXPIRED"
+              ],
+              "transitionType": "INITIAL"
+            }
+          },
+          {
+            "memory_id": "f5adb44e-6f6b-45af-962c-bc4e471249f6",
+            "memory_type": "TRUST_STATE_DECISION",
+            "source_id": "595fe28e-5c6b-5584-83cd-2b165e726e58",
+            "occurred_at": "2026-09-10T10:08:34.801+00:00",
+            "summary": {
+              "policyId": "external-agent-trust-v1",
+              "nextState": "EXPIRED",
+              "priorState": "UNKNOWN",
+              "policyVersion": "0.2.0"
+            }
+          },
+          {
+            "memory_id": "8411be6a-6030-411a-9e76-cdd032d985bc",
+            "memory_type": "CANONICAL_TRUST_TRANSACTION",
+            "source_id": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+            "occurred_at": "2026-09-10T10:08:46.7+00:00",
+            "summary": {
+              "action": {
+                "type": "read_repository",
+                "purpose": "incident_evidence_qualification",
+                "resource": "repository:v2-staging-qualification",
+                "environment": "staging"
+              },
+              "trustState": "verified",
+              "policyVersion": "0.2.0",
+              "evaluationStatus": null,
+              "observedOutcomes": {
+                "runtimeOutcome": null,
+                "providerOutcome": null,
+                "destinationOutcome": null
+              },
+              "originalDecision": "ALLOW",
+              "changedConditions": [
+                "INITIAL_TRUST_DECISION"
+              ],
+              "laterAdjudication": {
+                "humanOverride": null,
+                "adjudicatedOutcome": null
+              },
+              "decisionReasonCodes": [
+                "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+                "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+                "AUTHORITY_SCOPE_VALID",
+                "CONCLUSION_CONFIDENCE_MODERATE",
+                "CONSEQUENCE_LOW",
+                "CURRENT_CONDITIONS_REEVALUATED",
+                "EVIDENCE_CURRENT",
+                "EVIDENCE_SUFFICIENT",
+                "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+                "TRUST_FORECAST_STABLE"
+              ],
+              "decisionOutcomeReview": null,
+              "previousTransactionId": null,
+              "trustIntelligenceEventCount": 0
+            }
+          },
+          {
+            "memory_id": "a2079236-c67e-499a-a932-41af3f70fc7e",
+            "memory_type": "INCIDENT_TRANSACTION_LINK",
+            "source_id": "7123cfbb-121d-4618-9a93-cf068506aa87",
+            "occurred_at": "2026-09-10T10:09:04.846026+00:00",
+            "summary": {
+              "source": null,
+              "incidentId": "d509e2c4-f8f9-4cef-be03-bc3ece2068ca",
+              "transactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+              "interpretation": null,
+              "originalPurpose": "incident_evidence_qualification",
+              "originalDecision": "ALLOW",
+              "chronologyEventId": "7123cfbb-121d-4618-9a93-cf068506aa87",
+              "evidenceReference": null
+            }
+          },
+          {
+            "memory_id": "b48a755b-86a1-4bab-8164-d8d802eba3ad",
+            "memory_type": "INCIDENT_EXECUTION_OBSERVATION",
+            "source_id": "93b36ce7-97b2-4964-b7c3-e05c0cddefe5",
+            "occurred_at": "2026-09-10T10:09:16.618326+00:00",
+            "summary": {
+              "source": "api-client:2b33fc5a-a34b-4cd6-8dd6-b2a47c5b23b5",
+              "incidentId": "d509e2c4-f8f9-4cef-be03-bc3ece2068ca",
+              "transactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+              "interpretation": null,
+              "originalPurpose": "incident_evidence_qualification",
+              "originalDecision": "ALLOW",
+              "chronologyEventId": "93b36ce7-97b2-4964-b7c3-e05c0cddefe5",
+              "evidenceReference": "ffac474b-aaee-5736-b12a-380d9397e794"
+            }
+          },
+          {
+            "memory_id": "27718b88-a07c-4f55-b6f6-e507badad826",
+            "memory_type": "INCIDENT_OUTCOME",
+            "source_id": "91a97364-ddb9-47f2-939f-6ed423c31a4c",
+            "occurred_at": "2026-09-10T10:09:17.849936+00:00",
+            "summary": {
+              "source": "api-client:2b33fc5a-a34b-4cd6-8dd6-b2a47c5b23b5",
+              "incidentId": "d509e2c4-f8f9-4cef-be03-bc3ece2068ca",
+              "transactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+              "interpretation": null,
+              "originalPurpose": "incident_evidence_qualification",
+              "originalDecision": "ALLOW",
+              "chronologyEventId": "91a97364-ddb9-47f2-939f-6ed423c31a4c",
+              "evidenceReference": "e5c12b68-d707-5919-922c-a98064b94278"
+            }
+          },
+          {
+            "memory_id": "4be41fd3-77a9-4bad-a2c8-d8f85065de0b",
+            "memory_type": "INCIDENT_DETECTION",
+            "source_id": "2890c949-fd63-476b-956c-7b48f2928467",
+            "occurred_at": "2026-09-10T10:09:19.062697+00:00",
+            "summary": {
+              "source": "api-client:2b33fc5a-a34b-4cd6-8dd6-b2a47c5b23b5",
+              "incidentId": "d509e2c4-f8f9-4cef-be03-bc3ece2068ca",
+              "transactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+              "interpretation": null,
+              "originalPurpose": "incident_evidence_qualification",
+              "originalDecision": "ALLOW",
+              "chronologyEventId": "2890c949-fd63-476b-956c-7b48f2928467",
+              "evidenceReference": "c4c596fc-fb38-519f-88ec-ecba5f6b256a"
+            }
+          },
+          {
+            "memory_id": "469f9189-1407-4284-aaf3-c55b5ed768cd",
+            "memory_type": "INCIDENT_INTERVENTION",
+            "source_id": "133c9ca9-0e6f-4f6c-87d6-a126522b0523",
+            "occurred_at": "2026-09-10T10:09:20.235793+00:00",
+            "summary": {
+              "source": "api-client:2b33fc5a-a34b-4cd6-8dd6-b2a47c5b23b5",
+              "incidentId": "d509e2c4-f8f9-4cef-be03-bc3ece2068ca",
+              "transactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+              "interpretation": null,
+              "originalPurpose": "incident_evidence_qualification",
+              "originalDecision": "ALLOW",
+              "chronologyEventId": "133c9ca9-0e6f-4f6c-87d6-a126522b0523",
+              "evidenceReference": "d066246d-f24a-5321-8811-89bdf79ccc2c"
+            }
+          },
+          {
+            "memory_id": "687c0405-10e7-4b20-b902-8b4972538977",
+            "memory_type": "INCIDENT_CONTAINMENT",
+            "source_id": "819af705-1396-45b4-b4b9-f8a976876bc0",
+            "occurred_at": "2026-09-10T10:09:21.43209+00:00",
+            "summary": {
+              "source": "api-client:2b33fc5a-a34b-4cd6-8dd6-b2a47c5b23b5",
+              "incidentId": "d509e2c4-f8f9-4cef-be03-bc3ece2068ca",
+              "transactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+              "interpretation": null,
+              "originalPurpose": "incident_evidence_qualification",
+              "originalDecision": "ALLOW",
+              "chronologyEventId": "819af705-1396-45b4-b4b9-f8a976876bc0",
+              "evidenceReference": "adcbd833-c07d-5370-a1e8-e7313a74b5b8"
+            }
+          },
+          {
+            "memory_id": "d88ed42f-3892-4c15-b4c8-8fbea537ce31",
+            "memory_type": "INCIDENT_REMEDIATION",
+            "source_id": "cde1522f-ecdc-40c7-ab9a-f7a6689e8165",
+            "occurred_at": "2026-09-10T10:09:22.655274+00:00",
+            "summary": {
+              "source": "api-client:2b33fc5a-a34b-4cd6-8dd6-b2a47c5b23b5",
+              "incidentId": "d509e2c4-f8f9-4cef-be03-bc3ece2068ca",
+              "transactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+              "interpretation": null,
+              "originalPurpose": "incident_evidence_qualification",
+              "originalDecision": "ALLOW",
+              "chronologyEventId": "cde1522f-ecdc-40c7-ab9a-f7a6689e8165",
+              "evidenceReference": "c3ac835c-b733-5b06-ae6c-9c54242335cc"
+            }
+          },
+          {
+            "memory_id": "b50fff38-4597-4fb8-866b-7116cfabeffe",
+            "memory_type": "INCIDENT_PURPOSE_OBSERVATION",
+            "source_id": "4a95c889-b0d1-41c6-864c-124a9ca9ea64",
+            "occurred_at": "2026-09-10T10:09:23.86943+00:00",
+            "summary": {
+              "source": "api-client:2b33fc5a-a34b-4cd6-8dd6-b2a47c5b23b5",
+              "incidentId": "d509e2c4-f8f9-4cef-be03-bc3ece2068ca",
+              "transactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+              "interpretation": "reported_content_copy",
+              "originalPurpose": "incident_evidence_qualification",
+              "originalDecision": "ALLOW",
+              "chronologyEventId": "4a95c889-b0d1-41c6-864c-124a9ca9ea64",
+              "evidenceReference": "d73731fe-82d3-569d-a4bf-c062ce3ee094"
+            }
+          },
+          {
+            "memory_id": "f2eac4a3-4785-4aa6-8e4d-2c22c03f6e2c",
+            "memory_type": "TWIN_AUTHORITY_CHANGED",
+            "source_id": "531f9127-b013-518e-9841-83bb620e0c02:095421482c06ecb6fd084a0466ef49c3c3da209ac0955832172ed2cc03ef5fa3",
+            "occurred_at": "2026-09-10T10:09:28.07+00:00",
+            "summary": {
+              "evidenceReferences": [
+                "07db9d4c-4b29-46ec-a89c-fea150338402",
+                "adcbd833-c07d-5370-a1e8-e7313a74b5b8",
+                "c3ac835c-b733-5b06-ae6c-9c54242335cc",
+                "c4c596fc-fb38-519f-88ec-ecba5f6b256a",
+                "c9e622eb-f724-4695-8902-7b81e9345d12",
+                "d066246d-f24a-5321-8811-89bdf79ccc2c",
+                "d73731fe-82d3-569d-a4bf-c062ce3ee094",
+                "digest:59e044ee55e10575dc37c42f21b687d13c86b80b3e9decea3e532ea436601f2a",
+                "e5c12b68-d707-5919-922c-a98064b94278",
+                "ffac474b-aaee-5736-b12a-380d9397e794"
+              ],
+              "knownAtForecastTime": true,
+              "canonicalTransactionId": "531f9127-b013-518e-9841-83bb620e0c02"
+            }
+          },
+          {
+            "memory_id": "61a94895-2f61-4fa4-a83d-9769aa3d4241",
+            "memory_type": "VERIFICATION_STEP_UP_REQUIRED",
+            "source_id": "531f9127-b013-518e-9841-83bb620e0c02:5411ebe2878e0dac73c13c54b94fe82ba940b051a804ce2d4fd04161c25c616a",
+            "occurred_at": "2026-09-10T10:09:28.07+00:00",
+            "summary": {
+              "evidenceReferences": [
+                "07db9d4c-4b29-46ec-a89c-fea150338402",
+                "adcbd833-c07d-5370-a1e8-e7313a74b5b8",
+                "c3ac835c-b733-5b06-ae6c-9c54242335cc",
+                "c4c596fc-fb38-519f-88ec-ecba5f6b256a",
+                "c9e622eb-f724-4695-8902-7b81e9345d12",
+                "d066246d-f24a-5321-8811-89bdf79ccc2c",
+                "d73731fe-82d3-569d-a4bf-c062ce3ee094",
+                "e5c12b68-d707-5919-922c-a98064b94278",
+                "ffac474b-aaee-5736-b12a-380d9397e794"
+              ],
+              "knownAtForecastTime": true,
+              "canonicalTransactionId": "531f9127-b013-518e-9841-83bb620e0c02"
+            }
+          },
+          {
+            "memory_id": "ff9cde0b-8513-4935-b105-f28368c42238",
+            "memory_type": "VERIFICATION_STALE",
+            "source_id": "531f9127-b013-518e-9841-83bb620e0c02:8c84cac880201929e6aacea0fa03d8435781fa04b89d8c4c25f7318e064d9ed6",
+            "occurred_at": "2026-09-10T10:09:28.07+00:00",
+            "summary": {
+              "evidenceReferences": [
+                "07db9d4c-4b29-46ec-a89c-fea150338402",
+                "adcbd833-c07d-5370-a1e8-e7313a74b5b8",
+                "c3ac835c-b733-5b06-ae6c-9c54242335cc",
+                "c4c596fc-fb38-519f-88ec-ecba5f6b256a",
+                "c9e622eb-f724-4695-8902-7b81e9345d12",
+                "d066246d-f24a-5321-8811-89bdf79ccc2c",
+                "d73731fe-82d3-569d-a4bf-c062ce3ee094",
+                "e5c12b68-d707-5919-922c-a98064b94278",
+                "ffac474b-aaee-5736-b12a-380d9397e794"
+              ],
+              "knownAtForecastTime": true,
+              "canonicalTransactionId": "531f9127-b013-518e-9841-83bb620e0c02"
+            }
+          },
+          {
+            "memory_id": "ef6ca019-925c-4c46-8726-ccb22b86d38a",
+            "memory_type": "TRUST_GAP_DISCOVERED",
+            "source_id": "531f9127-b013-518e-9841-83bb620e0c02:ec7d83c433600b8253947f0d6a43d941a34977fe534413ccc1c10c1d006dd5fd",
+            "occurred_at": "2026-09-10T10:09:28.07+00:00",
+            "summary": {
+              "evidenceReferences": [
+                "07db9d4c-4b29-46ec-a89c-fea150338402",
+                "adcbd833-c07d-5370-a1e8-e7313a74b5b8",
+                "c3ac835c-b733-5b06-ae6c-9c54242335cc",
+                "c4c596fc-fb38-519f-88ec-ecba5f6b256a",
+                "c9e622eb-f724-4695-8902-7b81e9345d12",
+                "d066246d-f24a-5321-8811-89bdf79ccc2c",
+                "d73731fe-82d3-569d-a4bf-c062ce3ee094",
+                "e5c12b68-d707-5919-922c-a98064b94278",
+                "ffac474b-aaee-5736-b12a-380d9397e794"
+              ],
+              "knownAtForecastTime": true,
+              "canonicalTransactionId": "531f9127-b013-518e-9841-83bb620e0c02"
+            }
+          },
+          {
+            "memory_id": "28422f9f-2a3b-454b-b3f8-04faa407dcd4",
+            "memory_type": "CANONICAL_TRUST_TRANSACTION",
+            "source_id": "531f9127-b013-518e-9841-83bb620e0c02",
+            "occurred_at": "2026-09-10T10:09:28.07+00:00",
+            "summary": {
+              "action": {
+                "type": "read_repository",
+                "purpose": "incident_evidence_qualification",
+                "resource": "repository:v2-staging-qualification",
+                "environment": "staging"
+              },
+              "trustState": "suspended",
+              "policyVersion": "0.2.0",
+              "evaluationStatus": null,
+              "observedOutcomes": {
+                "runtimeOutcome": null,
+                "providerOutcome": null,
+                "destinationOutcome": null
+              },
+              "originalDecision": "DENY",
+              "changedConditions": [
+                "EVIDENCE_CHANGED",
+                "TRUST_TWIN_MATERIAL_EVENT",
+                "ADAPTIVE_VERIFICATION_MATERIAL_EVENT"
+              ],
+              "laterAdjudication": {
+                "humanOverride": null,
+                "adjudicatedOutcome": null
+              },
+              "decisionReasonCodes": [
+                "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+                "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+                "AUTHORITY_REVOKED",
+                "AUTHORITY_SCOPE_INVALID",
+                "CONCLUSION_CONFIDENCE_MODERATE",
+                "CONSEQUENCE_LOW",
+                "CONTRACT_REVOKED",
+                "CURRENT_CONDITIONS_REEVALUATED",
+                "EVIDENCE_CURRENT",
+                "EVIDENCE_INSUFFICIENT",
+                "MISSING_VERIFY_AGENT_CONFIGURATION",
+                "MISSING_VERIFY_AUTHORITY",
+                "MISSING_VERIFY_AUTHORITY_STATE",
+                "MISSING_VERIFY_MONITORING",
+                "MISSING_VERIFY_RUNTIME",
+                "PREVIOUS_ALLOW_NOT_STANDING_AUTHORIZATION",
+                "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+                "TRUST_FORECAST_STABLE",
+                "TRUST_GAP_OPEN"
+              ],
+              "decisionOutcomeReview": null,
+              "previousTransactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+              "trustIntelligenceEventCount": 4
+            }
+          },
+          {
+            "memory_id": "ff96182f-7ddc-45b9-8e0c-35b4ea2e7066",
+            "memory_type": "INCIDENT_EVIDENCE_EXPORT",
+            "source_id": "cbbdbfd3-7792-45ff-8869-326251d405fa",
+            "occurred_at": "2026-09-10T10:09:31.291418+00:00",
+            "summary": {
+              "digest": "3c49385867f68fd4fe54348d15b629b20fa209bf893515a3f037382dc41ec509",
+              "packageId": "cbbdbfd3-7792-45ff-8869-326251d405fa",
+              "incidentId": "d509e2c4-f8f9-4cef-be03-bc3ece2068ca"
+            }
+          },
+          {
+            "memory_id": "86325d47-7c0a-49e7-8187-c0b45443d654",
+            "memory_type": "DECISION_OUTCOME_REVIEW",
+            "source_id": "523d266d-1500-5fd2-8aed-eff29b85ffb7",
+            "occurred_at": "2026-09-10T10:11:40.951142+00:00",
+            "summary": {
+              "action": {
+                "type": "read_repository",
+                "purpose": "incident_evidence_qualification",
+                "resource": "repository:v2-staging-qualification",
+                "environment": "staging"
+              },
+              "evaluationStatus": "CONTRADICTED",
+              "observedOutcomes": {
+                "runtimeOutcome": null,
+                "providerOutcome": null,
+                "destinationOutcome": null
+              },
+              "originalDecision": "ALLOW",
+              "laterAdjudication": {
+                "humanOverride": {
+                  "reason": "Staging qualification adjudication after test authority revocation; original authorization remains unchanged.",
+                  "occurred": true,
+                  "occurredAt": "2026-09-10T10:11:41.287Z",
+                  "actorReference": "user:a116afe9-883b-47b4-a600-26d5d5a5882a",
+                  "originalDecision": "ALLOW",
+                  "evidenceReference": "authority-revocation:6c8f58f4-a1eb-4f71-8c3f-652dcd802b4f",
+                  "resultingDecision": "DENY"
+                },
+                "adjudicatedOutcome": "DENY"
+              },
+              "decisionOutcomeReview": {
+                "humanOverride": {
+                  "reason": "Staging qualification adjudication after test authority revocation; original authorization remains unchanged.",
+                  "occurred": true,
+                  "occurredAt": "2026-09-10T10:11:41.287Z",
+                  "actorReference": "user:a116afe9-883b-47b4-a600-26d5d5a5882a",
+                  "originalDecision": "ALLOW",
+                  "evidenceReference": "authority-revocation:6c8f58f4-a1eb-4f71-8c3f-652dcd802b4f",
+                  "resultingDecision": "DENY"
+                },
+                "policyVersion": "0.2.0",
+                "runtimeOutcome": null,
+                "providerOutcome": null,
+                "evaluationStatus": "CONTRADICTED",
+                "originalDecision": "ALLOW",
+                "decisionModelName": null,
+                "adjudicatedOutcome": "DENY",
+                "destinationOutcome": null,
+                "decisionReasonCodes": [
+                  "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+                  "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+                  "AUTHORITY_SCOPE_VALID",
+                  "CONCLUSION_CONFIDENCE_MODERATE",
+                  "CONSEQUENCE_LOW",
+                  "CURRENT_CONDITIONS_REEVALUATED",
+                  "EVIDENCE_CURRENT",
+                  "EVIDENCE_SUFFICIENT",
+                  "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+                  "TRUST_FORECAST_STABLE"
+                ],
+                "decisionModelVersion": null,
+                "decisionModelProvider": null
+              }
+            }
+          }
+        ]
+      }
+    },
+    "graph": {
+      "schemaVersion": "enterprise-trust-architecture-v1",
+      "generatedAt": "2026-09-10T10:11:45.775Z",
+      "correlationId": "1413bd8b-f1ac-4882-ba1f-f34e49e4ac03",
+      "ok": true,
+      "graph": {
+        "rootNodeId": "419a4233-8e22-425e-b7ba-1988d563c1f6",
+        "depth": 1,
+        "truncated": false,
+        "nodes": [
+          {
+            "nodeId": "419a4233-8e22-425e-b7ba-1988d563c1f6",
+            "enterpriseId": "f8deb39c-b626-4755-9202-bb58be3f8c94",
+            "nodeType": "ENTITY",
+            "externalId": "agent:e5f6d779-6f21-4473-9acd-ed0c44af40db",
+            "domainKey": "IDENTITY",
+            "label": "AI_AGENT",
+            "metadata": {
+              "canonicalTransactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7"
+            },
+            "createdAt": "2026-09-10T10:08:47.735148+00:00"
+          },
+          {
+            "nodeId": "7fa48386-6a34-420e-9178-cbed4234b44b",
+            "enterpriseId": "f8deb39c-b626-4755-9202-bb58be3f8c94",
+            "nodeType": "TRUST_TWIN",
+            "externalId": "8b1d2edb-d150-5621-81a4-b4795baf2def",
+            "domainKey": "GOVERNANCE",
+            "label": "Derived Trust Twin",
+            "metadata": {
+              "source": "CANONICAL_EVIDENCE_PROJECTION",
+              "canonicalTransactionId": "531f9127-b013-518e-9841-83bb620e0c02"
+            },
+            "createdAt": "2026-09-10T10:09:29.300306+00:00"
+          },
+          {
+            "nodeId": "89bce5bd-dc0e-4088-adb8-72828a0ef2cf",
+            "enterpriseId": "f8deb39c-b626-4755-9202-bb58be3f8c94",
+            "nodeType": "TRUST_TWIN",
+            "externalId": "14e176b0-6d63-59e0-905c-ef7cd6e03b81",
+            "domainKey": "GOVERNANCE",
+            "label": "Derived Trust Twin",
+            "metadata": {
+              "source": "CANONICAL_EVIDENCE_PROJECTION",
+              "canonicalTransactionId": "523d266d-1500-5fd2-8aed-eff29b85ffb7"
+            },
+            "createdAt": "2026-09-10T10:08:47.735148+00:00"
+          },
+          {
+            "nodeId": "f8f02294-c04e-49bd-8288-fd38d0e1f704",
+            "enterpriseId": "f8deb39c-b626-4755-9202-bb58be3f8c94",
+            "nodeType": "AUTHORITY",
+            "externalId": "6c8f58f4-a1eb-4f71-8c3f-652dcd802b4f",
+            "domainKey": "AUTHORITY",
+            "label": "Authority lineage",
+            "metadata": {
+              "reference": "6c8f58f4-a1eb-4f71-8c3f-652dcd802b4f"
+            },
+            "createdAt": "2026-09-10T10:08:47.735148+00:00"
+          }
+        ],
+        "edges": [
+          {
+            "edgeId": "e428ea51-ab30-4a39-a7f7-78d707ed1afd",
+            "enterpriseId": "f8deb39c-b626-4755-9202-bb58be3f8c94",
+            "fromNodeId": "419a4233-8e22-425e-b7ba-1988d563c1f6",
+            "toNodeId": "89bce5bd-dc0e-4088-adb8-72828a0ef2cf",
+            "edgeType": "DERIVED_FROM",
+            "evidenceId": null,
+            "createdAt": "2026-09-10T10:08:47.735148+00:00"
+          },
+          {
+            "edgeId": "10d1be75-71ee-4a31-a808-e8855143696c",
+            "enterpriseId": "f8deb39c-b626-4755-9202-bb58be3f8c94",
+            "fromNodeId": "419a4233-8e22-425e-b7ba-1988d563c1f6",
+            "toNodeId": "f8f02294-c04e-49bd-8288-fd38d0e1f704",
+            "edgeType": "APPLIES_TO",
+            "evidenceId": null,
+            "createdAt": "2026-09-10T10:08:47.735148+00:00"
+          },
+          {
+            "edgeId": "a1316ee3-04e2-4d16-8935-71637d6b03d9",
+            "enterpriseId": "f8deb39c-b626-4755-9202-bb58be3f8c94",
+            "fromNodeId": "419a4233-8e22-425e-b7ba-1988d563c1f6",
+            "toNodeId": "7fa48386-6a34-420e-9178-cbed4234b44b",
+            "edgeType": "DERIVED_FROM",
+            "evidenceId": null,
+            "createdAt": "2026-09-10T10:09:29.300306+00:00"
+          },
+          {
+            "edgeId": "da5ab4b9-a82e-4f6b-9064-bc3300a813e7",
+            "enterpriseId": "f8deb39c-b626-4755-9202-bb58be3f8c94",
+            "fromNodeId": "419a4233-8e22-425e-b7ba-1988d563c1f6",
+            "toNodeId": "f8f02294-c04e-49bd-8288-fd38d0e1f704",
+            "edgeType": "APPLIES_TO",
+            "evidenceId": null,
+            "createdAt": "2026-09-10T10:09:29.300306+00:00"
+          }
+        ]
+      }
+    }
+  },
+  "browser": {
+    "status": "PASS",
+    "headings": 10,
+    "consoleErrors": [],
+    "mobileOverflow": false
+  },
+  "status": "PASS"
+}

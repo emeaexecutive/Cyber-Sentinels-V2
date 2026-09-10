@@ -1,0 +1,12 @@
+{
+  "tests": 1514,
+  "pass": 1514,
+  "fail": 0,
+  "skipped": 0,
+  "lintExit": 0,
+  "typecheckExit": 0,
+  "buildExit": 0,
+  "homepageRouteBytes": 674,
+  "firstLoadJS": "107 kB",
+  "classification": "Local full-suite and optimized build; hosted CI for follow-up head unavailable because PR86 is merged"
+}
