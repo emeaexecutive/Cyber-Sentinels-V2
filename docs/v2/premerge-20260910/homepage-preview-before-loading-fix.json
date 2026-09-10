@@ -1,0 +1,296 @@
+{
+  "target": "https://cyber-sentinels-v2-86089px13-keith-speres-projects.vercel.app",
+  "consent": "Browser-only rejected-optional fixture; no server consent claim",
+  "writes": "All non-GET/HEAD requests blocked",
+  "widths": [
+    {
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0.228,
+      "lcpMs": 604,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 17,
+      "shifts": [
+        {
+          "value": 0.228,
+          "sources": [
+            {
+              "element": "FOOTER",
+              "className": "border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8",
+              "previous": {
+                "x": 0,
+                "y": 771.953125,
+                "width": 1440,
+                "height": 228.046875,
+                "top": 771.953125,
+                "right": 1440,
+                "bottom": 1000,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0.228,
+      "lcpMs": 608,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 17,
+      "shifts": [
+        {
+          "value": 0.228,
+          "sources": [
+            {
+              "element": "FOOTER",
+              "className": "border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8",
+              "previous": {
+                "x": 0,
+                "y": 771.953125,
+                "width": 1280,
+                "height": 228.046875,
+                "top": 771.953125,
+                "right": 1280,
+                "bottom": 1000,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1024,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0.231,
+      "lcpMs": 592,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 17,
+      "shifts": [
+        {
+          "value": 0.231,
+          "sources": [
+            {
+              "element": "FOOTER",
+              "className": "border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8",
+              "previous": {
+                "x": 0,
+                "y": 769,
+                "width": 1024,
+                "height": 231,
+                "top": 769,
+                "right": 1024,
+                "bottom": 1000,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 300,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 9,
+      "shifts": []
+    },
+    {
+      "width": 430,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0.215,
+      "lcpMs": 572,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 12,
+      "shifts": [
+        {
+          "value": 0.215,
+          "sources": [
+            {
+              "element": "FOOTER",
+              "className": "border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8",
+              "previous": {
+                "x": 0,
+                "y": 784.5,
+                "width": 430,
+                "height": 215.5,
+                "top": 784.5,
+                "right": 430,
+                "bottom": 1000,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0.183,
+      "lcpMs": 576,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 11,
+      "shifts": [
+        {
+          "value": 0.183,
+          "sources": [
+            {
+              "element": "FOOTER",
+              "className": "border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8",
+              "previous": {
+                "x": 0,
+                "y": 816.5,
+                "width": 390,
+                "height": 183.5,
+                "top": 816.5,
+                "right": 390,
+                "bottom": 1000,
+                "left": 0
+              },
+              "current": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0,
+                "top": 0,
+                "right": 0,
+                "bottom": 0,
+                "left": 0
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [
+    "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+  ],
+  "keyboard": [
+    {
+      "text": "Cyber Sentinels",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Platform",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Solutions",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Developers",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Enterprise",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Pricing",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Sign In",
+      "outline": "solid",
+      "width": "2px"
+    },
+    {
+      "text": "Request a demo",
+      "outline": "solid",
+      "width": "2px"
+    },
+    {
+      "text": "Explore the API",
+      "outline": "solid",
+      "width": "2px"
+    },
+    {
+      "text": "Trust Orchestrator",
+      "outline": "solid",
+      "width": "3px"
+    }
+  ],
+  "apiDocs": {
+    "path": "/developers/docs",
+    "heading": "Developer Documentation"
+  },
+  "demo": {
+    "path": "/enterprise-access",
+    "heading": "Request Enterprise Demo",
+    "requiredFields": 5,
+    "submitted": false
+  },
+  "status": "FAIL",
+  "failure": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   'Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.'\n+ ]\n- []\n"
+}

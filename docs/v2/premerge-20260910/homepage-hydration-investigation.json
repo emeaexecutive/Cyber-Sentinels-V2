@@ -1,0 +1,149 @@
+{
+  "target": "https://cyber-sentinels-v2-feuydffiq-keith-speres-projects.vercel.app",
+  "consent": "Browser-only rejected-optional fixture; no server consent claim",
+  "writes": "All non-GET/HEAD requests blocked",
+  "widths": [
+    {
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 384,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 9,
+      "shifts": []
+    },
+    {
+      "width": 1280,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 320,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 9,
+      "shifts": []
+    },
+    {
+      "width": 1024,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 552,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 14,
+      "shifts": []
+    },
+    {
+      "width": 768,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 568,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 17,
+      "shifts": []
+    },
+    {
+      "width": 430,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 560,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 9,
+      "shifts": []
+    },
+    {
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 572,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 10,
+      "shifts": []
+    }
+  ],
+  "errors": [
+    {
+      "path": "/",
+      "message": "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    }
+  ],
+  "keyboard": [
+    {
+      "text": "Cyber Sentinels",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Platform",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Solutions",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Developers",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Enterprise",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Pricing",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Sign In",
+      "outline": "solid",
+      "width": "2px"
+    },
+    {
+      "text": "Request a demo",
+      "outline": "solid",
+      "width": "2px"
+    },
+    {
+      "text": "Explore the API",
+      "outline": "solid",
+      "width": "2px"
+    },
+    {
+      "text": "Trust Orchestrator",
+      "outline": "solid",
+      "width": "3px"
+    }
+  ],
+  "apiDocs": {
+    "path": "/developers/docs",
+    "heading": "Developer Documentation"
+  },
+  "demo": {
+    "path": "/enterprise-access",
+    "heading": "Request Enterprise Demo",
+    "requiredFields": 5,
+    "submitted": false
+  },
+  "status": "FAIL",
+  "failure": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   {\n+     message: 'Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.',\n+     path: '/'\n+   }\n+ ]\n- []\n"
+}

@@ -21,7 +21,7 @@ try {
     new PerformanceObserver(list => { for (const e of list.getEntries()) window.__visualLCP = e.startTime; }).observe({ type: 'largest-contentful-paint', buffered: true });
   });
   const page = await context.newPage();
-  page.on('pageerror', error => report.errors.push({ path: new URL(page.url()).pathname, message: error.message }));
+  page.on('pageerror', error => report.errors.push({ path: new URL(page.url()).pathname, message: error.message, stack: error.stack?.replace(/([?&]_vercel_share=)[^\s"&]+/g, '$1REDACTED') }));
   if (access) await page.goto(JSON.parse(await readFile(access, 'utf8')).url, { waitUntil: 'load', timeout: 90000 });
   for (const width of [1440, 1280, 1024, 768, 430, 390]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -35,11 +35,13 @@ try {
       return { overflow: document.documentElement.scrollWidth > innerWidth, h1: document.querySelectorAll('h1').length, cls: window.__visualCLS, lcpMs: window.__visualLCP, reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches, violations: axe.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n => n.target) })), resources: performance.getEntriesByType('resource').filter(e => e.initiatorType === 'script').length };
     });
     await page.screenshot({ path: `${directory}/home-${width}.png`, fullPage: true });
+    if (width === 1440 || width === 390) await page.screenshot({ path: `${directory}/home-viewport-${width}.png` });
     result.shifts = await page.evaluate(() => window.__visualShifts);
     report.widths.push({ width, status: response.status(), ...result });
     assert.equal(result.overflow, false, `Overflow at ${width}`);
     assert.equal(result.h1, 1);
     assert.deepEqual(result.violations, [], `Accessibility at ${width}`);
+    assert.ok(result.cls <= 0.1, `Layout stability at ${width}: ${result.cls}`);
     if (width < 640) {
       const menu = page.getByRole('button', { name: 'Menu', exact: true });
       await menu.focus(); await page.keyboard.press('Enter');

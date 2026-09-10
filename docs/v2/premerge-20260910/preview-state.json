@@ -1,0 +1,10 @@
+{
+  "deployment": "dpl_32GQKvdxDSLYmkKjv8tMwFXGspno",
+  "url": "https://cyber-sentinels-v2-feuydffiq-keith-speres-projects.vercel.app",
+  "sha": "61b9701ff113e996cfe07806702f9c36bb1ef48e",
+  "state": "READY",
+  "target": null,
+  "productionAlias": false,
+  "applicationSourceSha": "61b9701ff113e996cfe07806702f9c36bb1ef48e",
+  "note": "Later commits contain review evidence and browser harness refinements only."
+}

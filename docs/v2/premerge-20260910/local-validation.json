@@ -8,5 +8,8 @@
   "buildExit": 0,
   "homepageRouteBytes": 674,
   "firstLoadJS": "107 kB",
-  "classification": "Local full-suite and optimized build; hosted CI for follow-up head unavailable because PR86 is merged"
+  "classification": "Local full-suite and optimized build; hosted CI for follow-up head unavailable because PR86 is merged",
+  "sourceCommit": "61b9701ff113e996cfe07806702f9c36bb1ef48e",
+  "secretScan": "PASS with exact public-client identifier fingerprints",
+  "qualificationRerun": "Full 1514-test suite, lint, typecheck and optimized build rerun after loading-height fix"
 }

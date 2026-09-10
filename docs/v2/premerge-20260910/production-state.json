@@ -1,0 +1,15 @@
+{
+  "deployment": "dpl_3yX9aPfmjumxNH2DS56dnzTFL7zc",
+  "sha": "b0f6b37d41714efa940852b3ef955e9c7317c513",
+  "state": "READY",
+  "target": "production",
+  "aliases": [
+    "www.cybersentinels.com",
+    "cyber-sentinels-v2.vercel.app",
+    "cybersentinels.com",
+    "cyber-sentinels-v2-keith-speres-projects.vercel.app",
+    "cyber-sentinels-v2-git-b0f6b37d417-e764b5-keith-speres-projects.vercel.app"
+  ],
+  "productionMutations": false,
+  "productionDatabaseAccess": false
+}

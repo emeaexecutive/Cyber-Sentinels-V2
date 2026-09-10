@@ -1,0 +1,117 @@
+{
+  "status": "PASS",
+  "runs": [
+    {
+      "run": "browser-diagnostic-1",
+      "status": "PASS",
+      "errors": [],
+      "widths": [
+        {
+          "width": 1440,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 1280,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 1024,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 768,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 430,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 390,
+          "cls": 0,
+          "violations": 0
+        }
+      ]
+    },
+    {
+      "run": "browser-diagnostic-2",
+      "status": "PASS",
+      "errors": [],
+      "widths": [
+        {
+          "width": 1440,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 1280,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 1024,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 768,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 430,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 390,
+          "cls": 0,
+          "violations": 0
+        }
+      ]
+    },
+    {
+      "run": "browser-diagnostic-3",
+      "status": "PASS",
+      "errors": [],
+      "widths": [
+        {
+          "width": 1440,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 1280,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 1024,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 768,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 430,
+          "cls": 0,
+          "violations": 0
+        },
+        {
+          "width": 390,
+          "cls": 0,
+          "violations": 0
+        }
+      ]
+    }
+  ],
+  "limitation": "Earlier recoverable React hydration error retained in homepage-hydration-investigation.json; not reproduced in these three runs, not claimed fixed."
+}
