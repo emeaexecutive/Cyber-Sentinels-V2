@@ -1,0 +1,20 @@
+[
+  {
+    "file": "PRE_SEED_TECHNICAL_DILIGENCE.md",
+    "source_sha256": "8388c993c0143218c7d54d8e1ad86aafad796f68e47d1171135d5410a9e5e273",
+    "archived_sha256": "8388c993c0143218c7d54d8e1ad86aafad796f68e47d1171135d5410a9e5e273",
+    "redaction": null
+  },
+  {
+    "file": "V1_RELEASE_CANDIDATE_QUALIFICATION.md",
+    "source_sha256": "0687c8d69a92ee2984ed49f7f1f2be781bf327e89da57ea7918e5efd539f25e5",
+    "archived_sha256": "0687c8d69a92ee2984ed49f7f1f2be781bf327e89da57ea7918e5efd539f25e5",
+    "redaction": null
+  },
+  {
+    "file": "V1_PRODUCTION_PROOF.md",
+    "source_sha256": "6583e3d7222a5816f6a5c6113353b6a7a5e41a65148261ac38f65e7788fcdcaa",
+    "archived_sha256": "aad498e12c832ab6005fb20569b704a9b3b87daa7986fd8bd1b46b7bf0ae3866",
+    "redaction": "Conservative backup hash/prose redaction retained for publication; exact safe original in external archive."
+  }
+]
