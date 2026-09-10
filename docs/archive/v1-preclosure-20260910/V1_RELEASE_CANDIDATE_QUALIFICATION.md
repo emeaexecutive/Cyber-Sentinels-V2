@@ -1,5 +1,7 @@
 # Cyber Sentinels V1 release-candidate qualification
 
+> HISTORICAL / SUPERSEDED. This report preserves an earlier qualification state. Its verdicts and next steps are not current instructions. See the [canonical final V1 Production proof](../../release/v1-control-plane-production-proof/PRODUCTION_PROOF.md).
+
 Generated: 2026-08-26  
 Decision: **not a staging-qualified V1 release candidate**  
 Final main SHA: `645945ff18bed601753a2b2595d6d3759298f11a`

@@ -1,5 +1,7 @@
 # Cyber Sentinels — Pre-Seed Technical Diligence
 
+> HISTORICAL / SUPERSEDED. This report preserves an earlier qualification state. Its verdicts and next steps are not current instructions. See the [canonical final V1 Production proof](../../release/v1-control-plane-production-proof/PRODUCTION_PROOF.md).
+
 Status as of 31 August 2026: **not yet Production-proven**. The exact V1 candidate is comprehensively qualified in Staging. Production recovery, migration rehearsal, secrets, and hosted control-plane configuration are prepared, but the required supervised Turnstile and Auth/SMTP session has not yet been completed; the candidate has therefore not been merged or promoted.
 
 ## What is Cyber Sentinels?

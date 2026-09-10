@@ -1,5 +1,7 @@
 # Cyber Sentinels V1 Production Proof
 
+> HISTORICAL / SUPERSEDED. This report preserves an earlier qualification state. Its verdicts and next steps are not current instructions. See the [canonical final V1 Production proof](../../release/v1-control-plane-production-proof/PRODUCTION_PROOF.md).
+
 Proof timestamp: 2026-08-31 17:26 UTC  
 Release candidate: `8e3f616d1ea5846bc59ed081ec2f13a7019b7372`  
 Production domain: `https://www.cybersentinels.com`  
