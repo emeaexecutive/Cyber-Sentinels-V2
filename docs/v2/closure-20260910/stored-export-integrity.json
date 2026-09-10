@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "project": "agpyhygpfmppjkxwcpac",
+  "packageId": "c1d93f8c-7bfd-4921-854b-77e2898f4adf",
+  "version": 2,
+  "storedCanonicalDigest": "2996f4c3f0280a4c639c3435234ff25ebb266d9bc37b8b679661434be05919fe",
+  "evidenceReferences": 7,
+  "originalDecision": "ALLOW",
+  "evaluation": "CONTRADICTED",
+  "meaning": "Recomputed from persisted database package, distinct from HTTP export check. Keys sorted recursively and compact UTF-8 serialization; fixture contains no floating-point edge cases."
+}

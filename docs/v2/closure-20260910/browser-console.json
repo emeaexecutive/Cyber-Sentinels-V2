@@ -1,0 +1,48 @@
+{
+  "pages": [
+    {
+      "path": "/",
+      "console": [
+        {
+          "type": "error",
+          "text": "%c%s%c Admin email mismatch. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   {configuredAdminCount: 0}"
+        },
+        {
+          "type": "error",
+          "text": "Failed to load resource: net::ERR_FAILED"
+        }
+      ],
+      "pageErrors": [],
+      "issues": ""
+    },
+    {
+      "path": "/dashboard/incident-evidence?incident=3233ed62-aec3-4afb-9a95-7d0b6d441d9b",
+      "console": [
+        {
+          "type": "error",
+          "text": "%c%s%c Admin email mismatch. background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   {configuredAdminCount: 0}"
+        },
+        {
+          "type": "error",
+          "text": "Failed to load resource: net::ERR_FAILED"
+        }
+      ],
+      "pageErrors": [],
+      "issues": ""
+    }
+  ],
+  "openapi": {
+    "status": 200,
+    "version": "3.1.0",
+    "apiVersion": "2026-08-29",
+    "paths": 25,
+    "operations": 26,
+    "incidentPaths": [
+      "/api/v1/incidents",
+      "/api/v1/incidents/{incidentId}",
+      "/api/v1/incidents/{incidentId}/chronology",
+      "/api/v1/incidents/{incidentId}/replay",
+      "/api/v1/incidents/{incidentId}/exports"
+    ]
+  }
+}

@@ -1,0 +1,73 @@
+[
+  {
+    "v2_table": [
+      {
+        "rls": true,
+        "table": "incident_evidence_links"
+      }
+    ],
+    "v2_constraints": [
+      {
+        "name": "incident_evidence_links_check",
+        "validated": true
+      },
+      {
+        "name": "incident_evidence_links_content_digest_check",
+        "validated": true
+      },
+      {
+        "name": "incident_evidence_links_details_check",
+        "validated": true
+      },
+      {
+        "name": "incident_evidence_links_enterprise_id_chronology_event_id_key",
+        "validated": true
+      },
+      {
+        "name": "incident_evidence_links_enterprise_id_evidence_object_id_fkey",
+        "validated": true
+      },
+      {
+        "name": "incident_evidence_links_enterprise_id_fkey",
+        "validated": true
+      },
+      {
+        "name": "incident_evidence_links_enterprise_id_id_key",
+        "validated": true
+      },
+      {
+        "name": "incident_evidence_links_enterprise_id_incident_id_chronolo_fkey",
+        "validated": true
+      },
+      {
+        "name": "incident_evidence_links_enterprise_id_incident_id_fkey",
+        "validated": true
+      },
+      {
+        "name": "incident_evidence_links_enterprise_id_transaction_id_fkey",
+        "validated": true
+      },
+      {
+        "name": "incident_evidence_links_pkey",
+        "validated": true
+      },
+      {
+        "name": "incident_evidence_links_relation_type_check",
+        "validated": true
+      }
+    ],
+    "v2_rpc": [
+      {
+        "name": "persist_operational_incident_v2",
+        "config": [
+          "search_path=public, pg_temp"
+        ],
+        "anon_execute": false,
+        "service_execute": true,
+        "security_definer": true,
+        "authenticated_execute": false
+      }
+    ],
+    "world_id_nullifier_claims_present": true
+  }
+]

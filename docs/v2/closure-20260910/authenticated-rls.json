@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "transaction": "READ ONLY; rolled back",
+  "owner_visible_links": 8,
+  "other_tenant_visible_links": 0,
+  "rpc_anon_execute": false,
+  "rpc_authenticated_execute": false,
+  "rpc_service_execute": true,
+  "meaning": "Real fixture user JWT claims under authenticated database role; service access was not substituted for tenant proof."
+}

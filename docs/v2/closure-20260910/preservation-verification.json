@@ -1,0 +1,41 @@
+{
+  "all_109_original_source_hashes_unchanged": true,
+  "original_files_checked": 109,
+  "archive_copy_hashes_match": true,
+  "old_head": "b72955f09c2ccc5558b53771f7680647a0f734b8",
+  "old_status": [
+    " M .env.example",
+    " M examples/agent-gamma/package-lock.json",
+    " M tools/production-proof-local.mjs",
+    "?? artifacts/production-migration-reconciliation.json",
+    "?? artifacts/production-proof.json",
+    "?? artifacts/v1-database-reconciliation-ci.json",
+    "?? artifacts/v1-database-reconciliation-final.md",
+    "?? artifacts/v1-production-proof.json",
+    "?? artifacts/v1-release-candidate-manifest.json",
+    "?? docs/PRE_SEED_TECHNICAL_DILIGENCE.md",
+    "?? docs/V1_PRODUCTION_PROOF.md",
+    "?? docs/V1_RELEASE_CANDIDATE_QUALIFICATION.md",
+    "?? docs/release/v1-control-plane-production-proof/",
+    "?? docs/release/v1-production-closure/",
+    "?? tools/release/v1-production-complete-negative.mjs",
+    "?? tools/release/v1-production-customer-zero.mjs",
+    "?? tools/release/v1-production-final-report.mjs",
+    "?? tools/release/v1-production-key-session.mjs",
+    "?? tools/release/v1-production-refresh-proof.mjs",
+    "?? tools/release/v1-production-session-proof.mjs",
+    "?? tools/release/v1-production-tenant-isolation.mjs"
+  ],
+  "old_stashes": [
+    "stash@{0}: On feat/operational-trust-whitepaper: v1-homepage-worldid-closure-20260906-141022",
+    "stash@{1}: On fix/readiness-registry-diagnostics: freeze-track-block-prod-closure",
+    "stash@{2}: On feat/external-agent-trust-sdk: merge-chain-backup-before-pr-execution"
+  ],
+  "temporary_credentials_removed": true,
+  "original_state_matches_archive": {
+    "status --short": true,
+    "stash list": true,
+    "branch --show-current": true,
+    "rev-parse HEAD": true
+  }
+}

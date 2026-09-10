@@ -1,0 +1,16 @@
+{
+  "old_head": "b72955f09c2ccc5558b53771f7680647a0f734b8",
+  "old_branch": "fix/homepage-worldid-v1-closure-20260906-141022",
+  "base": "1a6699e05cb6bfbc1d36381cbe196e0fd94a14ef",
+  "archive_files": 109,
+  "classified_files": 71,
+  "already_in_main": 59,
+  "differs_from_main": 3,
+  "obsolete_generated": 6,
+  "important_local_only": 3,
+  "archive_branch": "archive/v1-production-evidence-20260910",
+  "archive_commit": "7146f71531acf70c5541033d64944abcc7c0d8fe",
+  "archive_pr": "https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/87",
+  "secret_values_found": false,
+  "notes": "Initial 9-file scanner alerts resolved as public fingerprints, non-authenticating prefixes, public client UUID and backup hash prose; conservative redacted versions also retained. No original file altered."
+}

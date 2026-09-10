@@ -1,0 +1,47 @@
+{
+  "candidate": "1a6699e05cb6bfbc1d36381cbe196e0fd94a14ef",
+  "target": "https://localhost:3443",
+  "writes": "Non-GET/HEAD blocked",
+  "widths": [
+    {
+      "width": 1440,
+      "status": 200,
+      "hero": "Before an AI agent acts, prove it has the authority to do so.",
+      "authorityExample": true,
+      "developersNav": 0,
+      "v2Story": false,
+      "trustMemoryStory": false,
+      "demoHref": "/enterprise-access?intent=design_partner",
+      "apiHref": "/developers",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "status": 200,
+      "hero": "Before an AI agent acts, prove it has the authority to do so.",
+      "authorityExample": true,
+      "developersNav": 0,
+      "v2Story": false,
+      "trustMemoryStory": false,
+      "demoHref": "/enterprise-access?intent=design_partner",
+      "apiHref": "/developers",
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "links": [
+    {
+      "requested": "/enterprise-access?intent=design_partner",
+      "status": 200,
+      "finalPath": "/enterprise-access",
+      "heading": "Become a Design Partner"
+    },
+    {
+      "requested": "/developers",
+      "status": 200,
+      "finalPath": "/developers",
+      "heading": "Embed accountable trust decisions into existing enterprise workflows."
+    }
+  ],
+  "status": "INSPECTED"
+}

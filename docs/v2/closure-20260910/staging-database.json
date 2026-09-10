@@ -1,0 +1,687 @@
+{
+  "migrations": [
+    {
+      "name": "initial_schema",
+      "version": "001",
+      "statements_sha256": "c27508c069f73e5a544944dda98998352afee2389fbc3505a48215d40d49299f"
+    },
+    {
+      "name": "private_beta_schema_fix",
+      "version": "202605260001",
+      "statements_sha256": "9f13dd4ddfe3e635e468a8785214dcfbd9e63e08bddc7c4e552e0491e5530032"
+    },
+    {
+      "name": "explicit_supabase_api_grants",
+      "version": "20260528",
+      "statements_sha256": "21d4f6f2a8fd7be0aa59c9031de0d1f12d6c677cad33b86c6544f0603faab3ed"
+    },
+    {
+      "name": "evidence_upload_flow",
+      "version": "202605300001",
+      "statements_sha256": "ae9ed1fd5d1c3f881673b552b9f06815d81790cc21ce8e80476b78c2296c3bbe"
+    },
+    {
+      "name": "align_evidence_file_url",
+      "version": "202605300002",
+      "statements_sha256": "5f917c573570e9541e30c0844f4317e452e009d0864fcaeeb6bb42020ca9597e"
+    },
+    {
+      "name": "add_signal_metadata",
+      "version": "202605300003",
+      "statements_sha256": "36498c5e684b1e25b93e5a711af0406e26f4a58a0969d108d113e25dc00cea87"
+    },
+    {
+      "name": "real_evidence_file_upload",
+      "version": "202605310001",
+      "statements_sha256": "bd0303bab87e75b60285526e984b343758b7488c0d91de87437f1e1048d8d65e"
+    },
+    {
+      "name": "intent_requests",
+      "version": "202606010001",
+      "statements_sha256": "de6c9f7db612a864a6012efdb41fbc518ec812415f9afa6fbf0eb47d26e28015"
+    },
+    {
+      "name": "autonomy_profiles",
+      "version": "202606010002",
+      "statements_sha256": "ce51cbc2a0eb96966cb517abfbc8b4d373bab014dafbb3ea8b2828df445c5709"
+    },
+    {
+      "name": "passport_state_checks",
+      "version": "202606010003",
+      "statements_sha256": "8ee0789fbe6f78f78ad07dcc95a88ee023976b979d93b132135212d512e650d3"
+    },
+    {
+      "name": "execution_passports",
+      "version": "202606010004",
+      "statements_sha256": "3ab0444b4ea8918f26b41eb533c6024107279946485701305ba8e63d1f3ba906"
+    },
+    {
+      "name": "trust_graph_engine_help",
+      "version": "202606020001",
+      "statements_sha256": "4f06af516ac4331ed399337ac7a46184c6e058ac2f4d5b01c2a29069dd2d2ef7"
+    },
+    {
+      "name": "harden_operational_tables",
+      "version": "202606020002",
+      "statements_sha256": "54482e9308f2a0d0e18670914884d4fe371054d37bc5e75825bfb8a7292d3a67"
+    },
+    {
+      "name": "help_question_traceability",
+      "version": "202606020004",
+      "statements_sha256": "637634bd96b985c7945fbc930923157c968657bda370014bdec593cc13d52feb"
+    },
+    {
+      "name": "trust_assistant_questions",
+      "version": "202606020005",
+      "statements_sha256": "dd95b8ff1501fda7d4bac364c20866efb3ac150e0c28e3c416620c0680bd9805"
+    },
+    {
+      "name": "knowledge_articles",
+      "version": "202606020006",
+      "statements_sha256": "f32714834fc081921bc25e745fda997175d471742fd182692ea8bfdfd526fd0b"
+    },
+    {
+      "name": "data_rights_requests",
+      "version": "202606030001",
+      "statements_sha256": "512b22ad3c5967bd488600e6fe58229fd143211bd46af6787424d733cb08b752"
+    },
+    {
+      "name": "messages_notifications_appeals",
+      "version": "202606030002",
+      "statements_sha256": "049f737322bc8072fa3e61eb57ff8d6a35f9ca13c8ee2ed9a70f2a157a169c8d"
+    },
+    {
+      "name": "ai_trust_event_pipeline",
+      "version": "202606030003",
+      "statements_sha256": "e3bbba9750177e472cc433a9bd41abe465ec83ecc385d47814d1bb6d8d8b3e91"
+    },
+    {
+      "name": "developer_platform_api_keys",
+      "version": "202606030004",
+      "statements_sha256": "ee0f73060668a627cd407a69674d64831882940c4cfa7ecde60c99af0d08f7d1"
+    },
+    {
+      "name": "enterprise_access_requests",
+      "version": "202606030005",
+      "statements_sha256": "8992fd232d333fbf118bd7fe6cc4c724e42e5220785f95c0fb4b04645053d26a"
+    },
+    {
+      "name": "private_evidence_bucket",
+      "version": "202606030006",
+      "statements_sha256": "27d78eabe8d1c68e31d5b874eb87fbbde4e840e92859ff8a311bd34f8484e742"
+    },
+    {
+      "name": "feedback_signal_intelligence",
+      "version": "202606040001",
+      "statements_sha256": "d180f6677c98b9589b62951770c81920d77205adfc791f3c4d5da239300e4627"
+    },
+    {
+      "name": "ensure_enterprise_access_requests_public_submit",
+      "version": "202606040002",
+      "statements_sha256": "0e93ca730f28fd6fe3bd9ee35f816898308011d6ff75068ced02960e2539f296"
+    },
+    {
+      "name": "enterprise_access_problem_category",
+      "version": "202606040003",
+      "statements_sha256": "5dacf890d582c27310e54e5779ea5d58c6c8f35d2c9de37de966a80f2041aa18"
+    },
+    {
+      "name": "enterprise_access_design_partner_signals",
+      "version": "202606050001",
+      "statements_sha256": "12d12f9eb3b74d35be6044c2d4f739396c5767aca486ba4a2b4b3b5e8304a59e"
+    },
+    {
+      "name": "billing_subscriptions_usage_limits",
+      "version": "202606050002",
+      "statements_sha256": "18b6ea45b6f689a690efd6f13bc0569cf958f7df81b051a8eec1658ecbbde3a7"
+    },
+    {
+      "name": "harden_enterprise_access_insert_permissions",
+      "version": "202606050003",
+      "statements_sha256": "60160e8feb4f39999f970f543008f52817e47c50b3c00c3187bec140e1432d55"
+    },
+    {
+      "name": "submit_enterprise_access_request_rpc",
+      "version": "202606050004",
+      "statements_sha256": "0c99bf67251d647d2bac7d813dde22fee2adf6d554ca7a51290af2e83adca279"
+    },
+    {
+      "name": "trusted_hiring_mvp",
+      "version": "202606060001",
+      "statements_sha256": "0a7b4c047af51a8c3774368b51e57b6cbfe12e9fbde7e93ec0f73198dae64b8b"
+    },
+    {
+      "name": "ai_agent_identity_direction",
+      "version": "202606070001",
+      "statements_sha256": "294f738241d3b4a31b866769cffbdd536e8113ba07d35ecbfd86a07bad797d5f"
+    },
+    {
+      "name": "trust_algorithm_runs",
+      "version": "202606070002",
+      "statements_sha256": "0c69c99e6b54028b339e7e174bf9379e0e4f3885ce3a577c3388c1af65330fd0"
+    },
+    {
+      "name": "integration_status",
+      "version": "202606070003",
+      "statements_sha256": "c337554c6de394eefc346666f66f0080f79586ca63cf9217efe9fbfe02939947"
+    },
+    {
+      "name": "api_test_runs",
+      "version": "202606070004",
+      "statements_sha256": "e4dfa0d59422413acdbc939db004377d4b373601432d03743f1452aa8b19cd8a"
+    },
+    {
+      "name": "launch_control_notes",
+      "version": "202606070005",
+      "statements_sha256": "b20bcd744b63b3c3569c2c7902eda490b8fe780c4875be76484df76fe4be74d3"
+    },
+    {
+      "name": "trust_relationships",
+      "version": "202606080001",
+      "statements_sha256": "492515c217854fea6b98d802b2b01b2a464fe89f9311abfafea5ae97b7e1a0f5"
+    },
+    {
+      "name": "trust_timeline_events",
+      "version": "202606080002",
+      "statements_sha256": "b0f8d0dad73b4b60a2a13b1cde59c10290673eeaed01f294fceab682f4e9659a"
+    },
+    {
+      "name": "trust_replay_sessions",
+      "version": "202606080003",
+      "statements_sha256": "0b9b4c5c035f42d33e54aebbc007804aed0319511f515f5e3123d0071a47e41c"
+    },
+    {
+      "name": "trust_workspaces_cases",
+      "version": "202606080004",
+      "statements_sha256": "92368d6a28b8a93a579488b5490027d31d7ba30ebbbf153d3cfdca90b157e514"
+    },
+    {
+      "name": "operational_governance_engine",
+      "version": "202606080005",
+      "statements_sha256": "cd84623ec4f6e0f29523e9515c58bed8fcb2c96948429b07719a715fec137f40"
+    },
+    {
+      "name": "operational_hardening_rls",
+      "version": "202606080006",
+      "statements_sha256": "df79f970b65213b14aa039e37feb8f99926031f91400d4b0e6855eae45ea44e8"
+    },
+    {
+      "name": "operational_notifications_coordination",
+      "version": "202606080007",
+      "statements_sha256": "af8aec2cb9f26d66e4e8f7da2ac00b53fc12dafa8ea691a0cfeb8d8f85a862f8"
+    },
+    {
+      "name": "hiring_security_interview_integrity",
+      "version": "202606090001",
+      "statements_sha256": "1e7ed4ed6b809d08e1a17073cf3cc0f197dc74cea908f2654a2ff50183effa06"
+    },
+    {
+      "name": "trust_evidence_chains_receipts",
+      "version": "202606090002",
+      "statements_sha256": "e11320ce4e0feb04d76b4243d7752f2b0da183528a7cd6ebe9167d287bfb2d1f"
+    },
+    {
+      "name": "operational_trust_intelligence",
+      "version": "202606090003",
+      "statements_sha256": "4504e55775008eb518d1bb83d17564d040f95c61367bfaf03bc831ea057a2907"
+    },
+    {
+      "name": "runtime_validation_logs",
+      "version": "202606100001",
+      "statements_sha256": "748f082ad5945dc90a0a1b07197f452d0f56d8b7a28582e5da51f9164464c1f2"
+    },
+    {
+      "name": "enterprise_ai_trust_governance",
+      "version": "202606180001",
+      "statements_sha256": "61be95a06e454b9dd88a4d49190911d1907f0fe310396e169f8d56d772dcf293"
+    },
+    {
+      "name": "verifiers",
+      "version": "202606190001",
+      "statements_sha256": "65ef8cc37b4f8d736faf44c5a9f8173c55abb6723212b6b470db45bf655d2c03"
+    },
+    {
+      "name": "session_integrity_signal_separation",
+      "version": "202606190002",
+      "statements_sha256": "6b2a75eedee8e5066e138b93ceb66f12e76431e254994592686eb2217c016897"
+    },
+    {
+      "name": "hopae_connect_upstream_identity",
+      "version": "202606190003",
+      "statements_sha256": "6592af98cc3c3a97d7efb0f9a50cb75e5f1cd0e91139b0f9bbc066cc5061bea5"
+    },
+    {
+      "name": "screenshot_support_debugging",
+      "version": "202606270001",
+      "statements_sha256": "d6287386197d097dc1e422a902171b333fc4e159731089b89d67ee7815822845"
+    },
+    {
+      "name": "production_owner_scoped_rls",
+      "version": "202607010001",
+      "statements_sha256": "817bb2a7c70d7030fb09097aab341257fe3c28a4c8f8836d81cd71deae69c26a"
+    },
+    {
+      "name": "critical_trust_infrastructure_alignment",
+      "version": "202607020001",
+      "statements_sha256": "e279f1af296ccb482feed0cffbe32b58c3f4e69901951f339d48a4796a62c4ce"
+    },
+    {
+      "name": "release_1_rc1_provider_evidence_gate",
+      "version": "202607160001",
+      "statements_sha256": "51e179e438fa8a5bd0c7596015f5f74edaf6b26d14cbb49dfbbca832f0f50029"
+    },
+    {
+      "name": "release_1_rc2_living_trust_privacy",
+      "version": "202607160002",
+      "statements_sha256": "095756c0c4b2943121b22bf58100aaef813f151398457b90b42b156ca5a37ba7"
+    },
+    {
+      "name": "release_1_rc6_production_evidence_gate",
+      "version": "202607160003",
+      "statements_sha256": "307362c03683ea1ae0b2468ab7811658275083e8966a2a3802d5a121c385fde4"
+    },
+    {
+      "name": "operational_risk_intelligence_shadow",
+      "version": "202607170001",
+      "statements_sha256": "128acda404e4d9cc0af9b21fbdff7fb9fede90c26b6be917cf49c22b3c43a979"
+    },
+    {
+      "name": "provider_abstraction_hopae",
+      "version": "202607170002",
+      "statements_sha256": "3d33d16b20a56a0509787168cc1cf2f8b1b50abd56304c23937d1ef39f9e4fa8"
+    },
+    {
+      "name": "identity_signal_engine",
+      "version": "202607190001",
+      "statements_sha256": "9f3e4b5e19c9d35a9ef089924204e7580b305e86a85cf3e7c4727bb3e2077867"
+    },
+    {
+      "name": "identity_signal_runtime",
+      "version": "202607190002",
+      "statements_sha256": "0a3685fb3cab52fee2c9242b88b6c9216b5c32561b32751fa15a4c12e253bca4"
+    },
+    {
+      "name": "canonical_trust_event_foundation",
+      "version": "202607200001",
+      "statements_sha256": "4c8a9c7f8e72f72096b9590425fe962f64c6be435d510fb047350cc150057987"
+    },
+    {
+      "name": "enterprise_trust_consent_manager",
+      "version": "202607200002",
+      "statements_sha256": "6d15f2dca3936587381f01c7bf50913c16ac697822e21192e942d872e97780e0"
+    },
+    {
+      "name": "provider_consensus_engine",
+      "version": "202607200003",
+      "statements_sha256": "0d901a02bd200016c4c9c7f316d0dbb67781f0436e3aedcaffa3a93fd473c3bc"
+    },
+    {
+      "name": "enterprise_trust_architecture",
+      "version": "202607210001",
+      "statements_sha256": "a377894b9f2012ce8755de3f9b76952adb47f09b7333decee55d9d21e30ebea9"
+    },
+    {
+      "name": "continuous_trust_runtime",
+      "version": "202607210002",
+      "statements_sha256": "f5240b30e4958d9a26a063aedb05f7ac33867320d9d2433b499053767e5f074e"
+    },
+    {
+      "name": "trust_intelligence_engine",
+      "version": "202607230001",
+      "statements_sha256": "4a088b2dc7e31cfeeb86e284cbdfcc9a7ba7aae4e3d6bac09d57d074966e5877"
+    },
+    {
+      "name": "enterprise_trust_graph",
+      "version": "202607230002",
+      "statements_sha256": "73b75cde9e282c37602240a73e816243ad644c2a2e3e6ac455c261918276ce71"
+    },
+    {
+      "name": "trust_dna_engine",
+      "version": "202607240001",
+      "statements_sha256": "68ed4bbebdb39b5ece8cedd52ca53267316249ccafe963c02bc08c0dee5f65da"
+    },
+    {
+      "name": "replay_timeline_engine",
+      "version": "202607240002",
+      "statements_sha256": "092d1af0ae238b0057599496cbc3a926a3ed9d88e548d30bb97ed705aa5c4dea"
+    },
+    {
+      "name": "continuous_trust_engine",
+      "version": "202607240003",
+      "statements_sha256": "e1967cdfcf9fbbbe28944446c930e19aefd2258c99fc13b23700487e5dd42e6f"
+    },
+    {
+      "name": "enterprise_trust_centre",
+      "version": "202607240004",
+      "statements_sha256": "6dd458d02f09593a675088be009d56fb012821269669c4b6619365546075dd5d"
+    },
+    {
+      "name": "environment_attestation_scope_continuity",
+      "version": "202607310001",
+      "statements_sha256": "7064464cea6b6edbbf1c31acf7bc99f0a78fd8ef31ea8b8854ae23e01f7d6ab7"
+    },
+    {
+      "name": "ai_serious_incident_regulatory_lineage",
+      "version": "202608010001",
+      "statements_sha256": "58f9f0e085f1fb275429743cf50ff35f4ed3ac87b8dceb21867eb209a78ab6f7"
+    },
+    {
+      "name": "enterprise_trust_fabric",
+      "version": "202608010002",
+      "statements_sha256": "5eaed9ef6383edefabfa2f8354eb3688826b8d4c3ef755e02f5ddedc81b61899"
+    },
+    {
+      "name": "rc2_enterprise_operational_readiness",
+      "version": "202608060001",
+      "statements_sha256": "bc5011e7ea9aed288004362d4149210a77591264a04beed188e09e31ca8b86b6"
+    },
+    {
+      "name": "end_to_end_trust_transaction",
+      "version": "202608060002",
+      "statements_sha256": "1e1e1ddcc48f7005d80c67798f4a07b94a44a2f8e46de6efabe6686a9b934f55"
+    },
+    {
+      "name": "provider_neutral_evidence_independence",
+      "version": "202608080001",
+      "statements_sha256": "c8d86802c4377e4ca9b64db4b318a3955ae6da69a2cd116f7fc44af6643d65ed"
+    },
+    {
+      "name": "provider_neutral_workspace_rls_forward_repair",
+      "version": "202608080002",
+      "statements_sha256": "81db1d9751df405347d3fca1a52c8a95e5645dae51c577900f2101dc124c94e4"
+    },
+    {
+      "name": "native_operational_entity_verification",
+      "version": "202608080003",
+      "statements_sha256": "9900ba4dd9735254749a1ca2344dcba26eb0a9bb3090b221b0cf456a1e2e5ec1"
+    },
+    {
+      "name": "native_delegated_authority",
+      "version": "202608090001",
+      "statements_sha256": "721d2a7e576bf71aef5e3d216b5428ef0772e6a3ece7afb1cc6ebf88856c9379"
+    },
+    {
+      "name": "native_enforcement_outcome_proof",
+      "version": "202608090002",
+      "statements_sha256": "e89798e3b7467e0bdb0f4949247df7053a79dad81abca87229bcc89f7f05cdee"
+    },
+    {
+      "name": "pgcrypto_routine_search_path",
+      "version": "202608100001",
+      "statements_sha256": "c6e26ff217f0dfd7b7e9dbe17ff64703e6a102ef36b44d132a2d98cf448a6ec7"
+    },
+    {
+      "name": "runtime_persistence_compatibility",
+      "version": "202608100002",
+      "statements_sha256": "cdcadfca7c473421bc7e59dd7fa39704d7853f8eeb723b72f6cc4105c5165e52"
+    },
+    {
+      "name": "alpha_beta_persistence_repairs",
+      "version": "202608100003",
+      "statements_sha256": "2de9469159d120ddd28839bc1f0be1d7d90840ead0fa41d23548a1c5ffb1b787"
+    },
+    {
+      "name": "continuous_trust_legacy_consensus_fk_repair",
+      "version": "202608100004",
+      "statements_sha256": "78a270d627ff9f2bd96f898c5e8e6d9f14dc2f51cf73397d54a2810b0ba7da56"
+    },
+    {
+      "name": "optional_legacy_consensus_pointer",
+      "version": "202608100005",
+      "statements_sha256": "a24c4807e0570be2674d0170b3b7a9aaff6d614c91e27dfc933a1156b391392d"
+    },
+    {
+      "name": "external_agent_trust_api",
+      "version": "202608110001",
+      "statements_sha256": "36fcb0933a948a6a3d900a8840cbaa084ad3d97757108b6ab3ee72c859309cb1"
+    },
+    {
+      "name": "customer_workspace_bootstrap",
+      "version": "20260814153327",
+      "statements_sha256": "1440ac2cce2bc96b911ff1edefeef16e7e5926ad25aeac1bca5614a8e4190a14"
+    },
+    {
+      "name": "staging_product_closure_security_reconciliation",
+      "version": "20260814153337",
+      "statements_sha256": "8196fb181de0be473b75efb98cfb88e1089a595e84a63f4bb62f0238a01dbbfd"
+    },
+    {
+      "name": "customer_workspace_creator_returning",
+      "version": "20260815172418",
+      "statements_sha256": "c1c536eeb2af2cb10445031d5af5c28f6bc66165bfb20185f0ac2dc5777a46f3"
+    },
+    {
+      "name": "customer_workspace_creator_returning_guard_reconciliation",
+      "version": "20260815172840",
+      "statements_sha256": "1b676c0b9633f5f1fe4397e220715fb53e8e79da84c3f7c52106c42b33a890e0"
+    },
+    {
+      "name": "gamma_authority_replay_event",
+      "version": "20260815174612",
+      "statements_sha256": "d45b4877390a60ec71d80fc2d8d8bf458905420dbf5becefa0d1f6eaf544ac5f"
+    },
+    {
+      "name": "native_replay_chronology_extension",
+      "version": "20260815180521",
+      "statements_sha256": "8503f64a4fdedc9a751b76a99ee9ec3e96f2055913757b56412e8f6d904de2a5"
+    },
+    {
+      "name": "consent_evidence_freshness",
+      "version": "20260815180807",
+      "statements_sha256": "e761ba32f156ef82d6a5a0b0ebeeb82195a5d8a6579862dc7e511db11c776a26"
+    },
+    {
+      "name": "staging_repair_append_trust_event_consent_namespace",
+      "version": "20260816135031",
+      "statements_sha256": "6b939b735b7895bc27ce27f49d07e1e49578c3d2a9e420908a3c1db024d44cc2"
+    },
+    {
+      "name": "track_block_protected_workflow",
+      "version": "20260817173631",
+      "statements_sha256": "c774ed244acf0347f6590280c18f90381a592419f014427747b9c5cb4959adaf"
+    },
+    {
+      "name": "track_block_protected_workflow",
+      "version": "20260817175031",
+      "statements_sha256": "378b90ad9d6ddca0d02820dbb9e1da7daadfdad54af89b377fff20468b732e24"
+    },
+    {
+      "name": "track_block_fk_indexes",
+      "version": "20260817175111",
+      "statements_sha256": "49225e6fdc1e1a464bbb786699e14ae8365e409bc04f4cd7df8f8fa16e42fc46"
+    },
+    {
+      "name": "track_block_evidence_index",
+      "version": "20260817175137",
+      "statements_sha256": "a8909929d2ef5fd5b9c3c58ade6c8e351d12802f7b1d6b50eadf2ec3d53c03a5"
+    },
+    {
+      "name": "reconcile_enterprise_trust_domain_registry",
+      "version": "20260817175347",
+      "statements_sha256": "48549b0dff448055852b959680c881cfb08203c30fa6b28a253c1272d3ad8394"
+    },
+    {
+      "name": "runtime_validation_legacy_shape_rehearsal",
+      "version": "20260817175421",
+      "statements_sha256": "97523a76e222d5d0bc6fdb13f93e7230d84095e60298b041bde32b1b847d46ed"
+    },
+    {
+      "name": "reconcile_enterprise_trust_domain_registry_v2",
+      "version": "20260817175448",
+      "statements_sha256": "1bc65a58008ca3e15dfc79bd0be7e903fbdc3f7584a0c7a56611aa7ced39a588"
+    },
+    {
+      "name": "reconcile_enterprise_trust_domain_registry_idempotency",
+      "version": "20260817175455",
+      "statements_sha256": "1bc65a58008ca3e15dfc79bd0be7e903fbdc3f7584a0c7a56611aa7ced39a588"
+    },
+    {
+      "name": "remove_user_metadata_rls_authorization",
+      "version": "20260818075145",
+      "statements_sha256": "90c56c0a36034d6f4c0e454d54ab124e3bedcedf1095ca3aaa6cda8d358ba4c9"
+    },
+    {
+      "name": "remove_user_editable_rls_authorization",
+      "version": "20260818075422",
+      "statements_sha256": "11afb84f9bd4616f3894c7f5ca3bbb1b9582a958c8c6630782c5810fa086cadb"
+    },
+    {
+      "name": "consent_evidence_freshness_repair",
+      "version": "20260819082001",
+      "statements_sha256": "66e21cbe9f4e8c5fb2280e933350d4326f304f58d9becb0df12761aa2ce1a571"
+    },
+    {
+      "name": "vale_canonical_provider_preview",
+      "version": "20260820085027",
+      "statements_sha256": "7c8c1423beffd53f58cc60395d736ae59dfb90514295b679675e19861d608982"
+    },
+    {
+      "name": "track_block_policy_identity_continuity",
+      "version": "20260821085309",
+      "statements_sha256": "682f15186410264203a0acfc3222a483e8a371477662642634c1dbb4be84f7d8"
+    },
+    {
+      "name": "reconcile_canonical_persist_search_path",
+      "version": "20260821174100",
+      "statements_sha256": "9cc0a1112bb07aa8ef95349576213b1ed108b8bd5c85427034ed89ec6209093c"
+    },
+    {
+      "name": "repair_production_consent_event_metadata",
+      "version": "20260822124942",
+      "statements_sha256": "2d36c982bb322de41efb47a0c1f6884db83f53492d0dbaba165de877fde5019c"
+    },
+    {
+      "name": "authority_integrity_authorization_propagation",
+      "version": "20260824181053",
+      "statements_sha256": "1fc97dfa3696f2c79cb20d4c78d3e1e94dcb74b6be96d56787b1de6794104fba"
+    },
+    {
+      "name": "trust_forecast_operational_intelligence",
+      "version": "20260824184543",
+      "statements_sha256": "10c105b70937eb69703c857150c73f615a8d76bf6c420c99dd9e9d74887de062"
+    },
+    {
+      "name": "authority_integrity_authorization_propagation",
+      "version": "20260825175059",
+      "statements_sha256": "ec4e81ce01c0acd922aa8d0574f7afa1d258dd4319c308797113a9bfecb81c8b"
+    },
+    {
+      "name": "trust_forecast_operational_intelligence",
+      "version": "20260825175143",
+      "statements_sha256": "da6772eab65881db17db822770c4faf1e963d7e98a82745d8ea51b19f6a8c7e4"
+    },
+    {
+      "name": "close_public_api_security_contract",
+      "version": "20260828165913",
+      "statements_sha256": "f1dde69150327ad76f994c0d62204870803bff7f0ac0ccfcd044e2bc7ae8ce0a"
+    },
+    {
+      "name": "harden_public_api_rate_limit_isolation",
+      "version": "20260829094528",
+      "statements_sha256": "9fdb91f8679ca7178ca361500b95a0aa2a96c1da9eedf62cfb57fa441df7c8fb"
+    },
+    {
+      "name": "close_public_api_customer_zero",
+      "version": "20260829164824",
+      "statements_sha256": "cee1903f79f325da9a6314133bbfa51d3a8bf5747f0b6e90d20d792187ab104d"
+    },
+    {
+      "name": "fix_public_api_replay_subject",
+      "version": "20260831121500",
+      "statements_sha256": "6a6d3752f4e2efbd93c7bc3a31ac93def06e5a4aee364e7acdb3128ce28a0b31"
+    },
+    {
+      "name": "expand_canonical_replay_event_types",
+      "version": "20260831124000",
+      "statements_sha256": "77cfccef805f503321bdd231cd058546c4cfbfae6dce7520547674834b2371fb"
+    },
+    {
+      "name": "fix_public_api_trust_memory_source_id",
+      "version": "20260831125500",
+      "statements_sha256": "15126957746c8ac9608a03c3360172a614af9add9e044c0bf444b0713b4b69bb"
+    },
+    {
+      "name": "grant_service_role_api_keys_privileges",
+      "version": "20260901120000",
+      "statements_sha256": "3528f1860afd5f1df6a22685d9d83c6ebed19c4375e1f65669594d0287296f64"
+    },
+    {
+      "name": "reconcile_public_api_webhook_event_types",
+      "version": "20260903093116",
+      "statements_sha256": "1482ca2895ae0b191cb9c4dfb05c07eb46b54d4dcc0dd8b079fb81299d6549f4"
+    },
+    {
+      "name": "reconcile_public_api_webhook_event_types",
+      "version": "20260903093247",
+      "statements_sha256": "8d7f97e540696e593c10f2696035ec601fa89b7a1270e8d9b58c76b3bab58559"
+    },
+    {
+      "name": "normalize_continuous_trust_alert_contract",
+      "version": "20260904100313",
+      "statements_sha256": "8e22cdf05054a6cd2384bff01a0220725d29eadec6cc25cd4e18b8d9e9588149"
+    },
+    {
+      "name": "normalize_continuous_trust_alert_contract",
+      "version": "20260904100445",
+      "statements_sha256": "72e1a6cd18a5986a34e77b0189155cf3bd71a5ed037d6b282b54fcac76d85bce"
+    },
+    {
+      "name": "world_id_durable_replay_guard",
+      "version": "202609060001",
+      "statements_sha256": "7f6526b246459d82d15ec0ba2699f97cb019dfbf9b493d906bcdd4499c1c7f4e"
+    },
+    {
+      "name": "world_id_replay_hardening",
+      "version": "202609060002",
+      "statements_sha256": "f3d2e476c7f1dd84c43af360bfabde3e466689b2856001e3eee92039ee95d4ff"
+    },
+    {
+      "name": "world_id_durable_replay_guard",
+      "version": "20260906155836",
+      "statements_sha256": "b8803508c42e2001e72efe8d9ce0b7bb9d0fd7b0c034be61ff56fd6e5c39ce81"
+    },
+    {
+      "name": "world_id_replay_hardening",
+      "version": "20260906165033",
+      "statements_sha256": "cbf86209435cc4b71d5d46e4d73ee0ad4e6fe87216ccd8007a000fdd4be0f841"
+    },
+    {
+      "name": "add_decision_outcome_review_to_canonical_trust",
+      "version": "20260907120000",
+      "statements_sha256": "f3bb7acd3687566ab55ba4c4e538f969293f58a17cd614b768e8af59d7e9a47c"
+    },
+    {
+      "name": "operational_incident_evidence_foundation",
+      "version": "20260909163513",
+      "statements_sha256": "fde794a6c70e54cff2111528b75f60976ef5631185a5782bd3a168c29b241114"
+    }
+  ],
+  "v2_table_present": true,
+  "named_historical_constraints": [
+    {
+      "name": "canonical_trust_transaction_events_event_type_check",
+      "table": "canonical_trust_transaction_events",
+      "validated": false
+    },
+    {
+      "name": "canonical_trust_transactions_decision_outcome_review_check",
+      "table": "canonical_trust_transactions",
+      "validated": false
+    },
+    {
+      "name": "evidence_objects_epic18_integrity",
+      "table": "evidence_objects",
+      "validated": false
+    },
+    {
+      "name": "evidence_objects_freshness_policy_check",
+      "table": "evidence_objects",
+      "validated": false
+    },
+    {
+      "name": "evidence_objects_superseded_by_fk",
+      "table": "evidence_objects",
+      "validated": false
+    }
+  ]
+}
