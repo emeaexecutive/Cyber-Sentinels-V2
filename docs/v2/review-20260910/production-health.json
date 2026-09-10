@@ -1,0 +1,13 @@
+﻿{
+    "status":  "ok",
+    "probe":  "liveness",
+    "schema_version":  "health-v2",
+    "release_version":  "b0f6b37d41714efa940852b3ef955e9c7317c513",
+    "ok":  true,
+    "meta":  {
+                 "version":  "v1",
+                 "trace_id":  "trace_b4290af5-3ae3-4961-943a-97fa6dac095a",
+                 "audit_id":  "audit_health_44147696-4fe9-41f0-8afa-98ae4f0a4bf5",
+                 "timestamp":  "2026-09-10T07:40:05.297Z"
+             }
+}
