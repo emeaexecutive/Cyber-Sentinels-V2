@@ -1,4 +1,4 @@
-{
+﻿{
   "project": "agpyhygpfmppjkxwcpac",
   "stages": {
     "receiptBefore": {
@@ -337,7 +337,7 @@
             "source_id": "a3c862b5-ec21-445f-93d6-a313ce2975a6",
             "occurred_at": "2026-09-10T13:06:46.963699+00:00",
             "summary": {
-              "source": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "source": "SYNTHETIC_API_CLIENT_REFERENCE",
               "incidentId": "3233ed62-aec3-4afb-9a95-7d0b6d441d9b",
               "transactionId": "6933abe1-f416-5ebd-97e3-4ff67781b7aa",
               "interpretation": null,
@@ -353,7 +353,7 @@
             "source_id": "89627ab1-ae1a-4956-8665-c6f3dc7e4f97",
             "occurred_at": "2026-09-10T13:06:48.204977+00:00",
             "summary": {
-              "source": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "source": "SYNTHETIC_API_CLIENT_REFERENCE",
               "incidentId": "3233ed62-aec3-4afb-9a95-7d0b6d441d9b",
               "transactionId": "6933abe1-f416-5ebd-97e3-4ff67781b7aa",
               "interpretation": null,
@@ -369,7 +369,7 @@
             "source_id": "8687a2dc-de9a-475c-8d6d-953a607f3aab",
             "occurred_at": "2026-09-10T13:06:49.43607+00:00",
             "summary": {
-              "source": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "source": "SYNTHETIC_API_CLIENT_REFERENCE",
               "incidentId": "3233ed62-aec3-4afb-9a95-7d0b6d441d9b",
               "transactionId": "6933abe1-f416-5ebd-97e3-4ff67781b7aa",
               "interpretation": null,
@@ -385,7 +385,7 @@
             "source_id": "f1e57ad1-15fc-4a27-8b2a-4db2ef233c00",
             "occurred_at": "2026-09-10T13:06:50.68197+00:00",
             "summary": {
-              "source": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "source": "SYNTHETIC_API_CLIENT_REFERENCE",
               "incidentId": "3233ed62-aec3-4afb-9a95-7d0b6d441d9b",
               "transactionId": "6933abe1-f416-5ebd-97e3-4ff67781b7aa",
               "interpretation": null,
@@ -401,7 +401,7 @@
             "source_id": "d5b775e5-9030-4e5b-8561-6b4fd6d8eb20",
             "occurred_at": "2026-09-10T13:06:51.852946+00:00",
             "summary": {
-              "source": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "source": "SYNTHETIC_API_CLIENT_REFERENCE",
               "incidentId": "3233ed62-aec3-4afb-9a95-7d0b6d441d9b",
               "transactionId": "6933abe1-f416-5ebd-97e3-4ff67781b7aa",
               "interpretation": null,
@@ -417,7 +417,7 @@
             "source_id": "b65f075b-5e3e-4f10-8385-7ec4569af2d1",
             "occurred_at": "2026-09-10T13:06:52.947132+00:00",
             "summary": {
-              "source": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "source": "SYNTHETIC_API_CLIENT_REFERENCE",
               "incidentId": "3233ed62-aec3-4afb-9a95-7d0b6d441d9b",
               "transactionId": "6933abe1-f416-5ebd-97e3-4ff67781b7aa",
               "interpretation": null,
@@ -433,7 +433,7 @@
             "source_id": "e7600563-e5a1-4859-aa9f-c8836f3dcc82",
             "occurred_at": "2026-09-10T13:06:54.068553+00:00",
             "summary": {
-              "source": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "source": "SYNTHETIC_API_CLIENT_REFERENCE",
               "incidentId": "3233ed62-aec3-4afb-9a95-7d0b6d441d9b",
               "transactionId": "6933abe1-f416-5ebd-97e3-4ff67781b7aa",
               "interpretation": "reported_content_copy",

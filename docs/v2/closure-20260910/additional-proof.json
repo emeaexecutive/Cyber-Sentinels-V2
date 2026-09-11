@@ -1,4 +1,4 @@
-{
+﻿{
   "project": "agpyhygpfmppjkxwcpac",
   "negatives": [
     {
@@ -55,7 +55,7 @@
           "summary": "Scripted Staging execution_observation report; no real downstream operation",
           "evidence_object_id": "1e2bafd0-1e09-56b1-a643-187d3be9d3d3",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -96,7 +96,7 @@
           "summary": "Scripted Staging outcome report; no real downstream operation",
           "evidence_object_id": "2f8cf1f2-5e5b-54b9-a86f-288714386479",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -137,7 +137,7 @@
           "summary": "Scripted Staging detection report; no real downstream operation",
           "evidence_object_id": "69528253-1fb9-59e3-97d4-d00b1f60d560",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -178,7 +178,7 @@
           "summary": "Scripted Staging intervention report; no real downstream operation",
           "evidence_object_id": "f44683ff-5b76-51a6-b5d0-68c18ea21754",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -219,7 +219,7 @@
           "summary": "Scripted Staging containment report; no real downstream operation",
           "evidence_object_id": "23ac102c-1d51-55ce-97c3-1485e0b14b6d",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -260,7 +260,7 @@
           "summary": "Scripted Staging remediation report; no real downstream operation",
           "evidence_object_id": "6278bc0c-a293-5a19-8b83-6745755efbdf",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -301,7 +301,7 @@
           "summary": "Scripted Staging purpose_observation report; no real downstream operation",
           "evidence_object_id": "01aac5dc-ffb6-5de1-9555-760407948a38",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -505,7 +505,7 @@
         {
           "evidence_id": "01aac5dc-ffb6-5de1-9555-760407948a38",
           "digest": "a511fa3894154b5e3feba0b7857fa382858fc31da05191941bebf13a424835c9",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:30.917+00:00",
           "received_at": "2026-09-10T13:06:31.749+00:00"
@@ -513,7 +513,7 @@
         {
           "evidence_id": "1e2bafd0-1e09-56b1-a643-187d3be9d3d3",
           "digest": "bf8d5a7ff2dcb14a358486dc2b48913f8d2587cca9f42ee12979b5190d36fdc8",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:24.237+00:00",
           "received_at": "2026-09-10T13:06:25.74+00:00"
@@ -521,7 +521,7 @@
         {
           "evidence_id": "23ac102c-1d51-55ce-97c3-1485e0b14b6d",
           "digest": "859b6e3fbac9714a105d682b714af27da870a7eccc5228d544a88864dd8fd9d3",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:28.915+00:00",
           "received_at": "2026-09-10T13:06:29.748+00:00"
@@ -529,7 +529,7 @@
         {
           "evidence_id": "2f8cf1f2-5e5b-54b9-a86f-288714386479",
           "digest": "a5f6fd6a8f14fb046529461ea5a4c236cab9b8a16eb8b7280a0d21981d119fe5",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:25.922+00:00",
           "received_at": "2026-09-10T13:06:26.678+00:00"
@@ -537,7 +537,7 @@
         {
           "evidence_id": "6278bc0c-a293-5a19-8b83-6745755efbdf",
           "digest": "38b3e1ab8ab0892224789d5c7c69ddfd6083f871ab5ebd02f235281de7650c52",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:29.947+00:00",
           "received_at": "2026-09-10T13:06:30.747+00:00"
@@ -545,7 +545,7 @@
         {
           "evidence_id": "69528253-1fb9-59e3-97d4-d00b1f60d560",
           "digest": "96be679281003cbbb756c240dc85c915884f7703d386f6e90b7df3148e5c1329",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:26.877+00:00",
           "received_at": "2026-09-10T13:06:27.738+00:00"
@@ -553,7 +553,7 @@
         {
           "evidence_id": "f44683ff-5b76-51a6-b5d0-68c18ea21754",
           "digest": "c052ec504b053d2b3ca0b68efb9816dcbabda1e5ad84e22df026da72ec227c2b",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:27.924+00:00",
           "received_at": "2026-09-10T13:06:28.72+00:00"
@@ -569,7 +569,7 @@
           "summary": "Scripted Staging execution_observation report; no real downstream operation",
           "evidence_object_id": "1e2bafd0-1e09-56b1-a643-187d3be9d3d3",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -612,7 +612,7 @@
           "summary": "Scripted Staging outcome report; no real downstream operation",
           "evidence_object_id": "2f8cf1f2-5e5b-54b9-a86f-288714386479",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -650,7 +650,7 @@
           "tenant_id": "f8deb39c-b626-4755-9202-bb58be3f8c94",
           "transaction_id": "6933abe1-f416-5ebd-97e3-4ff67781b7aa",
           "submission_id": "312cfbb7-eb15-440d-a2ca-898fce18bf34",
-          "source_id": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "source_id": "SYNTHETIC_API_CLIENT_REFERENCE",
           "destination": "staging:scripted-destination",
           "result": "FAILED",
           "observed_at": "2026-09-10T13:08:19.88+00:00",
@@ -671,7 +671,7 @@
           "summary": "Scripted Staging intervention report; no real downstream operation",
           "evidence_object_id": "f44683ff-5b76-51a6-b5d0-68c18ea21754",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -712,7 +712,7 @@
           "summary": "Scripted Staging containment report; no real downstream operation",
           "evidence_object_id": "23ac102c-1d51-55ce-97c3-1485e0b14b6d",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -755,7 +755,7 @@
           "summary": "Scripted Staging remediation report; no real downstream operation",
           "evidence_object_id": "6278bc0c-a293-5a19-8b83-6745755efbdf",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -823,7 +823,7 @@
   "crossProvider": {
     "incident_id": "3e9f9ec3-ef08-4735-a2a5-7a251f39fe47",
     "providers": [
-      "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+      "SYNTHETIC_API_CLIENT_REFERENCE",
       "cyber_sentinels_native"
     ],
     "meaning": "Two actual source boundaries: first-party control plane and API-client assertions; no independent external-provider integration claimed",

@@ -1,4 +1,4 @@
-{
+﻿{
   "project": "agpyhygpfmppjkxwcpac",
   "origin": "https://localhost:3443",
   "classification": "SCRIPTED_STAGING_QUALIFICATION; no downstream execution or model invocation",
@@ -110,7 +110,7 @@
       "revoked_at": null,
       "supersedes_authority_id": null,
       "issuer": "tenant-admin:a116afe9-883b-47b4-a600-26d5d5a5882a",
-      "approver": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+      "approver": "SYNTHETIC_API_CLIENT_REFERENCE",
       "delegated_from": null,
       "delegation_depth": 0,
       "request_id": "d42cba17-8267-4762-a04b-746bd63de961",
@@ -3106,8 +3106,8 @@
           "evidenceContext": {}
         },
         {
-          "providerId": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
-          "providerName": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerId": "SYNTHETIC_API_CLIENT_REFERENCE",
+          "providerName": "SYNTHETIC_API_CLIENT_REFERENCE",
           "evidenceType": "AGENT_ASSERTED:PURPOSE_OBSERVATION",
           "observedAt": "2026-09-10T13:06:30.917+00:00",
           "outcome": "INCONCLUSIVE",
@@ -3117,7 +3117,7 @@
           "identityContinuity": "review_required",
           "signingBoundary": "unsigned",
           "providerClass": null,
-          "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
           "environment": null,
           "scope": null,
           "modelVersion": null,
@@ -3145,7 +3145,7 @@
               "assertedEvidenceType": "PURPOSE_OBSERVATION",
               "authenticatedClientId": "84ad77bd-6bad-49a8-b064-6479237ebe9a"
             },
-            "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
             "evidenceType": "PURPOSE_OBSERVATION",
             "providerClass": "APPLICATION_SIGNAL",
             "providerEventId": "ea00d09e-1117-4444-86bc-ea6add39999b",
@@ -3153,8 +3153,8 @@
           }
         },
         {
-          "providerId": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
-          "providerName": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerId": "SYNTHETIC_API_CLIENT_REFERENCE",
+          "providerName": "SYNTHETIC_API_CLIENT_REFERENCE",
           "evidenceType": "AGENT_ASSERTED:REMEDIATION",
           "observedAt": "2026-09-10T13:06:29.947+00:00",
           "outcome": "INCONCLUSIVE",
@@ -3164,7 +3164,7 @@
           "identityContinuity": "review_required",
           "signingBoundary": "unsigned",
           "providerClass": null,
-          "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
           "environment": null,
           "scope": null,
           "modelVersion": null,
@@ -3191,7 +3191,7 @@
               "assertedEvidenceType": "REMEDIATION",
               "authenticatedClientId": "84ad77bd-6bad-49a8-b064-6479237ebe9a"
             },
-            "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
             "evidenceType": "REMEDIATION",
             "providerClass": "APPLICATION_SIGNAL",
             "providerEventId": "5366ba2c-cf26-4dea-8d84-3a2b7a76c5a3",
@@ -3199,8 +3199,8 @@
           }
         },
         {
-          "providerId": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
-          "providerName": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerId": "SYNTHETIC_API_CLIENT_REFERENCE",
+          "providerName": "SYNTHETIC_API_CLIENT_REFERENCE",
           "evidenceType": "AGENT_ASSERTED:CONTAINMENT",
           "observedAt": "2026-09-10T13:06:28.915+00:00",
           "outcome": "INCONCLUSIVE",
@@ -3210,7 +3210,7 @@
           "identityContinuity": "review_required",
           "signingBoundary": "unsigned",
           "providerClass": null,
-          "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
           "environment": null,
           "scope": null,
           "modelVersion": null,
@@ -3237,7 +3237,7 @@
               "assertedEvidenceType": "CONTAINMENT",
               "authenticatedClientId": "84ad77bd-6bad-49a8-b064-6479237ebe9a"
             },
-            "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
             "evidenceType": "CONTAINMENT",
             "providerClass": "APPLICATION_SIGNAL",
             "providerEventId": "aa6bc988-be1a-41bb-a4f2-33d5c0a7ab35",
@@ -3245,8 +3245,8 @@
           }
         },
         {
-          "providerId": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
-          "providerName": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerId": "SYNTHETIC_API_CLIENT_REFERENCE",
+          "providerName": "SYNTHETIC_API_CLIENT_REFERENCE",
           "evidenceType": "AGENT_ASSERTED:INTERVENTION",
           "observedAt": "2026-09-10T13:06:27.924+00:00",
           "outcome": "INCONCLUSIVE",
@@ -3256,7 +3256,7 @@
           "identityContinuity": "review_required",
           "signingBoundary": "unsigned",
           "providerClass": null,
-          "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
           "environment": null,
           "scope": null,
           "modelVersion": null,
@@ -3283,7 +3283,7 @@
               "assertedEvidenceType": "INTERVENTION",
               "authenticatedClientId": "84ad77bd-6bad-49a8-b064-6479237ebe9a"
             },
-            "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
             "evidenceType": "INTERVENTION",
             "providerClass": "APPLICATION_SIGNAL",
             "providerEventId": "630ff630-fb84-432e-aa81-4fcad4b52068",
@@ -3291,8 +3291,8 @@
           }
         },
         {
-          "providerId": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
-          "providerName": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerId": "SYNTHETIC_API_CLIENT_REFERENCE",
+          "providerName": "SYNTHETIC_API_CLIENT_REFERENCE",
           "evidenceType": "AGENT_ASSERTED:DETECTION",
           "observedAt": "2026-09-10T13:06:26.877+00:00",
           "outcome": "INCONCLUSIVE",
@@ -3302,7 +3302,7 @@
           "identityContinuity": "review_required",
           "signingBoundary": "unsigned",
           "providerClass": null,
-          "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
           "environment": null,
           "scope": null,
           "modelVersion": null,
@@ -3329,7 +3329,7 @@
               "assertedEvidenceType": "DETECTION",
               "authenticatedClientId": "84ad77bd-6bad-49a8-b064-6479237ebe9a"
             },
-            "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
             "evidenceType": "DETECTION",
             "providerClass": "APPLICATION_SIGNAL",
             "providerEventId": "4f039f39-d87a-40fd-9ecc-3679b0d13252",
@@ -3337,8 +3337,8 @@
           }
         },
         {
-          "providerId": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
-          "providerName": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerId": "SYNTHETIC_API_CLIENT_REFERENCE",
+          "providerName": "SYNTHETIC_API_CLIENT_REFERENCE",
           "evidenceType": "AGENT_ASSERTED:OUTCOME",
           "observedAt": "2026-09-10T13:06:25.922+00:00",
           "outcome": "INCONCLUSIVE",
@@ -3348,7 +3348,7 @@
           "identityContinuity": "review_required",
           "signingBoundary": "unsigned",
           "providerClass": null,
-          "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
           "environment": null,
           "scope": null,
           "modelVersion": null,
@@ -3377,7 +3377,7 @@
               "assertedEvidenceType": "OUTCOME",
               "authenticatedClientId": "84ad77bd-6bad-49a8-b064-6479237ebe9a"
             },
-            "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
             "evidenceType": "OUTCOME",
             "providerClass": "APPLICATION_SIGNAL",
             "providerEventId": "d5072051-7682-48a0-b446-8f6fa972ac8b",
@@ -3385,8 +3385,8 @@
           }
         },
         {
-          "providerId": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
-          "providerName": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerId": "SYNTHETIC_API_CLIENT_REFERENCE",
+          "providerName": "SYNTHETIC_API_CLIENT_REFERENCE",
           "evidenceType": "AGENT_ASSERTED:EXECUTION_OBSERVATION",
           "observedAt": "2026-09-10T13:06:24.237+00:00",
           "outcome": "INCONCLUSIVE",
@@ -3396,7 +3396,7 @@
           "identityContinuity": "review_required",
           "signingBoundary": "unsigned",
           "providerClass": null,
-          "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
           "environment": null,
           "scope": null,
           "modelVersion": null,
@@ -3423,7 +3423,7 @@
               "assertedEvidenceType": "EXECUTION_OBSERVATION",
               "authenticatedClientId": "84ad77bd-6bad-49a8-b064-6479237ebe9a"
             },
-            "providerKey": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "providerKey": "SYNTHETIC_API_CLIENT_REFERENCE",
             "evidenceType": "EXECUTION_OBSERVATION",
             "providerClass": "APPLICATION_SIGNAL",
             "providerEventId": "7bda65bb-c8b0-4f4a-8faa-02baabbbf928",
@@ -4270,7 +4270,7 @@
             "summary": "Scripted Staging execution_observation report; no real downstream operation",
             "evidence_object_id": "1e2bafd0-1e09-56b1-a643-187d3be9d3d3",
             "source": {
-              "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
               "source_type": "PUBLIC_API_CLIENT_ASSERTION",
               "classification": "AGENT_ASSERTED",
               "independently_verified": false
@@ -4311,7 +4311,7 @@
             "summary": "Scripted Staging outcome report; no real downstream operation",
             "evidence_object_id": "2f8cf1f2-5e5b-54b9-a86f-288714386479",
             "source": {
-              "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
               "source_type": "PUBLIC_API_CLIENT_ASSERTION",
               "classification": "AGENT_ASSERTED",
               "independently_verified": false
@@ -4352,7 +4352,7 @@
             "summary": "Scripted Staging detection report; no real downstream operation",
             "evidence_object_id": "69528253-1fb9-59e3-97d4-d00b1f60d560",
             "source": {
-              "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
               "source_type": "PUBLIC_API_CLIENT_ASSERTION",
               "classification": "AGENT_ASSERTED",
               "independently_verified": false
@@ -4393,7 +4393,7 @@
             "summary": "Scripted Staging intervention report; no real downstream operation",
             "evidence_object_id": "f44683ff-5b76-51a6-b5d0-68c18ea21754",
             "source": {
-              "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
               "source_type": "PUBLIC_API_CLIENT_ASSERTION",
               "classification": "AGENT_ASSERTED",
               "independently_verified": false
@@ -4434,7 +4434,7 @@
             "summary": "Scripted Staging containment report; no real downstream operation",
             "evidence_object_id": "23ac102c-1d51-55ce-97c3-1485e0b14b6d",
             "source": {
-              "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
               "source_type": "PUBLIC_API_CLIENT_ASSERTION",
               "classification": "AGENT_ASSERTED",
               "independently_verified": false
@@ -4475,7 +4475,7 @@
             "summary": "Scripted Staging remediation report; no real downstream operation",
             "evidence_object_id": "6278bc0c-a293-5a19-8b83-6745755efbdf",
             "source": {
-              "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
               "source_type": "PUBLIC_API_CLIENT_ASSERTION",
               "classification": "AGENT_ASSERTED",
               "independently_verified": false
@@ -4516,7 +4516,7 @@
             "summary": "Scripted Staging purpose_observation report; no real downstream operation",
             "evidence_object_id": "01aac5dc-ffb6-5de1-9555-760407948a38",
             "source": {
-              "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
               "source_type": "PUBLIC_API_CLIENT_ASSERTION",
               "classification": "AGENT_ASSERTED",
               "independently_verified": false
@@ -4650,7 +4650,7 @@
           {
             "evidence_id": "01aac5dc-ffb6-5de1-9555-760407948a38",
             "digest": "a511fa3894154b5e3feba0b7857fa382858fc31da05191941bebf13a424835c9",
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "classification": "AGENT_ASSERTED",
             "observed_at": "2026-09-10T13:06:30.917+00:00",
             "received_at": "2026-09-10T13:06:31.749+00:00"
@@ -4658,7 +4658,7 @@
           {
             "evidence_id": "1e2bafd0-1e09-56b1-a643-187d3be9d3d3",
             "digest": "bf8d5a7ff2dcb14a358486dc2b48913f8d2587cca9f42ee12979b5190d36fdc8",
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "classification": "AGENT_ASSERTED",
             "observed_at": "2026-09-10T13:06:24.237+00:00",
             "received_at": "2026-09-10T13:06:25.74+00:00"
@@ -4666,7 +4666,7 @@
           {
             "evidence_id": "23ac102c-1d51-55ce-97c3-1485e0b14b6d",
             "digest": "859b6e3fbac9714a105d682b714af27da870a7eccc5228d544a88864dd8fd9d3",
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "classification": "AGENT_ASSERTED",
             "observed_at": "2026-09-10T13:06:28.915+00:00",
             "received_at": "2026-09-10T13:06:29.748+00:00"
@@ -4674,7 +4674,7 @@
           {
             "evidence_id": "2f8cf1f2-5e5b-54b9-a86f-288714386479",
             "digest": "a5f6fd6a8f14fb046529461ea5a4c236cab9b8a16eb8b7280a0d21981d119fe5",
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "classification": "AGENT_ASSERTED",
             "observed_at": "2026-09-10T13:06:25.922+00:00",
             "received_at": "2026-09-10T13:06:26.678+00:00"
@@ -4682,7 +4682,7 @@
           {
             "evidence_id": "6278bc0c-a293-5a19-8b83-6745755efbdf",
             "digest": "38b3e1ab8ab0892224789d5c7c69ddfd6083f871ab5ebd02f235281de7650c52",
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "classification": "AGENT_ASSERTED",
             "observed_at": "2026-09-10T13:06:29.947+00:00",
             "received_at": "2026-09-10T13:06:30.747+00:00"
@@ -4690,7 +4690,7 @@
           {
             "evidence_id": "69528253-1fb9-59e3-97d4-d00b1f60d560",
             "digest": "96be679281003cbbb756c240dc85c915884f7703d386f6e90b7df3148e5c1329",
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "classification": "AGENT_ASSERTED",
             "observed_at": "2026-09-10T13:06:26.877+00:00",
             "received_at": "2026-09-10T13:06:27.738+00:00"
@@ -4698,7 +4698,7 @@
           {
             "evidence_id": "f44683ff-5b76-51a6-b5d0-68c18ea21754",
             "digest": "c052ec504b053d2b3ca0b68efb9816dcbabda1e5ad84e22df026da72ec227c2b",
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "classification": "AGENT_ASSERTED",
             "observed_at": "2026-09-10T13:06:27.924+00:00",
             "received_at": "2026-09-10T13:06:28.72+00:00"
@@ -4714,7 +4714,7 @@
             "summary": "Scripted Staging execution_observation report; no real downstream operation",
             "evidence_object_id": "1e2bafd0-1e09-56b1-a643-187d3be9d3d3",
             "source": {
-              "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
               "source_type": "PUBLIC_API_CLIENT_ASSERTION",
               "classification": "AGENT_ASSERTED",
               "independently_verified": false
@@ -4757,7 +4757,7 @@
             "summary": "Scripted Staging outcome report; no real downstream operation",
             "evidence_object_id": "2f8cf1f2-5e5b-54b9-a86f-288714386479",
             "source": {
-              "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
               "source_type": "PUBLIC_API_CLIENT_ASSERTION",
               "classification": "AGENT_ASSERTED",
               "independently_verified": false
@@ -4801,7 +4801,7 @@
             "summary": "Scripted Staging intervention report; no real downstream operation",
             "evidence_object_id": "f44683ff-5b76-51a6-b5d0-68c18ea21754",
             "source": {
-              "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
               "source_type": "PUBLIC_API_CLIENT_ASSERTION",
               "classification": "AGENT_ASSERTED",
               "independently_verified": false
@@ -4842,7 +4842,7 @@
             "summary": "Scripted Staging containment report; no real downstream operation",
             "evidence_object_id": "23ac102c-1d51-55ce-97c3-1485e0b14b6d",
             "source": {
-              "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
               "source_type": "PUBLIC_API_CLIENT_ASSERTION",
               "classification": "AGENT_ASSERTED",
               "independently_verified": false
@@ -4885,7 +4885,7 @@
             "summary": "Scripted Staging remediation report; no real downstream operation",
             "evidence_object_id": "6278bc0c-a293-5a19-8b83-6745755efbdf",
             "source": {
-              "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+              "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
               "source_type": "PUBLIC_API_CLIENT_ASSERTION",
               "classification": "AGENT_ASSERTED",
               "independently_verified": false
@@ -4971,7 +4971,7 @@
           "summary": "Scripted Staging execution_observation report; no real downstream operation",
           "evidence_object_id": "1e2bafd0-1e09-56b1-a643-187d3be9d3d3",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -5012,7 +5012,7 @@
           "summary": "Scripted Staging outcome report; no real downstream operation",
           "evidence_object_id": "2f8cf1f2-5e5b-54b9-a86f-288714386479",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -5053,7 +5053,7 @@
           "summary": "Scripted Staging detection report; no real downstream operation",
           "evidence_object_id": "69528253-1fb9-59e3-97d4-d00b1f60d560",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -5094,7 +5094,7 @@
           "summary": "Scripted Staging intervention report; no real downstream operation",
           "evidence_object_id": "f44683ff-5b76-51a6-b5d0-68c18ea21754",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -5135,7 +5135,7 @@
           "summary": "Scripted Staging containment report; no real downstream operation",
           "evidence_object_id": "23ac102c-1d51-55ce-97c3-1485e0b14b6d",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -5176,7 +5176,7 @@
           "summary": "Scripted Staging remediation report; no real downstream operation",
           "evidence_object_id": "6278bc0c-a293-5a19-8b83-6745755efbdf",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -5217,7 +5217,7 @@
           "summary": "Scripted Staging purpose_observation report; no real downstream operation",
           "evidence_object_id": "01aac5dc-ffb6-5de1-9555-760407948a38",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -5351,7 +5351,7 @@
         {
           "evidence_id": "01aac5dc-ffb6-5de1-9555-760407948a38",
           "digest": "a511fa3894154b5e3feba0b7857fa382858fc31da05191941bebf13a424835c9",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:30.917+00:00",
           "received_at": "2026-09-10T13:06:31.749+00:00"
@@ -5359,7 +5359,7 @@
         {
           "evidence_id": "1e2bafd0-1e09-56b1-a643-187d3be9d3d3",
           "digest": "bf8d5a7ff2dcb14a358486dc2b48913f8d2587cca9f42ee12979b5190d36fdc8",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:24.237+00:00",
           "received_at": "2026-09-10T13:06:25.74+00:00"
@@ -5367,7 +5367,7 @@
         {
           "evidence_id": "23ac102c-1d51-55ce-97c3-1485e0b14b6d",
           "digest": "859b6e3fbac9714a105d682b714af27da870a7eccc5228d544a88864dd8fd9d3",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:28.915+00:00",
           "received_at": "2026-09-10T13:06:29.748+00:00"
@@ -5375,7 +5375,7 @@
         {
           "evidence_id": "2f8cf1f2-5e5b-54b9-a86f-288714386479",
           "digest": "a5f6fd6a8f14fb046529461ea5a4c236cab9b8a16eb8b7280a0d21981d119fe5",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:25.922+00:00",
           "received_at": "2026-09-10T13:06:26.678+00:00"
@@ -5383,7 +5383,7 @@
         {
           "evidence_id": "6278bc0c-a293-5a19-8b83-6745755efbdf",
           "digest": "38b3e1ab8ab0892224789d5c7c69ddfd6083f871ab5ebd02f235281de7650c52",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:29.947+00:00",
           "received_at": "2026-09-10T13:06:30.747+00:00"
@@ -5391,7 +5391,7 @@
         {
           "evidence_id": "69528253-1fb9-59e3-97d4-d00b1f60d560",
           "digest": "96be679281003cbbb756c240dc85c915884f7703d386f6e90b7df3148e5c1329",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:26.877+00:00",
           "received_at": "2026-09-10T13:06:27.738+00:00"
@@ -5399,7 +5399,7 @@
         {
           "evidence_id": "f44683ff-5b76-51a6-b5d0-68c18ea21754",
           "digest": "c052ec504b053d2b3ca0b68efb9816dcbabda1e5ad84e22df026da72ec227c2b",
-          "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+          "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
           "classification": "AGENT_ASSERTED",
           "observed_at": "2026-09-10T13:06:27.924+00:00",
           "received_at": "2026-09-10T13:06:28.72+00:00"
@@ -5415,7 +5415,7 @@
           "summary": "Scripted Staging execution_observation report; no real downstream operation",
           "evidence_object_id": "1e2bafd0-1e09-56b1-a643-187d3be9d3d3",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -5458,7 +5458,7 @@
           "summary": "Scripted Staging outcome report; no real downstream operation",
           "evidence_object_id": "2f8cf1f2-5e5b-54b9-a86f-288714386479",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -5502,7 +5502,7 @@
           "summary": "Scripted Staging intervention report; no real downstream operation",
           "evidence_object_id": "f44683ff-5b76-51a6-b5d0-68c18ea21754",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -5543,7 +5543,7 @@
           "summary": "Scripted Staging containment report; no real downstream operation",
           "evidence_object_id": "23ac102c-1d51-55ce-97c3-1485e0b14b6d",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
@@ -5586,7 +5586,7 @@
           "summary": "Scripted Staging remediation report; no real downstream operation",
           "evidence_object_id": "6278bc0c-a293-5a19-8b83-6745755efbdf",
           "source": {
-            "provider": "api-client:84ad77bd-6bad-49a8-b064-6479237ebe9a",
+            "provider": "SYNTHETIC_API_CLIENT_REFERENCE",
             "source_type": "PUBLIC_API_CLIENT_ASSERTION",
             "classification": "AGENT_ASSERTED",
             "independently_verified": false
