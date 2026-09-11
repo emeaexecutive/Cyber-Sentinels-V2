@@ -1,0 +1,143 @@
+{
+  "target": "https://cyber-sentinels-v2-bwl46eu0w-keith-speres-projects.vercel.app",
+  "consent": "Browser-only rejected-optional fixture; no server consent claim",
+  "writes": "All non-GET/HEAD requests blocked",
+  "widths": [
+    {
+      "width": 1440,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 744,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 15,
+      "shifts": []
+    },
+    {
+      "width": 1280,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 640,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 17,
+      "shifts": []
+    },
+    {
+      "width": 1024,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 656,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 17,
+      "shifts": []
+    },
+    {
+      "width": 768,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 476,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 14,
+      "shifts": []
+    },
+    {
+      "width": 430,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 684,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 10,
+      "shifts": []
+    },
+    {
+      "width": 390,
+      "status": 200,
+      "overflow": false,
+      "h1": 1,
+      "cls": 0,
+      "lcpMs": 636,
+      "reducedMotion": true,
+      "violations": [],
+      "resources": 10,
+      "shifts": []
+    }
+  ],
+  "errors": [],
+  "keyboard": [
+    {
+      "text": "Cyber Sentinels",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Platform",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Solutions",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Developers",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Enterprise",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Pricing",
+      "outline": "solid",
+      "width": "3px"
+    },
+    {
+      "text": "Sign In",
+      "outline": "solid",
+      "width": "2px"
+    },
+    {
+      "text": "Request a demo",
+      "outline": "solid",
+      "width": "2px"
+    },
+    {
+      "text": "Explore the API",
+      "outline": "solid",
+      "width": "2px"
+    },
+    {
+      "text": "Trust Orchestrator",
+      "outline": "solid",
+      "width": "2px"
+    }
+  ],
+  "apiDocs": {
+    "path": "/developers/docs",
+    "heading": "Developer Documentation"
+  },
+  "demo": {
+    "path": "/enterprise-access",
+    "heading": "Request Enterprise Demo",
+    "requiredFields": 5,
+    "submitted": false
+  },
+  "status": "PASS"
+}

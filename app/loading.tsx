@@ -1,7 +1,7 @@
 export default function Loading() {
   return (
     <main
-      className="min-h-[70vh] bg-[#04070c] px-6 py-12 text-white md:px-8"
+      className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8"
       aria-busy="true"
       aria-live="polite"
     >

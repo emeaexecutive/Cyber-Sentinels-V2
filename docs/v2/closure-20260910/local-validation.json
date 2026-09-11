@@ -1,0 +1,22 @@
+{
+  "candidate": "1a6699e05cb6bfbc1d36381cbe196e0fd94a14ef",
+  "node": "v22.23.1",
+  "npm": "10.9.8",
+  "npm_ci": "PASS",
+  "tests": {
+    "tests": 1514,
+    "pass": 1514,
+    "fail": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "exit_codes": {
+    "tests": 0,
+    "lint": 0,
+    "typecheck": 0,
+    "build": 0,
+    "candidate-gitleaks": 0
+  },
+  "source_changes": false,
+  "scope": "Fresh lockfile install and full checks, before temporary Staging environment provisioning. Gitleaks scans V1 approved SHA..candidate with repository exact fingerprint triage; scoped current-tree supplementary scan also run."
+}

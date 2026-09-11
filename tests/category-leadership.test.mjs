@@ -7,9 +7,9 @@ import { buildTrustEvidencePack } from "../lib/trust-transparency.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("homepage owns Operational Trust Infrastructure in four focused sections", async () => {
+test("homepage owns Operational Trust Infrastructure in five focused sections", async () => {
   const source = await read("app/page.tsx");
-  assert.equal((source.match(/<section/g) ?? []).length, 4);
+  assert.equal((source.match(/<section/g) ?? []).length, 5);
   assert.match(source, /Operational Trust Infrastructure/);
   assert.match(source, /Before an AI agent acts, prove it has the authority to do so\./);
   for (const section of ["Core flow", "Trusted to do what?", "Product clarity"]) assert.match(source, new RegExp(section));
@@ -63,8 +63,8 @@ test("public navigation is consolidated without adding a buyer or evidence route
   const source = await read("lib/navigation/canonical-navigation.ts");
   const publicBlock = source.match(/public: \[([\s\S]*?)\n  \]/)?.[0] ?? "";
   assert.equal((publicBlock.match(/\{ href:/g) ?? []).length, 6);
-  for (const route of ["/platform", "/solutions", "/trust", "/enterprise", "/pricing", "/login"]) assert.match(publicBlock, new RegExp(route.replaceAll("/", "\\/")));
-  assert.doesNotMatch(publicBlock, /#|Developers|Resources/);
+  for (const route of ["/platform", "/solutions", "/developers", "/enterprise", "/pricing", "/login"]) assert.match(publicBlock, new RegExp(route.replaceAll("/", "\\/")));
+  assert.doesNotMatch(publicBlock, /#|Resources/);
   const appEntries = await readdir(new URL("../app", import.meta.url));
   for (const forbidden of ["buyer", "category", "trust-evidence-packs"]) assert.equal(appEntries.includes(forbidden), false);
 });

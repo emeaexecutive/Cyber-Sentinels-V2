@@ -4,11 +4,14 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("homepage tells the action-led story through four calm no-blueprint sections", async () => {
+test("homepage tells the action-led story through five focused sections with Staging V2 context", async () => {
   const source = await read("app/page.tsx");
-  assert.equal((source.match(/<section/g) ?? []).length, 4);
+  assert.equal((source.match(/<section/g) ?? []).length, 5);
   for (const removed of ["ComparisonCard", "LifecycleDiagram", "DecisionFlow", "ArchitectureBlock", "InteractiveTrustWalkthrough"]) assert.doesNotMatch(source, new RegExp(`<${removed}`));
   assert.doesNotMatch(source, /<Timeline/);
+  for (const marker of ["Identity is not authority.", "Policy limit exceeded.", "Before the action:", "After the action:", "The decision is only the beginning.", "When something goes wrong, reconstruct what actually happened.", "Trust doesn&apos;t reset with each API call.", "Production promotion is pending."]) {
+    assert.ok(source.includes(marker), `Missing bounded release narrative: ${marker}`);
+  }
   for (const marker of ["Operational Trust Infrastructure", "Before an AI agent acts", "Core flow", "Trust is contextual to the action", "Decision, proof and Replay"]) {
     assert.match(source, new RegExp(marker));
   }

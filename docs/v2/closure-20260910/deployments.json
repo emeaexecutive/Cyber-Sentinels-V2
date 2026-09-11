@@ -1,0 +1,162 @@
+[
+  {
+    "id": "dpl_2oS7PR38KmWtLFS1Dt4nEKZ7VWaJ",
+    "url": "cyber-sentinels-v2-ejtx0g4mg-keith-speres-projects.vercel.app",
+    "sha": "1fac6d39ef31ca98c03fec7053a0d8041ae7ecc5",
+    "ref": "dependabot/npm_and_yarn/supabase-tooling-37ef5fa1b7",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_BDxaeChb2yQTczjENjPajvV7Hhvx",
+    "url": "cyber-sentinels-v2-bwl46eu0w-keith-speres-projects.vercel.app",
+    "sha": "958b9eff1e058dae2b59dfc32d0a947c8bfd12f7",
+    "ref": "v2/operational-trust-intelligence",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_CBn6617m6TKiArhLPLVLUMBS9mvL",
+    "url": "cyber-sentinels-v2-1873jrs45-keith-speres-projects.vercel.app",
+    "sha": "c67bba582cb40595b82e439e63755b2e544d7471",
+    "ref": "v2/operational-trust-intelligence",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_32GQKvdxDSLYmkKjv8tMwFXGspno",
+    "url": "cyber-sentinels-v2-feuydffiq-keith-speres-projects.vercel.app",
+    "sha": "61b9701ff113e996cfe07806702f9c36bb1ef48e",
+    "ref": "v2/operational-trust-intelligence",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_Fqyoa97LErSdcL1oF4hnQvfywQA5",
+    "url": "cyber-sentinels-v2-86089px13-keith-speres-projects.vercel.app",
+    "sha": "29150d979f04e488cdcd07f2e69b8bef05a00e94",
+    "ref": "v2/operational-trust-intelligence",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_46aXtCTxAsNQ348aRZutnbwdeYhj",
+    "url": "cyber-sentinels-v2-o55uiwjoh-keith-speres-projects.vercel.app",
+    "sha": "d949b78f2684514640f631828fa5d87c9d9fb37d",
+    "ref": "dependabot/npm_and_yarn/development-tooling-32fc378363",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_2TK1QboNuiPj4NZG7PEqUjVk4k82",
+    "url": "cyber-sentinels-v2-8a47tpynl-keith-speres-projects.vercel.app",
+    "sha": "98917f092dc90da44161e300c53f49e63a4a72cd",
+    "ref": "v2/operational-trust-intelligence",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_DbopA71jS1qGEaDZmEzrjEuUMVTt",
+    "url": "cyber-sentinels-v2-720sxxwoo-keith-speres-projects.vercel.app",
+    "sha": "6c4b15dce1a21e3f375fb798f3c38e543f6333fe",
+    "ref": "v2/operational-trust-intelligence",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_2eK7coCiLpyDCqro9NkYrP6DgE1v",
+    "url": "cyber-sentinels-v2-1d197uo8v-keith-speres-projects.vercel.app",
+    "sha": "b227fb434e3390e7461846dda5018a35d84fc147",
+    "ref": "v2/operational-trust-intelligence",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_Ad6yHN4ADYKGMiJ5gRW1UyFdvweD",
+    "url": "cyber-sentinels-v2-klguxwoyn-keith-speres-projects.vercel.app",
+    "sha": "580dfff5f75ef3f1a771d8933e283d085a0c0c4f",
+    "ref": "v2/operational-trust-intelligence",
+    "state": "CANCELED",
+    "target": null
+  },
+  {
+    "id": "dpl_EhkbZLEBb7T6WskhkC4n6z7sT7Be",
+    "url": "cyber-sentinels-v2-lek5u49cr-keith-speres-projects.vercel.app",
+    "sha": "50aa07238756954be61bb19d2572eb2e4cb41e9c",
+    "ref": "v2/operational-trust-intelligence",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_HoV2XnDThCTZVcd5bXBCVJKDBvWK",
+    "url": "cyber-sentinels-v2-ejx5kruge-keith-speres-projects.vercel.app",
+    "sha": "50aa07238756954be61bb19d2572eb2e4cb41e9c",
+    "ref": "v2/operational-trust-intelligence",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_8NHV7WJwzfrfZuYc6Viyg3ju35za",
+    "url": "cyber-sentinels-v2-4rc0obdy8-keith-speres-projects.vercel.app",
+    "sha": "c1756a30b08a18f09ed386159a0029f176274d65",
+    "ref": "docs/v1-production-proof-20260909",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_4XMC5usmycyx3hjihnYgsfN66YVi",
+    "url": "cyber-sentinels-v2-fkapr6cjm-keith-speres-projects.vercel.app",
+    "sha": "192126fa553ea3480818e7687a2745ade86a52b5",
+    "ref": "docs/v1-production-proof-20260909",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_3yX9aPfmjumxNH2DS56dnzTFL7zc",
+    "url": "cyber-sentinels-v2-73ajl75zt-keith-speres-projects.vercel.app",
+    "sha": "b0f6b37d41714efa940852b3ef955e9c7317c513",
+    "ref": "b0f6b37d41714efa940852b3ef955e9c7317c513",
+    "state": "READY",
+    "target": "production"
+  },
+  {
+    "id": "dpl_5YmuZ1DVFufEVMXXn496c2jGsCxc",
+    "url": "cyber-sentinels-v2-h6oukycfg-keith-speres-projects.vercel.app",
+    "sha": "f58441320eb740bcbb225a2848fb976f15549c38",
+    "ref": "fix/v1-heartbeat-public-errors",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_B5fBjgtNzZJKqobCMuLWALVQr7QG",
+    "url": "cyber-sentinels-v2-hitkia7g5-keith-speres-projects.vercel.app",
+    "sha": "d5ce51f53c262e02cc6fecad43a60bbc6af6f369",
+    "ref": "dependabot/npm_and_yarn/development-tooling-32fc378363",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_4jHMCJkohTXZCfDRv4SuEMD2ABTY",
+    "url": "cyber-sentinels-v2-nky3jztbu-keith-speres-projects.vercel.app",
+    "sha": "14d20422735fd4587ee6c3a811467f37028598dc",
+    "ref": "14d20422735fd4587ee6c3a811467f37028598dc",
+    "state": "READY",
+    "target": "production"
+  },
+  {
+    "id": "dpl_2gKYjQNrpwjZKvebaoBoHEdkSYXg",
+    "url": "cyber-sentinels-v2-2wv0ddbeh-keith-speres-projects.vercel.app",
+    "sha": "ff45243da45fc8e30314453ccb1757633bccd525",
+    "ref": "fix/v1-production-control-plane-evidence",
+    "state": "READY",
+    "target": null
+  },
+  {
+    "id": "dpl_9KfCkdDdaveeq7dGRBK2eNxzGw2h",
+    "url": "cyber-sentinels-v2-7rubmfec0-keith-speres-projects.vercel.app",
+    "sha": "9ae0e6e95b9870eda774c4975c0869478a1663bf",
+    "ref": "fix/v1-production-control-plane-evidence",
+    "state": "READY",
+    "target": null
+  }
+]

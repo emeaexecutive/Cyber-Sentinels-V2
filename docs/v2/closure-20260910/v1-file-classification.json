@@ -1,0 +1,502 @@
+[
+  {
+    "path": ".env.example",
+    "classification": "DIFFERS FROM MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Historical local implementation/configuration differs from current main; preserve patch, do not replace current code or dependency lockfile."
+  },
+  {
+    "path": "artifacts/production-migration-reconciliation.json",
+    "classification": "OBSOLETE GENERATED ARTIFACT",
+    "sensitive_result": "PASS",
+    "main_exists": false,
+    "reason": "Historical generated pre-closure snapshot; final Production proof and database closure are committed under docs/release. Preserved outside repository, not added to GitHub."
+  },
+  {
+    "path": "artifacts/production-proof.json",
+    "classification": "OBSOLETE GENERATED ARTIFACT",
+    "sensitive_result": "PASS",
+    "main_exists": false,
+    "reason": "Historical generated pre-closure snapshot; final Production proof and database closure are committed under docs/release. Preserved outside repository, not added to GitHub."
+  },
+  {
+    "path": "artifacts/v1-database-reconciliation-ci.json",
+    "classification": "OBSOLETE GENERATED ARTIFACT",
+    "sensitive_result": "PASS",
+    "main_exists": false,
+    "reason": "Historical generated pre-closure snapshot; final Production proof and database closure are committed under docs/release. Preserved outside repository, not added to GitHub."
+  },
+  {
+    "path": "artifacts/v1-database-reconciliation-final.md",
+    "classification": "OBSOLETE GENERATED ARTIFACT",
+    "sensitive_result": "PASS",
+    "main_exists": false,
+    "reason": "Historical generated pre-closure snapshot; final Production proof and database closure are committed under docs/release. Preserved outside repository, not added to GitHub."
+  },
+  {
+    "path": "artifacts/v1-production-proof.json",
+    "classification": "OBSOLETE GENERATED ARTIFACT",
+    "sensitive_result": "PASS",
+    "main_exists": false,
+    "reason": "Historical generated pre-closure snapshot; final Production proof and database closure are committed under docs/release. Preserved outside repository, not added to GitHub."
+  },
+  {
+    "path": "artifacts/v1-release-candidate-manifest.json",
+    "classification": "OBSOLETE GENERATED ARTIFACT",
+    "sensitive_result": "PASS",
+    "main_exists": false,
+    "reason": "Historical generated pre-closure snapshot; final Production proof and database closure are committed under docs/release. Preserved outside repository, not added to GitHub."
+  },
+  {
+    "path": "docs/PRE_SEED_TECHNICAL_DILIGENCE.md",
+    "classification": "LOCAL-ONLY EVIDENCE",
+    "sensitive_result": "PASS",
+    "main_exists": false,
+    "reason": "Historical authored qualification/diligence/blocked gate report. Preserve on archival branch with explicit superseded notice; does not override current V1 GO.",
+    "important_source_evidence": true
+  },
+  {
+    "path": "docs/V1_PRODUCTION_PROOF.md",
+    "classification": "LOCAL-ONLY EVIDENCE",
+    "sensitive_result": "PASS_TRIAGED_PUBLIC_NON_SECRET",
+    "main_exists": false,
+    "reason": "Historical authored qualification/diligence/blocked gate report. Preserve on archival branch with explicit superseded notice; does not override current V1 GO.",
+    "important_source_evidence": true
+  },
+  {
+    "path": "docs/V1_RELEASE_CANDIDATE_QUALIFICATION.md",
+    "classification": "LOCAL-ONLY EVIDENCE",
+    "sensitive_result": "PASS",
+    "main_exists": false,
+    "reason": "Historical authored qualification/diligence/blocked gate report. Preserve on archival branch with explicit superseded notice; does not override current V1 GO.",
+    "important_source_evidence": true
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/CUSTOMER_ZERO_DEMO.md",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/PRODUCTION_PROOF.md",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/application-evidence.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/attempt-1-deployment.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/attempt-1-error-contract.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS_TRIAGED_PUBLIC_NON_SECRET",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/attempt-1-isolation-key-issued.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS_TRIAGED_PUBLIC_NON_SECRET",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/attempt-1-key-cleanup.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/attempt-1-key-issued.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS_TRIAGED_PUBLIC_NON_SECRET",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/changed-files.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/check-revoked-keys.mjs",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/customer-zero.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS_TRIAGED_PUBLIC_NON_SECRET",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/database-verification.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/deployment.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/generate-report.mjs",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/health.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/isolation-key-issued.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS_TRIAGED_PUBLIC_NON_SECRET",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/key-cleanup.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/key-issued.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/offline-signature-verification.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/persisted-control-plane.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS_TRIAGED_PUBLIC_NON_SECRET",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/proof-summary.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/proof-validation.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/readiness.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/refresh-proof.mjs",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/revoked-key-rejection.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/runtime-5xx-check.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/secret-scan-triage.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/secret-scan.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/tenant-isolation.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/validate-proof.mjs",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/validation-history.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/validation.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-control-plane-production-proof/verify-signatures.mjs",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/CUSTOMER_ZERO_DEMO.md",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/PRODUCTION_PROOF.md",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS_TRIAGED_PUBLIC_NON_SECRET",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/application-evidence.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/baseline-final.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/baseline.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/critical-fix-pr.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/critical-fix-validation.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/customer-zero-initial-98c223f-blocked.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/customer-zero.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS_TRIAGED_PUBLIC_NON_SECRET",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/decision-deployment.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/deployment.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/final-runtime-5xx-log-check.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/final-validation.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/key-cleanup.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/production-migration-final.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/production-schema-after.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/proof-summary.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/tenant-isolation.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "docs/release/v1-production-closure/workspace-fix-pr.json",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "examples/agent-gamma/package-lock.json",
+    "classification": "DIFFERS FROM MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Historical local implementation/configuration differs from current main; preserve patch, do not replace current code or dependency lockfile."
+  },
+  {
+    "path": "tools/production-proof-local.mjs",
+    "classification": "DIFFERS FROM MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Historical local implementation/configuration differs from current main; preserve patch, do not replace current code or dependency lockfile."
+  },
+  {
+    "path": "tools/release/v1-production-complete-negative.mjs",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "tools/release/v1-production-customer-zero.mjs",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "tools/release/v1-production-final-report.mjs",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "tools/release/v1-production-key-session.mjs",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "tools/release/v1-production-refresh-proof.mjs",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "tools/release/v1-production-session-proof.mjs",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  },
+  {
+    "path": "tools/release/v1-production-tenant-isolation.mjs",
+    "classification": "ALREADY IN MAIN",
+    "sensitive_result": "PASS",
+    "main_exists": true,
+    "reason": "Exact content match after CRLF/LF normalization; no new commit needed."
+  }
+]

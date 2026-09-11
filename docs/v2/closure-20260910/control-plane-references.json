@@ -1,0 +1,12 @@
+[
+  {
+    "evidence_id": "261e15a3-2571-5c18-8402-f6c344f4643c",
+    "payload_hash": "b399035c482a4f0a833760ae86d4f0bd93865a66eb039f67680083788d8ed168",
+    "evidence_type": "SERVER_VERIFIED_AGENT_CONFIGURATION"
+  },
+  {
+    "evidence_id": "79c8c476-1992-5f9f-af06-a298c4fc0098",
+    "payload_hash": "b399035c482a4f0a833760ae86d4f0bd93865a66eb039f67680083788d8ed168",
+    "evidence_type": "SERVER_VERIFIED_MONITORING_HEARTBEAT"
+  }
+]

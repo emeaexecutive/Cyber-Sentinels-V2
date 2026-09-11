@@ -1,0 +1,15 @@
+{
+  "project": "agpyhygpfmppjkxwcpac",
+  "results": [
+    {
+      "user": "a116afe9-883b-47b4-a600-26d5d5a5882a",
+      "localSessionSignedOut": true
+    },
+    {
+      "user": "79d52689-68e4-4f88-b42b-ec51ee5d7ec1",
+      "localSessionSignedOut": true
+    }
+  ],
+  "status": "PASS",
+  "note": "Only sessions created by this task signed out; other user sessions untouched."
+}
