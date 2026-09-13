@@ -60,6 +60,12 @@ export type PolicyEvidence = {
   interviewId: string | null;
   evidenceReferences: string[];
   decisionTransactionReference: string | null;
+  recordingPolicy: "ALLOWED" | "APPROVAL_REQUIRED" | "PROHIBITED";
+  transcriptRetentionPolicy: "ALLOWED" | "RESTRICTED" | "PROHIBITED";
+  externalAiObservationPolicy: "ALLOWED" | "DISCLOSED_ONLY" | "PROHIBITED";
+  thirdPartyAggregationPolicy: "ALLOWED" | "PROHIBITED";
+  contentRedistributionPolicy: "ALLOWED" | "PROHIBITED";
+  candidateAcknowledgementPolicy: "REQUIRED" | "OPTIONAL";
 };
 
 export type WorkforceContinuityEvidence = {
@@ -122,6 +128,12 @@ export function policyAcknowledgementDigest(input: Omit<PolicyEvidence, "acknowl
     acknowledgementMethod: input.acknowledgementMethod,
     sessionId: input.sessionId,
     interviewId: input.interviewId,
+    recordingPolicy: input.recordingPolicy,
+    transcriptRetentionPolicy: input.transcriptRetentionPolicy,
+    externalAiObservationPolicy: input.externalAiObservationPolicy,
+    thirdPartyAggregationPolicy: input.thirdPartyAggregationPolicy,
+    contentRedistributionPolicy: input.contentRedistributionPolicy,
+    candidateAcknowledgementPolicy: input.candidateAcknowledgementPolicy,
   });
 }
 
@@ -161,7 +173,19 @@ export function parsePolicyEvidence(value: unknown, binding: { workspace: string
     sessionId: optionalReference(field(input, "sessionId", "session_id"), "sessionId"),
     interviewId: optionalReference(field(input, "interviewId", "interview_id"), "interviewId"),
     evidenceReferences: stringList(field(input, "evidenceReferences", "evidence_references") ?? [], "evidenceReferences"),
+    recordingPolicy: String(field(input, "recordingPolicy", "recording_policy") ?? "ALLOWED") as PolicyEvidence["recordingPolicy"],
+    transcriptRetentionPolicy: String(field(input, "transcriptRetentionPolicy", "transcript_retention_policy") ?? "ALLOWED") as PolicyEvidence["transcriptRetentionPolicy"],
+    externalAiObservationPolicy: String(field(input, "externalAiObservationPolicy", "external_ai_observation_policy") ?? "ALLOWED") as PolicyEvidence["externalAiObservationPolicy"],
+    thirdPartyAggregationPolicy: String(field(input, "thirdPartyAggregationPolicy", "third_party_aggregation_policy") ?? "PROHIBITED") as PolicyEvidence["thirdPartyAggregationPolicy"],
+    contentRedistributionPolicy: String(field(input, "contentRedistributionPolicy", "content_redistribution_policy") ?? "PROHIBITED") as PolicyEvidence["contentRedistributionPolicy"],
+    candidateAcknowledgementPolicy: String(field(input, "candidateAcknowledgementPolicy", "candidate_acknowledgement_policy") ?? "OPTIONAL") as PolicyEvidence["candidateAcknowledgementPolicy"],
   };
+  if (!["ALLOWED", "APPROVAL_REQUIRED", "PROHIBITED"].includes(bound.recordingPolicy)) throw new TypeError("recordingPolicy is invalid.");
+  if (!["ALLOWED", "RESTRICTED", "PROHIBITED"].includes(bound.transcriptRetentionPolicy)) throw new TypeError("transcriptRetentionPolicy is invalid.");
+  if (!["ALLOWED", "DISCLOSED_ONLY", "PROHIBITED"].includes(bound.externalAiObservationPolicy)) throw new TypeError("externalAiObservationPolicy is invalid.");
+  if (!["ALLOWED", "PROHIBITED"].includes(bound.thirdPartyAggregationPolicy)) throw new TypeError("thirdPartyAggregationPolicy is invalid.");
+  if (!["ALLOWED", "PROHIBITED"].includes(bound.contentRedistributionPolicy)) throw new TypeError("contentRedistributionPolicy is invalid.");
+  if (!["REQUIRED", "OPTIONAL"].includes(bound.candidateAcknowledgementPolicy)) throw new TypeError("candidateAcknowledgementPolicy is invalid.");
   if (bound.acknowledgementTimestamp && Date.parse(bound.acknowledgementTimestamp) < Date.parse(bound.policyEffectiveAt)) throw new TypeError("The acknowledgement predates the policy version.");
   if (binding.observedAt && Date.parse(bound.policyEffectiveAt) > Date.parse(binding.observedAt)) throw new TypeError("The policy version was not effective when observed.");
   const acknowledgementDigest = policyAcknowledgementDigest(bound);
@@ -219,6 +243,36 @@ export function evaluatePolicyAssistance(input: {
   if (!input.corroborated) return { authorization: "REVIEW" as const, reasonCodes: ["AI_ASSISTANCE_OBSERVED_NOT_CORROBORATED"] };
   if (!disclosureSatisfied) return { authorization: "REVIEW" as const, reasonCodes: ["AI_ASSISTANCE_POLICY_CONFLICT", "DISCLOSURE_MISSING"] };
   return { authorization: "REVIEW" as const, reasonCodes: ["AI_ASSISTANCE_POLICY_REVIEW_REQUIRED", "DISCLOSURE_PRESENT"] };
+}
+
+export type InterviewPolicyObservation = {
+  aiAssistanceDeclared?: boolean;
+  recordingObserved?: boolean;
+  recordingApproved?: boolean;
+  transcriptRetainedExternally?: boolean;
+  externalAiObserved?: boolean;
+  externalAiDisclosed?: boolean;
+  thirdPartyAggregationObserved?: boolean;
+  contentRedistributed?: boolean;
+  candidateAcknowledged?: boolean;
+};
+
+export function evaluateInterviewObservationPolicy(policy: PolicyEvidence, observation: InterviewPolicyObservation) {
+  const reasonCodes: string[] = [];
+  const deny = (condition: boolean, code: string) => { if (condition) reasonCodes.push(code); };
+  const review = (condition: boolean, code: string) => { if (condition && !reasonCodes.includes(code)) reasonCodes.push(code); };
+  deny(policy.recordingPolicy === "PROHIBITED" && observation.recordingObserved === true, "RECORDING_PROHIBITED");
+  review(policy.recordingPolicy === "APPROVAL_REQUIRED" && observation.recordingObserved === true && observation.recordingApproved !== true, "RECORDING_APPROVAL_REQUIRED");
+  deny(policy.transcriptRetentionPolicy === "PROHIBITED" && observation.transcriptRetainedExternally === true, "TRANSCRIPT_RETENTION_PROHIBITED");
+  review(policy.transcriptRetentionPolicy === "RESTRICTED" && observation.transcriptRetainedExternally === true, "TRANSCRIPT_RETENTION_REVIEW_REQUIRED");
+  deny(policy.externalAiObservationPolicy === "PROHIBITED" && observation.externalAiObserved === true, "EXTERNAL_AI_OBSERVATION_PROHIBITED");
+  review(policy.externalAiObservationPolicy === "DISCLOSED_ONLY" && observation.externalAiObserved === true && observation.externalAiDisclosed !== true, "EXTERNAL_AI_DISCLOSURE_REQUIRED");
+  deny(policy.thirdPartyAggregationPolicy === "PROHIBITED" && observation.thirdPartyAggregationObserved === true, "THIRD_PARTY_AGGREGATION_PROHIBITED");
+  deny(policy.contentRedistributionPolicy === "PROHIBITED" && observation.contentRedistributed === true, "CONTENT_REDISTRIBUTION_PROHIBITED");
+  review(policy.candidateAcknowledgementPolicy === "REQUIRED" && observation.candidateAcknowledged !== true, "CANDIDATE_ACKNOWLEDGEMENT_REQUIRED");
+  if (!reasonCodes.length) return { authorization: "ALLOW" as const, reasonCodes: ["INTERVIEW_POLICY_COMPLIANT"] };
+  const denyCodes = new Set(["RECORDING_PROHIBITED", "TRANSCRIPT_RETENTION_PROHIBITED", "EXTERNAL_AI_OBSERVATION_PROHIBITED", "THIRD_PARTY_AGGREGATION_PROHIBITED", "CONTENT_REDISTRIBUTION_PROHIBITED"]);
+  return { authorization: reasonCodes.some((code) => denyCodes.has(code)) ? "DENY" as const : "REVIEW" as const, reasonCodes };
 }
 
 const continuityRank: Record<WorkforceContinuityState, number> = {
