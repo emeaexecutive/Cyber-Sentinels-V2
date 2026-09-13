@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-09-11T18:37:51.890Z",
+  "keys": [
+    {
+      "tenant": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+      "keyId": "c73340ee-f2bd-42e5-9dd3-d483b7e0b789",
+      "httpStatus": 200,
+      "status": "revoked",
+      "revokedAt": "2026-09-11T18:37:50.51+00:00"
+    }
+  ]
+}

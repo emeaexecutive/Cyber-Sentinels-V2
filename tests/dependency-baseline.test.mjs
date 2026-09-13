@@ -138,7 +138,7 @@ test("GitHub workflows use immutable action pins and least-privilege triggers", 
   assert.match(workflows[0], /permissions:\s*\n\s*contents:\s*read/);
   assert.match(workflows[1], /permissions:\s*\n\s*contents:\s*read/);
   assert.match(workflows[1], /fetch-depth:\s*0/);
-  assert.match(workflows[1], /gitleaks\/gitleaks-action@[a-f0-9]{40}/);
+  assert.match(workflows[1], /zricethezav\/gitleaks:v8\.28\.0/);
   assert.match(workflows[2], /actions:\s*read/);
   assert.match(workflows[2], /contents:\s*read/);
   assert.match(workflows[2], /security-events:\s*write/);

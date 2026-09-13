@@ -1,0 +1,201 @@
+{
+  "origin": "https://www.cybersentinels.com",
+  "startedAt": "2026-09-13T13:17:53.507Z",
+  "metadata": {
+    "main": {
+      "status": 201,
+      "tenant": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+      "key": {
+        "id": "11c96c2a-b684-4b0c-9cfa-b73dab50663a",
+        "client_id": "c7e32db1-afe0-4df4-8fcd-412718b17bd4",
+        "label": "V2_COMBINED_PRODUCTION_QUALIFICATION_20260913",
+        "key_prefix": "cs_live_FEl9BlYNYl-E",
+        "status": "active",
+        "scopes": [
+          "agents:write",
+          "agents:verify",
+          "authority:read",
+          "authority:write",
+          "trust:request",
+          "trust:read",
+          "outcomes:write",
+          "review:read",
+          "review:write",
+          "incidents:read",
+          "incidents:write",
+          "evidence:write",
+          "evidence:export"
+        ],
+        "expires_at": "2026-09-13T15:11:46.828+00:00",
+        "last_used_at": null,
+        "usage_count": 0,
+        "rate_limit_status": "normal",
+        "created_at": "2026-09-13T13:11:48.467162+00:00",
+        "revoked_at": null,
+        "rotated_from_id": null,
+        "rotation_request_id": null,
+        "authority_management_boundary": {
+          "actions": [
+            "read_repository"
+          ],
+          "purposes": [
+            "deployment_evidence_review"
+          ],
+          "environments": [
+            "production"
+          ],
+          "max_ttl_seconds": 3600,
+          "target_prefixes": [
+            "repository:customer-zero-v1-release-evidence"
+          ]
+        }
+      },
+      "secretStored": "Windows DPAPI, outside repository",
+      "issuedThrough": "/api/developer/api-keys"
+    },
+    "legacy": {
+      "status": 201,
+      "tenant": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+      "key": {
+        "id": "7e0ec2e6-3076-48a5-ab4f-51b153e790a2",
+        "client_id": "38ff67c4-413c-4aae-bb93-81298ea6723f",
+        "label": "V2_COMBINED_NEGATIVE_20260913_legacy",
+        "key_prefix": "cs_live_mYHKmkFefrRO",
+        "status": "active",
+        "scopes": [
+          "trust:read"
+        ],
+        "expires_at": "2026-09-13T15:13:18.376+00:00",
+        "last_used_at": null,
+        "usage_count": 0,
+        "rate_limit_status": "normal",
+        "created_at": "2026-09-13T13:13:20.027245+00:00",
+        "revoked_at": null,
+        "rotated_from_id": null,
+        "rotation_request_id": null,
+        "authority_management_boundary": null
+      },
+      "secretStored": "Windows DPAPI, outside repository",
+      "issuedThrough": "/api/developer/api-keys"
+    },
+    "wrong-client": {
+      "status": 201,
+      "tenant": "138426bb-ec4c-49c2-acf5-a9b39fa72d82",
+      "key": {
+        "id": "e2e19e72-53b4-44af-903b-fd603ad7059e",
+        "client_id": "e0c0b38a-44b8-4c97-8d23-2207c6770fd6",
+        "label": "V2_COMBINED_NEGATIVE_20260913_wrong-client",
+        "key_prefix": "cs_live_bUPKZoQ_O-Ao",
+        "status": "active",
+        "scopes": [
+          "agents:write",
+          "trust:read",
+          "incidents:read",
+          "incidents:write",
+          "evidence:write",
+          "evidence:export"
+        ],
+        "expires_at": "2026-09-13T15:13:26.573+00:00",
+        "last_used_at": null,
+        "usage_count": 0,
+        "rate_limit_status": "normal",
+        "created_at": "2026-09-13T13:13:27.397174+00:00",
+        "revoked_at": null,
+        "rotated_from_id": null,
+        "rotation_request_id": null,
+        "authority_management_boundary": null
+      },
+      "secretStored": "Windows DPAPI, outside repository",
+      "issuedThrough": "/api/developer/api-keys"
+    },
+    "tenant-b": {
+      "status": 201,
+      "tenant": "ab10b640-e72f-4910-a44c-4eb8522bbaa7",
+      "key": {
+        "id": "85b2422d-76d9-433e-95d1-0eb576039759",
+        "client_id": "a871d1f4-f143-43e2-8ccf-ddfbf3309ace",
+        "label": "V2_COMBINED_NEGATIVE_20260913_tenant-b",
+        "key_prefix": "cs_live_4D1XMJ5oA9Kx",
+        "status": "active",
+        "scopes": [
+          "agents:write",
+          "trust:read",
+          "incidents:read",
+          "incidents:write",
+          "evidence:write",
+          "evidence:export"
+        ],
+        "expires_at": "2026-09-13T15:13:33.781+00:00",
+        "last_used_at": null,
+        "usage_count": 0,
+        "rate_limit_status": "normal",
+        "created_at": "2026-09-13T13:13:34.660722+00:00",
+        "revoked_at": null,
+        "rotated_from_id": null,
+        "rotation_request_id": null,
+        "authority_management_boundary": null
+      },
+      "secretStored": "Windows DPAPI, outside repository",
+      "issuedThrough": "/api/developer/api-keys"
+    }
+  },
+  "negatives": [
+    {
+      "name": "legacy V1-only incidents:read (scope gate before resource lookup)",
+      "status": 403,
+      "code": "INSUFFICIENT_SCOPE"
+    },
+    {
+      "name": "legacy V1-only incidents:write",
+      "status": 403,
+      "code": "INSUFFICIENT_SCOPE"
+    },
+    {
+      "name": "legacy V1-only evidence:export (scope gate before resource lookup)",
+      "status": 403,
+      "code": "INSUFFICIENT_SCOPE"
+    },
+    {
+      "name": "wrong-client cannot read V1 root",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND"
+    },
+    {
+      "name": "wrong-client cannot hijack V2 root",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND"
+    },
+    {
+      "name": "tenant-b cannot read V1 root",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND"
+    },
+    {
+      "name": "tenant-b cannot hijack V2 root",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND"
+    },
+    {
+      "name": "caller-forged derived state on incident creation",
+      "status": 400,
+      "code": "INVALID_REQUEST"
+    },
+    {
+      "name": "invalid digest at evidence submission",
+      "status": 400,
+      "code": "EVIDENCE_DIGEST_MISMATCH"
+    }
+  ],
+  "status": "PARTIAL_BLOCKED",
+  "blocked": [
+    "cross-tenant incident read",
+    "cross-tenant evidence link",
+    "cross-tenant chronology",
+    "cross-tenant export",
+    "incident-link digest",
+    "incomplete incident export NOT READY"
+  ],
+  "reason": "No incident exists: Production persistence failed. No fixture or substitute incident used.",
+  "originalAllowImmutable": true,
+  "completedAt": "2026-09-13T13:18:08.690Z"
+}

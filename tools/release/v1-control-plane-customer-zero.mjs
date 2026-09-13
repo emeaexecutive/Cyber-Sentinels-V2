@@ -8,7 +8,7 @@ const origin = 'https://www.cybersentinels.com';
 const key = process.env.CYBER_SENTINELS_API_KEY;
 if (process.env.I_CONFIRM_PRODUCTION !== 'kecgtsfibkypjuaxqbjx' || !/^cs_live_/.test(key ?? '')) throw new Error('Explicit Production target and legitimate live API key required');
 if (process.env.SUPABASE_SERVICE_ROLE_KEY) throw new Error('Database credentials are forbidden in this client');
-const directory = 'docs/release/v1-control-plane-production-proof';
+const directory = process.env.V1_EVIDENCE_DIRECTORY ?? 'docs/release/v1-control-plane-production-proof';
 await mkdir(directory, { recursive: true });
 if (!/^[a-f0-9]{40}$/.test(process.env.V1_SOURCE_SHA ?? '') || !process.env.V1_DEPLOYMENT_ID) throw new Error('Exact release provenance required');
 const evidence = { sourceSha: process.env.V1_SOURCE_SHA, deploymentId: process.env.V1_DEPLOYMENT_ID, origin, client: 'Separate Node HTTP process; scripted Customer Zero, no downstream operation or model invocation', startedAt: new Date().toISOString(), stages: {}, http: [] };

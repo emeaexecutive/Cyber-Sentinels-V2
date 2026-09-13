@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "revoked": [
+    {
+      "keyId": "8df64f95-97e7-4a9f-9a30-21c28ab1336a",
+      "status": "revoked",
+      "tenant": "ab10b640-e72f-4910-a44c-4eb8522bbaa7"
+    },
+    {
+      "keyId": "c070da80-ad3a-4afe-8845-0cb546bcaa18",
+      "status": "revoked",
+      "tenant": "138426bb-ec4c-49c2-acf5-a9b39fa72d82"
+    }
+  ],
+  "temporaryApiKeysActive": 0,
+  "qualificationAuthoritiesActive": 0,
+  "completedAt": "2026-09-13T15:02:48.561Z"
+}

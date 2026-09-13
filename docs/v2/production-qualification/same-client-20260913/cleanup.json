@@ -1,0 +1,13 @@
+{
+  "startedAt": "2026-09-13T15:00:23.288Z",
+  "reason": "Terminal Production blocker; preserve records and revoke temporary credentials",
+  "keys": [],
+  "authorities": [],
+  "status": "BLOCKED",
+  "error": {
+    "message": "API authentication is temporarily unavailable.",
+    "status": 503,
+    "code": "READINESS_UNAVAILABLE"
+  },
+  "completedAt": "2026-09-13T15:00:29.554Z"
+}

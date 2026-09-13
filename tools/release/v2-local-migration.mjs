@@ -7,8 +7,9 @@ if (!modulePath) throw new Error('Set V2_PGLITE_MODULE to the pinned local @elec
 const { PGlite } = await import(pathToFileURL(modulePath).href);
 const db = new PGlite();
 try {
-  await db.exec(await readFile('tests/fixtures/v2-staging-column-contract.sql','utf8'));
+  await db.exec((await readFile('tests/fixtures/v2-staging-column-contract.sql','utf8')).replace(/^revoked boolean default false,\r?\n/m, ''));
   await db.exec(await readFile('supabase/migrations/20260909163513_operational_incident_evidence_foundation.sql','utf8'));
+  await db.exec(await readFile('supabase/migrations/20260913132642_fix_operational_incident_api_key_revocation_check.sql','utf8'));
   async function seed(table, values) {
     const cols = (await db.query("select column_name,data_type from information_schema.columns where table_schema='public' and table_name=$1 and is_nullable='NO' and column_default is null",[table])).rows;
     const row={...values};
