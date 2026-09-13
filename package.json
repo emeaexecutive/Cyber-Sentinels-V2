@@ -152,7 +152,7 @@
     "security:sbom": "node scripts/generate-dependency-security-artifacts.mjs",
     "security:secrets:scoped": "node tools/release/scoped-secret-scan.mjs",
     "validate": "npm run lint && npm run typecheck && npm test && npm run build",
-    "test:v2-incidents": "node --experimental-strip-types --test tests/operational-incidents.test.mjs"
+    "test:v2-incidents": "node --experimental-strip-types --test tests/operational-incidents.test.mjs tests/operational-incident-revocation-migration.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.4",
@@ -166,6 +166,7 @@
     "stripe": "22.4.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@playwright/test": "1.62.1",
     "@types/node": "^22.20.1",
     "@types/react": "19.2.18",

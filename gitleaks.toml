@@ -1,0 +1,21 @@
+title = "Cyber Sentinels redacted secret scanning"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Versioned Supabase reconciliation dependency keys are migration identifiers, not credentials"
+regexTarget = "match"
+regexes = [
+  '''(202607300002_reconciliation_ledger|202607300004_consent_foundation|202607300005_consent_persistence_rpc)''',
+]
+
+[[allowlists]]
+description = "Immutable qualification artifacts contain redacted key prefixes, client identifiers, and transaction metadata; raw API key secrets are never persisted"
+paths = [
+  '''^docs/V1_PRODUCTION_PROOF\.md$''',
+  '''^docs/release/v1-control-plane-production-proof/''',
+  '''^docs/v2/closure-20260910/''',
+  '''^docs/v2/premerge-20260910/''',
+  '''^docs/v2/production-qualification/''',
+]

@@ -1,0 +1,141 @@
+{
+  "status": "PASS",
+  "source": "Existing owner application API; read-only corroboration, all mutations used the combined public API client",
+  "incidentId": "1aaa0c97-880e-426f-ad3a-92774db4c7bd",
+  "memory": [
+    {
+      "memory_id": "751eccd2-de16-45e8-8cbd-7e5b4a311b10",
+      "memory_type": "INCIDENT_TRANSACTION_LINK",
+      "source_id": "212a2649-ba1a-4a01-b402-5bebbecccc60",
+      "occurred_at": "2026-09-13T14:57:22.899737+00:00",
+      "summary": {
+        "source": null,
+        "incidentId": "1aaa0c97-880e-426f-ad3a-92774db4c7bd",
+        "transactionId": "3261cff5-9d7e-5ddf-b6c2-442f42ab4db7",
+        "interpretation": null,
+        "originalPurpose": "deployment_evidence_review",
+        "originalDecision": "ALLOW",
+        "chronologyEventId": "212a2649-ba1a-4a01-b402-5bebbecccc60",
+        "evidenceReference": null
+      }
+    },
+    {
+      "memory_id": "034b2be3-ba1e-4e65-bc54-bb9723f8b98d",
+      "memory_type": "INCIDENT_EVIDENCE_EXPORT",
+      "source_id": "d84e71ab-9d50-4b73-9dd1-5a51b1f00fb3",
+      "occurred_at": "2026-09-13T14:57:26.300138+00:00",
+      "summary": {
+        "digest": "42142b7ae926b63934b5f298ea2e7996a118dbac9511959e1d9b938eab38a16d",
+        "packageId": "d84e71ab-9d50-4b73-9dd1-5a51b1f00fb3",
+        "incidentId": "1aaa0c97-880e-426f-ad3a-92774db4c7bd"
+      }
+    },
+    {
+      "memory_id": "59801c59-b3da-49cc-85af-0b9c7608c011",
+      "memory_type": "INCIDENT_EXECUTION_OBSERVATION",
+      "source_id": "605ce692-9452-46ff-a732-99cd5b97fb94",
+      "occurred_at": "2026-09-13T14:57:32.876364+00:00",
+      "summary": {
+        "source": "api-client:7fb0c2ec-0cbb-4a8f-a42d-242063f4c9f9",
+        "incidentId": "1aaa0c97-880e-426f-ad3a-92774db4c7bd",
+        "transactionId": "3261cff5-9d7e-5ddf-b6c2-442f42ab4db7",
+        "interpretation": null,
+        "originalPurpose": "deployment_evidence_review",
+        "originalDecision": "ALLOW",
+        "chronologyEventId": "605ce692-9452-46ff-a732-99cd5b97fb94",
+        "evidenceReference": "6bb3732e-931d-548d-aaf2-962e6e46eae8"
+      }
+    },
+    {
+      "memory_id": "16b2f5ad-201f-4ae0-aedb-e308f022cd89",
+      "memory_type": "INCIDENT_OUTCOME",
+      "source_id": "4214cb26-64d7-457a-a4e3-652cad570e7d",
+      "occurred_at": "2026-09-13T14:57:34.328963+00:00",
+      "summary": {
+        "source": "api-client:7fb0c2ec-0cbb-4a8f-a42d-242063f4c9f9",
+        "incidentId": "1aaa0c97-880e-426f-ad3a-92774db4c7bd",
+        "transactionId": "3261cff5-9d7e-5ddf-b6c2-442f42ab4db7",
+        "interpretation": null,
+        "originalPurpose": "deployment_evidence_review",
+        "originalDecision": "ALLOW",
+        "chronologyEventId": "4214cb26-64d7-457a-a4e3-652cad570e7d",
+        "evidenceReference": "f647b93e-7ba6-59ce-9c7e-7b9a4608e328"
+      }
+    },
+    {
+      "memory_id": "2818fc99-24e6-4a47-80db-aee5c926f5e4",
+      "memory_type": "INCIDENT_DETECTION",
+      "source_id": "b05397da-fef0-4e96-bfec-fae074a1c24d",
+      "occurred_at": "2026-09-13T14:57:35.771631+00:00",
+      "summary": {
+        "source": "api-client:7fb0c2ec-0cbb-4a8f-a42d-242063f4c9f9",
+        "incidentId": "1aaa0c97-880e-426f-ad3a-92774db4c7bd",
+        "transactionId": "3261cff5-9d7e-5ddf-b6c2-442f42ab4db7",
+        "interpretation": null,
+        "originalPurpose": "deployment_evidence_review",
+        "originalDecision": "ALLOW",
+        "chronologyEventId": "b05397da-fef0-4e96-bfec-fae074a1c24d",
+        "evidenceReference": "0ca726c4-8587-5950-9d17-8bf255a3349f"
+      }
+    },
+    {
+      "memory_id": "56307afb-6c82-4d86-8c23-4961d0997b3d",
+      "memory_type": "INCIDENT_INTERVENTION",
+      "source_id": "dfb832f7-8099-47be-be3e-b5043d390ce6",
+      "occurred_at": "2026-09-13T14:57:37.174883+00:00",
+      "summary": {
+        "source": "api-client:7fb0c2ec-0cbb-4a8f-a42d-242063f4c9f9",
+        "incidentId": "1aaa0c97-880e-426f-ad3a-92774db4c7bd",
+        "transactionId": "3261cff5-9d7e-5ddf-b6c2-442f42ab4db7",
+        "interpretation": null,
+        "originalPurpose": "deployment_evidence_review",
+        "originalDecision": "ALLOW",
+        "chronologyEventId": "dfb832f7-8099-47be-be3e-b5043d390ce6",
+        "evidenceReference": "af10dce8-0f38-51cc-aebc-13cfed0c2bd8"
+      }
+    },
+    {
+      "memory_id": "171ec1dd-0f16-4773-9e50-8fd10f30bd63",
+      "memory_type": "INCIDENT_CONTAINMENT",
+      "source_id": "846779e9-7d1f-4f5c-8da3-b52d2bf13e2e",
+      "occurred_at": "2026-09-13T14:57:38.745923+00:00",
+      "summary": {
+        "source": "api-client:7fb0c2ec-0cbb-4a8f-a42d-242063f4c9f9",
+        "incidentId": "1aaa0c97-880e-426f-ad3a-92774db4c7bd",
+        "transactionId": "3261cff5-9d7e-5ddf-b6c2-442f42ab4db7",
+        "interpretation": null,
+        "originalPurpose": "deployment_evidence_review",
+        "originalDecision": "ALLOW",
+        "chronologyEventId": "846779e9-7d1f-4f5c-8da3-b52d2bf13e2e",
+        "evidenceReference": "d04f2899-f01f-55de-aaec-97d2754ad66a"
+      }
+    },
+    {
+      "memory_id": "9f22b1da-a32e-4145-a43f-6d99397e3493",
+      "memory_type": "INCIDENT_REMEDIATION",
+      "source_id": "c041abd1-c7e6-4b76-b39a-32990bc2e76b",
+      "occurred_at": "2026-09-13T14:57:40.2079+00:00",
+      "summary": {
+        "source": "api-client:7fb0c2ec-0cbb-4a8f-a42d-242063f4c9f9",
+        "incidentId": "1aaa0c97-880e-426f-ad3a-92774db4c7bd",
+        "transactionId": "3261cff5-9d7e-5ddf-b6c2-442f42ab4db7",
+        "interpretation": null,
+        "originalPurpose": "deployment_evidence_review",
+        "originalDecision": "ALLOW",
+        "chronologyEventId": "c041abd1-c7e6-4b76-b39a-32990bc2e76b",
+        "evidenceReference": "606ea391-c7b9-5e12-b414-e6ac6097c76c"
+      }
+    },
+    {
+      "memory_id": "858bbfc8-28a1-4108-823b-b11198746285",
+      "memory_type": "INCIDENT_EVIDENCE_EXPORT",
+      "source_id": "f2be76e9-f76a-4233-8aff-b41d6ef23cb8",
+      "occurred_at": "2026-09-13T14:57:42.940482+00:00",
+      "summary": {
+        "digest": "cd51de3f0e8d256075495a761afcd4496aee9af5a564b5a12c0afaa741b78139",
+        "packageId": "f2be76e9-f76a-4233-8aff-b41d6ef23cb8",
+        "incidentId": "1aaa0c97-880e-426f-ad3a-92774db4c7bd"
+      }
+    }
+  ]
+}

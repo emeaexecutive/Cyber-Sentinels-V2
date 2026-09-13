@@ -1,0 +1,16 @@
+{
+  "origin": "https://www.cybersentinels.com",
+  "transactionId": "8369073a-b463-5a41-aba9-9ed2f1425f79",
+  "qualification": "CONTROLLED_PRODUCTION_QUALIFICATION",
+  "startedAt": "2026-09-13T12:39:16.178Z",
+  "stages": {},
+  "negatives": [],
+  "result": "BLOCKED",
+  "error": {
+    "name": "CyberSentinelsError",
+    "message": "The transaction is unavailable to this API client.",
+    "code": "RESOURCE_NOT_FOUND",
+    "status": 404
+  },
+  "completedAt": "2026-09-13T12:39:18.663Z"
+}
