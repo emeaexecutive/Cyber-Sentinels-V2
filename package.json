@@ -19,7 +19,7 @@
     "test:identity-signal-rls": "node --test tests/rls/identity-signals.test.mjs",
     "test:identity-runtime-hardening": "node --experimental-strip-types --test tests/identity-runtime-hardening.test.mjs",
     "test:identity-signals-ui": "node --experimental-strip-types --test tests/identity-signals-ui.test.mjs",
-    "test:identity-provider-resilience": "tsx --test tests/identity-provider-resilience.test.mjs tests/world-id-canonical-qualification.test.mjs",
+    "test:identity-provider-resilience": "tsx --test tests/identity-provider-resilience.test.mjs tests/identity-provider-runtime.test.mjs tests/world-id-canonical-qualification.test.mjs",
     "test:trust-events": "node --experimental-strip-types --test tests/trust-event-foundation.test.mjs tests/trust-event-api.test.mjs tests/rls/trust-event-foundation.test.mjs",
     "test:cookie-consent": "node --experimental-strip-types --test tests/cookie-consent-recovery.test.mjs",
     "test:supabase-auth": "tsx --test tests/supabase-ssr-auth-regression.test.mjs tests/auth-callback-redirect-security.test.mjs tests/password-recovery.test.mjs",
