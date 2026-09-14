@@ -23,6 +23,7 @@ import type {
   TrustContract,
   TrustFabricDecisionEnvelope,
 } from "../trust-fabric/types.ts";
+import { evaluateExternalEffectBoundary, type ExternalEffectKind } from "../trust-fabric/external-effect-boundary.ts";
 import { deriveTrustConfidence, type TrustConclusionConfidence } from "../../../lib/trust-intelligence.ts";
 import { normalizeProviderNeutralEvidence, type ProviderNeutralEvidence } from "../../../lib/providers/adapters.ts";
 import {
@@ -112,6 +113,13 @@ export type CanonicalContextEvidence = {
   outcome: string;
   evidenceDigest: string;
   metadata?: Record<string, unknown>;
+};
+
+export type ExternalEffectBoundaryContext = {
+  target: string;
+  externalEffect: ExternalEffectKind;
+  credentialReference?: string | null;
+  externalChannel?: string | null;
 };
 
 export type ExecutionContinuityStage =
@@ -226,6 +234,7 @@ export type CanonicalTrustTransactionInput = {
     oversightMode?: "HUMAN_IN_THE_LOOP" | "HUMAN_ON_THE_LOOP" | "HUMAN_OVER_THE_LOOP" | "AUTONOMOUS";
     executionStages?: ExecutionContinuityRecord[];
     contextEvidence?: CanonicalContextEvidence[];
+    externalEffectBoundary?: ExternalEffectBoundaryContext;
     authorityIntegrity?: AuthorityIntegrityEvaluationInput | null;
     trustForecast?: TrustForecastEvaluationInput | null;
   };
@@ -1511,12 +1520,65 @@ export async function executeCanonicalTrustTransaction(input: CanonicalTrustTran
   const decisionEligibleEvidence = evidence.filter((item) => !["agent_asserted", "unconfirmed"].includes(item.sourceClassification ?? "provider_asserted"));
   const providerEvidenceFresh = validateEvidenceFreshness(decisionEligibleEvidence, 86_400, requestedAt);
   const authority = await resolveAuthority(dependencies, tenant, trustObject);
+  const boundaryContext = input.managedControl?.externalEffectBoundary;
+  if (boundaryContext && boundaryContext.target !== input.action.resource) throw new TypeError("EXTERNAL_EFFECT_TARGET_MISMATCH");
+  const boundary = boundaryContext
+    ? evaluateExternalEffectBoundary({
+        tenantId: authority.enterpriseId,
+        agentId: input.operationalEntityId ?? input.trustObject.subjectId,
+        declaredTask: authority.authorizedObjective,
+        permittedEnvironments: authority.authorityScope?.environments ?? [],
+        permittedTargets: authority.authorityScope?.permittedTargets ?? [],
+        permittedActions: authority.authorityScope?.permittedActions ?? authority.permittedScope,
+        permittedExternalEffects: authority.requiredAuthority
+          .filter((value): value is string => value.startsWith("external_effect:"))
+          .map((value) => value.slice("external_effect:".length) as ExternalEffectKind),
+        permittedCredentialReferences: authority.requiredAuthority
+          .filter((value): value is string => value.startsWith("credential:")),
+        permittedExternalChannels: authority.requiredAuthority
+          .filter((value): value is string => value.startsWith("channel:")),
+      }, {
+        tenantId: tenant.id,
+        agentId: input.operationalEntityId ?? input.trustObject.subjectId,
+        target: boundaryContext.target,
+        action: input.action.type,
+        environment: input.action.environment,
+        externalEffect: boundaryContext.externalEffect,
+        credentialReference: boundaryContext.credentialReference,
+        externalChannel: boundaryContext.externalChannel,
+      })
+    : null;
+  const managedControl = boundary
+    ? {
+        ...input.managedControl,
+        authorization: {
+          decision: input.managedControl?.authorization?.decision === "DENY" || boundary.decision === "DENY"
+            ? "DENY" as const
+            : input.managedControl?.authorization?.decision === "REVIEW" || boundary.decision === "REVIEW"
+              ? "REVIEW" as const
+              : "ALLOW" as const,
+          reasonCodes: [...new Set([...(input.managedControl?.authorization?.reasonCodes ?? []), ...boundary.reasonCodes])],
+        },
+        contextEvidence: [
+          ...(input.managedControl?.contextEvidence ?? []),
+          {
+            providerClass: "AUTHORITY_GRAPH",
+            providerKey: authority.contractId,
+            evidenceType: "EXTERNAL_EFFECT_BOUNDARY",
+            observedAt: requestedAt,
+            outcome: boundary.decision,
+            evidenceDigest: hashCanonical({ boundaryContext, boundary }),
+            metadata: { reasonCodes: boundary.reasonCodes, target: boundaryContext!.target, externalEffect: boundaryContext!.externalEffect },
+          },
+        ],
+      }
+    : input.managedControl;
   const evidenceFresh = providerEvidenceFresh && validateEvidenceFreshness(decisionEligibleEvidence, authority.maximumEvidenceAgeSeconds, requestedAt);
   const authorityScopeValid = validateAuthorityScope(authority, input, requestedAt);
   const policy = await resolvePolicyVersion(dependencies, tenant, authority, requestedAt);
   const previous = await dependencies.loadPreviousTransaction(tenant.id, input.previousTransactionId);
   const correlationId = input.correlationId ?? crypto.randomUUID();
-  const record = evaluateCanonicalTrustDecision({ tenant, actor, operationalEntity, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, transactionInput: input, requestedAt, correlationId });
+  const record = evaluateCanonicalTrustDecision({ tenant, actor, operationalEntity, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, transactionInput: managedControl ? { ...input, managedControl } : input, requestedAt, correlationId });
   const context: TransactionContext = { input, actor, tenant, operationalEntity, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, record };
   const persisted = await persistDecision(dependencies, record);
   if (persisted.persistenceStatus === "DUPLICATE") {

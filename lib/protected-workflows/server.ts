@@ -7,6 +7,7 @@ import { executeCanonicalTrustTransaction, type CanonicalTrustTransactionDepende
 import { hashCanonical } from "@/src/lib/trust-core/hash";
 import {
   evaluatePolicyAssistance,
+  evaluateInterviewObservationPolicy,
   evaluateWorkforceContinuity,
   parsePolicyEvidence,
   parseWorkforceContinuityEvidence,
@@ -346,12 +347,28 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
       const disclosurePresent = aiRows.some((item) => ["ai_assistance_declared", "disclosure_present"].includes(String((item.normalized_facts as Row)?.evidenceType)));
       const corroborated = aiRows.some((item) => (item.normalized_facts as Row)?.metadata?.corroborated === true && Boolean((item.normalized_facts as Row)?.metadata?.independentEvidenceReference));
       const policyEvaluation = evaluatePolicyAssistance({ policy: policyEvidence ?? null, assistanceObserved, assistanceDeclared: aiDeclared, disclosurePresent, corroborated });
+      const latestInterviewObservation = (aiRows.at(-1)?.normalized_facts as Row | undefined)?.metadata as Row | undefined;
+      const interviewPolicyEvaluation = policyEvidence
+        ? evaluateInterviewObservationPolicy(policyEvidence, {
+            aiAssistanceDeclared: aiDeclared,
+            recordingObserved: latestInterviewObservation?.recordingObserved === true,
+            recordingApproved: latestInterviewObservation?.recordingApproved === true,
+            transcriptRetainedExternally: latestInterviewObservation?.transcriptRetainedExternally === true,
+            externalAiObserved: assistanceObserved,
+            externalAiDisclosed: disclosurePresent,
+            thirdPartyAggregationObserved: latestInterviewObservation?.thirdPartyAggregationObserved === true,
+            contentRedistributed: latestInterviewObservation?.contentRedistributed === true,
+            candidateAcknowledged: policyEvidence.candidateAcknowledgement === "ACKNOWLEDGED",
+          })
+        : { authorization: null, reasonCodes: [] as string[] };
       const continuityEvidence = evidenceRows
         .filter((item) => String((item.normalized_facts as Row)?.evidenceType) === "WORKFORCE_CONTINUITY")
         .map((item) => (item.normalized_facts as Row).metadata as WorkforceContinuityEvidence);
       const continuityEvaluation = evaluateWorkforceContinuity(continuityEvidence);
-      const delegatedReasonCodes = [...new Set([...policyEvaluation.reasonCodes, ...continuityEvaluation.reasonCodes])];
-      const delegatedAuthorization = policyEvaluation.authorization === "REVIEW" || continuityEvaluation.authorization === "REVIEW"
+      const delegatedReasonCodes = [...new Set([...policyEvaluation.reasonCodes, ...interviewPolicyEvaluation.reasonCodes, ...continuityEvaluation.reasonCodes])];
+      const delegatedAuthorization = [policyEvaluation.authorization, interviewPolicyEvaluation.authorization, continuityEvaluation.authorization].includes("DENY")
+        ? { decision: "DENY" as const, reasonCodes: delegatedReasonCodes }
+        : [policyEvaluation.authorization, interviewPolicyEvaluation.authorization, continuityEvaluation.authorization].includes("REVIEW")
         ? { decision: "REVIEW" as const, reasonCodes: delegatedReasonCodes }
         : undefined;
       const canonicalEvidence: StoredProviderEvidence[] = evidenceRows.map((item) => {

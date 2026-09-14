@@ -146,6 +146,36 @@ test("provider-verified World identity evidence is evaluated by the canonical au
   for (const artifact of ["persistDecision", "extendEvidenceGraph", "appendReplay", "emitMaterialTrustMemory"]) assert.ok(harness.calls.includes(artifact));
 });
 
+test("canonical transaction integrates optional external-effect authority boundaries", async () => {
+  const scopedAuthority = authority({
+    requiredAuthority: ["settle_invoice", "external_effect:ARTIFACT_PUBLICATION", "credential:credential:invoice", "channel:channel:invoice-api"],
+    authorityScope: { permittedActions: ["settle_invoice"], permittedTools: ["settle_invoice"], permittedTargets: ["invoice:4488"], environments: ["sandbox"], dataBoundary: "INTERNAL", financialLimit: null, executionLimit: 1 },
+  });
+  const harness = dependencies({ authority: scopedAuthority });
+  const allowed = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "boundary-allow",
+    managedControl: { externalEffectBoundary: { target: "invoice:4488", externalEffect: "ARTIFACT_PUBLICATION", credentialReference: "credential:credential:invoice", externalChannel: "channel:invoice-api" } },
+  }), harness.deps);
+  assert.equal(allowed.decision, "ALLOW");
+  assert.ok(harness.persisted[0].reasonCodes.includes("TARGET_AUTHORITY_VERIFIED"));
+  assert.equal(harness.persisted[0].action.resource, "invoice:4488");
+
+  const targetDenied = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "boundary-target-deny",
+    action: { ...transactionInput().action, resource: "invoice:other" },
+    managedControl: { externalEffectBoundary: { target: "invoice:other", externalEffect: "ARTIFACT_PUBLICATION" } },
+  }), harness.deps);
+  assert.equal(targetDenied.decision, "DENY");
+  assert.ok(targetDenied.reasonCodes.includes("TARGET_OUT_OF_SCOPE"));
+
+  const effectDenied = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "boundary-effect-deny",
+    managedControl: { externalEffectBoundary: { target: "invoice:4488", externalEffect: "ACCOUNT_CREATION" } },
+  }), harness.deps);
+  assert.equal(effectDenied.decision, "DENY");
+  assert.ok(effectDenied.reasonCodes.includes("EXTERNAL_EFFECT_UNAUTHORIZED"));
+});
+
 function dependencies(options = {}) {
   const calls = [];
   const persisted = [];
