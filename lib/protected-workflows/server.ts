@@ -131,6 +131,7 @@ function replayEventForIntervention(intervention: WorkflowIntervention) {
 }
 
 function materialEventForEvidence(evidence: WorkflowEvidenceInput) {
+  if (evidence.evidenceType === "DOCUMENT_INTEGRITY") return "DOCUMENT_INTEGRITY_OBSERVED";
   if (evidence.evidenceType === "POLICY_EVIDENCE" && evidence.metadata?.candidateAcknowledgement === "ACKNOWLEDGED") return "POLICY_ACKNOWLEDGED";
   if (evidence.evidenceType === "ai_assistance_declared") return "AI_ASSISTANCE_DECLARED";
   if (["ai_assistance_policy_conflict", "policy_conflict"].includes(String(evidence.evidenceType))) return "AI_ASSISTANCE_POLICY_CONFLICT";
@@ -154,9 +155,13 @@ function workflowEvidenceProjections(rows: Row[], decisionTransactionReference: 
     .filter((item) => String((item.normalized_facts as Row | null)?.evidenceType) === "WORKFORCE_CONTINUITY")
     .map((item) => ({ ...((item.normalized_facts as Row).metadata as WorkforceContinuityEvidence), evidenceReference: item.evidence_id }));
   const identityContinuity = evaluateWorkforceContinuity(continuityRecords);
+  const documentIntegrity = rows
+    .filter((item) => String((item.normalized_facts as Row | null)?.evidenceType) === "DOCUMENT_INTEGRITY")
+    .map((item) => ({ ...((item.normalized_facts as Row).metadata as Row), evidenceReference: item.evidence_id }));
   const aiEvidence = rows.filter((item) => String((item.normalized_facts as Row | null)?.category) === "ai_assistance");
   return {
     policyEvidence,
+    documentIntegrity,
     identityContinuity,
     disputeReplay: {
       policyInForce: policyEvidence.at(-1)?.policyId ?? null,
@@ -270,6 +275,19 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
           throw new ProtectedWorkflowError(error instanceof Error ? error.message : "Workforce continuity evidence is invalid.", 400, "WORKFORCE_CONTINUITY_EVIDENCE_INVALID");
         }
         evidence = { ...evidence, classification: continuity.state, metadata: continuity };
+      }
+      if (evidence.evidenceType === "DOCUMENT_INTEGRITY") {
+        try {
+          const integrity = parseDocumentIntegrityContext(evidence.metadata);
+          const assessment = evaluateDocumentIntegrity(integrity);
+          evidence = {
+            ...evidence,
+            classification: assessment.decision === "ALLOW" ? "DOCUMENT_INTEGRITY_VERIFIED" : "DOCUMENT_REVIEW_REQUIRED",
+            metadata: { ...integrity, integrityAssessment: assessment },
+          };
+        } catch (error) {
+          throw new ProtectedWorkflowError(error instanceof Error ? error.message : "Document integrity evidence is invalid.", 400, "DOCUMENT_INTEGRITY_INVALID");
+        }
       }
       const evidenceId = crypto.randomUUID();
       const correlationId = crypto.randomUUID();

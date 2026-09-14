@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { evaluateDocumentIntegrity, parseDocumentIntegrityContext } from "../src/lib/protected-workflows/document-integrity.ts";
+import { readFile } from "node:fs/promises";
 
 const digest = "a".repeat(64);
 function context(overrides = {}) {
@@ -55,4 +56,18 @@ test("scoring override and secret request are DENY", () => {
 test("caller-forged integrity state and invalid tenant-like references are rejected", () => {
   assert.throws(() => parseDocumentIntegrityContext({ ...context(), integrityState: "VERIFIED" }), /CALLER_FORGED_INTEGRITY_STATE/);
   assert.throws(() => parseDocumentIntegrityContext({ ...context(), sourceReference: "Bearer forged-secret" }), /DOCUMENT_REFERENCE_INVALID/);
+});
+
+test("authenticated workflow API persists document evidence through the canonical path", async () => {
+  const [route, server] = await Promise.all([
+    readFile(new URL("../app/api/trust/protected-workflows/[id]/evidence/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/protected-workflows/server.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(route, /protectedWorkflowService/);
+  assert.match(route, /\.addEvidence\(/);
+  assert.match(server, /DOCUMENT_INTEGRITY/);
+  assert.match(server, /executeCanonicalTrustTransaction/);
+  assert.match(server, /DOCUMENT_INTEGRITY_OBSERVED/);
+  assert.match(server, /trust_memory_index/);
+  assert.match(server, /trust_replay_sessions/);
 });
