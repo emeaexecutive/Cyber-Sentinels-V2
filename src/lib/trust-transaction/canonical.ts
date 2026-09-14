@@ -24,6 +24,7 @@ import type {
   TrustFabricDecisionEnvelope,
 } from "../trust-fabric/types.ts";
 import { evaluateExternalEffectBoundary, type ExternalEffectKind } from "../trust-fabric/external-effect-boundary.ts";
+import { evaluatePurposeLineage, type PurposeLineageContext } from "../trust-fabric/purpose-lineage.ts";
 import { deriveTrustConfidence, type TrustConclusionConfidence } from "../../../lib/trust-intelligence.ts";
 import { normalizeProviderNeutralEvidence, type ProviderNeutralEvidence } from "../../../lib/providers/adapters.ts";
 import {
@@ -121,6 +122,8 @@ export type ExternalEffectBoundaryContext = {
   credentialReference?: string | null;
   externalChannel?: string | null;
 };
+
+export type PurposeLineageBoundaryContext = PurposeLineageContext;
 
 export type ExecutionContinuityStage =
   | "INTENDED_ACTION"
@@ -235,6 +238,7 @@ export type CanonicalTrustTransactionInput = {
     executionStages?: ExecutionContinuityRecord[];
     contextEvidence?: CanonicalContextEvidence[];
     externalEffectBoundary?: ExternalEffectBoundaryContext;
+    purposeLineage?: PurposeLineageBoundaryContext;
     authorityIntegrity?: AuthorityIntegrityEvaluationInput | null;
     trustForecast?: TrustForecastEvaluationInput | null;
   };
@@ -1548,16 +1552,21 @@ export async function executeCanonicalTrustTransaction(input: CanonicalTrustTran
         externalChannel: boundaryContext.externalChannel,
       })
     : null;
+  const purposeLineage = evaluatePurposeLineage({
+    authorityObjective: authority.authorizedObjective,
+    actionPurpose: input.action.purpose,
+    context: input.managedControl?.purposeLineage,
+  });
   const managedControl = boundary
     ? {
         ...input.managedControl,
         authorization: {
-          decision: input.managedControl?.authorization?.decision === "DENY" || boundary.decision === "DENY"
+          decision: input.managedControl?.authorization?.decision === "DENY" || boundary.decision === "DENY" || purposeLineage?.decision === "DENY"
             ? "DENY" as const
-            : input.managedControl?.authorization?.decision === "REVIEW" || boundary.decision === "REVIEW"
+            : input.managedControl?.authorization?.decision === "REVIEW" || boundary.decision === "REVIEW" || purposeLineage?.decision === "REVIEW"
               ? "REVIEW" as const
               : "ALLOW" as const,
-          reasonCodes: [...new Set([...(input.managedControl?.authorization?.reasonCodes ?? []), ...boundary.reasonCodes])],
+          reasonCodes: [...new Set([...(input.managedControl?.authorization?.reasonCodes ?? []), ...boundary.reasonCodes, ...(purposeLineage?.reasonCodes ?? [])])],
         },
         contextEvidence: [
           ...(input.managedControl?.contextEvidence ?? []),
@@ -1570,9 +1579,42 @@ export async function executeCanonicalTrustTransaction(input: CanonicalTrustTran
             evidenceDigest: hashCanonical({ boundaryContext, boundary }),
             metadata: { reasonCodes: boundary.reasonCodes, target: boundaryContext!.target, externalEffect: boundaryContext!.externalEffect },
           },
+          ...(purposeLineage ? [{
+            providerClass: "PURPOSE_LINEAGE",
+            providerKey: "canonical_purpose_evaluator",
+            evidenceType: "PURPOSE_LINEAGE",
+            observedAt: requestedAt,
+            outcome: purposeLineage.decision,
+            evidenceDigest: hashCanonical({ purposeLineage, purposeContext: input.managedControl?.purposeLineage }),
+            metadata: { purposeLineage, purposeContext: input.managedControl?.purposeLineage },
+          }] : []),
         ],
       }
-    : input.managedControl;
+    : purposeLineage
+      ? {
+          ...input.managedControl,
+          authorization: {
+            decision: input.managedControl?.authorization?.decision === "DENY" || purposeLineage.decision === "DENY"
+              ? "DENY" as const
+              : input.managedControl?.authorization?.decision === "REVIEW" || purposeLineage.decision === "REVIEW"
+                ? "REVIEW" as const
+                : "ALLOW" as const,
+            reasonCodes: [...new Set([...(input.managedControl?.authorization?.reasonCodes ?? []), ...purposeLineage.reasonCodes])],
+          },
+          contextEvidence: [
+            ...(input.managedControl?.contextEvidence ?? []),
+            {
+              providerClass: "PURPOSE_LINEAGE",
+              providerKey: "canonical_purpose_evaluator",
+              evidenceType: "PURPOSE_LINEAGE",
+              observedAt: requestedAt,
+              outcome: purposeLineage.decision,
+              evidenceDigest: hashCanonical({ purposeLineage, purposeContext: input.managedControl?.purposeLineage }),
+              metadata: { purposeLineage, purposeContext: input.managedControl?.purposeLineage },
+            },
+          ],
+        }
+      : input.managedControl;
   const evidenceFresh = providerEvidenceFresh && validateEvidenceFreshness(decisionEligibleEvidence, authority.maximumEvidenceAgeSeconds, requestedAt);
   const authorityScopeValid = validateAuthorityScope(authority, input, requestedAt);
   const policy = await resolvePolicyVersion(dependencies, tenant, authority, requestedAt);
