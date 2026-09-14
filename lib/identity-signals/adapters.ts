@@ -17,6 +17,7 @@ import type {
   SignalEvidenceDraft,
   SignalOutcome,
 } from "./types";
+import { PersonaIdentityAdapter, StripeIdentityAdapter, VeriffIdentityAdapter } from "./provider-resilience";
 
 const providerNames: Record<string, string> = {
   hopae_connect: "Hopae Connect",
@@ -214,6 +215,9 @@ export function buildIdentityAdapters(hopaeStarter?: HopaeStarter): IdentitySign
   return [
     new HopaeIdentityAdapter(hopaeStarter),
     new WorldIdSafeAdapter(),
+    new StripeIdentityAdapter(),
+    new PersonaIdentityAdapter(),
+    new VeriffIdentityAdapter(),
     new DeviceContextAdapter(),
     new DisabledSignalAdapter("email", ["EMAIL_OWNERSHIP"], "No email ownership provider is configured."),
     new DisabledSignalAdapter("phone", ["PHONE_OWNERSHIP"], "No phone ownership provider is configured."),
