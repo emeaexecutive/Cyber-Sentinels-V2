@@ -19,7 +19,7 @@ export type WorkflowIntervention = (typeof workflowInterventions)[number];
 export const workflowEvidenceCategories = [
   "identity", "session", "device", "network", "browser", "media",
   "behaviour", "ai_assistance", "remote_access", "deepfake",
-  "proxy_candidate", "consent", "policy", "manual_review",
+  "proxy_candidate", "consent", "policy", "document_integrity", "manual_review",
 ] as const;
 export type WorkflowEvidenceCategory = (typeof workflowEvidenceCategories)[number];
 
@@ -34,7 +34,7 @@ export const aiAssistanceEvidenceTypes = [
   "disclosure_present",
 ] as const;
 export type AiAssistanceEvidenceType = (typeof aiAssistanceEvidenceTypes)[number];
-export type WorkflowEvidenceType = AiAssistanceEvidenceType | "POLICY_EVIDENCE" | "WORKFORCE_CONTINUITY";
+export type WorkflowEvidenceType = AiAssistanceEvidenceType | "POLICY_EVIDENCE" | "WORKFORCE_CONTINUITY" | "DOCUMENT_INTEGRITY";
 
 export const aiAssistanceProviderMetadata = [
   "Parakeet", "ChatGPT", "Claude", "Gemini", "unknown", "other",
@@ -119,8 +119,9 @@ export function parseWorkflowEvidence(value: unknown): WorkflowEvidenceInput {
   const evidenceType = rawEvidenceType === undefined ? undefined : String(rawEvidenceType) as WorkflowEvidenceType;
   if (category === "ai_assistance" && (!evidenceType || !aiAssistanceEvidenceTypes.includes(evidenceType as AiAssistanceEvidenceType))) throw new TypeError("AI-assistance evidence type is invalid.");
   if (category === "policy" && evidenceType !== "POLICY_EVIDENCE") throw new TypeError("Policy evidence must use POLICY_EVIDENCE.");
+  if (category === "document_integrity" && evidenceType !== "DOCUMENT_INTEGRITY") throw new TypeError("Document integrity evidence must use DOCUMENT_INTEGRITY.");
   if (["identity", "device", "network", "remote_access"].includes(category) && evidenceType !== undefined && evidenceType !== "WORKFORCE_CONTINUITY") throw new TypeError("Continuity evidence must use WORKFORCE_CONTINUITY.");
-  if (!["ai_assistance", "policy", "identity", "device", "network", "remote_access"].includes(category) && evidenceType !== undefined) throw new TypeError("evidenceType is not valid for this evidence category.");
+  if (!["ai_assistance", "policy", "document_integrity", "identity", "device", "network", "remote_access"].includes(category) && evidenceType !== undefined) throw new TypeError("evidenceType is not valid for this evidence category.");
   const observedAt = String(input.observedAt ?? input.observed_at ?? "");
   if (!Number.isFinite(Date.parse(observedAt)) || Date.parse(observedAt) > Date.now() + 60_000) throw new TypeError("observedAt is invalid.");
   const severity = String(input.severity ?? "") as WorkflowEvidenceInput["severity"];
