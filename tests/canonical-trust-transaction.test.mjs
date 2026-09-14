@@ -176,6 +176,22 @@ test("canonical transaction integrates optional external-effect authority bounda
   assert.ok(effectDenied.reasonCodes.includes("EXTERNAL_EFFECT_UNAUTHORIZED"));
 });
 
+test("canonical transaction preserves optional Purpose Lineage in the shared decision path", async () => {
+  const allowed = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "purpose-lineage-allow",
+    managedControl: { purposeLineage: { declaredPurpose: "settle_invoice", observedPurpose: "settle_invoice", purposeEvidence: ["purpose:evidence:1"] } },
+  }), dependencies().deps);
+  assert.equal(allowed.decision, "ALLOW");
+  assert.ok(allowed.reasonCodes.includes("DECLARED_PURPOSE_VERIFIED"));
+
+  const drift = await executeCanonicalTrustTransaction(transactionInput({
+    idempotencyKey: "purpose-lineage-drift",
+    managedControl: { purposeLineage: { declaredPurpose: "settle_invoice", observedPurpose: "credential_harvesting", purposeEvidence: ["purpose:evidence:2"] } },
+  }), dependencies().deps);
+  assert.equal(drift.decision, "REVIEW");
+  assert.ok(drift.reasonCodes.includes("PURPOSE_DRIFT"));
+});
+
 function dependencies(options = {}) {
   const calls = [];
   const persisted = [];
