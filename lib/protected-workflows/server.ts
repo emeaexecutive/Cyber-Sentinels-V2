@@ -30,6 +30,7 @@ import {
   type WorkflowEvidenceInput,
   type WorkflowIntervention,
 } from "@/src/lib/protected-workflows/model";
+import { evaluateDocumentIntegrity, parseDocumentIntegrityContext } from "@/src/lib/protected-workflows/document-integrity";
 
 type Row = Record<string, any>;
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -347,6 +348,14 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
       const disclosurePresent = aiRows.some((item) => ["ai_assistance_declared", "disclosure_present"].includes(String((item.normalized_facts as Row)?.evidenceType)));
       const corroborated = aiRows.some((item) => (item.normalized_facts as Row)?.metadata?.corroborated === true && Boolean((item.normalized_facts as Row)?.metadata?.independentEvidenceReference));
       const policyEvaluation = evaluatePolicyAssistance({ policy: policyEvidence ?? null, assistanceObserved, assistanceDeclared: aiDeclared, disclosurePresent, corroborated });
+      const documentRows = evidenceRows.filter((item) => String((item.normalized_facts as Row)?.evidenceType) === "DOCUMENT_INTEGRITY");
+      const documentEvaluations = documentRows.map((item) => evaluateDocumentIntegrity(parseDocumentIntegrityContext((item.normalized_facts as Row).metadata)));
+      const documentReasonCodes = documentEvaluations.flatMap((item) => item.reasonCodes);
+      const documentAuthorization = documentEvaluations.some((item) => item.decision === "DENY")
+        ? "DENY" as const
+        : documentEvaluations.some((item) => item.decision === "REVIEW")
+          ? "REVIEW" as const
+          : null;
       const latestInterviewObservation = (aiRows.at(-1)?.normalized_facts as Row | undefined)?.metadata as Row | undefined;
       const interviewPolicyEvaluation = policyEvidence
         ? evaluateInterviewObservationPolicy(policyEvidence, {
@@ -365,10 +374,10 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
         .filter((item) => String((item.normalized_facts as Row)?.evidenceType) === "WORKFORCE_CONTINUITY")
         .map((item) => (item.normalized_facts as Row).metadata as WorkforceContinuityEvidence);
       const continuityEvaluation = evaluateWorkforceContinuity(continuityEvidence);
-      const delegatedReasonCodes = [...new Set([...policyEvaluation.reasonCodes, ...interviewPolicyEvaluation.reasonCodes, ...continuityEvaluation.reasonCodes])];
-      const delegatedAuthorization = [policyEvaluation.authorization, interviewPolicyEvaluation.authorization, continuityEvaluation.authorization].includes("DENY")
+      const delegatedReasonCodes = [...new Set([...policyEvaluation.reasonCodes, ...interviewPolicyEvaluation.reasonCodes, ...continuityEvaluation.reasonCodes, ...documentReasonCodes])];
+      const delegatedAuthorization = [policyEvaluation.authorization, interviewPolicyEvaluation.authorization, continuityEvaluation.authorization, documentAuthorization].includes("DENY")
         ? { decision: "DENY" as const, reasonCodes: delegatedReasonCodes }
-        : [policyEvaluation.authorization, interviewPolicyEvaluation.authorization, continuityEvaluation.authorization].includes("REVIEW")
+        : [policyEvaluation.authorization, interviewPolicyEvaluation.authorization, continuityEvaluation.authorization, documentAuthorization].includes("REVIEW")
         ? { decision: "REVIEW" as const, reasonCodes: delegatedReasonCodes }
         : undefined;
       const canonicalEvidence: StoredProviderEvidence[] = evidenceRows.map((item) => {
@@ -386,6 +395,14 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
       const adapted: CanonicalTrustTransactionDependencies = { ...dependencies, loadConfiguredEvidence: async (parameters) => [...await baseLoad(parameters), ...canonicalEvidence] };
       const actionType = bounded(body.actionType ?? body.action_type ?? "protected_workflow.evaluate", "actionType");
       const purpose = bounded(body.purpose ?? "protected_workflow_governance", "purpose");
+        const latestDocumentMetadata = (documentRows.at(-1)?.normalized_facts as Row | undefined)?.metadata as Row | undefined;
+        const purposeLineage = latestDocumentMetadata?.observedPurpose || latestDocumentMetadata?.declaredPurpose
+          ? {
+              declaredPurpose: String(latestDocumentMetadata.declaredPurpose ?? purpose),
+              observedPurpose: latestDocumentMetadata.observedPurpose ? String(latestDocumentMetadata.observedPurpose) : null,
+              purposeEvidence: documentRows.map((item) => String(item.evidence_id)),
+            }
+          : undefined;
       const resourceValue = String(body.resource ?? `protected-workflow:${workflowId}`).trim();
       if (!resourceValue || resourceValue.length > 300) throw new ProtectedWorkflowError("resource is invalid.", 400, "RESOURCE_INVALID");
       const environment = bounded(body.environment ?? "protected-workflow", "environment");
@@ -396,7 +413,7 @@ export function protectedWorkflowService(input: { supabase: SupabaseClient; user
         action: { type: actionType, purpose, resource: resourceValue, environment, payloadDigest: hashCanonical({ workflowId, actionType, purpose, resourceValue, environment, snapshotDigest }) },
         idempotencyKey: `track-block:${workflowId}:eval:${snapshotDigest.slice(0, 24)}`,
         previousTransactionId: row.latest_canonical_transaction_id,
-        managedControl: { authorization: delegatedAuthorization, contextEvidence, contradictions: continuityEvaluation.findings, reviewerState: row.metadata?.humanReviewRequired === true ? "required" : undefined },
+        managedControl: { authorization: delegatedAuthorization, contextEvidence, purposeLineage, contradictions: continuityEvaluation.findings, reviewerState: row.metadata?.humanReviewRequired === true ? "required" : undefined },
       }, adapted);
       const now = new Date().toISOString();
       const completionRequested = body.complete === true;

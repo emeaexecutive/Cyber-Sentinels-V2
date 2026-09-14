@@ -153,7 +153,7 @@
     "security:secrets:scoped": "node tools/release/scoped-secret-scan.mjs",
     "validate": "npm run lint && npm run typecheck && npm test && npm run build",
     "test:v2-incidents": "node --experimental-strip-types --test tests/operational-incidents.test.mjs tests/operational-incident-revocation-migration.test.mjs",
-    "test:v2.1-boundaries": "tsx --test tests/v2.1-policy-boundary-intelligence.test.mjs tests/v2.1-purpose-lineage.test.mjs tests/track-block-policy-continuity.test.mjs tests/canonical-trust-transaction.test.mjs"
+    "test:v2.1-boundaries": "tsx --test tests/v2.1-policy-boundary-intelligence.test.mjs tests/v2.1-purpose-lineage.test.mjs tests/hiring-input-trust-gateway.test.mjs tests/track-block-policy-continuity.test.mjs tests/canonical-trust-transaction.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.4",
