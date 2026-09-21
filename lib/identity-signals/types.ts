@@ -43,6 +43,7 @@ export const identityReasonCodes = [
   "PROVIDER_VERIFICATION_PENDING",
   "SIGNAL_UNSUPPORTED",
   "SINGLE_SERVER_VERIFIED_SIGNAL",
+  "STRIPE_SESSION_START_FAILED",
   "WORLD_ID_APP_ACTION_MISMATCH",
   "WORLD_ID_DUPLICATE_NULLIFIER",
   "WORLD_ID_INVALID_PROOF",
@@ -180,6 +181,8 @@ export type AdapterCollectionResult = {
   errorCode?: string | null;
   limitations: string[];
   evidence: SignalEvidenceDraft;
+  // Transient client-completion data (e.g. Stripe client_secret/url). Never persisted by the repository.
+  clientPayload?: Record<string, string> | null;
 };
 
 export type AdapterContext = {

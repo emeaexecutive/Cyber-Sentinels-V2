@@ -18,6 +18,7 @@ import type {
   SignalOutcome,
 } from "./types";
 import { PersonaIdentityAdapter, StripeIdentityAdapter, VeriffIdentityAdapter } from "./provider-resilience";
+import type { StripeIdentitySessionStarter } from "./provider-resilience";
 
 const providerNames: Record<string, string> = {
   hopae_connect: "Hopae Connect",
@@ -211,11 +212,11 @@ export class HopaeIdentityAdapter implements IdentitySignalAdapter {
   }
 }
 
-export function buildIdentityAdapters(hopaeStarter?: HopaeStarter): IdentitySignalAdapter[] {
+export function buildIdentityAdapters(options: { hopaeStarter?: HopaeStarter; stripeIdentityStarter?: StripeIdentitySessionStarter } = {}): IdentitySignalAdapter[] {
   return [
-    new HopaeIdentityAdapter(hopaeStarter),
+    new HopaeIdentityAdapter(options.hopaeStarter),
     new WorldIdSafeAdapter(),
-    new StripeIdentityAdapter(),
+    new StripeIdentityAdapter(undefined, options.stripeIdentityStarter),
     new PersonaIdentityAdapter(),
     new VeriffIdentityAdapter(),
     new DeviceContextAdapter(),

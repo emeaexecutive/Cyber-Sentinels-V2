@@ -149,8 +149,54 @@ export class ProviderIdentityEvidenceAdapter implements IdentitySignalAdapter {
   }
 }
 
+export type StripeIdentitySessionStarter = (context: AdapterContext) => Promise<{ providerSessionId: string; clientSecret: string | null; url: string | null }>;
+
 export class StripeIdentityAdapter extends ProviderIdentityEvidenceAdapter {
-  constructor(client?: ProviderVerificationClient) { super("stripe_identity", client); }
+  constructor(client?: ProviderVerificationClient, private readonly starter?: StripeIdentitySessionStarter) { super("stripe_identity", client); }
+
+  // Starts a new VerificationSession only when the caller has not already supplied an existing session reference to retrieve.
+  async collectSignal(signalType: IdentitySignalType, context: AdapterContext): Promise<AdapterCollectionResult> {
+    const hasExistingReference = typeof context.input.providerReference === "string" && context.input.providerReference.length > 0;
+    if (hasExistingReference || !this.starter || signalType !== identitySignal) return super.collectSignal(signalType, context);
+    const now = new Date().toISOString();
+    try {
+      const started = await this.starter(context);
+      const draft: SignalEvidenceDraft = {
+        signalType, providerId: this.providerId, status: "PENDING", outcome: "INCONCLUSIVE", confidence: 0,
+        riskScore: null, riskFlags: [], serverVerified: false, signatureVerified: false,
+        providerEventId: null, providerReference: started.providerSessionId, providerTransactionId: started.providerSessionId, providerRequestId: null,
+        payloadHash: null, normalizedValue: null,
+        provenance: { source: "provider_api", mappingVersion: "identity-signal-v1", collectedAt: now },
+        sourceDigest: null, reasonCodes: [reason("PROVIDER_VERIFICATION_PENDING")],
+        limitations: ["Session creation is not identity proof; a signed webhook and authoritative retrieval remain required."],
+        observedAt: now,
+      };
+      return {
+        transactionStatus: "INCONCLUSIVE",
+        providerSessionId: started.providerSessionId,
+        providerTransactionId: started.providerSessionId,
+        limitations: draft.limitations,
+        evidence: draft,
+        clientPayload: { clientSecret: started.clientSecret ?? "", url: started.url ?? "" },
+      };
+    } catch (error) {
+      return {
+        transactionStatus: "UNAVAILABLE",
+        errorCode: "STRIPE_SESSION_START_FAILED",
+        limitations: ["Stripe Identity session could not be started."],
+        evidence: {
+          signalType, providerId: this.providerId, status: "UNAVAILABLE", outcome: "UNAVAILABLE", confidence: 0,
+          riskScore: null, riskFlags: [], serverVerified: false, signatureVerified: false,
+          providerEventId: null, providerReference: null, providerTransactionId: null, providerRequestId: null,
+          payloadHash: null, normalizedValue: null,
+          provenance: { source: "none", mappingVersion: "identity-signal-v1", collectedAt: now },
+          sourceDigest: null, reasonCodes: [reason("STRIPE_SESSION_START_FAILED")],
+          limitations: [error instanceof Error ? error.message : "Stripe Identity session could not be started."],
+          observedAt: now,
+        },
+      };
+    }
+  }
 }
 export class PersonaIdentityAdapter extends ProviderIdentityEvidenceAdapter {
   constructor(client?: ProviderVerificationClient) { super("persona", client, "PARTIALLY_IMPLEMENTED"); }
