@@ -11,13 +11,16 @@ export function personaConfigured(env: NodeJS.ProcessEnv = process.env) {
   return Boolean(env.PERSONA_API_KEY?.trim() && env.PERSONA_WEBHOOK_SECRET?.trim());
 }
 
-export function createStripeIdentityClient(options: { secretKey?: string; expectedAccount?: string | null } = {}): ProviderVerificationClient | null {
+export function createStripeIdentityClient(options: { secretKey?: string; expectedAccount?: string | null; strictBinding?: boolean; retrieveSession?: (reference: string) => Promise<Stripe.Identity.VerificationSession> } = {}): ProviderVerificationClient | null {
   const secretKey = options.secretKey ?? process.env.STRIPE_SECRET_KEY?.trim();
   if (!secretKey) return null;
   const stripe = new Stripe(secretKey, { apiVersion: "2026-07-29.dahlia" });
   return {
     async retrieve(reference: string, context: AdapterContext) {
-      const session = await stripe.identity.verificationSessions.retrieve(reference);
+      const session = await (options.retrieveSession ?? ((id: string) => stripe.identity.verificationSessions.retrieve(id)))(reference);
+      if (session.id !== reference) throw new Error("STRIPE_SESSION_MISMATCH");
+      if (options.strictBinding && (session.metadata?.enterprise_id !== context.enterpriseId || session.metadata?.subject_id !== context.subjectId)) throw new Error("STRIPE_BINDING_MISMATCH");
+      if (session.metadata?.verification_request_id && session.metadata.verification_request_id !== context.verificationRequestId) throw new Error("STRIPE_REQUEST_MISMATCH");
       if (options.expectedAccount && session.livemode !== (options.expectedAccount === "live")) throw new Error("STRIPE_ENVIRONMENT_MISMATCH");
       if (session.metadata?.enterprise_id && session.metadata.enterprise_id !== context.enterpriseId) throw new Error("STRIPE_ACCOUNT_BINDING_MISMATCH");
       if (session.metadata?.subject_id && session.metadata.subject_id !== context.subjectId) throw new Error("STRIPE_SUBJECT_BINDING_MISMATCH");
@@ -26,11 +29,11 @@ export function createStripeIdentityClient(options: { secretKey?: string; expect
         provider: "stripe_identity",
         provider_reference: session.id,
         verification_type: session.type,
-        identity_subject: session.metadata?.subject_digest ?? context.subjectId,
+        identity_subject: options.strictBinding ? context.subjectId : session.metadata?.subject_digest ?? context.subjectId,
         credential_type: "stripe_identity_verification_session",
         document_verified: verified,
-        liveness_verified: verified,
-        biometric_match: verified,
+        liveness_verified: null,
+        biometric_match: null,
         database_match: null,
         assurance_level: verified ? "HIGH" as const : "LOW" as const,
         provider_outcome: verified ? "VERIFIED" as const : session.status === "requires_input" ? "PENDING" as const : "FAILED" as const,

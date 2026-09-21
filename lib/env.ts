@@ -8,6 +8,7 @@ export type RequiredEnvName =
   | "ADMIN_ACCESS_CODE"
   | "STRIPE_SECRET_KEY"
   | "STRIPE_WEBHOOK_SECRET"
+  | "STRIPE_IDENTITY_WEBHOOK_SECRET"
   | "STRIPE_PRO_MONTHLY_PRICE_ID";
 
 type EnvValidationOptions = {
@@ -175,6 +176,11 @@ export function getStripeWebhookSecretEnv(context: string) {
   assertEnv({ context, names: ["STRIPE_WEBHOOK_SECRET"] });
 
   return process.env.STRIPE_WEBHOOK_SECRET as string;
+}
+
+export function getStripeIdentityWebhookSecretEnv(context: string) {
+  assertEnv({ context, names: ["STRIPE_IDENTITY_WEBHOOK_SECRET"] });
+  return process.env.STRIPE_IDENTITY_WEBHOOK_SECRET as string;
 }
 
 export function getStripeProPriceIdEnv(context: string) {

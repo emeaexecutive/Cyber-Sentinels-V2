@@ -53,3 +53,13 @@ Hopae additionally requires `signalInputs.hopae.workflowId`, `requestedAction`, 
 ## Confidence semantics
 
 Only evidence with both `serverVerified: true` and `outcome: VERIFIED` contributes. No verified signals yields score 0 and `INSUFFICIENT_EVIDENCE`. One verified signal is `PROVISIONAL`. Multiple accepted verified signals may become `ESTABLISHED`; confidence never authorizes an action.
+
+## Stripe Identity webhook boundary
+
+`POST /api/stripe/identity/webhook` accepts `identity.verification_session.verified` and `identity.verification_session.requires_input`. It verifies the raw body with `Stripe-Signature` and the dedicated `STRIPE_IDENTITY_WEBHOOK_SECRET`. The billing destination and `STRIPE_WEBHOOK_SECRET` remain separate.
+
+The destination supports the account owning `STRIPE_SECRET_KEY`; Connect and organization events are rejected. The key determines test/live mode. Before delivery, the session must already be linked through an `identity_provider_transactions` row (`stripe_identity`, `IDENTITY_ASSERTION`, `provider_session_id`) to an existing verification request. Authoritative session metadata must contain matching `enterprise_id` and `subject_id`; when present, `verification_request_id` must also match. Unknown or ambiguous links fail closed.
+
+Both events retrieve the current VerificationSession without expanding verified outputs. The existing provider-neutral adapter normalizes that current status, so a stale event snapshot cannot supply a positive result. Only normalized evidence is appended to the linked request. No document images, selfies, raw biometric data, full payloads or provider error messages are persisted. The ledger retains a payload hash. Provider VERIFIED remains identity evidence: this callback neither finalizes a canonical decision nor grants ALLOW, and it does not refresh aggregate confidence.
+
+Replay reservation uses the existing ledger under `stripe_identity`. Processed duplicates return 200 without a second fetch or write. Failed and in-progress entries return 503; the existing ledger has no safe automatic reclaim mechanism. These require operational reconciliation of the ledger and evidence before redelivery, rather than automatic reruns that might duplicate partial writes. Persistence failures never return success. No schema, API scope or deployment change is needed by this route.
