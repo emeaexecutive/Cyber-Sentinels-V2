@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import test, { beforeEach } from "node:test";
 import { readFile } from "node:fs/promises";
 import { PersonaIdentityAdapter, StripeIdentityAdapter, VeriffIdentityAdapter, evaluateProviderPolicy } from "../lib/identity-signals/provider-resilience.ts";
+
+// Keep the fixture's verification/expiry window independent of the machine clock.
+// TestContext restores Date after each test, including assertion failures.
+beforeEach((t) => {
+  t.mock.timers.enable({ apis: ["Date"], now: Date.parse("2026-09-14T12:00:00.000Z") });
+});
 
 const context = { enterpriseId: "tenant:a", subjectId: "human:1", verificationRequestId: "request:1", correlationId: "correlation:1", purpose: "candidate evaluation", input: { providerReference: "vs_123", environment: "production" } };
 function client(result) { return { async retrieve() { return { provider: result.provider ?? "stripe_identity", provider_reference: result.provider_reference ?? "vs_123", verification_type: "government_id", identity_subject: "subject:digest", credential_type: "identity_document", document_verified: result.document_verified ?? true, liveness_verified: result.liveness_verified ?? true, biometric_match: result.biometric_match ?? true, database_match: result.database_match ?? null, assurance_level: result.assurance_level ?? "HIGH", provider_outcome: result.provider_outcome ?? "VERIFIED", provider_reason_codes: result.provider_reason_codes ?? ["PROVIDER_VERIFIED"], verified_at: "2026-09-14T10:00:00.000Z", expires_at: result.expires_at ?? "2026-09-15T10:00:00.000Z", environment: result.environment ?? "production", evidence_provenance: "PROVIDER_API", account_reference: result.account_reference ?? "tenant:a" }; } }; }
@@ -9,6 +15,21 @@ function client(result) { return { async retrieve() { return { provider: result.
 test("Stripe verified produces normalized identity evidence, not a decision", async () => { const result = await new StripeIdentityAdapter(client({})).collectSignal("IDENTITY_ASSERTION", context); assert.equal(result.evidence.providerId, "stripe_identity"); assert.equal(result.evidence.outcome, "VERIFIED"); assert.equal(result.transactionStatus, "SUCCEEDED"); assert.equal("decision" in result.evidence, false); assert.equal(result.evidence.normalizedValue.identitySubject, "subject:digest"); });
 test("Stripe failure and expiry do not become ALLOW", async () => { const failed = await new StripeIdentityAdapter(client({ provider_outcome: "FAILED", provider_reason_codes: ["DOCUMENT_FAILED"] })).collectSignal("IDENTITY_ASSERTION", context); assert.equal(failed.evidence.outcome, "FAILED"); const expired = await new StripeIdentityAdapter(client({ expires_at: "2026-09-01T00:00:00.000Z" })).collectSignal("IDENTITY_ASSERTION", context); assert.equal(expired.evidence.outcome, "INCONCLUSIVE"); });
 test("Stripe account binding and wrong reference fail closed", async () => { await assert.rejects(() => new StripeIdentityAdapter(client({ account_reference: "tenant:other" })).collectSignal("IDENTITY_ASSERTION", context), /IDENTITY_PROVIDER_ACCOUNT_MISMATCH/); const unavailable = await new StripeIdentityAdapter(client({})).collectSignal("IDENTITY_ASSERTION", { ...context, input: {} }); assert.equal(unavailable.transactionStatus, "UNAVAILABLE"); });
+
+test("Stripe fixture expires at the exact boundary regardless of provider outcome", async (t) => {
+  const expiry = Date.parse("2026-09-15T10:00:00.000Z");
+  for (const outcome of ["VERIFIED", "FAILED"]) {
+    const adapter = new StripeIdentityAdapter(client({ provider_outcome: outcome }));
+    t.mock.timers.setTime(expiry - 1);
+    assert.equal((await adapter.collectSignal("IDENTITY_ASSERTION", context)).evidence.outcome, outcome);
+    for (const now of [expiry, Date.parse("2026-09-21T12:00:00.000Z")]) {
+      t.mock.timers.setTime(now);
+      const result = await adapter.collectSignal("IDENTITY_ASSERTION", context);
+      assert.equal(result.evidence.outcome, "INCONCLUSIVE");
+      assert.equal(result.transactionStatus, "INCONCLUSIVE");
+    }
+  }
+});
 test("Persona uses the same normalized contract", async () => { const result = await new PersonaIdentityAdapter(client({ provider: "persona" })).collectSignal("IDENTITY_ASSERTION", context); assert.equal(result.evidence.providerId, "persona"); assert.equal(result.evidence.evidenceProvenance ?? result.evidence.provenance.source, "provider_api"); });
 test("Veriff is adapter-ready and provider-unavailable is not automatic DENY", async () => { const adapter = new VeriffIdentityAdapter(); const result = await adapter.collectSignal("IDENTITY_ASSERTION", context); assert.equal(result.transactionStatus, "UNAVAILABLE"); assert.notEqual(result.evidence.outcome, "FAILED"); });
 test("provider conflict and multi-provider requirements route to REVIEW policy evidence", () => { const conflict = evaluateProviderPolicy({ selection: { mode: "PRIMARY_PROVIDER", providerIds: ["stripe_identity", "persona"] }, evidence: [{ provider: "stripe_identity", provider_outcome: "VERIFIED" }, { provider: "persona", provider_outcome: "FAILED" }] }); assert.equal(conflict.decision, "REVIEW"); const multi = evaluateProviderPolicy({ selection: { mode: "MULTI_PROVIDER_REQUIRED", providerIds: ["stripe_identity", "persona"] }, evidence: [{ provider: "stripe_identity", provider_outcome: "VERIFIED" }] }); assert.equal(multi.decision, "REVIEW"); });
