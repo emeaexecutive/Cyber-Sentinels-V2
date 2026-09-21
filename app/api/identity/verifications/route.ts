@@ -6,6 +6,8 @@ import { identityCorrelationId, identityFailure, identitySuccess } from "@/lib/i
 import { orchestrateIdentityVerification } from "@/lib/identity-signals/orchestrator";
 import { identityRepository } from "@/lib/identity-signals/repository";
 import { identityRequestUiState, isStrictVerifiedEvidence } from "@/lib/identity-signals/presentation";
+import { startStripeIdentitySession } from "@/lib/identity-signals/runtime";
+import type { AdapterContext } from "@/lib/identity-signals/types";
 import { startHopaeTrustAssessment } from "@/lib/providers/hopae-rc1-server";
 
 export async function GET(request: Request) {
@@ -71,8 +73,13 @@ export async function POST(request: Request) {
       const started = await startHopaeTrustAssessment({ supabase: context.supabase, user: context.user, appUrl: new URL(request.url).origin, body: { tenant_id: context.enterpriseId, workspace_id: context.enterpriseId, workflow_id: values.workflowId, entity_id: body.subjectId, requested_action: values.requestedAction, requested_purpose: values.requestedPurpose ?? purpose } });
       return { providerReference: started.providerReference, correlationId: started.correlationId };
     };
-    const result = await orchestrateIdentityVerification({ repository: identityRepository(), adapters: buildIdentityAdapters(hopaeStarter), enterpriseId: context.enterpriseId, subjectId: body.subjectId, requestedSignals, purpose, idempotencyKey, actorId: context.user.id, signalInputs, correlationId });
-    return identitySuccess({ verification: result.details, replayed: result.replayed, reasonCode: result.reasonCode }, result.replayed ? 200 : 202, result.correlationId);
+    const stripeIdentityStarter = async (adapterContext: AdapterContext) => {
+      const stripeInput = signalInputs.stripe_identity;
+      if (!stripeInput || typeof stripeInput !== "object" || Array.isArray(stripeInput)) throw new Error("Stripe Identity requires signalInputs.stripe_identity.");
+      return startStripeIdentitySession(adapterContext);
+    };
+    const result = await orchestrateIdentityVerification({ repository: identityRepository(), adapters: buildIdentityAdapters({ hopaeStarter, stripeIdentityStarter }), enterpriseId: context.enterpriseId, subjectId: body.subjectId, requestedSignals, purpose, idempotencyKey, actorId: context.user.id, signalInputs, correlationId });
+    return identitySuccess({ verification: result.details, replayed: result.replayed, reasonCode: result.reasonCode, providerSessionStarts: result.providerSessionStarts ?? {} }, result.replayed ? 200 : 202, result.correlationId);
   } catch (error) {
     if (error instanceof Error && "status" in error) return Response.json({ schemaVersion: 1, ok: false, code: (error as Error & { code?: string }).code, error: error.message, correlationId }, { status: Number((error as Error & { status?: number }).status ?? 409) });
     return identityFailure(error, correlationId);

@@ -50,6 +50,22 @@ function failedCollection(signalType: IdentitySignalType, providerId: string, st
   return { transactionStatus: status === "UNAVAILABLE" ? "UNAVAILABLE" : "FAILED", errorCode: reasonCode, limitations: [limitation], evidence };
 }
 
+// Multiple adapters may register the same signal type (e.g. Hopae and Stripe both offer
+// IDENTITY_ASSERTION). Callers select a non-default provider by keying signalInputs with the
+// provider's alias; absent an explicit selection, the first registered adapter is preserved
+// as the default to avoid changing existing behavior.
+const providerSignalInputAliases: Record<string, string> = { hopae_connect: "hopae", stripe_identity: "stripe_identity" };
+
+function selectAdapter(adapters: IdentitySignalAdapter[], signalType: IdentitySignalType, signalInputs: Record<string, unknown>) {
+  const candidates = adapters.filter((candidate) => candidate.signals.includes(signalType));
+  if (candidates.length <= 1) return candidates[0];
+  const explicit = candidates.find((candidate) => {
+    const key = providerSignalInputAliases[candidate.providerId] ?? candidate.providerId;
+    return Object.prototype.hasOwnProperty.call(signalInputs ?? {}, key);
+  });
+  return explicit ?? candidates[0];
+}
+
 async function withinTimeout<T>(operation: Promise<T>, timeoutMs: number): Promise<T> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
   try {
@@ -79,7 +95,7 @@ export class IdentitySignalOrchestrator {
     const existing = await this.options.repository.findRequest(input.enterpriseId, input.idempotencyKey, "identity_verification");
     if (existing) {
       if (existing.request_hash !== hash) throw orchestrationError("Idempotency-Key was already used for a different request.", 409, "IDEMPOTENCY_CONFLICT");
-      return { schemaVersion: 1 as const, correlationId: existing.correlation_id, requestId: existing.id, status: existing.status, replayed: true, reasonCode: "IDEMPOTENT_REPLAY_RETURNED" as const, details: await this.options.repository.requestDetails(input.enterpriseId, existing.id) };
+      return { schemaVersion: 1 as const, correlationId: existing.correlation_id, requestId: existing.id, status: existing.status, replayed: true, reasonCode: "IDEMPOTENT_REPLAY_RETURNED" as const, providerSessionStarts: {}, details: await this.options.repository.requestDetails(input.enterpriseId, existing.id) };
     }
 
     await this.options.repository.assertSubject(input.enterpriseId, input.subjectId);
@@ -90,13 +106,14 @@ export class IdentitySignalOrchestrator {
       if (!(error instanceof Error) || !("code" in error) || (error as Error & { code?: string }).code !== "23505") throw error;
       const concurrent = await this.options.repository.findRequest(input.enterpriseId, input.idempotencyKey, "identity_verification");
       if (!concurrent || concurrent.request_hash !== hash) throw orchestrationError("Idempotency-Key was concurrently used for a different request.", 409, "IDEMPOTENCY_CONFLICT");
-      return { schemaVersion: 1 as const, correlationId: concurrent.correlation_id, requestId: concurrent.id, status: concurrent.status, replayed: true, reasonCode: "IDEMPOTENT_REPLAY_RETURNED" as const, details: await this.options.repository.requestDetails(input.enterpriseId, concurrent.id) };
+      return { schemaVersion: 1 as const, correlationId: concurrent.correlation_id, requestId: concurrent.id, status: concurrent.status, replayed: true, reasonCode: "IDEMPOTENT_REPLAY_RETURNED" as const, providerSessionStarts: {}, details: await this.options.repository.requestDetails(input.enterpriseId, concurrent.id) };
     }
 
     const collectedEvidence: SignalEvidenceDraft[] = [];
+    const providerSessionStarts: Record<string, Record<string, string>> = {};
     const timeoutMs = Math.max(100, Math.min(this.options.providerTimeoutMs ?? 10_000, 30_000));
     for (const signalType of requestedSignals) {
-      const adapter = this.options.adapters.find((candidate) => candidate.signals.includes(signalType));
+      const adapter = selectAdapter(this.options.adapters, signalType, input.signalInputs);
       let collected: AdapterCollectionResult;
       const started = Date.now();
       if (!adapter) {
@@ -123,13 +140,16 @@ export class IdentitySignalOrchestrator {
         }
       }
       collectedEvidence.push(collected.evidence);
+      // Persistence failure must fail the whole request closed; a live provider session left
+      // unlinked here is surfaced to the caller as an error rather than a false success.
       await this.options.repository.saveCollection({ enterpriseId: input.enterpriseId, subjectId: input.subjectId, requestId: request.id, result: collected, latencyMs: Date.now() - started });
+      if (collected.clientPayload) providerSessionStarts[collected.evidence.providerId] = collected.clientPayload;
     }
 
     const confidence = calculateIdentityConfidence(collectedEvidence);
     const requestStatus = collectedEvidence.every((item) => item.status === "PASS" && item.serverVerified && item.signatureVerified) ? "COMPLETED" : "PARTIAL";
     await this.options.repository.finalize({ enterpriseId: input.enterpriseId, subjectId: input.subjectId, requestId: request.id, correlationId: request.correlation_id, actorId: input.actorId, requestStatus, confidence });
-    return { schemaVersion: 1 as const, correlationId: request.correlation_id, requestId: request.id, status: requestStatus, replayed: false, reasonCode: null, details: await this.options.repository.requestDetails(input.enterpriseId, request.id) };
+    return { schemaVersion: 1 as const, correlationId: request.correlation_id, requestId: request.id, status: requestStatus, replayed: false, reasonCode: null, providerSessionStarts, details: await this.options.repository.requestDetails(input.enterpriseId, request.id) };
   }
 }
 

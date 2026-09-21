@@ -1,10 +1,34 @@
 import Stripe from "stripe";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { getStripeSecretKeyEnv } from "@/lib/env";
 import type { AdapterContext } from "./types";
 import type { ProviderVerificationClient, ProviderVerificationResult } from "./provider-resilience";
 
 export function stripeIdentityConfigured(env: NodeJS.ProcessEnv = process.env) {
   return Boolean(env.STRIPE_SECRET_KEY?.trim() && env.STRIPE_IDENTITY_WEBHOOK_SECRET?.trim());
+}
+
+export type StripeIdentitySessionResult = { providerSessionId: string; clientSecret: string | null; url: string | null };
+
+// Creates the authoritative Stripe VerificationSession; the webhook later retrieves and re-validates it before any evidence is trusted.
+export async function startStripeIdentitySession(
+  context: AdapterContext,
+  options: { secretKey?: string; createSession?: (params: Stripe.Identity.VerificationSessionCreateParams) => Promise<Stripe.Identity.VerificationSession> } = {},
+): Promise<StripeIdentitySessionResult> {
+  const secretKey = (options.secretKey ?? getStripeSecretKeyEnv("Stripe Identity session start")).trim();
+  if (!secretKey) throw new Error("Stripe Identity is not configured");
+  const create = options.createSession
+    ?? ((params: Stripe.Identity.VerificationSessionCreateParams) => new Stripe(secretKey, { apiVersion: "2026-07-29.dahlia" }).identity.verificationSessions.create(params));
+  const session = await create({
+    type: "document",
+    metadata: {
+      enterprise_id: context.enterpriseId,
+      subject_id: context.subjectId,
+      verification_request_id: context.verificationRequestId,
+    },
+  });
+  if (!/^vs_[a-zA-Z0-9]+$/.test(session.id)) throw new Error("Stripe Identity session response was invalid");
+  return { providerSessionId: session.id, clientSecret: session.client_secret ?? null, url: session.url ?? null };
 }
 
 export function personaConfigured(env: NodeJS.ProcessEnv = process.env) {
