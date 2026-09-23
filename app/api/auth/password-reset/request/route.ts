@@ -12,7 +12,6 @@ import {
   isApprovedSameOriginRequest,
   isAuthRateLimitError,
   normalizePasswordResetCorrelationId,
-  PASSWORD_RECOVERY_PATH,
   PASSWORD_RESET_GENERIC_MESSAGE,
 } from "@/lib/auth/password-recovery";
 import { captureOperationalIssue } from "@/lib/operational-monitoring";
@@ -144,8 +143,8 @@ export async function POST(request: Request) {
   try {
     const supabase = await createClient(authHeaders);
     const callbackUrl = new URL("/auth/callback", approvedOrigin);
-    callbackUrl.searchParams.set("next", PASSWORD_RECOVERY_PATH);
-    callbackUrl.searchParams.set("request_id", correlationId);
+    // Match the exact allowed callback URL. The verified recovery session, not
+    // a user-controlled destination query, selects the reset-password screen.
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: callbackUrl.toString(),

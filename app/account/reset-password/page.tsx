@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import {
   normalizePasswordResetCorrelationId,
   PASSWORD_RECOVERY_COOKIE,
+  isActivePasswordRecovery,
 } from "@/lib/auth/password-recovery";
 import { createNavigationClient } from "@/lib/supabase/server";
 import { ResetPasswordForm } from "./reset-password-form";
@@ -15,6 +16,8 @@ export default async function ResetPasswordPage() {
     cookieStore.get(PASSWORD_RECOVERY_COOKIE)?.value,
   );
   const supabase = await createNavigationClient();
+  const verified = await supabase?.auth.getClaims().catch(() => null);
+  const activeRecovery = !verified?.error && isActivePasswordRecovery(verified?.data?.claims);
   const user = recoveryState
     ? (await supabase?.auth.getUser().catch(() => ({ data: { user: null } })))?.data.user
     : null;
@@ -26,7 +29,7 @@ export default async function ResetPasswordPage() {
           CYBER SENTINELS
         </Link>
 
-        {recoveryState && user ? (
+        {recoveryState && user && activeRecovery ? (
           <ResetPasswordForm />
         ) : (
           <div className="mt-8">
