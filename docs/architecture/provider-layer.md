@@ -15,7 +15,7 @@ Provider code is split across:
 | --- | --- | --- |
 | Hopae Connect | Full `IdentityProviderAdapter`, authenticated client, HMAC callback verification, evidence normalizer, health check, persistence and replay/receipt integration. | Active only when explicitly enabled and fully configured; otherwise safely disabled. |
 | World ID | Authenticated route validates proof shape and uses the common signal normalizer. No provider verification exchange occurs. | Placeholder; route returns `501`. |
-| Stripe Identity | Detection-provider factory entry and provider registry entry. Billing Stripe integration is real, but identity-session workflow setup is absent. | Placeholder for identity verification. |
+| Stripe Identity | Identity VerificationSession lifecycle, current-session retrieval, signed webhook, tenant/subject/request binding and normalized evidence persistence are implemented in `lib/identity-signals`. | Implementation WORKING; qualification BLOCKED_EXTERNAL; Production exercised NO. See the [current qualification record](../providers/STRIPE_IDENTITY_QUALIFICATION.md). Billing remains separate. |
 | Persona, Entrust, Onfido | Registry definitions only. | Future/placeholder. |
 | Turnstile | Public-form challenge verification and registry entry. | Active when both site and secret keys are configured. |
 | Fingerprint/device risk | Registry definition only. | Placeholder. |

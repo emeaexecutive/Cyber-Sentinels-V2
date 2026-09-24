@@ -4,6 +4,8 @@ Provider readiness is evidence for controlled operation, not proof of detection 
 
 ## Release 1.0 RC1 decision
 
+This section preserves the historical RC1/RC6/RC7 assessment. For current Stripe Identity status, see the [2026-09-24 qualification record](providers/STRIPE_IDENTITY_QUALIFICATION.md): implementation WORKING; session lifecycle and webhook IMPLEMENTED; real provider qualification BLOCKED_EXTERNAL; Production exercised NO.
+
 Hopae Connect is the production-candidate provider in approved external `Test` maturity (internal runtime `Test Mode`): session creation, signed/timestamped/idempotent callback, status re-fetch, provider-neutral normalization, evidence-quality gating and atomic proof continuity are implemented and fixture-tested. Credentials were not present in this checkout, so the deployed state remains `Awaiting Credentials` until configured and successfully checked. Stripe Identity and World ID remain prototypes. Turnstile is supporting abuse control, never identity proof.
 
 RC6 retains `Live` only when `release_evidence_checks` contains a passed `real_target_environment_flow` with a target environment, timestamp and evidence reference, plus a reviewed provider outcome. Current RC6 state: **Awaiting Credentials; no real retained execution**.
@@ -47,7 +49,7 @@ Readiness summary:
 | Onfido | Identity/document | Future or credential-gated adapter. | Credentials and workflow gating do not prove readiness. | Review endpoint, restricted-data handling and audit logging before live use. |
 | Veriff | Identity/document | Future or credential-gated adapter. | No production readiness without reviewed workflow evidence. | Validate identity/document evidence against replay and governance flows. |
 | World ID | Proof of personhood | Optional proof-of-personhood signal. | Action configuration and workflow use remain gated. | Keep as one signal, not proof of trust or authenticity. |
-| Stripe Identity | Identity | Optional identity verification source. | Server key presence does not equal workflow readiness. | Validate workflow-specific setup and replay evidence before reliance. |
+| Stripe Identity | Identity | Implementation WORKING; session lifecycle and webhook IMPLEMENTED. | Real provider qualification BLOCKED_EXTERNAL; Production exercised NO. Owner-reported Spain company/business setup or authorization prevents account progression. | Preserve the implementation and [qualification boundary](providers/STRIPE_IDENTITY_QUALIFICATION.md); no additional provider attempt is authorized. |
 | C2PA | Provenance | Provenance signal adapter is represented. | Provenance is not proof of realness. | Keep provenance as review evidence and track missing/conflicting metadata. |
 | SynthID | Provenance | Synthetic-media provenance signal is represented. | Coverage depends on supported media and metadata availability. | Compare against reviewed media cases when available. |
 | Hopae Connect | eID verification | RC1 path includes safe session creation, signed callback, normalization, quality gate, authority/policy, atomic Replay/Graph/Memory/receipt persistence and approved fixtures. RC6 strengthens retained ledger fields. | Deployment credentials, applied RC6 migration, real target flow and reviewed pilot evidence remain. | Apply migrations, configure approved target credentials, retain the complete real flow, then review the result before using `Live`. |

@@ -2,6 +2,8 @@
 
 Date: 2026-06-04
 
+Historical billing snapshot. This document does not describe current Stripe Identity implementation or qualification. See the [2026-09-24 Stripe Identity qualification record](providers/STRIPE_IDENTITY_QUALIFICATION.md); no current billing qualification is asserted by that record.
+
 ## Status
 
 PARTIAL / NOT IMPLEMENTED

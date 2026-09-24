@@ -7,7 +7,7 @@ This audit separates working software, rule-based workflow scoring, normalized p
 | Provider | Current status | What works today |
 | --- | --- | --- |
 | World ID | Placeholder verification endpoint | `/api/verify/world` requires auth, accepts proof-shaped payloads and reports whether `WORLD_ACTION` is configured. It does not call World ID backend verification today. |
-| Stripe Identity | Registry support only | Provider status is tracked from `STRIPE_SECRET_KEY`, but no Stripe Identity verification session lifecycle is wired into candidate or session workflows today. |
+| Stripe Identity | Implementation WORKING; real qualification BLOCKED_EXTERNAL | Session lifecycle and signed webhook are implemented. Production exercised: NO. The owner reports an external Stripe account/business-setup blocker in Spain; see the [current qualification record](providers/STRIPE_IDENTITY_QUALIFICATION.md). This does not claim that legacy candidate/session forms invoke Stripe. |
 | Persona | Placeholder adapter | Normalized evidence shape exists for future use. No live Persona API call is made today. |
 | Entrust | Placeholder adapter | Normalized evidence shape exists for future use. No live Entrust API call is made today. |
 | Onfido | Placeholder adapter | Normalized evidence shape exists for future use. No live Onfido API call is made today. |
