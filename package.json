@@ -150,7 +150,7 @@
     "generate:staging-reconstruction-evidence": "node tools/release/staging-reconstruction-evidence.mjs",
     "test:provider-health-reconciliation": "node --test tests/provider-health-schema-reconciliation.test.mjs",
     "test:trust-relationships-reconciliation": "node --test tests/trust-relationships-schema-reconciliation.test.mjs",
-    "test:migration-namespace": "node --test tests/migration-namespace-reconciliation.test.mjs",
+    "test:migration-namespace": "node --test tests/migration-namespace-reconciliation.test.mjs tests/migration-context-fix.test.mjs tests/hosted-migration-context.test.mjs",
     "security:sbom": "node scripts/generate-dependency-security-artifacts.mjs",
     "security:secrets:scoped": "node tools/release/scoped-secret-scan.mjs",
     "validate": "npm run lint && npm run typecheck && npm test && npm run build",
