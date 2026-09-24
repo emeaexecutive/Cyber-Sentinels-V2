@@ -12,6 +12,7 @@ import { hasAdminVerifiedCookie, isAdminAllowlisted } from "@/lib/admin-auth";
 import { buildPlatformHealth } from "@/lib/core/platform-health";
 import { createNavigationClient } from "@/lib/supabase/server";
 import { isMissingAuthSessionError } from "@/lib/supabase/auth-errors";
+import { isPasswordRecoverySession } from "@/lib/auth/password-recovery";
 import { ReportIssue } from "@/components/report-issue";
 import { PublicPageAdoptionRail } from "@/components/public-page-adoption-rail";
 import { ConsentManager } from "@/src/components/consent/ConsentManager";
@@ -160,6 +161,11 @@ async function getNavigationState(): Promise<NavigationState> {
     const user = data.user ?? null;
 
     if (!user) {
+      return { accessLevel: "public" };
+    }
+
+    const verified = await supabase.auth.getClaims();
+    if (verified.error || isPasswordRecoverySession(verified.data?.claims)) {
       return { accessLevel: "public" };
     }
 

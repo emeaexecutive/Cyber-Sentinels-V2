@@ -4,6 +4,27 @@ export const PASSWORD_RESET_GENERIC_MESSAGE =
   "If an account exists for that email, we've sent password reset instructions.";
 export const PASSWORD_MIN_LENGTH = 8;
 
+// Only pass claims returned by Supabase getClaims(), never decoded browser input.
+export function isPasswordRecoverySession(claims: Record<string, unknown> | null | undefined) {
+  return Array.isArray(claims?.amr) && claims.amr.some(
+    (entry: { method?: string }) => entry?.method === "recovery",
+  );
+}
+
+export function isActivePasswordRecovery(claims: Record<string, unknown> | null | undefined) {
+  if (!isPasswordRecoverySession(claims) || typeof claims?.session_id !== "string") return false;
+  const now = Date.now() / 1000;
+  return (claims.amr as { method: string; timestamp: number }[]).some(
+    (entry) => entry.method === "recovery" && Number.isFinite(entry.timestamp) &&
+      entry.timestamp <= now && entry.timestamp > now - 15 * 60,
+  );
+}
+
+export function isRecoveryWorkflowPath(pathname: string) {
+  return [PASSWORD_RECOVERY_PATH, "/auth/callback", "/login", "/api/auth/logout",
+    "/api/auth/password-reset/request", "/api/auth/password-reset/complete"].includes(pathname);
+}
+
 const correlationIdPattern = /^[A-Za-z0-9_.:-]{1,128}$/;
 
 export function normalizePasswordResetCorrelationId(value: string | null | undefined) {

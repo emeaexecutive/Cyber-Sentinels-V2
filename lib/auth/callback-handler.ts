@@ -6,10 +6,12 @@ import {
   PASSWORD_RECOVERY_COOKIE,
   PASSWORD_RECOVERY_PATH,
   passwordRecoveryCookieOptions,
+  isPasswordRecoverySession,
 } from "./password-recovery.ts";
 
 type AuthCallbackClient = {
   auth: {
+    getClaims?(): Promise<{ data: { claims: Record<string, unknown> } | null; error: unknown }>;
     exchangeCodeForSession(code: string): Promise<{
       data?: unknown;
       error: unknown;
@@ -73,7 +75,7 @@ export async function handleAuthCallback(
     const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") passwordRecovery = true;
     });
-    let exchangeResult: { error: unknown };
+    let exchangeResult: { data?: unknown; error: unknown };
     try {
       exchangeResult = await supabase.auth.exchangeCodeForSession(code);
     } finally {
@@ -82,6 +84,12 @@ export async function handleAuthCallback(
     const { error } = exchangeResult;
 
     if (!error) {
+      const data = exchangeResult.data as { redirectType?: string } | undefined;
+      passwordRecovery = passwordRecovery || data?.redirectType === "recovery";
+      if (!passwordRecovery) {
+        const verified = await supabase.auth.getClaims?.();
+        passwordRecovery = !verified?.error && isPasswordRecoverySession(verified?.data?.claims);
+      }
       if (passwordRecovery) {
         const response = authRedirect(new URL(PASSWORD_RECOVERY_PATH, url.origin), authHeaders);
         response.cookies.set(

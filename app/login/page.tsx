@@ -14,6 +14,8 @@ import {
   PASSWORD_MIN_LENGTH,
   PASSWORD_RESET_GENERIC_MESSAGE,
   validateNewPassword,
+  isPasswordRecoverySession,
+  PASSWORD_RECOVERY_PATH,
 } from "@/lib/auth/password-recovery";
 import { resolveSafeInternalRedirect } from "@/lib/auth/safe-redirect";
 import { createClient } from "@/lib/supabase/client";
@@ -188,6 +190,14 @@ export default function LoginPage() {
         if (!active) return;
 
         if (data.user) {
+          const verified = await supabase.auth.getClaims();
+          if (!verified.error && isPasswordRecoverySession(verified.data?.claims)) {
+            setExperienceState("SIGNED_OUT");
+            if (searchParams.get("mode") !== "forgot-password" && searchParams.get("error") !== "recovery_link_invalid") {
+              router.replace(PASSWORD_RECOVERY_PATH);
+            }
+            return;
+          }
           setExperienceState("AUTHENTICATED");
           window.localStorage.setItem(SESSION_START_KEY, Date.now().toString());
           await recordAuthEvent(

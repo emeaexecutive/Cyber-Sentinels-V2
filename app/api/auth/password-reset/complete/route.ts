@@ -7,6 +7,7 @@ import {
   PASSWORD_RECOVERY_COOKIE,
   passwordRecoveryCookieOptions,
   validateNewPassword,
+  isActivePasswordRecovery,
 } from "@/lib/auth/password-recovery";
 import { captureOperationalIssue } from "@/lib/operational-monitoring";
 import { createClient, isInvalidRefreshTokenError } from "@/lib/supabase/server";
@@ -86,6 +87,13 @@ export async function POST(request: Request) {
 
   try {
     const supabase = await createClient(authHeaders);
+    // Refresh contacts Auth and rejects replay of a session revoked on completion.
+    const refreshed = await supabase.auth.refreshSession();
+    const verified = refreshed.error ? null : await supabase.auth.getClaims();
+    if (refreshed.error || verified?.error || !isActivePasswordRecovery(verified?.data?.claims)) {
+      return clearRecoveryState(failure(authHeaders, 401, "RECOVERY_SESSION_INVALID",
+        "Reset link expired or invalid. Request a new password reset email."));
+    }
     const {
       data: { user },
       error: userError,
@@ -170,14 +178,18 @@ export async function POST(request: Request) {
         correlation_id: correlationId,
         reason: "global_sign_out_failed",
       });
-      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+      const local = await supabase.auth.signOut({ scope: "local" });
+      if (local.error) {
+        return failure(authHeaders, 503, "RECOVERY_SIGN_OUT_FAILED",
+          "Password updated, but sign out could not complete. Please try signing out again.");
+      }
     }
 
     return clearRecoveryState(
       jsonResponse(
         {
           ok: true,
-          message: "Password updated successfully.",
+          message: "Password updated. Sign in with your new password.",
           next: "/login?password_updated=1",
         },
         200,

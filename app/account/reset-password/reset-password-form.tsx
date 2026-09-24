@@ -67,6 +67,7 @@ export function ResetPasswordForm() {
       setSuccess(true);
       setNextPath(result.next || "/login?password_updated=1");
       setMessage(result.message || "Password updated successfully.");
+      window.location.replace("/login?password_updated=1");
     } catch {
       setMessage("We couldn't update your password. Request a new reset link and try again.");
     } finally {
@@ -79,7 +80,7 @@ export function ResetPasswordForm() {
       <div className="mt-8" role="status" aria-live="polite">
         <h1 className="text-3xl font-semibold tracking-tight">Password updated successfully.</h1>
         <p className="mt-4 text-sm leading-6 text-zinc-400">
-          For your security, all existing sessions have been signed out. Sign in with your new password to continue.
+          Your recovery session has ended. Sign in with your new password to continue.
         </p>
         <Link href={nextPath} className="brand-primary-action mt-7 block w-full p-4 text-center">
           Continue to sign in
@@ -95,11 +96,13 @@ export function ResetPasswordForm() {
         Use at least {PASSWORD_MIN_LENGTH} characters. This reset link can only be used once.
       </p>
 
-      <div className="mt-7 grid gap-5">
+      <form className="mt-7 grid gap-5" onSubmit={(event) => { event.preventDefault(); void updatePassword(); }}>
         <label className="grid gap-2 text-sm font-medium text-zinc-200">
           New password
           <span className="flex overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 focus-within:border-cyan-700">
             <input
+              aria-label="New password"
+              required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               type={showPassword ? "text" : "password"}
@@ -122,6 +125,8 @@ export function ResetPasswordForm() {
           Confirm new password
           <span className="flex overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 focus-within:border-cyan-700">
             <input
+              aria-label="Confirm new password"
+              required
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               type={showConfirmPassword ? "text" : "password"}
@@ -155,9 +160,8 @@ export function ResetPasswordForm() {
         ) : null}
 
         <button
-          onClick={updatePassword}
           disabled={loading}
-          type="button"
+          type="submit"
           className="brand-primary-action w-full p-4 disabled:opacity-50"
         >
           {loading ? "Updating..." : "Update password"}
@@ -168,7 +172,7 @@ export function ResetPasswordForm() {
             {message}
           </p>
         ) : null}
-      </div>
+      </form>
     </div>
   );
 }

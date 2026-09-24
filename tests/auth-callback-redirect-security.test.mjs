@@ -184,6 +184,27 @@ test("a user-controlled recovery destination cannot create recovery state", asyn
   assert.doesNotMatch(response.headers.get("set-cookie") ?? "", /cyber_password_recovery=/);
 });
 
+test("callback uses exchange metadata when a PASSWORD_RECOVERY notification is missed", async () => {
+  const { dependencies } = callbackDependencies();
+  dependencies.createClient = async () => ({ auth: {
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
+    exchangeCodeForSession: async () => ({ data: { redirectType: "recovery" }, error: null }),
+  } });
+  const response = await handleAuthCallback(callbackRequest({ next: "/operational-entities" }), dependencies);
+  assert.equal(assertSameOriginLocation(response).pathname, "/account/reset-password");
+});
+
+test("verified recovery claims override missing redirect metadata and ordinary destinations", async () => {
+  const { dependencies } = callbackDependencies();
+  dependencies.createClient = async () => ({ auth: {
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
+    exchangeCodeForSession: async () => ({ data: { redirectType: null }, error: null }),
+    getClaims: async () => ({ data: { claims: { amr: [{ method: "recovery" }] } }, error: null }),
+  } });
+  const response = await handleAuthCallback(callbackRequest({ next: "/admin" }), dependencies);
+  assert.equal(assertSameOriginLocation(response).pathname, "/account/reset-password");
+});
+
 test("expired recovery callbacks return to the reset request without a hybrid session", async () => {
   const { dependencies } = callbackDependencies({ exchangeError: new Error("expired code") });
   const response = await handleAuthCallback(

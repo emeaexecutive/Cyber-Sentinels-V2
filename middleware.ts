@@ -6,6 +6,7 @@ import {
   hasPublicSupabaseEnv,
 } from "@/lib/env";
 import { isMissingAuthSessionError } from "@/lib/supabase/auth-errors";
+import { isPasswordRecoverySession, isRecoveryWorkflowPath, PASSWORD_RECOVERY_COOKIE, PASSWORD_RECOVERY_PATH } from "@/lib/auth/password-recovery";
 
 const adminVerifiedCookieName = "cyber_admin_verified";
 
@@ -258,6 +259,65 @@ function protectedSurfaceUnavailable() {
 }
 
 export async function middleware(req: NextRequest) {
+  const { pathname, search } = req.nextUrl;
+  const refreshedCookies: CookieToSet[] = [];
+  const refreshedHeaders = new Headers();
+  const finish = (response: NextResponse) => {
+    for (const { name, value, options } of refreshedCookies) {
+      if (!response.cookies.has(name)) response.cookies.set(name, value, options);
+    }
+    refreshedHeaders.forEach((value, name) => response.headers.set(name, value));
+    return response;
+  };
+  // Supabase can fall back to Site URL when an old email redirect is disallowed.
+  if (pathname === "/" && req.nextUrl.searchParams.has("code")) {
+    return redirectTo(req, `/auth/callback${search}`);
+  }
+  // Run before every public-route/provider/admin exception. A deleted marker
+  // must not turn a recovery JWT into an ordinary application session.
+  const recoveryMutation = ["/api/auth/password-reset/request", "/api/auth/password-reset/complete", "/api/auth/logout"].includes(pathname);
+  if (!isRecoveryWorkflowPath(pathname) || (!["GET", "HEAD"].includes(req.method) && !recoveryMutation)) {
+    let recovery = req.cookies.has(PASSWORD_RECOVERY_COOKIE);
+    const bearer = req.headers.get("authorization")?.match(/^Bearer (ey[^ ]+\.[^ ]+\.[^ ]+)$/i)?.[1];
+    const hasSessionCookie = req.cookies.getAll().some(({ name }) => name.startsWith("sb-") && name.includes("auth-token") && !name.includes("code-verifier"));
+    if (bearer || hasSessionCookie) {
+      if (!hasPublicSupabaseEnv()) return protectedSurfaceUnavailable();
+      const env = getPublicSupabaseEnv("recovery quarantine");
+      const auth = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+        cookies: {
+          getAll: () => req.cookies.getAll(),
+          setAll: (items: CookieToSet[], headers: Record<string, string>) => {
+            items.forEach((item) => req.cookies.set(item.name, item.value));
+            refreshedCookies.push(...items);
+            Object.entries(headers).forEach(([name, value]) => refreshedHeaders.set(name, value));
+          },
+        },
+      });
+      try {
+        const cookieResult = hasSessionCookie ? await auth.auth.getClaims() : null;
+        const bearerResult = bearer ? await auth.auth.getClaims(bearer) : null;
+        if (cookieResult?.error || bearerResult?.error) return finish(protectedSurfaceUnavailable());
+        recovery = isPasswordRecoverySession(cookieResult?.data?.claims) ||
+          isPasswordRecoverySession(bearerResult?.data?.claims) ||
+          (recovery && !cookieResult?.data?.claims);
+        if (cookieResult?.data?.claims) {
+          if (!recovery && req.cookies.has(PASSWORD_RECOVERY_COOKIE)) {
+            // A fresh ordinary login supersedes an abandoned recovery marker.
+            refreshedCookies.push({ name: PASSWORD_RECOVERY_COOKIE, value: "", options: { path: "/", maxAge: 0 } });
+          }
+        }
+      } catch { return finish(protectedSurfaceUnavailable()); }
+    }
+    if (recovery) {
+      return finish(pathname.startsWith("/api/")
+        ? preventIndexing(NextResponse.json({ error: "PASSWORD_RECOVERY_REQUIRED" }, { status: 403 }))
+        : redirectTo(req, PASSWORD_RECOVERY_PATH));
+    }
+  }
+  return finish(await applicationMiddleware(req));
+}
+
+async function applicationMiddleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
   // Provider callbacks authenticate with a timestamped HMAC in the route.
   // Browser GET access to the provider registry remains session-protected.
