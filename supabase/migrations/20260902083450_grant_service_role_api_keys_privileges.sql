@@ -1,0 +1,4 @@
+-- Historical Production migration identity only; no executable SQL.
+-- Already applied to Production kecgtsfibkypjuaxqbjx; do not replay.
+-- Original SQL: supabase/history/production/20260902083450_grant_service_role_api_keys_privileges.sql
+-- This marker does not reconstruct the archived change on a fresh database.

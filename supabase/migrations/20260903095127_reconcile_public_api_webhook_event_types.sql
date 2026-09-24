@@ -1,0 +1,4 @@
+-- Historical Production migration identity only; no executable SQL.
+-- Already applied to Production kecgtsfibkypjuaxqbjx; do not replay.
+-- Original SQL: supabase/history/production/20260903095127_reconcile_public_api_webhook_event_types.sql
+-- This marker does not reconstruct the archived change on a fresh database.
