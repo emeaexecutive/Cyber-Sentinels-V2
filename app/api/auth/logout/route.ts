@@ -32,7 +32,7 @@ async function logout(req: Request) {
   }
 
   try {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut({ scope: "local" });
 
     if (error && !isInvalidRefreshTokenError(error)) {
       throw error;

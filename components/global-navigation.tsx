@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { canonicalNavigation, publicHeaderLinks } from "@/lib/navigation/canonical-navigation";
+import { clearSignedOutSessionState, revalidateRestoredSession } from "@/lib/auth/sign-out";
 
 export type NavigationAccessLevel =
   | "public"
@@ -17,9 +18,13 @@ export { publicHeaderLinks };
 
 function LogoutButton({ onNavigate }: { onNavigate?: CloseMenus }) {
   return (
-    <form action="/api/auth/logout" method="POST">
-      <button type="submit" onClick={onNavigate} className="nav-control">
-        Logout
+    <form action="/api/auth/logout" method="POST" className="sm:order-last" onSubmit={() => {
+      // Storage can be disabled; that must never prevent the server logout.
+      try { clearSignedOutSessionState(window.localStorage); } catch { /* No readable local state. */ }
+      onNavigate?.();
+    }}>
+      <button type="submit" className="nav-control !min-h-11 whitespace-nowrap">
+        Sign Out
       </button>
     </form>
   );
@@ -52,10 +57,18 @@ export function GlobalNavigation({ accessLevel }: { accessLevel: NavigationAcces
 
   useEffect(() => closeMenus(), [closeMenus, pathname]);
 
+  useEffect(() => {
+    if (accessLevel === "public") return;
+    const onPageShow = (event: PageTransitionEvent) => revalidateRestoredSession(event, () => window.location.reload());
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, [accessLevel]);
+
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-900 bg-[#04070c]/95 text-white backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3.5 md:px-8">
         <Link href="/" onClick={closeMenus} className="brand-wordmark">Cyber Sentinels</Link>
+        {accessLevel !== "public" ? <LogoutButton onNavigate={closeMenus} /> : null}
         <button type="button" aria-label={mobileMenuOpen ? "Close" : "Menu"} aria-expanded={mobileMenuOpen} aria-controls="primary-navigation" onClick={() => setMobileMenuOpen((current) => !current)} className="nav-control min-h-11 sm:hidden">
           {mobileMenuOpen ? "Close" : "Menu"}
         </button>
@@ -67,14 +80,12 @@ export function GlobalNavigation({ accessLevel }: { accessLevel: NavigationAcces
             <>
               {canonicalNavigation.authenticated.map((item) => <Link key={item.href} href={item.href} onClick={closeMenus} className={item.href === "/dashboard" ? "brand-primary-action" : "nav-control"}>{item.label}</Link>)}
               {accessLevel === "admin-unverified" ? <Link href="/admin/access" onClick={closeMenus} className="brand-secondary-action">Verify Admin</Link> : null}
-              <LogoutButton onNavigate={closeMenus} />
             </>
           ) : null}
           {accessLevel === "admin" ? (
             <>
               {canonicalNavigation.authenticated.map((item) => <Link key={item.href} href={item.href} onClick={closeMenus} className={item.href === "/dashboard" ? "brand-primary-action" : "nav-control"}>{item.label}</Link>)}
               {canonicalNavigation.admin.map((item) => <Link key={item.href} href={item.href} onClick={closeMenus} className="brand-secondary-action">{item.label}</Link>)}
-              <LogoutButton onNavigate={closeMenus} />
             </>
           ) : null}
         </nav>
