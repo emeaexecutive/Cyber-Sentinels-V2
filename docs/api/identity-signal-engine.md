@@ -56,6 +56,8 @@ Only evidence with both `serverVerified: true` and `outcome: VERIFIED` contribut
 
 ## Stripe Identity webhook boundary
 
+Current qualification: implementation WORKING, session lifecycle and webhook IMPLEMENTED, real provider qualification BLOCKED_EXTERNAL, Production exercised NO. The [dated qualification record](../providers/STRIPE_IDENTITY_QUALIFICATION.md) records the owner-reported external account/business-setup blocker and distinguishes code tests from real provider proof.
+
 `POST /api/stripe/identity/webhook` accepts `identity.verification_session.verified` and `identity.verification_session.requires_input`. It verifies the raw body with `Stripe-Signature` and the dedicated `STRIPE_IDENTITY_WEBHOOK_SECRET`. The billing destination and `STRIPE_WEBHOOK_SECRET` remain separate.
 
 The destination supports the account owning `STRIPE_SECRET_KEY`; Connect and organization events are rejected. The key determines test/live mode. Before delivery, the session must already be linked through an `identity_provider_transactions` row (`stripe_identity`, `IDENTITY_ASSERTION`, `provider_session_id`) to an existing verification request. Authoritative session metadata must contain matching `enterprise_id` and `subject_id`; when present, `verification_request_id` must also match. Unknown or ambiguous links fail closed.

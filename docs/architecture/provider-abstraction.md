@@ -4,6 +4,8 @@ Baseline commit: `77588a5`
 
 Architecture review date: 2026-07-18
 
+Historical inventory below reflects that baseline. Stripe Identity has since gained its session lifecycle and webhook; the [current qualification record](../providers/STRIPE_IDENTITY_QUALIFICATION.md) supersedes its historical placeholder status. Real provider qualification remains BLOCKED_EXTERNAL and Production exercised remains NO.
+
 ## Purpose and boundary
 
 The provider layer converts external verification results into attributed evidence. A provider result is never an authorization or final trust decision. UI code consumes application services or normalized view models; it must not call provider SDKs, credentials or private adapter methods.
