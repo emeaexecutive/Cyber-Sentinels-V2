@@ -1,3 +1,4 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EvidenceCard, ProviderCard, Timeline, TrustFlow, VisualFrame } from "@/components/enterprise-visuals";
@@ -131,6 +132,7 @@ export default async function TrustPage() {
 }
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Trust Center | Cyber Sentinels", "Public assurance for Replay, Trust Memory, evidence, provider transparency, validation, sovereignty and the Operational Trust Graph.", "/trust"),
   title: "Trust Center | Cyber Sentinels",
   description: "Public assurance for Replay, Trust Memory, evidence, provider transparency, validation, sovereignty and the Operational Trust Graph.",
   alternates: { canonical: "/trust" },

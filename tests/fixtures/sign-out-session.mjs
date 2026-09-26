@@ -7,7 +7,7 @@ import ts from "typescript";
 import React from "react";
 
 import { createServerClient } from "@supabase/ssr";
-import { NextRequest } from "next/server";
+import { NextRequest } from "next/server.js";
 
 const require = createRequire(import.meta.url);
 const root = process.cwd();

@@ -1,3 +1,4 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
@@ -41,11 +42,18 @@ export default function VerificationReplayPage() {
       <div className="mx-auto max-w-6xl">
         <ExecutiveSummary
           eyebrow="Replay"
-          title="Reconstruct what happened, who owned it and why the outcome was allowed."
-          bullets={["Follow identity, authority and runtime change in time order.", "Keep evidence linked to its source and decision context.", "See named governance actions and unresolved conditions.", "Use the chronology as proof without exposing raw customer records."]}
+          title="How can an AI agent action be replayed for audit?"
+          bullets={["Replay reconstructs the recorded chronology of an agent action: actor, authority, policy, evidence, decision and observed outcome. It explains the record; it does not execute the action again or prove an unobserved external effect.", "Keep evidence linked to its source and decision context.", "See named governance actions and unresolved conditions.", "Use the chronology as proof without exposing raw customer records."]}
           primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
           secondary={{ href: "/trust#trust-memory", label: "Read Trust Framework" }}
         />
+
+        <section id="action-receipts" className="mt-8 scroll-mt-28 rounded-lg border border-zinc-800 bg-black p-6">
+          <h2 className="text-2xl font-semibold">What should an AI agent action receipt contain?</h2>
+          <p className="mt-4 max-w-4xl leading-8 text-zinc-300">An action receipt is a minimized record of the authorization decision. Preserve the actor and accountable owner, action, purpose, target scope, authority and delegation references, policy/version, decision reasons, timestamp and integrity digest. Keep execution attempts and observed outcomes distinct from authorization.</p>
+          <p className="mt-4 max-w-4xl leading-8 text-zinc-400">Cyber Sentinels receipts are digested decision projections, not advertised as signed proof of execution or regulatory compliance. A provider observation, a client assertion and a canonical decision retain different provenance. Do not publish secrets, raw customer evidence or unnecessary provider payloads.</p>
+          <p className="mt-4 leading-8 text-zinc-400">A previous ALLOW remains historical evidence. <Link href="/resources/agent-security/agent-authorization#runtime-authority" className="text-cyan-200 underline">Changed authority requires current evaluation</Link>. Read the <Link href="/developers/api-reference" className="text-cyan-200 underline">public receipt and Replay API contract</Link> or explore <Link href="/trust#trust-memory" className="text-cyan-200 underline">Trust Memory</Link>.</p>
+        </section>
 
         <section className="mt-8">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">
@@ -142,6 +150,7 @@ export default function VerificationReplayPage() {
   );
 }
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Verification Replay | Cyber Sentinels", "Reconstruct actor, authority, evidence, change, governance and outcome chronology.", "/verification-replay"),
   title: "Verification Replay | Cyber Sentinels",
   description: "Reconstruct actor, authority, evidence, change, governance and outcome chronology.",
   alternates: { canonical: "/verification-replay" },

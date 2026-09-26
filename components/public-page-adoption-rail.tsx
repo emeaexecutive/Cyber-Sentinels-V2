@@ -15,7 +15,7 @@ export function PublicPageAdoptionRail() {
   const pathname = usePathname();
   const contract = publicPageAdoptionFor(pathname);
 
-  if (!contract || purposeBuiltAdoptionRoutes.has(pathname)) return null;
+  if (!contract || purposeBuiltAdoptionRoutes.has(pathname) || pathname.startsWith("/resources/agent-security")) return null;
 
   return (
     <aside aria-label="Enterprise adoption next steps" className="border-t border-zinc-800 bg-[#070a0f] px-6 py-8 md:px-8">

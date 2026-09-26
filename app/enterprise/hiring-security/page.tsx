@@ -1,9 +1,11 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 import { enterpriseCtas } from "@/lib/enterprise-experience";
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Hiring Security | Cyber Sentinels", "A governed solution for synthetic applicant, proxy interview and session-integrity risk.", "/enterprise/hiring-security"),
   title: "Hiring Security | Cyber Sentinels",
   description: "A governed solution for synthetic applicant, proxy interview and session-integrity risk.",
   alternates: { canonical: "/enterprise/hiring-security" },

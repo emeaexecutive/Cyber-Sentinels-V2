@@ -1,7 +1,9 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Careers | Cyber Sentinels", "Career and hiring information for Cyber Sentinels.", "/careers"),
   title: "Careers | Cyber Sentinels",
   description: "Career and hiring information for Cyber Sentinels.",
   alternates: { canonical: "/careers" },

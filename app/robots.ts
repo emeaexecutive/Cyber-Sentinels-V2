@@ -79,18 +79,23 @@ const experimentalPaths = [
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-      disallow: [
+    rules: [{
+      // Named search/user-fetch groups inherit these same private-path exclusions.
+      // Google-Extended also controls Gemini training: see SEARCH_VISIBILITY.md.
+      userAgent: ["*", "Googlebot", "bingbot", "OAI-SearchBot", "Claude-SearchBot", "Claude-User", "PerplexityBot", "Perplexity-User", "ChatGPT-User", "Google-Extended"],
+      allow: ["/", ...redirectedPublicRoutes.map(({ route }) => `${route}$`)],
+      disallow: [...new Set([
+        "/api/", "/account/", "/auth/", "/operational-entities", "/trust-centre",
         ...protectedPaths,
         ...experimentalPaths,
         ...protectedRoutePrefixes,
         ...internalRoutePrefixes,
         ...archivedRoutePrefixes,
-        ...redirectedPublicRoutes.map(({ route }) => route),
-      ],
-    },
+      ])],
+    }, {
+      userAgent: ["GPTBot", "ClaudeBot"],
+      disallow: "/",
+    }],
     sitemap: "https://www.cybersentinels.com/sitemap.xml",
     host: "https://www.cybersentinels.com",
   };

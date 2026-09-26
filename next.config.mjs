@@ -64,6 +64,10 @@ const nextConfig = {
 
     return [
       {
+        source: "/documents/cyber-sentinels-operational-trust-whitepaper-v1.pdf",
+        headers: [{ key: "Link", value: '<https://www.cybersentinels.com/documents/operational-trust-whitepaper>; rel="canonical"' }],
+      },
+      {
         source: "/:path*",
         headers: securityHeaders,
       },

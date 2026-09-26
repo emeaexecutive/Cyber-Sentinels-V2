@@ -1,7 +1,9 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Developer Documentation | Cyber Sentinels", "Cyber Sentinels API references, integration guidance, schemas and operational trust developer resources.", "/developers/docs"),
   title: "Developer Documentation | Cyber Sentinels",
   description: "Cyber Sentinels API references, integration guidance, schemas and operational trust developer resources.",
   alternates: { canonical: "/developers/docs" },
@@ -11,7 +13,7 @@ const docs = [
   ["OpenAPI Reference", "/developers/api-reference", "Human-readable V1 reference rendered from the canonical OpenAPI contract."],
   ["Raw OpenAPI JSON", "/api/v1/openapi.json", "Machine-readable contract for SDKs, editors, and automation."],
   ["Authentication", "/developers/authentication", "Create scoped keys and keep secrets server-side."],
-  ["Trust Events", "/developers/trust-events", "Send structured trust activity into Cyber Sentinels."],
+  ["Agent Quickstart", "/developers/quickstart", "Follow registration, identity proof, authority, decision, receipt and Replay."],
   ["API Keys", "/developers/api-keys", "Manage active and revoked developer keys."],
 ];
 
@@ -47,6 +49,8 @@ export default function DeveloperDocsPage() {
             <p className="mt-3 text-sm leading-6 text-zinc-500">
               Connect systems of record through scoped authentication, declared purpose and evidence-aware workflow contracts.
             </p>
+            <p className="mt-3 text-sm leading-7 text-zinc-400">OpenGraph is an external governed tool, not a trust provider: IMPLEMENTED NOT EXERCISED / BLOCKED_EXTERNAL. Judge.me observations are evidence, never an authority grant; no live execution qualification is claimed. Stripe Identity implementation exists but is BLOCKED_EXTERNAL because business/account setup is incomplete; PRODUCTION EXERCISED = NO.</p>
+            <p className="mt-3 text-sm leading-7"><Link href="/resources/agent-security/mcp-tool-authorization" className="text-cyan-200 underline">MCP/tool authorization model</Link> · <Link href="/resources/agent-security/synthetic-interaction-trust" className="text-cyan-200 underline">Synthetic interaction trust</Link></p>
           </article>
         </section>
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-6">

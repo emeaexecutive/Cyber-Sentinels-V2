@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isIndexablePublicRoute } from "@/lib/navigation/route-visibility";
 import {
   getAdminEmailsEnv,
   getPublicSupabaseEnv,
@@ -263,6 +264,12 @@ export async function middleware(req: NextRequest) {
   const refreshedCookies: CookieToSet[] = [];
   const refreshedHeaders = new Headers();
   const finish = (response: NextResponse) => {
+    // Indexing policy only: never bypass or replace the existing auth checks.
+    const isSearchAsset = pathname === "/robots.txt" || pathname === "/sitemap.xml" || pathname.startsWith("/_next/")
+      || pathname === "/documents/cyber-sentinels-operational-trust-whitepaper-v1.pdf";
+    if (!isSearchAsset && !isIndexablePublicRoute(pathname)) {
+      response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+    }
     for (const { name, value, options } of refreshedCookies) {
       if (!response.cookies.has(name)) response.cookies.set(name, value, options);
     }

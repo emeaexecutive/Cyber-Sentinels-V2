@@ -1,3 +1,4 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { publicApiOpenApi } from "@/lib/public-api/v1/openapi";
@@ -107,6 +108,7 @@ function getResponseExample(operation: Record<string, unknown>): string {
 }
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("API Reference | Cyber Sentinels", "Human-readable reference for the canonical Cyber Sentinels V1 OpenAPI contract.", "/developers/api-reference"),
   title: "API Reference | Cyber Sentinels",
   description: "Human-readable reference for the canonical Cyber Sentinels V1 OpenAPI contract.",
   alternates: { canonical: "/developers/api-reference" },

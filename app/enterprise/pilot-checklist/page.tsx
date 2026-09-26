@@ -1,3 +1,4 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EnterpriseBreadcrumbs } from "@/components/enterprise-breadcrumbs";
@@ -147,6 +148,7 @@ export default function EnterprisePilotChecklistPage() {
 }
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Enterprise Pilot Checklist | Cyber Sentinels", "Plan a controlled Cyber Sentinels enterprise pilot with clear ownership, success criteria, evidence requirements, rollback controls and production-readiness gates.", "/enterprise/pilot-checklist"),
   title: "Enterprise Pilot Checklist | Cyber Sentinels",
   description: "Plan a controlled Cyber Sentinels enterprise pilot with clear ownership, success criteria, evidence requirements, rollback controls and production-readiness gates.",
   alternates: { canonical: "/enterprise/pilot-checklist" },

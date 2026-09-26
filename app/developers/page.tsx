@@ -1,3 +1,4 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
@@ -148,6 +149,7 @@ export default function DevelopersPage() {
   );
 }
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Developers | Cyber Sentinels", "APIs, authentication, webhooks and integration paths for operational trust.", "/developers"),
   title: "Developers | Cyber Sentinels",
   description: "APIs, authentication, webhooks and integration paths for operational trust.",
   alternates: { canonical: "/developers" },

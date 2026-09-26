@@ -1,3 +1,4 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
@@ -57,6 +58,7 @@ export default function SolutionsPage() {
 }
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Enterprise Solutions | Cyber Sentinels", "Operational trust outcomes for AI operations, finance, insurance, healthcare, critical infrastructure, vendor access, privileged operations and hiring.", "/solutions"),
   title: "Enterprise Solutions | Cyber Sentinels",
   description: "Operational trust outcomes for AI operations, finance, insurance, healthcare, critical infrastructure, vendor access, privileged operations and hiring.",
   alternates: { canonical: "/solutions" },

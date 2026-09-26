@@ -1,3 +1,4 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EnterpriseAccessForm } from "@/components/turnstile-field";
@@ -5,6 +6,7 @@ import { EvidenceDisclaimer } from "@/components/evidence-disclaimer";
 import { operationalPilotTemplates } from "@/lib/pilot-templates";
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Enterprise Access | Cyber Sentinels", "Request a Cyber Sentinels enterprise demo, design-partner conversation or operational trust pilot.", "/enterprise-access"),
   title: "Enterprise Access | Cyber Sentinels",
   description: "Request a Cyber Sentinels enterprise demo, design-partner conversation or operational trust pilot.",
   alternates: { canonical: "/enterprise-access" },

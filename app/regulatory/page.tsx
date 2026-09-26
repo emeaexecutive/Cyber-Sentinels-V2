@@ -1,8 +1,10 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Regulatory | Cyber Sentinels", "Governance-aware regulatory information for Cyber Sentinels operational trust workflows.", "/regulatory"),
   title: "Regulatory | Cyber Sentinels",
   description: "Governance-aware regulatory information for Cyber Sentinels operational trust workflows.",
   alternates: { canonical: "/regulatory" },

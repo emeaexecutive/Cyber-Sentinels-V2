@@ -52,13 +52,22 @@ test("security headers cover the application and Cloudflare Turnstile", () => {
   assert.match(config, /X-Robots-Tag/);
 });
 
-test("every declared indexable public route has explicit canonical metadata", () => {
+test("every declared indexable public route has explicit canonical metadata", async () => {
   const visibility = read("lib/navigation/route-visibility.ts");
   const block = visibility.match(/canonicalPublicRoutes = \[([\s\S]*?)\] as const/)?.[1] ?? "";
   const routes = [...block.matchAll(/"([^"]+)"/g)].map((match) => match[1]);
   assert.ok(routes.length > 0);
 
   for (const route of routes) {
+    if (route.startsWith("/resources/agent-security")) {
+      const { harness } = await import("./fixtures/sign-out-session.mjs");
+      const h = harness();
+      const resource = route !== "/resources/agent-security";
+      const pageModule = h.load(resource ? "app/resources/agent-security/[slug]/page.tsx" : "app/resources/agent-security/page.tsx");
+      const metadata = resource ? await pageModule.generateMetadata({ params: Promise.resolve({ slug: route.split("/").at(-1) }) }) : pageModule.metadata;
+      assert.equal(metadata.alternates.canonical, route);
+      continue;
+    }
     const page = route === "/" ? "app/page.tsx" : `app${route}/page.tsx`;
     assert.equal(fs.existsSync(page), true, `${page} should exist`);
     assert.match(
