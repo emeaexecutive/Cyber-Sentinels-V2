@@ -1,5 +1,14 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ExecutiveSummary } from "@/components/executive-summary";
+
+export const metadata: Metadata = {
+  ...publicSocialMetadata("Accountable Review and Governance | Cyber Sentinels", "Connect human review, decision rationale, authority and evidence without confusing governance responsibility with permission to execute.", "/governance"),
+  title: "Accountable Review and Governance | Cyber Sentinels",
+  description: "Connect human review, decision rationale, authority and evidence without confusing governance responsibility with permission to execute.",
+  alternates: { canonical: "/governance" },
+};
 
 const reviewSteps = [
   ["Evidence chain opened", "Identity, provider, session and workflow evidence remain linked to the review."],

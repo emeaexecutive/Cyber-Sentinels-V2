@@ -1,3 +1,4 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -6,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Help | Cyber Sentinels", "Cyber Sentinels help, support and operational guidance.", "/help"),
   title: "Help | Cyber Sentinels",
   description: "Cyber Sentinels help, support and operational guidance.",
   alternates: { canonical: "/help" },

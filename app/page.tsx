@@ -1,7 +1,9 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Operational Trust Intelligence™ | Cyber Sentinels", "Cyber Sentinels helps teams decide whether an AI agent or human has authority to act, preserve the evidence behind the decision, and replay what happened later.", "/"),
   title: "Operational Trust Intelligence™ | Cyber Sentinels",
   description:
     "Cyber Sentinels helps teams decide whether an AI agent or human has authority to act, preserve the evidence behind the decision, and replay what happened later.",

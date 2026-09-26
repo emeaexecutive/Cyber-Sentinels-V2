@@ -1,6 +1,9 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Journal | Cyber Sentinels", "Cyber Sentinels perspectives on operational trust, accountable AI and evidence-backed workflows.", "/journal"),
   title: "Journal | Cyber Sentinels",
   description: "Cyber Sentinels perspectives on operational trust, accountable AI and evidence-backed workflows.",
   alternates: { canonical: "/journal" },
@@ -46,6 +49,7 @@ export default function JournalPage() {
           </p>
         </section>
 
+        <p className="mt-8 text-base leading-8 text-zinc-300">For implementation-oriented explanations of authority, delegation and tool boundaries, visit the <Link href="/resources/agent-security" className="text-cyan-200 underline">AI agent security knowledge hub</Link>. The notes below retain their original editorial purpose.</p>
         <div className="mt-8 grid gap-4">
           {posts.map(([title, body]) => (
             <article

@@ -1,9 +1,11 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
 import { clearancePlans } from "@/lib/billing/plans";
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Pricing | Cyber Sentinels", "Pricing and enterprise access for governed operational trust workflows.", "/pricing"),
   title: "Pricing | Cyber Sentinels",
   description: "Pricing and enterprise access for governed operational trust workflows.",
   alternates: { canonical: "/pricing" },

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArchitectureBlock, TrustFlow, VisualFrame } from "@/components/enterprise-visuals";
+import { StructuredData } from "@/components/search/structured-data";
+import { ORGANIZATION_ID, SITE_URL, SOFTWARE_ID, publicSocialMetadata } from "@/lib/search/metadata";
 
 const lifecycle = [
   { label: "API client", detail: "A tenant- and client-bound key with least-privilege scopes." },
@@ -19,7 +21,7 @@ const sections = [
   ["06", "ALLOW / REVIEW / DENY", "ALLOW authorizes the evaluated request, REVIEW requires accountable intervention or evidence, and DENY means the action is not authorized. None proves downstream execution."],
   ["07", "Evidence independence", "Agent assertions, provider observations, control-plane acknowledgements and independently observed outcomes retain distinct provenance and cannot silently upgrade one another."],
   ["08", "Receipt, Replay and Trust Memory", "Stable identifiers and integrity-linked records preserve what was decided, which versions were active, what evidence existed and how later events extended the lineage."],
-  ["09", "Provider-neutral architecture", "Supabase and Turnstile are exercised Production dependencies. Hopae and OpenAI are not configured in Production. World ID is implemented and Staging database qualified, ready for real human provider qualification, and NOT PRODUCTION EXERCISED. Stripe Identity and CrowdStrike remain adapter-only or compatibility boundaries."],
+  ["09", "Provider-neutral architecture", "Supabase and Turnstile are exercised Production dependencies. Hopae and OpenAI are not configured in Production. World ID is implemented and Staging database qualified, ready for real human provider qualification, and NOT PRODUCTION EXERCISED. Stripe Identity implementation exists but is BLOCKED_EXTERNAL because business/account setup is incomplete; PRODUCTION EXERCISED = NO. CrowdStrike remains an adapter-only or compatibility boundary."],
   ["10", "Security and deployment", "Shown-once hashed API keys, scoped access, rotation, revocation, tenant isolation, rate limiting, forward migrations and safe logs form the V1 operating boundary."],
   ["11", "Current product reality", "The Production API and core trust lifecycle are working. Conditional review, richer provider proof, advanced reporting and arbitrary third-party enforcement are partial or roadmap."],
   ["12", "Accountable autonomy", "The V1 foundation combines identity without self-assertion, authority without silent expansion, current decisions without standing permission and evidence without execution overclaim."],
@@ -29,13 +31,17 @@ const capabilityRows = [
   ["WORKING", "External OpenAPI 3.1 API; scoped API-key authentication; agent registration and Ed25519 proof; bounded authority; ALLOW / REVIEW / DENY; receipts; Replay; Trust Memory; tenant isolation; idempotency; rate limiting; approve/reject review."],
   ["PARTIAL", "Conditional review representation; Hopae adapter (Production not configured); optional OpenAI governance assistance (Production not configured); Operations Console and reporting depth."],
   ["QUALIFICATION", "World ID: IMPLEMENTED / STAGING DATABASE QUALIFIED / READY FOR REAL HUMAN PROVIDER QUALIFICATION / NOT PRODUCTION EXERCISED. Identity is not authority."],
-  ["ROADMAP", "Trust Decision Evaluation & Learning; Stripe Identity and native CrowdStrike verification; arbitrary third-party kill/quarantine automation; advanced anomaly intelligence; private or on-premises deployment."],
+  ["BLOCKED_EXTERNAL", "Stripe Identity provider qualification; OpenGraph governed tool execution (IMPLEMENTED NOT EXERCISED). No production exercise is claimed for either integration."],
+  ["ROADMAP", "Trust Decision Evaluation & Learning; native CrowdStrike verification; arbitrary third-party kill/quarantine automation; advanced anomaly intelligence; private or on-premises deployment."],
 ] as const;
 
 export default function OperationalTrustWhitepaperPage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
       <article className="mx-auto max-w-5xl">
+        <StructuredData value={{ "@context": "https://schema.org", "@type": "TechArticle", "@id": `${SITE_URL}/documents/operational-trust-whitepaper#article`,
+          headline: "Operational Trust Infrastructure for Autonomous Systems", url: `${SITE_URL}/documents/operational-trust-whitepaper`,
+          author: { "@id": ORGANIZATION_ID }, publisher: { "@id": ORGANIZATION_ID }, about: { "@id": SOFTWARE_ID }, inLanguage: "en" }} />
         <header className="border-b border-zinc-800 pb-10">
           <p className="operational-eyebrow">Cyber Sentinels technical whitepaper · Version 1.0</p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl lg:text-6xl">Operational Trust Infrastructure for Autonomous Systems</h1>
@@ -107,6 +113,7 @@ export default function OperationalTrustWhitepaperPage() {
 }
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Cyber Sentinels Operational Trust Whitepaper", "Technical overview of Cyber Sentinels' operational trust control layer for AI agents, identity, delegated authority, policy decisions, evidence, receipts and Replay.", "/documents/operational-trust-whitepaper"),
   title: "Cyber Sentinels Operational Trust Whitepaper",
   description: "Technical overview of Cyber Sentinels' operational trust control layer for AI agents, identity, delegated authority, policy decisions, evidence, receipts and Replay.",
   alternates: { canonical: "/documents/operational-trust-whitepaper" },

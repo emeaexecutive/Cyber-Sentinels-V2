@@ -18,12 +18,14 @@ import { PublicPageAdoptionRail } from "@/components/public-page-adoption-rail";
 import { ConsentManager } from "@/src/components/consent/ConsentManager";
 import { ConsentPreferencesLink } from "@/src/components/consent/ConsentPreferencesLink";
 import "./globals.css";
+import { StructuredData } from "@/components/search/structured-data";
+import { organizationGraph } from "@/lib/search/metadata";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.cybersentinels.com"),
   title: "Cyber Sentinels | Operational Trust Infrastructure",
   description:
-    "Continuously verify humans, AI agents, machine identities and regulated workflows before, during and after critical actions.",
+    "Cyber Sentinels determines whether an autonomous agent is authorized to act and preserves the evidence explaining why.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "32x32" },
@@ -90,6 +92,7 @@ const footerSections = [
       ["/developers/docs#webhooks", "Webhooks"],
       ["/developers/docs#integrations", "Integrations"],
       ["/documents", "Documents"],
+      ["/resources/agent-security", "Agent Security Resources"],
       ["/methodology", "Methodology"],
       ["/journal", "Journal"],
       ["/regulatory", "Regulatory Material"],
@@ -212,6 +215,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
+        {accessLevel === "public" ? <StructuredData value={organizationGraph} /> : null}
         <ConsentManager />
         <div className="shell">
           <GlobalNavigation accessLevel={accessLevel} />

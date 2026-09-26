@@ -1,3 +1,4 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EnterpriseBreadcrumbs } from "@/components/enterprise-breadcrumbs";
@@ -166,6 +167,7 @@ export default function EnterpriseBuyerDocumentationPage() {
 }
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Enterprise Buyer Documentation | Cyber Sentinels", "See how Cyber Sentinels supports CISOs, CIOs, CTOs, compliance leaders, CEOs and investors through operational trust evidence and controlled deployment.", "/enterprise/buyer-documentation"),
   title: "Enterprise Buyer Documentation | Cyber Sentinels",
   description: "See how Cyber Sentinels supports CISOs, CIOs, CTOs, compliance leaders, CEOs and investors through operational trust evidence and controlled deployment.",
   alternates: { canonical: "/enterprise/buyer-documentation" },

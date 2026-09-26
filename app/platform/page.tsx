@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArchitectureBlock, DecisionFlow, VisualFrame } from "@/components/enterprise-visuals";
 import { ExecutiveSummary } from "@/components/executive-summary";
+import { StructuredData } from "@/components/search/structured-data";
+import { softwareGraph, publicSocialMetadata } from "@/lib/search/metadata";
 
 const platformCapabilities = [
   ["trust-engine", "Trust Engine", "Evaluates identity, evidence, posture and policy boundaries."],
@@ -28,12 +30,20 @@ export default function PlatformPage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
+        <StructuredData value={softwareGraph} />
         <ExecutiveSummary
           eyebrow="Platform"
           title="One provider-neutral control plane for operational trust decisions."
           bullets={["Evaluate evidence and authority before consequential execution.", "Observe material change during runtime.", "Apply policy and enforcement outside the actor runtime.", "Integrate through one stable enterprise contract."]}
           primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
         />
+
+        <section id="execution-trust" className="mt-8 scroll-mt-28 operational-panel p-6">
+          <h2 className="text-2xl font-semibold">What is execution trust?</h2>
+          <p className="mt-4 max-w-4xl leading-8 text-zinc-300">Execution trust evaluates whether an actor has current authority to perform a specific action for a stated purpose on a permitted target. It connects authorization to the evidence needed to explain the decision. Cyber Sentinels governs the action; authentication or a previous ALLOW does not establish permanent authority.</p>
+          <p className="mt-4 leading-8 text-cyan-100">Agent Registry → Authority → Policy → Decision → Receipt → Replay → Trust Memory™</p>
+          <p className="mt-4 leading-8 text-zinc-400">The canonical decisions are ALLOW, REVIEW and DENY. External execution requires a connected, qualified enforcement boundary; a decision alone is not proof of a downstream effect. Read the <Link href="/resources/agent-security/agent-authorization" className="text-cyan-200 underline">agent authorization explanation</Link> and <Link href="/resources/agent-security/mcp-tool-authorization" className="text-cyan-200 underline">tool and target authority model</Link>.</p>
+        </section>
 
         <section id="trust-fabric" className="mt-8 scroll-mt-28">
           <VisualFrame eyebrow="Enterprise Trust Fabric™" title="One architecture. Eight connected mechanisms.">
@@ -75,6 +85,7 @@ export default function PlatformPage() {
 }
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Platform | Cyber Sentinels", "Trust Engine, Decision Intelligence, Runtime, Authorization, Enforcement, provider orchestration, validation and enterprise APIs.", "/platform"),
   title: "Platform | Cyber Sentinels",
   description: "Trust Engine, Decision Intelligence, Runtime, Authorization, Enforcement, provider orchestration, validation and enterprise APIs.",
   alternates: { canonical: "/platform" },

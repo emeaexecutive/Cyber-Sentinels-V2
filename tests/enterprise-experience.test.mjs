@@ -30,6 +30,11 @@ async function hasNativeDestination(target) {
   const relative = pathname === "/" ? "" : pathname.slice(1);
   if (await exists(path.join("app", relative, "page.tsx"))) return true;
   if (await exists(path.join("app", relative, "route.ts"))) return true;
+  if (pathname.startsWith("/resources/agent-security/")) {
+    const { harness } = await import("./fixtures/sign-out-session.mjs");
+    const resourcePage = harness().load("app/resources/agent-security/[slug]/page.tsx");
+    return resourcePage.generateStaticParams().some(({ slug }) => pathname === `/resources/agent-security/${slug}`);
+  }
   if (pathname.startsWith("/docs/") && await exists(path.join("app", "docs", "[slug]", "route.ts"))) return true;
   return false;
 }

@@ -1,7 +1,9 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("AI Agent Governance | Cyber Sentinels", "Govern agent purpose, delegated authority, runtime change and accountable ownership.", "/enterprise/agent-governance"),
   title: "AI Agent Governance | Cyber Sentinels",
   description: "Govern agent purpose, delegated authority, runtime change and accountable ownership.",
   alternates: { canonical: "/enterprise/agent-governance" },
@@ -35,6 +37,7 @@ export default function EnterpriseAgentGovernancePage() {
           </p>
         </section>
 
+        <p className="mt-8 max-w-4xl leading-8 text-zinc-300">Governance establishes accountable ownership, policy and review responsibilities. Agent security enforces boundaries on actions and targets. Execution trust connects the current authorization decision to retained evidence. Read <Link href="/resources/agent-security/agent-authorization" className="text-cyan-200 underline">how agent authorization works</Link> and the <Link href="/governance" className="text-cyan-200 underline">accountable review model</Link>.</p>
         <section className="mt-8 grid gap-3 md:grid-cols-2">
           {agentProblems.map(([title, copy]) => (
             <article key={title} className="operational-card p-5">

@@ -1,3 +1,4 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExecutiveSummary } from "@/components/executive-summary";
@@ -198,6 +199,7 @@ export default function EnterprisePilotPage() {
   );
 }
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Enterprise Pilot Programme | Cyber Sentinels", "Pilot one consequential workflow with controlled deployment, governance and Replay evidence.", "/enterprise/pilot"),
   title: "Enterprise Pilot Programme | Cyber Sentinels",
   description: "Pilot one consequential workflow with controlled deployment, governance and Replay evidence.",
   alternates: { canonical: "/enterprise/pilot" },

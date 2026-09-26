@@ -10,7 +10,7 @@ export default function Loading() {
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
             Cyber Sentinels
           </p>
-          <h1 className="mt-3 text-2xl font-semibold">Loading operational evidence…</h1>
+          <p className="mt-3 text-2xl font-semibold">Loading operational evidence…</p>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
             Preparing the authorized workflow view. No trust state is inferred
             while data is loading.

@@ -1,3 +1,4 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BuyerJourneyGrid, type BuyerJourney } from "@/components/enterprise-visuals";
@@ -131,6 +132,7 @@ export default function EnterprisePage() {
 }
 
 export const metadata: Metadata = {
+  ...publicSocialMetadata("Enterprise | Cyber Sentinels", "Deployment, security, compliance, data residency, pilot adoption, procurement and enterprise support.", "/enterprise"),
   title: "Enterprise | Cyber Sentinels",
   description: "Deployment, security, compliance, data residency, pilot adoption, procurement and enterprise support.",
   alternates: { canonical: "/enterprise" },

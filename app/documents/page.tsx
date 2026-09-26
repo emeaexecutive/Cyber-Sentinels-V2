@@ -1,3 +1,4 @@
+import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArchitectureBlock, TrustFlow, VisualFrame } from "@/components/enterprise-visuals";
@@ -52,6 +53,7 @@ export default function DocumentsPage() {
           />
         </section>
 
+        <p className="mt-8 text-base leading-8 text-zinc-300">Start with the <Link href="/resources/agent-security" className="text-cyan-200 underline">AI agent security resources</Link> for concise explanations of authorization, MCP tools and synthetic interaction trust, then use the paper and public API contract for technical detail.</p>
         <section className="mt-10">
           <VisualFrame eyebrow="Inside the paper" title="One lifecycle, explicit trust boundaries." caption="Conceptual flow. The paper distinguishes authorization from downstream execution and outcome proof.">
             <TrustFlow steps={lifecycle} ariaLabel="Whitepaper operational trust lifecycle" />
@@ -63,7 +65,8 @@ export default function DocumentsPage() {
 }
 
 export const metadata: Metadata = {
-  title: "Cyber Sentinels Operational Trust Whitepaper",
-  description: "Technical overview of Cyber Sentinels' operational trust control layer for AI agents, identity, delegated authority, policy decisions, evidence, receipts and Replay.",
+  ...publicSocialMetadata("Documents and Technical Resources | Cyber Sentinels", "Read the Cyber Sentinels technical whitepaper and resources on agent identity, authority, execution trust, decisions and audit evidence.", "/documents"),
+  title: "Documents and Technical Resources | Cyber Sentinels",
+  description: "Read the Cyber Sentinels technical whitepaper and resources on agent identity, authority, execution trust, decisions and audit evidence.",
   alternates: { canonical: "/documents" },
 };
