@@ -1,11 +1,29 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { createHmac } from "node:crypto";
+import { verifyJudgeMeWebhookSignature } from "../lib/providers/judgeme.ts";
 import { hashCanonical } from "../src/lib/trust-core/hash.ts";
 import { createJudgeMeReferenceAdapter, toJudgeMeContextEvidence, JUDGEME_VERIFICATION_LABELS } from "../lib/providers/judgeme.ts";
 
 const binding = { tenantId: "tenant:a", installationId: "installation:a", shopDomain: "fixture.myshopify.com", subject: { type: "AI_AGENT", id: "actor:a" }, productExternalId: "123", reviewReference: "review:local-a", providerReviewId: "456" };
 const occurredAt = "2026-09-24T10:00:00.000Z";
 const receivedAt = "2026-09-24T10:01:00.000Z";
+test("Judge.me authenticity uses exact raw bytes and a hexadecimal HMAC, without granting authority", () => {
+  const secret = "judgeme-local-test-only";
+  const body = Buffer.from('{ "review": "café" }\n');
+  const signature = createHmac("sha256", secret).update(body).digest("hex");
+  assert.equal(verifyJudgeMeWebhookSignature(body, signature, secret), true);
+  assert.equal(verifyJudgeMeWebhookSignature(body, signature.toUpperCase(), secret), true);
+  assert.equal(verifyJudgeMeWebhookSignature(Buffer.from(JSON.stringify(JSON.parse(body))), signature, secret), false);
+  assert.equal(verifyJudgeMeWebhookSignature(body, signature, "wrong"), false);
+  for (const invalid of [null, "", "0".repeat(63), "z".repeat(64), `${signature},${signature}`, createHmac("sha256", secret).update(body).digest("base64")]) {
+    assert.equal(verifyJudgeMeWebhookSignature(body, invalid, secret), false);
+  }
+  assert.equal(verifyJudgeMeWebhookSignature(body, signature, ""), false);
+  assert.equal(verifyJudgeMeWebhookSignature(Buffer.alloc(262_145), signature, secret), false);
+  // The same valid delivery verifies twice: durable replay reservation remains a separate prerequisite.
+  assert.equal(verifyJudgeMeWebhookSignature(body, signature, secret), true);
+});
 function input() {
   return { providerKey: "judgeme", eventId: "delivery:a", subject: { ...binding.subject }, evidenceType: "JUDGEME_REVIEW_OBSERVATION", finding: "OBSERVED", occurredAt,
     evidence: { tenantId: binding.tenantId, installationId: binding.installationId, shopDomain: binding.shopDomain, reviewReference: binding.reviewReference, eventType: "review/created", review: { id: "456", product_external_id: "123", rating: 5, verified: "verified-purchase", curated: "spam", hidden: false } } };

@@ -57,7 +57,7 @@ test('prepared contexts preserve canonical bytes and only the selected environme
     }
     if (environment === 'production') {
       assert.deepEqual(expected.map(version).sort(), sqlFiles('supabase/migrations').map(version).sort());
-      assert.equal(result.migrationCount, 116);
+      assert.equal(result.migrationCount, sqlFiles('supabase/migrations').length);
     }
   }
 });

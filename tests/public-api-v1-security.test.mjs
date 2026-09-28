@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { generateKeyPairSync, sign } from "node:crypto";
+import { createHmac, generateKeyPairSync, sign } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
@@ -12,6 +12,7 @@ import {
 import { signPublicWebhookPayload, verifyPublicWebhookPayload } from "../lib/public-api/v1/webhooks.ts";
 import { createApiKeyMaterial, createRotatedApiKeyMaterial, verifyApiKeyHash } from "../lib/public-api/v1/api-key-crypto.ts";
 import { validateApiKeyRecord } from "../lib/public-api/v1/api-key-lifecycle.ts";
+import { executionAuthorization } from "../lib/public-api/v1/execution-authorization.ts";
 import { assertOnlyFields, boundedJson, publicApiErrorResponse, publicApiResponse, PublicApiError, stablePublicErrorCode } from "../lib/public-api/v1/contracts.ts";
 import {
   resolveClientEvidenceProvider,
@@ -473,10 +474,37 @@ test("outcome assertions never self-promote into independent destination evidenc
   assert.match(runtimeSource, /OUTCOME_CONTRADICTS_DECISION/);
 });
 
-test("execution authorization is transaction bound and ALLOW only", () => {
-  const section = runtimeSource.slice(runtimeSource.indexOf("function executionAuthorization"), runtimeSource.indexOf("requestExternalDecision"));
-  assert.match(section, /receipt\.decision !== "ALLOW"/);
-  for (const field of ["transaction_id", "operational_entity_id", "action", "target", "decision_digest", "nonce", "audience", "expires_at"]) assert.match(section, new RegExp(field));
+test("execution authorization signs the exact fresh ALLOW and never renews a historical replay", () => {
+  const secret = "test-execution-signing-secret";
+  const receipt = {
+    decision: "ALLOW", idempotentReplay: false,
+    transactionId: "11111111-1111-4111-8111-111111111111",
+    operationalEntityId: "agent:alpha", digest: "a".repeat(64),
+    action: { type: "read", resource: "repository:allowed" },
+  };
+  const before = Date.now();
+  const authorization = executionAuthorization(receipt, secret);
+  assert.ok(authorization);
+  const { signature, ...artifact } = authorization;
+  assert.equal(artifact.transaction_id, receipt.transactionId);
+  assert.equal(artifact.operational_entity_id, receipt.operationalEntityId);
+  assert.equal(artifact.action, receipt.action.type);
+  assert.equal(artifact.target, receipt.action.resource);
+  assert.equal(artifact.decision_digest, receipt.digest);
+  assert.equal(artifact.audience, "external-executor");
+  assert.match(artifact.nonce, /^[0-9a-f-]{36}$/);
+  assert.ok(Date.parse(artifact.expires_at) >= before + 300_000);
+  assert.ok(Date.parse(artifact.expires_at) <= Date.now() + 300_000);
+  assert.equal(signature, `sha256=${createHmac("sha256", secret).update(JSON.stringify(artifact)).digest("hex")}`);
+  // Revocation leaves the immutable original decision ALLOW. Neither a retry
+  // nor repeated receipt replay is a fresh evaluation of current authority.
+  const historicalReceipt = { ...receipt, idempotentReplay: true };
+  assert.equal(executionAuthorization(historicalReceipt, secret), null);
+  assert.equal(executionAuthorization(historicalReceipt, secret), null);
+  for (const decision of ["REVIEW", "DENY"]) assert.equal(executionAuthorization({ ...receipt, decision }, secret), null);
+  assert.equal(executionAuthorization(receipt, ""), null);
+  assert.equal(executionAuthorization({ ...receipt, idempotentReplay: undefined }, secret), null);
+  assert.match(runtimeSource, /execution_authorization: executionAuthorization\(receipt\)/);
 });
 
 test("webhook signatures reject spoofing, stale delivery and replay", () => {

@@ -1,3 +1,4 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { deterministicUuid, hashCanonical } from "../../src/lib/trust-core/hash.ts";
 import type { CanonicalContextEvidence } from "../../src/lib/trust-transaction/canonical.ts";
 import type { CanonicalProviderEvidence, ProviderAdapter, ProviderAdapterInput } from "./adapters.ts";
@@ -10,6 +11,15 @@ export const JUDGEME_VERIFICATION_LABELS = ["nothing", "not-yet", "confirmed-buy
 const maximumAgeMs = 86_400_000;
 const referencePattern = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,179}$/;
 const identifierPattern = /^[1-9][0-9]{0,39}$/;
+
+/** Raw-body authenticity only. Does not establish freshness, tenant binding or qualification. */
+export function verifyJudgeMeWebhookSignature(rawBody: Uint8Array, signature: string | null, secret: string): boolean {
+  if (!(rawBody instanceof Uint8Array) || rawBody.byteLength > 262_144
+    || typeof secret !== "string" || !secret.trim()
+    || typeof signature !== "string" || !/^[a-fA-F0-9]{64}$/.test(signature)) return false;
+  const expected = createHmac("sha256", secret).update(rawBody).digest();
+  return timingSafeEqual(expected, Buffer.from(signature, "hex"));
+}
 
 /** Bindings must come from the tenant's installation and subject mapping, not a webhook claim. */
 export type JudgeMeReviewBinding = {

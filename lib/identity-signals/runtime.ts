@@ -91,14 +91,18 @@ export function createPersonaIdentityClient(options: { apiKey?: string; baseUrl?
       const response = await fetch(`${baseUrl}/inquiries/${encodeURIComponent(reference)}`, { headers: { Authorization: `Bearer ${apiKey}`, "Persona-Version": "2023-01-05" } });
       if (!response.ok) throw new Error(`PERSONA_PROVIDER_${response.status}`);
       const body = await response.json() as Record<string, any>;
+      if (body.data?.id !== reference) throw new Error("PERSONA_INQUIRY_MISMATCH");
       const attributes = body.data?.attributes ?? {};
-      if (attributes.account_id && attributes.account_id !== context.enterpriseId) throw new Error("PERSONA_ACCOUNT_BINDING_MISMATCH");
-      const verified = attributes.status === "completed" || attributes.inquiry_status === "completed";
+      // Persona JSON:API uses kebab-case. A provider account ID is not our tenant ID.
+      if (attributes["reference-id"] !== context.subjectId
+        || (attributes.reference_id !== undefined && attributes.reference_id !== context.subjectId)) throw new Error("PERSONA_SUBJECT_BINDING_MISMATCH");
       return {
-        provider: "persona", provider_reference: String(body.data?.id ?? reference), verification_type: "inquiry", identity_subject: String(attributes.reference_id ?? context.subjectId), credential_type: "persona_inquiry",
-        document_verified: verified, liveness_verified: verified, biometric_match: verified, database_match: null, assurance_level: verified ? "HIGH" as const : "LOW" as const,
-        provider_outcome: verified ? "VERIFIED" as const : attributes.status === "pending" ? "PENDING" as const : "FAILED" as const,
-        provider_reason_codes: [String(attributes.status ?? "UNKNOWN").toUpperCase()], verified_at: verified ? new Date().toISOString() : null, expires_at: null,
+        provider: "persona", provider_reference: reference, verification_type: "inquiry", identity_subject: context.subjectId, credential_type: "persona_inquiry",
+        // Inquiry completion does not identify which verification checks ran.
+        document_verified: null, liveness_verified: null, biometric_match: null, database_match: null, assurance_level: "LOW" as const,
+        // Inquiry lifecycle is not proof of any particular document/biometric check.
+        provider_outcome: ["failed", "declined"].includes(attributes.status) ? "FAILED" as const : "PENDING" as const,
+        provider_reason_codes: [String(attributes.status ?? "UNKNOWN").toUpperCase()], verified_at: null, expires_at: null,
         environment: "production" as const, evidence_provenance: "PROVIDER_API" as const, account_reference: context.enterpriseId,
       };
     },

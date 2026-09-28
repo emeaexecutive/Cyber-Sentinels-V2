@@ -1,5 +1,5 @@
 export const RESOURCE_ROOT = "/resources/agent-security";
-export const RESOURCE_REVIEWED = "2026-09-25";
+export const RESOURCE_REVIEWED = "2026-09-27";
 
 export type SecurityResource = {
   slug: string; title: string; answer: string; description: string;
@@ -15,9 +15,15 @@ export const securityResources: SecurityResource[] = [
     answer: "AI agent authorization determines whether an identified agent may perform a specific action on a specific target, for a stated purpose, under current authority and policy. Authentication establishes who is connecting; it does not establish permission for every action the agent can technically perform.",
     sections: [
       { id: "identity-and-authority", title: "Identity is not authority", paragraphs: [
+        "AI agent authority is the permission an accountable grantor gives an agent to act within specified limits. Identity identifies the actor; authority describes which actions that actor may perform. Authentication checks the presented identity or credential, while authorization checks whether the current request falls within that authority and policy.",
         "A registry gives an agent an operational identity and accountable owner. A credential can establish possession of a key. Neither registration nor successful authentication grants business authority. The authority grant is a separate, bounded record of permitted actions, targets, purpose, environment and time.",
         "For example, an agent authenticated to a document service may be authorized to read a public handbook but not export a customer archive. Both requests use the same identity. The target, purpose and requested effect make the authorization questions different. A valid credential is not unlimited authority.",
         "A useful authorization request identifies the actor and enterprise, the proposed action, the resource, the environment and the purpose. The decision service resolves current grants and policy from trusted state. An agent's assertion that its owner approved the action is evidence to evaluate, not a grant the agent may issue to itself.",
+      ] },
+      { id: "least-privilege", title: "How can enterprises enforce least privilege for AI agents?", paragraphs: [
+        "Give an agent only the actions, targets and time window needed for its assigned purpose. AI agent access control should distinguish reading a record from editing it, drafting content from publishing it, and using a tool from accessing every account reachable through that tool. Permission control belongs at the component that performs the action.",
+        "For example, a support agent may read one customer's case and draft a reply without permission to send it or issue a refund. Bind each proposed action to the relevant case, customer and purpose; require a separate grant for sending or money movement. Delegation must narrow those permissions, and revocation must be checked before the next effect.",
+        "Inventory the available execution paths, remove credentials the agent does not need, and test that out-of-scope requests cannot bypass the decision gate. Record policy enforcement failures and unresolved outcomes separately from authorization results. A policy document or a registry entry alone does not establish enforced least privilege.",
       ] },
       { id: "decisions", title: "How do ALLOW, REVIEW and DENY stop unauthorized actions?", paragraphs: [
         "ALLOW authorizes the evaluated action in its evaluated context. REVIEW requires the workflow to stop for additional evidence or accountable intervention. DENY means the action is not authorized. REVIEW is not a softer ALLOW, and neither a timeout nor a provider error should be treated as permission.",
@@ -30,6 +36,7 @@ export const securityResources: SecurityResource[] = [
         "At action time, evaluate the delegation against the parent authority and current identity state. A matching delegation identifier is not enough if its parent expired, the delegate changed, or the requested target falls outside the delegated scope. Missing or unresolved delegation should stop unattended execution rather than invite the agent to guess.",
       ] },
       { id: "runtime-authority", title: "What happens when authority changes during execution?", paragraphs: [
+        "Continuous authorization for AI agents means evaluating current permission at consequential action boundaries throughout a workflow. It does not mean that one login, one successful decision or a continuously running process supplies permanent authority. Runtime agent authorization connects each proposed effect to the grant and policy that apply at that moment.",
         "Runtime authorization checks whether authority still applies when a consequential action is about to occur. Long-running work can encounter a revoked grant, a changed target, a new policy or evidence that no longer supports the original decision. A previous ALLOW is historical evidence, not permanent authority.",
         "Revocation prevents future use of the revoked grant when the enforcing path checks current state. It does not undo a completed action. A queued or in-flight operation needs a defined cancellation boundary and a fresh check before its next external effect; claiming universal retroactive revocation would be misleading.",
         "Idempotent retry is also distinct from new authority. Returning a prior receipt can make retries safe, but that receipt should not launch another action. Give a genuinely new attempt its own evaluation and retain a link to the previous transaction so an auditor can understand the change.",
@@ -60,12 +67,18 @@ export const securityResources: SecurityResource[] = [
         "Keep credentials at the intended service boundary, validate the token's intended recipient, and request only necessary privileges. Then apply the business decision to the exact tool invocation. Do not interpret successful MCP authentication, an available network connection or an agent's model identity as blanket permission to act.",
         "Stdio tools have a different credential and process boundary from hosted HTTP servers. The surrounding application still needs an accountable owner and restrictions on what the tool can do. A local process can have substantial external effects; being local does not make it authorized.",
       ] },
+      { id: "external-apis", title: "How do you secure MCP access to external APIs?", paragraphs: [
+        "Keep authorization to the MCP server separate from authorization to the downstream API. Validate that the incoming token was issued for the MCP server; do not forward that token to an unrelated provider. Use the provider's supported authorization flow and credentials for the downstream call, with only the privileges that call needs.",
+        "When an MCP proxy connects users to a third-party API, preserve consent for the requesting client and bind the downstream account to the correct user and enterprise. A previous consent for another client or a shared provider credential does not establish that binding. The MCP security guidance explains the confused-deputy and token-passthrough risks behind these requirements.",
+        "Before dispatch, evaluate the proposed API action, purpose, account and target against current authority. Keep provider credentials out of prompts, URLs returned to users, receipts and logs. Treat fetched content and tool output as untrusted evidence rather than instructions that can broaden permissions. These are integration requirements; Cyber Sentinels does not claim a deployed general-purpose MCP proxy.",
+      ] },
       { id: "target-authority", title: "Authorize the target independently of the tool", paragraphs: [
         "A URL is security-sensitive input. First identify the intended target and compare it with the current grant. A domain, a proper subdomain and an exact URL/path are different scopes. Permission for a domain must not silently become permission for a similarly named domain or every subdomain.",
         "Target authority and network safety answer different questions. Public reachability does not prove ownership or permission. Conversely, an authorized-looking hostname is not enough to establish a safe destination if DNS, redirects or rendering subresources can take the request elsewhere.",
         "Reject unsupported schemes, embedded credentials and internal or metadata destinations. Apply target constraints to every relevant network hop. If the external provider does not expose controls that can be qualified, do not assume that validating the initial URL prevents later scope escape. Stop execution until the required boundary can be demonstrated.",
       ] },
       { id: "gateway", title: "A governed tool request lifecycle", paragraphs: [
+        "External-effect authority is permission for the consequence a tool call can cause, such as publishing content, contacting a recipient or changing a record. A tool grant must be evaluated together with that effect, the intended target and the purpose. Permission to read with a tool does not authorize writes through the same connection.",
         "An agent or MCP client presents an intended action to the trust gateway. The gateway resolves identity and enterprise context, current authority, delegated authority, purpose, requested tool, target URL/domain and policy. The canonical decision remains ALLOW, REVIEW or DENY; the provider is an execution target, not the decision authority.",
         "Only ALLOW may reach an executor, and ALLOW alone cannot make an unconfigured executor available. REVIEW and DENY must stop dispatch. Preserve an acknowledgement and a normalized outcome only when they actually exist. A provider failure or timeout is not evidence that the action succeeded.",
       ], example: "Illustrative control chain\nAI agent / MCP client → Trust Gateway\nIdentity → Authority → Delegation → Purpose\nTarget → Tool/action → Policy\nALLOW / REVIEW / DENY\nQualified executor, only if allowed\nEvidence → Receipt → Replay → Trust Memory" },
@@ -81,11 +94,13 @@ export const securityResources: SecurityResource[] = [
     ],
     related: [
       { href: `${RESOURCE_ROOT}/agent-authorization#delegation`, label: "Delegated authority and revocation" },
+      { href: `${RESOURCE_ROOT}/agent-authorization#least-privilege`, label: "Least privilege and permission control" },
       { href: "/developers/docs#integrations", label: "Public integration documentation" },
       { href: "/verification-replay", label: "Replay and outcome evidence" },
     ],
     sources: [
       { href: "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization", label: "MCP authorization specification", supports: "Defines HTTP transport authorization, audience binding and scope handling; business-action policy remains a separate implementation concern." },
+      { href: "https://modelcontextprotocol.io/docs/2025-11-25/tutorials/security/security_best_practices", label: "MCP security best practices", supports: "Explains confused-deputy attacks, per-client consent and why forwarding incoming tokens to downstream APIs is forbidden." },
       { href: "https://www.rfc-editor.org/rfc/rfc9700", label: "IETF RFC 9700: OAuth 2.0 Security Best Current Practice", supports: "Supports restricting token privileges and binding access tokens to their intended resource servers." },
       { href: "https://www.opengraph.io/docs/mcp", label: "OpenGraph MCP documentation", supports: "Describes OpenGraph's own hosted and local integration surfaces, not Cyber Sentinels production qualification." },
     ],
@@ -105,13 +120,15 @@ export const securityResources: SecurityResource[] = [
         "These are requested action categories, not a claim that twelve live provider executors are installed. Publishing an artifact, writing data, creating an account and communicating externally have different effects. Authorizing a broad workflow must not silently authorize every consequential subaction it could contain.",
         "Money movement and other consequential operations require more than a generic effect label. The current boundary holds purchase, refund, payout, transaction-approval and promotion actions for execution qualification. It does not infer amount, currency, recipient, budget or provider capability from the action name.",
       ] },
-      { id: "example", title: "Example: a review request is not refund authority", paragraphs: [
+      { id: "example", title: "How should AI-generated reviews and actions be governed?", paragraphs: [
+        "Evaluate the permission to publish or change a review separately from permission to draft one. Bind the proposed content to the accountable actor, intended product or existing review, purpose and permitted action before dispatch. Evidence that a purchase occurred does not prove that the customer authorized an agent to speak for them or change their rating.",
         "Consider an agent asked to draft a review after a purchase. Transaction evidence can support the purchase context, and identity evidence can identify the requester. The authority grant still needs to permit the proposed review action for the relevant target and purpose. Changing the request to ISSUE_REFUND creates a different authorization question.",
         "If authority is revoked, the target is out of scope or the effect is unauthorized, the canonical result is DENY. Missing delegated evaluation or unresolved execution qualification can require REVIEW. Neither state may silently dispatch the action. An ALLOW decision remains distinct from provider execution and proof of the outcome.",
       ], example: "Illustrative interaction\nActor: AI_AGENT\nTransaction evidence: observed\nGranted action: draft review for approved target\nRequested action: ISSUE_REFUND\nApplicable refund authority: absent\nDecision: DENY\nProvider execution: not attempted" },
       { id: "judgeme", title: "Judge.me is an integration target, not the authority source", paragraphs: [
         "Judge.me is a review-market signal and integration target in this model. Cyber Sentinels is not a Judge.me clone. A review-provider observation may describe an interaction, but the provider does not decide whether the enterprise's actor has current authority to cause a new external effect.",
         "The repository implements a bounded Judge.me evidence adapter and a synthetic-interaction composition boundary. This is not a claim of live review publication, a commercial partnership or completed provider qualification. Provider evidence never grants authority by itself, and synthetic tests are not real customer outcomes.",
+        "Authenticated live ingestion and a qualified Judge.me executor remain BLOCKED_EXTERNAL. Execution is NOT_CONFIGURED. An event received after publication can support an audit, but it cannot retrospectively authorize the publication or prove that a pre-execution gate was used.",
       ] },
       { id: "audit", title: "Preserve the decision and its limits", paragraphs: [
         "Retain the actor class and identifier, action, purpose, target, content digest, applicable authority, delegation reference, policy version, decision and reasons. Keep observations linked to their sources. Record attempted execution and normalized outcome only when supported by actual evidence, then connect the receipt, Replay and material Trust Memory change.",
@@ -134,13 +151,15 @@ export const conceptDestinations = [
   ["Agent Registry and machine identity", "/developers/quickstart"],
   ["Authority, delegation and authority lineage", `${RESOURCE_ROOT}/agent-authorization#delegation`],
   ["Purpose, target and authorization", `${RESOURCE_ROOT}/agent-authorization#identity-and-authority`],
-  ["Runtime authority and revocation", `${RESOURCE_ROOT}/agent-authorization#runtime-authority`],
+  ["Continuous authorization, runtime authority and revocation", `${RESOURCE_ROOT}/agent-authorization#runtime-authority`],
+  ["Least privilege and agent access control", `${RESOURCE_ROOT}/agent-authorization#least-privilege`],
   ["Policy and ALLOW / REVIEW / DENY", `${RESOURCE_ROOT}/agent-authorization#decisions`],
   ["Execution Trust and Enterprise Trust Fabric", "/platform#execution-trust"],
   ["Evidence, receipts and Replay", "/verification-replay#action-receipts"],
   ["Trust Memory", "/trust#trust-memory"],
   ["AI Agent Operations and governance", "/enterprise/agent-governance"],
   ["MCP, tool authorization and external effects", `${RESOURCE_ROOT}/mcp-tool-authorization`],
+  ["MCP access to external APIs", `${RESOURCE_ROOT}/mcp-tool-authorization#external-apis`],
   ["Synthetic interaction trust", `${RESOURCE_ROOT}/synthetic-interaction-trust`],
   ["Integration contracts", "/developers/docs#integrations"],
 ] as const;

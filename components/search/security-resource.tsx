@@ -5,6 +5,7 @@ import { RESOURCE_REVIEWED, RESOURCE_ROOT, type SecurityResource } from "@/lib/s
 
 export function SecurityResourceArticle({ resource }: { resource: SecurityResource }) {
   const url = `${SITE_URL}${RESOURCE_ROOT}/${resource.slug}`;
+  const reviewedLabel = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${RESOURCE_REVIEWED}T00:00:00Z`));
   const breadcrumbs = [
     { name: "Cyber Sentinels", item: SITE_URL },
     { name: "Agent security", item: `${SITE_URL}${RESOURCE_ROOT}` },
@@ -25,7 +26,7 @@ export function SecurityResourceArticle({ resource }: { resource: SecurityResour
         <p className="operational-eyebrow">Agent security · Technical resource</p>
         <h1 className="mt-4 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">{resource.title}</h1>
         <p className="mt-6 text-lg leading-8 text-zinc-200">{resource.answer}</p>
-        <p className="mt-5 text-sm text-zinc-400">By Cyber Sentinels · Updated <time dateTime={RESOURCE_REVIEWED}>25 September 2026</time></p>
+        <p className="mt-5 text-sm text-zinc-400">By Cyber Sentinels · Updated <time dateTime={RESOURCE_REVIEWED}>{reviewedLabel}</time></p>
       </header>
       <div className="mt-10 grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1fr)_16rem]">
         <div className="min-w-0 max-w-3xl space-y-10">

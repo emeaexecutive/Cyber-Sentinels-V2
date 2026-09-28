@@ -47,6 +47,7 @@ export default async function AdminTrustMemoryPage() {
         <section className="operational-panel p-6">
           <p className="text-sm font-medium text-emerald-300">Admin Access Verified</p>
           <h1 className="mt-4 text-4xl font-semibold">Trust Memory Operations</h1>
+          <p className="mt-3 text-sm text-amber-200">Validation review projection: this view is built from benchmark reviewed outcomes. It is not the canonical transaction Trust Memory ledger. Use <Link href="/dashboard/replay" className="underline">canonical Replay</Link> to inspect transaction lineage.</p>
           <p className="mt-4 max-w-4xl text-sm leading-7 text-zinc-400">
             Trust Memory records how trust changed across actors, workflows, evidence,
             replay and governance review. Raw evidence remains outside this view.

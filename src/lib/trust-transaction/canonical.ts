@@ -1473,6 +1473,15 @@ export function returnSafeTransactionReceipt(input: {
   };
 }
 
+function assertCompleteReceiptLineage(receipt: Pick<SafeCanonicalTransactionReceipt, "evidenceGraphReference" | "replayReference" | "trustMemoryReference" | "materialChange">) {
+  if (!receipt.evidenceGraphReference?.trim() || !receipt.replayReference?.trim()
+    || (receipt.materialChange && !receipt.trustMemoryReference?.trim())) {
+    throw Object.assign(new Error("Canonical receipt lineage is not complete."), {
+      code: "CANONICAL_RECEIPT_INCOMPLETE", status: 503,
+    });
+  }
+}
+
 export async function executeCanonicalTrustTransaction(input: CanonicalTrustTransactionInput, dependencies: CanonicalTrustTransactionDependencies): Promise<SafeCanonicalTransactionReceipt> {
   assertInput(input);
   const actor = await authenticateActor(dependencies);
@@ -1482,6 +1491,7 @@ export async function executeCanonicalTrustTransaction(input: CanonicalTrustTran
     if (!isSameIdempotentRequest(previousReceipt, input, actor)) {
       throw new TypeError("The idempotency key is already bound to a different canonical request.");
     }
+    assertCompleteReceiptLineage(previousReceipt);
     return { ...previousReceipt, idempotentReplay: true };
   }
   const requestedAt = input.requestedAt ?? new Date().toISOString();
@@ -1629,11 +1639,13 @@ export async function executeCanonicalTrustTransaction(input: CanonicalTrustTran
     if (!isSameIdempotentRequest(concurrentReceipt, input, actor)) {
       throw new TypeError("The idempotency key is already bound to a different canonical request.");
     }
+    assertCompleteReceiptLineage(concurrentReceipt);
     return { ...concurrentReceipt, idempotentReplay: true };
   }
   const evidenceGraphReference = await extendEvidenceGraph(dependencies, persisted);
   const replayReference = await appendReplay(dependencies, persisted);
   const trustMemoryReference = await emitMaterialTrustMemory(dependencies, persisted);
+  assertCompleteReceiptLineage({ evidenceGraphReference, replayReference, trustMemoryReference, materialChange: persisted.materialChange });
   const external = await requestExternalExecutionIfAllowed(dependencies, persisted);
   const acknowledgementReference = await recordExternalAcknowledgement(dependencies, persisted, external);
   const outcomeReference = await recordExternalOutcome(dependencies, persisted, external);

@@ -10,8 +10,10 @@ const source = ts.createSourceFile("server.ts", readFileSync(new URL("../lib/tru
 let method;
 let nativeMapper;
 let uuidDeclaration;
+const artifactMethods = new Map();
 function visit(node) {
   if (ts.isMethodDeclaration(node) && node.name.getText(source) === "loadConfiguredEvidence") method = node.getText(source);
+  if (ts.isMethodDeclaration(node) && ["extendEvidenceGraph", "appendReplay", "emitTrustMemory"].includes(node.name.getText(source))) artifactMethods.set(node.name.getText(source), node.getText(source));
   if (ts.isFunctionDeclaration(node) && node.name?.text === "safeNativeEvidence") nativeMapper = node.getText(source);
   if (ts.isVariableDeclaration(node) && node.name.getText(source) === "uuidPattern") uuidDeclaration = node.getText(source);
   ts.forEachChild(node, visit);
@@ -21,6 +23,34 @@ assert.ok(method && nativeMapper && uuidDeclaration);
 const executable = ts.transpileModule(`const ${uuidDeclaration}; ${nativeMapper}; ({${method}})`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
 const enterpriseId = "10000000-0000-4000-8000-000000000001";
 const subjectUuid = "20000000-0000-4000-8000-000000000002";
+
+for (const [methodName, referenceField, rpcName] of [
+  ["extendEvidenceGraph", "evidenceGraphReference", "extend_canonical_trust_transaction_graph_v1"],
+  ["appendReplay", "replayReference", "append_canonical_trust_transaction_replay_v1"],
+  ["emitTrustMemory", "trustMemoryReference", "emit_canonical_trust_transaction_memory_v1"],
+]) {
+  test(`${methodName} rejects malformed RPC references without string coercion`, async () => {
+    assert.ok(artifactMethods.has(methodName));
+    const methodCode = ts.transpileModule(`({${artifactMethods.get(methodName)}})`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+    const record = { enterpriseId, transactionId: subjectUuid, actorId: "actor", correlationId: "correlation" };
+    let reply;
+    const adapter = vm.runInNewContext(methodCode, {
+      db: {},
+      async rpc(_db, _operation, name, args) {
+        assert.equal(name, rpcName);
+        assert.equal(args.p_enterprise_id, enterpriseId);
+        assert.equal(args.p_transaction_id, subjectUuid);
+        return reply;
+      },
+    });
+    for (const value of [undefined, null, 42, true, [], {}, { toString() { throw new Error("must not coerce a provider object"); } }]) {
+      reply = value === undefined ? {} : { [referenceField]: value };
+      assert.equal(await adapter[methodName](record), "");
+    }
+    reply = { [referenceField]: subjectUuid };
+    assert.equal(await adapter[methodName](record), subjectUuid);
+  });
+}
 
 function collector(failureTable) {
   const calls = [];

@@ -20,7 +20,7 @@ test("sitemap includes only deliberate public owners, with stable editorial date
   assert.equal(entries.length, new Set(entries.map((entry) => entry.url)).size);
   assert.deepEqual(entries.map((entry) => entry.url), canonicalPublicRoutes.map((route) => SITE_URL + (route === "/" ? "" : route)));
   for (const entry of entries) {
-    assert.equal(entry.lastModified, entry.url.includes(RESOURCE_ROOT) ? "2026-09-25" : undefined);
+    assert.equal(entry.lastModified, entry.url.includes(RESOURCE_ROOT) ? "2026-09-27" : undefined);
     assert.doesNotMatch(entry.url, /\/api\/|\/admin|\/account|\/dashboard|\/trust-center|\/operational-entities/);
   }
 });
@@ -98,7 +98,7 @@ test("finite resource routes have unique canonical/social metadata and server-re
     assert.equal(article.headline, resource.title);
     assert.equal(article.url, url);
     assert.deepEqual(article.citation, resource.sources.map(({ href }) => href));
-    assert.equal(article.dateModified, "2026-09-25");
+    assert.equal(article.dateModified, "2026-09-27");
     const breadcrumbs = nodes.find((node) => node["@type"] === "BreadcrumbList").itemListElement;
     assert.deepEqual(breadcrumbs.map(({ position }) => position), [1, 2, 3]);
     assert.equal(breadcrumbs.at(-1).item, url);
