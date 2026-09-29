@@ -57,7 +57,7 @@
     "test:product-truth": "node --experimental-strip-types --test tests/product-capability-registry.test.mjs tests/product-truth-runtime.test.mjs tests/product-truth-end-to-end.test.mjs",
     "test:native-verification": "node --experimental-strip-types --test tests/native-operational-entity-verification.test.mjs tests/native-operational-entity-verification-integration.test.mjs",
     "test:native-delegation": "node --experimental-strip-types --test tests/native-delegated-authority.test.mjs tests/native-delegated-authority-integration.test.mjs",
-    "test:native-enforcement": "node --experimental-strip-types --test tests/native-enforcement-outcome-proof.test.mjs tests/native-enforcement-outcome-proof-integration.test.mjs",
+    "test:native-enforcement": "node --experimental-strip-types --test tests/native-enforcement-outcome-proof.test.mjs tests/native-enforcement-outcome-proof-integration.test.mjs tests/controlled-provider-outcome-qualification.test.mjs",
     "test:public-positioning": "node --test tests/public-positioning.test.mjs",
     "test:design-partner-transaction": "node --test tests/design-partner-trust-transaction.test.mjs",
     "test:agent-registry": "node --test tests/design-partner-pilot-gates.test.mjs tests/design-partner-trust-transaction.test.mjs",
@@ -157,7 +157,7 @@
     "validate": "npm run lint && npm run typecheck && npm test && npm run build",
     "test:v2-incidents": "node --experimental-strip-types --test tests/operational-incidents.test.mjs tests/operational-incident-revocation-migration.test.mjs tests/internal-governance-helper-permissions.test.mjs tests/badge-verification-truth.test.mjs tests/execution-proof-sql-lint.test.mjs",
     "test:v2.1-boundaries": "tsx --test tests/v2.1-policy-boundary-intelligence.test.mjs tests/v2.1-purpose-lineage.test.mjs tests/hiring-input-trust-gateway.test.mjs tests/track-block-policy-continuity.test.mjs tests/canonical-trust-transaction.test.mjs",
-    "test:opengraph": "tsx --test tests/opengraph-boundary.test.mjs tests/provider-execution-qualification.test.mjs",
+    "test:opengraph": "tsx --test tests/opengraph-boundary.test.mjs tests/provider-execution-qualification.test.mjs tests/identity-corroboration-qualification.test.mjs",
     "test:sign-out-browser": "tsx --test tests/sign-out-browser.mjs",
     "test:synthetic-interaction": "node --experimental-strip-types --test tests/synthetic-interaction-trust.test.mjs tests/judgeme-boundary.test.mjs",
     "test:search": "tsx --test tests/search-authority.test.mjs tests/public-i18n.test.mjs"

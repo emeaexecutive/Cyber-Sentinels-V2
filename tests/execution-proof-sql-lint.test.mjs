@@ -118,7 +118,12 @@ test('four historical SQL failures are reproduced and repaired without weakening
         persist_scope_continuity_decision_v1: ["p_input->'authorization'", "(p_input->'authorization')"],
         persist_serious_incident_case_v1: ["incident::text||':'||item->>'eventKind'", "incident::text||':'||(item->>'eventKind')"],
       };
-      assert.deepEqual((await db.query(bodiesSql, [names])).rows, beforeBodies.map(row => ({
+      // Git can check out the repair with CRLF on Windows. Compare both bodies
+      // using the same line endings; all SQL tokens and the four edits stay exact.
+      const afterBodies = (await db.query(bodiesSql, [names])).rows.map(row => ({
+        ...row, prosrc: row.prosrc.replaceAll('\r\n', '\n'),
+      }));
+      assert.deepEqual(afterBodies, beforeBodies.map(row => ({
         ...row, prosrc: row.prosrc.replaceAll('\r\n', '\n').replace(...expectedChanges[row.proname]),
       })));
       for (const signature of signatures) {

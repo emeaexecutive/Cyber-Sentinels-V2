@@ -578,7 +578,7 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
         canonicalDigest: "legacy_unresolved",
       });
     },
-    async loadConfiguredEvidence({ enterpriseId, subjectId, operationalEntityId, providerExecutionId }) {
+    async loadConfiguredEvidence({ enterpriseId, subjectId, actionEnvironment, operationalEntityId, providerExecutionId }) {
       // Identity signals belong to UUID subjects; native agent identifiers use
       // the text-keyed canonical and native evidence ledgers below.
       const identityResult = uuidPattern.test(subjectId) ? await db.from("identity_signal_evidence")
@@ -608,7 +608,13 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
         .limit(20);
       if (nativeResult.error) fail("Native evidence collection", nativeResult.error);
       const nativeEvidence = (nativeResult.data ?? []).map(safeNativeEvidence);
-      const identityEvidence = (identityResult.data ?? []).map(safeIdentitySignalEvidence);
+      // Provider verification does not authorize evidence reuse across environments.
+      // Match known normalized environments exactly before selecting the latest
+      // observation, so sandbox results cannot replace Production evidence (or vice versa).
+      const identityEvidence = (identityResult.data ?? [])
+        .filter(row => ["production", "staging", "sandbox"].includes(actionEnvironment)
+          && row.normalized_value?.environment === actionEnvironment)
+        .map(safeIdentitySignalEvidence);
       const baselineEvidence = [...[...identityEvidence, ...nativeEvidence, ...eligibleCanonicalRows.map(safeCanonicalEvidenceObject)]
         .reduce((latest, item) => {
           // Both ledgers are newest-first and append-only. Preserve the first
