@@ -57,8 +57,8 @@ test("World ID and placeholder providers cannot display positive verification ca
   const world = { provider_id: "world_id", signal_status: "PASS", outcome: "VERIFIED", server_verified: true, signature_verified: true, provider_reference: "ref", provider_transaction_id: "tx", source_digest: "digest" };
   assert.equal(evidenceDisplayLabel(world), "Proof received — server verification pending");
   assert.match(detail, /Proof received — server verification pending/);
-  assert.match(providers, /Server verification not implemented/);
-  assert.match(healthApi, /WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED/);
+  assert.match(providers, /Server verifier implemented; live qualification not established in this view/);
+  assert.match(healthApi, /WORLD_ID_LIVE_QUALIFICATION_NOT_ESTABLISHED/);
   assert.match(healthApi, /serverVerificationCapability: false/);
   assert.match(healthApi, /transactionalReadiness: false/);
 });

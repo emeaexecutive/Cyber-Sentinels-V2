@@ -1,7 +1,7 @@
 import "server-only";
 import { currentControlPlaneEvidence, productionControlPlaneContext } from "./control-plane-evidence";
 
-import { createHmac } from "node:crypto";
+import { executionAuthorization } from "./execution-authorization";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import {
   registerCanonicalNativeAgent,
@@ -638,26 +638,6 @@ export async function getExternalTrustState(principal: PublicApiPrincipal, agent
   };
 }
 
-function executionAuthorization(receipt: Row) {
-  if (receipt.decision !== "ALLOW") return null;
-  const secret = process.env.API_EXECUTION_SIGNING_SECRET?.trim()
-    || process.env.PUBLIC_API_EXECUTION_SIGNING_SECRET?.trim()
-    || process.env.TRUST_ACTION_RELAY_SECRET?.trim();
-  if (!secret) return null;
-  const artifact = {
-    version: "transaction-execution-authorization-v1",
-    transaction_id: receipt.transactionId,
-    operational_entity_id: receipt.operationalEntityId,
-    action: receipt.action.type,
-    target: receipt.action.resource,
-    decision_digest: receipt.digest,
-    audience: "external-executor",
-    nonce: crypto.randomUUID(),
-    expires_at: new Date(Date.now() + 5 * 60_000).toISOString(),
-  };
-  return { ...artifact, signature: `sha256=${createHmac("sha256", secret).update(JSON.stringify(artifact)).digest("hex")}` };
-}
-
 function consequenceTimeProjection(snapshot: Row | null | undefined) {
   const value = snapshot?.consequenceTime;
   if (!value || typeof value !== "object") return null;
@@ -944,7 +924,7 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
       blocking_reason_codes: decision === "REVIEW" ? receipt.reasonCodes : [],
       required_evidence: decision === "REVIEW" ? ["NATIVE_ENTITY_IDENTITY_PROOF", SERVER_VERIFIED_AGENT_CONFIGURATION, SERVER_VERIFIED_MONITORING] : [],
       human_approval_required: decision === "REVIEW",
-      execution_authorization: executionAuthorization(receipt as unknown as Row),
+      execution_authorization: executionAuthorization(receipt),
       idempotent_replay: receipt.idempotentReplay,
     };
   } catch (error) {

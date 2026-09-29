@@ -38,7 +38,7 @@ export async function GET(request: Request) {
           && Boolean(evidence?.source_digest),
         blockers: [
           ...(Array.isArray(transaction?.limitations) ? transaction.limitations : []),
-          ...(providerId === "world_id" ? ["WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED"] : []),
+          ...(providerId === "world_id" ? ["WORLD_ID_LIVE_QUALIFICATION_NOT_ESTABLISHED"] : []),
           ...(!["hopae_connect", "device_context", "world_id"].includes(providerId) ? ["No transactional provider adapter is configured."] : []),
         ],
       });

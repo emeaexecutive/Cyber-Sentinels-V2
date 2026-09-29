@@ -65,7 +65,7 @@ export async function GET(request: Request) {
       serverVerificationCapability: false,
       serverVerified: false,
       confidence: 0,
-      reasonCodes: ["WORLD_ID_SERVER_VERIFICATION_NOT_IMPLEMENTED"],
+      reasonCodes: ["WORLD_ID_LIVE_QUALIFICATION_NOT_ESTABLISHED"],
       blockers: ["Proof received — server verification pending"],
     };
     const placeholders = ["email", "phone", "ip_reputation", "network_anonymity", "geolocation", "device_context"].map((providerId) => ({

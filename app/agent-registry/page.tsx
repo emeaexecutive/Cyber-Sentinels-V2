@@ -44,7 +44,7 @@ export default async function AgentRegistryPage() {
       .limit(8)
       .returns<Signal[]>(),
   ]);
-  const agents = !error && data?.length ? normalizeAgents(data) : demoAgents;
+  const agents = error ? [] : data?.length ? normalizeAgents(data) : demoAgents;
   const summary = getAgentRegistrySummary(agents);
 
   return (
@@ -94,11 +94,19 @@ export default async function AgentRegistryPage() {
           >
             Review Revocation State
           </Link>
-          {error || !data?.length ? (
+          {error ? (
+            <p role="alert" className="mt-3 text-sm text-rose-300">
+              Agent records could not be loaded. Retry before relying on registry summaries.
+            </p>
+          ) : !data?.length ? (
             <p className="mt-3 text-sm text-zinc-600">
               Showing demo agents until the agents table contains records.
             </p>
           ) : null}
+          <p className="mt-3 text-sm text-zinc-400">
+            This legacy registry reads agent profile records. For current canonical identity,
+            authority and action evidence, use <Link href="/operational-entities" className="text-cyan-200 underline">Operational Entities</Link>.
+          </p>
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">

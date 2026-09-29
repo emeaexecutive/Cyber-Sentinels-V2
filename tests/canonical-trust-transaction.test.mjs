@@ -699,6 +699,32 @@ test("a delegated authorization denial persists its exact reason in the canonica
   assert.equal(calls.includes("requestExternalExecutionIfAllowed"), false);
 });
 
+for (const field of ["evidenceGraphReference", "replayReference", "trustMemoryReference"]) {
+  test(`incomplete ${field} cannot become a successful receipt on retry or concurrent collision`, async () => {
+    const stored = await executeCanonicalTrustTransaction(transactionInput(), dependencies().deps);
+    const incomplete = { ...stored, materialChange: true, [field]: null };
+    for (const concurrent of [false, true]) {
+      const harness = dependencies({ previousReceipt: incomplete });
+      if (concurrent) {
+        let lookups = 0;
+        harness.deps.findByIdempotency = async () => ++lookups === 1 ? null : incomplete;
+        harness.deps.persistDecision = async (record) => ({ ...record, persistenceStatus: "DUPLICATE" });
+      }
+      await assert.rejects(executeCanonicalTrustTransaction(transactionInput(), harness.deps), (error) => error.code === "CANONICAL_RECEIPT_INCOMPLETE" && error.status === 503);
+      assert.equal(harness.calls.includes("requestExternalExecutionIfAllowed"), false);
+    }
+  });
+}
+
+test("missing lineage references returned by persistence stop dispatch", async () => {
+  for (const method of ["extendEvidenceGraph", "appendReplay", "emitTrustMemory"]) {
+    const harness = dependencies();
+    harness.deps[method] = async () => "";
+    await assert.rejects(executeCanonicalTrustTransaction(transactionInput(), harness.deps), (error) => error.code === "CANONICAL_RECEIPT_INCOMPLETE");
+    assert.equal(harness.calls.includes("requestExternalExecutionIfAllowed"), false);
+  }
+});
+
 test("an idempotent retry returns the stored receipt before evaluation or relay", async () => {
   const first = dependencies();
   const stored = await executeCanonicalTrustTransaction(transactionInput(), first.deps);

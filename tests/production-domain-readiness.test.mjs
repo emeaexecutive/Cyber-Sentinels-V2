@@ -100,7 +100,7 @@ test("auth actions verify Turnstile server-side when configured", () => {
 
   assert.match(login, /fetch\("\/api\/auth\/turnstile"/);
   assert.equal(
-    (login.match(/await verifyTurnstileForAuth\(\)/g) ?? []).length,
+    (login.match(/await verifyTurnstileForAuth\(version\)/g) ?? []).length,
     4
   );
   assert.match(passwordResetRoute, /verifyTurnstileToken/);

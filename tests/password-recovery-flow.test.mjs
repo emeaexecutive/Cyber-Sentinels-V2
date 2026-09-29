@@ -21,6 +21,7 @@ export function harness() {
   let revoked = false;
   let method = "recovery";
   let recoveryTime = Math.floor(Date.now() / 1000);
+  let codeState = "available";
   const user = { id: "11111111-1111-4111-8111-111111111111", email: "fixture@example.test",
     aud: "authenticated", role: "authenticated", email_confirmed_at: "2026-01-01T00:00:00Z",
     app_metadata: {}, user_metadata: {}, identities: [], created_at: "2026-01-01T00:00:00Z" };
@@ -41,6 +42,12 @@ export function harness() {
     if (url.pathname.endsWith("/logout")) { revoked = true; return json({}); }
     if (url.pathname.endsWith("/token")) {
       if (url.search.includes("password")) { revoked = false; method = "password"; }
+      if (url.search.includes("pkce")) {
+        if (codeState !== "available") return json({ code: "otp_expired", msg: "Recovery code expired or used" }, 400);
+        codeState = "consumed";
+        revoked = false;
+        method = "recovery";
+      }
       if (revoked) return json({ code: "refresh_token_not_found", msg: "Session revoked" }, 400);
       return json(payload());
     }
@@ -104,13 +111,18 @@ export function harness() {
     method,
     headers: { cookie: [...jar].map(([k, v]) => `${k}=${v}`).join("; "), ...headers },
   }));
-  return { jar, calls, client, load, apply, request, guard, token,
+  async function issueRecovery() {
+    const response = await load("app/api/auth/password-reset/request/route.ts").POST(request("/api/auth/password-reset/request", {
+      email: user.email, turnstileToken: "fixture-turnstile",
+    }));
+    assert.equal(response.status, 200);
+    codeState = "available";
+  }
+  return { jar, calls, client, load, apply, request, guard, token, issueRecovery,
+    rejectCode: (state) => { codeState = state; },
     expire: () => { recoveryTime -= 3600; },
     async begin() {
-      const response = await load("app/api/auth/password-reset/request/route.ts").POST(request("/api/auth/password-reset/request", {
-        email: user.email, turnstileToken: "fixture-turnstile",
-      }));
-      assert.equal(response.status, 200);
+      await issueRecovery();
       const callback = await load("lib/auth/callback-handler.ts").handleAuthCallback(
         new Request(origin + "/auth/callback?code=fixture-code&next=/operational-entities"),
         { createClient: async (headers) => client(headers), captureOperationalIssue() {} },

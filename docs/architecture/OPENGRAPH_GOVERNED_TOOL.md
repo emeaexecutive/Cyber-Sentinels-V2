@@ -5,7 +5,7 @@ No provider calls, credentials, environment changes, tables, migrations, API sco
 deployment or new decision engine. This is a server composition seam, not a deployed
 REST endpoint or an installed MCP proxy. No production qualification is claimed.
 
-## Provider surface audit (2026-09-25)
+## Provider surface audit (rechecked 2026-09-27)
 
 [OpenGraph REST reference](https://www.opengraph.io/docs/api) documents the v3 base
 URL, App ID authentication and site, scrape, screenshot, extract, query, oEmbed and
@@ -19,6 +19,22 @@ those operations are deliberately outside this implementation.
 The bounded internal action is `opengraph.site`. It represents metadata retrieval,
 not identity assurance or an authoritative trust decision. Image generation, local
 file export, crawling, arbitrary tools and provider-specific options are excluded.
+
+| Contract | Current primary-source finding | Integration consequence |
+| --- | --- | --- |
+| REST authentication | The [authentication guide](https://www.opengraph.io/docs/concepts/authentication) documents `app_id` in the query string. No REST header alternative was established by the reviewed docs. | No REST transport is added under this task's no-query-string-secrets rule. |
+| MCP authentication | [Signing in](https://www.opengraph.io/docs/mcp/authentication) supports hosted browser sign-in or `x-app-id`. Site Audit/Link Preview require account sign-in; the web-data group accepts API keys. | A future MCP transport must keep credentials server-side and bind installation/account to tenant. Direct model access is not a governed gateway. |
+| Rate limit | [Limits](https://www.opengraph.io/docs/concepts/rate-limits) are simultaneous requests: Free 1, Developer 5, Production 25, Enterprise 100. The documented rejection is HTTP 429. These are not requests-per-second figures. | Qualification needs an account-specific concurrency/budget bound and bounded backoff. No plan or paid capability was selected. |
+| Response shape | [Site reference](https://www.opengraph.io/docs/api/site) returns metadata groups (`hybridGraph`, `openGraph`, `twitterCard`, `htmlInferred`) and `requestInfo` with host/response code/redirect count; retries can add `retryInfo`. | Provider metadata is untrusted content, not authority, DNS attestation or evidence every hop stayed in scope. |
+| Failure model | [Errors](https://www.opengraph.io/docs/concepts/errors) documents REST 400/401/403/404/429/5xx and error objects. MCP tool failures can have transport success with `isError: true` and textual content. | HTTP 200 alone must never mark tool success; normalize transport, tool and parsing failures separately. Raw error text is not safe receipt content. |
+
+Provider-side redirects, DNS answer validation/pinning, per-hop allowlists, maximum
+redirects, private-address rejection and rendering-subresource restrictions are **not
+established** by the reviewed API/MCP contracts. `requestInfo.redirects` is result
+metadata; it cannot prevent a forbidden request that already happened. Automatic
+rendering/proxy/retry defaults further require explicit cost and egress qualification.
+Disabling those options alone is not a documented SSRF guarantee. No DNS probes or
+generic SSRF scanner were introduced.
 
 ## Existing architecture reused
 
@@ -57,6 +73,16 @@ All IP literals are conservatively excluded, including public IPs. Queries are
 excluded to avoid retaining URL secrets. Evidence retains the bounded URL/path,
 domain and target-scope digest, not page content or provider payloads.
 
+The input limit is 300 characters. WHATWG URL parsing normalizes host casing and
+path serialization before exact URL comparison; ambiguous encoded separators and
+control bytes are rejected. Domain policy distinguishes exact hosts from proper
+subdomains and applies denied-domain descendants first. Localhost, numeric loopback,
+RFC1918, link-local and metadata IPs are rejected as address literals; known internal
+and metadata hostname forms are rejected lexically. An otherwise public-looking
+hostname can still resolve privately, so lexical acceptance never establishes safe
+network execution or protection against DNS rebinding. Redirect scope escape remains
+blocked by the absent executor, not claimed prevented by lexical validation.
+
 Lexical validation cannot establish DNS safety or prevent a provider from following
 redirects or fetching rendering subresources. The reviewed docs did not establish
 enforceable per-hop scope controls. Therefore there is deliberately no HTTP/MCP
@@ -64,6 +90,14 @@ transport, DNS fetch, credential lookup or environment variable. Before connecti
 an executor, qualify DNS/redirect/subresource enforcement, current authorization at
 dispatch, safe normalized outcomes, credential handling and durable attempt/outcome
 persistence. Merely adding an API key must not enable execution.
+
+A future normalized outcome should retain the attempted action, original authorized
+URL/domain, provider operation/request reference when available, observation time,
+bounded status/reason, result digest, and separately established final target/redirect
+facts. Optional titles/descriptions require length bounds and inert rendering; image,
+favicon and embedded URLs must not trigger secondary fetching. Raw HTML, Markdown,
+screenshots, arbitrary metadata and provider text are outside today's receipt/evidence
+contract. No provider result normalizer or successful result is claimed in this branch.
 
 ## Evidence and verification
 
@@ -85,7 +119,7 @@ session-start marker and existing session/admin cookies, then redirects to `/log
 Native navigation discards in-memory client state; restored pages reload through
 middleware. Recovery quarantine and remembered-device preferences remain intact.
 
-## Local validation record
+## Historical PR #107 local validation record
 
 Base main: `62822a6742551bdbe53c904a03e7096c07eec071` (PR #106 merged normally
 after passing reported checks; Supabase Preview skipped; no required checks configured).

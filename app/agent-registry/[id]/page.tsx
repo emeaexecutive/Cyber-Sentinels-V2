@@ -52,6 +52,10 @@ export default async function AgentRegistryDetailPage({
       .limit(8)
       .returns<AuditLog[]>(),
   ]);
+  if (error) {
+    return <main className="min-h-screen bg-black px-6 py-8 text-white"><p role="alert">Agent records could not be loaded. Retry before relying on this profile.</p><Link href="/agent-registry" className="mt-4 inline-block text-cyan-200 underline">Back to Agent Registry</Link></main>;
+  }
+  const isDemo = !data?.[0];
   const agent =
     !error && data?.[0]
       ? normalizeAgent(data[0])
@@ -82,6 +86,7 @@ export default async function AgentRegistryDetailPage({
         </nav>
 
         <section className="mt-10">
+          {isDemo ? <p className="mb-3 text-sm text-amber-200">Demonstration profile. These are synthetic agent details, not canonical authority or execution evidence.</p> : null}
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
             Agent Passport
           </p>
@@ -189,8 +194,8 @@ export default async function AgentRegistryDetailPage({
               ["Memory retention", "Not declared — governance review required"],
               ["Processing purpose", agent.declared_purpose ?? "Not declared"],
               ["Human oversight", agent.policy_status ? "Policy state recorded" : "Review required"],
-              ["Kill switch", ["revoked", "disabled", "blocked"].includes(agent.status) ? "Engaged" : "Available through revocation"],
-              ["Data-access audit", auditLogs?.length ? `${auditLogs.length} recent event(s)` : "No events recorded"],
+              ["Registry status", agent.status],
+              ["Execution interruption", "Not established by this profile"],
             ].map(([label, value]) => (
               <div key={label} className="rounded-lg border border-zinc-800 bg-black p-4">
                 <p className="text-xs uppercase tracking-[0.12em] text-zinc-600">{label}</p>
@@ -225,9 +230,10 @@ export default async function AgentRegistryDetailPage({
         </section>
 
         <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-          <h2 className="text-xl font-semibold">Audit History</h2>
+          <h2 className="text-xl font-semibold">Recent registry events</h2>
+          <p className="mt-3 text-sm text-zinc-400">These visible registry events are not filtered to this agent and do not establish its action history. Use <Link href="/operational-entities" className="text-cyan-200 underline">Operational Entities</Link> for canonical authority and transaction evidence.</p>
           <div className="mt-5 space-y-3">
-            {auditLogs?.length ? (
+            {!isDemo && auditLogs?.length ? (
               auditLogs.map((log) => (
                 <div
                   key={log.id}
@@ -241,7 +247,7 @@ export default async function AgentRegistryDetailPage({
               ))
             ) : (
               <p className="text-sm text-zinc-500">
-                No agent audit events recorded yet.
+                No registry events shown for this view.
               </p>
             )}
           </div>

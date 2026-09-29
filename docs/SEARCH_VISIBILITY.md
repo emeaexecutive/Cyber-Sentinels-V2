@@ -1,7 +1,25 @@
 # Search and AI visibility operations
 
-Reviewed 25 September 2026. This is an internal measurement and release guide,
-not evidence of ranking gains. The search-authority branch has not been deployed.
+Reviewed 27 September 2026. This is an internal measurement and release guide,
+not evidence of ranking gains. PR #108 has merged; the V2 closure changes are
+unreleased. A merge alone does not establish what a search engine has crawled.
+The dated 25 September baseline below is historical, not a current deployment check.
+
+## V2 coverage closure
+
+[V2_SEARCH_COVERAGE.md](V2_SEARCH_COVERAGE.md) maps every requested priority family
+(36) and question (28) to its single canonical owner or answer fragment. The same
+42 canonical URLs remain. Three articles now explicitly cover least privilege,
+continuous authorization, MCP access to external APIs and synthetic-review action
+binding. Hub links expose the new answer fragments; no additional FAQ pages,
+crawler permissions or schema types are needed.
+
+Use the complete coverage map as the query register for future observation. The
+15-family historical sample below is not an exhaustive measurement exercise.
+All closure indexing, ranking and AI-citation statuses remain **NOT YET MEASURED**;
+owner-console access, verification and a separately authorized release are still
+external steps. Provider-boundary explanations are not live integration proof:
+Judge.me and OpenGraph remain blocked for external qualification.
 
 ## Crawl and training policy
 
@@ -119,8 +137,9 @@ a search-engine ranking baseline. No AI-answer citation experiment was performed
 | synthetic interaction trust | resource: synthetic-interaction-trust | NOT YET MEASURED | NOT YET MEASURED |
 | AI tool authorization | resource: mcp-tool-authorization | NOT YET MEASURED | NOT YET MEASURED |
 
-`resource:` means `/resources/agent-security/`. All new pages are unreleased;
-no indexing, ranking, traffic or citation improvement is claimed.
+`resource:` means `/resources/agent-security/`. At the 25 September baseline these
+pages were unreleased. No indexing, ranking, traffic or citation improvement is
+claimed from that baseline or from the subsequent PR merge.
 
 ## Reproducible technical checks
 

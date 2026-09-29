@@ -696,15 +696,15 @@ export function createCanonicalTrustTransactionDependencies(input: { supabase: S
     },
     async extendEvidenceGraph(record) {
       const result = await rpc(db, "Evidence Graph extension", "extend_canonical_trust_transaction_graph_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId });
-      return String(result.evidenceGraphReference);
+      return typeof result.evidenceGraphReference === "string" ? result.evidenceGraphReference : "";
     },
     async appendReplay(record) {
       const result = await rpc(db, "Replay append", "append_canonical_trust_transaction_replay_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId });
-      return String(result.replayReference);
+      return typeof result.replayReference === "string" ? result.replayReference : "";
     },
     async emitTrustMemory(record) {
       const result = await rpc(db, "Trust Memory write", "emit_canonical_trust_transaction_memory_v1", { p_enterprise_id: record.enterpriseId, p_transaction_id: record.transactionId, p_actor_id: record.actorId, p_correlation_id: record.correlationId });
-      return String(result.trustMemoryReference);
+      return typeof result.trustMemoryReference === "string" ? result.trustMemoryReference : "";
     },
     async requestExternalExecution(record) {
       const externalExecutionAllowed = input.allowExternalExecution !== false;

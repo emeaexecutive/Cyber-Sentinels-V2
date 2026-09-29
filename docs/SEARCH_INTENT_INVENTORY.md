@@ -4,6 +4,32 @@ Pre-change inventory: 272 App Router page routes, 35 sitemap destinations. Read 
 
 Each retained canonical page keeps its existing topic. Private and operational routes are explicitly excluded from search promotion. No pages are deleted in this work.
 
+## Current canonical additions and coverage closure
+
+The route register below is the 272-page **pre-PR #108** inventory. That PR promoted
+three existing pages and introduced the hub plus three articles, bringing the
+canonical sitemap to **42 URLs**. The articles share one dynamic page file; page
+file counts and canonical URL counts are different measures. On 27 September 2026,
+V2 closure adds **zero URLs** and improves the same three articles. All 36 requested
+keyword families and 28 questions map to existing owners or answer fragments in
+[V2_SEARCH_COVERAGE.md](V2_SEARCH_COVERAGE.md).
+
+| Canonical route | Intent | Closure action |
+| --- | --- | --- |
+| `/resources/agent-security` | Agent security overview | Add contextual links to least privilege and external-API authorization |
+| `/resources/agent-security/agent-authorization` | Identity, authority, delegation and current permission | Explain authority, least privilege and continuous authorization in existing article |
+| `/resources/agent-security/mcp-tool-authorization` | MCP access, tool/action/target permission | Add external-API boundary and external-effect explanation with primary sources |
+| `/resources/agent-security/synthetic-interaction-trust` | Distinct evidence facets and action authority | Clarify review-action binding and blocked live Judge.me status |
+| `/developers/api-reference` | Supported API contract | Retain promoted existing owner |
+| `/developers/quickstart` | Agent registration and authority lifecycle | Retain promoted existing owner |
+| `/governance` | Accountable human review | Retain promoted existing owner |
+
+Product concepts stay with `/platform#execution-trust`, enterprise governance with
+`/enterprise/agent-governance`, and receipts/audit/reconstruction with
+`/verification-replay`. Synonyms do not justify competing resource pages.
+
+## Historical route register
+
 | Route | Canonical topic / existing title | Primary intent | Primary destination | Overlap / cannibalization | Action |
 | --- | --- | --- | --- | --- | --- |
 | `/trust-centre/fabric` | trust centre / fabric | Operational / transactional; not a search destination | `/platform` | Potential overlap with /platform; avoid new competing page | Retain existing access guard; noindex; no search promotion |

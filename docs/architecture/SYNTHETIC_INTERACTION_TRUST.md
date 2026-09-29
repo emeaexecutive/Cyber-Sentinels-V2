@@ -1,6 +1,6 @@
 # Synthetic Interaction Trust
 
-Audit date: 2026-09-24. Source baseline: `e9a90f973aacbe6967f14a527540208431a2ec13`.
+Initial audit: 2026-09-24, baseline `e9a90f973aacbe6967f14a527540208431a2ec13`. Provider contract rechecked: 2026-09-27. The later audit adds local authenticity verification; it does not qualify ingestion or execution.
 
 Synthetic Interaction Trust is a reusable workflow category for interactions by humans, services and AI agents across commerce, reviews and marketplaces. Judge.me is a market signal and potential evidence integration, not a replacement product or an authorization authority.
 
@@ -80,11 +80,24 @@ Existing canonical behavior needs care: `StoredProviderEvidence.outcome = FAILED
 
 ## Judge.me public integration audit
 
-The official [OpenAPI document](https://judge.me/api/docs.yaml) describes the REST base `https://api.judge.me/api/v1`, review and product resources, widgets and webhook management. Review read/context surfaces and documented review creation are candidate integration points; webhook keys include `review/created`, `review/updated` and `review/created_fail`. An observation arriving after a review was submitted cannot act as a pre-execution authorization gate. Such a gate must sit in a controlled caller before the destination action.
+The official [OpenAPI document](https://judge.me/api/docs.yaml), fetched again on 2026-09-27, identifies the REST base `https://api.judge.me/api/v1`. It documents review reads/counts, public asynchronous review submission, shop information, widgets, replies and webhook management. Webhook keys include `review/created`, `review/updated` and `review/created_fail`. An observation arriving after a review was submitted cannot act as a pre-execution authorization gate. Such a gate must sit in a controlled caller before the destination action.
+
+| Provider surface | Readiness finding |
+| --- | --- |
+| Authentication | Public/private API keys use `X-Api-Token`; key-based requests also bind `shop_domain`. OAuth access tokens use `Authorization: Bearer`; the shop derives from that token. The YAML expressly excludes OAuth tokens from `X-Api-Token`. Do not copy its optional query-token alternative into this integration. |
+| Useful reads | `GET /reviews`, `/reviews/{id}`, `/reviews/count` and `/shops/info` can support attributed context and shop binding. Widget output alone cannot establish purchase or subject binding. |
+| Writes before which a gateway could sit | A controlled caller can request canonical authorization before submitting a review, publishing/hiding a review, or sending a documented reply. Public `POST /reviews` may complete asynchronously; an accepted request is not proof a review exists. These are candidates, not implemented executors. |
+| Unsupported action equivalence | The documented review update only publishes/hides; it explicitly excludes content editing. Generic `EDIT_REVIEW` and `CHANGE_RATING` vocabulary therefore does not establish a Judge.me API capability. Purchase, refund, account and payout actions likewise need their own qualified destination. |
+| Document gaps | The current YAML has no standalone product/order paths despite older OAuth help showing product access, and writes one update path without its leading slash. Resolve against legitimate provider access before wiring those contracts. |
+| Pagination and rate | Review listing references `page` and `per_page`, with examples 1 and 10. The reviewed YAML does not establish defaults, a maximum page size, a request-rate ceiling, retry schedule or ordering guarantee. Use bounded local pagination/backoff only after qualifying the actual contract; do not invent provider limits. |
+
+The endpoint and authentication findings above are from the [current YAML](https://judge.me/api/docs.yaml). No authenticated call was made. The absent guarantees are audit limits, not claims that the provider has no limits or security controls.
 
 The [API guide](https://judge.me/help/en/articles/8409180-using-judge-me-api) separates public widget access from private server-side read/write access. It states that API-created reviews cannot be marked verified, and existing reviews cannot be promoted to verified through the API. Do not create reviews as a qualification workaround or infer private access from a public widget response.
 
 The [OAuth guide](https://judge.me/help/en/articles/8283047-setting-up-oauth) describes merchant authorization with least-privilege scopes such as `read_reviews` and `read_orders`. These are external Judge.me grants, not new Cyber Sentinels API scopes or authority to perform a customer's business action. A future installation must bind the authorized shop and credentials to an existing tenant with authenticated ownership; payload shop names must not choose the tenant.
+
+The documented authorization-code flow uses `https://app.judge.me/oauth/authorize` and exchanges at `https://judge.me/oauth/token`. Cyber Sentinels would require a one-time, session/tenant-bound state value and exact redirect matching even though the guide labels state optional. The guide describes a permanent access token; no refresh/revocation lifecycle was qualified here. The signed webhook secret differs by installation method: OAuth app secret versus shop private key. App-wide secret possession alone cannot choose a merchant tenant.
 
 Judge.me's [verified-status documentation](https://judge.me/help/en/articles/8403775-verified-status-of-judge-me-reviews) distinguishes `confirmed-buyer`, `buyer`, `verified-purchase`, `semi-verified-purchase`, `admin` and non-verified states. These labels have different provenance: `confirmed-buyer` need not identify the same order, while `verified-purchase` has a stricter order relation. Preserve the original provider label; do not flatten all labels to TRANSACTION_VERIFIED or Cyber Sentinels identity verification. Its [verified-review guide](https://judge.me/help/en/articles/8376284-verified-reviews) also states that editing review content does not change verification status. A purchase-related badge therefore cannot prove that edited content is accurate or authorized. The status document includes an `admin` category while the current review guide describes automatic verification; retaining exact source labels avoids resolving that documentation difference by inventing a guarantee.
 
@@ -92,11 +105,15 @@ The official [webhook verification guide](https://judge.me/help/en/articles/8299
 
 Before any real ingestion, a future implementation must supply durable installation-to-tenant binding, authenticated event/source retrieval as appropriate, bounded schemas and metadata, exact raw-body verification, safe secret handling, provider/event-or-digest replay reservation, stale-event/current-state handling, and reference bindings to the authorized subject and target. The existing ledger is a reusable primitive; this audit does not claim that these installation and replay requirements have been implemented or qualified for Judge.me.
 
+The new `verifyJudgeMeWebhookSignature` helper in [`lib/providers/judgeme.ts`](../../lib/providers/judgeme.ts) compares a 64-character hex HMAC-SHA256 in constant time over the supplied raw bytes. It rejects invalid/absent signatures, missing secrets and bodies larger than 256 KiB. That ceiling is an application bound, not a claimed provider limit. The helper does not parse a route, find an installation, retrieve a secret, reserve a delivery, attach evidence or upgrade `cryptographicallyVerified`. It is independently useful without credentials and cannot turn replayed signed bytes into fresh evidence.
+
+Normalized evidence remains limited to tenant/installation/subject references, shop, exact product/review references, event type/time, rating, original verification label, curation/hidden state and digest. Review text, customer name/email, address, media and raw payload are excluded. Judge.me internal IDs and merchant product external IDs must retain separate namespaces. A payload reviewer identity is not the authenticated Cyber Sentinels actor. Future ingestion must resolve that relationship from a trusted installation mapping and reject ambiguity, mismatch and stale state. Webhook event observations remain after-the-fact evidence; a verified-purchase label never grants authority or automatically issues ALLOW.
+
 ## Delivered boundary and remaining gaps
 
 The reusable action/actor mapping and canonical-input composition are local implementation work. Judge.me normalization is a reference boundary: it retains provider assertions with `serverVerified = false` and `cryptographicallyVerified = false`. No live token, OAuth installation, webhook endpoint, provider-owned record, verified purchase proof or real external execution is asserted. Real Judge.me qualification remains BLOCKED_EXTERNAL until legitimate credentials/access and an authorized qualification are available.
 
-No new tables, migrations, API scopes, environment variables or Production deployment are required or performed. The existing trust stores can represent the proposed workflow. Future authenticated provider ingestion and action execution remain distinct work; any newly demonstrated storage or scope gap must be audited before expanding either.
+This integration boundary requires no new tables, migrations, API scopes, environment variables or Production deployment. The existing trust stores can represent the proposed workflow. The separate [V2 alignment audit](../V2_ALIGNMENT_CLOSURE.md) adds one unapplied privilege-repair migration for a proven legacy security gap, not for Judge.me. Future authenticated provider ingestion and action execution remain distinct work; any newly demonstrated storage or scope gap must be audited before expanding either.
 
 This delivery is a library/request boundary, not a wired merchant gateway. Canonical decisions still use the caller's established authentication, tenant, authority, policy and persistence dependencies. Real governed deployment and external integration qualification have not been exercised.
 

@@ -30,6 +30,31 @@ test("runtime credentials are never printed or embedded in normalized evidence",
 });
 
 const identitySecret = "whsec_identity_fixture";
+test("Persona inquiry completion cannot manufacture biometric checks or verification time", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => Response.json({ data: { id: "inq_fixture", attributes: { status: "completed", "reference-id": "subject-1" } } }));
+  const client = createPersonaIdentityClient({ apiKey: "persona_fixture" });
+  const result = await client.retrieve("inq_fixture", { enterpriseId: "enterprise-1", subjectId: "subject-1" });
+  assert.equal(result.document_verified, null);
+  assert.equal(result.liveness_verified, null);
+  assert.equal(result.biometric_match, null);
+  assert.equal(result.verified_at, null);
+  assert.equal(result.assurance_level, "LOW");
+  assert.equal(result.provider_outcome, "PENDING");
+});
+
+for (const [name, data, code] of [
+  ["inquiry", { id: "inq_other", attributes: {} }, "PERSONA_INQUIRY_MISMATCH"],
+  ["subject", { id: "inq_fixture", attributes: { "reference-id": "other-subject" } }, "PERSONA_SUBJECT_BINDING_MISMATCH"],
+  ["missing subject", { id: "inq_fixture", attributes: { status: "completed" } }, "PERSONA_SUBJECT_BINDING_MISMATCH"],
+  ["conflicting subject", { id: "inq_fixture", attributes: { "reference-id": "subject-1", reference_id: "other-subject" } }, "PERSONA_SUBJECT_BINDING_MISMATCH"],
+]) {
+  test(`Persona rejects mismatched ${name} evidence`, async (t) => {
+    t.mock.method(globalThis, "fetch", async () => Response.json({ data }));
+    const client = createPersonaIdentityClient({ apiKey: "persona_fixture" });
+    await assert.rejects(() => client.retrieve("inq_fixture", { enterpriseId: "enterprise-1", subjectId: "subject-1" }), new RegExp(code));
+  });
+}
+
 const binding = { enterpriseId: "enterprise-1", subjectId: "subject-1", verificationRequestId: "request-1", correlationId: "correlation-1", purpose: "identity", input: { transactionId: "transaction-1" } };
 function webhookFixture(options = {}) {
   const saved = [], fetched = [], ledger = new Map();

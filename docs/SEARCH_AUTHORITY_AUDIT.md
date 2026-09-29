@@ -4,6 +4,14 @@ Base: `f9b69ecb173388f84c2789153167f1162b44df4c`, clean main after normal
 merge of #107. All meaningful checks passed; Supabase Preview was skipped.
 This document records the pre-change audit and planned editorial decisions.
 
+V2 closure reviewed 27 September 2026: PR #108 is merged; the new alignment base
+is `f1c12752a130acfc0721f9b124900c7726c5a26e`. The earlier audit and validation
+below remain historical evidence for that PR. The current coverage closure is
+recorded in [V2_SEARCH_COVERAGE.md](V2_SEARCH_COVERAGE.md): **36/36 keyword families
+and 28/28 questions mapped**, three existing articles improved, no new public URL.
+The canonical allowlist remains 42 URLs. Local coverage is not indexing or citation
+proof, and Judge.me/OpenGraph live qualification remains blocked.
+
 ## Evidence and scope
 
 Inspected all 272 App Router page files, route visibility, redirects, middleware,

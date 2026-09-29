@@ -3,10 +3,11 @@ import Link from "next/link";
 import { StructuredData } from "@/components/search/structured-data";
 import { ORGANIZATION_ID, SITE_URL, WEBSITE_ID, publicSocialMetadata } from "@/lib/search/metadata";
 import { RESOURCE_ROOT, conceptDestinations, securityResources } from "@/lib/search/resources";
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 
 const title = "AI Agent Security: Authority, Tools and Evidence | Cyber Sentinels";
 const description = "Understand AI agent authorization, delegation, runtime authority, MCP tool boundaries and audit evidence, with implementation limits made explicit.";
-export const metadata: Metadata = { title, description, alternates: { canonical: RESOURCE_ROOT }, ...publicSocialMetadata(title, description, RESOURCE_ROOT) };
+export const metadata: Metadata = { title, description, alternates: publicPageAlternates(RESOURCE_ROOT), ...publicSocialMetadata(title, description, RESOURCE_ROOT) };
 
 export default function AgentSecurityHub() {
   return <main className="operational-shell min-h-screen px-4 py-12 text-white sm:px-6 md:px-8">
