@@ -423,7 +423,7 @@ export type CanonicalTrustTransactionDependencies = {
   resolveTenantFromSession(actor: AuthenticatedTransactionActor): Promise<SessionTenant>;
   findByIdempotency(enterpriseId: string, idempotencyKey: string): Promise<SafeCanonicalTransactionReceipt | null>;
   loadTrustObject(enterpriseId: string, subjectType: EnterpriseSubjectClass, subjectId: string): Promise<EnterpriseTrustObject>;
-  loadConfiguredEvidence(input: { enterpriseId: string; subjectId: string; operationalEntityId?: string | null; providerExecutionId?: string | null }): Promise<StoredProviderEvidence[]>;
+  loadConfiguredEvidence(input: { enterpriseId: string; subjectId: string; actionEnvironment: string; operationalEntityId?: string | null; providerExecutionId?: string | null }): Promise<StoredProviderEvidence[]>;
   loadAuthority(enterpriseId: string, subjectType: EnterpriseSubjectClass, subjectId: string): Promise<TrustContract>;
   loadPolicy(enterpriseId: string, policyId: string, policyVersion: string): Promise<ResolvedPolicyVersion>;
   loadPreviousTransaction(enterpriseId: string, transactionId?: string | null): Promise<PreviousCanonicalTransaction | null>;
@@ -563,7 +563,7 @@ export async function resolveTrustObject(dependencies: CanonicalTrustTransaction
 }
 
 export async function collectConfiguredEvidence(dependencies: CanonicalTrustTransactionDependencies, tenant: SessionTenant, trustObject: EnterpriseTrustObject, input: CanonicalTrustTransactionInput) {
-  const evidence = await dependencies.loadConfiguredEvidence({ enterpriseId: tenant.id, subjectId: trustObject.subjectId, operationalEntityId: input.operationalEntityId, providerExecutionId: input.providerExecutionId });
+  const evidence = await dependencies.loadConfiguredEvidence({ enterpriseId: tenant.id, subjectId: trustObject.subjectId, actionEnvironment: input.action.environment, operationalEntityId: input.operationalEntityId, providerExecutionId: input.providerExecutionId });
   return evidence.filter((item) => digestPattern.test(item.sourceDigest) && Boolean(item.providerEventId) && uuidPattern.test(item.correlationId));
 }
 

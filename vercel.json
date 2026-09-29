@@ -4,7 +4,8 @@
   "git": {
     "deploymentEnabled": {
       "main": false,
-      "feat/execution-proof-provider-qualification": false
+      "feat/execution-proof-provider-qualification": false,
+      "feat/real-provider-qualification": false
     }
   },
   "cleanUrls": true,
