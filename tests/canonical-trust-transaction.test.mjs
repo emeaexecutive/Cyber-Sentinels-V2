@@ -834,6 +834,56 @@ test("missing a contract-required evidence type is persisted as incomplete", asy
   assert.equal(receipt.evidenceComplete, false);
 });
 
+for (const [scenario, runtimeEvidence, expectedDecision] of [
+  ["missing", null, "REVIEW"],
+  ["unavailable", { outcome: "UNAVAILABLE" }, "REVIEW"],
+  ["expired", { expiresAt: "2026-08-06T09:59:59.000Z" }, "REVIEW"],
+  ["compromised", { outcome: "FAILED" }, "DENY"],
+  ["unconfirmed", { sourceClassification: "unconfirmed" }, "REVIEW"],
+  ["agent reported", { sourceClassification: "agent_asserted" }, "REVIEW"],
+]) {
+  test(`required runtime attestation ${scenario} cannot authorize execution`, async () => {
+    const runtime = runtimeEvidence ? evidence({ reference: "10000000-0000-4000-8000-000000000031", type: "RUNTIME_ATTESTATION", sourceClassification: "runtime_observed", ...runtimeEvidence }) : null;
+    const h = dependencies({ authority: authority({ requiredEvidenceTypes: ["IDENTITY_SESSION", "RUNTIME_ATTESTATION"] }), evidence: [evidence(), ...(runtime ? [runtime] : [])] });
+    const receipt = await executeCanonicalTrustTransaction(transactionInput(), h.deps);
+    assert.equal(receipt.decision, expectedDecision);
+    assert.equal(receipt.externalExecution.requested, false);
+    assert.equal(h.calls.includes("requestExternalExecutionIfAllowed"), false);
+    if (runtime) assert.ok(receipt.evidence.some((item) => item.reference === runtime.reference));
+  });
+}
+
+test("an external policy ALLOW cannot supply missing action authority or delegation", async () => {
+  for (const managedControl of [undefined, { authorization: { decision: "DENY", reasonCodes: ["DELEGATION_REVOKED"] } }]) {
+    const h = dependencies({ authority: authority(managedControl ? {} : { permittedScope: ["read_invoice"], requiredAuthority: ["read_invoice"] }), evidence: [evidence(), evidence({ reference: "10000000-0000-4000-8000-000000000032", type: "EXTERNAL_POLICY_ASSERTION", sourceClassification: "provider_asserted", normalizedEvidence: { objectId: "policy:external", version: "1", finding: "ALLOW", scope: "settle_invoice" } })] });
+    const receipt = await executeCanonicalTrustTransaction(transactionInput({ managedControl }), h.deps);
+    assert.equal(receipt.decision, "DENY");
+    assert.equal(h.calls.includes("requestExternalExecutionIfAllowed"), false);
+    assert.ok(receipt.providerNeutralEvidence.some((item) => item.evidenceType === "EXTERNAL_POLICY_ASSERTION"));
+  }
+});
+
+for (const scenario of [
+  { original: "ALLOW", providerOutcome: "NOT_ATTEMPTED", destinationOutcome: null, evaluationStatus: "UNRESOLVED" },
+  { original: "ALLOW", providerOutcome: "SUCCEEDED", destinationOutcome: "FAILED; evidence:destination:failure", evaluationStatus: "CONTRADICTED" },
+  { original: "ALLOW", providerOutcome: "SUCCEEDED", destinationOutcome: "CONTRADICTED; evidence:independent-destination:failure", evaluationStatus: "CONTRADICTED" },
+  { original: "DENY", providerOutcome: null, destinationOutcome: "EXECUTION_OCCURRED_AFTER_DENY; evidence:destination:observed", evaluationStatus: "CONTRADICTED" },
+]) {
+  test(`Decision Outcome Review preserves ${scenario.original} with ${scenario.providerOutcome ?? "observed downstream execution"} and ${scenario.evaluationStatus}`, async () => {
+    const h = dependencies({ external: { configured: false, requestReference: null, acknowledgement: null, outcome: null }, authority: authority(scenario.original === "DENY" ? { revocationState: "revoked", revokedAt: requestedAt } : {}) });
+    const review = { providerOutcome: scenario.providerOutcome, runtimeOutcome: null, destinationOutcome: scenario.destinationOutcome, adjudicatedOutcome: null, evaluationStatus: scenario.evaluationStatus };
+    const receipt = await executeCanonicalTrustTransaction(transactionInput({ decisionOutcomeReview: review }), h.deps);
+    assert.equal(receipt.decision, scenario.original);
+    assert.equal(receipt.decisionOutcomeReview.originalDecision, scenario.original);
+    assert.equal(receipt.decisionOutcomeReview.providerOutcome, scenario.providerOutcome);
+    assert.equal(receipt.decisionOutcomeReview.destinationOutcome, scenario.destinationOutcome);
+    assert.equal(receipt.decisionOutcomeReview.evaluationStatus, scenario.evaluationStatus);
+    assert.equal(h.replayed[0].decision, scenario.original);
+    assert.equal(h.remembered[0].decision, scenario.original);
+    assert.equal(receipt.externalExecution.requested, false);
+  });
+}
+
 test("a revoked Operational Entity fails closed before external execution", async () => {
   const { deps, calls } = dependencies({ operationalEntity: operationalEntity({ lifecycleState: "revoked", revokedAt: requestedAt }) });
   const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "revoked-entity" }), deps);
@@ -1026,14 +1076,14 @@ test("canonical receipts expose provider-neutral continuity signals for investor
     correlationId: "correlation-1",
   });
   assert.equal(normalized.providerId, "runtime_security");
-  assert.equal(normalized.monitoringCoverage, "covered");
-  assert.equal(normalized.identityContinuity, "continuous");
-  assert.equal(normalized.signingBoundary, "provider_signed");
+  assert.equal(normalized.monitoringCoverage, "not_observed");
+  assert.equal(normalized.identityContinuity, "review_required");
+  assert.equal(normalized.signingBoundary, "unsigned");
   const { deps } = dependencies();
   const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: "test-key-001" }), deps);
   assert.ok(receipt.continuitySignals);
   assert.equal(receipt.continuitySignals.identityContinuity, "continuous");
-  assert.equal(receipt.continuitySignals.monitoringCoverage, "covered");
+  assert.equal(receipt.continuitySignals.monitoringCoverage, "partial");
   assert.equal(receipt.continuitySignals.signedHumanIntent, "not_provided");
   assert.equal(receipt.continuitySignals.consequentialImpactLineage.target, "invoice:4488");
 });
@@ -1115,6 +1165,63 @@ test("canonical execution continuity keeps intent, request, authorization, ackno
   const stages = receipt.executionContinuity.map((item) => item.stage);
   for (const stage of ["INTENDED_ACTION", "REQUESTED_ACTION", "AUTHORIZED_ACTION", "COMMAND_SENT", "COMMAND_ACKNOWLEDGED", "ACTION_EXECUTED", "CONSEQUENCE_OBSERVED"]) assert.ok(stages.includes(stage));
   assert.equal(new Set(stages).size, stages.length);
+  for (const stage of ["COMMAND_SENT", "ACTION_EXECUTED", "CONSEQUENCE_OBSERVED"]) assert.equal(receipt.executionContinuity.find((item) => item.stage === stage).status, "asserted");
+  assert.equal(receipt.executionContinuity.find((item) => item.stage === "COMMAND_ACKNOWLEDGED").status, "observed");
+});
+
+test("an executor exception preserves ALLOW and lineage while persisting only a sanitized UNKNOWN outcome", async () => {
+  const h = dependencies();
+  let outcome;
+  h.deps.requestExternalExecution = async () => { throw new Error("token=fixture-private-provider-error"); };
+  h.deps.recordExternalOutcome = async (_record, result) => { outcome = result; return "unknown-outcome"; };
+  const receipt = await executeCanonicalTrustTransaction(transactionInput(), h.deps);
+  assert.equal(receipt.decision, "ALLOW");
+  assert.equal(h.persisted[0].decision, "ALLOW");
+  assert.equal(h.replayed.length, 1);
+  assert.equal(h.remembered.length, 1);
+  assert.equal(receipt.replayReference, "replay-1");
+  assert.equal(receipt.evidenceGraphReference, "graph-1");
+  assert.deepEqual(receipt.externalExecution, { requested: false, requestReference: null, acknowledgementReference: null, outcomeReference: "unknown-outcome", outcome: "UNKNOWN" });
+  assert.equal(outcome.state, "UNKNOWN");
+  assert.equal(outcome.externalReference, null);
+  assert.doesNotMatch(JSON.stringify({ receipt, outcome }), /fixture-private|token=/);
+  assert.equal(receipt.executionContinuity.some((item) => ["COMMAND_SENT", "ACTION_EXECUTED"].includes(item.stage)), false);
+  assert.equal(receipt.executionContinuity.find((item) => item.stage === "CONSEQUENCE_OBSERVED").status, "missing");
+});
+
+test("executor reservation and outcome persistence failures still fail visibly", async () => {
+  for (const failingHook of ["requestExternalExecution", "recordExternalOutcome"]) {
+    const h = dependencies();
+    const failure = Object.assign(new Error("Persistence failed safely."), { code: "TRUST_TRANSACTION_PERSISTENCE_FAILED" });
+    h.deps[failingHook] = async () => { throw failure; };
+    await assert.rejects(executeCanonicalTrustTransaction(transactionInput(), h.deps), (error) => error === failure);
+    assert.equal(h.persisted[0].decision, "ALLOW");
+  }
+});
+
+test("ALLOW without a configured executor or final evidence cannot imply execution", async () => {
+  for (const configured of [false, true]) {
+    const h = dependencies({ external: { configured, requestReference: "registered-request", acknowledgement: null, outcome: null } });
+    const receipt = await executeCanonicalTrustTransaction(transactionInput(), h.deps);
+    assert.equal(receipt.decision, "ALLOW");
+    assert.equal(receipt.externalExecution.outcome, configured ? "UNKNOWN" : "NOT_CONFIGURED");
+    assert.equal(receipt.externalExecution.requested, configured);
+    assert.equal(receipt.executionContinuity.some((item) => item.stage === "ACTION_EXECUTED"), false);
+    assert.equal(receipt.executionContinuity.some((item) => item.stage === "COMMAND_SENT"), configured);
+    if (configured) assert.equal(receipt.executionContinuity.find((item) => item.stage === "CONSEQUENCE_OBSERVED").status, "missing");
+  }
+});
+
+test("normalizing provider labels cannot assert signing, runtime coverage, or verified identity", () => {
+  for (const providerId of ["runtime_security", "human_intent", "external_unattributed"]) {
+    for (const outcome of ["PASSED", "SUCCEEDED", "NOT_VERIFIED", "VERIFIED"]) {
+      const normalized = normalizeProviderNeutralEvidence({ providerId, evidenceType: "RUNTIME_ASSERTION", observedAt: requestedAt, outcome, evidenceDigest: "c".repeat(64) });
+      assert.equal(normalized.signingBoundary, "unsigned");
+      assert.equal(normalized.monitoringCoverage, "not_observed");
+      assert.equal(normalized.identityContinuity, "review_required");
+      assert.equal(normalized.outcome, outcome);
+    }
+  }
 });
 
 test("canonical evaluation automatically persists a pre-action Trust Forecast for consequential agent action", async () => {

@@ -294,7 +294,7 @@ function receiptFromRow(row: Row): SafeCanonicalTransactionReceipt {
     timestamp: String(row.requested_at),
     digest: decisionTimeSnapshot.decisionDigest ?? "not_recorded",
     externalExecution: {
-      requested: row.external_state !== "NOT_REQUESTED" && row.external_state !== "NOT_CONFIGURED",
+      requested: row.decision === "ALLOW" && Boolean(row.external_request_reference) && storedExternalState !== "NOT_REQUESTED" && storedExternalState !== "NOT_CONFIGURED",
       requestReference: row.external_request_reference ? String(row.external_request_reference) : null,
       acknowledgementReference: row.external_acknowledgement_reference ? String(row.external_acknowledgement_reference) : null,
       outcomeReference: row.external_outcome_reference ? String(row.external_outcome_reference) : null,

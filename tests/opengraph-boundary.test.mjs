@@ -66,7 +66,19 @@ test("canonical ALLOW is the only executor gate; executor failure cannot become 
   const input = composeOpenGraphRequest(request(), context());
   const h = harness(input);
   h.deps.requestExternalExecution = async () => { throw new Error("FIXTURE_PROVIDER_FAILED"); };
-  await assert.rejects(executeCanonicalTrustTransaction(input, h.deps), /FIXTURE_PROVIDER_FAILED/);
+  h.deps.recordExternalOutcome = async (_record, outcome) => {
+    assert.equal(outcome.state, "UNKNOWN");
+    assert.equal(outcome.externalReference, null);
+    return "synthetic:unknown-outcome";
+  };
+  const receipt = await executeCanonicalTrustTransaction(input, h.deps);
+  assert.equal(receipt.externalExecution.outcome, "UNKNOWN");
+  assert.equal(receipt.externalExecution.requested, false);
+  assert.equal(receipt.externalExecution.requestReference, null);
+  assert.equal(receipt.externalExecution.acknowledgementReference, null);
+  assert.ok(receipt.externalExecution.outcomeReference);
+  assert.equal(receipt.replayReference, "synthetic:replay");
+  assert.doesNotMatch(JSON.stringify(receipt), /FIXTURE_PROVIDER_FAILED/);
   assert.equal(h.records.length, 1);
   assert.equal(h.records[0].decision, "ALLOW"); // Authorization is distinct from execution success.
 });

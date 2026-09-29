@@ -3,7 +3,8 @@
   "framework": "nextjs",
   "git": {
     "deploymentEnabled": {
-      "main": false
+      "main": false,
+      "feat/execution-proof-provider-qualification": false
     }
   },
   "cleanUrls": true,

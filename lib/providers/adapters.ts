@@ -120,9 +120,11 @@ export function normalizeProviderNeutralEvidence(input: {
   evidenceContext?: Record<string, unknown> | null;
 }): ProviderNeutralEvidence {
   const providerId = input.providerId || "external_unattributed";
-  const monitoringCoverage = /runtime|monitor/i.test(input.evidenceType) || providerId === "runtime_security" ? "covered" : "partial";
-  const identityContinuity = /passed|succeeded|verified/i.test(input.outcome) ? "continuous" : "review_required";
-  const signingBoundary = providerId === "runtime_security" ? "provider_signed" : providerId === "human_intent" ? "human_signed" : "unsigned";
+  // Normalization does not verify signatures, identity continuity, or monitoring coverage.
+  // Provider names and positive result strings must not manufacture those assurances.
+  const monitoringCoverage = "not_observed";
+  const identityContinuity = "review_required";
+  const signingBoundary = "unsigned";
   return {
     providerId,
     providerName: input.providerName ?? providerId.replace(/_/g, " "),

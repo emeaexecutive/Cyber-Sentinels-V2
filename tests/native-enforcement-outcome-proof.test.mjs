@@ -126,11 +126,71 @@ test("provider claim for repository A contradicted by repository B is preserved 
 
 test("destination execution after DENY is a critical control failure", () => {
   const denied = request({ idempotencyKey: "deny-but-executed" });
-  const correlated = correlateExecutionEvidence({ decision: "DENY", request: null, destinationObservations: [observation(denied)], observationEvidenceKey: evidenceKey, now });
+  const correlated = correlateExecutionEvidence({ decision: "DENY", request: null, decisionScope: { enterpriseId, transactionId, operationalEntityId, action: action(), decidedAt: now }, destinationObservations: [observation(denied)], observationEvidenceKey: evidenceKey, now });
   assert.equal(correlated.state, "CONTRADICTED");
   assert.equal(correlated.outcome, "CONTROL_FAILURE_CRITICAL");
   assert.equal(correlated.controlStatus, "CRITICAL_FAILURE");
   assert.equal(correlated.contradictionCodes.includes("EXECUTION_OCCURRED_AFTER_DENY"), true);
+});
+
+test("a signed destination failure contradicts provider success without rewriting ALLOW", () => {
+  const selected = request();
+  const decision = Object.freeze({ decision: "ALLOW", digest: selected.decisionDigest });
+  const correlated = correlateExecutionEvidence({ decision: decision.decision, request: selected, executionClaim: claim(selected), destinationObservations: [observation(selected, { result: "FAILED", sourcePartyId: "independent-destination-fixture" })], observationEvidenceKey: evidenceKey, now });
+  assert.equal(correlated.state, "CONTRADICTED");
+  assert.equal(correlated.outcome, "UNKNOWN");
+  assert.equal(correlated.evidenceIndependence, "INDEPENDENT");
+  assert.ok(correlated.contradictionCodes.includes("DESTINATION_OUTCOME_CONTRADICTS_EXECUTION"));
+  assert.deepEqual(decision, { decision: "ALLOW", digest: selected.decisionDigest });
+});
+
+test("DENY evidence requires the exact canonical action and a plausible decision-relative time", () => {
+  const selected = request();
+  const decisionScope = { enterpriseId, transactionId, operationalEntityId, action: selected.action, decidedAt: now };
+  for (const [change, expected] of [
+    [{ action: "UNRELATED_ACTION" }, "EXECUTION_EVIDENCE_CONFLICT"],
+    [{ target: "unrelated-target" }, "EXECUTION_EVIDENCE_CONFLICT"],
+    [{ actionDigest: "b".repeat(64) }, "EXECUTION_EVIDENCE_CONFLICT"],
+    [{ observedAt: "2030-01-01T00:00:00.000Z", expiresAt: "2031-01-01T00:00:00.000Z" }, "EXECUTION_EVIDENCE_OUTSIDE_WINDOW"],
+    [{ observedAt: "2026-08-09T11:59:00.000Z" }, "EXECUTION_EVIDENCE_OUTSIDE_WINDOW"],
+    [{ observedAt: "invalid" }, "ENFORCEMENT_TIMESTAMP_INVALID"],
+  ]) {
+    const correlated = correlateExecutionEvidence({ decision: "DENY", request: null, decisionScope, destinationObservations: [observation(selected, change)], observationEvidenceKey: evidenceKey, now });
+    assert.equal(correlated.outcome, "UNKNOWN", JSON.stringify(change));
+    assert.ok(correlated.contradictionCodes.includes(expected));
+    assert.equal(correlated.contradictionCodes.includes("EXECUTION_OCCURRED_AFTER_DENY"), false);
+  }
+  const late = "2026-08-09T13:00:00.000Z";
+  const correlated = correlateExecutionEvidence({ decision: "DENY", request: null, decisionScope, destinationObservations: [observation(selected, { observedAt: late, expiresAt: "2026-08-09T13:05:00.000Z" })], observationEvidenceKey: evidenceKey, now: late });
+  assert.equal(correlated.outcome, "CONTROL_FAILURE_CRITICAL", "a later unauthorized action is not limited to an ALLOW dispatch window");
+});
+
+test("contradictory signed destination observations cannot become confirmed execution", () => {
+  const selected = request();
+  const correlated = correlateExecutionEvidence({ decision: "ALLOW", request: selected, destinationObservations: [observation(selected), observation(selected, { result: "FAILED" })], observationEvidenceKey: evidenceKey, now });
+  assert.equal(correlated.state, "CONTRADICTED");
+  assert.equal(correlated.outcome, "UNKNOWN");
+});
+
+test("unverified or tampered destination data never proves execution or a DENY control failure", () => {
+  const selected = request();
+  for (const decision of ["ALLOW", "DENY"]) {
+    for (const scenario of ["missing_key", "tampered", "wrong_transaction", "failed_destination"]) {
+      const supplied = scenario === "wrong_transaction" ? observation(selected, { transactionId: randomUUID() }) : observation(selected, scenario === "failed_destination" ? { result: "FAILED" } : {});
+      if (scenario === "tampered") supplied.result = "FAILED";
+      const correlated = correlateExecutionEvidence({ decision, request: decision === "DENY" ? null : selected, decisionScope: { enterpriseId, transactionId, operationalEntityId, action: action(), decidedAt: now }, destinationObservations: [supplied], observationEvidenceKey: scenario === "missing_key" ? undefined : evidenceKey, now });
+      assert.equal(correlated.outcome, "UNKNOWN", `${decision}: ${scenario}`);
+      assert.equal(correlated.contradictionCodes.includes("EXECUTION_OCCURRED_AFTER_DENY"), false);
+      assert.notEqual(correlated.state, "CONFIRMED");
+    }
+  }
+});
+
+test("ALLOW without execution evidence stays unconfirmed", () => {
+  const correlated = correlateExecutionEvidence({ decision: "ALLOW", request: request(), now });
+  assert.equal(correlated.state, "UNCONFIRMED");
+  assert.equal(correlated.outcome, "UNKNOWN");
+  assert.ok(correlated.reasonCodes.includes("EXECUTION_UNCONFIRMED"));
 });
 
 test("high-consequence actions require transaction, scope and time-bound non-transferable approval", () => {

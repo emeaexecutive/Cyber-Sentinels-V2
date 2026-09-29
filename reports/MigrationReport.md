@@ -1,8 +1,8 @@
 # Migration report
 
-- Timestamp: 2026-07-22T16:20:48.666Z
+- Timestamp: 2026-09-29T08:51:36.159Z
 - Status: PASS WITH WARNINGS
-- Checks: 65 SQL migration file(s); legacy identifiers; destructive drops; legacy-sensitive updates; duplicate filenames; empty files
+- Checks: 118 SQL migration file(s); legacy identifiers; destructive drops; legacy-sensitive updates; duplicate filenames; empty files
 - Exact failure stage: None
 - Actionable remediation: Review WARNING findings against the target schema before migration.
 - Limitation: Static analysis does not prove database correctness or successful application to a live project.
@@ -16,7 +16,7 @@
 - **INFO** legacy-reference - supabase/migrations/202606060001_trusted_hiring_mvp.sql: enterprise_id: 8 reference(s); review context before changing historical SQL.
 - **INFO** legacy-reference - supabase/migrations/202606090001_hiring_security_interview_integrity.sql: candidate_profile_id: 4 reference(s); review context before changing historical SQL.
 - **INFO** legacy-update - supabase/migrations/202606090001_hiring_security_interview_integrity.sql: Legacy-sensitive UPDATE is inside an existence-checked block.
-- **INFO** legacy-reference - supabase/migrations/202606180001_enterprise_ai_trust_governance.sql: enterprise_id: 4 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/202606180001_enterprise_ai_trust_governance.sql: enterprise_id: 5 reference(s); review context before changing historical SQL.
 - **INFO** legacy-reference - supabase/migrations/202606180001_enterprise_ai_trust_governance.sql: trust_score: 4 reference(s); review context before changing historical SQL.
 - **INFO** legacy-reference - supabase/migrations/202606190001_verifiers.sql: trust_score: 2 reference(s); review context before changing historical SQL.
 - **INFO** legacy-reference - supabase/migrations/202607190001_identity_signal_engine.sql: enterprise_id: 21 reference(s); review context before changing historical SQL.
@@ -34,7 +34,7 @@
 - **WARNING** legacy-update - supabase/migrations/202607200003_provider_consensus_engine.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
 - **WARNING** legacy-update - supabase/migrations/202607200003_provider_consensus_engine.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
 - **WARNING** legacy-update - supabase/migrations/202607200003_provider_consensus_engine.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
-- **INFO** legacy-reference - supabase/migrations/202607210001_enterprise_trust_architecture.sql: enterprise_id: 106 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/202607210001_enterprise_trust_architecture.sql: enterprise_id: 107 reference(s); review context before changing historical SQL.
 - **WARNING** legacy-update - supabase/migrations/202607210001_enterprise_trust_architecture.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
 - **WARNING** legacy-update - supabase/migrations/202607210001_enterprise_trust_architecture.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
 - **WARNING** legacy-update - supabase/migrations/202607210001_enterprise_trust_architecture.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
@@ -44,3 +44,102 @@
 - **WARNING** legacy-update - supabase/migrations/202607210002_continuous_trust_runtime.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
 - **WARNING** legacy-update - supabase/migrations/202607210002_continuous_trust_runtime.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
 - **WARNING** legacy-update - supabase/migrations/202607210002_continuous_trust_runtime.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/202607230001_trust_intelligence_engine.sql: enterprise_id: 6 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/202607240003_continuous_trust_engine.sql: enterprise_id: 14 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/202607240003_continuous_trust_engine.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202607240003_continuous_trust_engine.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/202607240004_enterprise_trust_centre.sql: enterprise_id: 8 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/202607240004_enterprise_trust_centre.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202607240004_enterprise_trust_centre.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202607240004_enterprise_trust_centre.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/202607310001_environment_attestation_scope_continuity.sql: enterprise_id: 92 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/202608010001_ai_serious_incident_regulatory_lineage.sql: enterprise_id: 252 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/202608010002_enterprise_trust_fabric.sql: enterprise_id: 34 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/202608060001_rc2_enterprise_operational_readiness.sql: enterprise_id: 9 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: enterprise_id: 74 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608060002_end_to_end_trust_transaction.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/202608080001_provider_neutral_evidence_independence.sql: enterprise_id: 34 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/202608080003_native_operational_entity_verification.sql: enterprise_id: 81 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/202608080003_native_operational_entity_verification.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608080003_native_operational_entity_verification.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608080003_native_operational_entity_verification.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608080003_native_operational_entity_verification.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/202608090001_native_delegated_authority.sql: enterprise_id: 47 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/202608090001_native_delegated_authority.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608090001_native_delegated_authority.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608090001_native_delegated_authority.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608090001_native_delegated_authority.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608090001_native_delegated_authority.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608090001_native_delegated_authority.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608090001_native_delegated_authority.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/202608090002_native_enforcement_outcome_proof.sql: enterprise_id: 107 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/202608090002_native_enforcement_outcome_proof.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608090002_native_enforcement_outcome_proof.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608090002_native_enforcement_outcome_proof.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608090002_native_enforcement_outcome_proof.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608090002_native_enforcement_outcome_proof.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/202608100002_runtime_persistence_compatibility.sql: enterprise_id: 3 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/202608100002_runtime_persistence_compatibility.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608100002_runtime_persistence_compatibility.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/202608100003_alpha_beta_persistence_repairs.sql: enterprise_id: 2 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/202608100004_continuous_trust_legacy_consensus_fk_repair.sql: enterprise_id: 14 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/202608100004_continuous_trust_legacy_consensus_fk_repair.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/202608100004_continuous_trust_legacy_consensus_fk_repair.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/202608110001_external_agent_trust_api.sql: enterprise_id: 2 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/20260817173631_track_block_protected_workflow.sql: enterprise_id: 6 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/20260819082001_consent_evidence_freshness_repair.sql: enterprise_id: 4 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/20260820085027_vale_canonical_provider_preview.sql: enterprise_id: 6 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/20260821174100_reconcile_canonical_persist_search_path.sql: enterprise_id: 6 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/20260822124942_repair_production_consent_event_metadata.sql: enterprise_id: 10 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/20260822124942_repair_production_consent_event_metadata.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260822124942_repair_production_consent_event_metadata.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/20260824181053_authority_integrity_authorization_propagation.sql: enterprise_id: 26 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/20260824181053_authority_integrity_authorization_propagation.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260824181053_authority_integrity_authorization_propagation.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260824181053_authority_integrity_authorization_propagation.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260824181053_authority_integrity_authorization_propagation.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260824181053_authority_integrity_authorization_propagation.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260824181053_authority_integrity_authorization_propagation.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/20260824184543_trust_forecast_operational_intelligence.sql: enterprise_id: 26 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/20260824184543_trust_forecast_operational_intelligence.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260824184543_trust_forecast_operational_intelligence.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260824184543_trust_forecast_operational_intelligence.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260824184543_trust_forecast_operational_intelligence.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260824184543_trust_forecast_operational_intelligence.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260824184543_trust_forecast_operational_intelligence.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/20260829164824_close_public_api_customer_zero.sql: enterprise_id: 17 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/20260829164824_close_public_api_customer_zero.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260829164824_close_public_api_customer_zero.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260829164824_close_public_api_customer_zero.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260829164824_close_public_api_customer_zero.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260829164824_close_public_api_customer_zero.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260829164824_close_public_api_customer_zero.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/20260831121500_fix_public_api_replay_subject.sql: enterprise_id: 4 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/20260831121500_fix_public_api_replay_subject.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260831121500_fix_public_api_replay_subject.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/20260831125500_fix_public_api_trust_memory_source_id.sql: enterprise_id: 5 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/20260831125500_fix_public_api_trust_memory_source_id.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260831125500_fix_public_api_trust_memory_source_id.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/202609060001_world_id_durable_replay_guard.sql: enterprise_id: 5 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/202609060002_world_id_replay_hardening.sql: enterprise_id: 1 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/20260907120000_add_decision_outcome_review_to_canonical_trust.sql: enterprise_id: 20 reference(s); review context before changing historical SQL.
+- **WARNING** legacy-update - supabase/migrations/20260907120000_add_decision_outcome_review_to_canonical_trust.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260907120000_add_decision_outcome_review_to_canonical_trust.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260907120000_add_decision_outcome_review_to_canonical_trust.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260907120000_add_decision_outcome_review_to_canonical_trust.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260907120000_add_decision_outcome_review_to_canonical_trust.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **WARNING** legacy-update - supabase/migrations/20260907120000_add_decision_outcome_review_to_canonical_trust.sql: UPDATE references a legacy-sensitive column; verify schema assumptions and backfill safety.
+- **INFO** legacy-reference - supabase/migrations/20260909163513_operational_incident_evidence_foundation.sql: enterprise_id: 32 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/20260913132642_fix_operational_incident_api_key_revocation_check.sql: enterprise_id: 16 reference(s); review context before changing historical SQL.
+- **INFO** legacy-reference - supabase/migrations/20260929084417_repair_execution_proof_sql_lint.sql: enterprise_id: 49 reference(s); review context before changing historical SQL.
