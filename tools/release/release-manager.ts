@@ -251,7 +251,7 @@ try {
   }
   if (!["next.config.js", "next.config.mjs", "next.config.ts"].some((name) => existsSync(join(repoRoot, name)))) throw new Error("A Next.js configuration file is required.");
   const packageJson = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")) as { engines?: Record<string, string>; scripts?: Record<string, string> };
-  if (packageJson.engines?.node !== "22.x" || packageJson.engines?.npm !== ">=10") throw new Error("package.json must require Node 22.x and npm >=10.");
+  if (packageJson.engines?.node !== "22.x" || packageJson.engines?.npm !== "10.x") throw new Error("package.json must require Node 22.x and npm 10.x.");
   const scripts = packageJson.scripts ?? {};
   for (const requiredScript of ["lint", "typecheck", "build"]) if (!scripts[requiredScript]) throw new Error(`Required package script is missing: ${requiredScript}`);
   stages.push({ name: "Repository validation", status: "PASS", command: "filesystem and package.json checks", detail: "Required project structure and scripts are present." });
