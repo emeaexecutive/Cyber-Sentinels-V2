@@ -81,8 +81,11 @@ test("OpenGraph qualification 9: redirect confinement remains blocked even when 
   };
   const receipt = await governOpenGraphRequest(request(), h.deps, async () => context());
   assert.equal(redirectsFollowed, 0);
-  assert.equal(receipt.externalExecution.outcome, "NOT_CONFIGURED");
-  assert.equal(JSON.stringify(receipt).includes("outside.example.net"), false);
+  assert.equal(receipt.action.resource, request().targetUrl);
+  assert.deepEqual(receipt.externalExecution, {
+    requested: false, requestReference: null, acknowledgementReference: null,
+    outcomeReference: null, outcome: "NOT_CONFIGURED",
+  });
 });
 
 test("OpenGraph qualification 12: replay receives original action, authority, policy and decision bindings", async () => {
