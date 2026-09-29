@@ -354,7 +354,8 @@ export type PersistedCanonicalDecision = CanonicalDecisionRecord & {
   persistenceStatus: "CREATED" | "DUPLICATE";
 };
 export type ExternalExecutionResult = {
-  configured: boolean;
+  // Null means the executor failed before it returned configuration/attempt evidence.
+  configured: boolean | null;
   requestReference: string | null;
   acknowledgement?: { externalReference: string; acknowledgedAt: string } | null;
   outcome?: { state: ExternalOutcomeState; externalReference: string | null; occurredAt: string; reason: string } | null;
@@ -686,7 +687,7 @@ function deriveContinuitySignals(input: {
   const providerNeutralEvidence = input.providerNeutralEvidence;
   const observedProviderEvidence = providerNeutralEvidence.filter((item) => !item.evidenceType.startsWith("TRUST_CONDITION_"));
   const monitoringCoverage = input.transactionInput.managedControl?.monitoringCoverage
-    ?? (observedProviderEvidence.length > 0 && (input.authority.monitoringRequirements.length > 0 || observedProviderEvidence.some((item) => /runtime|monitor/i.test(item.evidenceType)))
+    ?? (observedProviderEvidence.some((item) => item.monitoringCoverage === "covered")
       ? "covered"
       : observedProviderEvidence.length > 0
         ? "partial"
@@ -1386,13 +1387,24 @@ export async function appendReplay(dependencies: CanonicalTrustTransactionDepend
 export async function emitMaterialTrustMemory(dependencies: CanonicalTrustTransactionDependencies, record: PersistedCanonicalDecision) { return record.materialChange ? dependencies.emitTrustMemory(record) : null; }
 export async function requestExternalExecutionIfAllowed(dependencies: CanonicalTrustTransactionDependencies, record: PersistedCanonicalDecision) {
   if (record.decision !== "ALLOW") return { configured: false, requestReference: null, acknowledgement: null, outcome: null } satisfies ExternalExecutionResult;
-  return dependencies.requestExternalExecution(record);
+  try {
+    return await dependencies.requestExternalExecution(record);
+  } catch (error) {
+    // Persistence failures must remain failures; an executor exception proves no external effect.
+    if (error && typeof error === "object" && "code" in error && error.code === "TRUST_TRANSACTION_PERSISTENCE_FAILED") throw error;
+    return {
+      configured: null,
+      requestReference: null,
+      acknowledgement: null,
+      outcome: { state: "UNKNOWN", externalReference: null, occurredAt: new Date().toISOString(), reason: "The executor returned no attempt or outcome evidence." },
+    } satisfies ExternalExecutionResult;
+  }
 }
 export async function recordExternalAcknowledgement(dependencies: CanonicalTrustTransactionDependencies, record: PersistedCanonicalDecision, result: ExternalExecutionResult) {
   return result.acknowledgement ? dependencies.recordExternalAcknowledgement(record, result.acknowledgement) : null;
 }
 export async function recordExternalOutcome(dependencies: CanonicalTrustTransactionDependencies, record: PersistedCanonicalDecision, result: ExternalExecutionResult) {
-  if (record.decision !== "ALLOW" || !result.configured) return null;
+  if (record.decision !== "ALLOW" || result.configured === false) return null;
   const outcome = result.outcome ?? { state: "UNKNOWN" as const, externalReference: null, occurredAt: new Date().toISOString(), reason: "The relay acknowledged no final outcome." };
   return dependencies.recordExternalOutcome(record, outcome);
 }
@@ -1408,12 +1420,13 @@ export function returnSafeTransactionReceipt(input: {
   outcomeReference: string | null;
 }): SafeCanonicalTransactionReceipt {
   const { persisted, context } = input;
-  const outcome = persisted.decision !== "ALLOW" ? "NOT_REQUESTED" : !input.external.configured ? "NOT_CONFIGURED" : input.external.outcome?.state ?? "UNKNOWN";
+  const outcome = persisted.decision !== "ALLOW" ? "NOT_REQUESTED" : input.external.configured === false ? "NOT_CONFIGURED" : input.external.outcome?.state ?? "UNKNOWN";
   const executionContinuity = [...persisted.executionContinuity];
-  if (input.external.requestReference) executionContinuity.push({ stage: "COMMAND_SENT", status: "observed", occurredAt: persisted.timestamp, evidenceReference: input.external.requestReference });
+  if (input.external.configured === true && input.external.requestReference) executionContinuity.push({ stage: "COMMAND_SENT", status: "asserted", occurredAt: persisted.timestamp, evidenceReference: input.external.requestReference });
   if (input.acknowledgementReference) executionContinuity.push({ stage: "COMMAND_ACKNOWLEDGED", status: "observed", occurredAt: input.external.acknowledgement?.acknowledgedAt ?? persisted.timestamp, evidenceReference: input.acknowledgementReference });
-  if (input.external.outcome?.state === "SUCCEEDED") executionContinuity.push({ stage: "ACTION_EXECUTED", status: "observed", occurredAt: input.external.outcome.occurredAt, evidenceReference: input.outcomeReference });
-  if (input.outcomeReference) executionContinuity.push({ stage: "CONSEQUENCE_OBSERVED", status: input.external.outcome?.state === "UNKNOWN" ? "missing" : "observed", occurredAt: input.external.outcome?.occurredAt ?? null, evidenceReference: input.outcomeReference });
+  // Relay outcomes are provider assertions. Verified destination observations retain their own records.
+  if (input.external.outcome?.state === "SUCCEEDED") executionContinuity.push({ stage: "ACTION_EXECUTED", status: "asserted", occurredAt: input.external.outcome.occurredAt, evidenceReference: input.outcomeReference });
+  if (input.outcomeReference) executionContinuity.push({ stage: "CONSEQUENCE_OBSERVED", status: outcome === "UNKNOWN" ? "missing" : "asserted", occurredAt: input.external.outcome?.occurredAt ?? null, evidenceReference: input.outcomeReference });
   return {
     transactionId: persisted.transactionId,
     correlationId: persisted.correlationId,
@@ -1462,7 +1475,7 @@ export function returnSafeTransactionReceipt(input: {
     timestamp: persisted.timestamp,
     digest: persisted.digest,
     externalExecution: {
-      requested: persisted.decision === "ALLOW" && input.external.configured && Boolean(input.external.requestReference),
+      requested: persisted.decision === "ALLOW" && input.external.configured === true && Boolean(input.external.requestReference),
       requestReference: input.external.requestReference,
       acknowledgementReference: input.acknowledgementReference,
       outcomeReference: input.outcomeReference,

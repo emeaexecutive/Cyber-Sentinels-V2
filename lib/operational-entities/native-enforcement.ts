@@ -320,27 +320,45 @@ export function correlateExecutionEvidence(input: {
   runtimeObservation?: RuntimeObservation | null;
   destinationObservations?: DestinationObservation[];
   observationEvidenceKey?: string;
+  decisionScope?: { enterpriseId: string; transactionId: string; operationalEntityId: string; action: AuthorizedAction; decidedAt: string };
   now?: string;
 }): ExecutionCorrelation {
   const contradictions: string[] = [];
   const reasons: string[] = [];
-  const observations = input.destinationObservations ?? [];
   const now = input.now ?? new Date().toISOString();
   const request = input.request;
+  const scope = request ?? input.decisionScope;
+  const observations: DestinationObservation[] = [];
+  for (const observation of input.destinationObservations ?? []) {
+    try {
+      if (!input.observationEvidenceKey || !scope) throw new NativeEnforcementError("Destination evidence verification context is unavailable.", "DESTINATION_EVIDENCE_UNVERIFIED");
+      verifyDestinationObservation({ observation, evidenceKey: input.observationEvidenceKey, expectedEnterpriseId: scope.enterpriseId, expectedTransactionId: scope.transactionId, expectedEntityId: scope.operationalEntityId, now });
+      if (observation.action !== scope.action.type) throw new NativeEnforcementError("Destination action does not match the decision.", "EXECUTION_EVIDENCE_CONFLICT");
+      if (!request && input.decisionScope) {
+        const bound = input.decisionScope;
+        if (observation.target !== bound.action.target || observation.actionDigest !== deriveEnforcementActionDigest(bound)) {
+          throw new NativeEnforcementError("Destination scope does not match the decision.", "EXECUTION_EVIDENCE_CONFLICT");
+        }
+        const observed = instant(observation.observedAt, "observedAt");
+        // DENY has no dispatch window. Evidence must postdate the decision and
+        // cannot come from the future, allowing the existing 30-second clock skew.
+        if (observed < instant(bound.decidedAt, "decidedAt") - 30_000 || observed > instant(now, "now") + 30_000) {
+          throw new NativeEnforcementError("Destination evidence is outside the decision window.", "EXECUTION_EVIDENCE_OUTSIDE_WINDOW");
+        }
+      }
+      observations.push(observation);
+    } catch (error) {
+      contradictions.push(error instanceof NativeEnforcementError ? error.code : "DESTINATION_EVIDENCE_INVALID");
+    }
+  }
 
   if (!request) {
-    if (input.decision === "DENY" && observations.length) {
+    if (input.decision === "DENY" && observations.some((item) => item.result === "OBSERVED")) {
       contradictions.push("EXECUTION_OCCURRED_AFTER_DENY");
       reasons.push("CONTROL_FAILURE_CRITICAL");
     } else reasons.push(input.decision === "ALLOW" ? "ENFORCEMENT_REQUEST_MISSING" : "NO_ENFORCEMENT_EXPECTED");
   } else {
     for (const observation of observations) {
-      try {
-        if (input.observationEvidenceKey) verifyDestinationObservation({ observation, evidenceKey: input.observationEvidenceKey, expectedEnterpriseId: request.enterpriseId, now });
-      } catch (error) {
-        contradictions.push(error instanceof NativeEnforcementError ? error.code : "DESTINATION_EVIDENCE_INVALID");
-        continue;
-      }
       if (!matchingEvidence(observation, request)) contradictions.push("EXECUTION_EVIDENCE_CONFLICT");
       else if (!withinExecutionWindow(observation.observedAt, request, now)) contradictions.push("EXECUTION_EVIDENCE_OUTSIDE_WINDOW");
     }
@@ -350,14 +368,15 @@ export function correlateExecutionEvidence(input: {
     else if (input.executionClaim && !withinExecutionWindow(input.executionClaim.claimedAt, request, now)) contradictions.push("EXECUTION_EVIDENCE_OUTSIDE_WINDOW");
     if (input.runtimeObservation && !matchingEvidence(input.runtimeObservation, request)) contradictions.push("EXECUTION_EVIDENCE_CONFLICT");
     else if (input.runtimeObservation && !withinExecutionWindow(input.runtimeObservation.observedAt, request, now)) contradictions.push("EXECUTION_EVIDENCE_OUTSIDE_WINDOW");
-    if (input.decision === "DENY" && observations.some((item) => item.result === "OBSERVED")) contradictions.push("EXECUTION_OCCURRED_AFTER_DENY");
+    if (input.decision === "DENY" && observations.some((item) => matchingEvidence(item, request) && withinExecutionWindow(item.observedAt, request, now) && item.result === "OBSERVED")) contradictions.push("EXECUTION_OCCURRED_AFTER_DENY");
   }
 
-  const matchingDestinations = request ? observations.filter((item) => matchingEvidence(item, request) && withinExecutionWindow(item.observedAt, request, now) && item.result === "OBSERVED" && instant(item.expiresAt, "expiresAt") > instant(now, "now")) : [];
-  const destinationConfirmed = matchingDestinations.length > 0;
+  const matchingDestinations = request ? observations.filter((item) => matchingEvidence(item, request) && withinExecutionWindow(item.observedAt, request, now)) : [];
+  const destinationConfirmed = matchingDestinations.some((item) => item.result === "OBSERVED");
   const acknowledgementAccepted = Boolean(request && input.acknowledgement && matchingEvidence(input.acknowledgement, request) && withinExecutionWindow(input.acknowledgement.acknowledgedAt, request, now) && input.acknowledgement.status === "ACCEPTED");
   const claimSupported = Boolean(request && input.executionClaim && matchingEvidence(input.executionClaim, request) && withinExecutionWindow(input.executionClaim.claimedAt, request, now) && input.executionClaim.result === "SUCCEEDED");
   const runtimeSupported = Boolean(request && input.runtimeObservation && matchingEvidence(input.runtimeObservation, request) && withinExecutionWindow(input.runtimeObservation.observedAt, request, now) && input.runtimeObservation.result === "OBSERVED");
+  if (matchingDestinations.some((item) => item.result === "FAILED") && (claimSupported || runtimeSupported || destinationConfirmed)) contradictions.push("DESTINATION_OUTCOME_CONTRADICTS_EXECUTION");
   const critical = contradictions.includes("EXECUTION_OCCURRED_AFTER_DENY");
   const conflicted = contradictions.length > 0;
   const state: CorrelationState = critical || conflicted ? "CONTRADICTED" : destinationConfirmed ? "CONFIRMED" : acknowledgementAccepted || claimSupported || runtimeSupported ? "PARTIALLY_CONFIRMED" : "UNCONFIRMED";

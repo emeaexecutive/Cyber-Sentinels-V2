@@ -2,6 +2,7 @@ import "server-only";
 
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { hashCanonical } from "@/src/lib/trust-core/hash";
+import { captureOperationalIssue } from "@/lib/operational-monitoring";
 import {
   PUBLIC_WEBHOOK_EVENT_TYPES,
   publicWebhookBackoffSeconds,
@@ -33,9 +34,19 @@ export async function emitPublicApiWebhookEvent(
     payload_digest: hashCanonical(payload),
     delivery_state: configured ? "QUEUED" : "NOT_CONFIGURED",
   });
-  if (inserted.error && inserted.error.code !== "23505") return;
+  if (inserted.error) {
+    if (inserted.error.code !== "23505") {
+      captureOperationalIssue("public_api_webhook", "error", "WEBHOOK_EVENT_PERSISTENCE_FAILED", {
+        event_id: payload.event_id,
+        error_code: /^[A-Z0-9]{5}$/.test(inserted.error.code ?? "") ? inserted.error.code : "UNKNOWN",
+      });
+    }
+    // A duplicate event must not be dispatched again by this first-attempt path.
+    return;
+  }
   if (!configured) return;
 
+  let delivered = false;
   try {
     const response = await fetch(url!, {
       method: "POST",
@@ -47,21 +58,36 @@ export async function emitPublicApiWebhookEvent(
         "idempotency-key": payload.event_id,
       },
       body: JSON.stringify(payload),
+      // A redirect is not acknowledgement by the configured destination and
+      // must not forward signed event data or headers to another endpoint.
+      redirect: "error",
       signal: AbortSignal.timeout(5_000),
       cache: "no-store",
     });
-    await db.from("public_api_webhook_events").update({
-      delivery_state: response.ok ? "DELIVERED" : "QUEUED",
-      attempt_count: 1,
-      last_attempted_at: new Date().toISOString(),
-      next_attempt_at: response.ok ? null : new Date(Date.now() + publicWebhookBackoffSeconds(1) * 1_000).toISOString(),
-    }).eq("event_id", payload.event_id);
+    delivered = response.ok;
+    if (!response.ok) captureOperationalIssue("public_api_webhook", "warning", "WEBHOOK_DELIVERY_REJECTED", {
+      event_id: payload.event_id, http_status: response.status,
+    });
   } catch {
-    await db.from("public_api_webhook_events").update({
-      delivery_state: "QUEUED",
+    captureOperationalIssue("public_api_webhook", "warning", "WEBHOOK_DELIVERY_UNCONFIRMED", { event_id: payload.event_id });
+  }
+  // Transport acknowledgement is not independent proof of a destination effect.
+  // Keep persistence failures separate so they cannot trigger a second dispatch.
+  try {
+    const updated = await db.from("public_api_webhook_events").update({
+      delivery_state: delivered ? "DELIVERED" : "QUEUED",
       attempt_count: 1,
       last_attempted_at: new Date().toISOString(),
-      next_attempt_at: new Date(Date.now() + publicWebhookBackoffSeconds(1) * 1_000).toISOString(),
-    }).eq("event_id", payload.event_id);
+      next_attempt_at: delivered ? null : new Date(Date.now() + publicWebhookBackoffSeconds(1) * 1_000).toISOString(),
+    }).eq("event_id", payload.event_id).eq("tenant_id", tenantId);
+    if (updated.error) captureOperationalIssue("public_api_webhook", "error", "WEBHOOK_DELIVERY_STATE_FAILED", {
+      event_id: payload.event_id,
+      error_code: /^[A-Z0-9]{5}$/.test(updated.error.code ?? "") ? updated.error.code : "UNKNOWN",
+      transport_acknowledged: delivered,
+    });
+  } catch {
+    captureOperationalIssue("public_api_webhook", "error", "WEBHOOK_DELIVERY_STATE_FAILED", {
+      event_id: payload.event_id, error_code: "UNKNOWN", transport_acknowledged: delivered,
+    });
   }
 }
