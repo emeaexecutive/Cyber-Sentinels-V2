@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TurnstileField } from "@/components/turnstile-field";
 import {
@@ -83,6 +83,7 @@ async function recordAuthEvent(
 
 export default function LoginPage() {
   const router = useRouter();
+  const navigationVersion = useRef(0);
   const [authMode, setAuthMode] = useState<AuthMode>("sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -112,7 +113,11 @@ export default function LoginPage() {
   const canSendEmailOnlyAction = Boolean(trimmedEmail) && loadingAction === null;
   const maskedEmail = maskEmailAddress(trimmedEmail);
 
+  useEffect(() => () => { navigationVersion.current += 1; }, []);
+
   function switchAuthMode(mode: AuthMode) {
+    navigationVersion.current += 1;
+    setLoadingAction(null);
     setAuthMode(mode);
     setMessage("");
     setExperienceState("SIGNED_OUT");
@@ -177,6 +182,13 @@ export default function LoginPage() {
       setMessage("Reset link expired or invalid. Request a new password reset email.");
     }
 
+    // Recovery/error/completion screens own navigation even with an old session.
+    if (searchParams.get("mode") === "forgot-password" || searchParams.has("error")
+      || searchParams.get("password_updated") === "1") {
+      setExperienceState("SIGNED_OUT");
+      return;
+    }
+
     const supabase = getSupabaseClient();
 
     if (!supabase) {
@@ -184,17 +196,20 @@ export default function LoginPage() {
     }
 
     let active = true;
+    const version = ++navigationVersion.current;
+    const current = () => active && version === navigationVersion.current;
 
     withAuthTimeout(supabase.auth.getUser())
       .then(async ({ data }) => {
-        if (!active) return;
+        if (!current()) return;
 
         if (data.user) {
           const verified = await supabase.auth.getClaims();
+          if (!current()) return;
           if (!verified.error && isPasswordRecoverySession(verified.data?.claims)) {
             setExperienceState("SIGNED_OUT");
             if (searchParams.get("mode") !== "forgot-password" && searchParams.get("error") !== "recovery_link_invalid") {
-              router.replace(PASSWORD_RECOVERY_PATH);
+              window.location.replace(PASSWORD_RECOVERY_PATH);
             }
             return;
           }
@@ -206,7 +221,7 @@ export default function LoginPage() {
             restoresSession,
             { restored_to: resolvedNextPath }
           );
-          router.replace(resolvedNextPath);
+          if (current()) window.location.replace(resolvedNextPath);
           return;
         }
 
@@ -214,7 +229,7 @@ export default function LoginPage() {
       })
       .catch((error) => {
         console.error("Supabase session restoration failed.", error);
-        if (active) setExperienceState("SIGNED_OUT");
+        if (current()) setExperienceState("SIGNED_OUT");
       });
 
     return () => {
@@ -255,7 +270,7 @@ export default function LoginPage() {
     return true;
   }
 
-  async function verifyTurnstileForAuth() {
+  async function verifyTurnstileForAuth(version: number) {
     if (!turnstileSiteKey) return !shouldRequireTurnstile();
 
     try {
@@ -268,6 +283,7 @@ export default function LoginPage() {
         ok?: boolean;
         error?: string;
       };
+      if (version !== navigationVersion.current) return false;
 
       setTurnstileToken("");
       setTurnstileResetKey((value) => value + 1);
@@ -284,6 +300,7 @@ export default function LoginPage() {
 
       return true;
     } catch {
+      if (version !== navigationVersion.current) return false;
       showSecurityFailure();
       return false;
     }
@@ -301,6 +318,7 @@ export default function LoginPage() {
   }
 
   async function signInWithPassword() {
+    const version = ++navigationVersion.current;
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail) {
@@ -321,7 +339,9 @@ export default function LoginPage() {
     setExperienceState("SIGNING_IN");
     setLoadingAction("password");
 
-    if (!(await verifyTurnstileForAuth())) {
+    const securityVerified = await verifyTurnstileForAuth(version);
+    if (version !== navigationVersion.current) return;
+    if (!securityVerified) {
       setLoadingAction(null);
       return;
     }
@@ -340,6 +360,7 @@ export default function LoginPage() {
           password,
         })
       );
+      if (version !== navigationVersion.current) return;
 
       if (error) {
         showAuthFailure(error, "We couldn't sign you in. Please try again.");
@@ -351,17 +372,21 @@ export default function LoginPage() {
       await recordAuthEvent("login", nextPath, rememberSession, {
         method: "password",
       });
+      if (version !== navigationVersion.current) return;
       setExperienceState("AUTHENTICATED");
-      router.push(nextPath);
+      // Refresh the server-rendered shell after changing authentication.
+      window.location.replace(nextPath);
     } catch (error) {
+      if (version !== navigationVersion.current) return;
       console.error("Supabase password sign-in failed.", error);
       showAuthFailure(error, "We couldn't sign you in. Please try again.");
     } finally {
-      setLoadingAction(null);
+      if (version === navigationVersion.current) setLoadingAction(null);
     }
   }
 
   async function createAccountWithPassword() {
+    const version = ++navigationVersion.current;
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail) {
@@ -389,7 +414,9 @@ export default function LoginPage() {
     setExperienceState("SIGNING_IN");
     setLoadingAction("create-account");
 
-    if (!(await verifyTurnstileForAuth())) {
+    const securityVerified = await verifyTurnstileForAuth(version);
+    if (version !== navigationVersion.current) return;
+    if (!securityVerified) {
       setLoadingAction(null);
       return;
     }
@@ -413,6 +440,7 @@ export default function LoginPage() {
           },
         })
       );
+      if (version !== navigationVersion.current) return;
 
       if (error) {
         showAuthFailure(error, "We couldn't create your account. Please try again.");
@@ -424,8 +452,9 @@ export default function LoginPage() {
         await recordAuthEvent("signup_session_created", nextPath, true, {
           authenticated_to: nextPath,
         });
+        if (version !== navigationVersion.current) return;
         setExperienceState("AUTHENTICATED");
-        router.replace(nextPath);
+        window.location.replace(nextPath);
         return;
       }
 
@@ -433,14 +462,16 @@ export default function LoginPage() {
       setExperienceState("EMAIL_VERIFICATION_REQUIRED");
       setMessage("");
     } catch (error) {
+      if (version !== navigationVersion.current) return;
       console.error("Supabase account creation failed.", error);
       showAuthFailure(error, "We couldn't create your account. Please try again.");
     } finally {
-      setLoadingAction(null);
+      if (version === navigationVersion.current) setLoadingAction(null);
     }
   }
 
   async function resendVerificationEmail() {
+    const version = ++navigationVersion.current;
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail) {
@@ -454,7 +485,9 @@ export default function LoginPage() {
     setExperienceState("SIGNING_IN");
     setLoadingAction("create-account");
 
-    if (!(await verifyTurnstileForAuth())) {
+    const securityVerified = await verifyTurnstileForAuth(version);
+    if (version !== navigationVersion.current) return;
+    if (!securityVerified) {
       setLoadingAction(null);
       return;
     }
@@ -478,6 +511,7 @@ export default function LoginPage() {
           },
         })
       );
+      if (version !== navigationVersion.current) return;
 
       if (error) {
         showAuthFailure(error, "We couldn't resend the email. Please try again.");
@@ -487,14 +521,16 @@ export default function LoginPage() {
       setExperienceState("EMAIL_VERIFICATION_REQUIRED");
       setMessage("Email sent again.");
     } catch (error) {
+      if (version !== navigationVersion.current) return;
       console.error("Supabase verification resend failed.", error);
       showAuthFailure(error, "We couldn't resend the email. Please try again.");
     } finally {
-      setLoadingAction(null);
+      if (version === navigationVersion.current) setLoadingAction(null);
     }
   }
 
   async function signInWithMagicLink() {
+    const version = ++navigationVersion.current;
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail) {
@@ -509,7 +545,9 @@ export default function LoginPage() {
     setExperienceState("SIGNING_IN");
     setLoadingAction("magic-link");
 
-    if (!(await verifyTurnstileForAuth())) {
+    const securityVerified = await verifyTurnstileForAuth(version);
+    if (version !== navigationVersion.current) return;
+    if (!securityVerified) {
       setLoadingAction(null);
       return;
     }
@@ -532,6 +570,7 @@ export default function LoginPage() {
           },
         })
       );
+      if (version !== navigationVersion.current) return;
 
       if (error) {
         showAuthFailure(error, "We couldn't send the sign-in link. Please try again.");
@@ -541,14 +580,16 @@ export default function LoginPage() {
       setExperienceState("SIGNED_OUT");
       setMessage("Check your email for your sign-in link.");
     } catch (error) {
+      if (version !== navigationVersion.current) return;
       console.error("Supabase magic-link sign-in failed.", error);
       showAuthFailure(error, "We couldn't send the sign-in link. Please try again.");
     } finally {
-      setLoadingAction(null);
+      if (version === navigationVersion.current) setLoadingAction(null);
     }
   }
 
   async function sendPasswordResetEmail() {
+    const version = ++navigationVersion.current;
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail) {
@@ -579,6 +620,7 @@ export default function LoginPage() {
         error?: string;
         message?: string;
       };
+      if (version !== navigationVersion.current) return;
       setTurnstileToken("");
       setTurnstileResetKey((value) => value + 1);
 
@@ -598,10 +640,11 @@ export default function LoginPage() {
       setExperienceState("SIGNED_OUT");
       setMessage(result.message || PASSWORD_RESET_GENERIC_MESSAGE);
     } catch {
+      if (version !== navigationVersion.current) return;
       setExperienceState("AUTHENTICATION_FAILED");
       setMessage("We couldn't send the reset email. Please try again.");
     } finally {
-      setLoadingAction(null);
+      if (version === navigationVersion.current) setLoadingAction(null);
     }
   }
 

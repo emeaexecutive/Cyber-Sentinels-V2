@@ -48,4 +48,7 @@ jobs:
         env:
           ZAP_TARGET: https://staging.cybersentinels.example
       - run: npm test
+      - name: Install the browser for deterministic auth regressions
+        run: npx playwright install --with-deps chromium
+      - run: npm run test:auth-browser
       - run: npm run build

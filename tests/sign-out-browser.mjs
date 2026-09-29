@@ -23,7 +23,7 @@ test("desktop/mobile real navigation posts logout; Back is denied; password logi
     .process(await readFile("app/globals.css", "utf8"), { from: "app/globals.css" });
   const browser = await chromium.launch({ headless: true });
   try {
-    for (const width of [1280, 390]) {
+    for (const width of [1440, 768, 390]) {
       const h = harness();
       const login = () => h.client().auth.signInWithPassword({ email: "fixture@example.test", password: "fixture-password" });
       assert.equal((await login()).error, null);

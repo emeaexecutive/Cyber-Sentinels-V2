@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { SecurityResourceArticle } from "@/components/search/security-resource";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import { RESOURCE_ROOT, securityResources } from "@/lib/search/resources";
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 
 export const dynamicParams = false;
 export function generateStaticParams() { return securityResources.map(({ slug }) => ({ slug })); }
@@ -12,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!resource) notFound();
   const path = `${RESOURCE_ROOT}/${resource.slug}`;
   const title = `${resource.title} | Cyber Sentinels`;
-  return { title, description: resource.description, alternates: { canonical: path }, ...publicSocialMetadata(title, resource.description, path) };
+  return { title, description: resource.description, alternates: publicPageAlternates(path), ...publicSocialMetadata(title, resource.description, path) };
 }
 export default async function ResourcePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

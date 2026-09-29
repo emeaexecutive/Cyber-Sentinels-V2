@@ -28,7 +28,7 @@ test("normal login and auth recovery enter the canonical Operational Entity prod
   assert.match(login, /resolveSafeInternalRedirect/);
   assert.match(callback, /handleAuthCallback/);
   assert.match(redirect, /DEFAULT_AUTH_REDIRECT = "\/operational-entities"/);
-  assert.match(browser, /next=\/operational-entities/);
+  assert.match(browser, /window\.location\.replace\("\/login\?expired=1"\)/);
   assert.match(server, /next=\/operational-entities/);
   assert.match(login, /supabase\.auth\.getUser\(\)/);
   assert.match(layout, /supabase\.auth\.getUser\(\)/);
@@ -42,7 +42,7 @@ test("email signup requires verification and permits only explicit local and Ver
   assert.match(config, /site_url = "https:\/\/www\.cybersentinels\.com"/);
   assert.match(config, /https:\/\/\*-keith-speres-projects\.vercel\.app\/auth\/callback/);
   assert.match(config, /\[auth\.email\][\s\S]*enable_confirmations = true/);
-  assert.match(login, /if \(data\.session\?\.user\)[\s\S]*router\.replace\(nextPath\)/);
+  assert.match(login, /if \(data\.session\?\.user\)[\s\S]*window\.location\.replace\(nextPath\)/);
 });
 
 test("first-run initialization creates authority but never fabricates identity evidence or an ALLOW", async () => {

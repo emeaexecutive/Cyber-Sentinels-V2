@@ -4,6 +4,7 @@ import { getPublicSupabaseEnv } from "@/lib/env";
 const SESSION_START_KEY = "cyber_sentinels_session_started_at";
 const ADMIN_VERIFIED_COOKIE_NAME = "cyber_admin_verified";
 const authTimeoutMs = 8000;
+const wrappedClients = new WeakSet<object>();
 
 function isInvalidRefreshTokenError(error: unknown) {
   if (!error || typeof error !== "object") {
@@ -43,7 +44,10 @@ function expireBrowserSession() {
     .forEach((name) => {
       document.cookie = `${name}=; Path=/; Max-Age=0; SameSite=Lax`;
     });
-  window.location.assign("/login?next=/operational-entities");
+  // Auth screens own their error/recovery state; do not reload them on expiry.
+  if (!["/login", "/account/reset-password", "/auth/callback"].includes(window.location.pathname)) {
+    window.location.replace("/login?expired=1");
+  }
 }
 
 async function handleAuthResult<T>(task: () => Promise<T>) {
@@ -55,11 +59,7 @@ async function handleAuthResult<T>(task: () => Promise<T>) {
         : null;
 
     if (isInvalidRefreshTokenError(maybeError)) {
-      console.error("Supabase auth session expired.", maybeError);
-      expireBrowserSession();
-      throw maybeError instanceof Error
-        ? maybeError
-        : new Error("Supabase auth session expired.");
+      throw maybeError;
     }
 
     return result;
@@ -108,6 +108,9 @@ export function createClient() {
   );
 
   const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+  // The browser client is a singleton; avoid nesting wrappers on every caller.
+  if (wrappedClients.has(supabase)) return supabase;
+  wrappedClients.add(supabase);
   const originalGetUser = supabase.auth.getUser.bind(supabase.auth);
   const originalGetSession = supabase.auth.getSession.bind(supabase.auth);
   const originalRefreshSession = supabase.auth.refreshSession.bind(

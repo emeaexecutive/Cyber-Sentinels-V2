@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PUBLIC_SOURCE_LOCALE, publicLocales } from "@/lib/i18n/public-locales";
 
 export const SITE_URL = "https://www.cybersentinels.com";
 export const ORGANIZATION_ID = `${SITE_URL}/#organization`;
@@ -7,7 +8,7 @@ export const SOFTWARE_ID = `${SITE_URL}/platform#software`;
 
 export function publicSocialMetadata(title: string, description: string, path: string): Pick<Metadata, "openGraph" | "twitter"> {
   return {
-    openGraph: { type: "website", siteName: "Cyber Sentinels", title, description, url: `${SITE_URL}${path === "/" ? "" : path}`, locale: "en_GB" },
+    openGraph: { type: "website", siteName: "Cyber Sentinels", title, description, url: `${SITE_URL}${path === "/" ? "" : path}`, locale: publicLocales[PUBLIC_SOURCE_LOCALE].openGraphLocale },
     twitter: { card: "summary", title, description },
   };
 }
@@ -18,7 +19,7 @@ export const organizationGraph = {
     { "@type": "Organization", "@id": ORGANIZATION_ID, name: "Cyber Sentinels", url: SITE_URL,
       description: "Cyber Sentinels determines whether an autonomous agent is authorized to act and preserves the evidence explaining why." },
     { "@type": "WebSite", "@id": WEBSITE_ID, name: "Cyber Sentinels", url: SITE_URL,
-      publisher: { "@id": ORGANIZATION_ID }, inLanguage: "en" },
+      publisher: { "@id": ORGANIZATION_ID }, inLanguage: PUBLIC_SOURCE_LOCALE },
   ],
 };
 

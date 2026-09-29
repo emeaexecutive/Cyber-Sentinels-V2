@@ -213,7 +213,7 @@ test("login, callback, protected-route, enterprise, and admin contracts remain w
   ]);
 
   assert.match(login, /auth\.signInWithPassword/);
-  assert.match(login, /router\.push\(nextPath\)/);
+  assert.match(login, /window\.location\.replace\(nextPath\)/);
   assert.match(callback, /handleAuthCallback/);
   assert.match(callbackHandler, /auth\.exchangeCodeForSession\(code\)/);
   assert.match(browserClient, /auth\.getSession/);

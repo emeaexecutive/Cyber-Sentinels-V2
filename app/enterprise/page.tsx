@@ -71,7 +71,7 @@ const buyerJourneys: BuyerJourney[] = [
 const readiness = [
   ["deployment", "Deployment", "Pilot scope, environments, production gates and operational ownership."],
   ["compliance", "Compliance", "Evidence continuity and review records for customer control mapping."],
-  ["sso-scim", "SSO / SCIM", "Enterprise identity integration verified for the selected deployment."],
+  ["sso-scim", "SSO / SCIM", "Verify enterprise identity integration for the selected deployment."],
   ["data-residency", "Data Residency", "Regional, retention and provider boundaries agreed before production."],
   ["support", "Enterprise Support", "Named owners for onboarding, escalation and evidence review."],
   ["procurement", "Procurement & Legal", "Security, privacy, capability and contractual boundaries ready for review."],
