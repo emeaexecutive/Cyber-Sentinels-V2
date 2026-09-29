@@ -277,3 +277,6 @@ c5a83616f1494f231dfc351a8c46810f5413cfba:docs/release/v1-production-closure/proo
 5c35ebb7191a1e87d9aa0bb8d9f6fe54e88e17c5:docs/v2/closure-20260910/customer-zero.json:generic-api-key:5505
 5c35ebb7191a1e87d9aa0bb8d9f6fe54e88e17c5:docs/v2/closure-20260910/customer-zero.json:generic-api-key:5546
 5c35ebb7191a1e87d9aa0bb8d9f6fe54e88e17c5:docs/v2/closure-20260910/customer-zero.json:generic-api-key:5589
+# Synthetic browser cookie names and fixed fixture chunk values; no credentials.
+0b1fa6e7b075b781a6ba89e36aa5b93246a48d73:tests/supabase-browser-expiry.test.mjs:generic-api-key:16
+0b1fa6e7b075b781a6ba89e36aa5b93246a48d73:tests/supabase-browser-expiry.test.mjs:generic-api-key:17
