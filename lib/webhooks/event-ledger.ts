@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { classifyWebhookReplay } from "./replay";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const uuidOrNull = (value?: string | null) => value && uuidPattern.test(value) ? value : null;
@@ -24,8 +25,26 @@ export async function reserveWebhookEvent(input: { provider: string; eventId: st
   };
   const { data, error } = await client.from("webhook_event_ledger").insert(row).select("id").single();
   if (error?.code === "23505") {
-    const original = await client.from("webhook_event_ledger").select("id,processing_status").eq("provider", input.provider).eq("event_id", input.eventId).maybeSingle();
-    return { reserved: false, duplicateOf: original.data?.id ?? null, status: original.data?.processing_status ?? "duplicate" };
+    const original = await client.from("webhook_event_ledger").select("id,event_type,payload_hash,processing_status").eq("provider", input.provider).eq("event_id", input.eventId).maybeSingle();
+    if (original.error) throw original.error;
+    if (!original.data) return { reserved: false, duplicateOf: null, status: "duplicate" };
+    const replayState = classifyWebhookReplay({
+      eventType: original.data.event_type,
+      payloadHash: original.data.payload_hash,
+      processingStatus: original.data.processing_status,
+    }, { eventType: row.event_type, payloadHash: row.payload_hash });
+    if (replayState === "payload_mismatch") return { reserved: false, duplicateOf: original.data.id, status: replayState };
+    if (replayState === "retry") {
+      const retry = await client.from("webhook_event_ledger")
+        .update({ processing_status: "processing", error_category: null, processed_at: null })
+        .eq("id", original.data.id).eq("processing_status", "failed").select("id").maybeSingle();
+      if (retry.error) throw retry.error;
+      if (retry.data) return { reserved: true, id: retry.data.id, duplicateOf: original.data.id, retry: true };
+      const current = await client.from("webhook_event_ledger").select("processing_status").eq("id", original.data.id).maybeSingle();
+      if (current.error) throw current.error;
+      return { reserved: false, duplicateOf: original.data.id, status: current.data?.processing_status ?? "processing" };
+    }
+    return { reserved: false, duplicateOf: original.data.id, status: replayState };
   }
   if (error) throw error;
   return { reserved: true, id: data.id, duplicateOf: null };

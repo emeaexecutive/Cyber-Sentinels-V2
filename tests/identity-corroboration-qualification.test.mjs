@@ -6,7 +6,7 @@ import { TRUST_CANONICALIZATION, TRUST_HASH_ALGORITHM } from "../src/lib/trust-c
 import { hashCanonical } from "../src/lib/trust-core/hash.ts";
 import { EvidenceGraphBuilder, writeTrustMemoryGraphEdges } from "../lib/evidence-graph/evidence-graph.ts";
 import { createTrustMemoryEvent, validateTrustMemoryIntegrity } from "../lib/trust-memory/trust-memory.ts";
-import { appendProviderEvidence, classifyEvidenceIndependence } from "../lib/operational-entities/federated-evidence.ts";
+import { appendProviderEvidence, classifyEvidenceIndependence, normalizeAgentCredentialEvidence } from "../lib/operational-entities/federated-evidence.ts";
 import { normalizeProviderNeutralEvidence } from "../lib/providers/adapters.ts";
 import { resolveClientEvidenceProvider, resolveClientEvidenceType } from "../lib/public-api/v1/client-evidence.ts";
 import { executeCanonicalTrustTransaction, normalizeDecisionOutcomeReview } from "../src/lib/trust-transaction/canonical.ts";
@@ -183,4 +183,87 @@ test("public-client corroboration remains an attributed assertion and cannot imp
   assert.deepEqual(resolveClientEvidenceProvider({ key: "self", class: "APPLICATION_SIGNAL" }, "fixture-client"), { providerKey: "api-client:fixture-client", providerClass: "APPLICATION_SIGNAL" });
   assert.throws(() => resolveClientEvidenceProvider({ key: "provider:identity", class: "IDENTITY_PROVIDER" }, "fixture-client"), (error) => error.code === "PROVIDER_AUTHENTICATION_REQUIRED");
   assert.throws(() => resolveClientEvidenceType("INDEPENDENT_CONFIRMATION"), (error) => error.code === "EVIDENCE_TYPE_RESERVED");
+});
+
+const agentCredential = (overrides = {}) => ({
+  issuer: "did:web:issuer.example",
+  credentialType: "VerifiableCredential,AgentIdentityCredential",
+  credentialId: "urn:uuid:credential-1",
+  agentId: "agent:alpha",
+  principalId: "principal:owner",
+  principalType: "organization",
+  agentInstanceIdentity: "agent-instance:alpha:prod",
+  relationship: "delegated_by",
+  issuedAt: "2026-08-01T00:00:00.000Z",
+  expiresAt: "2026-09-01T00:00:00.000Z",
+  statusReference: "https://issuer.example/status/1",
+  proof: "fixture-signature-not-for-persistence",
+  ...overrides,
+});
+
+function verifyAgentCredential(assertion, changes = {}) {
+  return normalizeAgentCredentialEvidence({
+    assertion,
+    expectedAgentId: "agent:alpha",
+    expectedPrincipalId: "principal:owner",
+    expectedPrincipalType: "organization",
+    observedAt: "2026-08-08T10:00:00.000Z",
+    isIssuerTrusted: () => true,
+    verifyProof: () => true,
+    resolveStatus: () => "ACTIVE",
+    ...changes,
+  });
+}
+
+test("verified agent credentials produce separate credential and principal-agent evidence without persisting proof", async () => {
+  const result = await verifyAgentCredential(agentCredential());
+  assert.equal(result.status, "VALID");
+  assert.equal(result.credentialEvidence.normalizedEvidence.evidenceType, "AGENT_CREDENTIAL_EVIDENCE");
+  assert.equal(result.principalAgentEvidence.normalizedEvidence.evidenceType, "PRINCIPAL_AGENT_ASSERTION");
+  assert.equal(result.credentialEvidence.normalizedEvidence.cryptographicVerification, "VERIFIED");
+  assert.equal(result.principalAgentEvidence.normalizedEvidence.relationship, "delegated_by");
+  assert.notEqual(result.credentialEvidence.evidenceDigest, result.principalAgentEvidence.evidenceDigest);
+  assert.equal(JSON.stringify(result).includes("fixture-signature-not-for-persistence"), false);
+});
+
+test("agent credential rejects bad proof, untrusted issuer, and principal or agent mismatch", async () => {
+  await assert.rejects(verifyAgentCredential(agentCredential(), { verifyProof: () => false }), /AGENT_CREDENTIAL_SIGNATURE_INVALID/);
+  await assert.rejects(verifyAgentCredential(agentCredential(), { isIssuerTrusted: () => false }), /AGENT_CREDENTIAL_ISSUER_UNTRUSTED/);
+  await assert.rejects(verifyAgentCredential(agentCredential({ principalId: "principal:other" })), /AGENT_CREDENTIAL_PRINCIPAL_MISMATCH/);
+  await assert.rejects(verifyAgentCredential(agentCredential({ agentId: "agent:other" })), /AGENT_CREDENTIAL_AGENT_MISMATCH/);
+  await assert.rejects(verifyAgentCredential(agentCredential({ decision: "ALLOW" })), /AGENT_CREDENTIAL_FIELDS_INVALID/);
+});
+
+test("expired, revoked, and unknown credential status fail closed as evidence states", async () => {
+  assert.equal((await verifyAgentCredential(agentCredential(), { observedAt: "2026-09-02T00:00:00.000Z" })).status, "EXPIRED");
+  assert.equal((await verifyAgentCredential(agentCredential(), { resolveStatus: () => "REVOKED" })).status, "REVOKED");
+  assert.equal((await verifyAgentCredential(agentCredential(), { resolveStatus: () => "UNKNOWN" })).status, "STATUS_UNAVAILABLE");
+});
+
+test("valid credential evidence cannot ALLOW without canonical authority", async () => {
+  const evidence = await verifyAgentCredential(agentCredential());
+  const input = canonicalInput();
+  input.managedControl.contextEvidence.push({
+    providerClass: "APPLICATION_SIGNAL", providerKey: evidence.credentialEvidence.providerId,
+    evidenceType: "AGENT_CREDENTIAL_EVIDENCE", observedAt: evidence.credentialEvidence.observedAt,
+    outcome: "VALID", evidenceDigest: evidence.credentialEvidence.evidenceDigest,
+    metadata: { agentId: "agent:alpha", principalId: "principal:owner" },
+  });
+  const h = harness(input, { missingAuthority: true });
+  await assert.rejects(executeCanonicalTrustTransaction(input, h.deps), /AUTHORITY_NOT_FOUND/);
+  assert.equal(h.calls.includes("requestExternalExecution"), false);
+});
+
+test("valid credential evidence still passes through canonical action policy", async () => {
+  const evidence = await verifyAgentCredential(agentCredential());
+  const input = canonicalInput();
+  input.managedControl.contextEvidence.push({
+    providerClass: "APPLICATION_SIGNAL", providerKey: evidence.credentialEvidence.providerId,
+    evidenceType: "AGENT_CREDENTIAL_EVIDENCE", observedAt: evidence.credentialEvidence.observedAt,
+    outcome: "VALID", evidenceDigest: evidence.credentialEvidence.evidenceDigest,
+    metadata: { agentId: "agent:alpha", principalId: "principal:owner" },
+  });
+  const h = harness(input, { policy: { active: false } });
+  await assert.rejects(executeCanonicalTrustTransaction(input, h.deps), /POLICY_VERSION_INACTIVE/);
+  assert.equal(h.calls.includes("requestExternalExecution"), false);
 });

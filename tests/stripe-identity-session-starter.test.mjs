@@ -40,6 +40,22 @@ test("missing Stripe secret key fails closed", async () => {
   }
 });
 
+test("Stripe Identity Preview session creation refuses live-mode keys before provider access", async () => {
+  const originalEnvironment = process.env.VERCEL_ENV;
+  process.env.VERCEL_ENV = "preview";
+  let providerCalled = false;
+  try {
+    await assert.rejects(() => startStripeIdentitySession(context, {
+      secretKey: "sk_live_fixture",
+      createSession: async () => { providerCalled = true; throw new Error("must not call provider"); },
+    }), /Preview qualification requires a test-mode key/);
+    assert.equal(providerCalled, false);
+  } finally {
+    if (originalEnvironment === undefined) delete process.env.VERCEL_ENV;
+    else process.env.VERCEL_ENV = originalEnvironment;
+  }
+});
+
 test("StripeIdentityAdapter starts a session when no existing reference is supplied and never embeds client_secret in persisted evidence", async () => {
   const starter = async () => ({ providerSessionId: "vs_new", clientSecret: "vs_new_secret_xyz", url: "https://verify.stripe.com/start/xyz" });
   const adapter = new StripeIdentityAdapter(undefined, starter);
