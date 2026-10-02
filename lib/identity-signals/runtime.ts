@@ -17,6 +17,9 @@ export async function startStripeIdentitySession(
 ): Promise<StripeIdentitySessionResult> {
   const secretKey = (options.secretKey ?? getStripeSecretKeyEnv("Stripe Identity session start")).trim();
   if (!secretKey) throw new Error("Stripe Identity is not configured");
+  if (process.env.VERCEL_ENV === "preview" && /^(?:sk|rk)_live_/.test(secretKey)) {
+    throw new Error("Stripe Identity Preview qualification requires a test-mode key");
+  }
   const create = options.createSession
     ?? ((params: Stripe.Identity.VerificationSessionCreateParams) => new Stripe(secretKey, { apiVersion: "2026-07-29.dahlia" }).identity.verificationSessions.create(params));
   const session = await create({

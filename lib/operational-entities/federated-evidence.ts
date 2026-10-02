@@ -142,6 +142,27 @@ export type ExternalAgentIdentityAssuranceResult = {
   reasons: string[];
 };
 
+export type AgentCredentialAssertion = {
+  issuer: string;
+  credentialType: string;
+  credentialId: string;
+  agentId: string;
+  principalId: string;
+  principalType: string;
+  agentInstanceIdentity: string;
+  relationship: string;
+  issuedAt: string;
+  expiresAt: string;
+  statusReference: string;
+  proof: unknown;
+};
+
+export type AgentCredentialEvidenceResult = {
+  status: "VALID" | "EXPIRED" | "REVOKED" | "STATUS_UNAVAILABLE";
+  credentialEvidence: ManagedControlEvidence;
+  principalAgentEvidence: ManagedControlEvidence;
+};
+
 export type ProviderChangeEvent = {
   eventId: string;
   enterpriseId: string;
@@ -404,6 +425,84 @@ export function evaluateEnforcementConfirmation(chain: EnforcementChain): Enforc
   if (!chain.providerAcknowledgement || !chain.runtimeObservation || chain.runtimeObservation === "unknown" || !chain.destinationObservation || chain.destinationObservation === "unknown") findings.push("EVIDENCE_INSUFFICIENT", "REQUIRED_EVIDENCE_MISSING");
   const contradicted = findings.some((finding) => ["RUNTIME_CONTRADICTS_PROVIDER", "DESTINATION_CONTRADICTS_PROVIDER", "ACCESS_PERSISTS_AFTER_REVOCATION", "AGENT_ACTIVE_AFTER_SUSPENSION", "ACTION_OCCURRED_AFTER_BLOCK"].includes(finding));
   return { state: contradicted ? "contradicted" : providerSuccess && chain.runtimeObservation === "enforced" && chain.destinationObservation === "enforced" ? "confirmed" : "unknown", findings: [...new Set(findings)] };
+}
+
+export async function normalizeAgentCredentialEvidence(input: {
+  assertion: AgentCredentialAssertion;
+  expectedAgentId: string;
+  expectedPrincipalId: string;
+  expectedPrincipalType: string;
+  observedAt: string;
+  isIssuerTrusted: (issuer: string) => boolean | Promise<boolean>;
+  verifyProof: (claims: Omit<AgentCredentialAssertion, "proof">, proof: unknown) => boolean | Promise<boolean>;
+  resolveStatus: (statusReference: string) => "ACTIVE" | "REVOKED" | "UNKNOWN" | Promise<"ACTIVE" | "REVOKED" | "UNKNOWN">;
+}): Promise<AgentCredentialEvidenceResult> {
+  const { assertion } = input;
+  const assertionFields = ["issuer", "credentialType", "credentialId", "agentId", "principalId", "principalType", "agentInstanceIdentity", "relationship", "issuedAt", "expiresAt", "statusReference", "proof"];
+  if (!assertion || typeof assertion !== "object" || Object.keys(assertion).some((key) => !assertionFields.includes(key))
+    || assertionFields.some((key) => !(key in assertion)) || assertion.proof === undefined || assertion.proof === null) {
+    throw new TypeError("AGENT_CREDENTIAL_FIELDS_INVALID");
+  }
+  const claims = Object.fromEntries(Object.entries(assertion).filter(([key]) => key !== "proof")) as Omit<AgentCredentialAssertion, "proof">;
+  for (const [field, value] of Object.entries(claims)) {
+    if (typeof value !== "string" || !value.trim() || value.length > 1024) throw new TypeError(`AGENT_CREDENTIAL_${field.toUpperCase()}_INVALID`);
+  }
+  const issuedAt = Date.parse(assertion.issuedAt);
+  const expiresAt = Date.parse(assertion.expiresAt);
+  const observedAt = Date.parse(input.observedAt);
+  if (![issuedAt, expiresAt, observedAt].every(Number.isFinite) || expiresAt <= issuedAt || issuedAt > observedAt) throw new TypeError("AGENT_CREDENTIAL_TIME_INVALID");
+  if (assertion.agentId !== input.expectedAgentId) throw new TypeError("AGENT_CREDENTIAL_AGENT_MISMATCH");
+  if (assertion.principalId !== input.expectedPrincipalId || assertion.principalType !== input.expectedPrincipalType) throw new TypeError("AGENT_CREDENTIAL_PRINCIPAL_MISMATCH");
+  if (!(await input.isIssuerTrusted(assertion.issuer))) throw new TypeError("AGENT_CREDENTIAL_ISSUER_UNTRUSTED");
+  if (!(await input.verifyProof(claims, assertion.proof))) throw new TypeError("AGENT_CREDENTIAL_SIGNATURE_INVALID");
+
+  const providerStatus = await input.resolveStatus(assertion.statusReference);
+  const status: AgentCredentialEvidenceResult["status"] = providerStatus === "REVOKED"
+    ? "REVOKED"
+    : providerStatus !== "ACTIVE" ? "STATUS_UNAVAILABLE"
+      : observedAt >= expiresAt ? "EXPIRED" : "VALID";
+  const common = {
+    issuer: assertion.issuer,
+    credentialType: assertion.credentialType,
+    credentialId: assertion.credentialId,
+    agentId: assertion.agentId,
+    principalId: assertion.principalId,
+    principalType: assertion.principalType,
+    agentInstanceIdentity: assertion.agentInstanceIdentity,
+    relationship: assertion.relationship,
+    issuedAt: new Date(issuedAt).toISOString(),
+    expiresAt: new Date(expiresAt).toISOString(),
+    statusReference: assertion.statusReference,
+    cryptographicVerification: "VERIFIED",
+    issuerTrust: "TRUSTED",
+    status,
+    observedAt: new Date(observedAt).toISOString(),
+  };
+  const makeEvidence = (evidenceType: "AGENT_CREDENTIAL_EVIDENCE" | "PRINCIPAL_AGENT_ASSERTION", facts: Record<string, unknown>): ManagedControlEvidence => {
+    const evidenceDigest = hashCanonical(facts);
+    return {
+      evidenceId: `${evidenceType.toLowerCase()}:${evidenceDigest.slice(0, 32)}`,
+      providerId: assertion.issuer,
+      sourcePartyId: assertion.issuer,
+      sourceClassification: "provider_asserted",
+      claim: status === "VALID" ? "success" : "unknown",
+      providerNativeEventId: assertion.credentialId,
+      normalizedEvidence: facts,
+      evidenceDigest,
+      schemaVersion: "agent-credential-evidence-v1",
+      observedAt: new Date(observedAt).toISOString(),
+      supersedesEvidenceId: null,
+      correctionOfEvidenceId: null,
+    };
+  };
+  return {
+    status,
+    credentialEvidence: makeEvidence("AGENT_CREDENTIAL_EVIDENCE", { evidenceType: "AGENT_CREDENTIAL_EVIDENCE", ...common }),
+    principalAgentEvidence: makeEvidence("PRINCIPAL_AGENT_ASSERTION", {
+      evidenceType: "PRINCIPAL_AGENT_ASSERTION", ...common,
+      relationship: assertion.relationship,
+    }),
+  };
 }
 
 export function evaluateExternalAgentIdentityAssurance(input: {
