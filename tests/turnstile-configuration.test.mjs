@@ -8,6 +8,7 @@ import {
   verifyTurnstileToken,
 } from "../lib/bot-protection.ts";
 import { shouldUsePreviewTurnstileFallback } from "../components/turnstile-field.tsx";
+import { POST as verifyAuthTurnstile } from "../app/api/auth/turnstile/route.ts";
 
 const passSiteKey = "1x00000000000000000000AA";
 const passSecretKey = "1x0000000000000000000000000000000AA";
@@ -16,6 +17,46 @@ const managedKeys = {
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: "managed-live-site-key",
   TURNSTILE_SECRET_KEY: "managed-live-secret-key",
 };
+
+test("auth route rejects failed checks and retains safe provider diagnostics without token or secret", async () => {
+  await withEnvironment({ NODE_ENV: "production", VERCEL_ENV: "production", ...managedKeys }, async () => {
+    const originalInfo = console.info;
+    const messages = [];
+    console.info = (...args) => messages.push(args);
+    const token = "private-client-token-must-not-be-logged";
+    try {
+      for (const [providerReply, status, code] of [
+        [{ success: false, "error-codes": ["timeout-or-duplicate"] }, 400, "INVALID_TOKEN"],
+        [{ success: false, "error-codes": ["invalid-input-secret"] }, 503, "TURNSTILE_NOT_CONFIGURED"],
+        [{ success: true, hostname: "other.example.com" }, 400, "HOSTNAME_MISMATCH"],
+        [{ success: true, hostname: "www.cybersentinels.com", challenge_ts: "2026-09-29T17:00:00.000Z" }, 200, undefined],
+      ]) {
+        globalThis.fetch = async (url, options) => {
+          assert.equal(url, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+          assert.equal(options.body.get("response"), token);
+          return Response.json(providerReply);
+        };
+        const response = await verifyAuthTurnstile(new Request("https://www.cybersentinels.com/api/auth/turnstile", {
+          method: "POST", headers: { "Content-Type": "application/json", "x-correlation-id": "fixture:turnstile-route" },
+          body: JSON.stringify({ turnstileToken: token }),
+        }));
+        const body = await response.json();
+        assert.equal(response.status, status);
+        assert.equal(body.ok, status === 200);
+        assert.equal(body.code, code);
+        assert.equal(response.headers.get("x-correlation-id"), "fixture:turnstile-route");
+        const diagnostic = messages.at(-1)[1];
+        assert.deepEqual(diagnostic.providerErrorCodes, providerReply["error-codes"] ?? []);
+        assert.equal(diagnostic.providerHostname, providerReply.hostname ?? null);
+        assert.equal(diagnostic.expectedHostname, "www.cybersentinels.com");
+        assert.equal(diagnostic.challengeTimestamp, providerReply.challenge_ts ?? null);
+      }
+      const rendered = JSON.stringify(messages);
+      assert.equal(rendered.includes(token), false);
+      assert.equal(rendered.includes(managedKeys.TURNSTILE_SECRET_KEY), false);
+    } finally { console.info = originalInfo; }
+  });
+});
 
 async function withEnvironment(overrides, action) {
   const names = [

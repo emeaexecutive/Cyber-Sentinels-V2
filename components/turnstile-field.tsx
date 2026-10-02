@@ -155,53 +155,57 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
     onErrorChangeRef.current?.(nextError);
   }, []);
 
-  const renderWidget = useCallback((turnstile: TurnstileApi) => {
-    if (!containerRef.current || widgetIdRef.current) return;
-
-    if (!siteKey) return;
-
-    try {
-      apiRef.current = turnstile;
-      widgetIdRef.current = turnstile.render(
-        containerRef.current,
-        createTurnstileOptions({
-          siteKey: siteKey ?? "",
-          onToken: publishToken,
-          onError: publishError,
-        }),
-      );
-    } catch {
-      publishError("The security check could not start. Please reload and try again.");
-    }
-  }, [publishError, publishToken, siteKey]);
-
   useEffect(() => {
     if (!siteKey) return;
     const container = containerRef.current;
+    let active = true;
+    let stopWaiting: (() => void) | undefined;
     publishError("");
+
+    function renderWidget(turnstile: TurnstileApi) {
+      if (!active || !containerRef.current || widgetIdRef.current) return;
+      try {
+        apiRef.current = turnstile;
+        widgetIdRef.current = turnstile.render(
+          containerRef.current,
+          createTurnstileOptions({
+            siteKey: siteKey ?? "",
+            onToken: (token) => { if (active) publishToken(token); },
+            onError: (error) => { if (active) publishError(error); },
+          }),
+        );
+      } catch {
+        if (active) publishError("The security check could not start. Please reload and try again.");
+      }
+    }
 
     const script = document.createElement("script");
     script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
     script.async = true;
     script.defer = true;
     script.onload = () => {
-      const stopWaiting = waitForTurnstileApi({
+      if (!active) return;
+      stopWaiting = waitForTurnstileApi({
         readApi: () => (window as Window & { turnstile?: TurnstileApi }).turnstile,
         onReady: renderWidget,
         onTimeout: () => {
-          publishError("The security check could not load. Check blockers or your network, then reload.");
+          if (active) publishError("The security check could not load. Check blockers or your network, then reload.");
         },
       });
       container?.setAttribute("data-turnstile-script-loaded", "true");
-      return () => stopWaiting();
     };
     script.onerror = () => {
+      if (!active) return;
       publishToken("");
       publishError("The security check could not load. Check blockers or your network, then reload.");
     };
     document.body.appendChild(script);
 
     return () => {
+      active = false;
+      stopWaiting?.();
+      script.onload = null;
+      script.onerror = null;
       const widgetId = widgetIdRef.current;
       if (widgetId) {
         try {
@@ -215,7 +219,7 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
       onTokenChangeRef.current?.("");
       if (script.parentNode) script.parentNode.removeChild(script);
     };
-  }, [publishError, publishToken, renderWidget, siteKey]);
+  }, [publishError, publishToken, siteKey]);
 
   useEffect(() => {
     if (resetKey > 0 && apiRef.current && widgetIdRef.current) {
