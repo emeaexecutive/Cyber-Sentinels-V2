@@ -9,7 +9,10 @@ export type RequiredEnvName =
   | "STRIPE_SECRET_KEY"
   | "STRIPE_WEBHOOK_SECRET"
   | "STRIPE_IDENTITY_WEBHOOK_SECRET"
-  | "STRIPE_PRO_MONTHLY_PRICE_ID";
+  | "STRIPE_PRO_MONTHLY_PRICE_ID"
+  | "OPENGRAPH_APP_ID"
+  | "JUDGEME_SHOP_DOMAIN"
+  | "JUDGEME_PRIVATE_API_TOKEN";
 
 type EnvValidationOptions = {
   context: string;
@@ -187,4 +190,17 @@ export function getStripeProPriceIdEnv(context: string) {
   assertEnv({ context, names: ["STRIPE_PRO_MONTHLY_PRICE_ID"] });
 
   return process.env.STRIPE_PRO_MONTHLY_PRICE_ID as string;
+}
+
+export function getOpenGraphAppIdEnv(context: string) {
+  assertEnv({ context, names: ["OPENGRAPH_APP_ID"] });
+  return process.env.OPENGRAPH_APP_ID as string;
+}
+
+export function getJudgeMePrivateConfig(context: string) {
+  assertEnv({ context, names: ["JUDGEME_SHOP_DOMAIN", "JUDGEME_PRIVATE_API_TOKEN"] });
+  return {
+    shopDomain: process.env.JUDGEME_SHOP_DOMAIN as string,
+    privateApiToken: process.env.JUDGEME_PRIVATE_API_TOKEN as string,
+  };
 }

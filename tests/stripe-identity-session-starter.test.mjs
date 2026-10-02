@@ -43,13 +43,15 @@ test("missing Stripe secret key fails closed", async () => {
 test("Stripe Identity Preview session creation refuses live-mode keys before provider access", async () => {
   const originalEnvironment = process.env.VERCEL_ENV;
   process.env.VERCEL_ENV = "preview";
-  let providerCalled = false;
   try {
-    await assert.rejects(() => startStripeIdentitySession(context, {
-      secretKey: "sk_live_fixture",
-      createSession: async () => { providerCalled = true; throw new Error("must not call provider"); },
-    }), /Preview qualification requires a test-mode key/);
-    assert.equal(providerCalled, false);
+    for (const secretKey of ["sk_live_fixture", "rk_live_fixture"]) {
+      let providerCalled = false;
+      await assert.rejects(() => startStripeIdentitySession(context, {
+        secretKey,
+        createSession: async () => { providerCalled = true; throw new Error("must not call provider"); },
+      }), /Preview qualification requires a test-mode key/);
+      assert.equal(providerCalled, false);
+    }
   } finally {
     if (originalEnvironment === undefined) delete process.env.VERCEL_ENV;
     else process.env.VERCEL_ENV = originalEnvironment;

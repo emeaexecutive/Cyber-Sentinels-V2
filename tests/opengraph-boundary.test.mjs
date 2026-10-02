@@ -43,6 +43,56 @@ test("ALLOW produces canonical receipt/replay/memory but the unqualified executo
   assert.ok(!JSON.stringify(h.records).includes("app_id"));
 });
 
+test("only canonical ALLOW reaches the OpenGraph executor and provider response remains an unverified outcome", async () => {
+  const h = harness(composeOpenGraphRequest(request(), context()));
+  const providerResult = {
+    configured: true, provider: "opengraph.io", tool: "opengraph.site", requestedTarget: request().targetUrl,
+    executionAttempted: true, providerResponseStatus: 200,
+    normalizedResult: { title: "Example", description: null, siteName: "Example", type: "website", responseHost: "example.com", redirects: 1 },
+    providerNetworkBehaviorAssurance: "UNVERIFIED_PROVIDER_CONTROLLED_FETCH",
+    outcomeCertainty: "UNVERIFIED", occurredAt: context().requestedAt, evidenceDigest: "a".repeat(64), failureCode: null,
+  };
+  let calls = 0;
+  const executor = async (target) => { calls++; assert.equal(target.url, request().targetUrl); return providerResult; };
+  h.deps.recordExternalAcknowledgement = async (_record, acknowledgement) => {
+    assert.match(acknowledgement.externalReference, /^opengraph:/);
+    return "synthetic:opengraph-ack";
+  };
+  h.deps.recordExternalOutcome = async (_record, outcome) => {
+    assert.equal(outcome.state, "UNKNOWN");
+    assert.match(outcome.reason, /normalized result.*Example/);
+    assert.match(outcome.reason, /evidence digest/);
+    return "synthetic:opengraph-unknown-outcome";
+  };
+  const receipt = await governOpenGraphRequest(request(), h.deps, async () => context(), executor);
+  assert.equal(calls, 1);
+  assert.equal(receipt.decision, "ALLOW");
+  assert.equal(receipt.externalExecution.requested, true);
+  assert.equal(receipt.externalExecution.outcome, "UNKNOWN");
+  assert.equal(receipt.externalExecution.requestReference, "opengraph:" + "a".repeat(64));
+  assert.equal(receipt.externalExecution.acknowledgementReference, "synthetic:opengraph-ack");
+  assert.equal(receipt.externalExecution.outcomeReference, "synthetic:opengraph-unknown-outcome");
+});
+
+test("REVIEW, DENY and revoked authority never invoke the configured OpenGraph executor", async () => {
+  for (const [req, ctx, options, decision] of [
+    [request({ delegationReference: "delegation:1" }), context(), {}, "REVIEW"],
+    [request({ targetUrl: "https://outside.example.net/" }), context(), {}, "DENY"],
+    [request(), context(), { authority: { revocationState: "revoked", revokedAt: context().requestedAt } }, "DENY"],
+  ]) {
+    const h = harness(composeOpenGraphRequest(req, ctx), options);
+    let calls = 0;
+    const receipt = await governOpenGraphRequest(req, h.deps, async () => ctx, async () => { calls++; throw new Error("must not dispatch"); });
+    assert.equal(receipt.decision, decision);
+    assert.equal(receipt.externalExecution.requested, false);
+    assert.equal(calls, 0);
+  }
+  const h = harness(composeOpenGraphRequest(request(), context()));
+  let calls = 0;
+  await assert.rejects(governOpenGraphRequest(request({ targetUrl: "https://127.0.0.1/" }), h.deps, async () => context(), async () => { calls++; throw new Error("must not dispatch"); }), /UNSAFE/);
+  assert.equal(calls, 0);
+});
+
 for (const [name, req, ctx, options, decision] of [
   ["wrong domain", request({ targetUrl: "https://other.com" }), context(), {}, "DENY"],
   ["missing delegation", request({ delegationReference: "delegation:1" }), context(), {}, "REVIEW"],
