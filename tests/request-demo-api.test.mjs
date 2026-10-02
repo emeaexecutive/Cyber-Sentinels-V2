@@ -182,7 +182,7 @@ test("Request Demo frontend sets the Turnstile callback token on FormData", asyn
   assert.match(page, /<EnterpriseAccessForm buttonLabel=\{buttonLabel\} designPartner=\{designPartner\}/);
   assert.match(field, /process\.env\.NEXT_PUBLIC_TURNSTILE_SITE_KEY/);
   assert.match(field, /turnstile\.render\(\s*containerRef\.current/);
-  assert.match(field, /onToken: publishToken/);
+  assert.match(field, /onToken: \(token\) => \{ if \(active\) publishToken\(token\); \}/);
   assert.match(field, /onTokenChangeRef\.current\?\.\(nextToken\)/);
   assert.match(field, /formData\.set\("cf-turnstile-response", turnstileToken\)/);
   assert.match(field, /type="hidden" name="cf-turnstile-response" value=\{token\}/);
@@ -203,7 +203,7 @@ test("Request Demo frontend sets the Turnstile callback token on FormData", asyn
   assert.match(field, /"refresh-timeout": "auto"/);
   assert.match(field, /apiRef\.current\?\.remove\?\.\(widgetId\)/);
   assert.match(field, /apiRef\.current\.reset\(widgetIdRef\.current\)/);
-  assert.match(field, /if \(!containerRef\.current \|\| widgetIdRef\.current\) return/);
+  assert.match(field, /if \(!active \|\| !containerRef\.current \|\| widgetIdRef\.current\) return/);
   assert.match(field, /if \(!siteKey\) return/);
   assert.match(
     botProtection,

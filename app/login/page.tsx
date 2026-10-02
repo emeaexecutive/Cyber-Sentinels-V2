@@ -132,9 +132,19 @@ export default function LoginPage() {
     setMessage(failure.message);
   }
 
-  function showSecurityFailure() {
+  function showSecurityFailure(message = "We couldn't complete the security check. Please try again.") {
     setExperienceState("SECURITY_VERIFICATION_FAILED");
-    setMessage("We couldn't complete the security check. Please try again.");
+    setMessage(message);
+  }
+
+  function handleTurnstileToken(token: string) {
+    setTurnstileToken(token);
+    // Empty callbacks also occur during initialization/reset; only a fresh token
+    // clears a security failure, and other authentication messages remain intact.
+    if (token && experienceState === "SECURITY_VERIFICATION_FAILED") {
+      setMessage("");
+      setExperienceState(signupSucceeded ? "EMAIL_VERIFICATION_REQUIRED" : "SIGNED_OUT");
+    }
   }
 
   useEffect(() => {
@@ -301,6 +311,9 @@ export default function LoginPage() {
       return true;
     } catch {
       if (version !== navigationVersion.current) return false;
+      // Siteverify may have consumed the token before the response was lost.
+      setTurnstileToken("");
+      setTurnstileResetKey((value) => value + 1);
       showSecurityFailure();
       return false;
     }
@@ -641,6 +654,8 @@ export default function LoginPage() {
       setMessage(result.message || PASSWORD_RESET_GENERIC_MESSAGE);
     } catch {
       if (version !== navigationVersion.current) return;
+      setTurnstileToken("");
+      setTurnstileResetKey((value) => value + 1);
       setExperienceState("AUTHENTICATION_FAILED");
       setMessage("We couldn't send the reset email. Please try again.");
     } finally {
@@ -676,9 +691,9 @@ export default function LoginPage() {
               <div className="mt-5">
                 <TurnstileField
                   siteKey={turnstileSiteKey}
-                  onTokenChange={setTurnstileToken}
+                  onTokenChange={handleTurnstileToken}
                   onErrorChange={(error) => {
-                    if (error) showSecurityFailure();
+                    if (error) showSecurityFailure(error);
                   }}
                   resetKey={turnstileResetKey}
                   quiet
@@ -786,9 +801,9 @@ export default function LoginPage() {
               {turnstileSiteKey ? (
                 <TurnstileField
                   siteKey={turnstileSiteKey}
-                  onTokenChange={setTurnstileToken}
+                  onTokenChange={handleTurnstileToken}
                   onErrorChange={(error) => {
-                    if (error) showSecurityFailure();
+                    if (error) showSecurityFailure(error);
                   }}
                   resetKey={turnstileResetKey}
                   quiet

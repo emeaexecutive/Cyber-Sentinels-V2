@@ -5,7 +5,8 @@
     "deploymentEnabled": {
       "main": false,
       "feat/execution-proof-provider-qualification": false,
-      "feat/real-provider-qualification": false
+      "feat/real-provider-qualification": false,
+      "fix/login-security-check": false
     }
   },
   "cleanUrls": true,

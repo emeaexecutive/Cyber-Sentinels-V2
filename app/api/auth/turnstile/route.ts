@@ -56,6 +56,9 @@ export async function POST(req: Request) {
     reason: result.reason,
     hostname: requestHostname,
     expectedHostname,
+    providerErrorCodes: result.errorCodes ?? [],
+    providerHostname: result.hostname ?? null,
+    challengeTimestamp: result.challengeTimestamp ?? null,
   });
 
   if (!result.ok) {
