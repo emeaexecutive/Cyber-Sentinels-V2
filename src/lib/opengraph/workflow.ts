@@ -1,5 +1,6 @@
 import { isIP } from "node:net";
 import { hashCanonical } from "../trust-core/hash.ts";
+import { executeOpenGraphSite, type OpenGraphExecution } from "../../../lib/providers/opengraph-executor.ts";
 import { authenticateActor, resolveTenantFromSession, executeCanonicalTrustTransaction, type AuthenticatedTransactionActor, type SessionTenant, type CanonicalTrustTransactionDependencies, type CanonicalTrustTransactionInput } from "../trust-transaction/canonical.ts";
 import type { PurposeLineageContext } from "../trust-fabric/purpose-lineage.ts";
 
@@ -100,7 +101,8 @@ export function composeOpenGraphRequest(request: OpenGraphRequest, context: Open
  * A duplicate returns historical evidence only; a fresh action needs a fresh key.
  */
 export async function governOpenGraphRequest(request: OpenGraphRequest, dependencies: CanonicalTrustTransactionDependencies,
-  resolveContext: (request: Readonly<OpenGraphRequest>, session: { actor: AuthenticatedTransactionActor; tenant: SessionTenant }) => Promise<OpenGraphServerContext>) {
+  resolveContext: (request: Readonly<OpenGraphRequest>, session: { actor: AuthenticatedTransactionActor; tenant: SessionTenant }) => Promise<OpenGraphServerContext>,
+  executeSite: (target: ReturnType<typeof normalizeOpenGraphTarget>) => Promise<OpenGraphExecution> = executeOpenGraphSite) {
   const snapshot = structuredClone(request);
   const actor = await authenticateActor(dependencies);
   const tenant = await resolveTenantFromSession(dependencies, actor);
@@ -115,6 +117,33 @@ export async function governOpenGraphRequest(request: OpenGraphRequest, dependen
     authenticateActor: async () => actor,
     resolveTenantFromSession: async () => tenant,
     loadAuthority: async () => authority,
-    requestExternalExecution: async () => ({ configured: false, requestReference: null, acknowledgement: null, outcome: null }),
+    requestExternalExecution: async (record) => {
+      const execution = await executeSite(normalizeOpenGraphTarget(record.action.resource));
+      if (!execution.configured) return { configured: false, requestReference: null, acknowledgement: null, outcome: null };
+      const requestReference = `opengraph:${execution.evidenceDigest ?? hashCanonical({ target: execution.requestedTarget, occurredAt: execution.occurredAt })}`;
+      const normalizedSummary = execution.normalizedResult ? JSON.stringify({
+        title: execution.normalizedResult.title?.slice(0, 72) ?? null,
+        description: execution.normalizedResult.description?.slice(0, 96) ?? null,
+        siteName: execution.normalizedResult.siteName?.slice(0, 48) ?? null,
+        type: execution.normalizedResult.type?.slice(0, 32) ?? null,
+        responseHost: execution.normalizedResult.responseHost,
+        redirects: execution.normalizedResult.redirects,
+      }) : null;
+      return {
+        configured: true,
+        requestReference,
+        acknowledgement: execution.providerResponseStatus !== null && execution.providerResponseStatus < 500
+          ? { externalReference: requestReference, acknowledgedAt: execution.occurredAt }
+          : null,
+        outcome: {
+          state: "UNKNOWN" as const,
+          externalReference: requestReference,
+          occurredAt: execution.occurredAt,
+          reason: execution.failureCode
+            ? `OpenGraph request ended with ${execution.failureCode}; destination outcome and provider-side network behavior are unverified.`
+            : `OpenGraph returned HTTP ${execution.providerResponseStatus}; normalized result ${normalizedSummary}; evidence digest ${execution.evidenceDigest}; destination outcome and provider-side network behavior are unverified.`,
+        },
+      };
+    },
   });
 }
