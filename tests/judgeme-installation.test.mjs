@@ -47,3 +47,10 @@ test("Judge.me installation mapping is shop-unique and service-role only", () =>
   assert.match(migration, /alter table public\.judgeme_installations enable row level security/);
   assert.match(migration, /revoke all on public\.judgeme_installations from anon, authenticated/);
 });
+
+test("shared Judge.me credentials cannot be claimed by an arbitrary tenant administrator", () => {
+  const route = readFileSync("app/api/providers/judgeme/install/route.ts", "utf8");
+  assert.match(route, /requireAdminApiAccess\(request, context\.supabase/);
+  assert.match(route, /platformAdmin\.user\.id !== context\.user\.id/);
+  assert.match(route, /resolveIdentityEnterprise\(request, \["owner", "admin"\]\)/);
+});

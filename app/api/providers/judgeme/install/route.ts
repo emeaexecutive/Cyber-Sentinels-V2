@@ -1,4 +1,5 @@
 import { checkRequestRateLimit } from "@/lib/security";
+import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
 import { resolveIdentityEnterprise, IdentityApiError } from "@/lib/identity-signals/enterprise-context";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { getJudgeMePrivateConfig, getSiteUrlEnv } from "@/lib/env";
@@ -41,6 +42,8 @@ export async function POST(request: Request) {
   if (limited) return limited;
   try {
     const context = await resolveIdentityEnterprise(request, ["owner", "admin"]);
+    const platformAdmin = await requireAdminApiAccess(request, context.supabase, { requireCookie: false });
+    if (!platformAdmin.ok || platformAdmin.user.id !== context.user.id) return platformAdmin.ok ? Response.json({ ok: false, error: "ADMIN_ACTOR_MISMATCH" }, { status: 403 }) : platformAdmin.response;
     const config = getJudgeMePrivateConfig("Judge.me installation");
     const appOrigin = new URL(getSiteUrlEnv("Judge.me webhook registration")).origin;
     const installed = await installJudgeMeStore({ enterpriseId: context.enterpriseId, installedBy: context.user.id, configuredShopDomain: config.shopDomain }, {
