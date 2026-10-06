@@ -1,4 +1,5 @@
 import { createDecisionEnvelope } from "../trust-fabric/control-plane.ts";
+import { MODEL_APPROVAL_EVIDENCE, type TrustedModelState } from "../../../lib/trust-fabric/model-approval.ts";
 import { evaluateTrustContract } from "../trust-fabric/contracts.ts";
 import { deterministicUuid, hashCanonical } from "../trust-core/hash.ts";
 import {
@@ -419,6 +420,7 @@ export type SafeCanonicalTransactionReceipt = {
 };
 
 export type CanonicalTrustTransactionDependencies = {
+  loadTrustedModelState?(input: { enterpriseId: string; agentId: string; environment: string; evaluatedAt: string }): Promise<TrustedModelState>;
   authenticateActor(): Promise<AuthenticatedTransactionActor>;
   resolveTenantFromSession(actor: AuthenticatedTransactionActor): Promise<SessionTenant>;
   findByIdempotency(enterpriseId: string, idempotencyKey: string): Promise<SafeCanonicalTransactionReceipt | null>;
@@ -432,6 +434,7 @@ export type CanonicalTrustTransactionDependencies = {
   extendEvidenceGraph(record: PersistedCanonicalDecision): Promise<string>;
   appendReplay(record: PersistedCanonicalDecision): Promise<string>;
   emitTrustMemory(record: PersistedCanonicalDecision): Promise<string>;
+  reserveExternalExecution?(record: PersistedCanonicalDecision): Promise<string>;
   requestExternalExecution(record: PersistedCanonicalDecision): Promise<ExternalExecutionResult>;
   recordExternalAcknowledgement(record: PersistedCanonicalDecision, result: NonNullable<ExternalExecutionResult["acknowledgement"]>): Promise<string>;
   recordExternalOutcome(record: PersistedCanonicalDecision, result: NonNullable<ExternalExecutionResult["outcome"]>): Promise<string>;
@@ -715,6 +718,7 @@ function deriveContinuitySignals(input: {
 }
 
 export function evaluateCanonicalTrustDecision(input: {
+  trustedModelState?: TrustedModelState;
   tenant: SessionTenant;
   actor: AuthenticatedTransactionActor;
   operationalEntity: OperationalEntity;
@@ -733,12 +737,21 @@ export function evaluateCanonicalTrustDecision(input: {
   const decisionEligibleEvidence = input.evidence.filter((item) => !["agent_asserted", "unconfirmed"].includes(item.sourceClassification ?? "provider_asserted"));
   const evidenceTypes = new Set(decisionEligibleEvidence.map((item) => item.type));
   const evidenceComplete = input.authority.requiredEvidenceTypes.every((type) => evidenceTypes.has(type));
-  const evidenceDigest = hashCanonical(input.evidence.map((item) => ({ reference: item.reference, event: item.providerEventId, digest: item.sourceDigest, outcome: item.outcome, observedAt: item.observedAt, expiresAt: item.expiresAt })));
+  // Native identity proof and runtime assurance are separate requirements.
+  // A failed runtime observation must deny execution without rewriting a valid
+  // cryptographic identity proof as an identity failure in Receipt or Replay.
+  const identityEvidenceFresh = input.authority.requiredEvidenceTypes.includes("NATIVE_ENTITY_IDENTITY_PROOF")
+    ? validateEvidenceFreshness(decisionEligibleEvidence.filter((item) => item.type === "NATIVE_ENTITY_IDENTITY_PROOF"), input.authority.maximumEvidenceAgeSeconds, input.requestedAt)
+    : input.evidenceFresh;
+  const evidenceComponents = input.evidence.map((item) => ({ reference: item.reference, event: item.providerEventId, digest: item.sourceDigest, outcome: item.outcome, observedAt: item.observedAt, expiresAt: item.expiresAt }));
+  const evidenceDigest = hashCanonical(input.trustedModelState?.approval.evidenceReference
+    ? { evidence: evidenceComponents, modelApproval: input.trustedModelState.approval, modelIntegrityDigest: input.trustedModelState.integrity?.assessmentDigest ?? null }
+    : evidenceComponents);
   const authorityEvidenceReferences = input.authority.evidenceReferences;
   const evaluation = evaluateTrustContract({
     contract: input.authority,
     evaluatedAt: input.requestedAt,
-    identityState: input.evidenceFresh ? "verified" : "degraded",
+    identityState: identityEvidenceFresh ? "verified" : "degraded",
     authorityState: input.authorityScopeValid ? "verified" : "suspended",
     effectiveAuthority: input.authorityScopeValid ? input.authority.requiredAuthority : [],
     environmentState: input.trustObject.environmentState,
@@ -833,7 +846,7 @@ export function evaluateCanonicalTrustDecision(input: {
   const approvedModelState = input.transactionInput.deploymentContext?.approvedModelState ?? null;
   const currentObservedModelState = input.transactionInput.deploymentContext?.currentObservedModelState ?? null;
   const incompleteModelStateEvidence = Boolean(approvedModelState) !== Boolean(currentObservedModelState);
-  const modelStateIntegrity = approvedModelState && currentObservedModelState
+  const modelStateIntegrity = input.trustedModelState ? input.trustedModelState.integrity : approvedModelState && currentObservedModelState
     ? evaluateModelStateIntegrity({
         enterpriseId: input.tenant.id,
         approved: approvedModelState,
@@ -1068,8 +1081,15 @@ export function evaluateCanonicalTrustDecision(input: {
     || deploymentGate?.reauthorizationRequired
     || ["paused", "review_required", "satisfied_with_degraded_evidence"].includes(evaluation.outcome)
   ) decision = "REVIEW";
+  const modelApproval = input.trustedModelState?.approval ?? null;
+  const modelApprovalRequired = input.authority.requiredEvidenceTypes.includes(MODEL_APPROVAL_EVIDENCE) || Boolean(modelApproval?.evidenceReference);
+  if (modelApprovalRequired && modelApproval?.status !== "APPROVED") {
+    if (modelApproval && ["REVOKED", "UNAPPROVED", "CONFLICTED"].includes(modelApproval.status)) decision = "DENY";
+    else if (decision === "ALLOW") decision = "REVIEW";
+  }
   const trustState: CanonicalOperationalState = decision === "ALLOW" ? "verified" : decision === "REVIEW" ? "degraded" : "suspended";
   const reasonCodes = [...new Set([
+    ...(modelApprovalRequired ? [modelApproval?.reason ?? "MODEL_APPROVAL_UNKNOWN"] : []),
     ...evaluation.reasonCodes,
     ...(delegatedAuthorization?.reasonCodes ?? []),
     ...entityStateReason,
@@ -1258,7 +1278,7 @@ export function evaluateCanonicalTrustDecision(input: {
       requestDigest: input.transactionInput.action.payloadDigest,
     },
     currentConditions: {
-      identityAssurance: input.evidenceFresh ? "CURRENT" as const : "STALE_OR_UNAVAILABLE" as const,
+      identityAssurance: identityEvidenceFresh ? "CURRENT" as const : "STALE_OR_UNAVAILABLE" as const,
       evidenceComplete,
       evidenceFresh: input.evidenceFresh,
       evidenceReferences: input.evidence.map((item) => item.reference),
@@ -1320,6 +1340,7 @@ export function evaluateCanonicalTrustDecision(input: {
     modelStateIntegrity,
     consequenceTime,
     reviewerState: input.transactionInput.managedControl?.reviewerState ?? (decision === "REVIEW" ? "required" : "not_required"),
+    modelApproval,
   });
   const decisionOutcomeReview = normalizeDecisionOutcomeReview({
     review: input.transactionInput.decisionOutcomeReview,
@@ -1643,7 +1664,8 @@ export async function executeCanonicalTrustTransaction(input: CanonicalTrustTran
   const policy = await resolvePolicyVersion(dependencies, tenant, authority, requestedAt);
   const previous = await dependencies.loadPreviousTransaction(tenant.id, input.previousTransactionId);
   const correlationId = input.correlationId ?? crypto.randomUUID();
-  const record = evaluateCanonicalTrustDecision({ tenant, actor, operationalEntity, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, transactionInput: managedControl ? { ...input, managedControl } : input, requestedAt, correlationId });
+  const trustedModelState = await dependencies.loadTrustedModelState?.({ enterpriseId: tenant.id, agentId: operationalEntity.entityId, environment: input.action.environment, evaluatedAt: requestedAt });
+  const record = evaluateCanonicalTrustDecision({ tenant, actor, operationalEntity, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, transactionInput: managedControl ? { ...input, managedControl } : input, requestedAt, correlationId, trustedModelState });
   const context: TransactionContext = { input, actor, tenant, operationalEntity, trustObject, authority, policy, evidence, evidenceFresh, authorityScopeValid, previous, record };
   const persisted = await persistDecision(dependencies, record);
   if (persisted.persistenceStatus === "DUPLICATE") {

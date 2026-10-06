@@ -359,6 +359,9 @@ export async function POST(req: Request) {
 
   return NextResponse.json({
     ok: true,
+    decision_authority: "ADVISORY_ONLY",
+    execution_authorized: false,
+    canonical_decision_required: true,
     id: run?.id,
     score: result.score,
     trust_score: result.trust_score,

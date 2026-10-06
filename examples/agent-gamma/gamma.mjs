@@ -3,6 +3,7 @@ import {
   ConflictError,
   CyberSentinels,
   signChallenge,
+  signHeartbeat,
   signManifest,
 } from "@cyber-sentinels/sdk";
 
@@ -18,7 +19,9 @@ if (!/^cs_test_[A-Za-z0-9_-]{12}\.[A-Za-z0-9_-]{43}$/.test(apiKey)) throw new Er
 if (stagingProjectRef !== "agpyhygpfmppjkxwcpac" || stagingConfirmation !== "I_CONFIRM_STAGING") throw new Error("The explicit Staging identity confirmation is invalid.");
 const parsedBaseUrl = new URL(baseUrl);
 if (parsedBaseUrl.protocol !== "https:" || parsedBaseUrl.username || parsedBaseUrl.password || parsedBaseUrl.pathname !== "/" || parsedBaseUrl.search || parsedBaseUrl.hash) throw new Error("The base URL must be a credential-free HTTPS origin.");
-if (/cybersentinels\.com$/i.test(parsedBaseUrl.hostname) || parsedBaseUrl.hostname.includes("kecgtsfibkypjuaxqbjx")) throw new Error("Production targets are refused.");
+const isCanonicalStagingOrigin = parsedBaseUrl.origin === "https://staging.cybersentinels.com";
+const isReservedCyberSentinelsDomain = /cybersentinels\.com$/i.test(parsedBaseUrl.hostname) && !isCanonicalStagingOrigin;
+if (isReservedCyberSentinelsDomain || parsedBaseUrl.hostname.includes("kecgtsfibkypjuaxqbjx")) throw new Error("Production targets are refused.");
 const normalizedBaseUrl = parsedBaseUrl.origin;
 
 const qualificationFetch = vercelAutomationBypassSecret
@@ -130,6 +133,28 @@ mark("AUTHORITY", {
 });
 const registeredAgent = await cs.agents.get(agent.agent_id);
 mark("AGENT", { agent_id: registeredAgent.agent_id, authority_reference: registeredAgent.authority_reference });
+
+const signedHeartbeat = await signHeartbeat({
+  agent_id: agent.operational_entity_id,
+  credential_id: credential.credential_id,
+  event_id: Buffer.from(webcrypto.getRandomValues(new Uint8Array(24))).toString("base64url"),
+  issued_at: new Date().toISOString(),
+  environment: "staging",
+  authority_id: authority.authority_id,
+  policy_id: "external-agent-trust-v1",
+  policy_version: "0.2.0",
+}, agent.manifest_context.enterprise_id, `${normalizedBaseUrl}/api/v1`, keyPair.privateKey);
+const heartbeat = await timed("runtime_heartbeat", () => cs.agents.heartbeat(agent.agent_id, signedHeartbeat));
+if (!heartbeat.evidence_types?.includes("SERVER_VERIFIED_AGENT_CONFIGURATION")
+  || !heartbeat.evidence_types?.includes("SERVER_VERIFIED_MONITORING_HEARTBEAT")
+  || heartbeat.downstream_execution_observed !== false) {
+  throw new Error("The Staging control plane did not return its bounded server-verified runtime evidence pair.");
+}
+mark("RUNTIME_EVIDENCE", {
+  evidence_types: heartbeat.evidence_types,
+  monitoring_scope: heartbeat.monitoring_scope,
+  downstream_execution_observed: heartbeat.downstream_execution_observed,
+});
 
 const allowed = await timed("allow_decision", () => cs.trust.authorize({
   operational_entity_id: agent.operational_entity_id,

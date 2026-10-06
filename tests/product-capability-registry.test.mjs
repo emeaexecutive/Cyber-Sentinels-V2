@@ -8,14 +8,15 @@ import { classifyEvidenceIndependence } from "../lib/operational-entities/federa
 const root = path.resolve(import.meta.dirname, "..");
 const registryPath = path.join(root, "config", "product-capabilities.json");
 const allowedLevels = new Set([
-  "WORKING",
-  "PARTIALLY_IMPLEMENTED",
+  "WORKING_LOCAL",
+  "PROVEN_PRODUCTION",
+  "PROVEN_STAGING",
+  "PARTIAL",
   "CONTRACT_ONLY",
   "UI_ONLY",
-  "TEXT_ONLY",
-  "NOT_IMPLEMENTED",
-  "STAGING_PROVEN",
-  "LIVE_PROVIDER_PROVEN",
+  "MOCKED",
+  "BROKEN",
+  "NOT_BUILT",
 ]);
 const requiredFields = ["name", "publicClaim", "implementationModule", "algorithm", "tests", "api", "ui", "persistence", "providerDependency", "qualificationLevel"];
 
@@ -45,11 +46,11 @@ test("all source, UI, API, test and qualification-evidence references exist", as
   }
 });
 
-test("WORKING claims have executable coverage and cannot be text-only declarations", async () => {
-  for (const entry of (await registry()).filter((item) => item.qualificationLevel === "WORKING")) {
-    assert.ok(entry.tests.length, `${entry.name} cannot be WORKING without an executable test.`);
-    assert.ok(entry.implementationModule, `${entry.name} cannot be WORKING without implementation.`);
-    assert.ok(entry.api.length || entry.ui.length, `${entry.name} cannot be WORKING without a reachable surface.`);
+test("WORKING_LOCAL claims have executable coverage and cannot be text-only declarations", async () => {
+  for (const entry of (await registry()).filter((item) => item.qualificationLevel === "WORKING_LOCAL")) {
+    assert.ok(entry.tests.length, `${entry.name} cannot be WORKING_LOCAL without an executable test.`);
+    assert.ok(entry.implementationModule, `${entry.name} cannot be WORKING_LOCAL without implementation.`);
+    assert.ok(entry.api.length || entry.ui.length, `${entry.name} cannot be WORKING_LOCAL without a reachable surface.`);
   }
 });
 
@@ -63,9 +64,13 @@ test("continuous, AI and provider-proof claims carry their required qualificatio
   assert.ok(ai?.modelPath, "AI claims require an implemented model path.");
   assert.match(ai.algorithm, /allowlist|citation/i, "AI claims require evidence grounding and citation validation.");
 
-  for (const entry of entries.filter((item) => item.qualificationLevel === "LIVE_PROVIDER_PROVEN")) {
+  for (const entry of entries.filter((item) => item.qualificationLevel === "PROVEN_PRODUCTION")) {
     assert.ok(entry.providerDependency, `${entry.name} needs a named provider dependency.`);
     assert.ok(entry.qualificationEvidence, `${entry.name} needs retained live-provider evidence.`);
+  }
+  for (const entry of entries.filter((item) => item.qualificationLevel === "PROVEN_STAGING")) {
+    assert.ok(entry.qualificationEvidence, `${entry.name} needs retained Staging evidence.`);
+    assert.match(entry.evidenceDate ?? "", /^\d{4}-\d{2}-\d{2}$/, `${entry.name} needs an evidence date.`);
   }
 });
 

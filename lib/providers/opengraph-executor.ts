@@ -7,13 +7,13 @@ const responseLimit = 262_144;
 
 export type OpenGraphExecution = {
   configured: boolean;
-  provider: "opengraph.io";
+  provider: "opengraph.io" | "test_adapter";
   tool: "opengraph.site";
   requestedTarget: string;
   executionAttempted: boolean;
   providerResponseStatus: number | null;
   normalizedResult: { title: string | null; description: string | null; siteName: string | null; type: string | null; responseHost: string | null; redirects: number | null } | null;
-  providerNetworkBehaviorAssurance: "UNVERIFIED_PROVIDER_CONTROLLED_FETCH";
+  providerNetworkBehaviorAssurance: "UNVERIFIED_PROVIDER_CONTROLLED_FETCH" | "NOT_APPLICABLE_TEST_ADAPTER";
   outcomeCertainty: "UNVERIFIED";
   occurredAt: string;
   evidenceDigest: string | null;

@@ -452,5 +452,12 @@ export async function POST(req: Request) {
     return NextResponse.redirect(redirectTarget, { status: 303 });
   }
 
-  return NextResponse.json({ ok: true, analysis, mode: analysisMode });
+  return NextResponse.json({
+    ok: true,
+    analysis,
+    mode: analysisMode,
+    decision_authority: "ADVISORY_ONLY",
+    execution_authorized: false,
+    canonical_decision_required: true,
+  });
 }

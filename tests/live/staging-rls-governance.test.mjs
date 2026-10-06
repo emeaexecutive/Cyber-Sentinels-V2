@@ -12,7 +12,7 @@ const validInput = {
   syntheticFixtures: true,
   migrationHead: "20260829164824",
   expectedMigrationHead: "20260829164824",
-  approvedHostname: "staging.example.invalid",
+  approvedHostname: "staging.cybersentinels.com",
   liveTestConfirmation: true,
 };
 

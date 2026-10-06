@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { scoreGraphHealth } from "@/lib/trust-graph/scoreGraphHealth";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
@@ -53,7 +54,7 @@ const metricTables = [
 ];
 
 async function liveCount(table: string, label: string): Promise<MetricResult> {
-  const supabase = await createClient();
+  const supabase = createServiceRoleClient();
   const { count, error } = await supabase
     .from(table)
     .select("id", { count: "exact", head: true });
@@ -197,12 +198,13 @@ async function generateGraphSnapshot(formData: FormData) {
     redirect("/trust-graph-engine");
   }
 
-  const supabase = await createClient();
-  const user = await requireAdminPageAccess(supabase, {
+  const authClient = await createClient();
+  const user = await requireAdminPageAccess(authClient, {
     path: "/trust-graph-engine",
     action: "generate_graph_snapshot",
     passport_id: passportId,
   });
+  const supabase = createServiceRoleClient();
   const actor = user.email ?? user.id;
 
   const { data: passport } = await supabase
@@ -613,11 +615,12 @@ export default async function TrustGraphEnginePage({
   searchParams,
 }: TrustGraphEnginePageProps) {
   const params = await searchParams;
-  const supabase = await createClient();
-  await requireAdminPageAccess(supabase, {
+  const authClient = await createClient();
+  await requireAdminPageAccess(authClient, {
     path: "/trust-graph-engine",
     passport_id: params?.passport_id,
   });
+  const supabase = createServiceRoleClient();
 
   const [metrics, { data: passports }] = await Promise.all([
     Promise.all(metricTables.map(([table, label]) => liveCount(table, label))),

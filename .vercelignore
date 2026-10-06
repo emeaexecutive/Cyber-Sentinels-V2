@@ -1,0 +1,10 @@
+tmp/
+temp/
+exports/
+.env*
+.supabase/
+supabase/.temp/
+*.log
+*-credential-export.*
+test-results/
+playwright-report/

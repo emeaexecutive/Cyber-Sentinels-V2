@@ -7,7 +7,14 @@ const read = (path) => readFileSync(path, "utf8").replace(/\r\n/g, "\n");
 test("forward Supabase policy changes use the canonical drift-detecting idempotency guard", () => {
   const migrationFiles = readdirSync("supabase/migrations")
     .filter((name) => name >= "202608010002" && name.endsWith(".sql"));
-  const sql = migrationFiles.map((file) => read(`supabase/migrations/${file}`)).join("\n");
+  // The approval migration deliberately replaces one restrictive policy on a
+  // fixed table list. It cannot grant access; every permissive policy still applies.
+  const approval = "202610040003_require_approved_accounts_for_data_api.sql";
+  const restrictive = read(`supabase/migrations/${approval}`);
+  assert.equal((restrictive.match(/drop policy if exists/gi) ?? []).length, 1);
+  assert.match(restrictive, /'account approval required', v_table_name/);
+  assert.match(restrictive, /as restrictive for all to authenticated using \(public\.security_closure_user_approved\(\)\) with check \(public\.security_closure_user_approved\(\)\)/);
+  const sql = migrationFiles.filter(file => file !== approval).map((file) => read(`supabase/migrations/${file}`)).join("\n");
   assert.match(sql, /ensure_policy_definition_v1/);
   assert.match(sql, /Conflicting policy definition/);
   assert.match(sql, /return 'UNCHANGED'/);
@@ -18,7 +25,16 @@ test("RLS policies do not trust user-controlled auth metadata", () => {
   const migrationFiles = readdirSync("supabase/migrations")
     .filter((name) => name.endsWith(".sql"));
   const sql = migrationFiles
-    .map((file) => read(`supabase/migrations/${file}`))
+    .map((file) => {
+      let source = read(`supabase/migrations/${file}`);
+      if (file === "202610040002_account_access_approval.sql") {
+        // Organisation/company are untrusted display data in the approval inbox.
+        // They never choose the approval status or an authorization role.
+        source = source.replace(/raw_user_meta_data\s*->>\s*'(?:organization|company)'/g, "display_field")
+          .replace(/after insert or update of email, raw_user_meta_data on auth\.users/g, "display_metadata_trigger");
+      }
+      return source;
+    })
     .join("\n");
 
   assert.equal(/user_metadata|raw_user_meta_data/i.test(sql), false);

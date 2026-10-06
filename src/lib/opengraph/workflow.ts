@@ -97,7 +97,7 @@ export function composeOpenGraphRequest(request: OpenGraphRequest, context: Open
 
 /** Server-only composition seam for an authenticated gateway/MCP handler.
  * Resolve context from current server state, never from client assertions.
- * No provider transport is installed: even ALLOW cannot call an arbitrary executor.
+ * The server selects the qualified executor; durable reservation precedes dispatch.
  * A duplicate returns historical evidence only; a fresh action needs a fresh key.
  */
 export async function governOpenGraphRequest(request: OpenGraphRequest, dependencies: CanonicalTrustTransactionDependencies,
@@ -118,9 +118,15 @@ export async function governOpenGraphRequest(request: OpenGraphRequest, dependen
     resolveTenantFromSession: async () => tenant,
     loadAuthority: async () => authority,
     requestExternalExecution: async (record) => {
+      const configured = executeSite !== executeOpenGraphSite || Boolean(process.env.OPENGRAPH_APP_ID?.trim());
+      if (!configured) return { configured: false, requestReference: null, acknowledgement: null, outcome: null };
+      if (!dependencies.reserveExternalExecution) {
+        throw Object.assign(new Error("OpenGraph execution requires durable request persistence."), { code: "TRUST_TRANSACTION_PERSISTENCE_FAILED" });
+      }
+      const requestReference = await dependencies.reserveExternalExecution(record);
       const execution = await executeSite(normalizeOpenGraphTarget(record.action.resource));
       if (!execution.configured) return { configured: false, requestReference: null, acknowledgement: null, outcome: null };
-      const requestReference = `opengraph:${execution.evidenceDigest ?? hashCanonical({ target: execution.requestedTarget, occurredAt: execution.occurredAt })}`;
+      const externalReference = `opengraph:${execution.evidenceDigest ?? hashCanonical({ target: execution.requestedTarget, occurredAt: execution.occurredAt })}`;
       const normalizedSummary = execution.normalizedResult ? JSON.stringify({
         title: execution.normalizedResult.title?.slice(0, 72) ?? null,
         description: execution.normalizedResult.description?.slice(0, 96) ?? null,
@@ -133,14 +139,16 @@ export async function governOpenGraphRequest(request: OpenGraphRequest, dependen
         configured: true,
         requestReference,
         acknowledgement: execution.providerResponseStatus !== null && execution.providerResponseStatus < 500
-          ? { externalReference: requestReference, acknowledgedAt: execution.occurredAt }
+          ? { externalReference, acknowledgedAt: execution.occurredAt }
           : null,
         outcome: {
           state: "UNKNOWN" as const,
-          externalReference: requestReference,
+          externalReference,
           occurredAt: execution.occurredAt,
           reason: execution.failureCode
             ? `OpenGraph request ended with ${execution.failureCode}; destination outcome and provider-side network behavior are unverified.`
+            : execution.provider === "test_adapter"
+            ? `Deterministic Staging test adapter executed; no live provider request occurred. Evidence digest ${execution.evidenceDigest}; downstream outcome is unverified.`
             : `OpenGraph returned HTTP ${execution.providerResponseStatus}; normalized result ${normalizedSummary}; evidence digest ${execution.evidenceDigest}; destination outcome and provider-side network behavior are unverified.`,
         },
       };

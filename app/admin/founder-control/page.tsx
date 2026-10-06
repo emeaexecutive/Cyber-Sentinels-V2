@@ -18,6 +18,7 @@ import {
 } from "@/lib/pilot-mode";
 import { createReadinessGateSnapshot } from "@/lib/readiness-gate/snapshot";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { auditTrustIntegrity } from "@/lib/trust-integrity/repair";
 
 export const dynamic = "force-dynamic";
@@ -224,8 +225,8 @@ function MetricGrid({
 }
 
 export default async function FounderControlPage() {
-  const supabase = await createClient();
-  const access = await checkAdminAccess(supabase);
+  const authClient = await createClient();
+  const access = await checkAdminAccess(authClient);
 
   if (!access.ok) {
     if (access.reason === "unauthenticated") {
@@ -235,7 +236,8 @@ export default async function FounderControlPage() {
     redirect("/back-office?denied=1");
   }
 
-  await requireAdminPageAccess(supabase, { path: "/admin/founder-control" });
+  await requireAdminPageAccess(authClient, { path: "/admin/founder-control" });
+  const supabase = createServiceRoleClient();
 
   const registry = getIntegrationRegistry();
   const integration = (provider: string) =>

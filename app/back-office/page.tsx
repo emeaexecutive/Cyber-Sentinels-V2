@@ -9,6 +9,7 @@ import {
   type DecisionAction,
 } from "@/lib/back-office";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { redirect } from "next/navigation";
 import {
   formatTimeAgo,
@@ -684,9 +685,9 @@ type BackOfficePageProps = {
 export default async function BackOfficePage({
   searchParams,
 }: BackOfficePageProps) {
-  const supabase = await createClient();
+  const authClient = await createClient();
   const params = await searchParams;
-  const access = await checkAdminAccess(supabase);
+  const access = await checkAdminAccess(authClient);
 
   if (!access.ok) {
     if (access.reason === "unauthenticated") {
@@ -709,10 +710,11 @@ export default async function BackOfficePage({
     );
   }
 
-  await requireAdminPageAccess(supabase, {
+  await requireAdminPageAccess(authClient, {
     path: "/back-office",
     denied: params?.denied === "1",
   });
+  const supabase = createServiceRoleClient();
   const aiDraftMessage =
     params?.ai_draft === "missing_openai_key"
       ? "AI drafting unavailable — missing OPENAI_API_KEY."
@@ -1255,6 +1257,9 @@ export default async function BackOfficePage({
             Cyber Sentinels Back Office
           </Link>
           <nav className="flex flex-wrap items-center gap-2 text-xs text-zinc-300">
+            <Link href="/admin/access-approvals" className="border border-zinc-800 px-3 py-2 hover:text-white">
+              Access Approvals
+            </Link>
             <form action="/api/auth/logout" method="POST">
               <button
                 className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white"

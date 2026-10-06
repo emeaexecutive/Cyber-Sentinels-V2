@@ -194,6 +194,12 @@ export type EvidenceSubmission = {
   digest?: string;
 };
 
+export type OpenGraphSiteRequest = {
+  operational_entity_id: string;
+  target_url: string;
+  idempotency_key: string;
+};
+
 export type OutcomeSubmission = {
   transactionId: string;
   outcome: "SUCCEEDED" | "FAILED" | "UNKNOWN";
@@ -522,6 +528,9 @@ export class CyberSentinels {
   readonly evidence: {
     submit: (input: EvidenceSubmission, options?: RequestOptions) => Promise<EvidenceResult>;
   };
+  readonly tools: {
+    requestOpenGraphSite: (input: OpenGraphSiteRequest, options?: RequestOptions) => Promise<Record<string, unknown>>;
+  };
   readonly incidents: {
     open: (input: Record<string, unknown>, options?: RequestOptions) => Promise<Record<string, unknown>>;
     get: (id: string, options?: RequestOptions) => Promise<Record<string, unknown>>;
@@ -588,6 +597,15 @@ export class CyberSentinels {
     };
     this.evidence = {
       submit: (input, requestOptions) => this.#request("POST", "/api/v1/evidence", input, requestOptions),
+    };
+    this.tools = {
+      requestOpenGraphSite: (input, requestOptions) => this.#request(
+        "POST",
+        "/api/v1/tools/opengraph/site",
+        { operational_entity_id: input.operational_entity_id, target_url: input.target_url },
+        requestOptions,
+        input.idempotency_key,
+      ),
     };
     this.incidents = {
       open: (input, options) => this.#request("POST", "/api/v1/incidents", input, options),

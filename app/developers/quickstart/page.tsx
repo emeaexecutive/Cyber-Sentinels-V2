@@ -65,6 +65,7 @@ GET  /api/v1/agents/{agentId}/authorities/{authorityId}
 POST /api/v1/agents/{agentId}/authorities/{authorityId}/revoke
 GET  /api/v1/agents/{agentId}/trust-state
 POST /api/v1/trust/decisions
+POST /api/v1/tools/opengraph/site
 GET  /api/v1/reviews/{reviewReference}
 POST /api/v1/reviews/{reviewReference}/resolve
 POST /api/v1/evidence
