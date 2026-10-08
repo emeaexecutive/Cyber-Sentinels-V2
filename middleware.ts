@@ -9,6 +9,7 @@ import {
 import { isMissingAuthSessionError } from "@/lib/supabase/auth-errors";
 import { isPasswordRecoverySession, isRecoveryWorkflowPath, PASSWORD_RECOVERY_COOKIE, PASSWORD_RECOVERY_PATH } from "@/lib/auth/password-recovery";
 import { isJudgeMeWebhookCallback } from "@/lib/providers/judgeme-route";
+import { approvalBoundary, isTenantAdminSurface } from "@/lib/auth/approval-boundary";
 
 const adminVerifiedCookieName = "cyber_admin_verified";
 
@@ -364,6 +365,11 @@ export async function middleware(req: NextRequest) {
 
 async function applicationMiddleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
+  const boundary = approvalBoundary(pathname, req.method);
+  if (pathname.startsWith("/api/") && boundary !== "CUSTOMER") {
+    // API keys verify owner approval in the route; callbacks verify signatures.
+    return NextResponse.next();
+  }
   // Provider callbacks authenticate with a timestamped HMAC in the route.
   // Browser GET access to the provider registry remains session-protected.
   if (
@@ -378,11 +384,10 @@ async function applicationMiddleware(req: NextRequest) {
   }
   // Enterprise consent-admin APIs authorize workspace owner/admin roles in the
   // route and are not restricted to the platform-wide founder allowlist.
-  if (pathname === "/admin/consent" || pathname.startsWith("/api/admin/consent/")) return NextResponse.next();
-  if (pathname.startsWith("/admin/consensus") || pathname.startsWith("/api/admin/consensus/")) return NextResponse.next();
-  if (pathname.startsWith("/admin/trust-architecture") || pathname.startsWith("/api/admin/trust-architecture/")) return NextResponse.next();
-  const protectsUser = isProtectedUserPath(pathname);
-  const protectsAdmin = isProtectedAdminPath(pathname);
+  const tenantAdmin = isTenantAdminSurface(pathname);
+  const protectsAdmin = !tenantAdmin && isProtectedAdminPath(pathname);
+  const protectsUser = tenantAdmin || isProtectedUserPath(pathname) ||
+    (pathname.startsWith("/api/") && !protectsAdmin);
 
   if (!protectsUser && !protectsAdmin) {
     return NextResponse.next();

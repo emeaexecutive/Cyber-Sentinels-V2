@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { approvalBoundary } from "../../lib/auth/approval-boundary.ts";
 
 const migration = await readFile(new URL("../../supabase/migrations/202610040001_p0p1_security_closure.sql", import.meta.url), "utf8");
 const approvalMigration = await readFile(new URL("../../supabase/migrations/202610040002_account_access_approval.sql", import.meta.url), "utf8");
@@ -82,6 +83,23 @@ test("V1 API keys inherit their owner's account approval state", () => {
   assert.match(publicApiAuth, /approval\.data\?\.status !== "APPROVED"/);
   assert.match(publicApiAuth, /ACCESS_APPROVAL_REQUIRED/);
   assert.match(publicApiAuth, /Account access status is temporarily unavailable/);
+});
+
+test("pre-approval bypasses are limited to transport, signed callbacks, and V1 API-key auth", () => {
+  for (const [path, method] of [
+    ["/api/ready", "GET"], ["/api/auth/logout", "POST"],
+    ["/api/auth/password-reset/request", "POST"], ["/api/consent", "GET"],
+    ["/api/consent", "PATCH"], ["/api/enterprise-access", "POST"],
+  ]) assert.equal(approvalBoundary(path, method), "PUBLIC_TRANSPORT", `${method} ${path}`);
+  for (const [path, method] of [
+    ["/api/providers/hopae/callback", "POST"],
+    ["/api/trust-events/ingest/hopae_connect", "POST"],
+    ["/api/stripe/webhook", "POST"],
+  ]) assert.equal(approvalBoundary(path, method), "SIGNED_CALLBACK", `${method} ${path}`);
+  assert.equal(approvalBoundary("/api/v1/trust/transactions", "GET"), "API_KEY");
+  for (const path of ["/api/workspaces", "/api/memberships", "/api/evidence", "/api/trust/memory"]) {
+    assert.equal(approvalBoundary(path, "GET"), "CUSTOMER", path);
+  }
 });
 
 test("legacy passport review decisions are admin-only and not customer-writable", () => {

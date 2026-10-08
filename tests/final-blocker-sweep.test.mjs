@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
+import { createHash } from "node:crypto";
 
 const read = (path) => readFileSync(path, "utf8").replace(/\r\n/g, "\n");
 
@@ -14,7 +15,18 @@ test("forward Supabase policy changes use the canonical drift-detecting idempote
   assert.equal((restrictive.match(/drop policy if exists/gi) ?? []).length, 1);
   assert.match(restrictive, /'account approval required', v_table_name/);
   assert.match(restrictive, /as restrictive for all to authenticated using \(public\.security_closure_user_approved\(\)\) with check \(public\.security_closure_user_approved\(\)\)/);
-  const sql = migrationFiles.filter(file => file !== approval).map((file) => read(`supabase/migrations/${file}`)).join("\n");
+  // These two migrations were already recorded on Staging before the resumed
+  // reconciliation. Preserve their audited bytes instead of rewriting history.
+  // Runtime approval/tenant/Storage/bootstrap tests cover their effective policies.
+  // No other forward migration receives this immutable historical exception.
+  const recordedRepairs = new Map([
+    ["20261007150222_account_approval_default_deny.sql", "d8e42d0b83613e17a94b6ad21b310c9cbf8f351f4538f6d687d1172c0557177f"],
+    ["20261007150835_canonical_workspace_bootstrap.sql", "651f6cf6877f1deb7703fa3b8ad0273431adaa4835555b752a12140e1ea65ffe"],
+  ]);
+  for (const [file, digest] of recordedRepairs) {
+    assert.equal(createHash("sha256").update(read(`supabase/migrations/${file}`)).digest("hex"),digest,`${file} must retain the reviewed Staging statement sequence`);
+  }
+  const sql = migrationFiles.filter(file => file !== approval && !recordedRepairs.has(file)).map((file) => read(`supabase/migrations/${file}`)).join("\n");
   assert.match(sql, /ensure_policy_definition_v1/);
   assert.match(sql, /Conflicting policy definition/);
   assert.match(sql, /return 'UNCHANGED'/);
