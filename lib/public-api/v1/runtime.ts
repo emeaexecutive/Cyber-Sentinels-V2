@@ -1,4 +1,6 @@
 import "server-only";
+import { attachAuthorityReceiptSignature } from "../../trust-receipts/authority-signature-server";
+import { actionRequestDigest, approvedActionMatches, normalizeExactActionScope } from "../../trust-transaction/action-envelope";
 import { currentControlPlaneEvidence, productionControlPlaneContext } from "./control-plane-evidence";
 
 import { executionAuthorization } from "./execution-authorization";
@@ -685,7 +687,7 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
   await entityFor(principal, agentId);
   const action = body.action as Record<string, unknown>;
   if (!action || typeof action !== "object" || Array.isArray(action)) throw new PublicApiError("INVALID_INPUT", "action is required.", 400);
-  assertOnlyFields(action, ["type", "target", "purpose", "environment"]);
+  assertOnlyFields(action, ["type", "target", "purpose", "environment", "exact_scope"]);
   const decisionType = body.decision_type ? requiredText(body.decision_type, "decision_type", 120, /^[A-Za-z0-9_.:-]+$/) : null;
   const deploymentContext = body.context && typeof body.context === "object" && !Array.isArray(body.context)
     ? (body.context as Record<string, unknown>)
@@ -756,7 +758,9 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
     target: requiredText(action.target, "action.target", 240, referencePattern),
     purpose: requiredText(action.purpose, "action.purpose", 180, referencePattern),
     environment: requiredText(action.environment, "action.environment", 120, referencePattern),
+    ...(action.exact_scope === undefined ? {} : { exact_scope: normalizeExactActionScope(action.exact_scope) }),
   };
+  const requestDigest = actionRequestDigest({ operationalEntityId: agentId, action: normalized, decisionType, context: deploymentContext ?? null });
   const db = createServiceRoleClient();
   if (previousTransactionId) {
     const previous = await db.from("canonical_trust_transactions")
@@ -789,7 +793,7 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
     let exactApprovedAction = false;
     if (approval.data?.status === "APPROVED" && Date.parse(String(approval.data.expires_at)) > Date.now()) {
       const approvedTransaction = await db.from("canonical_trust_transactions")
-        .select("action_type,action_resource,action_purpose,action_environment")
+        .select("action_type,action_resource,action_purpose,action_environment,request_digest")
         .eq("enterprise_id", principal.tenantId)
         .eq("actor_id", principal.clientId)
         .eq("operational_entity_id", agentId)
@@ -800,7 +804,8 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
         && approvedTransaction.data.action_type === normalized.type
         && approvedTransaction.data.action_resource === normalized.target
         && approvedTransaction.data.action_purpose === normalized.purpose
-        && approvedTransaction.data.action_environment === normalized.environment);
+        && approvedTransaction.data.action_environment === normalized.environment
+        && approvedActionMatches(approvedTransaction.data.request_digest, { operationalEntityId: agentId, action: normalized, decisionType, context: deploymentContext }));
     }
     humanIntent = exactApprovedAction ? {
       signed: true,
@@ -816,12 +821,6 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
       sourceClassification: "agent_asserted",
     };
   }
-  const requestDigest = hashCanonical({
-    operationalEntityId: agentId,
-    action: normalized,
-    decisionType,
-    context: deploymentContext ?? null,
-  });
   const bodyKey = body.idempotency_key ? requiredText(body.idempotency_key, "idempotency_key", 120, /^[A-Za-z0-9_.:-]+$/) : idempotencyKey;
   if (!idempotencyKey || idempotencyKey.length < 8 || bodyKey !== idempotencyKey) {
     throw new PublicApiError("IDEMPOTENCY_KEY_REQUIRED", "A matching Idempotency-Key header is required.", 400);
@@ -849,6 +848,9 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
         assuranceEvidence,
       } : null,
       managedControl: {
+        // Exact tool/value requests require the reservation-backed native path.
+        // The legacy public decision relay cannot claim equivalent destination enforcement.
+        ...(normalized.exact_scope ? { authorization: { decision: "REVIEW" as const, reasonCodes: ["EXACT_TOOL_EXECUTION_PATH_REQUIRED"] } } : {}),
         contradictions,
         monitoringCoverage: trustedStagingEvidence?.monitoringCoverage ?? (controlPlaneEvidence.size ? "covered" : monitoring ? monitoringCoverage : undefined),
         oversightMode: deploymentContext?.oversight && ["HUMAN_IN_THE_LOOP", "HUMAN_ON_THE_LOOP", "HUMAN_OVER_THE_LOOP", "AUTONOMOUS"].includes(String(deploymentContext.oversight)) ? deploymentContext.oversight as "HUMAN_IN_THE_LOOP" | "HUMAN_ON_THE_LOOP" | "HUMAN_OVER_THE_LOOP" | "AUTONOMOUS" : undefined,
@@ -1086,7 +1088,8 @@ export async function getExternalReceipt(principal: PublicApiPrincipal, transact
   const history = await transactionRows(principal, transactionId);
   const row = history.transaction;
   const consequenceTime = consequenceTimeProjection(row.decision_time_snapshot);
-  return {
+  const receipt = {
+    tenant_id: principal.tenantId,
     receipt_version: "canonical-trust-transaction-v1",
     receipt_id: row.transaction_id,
     decision_id: row.decision_id,
@@ -1121,7 +1124,15 @@ export async function getExternalReceipt(principal: PublicApiPrincipal, transact
     evidence_graph_reference: `evidence-graph:${row.transaction_id}`,
     replay_reference: `replay:${row.transaction_id}`,
     trust_memory_reference: row.material_change ? `trust-memory:${row.transaction_id}` : null,
+    execution_evidence: {
+      decision_is_execution_proof: false,
+      public_submissions: history.outcomes,
+      canonical_outcomes: history.nativeOutcomes,
+      // ALLOW cannot conceal a later signed mismatch or an unknown destination result.
+      latest_outcome: history.nativeOutcomes.at(-1)?.outcome ?? "UNKNOWN",
+    },
   };
+  return attachAuthorityReceiptSignature(receipt, principal.tenantId, transactionId);
 }
 
 export async function submitExternalOutcome(principal: PublicApiPrincipal, transactionId: string, body: Record<string, unknown>) {

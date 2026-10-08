@@ -461,13 +461,27 @@ export async function executeAuthorizedAction(input: {
   };
   if (input.decision !== "ALLOW") return { requested: false, request: null, result: null, eligibility: { eligible: false, state: "DENIED" as const, reasonCodes: [input.decision === "DENY" ? "DECISION_DENY_NO_ENFORCEMENT" : "DECISION_REVIEW_NO_ENFORCEMENT"], algorithmVersion: ENFORCEMENT_ELIGIBILITY_VERSION } };
   const existing = await dependencies.findByIdempotencyKey(input.enterpriseId, input.idempotencyKey);
-  if (existing) return { requested: true, request: existing.request, result: existing.result, duplicate: true, eligibility: { eligible: true, state: "ELIGIBLE" as const, reasonCodes: ["IDEMPOTENT_REPLAY"], algorithmVersion: ENFORCEMENT_ELIGIBILITY_VERSION } };
+  const assertSameRequest = (prior: EnforcementRequest) => {
+    if (prior.enterpriseId !== request.enterpriseId || prior.transactionId !== request.transactionId
+      || prior.operationalEntityId !== request.operationalEntityId || prior.authorityId !== request.authorityId
+      || prior.delegationId !== request.delegationId || prior.actionDigest !== request.actionDigest
+      || prior.decisionDigest !== request.decisionDigest) {
+      throw new NativeEnforcementError("The idempotency key belongs to a different authorized action.", "ENFORCEMENT_IDEMPOTENCY_CONFLICT", 409);
+    }
+  };
+  if (existing) {
+    assertSameRequest(existing.request);
+    return { requested: true, request: existing.request, result: existing.result, duplicate: true, eligibility: { eligible: true, state: "ELIGIBLE" as const, reasonCodes: ["IDEMPOTENT_REPLAY"], algorithmVersion: ENFORCEMENT_ELIGIBILITY_VERSION } };
+  }
   const current = await dependencies.loadCurrentState(request);
-  const eligibility = evaluateEnforcementEligibility({ decision: input.decision, request, current, approval: input.approval });
+  const eligibility = evaluateEnforcementEligibility({ decision: input.decision, request, current, approval: input.approval, now: request.requestedAt });
   if (!eligibility.eligible) return { requested: false, request: null, result: null, eligibility };
   const reservation = await dependencies.reserveRequest(request);
   if (!reservation.created && reservation.blocked) return { requested: false, request: null, result: null, duplicate: false, eligibility: { ...eligibility, eligible: false, state: reservation.reasonCodes.includes("HUMAN_APPROVAL_REQUIRED") ? "REVIEW_REQUIRED" as const : "CANCELLED" as const, reasonCodes: reservation.reasonCodes } };
-  if (!reservation.created) return { requested: true, request: reservation.request, result: reservation.result, duplicate: true, eligibility: { ...eligibility, reasonCodes: ["IDEMPOTENT_REPLAY"] } };
+  if (!reservation.created) {
+    assertSameRequest(reservation.request);
+    return { requested: true, request: reservation.request, result: reservation.result, duplicate: true, eligibility: { ...eligibility, reasonCodes: ["IDEMPOTENT_REPLAY"] } };
+  }
   const result = await dependencies.adapter.execute(request);
   return { requested: true, request, result, duplicate: false, eligibility };
 }

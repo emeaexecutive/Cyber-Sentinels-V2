@@ -161,7 +161,9 @@ export type ProofSubmission = {
 
 export type DecisionRequest = {
   operational_entity_id: string;
-  action: { type: string; target: string; purpose: string; environment: string };
+  action: { type: string; target: string; purpose: string; environment: string; exact_scope?: {
+    tool: string; provider: string; payload_digest: string; data_scope: string[]; amount_minor?: number; currency?: string;
+  } };
   idempotency_key: string;
   decision_type?: string;
   context?: {
@@ -321,7 +323,11 @@ export type ConsequenceTime = {
   previous_allow_standing_authorization: false;
 };
 
-export type Receipt = Transaction & { receipt_version: string; authority_version: string | null; current_condition_references: string[]; material_change_references: string[]; consequence_time: ConsequenceTime };
+export type AuthorityReceiptProof = { version: "authority-receipt-signature-v1"; algorithm: "Ed25519"; keyId: string; tenantId: string; receiptId: string; payloadDigest: string; signature: string };
+export type Receipt = Transaction & { receipt_version: string; authority_version: string | null; current_condition_references: string[]; material_change_references: string[]; consequence_time: ConsequenceTime;
+  tenant_id?: string; cryptographic_verification?: { status: "NOT_CONFIGURED" } | { status: "SIGNED"; proof: AuthorityReceiptProof };
+  execution_evidence?: { decision_is_execution_proof: false; public_submissions: Record<string, unknown>[]; canonical_outcomes: Record<string, unknown>[]; latest_outcome: string };
+};
 export type Replay = ApiResponseMetadata & {
   replay_id: string;
   decision_id: string;
