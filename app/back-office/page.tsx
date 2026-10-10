@@ -1260,6 +1260,9 @@ export default async function BackOfficePage({
             <Link href="/admin/access-approvals" className="border border-zinc-800 px-3 py-2 hover:text-white">
               Access Approvals
             </Link>
+            <Link href="/admin/employment-governance" className="border border-zinc-800 px-3 py-2 hover:text-white">
+              Employment Governance
+            </Link>
             <form action="/api/auth/logout" method="POST">
               <button
                 className="rounded-lg border border-zinc-800 px-3 py-2 hover:text-white"

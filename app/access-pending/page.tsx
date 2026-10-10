@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 
 const statusMessages: Record<string, string> = {
   PENDING: "Your access request is awaiting review.",
+  REJECTED: "Your access request was rejected.",
   DENIED: "Your access request was denied.",
   SUSPENDED: "Your account access is currently suspended.",
   REVOKED: "Your account access has been revoked.",

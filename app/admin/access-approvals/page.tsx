@@ -7,7 +7,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export const dynamic = "force-dynamic";
 
-const editableStatuses = ["APPROVED", "DENIED", "SUSPENDED", "REVOKED"] as const;
+const editableStatuses = ["APPROVED", "REJECTED", "SUSPENDED", "REVOKED"] as const;
 type EditableStatus = (typeof editableStatuses)[number];
 
 type ApprovalRow = {
@@ -20,6 +20,8 @@ type ApprovalRow = {
   approved_by: string | null;
   denied_at: string | null;
   denied_by: string | null;
+  rejected_at: string | null;
+  rejected_by: string | null;
   suspended_at: string | null;
   suspended_by: string | null;
   revoked_at: string | null;
@@ -42,15 +44,18 @@ async function updateAccessApproval(formData: FormData) {
   const reason = String(formData.get("reason") ?? "").trim().slice(0, 1000) || null;
 
   if (!userId || !editableStatuses.includes(status)) return;
+  if (status === "APPROVED" && userId === admin.id) {
+    throw new Error("Platform administrators cannot approve their own account.");
+  }
 
   const now = new Date().toISOString();
   const change: Record<string, string | null> = { status, reason };
   if (status === "APPROVED") {
     change.approved_at = now;
     change.approved_by = admin.id;
-  } else if (status === "DENIED") {
-    change.denied_at = now;
-    change.denied_by = admin.id;
+  } else if (status === "REJECTED") {
+    change.rejected_at = now;
+    change.rejected_by = admin.id;
   } else if (status === "SUSPENDED") {
     change.suspended_at = now;
     change.suspended_by = admin.id;
@@ -82,7 +87,7 @@ export default async function AccessApprovalsPage() {
 
   const { data, error } = await createServiceRoleClient()
     .from("account_access_approvals")
-    .select("user_id,email,organization,status,requested_at,approved_at,approved_by,denied_at,denied_by,suspended_at,suspended_by,revoked_at,revoked_by,last_login_attempt,last_successful_login,reason")
+    .select("user_id,email,organization,status,requested_at,approved_at,approved_by,denied_at,denied_by,rejected_at,rejected_by,suspended_at,suspended_by,revoked_at,revoked_by,last_login_attempt,last_successful_login,reason")
     .order("requested_at", { ascending: false })
     .limit(200)
     .returns<ApprovalRow[]>();
@@ -115,7 +120,7 @@ export default async function AccessApprovalsPage() {
                     <div><dt className="text-zinc-600">Last login attempt</dt><dd>{formatDate(approval.last_login_attempt)}</dd></div>
                     <div><dt className="text-zinc-600">Last successful login</dt><dd>{formatDate(approval.last_successful_login)}</dd></div>
                     <div><dt className="text-zinc-600">Approved</dt><dd>{formatDate(approval.approved_at)}</dd></div>
-                    <div><dt className="text-zinc-600">Denied / suspended / revoked</dt><dd>{formatDate(approval.denied_at ?? approval.suspended_at ?? approval.revoked_at)}</dd></div>
+                    <div><dt className="text-zinc-600">Rejected / suspended / revoked</dt><dd>{formatDate(approval.rejected_at ?? approval.denied_at ?? approval.suspended_at ?? approval.revoked_at)}</dd></div>
                   </dl>
                   {approval.reason ? <p className="mt-3 text-sm text-zinc-500">Reason: {approval.reason}</p> : null}
                 </div>

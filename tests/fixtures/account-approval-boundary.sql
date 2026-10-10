@@ -69,7 +69,17 @@
       create table storage.buckets(id text primary key, public boolean);
       create table storage.objects(id uuid default gen_random_uuid(), bucket_id text, name text);
       alter table storage.objects enable row level security;
-
+      create table public.trust_events(
+            event_id uuid primary key,
+            enterprise_id uuid not null,
+            event_type text not null,
+            subject_id text not null,
+            workflow_id text,
+            occurred_at timestamptz not null,
+            evidence_references text[] not null default '{}',
+            event_hash text not null,
+            correlation_id uuid not null
+      );
 create table public.trust_workspaces(id uuid primary key, created_by uuid references auth.users(id), name text);
 create table public.workspace_members(workspace_id uuid references public.trust_workspaces(id),user_id uuid references auth.users(id),role text);
 create view public.approval_workspace_view as select * from public.trust_workspaces;
