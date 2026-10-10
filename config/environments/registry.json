@@ -34,7 +34,7 @@
         "read_only_inventory",
         "synthetic_fixture_validation"
       ],
-      "knownApplicationHostnames": [],
+      "knownApplicationHostnames": ["staging.cybersentinels.com"],
       "retentionClassification": "retain_through_epic_31"
     }
   ]

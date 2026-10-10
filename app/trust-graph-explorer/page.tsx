@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export const dynamic = "force-dynamic";
 
@@ -199,7 +201,9 @@ export default async function TrustGraphExplorerPage({
   searchParams,
 }: TrustGraphExplorerPageProps) {
   const params = await searchParams;
-  const supabase = await createClient();
+  const authClient = await createClient();
+  await requireAdminPageAccess(authClient, { path: "/trust-graph-explorer" });
+  const supabase = createServiceRoleClient();
   const [metrics, { data: passports }] = await Promise.all([
     Promise.all(metricTables.map(([table, label]) => liveCount(table, label))),
     supabase

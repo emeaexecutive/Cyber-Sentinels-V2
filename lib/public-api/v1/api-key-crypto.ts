@@ -4,7 +4,15 @@ export const PUBLIC_API_KEY_PATTERN = /^cs_(test|live)_([a-zA-Z0-9_-]{12})\.([a-
 
 const scryptParameters = { N: 32_768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 } as const;
 
+export function apiKeyPepperConfigured(env: NodeJS.ProcessEnv = process.env) {
+  const pepper = env.API_KEY_PEPPER?.trim() || env.PUBLIC_API_KEY_PEPPER?.trim() || "";
+  return Buffer.byteLength(pepper, "utf8") >= 32;
+}
+
 function apiKeyKdfInput(secret: string, pepper = process.env.API_KEY_PEPPER?.trim() || process.env.PUBLIC_API_KEY_PEPPER?.trim()) {
+  if (["staging", "production"].includes(process.env.CYBER_SENTINELS_ENVIRONMENT ?? "") && !apiKeyPepperConfigured()) {
+    throw new Error("PUBLIC_API_KEY_PEPPER_REQUIRED");
+  }
   return pepper ? `${secret}\u0000${pepper}` : secret;
 }
 

@@ -18,18 +18,24 @@ export function publicApiEnvironmentMetadata(env: NodeJS.ProcessEnv = process.en
   try { origin = new URL(originValue); } catch {
     return { valid: false as const, state: "CONFIGURATION_INVALID" as const, reasonCode: "CYBER_SENTINELS_PUBLIC_ORIGIN_INVALID", name, origin: null };
   }
-  const local = ["localhost", "127.0.0.1", "::1"].includes(origin.hostname);
-  if (origin.username || origin.password || origin.pathname !== "/" || origin.search || origin.hash || (origin.protocol !== "https:" && !(name === "local" && local))) {
+  const local = ["localhost", "127.0.0.1", "[::1]"].includes(origin.hostname);
+  if (origin.username || origin.password || origin.pathname !== "/" || origin.search || origin.hash || (origin.protocol !== "https:" && !(["local", "test"].includes(name) && local && origin.protocol === "http:"))) {
     return { valid: false as const, state: "CONFIGURATION_INVALID" as const, reasonCode: "CYBER_SENTINELS_PUBLIC_ORIGIN_INVALID", name, origin: null };
   }
   if (name === "production" && origin.origin !== "https://www.cybersentinels.com") {
     return { valid: false as const, state: "CONFIGURATION_INVALID" as const, reasonCode: "PRODUCTION_ORIGIN_MISMATCH", name, origin: origin.origin };
   }
-  if (name !== "production" && /(^|\.)cybersentinels\.com$/i.test(origin.hostname) && origin.hostname === "www.cybersentinels.com") {
+  if (name !== "production" && ["cybersentinels.com", "www.cybersentinels.com"].includes(origin.hostname)) {
     return { valid: false as const, state: "CONFIGURATION_INVALID" as const, reasonCode: "NON_PRODUCTION_ORIGIN_POINTS_TO_PRODUCTION", name, origin: origin.origin };
   }
   if (["test", "staging"].includes(name) && /\.vercel\.app$/i.test(origin.hostname)) {
     return { valid: false as const, state: "CONFIGURATION_INVALID" as const, reasonCode: "PREVIEW_ORIGIN_IS_NOT_STABLE_CUSTOMER_CONTRACT", name, origin: origin.origin };
+  }
+  if (name === "staging" && origin.origin !== "https://staging.cybersentinels.com") {
+    return { valid: false as const, state: "CONFIGURATION_INVALID" as const, reasonCode: "STAGING_ORIGIN_MISMATCH", name, origin: null };
+  }
+  if (["local", "test"].includes(name) && !local) {
+    return { valid: false as const, state: "CONFIGURATION_INVALID" as const, reasonCode: "LOCAL_ORIGIN_MISMATCH", name, origin: null };
   }
   return { valid: true as const, state: "CONFIGURED" as const, reasonCode: "PUBLIC_API_ENVIRONMENT_CONFIGURED", name: name as PublicApiEnvironment, origin: origin.origin };
 }

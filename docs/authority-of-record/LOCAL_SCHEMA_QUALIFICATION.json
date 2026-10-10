@@ -1,0 +1,77 @@
+{
+  "result": "PASS",
+  "database": "aor_qualification_final6",
+  "host": "127.0.0.1",
+  "port": 55439,
+  "sourceSchemaSha256": "7db49a022b24d470bde44c6e8f16e2a20ae9d3334bc220f392ca43b5177ef4e2",
+  "applied": [
+    "20260819084252_consent_evidence_freshness_repair.sql",
+    "20260819084329_restrict_evidence_trigger_functions.sql",
+    "20260902083450_grant_service_role_api_keys_privileges.sql",
+    "20260903095127_reconcile_public_api_webhook_event_types.sql",
+    "20260904113046_normalize_continuous_trust_alert_contract.sql",
+    "20261007150222_account_approval_default_deny.sql",
+    "20261007150224_canonical_trust_memory_function_reconciliation.sql",
+    "20261007150835_canonical_workspace_bootstrap.sql",
+    "20261008093614_canonical_application_access_grants.sql",
+    "20261008105722_canonical_application_schema_reconciliation.sql",
+    "20261008112858_evidence_download_approval_revalidation.sql",
+    "20261008120422_authority_of_record_exact_execution.sql"
+  ],
+  "engine": "PostgreSQL 17.6 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit",
+  "migrationRole": "supabase_admin",
+  "classification": "LOCAL_SCHEMA_RECONSTRUCTION_NOT_PRODUCTION_RESTORE",
+  "contract": {
+    "format": "cyber-sentinels-application-schema-v1",
+    "sections": {
+      "buckets": {
+        "objects": 2,
+        "sha256": "22100deed89b8c139326d328a52a660385906ce3e9717b9a364fc39a3a97c69a"
+      },
+      "columns": {
+        "objects": 3518,
+        "sha256": "c9d87511215794ff053a981b017bfc9ff9267b3b6dc1690941faa9a31659779d"
+      },
+      "constraints": {
+        "objects": 1544,
+        "sha256": "aaba0e54b9e43bf815b8fe8c7ff62810320daa1d45fe79e2a06df00faad1ca21"
+      },
+      "default_acls": {
+        "objects": 6,
+        "sha256": "d3192f669fccb6aebe10a777c9b52c07215555033e40474d8cc7237ad0a043b4"
+      },
+      "functions": {
+        "objects": 173,
+        "sha256": "7f0f5ee07f1b00109654f1392c59b087833fb015818b8dacb227ab15a1dbd5ba"
+      },
+      "indexes": {
+        "objects": 716,
+        "sha256": "21cbf84cd0e227528d7747021272ddcef1c1779151e66fe9c3dd3ae89bb9f3f5"
+      },
+      "policies": {
+        "objects": 566,
+        "sha256": "9ea7328f094d875cab05cae5a0f2ecb05992490b9d5f7943b9cbe1568e84c7dc"
+      },
+      "schemas": {
+        "objects": 2,
+        "sha256": "f668c4035a598576dedf9bcb72291c2d1343532a962c92e2233e46bed08dc325"
+      },
+      "storage_tables": {
+        "objects": 2,
+        "sha256": "1a335333d3d6306af94c013788276663d4b67cc648a525e321e2a2daf9fd4cfc"
+      },
+      "tables": {
+        "objects": 249,
+        "sha256": "1ff98f485c2d22dfae23840c61ca705741bac93b6b704c8c39b1472f6a198034"
+      },
+      "triggers": {
+        "objects": 161,
+        "sha256": "4b6aed3437d7b262c0536bcb3b1b36f97a79f32b6d921233d122a59cd51d52e0"
+      },
+      "types": {
+        "objects": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    }
+  }
+}

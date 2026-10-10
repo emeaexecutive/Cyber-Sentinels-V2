@@ -1,6 +1,8 @@
 # Disaster Recovery
 
-**Status:** Proposed; backup, restore and failover exercises are not repository-verified
+**Latest Storage closure (10 October): ALL SIX RECOVERY CATEGORIES PASS for the accepted isolated profile with mandatory local hardening. Actual Production payload export and isolated restoration passed; Production was not mutated and targets are stopped. See [final Storage evidence and procedure](storage-recovery-closure-20261010.md). Storage BLOCKED statements below describe the earlier phase and are superseded; historical limitations and security qualifications remain.
+
+**Status:** Database and integrated isolated application recovery have passed with the required local security hardening step. Full platform recovery remains BLOCKED by missing original Storage payloads. See the [10 October recovery closure](recovery-closure-20261010.md) for the final evidence, conditions and automation; Production was not changed.
 
 ## Recovery priorities
 

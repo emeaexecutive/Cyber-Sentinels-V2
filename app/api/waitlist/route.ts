@@ -11,7 +11,7 @@ import {
   configurationError,
   getRequestRiskFields,
 } from "@/lib/security";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export async function POST(req: Request) {
   try {
@@ -54,7 +54,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Valid email required" }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    // Public submission is admitted only after Turnstile and input validation.
+    // The database itself grants no pre-approval access to the waitlist table.
+    const supabase = createServiceRoleClient();
     const requestRisk = getRequestRiskFields(req);
     const { error } = await supabase.from("waitlist").insert({
       email,

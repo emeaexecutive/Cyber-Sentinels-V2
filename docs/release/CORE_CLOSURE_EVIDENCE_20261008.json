@@ -1,0 +1,2267 @@
+{
+  "schema": "core-closure-evidence-v1",
+  "date": "2026-10-08",
+  "scope": "STAGING_ONLY",
+  "oldRc": "12d67951201b1dae6a3b91ac9fae405322671905",
+  "oldRcDisposition": "SUPERSEDED FOR PRODUCTION — REMAINS AUDITABLE",
+  "staging": {
+    "supabaseProject": "agpyhygpfmppjkxwcpac",
+    "deployment": "dpl_HKxdiGXUsr7eUX5hUDBr55t7mE8e",
+    "url": "https://staging.cybersentinels.com",
+    "preview": "https://cyber-sentinels-v2-lkubn9fn6-keith-speres-projects.vercel.app",
+    "source": "CLI working-tree build qualified before replacement commit; no claim that deployment metadata already contains the later RC SHA",
+    "ledgerCount": 147
+  },
+  "production": {
+    "supabaseProject": "kecgtsfibkypjuaxqbjx",
+    "deployment": "dpl_3aKJiNZB6jQssp9Urm8uDG1zBsyp",
+    "sha": "3c2b5e6c93bc5c3ac1a918de874c5cd0645b4571",
+    "ledgerCount": 119,
+    "pendingMigrations": 12,
+    "targetLedgerCount": 131,
+    "databaseMutations": 0,
+    "accountMutations": 0,
+    "deployments": 0,
+    "existingEvidenceStorageObjects": 1
+  },
+  "newMigrations": [
+    {
+      "version": "20261007150222",
+      "file": "20261007150222_account_approval_default_deny.sql",
+      "recordedSqlMatches": true,
+      "sha256": "d8e42d0b83613e17a94b6ad21b310c9cbf8f351f4538f6d687d1172c0557177f"
+    },
+    {
+      "version": "20261007150224",
+      "file": "20261007150224_canonical_trust_memory_function_reconciliation.sql",
+      "recordedSqlMatches": true,
+      "sha256": "d8b334c90891d5fe6a6c496470989800e9fbde8622b9dee86f325146467a85de"
+    },
+    {
+      "version": "20261007150835",
+      "file": "20261007150835_canonical_workspace_bootstrap.sql",
+      "recordedSqlMatches": true,
+      "sha256": "651f6cf6877f1deb7703fa3b8ad0273431adaa4835555b752a12140e1ea65ffe"
+    },
+    {
+      "version": "20261008093614",
+      "file": "20261008093614_canonical_application_access_grants.sql",
+      "recordedSqlMatches": true,
+      "sha256": "998654f82030142434499aff2211963ebafa33ca8b004139723ed24dca27b506"
+    },
+    {
+      "version": "20261008105722",
+      "file": "20261008105722_canonical_application_schema_reconciliation.sql",
+      "recordedSqlMatches": true,
+      "sha256": "ede4645ab832fe6a2dcd324321c17a19cca25b0e572ae2bd109eab1fa9e19b30"
+    },
+    {
+      "version": "20261008112858",
+      "file": "20261008112858_evidence_download_approval_revalidation.sql",
+      "recordedSqlMatches": true,
+      "sha256": "c477719d3649f199302f00e8c0063f04ae804adac197b3caa73ce30ff2235823"
+    }
+  ],
+  "defaultDeny": [
+    {
+      "state": "DENIED",
+      "resources": 250,
+      "zero_rows": 210,
+      "permission_denied": 40,
+      "failures": 0
+    },
+    {
+      "state": "PENDING",
+      "resources": 250,
+      "zero_rows": 210,
+      "permission_denied": 40,
+      "failures": 0
+    },
+    {
+      "state": "REVOKED",
+      "resources": 250,
+      "zero_rows": 210,
+      "permission_denied": 40,
+      "failures": 0
+    },
+    {
+      "state": "SUSPENDED",
+      "resources": 250,
+      "zero_rows": 210,
+      "permission_denied": 40,
+      "failures": 0
+    }
+  ],
+  "liveSecurity": {
+    "checks": 132,
+    "failures": 0,
+    "runId": "57b40d96-28bc-4c8d-98e8-b10310508fd2",
+    "matrix": [
+      {
+        "tenant": "A",
+        "operation": "read own approval",
+        "table": "account_access_approvals",
+        "http_status": 200,
+        "expected": "PENDING",
+        "actual": "PENDING",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "list approvals",
+        "table": "account_access_approvals",
+        "http_status": 200,
+        "expected": "only Tenant A own row",
+        "actual": "rows=1; own=true",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "read approval audit events",
+        "table": "account_access_approval_events",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "mutate own approval",
+        "table": "account_access_approvals",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A/PENDING",
+        "operation": "SELECT own protected row",
+        "table": "passports",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A/PENDING",
+        "operation": "INSERT protected row",
+        "table": "passports",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A/PENDING",
+        "operation": "record blocked login",
+        "table": "account_access_approval_events",
+        "http_status": 200,
+        "expected": "RPC records blocked attempt",
+        "actual": "RECORDED",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "SELECT",
+        "table": "passports",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "SELECT",
+        "table": "verification_cases",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "SELECT",
+        "table": "trust_reports",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "SELECT",
+        "table": "evidence_files",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "SELECT",
+        "table": "decisions",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "SELECT",
+        "table": "signals",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "SELECT",
+        "table": "ai_agents",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "SELECT",
+        "table": "api_keys",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "UPDATE own passport to verified",
+        "table": "passports",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "verify own passport unchanged",
+        "table": "passports",
+        "expected": "not verified by customer",
+        "actual": "false/pending/pending/50",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "passports",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "trust_reports",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "verification_cases",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "evidence_files",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "decisions",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "signals",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "ai_agents",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "UPDATE foreign report",
+        "table": "trust_reports",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "zero affected rows",
+        "actual": "rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A->B",
+        "operation": "DELETE foreign passport",
+        "table": "passports",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "ACL/RLS denial or zero deleted; row remains",
+        "actual": "rows=0,present=yes",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "SELECT",
+        "table": "passports",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "SELECT",
+        "table": "verification_cases",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "SELECT",
+        "table": "trust_reports",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "SELECT",
+        "table": "evidence_files",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "SELECT",
+        "table": "decisions",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "SELECT",
+        "table": "signals",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "SELECT",
+        "table": "ai_agents",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "SELECT",
+        "table": "api_keys",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "HTTP 200 with zero visible rows",
+        "actual": "HTTP 200, rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "UPDATE own passport to verified",
+        "table": "passports",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "verify own passport unchanged",
+        "table": "passports",
+        "expected": "not verified by customer",
+        "actual": "false/pending/pending/50",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "passports",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "trust_reports",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "verification_cases",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "evidence_files",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "decisions",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "signals",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "INSERT foreign parent/team/tenant",
+        "table": "ai_agents",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "HTTP 4xx denial",
+        "actual": "HTTP 403, code=42501",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "UPDATE foreign report",
+        "table": "trust_reports",
+        "http_status": 200,
+        "database_code": null,
+        "expected": "zero affected rows",
+        "actual": "rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B->A",
+        "operation": "DELETE foreign passport",
+        "table": "passports",
+        "http_status": 403,
+        "database_code": "42501",
+        "expected": "ACL/RLS denial or zero deleted; row remains",
+        "actual": "rows=0,present=yes",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "LIST own prefix",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "one own object",
+        "actual": "SUCCESS rows=1",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "READ own object directly",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "gateway required",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "CREATE SIGNED URL own object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "gateway required",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "LIST foreign prefix",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "zero visible objects",
+        "actual": "SUCCESS rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "READ foreign object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "download denied",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "CREATE SIGNED URL foreign object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "signed URL denied",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "UPLOAD into foreign prefix",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "403",
+        "expected": "upload denied",
+        "actual": "DENIED 403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "REPLACE foreign object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "403",
+        "expected": "replace denied",
+        "actual": "DENIED 403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "DELETE foreign object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "object remains after denied/empty delete",
+        "actual": "SUCCESS rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "UPLOAD own prefix",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "same-tenant upload succeeds",
+        "actual": "SUCCESS",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "REPLACE own object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "same-tenant replace succeeds",
+        "actual": "SUCCESS",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "DELETE own object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "same-tenant delete succeeds",
+        "actual": "SUCCESS rows=1",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "service-role READ foreign object",
+        "table": "storage.objects/evidence-files",
+        "expected": "trusted service role succeeds",
+        "actual": "SUCCESS",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "LIST own prefix",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "one own object",
+        "actual": "SUCCESS rows=1",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "READ own object directly",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "gateway required",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "CREATE SIGNED URL own object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "gateway required",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "LIST foreign prefix",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "zero visible objects",
+        "actual": "SUCCESS rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "READ foreign object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "download denied",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "CREATE SIGNED URL foreign object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "signed URL denied",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "UPLOAD into foreign prefix",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "403",
+        "expected": "upload denied",
+        "actual": "DENIED 403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "REPLACE foreign object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "403",
+        "expected": "replace denied",
+        "actual": "DENIED 403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "DELETE foreign object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "object remains after denied/empty delete",
+        "actual": "SUCCESS rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "UPLOAD own prefix",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "same-tenant upload succeeds",
+        "actual": "SUCCESS",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "REPLACE own object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "same-tenant replace succeeds",
+        "actual": "SUCCESS",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "DELETE own object",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "same-tenant delete succeeds",
+        "actual": "SUCCESS rows=1",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "service-role READ foreign object",
+        "table": "storage.objects/evidence-files",
+        "expected": "trusted service role succeeds",
+        "actual": "SUCCESS",
+        "result": "PASS"
+      },
+      {
+        "tenant": "PENDING",
+        "operation": "approval-revalidated gateway download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 403,
+        "expected": "403 approval denial",
+        "actual": "403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "foreign gateway download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 404,
+        "expected": "404 tenant denial",
+        "actual": "404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "PENDING",
+        "operation": "fresh object download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "cacheStatus": "BYPASS",
+        "expected": "gateway required",
+        "actual": "400",
+        "result": "PASS"
+      },
+      {
+        "tenant": "PENDING",
+        "operation": "fresh object/authenticated download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "cacheStatus": "BYPASS",
+        "expected": "gateway required",
+        "actual": "400",
+        "result": "PASS"
+      },
+      {
+        "tenant": "PENDING",
+        "operation": "LIST own prefix blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "zero objects",
+        "actual": "SUCCESS rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "PENDING",
+        "operation": "DOWNLOAD own object blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "denied",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "PENDING",
+        "operation": "SIGNED URL blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "denied",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "PENDING",
+        "operation": "UPLOAD own prefix blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "403",
+        "expected": "denied",
+        "actual": "DENIED 403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "PENDING",
+        "operation": "REPLACE own object blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "403",
+        "expected": "denied",
+        "actual": "DENIED 403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "PENDING",
+        "operation": "DELETE own object blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "preserved",
+        "actual": "SUCCESS rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A/PENDING",
+        "operation": "protected PostgREST SELECT",
+        "table": "passports",
+        "http_status": 200,
+        "expected": "zero rows",
+        "actual": "rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "DENIED",
+        "operation": "approval-revalidated gateway download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 403,
+        "expected": "403 approval denial",
+        "actual": "403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "foreign gateway download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 404,
+        "expected": "404 tenant denial",
+        "actual": "404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "DENIED",
+        "operation": "fresh object download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "cacheStatus": "BYPASS",
+        "expected": "gateway required",
+        "actual": "400",
+        "result": "PASS"
+      },
+      {
+        "tenant": "DENIED",
+        "operation": "fresh object/authenticated download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "cacheStatus": "BYPASS",
+        "expected": "gateway required",
+        "actual": "400",
+        "result": "PASS"
+      },
+      {
+        "tenant": "DENIED",
+        "operation": "LIST own prefix blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "zero objects",
+        "actual": "SUCCESS rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "DENIED",
+        "operation": "DOWNLOAD own object blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "denied",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "DENIED",
+        "operation": "SIGNED URL blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "denied",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "DENIED",
+        "operation": "UPLOAD own prefix blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "403",
+        "expected": "denied",
+        "actual": "DENIED 403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "DENIED",
+        "operation": "REPLACE own object blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "403",
+        "expected": "denied",
+        "actual": "DENIED 403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "DENIED",
+        "operation": "DELETE own object blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "preserved",
+        "actual": "SUCCESS rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A/DENIED",
+        "operation": "protected PostgREST SELECT",
+        "table": "passports",
+        "http_status": 200,
+        "expected": "zero rows",
+        "actual": "rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "APPROVED",
+        "operation": "approval-revalidated gateway download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "expected": "private no-store bytes",
+        "actual": "200",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "foreign gateway download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 404,
+        "expected": "404 tenant denial",
+        "actual": "404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "APPROVED",
+        "operation": "fresh object download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "cacheStatus": "BYPASS",
+        "expected": "gateway required",
+        "actual": "400",
+        "result": "PASS"
+      },
+      {
+        "tenant": "APPROVED",
+        "operation": "fresh object/authenticated download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "cacheStatus": "BYPASS",
+        "expected": "gateway required",
+        "actual": "400",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A/APPROVED",
+        "operation": "protected PostgREST SELECT",
+        "table": "passports",
+        "http_status": 200,
+        "expected": "one own row",
+        "actual": "rows=1",
+        "result": "PASS"
+      },
+      {
+        "tenant": "SUSPENDED",
+        "operation": "approval-revalidated gateway download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 403,
+        "expected": "403 approval denial",
+        "actual": "403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "foreign gateway download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 404,
+        "expected": "404 tenant denial",
+        "actual": "404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "SUSPENDED",
+        "operation": "fresh object download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "cacheStatus": "BYPASS",
+        "expected": "gateway required",
+        "actual": "400",
+        "result": "PASS"
+      },
+      {
+        "tenant": "SUSPENDED",
+        "operation": "fresh object/authenticated download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "cacheStatus": "BYPASS",
+        "expected": "gateway required",
+        "actual": "400",
+        "result": "PASS"
+      },
+      {
+        "tenant": "SUSPENDED",
+        "operation": "LIST own prefix blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "zero objects",
+        "actual": "SUCCESS rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "SUSPENDED",
+        "operation": "DOWNLOAD own object blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "denied",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "SUSPENDED",
+        "operation": "SIGNED URL blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "denied",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "SUSPENDED",
+        "operation": "UPLOAD own prefix blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "403",
+        "expected": "denied",
+        "actual": "DENIED 403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "SUSPENDED",
+        "operation": "REPLACE own object blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "403",
+        "expected": "denied",
+        "actual": "DENIED 403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "SUSPENDED",
+        "operation": "DELETE own object blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "preserved",
+        "actual": "SUCCESS rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A/SUSPENDED",
+        "operation": "protected PostgREST SELECT",
+        "table": "passports",
+        "http_status": 200,
+        "expected": "zero rows",
+        "actual": "rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "APPROVED",
+        "operation": "approval-revalidated gateway download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "expected": "private no-store bytes",
+        "actual": "200",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "foreign gateway download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 404,
+        "expected": "404 tenant denial",
+        "actual": "404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "APPROVED",
+        "operation": "fresh object download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "cacheStatus": "BYPASS",
+        "expected": "gateway required",
+        "actual": "400",
+        "result": "PASS"
+      },
+      {
+        "tenant": "APPROVED",
+        "operation": "fresh object/authenticated download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "cacheStatus": "BYPASS",
+        "expected": "gateway required",
+        "actual": "400",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A/APPROVED",
+        "operation": "protected PostgREST SELECT",
+        "table": "passports",
+        "http_status": 200,
+        "expected": "one own row",
+        "actual": "rows=1",
+        "result": "PASS"
+      },
+      {
+        "tenant": "REVOKED",
+        "operation": "approval-revalidated gateway download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 403,
+        "expected": "403 approval denial",
+        "actual": "403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "B",
+        "operation": "foreign gateway download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 404,
+        "expected": "404 tenant denial",
+        "actual": "404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "REVOKED",
+        "operation": "fresh object download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "cacheStatus": "BYPASS",
+        "expected": "gateway required",
+        "actual": "400",
+        "result": "PASS"
+      },
+      {
+        "tenant": "REVOKED",
+        "operation": "fresh object/authenticated download",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "cacheStatus": "BYPASS",
+        "expected": "gateway required",
+        "actual": "400",
+        "result": "PASS"
+      },
+      {
+        "tenant": "REVOKED",
+        "operation": "LIST own prefix blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "zero objects",
+        "actual": "SUCCESS rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "REVOKED",
+        "operation": "DOWNLOAD own object blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "denied",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "REVOKED",
+        "operation": "SIGNED URL blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "404",
+        "expected": "denied",
+        "actual": "DENIED 404",
+        "result": "PASS"
+      },
+      {
+        "tenant": "REVOKED",
+        "operation": "UPLOAD own prefix blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "403",
+        "expected": "denied",
+        "actual": "DENIED 403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "REVOKED",
+        "operation": "REPLACE own object blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 400,
+        "storage_error_status": "403",
+        "expected": "denied",
+        "actual": "DENIED 403",
+        "result": "PASS"
+      },
+      {
+        "tenant": "REVOKED",
+        "operation": "DELETE own object blocked",
+        "table": "storage.objects/evidence-files",
+        "http_status": 200,
+        "storage_error_status": null,
+        "expected": "preserved",
+        "actual": "SUCCESS rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A/REVOKED",
+        "operation": "protected PostgREST SELECT",
+        "table": "passports",
+        "http_status": 200,
+        "expected": "zero rows",
+        "actual": "rows=0",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "audit ACCESS_REQUESTED",
+        "table": "account_access_approval_events",
+        "expected": "one or more events",
+        "actual": "count=1",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "audit ACCESS_APPROVED",
+        "table": "account_access_approval_events",
+        "expected": "one or more events",
+        "actual": "count=3",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "audit ACCESS_DENIED",
+        "table": "account_access_approval_events",
+        "expected": "one or more events",
+        "actual": "count=1",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "audit ACCESS_SUSPENDED",
+        "table": "account_access_approval_events",
+        "expected": "one or more events",
+        "actual": "count=1",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "audit ACCESS_REVOKED",
+        "table": "account_access_approval_events",
+        "expected": "one or more events",
+        "actual": "count=1",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "audit BLOCKED_LOGIN_ATTEMPT",
+        "table": "account_access_approval_events",
+        "expected": "one or more events",
+        "actual": "count=1",
+        "result": "PASS"
+      },
+      {
+        "tenant": "A",
+        "operation": "audit SUCCESSFUL_APPROVED_LOGIN",
+        "table": "account_access_approval_events",
+        "expected": "one or more events",
+        "actual": "count=1",
+        "result": "PASS"
+      }
+    ],
+    "cleanup": "Only this invocation fixtures removed; no previous-run or customer rows swept"
+  },
+  "gateway": {
+    "checks": [
+      {
+        "state": "APPROVED",
+        "ownHttp": 200,
+        "crossTenantHttp": 404,
+        "directDownloadDenied": true,
+        "signedUrlDenied": true,
+        "cache": "private, no-store, max-age=0"
+      },
+      {
+        "state": "PENDING",
+        "ownHttp": 403,
+        "crossTenantHttp": 404,
+        "directDownloadDenied": true,
+        "signedUrlDenied": true,
+        "cache": "public, max-age=0, must-revalidate"
+      },
+      {
+        "state": "DENIED",
+        "ownHttp": 403,
+        "crossTenantHttp": 404,
+        "directDownloadDenied": true,
+        "signedUrlDenied": true,
+        "cache": "public, max-age=0, must-revalidate"
+      },
+      {
+        "state": "APPROVED",
+        "ownHttp": 200,
+        "crossTenantHttp": 404,
+        "directDownloadDenied": true,
+        "signedUrlDenied": true,
+        "cache": "private, no-store, max-age=0"
+      },
+      {
+        "state": "SUSPENDED",
+        "ownHttp": 403,
+        "crossTenantHttp": 404,
+        "directDownloadDenied": true,
+        "signedUrlDenied": true,
+        "cache": "public, max-age=0, must-revalidate"
+      },
+      {
+        "state": "APPROVED",
+        "ownHttp": 200,
+        "crossTenantHttp": 404,
+        "directDownloadDenied": true,
+        "signedUrlDenied": true,
+        "cache": "private, no-store, max-age=0"
+      },
+      {
+        "state": "REVOKED",
+        "ownHttp": 403,
+        "crossTenantHttp": 404,
+        "directDownloadDenied": true,
+        "signedUrlDenied": true,
+        "cache": "public, max-age=0, must-revalidate"
+      }
+    ],
+    "complete": true,
+    "privateCacheResponsesPrevented": true
+  },
+  "targetSchema": {
+    "result": "PASS",
+    "sections": 12,
+    "method": "Observed Production catalog reconstruction in disposable PGlite plus twelve pending migrations compared to live Staging and canonical fingerprints; not a native backup restore"
+  },
+  "targeted": {
+    "coreClosureExecutions": 18,
+    "failures": 0,
+    "skips": 0
+  },
+  "fullRegression": {
+    "tests": 1993,
+    "suiteInvocations": 88,
+    "pass": 1993,
+    "fail": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "goldenNative": {
+    "qualification": "CONTROLLED_MODEL_AND_RUNTIME_FIXTURES_NOT_LIVE_PROVIDER_ATTESTATION",
+    "cases": [
+      {
+        "name": "unknown",
+        "decision": "REVIEW",
+        "modelStatus": "UNKNOWN",
+        "modelIntegrity": null,
+        "transactionId": "5ddb0153-c87d-582b-bcb1-02704ec386a4",
+        "decisionDigest": "dd4574f2f220690574a143e1ab400f0ccd8dd02f87eb6cec507f4543a52117f9",
+        "reasonCodes": [
+          "CANONICAL_POLICY_ALLOW",
+          "DELEGATED_AUTHORITY_VALID",
+          "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+          "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_INSUFFICIENT",
+          "MODEL_APPROVAL_UNKNOWN",
+          "REQUIRED_EVIDENCE_MISSING",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE"
+        ],
+        "executionCounts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptRetrieved": true,
+        "replay": {
+          "http": 200,
+          "decisionTimeModelVisible": true
+        }
+      },
+      {
+        "name": "caller-self-approved",
+        "decision": "REVIEW",
+        "modelStatus": "UNKNOWN",
+        "modelIntegrity": null,
+        "transactionId": "f2342e72-6d1d-5f7b-9308-79cdeec5e197",
+        "decisionDigest": "8cef87eeb881ec5e7a6000078d0366d8d10ffac0055c38e60253199c57ca1e03",
+        "reasonCodes": [
+          "CANONICAL_POLICY_ALLOW",
+          "DELEGATED_AUTHORITY_VALID",
+          "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+          "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_INSUFFICIENT",
+          "MODEL_APPROVAL_UNKNOWN",
+          "REQUIRED_EVIDENCE_MISSING",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE"
+        ],
+        "executionCounts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptRetrieved": true,
+        "replay": {
+          "http": 200,
+          "decisionTimeModelVisible": true
+        }
+      },
+      {
+        "name": "approved-runtime-valid",
+        "decision": "ALLOW",
+        "modelStatus": "APPROVED",
+        "modelIntegrity": "EXACT_MATCH",
+        "transactionId": "6cf32ec8-58b5-52c0-9e5f-47040d2770a3",
+        "decisionDigest": "232b423b9d6e3657670c16139ce6737affe25d8aac8875bbdfefebdb93852706",
+        "reasonCodes": [
+          "CANONICAL_POLICY_ALLOW",
+          "DELEGATED_AUTHORITY_VALID",
+          "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+          "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_SUFFICIENT",
+          "MODEL_APPROVAL_APPROVED",
+          "MODEL_INTEGRITY_EXACT_MATCH",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE"
+        ],
+        "executionCounts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptRetrieved": true,
+        "replay": {
+          "http": 200,
+          "decisionTimeModelVisible": true
+        }
+      },
+      {
+        "name": "caller-fields-server-wins",
+        "decision": "ALLOW",
+        "modelStatus": "APPROVED",
+        "modelIntegrity": "EXACT_MATCH",
+        "transactionId": "a5f9e52b-bc42-5149-96aa-0ceb71a9bc94",
+        "decisionDigest": "d12a070d827c5b441e83e03039805eae077b6bc5c2bdcbaa42e29a39159edaa8",
+        "reasonCodes": [
+          "CANONICAL_POLICY_ALLOW",
+          "DELEGATED_AUTHORITY_VALID",
+          "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+          "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_SUFFICIENT",
+          "MODEL_APPROVAL_APPROVED",
+          "MODEL_INTEGRITY_EXACT_MATCH",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE"
+        ],
+        "executionCounts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptRetrieved": true,
+        "replay": {
+          "http": 200,
+          "decisionTimeModelVisible": true
+        }
+      },
+      {
+        "name": "approved-runtime-failed",
+        "decision": "DENY",
+        "modelStatus": "APPROVED",
+        "modelIntegrity": "EXACT_MATCH",
+        "transactionId": "542656e5-f116-50bf-9115-6e81be3468c3",
+        "decisionDigest": "36437dbf1fabdb8a259d5f1846e615948db1f878c0721d9c727408380ad55b44",
+        "reasonCodes": [
+          "CANONICAL_POLICY_ALLOW",
+          "DELEGATED_AUTHORITY_VALID",
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_LOW",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CONFLICT",
+          "EVIDENCE_STALE_OR_UNAVAILABLE",
+          "EVIDENCE_SUFFICIENT",
+          "MISSING_VERIFY_MONITORING",
+          "MISSING_VERIFY_RUNTIME",
+          "MODEL_APPROVAL_APPROVED",
+          "MODEL_INTEGRITY_EXACT_MATCH",
+          "NEGATIVE_PROVIDER_EVIDENCE",
+          "TRUST_FORECAST_ELEVATED",
+          "TRUST_FORECAST_RECOMMENDS_HOLD",
+          "TRUST_GAP_OPEN"
+        ],
+        "executionCounts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptRetrieved": true,
+        "replay": {
+          "http": 200,
+          "decisionTimeModelVisible": true
+        }
+      },
+      {
+        "name": "unapproved",
+        "decision": "DENY",
+        "modelStatus": "UNAPPROVED",
+        "modelIntegrity": null,
+        "transactionId": "b9031034-a7ab-5b08-90b1-1d8134642293",
+        "decisionDigest": "ff9eeaf93525c2e753e5435572f4b9b14f8fd5e09529d463fed8ef6d16e93989",
+        "reasonCodes": [
+          "CANONICAL_POLICY_ALLOW",
+          "DELEGATED_AUTHORITY_VALID",
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_LOW",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CONFLICT",
+          "EVIDENCE_STALE_OR_UNAVAILABLE",
+          "EVIDENCE_SUFFICIENT",
+          "MISSING_VERIFY_AGENT_CONFIGURATION",
+          "MISSING_VERIFY_MONITORING",
+          "MODEL_APPROVAL_UNAPPROVED",
+          "NEGATIVE_PROVIDER_EVIDENCE",
+          "TRUST_FORECAST_ELEVATED",
+          "TRUST_FORECAST_RECOMMENDS_HOLD",
+          "TRUST_GAP_OPEN"
+        ],
+        "executionCounts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptRetrieved": true,
+        "replay": {
+          "http": 200,
+          "decisionTimeModelVisible": true
+        }
+      },
+      {
+        "name": "expired",
+        "decision": "REVIEW",
+        "modelStatus": "EXPIRED",
+        "modelIntegrity": null,
+        "transactionId": "efd0abf7-7db5-5907-8396-2f518f399911",
+        "decisionDigest": "63945f9cc14432adebc7828c4fac5e81269e597dfb8633a20f221087d3563818",
+        "reasonCodes": [
+          "CANONICAL_POLICY_ALLOW",
+          "DELEGATED_AUTHORITY_VALID",
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_STALE_OR_UNAVAILABLE",
+          "EVIDENCE_SUFFICIENT",
+          "MISSING_VERIFY_AGENT_CONFIGURATION",
+          "MISSING_VERIFY_MONITORING",
+          "MODEL_APPROVAL_EXPIRED",
+          "TRUST_FORECAST_ELEVATED",
+          "TRUST_FORECAST_RECOMMENDS_HOLD",
+          "TRUST_GAP_OPEN"
+        ],
+        "executionCounts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptRetrieved": true,
+        "replay": {
+          "http": 200,
+          "decisionTimeModelVisible": true
+        }
+      },
+      {
+        "name": "tenant-mismatch",
+        "decision": "DENY",
+        "modelStatus": "CONFLICTED",
+        "modelIntegrity": null,
+        "transactionId": "a9268483-f3cd-5fe3-9a9c-6ccc937561b2",
+        "decisionDigest": "a4bc721b2ea900eb628a69867c9da271aa3c253778553e973bfdb10059c0e7fc",
+        "reasonCodes": [
+          "CANONICAL_POLICY_ALLOW",
+          "DELEGATED_AUTHORITY_VALID",
+          "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+          "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_SUFFICIENT",
+          "MODEL_APPROVAL_SCOPE_MISMATCH",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE"
+        ],
+        "executionCounts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptRetrieved": true,
+        "replay": {
+          "http": 200,
+          "decisionTimeModelVisible": true
+        }
+      },
+      {
+        "name": "agent-mismatch",
+        "decision": "DENY",
+        "modelStatus": "CONFLICTED",
+        "modelIntegrity": null,
+        "transactionId": "a3d2623f-5f6b-5def-b43d-b8c1671718b7",
+        "decisionDigest": "c4dc45626f49b1d9ee672a3f3365752f544a0d24c5546f1497520e7a3e0a6c92",
+        "reasonCodes": [
+          "CANONICAL_POLICY_ALLOW",
+          "DELEGATED_AUTHORITY_VALID",
+          "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+          "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_SUFFICIENT",
+          "MODEL_APPROVAL_SCOPE_MISMATCH",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE"
+        ],
+        "executionCounts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptRetrieved": true,
+        "replay": {
+          "http": 200,
+          "decisionTimeModelVisible": true
+        }
+      },
+      {
+        "name": "tampered-evidence",
+        "decision": "DENY",
+        "modelStatus": "CONFLICTED",
+        "modelIntegrity": null,
+        "transactionId": "780c81c3-ecd8-5575-87ad-d9adafc955e1",
+        "decisionDigest": "5491bab51c0a8023a32534637a37e9c0701c8e4fab46c67d4879b42839295da2",
+        "reasonCodes": [
+          "CANONICAL_POLICY_ALLOW",
+          "DELEGATED_AUTHORITY_VALID",
+          "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+          "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_SUFFICIENT",
+          "MODEL_APPROVAL_EVIDENCE_TAMPERED",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE"
+        ],
+        "executionCounts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptRetrieved": true,
+        "replay": {
+          "http": 200,
+          "decisionTimeModelVisible": true
+        }
+      },
+      {
+        "name": "revoked",
+        "decision": "DENY",
+        "modelStatus": "REVOKED",
+        "modelIntegrity": null,
+        "transactionId": "3db1d917-59f1-54ed-8ef1-eba1b3849596",
+        "decisionDigest": "dcdb0626790bc4ed9f346e63c3e2dc4427d93eb7b4a1ed8dfc0237e3b901d634",
+        "reasonCodes": [
+          "CANONICAL_POLICY_ALLOW",
+          "DELEGATED_AUTHORITY_VALID",
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_LOW",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CONFLICT",
+          "EVIDENCE_STALE_OR_UNAVAILABLE",
+          "EVIDENCE_SUFFICIENT",
+          "MISSING_VERIFY_AGENT_CONFIGURATION",
+          "MISSING_VERIFY_MONITORING",
+          "MODEL_APPROVAL_REVOKED",
+          "NEGATIVE_PROVIDER_EVIDENCE",
+          "TRUST_FORECAST_ELEVATED",
+          "TRUST_FORECAST_RECOMMENDS_HOLD",
+          "TRUST_GAP_OPEN"
+        ],
+        "executionCounts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptRetrieved": true,
+        "replay": {
+          "http": 200,
+          "decisionTimeModelVisible": true
+        }
+      }
+    ],
+    "historical": {
+      "transactionId": "6cf32ec8-58b5-52c0-9e5f-47040d2770a3",
+      "snapshotDigest": "38cb68c39ec76f07f836ebd06a3d98806bd8aa814f81dd58e02dbafb82a3f6b5",
+      "afterRevocationUnchanged": true,
+      "receiptHttp": 200,
+      "replayHttp": 200,
+      "currentState": "REVOKED",
+      "historicalState": "APPROVED"
+    },
+    "crossTenantReceipt": 404,
+    "directSecurity": [
+      {
+        "name": "authenticated caller cannot write controlled approval ledger",
+        "code": "42501"
+      },
+      {
+        "name": "approval ledger mutation rejected even for service role",
+        "code": "P0001"
+      },
+      {
+        "name": "approval ledger deletion rejected",
+        "code": "P0001"
+      }
+    ],
+    "trustMemoryEntries": 49
+  },
+  "goldenPublicApi": {
+    "events": {
+      "READY": {
+        "status": "READY",
+        "project_ref": "agpyhygpfmppjkxwcpac"
+      },
+      "REGISTERED": {
+        "agent_id": "agent:943ce746-fb4c-4206-bff9-d11a539c4ded",
+        "status": "PENDING_IDENTITY_PROOF"
+      },
+      "CREDENTIAL": {
+        "credential_id": "07900ea7-e652-4531-989b-26b20f3f0555",
+        "fingerprint": "79013b64ada8ff1cefbff4d7129670d24b619a3d1655d8b109975bab056001d1",
+        "private_key_stored": false
+      },
+      "MANIFEST": {
+        "manifest_id": "db3b8095-e490-4b80-bdc9-bd2b6e1960c5",
+        "manifest_digest": "29bb4577db4ae7d1c229a259206e684f6c1ce14304cc9cf341574505b3b92802"
+      },
+      "IDENTITY": {
+        "identity": "VERIFIED",
+        "trust": "NOT_DETERMINED_BY_IDENTITY",
+        "verification_id": "6641de2e-72f4-4689-84e4-a05c528bf849",
+        "evidence_references": [
+          "evidence:9b41ffa2-ef55-493a-91ec-1494333aa908"
+        ],
+        "evidence_provenance": "CYBER_SENTINELS_NATIVE",
+        "continuity": "CONTINUITY_ESTABLISHED",
+        "reason_codes": [
+          "AUTHORITY_NOT_ASSERTED_BY_IDENTITY_PROOF",
+          "CHALLENGE_SINGLE_USE_REQUIRED",
+          "DECLARED_ONLY",
+          "MANIFEST_BINDING_VERIFIED",
+          "NATIVE_SIGNATURE_VERIFIED",
+          "OWNER_BINDING_CONFIRMED",
+          "RUNTIME_UNVERIFIED"
+        ],
+        "canonical_reevaluation": "TRIGGERED",
+        "request_id": "16003ade-5204-41bf-98f4-657f2d7b4333",
+        "correlation_id": "6ff7db2d-c298-4bf0-936e-8f8f6b75e7a3",
+        "api_version": "2026-08-29"
+      },
+      "AUTHORITY": {
+        "authority_id": "6d0bdd39-194e-4adc-92b0-6ccbbbd024df",
+        "authority_version": "customer-authority:6d0bdd39-194e-4adc-92b0-6ccbbbd024df",
+        "status": "ACTIVE",
+        "history_count": 1,
+        "version_status": "ACTIVE"
+      },
+      "AGENT": {
+        "agent_id": "agent:943ce746-fb4c-4206-bff9-d11a539c4ded",
+        "authority_reference": "6d0bdd39-194e-4adc-92b0-6ccbbbd024df"
+      },
+      "RUNTIME_EVIDENCE": {
+        "evidence_types": [
+          "SERVER_VERIFIED_AGENT_CONFIGURATION",
+          "SERVER_VERIFIED_MONITORING_HEARTBEAT"
+        ],
+        "monitoring_scope": "SIGNED_CONTROL_PLANE_HEARTBEAT_ONLY",
+        "downstream_execution_observed": false
+      },
+      "ALLOW": {
+        "decision_id": "da0dc1c6-2373-5669-bad3-91e23ebfe0cf",
+        "transaction_id": "99f8e628-1b58-56f9-8419-a46577627f51",
+        "receipt_id": "99f8e628-1b58-56f9-8419-a46577627f51",
+        "replay_id": "99f8e628-1b58-56f9-8419-a46577627f51",
+        "correlation_id": "0e359edd-3eba-4544-b5bf-35a2ca2f9258",
+        "decision": "ALLOW",
+        "reason_codes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+          "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_SUFFICIENT",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE"
+        ]
+      },
+      "REVIEW": {
+        "review_reference": "f08d148b-b48e-593f-a47d-68e07b7c7ba5",
+        "transaction_id": "50402412-bc17-5b6e-a361-027e3cc0abba",
+        "original_decision": "REVIEW",
+        "resolution": "APPROVED",
+        "next_action": "SUBMIT_NEW_CANONICAL_EVALUATION"
+      },
+      "POST_REVIEW_ALLOW": {
+        "decision_id": "826a3792-04dd-54aa-a0b8-2574668475a1",
+        "transaction_id": "feab51b7-7ca3-5aeb-996e-73148a43cf19",
+        "decision": "ALLOW"
+      },
+      "DENY": {
+        "decision_id": "8ef93a8b-4b1c-5fa8-8545-8dd8ecd8323f",
+        "transaction_id": "19930b25-fa5f-506f-9adf-76e6504b3e00",
+        "receipt_id": "19930b25-fa5f-506f-9adf-76e6504b3e00",
+        "replay_id": "19930b25-fa5f-506f-9adf-76e6504b3e00",
+        "correlation_id": "1096aa0f-3b40-4a4b-b101-b2c84427920e",
+        "decision": "DENY",
+        "reason_codes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_REQUIREMENT_UNSATISFIED",
+          "AUTHORITY_SCOPE_INVALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_SUFFICIENT",
+          "MISSING_VERIFY_AUTHORITY",
+          "MISSING_VERIFY_AUTHORITY_STATE",
+          "MISSING_VERIFY_MONITORING",
+          "SCOPE_OUTSIDE_CONTRACT",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE",
+          "TRUST_GAP_OPEN"
+        ]
+      },
+      "TRANSACTION": {
+        "decision_id": "da0dc1c6-2373-5669-bad3-91e23ebfe0cf",
+        "transaction_id": "99f8e628-1b58-56f9-8419-a46577627f51",
+        "decision": "ALLOW",
+        "correlation_id": "0e359edd-3eba-4544-b5bf-35a2ca2f9258"
+      },
+      "REPLAY": {
+        "replay_id": "99f8e628-1b58-56f9-8419-a46577627f51",
+        "event_count": 10
+      },
+      "RECEIPT": {
+        "receipt_id": "99f8e628-1b58-56f9-8419-a46577627f51",
+        "receipt_version": "canonical-trust-transaction-v1",
+        "decision_digest": "218f3a0c5937fb97809e764f1bffcb7238ef0d661e675644f9206fbd2d8d0607"
+      },
+      "DENY_REPLAY": {
+        "replay_id": "19930b25-fa5f-506f-9adf-76e6504b3e00",
+        "event_count": 10
+      },
+      "DENY_RECEIPT": {
+        "receipt_id": "19930b25-fa5f-506f-9adf-76e6504b3e00",
+        "receipt_version": "canonical-trust-transaction-v1",
+        "decision_digest": "92603ab552e25201e86a428c6ac5f4f090d972353a1bef6758147e697000e1d9"
+      },
+      "OUTCOME": {
+        "status": "RECORDED",
+        "evidence_independence": "AGENT_ASSERTED",
+        "independent_destination_evidence": false
+      },
+      "REVOCATION": {
+        "authority_id": "6d0bdd39-194e-4adc-92b0-6ccbbbd024df",
+        "authority_version": "customer-authority:6d0bdd39-194e-4adc-92b0-6ccbbbd024df",
+        "status": "REVOKED",
+        "revocation_reference": "authority-revocation:6d0bdd39-194e-4adc-92b0-6ccbbbd024df"
+      },
+      "POST_REVOCATION_DENY": {
+        "decision_id": "ae366c88-5d28-5cca-a853-87ec2651b143",
+        "transaction_id": "6b1005cd-7283-59e0-9e54-3cd28da26b28",
+        "receipt_id": "6b1005cd-7283-59e0-9e54-3cd28da26b28",
+        "replay_id": "6b1005cd-7283-59e0-9e54-3cd28da26b28",
+        "decision": "DENY",
+        "reason_codes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_REVOKED",
+          "AUTHORITY_SCOPE_INVALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CONTRACT_REVOKED",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_INSUFFICIENT",
+          "MISSING_VERIFY_AGENT_CONFIGURATION",
+          "MISSING_VERIFY_AUTHORITY",
+          "MISSING_VERIFY_AUTHORITY_STATE",
+          "MISSING_VERIFY_MONITORING",
+          "MISSING_VERIFY_RUNTIME",
+          "PREVIOUS_ALLOW_NOT_STANDING_AUTHORIZATION",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE",
+          "TRUST_GAP_OPEN"
+        ]
+      },
+      "PERFORMANCE": {
+        "samples": 18,
+        "methodology": "one observed Preview round trip per stage; no percentile claim",
+        "observations": [
+          {
+            "stage": "registration",
+            "latency_ms": 2000.3
+          },
+          {
+            "stage": "challenge",
+            "latency_ms": 2534.8
+          },
+          {
+            "stage": "signature_verification",
+            "latency_ms": 4136.2
+          },
+          {
+            "stage": "authority_grant",
+            "latency_ms": 2201.9
+          },
+          {
+            "stage": "runtime_heartbeat",
+            "latency_ms": 1751
+          },
+          {
+            "stage": "allow_decision",
+            "latency_ms": 3934.9
+          },
+          {
+            "stage": "review_decision",
+            "latency_ms": 4428.7
+          },
+          {
+            "stage": "review_resolution",
+            "latency_ms": 1419.1
+          },
+          {
+            "stage": "post_review_decision",
+            "latency_ms": 4520.1
+          },
+          {
+            "stage": "deny_decision",
+            "latency_ms": 4272.4
+          },
+          {
+            "stage": "receipt_read",
+            "latency_ms": 1675.8
+          },
+          {
+            "stage": "transaction_read",
+            "latency_ms": 1963.8
+          },
+          {
+            "stage": "replay_read",
+            "latency_ms": 2100.7
+          },
+          {
+            "stage": "deny_receipt_read",
+            "latency_ms": 2217.4
+          },
+          {
+            "stage": "deny_replay_read",
+            "latency_ms": 2357.4
+          },
+          {
+            "stage": "outcome_submit",
+            "latency_ms": 2233
+          },
+          {
+            "stage": "authority_revocation",
+            "latency_ms": 1525.9
+          },
+          {
+            "stage": "post_revocation_decision",
+            "latency_ms": 3798.6
+          }
+        ]
+      },
+      "GAMMA_RESULT": "PUBLIC_API_ONLY_END_TO_END_COMPLETE"
+    },
+    "denyExecutionCounts": {
+      "DENY": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "POST_REVOCATION_DENY": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      }
+    }
+  },
+  "cleanup": {
+    "scope": "ONLY_THIS_RUN_SYNTHETIC_IDENTITIES",
+    "accounts": [
+      {
+        "id": "e2b371fa-6435-4558-86da-4eb89b0e1e8a",
+        "approval": "REVOKED",
+        "banned": true,
+        "auditHistoryRetained": true
+      },
+      {
+        "id": "96a1f500-e744-4c08-97d7-bec750acc04d",
+        "approval": "REVOKED",
+        "banned": true,
+        "auditHistoryRetained": true
+      }
+    ],
+    "delegationsRevoked": 1,
+    "credentialsRevoked": 3,
+    "contractsRevoked": 1,
+    "keysRevoked": 1,
+    "revokedKeyHttp": 401,
+    "retainedTransactions": 16
+  },
+  "secretReview": {
+    "result": "PASS",
+    "scope": "All intended changed and untracked source/documentation/test/migration files; ignored local credential artifacts excluded from commit",
+    "changedFiles": 45,
+    "unreviewedChangedFileCandidates": [],
+    "explicitChangedFixtures": [
+      {
+        "file": "tests/waitlist-approval-boundary.test.mjs",
+        "line": 22,
+        "variable": "token",
+        "classification": "EXPLICIT_TEST_OR_PLACEHOLDER_LITERAL"
+      }
+    ],
+    "scopedScanner": {
+      "rawExit": 1,
+      "findings": 2,
+      "reviewed": true,
+      "dispositions": [
+        {
+          "file": "lib/readiness/project-binding.ts",
+          "line": 36,
+          "classification": "FALSE_POSITIVE",
+          "reason": "Assignment calls credentialStatus with an environment reference; there is no embedded credential literal."
+        },
+        {
+          "file": "tests/world-id-verification.test.mjs",
+          "line": 45,
+          "classification": "SYNTHETIC_TEST_FIXTURE",
+          "reason": "Explicit synthetic-test-only-service-key literal; not a usable key."
+        }
+      ]
+    },
+    "sensitiveArtifactsPolicy": "Ignored qualification credentials are revoked/removed before RC; user-owned encrypted DPAPI handoff remains outside repository.",
+    "stagedIndex": {
+      "result": "PASS",
+      "stagedFiles": 46,
+      "credentialPatternMatches": 0,
+      "forbiddenArtifacts": 0,
+      "manualReview": "Scoped assignment false positive, synthetic test fixture and admin cookie-name literal reviewed; none are credentials."
+    }
+  },
+  "recovery": {
+    "procedure": "CONDITIONAL",
+    "productionDumpCreated": false,
+    "nativeRestoreValidated": false,
+    "requiresExistingDatabasePassword": true,
+    "requiresIsolatedCompatiblePostgres1711": true,
+    "requiresPreservedStorageObjectBackupAndCacheRetirement": true
+  },
+  "gates": {
+    "databaseDefaultDeny": "PASS",
+    "tenantIsolation": "PASS",
+    "storageIsolation": "PASS",
+    "clientClaimBypass": "DENIED",
+    "trustMemoryCanonicalisation": "PASS",
+    "schemaReconciliation": "PASS",
+    "targetSchemaEquivalence": "PASS",
+    "fullRegression": "PASS",
+    "stagingCoreQualification": "PASS",
+    "secretReview": "PASS"
+  },
+  "limitations": [
+    "Public signup transport returned HTTP 504; verified authenticated qualification uses explicit Staging admin-created fixtures.",
+    "Gamma outcome is AGENT_ASSERTED, not independent destination execution evidence.",
+    "Native model/runtime attestations are controlled fixtures, not provider provenance.",
+    "Production cache retirement and validated backup/restore remain pre-promotion gates."
+  ]
+}
