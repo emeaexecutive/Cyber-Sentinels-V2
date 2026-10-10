@@ -393,6 +393,7 @@ export async function recordEmploymentDecision(input: {
     const recordedAt = Date.parse(String(deliveryFacts.transmittedAt ?? deliveryFacts.transmitted_at ?? ""));
     const status = String(deliveryRow?.verification_status ?? "").toLowerCase();
     if (!deliveryRow
+      || disclosure.recipientReference !== candidateReference
       || deliveryRow.receipt_type !== "employment_disclosure_delivery"
       || !["delivered", "acknowledged", "verified"].includes(status)
       || String(deliveryFacts.contentVersion ?? deliveryFacts.content_version ?? "") !== disclosure.contentVersion

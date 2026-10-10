@@ -68,6 +68,7 @@ test("determination is human-owned and disclosure requires content and delivery 
     actorId: "recruiter-1", caseCreatorId: "recruiter-1", review, policy,
   }), /cannot self-approve/);
   assert.throws(() => validateEmploymentDisclosure({ contentVersion: "notice-v1", contentHash: "sha256:" + "a".repeat(64), recipientReference: "candidate:17", transmittedAt: new Date().toISOString() }, policy), /deliveryEvidenceReference/);
+  assert.throws(() => validateEmploymentDisclosure({ contentVersion: "notice-v1", contentHash: "sha256:" + "a".repeat(64), recipientReference: "person@example.test", transmittedAt: new Date().toISOString(), deliveryEvidenceReference: "11111111-1111-4111-8111-111111111111" }, policy), /opaque candidate reference/);
   assert.equal(validateEmploymentDisclosure({ contentVersion: "notice-v1", contentHash: "sha256:" + "a".repeat(64), recipientReference: "candidate:17", transmittedAt: new Date().toISOString(), deliveryEvidenceReference: "11111111-1111-4111-8111-111111111111" }, policy).contentVersion, "notice-v1");
 });
 
