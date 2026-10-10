@@ -117,3 +117,9 @@ test("platform account approvals expose REJECTED, forbid self-approval, and pres
   assert.match(approvalHardening, /account_access_approval_events_append_only/);
   assert.match(approvalHardening, /project_employment_decision_to_trust_memory_v1/);
 });
+
+test("live Staging security evidence logs fixture counts, never row identifiers", async () => {
+  const harness = await readFile(new URL("../live/staging-security-closure.test.mjs", import.meta.url), "utf8");
+  assert.match(harness, /createdCounts:\s*Object\.fromEntries\(Object\.entries\(created\)\.map\(\(\[kind, ids\]\) => \[kind, ids\.length\]\)\)/);
+  assert.doesNotMatch(harness, /\n\s*created,\s*\n/);
+});

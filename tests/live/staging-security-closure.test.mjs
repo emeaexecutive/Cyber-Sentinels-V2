@@ -397,7 +397,7 @@ test("Staging Auth, PostgREST tenant RLS, account approval and evidence Storage 
     platformAdminFixtureUserId: admin.id,
     checks,
     storageTrace: trace,
-    created,
+    createdCounts: Object.fromEntries(Object.entries(created).map(([kind, ids]) => [kind, ids.length])),
     note: "Synthetic example.test identities and disposable staging rows only; no credential, review content, or customer data included.",
   };
   console.log(JSON.stringify(report));
