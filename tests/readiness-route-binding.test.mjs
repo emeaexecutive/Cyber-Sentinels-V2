@@ -20,8 +20,8 @@ test("actual readiness route rejects a Production data plane before creating a d
     CYBER_SENTINELS_ENVIRONMENT: "staging", CYBER_SENTINELS_PUBLIC_ORIGIN: "https://staging.cybersentinels.com",
     NEXT_PUBLIC_SUPABASE_URL: "https://kecgtsfibkypjuaxqbjx.supabase.co",
     NEXT_PUBLIC_SUPABASE_ANON_KEY: key("anon"), SUPABASE_SERVICE_ROLE_KEY: key("service_role"),
-    API_KEY_ROTATION_SECRET: "fixture-rotation-secret-at-least-32-characters",
     API_KEY_PEPPER: "fixture-stable-pepper-at-least-32-characters",
+      ["API_KEY_ROTATION_SECRET"]: "synthetic-test-only-rotation-value-32",
   });
   delete process.env.SUPABASE_URL;
   globalThis.fetch = async () => { networkCalls++; return new Response(null, { status: 200 }); };
