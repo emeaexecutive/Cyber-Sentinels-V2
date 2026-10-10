@@ -86,10 +86,18 @@ as $$
 begin
   if tg_op = 'UPDATE'
      and pg_trigger_depth() > 1
-     and old.user_id is not null
-     and new.user_id is null
-     and row(new.event_type,new.actor_user_id,new.reason,new.metadata,new.created_at)
-       is not distinct from row(old.event_type,old.actor_user_id,old.reason,old.metadata,old.created_at) then
+     and (
+       new.user_id is not distinct from old.user_id
+       or (old.user_id is not null and new.user_id is null)
+     )
+     and (
+       new.actor_user_id is not distinct from old.actor_user_id
+       or (old.actor_user_id is not null and new.actor_user_id is null)
+     )
+     and ((old.user_id is not null and new.user_id is null)
+       or (old.actor_user_id is not null and new.actor_user_id is null))
+     and row(new.event_type,new.reason,new.metadata,new.created_at)
+       is not distinct from row(old.event_type,old.reason,old.metadata,old.created_at) then
     return new;
   end if;
   raise exception 'Account access approval events are append-only';
