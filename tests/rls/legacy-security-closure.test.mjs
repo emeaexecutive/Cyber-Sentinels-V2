@@ -114,6 +114,8 @@ test("platform account approvals expose REJECTED, forbid self-approval, and pres
   assert.match(approvalHardening, /'PENDING', 'APPROVED', 'REJECTED', 'SUSPENDED', 'REVOKED'/);
   assert.match(approvalPage, /status === "APPROVED" && userId === admin\.id/);
   assert.match(approvalPage, /status === "REJECTED"/);
+  assert.match(approvalPage, /from\("account_access_approval_events"\)/);
+  assert.match(approvalPage, /Access audit history/);
   assert.match(approvalHardening, /account_access_approval_events_append_only/);
   assert.match(approvalHardening, /project_employment_decision_to_trust_memory_v1/);
 });

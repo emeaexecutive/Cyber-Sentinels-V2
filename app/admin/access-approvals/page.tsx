@@ -31,6 +31,16 @@ type ApprovalRow = {
   reason: string | null;
 };
 
+type ApprovalEventRow = {
+  id: string;
+  user_id: string | null;
+  event_type: string;
+  actor_user_id: string | null;
+  reason: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+};
+
 async function updateAccessApproval(formData: FormData) {
   "use server";
 
@@ -85,12 +95,27 @@ export default async function AccessApprovalsPage() {
   const admin = await requireAdminPageAccess(authClient, { path: "/admin/access-approvals" });
   if (!admin) redirect("/back-office?denied=1");
 
-  const { data, error } = await createServiceRoleClient()
+  const adminClient = createServiceRoleClient();
+  const { data, error } = await adminClient
     .from("account_access_approvals")
     .select("user_id,email,organization,status,requested_at,approved_at,approved_by,denied_at,denied_by,rejected_at,rejected_by,suspended_at,suspended_by,revoked_at,revoked_by,last_login_attempt,last_successful_login,reason")
     .order("requested_at", { ascending: false })
     .limit(200)
     .returns<ApprovalRow[]>();
+  const approvalUserIds = (data ?? []).map((approval) => approval.user_id);
+  const eventResult = approvalUserIds.length
+    ? await adminClient.from("account_access_approval_events")
+      .select("id,user_id,event_type,actor_user_id,reason,metadata,created_at")
+      .in("user_id", approvalUserIds)
+      .order("created_at", { ascending: false })
+      .limit(1000)
+      .returns<ApprovalEventRow[]>()
+    : { data: [] as ApprovalEventRow[], error: null };
+  const eventsByUser = new Map<string, ApprovalEventRow[]>();
+  for (const event of eventResult.data ?? []) {
+    if (!event.user_id) continue;
+    eventsByUser.set(event.user_id, [...(eventsByUser.get(event.user_id) ?? []), event]);
+  }
 
   return (
     <main className="min-h-screen bg-black px-5 py-8 text-white md:px-8">
@@ -103,7 +128,7 @@ export default async function AccessApprovalsPage() {
           <Link href="/back-office" className="border border-zinc-700 px-3 py-2 text-sm text-zinc-200 hover:border-zinc-400">Back Office</Link>
         </header>
 
-        {error ? (
+        {error || eventResult.error ? (
           <p role="alert" className="mt-6 border-l-2 border-red-500 pl-4 text-sm text-red-200">Approval records are unavailable.</p>
         ) : (
           <div className="mt-6 divide-y divide-zinc-800">
@@ -123,6 +148,20 @@ export default async function AccessApprovalsPage() {
                     <div><dt className="text-zinc-600">Rejected / suspended / revoked</dt><dd>{formatDate(approval.rejected_at ?? approval.denied_at ?? approval.suspended_at ?? approval.revoked_at)}</dd></div>
                   </dl>
                   {approval.reason ? <p className="mt-3 text-sm text-zinc-500">Reason: {approval.reason}</p> : null}
+                  <details className="mt-4 border-t border-zinc-800 pt-3">
+                    <summary className="cursor-pointer text-xs text-zinc-400">Access audit history ({eventsByUser.get(approval.user_id)?.length ?? 0})</summary>
+                    <ol className="mt-3 space-y-3 border-l border-zinc-800 pl-3">
+                      {(eventsByUser.get(approval.user_id) ?? []).map((event) => (
+                        <li key={event.id} className="text-xs">
+                          <p className="text-zinc-200">{event.event_type.replaceAll("_", " ")}</p>
+                          <p className="mt-1 text-zinc-500">{formatDate(event.created_at)} UTC · Actor {event.actor_user_id ?? "deleted/anonymized"}</p>
+                          {event.reason ? <p className="mt-1 text-zinc-400">{event.reason}</p> : null}
+                          {Object.keys(event.metadata ?? {}).length ? <p className="mt-1 break-all text-zinc-600">{JSON.stringify(event.metadata)}</p> : null}
+                        </li>
+                      ))}
+                      {!eventsByUser.get(approval.user_id)?.length ? <li className="text-xs text-zinc-500">No access events recorded.</li> : null}
+                    </ol>
+                  </details>
                 </div>
 
                 <form action={updateAccessApproval} className="flex flex-col gap-3 border-l border-zinc-800 pl-4 sm:flex-row sm:items-end">
