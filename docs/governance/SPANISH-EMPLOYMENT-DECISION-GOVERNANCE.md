@@ -14,7 +14,22 @@ Article 2(1) applies the decree to employers and workers within Article 1 of the
 
 This is a worker-facing employment-conditions transparency provision. It does **not**, by itself, establish a universal candidate-screening notice requirement or settle when recruitment activity becomes an employment relationship. GDPR transparency and automated-decision rights, EU AI Act high-risk employment-system obligations, Spanish labour/equality rules, collective agreements, and any sector-specific requirements need separate applicability analysis.
 
-The supplied official [AEPD warning AI-00009-2026](https://www.aepd.es/documento/ai-00009-2026-advertencia.pdf) is reachable as a PDF, but its text could not be reliably extracted or independently read in this review. No specific obligation is attributed to it or encoded here. Legal/Privacy must review the complete warning and approve any resulting policy changes.
+The official [AEPD warning AI-00009-2026](https://www.aepd.es/documento/ai-00009-2026-advertencia.pdf) (ref. EXP202600427, 5 pages, signed by the AEPD President) was downloaded (HTTP 200, `application/pdf`, unencrypted) and read in full by local text extraction on 11 October 2026. An earlier attempt failed only because the web-fetch and browser tools could not render the PDF. The text is a GDPR Art. 58.2(a) warning addressed to one anonymised employer about a planned CV-screening and scoring tool. It is not a general rule and creates no obligation for other parties by itself. Its reasoning points to GDPR Arts. 24-25 (accountability and data protection by design), Art. 35 (DPIA before high-risk processing), Arts. 12-14 (clear information on purposes and on the tool's role), Arts. 13(2)(f) and 14(2)(g) where Art. 22 applies, and Art. 22 (human intervention must be effective and must not be determined in practice by the automated result). Legal/Privacy must still decide what applies to each customer and approve any policy change.
+
+## Traceability matrix
+
+| Source | Requirement (as read) | Implementation | Test | Status |
+| --- | --- | --- | --- | --- |
+| RD 723/2026 Art. 3(2)(k), worker-facing | Written information on algorithmic systems, criteria and rules affecting working conditions | Disclosure event bound to notice version, SHA-256 digest and recipient; content is customer-owned | `employment-decision-governance.test.mjs` (determination and disclosure) | Evidence capture only; content sufficiency not assessed |
+| RD 723/2026 Art. 6(2) | Accessible written or electronic delivery with proof of transmission or receipt | `DISCLOSE` requires a matching delivered `employment_disclosure_delivery` receipt, tenant-scoped, with timestamp | same, plus API binding test | Implemented as delivery evidence |
+| RD 723/2026 Art. 2(2) | Chapter II applies to relationships over four weeks | Not automated; recorded as a legal-review item | none | Customer legal decision |
+| AEPD warning, effective human intervention (Art. 22) | The reviewer must be able to assess the score critically and not be bound by it | Current reviewer authority, case-creator exclusion, multiple review actions, rationale, challenge and override paths | reviewer authority, independent review and unsupported-override tests | Process signals only; independence is not proven |
+| AEPD warning, Arts. 24-25 | Demonstrable measures and data protection by design | Policy-gated flow; append-only hash-chained Trust Events; tenant isolation; opaque references | RLS and employment tests (local) | Technical support, not certification |
+| AEPD warning, Art. 35 | DPIA before high-risk processing | Not implemented in software | none | GAP: customer DPO task |
+| AEPD warning, Arts. 12-14 and 13(2)(f)/14(2)(g), candidates | Transparency to candidates and workers on the tool's role | Disclosure capture covers any recipient reference; no candidate-notice content is generated | none specific | GAP: content and applicability need counsel |
+| EU AI Act, employment systems | Classification and obligations of a high-risk system | Not asserted | none | Out of scope; needs a separate role and date analysis |
+
+No automatic legal-compliance claim is made by this matrix.
 
 ## Runtime policy contract
 

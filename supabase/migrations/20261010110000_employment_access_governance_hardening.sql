@@ -120,7 +120,7 @@ begin
   if new.event_type not like 'governance.employment_decision.%' then
     return new;
   end if;
-  insert into public.trust_memory_index(enterprise_id,subject_id,domain_key,memory_type,source_id,occurred_at,summary,correlation_id)
+  insert into public.trust_memory_index(enterprise_id,subject_id,domain_key,memory_type,source_id,occurred_at,summary)
   values (
     new.enterprise_id,
     new.subject_id,
@@ -128,8 +128,7 @@ begin
     regexp_replace(upper(new.event_type), '[^A-Z0-9_]+', '_', 'g'),
     new.event_id::text,
     new.occurred_at,
-    jsonb_build_object('eventType',new.event_type,'workflowId',new.workflow_id,'evidenceReferences',new.evidence_references,'eventHash',new.event_hash),
-    new.correlation_id
+    jsonb_build_object('eventType',new.event_type,'workflowId',new.workflow_id,'evidenceReferences',new.evidence_references,'eventHash',new.event_hash)
   )
   on conflict (enterprise_id,memory_type,source_id) do nothing;
   return new;

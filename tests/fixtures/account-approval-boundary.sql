@@ -77,8 +77,7 @@
             workflow_id text,
             occurred_at timestamptz not null,
             evidence_references text[] not null default '{}',
-            event_hash text not null,
-            correlation_id uuid not null
+            event_hash text not null
       );
 create table public.trust_workspaces(id uuid primary key, created_by uuid references auth.users(id), name text);
 create table public.workspace_members(workspace_id uuid references public.trust_workspaces(id),user_id uuid references auth.users(id),role text);
