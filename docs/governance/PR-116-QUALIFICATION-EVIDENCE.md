@@ -1,4 +1,4 @@
-# PR #116 Qualification Evidence
+﻿# PR #116 Qualification Evidence
 
 Evidence labels: **LOCAL** = automated test in this repository (static source assertions or PGlite SQL; PGlite is not Supabase and is never hosted RLS proof). **HOSTED** = exercised against a hosted environment. **NOT EXERCISED** = no run in this review. Nothing here is a compliance certification.
 
@@ -40,7 +40,7 @@ The ledger stores statement hashes, not file checksums, so content equality is n
 | --- | --- | --- |
 | Same name, different version (probably equivalent; schema comparison pending) | local `20260819084252`, `20260902083450`, `20260903095127`, `20260904113046` against remote `20260819082001`, `20260901120000`, `20260903093247`, `20260904100445`; remote `20260817175031`, `20260825175059`, `20260825175143`, `20260906155836`, `20260906165033` against local `20260817173631`, `20260824181053`, `20260824184543`, `202609060001`, `202609060002` | Identical migration name |
 | Historical marker (no executable SQL, already applied to Production) | local `20260819084329_restrict_evidence_trigger_functions` (sha `7B9643C9111C9D04`) | File says "do not replay"; whether Staging has the equivalent function privileges is unverified, so a **genuine divergence cannot be ruled out** |
-| Staging-only, no local file (historical rehearsal and repair) | `20260814153327`, `20260814153337`, `20260815172418`, `20260815172840`, `20260815174612`, `20260815180521`, `20260815180807`, `20260816135031`, `20260817175111`, `20260817175137`, `20260817175421`, `20260817175448`, `20260817175455`, `20260818075422` | No local counterpart; `…175448` and `…175455` share remote hash `527d0fd5…`, so one is a duplicate replay |
+| Staging-only, no local file (historical rehearsal and repair) | `20260814153327`, `20260814153337`, `20260815172418`, `20260815172840`, `20260815174612`, `20260815180521`, `20260815180807`, `20260816135031`, `20260817175111`, `20260817175137`, `20260817175421`, `20260817175448`, `20260817175455`, `20260818075422` | No local counterpart; `â€¦175448` and `â€¦175455` share remote hash `527d0fd5â€¦`, so one is a duplicate replay |
 | Missing migration (genuinely unapplied) | `20261008120422_authority_of_record_exact_execution` (sha `F54CA1847680ACAF`), `20261010110000_employment_access_governance_hardening` | Not in the remote ledger |
 
 Nothing is classified as superseded or as an unresolved conflict yet, because that needs a schema-level comparison. Applying `20261010110000` before `20261008120422` is out of order, so the CLI would refuse it without an include-all flag, which must not be used blindly.
@@ -100,6 +100,7 @@ Missing or customer-owned (documented, not built): DPIA, candidate-notice conten
 | No database-level self-approval constraint | Engineering | Open |
 | Staging has no backups and no PITR | Platform owner | Open |
 | Password-reset bypass, V1 API-key approval and a full OPEN-to-DISCLOSE employment run are not covered hosted | Engineering | Open |
+| Production lacks the approval schema (15 migrations behind); backfill would mark 5 existing users `PENDING` (section 6) | Platform owner | **P1 blocker for Production** |
 | Fresh Production recovery point not created (see `recovery-capture-runbook.md`) | Owners | Blocked |
 | Legal applicability, DPIA, notices, retention | Legal / DPO | Open |
 | `app/about-us/page.tsx` and `docs/SUPABASE-MIGRATION-RECONCILIATION.md` have unrelated uncommitted edits (the latter appears to delete `supabase/config.toml` from a table cell) | Author | Left untouched |
@@ -118,3 +119,25 @@ Collected: GitHub Actions runs, GitHub commit statuses, the Vercel deployment bu
 | earlier | Vercel Preview failure on an earlier head | Cause not determined | Not retrievable | None | UNRESOLVED, historical |
 
 Preview protected-route result: see section 1a. The Preview variables set for this branch are the Staging public URL and anon key, a sensitive Staging service-role key, and (temporarily, since removed) a disposable admin allow-list entry and access code.
+
+## 6. Production schema compatibility (read-only, 2026-10-11)
+
+Metadata and count-only SELECTs against Production `kecgtsfibkypjuaxqbjx`; nothing was written. The reads used the authenticated Supabase CLI session, whose temporary login role was not confirmed as read-only, so this does not satisfy the backup runbook's read-only database credential requirement.
+
+| Check | Production | Staging (after this review) |
+| --- | --- | --- |
+| Latest ledger version | `202610020001` (119 rows) | includes `20261010110000` |
+| `account_access_approvals`, `account_access_approval_events` | **Do not exist** | exist, hardened |
+| `security_closure_user_approved`, `record_account_access_attempt`, `audit_account_access_status_change` | **Missing** | present |
+| Local migrations Production lacks | **15** (`202610040001` to `20261010110000`) | none of those 15 are unapplied |
+| Users | 5 (1 with a sign-in in the last 30 days) | disposable |
+
+Consequence (**P1 release blocker**): the PR's middleware and routes assume the approval tables. `202610040002_account_access_approval.sql` backfills every existing user as `PENDING`, so applying the chain to Production without a plan would lock out all five existing accounts, and V1 API keys inherit the owner's approval state. Deploying the application first would make protected routes fail closed.
+
+Required before any Production promotion (all owner decisions, none performed):
+
+1. Apply the 15 missing migrations to Production in order, one at a time, in an approved change window, only after a verified fresh recovery point exists (the Production recovery point is BLOCKED).
+2. Decide which of the 5 existing users are legitimate, and approve them as a platform admin immediately after the approval migration, using an audited path (not a direct row edit), before the application release.
+3. Confirm any V1 API-key owners are approved first.
+4. Set the Production admin allow-list and access code deliberately (never reuse the Preview values).
+5. Re-run the hosted approval lifecycle test and the Preview matrix against a Production-like Staging first, then verify Production with read-only checks.
