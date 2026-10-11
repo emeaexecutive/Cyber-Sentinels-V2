@@ -15,14 +15,15 @@ param(
 $ErrorActionPreference = 'Stop'
 if ($UseDocker) { throw 'Synchronized capture requires native PostgreSQL 17.11 tools; remove -UseDocker. Legacy unsynchronized capture is disabled.' }
 $projectRef = 'kecgtsfibkypjuaxqbjx'
-if ($DatabaseHost -ne "db.$projectRef.supabase.co" -and
-    -not ($DatabaseHost -match '^[a-z0-9.-]+\.pooler\.supabase\.com$' -and $DatabaseUser -eq "postgres.$projectRef")) {
+if (-not (
+    ($DatabaseHost -eq "db.$projectRef.supabase.co" -and $DatabaseUser -cmatch '^[a-z_][a-z0-9_]{0,62}$') -or
+    ($DatabaseHost -cmatch '^[a-z0-9.-]+\.pooler\.supabase\.com$' -and $DatabaseUser -cmatch ('^[a-z_][a-z0-9_]{0,62}\.' + [regex]::Escape($projectRef) + '$'))
+  )) {
   throw 'Use the Production direct hostname or its dashboard-provided session pooler with the exact Production username.'
 }
 if ($Port -ne 5432) { throw 'Use direct or session-pooler port 5432, not the transaction pooler.' }
 $dumpExe = Join-Path $PostgresBin 'pg_dump.exe'
 $dockerImage = 'postgres@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3'
-if ($DatabaseUser -notin @('postgres', "postgres.$projectRef")) { throw 'Unexpected Production database username.' }
 if ($UseDocker) {
   $version = & docker run --rm $dockerImage pg_dump --version
 } else { $version = & $dumpExe --version }
@@ -37,7 +38,7 @@ if ($deploymentInventory.provider -ne 'vercel' -or $deploymentInventory.environm
   @($deploymentInventory.configuration).Count -gt 200) { throw 'A Production-bound sanitized deployment inventory matching the release SHA is required.' }
 foreach ($entry in @($deploymentInventory.configuration)) {
   if (@($entry.PSObject.Properties.Name | Where-Object { $_ -notin @('name','configured','scope') }).Count -gt 0 -or
-    $entry.name -notmatch '^[A-Z][A-Z0-9_]{0,127}$' -or
+    $entry.name -cnotmatch '^[A-Za-z_][A-Za-z0-9_]{0,127}$' -or
     $entry.configured -isnot [bool] -or
     ($entry.scope -and $entry.scope -notin @('public','server','shared'))) { throw 'Deployment inventory must contain only variable names, presence, and scope; never values.' }
 }

@@ -8,7 +8,7 @@ function deploymentInventory(value,releaseSha){
   const allowed=new Set(['provider','environment','deploymentId','releaseSha','capturedAt','configuration']);
   if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).some(key=>!allowed.has(key)))throw new Error('Sanitized deployment inventory schema is invalid');
   if(value.provider!=='vercel'||value.environment!=='production'||String(value.releaseSha).toLowerCase()!==releaseSha||!/^dpl_[A-Za-z0-9]+$/.test(value.deploymentId)||!Number.isFinite(Date.parse(value.capturedAt))||!Array.isArray(value.configuration)||value.configuration.length>200)throw new Error('Production deployment inventory binding is invalid');
-  for(const entry of value.configuration){if(!entry||typeof entry!=='object'||Array.isArray(entry)||Object.keys(entry).some(key=>!['name','configured','scope'].includes(key))||!/^([A-Z][A-Z0-9_]{0,127})$/.test(entry.name)||typeof entry.configured!=='boolean'||(entry.scope&&!['public','server','shared'].includes(entry.scope)))throw new Error('Deployment inventory may contain names and status only; values are forbidden');}
+  for(const entry of value.configuration){if(!entry||typeof entry!=='object'||Array.isArray(entry)||Object.keys(entry).some(key=>!['name','configured','scope'].includes(key))||!/^([A-Za-z_][A-Za-z0-9_]{0,127})$/.test(entry.name)||typeof entry.configured!=='boolean'||(entry.scope&&!['public','server','shared'].includes(entry.scope)))throw new Error('Deployment inventory may contain names and status only; values are forbidden');}
   return value;
 }
 export async function captureRecoveryPoint(config) {

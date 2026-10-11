@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, mkdtemp, writeFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
 
 const wrapper = await readFile(new URL("../tools/release/backup-production.ps1", import.meta.url), "utf8");
@@ -42,4 +45,35 @@ test("quiescence attestation template cannot validate as a real attestation", as
   const template = JSON.parse(await readFile(new URL("../docs/operations/templates/production-write-quiescence-attestation.template.json", import.meta.url), "utf8"));
   assert.notEqual(template.projectRef, "kecgtsfibkypjuaxqbjx");
   assert.ok(!Number.isFinite(Date.parse(template.startsAt)) && !Number.isFinite(Date.parse(template.endsAt)));
+});
+
+test("real mixed-case environment names pass inventory validation without accepting values", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "cs-backup-inventory-"));
+  t.after(() => rm(directory, { recursive: true }));
+  // The occupied-target guard stops execution before credentials or a DB connection.
+  await writeFile(join(directory, "production.dump"), "synthetic occupied-target marker");
+  const configuration = [{ name: "Turnstile_Site_Key", configured: true, scope: "shared" }];
+  const config = { ...base, directory, deploymentConfigurationInventory: { ...inventory, configuration } };
+  await assert.rejects(() => captureRecoveryPoint(config), /Recovery point must be fresh/);
+  for (const entry of [
+    { ...configuration[0], value: "forbidden" },
+    { ...configuration[0], name: "INVALID\nNAME" },
+    { ...configuration[0], name: "1INVALID" },
+  ]) await assert.rejects(() => captureRecoveryPoint({ ...config, deploymentConfigurationInventory: { ...inventory, configuration: [entry] } }), /values are forbidden/);
+});
+
+test("backup wrapper permits a scoped reader role but rejects a different pooler project", { skip: process.platform !== "win32" }, () => {
+  const cases = [
+    ["db.kecgtsfibkypjuaxqbjx.supabase.co", "backup_reader", 32],
+    ["aws-0-eu-west-3.pooler.supabase.com", "backup_reader.kecgtsfibkypjuaxqbjx", 32],
+    ["aws-0-eu-west-3.pooler.supabase.com", "backup_reader.agpyhygpfmppjkxwcpac", 31],
+    ["db.agpyhygpfmppjkxwcpac.supabase.co", "backup_reader", 31],
+  ];
+  for (const [host, user, expected] of cases) {
+    // Fixed synthetic arguments only. The nonexistent executable stops accepted
+    // targets before credentials, files, or any database connection are used.
+    const command = `$ErrorActionPreference='Stop'; try { & ./tools/release/backup-production.ps1 -DatabaseHost '${host}' -DatabaseUser '${user}' -PostgresBin 'C:\\nonexistent-release-probe' -ApplicationReleaseSha '${sha}' -DeploymentInventoryPath 'C:\\nonexistent-release-inventory.json'; exit 99 } catch { if ($_.Exception.Message -like 'Use the Production direct hostname*') { exit 31 }; if ($_.Exception.Message -like '*pg_dump.exe*') { exit 32 }; exit 98 }`;
+    const result = spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], { encoding: "utf8", windowsHide: true });
+    assert.equal(result.status, expected, `${host}: ${user}`);
+  }
 });
