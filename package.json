@@ -151,6 +151,7 @@
     "test:staging-reconstruction": "node --test tests/staging-reconstruction.test.mjs",
     "test:live-rls": "node --test tests/live/staging-rls-governance.test.mjs",
     "test:live-staging-security": "node --test tests/live/staging-security-closure.test.mjs",
+    "test:live-approval-lifecycle": "node --test tests/live/staging-approval-lifecycle.test.mjs",
     "test:live-governance": "node --test tests/live/staging-rls-governance.test.mjs",
     "test:release-health": "node --test tests/release-health.test.mjs",
     "test:staging-application": "node --test tests/staging-application.test.mjs",
