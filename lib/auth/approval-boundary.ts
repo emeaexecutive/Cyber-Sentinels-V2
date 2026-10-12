@@ -5,6 +5,8 @@ const publicReads = new Set([
   "/api/consent", "/api/consent/cookies", "/api/consent/catalogue", "/api/consent/policy",
 ]);
 const publicPosts = new Set([
+  // This provider-verified challenge must complete before a login session exists.
+  "/api/auth/turnstile",
   "/api/auth/logout", "/api/auth/password-reset/request",
   "/api/auth/password-reset/complete",
   "/api/enterprise-access", "/api/waitlist",

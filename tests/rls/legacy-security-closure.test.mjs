@@ -104,6 +104,14 @@ test("pre-approval bypasses are limited to transport, signed callbacks, and V1 A
   }
 });
 
+test("pre-login Turnstile verification is public only for its supported POST transport", () => {
+  assert.equal(approvalBoundary("/api/auth/turnstile", "POST"), "PUBLIC_TRANSPORT");
+  for (const method of ["PUT", "PATCH", "DELETE"]) {
+    assert.equal(approvalBoundary("/api/auth/turnstile", method), "CUSTOMER");
+  }
+  assert.equal(approvalBoundary("/api/auth/turnstile/other", "POST"), "CUSTOMER");
+});
+
 test("legacy passport review decisions are admin-only and not customer-writable", () => {
   assert.match(passportDecisionRoute, /requireAdminApiAccess/);
   assert.match(passportDecisionRoute, /createServiceRoleClient/);
