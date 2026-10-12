@@ -1,6 +1,6 @@
 tmp/
 temp/
-exports/
+/exports/
 .env*
 .supabase/
 supabase/.temp/

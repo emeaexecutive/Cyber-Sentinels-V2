@@ -81,7 +81,7 @@
     "test:legacy-source-contracts": "node --test tests/consolidation-operational-simplification.test.mjs tests/final-blocker-sweep.test.mjs tests/final-demo-readiness-lock.test.mjs tests/final-execution-readiness.test.mjs tests/operational-excellence-lockdown.test.mjs tests/provider-hardening.test.mjs tests/production-domain-readiness.test.mjs tests/production-readiness.test.mjs tests/real-world-workflow-hardening.test.mjs tests/public-surface-navigation.test.mjs",
     "test:enterprise-storytelling": "node --test tests/enterprise-storytelling.test.mjs",
     "test:enterprise-readiness": "node --experimental-strip-types --test tests/enterprise-operational-readiness.test.mjs",
-    "test:release-candidate": "node --experimental-strip-types --test tests/release-candidate-hardening.test.mjs",
+    "test:release-candidate": "node --experimental-strip-types --test tests/release-candidate-hardening.test.mjs tests/deployment-route-inclusion.test.mjs",
     "test:design-partner": "node --experimental-strip-types --test tests/design-partner-readiness.test.mjs",
     "test:category-leadership": "node --experimental-strip-types --test tests/category-leadership.test.mjs",
     "test:enterprise-adoption": "node --experimental-strip-types --test tests/enterprise-adoption.test.mjs",
