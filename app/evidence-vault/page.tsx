@@ -118,9 +118,9 @@ function EvidenceCard({ evidence }: { evidence: EvidenceRecord }) {
         <p>Hash {evidence.hash ?? "not recorded"}</p>
         <p className="mt-1">Created {formatDate(evidence.created_at)}</p>
       </div>
-      {evidence.public_url ? (
+      {evidence.storage_path && !evidence.storage_path.includes("://") ? (
         <Link
-          href={evidence.public_url}
+          href={`/api/evidence/download?path=${encodeURIComponent(evidence.storage_path)}`}
           target="_blank"
           rel="noreferrer"
           className="mt-4 inline-flex rounded-lg border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:text-white"

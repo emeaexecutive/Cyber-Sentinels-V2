@@ -52,6 +52,8 @@ export function harness() {
       return json(payload());
     }
     if (url.pathname.endsWith("/user")) return json(user);
+    if (url.pathname.endsWith("/account_access_approvals")) return json([{ status: "APPROVED" }]);
+    if (url.pathname.endsWith("/rpc/record_account_access_attempt")) return json(null);
     throw new Error(`Unexpected fixture Auth path: ${url.pathname}`);
   };
   const cookieStore = {

@@ -81,6 +81,7 @@ function normalizeHostname(value: string | undefined) {
 
 function isProductionHostname(hostname: string) {
   if (!hostname) return false;
+  if (hostname === "staging.cybersentinels.com") return false;
   const production = registry.environments.find((environment) => environment.production);
   if (!production) return true;
   return (
@@ -131,6 +132,15 @@ export function assertSafeStagingEnvironment(input: EnvironmentSafetyInput): Saf
 
   if (environmentByName.environmentType !== expectedEnvironmentType) {
     fail("ENVIRONMENT_REFERENCE_MISMATCH");
+  }
+
+  const hostname = normalizeHostname(input.hostname);
+  if (hostname && ![
+    ...environmentByName.knownApplicationHostnames,
+    `${projectReference}.supabase.co`,
+    `db.${projectReference}.supabase.co`,
+  ].includes(hostname)) {
+    fail("ENVIRONMENT_UNKNOWN");
   }
 
   if (environmentByName.syntheticDataOnly && input.syntheticFixtures !== true) {

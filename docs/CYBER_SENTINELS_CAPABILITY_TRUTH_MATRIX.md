@@ -1,5 +1,13 @@
 # Cyber Sentinels capability truth matrix
 
+## Current Core qualification — 8 October 2026
+
+The Core API is **RC_QUALIFIED / PROVEN_STAGING** for the approval boundary, tenant isolation, private evidence gateway, canonical schema, signed native identity/authority and controlled ALLOW/REVIEW/DENY flows. [Final closure report](release/CORE_FINAL_CLOSURE_20261008.md) and [qualification evidence](release/CORE_CLOSURE_EVIDENCE_20261008.json) supersede the older Core release status. Production is unchanged and is **not PROVEN_PRODUCTION** by this work.
+
+OpenGraph, Judge.me and World ID remain **PROVIDER_UNQUALIFIED**. Controlled model/runtime fixtures are not live provider attestations. Gamma's submitted outcome is agent-asserted and is not independent destination execution proof. Production promotion still requires the validated recovery and existing Storage-cache retirement gates.
+
+## Historical capability snapshot — 8 August 2026
+
 This matrix reflects repository-backed validation plus the clean, committed Supabase Preview reconstruction and qualification recorded on 2026-08-08. Provider-neutral evidence and its tenant boundary are staging-proven on the disposable PR #29 Preview database at qualified implementation commit `22780dfd60e606677ede2171f46ed8a60d8082cb`; this does not prove Production or a genuine external Hopae flow.
 
 | Capability | Code | Database | API | UI | Contract tests | Live staging proof | Production proof | Current classification | Next proof required |

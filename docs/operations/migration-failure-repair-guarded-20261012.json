@@ -1,0 +1,28 @@
+{
+  "productionConnections": 0,
+  "checks": [
+    {
+      "name": "DDL and ledger roll back together before first commit",
+      "status": "PASS",
+      "injectedExitCode": 3
+    },
+    {
+      "name": "Retry commits first migration and exactly one ledger row",
+      "status": "PASS"
+    },
+    {
+      "name": "Stale baseline rejects replay before DDL",
+      "status": "PASS"
+    },
+    {
+      "name": "Failure in second migration preserves committed first migration without partial approval backfill",
+      "status": "PASS"
+    },
+    {
+      "name": "Forward retry of failed file produces five pending rows and five events exactly once",
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS",
+  "boundary": "Failure injection verifies reviewed per-file transaction boundaries; no automatic reverse migration or destructive restore to Production"
+}

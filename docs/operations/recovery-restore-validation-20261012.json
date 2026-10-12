@@ -1,0 +1,38 @@
+{
+  "checkedAt": "2026-10-12T08:31:40.712Z",
+  "schemasEqual": true,
+  "tablesEqual": true,
+  "countsEqual": true,
+  "storageMetadataEqual": true,
+  "schemaCount": 10,
+  "tableCount": 284,
+  "counts": {
+    "auth.users": 5,
+    "public.api_keys": 36,
+    "storage.buckets": 2,
+    "storage.objects": 1,
+    "supabase_migrations.schema_migrations": 119
+  },
+  "tableDataEntries": 283,
+  "requiredCategories": {
+    "TABLE DATA public": true,
+    "TABLE DATA auth": true,
+    "TABLE DATA storage": true,
+    "TABLE DATA supabase_migrations": true,
+    "FUNCTION public": true,
+    "CONSTRAINT public": true
+  },
+  "fullTableCountComparison": {
+    "sourceTables": 284,
+    "restoredTables": 284,
+    "sourceRows": 11133,
+    "restoredRows": 11133,
+    "differences": []
+  },
+  "dataCompletenessLimit": "Counts and row hashes compare restored snapshot with later read-only Production observations; not simultaneous snapshots. Cluster role passwords, infrastructure config, and Storage bytes are outside pg_dump.",
+  "rowContentComparison": {
+    "algorithm": "SHA-256 of sorted canonical JSONB row text, UTF-8, newline separated, C collation, ONLY physical rows",
+    "tables": 284,
+    "differences": []
+  }
+}

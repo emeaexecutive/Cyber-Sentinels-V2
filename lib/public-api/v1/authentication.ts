@@ -90,6 +90,13 @@ export async function authenticatePublicApiRequest(
   if (!["owner", "admin", "reviewer", "observer"].includes(role)) {
     throw new PublicApiError("API_KEY_INACTIVE", "The API key owner no longer has tenant access.", 401);
   }
+  const approval = await db.from("account_access_approvals").select("status").eq("user_id", createdBy).maybeSingle();
+  if (approval.error) {
+    throw new PublicApiError("API_AUTH_UNAVAILABLE", "Account access status is temporarily unavailable.", 503);
+  }
+  if (approval.data?.status !== "APPROVED") {
+    throw new PublicApiError("ACCESS_APPROVAL_REQUIRED", "The API key owner is not approved for Cyber Sentinels access.", 403);
+  }
   await db
     .from("api_keys")
     .update({ last_used_at: new Date().toISOString(), usage_count: Number(authenticatedRow.usage_count ?? 0) + 1 })

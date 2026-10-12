@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { resolveModelApproval, MODEL_APPROVAL_EVIDENCE } from "../lib/trust-fabric/model-approval.ts";
+import { modelApprovalFixture } from "./fixtures/model-approval.mjs";
 import test from "node:test";
 
 import { executeCanonicalTrustTransaction } from "../src/lib/trust-transaction/canonical.ts";
@@ -14,6 +16,33 @@ const tenantId = "10000000-0000-4000-8000-000000000001";
 const actorId = "10000000-0000-4000-8000-000000000002";
 const subjectId = "10000000-0000-4000-8000-000000000003";
 const workflowId = "10000000-0000-4000-8000-000000000004";
+
+test("trusted model approval survives runtime failure and caller self-approval cannot replace it", async () => {
+  const { row, binding } = modelApprovalFixture();
+  const approved = resolveModelApproval(row, binding);
+  for (const runtime of ["PASSED", "FAILED"]) {
+    const harness = dependencies({ evidence: [evidence(), evidence({ type: MODEL_APPROVAL_EVIDENCE }), evidence({ type: "RUNTIME_CHECK", outcome: runtime })] });
+    harness.deps.loadTrustedModelState = async () => approved;
+    const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: `model-approved-runtime-${runtime}` }), harness.deps);
+    assert.equal(receipt.decision, runtime === "PASSED" ? "ALLOW" : "DENY");
+    assert.equal(receipt.decisionTimeSnapshot.modelApproval.status, "APPROVED");
+    assert.equal(receipt.decisionTimeSnapshot.modelStateIntegrity.modelIntegrityState, "EXACT_MATCH");
+    if (runtime === "FAILED") {
+      assert.ok(receipt.reasonCodes.includes("NEGATIVE_PROVIDER_EVIDENCE"));
+      assert.equal(harness.calls.includes("requestExternalExecutionIfAllowed"), false);
+    }
+  }
+  for (const state of ["UNKNOWN", "REVOKED", "UNAPPROVED", "EXPIRED", "CONFLICTED"]) {
+    const harness = dependencies({ authority: authority({ requiredEvidenceTypes: ["IDENTITY_SESSION", MODEL_APPROVAL_EVIDENCE] }), evidence: [evidence(), evidence({ type: MODEL_APPROVAL_EVIDENCE })] });
+    harness.deps.loadTrustedModelState = async () => ({ approval: { ...approved.approval, status: state, reason: `MODEL_APPROVAL_${state}` }, integrity: null });
+    const receipt = await executeCanonicalTrustTransaction(transactionInput({ idempotencyKey: `self-approved-model-${state}`, modelStateIntegrity: "approved", deploymentContext: { approvedModelState: approved.integrity.approvedModelState, currentObservedModelState: approved.integrity.observedModelState } }), harness.deps);
+    assert.equal(receipt.decision, ["UNKNOWN", "EXPIRED"].includes(state) ? "REVIEW" : "DENY");
+    assert.equal(receipt.decisionTimeSnapshot.modelApproval.status, state);
+    assert.equal(receipt.decisionTimeSnapshot.modelStateIntegrity, null);
+    assert.equal(harness.calls.includes("requestExternalExecutionIfAllowed"), false);
+    for (const artifact of ["persistDecision", "appendReplay", "emitMaterialTrustMemory"]) assert.ok(harness.calls.includes(artifact));
+  }
+});
 
 function trustObject() {
   return {
@@ -223,6 +252,21 @@ function dependencies(options = {}) {
   }
   return { deps, calls, persisted, replayed, remembered };
 }
+
+test("required runtime UNKNOWN and FAILED preserve separately valid native identity and never execute", async () => {
+  for (const [outcome, expected] of [[null, "REVIEW"], ["FAILED", "DENY"]]) {
+    const native = evidence({ type: "NATIVE_ENTITY_IDENTITY_PROOF", serverVerified: true, sourceClassification: "identity_provider_asserted" });
+    const runtime = evidence({ reference: "10000000-0000-4000-8000-000000000009", type: "RUNTIME_ATTESTATION", outcome, serverVerified: true, sourceClassification: "provider_asserted" });
+    const h = dependencies({ authority: authority({ requiredEvidenceTypes: [native.type, runtime.type] }), evidence: outcome ? [native, runtime] : [native] });
+    const receipt = await executeCanonicalTrustTransaction(transactionInput(), h.deps);
+    assert.equal(receipt.decision, expected);
+    assert.equal(receipt.reasonCodes.includes("IDENTITY_REQUIREMENT_UNSATISFIED"), false);
+    assert.equal(receipt.decisionTimeSnapshot.consequenceTime.currentConditions.identityAssurance, "CURRENT");
+    assert.equal(receipt.reasonCodes.includes("NEGATIVE_PROVIDER_EVIDENCE"), outcome === "FAILED");
+    assert.equal(h.calls.includes("requestExternalExecutionIfAllowed"), false);
+    assert.equal(receipt.externalExecution.requested, false);
+  }
+});
 
 function canonicalModelState(templateDigest = "sha256:model-template-approved") {
   const common = {

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import {
   demoVerifiers,
   normalizeVerifiers,
@@ -30,14 +32,17 @@ function statusClass(status: string | null | undefined) {
 }
 
 export default async function VerifierNetworkPage() {
-  const supabase = await createClient();
+  const authClient = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await authClient.auth.getUser();
 
   if (!user) {
     redirect("/login?next=/command-center");
   }
+
+  await requireAdminPageAccess(authClient, { path: "/verifier-network" });
+  const supabase = createServiceRoleClient();
 
   const [{ data, error }, { data: signals }] = await Promise.all([
     supabase

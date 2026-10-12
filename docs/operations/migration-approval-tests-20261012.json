@@ -1,0 +1,151 @@
+{
+  "status": "PASS",
+  "classification": "ISOLATED_RESTORED_PRODUCTION_WITH_SYNTHETIC_ADMIN_SESSIONS",
+  "checks": [
+    {
+      "name": "All 36 existing API-key records inherit an unapproved owner after backfill",
+      "status": "PASS"
+    },
+    {
+      "name": "Real admin allowlist rejects unauthorized session",
+      "status": "PASS"
+    },
+    {
+      "name": "Real admin gate rejects missing verified admin cookie",
+      "status": "PASS"
+    },
+    {
+      "name": "Server action rejects self approval",
+      "status": "PASS"
+    },
+    {
+      "name": "Server action requires an audit reason",
+      "status": "PASS"
+    },
+    {
+      "name": "Database RPC independently rejects self approval",
+      "status": "PASS"
+    },
+    {
+      "name": "Service-role direct status edits denied",
+      "status": "PASS"
+    },
+    {
+      "name": "Missing actor cannot create an unattributed approval",
+      "status": "PASS"
+    },
+    {
+      "name": "Two distinct allowlisted administrators bootstrap each other through audited RPC; pending customer access does not grant or block platform administration",
+      "status": "PASS"
+    },
+    {
+      "name": "All five restored accounts can be approved with verified actor and atomic audit; forged form actor ignored",
+      "status": "PASS"
+    },
+    {
+      "name": "Retry does not duplicate approval event",
+      "status": "PASS"
+    },
+    {
+      "name": "Service role cannot rewrite audit events",
+      "status": "PASS"
+    },
+    {
+      "name": "Approved customer sees own tenant only despite forged claims",
+      "status": "PASS"
+    },
+    {
+      "name": "Cross-tenant membership escalation denied",
+      "status": "PASS"
+    },
+    {
+      "name": "Authenticated customer cannot invoke admin transition RPC",
+      "status": "PASS"
+    },
+    {
+      "name": "Pending customer cannot read workspaces even with forged approval claim",
+      "status": "PASS"
+    },
+    {
+      "name": "Actual V1 authenticator permits approved owner with valid locally minted key",
+      "status": "PASS"
+    },
+    {
+      "name": "SUSPENDED invalidates existing key and authenticated RLS access immediately",
+      "status": "PASS"
+    },
+    {
+      "name": "REVOKED invalidates existing key and authenticated RLS access immediately",
+      "status": "PASS"
+    },
+    {
+      "name": "REJECTED invalidates existing key and authenticated RLS access immediately",
+      "status": "PASS"
+    },
+    {
+      "name": "Audited reapproval restores key access without reissuing key",
+      "status": "PASS"
+    },
+    {
+      "name": "Key loses access when tenant membership is removed",
+      "status": "PASS"
+    },
+    {
+      "name": "Every public customer table retains restrictive approval policy",
+      "status": "PASS"
+    },
+    {
+      "name": "Actual Trust Gateway route persists ALLOW with receipt, Replay and Trust Memory",
+      "status": "PASS"
+    },
+    {
+      "name": "Gateway ALLOW idempotent retry preserves transaction",
+      "status": "PASS"
+    },
+    {
+      "name": "Gateway ALLOW persisted receipt/Replay/Memory enforce tenant RLS",
+      "status": "PASS"
+    },
+    {
+      "name": "Pending account cannot execute Trust Gateway ALLOW request",
+      "status": "PASS"
+    },
+    {
+      "name": "Actual Trust Gateway route persists REVIEW with receipt, Replay and Trust Memory",
+      "status": "PASS"
+    },
+    {
+      "name": "Gateway REVIEW idempotent retry preserves transaction",
+      "status": "PASS"
+    },
+    {
+      "name": "Gateway REVIEW persisted receipt/Replay/Memory enforce tenant RLS",
+      "status": "PASS"
+    },
+    {
+      "name": "Pending account cannot execute Trust Gateway REVIEW request",
+      "status": "PASS"
+    },
+    {
+      "name": "Actual Trust Gateway route persists DENY with receipt, Replay and Trust Memory",
+      "status": "PASS"
+    },
+    {
+      "name": "Gateway DENY idempotent retry preserves transaction",
+      "status": "PASS"
+    },
+    {
+      "name": "Gateway DENY persisted receipt/Replay/Memory enforce tenant RLS",
+      "status": "PASS"
+    },
+    {
+      "name": "Pending account cannot execute Trust Gateway DENY request",
+      "status": "PASS"
+    }
+  ],
+  "productionConnections": 0,
+  "existingKeys": {
+    "total": 36,
+    "approved_owners": 0
+  }
+}

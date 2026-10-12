@@ -18,6 +18,7 @@ const origin = "http://localhost:3000";
 export function harness() {
   const jar = new Map();
   const calls = [];
+  let accessStatus = "APPROVED";
   let revoked = false;
   let method = "recovery";
   let recoveryTime = Math.floor(Date.now() / 1000);
@@ -45,6 +46,8 @@ export function harness() {
       return json(payload());
     }
     if (url.pathname.endsWith("/user")) return json(user);
+    if (url.pathname.endsWith("/account_access_approvals")) return json([{ status: accessStatus }]);
+    if (url.pathname.endsWith("/rpc/record_account_access_attempt")) return json(null);
     throw new Error(`Unexpected fixture Auth path: ${url.pathname}`);
   };
   const cookieStore = {
@@ -105,6 +108,7 @@ export function harness() {
     headers: { cookie: [...jar].map(([k, v]) => `${k}=${v}`).join("; "), ...headers },
   }));
   return { jar, calls, client, load, apply, request, guard, token,
+    setAccessStatus: (status) => { accessStatus = status; },
     expire: () => { recoveryTime -= 3600; },
     async begin() {
       const response = await load("app/api/auth/password-reset/request/route.ts").POST(request("/api/auth/password-reset/request", {

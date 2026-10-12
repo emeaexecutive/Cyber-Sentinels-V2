@@ -1,0 +1,55 @@
+{
+  "format": "cyber-sentinels-application-schema-v1",
+  "sections": {
+    "buckets": {
+      "objects": 2,
+      "sha256": "22100deed89b8c139326d328a52a660385906ce3e9717b9a364fc39a3a97c69a"
+    },
+    "columns": {
+      "objects": 3517,
+      "sha256": "4d5f14ccd3d970588076cb697a3ef53881551c6219b31a6276e76284fae7b88a"
+    },
+    "constraints": {
+      "objects": 1543,
+      "sha256": "b656e48ef1ea528dc66eeabd8bacef0532708c30dafe1c0f43c0a57d02b79c1f"
+    },
+    "default_acls": {
+      "objects": 6,
+      "sha256": "d3192f669fccb6aebe10a777c9b52c07215555033e40474d8cc7237ad0a043b4"
+    },
+    "functions": {
+      "objects": 172,
+      "sha256": "ec181b104afdf5ef0152bc9cf1fbe9be3cbc74f10bf98b49717bebb7b9cca35a"
+    },
+    "indexes": {
+      "objects": 716,
+      "sha256": "21cbf84cd0e227528d7747021272ddcef1c1779151e66fe9c3dd3ae89bb9f3f5"
+    },
+    "policies": {
+      "objects": 566,
+      "sha256": "9ea7328f094d875cab05cae5a0f2ecb05992490b9d5f7943b9cbe1568e84c7dc"
+    },
+    "schemas": {
+      "objects": 2,
+      "sha256": "2b40bda74c22703d4fa0f08e7db37cee7db86a93409b213843c9b01823e4b020"
+    },
+    "storage_tables": {
+      "objects": 2,
+      "sha256": "1a335333d3d6306af94c013788276663d4b67cc648a525e321e2a2daf9fd4cfc"
+    },
+    "tables": {
+      "objects": 249,
+      "sha256": "86fb1a8d0552071cb7321da5917f19a157d12e5eb0c19414e7109b83c1032bc9"
+    },
+    "triggers": {
+      "objects": 161,
+      "sha256": "4b6aed3437d7b262c0536bcb3b1b36f97a79f32b6d921233d122a59cd51d52e0"
+    },
+    "types": {
+      "objects": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "querySha256": "4920358c513c3cfcb4c511f208cf1b95ac06d5c588a4612b587c36b865daf242",
+  "reviewedEquivalencesSha256": "911286e394bc8bfdba298b26d86b24172ef0f1008f59703f28ee1a15b399e01a"
+}

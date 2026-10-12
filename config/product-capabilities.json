@@ -4,60 +4,134 @@
     "publicClaim": "Cyber Sentinels resolves provider-neutral Operational Entities without making provider-native identifiers canonical.",
     "implementationModule": "lib/operational-entities/operational-entity.ts",
     "algorithm": "resolveOperationalEntity",
-    "tests": ["tests/operational-entity-trust.test.mjs"],
-    "api": ["app/api/operational-entities/route.ts"],
-    "ui": ["app/operational-entities/page.tsx", "app/operational-entities/[entityId]/page.tsx"],
-    "persistence": ["operational_entities", "operational_entity_external_identities"],
+    "tests": [
+      "tests/operational-entity-trust.test.mjs"
+    ],
+    "api": [
+      "app/api/operational-entities/route.ts"
+    ],
+    "ui": [
+      "app/operational-entities/page.tsx",
+      "app/operational-entities/[entityId]/page.tsx"
+    ],
+    "persistence": [
+      "operational_entities",
+      "operational_entity_external_identities"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Native Operational Entity verification",
     "publicClaim": "Cyber Sentinels can generate cryptographically verifiable first-party identity evidence for a canonical Operational Entity without requiring an external identity provider; this proves key possession and manifest binding, not trust or authority.",
     "implementationModule": "lib/operational-entities/native-verification.ts",
     "algorithm": "native-entity-verification-v1 and entity-continuity-fingerprint-v1 using Ed25519, public JWK, signed manifests and single-use challenges",
-    "tests": ["tests/native-operational-entity-verification.test.mjs", "tests/native-operational-entity-verification-integration.test.mjs"],
-    "api": ["app/api/operational-entities/[entityId]/native-verification/route.ts"],
-    "ui": ["app/operational-entities/[entityId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["operational_entity_manifests", "operational_entity_native_credentials", "operational_entity_native_challenges", "operational_entity_native_verifications", "native_entity_identity_evidence", "evidence_objects", "operational_entity_native_replay_events", "trust_memory_index"],
+    "tests": [
+      "tests/native-operational-entity-verification.test.mjs",
+      "tests/native-operational-entity-verification-integration.test.mjs"
+    ],
+    "api": [
+      "app/api/operational-entities/[entityId]/native-verification/route.ts"
+    ],
+    "ui": [
+      "app/operational-entities/[entityId]/page.tsx",
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "operational_entity_manifests",
+      "operational_entity_native_credentials",
+      "operational_entity_native_challenges",
+      "operational_entity_native_verifications",
+      "native_entity_identity_evidence",
+      "evidence_objects",
+      "operational_entity_native_replay_events",
+      "trust_memory_index"
+    ],
     "providerDependency": null,
-    "continuousTrigger": ["successful or failed native proof", "credential, owner or manifest revocation", "continuous trust signal processing"],
-    "qualificationLevel": "WORKING"
+    "continuousTrigger": [
+      "successful or failed native proof",
+      "credential, owner or manifest revocation",
+      "continuous trust signal processing"
+    ],
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Native delegated Operational Entity authority",
     "publicClaim": "Cyber Sentinels can verify two independent native Operational Entities, validate and accept a signed attenuated authority delegation, and evaluate exact delegated actions with lineage, Replay and Trust Memory. This is implemented and locally qualified, not Production-proven.",
     "implementationModule": "lib/operational-entities/delegated-authority.ts",
     "algorithm": "delegated-authority-subset-v1 and delegation-lineage-validation-v1 using existing Ed25519 identity credentials and canonical Authority Lineage",
-    "tests": ["tests/native-delegated-authority.test.mjs", "tests/native-delegated-authority-integration.test.mjs"],
-    "api": ["app/api/operational-entities/[entityId]/delegated-authority/route.ts"],
-    "ui": ["app/operational-entities/[entityId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["operational_entity_authority_delegations", "operational_entity_delegation_acceptances", "operational_entity_delegated_action_evaluations", "trust_contracts", "evidence_graph_nodes", "evidence_graph_edges", "operational_entity_native_replay_events", "trust_memory_index", "canonical_trust_transactions"],
+    "tests": [
+      "tests/native-delegated-authority.test.mjs",
+      "tests/native-delegated-authority-integration.test.mjs"
+    ],
+    "api": [
+      "app/api/operational-entities/[entityId]/delegated-authority/route.ts"
+    ],
+    "ui": [
+      "app/operational-entities/[entityId]/page.tsx",
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "operational_entity_authority_delegations",
+      "operational_entity_delegation_acceptances",
+      "operational_entity_delegated_action_evaluations",
+      "trust_contracts",
+      "evidence_graph_nodes",
+      "evidence_graph_edges",
+      "operational_entity_native_replay_events",
+      "trust_memory_index",
+      "canonical_trust_transactions"
+    ],
     "providerDependency": null,
-    "continuousTrigger": ["delegation activation, expiry or revocation", "parent authority expiry or revocation", "native identity or runtime continuity change"],
-    "qualificationLevel": "WORKING"
+    "continuousTrigger": [
+      "delegation activation, expiry or revocation",
+      "parent authority expiry or revocation",
+      "native identity or runtime continuity change"
+    ],
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Identity evidence correlation",
     "publicClaim": "Configured-provider identity evidence is normalized, correlated and retained with its provider attribution.",
     "implementationModule": "lib/identity-signals/orchestrator.ts",
     "algorithm": "correlateIdentityEvidence",
-    "tests": ["tests/identity-signals.test.mjs", "tests/identity-signals-integration.test.mjs"],
-    "api": ["app/api/identity/verifications/route.ts"],
-    "ui": ["app/dashboard/identity/page.tsx", "components/identity-signals/verification-detail.tsx"],
-    "persistence": ["identity_evidence", "provider_transactions"],
+    "tests": [
+      "tests/identity-signals.test.mjs",
+      "tests/identity-signals-integration.test.mjs"
+    ],
+    "api": [
+      "app/api/identity/verifications/route.ts"
+    ],
+    "ui": [
+      "app/dashboard/identity/page.tsx",
+      "components/identity-signals/verification-detail.tsx"
+    ],
+    "persistence": [
+      "identity_evidence",
+      "provider_transactions"
+    ],
     "providerDependency": "Configured identity provider",
-    "qualificationLevel": "PARTIALLY_IMPLEMENTED"
+    "qualificationLevel": "PARTIAL"
   },
   {
     "name": "Deepfake and synthetic-media evidence",
     "publicClaim": "Cyber Sentinels consumes and evaluates verification evidence from configured synthetic-media providers; it does not claim native deepfake detection.",
     "implementationModule": "lib/detection/providers/index.ts",
     "algorithm": "provider adapter normalization only",
-    "tests": ["tests/detection-sovereignty.test.mjs", "tests/provider-abstraction.test.mjs"],
-    "api": ["app/api/reality-twin/analyze/route.ts"],
-    "ui": ["app/video-verification/page.tsx", "components/interactive-demo-scenario.tsx"],
-    "persistence": ["provider_results"],
+    "tests": [
+      "tests/detection-sovereignty.test.mjs",
+      "tests/provider-abstraction.test.mjs"
+    ],
+    "api": [
+      "app/api/reality-twin/analyze/route.ts"
+    ],
+    "ui": [
+      "app/video-verification/page.tsx",
+      "components/interactive-demo-scenario.tsx"
+    ],
+    "persistence": [
+      "provider_results"
+    ],
     "providerDependency": "Reality Defender, Sensity, Pindrop or another configured provider",
     "qualificationLevel": "CONTRACT_ONLY"
   },
@@ -66,192 +140,347 @@
     "publicClaim": "Consequential actions require a named accountable owner.",
     "implementationModule": "src/lib/trust-transaction/canonical.ts",
     "algorithm": "canonical accountable-owner fail-closed rule",
-    "tests": ["tests/canonical-trust-transaction.test.mjs", "tests/operational-entity-trust.test.mjs"],
-    "api": ["app/api/trust/execute/route.ts"],
-    "ui": ["app/demo/trust-runtime/page.tsx"],
-    "persistence": ["canonical_trust_transactions", "operational_entities"],
+    "tests": [
+      "tests/canonical-trust-transaction.test.mjs",
+      "tests/operational-entity-trust.test.mjs"
+    ],
+    "api": [
+      "app/api/trust/execute/route.ts"
+    ],
+    "ui": [
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "canonical_trust_transactions",
+      "operational_entities"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Authority evaluation and lineage",
     "publicClaim": "Authority scope, expiry, revocation and lineage are evaluated before a canonical decision.",
     "implementationModule": "src/lib/trust-transaction/canonical.ts",
     "algorithm": "validateAuthorityScope and evaluateTrustContract",
-    "tests": ["tests/canonical-trust-transaction.test.mjs", "tests/rc2-living-trust.test.mjs"],
-    "api": ["app/api/trust/execute/route.ts"],
-    "ui": ["app/trust/transactions/[transactionId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["trust_contracts", "canonical_trust_transactions"],
+    "tests": [
+      "tests/canonical-trust-transaction.test.mjs",
+      "tests/rc2-living-trust.test.mjs"
+    ],
+    "api": [
+      "app/api/trust/execute/route.ts"
+    ],
+    "ui": [
+      "app/trust/transactions/[transactionId]/page.tsx",
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "trust_contracts",
+      "canonical_trust_transactions"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Evidence freshness, sufficiency and independence",
     "publicClaim": "Evidence is checked for required types, age, outcome and source independence.",
     "implementationModule": "src/lib/trust-transaction/canonical.ts",
     "algorithm": "validateEvidenceFreshness plus required-evidence and independence rules",
-    "tests": ["tests/canonical-trust-transaction.test.mjs", "tests/provider-neutral-evidence-independence.test.mjs"],
-    "api": ["app/api/trust/execute/route.ts"],
-    "ui": ["app/trust/transactions/[transactionId]/page.tsx"],
-    "persistence": ["normalized_provider_evidence", "canonical_trust_transactions"],
+    "tests": [
+      "tests/canonical-trust-transaction.test.mjs",
+      "tests/provider-neutral-evidence-independence.test.mjs"
+    ],
+    "api": [
+      "app/api/trust/execute/route.ts"
+    ],
+    "ui": [
+      "app/trust/transactions/[transactionId]/page.tsx"
+    ],
+    "persistence": [
+      "normalized_provider_evidence",
+      "canonical_trust_transactions"
+    ],
     "providerDependency": "At least one configured evidence source",
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Canonical ALLOW REVIEW DENY decision",
     "publicClaim": "One canonical path returns ALLOW, REVIEW or DENY with reason codes, evidence, authority, policy, consequence, confidence, timestamp and digest.",
     "implementationModule": "src/lib/trust-transaction/canonical.ts",
     "algorithm": "evaluateCanonicalTrustDecision v1.1.0",
-    "tests": ["tests/canonical-trust-transaction.test.mjs", "tests/canonical-trust-transaction-integration.test.mjs", "tests/product-truth-end-to-end.test.mjs"],
-    "api": ["app/api/trust/execute/route.ts"],
-    "ui": ["app/trust/transactions/[transactionId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["canonical_trust_transactions", "trust_fabric_decisions"],
+    "tests": [
+      "tests/canonical-trust-transaction.test.mjs",
+      "tests/canonical-trust-transaction-integration.test.mjs",
+      "tests/product-truth-end-to-end.test.mjs"
+    ],
+    "api": [
+      "app/api/trust/execute/route.ts"
+    ],
+    "ui": [
+      "app/trust/transactions/[transactionId]/page.tsx",
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "canonical_trust_transactions",
+      "trust_fabric_decisions"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Operational consequence classification",
     "publicClaim": "Action consequence is classified from environment, data boundary, scope, policy and incident context.",
     "implementationModule": "lib/operational-entities/operational-entity.ts",
     "algorithm": "classifyOperationalConsequence",
-    "tests": ["tests/operational-entity-trust.test.mjs", "tests/canonical-trust-transaction.test.mjs"],
-    "api": ["app/api/trust/execute/route.ts"],
-    "ui": ["app/demo/trust-runtime/page.tsx"],
-    "persistence": ["canonical_trust_transactions.decision_time_snapshot"],
+    "tests": [
+      "tests/operational-entity-trust.test.mjs",
+      "tests/canonical-trust-transaction.test.mjs"
+    ],
+    "api": [
+      "app/api/trust/execute/route.ts"
+    ],
+    "ui": [
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "canonical_trust_transactions.decision_time_snapshot"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Continuous trust evaluation",
     "publicClaim": "Trust is re-evaluated from persisted signals and scheduled due-state processing; page refresh is not the trigger.",
     "implementationModule": "src/lib/continuous-trust/signal-service.ts",
     "algorithm": "signal ingestion queue plus recalculateContinuousTrust",
-    "tests": ["tests/continuous-trust-runtime.test.mjs", "tests/continuous-trust-engine-epic24.test.mjs"],
-    "api": ["app/api/trust/jobs/process/route.ts", "app/api/trust/recalculate/route.ts", "app/api/trust/refresh/route.ts"],
-    "ui": ["app/dashboard/trust-runtime/page.tsx"],
-    "persistence": ["continuous_trust_jobs", "subject_trust_state", "continuous_trust_assessments"],
+    "tests": [
+      "tests/continuous-trust-runtime.test.mjs",
+      "tests/continuous-trust-engine-epic24.test.mjs"
+    ],
+    "api": [
+      "app/api/trust/jobs/process/route.ts",
+      "app/api/trust/recalculate/route.ts",
+      "app/api/trust/refresh/route.ts"
+    ],
+    "ui": [
+      "app/dashboard/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "continuous_trust_jobs",
+      "subject_trust_state",
+      "continuous_trust_assessments"
+    ],
     "providerDependency": null,
-    "continuousTrigger": ["provider or runtime signal", "authenticated recalculation", "Vercel cron /api/trust/jobs/process"],
-    "qualificationLevel": "WORKING"
+    "continuousTrigger": [
+      "provider or runtime signal",
+      "authenticated recalculation",
+      "Vercel cron /api/trust/jobs/process"
+    ],
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Trust Drift",
     "publicClaim": "Trust Drift compares decision-time state with the current persisted state across thirteen named dimensions.",
     "implementationModule": "lib/trust-intelligence.ts",
     "algorithm": "evaluateTrustDrift",
-    "tests": ["tests/continuous-operational-trust-intelligence.test.mjs", "tests/product-truth-runtime.test.mjs"],
-    "api": ["app/api/trust/entities/[entityId]/drift/route.ts"],
-    "ui": ["app/operational-entities/[entityId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["canonical_trust_transactions.decision_time_snapshot", "trust_drift_findings"],
+    "tests": [
+      "tests/continuous-operational-trust-intelligence.test.mjs",
+      "tests/product-truth-runtime.test.mjs"
+    ],
+    "api": [
+      "app/api/trust/entities/[entityId]/drift/route.ts"
+    ],
+    "ui": [
+      "app/operational-entities/[entityId]/page.tsx",
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "canonical_trust_transactions.decision_time_snapshot",
+      "trust_drift_findings"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Trust Health",
     "publicClaim": "Trust Health is an explainable eight-dimension state, not a vanity score.",
     "implementationModule": "lib/operational-entities/intelligence.ts",
     "algorithm": "healthFromDetail and deriveTrustHealth",
-    "tests": ["tests/continuous-operational-trust-intelligence.test.mjs", "tests/product-truth-runtime.test.mjs"],
+    "tests": [
+      "tests/continuous-operational-trust-intelligence.test.mjs",
+      "tests/product-truth-runtime.test.mjs"
+    ],
     "api": [],
-    "ui": ["app/operational-entities/[entityId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["canonical_trust_transactions", "operational_entities"],
+    "ui": [
+      "app/operational-entities/[entityId]/page.tsx",
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "canonical_trust_transactions",
+      "operational_entities"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Trust Confidence",
     "publicClaim": "Confidence describes confidence in the current trust conclusion from named evidence factors.",
     "implementationModule": "lib/trust-intelligence.ts",
     "algorithm": "deriveTrustConfidence",
-    "tests": ["tests/continuous-operational-trust-intelligence.test.mjs", "tests/product-truth-runtime.test.mjs"],
+    "tests": [
+      "tests/continuous-operational-trust-intelligence.test.mjs",
+      "tests/product-truth-runtime.test.mjs"
+    ],
     "api": [],
-    "ui": ["app/operational-entities/[entityId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["canonical_trust_transactions.decision_time_snapshot"],
+    "ui": [
+      "app/operational-entities/[entityId]/page.tsx",
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "canonical_trust_transactions.decision_time_snapshot"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Trust Stability",
     "publicClaim": "Trust Stability evaluates actual change history over 24-hour, 7-day and 30-day windows.",
     "implementationModule": "lib/trust-intelligence.ts",
     "algorithm": "evaluateTrustStability",
-    "tests": ["tests/continuous-operational-trust-intelligence.test.mjs", "tests/product-truth-runtime.test.mjs"],
+    "tests": [
+      "tests/continuous-operational-trust-intelligence.test.mjs",
+      "tests/product-truth-runtime.test.mjs"
+    ],
     "api": [],
-    "ui": ["app/operational-entities/[entityId]/page.tsx"],
-    "persistence": ["canonical_trust_transactions", "provider_change_events"],
+    "ui": [
+      "app/operational-entities/[entityId]/page.tsx"
+    ],
+    "persistence": [
+      "canonical_trust_transactions",
+      "provider_change_events"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Bounded Trust Prediction",
     "publicClaim": "Prediction is limited to operational expiry, review, continuity, provider-gap and policy states and never executes actions.",
     "implementationModule": "lib/trust-intelligence.ts",
     "algorithm": "predictOperationalTrust",
-    "tests": ["tests/continuous-operational-trust-intelligence.test.mjs", "tests/product-truth-runtime.test.mjs"],
+    "tests": [
+      "tests/continuous-operational-trust-intelligence.test.mjs",
+      "tests/product-truth-runtime.test.mjs"
+    ],
     "api": [],
-    "ui": ["app/operational-entities/[entityId]/page.tsx"],
-    "persistence": ["canonical decision history as recomputable basis"],
+    "ui": [
+      "app/operational-entities/[entityId]/page.tsx"
+    ],
+    "persistence": [
+      "canonical decision history as recomputable basis"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Trust Recovery",
     "publicClaim": "Recovery is derived only when a degraded decision is followed by new evidence and canonical re-evaluation.",
     "implementationModule": "lib/operational-entities/intelligence.ts",
     "algorithm": "deriveRecovery using createTrustRecovery and advanceTrustRecovery",
-    "tests": ["tests/continuous-operational-trust-intelligence.test.mjs", "tests/product-truth-runtime.test.mjs"],
-    "api": ["app/api/trust-recovery/route.ts"],
-    "ui": ["app/operational-entities/[entityId]/page.tsx", "app/trust-recovery/page.tsx"],
-    "persistence": ["canonical_trust_transactions", "trust_memory_index", "audit_logs"],
+    "tests": [
+      "tests/continuous-operational-trust-intelligence.test.mjs",
+      "tests/product-truth-runtime.test.mjs"
+    ],
+    "api": [
+      "app/api/trust-recovery/route.ts"
+    ],
+    "ui": [
+      "app/operational-entities/[entityId]/page.tsx",
+      "app/trust-recovery/page.tsx"
+    ],
+    "persistence": [
+      "canonical_trust_transactions",
+      "trust_memory_index",
+      "audit_logs"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "PARTIALLY_IMPLEMENTED"
+    "qualificationLevel": "PARTIAL"
   },
   {
     "name": "Trust Narrative and explanation",
     "publicClaim": "Deterministic explanations cite persisted evidence and identify changes, unknowns, action and restoration requirements.",
     "implementationModule": "lib/operational-entities/intelligence.ts",
     "algorithm": "projectOperationalEntityIntelligence and explainOperationalTrust",
-    "tests": ["tests/continuous-operational-trust-intelligence.test.mjs", "tests/product-truth-runtime.test.mjs"],
-    "api": ["app/api/trust/explain/route.ts"],
-    "ui": ["app/operational-entities/[entityId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["canonical source records; narrative is recomputed"],
+    "tests": [
+      "tests/continuous-operational-trust-intelligence.test.mjs",
+      "tests/product-truth-runtime.test.mjs"
+    ],
+    "api": [
+      "app/api/trust/explain/route.ts"
+    ],
+    "ui": [
+      "app/operational-entities/[entityId]/page.tsx",
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "canonical source records; narrative is recomputed"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Trust Recommendation and Advisor",
     "publicClaim": "Recommendations are bounded, deterministic projections and never form a second decision engine.",
     "implementationModule": "lib/trust-intelligence.ts",
     "algorithm": "recommendTrustAction and buildTrustAdvisor",
-    "tests": ["tests/continuous-operational-trust-intelligence.test.mjs"],
+    "tests": [
+      "tests/continuous-operational-trust-intelligence.test.mjs"
+    ],
     "api": [],
-    "ui": ["app/operational-entities/[entityId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["canonical source records; recommendation is recomputed"],
+    "ui": [
+      "app/operational-entities/[entityId]/page.tsx",
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "canonical source records; recommendation is recomputed"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Grounded AI governance assistance",
     "publicClaim": "When configured, server-side AI produces structured advisory output constrained to an evidence allowlist; otherwise deterministic mode is explicit.",
     "implementationModule": "lib/ai/governanceAssistant.ts",
     "algorithm": "evidence allowlist, structured output, citation validation and deterministic fallback",
-    "tests": ["tests/product-truth-runtime.test.mjs"],
-    "api": ["app/api/ai-governance/analyze/route.ts"],
-    "ui": ["app/passports/[id]/page.tsx", "app/agents/[id]/page.tsx"],
-    "persistence": ["audit_logs", "signals"],
+    "tests": [
+      "tests/product-truth-runtime.test.mjs"
+    ],
+    "api": [
+      "app/api/ai-governance/analyze/route.ts"
+    ],
+    "ui": [
+      "app/passports/[id]/page.tsx",
+      "app/agents/[id]/page.tsx"
+    ],
+    "persistence": [
+      "audit_logs",
+      "signals"
+    ],
     "providerDependency": "OpenAI Responses API when OPENAI_API_KEY is configured",
     "modelPath": "lib/ai/openai.ts",
-    "qualificationLevel": "PARTIALLY_IMPLEMENTED"
+    "qualificationLevel": "PARTIAL"
   },
   {
     "name": "Decision-history learning",
     "publicClaim": "Comparable-case retrieval is tenant-scoped, bounded and does not train silently or learn across tenants.",
     "implementationModule": "lib/trust-intelligence.ts",
     "algorithm": "retrieveComparableDecisionHistory",
-    "tests": ["tests/continuous-operational-trust-intelligence.test.mjs"],
+    "tests": [
+      "tests/continuous-operational-trust-intelligence.test.mjs"
+    ],
     "api": [],
     "ui": [],
-    "persistence": ["canonical decision history"],
+    "persistence": [
+      "canonical decision history"
+    ],
     "providerDependency": null,
     "qualificationLevel": "CONTRACT_ONLY"
   },
@@ -260,120 +489,323 @@
     "publicClaim": "Blast Radius deterministically traverses tenant-scoped dependency edges with exact paths, cycle detection and a depth bound.",
     "implementationModule": "lib/trust-intelligence.ts",
     "algorithm": "analyzeBlastRadius",
-    "tests": ["tests/continuous-operational-trust-intelligence.test.mjs"],
+    "tests": [
+      "tests/continuous-operational-trust-intelligence.test.mjs"
+    ],
     "api": [],
-    "ui": ["src/components/trust-centre/EnterpriseTrustCentre.tsx"],
-    "persistence": ["evidence_graph_edges as input; output is recomputed"],
+    "ui": [
+      "src/components/trust-centre/EnterpriseTrustCentre.tsx"
+    ],
+    "persistence": [
+      "evidence_graph_edges as input; output is recomputed"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "PARTIALLY_IMPLEMENTED"
+    "qualificationLevel": "PARTIAL"
   },
   {
     "name": "Trust Cascade",
     "publicClaim": "Trust Cascade is a bounded derived graph effect with explainable edges and no recursive mutation.",
     "implementationModule": "lib/trust-intelligence.ts",
     "algorithm": "buildTrustCascade",
-    "tests": ["tests/continuous-operational-trust-intelligence.test.mjs"],
+    "tests": [
+      "tests/continuous-operational-trust-intelligence.test.mjs"
+    ],
     "api": [],
-    "ui": ["src/components/trust-centre/EnterpriseTrustCentre.tsx"],
-    "persistence": ["evidence_graph_edges as input; output is recomputed"],
+    "ui": [
+      "src/components/trust-centre/EnterpriseTrustCentre.tsx"
+    ],
+    "persistence": [
+      "evidence_graph_edges as input; output is recomputed"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "PARTIALLY_IMPLEMENTED"
+    "qualificationLevel": "PARTIAL"
   },
   {
     "name": "Provider replacement continuity",
     "publicClaim": "Provider replacement preserves historical provider evidence and exposes migration gaps without changing the canonical Operational Entity ID.",
     "implementationModule": "lib/operational-entities/provider-transition.ts",
     "algorithm": "executeProviderTransition and evaluateProviderReplacementContinuity",
-    "tests": ["tests/provider-neutral-evidence-independence.test.mjs", "tests/provider-independent-trust-record-qualification.test.mjs"],
+    "tests": [
+      "tests/provider-neutral-evidence-independence.test.mjs",
+      "tests/provider-independent-trust-record-qualification.test.mjs"
+    ],
     "api": [],
-    "ui": ["app/operational-entities/[entityId]/page.tsx"],
-    "persistence": ["provider_transitions", "provider_change_events", "operational_entity_external_identities"],
+    "ui": [
+      "app/operational-entities/[entityId]/page.tsx"
+    ],
+    "persistence": [
+      "provider_transitions",
+      "provider_change_events",
+      "operational_entity_external_identities"
+    ],
     "providerDependency": "Old and replacement provider evidence",
     "qualificationEvidence": "docs/release/PROVIDER_NEUTRAL_EVIDENCE_PREVIEW_PROOF.md",
-    "qualificationLevel": "STAGING_PROVEN"
+    "qualificationLevel": "PROVEN_STAGING",
+    "evidenceDate": "2026-08-08"
   },
   {
     "name": "Native enforcement and outcome proof",
     "publicClaim": "For controlled internal Repository A, Cyber Sentinels separates immutable ALLOW/REVIEW/DENY from enforcement, acknowledgement, execution claim, runtime observation, MAC-protected destination observation and deterministic outcome correlation. It does not claim arbitrary third-party enforcement.",
     "implementationModule": "lib/operational-entities/native-enforcement.ts",
     "algorithm": "enforcement-eligibility-v1, execution-correlation-v1 and outcome-confirmation-v1",
-    "tests": ["tests/native-enforcement-outcome-proof.test.mjs", "tests/native-enforcement-outcome-proof-integration.test.mjs", "tests/canonical-trust-transaction-integration.test.mjs"],
-    "api": ["app/api/operational-entities/[entityId]/enforcement/route.ts"],
-    "ui": ["app/trust/transactions/[transactionId]/page.tsx", "app/operational-entities/[entityId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["native_enforcement_decision_bindings", "native_enforcement_requests", "native_enforcement_acknowledgements", "native_execution_claims", "native_runtime_execution_observations", "controlled_destination_records", "native_destination_observations", "native_execution_contradictions", "native_enforcement_outcomes", "incident_regulatory_assessments", "trust_memory_index"],
+    "tests": [
+      "tests/native-enforcement-outcome-proof.test.mjs",
+      "tests/native-enforcement-outcome-proof-integration.test.mjs",
+      "tests/canonical-trust-transaction-integration.test.mjs"
+    ],
+    "api": [
+      "app/api/operational-entities/[entityId]/enforcement/route.ts"
+    ],
+    "ui": [
+      "app/trust/transactions/[transactionId]/page.tsx",
+      "app/operational-entities/[entityId]/page.tsx",
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "native_enforcement_decision_bindings",
+      "native_enforcement_requests",
+      "native_enforcement_acknowledgements",
+      "native_execution_claims",
+      "native_runtime_execution_observations",
+      "controlled_destination_records",
+      "native_destination_observations",
+      "native_execution_contradictions",
+      "native_enforcement_outcomes",
+      "incident_regulatory_assessments",
+      "trust_memory_index"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Replay",
     "publicClaim": "Replay retains immutable, tenant-scoped chronology linked to canonical transactions.",
     "implementationModule": "src/lib/trust-transaction/canonical.ts",
     "algorithm": "appendReplay",
-    "tests": ["tests/replay-engine.test.mjs", "tests/canonical-trust-transaction-integration.test.mjs"],
-    "api": ["app/api/replay/[id]/route.ts"],
-    "ui": ["app/trust/transactions/[transactionId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["trust_replay_sessions", "canonical_trust_transaction_events"],
+    "tests": [
+      "tests/replay-engine.test.mjs",
+      "tests/canonical-trust-transaction-integration.test.mjs"
+    ],
+    "api": [
+      "app/api/replay/[id]/route.ts"
+    ],
+    "ui": [
+      "app/trust/transactions/[transactionId]/page.tsx",
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "trust_replay_sessions",
+      "canonical_trust_transaction_events"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Trust Memory",
     "publicClaim": "Only material canonical changes append Trust Memory; non-material re-evaluation does not.",
     "implementationModule": "src/lib/trust-transaction/canonical.ts",
     "algorithm": "emitMaterialTrustMemory",
-    "tests": ["tests/canonical-trust-transaction.test.mjs", "tests/continuous-operational-trust-intelligence.test.mjs"],
+    "tests": [
+      "tests/canonical-trust-transaction.test.mjs",
+      "tests/continuous-operational-trust-intelligence.test.mjs"
+    ],
     "api": [],
-    "ui": ["app/operational-entities/[entityId]/page.tsx", "app/demo/trust-runtime/page.tsx"],
-    "persistence": ["trust_memory_index"],
+    "ui": [
+      "app/operational-entities/[entityId]/page.tsx",
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "trust_memory_index"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "Internal Trust Runtime proof",
     "publicClaim": "Authenticated technical users can inspect the latest persisted trust transaction and every available underlying evidence reference.",
     "implementationModule": "app/demo/trust-runtime/page.tsx",
     "algorithm": "projectOperationalEntityIntelligence over persisted tenant records",
-    "tests": ["tests/product-truth-runtime.test.mjs", "tests/product-truth-end-to-end.test.mjs"],
+    "tests": [
+      "tests/product-truth-runtime.test.mjs",
+      "tests/product-truth-end-to-end.test.mjs"
+    ],
     "api": [],
-    "ui": ["app/demo/trust-runtime/page.tsx"],
-    "persistence": ["operational_entities", "canonical_trust_transactions", "trust_replay_sessions", "trust_memory_index"],
+    "ui": [
+      "app/demo/trust-runtime/page.tsx"
+    ],
+    "persistence": [
+      "operational_entities",
+      "canonical_trust_transactions",
+      "trust_replay_sessions",
+      "trust_memory_index"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "EXTERNAL_AGENT_API",
-    "publicClaim": "A tenant-scoped external agent can use the versioned public API to register, prove Ed25519 key possession, resolve bounded authority, request canonical ALLOW/REVIEW/DENY decisions, and retrieve transactions, Replay and receipts. This is non-Production Preview-qualified and does not imply arbitrary external enforcement or universal agent compatibility.",
+    "publicClaim": "Public V1 implements tenant-scoped agent identity, Ed25519 proof, bounded authority, canonical ALLOW/REVIEW/DENY, receipts, Replay and Trust Memory. Local tests pass; the hosted V1 golden flow is not yet proven.",
     "implementationModule": "lib/public-api/v1/runtime.ts",
     "algorithm": "public-api-v1 facade over native Operational Entity verification and the canonical trust transaction runtime",
-    "tests": ["tests/public-api-v1-security.test.mjs", "tests/public-api-v1-openapi.test.mjs", "tests/e2e/external-agent-gamma.spec.ts"],
-    "api": ["app/api/v1/agents/route.ts", "app/api/v1/trust/decisions/route.ts", "app/api/v1/trust/transactions/[transactionId]/route.ts"],
-    "ui": ["app/developers/page.tsx", "app/developers/quickstart/page.tsx"],
-    "persistence": ["api_keys", "public_api_agent_bindings", "canonical_trust_transactions", "canonical_trust_transaction_events", "public_api_outcome_submissions"],
+    "tests": [
+      "tests/public-api-v1-security.test.mjs",
+      "tests/public-api-v1-openapi.test.mjs",
+      "tests/e2e/external-agent-gamma.spec.ts"
+    ],
+    "api": [
+      "app/api/v1/agents/route.ts",
+      "app/api/v1/trust/decisions/route.ts",
+      "app/api/v1/trust/transactions/[transactionId]/route.ts"
+    ],
+    "ui": [
+      "app/developers/page.tsx",
+      "app/developers/quickstart/page.tsx"
+    ],
+    "persistence": [
+      "api_keys",
+      "public_api_agent_bindings",
+      "canonical_trust_transactions",
+      "canonical_trust_transaction_events",
+      "public_api_outcome_submissions"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "TYPESCRIPT_SDK",
     "publicClaim": "The separately versioned 0.1.0 TypeScript SDK provides typed public-HTTP operations, timeouts, abort signals, idempotency and explicit ALLOW/REVIEW/DENY handling without executing customer code or logging API secrets.",
     "implementationModule": "packages/cyber-sentinels-sdk/src/index.ts",
     "algorithm": "typed fetch client with bounded error mapping, cancellation and canonical Ed25519 signing helpers",
-    "tests": ["tests/cyber-sentinels-sdk.test.mjs", "tests/agent-gamma-boundary.test.mjs", "tests/e2e/external-agent-gamma.spec.ts"],
-    "api": ["app/api/v1/openapi.json/route.ts"],
-    "ui": ["app/developers/quickstart/page.tsx"],
+    "tests": [
+      "tests/cyber-sentinels-sdk.test.mjs",
+      "tests/agent-gamma-boundary.test.mjs",
+      "tests/e2e/external-agent-gamma.spec.ts"
+    ],
+    "api": [
+      "app/api/v1/openapi.json/route.ts"
+    ],
+    "ui": [
+      "app/developers/quickstart/page.tsx"
+    ],
     "persistence": [],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
   },
   {
     "name": "EXTERNAL_AGENT_NATIVE_VERIFICATION",
     "publicClaim": "A customer-controlled external process can generate its own Ed25519 keypair and produce Cyber Sentinels native identity evidence through the public API; identity verification does not itself establish trust or authority.",
     "implementationModule": "lib/operational-entities/native-verification.ts",
     "algorithm": "native-entity-verification-v1 via public credential, signed manifest and tenant-, agent-, manifest- and credential-bound single-use challenge",
-    "tests": ["tests/native-operational-entity-verification.test.mjs", "tests/public-api-v1-security.test.mjs", "tests/e2e/external-agent-gamma.spec.ts"],
-    "api": ["app/api/v1/agents/[agentId]/credentials/route.ts", "app/api/v1/agents/[agentId]/challenge/route.ts", "app/api/v1/agents/[agentId]/proof/route.ts"],
-    "ui": ["app/developers/quickstart/page.tsx"],
-    "persistence": ["operational_entity_native_credentials", "operational_entity_manifests", "operational_entity_native_challenges", "operational_entity_native_verifications", "native_entity_identity_evidence"],
+    "tests": [
+      "tests/native-operational-entity-verification.test.mjs",
+      "tests/public-api-v1-security.test.mjs",
+      "tests/e2e/external-agent-gamma.spec.ts"
+    ],
+    "api": [
+      "app/api/v1/agents/[agentId]/credentials/route.ts",
+      "app/api/v1/agents/[agentId]/challenge/route.ts",
+      "app/api/v1/agents/[agentId]/proof/route.ts"
+    ],
+    "ui": [
+      "app/developers/quickstart/page.tsx"
+    ],
+    "persistence": [
+      "operational_entity_native_credentials",
+      "operational_entity_manifests",
+      "operational_entity_native_challenges",
+      "operational_entity_native_verifications",
+      "native_entity_identity_evidence"
+    ],
     "providerDependency": null,
-    "qualificationLevel": "WORKING"
+    "qualificationLevel": "WORKING_LOCAL"
+  },
+  {
+    "name": "Tenant isolation and evidence Storage",
+    "publicClaim": "Staging PostgREST and Storage negative tests prove cross-tenant protected-row and evidence-object denial in both directions; Production remains unproven.",
+    "implementationModule": "supabase/migrations/202610040001_p0p1_security_closure.sql",
+    "algorithm": "Owner, consistent team and parent predicates with case-bound private Storage prefixes.",
+    "tests": [
+      "tests/live/staging-security-closure.test.mjs",
+      "tests/rls/legacy-security-closure-runtime.test.mjs"
+    ],
+    "api": [
+      "middleware.ts"
+    ],
+    "ui": [],
+    "persistence": [
+      "legacy protected public tables",
+      "storage.objects/evidence-files"
+    ],
+    "providerDependency": null,
+    "qualificationLevel": "PROVEN_STAGING",
+    "qualificationEvidence": "docs/release/RC_STAGING_SECURITY_PROOF_20261004.md",
+    "evidenceDate": "2026-10-04"
+  },
+  {
+    "name": "Account access approval",
+    "publicClaim": "Staging tests prove approval-state enforcement, audit events, and authenticated PENDING-account blocking at the protected API and dashboard. Public-signup transport and the complete hosted administrator approval lifecycle remain separately unqualified.",
+    "implementationModule": "supabase/migrations/202610040003_require_approved_accounts_for_data_api.sql",
+    "algorithm": "Server-owned approval state plus restrictive approved-only RLS and append-only access audit.",
+    "tests": [
+      "tests/live/staging-security-closure.test.mjs",
+      "tests/sign-out.test.mjs",
+      "tests/rls/legacy-security-closure-runtime.test.mjs"
+    ],
+    "api": [
+      "middleware.ts",
+      "app/admin/access-approvals/page.tsx"
+    ],
+    "ui": [
+      "app/access-pending/page.tsx",
+      "app/admin/access-approvals/page.tsx"
+    ],
+    "persistence": [
+      "account_access_approvals",
+      "account_access_approval_events"
+    ],
+    "providerDependency": null,
+    "qualificationLevel": "PARTIAL",
+    "qualificationEvidence": "docs/release/FINAL_STAGING_QUALIFICATION_20261005.md",
+    "evidenceDate": "2026-10-05"
+  },
+  {
+    "name": "Cyber Sentinels controlled model approval state",
+    "publicClaim": "Staging proves service-controlled model configuration approval bound to tenant, agent and verified manifest, with decision-time Receipt/Replay evidence, revocation history and runtime-failure denial. This does not qualify third-party model provenance, model-provider verification or live runtime attestation.",
+    "implementationModule": "lib/trust-fabric/model-approval.ts",
+    "algorithm": "Resolve protected registry evidence, validate scope, manifest, digest and validity, then apply the existing model-state evaluator and canonical decision gate.",
+    "tests": ["tests/model-approval.test.mjs", "tests/model-approval-receipt.test.mjs", "tests/canonical-trust-transaction.test.mjs"],
+    "api": ["app/api/operational-entities/[entityId]/delegated-authority/route.ts", "app/api/trust/transactions/[transactionId]/receipt/route.ts"],
+    "ui": ["app/dashboard/replay/[entityId]/page.tsx"],
+    "persistence": ["evidence_objects", "canonical_trust_transactions", "canonical_trust_transaction_events", "trust_memory_index"],
+    "providerDependency": null,
+    "qualificationLevel": "PROVEN_STAGING",
+    "qualificationEvidence": "docs/release/APPROVED_MODEL_STATE_CLOSURE_20261006.md",
+    "evidenceDate": "2026-10-06"
+  },
+  {
+    "name": "OpenGraph canonical tool gateway",
+    "publicClaim": "The V1 Staging-only gateway resolves an API-client-bound Operational Entity and Trust Contract and evaluates through the canonical transaction; the deterministic adapter makes no network request. OpenGraph itself remains unqualified.",
+    "implementationModule": "lib/public-api/v1/opengraph-gateway.ts",
+    "algorithm": "Canonical Trust Transaction with exact target scope and explicit opengraph.site authority.",
+    "tests": [
+      "tests/opengraph-gateway-input.test.mjs",
+      "tests/opengraph-boundary.test.mjs",
+      "tests/opengraph-executor.test.mjs"
+    ],
+    "api": [
+      "app/api/v1/tools/opengraph/site/route.ts"
+    ],
+    "ui": [],
+    "persistence": [
+      "canonical_trust_transactions",
+      "canonical_trust_transaction_events",
+      "Replay",
+      "Trust Memory"
+    ],
+    "providerDependency": "OpenGraph.io; UNQUALIFIED",
+    "qualificationLevel": "PROVEN_STAGING",
+    "qualificationEvidence": "docs/release/CORE_RELEASE_CLOSURE_20261006.md",
+    "providerStatus": "UNQUALIFIED",
+    "evidenceDate": "2026-10-06"
   }
 ]

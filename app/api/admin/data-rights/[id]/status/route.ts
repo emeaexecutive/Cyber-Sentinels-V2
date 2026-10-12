@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 import { createSignal } from "@/lib/trust-engine/createSignal";
 
@@ -66,7 +67,7 @@ export async function POST(
           updated_at: now,
         };
 
-  const { data: request, error } = await supabase
+  const { data: request, error } = await createServiceRoleClient()
     .from("data_rights_requests")
     .update(updateValues)
     .eq("id", id)

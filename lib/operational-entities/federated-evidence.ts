@@ -10,6 +10,7 @@ import type { TrustForecast } from "../trust-fabric/trust-forecast.ts";
 import type { TrustTwin } from "../trust-fabric/trust-twin.ts";
 import type { SentinelTrustBrief } from "../trust-fabric/sentinel-agents.ts";
 import type { ModelStateIntegrityAssessment } from "../trust-fabric/model-state-integrity.ts";
+import type { ModelApprovalSnapshot } from "../trust-fabric/model-approval.ts";
 
 export type ExternalIdentityChangeType =
   | "EXTERNAL_IDENTITY_APPEARED"
@@ -253,6 +254,7 @@ export type DecisionTimeSnapshot = Readonly<{
   trustTwin?: TrustTwin | null;
   sentinelTrustBrief?: SentinelTrustBrief | null;
   modelStateIntegrity?: ModelStateIntegrityAssessment | null;
+  modelApproval?: ModelApprovalSnapshot | null;
   consequenceTime?: Readonly<{
     modelVersion: "1.0";
     evaluatedAt: string;

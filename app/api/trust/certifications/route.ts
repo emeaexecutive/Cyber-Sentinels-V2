@@ -10,15 +10,8 @@ const certificationTypes = new Set([
   "verified_enterprise",
 ]);
 
-const statuses = new Set(["pending", "verified", "failed", "revoked"]);
-
 function text(value: unknown, fallback = "") {
   return String(value ?? fallback).trim();
-}
-
-function score(value: unknown, fallback = 50) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? Math.max(0, Math.min(100, Math.round(parsed))) : fallback;
 }
 
 async function payload(req: Request) {
@@ -60,28 +53,23 @@ export async function POST(req: Request) {
 
   const body = await payload(req);
   const certificationType = text(body.certification_type);
-  const status = text(body.status, "pending");
 
   if (!certificationTypes.has(certificationType)) {
     return NextResponse.json({ ok: false, error: "Invalid certification_type" }, { status: 400 });
   }
 
-  if (!statuses.has(status)) {
-    return NextResponse.json({ ok: false, error: "Invalid status" }, { status: 400 });
-  }
-
   const insert = {
     certification_type: certificationType,
-    status,
-    trust_score: score(body.trust_score),
+    status: "pending",
+    trust_score: 50,
     risk_level: text(body.risk_level, "medium"),
     verification_method: text(body.verification_method, "governance_review"),
     subject_type: text(body.subject_type) || null,
     subject_id: text(body.subject_id) || null,
     enterprise_id: text(body.enterprise_id) || null,
-    issued_at: text(body.issued_at) || new Date().toISOString(),
-    expires_at: text(body.expires_at) || null,
-    reviewed_by: text(body.reviewed_by, user.email ?? user.id),
+    issued_at: null,
+    expires_at: null,
+    reviewed_by: null,
     notes: text(body.notes) || null,
     created_by: user.id,
     updated_at: new Date().toISOString(),
@@ -112,22 +100,7 @@ export async function PATCH(req: Request) {
   const patch: Record<string, unknown> = {
     updated_at: new Date().toISOString(),
   };
-
-  for (const key of [
-    "status",
-    "risk_level",
-    "verification_method",
-    "issued_at",
-    "expires_at",
-    "reviewed_by",
-    "notes",
-  ]) {
-    if (body[key] !== undefined) patch[key] = body[key];
-  }
-  if (body.trust_score !== undefined) patch.trust_score = score(body.trust_score);
-  if (patch.status && !statuses.has(String(patch.status))) {
-    return NextResponse.json({ ok: false, error: "Invalid status" }, { status: 400 });
-  }
+  if (body.notes !== undefined) patch.notes = text(body.notes).slice(0, 1000) || null;
 
   const query = supabase.from("trust_certifications").update(patch).eq("id", id).eq("created_by", user.id);
 

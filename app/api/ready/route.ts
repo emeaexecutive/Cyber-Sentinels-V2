@@ -3,6 +3,8 @@ import { getMissingEnv } from "@/lib/env";
 import { buildEnterpriseTrustReadinessResponse, evaluateEnterpriseTrustRegistry } from "@/lib/readiness/enterprise-trust-registry";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { publicApiEnvironmentMetadata } from "@/lib/public-api/v1/environment";
+import { verifyRuntimeProjectBinding } from "@/lib/readiness/project-binding";
+import { apiKeyPepperConfigured } from "@/lib/public-api/v1/api-key-crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +45,7 @@ export async function GET() {
     );
   }
 
-  if (!publicApiEnvironment.valid || !rotationSecretValid) {
+  if (!publicApiEnvironment.valid || !rotationSecretValid || !apiKeyPepperConfigured()) {
     return NextResponse.json({
       schemaVersion: "readiness-v3",
       status: "NOT_READY",
@@ -57,6 +59,14 @@ export async function GET() {
   }
 
   try {
+    const projectBinding = await verifyRuntimeProjectBinding();
+    if (!projectBinding.valid) {
+      return NextResponse.json({
+        schemaVersion: "readiness-v3", status: "NOT_READY", reasonCode: "PROJECT_BINDING_INVALID",
+        checks: { process: "PROCESS_HEALTHY", environment: "CONFIGURATION_INVALID", projectIdentity: "INVALID", dataPlane: "NOT_CHECKED", apiAuthentication: "NOT_CHECKED" },
+        projectBinding, publicApiEnvironment, runtime: { commitSha: runtimeCommit }, generatedAt,
+      }, { status: 503, headers: { "cache-control": "no-store" } });
+    }
     const db = createServiceRoleClient();
     const [{ data, error }, apiAuthentication, apiContract] = await Promise.all([
       db.from("trust_domain_versions").select("domain_key, version, active"),
@@ -75,6 +85,7 @@ export async function GET() {
         diagnosticState: migrationRequired ? "MIGRATION_REQUIRED" : "API_CONTRACT_UNAVAILABLE",
         checks: { process: "PROCESS_HEALTHY", environment: "READY", dataPlane: "DATA_PLANE_UNAVAILABLE", apiAuthentication: apiAuthentication.error ? "NOT_READY" : "READY", canonicalPersistence: migrationRequired ? "MIGRATION_REQUIRED" : "NOT_READY", authority: "NOT_READY", humanReview: "NOT_READY", rateLimiting: "NOT_READY", apiKeyRotation: "NOT_READY", enterpriseTrustArchitecture: "NOT_CHECKED" },
         publicApiEnvironment,
+        projectBinding,
         runtime: { commitSha: runtimeCommit },
         generatedAt,
       }, { status: 503, headers: { "cache-control": "no-store" } });
@@ -90,8 +101,9 @@ export async function GET() {
       ...readiness.body,
       schemaVersion: "readiness-v3",
       diagnosticState: ready ? "PROCESS_HEALTHY" : readiness.body.reasonCode === "EPIC_18_MIGRATION_NOT_DEPLOYED" ? "MIGRATION_REQUIRED" : "DATA_PLANE_UNAVAILABLE",
-      checks: { ...readiness.body.checks, process: "PROCESS_HEALTHY", dataPlane: ready ? "READY" : "DATA_PLANE_UNAVAILABLE", apiAuthentication: "READY", canonicalPersistence: "READY", authority: "READY", humanReview: "READY", rateLimiting: "READY", apiKeyRotation: "READY" },
+      checks: { ...readiness.body.checks, process: "PROCESS_HEALTHY", projectIdentity: "VALID", dataPlane: ready ? "READY" : "DATA_PLANE_UNAVAILABLE", apiAuthentication: "READY", canonicalPersistence: "READY", authority: "READY", humanReview: "READY", rateLimiting: "READY", apiKeyRotation: "READY" },
       publicApiEnvironment,
+      projectBinding,
     }, {
       status: readiness.statusCode,
       headers: { "cache-control": "no-store" },

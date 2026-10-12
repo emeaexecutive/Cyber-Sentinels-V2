@@ -4,6 +4,7 @@
   "git": {
     "deploymentEnabled": {
       "main": false,
+      "feat/authority-of-record-tenente": false,
       "feat/execution-proof-provider-qualification": false,
       "feat/real-provider-qualification": false,
       "fix/login-security-check": false
