@@ -41,7 +41,7 @@ grant execute on function public.security_closure_user_approved() to authenticat
 
 -- Pending users still see their own minimal status while signed in. This table
 -- intentionally has no approval-required policy; it nevertheless needs a session.
-drop policy if exists "active customer session required" on public.account_access_approvals;
+-- Fail on unexpected existing policy rather than silently replacing drift.
 create policy "active customer session required" on public.account_access_approvals
   as restrictive for all to authenticated
   using ((select session_security.current_session_active()))
