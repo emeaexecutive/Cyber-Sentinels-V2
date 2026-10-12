@@ -8,6 +8,7 @@ const approvalMigration = await readFile(new URL("../../supabase/migrations/2026
 const approvalHardening = await readFile(new URL("../../supabase/migrations/20261010110000_employment_access_governance_hardening.sql", import.meta.url), "utf8");
 const middleware = await readFile(new URL("../../middleware.ts", import.meta.url), "utf8");
 const approvalPage = await readFile(new URL("../../app/admin/access-approvals/page.tsx", import.meta.url), "utf8");
+const approvalAction = await readFile(new URL("../../lib/auth/update-account-approval.ts", import.meta.url), "utf8");
 const certificationRoute = await readFile(new URL("../../app/api/trust/certifications/route.ts", import.meta.url), "utf8");
 const publicApiAuth = await readFile(new URL("../../lib/public-api/v1/authentication.ts", import.meta.url), "utf8");
 const passportDecisionRoute = await readFile(new URL("../../app/api/passports/[id]/decision/route.ts", import.meta.url), "utf8");
@@ -112,8 +113,9 @@ test("legacy passport review decisions are admin-only and not customer-writable"
 
 test("platform account approvals expose REJECTED, forbid self-approval, and preserve immutable lineage", () => {
   assert.match(approvalHardening, /'PENDING', 'APPROVED', 'REJECTED', 'SUSPENDED', 'REVOKED'/);
-  assert.match(approvalPage, /status === "APPROVED" && userId === admin\.id/);
-  assert.match(approvalPage, /status === "REJECTED"/);
+  assert.match(approvalAction, /status === "APPROVED" && userId === admin\.id/);
+  assert.match(approvalAction, /"REJECTED"/);
+  assert.match(approvalPage, /updateAccountApproval\(formData\)/);
   assert.match(approvalPage, /from\("account_access_approval_events"\)/);
   assert.match(approvalPage, /Access audit history/);
   assert.match(approvalHardening, /account_access_approval_events_append_only/);

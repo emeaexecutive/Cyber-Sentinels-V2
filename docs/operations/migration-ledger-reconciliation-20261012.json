@@ -1,0 +1,170 @@
+﻿{
+    "productionCount":  119,
+    "stagingCount":  149,
+    "localOnly":  [
+                      {
+                          "version":  "20260819084252",
+                          "name":  "consent_evidence_freshness_repair"
+                      },
+                      {
+                          "version":  "20260819084329",
+                          "name":  "restrict_evidence_trigger_functions"
+                      },
+                      {
+                          "version":  "20260902083450",
+                          "name":  "grant_service_role_api_keys_privileges"
+                      },
+                      {
+                          "version":  "20260903095127",
+                          "name":  "reconcile_public_api_webhook_event_types"
+                      },
+                      {
+                          "version":  "20260904113046",
+                          "name":  "normalize_continuous_trust_alert_contract"
+                      },
+                      {
+                          "version":  "20261012084456",
+                          "name":  "audited_account_approval_transition"
+                      }
+                  ],
+    "stagingOnly":  [
+                        {
+                            "version":  "20260814153327",
+                            "name":  "customer_workspace_bootstrap"
+                        },
+                        {
+                            "version":  "20260814153337",
+                            "name":  "staging_product_closure_security_reconciliation"
+                        },
+                        {
+                            "version":  "20260815172418",
+                            "name":  "customer_workspace_creator_returning"
+                        },
+                        {
+                            "version":  "20260815172840",
+                            "name":  "customer_workspace_creator_returning_guard_reconciliation"
+                        },
+                        {
+                            "version":  "20260815174612",
+                            "name":  "gamma_authority_replay_event"
+                        },
+                        {
+                            "version":  "20260815180521",
+                            "name":  "native_replay_chronology_extension"
+                        },
+                        {
+                            "version":  "20260815180807",
+                            "name":  "consent_evidence_freshness"
+                        },
+                        {
+                            "version":  "20260816135031",
+                            "name":  "staging_repair_append_trust_event_consent_namespace"
+                        },
+                        {
+                            "version":  "20260817175031",
+                            "name":  "track_block_protected_workflow"
+                        },
+                        {
+                            "version":  "20260817175111",
+                            "name":  "track_block_fk_indexes"
+                        },
+                        {
+                            "version":  "20260817175137",
+                            "name":  "track_block_evidence_index"
+                        },
+                        {
+                            "version":  "20260817175421",
+                            "name":  "runtime_validation_legacy_shape_rehearsal"
+                        },
+                        {
+                            "version":  "20260817175448",
+                            "name":  "reconcile_enterprise_trust_domain_registry_v2"
+                        },
+                        {
+                            "version":  "20260817175455",
+                            "name":  "reconcile_enterprise_trust_domain_registry_idempotency"
+                        },
+                        {
+                            "version":  "20260818075422",
+                            "name":  "remove_user_editable_rls_authorization"
+                        },
+                        {
+                            "version":  "20260825175059",
+                            "name":  "authority_integrity_authorization_propagation"
+                        },
+                        {
+                            "version":  "20260825175143",
+                            "name":  "trust_forecast_operational_intelligence"
+                        },
+                        {
+                            "version":  "20260903093247",
+                            "name":  "reconcile_public_api_webhook_event_types"
+                        },
+                        {
+                            "version":  "20260904100445",
+                            "name":  "normalize_continuous_trust_alert_contract"
+                        },
+                        {
+                            "version":  "20260906155836",
+                            "name":  "world_id_durable_replay_guard"
+                        },
+                        {
+                            "version":  "20260906165033",
+                            "name":  "world_id_replay_hardening"
+                        }
+                    ],
+    "sameNameDifferentVersion":  [
+                                     {
+                                         "name":  "track_block_protected_workflow",
+                                         "stagingVersion":  "20260817175031",
+                                         "localVersions":  [
+                                                               "20260817173631"
+                                                           ]
+                                     },
+                                     {
+                                         "name":  "authority_integrity_authorization_propagation",
+                                         "stagingVersion":  "20260825175059",
+                                         "localVersions":  [
+                                                               "20260824181053"
+                                                           ]
+                                     },
+                                     {
+                                         "name":  "trust_forecast_operational_intelligence",
+                                         "stagingVersion":  "20260825175143",
+                                         "localVersions":  [
+                                                               "20260824184543"
+                                                           ]
+                                     },
+                                     {
+                                         "name":  "reconcile_public_api_webhook_event_types",
+                                         "stagingVersion":  "20260903093247",
+                                         "localVersions":  [
+                                                               "20260903093116",
+                                                               "20260903095127"
+                                                           ]
+                                     },
+                                     {
+                                         "name":  "normalize_continuous_trust_alert_contract",
+                                         "stagingVersion":  "20260904100445",
+                                         "localVersions":  [
+                                                               "20260904100313",
+                                                               "20260904113046"
+                                                           ]
+                                     },
+                                     {
+                                         "name":  "world_id_durable_replay_guard",
+                                         "stagingVersion":  "20260906155836",
+                                         "localVersions":  [
+                                                               "202609060001"
+                                                           ]
+                                     },
+                                     {
+                                         "name":  "world_id_replay_hardening",
+                                         "stagingVersion":  "20260906165033",
+                                         "localVersions":  [
+                                                               "202609060002"
+                                                           ]
+                                     }
+                                 ],
+    "decision":  "NO_HISTORY_WRITES; effective schema equivalence is not historical SQL equivalence; forward approval fix requires Staging qualification"
+}

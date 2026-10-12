@@ -141,3 +141,21 @@ Required before any Production promotion (all owner decisions, none performed):
 3. Confirm any V1 API-key owners are approved first.
 4. Set the Production admin allow-list and access code deliberately (never reuse the Preview values).
 5. Re-run the hosted approval lifecycle test and the Preview matrix against a Production-like Staging first, then verify Production with read-only checks.
+
+
+## 12 October 2026 — fresh laptop backup verification
+
+Fresh archive `20261012T082626Z-01474853552c4315ad62e4497df96bbe/production.dump` (4,103,536 bytes), SHA-256 `081310d3c1f64aaacf3c2207efa62bfa7641c81a670d5e23de6d11ae64784307`, was preserved and restored successfully in a network-disabled PostgreSQL container. All 284 table counts and row-content hashes match later Production observations (11,133 rows). One Storage object was separately captured and verified by repeat download. Client-to-pooler verified TLS passes native libpq positive and negative controls; reported backend `ssl = f` does not establish TLS across both hops. No Production mutations or migrations were issued. See [dated verification and remaining limitations](../operations/PRODUCTION-BACKUP-VERIFICATION-20261012.md). Earlier no-fresh-backup observations are historical as of this update; overall recovery/release PASS is not asserted.
+
+## 12 October 2026 — restored Production migration rehearsal
+
+This dated addendum supersedes earlier pending-rehearsal and no-backup statements; earlier hosted Staging/Preview passes do not cover the new approval fix. [Full plan and exact commands](../operations/PRODUCTION-MIGRATION-REHEARSAL-20261012.md).
+
+- Fresh network-disabled restore: 15 migrations passed, ledger 119→134; all 11,133 original rows across 284 tables preserved. Five restored accounts backfilled PENDING with exactly five request events. Original archive hash unchanged.
+- Reproduced service-role direct self-approval/actorless approval after the historical 14 migrations. Added forward migration `20261012084456` and an admin-session-bound RPC caller; historical files unchanged. New PGlite regression is included in the default core-closure suite.
+- Final restored native database: 35 approval/V1/RLS/Trust Gateway checks passed; 25 authority/HTTP/MCP/receipt/Replay/Trust Memory checks passed on the same migration chain. Five transaction failure/retry/ledger-drift controls passed. All administrators and provider sessions were synthetic; no hosted browser or external-provider result is inferred.
+- Local full suite: 2,048 tests passed, zero failed/skipped. After wiring the new approval regression, core-closure passed 22 tests; security-closure passed 16. Final typecheck passed; lint passed with 18 pre-existing warnings and no errors. Build and remote CI status are reported separately for the resulting commit.
+- Staging: pre-fix effective schema matches the restored 14-migration result; the new fix introduces five expected application differences. Six local-only and 21 remote-only ledger versions are explicitly inventoried, including seven same-name/different-version pairs. No history was rewritten; new Staging qualification remains required.
+- Private redacted five-account inventory delivered outside Git. Keith will choose two distinct administrators and all live account dispositions. No live accounts were approved/rejected/suspended, no Production migrations were applied, and no merge or deployment was authorized. Automatic Vercel deployment is disabled for this PR branch before pushing evidence.
+
+**Production migration readiness: rehearsed, awaiting Staging qualification and owner decisions. Production GO: NO.** Database-only recovery is proven for the preserved point; synchronized Storage recovery is not claimed.

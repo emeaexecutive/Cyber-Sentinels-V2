@@ -13,7 +13,10 @@ import {hashCanonical} from '../../src/lib/trust-core/hash.ts';
 
 const database=process.env.AOR_LOCAL_DATABASE??'aor_qualification_v2';
 if(!/^aor_qualification(?:_[a-z0-9]+)?$/.test(database))throw new Error('Only the disposable AOR database is permitted.');
-const config={host:'127.0.0.1',port:55439,user:'supabase_admin',database};
+const port=Number(process.env.AOR_LOCAL_PORT??55439);
+if(![5432,55439].includes(port))throw new Error('Reviewed local PostgreSQL port required');
+if(port===5432&&(process.platform!=='linux'||fs.readFileSync('/proc/net/route','utf8').split('\n').some(x=>x.trim().split(/\s+/)[1]==='00000000')))throw new Error('Default PostgreSQL port requires network-none Linux namespace');
+const config={host:'127.0.0.1',port,user:'supabase_admin',database};
 const db=new pg.Client(config);await db.connect();
 const fixture=authorityFixture(), tenant=fixture.parentAuthority.enterpriseId, actor=randomUUID(), otherActor=randomUUID(), otherTenant=randomUUID();
 const issued=fixture.parentAuthority.issuedAt, expires=fixture.parentAuthority.expiresAt;
@@ -34,7 +37,7 @@ try {
  await db.query('create schema if not exists qualification; create table if not exists qualification.tool_effects(tenant_id uuid not null,idempotency_key text not null,transaction_id uuid not null,actual_payload jsonb not null,primary key(tenant_id,idempotency_key))');
  await db.query("select set_config('request.jwt.claim.role','service_role',false),set_config('request.jwt.claim.sub',$1,false)",[actor]);
  await db.query('insert into auth.users(id,email) values($1,$2),($3,$4)',[actor,`aor-${actor}@example.invalid`,otherActor,`aor-${otherActor}@example.invalid`]);
- await db.query("update account_access_approvals set status='APPROVED',approved_at=now(),approved_by=$1 where user_id=$1",[actor]);
+ await db.query("select set_account_access_status($1,'APPROVED',$2,'Isolated authority qualification')",[actor,otherActor]);
  await seed('trust_workspaces',{id:tenant,name:'Local AOR qualification',created_by:actor});
  await seed('trust_workspaces',{id:otherTenant,name:'Other isolated tenant',created_by:otherActor});
  await seed('trust_policy_versions',{enterprise_id:tenant,policy_id:'local-policy',version:'1',layer:'ENTERPRISE_OVERRIDE',domain_key:'AI_AGENT',active:true,valid_from:issued,valid_until:expires,rules:{policy:'local'},policy_hash:hashCanonical({policy:'local'}),created_by:actor});
@@ -137,7 +140,7 @@ try {
  const review=await evaluateAndPersist('REVIEW');const countBefore=[...counts.values()].reduce((a,b)=>a+b,0);assert.equal((await dispatch(review)).requested,false);assert.equal([...counts.values()].reduce((a,b)=>a+b,0),countBefore);check('Unresolved REVIEW has zero downstream calls',{executionCount:0});
  const reviewer=randomUUID(),reviewId=randomUUID();
  await db.query('insert into auth.users(id,email) values($1,$2)',[reviewer,`aor-${reviewer}@example.invalid`]);
- await db.query("update account_access_approvals set status='APPROVED',approved_at=now(),approved_by=$1 where user_id=$2",[actor,reviewer]);
+ await db.query("select set_account_access_status($1,'APPROVED',$2,'Isolated reviewer qualification')",[reviewer,actor]);
  await seed('workspace_members',{workspace_id:tenant,user_id:reviewer,role:'reviewer'});
  await seed('trust_manual_reviews',{id:reviewId,tenant_id:tenant,entity_id:'agent:worker',status:'REQUESTED',requested_by:actor,requested_client_id:actor,reason:'Review exact refund scope',created_at:new Date().toISOString(),expires_at:expires,original_transaction_id:review.input.transactionId});
  const resolveReview=user=>db.query('select resolve_canonical_manual_review_v1($1,$2,$3,$4,$5,$6,$7,$8) as result',[tenant,user,actor,reviewId,'APPROVED','Bounded refund approved','evidence:local-review',randomUUID()]);
@@ -166,11 +169,11 @@ try {
  await assert.rejects(db.query('select restrict_tenente_delegation_v1($1,$2,$3,$4,$5,$6)',[tenant,actor,'agent:worker',d.delegationId,'SUSPEND','Forged actor']));check('Direct authenticated RPC denied even with forged administrator argument');
  await db.query('reset role');
  await db.query("select set_config('request.jwt.claim.role','service_role',false)");
- await db.query("update account_access_approvals set status='APPROVED',approved_at=now(),approved_by=$1 where user_id=$2",[actor,otherActor]);
+ await db.query("select set_account_access_status($1,'APPROVED',$2,'Isolated tenant qualification')",[otherActor,actor]);
  await db.query('set role authenticated');
  await db.query("select set_config('request.jwt.claim.role','authenticated',false)");
  assert.equal((await db.query('select count(*)::int n from native_enforcement_requests where enterprise_id=$1',[tenant])).rows[0].n,0);check('APPROVED account in another tenant still reads zero execution records');
  await db.query('reset role');
  report.result='PASS';report.tenantId=tenant;report.transactionIds=[allow,review,mcp,mismatch,deny].map(r=>r.input.transactionId);
 } catch(error){report.result='FAIL';report.failure={message:error.message,code:error.code,detail:error.detail};process.exitCode=1;}
-finally {if(target)await new Promise(resolve=>target.close(resolve));await db.end();fs.mkdirSync('docs/authority-of-record',{recursive:true});fs.writeFileSync('docs/authority-of-record/LOCAL_QUALIFICATION.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));}
+finally {if(target)await new Promise(resolve=>target.close(resolve));await db.end();if(!process.env.AOR_REPORT_FILE)fs.mkdirSync('docs/authority-of-record',{recursive:true});fs.writeFileSync(process.env.AOR_REPORT_FILE??'docs/authority-of-record/LOCAL_QUALIFICATION.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));}

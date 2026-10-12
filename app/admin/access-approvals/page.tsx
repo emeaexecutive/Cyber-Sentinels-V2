@@ -4,11 +4,11 @@ import { redirect } from "next/navigation";
 import { requireAdminPageAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { updateAccountApproval } from "@/lib/auth/update-account-approval";
 
 export const dynamic = "force-dynamic";
 
 const editableStatuses = ["APPROVED", "REJECTED", "SUSPENDED", "REVOKED"] as const;
-type EditableStatus = (typeof editableStatuses)[number];
 
 type ApprovalRow = {
   user_id: string;
@@ -44,42 +44,7 @@ type ApprovalEventRow = {
 async function updateAccessApproval(formData: FormData) {
   "use server";
 
-  const authClient = await createClient();
-  const admin = await requireAdminPageAccess(authClient, {
-    path: "/admin/access-approvals",
-    action: "update_account_access_approval",
-  });
-  const userId = String(formData.get("user_id") ?? "").trim();
-  const status = String(formData.get("status") ?? "").trim() as EditableStatus;
-  const reason = String(formData.get("reason") ?? "").trim().slice(0, 1000) || null;
-
-  if (!userId || !editableStatuses.includes(status)) return;
-  if (status === "APPROVED" && userId === admin.id) {
-    throw new Error("Platform administrators cannot approve their own account.");
-  }
-
-  const now = new Date().toISOString();
-  const change: Record<string, string | null> = { status, reason };
-  if (status === "APPROVED") {
-    change.approved_at = now;
-    change.approved_by = admin.id;
-  } else if (status === "REJECTED") {
-    change.rejected_at = now;
-    change.rejected_by = admin.id;
-  } else if (status === "SUSPENDED") {
-    change.suspended_at = now;
-    change.suspended_by = admin.id;
-  } else if (status === "REVOKED") {
-    change.revoked_at = now;
-    change.revoked_by = admin.id;
-  }
-
-  const { error } = await createServiceRoleClient()
-    .from("account_access_approvals")
-    .update(change)
-    .eq("user_id", userId);
-
-  if (error) throw new Error("Could not update account access approval.");
+  await updateAccountApproval(formData);
   revalidatePath("/admin/access-approvals");
   revalidatePath("/back-office");
 }
@@ -174,7 +139,7 @@ export default async function AccessApprovalsPage() {
                   </label>
                   <label className="flex flex-1 flex-col gap-1 text-xs text-zinc-400">
                     Reason
-                    <input name="reason" defaultValue={approval.reason ?? ""} maxLength={1000} className="border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white" />
+                    <input name="reason" required defaultValue={approval.reason ?? ""} maxLength={1000} className="border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white" />
                   </label>
                   <button type="submit" className="border border-emerald-800 px-3 py-2 text-sm text-emerald-200 hover:border-emerald-500">Update</button>
                 </form>

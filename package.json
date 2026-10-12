@@ -121,7 +121,7 @@
     "test:security-closure": "tsx --test tests/permissions-check-retired.test.mjs tests/sign-out.test.mjs tests/rls/legacy-security-closure.test.mjs tests/rls/legacy-security-closure-runtime.test.mjs",
     "test:authority-of-record": "tsx --test tests/authority-of-record-tenente.test.mjs tests/authority-of-record-http.test.mjs",
     "qualify:authority-of-record:local": "node --experimental-strip-types tools/qualification/authority-of-record-local.mjs",
-    "test:core-closure": "tsx --test tests/rls/account-approval-default-deny.test.mjs tests/schema-equivalence.test.mjs tests/waitlist-approval-boundary.test.mjs tests/evidence-download-approval.test.mjs",
+    "test:core-closure": "tsx --test tests/rls/account-approval-default-deny.test.mjs tests/rls/audited-account-transition.test.mjs tests/schema-equivalence.test.mjs tests/waitlist-approval-boundary.test.mjs tests/evidence-download-approval.test.mjs",
     "test:employment-governance": "node --experimental-strip-types --test tests/employment-decision-governance.test.mjs tests/backup-recovery-security.test.mjs",
     "test:staging-readiness": "node --experimental-strip-types --test tests/environment-safety.test.mjs tests/live/staging-rls-governance.test.mjs tests/readiness-project-binding.test.mjs tests/readiness-route-binding.test.mjs",
     "test:load": "node --experimental-strip-types scripts/rc6-load-harness.mjs",

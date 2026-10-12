@@ -164,13 +164,10 @@ async function cleanupFixtures() {
 }
 
 async function approveUser(userId, approverId, status) {
-  const now = new Date().toISOString();
-  const values = { status, reason: `Disposable Staging security proof ${runId}` };
-  if (status === "APPROVED") Object.assign(values, { approved_at: now, approved_by: approverId });
-  if (status === "DENIED") Object.assign(values, { denied_at: now, denied_by: approverId });
-  if (status === "SUSPENDED") Object.assign(values, { suspended_at: now, suspended_by: approverId });
-  if (status === "REVOKED") Object.assign(values, { revoked_at: now, revoked_by: approverId });
-  const { error } = await service.from("account_access_approvals").update(values).eq("user_id", userId);
+  const { error } = await service.rpc("set_account_access_status", {
+    p_user_id: userId, p_status: status, p_actor_user_id: approverId,
+    p_reason: `Disposable Staging security proof ${runId}`,
+  });
   if (error) throw new Error(`Staging approval transition failed: ${error.code ?? "UNKNOWN"}`);
 }
 
@@ -264,9 +261,8 @@ test("Staging Auth, PostgREST tenant RLS, account approval and evidence Storage 
   const pendingRpc = await tenantA.client.rpc("record_account_access_attempt", { p_access_granted: false });
   record(checks, { tenant: "A/PENDING", operation: "record blocked login", table: "account_access_approval_events", http_status: pendingRpc.error?.status ?? 200, expected: "RPC records blocked attempt", actual: pendingRpc.error ? `ERROR ${pendingRpc.error.code ?? "UNKNOWN"}` : "RECORDED", result: pendingRpc.error ? "FAIL" : "PASS" });
 
-  const approvedAt = new Date().toISOString();
   for (const user of [tenantA, tenantB]) {
-    const { error } = await service.from("account_access_approvals").update({ status: "APPROVED", approved_at: approvedAt, approved_by: admin.id, reason: `Disposable Staging proof ${runId}` }).eq("user_id", user.id);
+    const { error } = await service.rpc("set_account_access_status", { p_user_id: user.id, p_status: "APPROVED", p_actor_user_id: admin.id, p_reason: `Disposable Staging proof ${runId}` });
     if (error) throw new Error(`Staging approval failed: ${error.code ?? "UNKNOWN"}`);
     const rpc = await user.client.rpc("record_account_access_attempt", { p_access_granted: true });
     if (rpc.error) throw new Error(`Approved login audit RPC failed: ${rpc.error.code ?? "UNKNOWN"}`);
@@ -350,7 +346,7 @@ test("Staging Auth, PostgREST tenant RLS, account approval and evidence Storage 
     record(checks, { tenant: pair.label, operation: "service-role READ foreign object", table: "storage.objects/evidence-files", expected: "trusted service role succeeds", actual: serviceDownload.error ? `ERROR ${serviceDownload.error.statusCode ?? serviceDownload.error.name}` : "SUCCESS", result: serviceDownload.data ? "PASS" : "FAIL" });
   }
 
-  const statuses = ["PENDING", "DENIED", "APPROVED", "SUSPENDED", "APPROVED", "REVOKED"];
+  const statuses = ["REJECTED", "APPROVED", "SUSPENDED", "APPROVED", "REVOKED"];
   for (const status of statuses) {
     await approveUser(tenantA.id, admin.id, status);
     const response = await directRequest(tenantA, "GET", "passports", `select=id&id=eq.${passportA}`);
@@ -382,7 +378,7 @@ test("Staging Auth, PostgREST tenant RLS, account approval and evidence Storage 
   }
   const { data: events, error: eventsError } = await service.from("account_access_approval_events").select("event_type").eq("user_id", tenantA.id);
   if (eventsError) throw new Error(`Approval event query failed: ${eventsError.code ?? "UNKNOWN"}`);
-  for (const eventType of ["ACCESS_REQUESTED", "ACCESS_APPROVED", "ACCESS_DENIED", "ACCESS_SUSPENDED", "ACCESS_REVOKED", "BLOCKED_LOGIN_ATTEMPT", "SUCCESSFUL_APPROVED_LOGIN"]) {
+  for (const eventType of ["ACCESS_REQUESTED", "ACCESS_APPROVED", "ACCESS_REJECTED", "ACCESS_SUSPENDED", "ACCESS_REVOKED", "BLOCKED_LOGIN_ATTEMPT", "SUCCESSFUL_APPROVED_LOGIN"]) {
     const count = (events ?? []).filter((event) => event.event_type === eventType).length;
     record(checks, { tenant: "A", operation: `audit ${eventType}`, table: "account_access_approval_events", expected: "one or more events", actual: `count=${count}`, result: count > 0 ? "PASS" : "FAIL" });
   }

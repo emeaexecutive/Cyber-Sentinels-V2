@@ -32,11 +32,10 @@ async function fixtureUser(label) {
   return user;
 }
 async function setStatus(user, status, actor) {
-  const now = new Date().toISOString();
-  const column = { APPROVED: "approved", REJECTED: "rejected", SUSPENDED: "suspended", REVOKED: "revoked" }[status];
-  const patch = { status, reason: "disposable staging qualification" };
-  if (column) { patch[`${column}_at`] = now; patch[`${column}_by`] = actor.id; }
-  const { error } = await service.from("account_access_approvals").update(patch).eq("user_id", user.id);
+  const { error } = await service.rpc("set_account_access_status", {
+    p_user_id: user.id, p_status: status, p_actor_user_id: actor.id,
+    p_reason: "disposable staging qualification",
+  });
   if (error) throw new Error(`status change to ${status} failed: ${error.code}`);
 }
 const createWorkspace = async (user) => {
