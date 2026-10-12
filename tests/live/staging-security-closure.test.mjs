@@ -383,6 +383,30 @@ test("Staging Auth, PostgREST tenant RLS, account approval and evidence Storage 
     record(checks, { tenant: "A", operation: `audit ${eventType}`, table: "account_access_approval_events", expected: "one or more events", actual: `count=${count}`, result: count > 0 ? "PASS" : "FAIL" });
   }
 
+  // Keep the original bearer token: clearing SDK/browser state alone is not
+  // evidence that an unexpired JWT can no longer reach PostgREST or Storage.
+  const retained = createClient(supabaseUrl, anonKey, {
+    global: { headers: { Authorization: `Bearer ${tenantB.token}` } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const retainedBucket = retained.storage.from('evidence-files');
+  await storageCheck(checks,'B/ACTIVE','LIST own prefix before logout','own object visible',()=>retainedBucket.list(caseB),r=>!r.error&&r.data.some(o=>o.name===objectB.split('/').at(-1)));
+  const signedOut = await tenantB.client.auth.signOut({scope:'local'});
+  assert.equal(signedOut.error,null,'real Auth logout must succeed');
+  const remainingSeconds=JSON.parse(Buffer.from(tenantB.token.split('.')[1],'base64url').toString()).exp-Math.floor(Date.now()/1000);
+  assert.ok(remainingSeconds>60,'retained JWT must still be unexpired');
+  const loggedOutRows=await directRequest(tenantB,'GET','passports',`select=id&id=eq.${passportB}`);
+  record(checks,{tenant:'B/LOGGED_OUT',operation:'retained JWT tenant SELECT',table:'passports',http_status:loggedOutRows.status,expected:'zero visible rows before JWT expiry',actual:`rows=${loggedOutRows.body?.length}; remainingSeconds=${remainingSeconds}`,result:loggedOutRows.status===200&&loggedOutRows.body.length===0?'PASS':'FAIL'});
+  const ownApproval=await retained.from('account_access_approvals').select('user_id').eq('user_id',tenantB.id);
+  record(checks,{tenant:'B/LOGGED_OUT',operation:'retained JWT approval SELECT',table:'account_access_approvals',expected:'zero rows',actual:`rows=${ownApproval.data?.length}`,result:!ownApproval.error&&ownApproval.data.length===0?'PASS':'FAIL'});
+  const auditAttempt=await retained.rpc('record_account_access_attempt',{p_access_granted:false});
+  record(checks,{tenant:'B/LOGGED_OUT',operation:'retained JWT audit RPC',table:'record_account_access_attempt',expected:'42501 denial',actual:auditAttempt.error?.code??'allowed',result:auditAttempt.error?.code==='42501'?'PASS':'FAIL'});
+  await storageCheck(checks,'B/LOGGED_OUT','LIST own prefix','zero objects',()=>retainedBucket.list(caseB),r=>!r.error&&r.data.length===0);
+  const loggedOutUpload=caseB+'/logged-out-'+suffix+'.pdf';created.objects.push(loggedOutUpload);
+  await storageCheck(checks,'B/LOGGED_OUT','UPLOAD own prefix','denied',()=>retainedBucket.upload(loggedOutUpload,Buffer.from('denied'),{contentType:'application/pdf'}),r=>Boolean(r.error));
+  await storageCheck(checks,'B/LOGGED_OUT','REPLACE own object','denied',()=>retainedBucket.update(objectB,Buffer.from('denied'),{contentType:'application/pdf'}),r=>Boolean(r.error));
+  await storageCheck(checks,'B/LOGGED_OUT','DELETE own object','preserved',()=>retainedBucket.remove([objectB]),async r=>{const p=await service.storage.from('evidence-files').download(objectB);return !p.error&&Boolean(r.error||r.data.length===0);});
+
   const report = {
     proof: "STAGING_DIRECT_POSTGREST_AND_STORAGE",
     generatedAt: new Date().toISOString(),
