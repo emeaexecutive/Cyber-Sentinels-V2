@@ -466,6 +466,7 @@ export async function executeAuthorizedAction(input: {
     requestedAt: (dependencies.now ?? (() => new Date().toISOString()))(),
   };
   if (input.decision !== "ALLOW") return { requested: false, request: null, result: null, eligibility: { eligible: false, state: "DENIED" as const, reasonCodes: [input.decision === "DENY" ? "DECISION_DENY_NO_ENFORCEMENT" : "DECISION_REVIEW_NO_ENFORCEMENT"], algorithmVersion: ENFORCEMENT_ELIGIBILITY_VERSION } };
+  if (dependencies.requireSwarmGuard && !dependencies.swarmGuard) throw new NativeEnforcementError("Required swarm verification is unavailable.", "SWARM_GUARD_UNAVAILABLE", 503);
   const existing = await dependencies.findByIdempotencyKey(input.enterpriseId, input.idempotencyKey);
   const assertSameRequest = (prior: EnforcementRequest) => {
     if (prior.enterpriseId !== request.enterpriseId || prior.transactionId !== request.transactionId
@@ -476,6 +477,9 @@ export async function executeAuthorizedAction(input: {
     }
   };
   if (existing) {
+    // A cached success must not skip current swarm authentication/containment.
+    // Historical evidence remains available through separately authenticated reads.
+    if (dependencies.swarmGuard) throw new NativeEnforcementError("Guarded execution cannot reuse a cached authorization.", "SWARM_REPLAY_REAUTH_REQUIRED", 409);
     assertSameRequest(existing.request);
     return { requested: true, request: existing.request, result: existing.result, duplicate: true, eligibility: { eligible: true, state: "ELIGIBLE" as const, reasonCodes: ["IDEMPOTENT_REPLAY"], algorithmVersion: ENFORCEMENT_ELIGIBILITY_VERSION } };
   }
