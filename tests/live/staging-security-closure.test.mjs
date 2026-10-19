@@ -67,7 +67,8 @@ async function createFixtureUser(label) {
 
 async function gatewayDownload(user,path) {
   const headers={cookie:user.cookies.map(c=>`${c.name}=${c.value}`).join('; ')};
-  if(process.env.VERCEL_OIDC_TOKEN)headers['x-vercel-trusted-oidc-idp-token']=process.env.VERCEL_OIDC_TOKEN;
+  if(process.env.VERCEL_AUTOMATION_BYPASS_SECRET)headers['x-vercel-protection-bypass']=process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+  else if(process.env.VERCEL_OIDC_TOKEN)headers['x-vercel-trusted-oidc-idp-token']=process.env.VERCEL_OIDC_TOKEN;
   return fetch(`${appOrigin}/api/evidence/download?path=${encodeURIComponent(path)}`,{headers,redirect:'manual'});
 }
 
