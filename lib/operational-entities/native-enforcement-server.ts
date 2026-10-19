@@ -338,7 +338,7 @@ export async function recordNativeEnforcementApproval(context: DelegatedAuthorit
   return approval;
 }
 
-export async function requestNativeEnforcement(context: DelegatedAuthorityContext, entityId: string, raw: Record<string, unknown>) {
+export async function requestNativeEnforcement(context: DelegatedAuthorityContext, entityId: string, raw: Record<string, unknown>, controls?: { swarmGuard: NonNullable<Parameters<typeof executeAuthorizedAction>[1]["swarmGuard"]> }) {
   ensureRole(context, ["owner", "admin"]);
   const transactionId = uuid(raw.transactionId, "transactionId");
   const evaluationId = uuid(raw.evaluationId, "evaluationId");
@@ -361,6 +361,23 @@ export async function requestNativeEnforcement(context: DelegatedAuthorityContex
   const approval = approvalResult.data ? { approvalId: String(approvalResult.data.approval_id), enterpriseId: context.enterpriseId, transactionId, operationalEntityId: entityId, actionDigest: String(approvalResult.data.action_digest), approvedBy: String(approvalResult.data.approved_by), approvedAt: String(approvalResult.data.approved_at), expiresAt: String(approvalResult.data.expires_at), nonTransferable: true as const } : null;
   const input = { enterpriseId: context.enterpriseId, transactionId, operationalEntityId: entityId, authorityId: String(delegation.data.parent_authority_id), delegationId, action: { type: String(transaction.data.action_type).toUpperCase(), target: String(transaction.data.action_resource), environment: String(transaction.data.action_environment), payloadDigest: String(transaction.data.request_digest), consequence: (["LOW", "MODERATE", "HIGH", "CRITICAL"].includes(consequence) ? consequence : "LOW") as "LOW" | "MODERATE" | "HIGH" | "CRITICAL" }, decision: String(transaction.data.decision) as "ALLOW" | "REVIEW" | "DENY", decisionDigest: String(binding.data.decision_digest), idempotencyKey, approval: approval as HumanApproval | null };
   const executed = await executeAuthorizedAction(input, {
+    // Enabling the server flag without a qualified server-side resolver blocks dispatch.
+    // Never accept a guard, verification claims or an opt-out from raw request JSON.
+    requireSwarmGuard: process.env.SWARM_AUTHORITY_REQUIRED === "true",
+    swarmGuard: controls?.swarmGuard ? {
+      async admit(request) {
+        const result = await controls.swarmGuard.admit(request);
+        const refs = result.receiptDigest ? [`swarm-receipt:${result.receiptDigest}`] : [];
+        await appendNativeReplay(context, entityId, "SWARM_ADMISSION", result.reasonCodes, { transactionId, allowed: result.allowed }, refs);
+        await appendMaterialMemory(context, entityId, "SWARM_ADMISSION", `swarm:${request.requestId}`, { transactionId, allowed: result.allowed, evidenceReferences: refs });
+        return result;
+      },
+      async dispatch(request) {
+        const result = await controls.swarmGuard.dispatch(request);
+        await appendNativeReplay(context, entityId, "SWARM_DISPATCH", result.reasonCodes, { transactionId, allowed: result.allowed }, result.receiptDigest ? [`swarm-receipt:${result.receiptDigest}`] : []);
+        return result;
+      },
+    } : undefined,
     async findByIdempotencyKey(tenant, key) {
       const found = await db.from("native_enforcement_requests").select("*").eq("enterprise_id", tenant).eq("idempotency_key", key).maybeSingle();
       if (found.error) fail("Enforcement idempotency retrieval", found.error);
