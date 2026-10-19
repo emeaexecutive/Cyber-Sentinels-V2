@@ -23,6 +23,7 @@ export type TurnstileVerificationResult = {
   errorCodes?: string[];
   hostname?: string;
   challengeTimestamp?: string;
+  providerHttpStatus?: number;
 };
 
 type RateLimitBucket = {
@@ -224,7 +225,12 @@ export async function verifyTurnstileToken(
     });
 
     if (!response.ok) {
-      return { ok: false, skipped: false, reason: "provider_unavailable" };
+      const failure = (await response.json().catch(() => ({}))) as TurnstileVerifyResponse;
+      const errorCodes = safeTurnstileErrorCodes(failure["error-codes"]);
+      return {
+        ok: false, skipped: false, reason: "provider_unavailable", providerHttpStatus: response.status,
+        ...(errorCodes ? { errorCodes } : {}),
+      };
     }
 
     const result = (await response.json().catch(() => ({}))) as TurnstileVerifyResponse;

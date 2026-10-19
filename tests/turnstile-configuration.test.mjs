@@ -18,6 +18,26 @@ const managedKeys = {
   TURNSTILE_SECRET_KEY: "managed-live-secret-key",
 };
 
+test("non-success Siteverify HTTP responses fail closed and expose only the numeric status", async () => {
+  await withEnvironment({ NODE_ENV: "production", VERCEL_ENV: "production", ...managedKeys }, async () => {
+    const originalFetch = globalThis.fetch;
+    try {
+      for (const status of [403, 429, 503]) {
+        globalThis.fetch = async () => new Response("private upstream response", { status });
+        const result = await verifyTurnstileToken("private client token", null, "staging.cybersentinels.com");
+        assert.deepEqual(result, { ok: false, skipped: false, reason: "provider_unavailable", providerHttpStatus: status });
+        assert.ok(!JSON.stringify(result).includes("private"));
+      }
+      globalThis.fetch = async () => Response.json({ success: true, "error-codes": ["invalid-input-secret"], secret: "private upstream secret" }, { status: 400 });
+      const failure = await verifyTurnstileToken("private client token", null, "staging.cybersentinels.com");
+      assert.equal(failure.ok, false, "non-success HTTP must never authenticate even if its body says success");
+      assert.deepEqual(failure.errorCodes, ["invalid-input-secret"]);
+      assert.equal(failure.providerHttpStatus, 400);
+      assert.ok(!JSON.stringify(failure).includes("private"));
+    } finally { globalThis.fetch = originalFetch; }
+  });
+});
+
 test("auth route rejects failed checks and retains safe provider diagnostics without token or secret", async () => {
   await withEnvironment({ NODE_ENV: "production", VERCEL_ENV: "production", ...managedKeys }, async () => {
     const originalInfo = console.info;
