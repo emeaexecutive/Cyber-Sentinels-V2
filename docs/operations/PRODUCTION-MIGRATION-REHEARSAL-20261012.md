@@ -75,7 +75,7 @@ try {
 
 ## Reviewed Production execution plan — NOT executed
 
-The offline generator produced `C:\Users\emeae\Documents\CyberSentinels\ProductionBackups\reviewed-migration-plan-20261012`. Its `plan.json` SHA-256 is `3283e962b51e692a38a5e4ff04e224357bc5da8955261d283043b1dec7c1bc36`. All 15 generated SQL execution hashes exactly equal the successful guarded rehearsal. The compiler removes only reviewed outer BEGIN/COMMIT wrappers, adds an exact pre-file ledger-baseline check, advisory transaction lock, 10-second lock timeout, 10-minute statement timeout and atomic ledger insert. It never connects to a database.
+The offline generator produced `C:\Users\emeae\Documents\CyberSentinels\ProductionBackups\reviewed-migration-plan-20261019`. Its `plan.json` SHA-256 is `9f85337601a0aa4c5fa4746d5e4a7c06fed80443f39f9178b07699f4582ac23a`. All 16 generated SQL execution hashes exactly equal the successful guarded rehearsal. The compiler removes only reviewed outer BEGIN/COMMIT wrappers, adds an exact pre-file ledger-baseline check, advisory transaction lock, 10-second lock timeout, 10-minute statement timeout and atomic ledger insert. It never connects to a database.
 
 Before execution, Keith must approve the change, name the operator and two distinct authorized administrators, decide all five account dispositions from the private inventory, approve the account lockout/transition plan and confirm a current recovery point. Qualify the new RPC, app action and hosted admin bootstrap on Staging first. The old admin page cannot write after migration 15; coordinate the approved application release and audited account transitions. Do not approve accounts by direct SQL to avoid this sequencing constraint. Migration-induced locking/access interruption needs an approved change window; a DB-only pg_dump did not require write quiescence.
 
@@ -83,8 +83,8 @@ The following is the exact reviewed command sequence, **only after those gates a
 
 ```powershell
 $ErrorActionPreference = 'Stop'
-$planDir = 'C:\Users\emeae\Documents\CyberSentinels\ProductionBackups\reviewed-migration-plan-20261012'
-$planHash = '3283e962b51e692a38a5e4ff04e224357bc5da8955261d283043b1dec7c1bc36'
+$planDir = 'C:\Users\emeae\Documents\CyberSentinels\ProductionBackups\reviewed-migration-plan-20261019'
+$planHash = '9f85337601a0aa4c5fa4746d5e4a7c06fed80443f39f9178b07699f4582ac23a'
 if ((Get-FileHash -LiteralPath "$planDir\plan.json" -Algorithm SHA256).Hash.ToLowerInvariant() -ne $planHash) { throw 'Plan changed' }
 $plan = Get-Content -LiteralPath "$planDir\plan.json" -Raw | ConvertFrom-Json
 foreach ($m in $plan.migrations) {
@@ -119,7 +119,7 @@ try {
 # Close this dedicated PowerShell process to discard the remaining connection settings.
 ```
 
-Verify ledger 134, all original row hashes/counts relative to the approved fresh recovery point, five account backfill rows/events, security grants and approved account outcomes before reopening customer access. If Production drifted since the 12 October snapshot, stop and repeat the rehearsal against a new preserved recovery point; this plan is not permission to ignore drift.
+Verify ledger 135, all original row hashes/counts relative to the approved fresh recovery point, five account backfill rows/events, security grants and approved account outcomes before reopening customer access. If Production drifted since the 12 October snapshot, stop and repeat the rehearsal against a new preserved recovery point; this plan is not permission to ignore drift.
 
 ## Failure handling and approval boundaries
 
@@ -127,4 +127,12 @@ On a SQL error, stop the sequence. The current file rolls back; earlier committe
 
 The drill proves transaction rollback/retry, not a reverse migration. A committed defect requires a newly reviewed additive forward-repair migration, tested against a fresh disposable copy of the partial state and owner-approved before application. Reverting application code does not undo RLS/grants or restore account access. Destructive Production restore, reverse schema changes, migration-history repair and Storage reconciliation each require a separately approved recovery plan and write-coordination assessment. Preserve the original archive regardless of that decision.
 
-The private owner inventory is `OWNER-ACCOUNT-REVIEW-20261012.md` beside the original archive, outside Git. It contains account UUIDs, masked emails, current status/last sign-in and workspace/API-key relationships, no passwords/key values/hashes. All five dispositions remain UNDECIDED. Keith has not yet selected the two administrators. Approval is still required for Staging application of the new fix, merge, deployment and Production migration execution.
+The private owner inventory is `OWNER-ACCOUNT-REVIEW-20261012.md` beside the original archive, outside Git. It contains account UUIDs, masked emails, current status/last sign-in and workspace/API-key relationships, no passwords/key values/hashes. All five dispositions remain UNDECIDED. Keith has not yet selected the two administrators. Both Staging migrations and the application candidate were explicitly approved and qualified. Approval remains required for merge, Production deployment and Production migration execution.
+
+## Superseding 16-migration plan � 19 October 2026
+
+The earlier 15-migration results above remain historical evidence. The current execution commands now reference the separately preserved 19 October plan, including migration 16, `20261012122704_require_active_customer_sessions.sql`. Its expected final Production ledger count is 135. All 16 source and compiled execution hashes exactly match the successful `migration_rehearsal_session16v2` evidence beside the original archive; there were zero mismatches. Generating this plan made no Production connection. The original 15-file plan and original backup remain preserved.
+
+The session-security delta (three functions, schema privileges and restrictive approval policy) compares equal between the isolated rehearsal database and captured Staging definitions, supplementing the earlier full application-schema comparison. See `staging-session-delta-equivalence-20261019.json`. This is effective-schema evidence, not a rewrite of historical migration names or ledger records.
+
+The hosted human Turnstile challenge and login passed on 19 October with the exact provider hostname `staging.cybersentinels.com`. Final qualification and cleanup results are recorded in `STAGING-CLOSURE-20261019.md`. The five Production account decisions and two authorized administrator identities remain owner decisions; no live account was changed.
