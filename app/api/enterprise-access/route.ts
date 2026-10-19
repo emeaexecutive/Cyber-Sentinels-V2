@@ -22,7 +22,7 @@ const handleRequestDemo = createRequestDemoHandler({
   },
   getClientIp,
   getTurnstileToken: getTurnstileTokenFromForm,
-  verifyTurnstile: verifyTurnstileToken,
+  verifyTurnstile: (token, ip, hostname) => verifyTurnstileToken(token, ip, hostname, "enterprise_access"),
   getConfig() {
     return {
       supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL?.trim(),

@@ -6,7 +6,7 @@ const publicReads = new Set([
 ]);
 const publicPosts = new Set([
   // This provider-verified challenge must complete before a login session exists.
-  "/api/auth/turnstile",
+  "/api/auth/turnstile", "/api/auth/submit",
   "/api/auth/logout", "/api/auth/password-reset/request",
   "/api/auth/password-reset/complete",
   "/api/enterprise-access", "/api/waitlist",

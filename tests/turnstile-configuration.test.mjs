@@ -24,12 +24,12 @@ test("non-success Siteverify HTTP responses fail closed and expose only the nume
     try {
       for (const status of [403, 429, 503]) {
         globalThis.fetch = async () => new Response("private upstream response", { status });
-        const result = await verifyTurnstileToken("private client token", null, "staging.cybersentinels.com");
+        const result = await verifyTurnstileToken("private-client-token", null, "staging.cybersentinels.com", "diagnostic");
         assert.deepEqual(result, { ok: false, skipped: false, reason: "provider_unavailable", providerHttpStatus: status });
         assert.ok(!JSON.stringify(result).includes("private"));
       }
-      globalThis.fetch = async () => Response.json({ success: true, "error-codes": ["invalid-input-secret"], secret: "private upstream secret" }, { status: 400 });
-      const failure = await verifyTurnstileToken("private client token", null, "staging.cybersentinels.com");
+      globalThis.fetch = async () => Response.json({ success: true, action: "diagnostic", challenge_ts: new Date().toISOString(), "error-codes": ["invalid-input-secret"], secret: "private upstream secret" }, { status: 400 });
+      const failure = await verifyTurnstileToken("private-client-token", null, "staging.cybersentinels.com", "diagnostic");
       assert.equal(failure.ok, false, "non-success HTTP must never authenticate even if its body says success");
       assert.deepEqual(failure.errorCodes, ["invalid-input-secret"]);
       assert.equal(failure.providerHttpStatus, 400);
@@ -48,8 +48,8 @@ test("auth route rejects failed checks and retains safe provider diagnostics wit
       for (const [providerReply, status, code] of [
         [{ success: false, "error-codes": ["timeout-or-duplicate"] }, 400, "INVALID_TOKEN"],
         [{ success: false, "error-codes": ["invalid-input-secret"] }, 503, "TURNSTILE_NOT_CONFIGURED"],
-        [{ success: true, hostname: "other.example.com" }, 400, "HOSTNAME_MISMATCH"],
-        [{ success: true, hostname: "www.cybersentinels.com", challenge_ts: "2026-09-29T17:00:00.000Z" }, 200, undefined],
+        [{ success: true, action: "diagnostic", challenge_ts: new Date().toISOString(), hostname: "other.example.com" }, 400, "HOSTNAME_MISMATCH"],
+        [{ success: true, action: "diagnostic", challenge_ts: new Date().toISOString(), hostname: "www.cybersentinels.com",  }, 200, undefined],
       ]) {
         globalThis.fetch = async (url, options) => {
           assert.equal(url, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
@@ -121,9 +121,9 @@ test("Preview plus explicit official test configuration verifies through Sitever
     TURNSTILE_EXPECTED_HOSTNAME: "localhost",
   }, async () => {
     globalThis.fetch = async () => Response.json({
-      success: true,
+      success: true, action: "diagnostic", challenge_ts: new Date().toISOString(),
       hostname: "localhost",
-      challenge_ts: "2026-08-11T10:00:00.000Z",
+
     });
     assert.deepEqual(getTurnstileConfigurationState(), {
       ok: true,
@@ -131,7 +131,7 @@ test("Preview plus explicit official test configuration verifies through Sitever
       usesOfficialTestCredentials: true,
     });
     assert.equal(getExpectedTurnstileHostname("pr.example.vercel.app"), "localhost");
-    const result = await verifyTurnstileToken("XXXX.DUMMY.TOKEN.XXXX", "203.0.113.8", "localhost");
+    const result = await verifyTurnstileToken("XXXX.DUMMY.TOKEN.XXXX", "203.0.113.8", "localhost", "diagnostic");
     assert.equal(result.ok, true);
     assert.equal(result.reason, "verified");
   });
@@ -152,10 +152,10 @@ test("Preview official test mode validates the widget token through Siteverify",
       assert.equal(url, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
       assert.equal(init?.method, "POST");
       assert.equal(init?.body?.get("response"), "XXXX.DUMMY.TOKEN.XXXX");
-      return Response.json({ success: true, hostname: "localhost" });
+      return Response.json({ success: true, action: "diagnostic", challenge_ts: new Date().toISOString(), hostname: "localhost" });
     };
 
-    const result = await verifyTurnstileToken("XXXX.DUMMY.TOKEN.XXXX", "203.0.113.8", "localhost");
+    const result = await verifyTurnstileToken("XXXX.DUMMY.TOKEN.XXXX", "203.0.113.8", "localhost", "diagnostic");
     assert.equal(result.ok, true);
     assert.equal(result.reason, "verified");
     assert.equal(called, true);
@@ -185,7 +185,7 @@ test("Preview test mode requires the full secret-backed configuration instead of
 test("Preview missing configuration is an explicit fail-closed configuration error", async () => {
   await withEnvironment({ NODE_ENV: "production", VERCEL_ENV: "preview" }, async () => {
     assert.equal(getTurnstileConfigurationState().reason, "missing_configuration");
-    const result = await verifyTurnstileToken("token", null, "preview.example");
+    const result = await verifyTurnstileToken("token", null, "preview.example", "diagnostic");
     assert.equal(result.ok, false);
     assert.equal(result.reason, "turnstile_not_configured");
   });
@@ -202,7 +202,7 @@ test("Production rejects official test credentials before Siteverify", async () 
   }, async () => {
     let called = false;
     globalThis.fetch = async () => { called = true; return Response.json({ success: true }); };
-    const result = await verifyTurnstileToken("token", null, "www.cybersentinels.com");
+    const result = await verifyTurnstileToken("token", null, "www.cybersentinels.com", "diagnostic");
     assert.equal(result.ok, false);
     assert.equal(result.reason, "turnstile_configuration_invalid");
     assert.equal(called, false);
@@ -211,7 +211,7 @@ test("Production rejects official test credentials before Siteverify", async () 
 
 test("Production missing real configuration fails closed", async () => {
   await withEnvironment({ NODE_ENV: "production", VERCEL_ENV: "production" }, async () => {
-    const result = await verifyTurnstileToken("token", null, "www.cybersentinels.com");
+    const result = await verifyTurnstileToken("token", null, "www.cybersentinels.com", "diagnostic");
     assert.equal(result.ok, false);
     assert.equal(result.reason, "turnstile_not_configured");
   });
@@ -221,7 +221,7 @@ test("invalid token and replayed-token provider results deny", async () => {
   for (const errorCode of ["invalid-input-response", "timeout-or-duplicate"]) {
     await withEnvironment({ ...managedKeys, NODE_ENV: "production", VERCEL_ENV: "preview" }, async () => {
       globalThis.fetch = async () => Response.json({ success: false, "error-codes": [errorCode] });
-      const result = await verifyTurnstileToken("token", null, "preview.example");
+      const result = await verifyTurnstileToken("token", null, "preview.example", "diagnostic");
       assert.equal(result.ok, false);
       assert.equal(result.reason, "invalid_token");
     });
@@ -231,13 +231,13 @@ test("invalid token and replayed-token provider results deny", async () => {
 
 test("hostname mismatch denies and provider unavailability fails closed", async () => {
   await withEnvironment({ ...managedKeys, NODE_ENV: "production", VERCEL_ENV: "preview" }, async () => {
-    globalThis.fetch = async () => Response.json({ success: true, hostname: "other.example" });
-    const mismatch = await verifyTurnstileToken("token", null, "preview.example");
+    globalThis.fetch = async () => Response.json({ success: true, action: "diagnostic", challenge_ts: new Date().toISOString(), hostname: "other.example" });
+    const mismatch = await verifyTurnstileToken("token", null, "preview.example", "diagnostic");
     assert.equal(mismatch.ok, false);
     assert.equal(mismatch.reason, "hostname_mismatch");
 
     globalThis.fetch = async () => new Response("unavailable", { status: 503 });
-    const unavailable = await verifyTurnstileToken("token", null, "preview.example");
+    const unavailable = await verifyTurnstileToken("token", null, "preview.example", "diagnostic");
     assert.equal(unavailable.ok, false);
     assert.equal(unavailable.reason, "provider_unavailable");
   });
@@ -254,11 +254,11 @@ test("Preview test mode defaults to localhost hostname when expected hostname is
     assert.equal(getTurnstileConfigurationState().ok, true);
     assert.equal(getExpectedTurnstileHostname("preview.example"), "localhost");
     globalThis.fetch = async () => Response.json({
-      success: true,
+      success: true, action: "diagnostic", challenge_ts: new Date().toISOString(),
       hostname: "localhost",
-      challenge_ts: "2026-08-11T10:00:00.000Z",
+
     });
-    const result = await verifyTurnstileToken("XXXX.DUMMY.TOKEN.XXXX", "203.0.113.8", "preview.example");
+    const result = await verifyTurnstileToken("XXXX.DUMMY.TOKEN.XXXX", "203.0.113.8", "preview.example", "diagnostic");
     assert.equal(result.ok, true);
     assert.equal(result.reason, "verified");
   });

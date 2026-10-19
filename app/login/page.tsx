@@ -127,6 +127,10 @@ export default function LoginPage() {
   }
 
   function showAuthFailure(error: unknown, fallback: string) {
+    const code = (error as { code?: string } | null)?.code;
+    if (code && ["invalid_token", "missing_token", "action_mismatch", "hostname_mismatch", "provider_error", "provider_unavailable", "turnstile_not_configured", "turnstile_configuration_invalid", "security_transport_error"].includes(code)) {
+      showSecurityFailure(); return;
+    }
     const failure = classifyAuthFailure(error, fallback);
     setExperienceState(failure.state);
     setMessage(failure.message);
@@ -280,54 +284,27 @@ export default function LoginPage() {
     return true;
   }
 
-  async function verifyTurnstileForAuth(version: number) {
-    if (!turnstileSiteKey) return !shouldRequireTurnstile();
-
-    try {
-      const response = await fetch("/api/auth/turnstile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ turnstileToken }),
-      });
-      const result = (await response.json().catch(() => ({}))) as {
-        ok?: boolean;
-        error?: string;
-      };
-      if (version !== navigationVersion.current) return false;
-
-      setTurnstileToken("");
-      setTurnstileResetKey((value) => value + 1);
-
-      if (!response.ok || !result.ok) {
-        if (response.status === 429) {
-          setExperienceState("RATE_LIMITED");
-          setMessage(rateLimitedMessage);
-        } else {
-          showSecurityFailure();
-        }
-        return false;
-      }
-
-      return true;
-    } catch {
-      if (version !== navigationVersion.current) return false;
-      // Siteverify may have consumed the token before the response was lost.
-      setTurnstileToken("");
-      setTurnstileResetKey((value) => value + 1);
-      showSecurityFailure();
-      return false;
-    }
+  function getSupabaseClient() {
+    try { return createClient(); }
+    catch { setExperienceState("AUTHENTICATION_FAILED"); setMessage(CONNECTION_FAILURE_MESSAGE); return null; }
   }
 
-  function getSupabaseClient() {
+  async function performProtectedAuth(operation: "password" | "signup" | "resend" | "magic-link") {
     try {
-      return createClient();
-    } catch (error) {
-      console.error("Supabase browser client creation failed.", error);
-      setExperienceState("AUTHENTICATION_FAILED");
-      setMessage(CONNECTION_FAILURE_MESSAGE);
-      return null;
-    }
+      const response = await fetch("/api/auth/submit", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ operation, email: email.trim(), password: operation === "password" || operation === "signup" ? password : undefined, turnstileToken }),
+      });
+      const result = await response.json();
+      if (result.data?.session) {
+        const client = getSupabaseClient();
+        if (!client) throw new Error("Authentication unavailable");
+        const restored = await client.auth.setSession(result.data.session);
+        if (restored.error) return { data: {}, error: restored.error };
+      }
+      return { data: result.data ?? {}, error: result.error ?? (!response.ok ? { code: response.status === 429 ? "over_request_rate_limit" : "invalid_token", message: "Authentication failed." } : null) };
+    } catch { return { data: {}, error: { code: "security_transport_error", message: "Security verification could not complete." } }; }
+    finally { setTurnstileToken(""); setTurnstileResetKey(value => value + 1); }
   }
 
   async function signInWithPassword() {
@@ -352,12 +329,6 @@ export default function LoginPage() {
     setExperienceState("SIGNING_IN");
     setLoadingAction("password");
 
-    const securityVerified = await verifyTurnstileForAuth(version);
-    if (version !== navigationVersion.current) return;
-    if (!securityVerified) {
-      setLoadingAction(null);
-      return;
-    }
 
     const supabase = getSupabaseClient();
 
@@ -368,10 +339,7 @@ export default function LoginPage() {
 
     try {
       const { error } = await withAuthTimeout(
-        supabase.auth.signInWithPassword({
-          email: trimmedEmail,
-          password,
-        })
+        performProtectedAuth("password")
       );
       if (version !== navigationVersion.current) return;
 
@@ -427,12 +395,6 @@ export default function LoginPage() {
     setExperienceState("SIGNING_IN");
     setLoadingAction("create-account");
 
-    const securityVerified = await verifyTurnstileForAuth(version);
-    if (version !== navigationVersion.current) return;
-    if (!securityVerified) {
-      setLoadingAction(null);
-      return;
-    }
 
     const supabase = getSupabaseClient();
 
@@ -443,15 +405,7 @@ export default function LoginPage() {
 
     try {
       const { data, error } = await withAuthTimeout(
-        supabase.auth.signUp({
-          email: trimmedEmail,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-              nextPath || "/operational-entities"
-            )}`,
-          },
-        })
+        performProtectedAuth("signup")
       );
       if (version !== navigationVersion.current) return;
 
@@ -498,12 +452,6 @@ export default function LoginPage() {
     setExperienceState("SIGNING_IN");
     setLoadingAction("create-account");
 
-    const securityVerified = await verifyTurnstileForAuth(version);
-    if (version !== navigationVersion.current) return;
-    if (!securityVerified) {
-      setLoadingAction(null);
-      return;
-    }
 
     const supabase = getSupabaseClient();
 
@@ -514,15 +462,7 @@ export default function LoginPage() {
 
     try {
       const { error } = await withAuthTimeout(
-        supabase.auth.resend({
-          type: "signup",
-          email: trimmedEmail,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-              nextPath || "/operational-entities"
-            )}`,
-          },
-        })
+        performProtectedAuth("resend")
       );
       if (version !== navigationVersion.current) return;
 
@@ -558,12 +498,6 @@ export default function LoginPage() {
     setExperienceState("SIGNING_IN");
     setLoadingAction("magic-link");
 
-    const securityVerified = await verifyTurnstileForAuth(version);
-    if (version !== navigationVersion.current) return;
-    if (!securityVerified) {
-      setLoadingAction(null);
-      return;
-    }
 
     const supabase = getSupabaseClient();
 
@@ -574,14 +508,7 @@ export default function LoginPage() {
 
     try {
       const { error } = await withAuthTimeout(
-        supabase.auth.signInWithOtp({
-          email: trimmedEmail,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-              nextPath || "/operational-entities"
-            )}`,
-          },
-        })
+        performProtectedAuth("magic-link")
       );
       if (version !== navigationVersion.current) return;
 
@@ -690,6 +617,7 @@ export default function LoginPage() {
             {turnstileSiteKey ? (
               <div className="mt-5">
                 <TurnstileField
+                  action="signup"
                   siteKey={turnstileSiteKey}
                   onTokenChange={handleTurnstileToken}
                   onErrorChange={(error) => {
@@ -800,6 +728,7 @@ export default function LoginPage() {
 
               {turnstileSiteKey ? (
                 <TurnstileField
+                  action={authMode === "create-account" ? "signup" : authMode === "forgot-password" ? "password_reset" : "login"}
                   siteKey={turnstileSiteKey}
                   onTokenChange={handleTurnstileToken}
                   onErrorChange={(error) => {

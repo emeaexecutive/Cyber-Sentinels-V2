@@ -12,6 +12,7 @@ import {
 import {
   checkRequestRateLimit,
   verifyTurnstileToken,
+  getTurnstileTokenFromForm,
 } from "../lib/bot-protection.ts";
 import { getSafeSameOriginUrl, getTrustedClientIp } from "../lib/security.ts";
 
@@ -205,10 +206,9 @@ test("Request Demo frontend sets the Turnstile callback token on FormData", asyn
   assert.match(field, /apiRef\.current\.reset\(widgetIdRef\.current\)/);
   assert.match(field, /if \(!active \|\| !containerRef\.current \|\| widgetIdRef\.current\) return/);
   assert.match(field, /if \(!siteKey\) return/);
-  assert.match(
-    botProtection,
-    /getTurnstileTokenFromForm\(formData: FormData\) \{\s+return String\(formData\.get\("cf-turnstile-response"\) \?\? ""\)\.trim\(\);/,
-  );
+  const malformed = new FormData();
+  malformed.set("cf-turnstile-response", new Blob(["not-a-token"]));
+  assert.equal(getTurnstileTokenFromForm(malformed), "");
 });
 
 test("Turnstile waits for delayed API availability and resolves exactly once", () => {
@@ -660,7 +660,7 @@ test("Siteverify success fails closed when the response hostname does not match"
   globalThis.fetch = async () => Response.json({
     success: true,
     hostname: "unexpected.example",
-    challenge_ts: "2026-07-29T10:00:00.000Z",
+    challenge_ts: new Date().toISOString(), action: "enterprise_access",
   });
 
   try {
@@ -668,6 +668,7 @@ test("Siteverify success fails closed when the response hostname does not match"
       "challenge-token",
       "203.0.113.10",
       "www.cybersentinels.com",
+      "enterprise_access",
     );
     assert.equal(result.ok, false);
     assert.equal(result.reason, "hostname_mismatch");
@@ -691,13 +692,14 @@ test("Siteverify success without a valid hostname fails closed", async () => {
   process.env.TURNSTILE_SECRET_KEY = "test-secret";
   process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = "live-site-key";
   process.env.TURNSTILE_MODE = "live";
-  globalThis.fetch = async () => Response.json({ success: true });
+  globalThis.fetch = async () => Response.json({ success: true, action: "enterprise_access", challenge_ts: new Date().toISOString() });
 
   try {
     const result = await verifyTurnstileToken(
       "challenge-token",
       "203.0.113.10",
       "www.cybersentinels.com",
+      "enterprise_access",
     );
     assert.equal(result.ok, false);
     assert.equal(result.reason, "provider_error");

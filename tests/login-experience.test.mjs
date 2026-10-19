@@ -40,9 +40,9 @@ test("login presents a simple customer journey while retaining security controls
   ]) assert.match(states, new RegExp(state));
 
   assert.match(login, /resolveSafeInternalRedirect/);
-  assert.match(login, /\/api\/auth\/turnstile/);
-  assert.match(login, /supabase\.auth\.signInWithPassword/);
-  assert.match(login, /supabase\.auth\.signUp/);
+  assert.match(login, /\/api\/auth\/submit/);
+  assert.match(login, /performProtectedAuth\("password"\)/);
+  assert.match(login, /performProtectedAuth\("signup"\)/);
   assert.match(turnstile, /appearance: "interaction-only"/);
   assert.match(turnstile, /quiet/);
   assert.doesNotMatch(login, /result\.error \|\|/);

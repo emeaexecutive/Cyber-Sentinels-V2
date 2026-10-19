@@ -212,7 +212,8 @@ test("login, callback, protected-route, enterprise, and admin contracts remain w
     read("lib/supabase/client.ts"),
   ]);
 
-  assert.match(login, /auth\.signInWithPassword/);
+  assert.match(login, /performProtectedAuth\("password"\)/);
+  assert.match(await read("app/api/auth/submit/route.ts"), /auth\.signInWithPassword/);
   assert.match(login, /window\.location\.replace\(nextPath\)/);
   assert.match(callback, /handleAuthCallback/);
   assert.match(callbackHandler, /auth\.exchangeCodeForSession\(code\)/);

@@ -71,6 +71,7 @@ export function harness() {
       } },
   });
   const mocks = {
+    "@/lib/supabase/protected-auth": { createProtectedAuthClient: async () => client() },
     "./globals.css": {},
     "@/components/global-navigation": { GlobalNavigation: ({ accessLevel }) => React.createElement("nav", { "data-access": accessLevel }) },
     "@/components/trust-os/enterprise-shell": { EnterpriseTrustOSShell: ({ children }) => React.createElement("section", { "data-enterprise-shell": true }, children) },

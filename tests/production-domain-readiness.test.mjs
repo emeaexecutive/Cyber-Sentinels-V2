@@ -98,9 +98,9 @@ test("auth actions verify Turnstile server-side when configured", () => {
   const route = read("app/api/auth/turnstile/route.ts");
   const passwordResetRoute = read("app/api/auth/password-reset/request/route.ts");
 
-  assert.match(login, /fetch\("\/api\/auth\/turnstile"/);
+  assert.match(login, /fetch\("\/api\/auth\/submit"/);
   assert.equal(
-    (login.match(/await verifyTurnstileForAuth\(version\)/g) ?? []).length,
+    (login.match(/performProtectedAuth\("(?:password|signup|resend|magic-link)"\)/g) ?? []).length,
     4
   );
   assert.match(passwordResetRoute, /verifyTurnstileToken/);
