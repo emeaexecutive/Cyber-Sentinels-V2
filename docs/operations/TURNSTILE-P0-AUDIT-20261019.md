@@ -71,3 +71,13 @@ STAGING_GO = NO ? real positive login for this action-bound candidate, native Au
 PRODUCTION_GO_NO_GO = NO_GO ? no Production promotion authorized; prior release gates also remain applicable.
 
 Owner steps: finish the real login using the restricted local instruction file; enable/confirm native Turnstile under Staging Supabase Authentication ? Bot and Abuse Protection using the matching widget secret (never send it in chat); provide the Staging widget's token-validation analytics for the UTC window above and the subsequent human test. No connected Cloudflare browser or API access was available to independently read that dashboard.
+
+## Owner follow-up: native CAPTCHA and browser access (16:03 UTC)
+
+The owner enabled Staging Supabase Auth CAPTCHA. Independent live probes now verify that **both missing and invalid native CAPTCHA tokens return HTTP 400 `captcha_failed`**, including when supplied with valid credentials for the isolated synthetic fixture. The fixture's last-sign-in timestamp remains unchanged. This supersedes the earlier missing-token `invalid_credentials` finding for the tested password-grant path. It does not prove action/hostname policy equivalence on every native Auth path.
+
+The owner reported ?We couldn't sign you in. Please try again.? No matching human Siteverify success was found in the retained deployment logs, and the fixture has no last sign-in. An unauthenticated request reproduces the same frontend error via **Vercel HTTP 401, `Protected by Vercel Authentication`**, before application execution. The authorized Staging test transport reaches the application and receives its expected HTTP 400 `invalid_token`. Vercel protection is a reproducible explanation, not a claimed correlation to the individual human request. No protection or configuration was disabled or changed.
+
+The owner was asked to open a fresh login URL, complete Vercel authentication if prompted, then repeat the real synthetic login and provide the time. Cloudflare analytics are reportedly available in the owner's dashboard, but there is still no connected browser surface; actual validation counts/time range have been requested, not assumed.
+
+Evidence: private `native-captcha-and-protection-20261019.json`, timestamp 16:02:56 UTC. Original native probe evidence is preserved. Application SHA remains `ce2a28f7abbc3d45464f511e3119342b80280533`; this follow-up makes no application or deployment change. Synthetic fixture cleanup remains pending the human test. STAGING_GO remains NO; Production remains unchanged and NO_GO.
