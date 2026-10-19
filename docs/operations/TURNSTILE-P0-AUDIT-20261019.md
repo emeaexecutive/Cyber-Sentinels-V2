@@ -1,6 +1,6 @@
 # P0 Turnstile server-side audit — 19 October 2026
 
-Status: application repair tested locally; hosted candidate verification and native Supabase Auth protection remain open. This report supersedes the earlier login PASS as a statement of complete CAPTCHA enforcement. Earlier successful login proves one real challenge, not absence of alternate paths.
+Status: application repair deployed to Staging; 16 hosted negative checks passed. Real human positive verification, native Supabase Auth protection and Cloudflare analytics remain open. This report supersedes the earlier login PASS as a statement of complete CAPTCHA enforcement. Earlier successful login proves one real challenge, not absence of alternate paths.
 
 ## Findings and repair
 
@@ -48,3 +48,26 @@ Production remains unchanged. No migrations, merges, Production deployment, live
 A real hosted missing-token recovery probe returned 403 WRONG_ORIGIN before reaching verification. Preview Auth now selects the branch-scoped CYBER_SENTINELS_PUBLIC_ORIGIN, while Production retains its existing origin policy. Negative tests reject the Production hostname in Preview and the Staging hostname in Production. This is a code change only; no environment value changed. The first P0 build (2e59ce6) is superseded and must not receive the Staging alias.
 
 Follow-up tests: 124 focused security checks, five recovery/login tests, 11 navigation browser checks and typecheck passed. Removal of the obsolete development bypass exposed an old source assertion requiring that bypass; it was replaced with an assertion forbidding bypass/skipped-success behavior.
+
+## Deployed candidate and hosted evidence
+
+- Exact application SHA: `ce2a28f7abbc3d45464f511e3119342b80280533`.
+- Preview deployment: `dpl_72j6dXKotUobQrJ6UxV6Zpo18QNv`, serving `https://staging.cybersentinels.com`.
+- Unique URL: `https://cyber-sentinels-v2-lo8e05ykr-keith-speres-projects.vercel.app`.
+- Runtime readiness HTTP 200 confirms exact SHA, Staging project `agpyhygpfmppjkxwcpac`, valid browser/server credential binding and `productionProjectActive: NOT_ACTIVE`.
+- Original Production deployment remains `dpl_3aKJiNZB6jQssp9Urm8uDG1zBsyp`, SHA `3c2b5e6c93bc5c3ac1a918de874c5cd0645b4571`. No Production configuration, database or account changes performed.
+- Final full suite on candidate: **2,171 passed, zero failures/skips**; 124 focused checks are included, not additive. All 31 Auth browser checks passed separately. Typecheck and lint passed; lint reports warnings only (mostly existing local harnesses).
+- CI [verification and Docker](https://github.com/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39275089014), [CodeQL](https://github.com/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39275089096) and [secret scan](https://github.com/emeaexecutive/Cyber-Sentinels-V2/actions/runs/39275088944) passed. Supabase Preview is skipped; no migration or branch operation is inferred from it.
+- Real hosted window: **2026-10-19 15:12:28?15:13:17 UTC**. Four Auth operations and three public submission routes each reject missing/invalid tokens (14 requests). Two further requests use valid synthetic login credentials with missing/invalid tokens; both reject without session cookies or a changed last-sign-in timestamp.
+- Before/after matching record counts: Auth users 0?0, waitlist 0?0, enterprise requests 0?0. This asserts persistence for the negative-test address, not global absence of concurrent traffic. External email delivery is not independently observed; local integration tests assert no email operation is called on failure.
+- Runtime logs correlate all four Auth operations to `missing_token` / `invalid_token`, with the required action logged and no token, secret, email or password.
+- An actual SSR SDK test with mocked network also confirms the server credential stays out of returned user sessions and written cookies. This is not hosted/provider evidence.
+
+Private evidence is preserved under `C:/Users/emeae/Documents/CyberSentinels/ProductionBackups/staging-420-20261012/turnstile-p0-20261019/`: `deployment-readiness.json`, `hosted-negatives.json`, `existing-fixture-negative.json`, `hosted-negative-runtime-logs.md`, and the named test logs. Fixture credentials remain outside Git and CI.
+
+One new unapproved synthetic Auth fixture is retained only for the pending real human login. It has no administrator or tenant grant. Cleanup remains pending: after the human test, revoke its sessions and delete that fixture, verify deletion, and record the outcome. Previously cleaned fixtures remain deleted. No new configuration overrides were installed.
+
+STAGING_GO = NO ? real positive login for this action-bound candidate, native Auth CAPTCHA coverage and Cloudflare analytics are unverified. The native Auth missing-token probe reached credential validation; do not claim complete bypass closure.
+PRODUCTION_GO_NO_GO = NO_GO ? no Production promotion authorized; prior release gates also remain applicable.
+
+Owner steps: finish the real login using the restricted local instruction file; enable/confirm native Turnstile under Staging Supabase Authentication ? Bot and Abuse Protection using the matching widget secret (never send it in chat); provide the Staging widget's token-validation analytics for the UTC window above and the subsequent human test. No connected Cloudflare browser or API access was available to independently read that dashboard.
