@@ -1,4 +1,4 @@
-﻿# P0 Turnstile server-side audit — 19 October 2026
+# P0 Turnstile server-side audit — 19 October 2026
 
 Status: application repair tested locally; hosted candidate verification and native Supabase Auth protection remain open. This report supersedes the earlier login PASS as a statement of complete CAPTCHA enforcement. Earlier successful login proves one real challenge, not absence of alternate paths.
 
@@ -42,3 +42,9 @@ Authenticated account updates, logout, verified email callbacks, administrator R
 3. Obtain Cloudflare widget token-validation analytics for the exact hosted test window. Earlier dashboard/widget setup and prior login are not substitute evidence.
 
 Production remains unchanged. No migrations, merges, Production deployment, live account decisions or backup modifications are included. Application rollback does not change native Auth configuration. Full STAGING_GO and PRODUCTION_GO remain withheld until these gates and the existing release qualification requirements are met.
+
+## Preview origin follow-up
+
+A real hosted missing-token recovery probe returned 403 WRONG_ORIGIN before reaching verification. Preview Auth now selects the branch-scoped CYBER_SENTINELS_PUBLIC_ORIGIN, while Production retains its existing origin policy. Negative tests reject the Production hostname in Preview and the Staging hostname in Production. This is a code change only; no environment value changed. The first P0 build (2e59ce6) is superseded and must not receive the Staging alias.
+
+Follow-up tests: 124 focused security checks, five recovery/login tests, 11 navigation browser checks and typecheck passed. Removal of the obsolete development bypass exposed an old source assertion requiring that bypass; it was replaced with an assertion forbidding bypass/skipped-success behavior.

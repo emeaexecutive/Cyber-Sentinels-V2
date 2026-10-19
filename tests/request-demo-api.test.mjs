@@ -789,6 +789,6 @@ test("server-side Turnstile verification posts only the required safe fields to 
   assert.match(botProtection, /formData\.set\("remoteip", ip\)/);
   assert.match(botProtection, /https:\/\/challenges\.cloudflare\.com\/turnstile\/v0\/siteverify/);
   assert.match(botProtection, /AbortSignal\.timeout\(10_000\)/);
-  assert.match(botProtection, /process\.env\.NODE_ENV !== "production"/);
+  assert.doesNotMatch(botProtection, /canBypassBotProtection|skipped: true/);
   assert.doesNotMatch(botProtection, /console\.(?:debug|log)\(/);
 });

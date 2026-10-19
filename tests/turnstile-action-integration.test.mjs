@@ -1,5 +1,6 @@
 import {readFileSync} from 'node:fs';
 import test from 'node:test';import assert from 'node:assert/strict';
+import {getApprovedAuthOrigin} from '../lib/auth/password-recovery.ts';
 import {createProtectedAuthHandler,authChallengeActions} from '../lib/auth/protected-auth.ts';
 const origin='https://staging.cybersentinels.com';
 const operations=Object.keys(authChallengeActions);
@@ -58,4 +59,16 @@ test('public Auth UI has no direct credential or email-action bypass',()=>{
   assert.doesNotMatch(source,/\.auth\.(signInWithPassword|signUp|resend|signInWithOtp|resetPasswordForEmail)\(/);
  }
  assert.match(readFileSync('lib/supabase/protected-auth.ts','utf8'),/import "server-only"/);
+});
+
+test('Preview uses its isolated canonical origin without changing Production origin policy',()=>{
+ const before={...process.env};try{
+  Object.assign(process.env,{VERCEL_ENV:'preview',CYBER_SENTINELS_PUBLIC_ORIGIN:'https://staging.cybersentinels.com',NEXT_PUBLIC_SITE_URL:'https://www.cybersentinels.com',VERCEL_URL:'candidate.example.vercel.app'});
+  assert.equal(getApprovedAuthOrigin('https://staging.cybersentinels.com/api/auth/submit'),'https://staging.cybersentinels.com');
+  assert.equal(getApprovedAuthOrigin('https://www.cybersentinels.com/api/auth/submit'),null);
+  assert.equal(getApprovedAuthOrigin('https://attacker.example/api/auth/submit'),null);
+  process.env.VERCEL_ENV='production';
+  assert.equal(getApprovedAuthOrigin('https://staging.cybersentinels.com/api/auth/submit'),null);
+  assert.equal(getApprovedAuthOrigin('https://www.cybersentinels.com/api/auth/submit'),'https://www.cybersentinels.com');
+ }finally{for(const k of Object.keys(process.env))if(!(k in before))delete process.env[k];Object.assign(process.env,before);}
 });
