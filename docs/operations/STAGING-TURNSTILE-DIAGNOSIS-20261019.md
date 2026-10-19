@@ -1,7 +1,17 @@
 # Staging qualification update — 19 October 2026
 
-STAGING_GO = NO
+STAGING_GO = NO — real human login and cleanup pending
 PRODUCTION_GO_NO_GO = NO_GO
+
+## Secret correction verified — 19 October, 16:22 Madrid time
+
+The owner confirmed saving the matching Preview-only secret and allowing the Staging hostname. The same approved application SHA `a83824688249e52f3cc12e91f31c110bb5bc6026` was rebuilt as `dpl_Dbt8H6AkPaCgPkHPJD44ySxq8ADb`. Readiness returned HTTP 200, the exact SHA, Staging project `agpyhygpfmppjkxwcpac`, and Production binding `NOT_ACTIVE`; the Staging hostname was then assigned to this build.
+
+The negative probe now reaches normal provider verification and fails with `invalid-input-response`, as expected for the intentionally invalid diagnostic token. The application returns HTTP 400 `INVALID_TOKEN`; the previous `invalid-input-secret` rejection is resolved for this deployment. Correlation: `staging-corrected-secret-20261019`; Vercel log timestamp `2026-10-19T14:22:41.141Z`. The provider HTTP status is not logged on successful HTTP responses; the `invalid_token` branch is reached only after `response.ok`.
+
+Actual human challenge success, returned hostname acceptance, and browser login still require verification. The owner was asked to use the replacement synthetic credentials from the private local instructions in their normal browser. No security control was disabled. Earlier evidence below is retained as historical diagnosis.
+
+New private evidence: `corrected-secret-readiness-20261019.private.json`, `corrected-secret-probe-20261019.private.json`.
 
 ## Verified deployment and failure
 
