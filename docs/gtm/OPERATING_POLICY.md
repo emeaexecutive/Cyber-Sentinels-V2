@@ -44,7 +44,9 @@ or a customer outcome.
    and tests any change in a separate branch.
 3. Editorial returns original copy and metadata suggestions. Drafts remain in
    `docs/gtm/drafts/` with `founder-review` status.
-4. Run `npm run gtm:validate` before founder review.
+4. Run `npm run gtm:validate` before founder review. If approved, change the
+   queue status to `founder-approved` and record the approver, date and an
+   auditable approval reference. This does not publish the draft.
 5. Record approval in the queue, create a content-only PR, and run required
    checks. Do not merge or deploy until authorized through the normal release
    path.

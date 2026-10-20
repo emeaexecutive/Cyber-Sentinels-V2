@@ -16,6 +16,7 @@
       "draft_path": "docs/gtm/drafts/what-is-ai-agent-authority.md",
       "internal_links": ["/platform", "/developers"],
       "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
       "founder_approval_required": true,
       "published": false
     },
@@ -27,6 +28,7 @@
       "draft_path": "docs/gtm/drafts/zero-trust-execution-controls.md",
       "internal_links": ["/platform", "/trust"],
       "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
       "founder_approval_required": true,
       "published": false
     },
@@ -38,6 +40,7 @@
       "draft_path": "docs/gtm/drafts/agent-acts-without-permission.md",
       "internal_links": ["/platform", "/verification-replay"],
       "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
       "founder_approval_required": true,
       "published": false
     },
@@ -49,6 +52,7 @@
       "draft_path": "docs/gtm/drafts/agent-identity-vs-authority.md",
       "internal_links": ["/developers", "/platform"],
       "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
       "founder_approval_required": true,
       "published": false
     },
@@ -60,6 +64,7 @@
       "draft_path": "docs/gtm/drafts/mcp-tool-authorization.md",
       "internal_links": ["/platform", "/developers"],
       "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
       "founder_approval_required": true,
       "published": false
     },
@@ -71,6 +76,7 @@
       "draft_path": "docs/gtm/drafts/evidence-receipts-replay.md",
       "internal_links": ["/verification-replay", "/trust"],
       "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
       "founder_approval_required": true,
       "published": false
     },
@@ -82,6 +88,7 @@
       "draft_path": "docs/gtm/drafts/contain-autonomous-agent-swarm.md",
       "internal_links": ["/platform", "/trust"],
       "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
       "founder_approval_required": true,
       "published": false
     },
@@ -93,6 +100,7 @@
       "draft_path": "docs/gtm/drafts/cyber-sentinels-tenente-story.md",
       "internal_links": ["/about", "/platform"],
       "publication_status": "founder-review",
+      "founder_approval": { "by": null, "at": null, "reference": null },
       "founder_approval_required": true,
       "published": false
     }

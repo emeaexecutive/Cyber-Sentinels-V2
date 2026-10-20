@@ -51,9 +51,29 @@ for (const item of queue.items) {
     item.meta_description.length >= 80 && item.meta_description.length <= 160,
     `${item.id} meta description must be 80–160 characters`,
   );
-  assert.equal(item.publication_status, "founder-review", `${item.id} must remain in review`);
+  assert.ok(
+    ["founder-review", "founder-approved"].includes(item.publication_status),
+    `${item.id} has an invalid prepublication status`,
+  );
   assert.equal(item.founder_approval_required, true, `${item.id} requires founder approval`);
   assert.equal(item.published, false, `${item.id} must not be published`);
+  assert.ok(item.founder_approval, `${item.id} needs an approval record`);
+  if (item.publication_status === "founder-review") {
+    assert.deepEqual(
+      item.founder_approval,
+      { by: null, at: null, reference: null },
+      `${item.id} must not imply an unrecorded approval`,
+    );
+  } else {
+    assert.ok(item.founder_approval.by?.trim(), `${item.id} approval needs an approver`);
+    assert.match(item.founder_approval.at ?? "", /^\d{4}-\d{2}-\d{2}$/, `${item.id} approval date is invalid`);
+    assert.equal(
+      new Date(`${item.founder_approval.at}T00:00:00Z`).toISOString().slice(0, 10),
+      item.founder_approval.at,
+      `${item.id} approval date must be valid`,
+    );
+    assert.ok(item.founder_approval.reference?.trim(), `${item.id} approval needs an auditable reference`);
+  }
   assert.ok(
     item.draft_path.startsWith("docs/gtm/drafts/"),
     `${item.id} draft must remain outside public routes`,
