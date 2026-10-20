@@ -24,3 +24,9 @@ Scope restoration and member restoration require a different authorized human fr
 ## Remaining runtime integration
 
 `deliverContainment` accepts operator-integrated adapter dependencies, never arbitrary caller URLs. A real cooperating runtime adapter and its authentication, delivery timeout, signed acknowledgement and provider cancellation semantics must be qualified before remote cancellation can be claimed. REQUESTED/PARTIAL/DELIVERY_UNKNOWN/UNSUPPORTED are not evidence that a remote process has stopped. Unintegrated agents can only be denied at controlled boundaries.
+
+## First-party cancellation follow-up
+
+The existing controlled HTTP/MCP transport now consumes signed durable cancellation commands through `lib/swarm/cancellation.ts`. See `CANCELLATION-QUALIFICATION-20261020.md` for exact source paths and evidence. In the existing authenticated console API, submit `{ "action": "cancel", "envelope": { "command": "<signed command object>", "signature": "<Ed25519 signature>" } }`; this notation is illustrative, not executable JSON for the nested command. The command must use the real stored task and lease execution identifiers and the documented domain/fields. Sign outside the browser with the approved operator private key; configure only its public trust anchor on the server. No private key belongs in a request or console field.
+
+`reconcile-cancellation` uses the same accepted envelope to resolve a later verified outcome. It cannot assert an arbitrary result or reopen execution. The existing `NATIVE_DESTINATION_EVIDENCE_KEY` signs domain-separated runtime evidence. Do not configure hosted secrets/flags or deploy this candidate without the required environment approval. No new hosted migration is required by this follow-up; the existing swarm and projection prerequisites still apply.

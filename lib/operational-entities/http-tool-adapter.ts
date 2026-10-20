@@ -22,6 +22,7 @@ export function verifyToolDispatch(body: string, signature: string, key: string,
 /** Server-configured destination only. MCP tools/call and HTTP share canonical enforcement. */
 export function createHttpToolAdapter(config: {
   endpoint: string; tool: string; payload: Record<string, unknown>; evidenceKey: string;
+  lifecycle?: { open(request: EnforcementRequest): Promise<{ signal: AbortSignal; close(): Promise<void> }> };
   transport: "http" | "mcp"; allowLocal?: boolean; timeoutMs?: number;
 }) {
   const url = new URL(config.endpoint);
@@ -37,8 +38,10 @@ export function createHttpToolAdapter(config: {
         ? { jsonrpc: "2.0", id: request.requestId, method: "tools/call", params: { name: config.tool, arguments: payload, _meta: { authority: request } } }
         : { tool: config.tool, arguments: payload, authority: request };
       const wireBody = canonicalize(body);
+      const lifecycle = await config.lifecycle?.open(request);
+      try {
       const response = await fetch(url, { method: "POST", redirect: "error", headers: { "content-type": "application/json", "idempotency-key": request.idempotencyKey, "x-tenente-dispatch-signature": dispatchMac(wireBody, config.evidenceKey) },
-        body: wireBody, signal: AbortSignal.timeout(config.timeoutMs ?? 10_000) });
+        body: wireBody, signal: lifecycle ? AbortSignal.any([lifecycle.signal, AbortSignal.timeout(config.timeoutMs ?? 10_000)]) : AbortSignal.timeout(config.timeoutMs ?? 10_000) });
       if (!response.ok) throw new NativeEnforcementError("Controlled destination rejected execution.", "DESTINATION_REJECTED", 502);
       const reader = response.body?.getReader();
       if (!reader) throw new NativeEnforcementError("Destination response is empty.", "DESTINATION_EVIDENCE_INVALID", 502);
@@ -58,6 +61,7 @@ export function createHttpToolAdapter(config: {
         expectedEnterpriseId: request.enterpriseId, expectedTransactionId: request.transactionId, expectedEntityId: request.operationalEntityId });
       // Correlation retains signed mismatches as security evidence, rather than discarding them as successful execution.
       return result;
+      } finally { await lifecycle?.close(); }
     },
   };
 }

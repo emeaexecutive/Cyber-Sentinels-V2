@@ -1,3 +1,5 @@
+import { cancellationRuntime } from "./cancellation";
+import { configuredContainmentKey } from "./containment-keys-server";
 import "server-only";
 import { createServiceRoleClient } from "../supabase/service-role";
 import { resolveStoredDelegatedAction, type DelegatedAuthorityContext } from "../operational-entities/delegated-authority-server";
@@ -107,6 +109,7 @@ export function createStoredSwarmControls(context: DelegatedAuthorityContext, ac
     },
   });
   return {
+    cancellation: cancellationRuntime({ store, now: Date.now, authenticate: async () => null, key: configuredContainmentKey, runtimeKey: () => process.env.NATIVE_DESTINATION_EVIDENCE_KEY ?? "", project: persistSwarmReceiptProjection }),
     swarmGuard: swarmNativeGuard(control, context.enterpriseId, "current-server-session", persistSwarmReceiptProjection),
     async reconcile(request: EnforcementRequest, result: EnforcementAdapterResult | null) {
       const leaseId = swarmRequestDigest(request); requests.set(leaseId, request);

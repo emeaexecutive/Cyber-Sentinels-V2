@@ -1,5 +1,7 @@
 # CPTO qualification ? 20 October 2026
 
+> Subsequent first-party cancellation authorization and implementation: [cancellation qualification](CANCELLATION-QUALIFICATION-20261020.md). The delivery gap recorded below describes this report's earlier candidate.
+
 This is the follow-up to `CONTRACT-QUALIFICATION-20261020.md`, not a replacement for its historical evidence. The source commit containing this report identifies the candidate. No hosted swarm qualification or Production GO is asserted.
 
 ## A. Preserved baseline and branches

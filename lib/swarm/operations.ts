@@ -1,8 +1,9 @@
+import { cancellationRuntime, type SignedCancellation } from "./cancellation.ts";
 import { detectSwarmAnomalies } from "./prevention-kit.ts";
 import { SwarmContainment, type Actor, type SwarmStore, type SwarmDependencies, type Collective, type Member } from "./containment.ts";
 
 /** Authentication and tenant binding are supplied by the server, never by request JSON. */
-export function swarmOperations(store: SwarmStore, authenticate: () => Promise<Actor>, now = Date.now, dependencies: Pick<SwarmDependencies, "containmentKey"> = {}) {
+export function swarmOperations(store: SwarmStore, authenticate: () => Promise<Actor>, now = Date.now, dependencies: Pick<SwarmDependencies, "containmentKey"> & { cancellationEvidenceKey?: () => string; cancellationProject?: (event: import("./containment.ts").SwarmEvent) => Promise<void> } = {}) {
   const unavailable = async (): Promise<never> => { throw new Error("SWARM_EXECUTION_RESOLVER_UNAVAILABLE"); };
   const control = new SwarmContainment({ ...dependencies, store, authenticate, now, resolve: unavailable, heartbeatKey: unavailable, verifyOutcome: unavailable });
   async function operator() {
@@ -19,8 +20,8 @@ export function swarmOperations(store: SwarmStore, authenticate: () => Promise<A
         members: Object.values(state.members),
         budgets: state.budgets ?? {},
         quarantines: state.quarantines,
-        leases: Object.values(state.leases).map(l => ({ id: l.id, memberId: l.memberId, swarmId: l.swarmId, state: l.state, expiresAt: l.expiresAt, budgetId: l.classification.budget?.id ?? null })),
-        receipts: state.events.slice(-100).map(e => ({ sequence: e.sequence, kind: e.kind, subjectId: e.subjectId, at: e.at, digest: e.digest, previousHash: e.previousHash })),
+        leases: Object.values(state.leases).map(l => ({ id: l.id, taskId: l.classification.correlationId, memberId: l.memberId, swarmId: l.swarmId, state: l.state, expiresAt: l.expiresAt, budgetId: l.classification.budget?.id ?? null })),
+        receipts: state.events.slice(-100).map(e => ({ sequence: e.sequence, kind: e.kind, subjectId: e.subjectId, at: e.at, digest: e.digest, previousHash: e.previousHash, cancellationStatus: typeof e.details.cancellationStatus === "string" ? e.details.cancellationStatus : null })),
         totalReceipts: state.events.length,
         anomalies: detectSwarmAnomalies(state.events),
       }));
@@ -29,6 +30,11 @@ export function swarmOperations(store: SwarmStore, authenticate: () => Promise<A
       const actor = await operator();
       if (!input || typeof input !== "object" || Array.isArray(input)) throw new TypeError("Invalid operation.");
       const value = input as Record<string, unknown>;
+      if (value.action === "cancel" || value.action === "reconcile-cancellation") {
+        if (!dependencies.containmentKey || !dependencies.cancellationEvidenceKey || !value.envelope) throw new TypeError("Signed cancellation required.");
+        const runtime = cancellationRuntime({ store, authenticate, now, key: dependencies.containmentKey, runtimeKey: dependencies.cancellationEvidenceKey, project: dependencies.cancellationProject });
+        return value.action === "cancel" ? runtime.deliver(actor.tenantId, value.envelope as SignedCancellation) : runtime.reconcile(actor.tenantId, value.envelope as SignedCancellation);
+      }
       if (value.action === "enroll-runtime") {
         if (typeof value.id !== "string" || typeof value.publicKeyPem !== "string") throw new TypeError("Member and public key required.");
         return control.enrollRuntimeKey(actor.tenantId, "server-session", value.id, value.publicKeyPem);

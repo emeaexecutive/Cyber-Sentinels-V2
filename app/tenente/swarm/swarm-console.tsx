@@ -19,14 +19,14 @@ export default function SwarmConsole() {
     if (!response.ok) throw new Error(body.error ?? "Unable to load operations.");
     setSnapshot(body.snapshot);
   }
-  async function perform(action?: "contain" | "reconcile" | "revoke" | "restore-member" | "restore-scope" | "provision" | "signed-command" | "enroll-runtime") {
+  async function perform(action?: "cancel" | "reconcile-cancellation" | "contain" | "reconcile" | "revoke" | "restore-member" | "restore-scope" | "provision" | "signed-command" | "enroll-runtime") {
     setBusy(true); setMessage("");
     try {
       if (action) {
-        const response = await fetch("/api/tenente/swarm", { method: "POST", headers: { "content-type": "application/json", "x-enterprise-id": enterprise }, body: JSON.stringify({ kind, id: scope, reason, receipt, publicKeyPem, ...(action === "provision" ? JSON.parse(provision) : {}), ...(action === "signed-command" ? { envelope: JSON.parse(signedCommand) } : {}), action }) });
+        const response = await fetch("/api/tenente/swarm", { method: "POST", headers: { "content-type": "application/json", "x-enterprise-id": enterprise }, body: JSON.stringify({ kind, id: scope, reason, receipt, publicKeyPem, ...(action === "provision" ? JSON.parse(provision) : {}), ...(["signed-command", "cancel", "reconcile-cancellation"].includes(action) ? { envelope: JSON.parse(signedCommand) } : {}), action }) });
         const body = await response.json();
         if (!response.ok) throw new Error(body.error ?? "Operation failed.");
-        setMessage(`Recorded ${body.receipt.kind}. Receipt: ${body.receipt.digest}`);
+        setMessage(`Recorded ${body.receipt.cancellationStatus ?? body.receipt.kind}. Receipt: ${body.receipt.digest}`);
       }
       await load();
     } catch (error) { setSnapshot(null); setMessage(error instanceof Error ? error.message : "Operations unavailable."); }
@@ -44,7 +44,7 @@ export default function SwarmConsole() {
         <div className="overflow-x-auto"><table className="w-full text-left"><thead><tr>{["Budget", "Limit", "Reserved", "Spent", "Parallel limit"].map(s => <th className="p-2" key={s}>{s}</th>)}</tr></thead><tbody>{Object.entries(snapshot.budgets).map(([id, b]) => <tr key={id}><td className="p-2">{id}</td><td>{money(b.limitMinor)}</td><td>{money(b.reservedMinor)}</td><td>{money(b.spentMinor)}</td><td>{b.maxParallel}</td></tr>)}</tbody></table></div>
         {!Object.keys(snapshot.budgets).length && <p>No shared budgets recorded.</p>}
       </section>
-      <section><h2 className="text-xl font-semibold">Members and execution</h2><ul>{snapshot.members.map(m => <li key={m.id}>{m.id}: {m.state} · {m.swarmId} · Parent: {m.parentId ?? "Root member"}</li>)}</ul><ul>{snapshot.leases.map(l => <li className="break-all" key={l.id}>{l.memberId}: {l.state} · {l.id}</li>)}</ul></section>
+      <section><h2 className="text-xl font-semibold">Members and execution</h2><ul>{snapshot.members.map(m => <li key={m.id}>{m.id}: {m.state} · {m.swarmId} · Parent: {m.parentId ?? "Root member"}</li>)}</ul><ul>{snapshot.leases.map(l => <li className="break-all" key={l.id}>{l.memberId}: {l.state} ? Task: {l.taskId} · {l.id}</li>)}</ul></section>
       <section className="space-y-3"><h2 className="text-xl font-semibold">Emergency containment</h2><p>Only workspace owners and administrators can contain a scope. This does not undo external effects or rotate external credentials.</p>
         <form className="grid gap-3" onSubmit={e => { e.preventDefault(); void perform("contain"); }}>
           <label>Scope <select className="rounded border bg-black p-2" value={kind} onChange={e => setKind(e.target.value)} disabled={busy}>{["swarm", "agent", "chain", "workflow"].map(k => <option key={k}>{k}</option>)}</select></label>
@@ -78,8 +78,9 @@ export default function SwarmConsole() {
         <label className="grid gap-1">Signed command envelope<textarea className="min-h-32 rounded border bg-transparent p-2" value={signedCommand} onChange={e => setSignedCommand(e.target.value)} disabled={busy} /></label>
         <button className="rounded border border-red-400 p-2" disabled={busy || !signedCommand} onClick={() => void perform("signed-command")}>Verify and apply containment</button>
       </section>
+      <section className="space-y-3"><h2 className="text-xl font-semibold">Controlled runtime cancellation</h2><p>Use the signed envelope field above with a cancellation command bound to the task and execution identifiers. In-flight transport aborts remain unconfirmed unless verified outcome evidence resolves them.</p><button className="rounded border p-2" disabled={busy || !signedCommand} onClick={() => void perform("cancel")}>Request signed cancellation</button><button className="rounded border p-2" disabled={busy || !signedCommand} onClick={() => void perform("reconcile-cancellation")}>Reconcile cancellation outcome</button></section>
       <section><h2 className="text-xl font-semibold">Coordinated denial alerts</h2><p>Recommendations do not grant authority or automatically stop external runtimes.</p><ul>{snapshot.anomalies.map(a => <li className="break-all" key={a.evidence[0]}>{a.recommendedLevel}: {a.evidence.length} correlated denials. Evidence: {a.evidence.join(", ")}</li>)}</ul></section>
-      <section><h2 className="text-xl font-semibold">Recent receipts</h2><p>Showing the latest {snapshot.receipts.length} of {snapshot.totalReceipts} receipts.</p><ol>{snapshot.receipts.map(r => <li className="break-all" key={r.digest}>{r.sequence}. {r.kind} · {new Date(r.at).toISOString()} · {r.digest}</li>)}</ol></section>
+      <section><h2 className="text-xl font-semibold">Recent receipts</h2><p>Showing the latest {snapshot.receipts.length} of {snapshot.totalReceipts} receipts.</p><ol>{snapshot.receipts.map(r => <li className="break-all" key={r.digest}>{r.sequence}. {r.cancellationStatus ?? r.kind} · {new Date(r.at).toISOString()} · {r.digest}</li>)}</ol></section>
     </>}
   </div>;
 }

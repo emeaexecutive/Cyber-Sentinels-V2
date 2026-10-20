@@ -22,7 +22,7 @@ async function operations(request: Request, write: boolean) {
     const current = await resolveIdentityEnterprise(request, write ? ["owner", "admin"] : ["owner", "admin", "reviewer", "observer"]);
     if (current.enterpriseId !== context.enterpriseId || current.user.id !== context.user.id) throw new IdentityApiError("Session changed.", 403, "SWARM_SESSION_CHANGED");
     return { id: current.user.id, tenantId: current.enterpriseId, kind: "human", controlledBy: [], expiresAt: Date.now() + 5000, permissions: write ? ["swarm:audit", "swarm:contain", "swarm:reconcile", "swarm:manage", "swarm:restore"] : ["swarm:audit"] };
-  }, Date.now, { containmentKey: configuredContainmentKey });
+  }, Date.now, { containmentKey: configuredContainmentKey, cancellationEvidenceKey: () => process.env.NATIVE_DESTINATION_EVIDENCE_KEY ?? "", cancellationProject: persistSwarmReceiptProjection });
 }
 function failure(error: unknown) {
   if (error instanceof IdentityApiError) return response({ error: error.code }, error.status);
@@ -53,6 +53,6 @@ export async function POST(request: Request) {
     const receipt = await ops.command(JSON.parse(Buffer.concat(chunks).toString("utf8")));
     await persistSwarmReceiptProjection(receipt);
     await recoverPersistedSwarmProjections(receipt.tenantId);
-    return response({ ok: true, receipt: { digest: receipt.digest, kind: receipt.kind, sequence: receipt.sequence } });
+    return response({ ok: true, receipt: { digest: receipt.digest, kind: receipt.kind, sequence: receipt.sequence, cancellationStatus: receipt.details.cancellationStatus ?? null } });
   } catch (error) { return failure(error); }
 }

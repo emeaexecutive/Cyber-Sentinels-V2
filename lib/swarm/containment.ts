@@ -176,6 +176,7 @@ export class SwarmContainment {
       }
       if (!classification || !Number.isSafeInteger(classification.units) || classification.units <= 0 || !Number.isSafeInteger(classification.limit) || classification.limit < 0 || !classification.correlationId || !classification.resource || !classification.operation || !classification.policyVersion || !classification.evidenceRefs.length) reasons.push("CLASSIFICATION_UNVERIFIED");
       if (classification) {
+        if (state.events.some(e => e.details.cancellationStatus === "CANCEL_REQUESTED" && (e.details.command as { taskId?: string; swarmId?: string } | undefined)?.taskId === classification.correlationId && (e.details.command as { swarmId?: string }).swarmId === member?.swarmId)) reasons.push("SWARM_TASK_CANCELLED");
         if (classification.mandatoryRestriction) reasons.push("MANDATORY_RESTRICTION");
         if (classification.transfer !== "NONE" && !classification.transferPermitted) reasons.push("UNAUTHORIZED_TRANSFER");
         const window = classification.quotaWindow;
@@ -357,3 +358,5 @@ export class SwarmContainment {
     return this.deps.store.transact(tenantId, state => { if (!verifySwarmReplay(state.events, tenantId)) throw new Error("SWARM_REPLAY_INTEGRITY"); return structuredClone(state.events); });
   }
 }
+
+export { event as appendSwarmEvent };

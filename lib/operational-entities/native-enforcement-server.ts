@@ -172,12 +172,12 @@ function controlledDestinationAdapter(context: DelegatedAuthorityContext) {
   };
 }
 
-function registeredToolAdapter(context: DelegatedAuthorityContext, payload: Record<string, unknown>) {
+function registeredToolAdapter(context: DelegatedAuthorityContext, payload: Record<string, unknown>, lifecycle?: Parameters<typeof createHttpToolAdapter>[0]["lifecycle"]) {
   const registry = JSON.parse(process.env.TENENTE_TOOL_ADAPTERS ?? "{}") as Record<string, { endpoint: string; transport: "http" | "mcp" }>;
   const tool = String(payload.tool ?? "");
   const entry = Object.hasOwn(registry, tool) ? registry[tool] : null;
   if (!entry || !["http", "mcp"].includes(entry.transport)) throw new NativeEnforcementServerError("The requested tool has no configured enforcement adapter.", "TOOL_ADAPTER_NOT_CONFIGURED", 409);
-  const adapter = createHttpToolAdapter({ ...entry, tool, payload, evidenceKey: evidenceKey(), allowLocal: process.env.NODE_ENV === "development" });
+  const adapter = createHttpToolAdapter({ ...entry, lifecycle, tool, payload, evidenceKey: evidenceKey(), allowLocal: process.env.NODE_ENV === "development" });
   return { async execute(request: EnforcementRequest): Promise<EnforcementAdapterResult> {
     let result: EnforcementAdapterResult;
     try { result = await adapter.execute(request); }
@@ -415,7 +415,7 @@ export async function requestNativeEnforcement(context: DelegatedAuthorityContex
       return { created: true as const };
     },
     adapter: evaluation.data.decision_snapshot?.action?.parameters
-      ? registeredToolAdapter(context, evaluation.data.decision_snapshot.action)
+      ? registeredToolAdapter(context, evaluation.data.decision_snapshot.action, storedSwarmControls?.cancellation)
       : controlledDestinationAdapter(context),
   });
   if (!executed.requested || !executed.request) {
