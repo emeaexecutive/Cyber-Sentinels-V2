@@ -19,20 +19,20 @@ const db={from(table){
 }};
 mock.module(new URL('../lib/supabase/service-role.ts',import.meta.url).href,{namedExports:{createServiceRoleClient:()=>db}});
 mock.module(new URL('../lib/swarm/store.ts',import.meta.url).href,{namedExports:{createSwarmStore:()=>h.store}});
-mock.module(new URL('../lib/swarm/evidence-projection-server.ts',import.meta.url).href,{namedExports:{persistSwarmReceiptProjection:async()=>{}}});
+mock.module(new URL('../lib/swarm/evidence-projection-server.ts',import.meta.url).href,{namedExports:{persistSwarmReceiptProjection:async()=>{},recoverPersistedSwarmProjections:async()=>{}}});
 mock.module(new URL('../lib/operational-entities/delegated-authority-server.ts',import.meta.url).href,{namedExports:{resolveStoredDelegatedAction:async()=>{
   const resolved=await h.deps.resolve(request);
   return {action:payload,result:{decision:resolved.decision,authorityGraph:{chain:resolved.graph.grants}}};
 }}});
 const {createStoredSwarmControls}=await import('../lib/swarm/native-server-controls.ts');
-async function setup(dependent=false){
+async function setup(dependent=false, prohibited=false){
   h=await fixture({now:Date.now()});identity=true;
   // Provisioned policy is trusted persisted registry data, not execution request JSON.
   const state=await h.read();
   request=h.request('server:agent');request.action.payloadDigest=hashCanonical(payload);
-  const tasks=[{id:'task:child',parentTaskId:dependent?'task:parent':null,transactionId:request.transactionId,memberId:'server:agent',payloadDigest:request.action.payloadDigest},...(dependent?[{id:'task:parent',parentTaskId:null,transactionId:'parent-transaction',memberId:'agent:1',payloadDigest:'parent-digest'}]:[])];
+  const tasks=[{component:'refund-step',id:'task:child',parentTaskId:dependent?'task:parent':null,transactionId:request.transactionId,memberId:'server:agent',payloadDigest:request.action.payloadDigest},...(dependent?[{id:'task:parent',parentTaskId:null,transactionId:'parent-transaction',memberId:'agent:1',payloadDigest:'parent-digest'}]:[])];
   parentCanonical={decision:'ALLOW',request_digest:'parent-digest'};
-  const policy={tasks,version:'v1',allowedTools:['refund'],environments:['test'],resources:['customer:1'],aggregateBudget:{id:'shared:500',currency:'EUR',limitMinor:50000,maxParallel:5},perActionMinor:10000,evidenceRefs:['policy:approved']};
+  const policy={tasks,prohibitedCombinations:prohibited?[['refund-step']]:[],version:'v1',allowedTools:['refund'],environments:['test'],resources:['customer:1'],aggregateBudget:{id:'shared:500',currency:'EUR',limitMinor:50000,maxParallel:5},perActionMinor:10000,evidenceRefs:['policy:approved']};
   const collective={...state.collectives['swarm:1'],id:'swarm:server',executionPolicy:policy};
   await h.control.register(tenant,'operator',collective,{...state.members['agent:1'],id:'server:agent',swarmId:collective.id,parentId:null});
   h.actors.set('server:agent',{...h.actors.get('agent:1'),id:'server:agent'});await h.beat('server:agent');
@@ -93,3 +93,5 @@ test('Contract 11: wrong tool, environment and resource cause zero dispatched le
     payload.tool=originalTool;
   }
 });
+
+test('Server task components enforce operator-provisioned prohibited combinations',async()=>{const c=await setup(false,true);const result=await c.swarmGuard.admit(request);assert.equal(result.allowed,false);assert.ok(result.reasonCodes.includes('DISTRIBUTED_PROHIBITED_ACTION'));assert.equal(Object.keys((await h.read()).leases).length,0);});

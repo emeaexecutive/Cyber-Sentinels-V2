@@ -1,3 +1,5 @@
+> Historical qualification. Follow-up implementation and current limits: [CPTO closure](CPTO-CLOSURE-20261020.md). Original results below remain preserved.
+
 # TENENTE Swarm Authority Control - local contract qualification
 
 Authoritative contract: `TENENTE_SWARM_CODEX_COMPLETE.md` (all sixteen sections plus twelve adversarial scenarios). This supersedes prior missing-specification and unwired-server statements. Branch: `feat/tenente-swarm-authority-control`; implementation parent `eb51d89826d02adadc945aca336a0651d2dd05ee`. The commit containing this report identifies the reviewed implementation; qualification JSON records source hashes.

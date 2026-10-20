@@ -428,6 +428,12 @@ export type HeartbeatClaims = {
   environment: "production" | "staging"; authority_id: string; policy_id: string; policy_version: string;
 };
 export type SignedHeartbeat = HeartbeatClaims & { signature: string };
+export type SwarmHeartbeatClaims = { domain: "cyber-sentinels:swarm-heartbeat:v1"; audience: string; tenantId: string; memberId: string; version: number; sequence: number; at: number };
+export type SignedSwarmHeartbeat = { mode: "swarm"; claims: SwarmHeartbeatClaims; signature: string };
+export async function signSwarmHeartbeat(claims: SwarmHeartbeatClaims, privateKey: CryptoKey): Promise<SignedSwarmHeartbeat> {
+  return { mode: "swarm", claims, signature: await signCanonical(claims, privateKey) };
+}
+
 /** Signs a first-party control-plane heartbeat, not downstream execution proof. */
 export async function signHeartbeat(claims: HeartbeatClaims, tenantId: string, audience: string, privateKey: CryptoKey): Promise<SignedHeartbeat> {
   const { agent_id, credential_id, event_id, issued_at, environment, authority_id, policy_id, policy_version } = claims;
@@ -499,7 +505,7 @@ export class CyberSentinels {
     registerManifest: (agentId: string, input: SignedPublicManifest, options?: RequestOptions) => Promise<Record<string, unknown>>;
     issueChallenge: (agentId: string, options?: RequestOptions) => Promise<Challenge>;
     submitProof: (agentId: string, input: ProofSubmission, options?: RequestOptions) => Promise<Record<string, unknown>>;
-    heartbeat: (agentId: string, input: SignedHeartbeat, options?: RequestOptions) => Promise<Record<string, unknown>>;
+    heartbeat: (agentId: string, input: SignedHeartbeat | SignedSwarmHeartbeat, options?: RequestOptions) => Promise<Record<string, unknown>>;
     verify: (agentId: string, input: ProofSubmission, options?: RequestOptions) => Promise<Record<string, unknown>>;
     getAuthority: (agentId: string, options?: RequestOptions) => Promise<Authority>;
     getTrustState: (agentId: string, options?: RequestOptions) => Promise<Record<string, unknown>>;

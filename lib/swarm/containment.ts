@@ -1,14 +1,16 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { verifyContainmentCommand, type SignedContainmentCommand, type ContainmentKey, type ContainmentCommand } from "./prevention-kit.ts";
+import { createHmac, timingSafeEqual, createPublicKey, verify } from "node:crypto";
 import { evaluateAuthorityGraph, type AuthorityGraphRequest } from "../core/authority-graph.ts";
 import { evaluateAuthorizationGateway } from "../core/authorization-gateway.ts";
+import { canonicalize } from "../../src/lib/trust-core/canonicalize.ts";
 import { hashCanonical } from "../../src/lib/trust-core/hash.ts";
 import type { EnforcementRequest, TrustDecision } from "../operational-entities/native-enforcement.ts";
 
 export type Lifecycle = "ACTIVE" | "COMPLETED" | "SUSPENDED" | "REVOKED" | "EXPIRED" | "UNREACHABLE" | "UNKNOWN";
 export type Actor = { id: string; tenantId: string; kind: "human" | "agent"; permissions: string[]; expiresAt: number; controlledBy: string[]; credentialVersion?: number };
-export type Member = { id: string; swarmId: string; parentId: string | null; credentialVersion: number; state: Lifecycle; heartbeatAt: number; heartbeatSequence: number; expiresAt: number };
-export type SwarmTask = { id: string; parentTaskId: string | null; transactionId: string; memberId: string; payloadDigest: string };
-export type SwarmExecutionPolicy = { tasks: SwarmTask[]; version: string; allowedTools: string[]; environments: string[]; resources: string[]; perActionMinor?: number; aggregateBudget?: { id: string; currency: "EUR"; limitMinor: number; maxParallel: number }; operationQuota?: { limit: number; mode: "PER_ACTION" | "AGGREGATE"; windowMs?: number }; evidenceRefs: string[] };
+export type Member = { runtimePublicKeyPem?: string; id: string; swarmId: string; parentId: string | null; credentialVersion: number; state: Lifecycle; heartbeatAt: number; heartbeatSequence: number; expiresAt: number };
+export type SwarmTask = { component?: string; id: string; parentTaskId: string | null; transactionId: string; memberId: string; payloadDigest: string };
+export type SwarmExecutionPolicy = { prohibitedCombinations?: string[][]; tasks: SwarmTask[]; version: string; allowedTools: string[]; environments: string[]; resources: string[]; perActionMinor?: number; aggregateBudget?: { id: string; currency: "EUR"; limitMinor: number; maxParallel: number }; operationQuota?: { limit: number; mode: "PER_ACTION" | "AGGREGATE"; windowMs?: number }; evidenceRefs: string[] };
 export type Collective = { id: string; entityType: "AGENT_SWARM"; objective: string; workflowId: string; originalAuthority: string; state: Lifecycle; maxMembers: number; orchestratorId?: string; responsiblePrincipalId?: string; executionPolicy?: SwarmExecutionPolicy };
 export type BudgetScope = { id: string; currency: "EUR"; amountMinor: number; limitMinor: number; maxParallel: number };
 export type BudgetBalance = { currency: "EUR"; limitMinor: number; maxParallel: number; reservedMinor: number; spentMinor: number };
@@ -36,6 +38,7 @@ export type SwarmDependencies = {
   resolve(request: EnforcementRequest): Promise<{ decision: TrustDecision; graph: AuthorityGraphRequest; classification: Classification; policyAvailable: boolean; providerAvailable: boolean }>;
   heartbeatKey(tenantId: string, memberId: string, version: number): Promise<string>;
   verifyOutcome(tenantId: string, lease: Lease, evidence: unknown): Promise<{ completed: boolean; evidenceRef: string; spentMinor?: number }>;
+  containmentKey?(tenantId: string, keyId: string): Promise<ContainmentKey>;
   now(): number;
 };
 
@@ -83,6 +86,30 @@ export class SwarmContainment {
       state.collectives[collective.id] = structuredClone(collective);
       state.members[member.id] = { ...structuredClone(member), heartbeatAt: 0, heartbeatSequence: 0 };
       return event(state, this.deps.now(), "MEMBERSHIP_ADDED", actor.id, member.id, { swarmId: collective.id, parentId: member.parentId, originalAuthority: collective.originalAuthority, workflowId: collective.workflowId, authorityConferred: false });
+    });
+  }
+  async enrollRuntimeKey(tenantId: string, proof: string, memberId: string, publicKeyPem: string) {
+    const actor = await this.actor(tenantId, proof, "swarm:manage");
+    if (publicKeyPem.length > 2048 || createPublicKey(publicKeyPem).asymmetricKeyType !== "ed25519") throw new Error("SWARM_RUNTIME_KEY_INVALID");
+    const normalized = createPublicKey(publicKeyPem).export({ format: "pem", type: "spki" }).toString();
+    const fingerprint = hashCanonical({ publicKey: normalized });
+    return this.deps.store.transact(tenantId, state => {
+      const member = state.members[memberId];
+      if (!member || member.state !== "ACTIVE" || state.events.some(e => e.details.runtimeKeyFingerprint === fingerprint)) throw new Error("SWARM_RUNTIME_ENROLLMENT_DENIED");
+      member.runtimePublicKeyPem = normalized; member.credentialVersion++; member.heartbeatAt = 0; member.heartbeatSequence = 0;
+      return event(state, this.deps.now(), "MEMBERSHIP_CHANGED", actor.id, memberId, { runtimeKeyFingerprint: fingerprint, credentialVersion: member.credentialVersion, authorityConferred: false });
+    });
+  }
+  async signedHeartbeat(tenantId: string, proof: string, claims: { domain: "cyber-sentinels:swarm-heartbeat:v1"; audience: string; tenantId: string; memberId: string; version: number; sequence: number; at: number }, signature: string, expectedAudience: string) {
+    const actor = await this.actor(tenantId, proof);
+    return this.deps.store.transact(tenantId, state => {
+      const member = state.members[claims.memberId], now = this.deps.now();
+      if (actor.kind !== "agent" || actor.id !== claims.memberId || claims.tenantId !== tenantId || claims.domain !== "cyber-sentinels:swarm-heartbeat:v1" || claims.audience !== expectedAudience
+        || !member?.runtimePublicKeyPem || member.state !== "ACTIVE" || member.credentialVersion !== claims.version || actor.credentialVersion !== claims.version || !liveTime(member.expiresAt, now)
+        || !Number.isSafeInteger(claims.sequence) || claims.sequence <= member.heartbeatSequence || !Number.isSafeInteger(claims.at) || Math.abs(now - claims.at) > 30000
+        || !/^[A-Za-z0-9_-]{86}$/.test(signature) || !verify(null, Buffer.from(canonicalize(claims)), createPublicKey(member.runtimePublicKeyPem), Buffer.from(signature, "base64url"))) throw new Error("SWARM_SIGNED_HEARTBEAT_DENIED");
+      member.heartbeatAt = claims.at; member.heartbeatSequence = claims.sequence;
+      return event(state, now, "HEARTBEAT_VERIFIED", actor.id, member.id, { sequence: claims.sequence, credentialVersion: claims.version, signedRuntimeDeclaration: true, downstreamExecutionObserved: false });
     });
   }
   async heartbeat(tenantId: string, proof: string, claims: { tenantId: string; memberId: string; version: number; sequence: number; at: number }, mac: string) {
@@ -207,18 +234,31 @@ export class SwarmContainment {
       return { allowed: true, receipt: event(state, now, "DISPATCH_STARTED", actor.id, member.id, { leaseId, transactionId: request.transactionId, externalCancellationGuaranteed: false }) };
     });
   }
+  async executeContainmentCommand(tenantId: string, proof: string, input: SignedContainmentCommand) {
+    const actor = await this.actor(tenantId, proof, "swarm:contain");
+    if (!this.deps.containmentKey) throw new Error("SWARM_COMMAND_KEY_UNAVAILABLE");
+    const c = verifyContainmentCommand(input, await this.deps.containmentKey(tenantId, input.command.keyId), tenantId, this.deps.now());
+    if (c.issuerId !== actor.id) throw new Error("SWARM_COMMAND_ISSUER_MISMATCH");
+    return this.applyContainment(tenantId, proof, c.target, c.reason, c, input.signature);
+  }
   async contain(tenantId: string, proof: string, scope: { kind: "agent" | "swarm" | "chain" | "workflow"; id: string }, reason: string) {
+    return this.applyContainment(tenantId, proof, scope, reason);
+  }
+  private async applyContainment(tenantId: string, proof: string, scope: { kind: "agent" | "swarm" | "chain" | "workflow"; id: string }, reason: string, command?: ContainmentCommand, signature?: string) {
     const actor = await this.actor(tenantId, proof, "swarm:contain");
     if (!reason.trim()) throw new Error("SWARM_REASON_REQUIRED");
     return this.deps.store.transact(tenantId, state => {
       const ids = new Set(Object.values(state.members).filter(m => scope.kind === "agent" || scope.kind === "chain" ? m.id === scope.id : scope.kind === "swarm" ? m.swarmId === scope.id : state.collectives[m.swarmId]?.workflowId === scope.id).map(m => m.id));
       if (scope.kind === "chain") for (const lease of Object.values(state.leases)) if (lease.authorityChain.includes(scope.id)) ids.add(lease.memberId);
-      if (scope.kind === "chain") { let changed = true; while (changed) { changed = false; for (const m of Object.values(state.members)) if (m.parentId && ids.has(m.parentId) && !ids.has(m.id)) { ids.add(m.id); changed = true; } } }
+      if (scope.kind === "chain" || (scope.kind === "agent" && command && ["REVOKE", "EMERGENCY_STOP"].includes(command.level))) { let changed = true; while (changed) { changed = false; for (const m of Object.values(state.members)) if (m.parentId && ids.has(m.parentId) && !ids.has(m.id)) { ids.add(m.id); changed = true; } } }
       if (!ids.size) throw new Error("SWARM_SCOPE_NOT_FOUND");
+      if (command && (command.expiresAt <= this.deps.now() || [...ids].some(id => state.members[id].swarmId !== command.swarmId))) throw new Error("SWARM_COMMAND_TARGET_MISMATCH");
+      if (command && state.events.some(e => { const prior = e.details.signedCommand as ContainmentCommand | undefined; return prior?.issuerId === command.issuerId && prior.nonce === command.nonce; })) throw new Error("SWARM_COMMAND_REPLAY");
+      if (command?.level === "OBSERVE") return event(state, this.deps.now(), "EMERGENCY_CONTAINMENT", actor.id, scope.id, { scope, reason, affected: [], inFlight: [], signedCommand: command, commandSignature: signature, enforced: false });
       const inFlight: string[] = [];
-      for (const id of ids) { state.members[id].state = "SUSPENDED"; state.members[id].credentialVersion++; state.members[id].heartbeatAt = 0; }
+      for (const id of ids) { state.members[id].state = command?.level === "REVOKE" ? "REVOKED" : "SUSPENDED"; state.members[id].credentialVersion++; state.members[id].heartbeatAt = 0; }
       for (const lease of Object.values(state.leases)) if (ids.has(lease.memberId)) { if (lease.state === "DISPATCHED" || lease.state === "UNKNOWN") { inFlight.push(lease.id); lease.state = "UNKNOWN"; } else if (lease.state === "READY") { settleBudget(state, lease, 0); lease.state = "REVOKED"; } }
-      const receipt = event(state, this.deps.now(), "EMERGENCY_CONTAINMENT", actor.id, scope.id, { scope, reason, affected: [...ids], inFlight, credentialsInvalidatedAtGateway: true, externalCredentialsRotated: false, restorationRequiresIndependentApproval: true });
+      const receipt = event(state, this.deps.now(), "EMERGENCY_CONTAINMENT", actor.id, scope.id, { scope, reason, signedCommand: command ?? null, commandSignature: signature ?? null, affected: [...ids], inFlight, credentialsInvalidatedAtGateway: true, externalCredentialsRotated: false, restorationRequiresIndependentApproval: true });
       state.quarantines.push({ ...scope, receipt: receipt.digest });
       return receipt;
     });
@@ -229,7 +269,7 @@ export class SwarmContainment {
       const containment = state.events.find(e => e.digest === containmentReceipt && e.kind === "EMERGENCY_CONTAINMENT");
       const member = state.members[memberId];
       if (!containment || containment.actorId === actor.id || !(containment.details.affected as string[]).includes(memberId) || member?.state !== "SUSPENDED" || Object.values(state.leases).some(l => l.memberId === memberId && ["UNKNOWN", "DISPATCHED"].includes(l.state))) throw new Error("SWARM_RESTORATION_DENIED");
-      member.state = "ACTIVE"; member.credentialVersion++; member.heartbeatAt = 0;
+      member.state = "ACTIVE"; member.credentialVersion++; member.heartbeatAt = 0; delete member.runtimePublicKeyPem;
       state.quarantines = state.quarantines.filter(q => !(q.kind === "agent" && q.id === memberId && q.receipt === containmentReceipt));
       return event(state, this.deps.now(), "AUTHORITY_RESTORATION_REVIEWED", actor.id, memberId, { containmentReceipt, newCredentialVersion: member.credentialVersion, freshHeartbeatAndLeaseRequired: true });
     });

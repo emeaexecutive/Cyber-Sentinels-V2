@@ -7,7 +7,7 @@ import { SwarmContainment, swarmRequestDigest, type Classification } from "./con
 import { createSwarmStore } from "./store";
 import { swarmRpcPersistence } from "./rpc-persistence";
 import { swarmNativeGuard } from "./native-guard";
-import { persistSwarmReceiptProjection } from "./evidence-projection-server";
+import { persistSwarmReceiptProjection, recoverPersistedSwarmProjections } from "./evidence-projection-server";
 
 /** Server-only composition: no request-supplied policy, graph, health or identity claims. */
 export function createStoredSwarmControls(context: DelegatedAuthorityContext, action: Record<string, unknown>) {
@@ -30,6 +30,7 @@ export function createStoredSwarmControls(context: DelegatedAuthorityContext, ac
       return { id: context.user.id, tenantId: context.enterpriseId, kind: "human" as const, controlledBy: [], permissions: ["swarm:execute", "swarm:reconcile"], expiresAt: Date.now() + 5000 };
     },
     async resolve(request) {
+      await recoverPersistedSwarmProjections(context.enterpriseId);
       if (request.enterpriseId !== context.enterpriseId || request.action.payloadDigest !== hashCanonical(action)) throw new Error("SWARM_PAYLOAD_BINDING_INVALID");
       const registry = await store.transact(context.enterpriseId, state => {
         const member = state.members[request.operationalEntityId];
@@ -78,6 +79,7 @@ export function createStoredSwarmControls(context: DelegatedAuthorityContext, ac
         || (monetary && (!Number.isSafeInteger(amountMinor) || amountMinor < 0))
         || (policy.perActionMinor !== undefined && (!monetary || !Number.isSafeInteger(policy.perActionMinor) || policy.perActionMinor < 0 || amountMinor > policy.perActionMinor));
       const classification: Classification = {
+        ...(task.component ? { component: task.component } : {}), ...(policy.prohibitedCombinations ? { prohibitedCombinations: policy.prohibitedCombinations } : {}),
         correlationId: task.id, resource: request.action.target, operation: request.action.type,
         units: Number(action.executionCount ?? 1), limit: policy.operationQuota?.limit ?? Number.MAX_SAFE_INTEGER,
         quotaMode: policy.operationQuota?.mode ?? "PER_ACTION",

@@ -79,6 +79,29 @@ export default function AboutUsPage() {
             calmer way to explain risk, review actions and pilot outcomes.
           </p>
         </section>
+        <section id="our-story" aria-labelledby="aragon-origin-heading" className="mt-14 border-t border-zinc-800 pt-14">
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">
+            Our Story
+          </p>
+          <h2 id="aragon-origin-heading" className="mt-4 max-w-4xl text-3xl font-semibold leading-tight md:text-4xl">
+            Built in Aragón. Designed for a world of autonomous agents.
+          </h2>
+          <p className="mt-6 max-w-3xl text-sm leading-7 text-zinc-300">
+            Cyber Sentinels was founded and developed in Aragón, Spain. Its
+            founder lives in Aragón, where the work of building accountable
+            systems for autonomous agents began.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            The name TENENTE™ was inspired by the historical concept of
+            delegated guardianship and responsibility. For Cyber Sentinels,
+            TENENTE represents bounded authority, continuing verification and
+            accountability. These principles guide its development.
+          </p>
+          <p className="mt-6 max-w-3xl text-lg font-semibold leading-8 text-cyan-100">
+            Authority can be delegated. It cannot be invented.
+          </p>
+          <Link href="/platform#swarm-security" className="mt-6 inline-block text-cyan-200 underline">Explore TENENTE swarm security and qualification status</Link>
+        </section>
       </div>
     </main>
   );
