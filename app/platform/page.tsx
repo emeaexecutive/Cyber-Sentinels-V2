@@ -6,14 +6,14 @@ import { StructuredData } from "@/components/search/structured-data";
 import { softwareGraph, publicSocialMetadata } from "@/lib/search/metadata";
 
 const platformCapabilities = [
-  ["trust-engine", "Trust Engine", "Evaluates identity, evidence, posture and policy boundaries."],
-  ["decision-intelligence", "Decision Intelligence", "Explains allow, review, block and next-action outcomes."],
-  ["runtime-engine", "Runtime", "Observes material context change while work is in progress."],
-  ["authorization-gateway", "Authorization", "Confirms purpose, scope and delegated authority before execution."],
-  ["enforcement", "Enforcement", "Applies the governed decision outside the actor runtime."],
-  ["provider-orchestrator", "Provider Orchestrator", "Normalizes provider evidence without collapsing source boundaries."],
-  ["validation-engine", "Validation", "Keeps reviewed evidence, calibration and limitations explicit."],
-  ["enterprise-apis", "Enterprise APIs", "Expose one provider-neutral contract to existing workflows."],
+  ["trust-engine", "Trust Engine", "Considers identity, evidence, posture and policy boundaries."],
+  ["decision-intelligence", "Decision Intelligence", "Explains allow, review, deny and next-step outcomes."],
+  ["runtime-engine", "Runtime", "Accounts for material context changes while work is in progress."],
+  ["authorization-gateway", "Authorization", "Considers purpose, scope and delegated authority before action."],
+  ["enforcement", "Operational controls", "Connects a governed decision to a qualified control boundary."],
+  ["provider-orchestrator", "Provider evidence", "Keeps evidence sources distinct when information is brought together."],
+  ["validation-engine", "Validation", "Makes review, evidence limits and qualification status explicit."],
+  ["enterprise-apis", "Integrations", "Provides documented ways to connect existing workflows."],
 ];
 
 const requestFlow = [
@@ -26,6 +26,10 @@ const requestFlow = [
   { label: "Decision" },
 ];
 
+const platformTitle = "AI Agent Authority | Cyber Sentinels";
+const platformDescription =
+  "Cyber Sentinels helps organisations determine whether AI agents are authorised to act under current policy and preserve evidence of the decision.";
+
 export default function PlatformPage() {
   return (
     <main className="operational-shell min-h-screen px-6 py-12 text-white md:px-8">
@@ -33,31 +37,35 @@ export default function PlatformPage() {
         <StructuredData value={softwareGraph} />
         <ExecutiveSummary
           eyebrow="Platform"
-          title="One provider-neutral control plane for operational trust decisions."
-          bullets={["Evaluate evidence and authority before consequential execution.", "Observe material change during runtime.", "Apply policy and enforcement outside the actor runtime.", "Integrate through one stable enterprise contract."]}
+          title="Authority for AI agents, checked against current policy."
+          bullets={["Determine whether an AI agent is authorised to act.", "Apply ALLOW, REVIEW or DENY at a connected control boundary.", "Preserve decision evidence for review, including Replay and Trust Memory™."]}
           primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
         />
 
-        <section id="execution-trust" className="mt-8 scroll-mt-28 operational-panel p-6">
-          <h2 className="text-2xl font-semibold">What is execution trust?</h2>
-          <p className="mt-4 max-w-4xl leading-8 text-zinc-300">Execution trust evaluates whether an actor has current authority to perform a specific action for a stated purpose on a permitted target. It connects authorization to the evidence needed to explain the decision. Cyber Sentinels governs the action; authentication or a previous ALLOW does not establish permanent authority.</p>
-          <p className="mt-4 leading-8 text-cyan-100">Agent Registry → Authority → Policy → Decision → Receipt → Replay → Trust Memory™</p>
-          <p className="mt-4 leading-8 text-zinc-400">The canonical decisions are ALLOW, REVIEW and DENY. External execution requires a connected, qualified enforcement boundary; a decision alone is not proof of a downstream effect. Read the <Link href="/resources/agent-security/agent-authorization" className="text-cyan-200 underline">agent authorization explanation</Link> and <Link href="/resources/agent-security/mcp-tool-authorization" className="text-cyan-200 underline">tool and target authority model</Link>.</p>
+        <section id="agent-authority" className="mt-8 scroll-mt-28 operational-panel p-6">
+          <h2 className="text-2xl font-semibold">Authority before an AI agent acts</h2>
+          <p className="mt-4 max-w-4xl leading-8 text-zinc-300">Cyber Sentinels helps organisations determine whether AI agents are authorised to act under current policy and preserve evidence of the decision.</p>
+          <p className="mt-4 text-xl font-semibold leading-8 text-cyan-100">ALLOW · REVIEW · DENY</p>
+          <p className="mt-4 max-w-4xl leading-8 text-zinc-300">A decision considers the requested action, purpose, target, scope and delegated authority against current policy. Identity identifies who or what is making a request; identity or a previous ALLOW does not create permanent authority.</p>
+          <p className="mt-4 max-w-4xl leading-8 text-zinc-300">At a connected, qualified control boundary, ALLOW may permit the controlled action, REVIEW holds it for the required review, and DENY blocks it. A decision alone is not proof that a downstream system carried out or prevented an action.</p>
+          <p className="mt-4 max-w-4xl leading-8 text-zinc-300">Decision evidence supports later examination. Replay helps review recorded decisions, while Trust Memory™ connects relevant evidence over time. Availability and qualification vary by feature; some API and Swarm paths have local test coverage, which does not establish hosted or Production readiness. TENENTE Swarm cancellation and emergency containment remain under qualification and are not Production-qualified.</p>
+          <p className="mt-4 leading-8 text-zinc-400">Read the <Link href="/resources/agent-security/agent-authorization" className="text-cyan-200 underline">agent authorization explanation</Link>, the <Link href="/resources/agent-security/mcp-tool-authorization" className="text-cyan-200 underline">tool and target authority model</Link>, <Link href="/verification-replay" className="text-cyan-200 underline">Replay</Link>, and <Link href="/trust#trust-memory" className="text-cyan-200 underline">Trust Memory™</Link>.</p>
         </section>
 
         <section id="trust-fabric" className="mt-8 scroll-mt-28">
-          <VisualFrame eyebrow="Enterprise Trust Fabric™" title="One architecture. Eight connected mechanisms.">
+          <VisualFrame eyebrow="Decision context" title="Connect authority checks to operational outcomes.">
             <ArchitectureBlock
-              inputs={["Entity Context", "Signals", "Policy", "Authority"]}
-              core="Trust Engine + Decision Intelligence"
-              outputs={["Runtime", "Enforcement", "Provider Orchestrator", "Validation", "Enterprise APIs"]}
+              inputs={["Current Policy", "Delegated Authority", "Requested Action", "Evidence"]}
+              core="ALLOW · REVIEW · DENY"
+              outputs={["Operational Controls", "Decision Evidence", "Replay", "Trust Memory™"]}
             />
           </VisualFrame>
         </section>
 
         <section className="mt-8">
-          <p className="operational-eyebrow">Platform mechanisms</p>
-          <h2 className="mt-3 text-2xl font-semibold">Each mechanism has one operational responsibility.</h2>
+          <p className="operational-eyebrow">Platform model</p>
+          <h2 className="mt-3 text-2xl font-semibold">Capabilities are qualified individually.</h2>
+          <p className="mt-3 max-w-4xl leading-7 text-zinc-400">The following areas describe the platform model, not a claim that every route, provider or runtime integration is available in every hosted environment.</p>
           <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             {platformCapabilities.map(([id, title, copy], index) => (
               <article id={id} key={id} className="scroll-mt-28 operational-card p-5">
@@ -70,7 +78,7 @@ export default function PlatformPage() {
         </section>
 
         <section className="mt-8">
-          <VisualFrame eyebrow="Internal orchestration contract" title="Everything requests trust through one API.">
+          <VisualFrame eyebrow="Integration model" title="Bring policy and authority into existing workflows.">
             <DecisionFlow steps={requestFlow} />
           </VisualFrame>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -85,8 +93,8 @@ export default function PlatformPage() {
 }
 
 export const metadata: Metadata = {
-  ...publicSocialMetadata("Platform | Cyber Sentinels", "Trust Engine, Decision Intelligence, Runtime, Authorization, Enforcement, provider orchestration, validation and enterprise APIs.", "/platform"),
-  title: "Platform | Cyber Sentinels",
-  description: "Trust Engine, Decision Intelligence, Runtime, Authorization, Enforcement, provider orchestration, validation and enterprise APIs.",
+  ...publicSocialMetadata(platformTitle, platformDescription, "/platform"),
+  title: platformTitle,
+  description: platformDescription,
   alternates: { canonical: "/platform" },
 };

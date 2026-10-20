@@ -2,9 +2,14 @@ import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  ...publicSocialMetadata("About | Cyber Sentinels", "Why Cyber Sentinels is building operational trust infrastructure for accountable enterprise workflows.", "/about"),
-  title: "About | Cyber Sentinels",
-  description: "Why Cyber Sentinels is building operational trust infrastructure for accountable enterprise workflows.",
+  ...publicSocialMetadata(
+    "Our Story | Cyber Sentinels",
+    "The story behind TENENTE™, its inspiration in watchfulness and guardianship, and the founder's connection to Aragón, Spain.",
+    "/about",
+  ),
+  title: "Our Story | Cyber Sentinels",
+  description:
+    "The story behind TENENTE™, its inspiration in watchfulness and guardianship, and the founder's connection to Aragón, Spain.",
   alternates: { canonical: "/about" },
 };
 
