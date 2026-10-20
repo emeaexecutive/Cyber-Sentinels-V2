@@ -384,7 +384,8 @@ export async function loadDelegatedAuthority(context: DelegatedAuthorityContext,
   return { delegations: delegations.data ?? [], acceptances: acceptances.data ?? [], evaluations: evaluations.data ?? [] };
 }
 
-export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityContext, delegateId: string, raw: Record<string, unknown>) {
+/** Re-resolve current authority without creating a second decision or any database writes. */
+export async function resolveStoredDelegatedAction(context: DelegatedAuthorityContext, delegateId: string, raw: Record<string, unknown>) {
   ensureRole(context.role, ["owner", "admin"]);
   const delegationId = uuid(raw.delegationId, "delegationId");
   const db = createServiceRoleClient();
@@ -426,6 +427,11 @@ export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityC
   }
   const evaluatedAt = new Date().toISOString();
   const result = evaluateDelegatedAction({ parentAuthority: parent, delegation, ancestorDelegations, acceptance, delegateIdentity: beta.identity, action, now: evaluatedAt });
+  return { db, delegationId, delegation, beta, parent, contract, action, payloadDigest, evaluatedAt, result, requested };
+}
+
+export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityContext, delegateId: string, raw: Record<string, unknown>) {
+  const { db, delegationId, delegation, beta, parent, contract, action, payloadDigest, evaluatedAt, result, requested } = await resolveStoredDelegatedAction(context, delegateId, raw);
   const evaluationId = crypto.randomUUID();
   const decisionDigest = hashCanonical({ evaluationId, delegationId, delegateId, action, result: { decision: result.decision, reasonCodes: result.reasonCodes }, evaluatedAt });
   const persisted = await db.rpc("persist_delegated_action_evaluation_v1", { p_enterprise_id: context.enterpriseId, p_delegation_id: delegationId, p_delegate_operational_entity_id: delegateId, p_actor_id: context.user.id, p_evaluation: { evaluationId, canonicalTransactionId: null, actionType: action.type, actionTarget: action.target, actionTool: action.tool, environment: action.environment, decision: result.decision, reasonCodes: result.reasonCodes, authorityLineage: result.authorityLineage, decisionSnapshot: result.decisionSnapshot, decisionDigest, evaluatedAt } });

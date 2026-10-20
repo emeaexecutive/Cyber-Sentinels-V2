@@ -1,0 +1,188 @@
+{
+  "recordedAt": "2026-10-20T10:43:58.125333+00:00",
+  "branch": "feat/tenente-swarm-authority-control",
+  "commitReference": "Commit containing this manifest; source hashes identify tested files",
+  "scope": "LOCAL qualification; hosted read-only metadata plus disclosed incidental consent-receipt request",
+  "fullRegressionBaseline": 2248,
+  "focusedFinal": 75,
+  "exits": {
+    "lint": 0,
+    "typecheck": 0,
+    "regressions": 0,
+    "build": 0
+  },
+  "logs": {
+    "full-regressions": {
+      "file": "full-regressions.log.gz",
+      "uncompressedSha256": "0f1969ed10328ce87e072ee331c73a10949c61c3567f72861bce4a354e65850b"
+    },
+    "final-focused": {
+      "file": "final-focused.log.gz",
+      "uncompressedSha256": "7ec12295adef677266af42e58286ca293217b22abb2883de0fd44044acaf71fb"
+    },
+    "lint": {
+      "file": "lint.log.gz",
+      "uncompressedSha256": "7c94dc52cda5b8532523c6898c73e4075cca020842b6e16811589b63e97f3bc7"
+    },
+    "typecheck": {
+      "file": "typecheck.log.gz",
+      "uncompressedSha256": "db54e06f1da3913b0a8c455777f06ba233d1f0bce554d0519afcda7e684ea917"
+    },
+    "build": {
+      "file": "build.log.gz",
+      "uncompressedSha256": "a6fa1d8729953ec5818d1471a0bb1716e8bf68153aad458a138f9967d40a40ff"
+    },
+    "resource-timeout-attempt": {
+      "file": "resource-timeout-attempt.log.gz",
+      "uncompressedSha256": "0aeba663654ccfd1b511261c362f6e5522110124fe1a76bf8c1464ba1ec70f68"
+    },
+    "postgres-network": {
+      "file": "postgres-network.log.gz",
+      "uncompressedSha256": "05cfe5ca5e18a79e03d98a64d8e2d302a23c641ccbe6f4eabdd3427c2130f51d"
+    },
+    "postgres-rls": {
+      "file": "postgres-rls.log.gz",
+      "uncompressedSha256": "f477d75edc3f5c14aa5f55c4ef415e66cf4b3916546b19e8f5863a0ad34c870e"
+    }
+  },
+  "sourceHashes": [
+    {
+      "path": ".github/workflows/secret-scan.yml",
+      "sha256": "cb957b6fc63de6292336d7dbc7f45635c789ffd1b87bf53892b2767430b6a1d1"
+    },
+    {
+      "path": "app/about-us/page.tsx",
+      "sha256": "274d9ebb1c2275d30faeb91e9440213c732e06e4e203148acc7dc91acc66f080"
+    },
+    {
+      "path": "app/api/tenente/swarm/route.ts",
+      "sha256": "83b15fcae337e46bbc3b76f37f55c42c6422723cf19aea8ec484ca8ec62fbdac"
+    },
+    {
+      "path": "app/api/v1/agents/[agentId]/heartbeat/route.ts",
+      "sha256": "09525decafceb360a3dcd67d5424b32b407e40295c2340973d59ed1d553f39a7"
+    },
+    {
+      "path": "app/platform/page.tsx",
+      "sha256": "a53b3011e957bc7f3f4a860e833d3b8c4d55002cafbc285093607d7ac7f07d35"
+    },
+    {
+      "path": "app/tenente/swarm/swarm-console.tsx",
+      "sha256": "87351f1e4214b8434c3f91fbc55c67c679143d814b286ccd61894050d7d644e5"
+    },
+    {
+      "path": "lib/public-api/v1/openapi.ts",
+      "sha256": "3272b5fdf819b7b70a4f8bc4a90c67bda8c6bea6289aaeab7c36467ef940f818"
+    },
+    {
+      "path": "lib/swarm/containment.ts",
+      "sha256": "a18893c907512031726530ee57cdc5a12ddba8872c8c155213b8206921944300"
+    },
+    {
+      "path": "lib/swarm/evidence-projection-server.ts",
+      "sha256": "49fe0bcbfcfe55cff9a123e43c76be42fd20bcda1712282d4508ad133448d344"
+    },
+    {
+      "path": "lib/swarm/native-server-controls.ts",
+      "sha256": "4eddd3480f16152f584e5237bea2cde8e47edeee135203aadb0c3e7a69691cfc"
+    },
+    {
+      "path": "lib/swarm/operations.ts",
+      "sha256": "e9919e05141929f5372c84ccd262ac6ff0b844b1e85825817df39529922c48d3"
+    },
+    {
+      "path": "package.json",
+      "sha256": "ec29c2b9c415d24f02c7da6f4e20344cfa3e17fb9716be13c9df61d207cb221a"
+    },
+    {
+      "path": "packages/cyber-sentinels-sdk/README.md",
+      "sha256": "c463a20820bcf010f9eda02719541038a0d14ce958290ae9285c8cae4ee5f353"
+    },
+    {
+      "path": "packages/cyber-sentinels-sdk/src/index.ts",
+      "sha256": "17eb4bcdc8af67fd02bebfd87296957d7072a22ee254d8b7c0cfed0977cffcff"
+    },
+    {
+      "path": "tests/fixtures/swarm-sql.mjs",
+      "sha256": "73b560425d58d064f2f66ed1f4e3251860d0dba0220bd69ac344bb68d2fcd43c"
+    },
+    {
+      "path": "tests/swarm-native-server-controls.test.mjs",
+      "sha256": "185d4f6cbd4c45093dee38f758f2d09987ae40986a67f0fcb109664e474981a0"
+    },
+    {
+      "path": "tests/swarm-operations.test.mjs",
+      "sha256": "ea193cffed89bd92f159b85bd7385a9e63f5184e83372f54dd0710bf5e879330"
+    },
+    {
+      "path": "tests/swarm-route.test.mjs",
+      "sha256": "02d247e4d4ff8efa6dd961bf1dd31833f7b85e0ca420819e4a36a48bc37b405c"
+    },
+    {
+      "path": "gitleaks-verified-fixtures.ignore",
+      "sha256": "8dc5823f96c484f5e123b1ef36708eea4345d1465e3102c79d4409812257d52f"
+    },
+    {
+      "path": "lib/swarm/containment-keys-server.ts",
+      "sha256": "2a0c060d158a43dbda60a22969490a1a52e548f6cd915ea70f99e03d01e089be"
+    },
+    {
+      "path": "lib/swarm/prevention-kit.ts",
+      "sha256": "21512e4b41f0164c4c85e661c7cab62ce1144f8c60e0fc8ac8b4f64267b9b0bf"
+    },
+    {
+      "path": "lib/swarm/projection-recovery.ts",
+      "sha256": "c78013db23f790ac34c6de5c72a49ade18456cd6c6abeecbced3697220d32dfc"
+    },
+    {
+      "path": "lib/swarm/runtime-heartbeat-server.ts",
+      "sha256": "f0db9b9ce4c7964c7f1ab07361d1183260c169aaff31c362997375bebb9515fd"
+    },
+    {
+      "path": "supabase/migrations/20261020100706_tenente_swarm_projection_recovery.sql",
+      "sha256": "29c38706ab7292c99ae0df3c45be509e918060cfbc45444ab355f9ec47701ff9"
+    },
+    {
+      "path": "tests/swarm-prevention-kit.test.mjs",
+      "sha256": "359295bcfe9cf499f9530c5eea2d82a6dbdb3f1bba7b1eb031c514031ab763c9"
+    },
+    {
+      "path": "tests/swarm-projection-recovery.test.mjs",
+      "sha256": "0e583889e2e17b7dc6d01b73dd3123deb5b4b96d563637ddfbb68bc7252a0841"
+    },
+    {
+      "path": "tests/swarm-projection-sql.test.mjs",
+      "sha256": "ac0988490f0855fb1934fb7e93e5f8353ff4aeed301c7fbff4cb2a30eb25a0d2"
+    },
+    {
+      "path": "tests/swarm-runtime-heartbeat.test.mjs",
+      "sha256": "35435e135473a4e8e862080257809e78b6bae55afecc89ac189d4091ef184da9"
+    }
+  ],
+  "files": {
+    "archive-rehash.json": "84e8461d25e19db9dbf412790f9e0c0a92cb8ef54c9a52eb0847ba387480cd9a",
+    "browser-audit.json": "eea16335b67d2e0d2e2acffd17db37c0d0b9e093639fea60969adc452b1d7713",
+    "browser-final.json": "9828b24812db7ebb12c69ff8d30db7bf6b6d1f42fe72a7d5470f306ad1f01cd8",
+    "build.log.gz": "023fea49dd039b18fab22be8f83387916a97873e915652f5d72a4c5c83bc04c9",
+    "deployments.json": "a9d45b27e1d062ec113333c6ed3a4c287056dbd6c80c656fac75e2cf5d5fda09",
+    "final-focused.log.gz": "767b66bdfc4ddb5e5a3835f6a7ce5402f2c233644cc161b1a150e49cc0eede50",
+    "final-local-about-desktop.png": "a0f1bdca00a2433727050b77cb7b946a861b22900bdde6d4f74558917beaa4a6",
+    "final-local-about-mobile.png": "d54dd68efabe47d5b694b5b2425b51183b4d55c8d83c231ef2b471b3cf62a943",
+    "final-local-mobile-menu.png": "4eb87ffb970d77e6896edf8a3131730474eb94bf5ede398ffab46f7cff7d3e5e",
+    "final-local-platform-desktop.png": "3b331429482d6af5fae854d553941aaa1119069b2baff5daf58011f0edc29e0b",
+    "final-local-platform-mobile.png": "a6ffff9fee11291ed3633b92912f319c91012b328ea09f54a46958defc7277c4",
+    "final-public-about-desktop.png": "e81068ecfccb5eb0d726581c196ff4b0df4c3366c2587e90abe25e823ced5213",
+    "final-public-about-mobile.png": "2d309f359b14d6aa2d7aa6ebc39ec93e632b39080e10ec2b443409c8caa024c8",
+    "final-public-platform-desktop.png": "3dea51cd3d4b4869eeb2191072af89f2baca59631b38b0fc5892c081d6af142f",
+    "final-public-platform-mobile.png": "6c3d4fbcd741b0b394b59b50c890e9710afb9dcac91321486f844050daf353a3",
+    "full-regressions.log.gz": "0ce55ed8bfc0e183189c804de376806424f8128292426ca33bb1f00efeb7a14b",
+    "lint.log.gz": "955790ffce27ef9bfe5289b7356ff71e5581f11a369168e6e3cc6e489542696d",
+    "postgres-network.log.gz": "c2959f8490ae6c1ffbc5145d44a202ee8b2bd13d60bfbf445dc28b844fee8483",
+    "postgres-rls.log.gz": "4bd1a48e8586750c57ce0fac6e6616297b75b1ceffdda785b31041c9a9f485a7",
+    "public-http.json": "6ac317274c6a92b404bf8afcfbbb8a7c0709db13977a2640cd3969fc5e743c52",
+    "resource-timeout-attempt.log.gz": "4b9fa7a6963d3c8d0da702657f5b5b70a64df7935d751aaf41495a8acb829215",
+    "schema-readonly.json": "5d928ed2ccabc29ed08f25b188b2a9a3eeb1123625d02f710e00d23fe0696c41",
+    "storage-rehash.json": "67b3c992009d99e9b200871eb7e28e3c08225ea0a2add1e621c170ccdef6833a",
+    "typecheck.log.gz": "92ef19e335bda8c7d5085a2cf02f4a7899c772db92fba9e9a1ecdba429cbb600"
+  }
+}

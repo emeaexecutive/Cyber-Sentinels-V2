@@ -1,6 +1,7 @@
 export type EntityIdentityType =
   | "human"
   | "ai_agent"
+  | "agent_swarm"
   | "machine_identity"
   | "organization"
   | "workflow"

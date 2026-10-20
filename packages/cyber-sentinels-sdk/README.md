@@ -124,3 +124,7 @@ curl --fail-with-body -X POST "$CYBER_SENTINELS_BASE_URL/api/v1/agents/$AGENT_ID
 # Optional incident evidence (V2 Staging foundation)
 
 Explicit new scopes are required: `incidents:write`, `incidents:read`, `evidence:export`. Existing keys are unchanged. Use `cs.incidents.open`, `.append`, `.get`, `.replay` and `.export`. Evidence uploads still use `cs.evidence.submit`; execution observations, per-layer outcomes and purpose observations must match the referenced evidence type, timestamp, digest and claims. `context` values remain attributed assertions. An incomplete package is a draft. Export readiness is not regulatory approval or independent verification.
+
+## Opt-in swarm runtime heartbeat (not Production-qualified)
+
+Use `signSwarmHeartbeat` with the operator-enrolled Ed25519 runtime key, then submit the envelope using `cs.agents.heartbeat(memberId, envelope)`. Claims are `domain: "cyber-sentinels:swarm-heartbeat:v1"`, the exact API `audience`, `tenantId`, `memberId`, current credential `version`, increasing `sequence`, and Unix milliseconds `at`. The API client must own the existing agent binding. The server independently checks all bindings and 30-second freshness. A revoked/suspended member cannot renew; restoration requires a different authorized human and a new public-key enrollment. This signed declaration is not remote attestation or proof of execution. The environment must explicitly enable swarm enforcement.

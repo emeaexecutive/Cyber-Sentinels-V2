@@ -47,13 +47,21 @@ test("migration timestamps remain unique", () => {
   assert.equal(new Set(timestamps).size, timestamps.length);
 });
 
+const relationExpression = /create\s+(?:or\s+replace\s+)?(materialized\s+view|table|view)\s+(if\s+not\s+exists\s+)?(?:"?([a-z_][\w$]*)"?\s*\.\s*)?"?([a-z_][\w$]*)"?/gi;
+const relationName = match => `${match[3] && match[3].toLowerCase() !== "public" ? match[3].toLowerCase() + "." : ""}${match[4].toLowerCase()}`;
+
+test("relation scanner distinguishes private-schema tables from their schema name", () => {
+  const sql = 'create table swarm_private.state(x int); create table swarm_private.events(x int); create table "public"."state"(x int);';
+  assert.deepEqual([...sql.matchAll(relationExpression)].map(relationName), ["swarm_private.state", "swarm_private.events", "state"]);
+});
+
 test("relation creation has no hidden table/view or incompatible duplicate collision", () => {
   const relations = occurrences(
-    /create\s+(?:or\s+replace\s+)?(materialized\s+view|table|view)\s+(if\s+not\s+exists\s+)?(?:public\.)?"?([a-z_][\w$]*)"?/gi,
+    relationExpression,
     (match) => ({
       kind: match[1].toLowerCase().replace(/\s+/g, " "),
       guarded: Boolean(match[2]),
-      name: match[3].toLowerCase(),
+      name: relationName(match),
     }),
   );
 

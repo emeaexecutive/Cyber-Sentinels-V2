@@ -1,0 +1,113 @@
+{
+  "branch": "feat/tenente-swarm-authority-control",
+  "baseCommit": "5e5f28e5ceb9670ec9456771e7f768b19ecbbed2",
+  "validationScope": "isolated working-tree snapshot including preserved uncommitted About edit; synthetic environment only",
+  "regressions": {
+    "tests": 2215,
+    "pass": 2215,
+    "fail": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "swarmTests": {
+    "passed": 42,
+    "includesEarlierAdversarialCases": 12,
+    "missingSixteenSectionContractSatisfied": false
+  },
+  "lint": {
+    "exitCode": 0,
+    "initialWarnings": 11,
+    "changedFilesExitCode": 0,
+    "changedFilesWarnings": 0,
+    "note": "Removed introduced unused import; ten existing warnings remain outside changed code."
+  },
+  "typecheckExitCode": 0,
+  "buildExitCode": 0,
+  "staticPages": 209,
+  "consoleStaticHtmlVerified": true,
+  "browserAuthenticatedFlowVerified": false,
+  "fiveAgentDemonstration": {
+    "currency": "EUR",
+    "ceilingMinor": 50000,
+    "peakConcurrent": 5,
+    "verifiedActualSpendMinor": 50000,
+    "transports": [
+      "HTTP loopback",
+      "MCP loopback"
+    ],
+    "failureAndRetry": true,
+    "externalProviderExecution": false,
+    "postgresCompatibleCasAndReloadTest": true
+  },
+  "harnessCorrections": [
+    "Restored tracked .env.example template to isolated copy after two ENOENT failures.",
+    "Added local Git API-route index to isolated copy for deployment inclusion test; reran affected suite and all remaining suites."
+  ],
+  "preservation": {
+    "archiveSha256": "081310d3c1f64aaacf3c2207efa62bfa7641c81a670d5e23de6d11ae64784307",
+    "archiveSize": 4103536,
+    "aboutSourceUnchanged": true,
+    "productionAccess": false,
+    "restoreRepeated": false,
+    "archivePreserved": true
+  },
+  "sourceSha256": {
+    "lib/swarm/containment.ts": "a48d3ef90f57d87b70983c055ce520a2498ac7d2f55453b0e3b98191d12732a1",
+    "lib/swarm/operations.ts": "2155b7ec77c3e6c92e51567405161434aeaf72321b879295e9dcf6cb9efa4040",
+    "app/api/tenente/swarm/route.ts": "2a07e5ec86fd8ac565825620d9e7e89800ec1ed3308ad804175d13f81fbb9da7",
+    "app/tenente/swarm/page.tsx": "2e39e403efba42693e6cce73aa5322092171c68987fac0830b1bd4c851ece220",
+    "app/tenente/swarm/swarm-console.tsx": "c7d59eb0f8c83029d4a5eb2ca849cfa970c66494d9466874560bc9f97cf5d872",
+    "tests/swarm-authority.test.mjs": "78ef914d7f8dd368e6d547631a1bb544d68b495665ee591db21bcb5b6d82cef2",
+    "tests/swarm-budget.test.mjs": "fe8e4f410f876a9ff498b01aa0b59cf02d98b5462fc4385e5d1ea78719452788",
+    "tests/swarm-http-budget.test.mjs": "32e5fb18c35d33644718044e7d3965d7be32653bf99f796e8d46536082b04c39",
+    "tests/swarm-operations.test.mjs": "c690e8fba49bcc5a10225e24a4cff45349a3ca6753c555bff843bf10ce0ef282",
+    "tests/swarm-route.test.mjs": "279902d6074ac52cad54d67acc08ae694ac90ba3c70799c4f575947a13a86bef",
+    "tests/fixtures/swarm-control.mjs": "685eda6e28c583d1a5621df13c9bae8b172dda354e30e2e396313c2dc16c03e4",
+    "package.json": "c7aca1e2fbde8972d43260b3abe840646e781c2f9b83d1c667ae2ccf2c5b5e25"
+  },
+  "logs": [
+    {
+      "path": "tmp/tenente-full-tests.log",
+      "sha256": "da115a0b28203c1e36e5c6dac285fff53f8222fe485b97aa69273ec961074c59"
+    },
+    {
+      "path": "tmp/tenente-regression-resume.log",
+      "sha256": "00bf54190dc1531543cd32d4ea73e14937c6e945b152376ce9702ef735166d3f"
+    },
+    {
+      "path": "tmp/tenente-regression-final.log",
+      "sha256": "839298c794df2c20c5bc086cf69c95f4643a31affe38b7bf9ccc917150aea9de"
+    },
+    {
+      "path": "tmp/tenente-lint.log",
+      "sha256": "70e069f759eba07f2fc53a4a171ac177d916411e30f54dffd059fd066961625a"
+    },
+    {
+      "path": "tmp/tenente-lint-changed.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tmp/tenente-typecheck.log",
+      "sha256": "db54e06f1da3913b0a8c455777f06ba233d1f0bce554d0519afcda7e684ea917"
+    },
+    {
+      "path": "tmp/tenente-build.log",
+      "sha256": "389c35e45a84a73508289195b7a9354d41db90db5544b505fd7f76c9945f65b2"
+    },
+    {
+      "path": "tmp/tenente-route-tests.log",
+      "sha256": "df00c9b7c77c03abb72670dcc50b7a9d8c6c51bf51d9933853b695eaa2cdc572"
+    }
+  ],
+  "readiness": {
+    "coreProduction": "NO_GO_UNCHANGED",
+    "tenenteEngineering": "PARTIAL",
+    "tenenteHostedStaging": "NOT_QUALIFIED",
+    "tenenteProduction": "NO_GO"
+  },
+  "remaining": [
+    "Missing sixteen-section directive and exact 32-case acceptance mapping.",
+    "Complete and qualify trusted canonical resolver, runtime identity, budget classifier, provider health and outcome bindings.",
+    "Hosted Replay/Memory and real authenticated browser qualification; schema and deployment require separate approval."
+  ]
+}

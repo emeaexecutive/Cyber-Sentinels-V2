@@ -1,5 +1,6 @@
 import "server-only";
 import { createHttpToolAdapter } from "./http-tool-adapter";
+import { createStoredSwarmControls } from "../swarm/native-server-controls";
 
 import { randomUUID } from "node:crypto";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -171,12 +172,12 @@ function controlledDestinationAdapter(context: DelegatedAuthorityContext) {
   };
 }
 
-function registeredToolAdapter(context: DelegatedAuthorityContext, payload: Record<string, unknown>) {
+function registeredToolAdapter(context: DelegatedAuthorityContext, payload: Record<string, unknown>, lifecycle?: Parameters<typeof createHttpToolAdapter>[0]["lifecycle"]) {
   const registry = JSON.parse(process.env.TENENTE_TOOL_ADAPTERS ?? "{}") as Record<string, { endpoint: string; transport: "http" | "mcp" }>;
   const tool = String(payload.tool ?? "");
   const entry = Object.hasOwn(registry, tool) ? registry[tool] : null;
   if (!entry || !["http", "mcp"].includes(entry.transport)) throw new NativeEnforcementServerError("The requested tool has no configured enforcement adapter.", "TOOL_ADAPTER_NOT_CONFIGURED", 409);
-  const adapter = createHttpToolAdapter({ ...entry, tool, payload, evidenceKey: evidenceKey(), allowLocal: process.env.NODE_ENV === "development" });
+  const adapter = createHttpToolAdapter({ ...entry, lifecycle, tool, payload, evidenceKey: evidenceKey(), allowLocal: process.env.NODE_ENV === "development" });
   return { async execute(request: EnforcementRequest): Promise<EnforcementAdapterResult> {
     let result: EnforcementAdapterResult;
     try { result = await adapter.execute(request); }
@@ -338,7 +339,7 @@ export async function recordNativeEnforcementApproval(context: DelegatedAuthorit
   return approval;
 }
 
-export async function requestNativeEnforcement(context: DelegatedAuthorityContext, entityId: string, raw: Record<string, unknown>) {
+export async function requestNativeEnforcement(context: DelegatedAuthorityContext, entityId: string, raw: Record<string, unknown>, controls?: { swarmGuard: NonNullable<Parameters<typeof executeAuthorizedAction>[1]["swarmGuard"]> }) {
   ensureRole(context, ["owner", "admin"]);
   const transactionId = uuid(raw.transactionId, "transactionId");
   const evaluationId = uuid(raw.evaluationId, "evaluationId");
@@ -360,7 +361,28 @@ export async function requestNativeEnforcement(context: DelegatedAuthorityContex
   if (approvalResult.error) fail("Human approval resolution", approvalResult.error);
   const approval = approvalResult.data ? { approvalId: String(approvalResult.data.approval_id), enterpriseId: context.enterpriseId, transactionId, operationalEntityId: entityId, actionDigest: String(approvalResult.data.action_digest), approvedBy: String(approvalResult.data.approved_by), approvedAt: String(approvalResult.data.approved_at), expiresAt: String(approvalResult.data.expires_at), nonTransferable: true as const } : null;
   const input = { enterpriseId: context.enterpriseId, transactionId, operationalEntityId: entityId, authorityId: String(delegation.data.parent_authority_id), delegationId, action: { type: String(transaction.data.action_type).toUpperCase(), target: String(transaction.data.action_resource), environment: String(transaction.data.action_environment), payloadDigest: String(transaction.data.request_digest), consequence: (["LOW", "MODERATE", "HIGH", "CRITICAL"].includes(consequence) ? consequence : "LOW") as "LOW" | "MODERATE" | "HIGH" | "CRITICAL" }, decision: String(transaction.data.decision) as "ALLOW" | "REVIEW" | "DENY", decisionDigest: String(binding.data.decision_digest), idempotencyKey, approval: approval as HumanApproval | null };
+  const storedSwarmControls = process.env.SWARM_AUTHORITY_REQUIRED === "true" && !controls
+    ? createStoredSwarmControls(context, evaluation.data.decision_snapshot?.action ?? {}) : null;
+  const activeSwarmGuard = controls?.swarmGuard ?? storedSwarmControls?.swarmGuard;
   const executed = await executeAuthorizedAction(input, {
+    // Enabling the server flag without a qualified server-side resolver blocks dispatch.
+    // Never accept a guard, verification claims or an opt-out from raw request JSON.
+    requireSwarmGuard: process.env.SWARM_AUTHORITY_REQUIRED === "true",
+    swarmGuard: activeSwarmGuard ? {
+      async admit(request) {
+        const result = await activeSwarmGuard.admit(request);
+        const refs = result.receiptDigest ? [`swarm-receipt:${result.receiptDigest}`] : [];
+        await appendNativeReplay(context, entityId, "SWARM_ADMISSION", result.reasonCodes, { transactionId, allowed: result.allowed }, refs);
+        await appendMaterialMemory(context, entityId, "SWARM_ADMISSION", `swarm:${request.requestId}`, { transactionId, allowed: result.allowed, evidenceReferences: refs });
+        return result;
+      },
+      async dispatch(request) {
+        const result = await activeSwarmGuard.dispatch(request);
+        await appendNativeReplay(context, entityId, "SWARM_DISPATCH", result.reasonCodes, { transactionId, allowed: result.allowed }, result.receiptDigest ? [`swarm-receipt:${result.receiptDigest}`] : []);
+        await appendMaterialMemory(context, entityId, "SWARM_DISPATCH", `swarm-dispatch:${request.requestId}`, { transactionId, allowed: result.allowed, receiptDigest: result.receiptDigest ?? null });
+        return result;
+      },
+    } : undefined,
     async findByIdempotencyKey(tenant, key) {
       const found = await db.from("native_enforcement_requests").select("*").eq("enterprise_id", tenant).eq("idempotency_key", key).maybeSingle();
       if (found.error) fail("Enforcement idempotency retrieval", found.error);
@@ -393,7 +415,7 @@ export async function requestNativeEnforcement(context: DelegatedAuthorityContex
       return { created: true as const };
     },
     adapter: evaluation.data.decision_snapshot?.action?.parameters
-      ? registeredToolAdapter(context, evaluation.data.decision_snapshot.action)
+      ? registeredToolAdapter(context, evaluation.data.decision_snapshot.action, storedSwarmControls?.cancellation)
       : controlledDestinationAdapter(context),
   });
   if (!executed.requested || !executed.request) {
@@ -409,6 +431,16 @@ export async function requestNativeEnforcement(context: DelegatedAuthorityContex
     return { ...executed, outcome: existingOutcome.data ?? null };
   }
   await appendNativeReplay(context, entityId, "ENFORCEMENT_REQUESTED", ["ENFORCEMENT_ELIGIBLE"], { requestId: executed.request.requestId, transactionId, evaluationId }, [`transaction:${transactionId}`]);
+  if (storedSwarmControls) {
+    try {
+      const receipt = await storedSwarmControls.reconcile(executed.request, executed.result);
+      await appendNativeReplay(context, entityId, "SWARM_OUTCOME", [], { transactionId, outcome: receipt.details.outcome }, [`swarm-receipt:${receipt.digest}`]);
+      await appendMaterialMemory(context, entityId, "SWARM_OUTCOME", `swarm-outcome:${executed.request.requestId}`, { transactionId, outcome: receipt.details.outcome, receiptDigest: receipt.digest });
+    } catch {
+      // An effect may already have occurred. Preserve its reservation and report uncertainty.
+      await appendNativeReplay(context, entityId, "SWARM_OUTCOME_UNVERIFIED", ["SWARM_RECONCILIATION_REQUIRED"], { transactionId, requestId: executed.request.requestId }, [`request:${executed.request.requestId}`]);
+    }
+  }
   const outcome = await correlateAndPersist(context, entityId, transactionId, executed.request);
   return { ...executed, outcome };
 }

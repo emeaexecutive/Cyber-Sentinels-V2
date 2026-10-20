@@ -1,0 +1,113 @@
+{
+  "recordedAt": "2026-10-20T13:13:26.170174+00:00",
+  "parent": "c5b8680f1546698709f37646b15b1e32603db3c2",
+  "commitReference": "Commit containing this evidence; tested source hashes below",
+  "scope": "Local first-party controlled runtime only; no hosted writes or deployments",
+  "exits": {
+    "lint": 0,
+    "typecheck": 0,
+    "regressions": 0,
+    "build": 0
+  },
+  "fullRegressionTotals": {
+    "tests": 2262,
+    "pass": 2262,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "swarmTotals": {
+    "tests": 88,
+    "pass": 88,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "postgresTests": 14,
+  "changedFileLintExit": 0,
+  "sourceSecretScanExit": 0,
+  "logs": {
+    "full-regressions": {
+      "file": "full-regressions.log.gz",
+      "uncompressedSha256": "eed6a10d70f5f3b72750d858898108a13b87e2cc9d603653430b64be749aa0cc"
+    },
+    "swarm-focused": {
+      "file": "swarm-focused.log.gz",
+      "uncompressedSha256": "302ef49760a13127c99660e8ebfc148addf4da749b95c8d24cb91af7028fdc6a"
+    },
+    "postgres": {
+      "file": "postgres.log.gz",
+      "uncompressedSha256": "b84743850a8c52978e7cc90558d5ef95cfc0a19644902f66d23652b2b00ea479"
+    },
+    "lint": {
+      "file": "lint.log.gz",
+      "uncompressedSha256": "5e462b84379dfbfac691e981fe24da225ab728bd3a4a09fc9419c5dd16c31850"
+    },
+    "changed-lint": {
+      "file": "changed-lint.log.gz",
+      "uncompressedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "typecheck": {
+      "file": "typecheck.log.gz",
+      "uncompressedSha256": "db54e06f1da3913b0a8c455777f06ba233d1f0bce554d0519afcda7e684ea917"
+    },
+    "build": {
+      "file": "build.log.gz",
+      "uncompressedSha256": "5e99f1149646a0a12051a79859ae26f0d073dbf3444a0b65ead40451e2b72194"
+    },
+    "initial-typecheck-errors": {
+      "file": "initial-typecheck-errors.log.gz",
+      "uncompressedSha256": "942e1102ece37271ace373604b9054b4f063c6f75e76100d36443d505d185bc4"
+    },
+    "initial-loopback-port-error": {
+      "file": "initial-loopback-port-error.log.gz",
+      "uncompressedSha256": "3a48031a4992ad8fb27baf067b976539811af49e5fb43a70170cf3726e9c60cb"
+    }
+  },
+  "sourceHashes": [
+    {
+      "path": "app/api/tenente/swarm/route.ts",
+      "sha256": "7923c473834eb5dd8fb7ed1e837286b343c98ce47c9501b6c5c24c547833d9af"
+    },
+    {
+      "path": "app/tenente/swarm/swarm-console.tsx",
+      "sha256": "b1343e4bcdc5e912cf4db0802c8173cfb6a5bea6928bfb95676ff11325e3d34d"
+    },
+    {
+      "path": "lib/operational-entities/http-tool-adapter.ts",
+      "sha256": "da476c256c33a1953ab04fccf5ca8743fbf06462f6f80a7673ffdb50e727c8ac"
+    },
+    {
+      "path": "lib/operational-entities/native-enforcement-server.ts",
+      "sha256": "3ff5ca590c03f316e79bb1c26019ac23258047a69eb2a88bfdf52a4c19e78e9e"
+    },
+    {
+      "path": "lib/swarm/containment.ts",
+      "sha256": "f2d80a77a98094a81f098dbb107bce567682f57437c035e3555d6c8e008b4dd9"
+    },
+    {
+      "path": "lib/swarm/native-server-controls.ts",
+      "sha256": "84162d4afc8c572d80a118d598d889430488d452e96eab31597fbc781ee376d3"
+    },
+    {
+      "path": "lib/swarm/operations.ts",
+      "sha256": "ddbb1f689c9fcdf08436845e48b0c0415ee969028a69289cfabf4cc530994d95"
+    },
+    {
+      "path": "package.json",
+      "sha256": "358b29fbc459260fbddce71a40a82e614ae4a8e257d3c9bdd45cb3a4b9900dd3"
+    },
+    {
+      "path": "tests/swarm-route.test.mjs",
+      "sha256": "431da566433c83eb6ddb7afb475d6d3f3296d0d7b5dcd57d6f7e5881d8a2e238"
+    },
+    {
+      "path": "lib/swarm/cancellation.ts",
+      "sha256": "309a0767f16bbb33af2ff25997239f29c2900a1cf849ca140f094a09eeace9f9"
+    },
+    {
+      "path": "tests/swarm-cancellation.test.mjs",
+      "sha256": "7881b52312f065781ec445bb263d1ad40287a2130e820195c4595458960eebcc"
+    }
+  ]
+}

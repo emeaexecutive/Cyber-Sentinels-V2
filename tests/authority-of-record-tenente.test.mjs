@@ -75,3 +75,21 @@ test('idempotency cannot substitute a different transaction or payload',async()=
  await assert.rejects(executeAuthorizedAction({...input,transactionId:randomUUID()},deps),{code:'ENFORCEMENT_IDEMPOTENCY_CONFLICT'});
  await assert.rejects(executeAuthorizedAction({...input,action:{...input.action,payloadDigest:'c'.repeat(64)}},deps),{code:'ENFORCEMENT_IDEMPOTENCY_CONFLICT'});
 });
+import { evaluateAuthorityGraph } from '../lib/core/authority-graph.ts';
+
+function graphFixture() {
+ const root = {id:'root',tenantId:'tenant',grantorId:'org',grantorType:'organization',granteeId:'parent',granteeType:'ai_agent',scope:['REFUND'],maxDelegationDepth:2,issuedAt:'2026-10-01T00:00:00Z'};
+ const leaf = {...root,id:'leaf',parentGrantId:'root',grantorId:'parent',grantorType:'ai_agent',granteeId:'worker',maxDelegationDepth:0};
+ return {tenantId:'tenant',subjectId:'worker',workflowId:'workflow',action:'REFUND',purpose:'audit',evaluatedAt:'2026-10-19T00:00:00Z',grants:[root,leaf]};
+}
+for (const scenario of ['conflicting duplicate grant', 'principal type substitution']) {
+ test(`authority graph rejects ${scenario} before execution`, async()=>{
+  const request=graphFixture();assert.equal(evaluateAuthorityGraph(request).decision,'ALLOW');
+  if(scenario==='conflicting duplicate grant') request.grants.unshift({...request.grants[0],revokedAt:'2026-10-18T00:00:00Z'});
+  else request.grants[1].grantorType='human';
+  const result=evaluateAuthorityGraph(request);assert.equal(result.decision,'DENY');
+  const forbidden=async()=>assert.fail('Invalid graph reached execution');
+  const execution=await executeAuthorizedAction({enterpriseId:'10000000-0000-4000-8000-000000000001',transactionId:'10000000-0000-4000-8000-000000000002',operationalEntityId:'worker',authorityId:'10000000-0000-4000-8000-000000000003',delegationId:'10000000-0000-4000-8000-000000000004',action:{type:'REFUND',target:'resource',environment:'test'},decision:result.decision,decisionDigest:'a'.repeat(64),idempotencyKey:scenario.replaceAll(' ','-')},{loadCurrentState:forbidden,findByIdempotencyKey:forbidden,reserveRequest:forbidden,adapter:{execute:forbidden}});
+  assert.equal(execution.requested,false);
+ });
+}

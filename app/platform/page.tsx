@@ -38,15 +38,29 @@ export default function PlatformPage() {
           primary={{ href: "/enterprise-access?intent=demo", label: "Request Enterprise Demo" }}
         />
 
+        <section id="swarm-security" aria-labelledby="swarm-security-title" className="mt-8 mb-10 rounded-xl border border-cyan-900 p-6">
+          <p className="text-sm font-semibold text-cyan-200">Trust / Swarm Security</p>
+          <h2 id="swarm-security-title" className="mt-3 text-2xl font-semibold">TENENTE Swarm Authority Control</h2>
+          <p className="mt-4 max-w-3xl text-zinc-300">A swarm may distribute work. It may not manufacture authority. Controlled execution checks delegated scope, shared budgets, current decisions and revocation before dispatch.</p>
+          <ul className="mt-4 space-y-2 text-sm text-zinc-300">
+            <li><strong>AVAILABLE:</strong> architecture documentation and public API reference.</li>
+            <li><strong>BETA:</strong> locally tested swarm budgets, receipts and controlled HTTP/MCP enforcement.</li>
+            <li><strong>UNDER DEVELOPMENT:</strong> SI/ASI Swarm Prevention Kit and cooperating-runtime cancellation integrations.</li>
+            <li><strong>NOT YET PRODUCTION-QUALIFIED:</strong> hosted swarm enforcement and emergency-stop operations.</li>
+          </ul>
+          <p className="mt-4 text-sm text-zinc-400">Unintegrated external agents can be blocked at controlled boundaries; remote shutdown is not guaranteed. Local simulated spending tests do not demonstrate real financial execution.</p>
+          <Link href="/about-us#our-story" className="mt-4 inline-block text-cyan-200 underline">Our Story: built in Aragón</Link>
+        </section>
+
         <section id="execution-trust" className="mt-8 scroll-mt-28 operational-panel p-6">
           <h2 className="text-2xl font-semibold">What is execution trust?</h2>
           <p className="mt-4 max-w-4xl leading-8 text-zinc-300">Execution trust evaluates whether an actor has current authority to perform a specific action for a stated purpose on a permitted target. It connects authorization to the evidence needed to explain the decision. Cyber Sentinels governs the action; authentication or a previous ALLOW does not establish permanent authority.</p>
-          <p className="mt-4 leading-8 text-cyan-100">Agent Registry → Authority → Policy → Decision → Receipt → Replay → Trust Memory™</p>
+          <p className="mt-4 leading-8 text-cyan-100">Agent Registry â†’ Authority â†’ Policy â†’ Decision â†’ Receipt â†’ Replay â†’ Trust Memoryâ„¢</p>
           <p className="mt-4 leading-8 text-zinc-400">The canonical decisions are ALLOW, REVIEW and DENY. External execution requires a connected, qualified enforcement boundary; a decision alone is not proof of a downstream effect. Read the <Link href="/resources/agent-security/agent-authorization" className="text-cyan-200 underline">agent authorization explanation</Link> and <Link href="/resources/agent-security/mcp-tool-authorization" className="text-cyan-200 underline">tool and target authority model</Link>.</p>
         </section>
 
         <section id="trust-fabric" className="mt-8 scroll-mt-28">
-          <VisualFrame eyebrow="Enterprise Trust Fabric™" title="One architecture. Eight connected mechanisms.">
+          <VisualFrame eyebrow="Enterprise Trust Fabricâ„¢" title="One architecture. Eight connected mechanisms.">
             <ArchitectureBlock
               inputs={["Entity Context", "Signals", "Policy", "Authority"]}
               core="Trust Engine + Decision Intelligence"
