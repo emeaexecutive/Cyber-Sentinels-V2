@@ -2,6 +2,10 @@
 
 Scope: local feature-branch engineering and read-only Staging metadata. No deploy, merge, shared migration, Production connection or Production change is authorized by this report. Existing About-page and migration-reconciliation edits and all pre-existing untracked reports are preserved. No prior backup was repeated.
 
+## Superseding Swarm implementation update
+
+The user subsequently supplied the complete ten-section contract and twelve scenarios. The missing-specification blocker below is historical and resolved. See `docs/swarm-authority/IMPLEMENTATION.md`, `ADVERSARIAL-RESULTS.md` and `RUNBOOK.md` for new local controls, exact scope and remaining hosted-integration gates. Prior recovery and founder evidence is preserved.
+
 ## Repository and evidence baseline
 
 - Repository: emeaexecutive/Cyber-Sentinels-V2; branch feat/authority-of-record-tenente; PR #116 OPEN, base main.
@@ -69,4 +73,4 @@ No dashboard, new policy engine, parallel ledger, migration or speculative AGENT
 
 `PRODUCTION_GO_NO_GO = NO_GO`: no Production access or change occurred. Recovery operational gaps, account-owner decisions, current candidate hosted qualification and approved promotion gates remain open.
 
-Smallest owner inputs: supply the actual ten-section/twelve-scenario contract; authorize a specific subsequent Staging change after reviewing the local candidate; provide current hosted-login/Cloudflare analytics evidence; decide the two administrators and five private account dispositions and recovery/change-window arrangements before Production promotion. No new Production permission is presumed.
+Historical owner inputs at this report's original baseline included the ten-section contract. That contract was subsequently supplied and its twelve cases implemented locally. The later sixteen-section `Pasted markdown(3).md` remains unavailable. Current implementation and evidence supersede the historical Swarm gaps above: see [TENENTE Swarm Control qualification](../swarm-authority/SWARM-CONTROL-20261019.md). Hosted-login/Cloudflare evidence, two administrators/five account dispositions and recovery/change-window arrangements remain independent release gates. No new Staging or Production permission is presumed.

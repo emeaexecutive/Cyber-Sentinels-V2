@@ -7,14 +7,23 @@ export type Lifecycle = "ACTIVE" | "COMPLETED" | "SUSPENDED" | "REVOKED" | "EXPI
 export type Actor = { id: string; tenantId: string; kind: "human" | "agent"; permissions: string[]; expiresAt: number; controlledBy: string[]; credentialVersion?: number };
 export type Member = { id: string; swarmId: string; parentId: string | null; credentialVersion: number; state: Lifecycle; heartbeatAt: number; heartbeatSequence: number; expiresAt: number };
 export type Collective = { id: string; entityType: "AGENT_SWARM"; objective: string; workflowId: string; originalAuthority: string; state: Lifecycle; maxMembers: number };
-export type Classification = { correlationId: string; resource: string; operation: string; units: number; limit: number; mandatoryRestriction: boolean; sensitive: boolean; transfer: "NONE" | "CREDENTIAL" | "SENSITIVE_DATA"; transferPermitted: boolean; policyVersion: string; evidenceRefs: string[]; component?: string; prohibitedCombinations?: string[][] };
-export type Lease = { id: string; memberId: string; swarmId: string; requestDigest: string; expiresAt: number; state: "READY" | "DISPATCHED" | "UNKNOWN" | "COMPLETED" | "REVOKED"; credentialVersion: number; classification: Classification; requesterId: string; authorityChain: string[] };
+export type BudgetScope = { id: string; currency: "EUR"; amountMinor: number; limitMinor: number; maxParallel: number };
+export type BudgetBalance = { currency: "EUR"; limitMinor: number; maxParallel: number; reservedMinor: number; spentMinor: number };
+export type Classification = { correlationId: string; resource: string; operation: string; units: number; limit: number; mandatoryRestriction: boolean; sensitive: boolean; transfer: "NONE" | "CREDENTIAL" | "SENSITIVE_DATA"; transferPermitted: boolean; policyVersion: string; evidenceRefs: string[]; component?: string; prohibitedCombinations?: string[][]; budget?: BudgetScope };
+export type Lease = { id: string; memberId: string; swarmId: string; requestDigest: string; expiresAt: number; state: "READY" | "DISPATCHED" | "UNKNOWN" | "COMPLETED" | "REVOKED"; credentialVersion: number; classification: Classification; requesterId: string; authorityChain: string[]; budgetSettled?: boolean };
 export type Approval = { requestDigest: string; requesterId: string; approverId: string; riskOwner: string; expiresAt: number; policyVersion: string; evidenceRefs: string[] };
 export type SwarmEvent = { sequence: number; tenantId: string; kind: string; actorId: string; subjectId: string; at: number; details: Record<string, unknown>; previousHash: string; digest: string };
 export type Quarantine = { kind: "agent" | "swarm" | "chain" | "workflow"; id: string; receipt: string };
-export type SwarmState = { tenantId: string; collectives: Record<string, Collective>; members: Record<string, Member>; leases: Record<string, Lease>; approvals: Record<string, Approval>; quarantines: Quarantine[]; events: SwarmEvent[] };
-export const emptySwarmState = (tenantId: string): SwarmState => ({ tenantId, collectives: {}, members: {}, leases: {}, approvals: {}, quarantines: [], events: [] });
+export type SwarmState = { tenantId: string; collectives: Record<string, Collective>; members: Record<string, Member>; leases: Record<string, Lease>; approvals: Record<string, Approval>; quarantines: Quarantine[]; budgets?: Record<string, BudgetBalance>; events: SwarmEvent[] };
+export const emptySwarmState = (tenantId: string): SwarmState => ({ tenantId, collectives: {}, members: {}, leases: {}, approvals: {}, quarantines: [], budgets: {}, events: [] });
 const quarantined = (state: SwarmState, member: Member, chain: string[]) => state.quarantines.some(q => q.kind === "agent" ? q.id === member.id : q.kind === "swarm" ? q.id === member.swarmId : q.kind === "workflow" ? q.id === state.collectives[member.swarmId]?.workflowId : chain.includes(q.id));
+function settleBudget(state: SwarmState, lease: Lease, spent: number) {
+  const budget = lease.classification.budget;
+  if (!budget) return;
+  const balance = state.budgets?.[budget.id];
+  if (lease.budgetSettled || !balance || !Number.isSafeInteger(spent) || spent < 0 || spent > budget.amountMinor || balance.reservedMinor < budget.amountMinor) throw new Error("SWARM_BUDGET_OUTCOME_INVALID");
+  balance.reservedMinor -= budget.amountMinor; balance.spentMinor += spent; lease.budgetSettled = true;
+}
 
 /** Implementations must commit state and append-only events together, serializing concurrent writers. */
 export interface SwarmStore { transact<T>(tenantId: string, change: (state: SwarmState) => T): Promise<T> }
@@ -23,7 +32,7 @@ export type SwarmDependencies = {
   authenticate(proof: string): Promise<Actor | null>;
   resolve(request: EnforcementRequest): Promise<{ decision: TrustDecision; graph: AuthorityGraphRequest; classification: Classification; policyAvailable: boolean; providerAvailable: boolean }>;
   heartbeatKey(tenantId: string, memberId: string, version: number): Promise<string>;
-  verifyOutcome(tenantId: string, lease: Lease, evidence: unknown): Promise<{ completed: boolean; evidenceRef: string }>;
+  verifyOutcome(tenantId: string, lease: Lease, evidence: unknown): Promise<{ completed: boolean; evidenceRef: string; spentMinor?: number }>;
   now(): number;
 };
 
@@ -149,11 +158,27 @@ export class SwarmContainment {
         }
       }
       if (state.leases[digest]) reasons.push("SWARM_LEASE_REPLAY");
+      const budget = classification?.budget;
+      if (budget) {
+        key(budget.id);
+        if (budget.currency !== "EUR" || !Number.isSafeInteger(budget.amountMinor) || budget.amountMinor <= 0 || !Number.isSafeInteger(budget.limitMinor) || budget.limitMinor <= 0 || !Number.isSafeInteger(budget.maxParallel) || budget.maxParallel < 1) reasons.push("BUDGET_SCOPE_INVALID");
+        const balance = state.budgets?.[budget.id];
+        if (balance && (balance.currency !== budget.currency || balance.limitMinor !== budget.limitMinor || balance.maxParallel !== budget.maxParallel)) reasons.push("BUDGET_SCOPE_IMMUTABLE");
+        const used = (balance?.reservedMinor ?? 0) + (balance?.spentMinor ?? 0);
+        if (budget.amountMinor > budget.limitMinor - used) reasons.push("SHARED_BUDGET_EXCEEDED");
+        const concurrent = Object.values(state.leases).filter(l => l.classification.budget?.id === budget.id && ["READY", "DISPATCHED", "UNKNOWN"].includes(l.state)).length;
+        if (concurrent >= budget.maxParallel) reasons.push("PARALLEL_EXECUTION_LIMIT");
+      }
       if (reasons.length || !classification || !member) {
         const receipt = event(state, now, "EXECUTION_DENIED", actor.id, request.operationalEntityId, { requestDigest: digest, decision: "DENY", reasons, resource: classification?.resource ?? null, operation: classification?.operation ?? null, correlationId: classification?.correlationId ?? null, evidenceRefs: classification?.evidenceRefs ?? [] });
         return { allowed: false as const, reasons, receipt, leaseId: null };
       }
       state.leases[digest] = { id: digest, memberId: member.id, swarmId: member.swarmId, requestDigest: digest, expiresAt: Math.min(now + 15_000, member.expiresAt), state: "READY", credentialVersion: member.credentialVersion, classification: structuredClone(classification), requesterId: actor.id, authorityChain };
+      if (budget) {
+        state.budgets ??= {};
+        const balance = state.budgets[budget.id] ??= { currency: budget.currency, limitMinor: budget.limitMinor, maxParallel: budget.maxParallel, reservedMinor: 0, spentMinor: 0 };
+        balance.reservedMinor += budget.amountMinor;
+      }
       return { allowed: true as const, reasons: [], leaseId: digest, receipt: event(state, now, "LEASE_RESERVED", actor.id, member.id, { requestDigest: digest, swarmId: member.swarmId, classification, authorityId: request.authorityId, delegationId: request.delegationId, transactionId: request.transactionId }) };
     });
   }
@@ -184,7 +209,7 @@ export class SwarmContainment {
       if (!ids.size) throw new Error("SWARM_SCOPE_NOT_FOUND");
       const inFlight: string[] = [];
       for (const id of ids) { state.members[id].state = "SUSPENDED"; state.members[id].credentialVersion++; state.members[id].heartbeatAt = 0; }
-      for (const lease of Object.values(state.leases)) if (ids.has(lease.memberId)) { if (lease.state === "DISPATCHED" || lease.state === "UNKNOWN") { inFlight.push(lease.id); lease.state = "UNKNOWN"; } else if (lease.state === "READY") lease.state = "REVOKED"; }
+      for (const lease of Object.values(state.leases)) if (ids.has(lease.memberId)) { if (lease.state === "DISPATCHED" || lease.state === "UNKNOWN") { inFlight.push(lease.id); lease.state = "UNKNOWN"; } else if (lease.state === "READY") { settleBudget(state, lease, 0); lease.state = "REVOKED"; } }
       const receipt = event(state, this.deps.now(), "EMERGENCY_CONTAINMENT", actor.id, scope.id, { scope, reason, affected: [...ids], inFlight, credentialsInvalidatedAtGateway: true, externalCredentialsRotated: false, restorationRequiresIndependentApproval: true });
       state.quarantines.push({ ...scope, receipt: receipt.digest });
       return receipt;
@@ -219,10 +244,12 @@ export class SwarmContainment {
       for (const member of Object.values(state.members)) {
         if (member.state === "ACTIVE" && (!liveTime(member.expiresAt, now) || now - member.heartbeatAt > 30_000)) {
           member.state = liveTime(member.expiresAt, now) ? "UNREACHABLE" : "EXPIRED"; member.credentialVersion++; alerts.push(member.id);
-          for (const lease of Object.values(state.leases).filter(l => l.memberId === member.id)) { if (lease.state === "DISPATCHED") lease.state = "UNKNOWN"; if (lease.state === "READY") lease.state = "REVOKED"; }
+          for (const lease of Object.values(state.leases).filter(l => l.memberId === member.id)) { if (lease.state === "DISPATCHED") lease.state = "UNKNOWN"; if (lease.state === "READY") { settleBudget(state, lease, 0); lease.state = "REVOKED"; } }
         }
       }
-      return event(state, now, "TRANSACTIONS_RECONCILED", actor.id, tenantId, { unexpectedTerminationAlerts: alerts, unresolved: Object.values(state.leases).filter(l => l.state === "UNKNOWN").map(l => l.id), automaticRetry: false });
+      const expiredReservations: string[] = [];
+      for (const lease of Object.values(state.leases)) if (lease.state === "READY" && !liveTime(lease.expiresAt, now)) { settleBudget(state, lease, 0); lease.state = "REVOKED"; expiredReservations.push(lease.id); }
+      return event(state, now, "TRANSACTIONS_RECONCILED", actor.id, tenantId, { unexpectedTerminationAlerts: alerts, expiredUndispatchedReservations: expiredReservations, unresolved: Object.values(state.leases).filter(l => l.state === "UNKNOWN").map(l => l.id), automaticRetry: false });
     });
   }
   async outcome(tenantId: string, proof: string, leaseId: string, evidence: unknown) {
@@ -234,8 +261,10 @@ export class SwarmContainment {
     return this.deps.store.transact(tenantId, state => {
       const current = state.leases[leaseId];
       if (!current || !["DISPATCHED", "UNKNOWN"].includes(current.state)) throw new Error("SWARM_OUTCOME_CONFLICT");
+      const budget = current.classification.budget;
+      if (budget && verified.completed) settleBudget(state, current, verified.spentMinor ?? budget.amountMinor);
       current.state = verified.completed ? "COMPLETED" : "UNKNOWN";
-      return event(state, this.deps.now(), "DESTINATION_RECONCILED", actor.id, lease.memberId, { leaseId, outcome: current.state, evidenceRef: verified.evidenceRef, budgetRefunded: false });
+      return event(state, this.deps.now(), "DESTINATION_RECONCILED", actor.id, lease.memberId, { leaseId, outcome: current.state, evidenceRef: verified.evidenceRef, spentMinor: verified.completed ? verified.spentMinor ?? budget?.amountMinor ?? null : null, budgetReleased: Boolean(budget && verified.completed) });
     });
   }
   async changeMembership(tenantId: string, proof: string, memberId: string, stateValue: "REVOKED" | "COMPLETED") {
@@ -246,7 +275,7 @@ export class SwarmContainment {
       const unresolved = Object.values(state.leases).filter(l => l.memberId === memberId && l.state !== "COMPLETED" && l.state !== "REVOKED");
       if (stateValue === "COMPLETED" && (unresolved.length || member.state !== "ACTIVE" || !state.events.some(e => e.subjectId === memberId && e.kind === "DESTINATION_RECONCILED" && e.details.outcome === "COMPLETED"))) throw new Error("SWARM_COMPLETION_UNVERIFIED");
       member.state = stateValue; member.credentialVersion++; member.heartbeatAt = 0;
-      for (const lease of unresolved) lease.state = lease.state === "READY" ? "REVOKED" : "UNKNOWN";
+      for (const lease of unresolved) { if (lease.state === "READY") { settleBudget(state, lease, 0); lease.state = "REVOKED"; } else lease.state = "UNKNOWN"; }
       return event(state, this.deps.now(), "MEMBERSHIP_CHANGED", actor.id, memberId, { state: stateValue, unresolved: unresolved.map(l => l.id), authorityConferred: false });
     });
   }
