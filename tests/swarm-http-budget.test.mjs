@@ -8,10 +8,16 @@ import {signDestinationObservation,verifyDestinationObservation,deriveEnforcemen
 import {swarmNativeGuard} from '../lib/swarm/native-guard.ts';
 import {swarmRequestDigest,verifySwarmReplay} from '../lib/swarm/containment.ts';
 import {hashCanonical} from '../src/lib/trust-core/hash.ts';
+import {swarmSql} from './fixtures/swarm-sql.mjs';
 
 for(const transport of ['http','mcp']) test(`${transport}: five-agent EUR500 enforcement across real loopback requests, failure and retry`,{timeout:20000},async t=>{
-  const h=await fixture({now:Date.now()});
-  for(let i=2;i<=5;i++) await h.add(`agent:${i}`);
+  const sql=await swarmSql(t);
+  const h=await fixture({now:Date.now(),orchestrator:'orchestrator',persistence:sql.persistence});
+  for(let i=2;i<=5;i++) await h.add(`agent:${i}`,'orchestrator');
+  h.graph(g=>{
+    const parent={...g.grants[0],granteeId:'orchestrator'};
+    g.grants=[parent,{...parent,id:`grant:${g.subjectId}`,parentGrantId:parent.id,grantorId:'orchestrator',grantorType:'ai_agent',granteeId:g.subjectId}];
+  });
   h.policy.classification.budget={id:'budget:network',currency:'EUR',amountMinor:10000,limitMinor:50000,maxParallel:5};
   const key=randomBytes(32).toString('hex'),payload={currency:'EUR',amountMinor:10000};
   const evidence=new Map(),requests=new Map(),seen=new Set();
@@ -69,6 +75,23 @@ for(const transport of ['http','mcp']) test(`${transport}: five-agent EUR500 enf
   await h.control.outcome(tenant,'operator',pending.id,evidence.get(pending.id));
   await run('agent:1','network:overflow');assert.equal(calls,6);
   assert.deepEqual((await h.read()).budgets['budget:network'],{currency:'EUR',limitMinor:50000,maxParallel:5,reservedMinor:0,spentMinor:50000});
+  const revoked=await h.control.changeMembership(tenant,'operator','orchestrator','REVOKED');
+  assert.equal(revoked.details.affected.length,6);
+  // Give the classifier a separate unused budget so exhausted funds cannot mask revocation.
+  h.policy.classification.budget={...h.policy.classification.budget,id:'budget:revocation-probe'};
+  h.policy.classification.correlationId='revocation:probe';
+  for(let i=1;i<=5;i++){
+    assert.equal((await run(`agent:${i}`,`revoked:${i}`)).requested,false);
+    const denial=(await h.read()).events.findLast(e=>e.kind==='EXECUTION_DENIED');
+    assert.ok(denial.details.reasons.includes('SWARM_NOT_ACTIVE'));
+    assert.equal(denial.details.reasons.includes('SHARED_BUDGET_EXCEEDED'),false);
+  }
+  await assert.rejects(h.add('agent:new','orchestrator'),/SWARM_PARENT_INVALID/);
+  assert.equal(calls,6);
   assert.ok(verifySwarmReplay((await h.read()).events,tenant));
-  t.diagnostic(JSON.stringify({transport,peakParallel:peak,networkCalls:calls,spentMinor:spent,externalProvider:false}));
+  const persisted=await sql.inspect();
+  assert.equal(persisted.states.length,1);
+  assert.equal(persisted.records,(await h.read()).events.length);
+  assert.equal(persisted.states[0].document.budgets['budget:network'].spentMinor,50000);
+  t.diagnostic(JSON.stringify({transport,peakParallel:peak,networkCalls:calls,spentMinor:spent,postParentRevocationCalls:0,blockedDescendants:5,persistedStates:persisted.states.length,persistedReceipts:persisted.records,revocationReceipt:revoked.digest,externalProvider:false}));
 });

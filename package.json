@@ -119,7 +119,7 @@
     "test:deployed": "node scripts/deployed-security-harness.mjs",
     "test:rls": "node --test tests/rls/rc6-denial.test.mjs",
     "test:security-closure": "tsx --test tests/permissions-check-retired.test.mjs tests/sign-out.test.mjs tests/rls/legacy-security-closure.test.mjs tests/rls/legacy-security-closure-runtime.test.mjs",
-    "test:swarm-authority": "tsx --test tests/swarm-authority.test.mjs tests/swarm-budget.test.mjs tests/swarm-http-budget.test.mjs tests/swarm-operations.test.mjs tests/rls/swarm-authority.test.mjs && node --import tsx --experimental-test-module-mocks --test tests/swarm-route.test.mjs",
+    "test:swarm-authority": "tsx --test tests/swarm-authority.test.mjs tests/swarm-budget.test.mjs tests/swarm-contract.test.mjs tests/swarm-memory-projection.test.mjs tests/swarm-http-budget.test.mjs tests/swarm-operations.test.mjs tests/rls/swarm-authority.test.mjs && node --import tsx --experimental-test-module-mocks --test tests/swarm-route.test.mjs tests/swarm-native-server-controls.test.mjs",
     "test:authority-of-record": "tsx --test tests/authority-of-record-tenente.test.mjs tests/authority-of-record-http.test.mjs",
     "qualify:authority-of-record:local": "node --experimental-strip-types tools/qualification/authority-of-record-local.mjs",
     "test:core-closure": "tsx --test tests/rls/account-approval-default-deny.test.mjs tests/rls/audited-account-transition.test.mjs tests/rls/active-customer-session.test.mjs tests/schema-equivalence.test.mjs tests/waitlist-approval-boundary.test.mjs tests/evidence-download-approval.test.mjs",

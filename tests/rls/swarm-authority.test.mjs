@@ -6,8 +6,9 @@ import {emptySwarmState} from '../../lib/swarm/containment.ts';
 import {hashCanonical} from '../../src/lib/trust-core/hash.ts';
 import {createSwarmStore} from '../../lib/swarm/store.ts';
 import {swarmRpcPersistence} from '../../lib/swarm/rpc-persistence.ts';
+import {installSwarmPrerequisites} from '../fixtures/swarm-schema.mjs';
 test('Proposed persistence executes real RLS/grant and append-only isolation checks locally',async t=>{
- const db=new PGlite();t.after(()=>db.close());await db.exec('create role anon; create role authenticated; create role service_role;');await db.exec(await readFile(new URL('../../docs/swarm-authority/proposed-persistence.sql',import.meta.url),'utf8'));
+ const db=new PGlite();t.after(()=>db.close());await db.exec('create role anon; create role authenticated; create role service_role;');await installSwarmPrerequisites(db);await db.exec(await readFile(new URL('../../supabase/migrations/20261020091324_tenente_swarm_authority_control.sql',import.meta.url),'utf8'));
  const tenant='10000000-0000-4000-8000-000000000001',other='10000000-0000-4000-8000-000000000002';
  const rpc=async(name,args)=>{try{const query=name==='load_swarm_state_v1'?'select public.load_swarm_state_v1($1) as data':'select public.cas_swarm_state_v1($1,$2,$3::jsonb) as data';const values=name==='load_swarm_state_v1'?[args.p_tenant_id]:[args.p_tenant_id,args.p_version,JSON.stringify(args.p_state)];return{data:(await db.query(query,values)).rows[0].data,error:null};}catch(error){return{data:null,error};}};
  const store=createSwarmStore(swarmRpcPersistence(rpc));

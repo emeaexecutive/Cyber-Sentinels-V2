@@ -28,6 +28,10 @@ export function swarmOperations(store: SwarmStore, authenticate: () => Promise<A
       if (!input || typeof input !== "object" || Array.isArray(input)) throw new TypeError("Invalid operation.");
       const value = input as Record<string, unknown>;
       if (value.action === "reconcile") return control.reconcile(actor.tenantId, "server-session");
+      if (value.action === "revoke") {
+        if (typeof value.id !== "string" || !/^[A-Za-z0-9_.:/-]{1,240}$/.test(value.id) || typeof value.reason !== "string" || !value.reason.trim() || value.reason.length > 1000) throw new TypeError("Invalid member or reason.");
+        return control.changeMembership(actor.tenantId, "server-session", value.id, "REVOKED", value.reason.trim());
+      }
       if (value.action !== "contain" || !["agent", "swarm", "chain", "workflow"].includes(String(value.kind)) || typeof value.id !== "string" || !/^[A-Za-z0-9_.:/-]{1,240}$/.test(value.id) || typeof value.reason !== "string" || !value.reason.trim() || value.reason.length > 1000) throw new TypeError("Invalid containment scope or reason.");
       return control.contain(actor.tenantId, "server-session", { kind: value.kind as "agent" | "swarm" | "chain" | "workflow", id: value.id }, value.reason.trim());
     },

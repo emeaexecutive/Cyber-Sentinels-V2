@@ -1,3 +1,5 @@
+> Current forward-only migration and qualification: [2026-10-20 report](CONTRACT-QUALIFICATION-20261020.md). The original SQL proposal below is historical; do not apply both.
+
 # Operator and qualification runbook
 
 ## Scope and prerequisites
@@ -44,3 +46,13 @@ Stop hosted rollout on mismatched tenant/project/SHA, absent fresh authenticatio
 The earlier reconciliation remains authoritative: the preserved October 12 archive checksum matches, with 284 tables and 11,133 rows verified in the isolated restore. Separate Storage payload hash matches; synchronized DB/Storage recovery, payload rehydration/ACL drill, service/credential restoration, encryption re-attestation and offsite/retention/custody remain separate operational gaps. No backup was repeated and no Production access occurred here.
 
 The approved Aragon/TENENTE founder story was already present in the unrelated About-page edit and passed local rendered-HTML verification. It remains preserved, uncommitted and unpromoted. This work neither changes the frozen Core RC nor claims TENENTE is Production-live.
+
+## Current local migration and operational prerequisites
+
+Use `supabase/migrations/20261020091324_tenente_swarm_authority_control.sql` only after checking the existing canonical Replay/Memory prerequisites. It is not approved for shared Staging or Production. Existing SQL test helpers install actual relevant schema into disposable PGlite; a full local PostgreSQL restore rehearsal is still required before promotion.
+
+Provision an immutable operator-owned `executionPolicy` in the collective, including allowed tools/resources/environments, evidence references, explicit aggregate semantics, and task bindings (`id`, `parentTaskId`, `transactionId`, `memberId`, `payloadDigest`). Bind transactions to actual canonical decisions; never take parent task status or aggregate ceilings from execution input. Each parent is checked again at dispatch. Heartbeat credential enrollment requires a qualified authenticated operator/agent ingress before enabling the server flag.
+
+If Replay/Memory projection fails after containment, the containment remains effective. Retry `projectSwarmReceipt` with the exact stored journal event and `persistSwarmReceiptProjection`; deterministic unique keys make retries idempotent. Do not regenerate the event, alter its hash or refund an unknown execution. Projection may have written one of the two tables before failing. No automatic retry worker is implemented yet.
+
+Abort activation on missing migration prerequisites, unprovisioned policy/task binding, stale provider health, absent heartbeat, cross-tenant identity, projection failure or unverifiable outcome. Disable opt-in swarm flags to stop feature activation under the release rollback plan; never route previously protected swarm traffic through an unguarded fallback. Database changes need reviewed forward repair, independent of application rollback. Preserve journal and uncertain reservations.

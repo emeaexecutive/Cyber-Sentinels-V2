@@ -6,6 +6,7 @@ import { swarmOperations } from "@/lib/swarm/operations";
 import { swarmRpcPersistence } from "@/lib/swarm/rpc-persistence";
 import { createSwarmStore } from "@/lib/swarm/store";
 import type { Actor } from "@/lib/swarm/containment";
+import { persistSwarmReceiptProjection } from "@/lib/swarm/evidence-projection-server";
 
 export const dynamic = "force-dynamic";
 function response(body: unknown, status = 200) {
@@ -19,7 +20,7 @@ async function operations(request: Request, write: boolean) {
   return swarmOperations(store, async (): Promise<Actor> => {
     const current = await resolveIdentityEnterprise(request, write ? ["owner", "admin"] : ["owner", "admin", "reviewer", "observer"]);
     if (current.enterpriseId !== context.enterpriseId || current.user.id !== context.user.id) throw new IdentityApiError("Session changed.", 403, "SWARM_SESSION_CHANGED");
-    return { id: current.user.id, tenantId: current.enterpriseId, kind: "human", controlledBy: [], expiresAt: Date.now() + 5000, permissions: write ? ["swarm:audit", "swarm:contain", "swarm:reconcile"] : ["swarm:audit"] };
+    return { id: current.user.id, tenantId: current.enterpriseId, kind: "human", controlledBy: [], expiresAt: Date.now() + 5000, permissions: write ? ["swarm:audit", "swarm:contain", "swarm:reconcile", "swarm:manage"] : ["swarm:audit"] };
   });
 }
 function failure(error: unknown) {
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
       chunks.push(value);
     }
     const receipt = await ops.command(JSON.parse(Buffer.concat(chunks).toString("utf8")));
+    await persistSwarmReceiptProjection(receipt);
     return response({ ok: true, receipt: { digest: receipt.digest, kind: receipt.kind, sequence: receipt.sequence } });
   } catch (error) { return failure(error); }
 }

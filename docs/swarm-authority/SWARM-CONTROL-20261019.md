@@ -1,3 +1,5 @@
+> Historical report. Current contract, server integration and limitations: [2026-10-20 qualification](CONTRACT-QUALIFICATION-20261020.md). The complete sixteen-section specification is now available.
+
 # TENENTE Swarm Authority Control — isolated qualification
 
 Branch: `feat/tenente-swarm-authority-control`, based on `5e5f28e5ceb9670ec9456771e7f768b19ecbbed2`. The branch preserves the newer Swarm enforcement/persistence work as well as the historical TENENTE and frozen Core RC ancestors. Existing About-page and migration-report edits are excluded from the Swarm commit.

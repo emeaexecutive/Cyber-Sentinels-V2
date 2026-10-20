@@ -1,0 +1,480 @@
+{
+  "recordedAt": "2026-10-20T09:43:25.107992+00:00",
+  "branch": "feat/tenente-swarm-authority-control",
+  "implementationParent": "eb51d89826d02adadc945aca336a0651d2dd05ee",
+  "commitReference": "The git commit containing this evidence; source hashes below are authoritative.",
+  "scope": "LOCAL ONLY; no shared Staging or Production changes",
+  "exits": {
+    "lint": 0,
+    "typecheck": 0,
+    "regressions": 0,
+    "build": 0,
+    "finalFocusedSwarm": 0
+  },
+  "logs": {
+    "regressions": {
+      "file": "docs/swarm-authority/evidence-20261020/regressions.log.gz",
+      "sha256": "792ea538f0efb115a87fe986b26e86956edcb9e9a1777aa37e4d0e220ceeb2b4",
+      "compressedSha256": "90cbd5627a627f71269d54540f331584be42229b2ad0d00453c3852da60cf0b2",
+      "bytes": 556443,
+      "totals": {
+        "tests": 2232,
+        "pass": 2232,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      }
+    },
+    "swarm": {
+      "file": "docs/swarm-authority/evidence-20261020/swarm.log.gz",
+      "sha256": "5cda4b593f5419b4e283e112e485e945c6f82fd0254c2ed63f232d42e3702c0f",
+      "compressedSha256": "1d40a3598def493d675b9c474e96cd0f7d8c0e2a32c910991530953697ab6ce1",
+      "bytes": 24346,
+      "totals": {
+        "tests": 59,
+        "pass": 59,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      }
+    },
+    "lint": {
+      "file": "docs/swarm-authority/evidence-20261020/lint.log.gz",
+      "sha256": "cd5e0f5a342c467fcd3e5fcbd81cf7154e4af4a2cd7a9bf1bed186102870f1bf",
+      "compressedSha256": "bf03df967af76c9250a48beb6169eae4d2f87bb331c861fc5bfef2dfe6cb96a3",
+      "bytes": 1746,
+      "totals": {
+        "tests": 0,
+        "pass": 0,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      }
+    },
+    "typecheck": {
+      "file": "docs/swarm-authority/evidence-20261020/typecheck.log.gz",
+      "sha256": "db54e06f1da3913b0a8c455777f06ba233d1f0bce554d0519afcda7e684ea917",
+      "compressedSha256": "92ef19e335bda8c7d5085a2cf02f4a7899c772db92fba9e9a1ecdba429cbb600",
+      "bytes": 54,
+      "totals": {
+        "tests": 0,
+        "pass": 0,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      }
+    },
+    "build": {
+      "file": "docs/swarm-authority/evidence-20261020/build.log.gz",
+      "sha256": "affba58521c3e5c6c9c2d1432c9a9b0124aa6182b994bf9130882a7fc4a2f487",
+      "compressedSha256": "0610e668f319a69b4e43b59af03e524b0827eaacdc2a5232add1089f8b6c700c",
+      "bytes": 55836,
+      "totals": {
+        "tests": 0,
+        "pass": 0,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      }
+    }
+  },
+  "diagnostics": [
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "488789350dd629fe3e70b85b1df13c4b623828a0fbf2bdc488d6813fd050d0c8",
+      "outcome": "PASS"
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "e74666be8bf5e51f0369cfb26e4167d696a94349093e8baf159b5f95eed617e0",
+      "outcome": "PASS"
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "e36d587bd384a8b02dfe014dae6f06b380c75966a699521e8da43064fe8ea012",
+      "outcome": "PASS"
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "13b39ecead57fa51813422e49c9c4f28bf9805dbe9e9b93899e6ce228a01838a",
+      "outcome": "PASS"
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "86bbdd3749e676a67c56843284904b0f71158318f671685cdbc05942be5b295c",
+      "outcome": "PASS"
+    },
+    {
+      "scenario": "01",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 0,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+        "488789350dd629fe3e70b85b1df13c4b623828a0fbf2bdc488d6813fd050d0c8",
+        "838b2cad6798b1b6a8983b786dc8827b4b38028ffa1c3d6778b4fb8b2bf65fbb",
+        "a51238b1464f629404c24e303a6e31d8157dc47b8b96dc6856399eb167dae6cc",
+        "e74666be8bf5e51f0369cfb26e4167d696a94349093e8baf159b5f95eed617e0",
+        "75dae9c0dc3bbb7b8bd62625a1d0de7db8a52fd8c31fce25d7c28ccec0ffb050",
+        "8e3d12bfafe5523889239f105a563338c1970337a97c3f44bfe36b917d197cfd",
+        "e36d587bd384a8b02dfe014dae6f06b380c75966a699521e8da43064fe8ea012",
+        "c5baf61ad684e85efc7eef296f70dc587324c0a37b7e3f933d5bc521fae1dfae",
+        "da1424188580bf6a0c537a2a632c8289c6a080a3f70bf9f091da2daaea6a8d07",
+        "13b39ecead57fa51813422e49c9c4f28bf9805dbe9e9b93899e6ce228a01838a",
+        "de9e21d0ca2acefbb1b9d6787c43438a2f817efa025719007ac454a5ca8c9df6",
+        "128e5d5b87d8bd49fc10629c6c6b4cc8d8b2a172d3e4001f878630f1946a42af",
+        "86bbdd3749e676a67c56843284904b0f71158318f671685cdbc05942be5b295c"
+      ],
+      "decisions": [
+        "EXECUTION_DENIED",
+        "EXECUTION_DENIED",
+        "EXECUTION_DENIED",
+        "EXECUTION_DENIED",
+        "EXECUTION_DENIED"
+      ]
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "e9f6939022495da39963fa9eea5d4cb3d37a574dcb59a6653eeec8b976899070",
+      "outcome": "PASS"
+    },
+    {
+      "scenario": "02",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 0,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+        "e9f6939022495da39963fa9eea5d4cb3d37a574dcb59a6653eeec8b976899070"
+      ],
+      "decisions": [
+        "EXECUTION_DENIED"
+      ]
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "e9f6939022495da39963fa9eea5d4cb3d37a574dcb59a6653eeec8b976899070",
+      "outcome": "PASS"
+    },
+    {
+      "scenario": "03",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 0,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+        "e9f6939022495da39963fa9eea5d4cb3d37a574dcb59a6653eeec8b976899070"
+      ],
+      "decisions": [
+        "EXECUTION_DENIED"
+      ]
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "5d26cdaf112cbb5ce4c558812ec287c3ff6ce60c7e85cc3858ed4c600fadb065",
+      "outcome": "PASS"
+    },
+    {
+      "scenario": "04",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 0,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+        "5d26cdaf112cbb5ce4c558812ec287c3ff6ce60c7e85cc3858ed4c600fadb065"
+      ],
+      "decisions": [
+        "EXECUTION_DENIED"
+      ]
+    },
+    {
+      "scenario": "05",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 1,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+        "c599d3ced3cc29fefcf29347a525871edd46c63f123d55765c9dd09da0714754",
+        "9fdac18767c7ae8d848b9479cb98374e4c923f9ab961f50b397803f7c0dcf5a3",
+        "b75ca36cffa5cfe1ddf6d6e48f5c4eca3d6ff70f56e6bf313bfdcfd13edb0c84",
+        "6878e4cd98bef7e8faf6f249dd1bbb6ba0a226fde82e0abff4bcf2450055d864"
+      ],
+      "decisions": [
+        "DISPATCH_STARTED",
+        "EXECUTION_DENIED"
+      ]
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "8fbaff8d82595d2227845d752619b3707590f6b5b36baef185009723991989b8",
+      "outcome": "PASS"
+    },
+    {
+      "scenario": "06",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 0,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+        "84f158769b3b72fd9e018f7d080538587c74fc92a1341b674ed0123565e412a2",
+        "8fbaff8d82595d2227845d752619b3707590f6b5b36baef185009723991989b8"
+      ],
+      "decisions": [
+        "EXECUTION_DENIED"
+      ]
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "441ba94f86f349f766758f990a0f4343bbb936d48284e48e4c529f3820288ceb",
+      "outcome": "PASS"
+    },
+    {
+      "scenario": "07",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 0,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+        "441ba94f86f349f766758f990a0f4343bbb936d48284e48e4c529f3820288ceb"
+      ],
+      "decisions": [
+        "EXECUTION_DENIED"
+      ]
+    },
+    {
+      "scenario": "08",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 0,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678"
+      ],
+      "decisions": []
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "ae79872ca1f07c11370664b50022be714a210c8dc641b95174c39c2cf75678fb",
+      "outcome": "PASS"
+    },
+    {
+      "scenario": "09",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 0,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+        "4feaa5202699738c2d5a5d452c5fc3d139774274bdf6d271d13c796a6cce7ca3",
+        "59720e8951dd91145175565cdf27f968031b8a71eddcfc1f7bb529c590eb969c",
+        "ae79872ca1f07c11370664b50022be714a210c8dc641b95174c39c2cf75678fb"
+      ],
+      "decisions": [
+        "EXECUTION_DENIED"
+      ]
+    },
+    {
+      "scenario": "10",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 1,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+        "fc47ab56ad49c0e6e0ce63321b2b1598c8074baa8985d0a8b47dbe9447ecb791",
+        "ec79dcccc02397168e5a2e33640bae15d7ef70391a96e60471e99bd8323b53ab",
+        "6d6ddd0c1c8c577eda70c028fc491e352a551d5d65e79cd1459f15b27cefb707",
+        "01d004ff6217f6e4deaa63597de4eefd314188425c34c605c56969aca756eb54"
+      ],
+      "decisions": [
+        "DISPATCH_STARTED",
+        "EXECUTION_DENIED"
+      ]
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "8ae376e557a60cfb084e97d35e57d3b8c133c528f72f6cc3600edb81ac279737",
+      "outcome": "PASS"
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "ee2ee7ac98d49597a518f3de9f16553297bf08cc18d3a7646e76c21393b26a4a",
+      "outcome": "PASS"
+    },
+    {
+      "scenario": "11",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 0,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+        "8ae376e557a60cfb084e97d35e57d3b8c133c528f72f6cc3600edb81ac279737"
+      ],
+      "decisions": [
+        "EXECUTION_DENIED"
+      ]
+    },
+    {
+      "scenario": "11",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 0,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+        "ee2ee7ac98d49597a518f3de9f16553297bf08cc18d3a7646e76c21393b26a4a"
+      ],
+      "decisions": [
+        "EXECUTION_DENIED"
+      ]
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "87351e974ecf9528d9f40d97301aa6d190eab0800bb14d978932dcb59083b3ed",
+      "outcome": "PASS"
+    },
+    {
+      "scenario": "12",
+      "initialAuthority": "10000000-0000-4000-8000-000000000003",
+      "requestedAction": "REFUND customer:1",
+      "downstreamEffects": 0,
+      "receiptReferences": [
+        "2136771a80324363bf84da5b15538c22bf36c2594db50d28aa71f0a4939d996e",
+        "7b51d9d6bccba15afe843160e2cfaa0f466c9b0921f2fd81b8bf5cb464eee678",
+        "87351e974ecf9528d9f40d97301aa6d190eab0800bb14d978932dcb59083b3ed"
+      ],
+      "decisions": [
+        "EXECUTION_DENIED"
+      ]
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "bb6af670ed2b91c25d259cc2d8a06555ab780b9e63c075c65572d1cca816197b",
+      "outcome": "PASS"
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "2affaaa80e021884a33ecf7888ec7a147aa50189a9c4956b608b8daa2b6f8712",
+      "outcome": "PASS"
+    },
+    {
+      "decision": "DENY",
+      "executionOccurred": false,
+      "evidenceReceipt": "bd7cda9d2b85e8d63157204582bd17d39a0e6b9dd829fae0941c01ef056d94f5",
+      "outcome": "PASS"
+    },
+    {
+      "agents": 5,
+      "peakParallel": 5,
+      "currency": "EUR",
+      "spentMinor": 50000,
+      "retryAfterVerifiedZeroSpend": true,
+      "provider": "local simulated adapter"
+    },
+    {
+      "agents": 10,
+      "downstreamEffects": 5,
+      "reservedMinor": 50000,
+      "currency": "EUR"
+    },
+    {
+      "transport": "http",
+      "peakParallel": 5,
+      "networkCalls": 6,
+      "spentMinor": 50000,
+      "postParentRevocationCalls": 0,
+      "blockedDescendants": 5,
+      "persistedStates": 1,
+      "persistedReceipts": 38,
+      "revocationReceipt": "d5012b2cb5478eda1e9cde3512eabc213bbcb91ddd7c02ee63decf896027a1ae",
+      "externalProvider": false
+    },
+    {
+      "transport": "mcp",
+      "peakParallel": 5,
+      "networkCalls": 6,
+      "spentMinor": 50000,
+      "postParentRevocationCalls": 0,
+      "blockedDescendants": 5,
+      "persistedStates": 1,
+      "persistedReceipts": 38,
+      "revocationReceipt": "69dff9d4e6e0caa05e5c4fe00a8f7481dc2cd724c7cae3320da007e381b3e836",
+      "externalProvider": false
+    },
+    {
+      "persistedCanonicalReplayRows": 8,
+      "persistedTrustMemoryRows": 8,
+      "revocationReceipt": "4f6d6f35cc130c19d3beefbf927e242a207a75af3d82ed14142630e2f2c5b359",
+      "idempotentProjection": true
+    }
+  ],
+  "sourceSha256": {
+    "TENENTE_SWARM_CODEX_COMPLETE.md": "2198f50584708881a46b87980b01c053eb8dd91d4be6ec0645572116719c442d",
+    "app/api/tenente/swarm/route.ts": "9d4209203730d497e86d52d5b5aa9e390a93dca2ca311a366eca38cc9cc69275",
+    "app/tenente/swarm/swarm-console.tsx": "c17b85ba33515609a73d2e1adf36b53c5be939ff239ef1a7512b46b41e7d5a36",
+    "lib/operational-entities/delegated-authority-server.ts": "7f519927d4ce34a3da5998557da41e2dd8b1750d9da6c0f9664614555cb4bad5",
+    "lib/operational-entities/native-enforcement-server.ts": "27a1b6ee02626581fae08a04220ecdfe0a615849b7b663a912e76e614b323b20",
+    "lib/swarm/containment.ts": "734adc29ae6a3318d4b4d302b8a52139f150019a11f6b707666f2dc58679bf54",
+    "lib/swarm/evidence-projection-server.ts": "f6c8b02ca231031f14ca93d1516949eb3b99c85d9902be7d887ee78185ed1cd4",
+    "lib/swarm/evidence-projection.ts": "b3c2740f92035fa887de0d5ad54fab7bbabc1e6bc6277fa0665fdebc623e0f24",
+    "lib/swarm/native-guard.ts": "9aeb83a87668328ed88eccc6e7e1f8f19e32d1eb0f273625e20ee560a541a521",
+    "lib/swarm/native-server-controls.ts": "aa3577872c140c496b1c4ab950cba25a6262bdc3408abc1fb5c0be1dfab29ff1",
+    "lib/swarm/operations.ts": "344f0032cec794fe34f559efa2744103b78fb2069c19534bffd61060fad768fc",
+    "package.json": "10f80d48d51b16f563d76b9d9e1d6d7eca586ac1d49ba3941ea6631900656af1",
+    "supabase/migrations/20261020091324_tenente_swarm_authority_control.sql": "4c84fe25e6d0e48fcc8ad56d0b86b92633622e9bdad7c74507896474d34abb54",
+    "tests/fixtures/swarm-control.mjs": "44c7b947d4cf10fd41677d995c2ffb1767aad105eda377002831c7f316e79818",
+    "tests/fixtures/swarm-schema.mjs": "942caa29f578d3bcf2616a46229dfeecb291bfb66487264f2e9328e83c446e5c",
+    "tests/fixtures/swarm-sql.mjs": "eedac37208e16acf211e7179dca1bf8362b35a7ef1b2a00d030d9bd9d463d60e",
+    "tests/migration-namespace-reconciliation.test.mjs": "3575fd7e6a371960e0ab1a0fdc1b314170bd115eeaf23940ef444e567520398f",
+    "tests/rls/swarm-authority.test.mjs": "bc8fb385ffcc3eb9643559a5fe92cded81121198a3860c04c295436e311686da",
+    "tests/swarm-authority.test.mjs": "2a3ed95f8c7943c2aeccdf5402e2bd5e5b8eedd9df0154fdff5d1de980eb2c0b",
+    "tests/swarm-contract.test.mjs": "13625b3526612a3d2d8007c0ac9b6da95fc599f0b34c6a3213806b11783b1cc4",
+    "tests/swarm-http-budget.test.mjs": "c2f72f04f9e45306fec9c1de30829512355130a7453bc397f6054125d093fecc",
+    "tests/swarm-memory-projection.test.mjs": "7d8995abdd14531133a3f943b87346da3a38523ac275b34793a6d3a1f838c8a8",
+    "tests/swarm-native-server-controls.test.mjs": "7a8ff9a226772951ea489d67e82b422ecb4ca854fed16b630205dff9fed292ca",
+    "tests/swarm-route.test.mjs": "00c4bc6abd9d854cb002b575acd49f7cb6570a164f4789da468eaca9dab3ded3"
+  },
+  "preservedDirtyFiles": {
+    "app/about-us/page.tsx": "0f8553b6010558e9753289eb1c91ec55b8c363d5bae40802291743e2e5c6b231",
+    "docs/SUPABASE-MIGRATION-RECONCILIATION.md": "967411f837398393e678e68cf96352c9f61d7e082556955e834abab97012d493"
+  },
+  "coreRcAncestor": true,
+  "tenenteAncestor": true,
+  "productionMutations": 0,
+  "sharedStagingMutations": 0,
+  "classification": {
+    "CORE_PRODUCTION": "NO-GO",
+    "TENENTE_SWARM": "PARTIAL"
+  },
+  "limitations": [
+    "Local PGlite SQL, not full PostgreSQL restore",
+    "Loopback real HTTP/MCP, not commercial provider execution",
+    "Native resolver composition uses explicit database/session mocks in its unit integration tests",
+    "No hosted qualification",
+    "Operational heartbeat/task/policy provisioning and projection retry remain incomplete"
+  ]
+}

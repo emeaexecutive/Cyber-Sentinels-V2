@@ -17,7 +17,7 @@ export default function SwarmConsole() {
     if (!response.ok) throw new Error(body.error ?? "Unable to load operations.");
     setSnapshot(body.snapshot);
   }
-  async function perform(action?: "contain" | "reconcile") {
+  async function perform(action?: "contain" | "reconcile" | "revoke") {
     setBusy(true); setMessage("");
     try {
       if (action) {
@@ -37,11 +37,12 @@ export default function SwarmConsole() {
     </form>
     <p role="status" className="break-all">{busy ? "Checking current state…" : message}</p>
     {snapshot && <>
+      <section className="space-y-2"><h2 className="text-xl font-semibold">Swarm authority</h2>{snapshot.collectives.map(s => <article key={s.id} className="rounded border p-3"><h3>{s.id} · {s.state}</h3><p>Orchestrator: {s.orchestratorId ?? "Not recorded"} · Responsible principal: {s.responsiblePrincipalId ?? "Not recorded"}</p><p>Authority: {s.originalAuthority} · Workflow: {s.workflowId}</p><p>Tools: {s.executionPolicy?.allowedTools.join(", ") ?? "Policy not provisioned"} · Environments: {s.executionPolicy?.environments.join(", ") ?? "Policy not provisioned"}</p></article>)}</section>
       <section className="space-y-3"><h2 className="text-xl font-semibold">Shared budgets</h2>
         <div className="overflow-x-auto"><table className="w-full text-left"><thead><tr>{["Budget", "Limit", "Reserved", "Spent", "Parallel limit"].map(s => <th className="p-2" key={s}>{s}</th>)}</tr></thead><tbody>{Object.entries(snapshot.budgets).map(([id, b]) => <tr key={id}><td className="p-2">{id}</td><td>{money(b.limitMinor)}</td><td>{money(b.reservedMinor)}</td><td>{money(b.spentMinor)}</td><td>{b.maxParallel}</td></tr>)}</tbody></table></div>
         {!Object.keys(snapshot.budgets).length && <p>No shared budgets recorded.</p>}
       </section>
-      <section><h2 className="text-xl font-semibold">Members and execution</h2><ul>{snapshot.members.map(m => <li key={m.id}>{m.id}: {m.state} · {m.swarmId}</li>)}</ul><ul>{snapshot.leases.map(l => <li className="break-all" key={l.id}>{l.memberId}: {l.state} · {l.id}</li>)}</ul></section>
+      <section><h2 className="text-xl font-semibold">Members and execution</h2><ul>{snapshot.members.map(m => <li key={m.id}>{m.id}: {m.state} · {m.swarmId} · Parent: {m.parentId ?? "Root member"}</li>)}</ul><ul>{snapshot.leases.map(l => <li className="break-all" key={l.id}>{l.memberId}: {l.state} · {l.id}</li>)}</ul></section>
       <section className="space-y-3"><h2 className="text-xl font-semibold">Emergency containment</h2><p>Only workspace owners and administrators can contain a scope. This does not undo external effects or rotate external credentials.</p>
         <form className="grid gap-3" onSubmit={e => { e.preventDefault(); void perform("contain"); }}>
           <label>Scope <select className="rounded border bg-black p-2" value={kind} onChange={e => setKind(e.target.value)} disabled={busy}>{["swarm", "agent", "chain", "workflow"].map(k => <option key={k}>{k}</option>)}</select></label>
@@ -50,6 +51,7 @@ export default function SwarmConsole() {
           <button className="rounded border border-red-400 p-2" disabled={busy}>Contain scope</button>
         </form>
         <button className="rounded border p-2" disabled={busy} onClick={() => void perform("reconcile")}>Reconcile expired leases and heartbeats</button>
+        <button className="rounded border border-red-400 p-2" disabled={busy || kind !== "agent" || !scope} onClick={() => void perform("revoke")}>Revoke selected agent and descendants</button>
         <ul>{snapshot.quarantines.map(q => <li className="break-all" key={q.receipt}>{q.kind}: {q.id} · receipt {q.receipt}</li>)}</ul>
       </section>
       <section><h2 className="text-xl font-semibold">Recent receipts</h2><p>Showing the latest {snapshot.receipts.length} of {snapshot.totalReceipts} receipts.</p><ol>{snapshot.receipts.map(r => <li className="break-all" key={r.digest}>{r.sequence}. {r.kind} · {new Date(r.at).toISOString()} · {r.digest}</li>)}</ol></section>

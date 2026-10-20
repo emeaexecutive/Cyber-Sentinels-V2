@@ -14,6 +14,7 @@ mock.module(new URL('../lib/identity-signals/enterprise-context.ts',import.meta.
 mock.module(new URL('../lib/supabase/service-role.ts',import.meta.url).href,{namedExports:{createServiceRoleClient:()=>{serviceCalls++;return {rpc:()=>{throw Error('Unexpected RPC');}};}}});
 mock.module(new URL('../lib/security.ts',import.meta.url).href,{namedExports:{checkRequestRateLimit:()=>null}});
 mock.module(new URL('../lib/swarm/store.ts',import.meta.url).href,{namedExports:{createSwarmStore:()=>h.store}});
+mock.module(new URL('../lib/swarm/evidence-projection-server.ts',import.meta.url).href,{namedExports:{persistSwarmReceiptProjection:async()=>{}}});
 const {GET,POST}=await import('../app/api/tenente/swarm/route.ts');
 const url='https://local.test/api/tenente/swarm';
 function request(body,headers={}){return new Request(url,{method:'POST',headers:{origin:'https://local.test','content-type':'application/json','x-enterprise-id':tenant,...headers},body:JSON.stringify(body)});}

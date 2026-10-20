@@ -1,3 +1,5 @@
+> Historical report. Current contract, server integration and limitations: [2026-10-20 qualification](CONTRACT-QUALIFICATION-20261020.md). The complete sixteen-section specification is now available.
+
 # Swarm Authority implementation contract
 
 Historical ten-section implementation baseline: d2b06d29a231fddf4e68432f4e9ece2293ba595c, feature branch feat/authority-of-record-tenente. The earlier ten-section missing-specification blocker was resolved. The subsequent sixteen-section directive is a separate, still unavailable attachment. Current branch, monetary budgets, HTTP/MCP concurrency, console and qualification status are recorded in [SWARM-CONTROL-20261019.md](SWARM-CONTROL-20261019.md).
