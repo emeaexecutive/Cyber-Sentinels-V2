@@ -7,7 +7,8 @@
       "feat/authority-of-record-tenente": false,
       "feat/execution-proof-provider-qualification": false,
       "feat/real-provider-qualification": false,
-      "fix/login-security-check": false
+      "fix/login-security-check": false,
+      "feat/tenente-swarm-authority-control": false
     }
   },
   "cleanUrls": true,
