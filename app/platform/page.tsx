@@ -53,13 +53,15 @@ export default function PlatformPage() {
         </section>
 
         <section id="trust-fabric" className="mt-8 scroll-mt-28">
-          <VisualFrame eyebrow="Decision context" title="Connect authority checks to operational outcomes.">
-            <ArchitectureBlock
-              inputs={["Current Policy", "Delegated Authority", "Requested Action", "Evidence"]}
-              core="ALLOW · REVIEW · DENY"
-              outputs={["Operational Controls", "Decision Evidence", "Replay", "Trust Memory™"]}
-            />
-          </VisualFrame>
+          <div id="execution-trust" className="scroll-mt-28">
+            <VisualFrame eyebrow="Decision context" title="Connect authority checks to operational outcomes.">
+              <ArchitectureBlock
+                inputs={["Current Policy", "Delegated Authority", "Requested Action", "Evidence"]}
+                core="ALLOW · REVIEW · DENY"
+                outputs={["Operational Controls", "Decision Evidence", "Replay", "Trust Memory™"]}
+              />
+            </VisualFrame>
+          </div>
         </section>
 
         <section className="mt-8">
