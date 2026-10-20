@@ -59,6 +59,8 @@
     "test:native-delegation": "node --experimental-strip-types --test tests/native-delegated-authority.test.mjs tests/native-delegated-authority-integration.test.mjs",
     "test:native-enforcement": "node --experimental-strip-types --test tests/native-enforcement-outcome-proof.test.mjs tests/native-enforcement-outcome-proof-integration.test.mjs tests/controlled-provider-outcome-qualification.test.mjs",
     "test:public-positioning": "node --test tests/public-positioning.test.mjs",
+    "gtm:validate": "node scripts/gtm/validate-workflow.mjs",
+    "test:gtm-workflow": "node --test tests/gtm-workflow.test.mjs",
     "test:design-partner-transaction": "node --test tests/design-partner-trust-transaction.test.mjs",
     "test:agent-registry": "node --test tests/design-partner-pilot-gates.test.mjs tests/design-partner-trust-transaction.test.mjs",
     "test:authority-lineage": "node --test tests/rc2-living-trust.test.mjs",
