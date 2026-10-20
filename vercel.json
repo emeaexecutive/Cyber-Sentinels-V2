@@ -6,7 +6,8 @@
       "main": false,
       "feat/execution-proof-provider-qualification": false,
       "feat/real-provider-qualification": false,
-      "fix/login-security-check": false
+      "fix/login-security-check": false,
+      "fix/codeql-coordinated-3-38": false
     }
   },
   "cleanUrls": true,
