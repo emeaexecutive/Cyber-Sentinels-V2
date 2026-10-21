@@ -1,6 +1,6 @@
 ---
 publication_status: founder-review
-title: Cyber Sentinels and TENENTE: Our Story
+title: "Cyber Sentinels and TENENTE: Our Story"
 meta_description: Built in Aragón, the TENENTE story connects watchfulness, guardianship and the need for accountable authority in an agentic world.
 question: What is the story behind Cyber Sentinels and TENENTE?
 internal_links:

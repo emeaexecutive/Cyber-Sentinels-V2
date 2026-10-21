@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  assertDraftMetadataMatchesQueue,
+  parseFrontmatter,
+} from "./frontmatter.mjs";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const queuePath = resolve(repositoryRoot, "docs/gtm/editorial-queue.json");
@@ -91,11 +95,11 @@ for (const item of queue.items) {
   );
   assert.ok(existsSync(draftPath), `${item.id} draft does not exist`);
   const draft = readFileSync(draftPath, "utf8");
-  assert.match(draft, /^publication_status: founder-review$/m, `${item.id} draft status mismatch`);
+  const { metadata, body } = parseFrontmatter(draft, item.draft_path);
+  assertDraftMetadataMatchesQueue(metadata, item);
   assert.match(draft, /^# /m, `${item.id} draft needs a heading`);
   assert.match(draft, /Publication status: Founder review required — not published\./);
-  const draftBody = draft.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "");
-  const wordCount = draftBody.match(/[\p{L}\p{N}’'-]+/gu)?.length ?? 0;
+  const wordCount = body.match(/[\p{L}\p{N}’'-]+/gu)?.length ?? 0;
   assert.ok(
     wordCount >= 220 && wordCount <= 550,
     `${item.id} draft must contain 220–550 words; found ${wordCount}`,

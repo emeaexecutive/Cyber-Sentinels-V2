@@ -1,6 +1,6 @@
 ---
 publication_status: founder-review
-title: MCP Security: Who Authorises the Tool Call?
+title: "MCP Security: Who Authorises the Tool Call?"
 meta_description: MCP tool availability is not action authority. Learn the questions teams should answer before an agent can affect a target.
 question: Who authorizes an AI agent's MCP tool call?
 internal_links:
