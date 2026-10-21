@@ -31,9 +31,9 @@ export default function AboutUsPage() {
             Trust changed quietly.
           </h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-zinc-300">
-            Cyber Sentinels builds operational trust infrastructure for
-            enterprise workflows where identity, session integrity, governance
-            review and verification evidence need to stay connected.
+            Cyber Sentinels helps organisations govern AI agent actions by
+            checking authority against current policy and preserving evidence
+            of decisions.
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
             The product is not a promise that AI can guarantee trust. It is a
@@ -67,17 +67,52 @@ export default function AboutUsPage() {
 
         <section className="rounded-lg border border-zinc-800 bg-black p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">
-            Founder narrative
+            Why it matters
           </p>
           <h2 className="mt-4 max-w-3xl text-3xl font-semibold">
-            Organizations need replayable evidence and accountable governance.
+            Authority should be clear before an agent acts.
           </h2>
           <p className="mt-4 max-w-4xl text-sm leading-7 text-zinc-300">
-            Cyber Sentinels keeps Hiring Security, Session Integrity,
-            Verification Evidence, Governance Review, Replay Evidence and
-            Verification Receipts in one operational story. That gives teams a
-            calmer way to explain risk, review actions and pilot outcomes.
+            An identity or a past approval does not answer whether a specific
+            action is permitted now. Organisations need current policy,
+            accountable review and evidence that helps explain each decision.
           </p>
+        </section>
+
+        <section
+          id="our-story"
+          aria-labelledby="our-story-heading"
+          className="mt-14 border-t border-zinc-800 pt-14"
+        >
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">
+            Our Story
+          </p>
+          <h2
+            id="our-story-heading"
+            className="mt-4 max-w-4xl text-3xl font-semibold leading-tight md:text-4xl"
+          >
+            Built in Aragón. Designed for a world of autonomous agents.
+          </h2>
+          <p className="mt-6 max-w-3xl text-sm leading-7 text-zinc-300">
+            TENENTE™ draws inspiration from the historical concept of
+            watchfulness and guardianship. The founder&apos;s connection to
+            Aragón, Spain, is part of the story behind Cyber Sentinels and its
+            work on accountable AI agent actions.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-300">
+            TENENTE is the product direction within Cyber Sentinels: helping
+            organisations apply current policy and delegated authority to AI
+            agent actions, then preserve evidence of the decision.
+          </p>
+          <p className="mt-6 max-w-3xl text-lg font-semibold leading-8 text-cyan-100">
+            Authority can be delegated. It cannot be invented.
+          </p>
+          <Link
+            href="/platform#agent-authority"
+            className="mt-6 inline-block text-cyan-200 underline"
+          >
+            Explore how Cyber Sentinels approaches agent authority
+          </Link>
         </section>
       </div>
     </main>
