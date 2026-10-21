@@ -21,6 +21,7 @@ test("the manifest, lockfile, Node, and npm baseline stay deterministic", () => 
   assert.equal(read(".nvmrc").trim(), "22.23.1");
   assert.equal(read(".node-version").trim(), "22.23.1");
   assert.equal(lock.lockfileVersion, 3);
+  assert.equal(readJson("vercel.json").installCommand, "npm ci");
 
   for (const section of ["dependencies", "devDependencies"]) {
     for (const [name, version] of Object.entries(manifest[section])) {
@@ -71,6 +72,25 @@ test("React, React DOM, and their types remain one compatible runtime", () => {
   assert.equal(lock.packages["node_modules/@types/react-dom"].version, "19.2.4");
   assert.match(lock.packages["node_modules/next"].peerDependencies.react, /\^19\.0\.0/);
   assert.match(lock.packages["node_modules/next"].peerDependencies["react-dom"], /\^19\.0\.0/);
+});
+
+test("the production framework and image dependencies use patched releases", () => {
+  const manifest = readJson("package.json");
+  const lock = readJson("package-lock.json");
+
+  assert.equal(manifest.dependencies.next, "15.5.28");
+  assert.equal(lock.packages["node_modules/next"].version, "15.5.28");
+  assert.equal(manifest.devDependencies["eslint-config-next"], "15.5.28");
+  assert.equal(lock.packages["node_modules/eslint-config-next"].version, "15.5.28");
+  assert.equal(manifest.overrides.sharp, "0.35.5");
+  assert.equal(lock.packages["node_modules/sharp"].version, "0.35.5");
+  assert.equal(manifest.overrides["source-map-js"], "1.2.2");
+  assert.equal(lock.packages["node_modules/source-map-js"].version, "1.2.2");
+  const braceExpansionVersions = Object.entries(lock.packages)
+    .filter(([packagePath]) => packagePath.endsWith("node_modules/brace-expansion"))
+    .map(([, metadata]) => metadata.version)
+    .sort();
+  assert.deepEqual(braceExpansionVersions, ["1.1.21", "5.0.12"]);
 });
 
 test("Stripe 22.4.0 uses the reviewed API version and preserves payment contracts", () => {
@@ -137,6 +157,7 @@ test("GitHub workflows use immutable action pins and least-privilege triggers", 
   assert.doesNotMatch(combined, /pull_request_target/);
   assert.match(workflows[0], /permissions:\s*\n\s*contents:\s*read/);
   assert.match(workflows[1], /permissions:\s*\n\s*contents:\s*read/);
+  assert.match(workflows[0], /- run: npm audit --omit=dev/);
   assert.match(workflows[1], /fetch-depth:\s*0/);
   assert.match(workflows[1], /zricethezav\/gitleaks:v8\.28\.0/);
   assert.match(workflows[2], /actions:\s*read/);
