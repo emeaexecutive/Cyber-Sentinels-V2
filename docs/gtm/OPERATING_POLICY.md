@@ -19,6 +19,12 @@ account, shell, repository-write or spending authority.
   Search Console/Bing account access, customer data or non-public evidence may
   be supplied to an agent.
 
+## Product positioning
+
+TENENTE wording must follow `docs/product/TENENTE_PRODUCT_DEFINITION.md`:
+TENENTE is the product direction within Cyber Sentinels, not a separate
+company, platform, repository or commercial system.
+
 ## Approval gates
 
 Founder approval is required before:

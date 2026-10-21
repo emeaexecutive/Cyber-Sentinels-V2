@@ -61,6 +61,7 @@
     "test:public-positioning": "node --test tests/public-positioning.test.mjs",
     "gtm:validate": "node scripts/gtm/validate-workflow.mjs",
     "test:gtm-workflow": "node --test tests/gtm-workflow.test.mjs",
+    "test:tenente-definition": "node --test tests/tenente-product-definition.test.mjs",
     "test:design-partner-transaction": "node --test tests/design-partner-trust-transaction.test.mjs",
     "test:agent-registry": "node --test tests/design-partner-pilot-gates.test.mjs tests/design-partner-trust-transaction.test.mjs",
     "test:authority-lineage": "node --test tests/rc2-living-trust.test.mjs",
