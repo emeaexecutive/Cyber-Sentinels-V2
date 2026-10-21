@@ -27,7 +27,7 @@ export const softwareGraph = {
   "@context": "https://schema.org", "@type": "SoftwareApplication", "@id": SOFTWARE_ID,
   name: "Cyber Sentinels", url: `${SITE_URL}/platform`, applicationCategory: "SecurityApplication",
   operatingSystem: "Web", publisher: { "@id": ORGANIZATION_ID },
-  description: "Operational execution trust infrastructure connecting agent identity, authority, policy, decisions, receipts, Replay and Trust Memory.",
+  description: "Cyber Sentinels helps organisations determine whether AI agents are authorised to act under current policy and preserve evidence of the decision.",
 };
 
 export function serializeJsonLd(value: unknown) {
