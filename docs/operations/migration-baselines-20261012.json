@@ -1,0 +1,1088 @@
+{
+  "production": {
+    "captured_at": "2026-10-12T08:41:27.899625+00:00",
+    "ledger": [
+      {
+        "version": "001",
+        "name": "initial_schema"
+      },
+      {
+        "version": "202605260001",
+        "name": "private_beta_schema_fix"
+      },
+      {
+        "version": "20260528",
+        "name": "explicit_supabase_api_grants"
+      },
+      {
+        "version": "202605300001",
+        "name": "evidence_upload_flow"
+      },
+      {
+        "version": "202605300002",
+        "name": "align_evidence_file_url"
+      },
+      {
+        "version": "202605300003",
+        "name": "add_signal_metadata"
+      },
+      {
+        "version": "202605310001",
+        "name": "real_evidence_file_upload"
+      },
+      {
+        "version": "202606010001",
+        "name": "intent_requests"
+      },
+      {
+        "version": "202606010002",
+        "name": "autonomy_profiles"
+      },
+      {
+        "version": "202606010003",
+        "name": "passport_state_checks"
+      },
+      {
+        "version": "202606010004",
+        "name": "execution_passports"
+      },
+      {
+        "version": "202606020001",
+        "name": "trust_graph_engine_help"
+      },
+      {
+        "version": "202606020002",
+        "name": "harden_operational_tables"
+      },
+      {
+        "version": "202606020004",
+        "name": "help_question_traceability"
+      },
+      {
+        "version": "202606020005",
+        "name": "trust_assistant_questions"
+      },
+      {
+        "version": "202606020006",
+        "name": "knowledge_articles"
+      },
+      {
+        "version": "202606030001",
+        "name": "data_rights_requests"
+      },
+      {
+        "version": "202606030002",
+        "name": "messages_notifications_appeals"
+      },
+      {
+        "version": "202606030003",
+        "name": "ai_trust_event_pipeline"
+      },
+      {
+        "version": "202606030004",
+        "name": "developer_platform_api_keys"
+      },
+      {
+        "version": "202606030005",
+        "name": "enterprise_access_requests"
+      },
+      {
+        "version": "202606030006",
+        "name": "private_evidence_bucket"
+      },
+      {
+        "version": "202606040001",
+        "name": "feedback_signal_intelligence"
+      },
+      {
+        "version": "202606040002",
+        "name": "ensure_enterprise_access_requests_public_submit"
+      },
+      {
+        "version": "202606040003",
+        "name": "enterprise_access_problem_category"
+      },
+      {
+        "version": "202606050001",
+        "name": "enterprise_access_design_partner_signals"
+      },
+      {
+        "version": "202606050002",
+        "name": "billing_subscriptions_usage_limits"
+      },
+      {
+        "version": "202606050003",
+        "name": "harden_enterprise_access_insert_permissions"
+      },
+      {
+        "version": "202606050004",
+        "name": "submit_enterprise_access_request_rpc"
+      },
+      {
+        "version": "202606060001",
+        "name": "trusted_hiring_mvp"
+      },
+      {
+        "version": "202606070001",
+        "name": "ai_agent_identity_direction"
+      },
+      {
+        "version": "202606070002",
+        "name": "trust_algorithm_runs"
+      },
+      {
+        "version": "202606070003",
+        "name": "integration_status"
+      },
+      {
+        "version": "202606070004",
+        "name": "api_test_runs"
+      },
+      {
+        "version": "202606070005",
+        "name": "launch_control_notes"
+      },
+      {
+        "version": "202606080001",
+        "name": "trust_relationships"
+      },
+      {
+        "version": "202606080002",
+        "name": "trust_timeline_events"
+      },
+      {
+        "version": "202606080003",
+        "name": "trust_replay_sessions"
+      },
+      {
+        "version": "202606080004",
+        "name": "trust_workspaces_cases"
+      },
+      {
+        "version": "202606080005",
+        "name": "operational_governance_engine"
+      },
+      {
+        "version": "202606080006",
+        "name": "operational_hardening_rls"
+      },
+      {
+        "version": "202606080007",
+        "name": "operational_notifications_coordination"
+      },
+      {
+        "version": "202606090001",
+        "name": "hiring_security_interview_integrity"
+      },
+      {
+        "version": "202606090002",
+        "name": "trust_evidence_chains_receipts"
+      },
+      {
+        "version": "202606090003",
+        "name": "operational_trust_intelligence"
+      },
+      {
+        "version": "202606100001",
+        "name": "runtime_validation_logs"
+      },
+      {
+        "version": "202606180001",
+        "name": "enterprise_ai_trust_governance"
+      },
+      {
+        "version": "202606190001",
+        "name": "verifiers"
+      },
+      {
+        "version": "202606190002",
+        "name": "session_integrity_signal_separation"
+      },
+      {
+        "version": "202606190003",
+        "name": "hopae_connect_upstream_identity"
+      },
+      {
+        "version": "202606270001",
+        "name": "screenshot_support_debugging"
+      },
+      {
+        "version": "202607010001",
+        "name": "production_owner_scoped_rls"
+      },
+      {
+        "version": "202607020001",
+        "name": "critical_trust_infrastructure_alignment"
+      },
+      {
+        "version": "202607160001",
+        "name": "release_1_rc1_provider_evidence_gate"
+      },
+      {
+        "version": "202607160002",
+        "name": "release_1_rc2_living_trust_privacy"
+      },
+      {
+        "version": "202607160003",
+        "name": "release_1_rc6_production_evidence_gate"
+      },
+      {
+        "version": "202607170001",
+        "name": "operational_risk_intelligence_shadow"
+      },
+      {
+        "version": "202607170002",
+        "name": "provider_abstraction_hopae"
+      },
+      {
+        "version": "202607190001",
+        "name": "identity_signal_engine"
+      },
+      {
+        "version": "202607190002",
+        "name": "identity_signal_runtime"
+      },
+      {
+        "version": "202607200001",
+        "name": "canonical_trust_event_foundation"
+      },
+      {
+        "version": "202607200002",
+        "name": "enterprise_trust_consent_manager"
+      },
+      {
+        "version": "202607200003",
+        "name": "provider_consensus_engine"
+      },
+      {
+        "version": "202607210001",
+        "name": "enterprise_trust_architecture"
+      },
+      {
+        "version": "202607210002",
+        "name": "continuous_trust_runtime"
+      },
+      {
+        "version": "202607230001",
+        "name": "trust_intelligence_engine"
+      },
+      {
+        "version": "202607230002",
+        "name": "enterprise_trust_graph"
+      },
+      {
+        "version": "202607240001",
+        "name": "trust_dna_engine"
+      },
+      {
+        "version": "202607240002",
+        "name": "replay_timeline_engine"
+      },
+      {
+        "version": "202607240003",
+        "name": "continuous_trust_engine"
+      },
+      {
+        "version": "202607240004",
+        "name": "enterprise_trust_centre"
+      },
+      {
+        "version": "202607310001",
+        "name": "environment_attestation_scope_continuity"
+      },
+      {
+        "version": "202608010001",
+        "name": "ai_serious_incident_regulatory_lineage"
+      },
+      {
+        "version": "202608010002",
+        "name": "enterprise_trust_fabric"
+      },
+      {
+        "version": "202608060001",
+        "name": "rc2_enterprise_operational_readiness"
+      },
+      {
+        "version": "202608060002",
+        "name": "end_to_end_trust_transaction"
+      },
+      {
+        "version": "202608080001",
+        "name": "provider_neutral_evidence_independence"
+      },
+      {
+        "version": "202608080002",
+        "name": "provider_neutral_workspace_rls_forward_repair"
+      },
+      {
+        "version": "202608080003",
+        "name": "native_operational_entity_verification"
+      },
+      {
+        "version": "202608090001",
+        "name": "native_delegated_authority"
+      },
+      {
+        "version": "202608090002",
+        "name": "native_enforcement_outcome_proof"
+      },
+      {
+        "version": "202608100001",
+        "name": "pgcrypto_routine_search_path"
+      },
+      {
+        "version": "202608100002",
+        "name": "runtime_persistence_compatibility"
+      },
+      {
+        "version": "202608100003",
+        "name": "alpha_beta_persistence_repairs"
+      },
+      {
+        "version": "202608100004",
+        "name": "continuous_trust_legacy_consensus_fk_repair"
+      },
+      {
+        "version": "202608100005",
+        "name": "optional_legacy_consensus_pointer"
+      },
+      {
+        "version": "202608110001",
+        "name": "external_agent_trust_api"
+      },
+      {
+        "version": "20260817173631",
+        "name": "track_block_protected_workflow"
+      },
+      {
+        "version": "20260817175347",
+        "name": "reconcile_enterprise_trust_domain_registry"
+      },
+      {
+        "version": "20260818075145",
+        "name": "remove_user_metadata_rls_authorization"
+      },
+      {
+        "version": "20260819082001",
+        "name": "consent_evidence_freshness_repair"
+      },
+      {
+        "version": "20260819084252",
+        "name": "consent_evidence_freshness_repair"
+      },
+      {
+        "version": "20260819084329",
+        "name": "restrict_evidence_trigger_functions"
+      },
+      {
+        "version": "20260820085027",
+        "name": "vale_canonical_provider_preview"
+      },
+      {
+        "version": "20260821085309",
+        "name": "track_block_policy_identity_continuity"
+      },
+      {
+        "version": "20260821174100",
+        "name": "reconcile_canonical_persist_search_path"
+      },
+      {
+        "version": "20260822124942",
+        "name": "repair_production_consent_event_metadata"
+      },
+      {
+        "version": "20260824181053",
+        "name": "authority_integrity_authorization_propagation"
+      },
+      {
+        "version": "20260824184543",
+        "name": "trust_forecast_operational_intelligence"
+      },
+      {
+        "version": "20260828165913",
+        "name": "close_public_api_security_contract"
+      },
+      {
+        "version": "20260829094528",
+        "name": "harden_public_api_rate_limit_isolation"
+      },
+      {
+        "version": "20260829164824",
+        "name": "close_public_api_customer_zero"
+      },
+      {
+        "version": "20260831121500",
+        "name": "fix_public_api_replay_subject"
+      },
+      {
+        "version": "20260831124000",
+        "name": "expand_canonical_replay_event_types"
+      },
+      {
+        "version": "20260831125500",
+        "name": "fix_public_api_trust_memory_source_id"
+      },
+      {
+        "version": "20260901120000",
+        "name": "grant_service_role_api_keys_privileges"
+      },
+      {
+        "version": "20260902083450",
+        "name": "grant_service_role_api_keys_privileges"
+      },
+      {
+        "version": "20260903093116",
+        "name": "reconcile_public_api_webhook_event_types"
+      },
+      {
+        "version": "20260903095127",
+        "name": "reconcile_public_api_webhook_event_types"
+      },
+      {
+        "version": "20260904100313",
+        "name": "normalize_continuous_trust_alert_contract"
+      },
+      {
+        "version": "20260904113046",
+        "name": "normalize_continuous_trust_alert_contract"
+      },
+      {
+        "version": "202609060001",
+        "name": "world_id_durable_replay_guard"
+      },
+      {
+        "version": "202609060002",
+        "name": "world_id_replay_hardening"
+      },
+      {
+        "version": "20260907120000",
+        "name": "add_decision_outcome_review_to_canonical_trust"
+      },
+      {
+        "version": "20260909163513",
+        "name": "operational_incident_evidence_foundation"
+      },
+      {
+        "version": "20260913132642",
+        "name": "fix_operational_incident_api_key_revocation_check"
+      },
+      {
+        "version": "20260926113958",
+        "name": "restrict_internal_governance_helper_execution"
+      },
+      {
+        "version": "20260929084417",
+        "name": "repair_execution_proof_sql_lint"
+      },
+      {
+        "version": "202610020001",
+        "name": "judgeme_installations"
+      }
+    ],
+    "users": 5,
+    "approval_table": null
+  },
+  "staging": {
+    "captured_at": "2026-10-12T08:41:29.003057+00:00",
+    "ledger": [
+      {
+        "version": "001",
+        "name": "initial_schema"
+      },
+      {
+        "version": "202605260001",
+        "name": "private_beta_schema_fix"
+      },
+      {
+        "version": "20260528",
+        "name": "explicit_supabase_api_grants"
+      },
+      {
+        "version": "202605300001",
+        "name": "evidence_upload_flow"
+      },
+      {
+        "version": "202605300002",
+        "name": "align_evidence_file_url"
+      },
+      {
+        "version": "202605300003",
+        "name": "add_signal_metadata"
+      },
+      {
+        "version": "202605310001",
+        "name": "real_evidence_file_upload"
+      },
+      {
+        "version": "202606010001",
+        "name": "intent_requests"
+      },
+      {
+        "version": "202606010002",
+        "name": "autonomy_profiles"
+      },
+      {
+        "version": "202606010003",
+        "name": "passport_state_checks"
+      },
+      {
+        "version": "202606010004",
+        "name": "execution_passports"
+      },
+      {
+        "version": "202606020001",
+        "name": "trust_graph_engine_help"
+      },
+      {
+        "version": "202606020002",
+        "name": "harden_operational_tables"
+      },
+      {
+        "version": "202606020004",
+        "name": "help_question_traceability"
+      },
+      {
+        "version": "202606020005",
+        "name": "trust_assistant_questions"
+      },
+      {
+        "version": "202606020006",
+        "name": "knowledge_articles"
+      },
+      {
+        "version": "202606030001",
+        "name": "data_rights_requests"
+      },
+      {
+        "version": "202606030002",
+        "name": "messages_notifications_appeals"
+      },
+      {
+        "version": "202606030003",
+        "name": "ai_trust_event_pipeline"
+      },
+      {
+        "version": "202606030004",
+        "name": "developer_platform_api_keys"
+      },
+      {
+        "version": "202606030005",
+        "name": "enterprise_access_requests"
+      },
+      {
+        "version": "202606030006",
+        "name": "private_evidence_bucket"
+      },
+      {
+        "version": "202606040001",
+        "name": "feedback_signal_intelligence"
+      },
+      {
+        "version": "202606040002",
+        "name": "ensure_enterprise_access_requests_public_submit"
+      },
+      {
+        "version": "202606040003",
+        "name": "enterprise_access_problem_category"
+      },
+      {
+        "version": "202606050001",
+        "name": "enterprise_access_design_partner_signals"
+      },
+      {
+        "version": "202606050002",
+        "name": "billing_subscriptions_usage_limits"
+      },
+      {
+        "version": "202606050003",
+        "name": "harden_enterprise_access_insert_permissions"
+      },
+      {
+        "version": "202606050004",
+        "name": "submit_enterprise_access_request_rpc"
+      },
+      {
+        "version": "202606060001",
+        "name": "trusted_hiring_mvp"
+      },
+      {
+        "version": "202606070001",
+        "name": "ai_agent_identity_direction"
+      },
+      {
+        "version": "202606070002",
+        "name": "trust_algorithm_runs"
+      },
+      {
+        "version": "202606070003",
+        "name": "integration_status"
+      },
+      {
+        "version": "202606070004",
+        "name": "api_test_runs"
+      },
+      {
+        "version": "202606070005",
+        "name": "launch_control_notes"
+      },
+      {
+        "version": "202606080001",
+        "name": "trust_relationships"
+      },
+      {
+        "version": "202606080002",
+        "name": "trust_timeline_events"
+      },
+      {
+        "version": "202606080003",
+        "name": "trust_replay_sessions"
+      },
+      {
+        "version": "202606080004",
+        "name": "trust_workspaces_cases"
+      },
+      {
+        "version": "202606080005",
+        "name": "operational_governance_engine"
+      },
+      {
+        "version": "202606080006",
+        "name": "operational_hardening_rls"
+      },
+      {
+        "version": "202606080007",
+        "name": "operational_notifications_coordination"
+      },
+      {
+        "version": "202606090001",
+        "name": "hiring_security_interview_integrity"
+      },
+      {
+        "version": "202606090002",
+        "name": "trust_evidence_chains_receipts"
+      },
+      {
+        "version": "202606090003",
+        "name": "operational_trust_intelligence"
+      },
+      {
+        "version": "202606100001",
+        "name": "runtime_validation_logs"
+      },
+      {
+        "version": "202606180001",
+        "name": "enterprise_ai_trust_governance"
+      },
+      {
+        "version": "202606190001",
+        "name": "verifiers"
+      },
+      {
+        "version": "202606190002",
+        "name": "session_integrity_signal_separation"
+      },
+      {
+        "version": "202606190003",
+        "name": "hopae_connect_upstream_identity"
+      },
+      {
+        "version": "202606270001",
+        "name": "screenshot_support_debugging"
+      },
+      {
+        "version": "202607010001",
+        "name": "production_owner_scoped_rls"
+      },
+      {
+        "version": "202607020001",
+        "name": "critical_trust_infrastructure_alignment"
+      },
+      {
+        "version": "202607160001",
+        "name": "release_1_rc1_provider_evidence_gate"
+      },
+      {
+        "version": "202607160002",
+        "name": "release_1_rc2_living_trust_privacy"
+      },
+      {
+        "version": "202607160003",
+        "name": "release_1_rc6_production_evidence_gate"
+      },
+      {
+        "version": "202607170001",
+        "name": "operational_risk_intelligence_shadow"
+      },
+      {
+        "version": "202607170002",
+        "name": "provider_abstraction_hopae"
+      },
+      {
+        "version": "202607190001",
+        "name": "identity_signal_engine"
+      },
+      {
+        "version": "202607190002",
+        "name": "identity_signal_runtime"
+      },
+      {
+        "version": "202607200001",
+        "name": "canonical_trust_event_foundation"
+      },
+      {
+        "version": "202607200002",
+        "name": "enterprise_trust_consent_manager"
+      },
+      {
+        "version": "202607200003",
+        "name": "provider_consensus_engine"
+      },
+      {
+        "version": "202607210001",
+        "name": "enterprise_trust_architecture"
+      },
+      {
+        "version": "202607210002",
+        "name": "continuous_trust_runtime"
+      },
+      {
+        "version": "202607230001",
+        "name": "trust_intelligence_engine"
+      },
+      {
+        "version": "202607230002",
+        "name": "enterprise_trust_graph"
+      },
+      {
+        "version": "202607240001",
+        "name": "trust_dna_engine"
+      },
+      {
+        "version": "202607240002",
+        "name": "replay_timeline_engine"
+      },
+      {
+        "version": "202607240003",
+        "name": "continuous_trust_engine"
+      },
+      {
+        "version": "202607240004",
+        "name": "enterprise_trust_centre"
+      },
+      {
+        "version": "202607310001",
+        "name": "environment_attestation_scope_continuity"
+      },
+      {
+        "version": "202608010001",
+        "name": "ai_serious_incident_regulatory_lineage"
+      },
+      {
+        "version": "202608010002",
+        "name": "enterprise_trust_fabric"
+      },
+      {
+        "version": "202608060001",
+        "name": "rc2_enterprise_operational_readiness"
+      },
+      {
+        "version": "202608060002",
+        "name": "end_to_end_trust_transaction"
+      },
+      {
+        "version": "202608080001",
+        "name": "provider_neutral_evidence_independence"
+      },
+      {
+        "version": "202608080002",
+        "name": "provider_neutral_workspace_rls_forward_repair"
+      },
+      {
+        "version": "202608080003",
+        "name": "native_operational_entity_verification"
+      },
+      {
+        "version": "202608090001",
+        "name": "native_delegated_authority"
+      },
+      {
+        "version": "202608090002",
+        "name": "native_enforcement_outcome_proof"
+      },
+      {
+        "version": "202608100001",
+        "name": "pgcrypto_routine_search_path"
+      },
+      {
+        "version": "202608100002",
+        "name": "runtime_persistence_compatibility"
+      },
+      {
+        "version": "202608100003",
+        "name": "alpha_beta_persistence_repairs"
+      },
+      {
+        "version": "202608100004",
+        "name": "continuous_trust_legacy_consensus_fk_repair"
+      },
+      {
+        "version": "202608100005",
+        "name": "optional_legacy_consensus_pointer"
+      },
+      {
+        "version": "202608110001",
+        "name": "external_agent_trust_api"
+      },
+      {
+        "version": "20260814153327",
+        "name": "customer_workspace_bootstrap"
+      },
+      {
+        "version": "20260814153337",
+        "name": "staging_product_closure_security_reconciliation"
+      },
+      {
+        "version": "20260815172418",
+        "name": "customer_workspace_creator_returning"
+      },
+      {
+        "version": "20260815172840",
+        "name": "customer_workspace_creator_returning_guard_reconciliation"
+      },
+      {
+        "version": "20260815174612",
+        "name": "gamma_authority_replay_event"
+      },
+      {
+        "version": "20260815180521",
+        "name": "native_replay_chronology_extension"
+      },
+      {
+        "version": "20260815180807",
+        "name": "consent_evidence_freshness"
+      },
+      {
+        "version": "20260816135031",
+        "name": "staging_repair_append_trust_event_consent_namespace"
+      },
+      {
+        "version": "20260817173631",
+        "name": "track_block_protected_workflow"
+      },
+      {
+        "version": "20260817175031",
+        "name": "track_block_protected_workflow"
+      },
+      {
+        "version": "20260817175111",
+        "name": "track_block_fk_indexes"
+      },
+      {
+        "version": "20260817175137",
+        "name": "track_block_evidence_index"
+      },
+      {
+        "version": "20260817175347",
+        "name": "reconcile_enterprise_trust_domain_registry"
+      },
+      {
+        "version": "20260817175421",
+        "name": "runtime_validation_legacy_shape_rehearsal"
+      },
+      {
+        "version": "20260817175448",
+        "name": "reconcile_enterprise_trust_domain_registry_v2"
+      },
+      {
+        "version": "20260817175455",
+        "name": "reconcile_enterprise_trust_domain_registry_idempotency"
+      },
+      {
+        "version": "20260818075145",
+        "name": "remove_user_metadata_rls_authorization"
+      },
+      {
+        "version": "20260818075422",
+        "name": "remove_user_editable_rls_authorization"
+      },
+      {
+        "version": "20260819082001",
+        "name": "consent_evidence_freshness_repair"
+      },
+      {
+        "version": "20260820085027",
+        "name": "vale_canonical_provider_preview"
+      },
+      {
+        "version": "20260821085309",
+        "name": "track_block_policy_identity_continuity"
+      },
+      {
+        "version": "20260821174100",
+        "name": "reconcile_canonical_persist_search_path"
+      },
+      {
+        "version": "20260822124942",
+        "name": "repair_production_consent_event_metadata"
+      },
+      {
+        "version": "20260824181053",
+        "name": "authority_integrity_authorization_propagation"
+      },
+      {
+        "version": "20260824184543",
+        "name": "trust_forecast_operational_intelligence"
+      },
+      {
+        "version": "20260825175059",
+        "name": "authority_integrity_authorization_propagation"
+      },
+      {
+        "version": "20260825175143",
+        "name": "trust_forecast_operational_intelligence"
+      },
+      {
+        "version": "20260828165913",
+        "name": "close_public_api_security_contract"
+      },
+      {
+        "version": "20260829094528",
+        "name": "harden_public_api_rate_limit_isolation"
+      },
+      {
+        "version": "20260829164824",
+        "name": "close_public_api_customer_zero"
+      },
+      {
+        "version": "20260831121500",
+        "name": "fix_public_api_replay_subject"
+      },
+      {
+        "version": "20260831124000",
+        "name": "expand_canonical_replay_event_types"
+      },
+      {
+        "version": "20260831125500",
+        "name": "fix_public_api_trust_memory_source_id"
+      },
+      {
+        "version": "20260901120000",
+        "name": "grant_service_role_api_keys_privileges"
+      },
+      {
+        "version": "20260903093116",
+        "name": "reconcile_public_api_webhook_event_types"
+      },
+      {
+        "version": "20260903093247",
+        "name": "reconcile_public_api_webhook_event_types"
+      },
+      {
+        "version": "20260904100313",
+        "name": "normalize_continuous_trust_alert_contract"
+      },
+      {
+        "version": "20260904100445",
+        "name": "normalize_continuous_trust_alert_contract"
+      },
+      {
+        "version": "202609060001",
+        "name": "world_id_durable_replay_guard"
+      },
+      {
+        "version": "202609060002",
+        "name": "world_id_replay_hardening"
+      },
+      {
+        "version": "20260906155836",
+        "name": "world_id_durable_replay_guard"
+      },
+      {
+        "version": "20260906165033",
+        "name": "world_id_replay_hardening"
+      },
+      {
+        "version": "20260907120000",
+        "name": "add_decision_outcome_review_to_canonical_trust"
+      },
+      {
+        "version": "20260909163513",
+        "name": "operational_incident_evidence_foundation"
+      },
+      {
+        "version": "20260913132642",
+        "name": "fix_operational_incident_api_key_revocation_check"
+      },
+      {
+        "version": "20260926113958",
+        "name": "restrict_internal_governance_helper_execution"
+      },
+      {
+        "version": "20260929084417",
+        "name": "repair_execution_proof_sql_lint"
+      },
+      {
+        "version": "202610020001",
+        "name": "judgeme_installations"
+      },
+      {
+        "version": "202610040001",
+        "name": "p0p1_security_closure"
+      },
+      {
+        "version": "202610040002",
+        "name": "account_access_approval"
+      },
+      {
+        "version": "202610040003",
+        "name": "require_approved_accounts_for_data_api"
+      },
+      {
+        "version": "202610040004",
+        "name": "lock_legacy_passport_decision_writes"
+      },
+      {
+        "version": "20261006105554",
+        "name": "model_approval_evidence_lifecycle"
+      },
+      {
+        "version": "20261006110619",
+        "name": "model_state_replay_event_contract"
+      },
+      {
+        "version": "20261007150222",
+        "name": "account_approval_default_deny"
+      },
+      {
+        "version": "20261007150224",
+        "name": "canonical_trust_memory_function_reconciliation"
+      },
+      {
+        "version": "20261007150835",
+        "name": "canonical_workspace_bootstrap"
+      },
+      {
+        "version": "20261008093614",
+        "name": "canonical_application_access_grants"
+      },
+      {
+        "version": "20261008105722",
+        "name": "canonical_application_schema_reconciliation"
+      },
+      {
+        "version": "20261008112858",
+        "name": "evidence_download_approval_revalidation"
+      },
+      {
+        "version": "20261008120422",
+        "name": "authority_of_record_exact_execution"
+      },
+      {
+        "version": "20261010110000",
+        "name": "employment_access_governance_hardening"
+      }
+    ],
+    "users": 16,
+    "approval_table": "account_access_approvals"
+  }
+}

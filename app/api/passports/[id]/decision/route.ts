@@ -4,7 +4,9 @@ import {
   configurationError,
   getRequestRiskFields,
 } from "@/lib/security";
+import { requireAdminApiAccess } from "@/lib/auth/isAdmin";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { calculateTrustScore } from "@/lib/trust-engine/calculateTrustScore";
 
 type Decision = "approve" | "reject";
@@ -25,15 +27,11 @@ export async function POST(
 ) {
   try {
     // Security: review decisions are privileged admin/back-office actions.
-    const supabase = await createClient();
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
+    const authClient = await createClient();
+    const access = await requireAdminApiAccess(req, authClient);
+    if (!access.ok) return access.response;
+    const user = access.user;
+    const supabase = createServiceRoleClient();
 
     const formData = await req.formData();
     const decision = getDecision(formData);

@@ -15,7 +15,7 @@ import {
   PASSWORD_RESET_GENERIC_MESSAGE,
 } from "@/lib/auth/password-recovery";
 import { captureOperationalIssue } from "@/lib/operational-monitoring";
-import { createClient } from "@/lib/supabase/server";
+import { createProtectedAuthClient } from "@/lib/supabase/protected-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -115,6 +115,7 @@ export async function POST(request: Request) {
     turnstileToken,
     getClientIp(request),
     getExpectedTurnstileHostname(new URL(request.url).hostname),
+    "password_reset",
   );
 
   if (!turnstile.ok) {
@@ -141,7 +142,7 @@ export async function POST(request: Request) {
   const authHeaders = new Headers();
 
   try {
-    const supabase = await createClient(authHeaders);
+    const supabase = await createProtectedAuthClient();
     const callbackUrl = new URL("/auth/callback", approvedOrigin);
     // Match the exact allowed callback URL. The verified recovery session, not
     // a user-controlled destination query, selects the reset-password screen.

@@ -7,7 +7,7 @@ import { verifyDetachedEd25519, type NativeCredential } from "./native-verificat
 export const DELEGATED_AUTHORITY_SUBSET_VERSION = "delegated-authority-subset-v1" as const;
 export const DELEGATION_LINEAGE_VERSION = "delegation-lineage-validation-v1" as const;
 
-export type DelegationStatus = "PENDING" | "ACTIVE" | "EXPIRED" | "REVOKED" | "SUPERSEDED" | "REJECTED";
+export type DelegationStatus = "PENDING" | "ACTIVE" | "EXPIRED" | "REVOKED" | "SUPERSEDED" | "REJECTED" | "SUSPENDED";
 export type DelegationPolicyDecision = "ACTIVATE" | "REVIEW" | "REJECT";
 export type DelegatedActionDecision = "ALLOW" | "REVIEW" | "DENY";
 export type DataBoundary = "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "RESTRICTED";
@@ -364,6 +364,7 @@ export function buildAuthorityLineage(input: { parentAuthority: ParentAuthority;
 export function evaluateDelegatedAction(input: {
   parentAuthority: ParentAuthority;
   delegation: AuthorityDelegation;
+  ancestorDelegations?: AuthorityDelegation[];
   acceptance: DelegationAcceptance;
   delegateIdentity: NativeIdentityState;
   action: { type: string; tool: string; target: string; environment: string; purpose: string; dataBoundary: DataBoundary; financialAmount?: number; executionCount?: number; workflowId: string };
@@ -371,13 +372,53 @@ export function evaluateDelegatedAction(input: {
 }): { decision: DelegatedActionDecision; reasonCodes: string[]; authorityLineage: DelegationLineageEdge[]; authorityGraph: ReturnType<typeof evaluateAuthorityGraph>; decisionSnapshot: Record<string, unknown> } {
   const now = input.now ?? new Date().toISOString();
   const reasons: string[] = [];
+  const ancestors = input.ancestorDelegations ?? [];
+  let child = input.delegation;
+  const visited = new Set([child.delegationId]);
+  while (child.parentDelegationId) {
+    const ancestor = ancestors.find(item => item.delegationId === child.parentDelegationId);
+    if (!ancestor || visited.has(ancestor.delegationId) || visited.size > 16) { reasons.push("PARENT_DELEGATION_CHAIN_INVALID"); break; }
+    visited.add(ancestor.delegationId);
+    if (ancestor.enterpriseId !== child.enterpriseId || ancestor.parentAuthorityId !== input.parentAuthority.authorityId
+      || ancestor.delegateOperationalEntityId !== child.delegatorOperationalEntityId) reasons.push("PARENT_DELEGATION_BINDING_INVALID");
+    if (ancestor.status !== "ACTIVE" || ancestor.revokedAt || time(ancestor.expiresAt) <= time(now) || time(ancestor.notBefore) > time(now)) reasons.push("PARENT_DELEGATION_INACTIVE");
+    if (!ancestor.canRedelegate || child.depth !== ancestor.depth + 1) reasons.push("UNAUTHORIZED_REDELEGATION");
+    const bound = validateDelegatedAuthoritySubset({ parentScope: ancestor.scope, delegatedScope: child.scope,
+      parentNotBefore: ancestor.notBefore, parentExpiresAt: ancestor.expiresAt, delegatedNotBefore: child.notBefore,
+      delegatedExpiresAt: child.expiresAt, parentMaximumDelegationDepth: ancestor.maximumDelegationDepth, requestedDepth: child.depth });
+    if (!bound.valid) reasons.push(...bound.reasonCodes);
+    child = ancestor;
+  }
+  if (child.delegatorOperationalEntityId !== input.parentAuthority.operationalEntityId || child.depth !== 1) reasons.push("AUTHORITY_ISSUER_MISMATCH");
   if (input.delegateIdentity.status !== "VERIFIED" || time(input.delegateIdentity.expiresAt) <= time(now)) reasons.push("IDENTITY_PROOF_FAILED");
+  if (input.parentAuthority.enterpriseId !== input.delegation.enterpriseId
+    || input.delegateIdentity.enterpriseId !== input.delegation.enterpriseId
+    || input.acceptance.enterpriseId !== input.delegation.enterpriseId) reasons.push("AUTHORITY_TENANT_MISMATCH");
+  if (input.delegateIdentity.operationalEntityId !== input.delegation.delegateOperationalEntityId
+    || input.acceptance.delegateOperationalEntityId !== input.delegation.delegateOperationalEntityId
+    || input.acceptance.delegationId !== input.delegation.delegationId
+    || input.parentAuthority.authorityId !== input.delegation.parentAuthorityId) reasons.push("AUTHORITY_PRINCIPAL_MISMATCH");
+  if (input.delegateIdentity.ownerState !== "CONFIRMED") reasons.push("OWNER_NOT_CONFIRMED");
+  if (input.delegation.status !== "ACTIVE") reasons.push("DELEGATION_NOT_ACTIVE");
+  if (time(input.delegation.notBefore) > time(now) || time(input.parentAuthority.notBefore) > time(now)) reasons.push("AUTHORITY_NOT_YET_VALID");
+  if (input.delegation.policyVersion !== input.parentAuthority.policyVersion) reasons.push("AUTHORITY_POLICY_CHANGED");
+  if (!input.parentAuthority.canDelegate) reasons.push("DELEGATION_NOT_PERMITTED");
+  const containment = validateDelegatedAuthoritySubset({ parentScope: input.parentAuthority.scope, delegatedScope: input.delegation.scope,
+    parentNotBefore: input.parentAuthority.notBefore, parentExpiresAt: input.parentAuthority.expiresAt,
+    delegatedNotBefore: input.delegation.notBefore, delegatedExpiresAt: input.delegation.expiresAt,
+    parentMaximumDelegationDepth: input.parentAuthority.maximumDelegationDepth, requestedDepth: input.delegation.depth });
+  if (!containment.valid) reasons.push(...containment.reasonCodes);
+  if (input.action.financialAmount !== undefined && (!Number.isFinite(input.action.financialAmount) || input.action.financialAmount < 0)) reasons.push("FINANCIAL_AMOUNT_INVALID");
+  if (input.action.executionCount !== undefined && (!Number.isSafeInteger(input.action.executionCount) || input.action.executionCount < 1)) reasons.push("EXECUTION_COUNT_INVALID");
   if (input.delegateIdentity.runtimeBinding !== "RUNTIME_MATCH") reasons.push("RUNTIME_CONTINUITY_REVIEW_REQUIRED");
   if (input.delegation.status === "REVOKED" || input.delegation.revokedAt) reasons.push("DELEGATION_REVOKED");
   if (input.parentAuthority.revokedAt) reasons.push("PARENT_AUTHORITY_REVOKED");
   if (time(input.parentAuthority.expiresAt) <= time(now)) reasons.push("PARENT_AUTHORITY_EXPIRED");
   if (input.delegation.status === "EXPIRED" || time(input.delegation.expiresAt) <= time(now)) reasons.push("DELEGATION_EXPIRED");
   if (input.acceptance.delegationDigest !== input.delegation.delegationDigest) reasons.push("DELEGATION_DIGEST_MISMATCH");
+  if (!digestPattern.test(input.acceptance.credentialFingerprint) || !digestPattern.test(input.acceptance.manifestDigest)
+    || input.acceptance.credentialFingerprint !== input.delegateIdentity.credentialFingerprint
+    || input.acceptance.manifestDigest !== input.delegateIdentity.manifestDigest) reasons.push("ACCEPTANCE_IDENTITY_CHANGED");
   if (!input.delegation.scope.permittedActions.includes(input.action.type)) reasons.push("ACTION_OUT_OF_DELEGATED_SCOPE");
   if (!input.delegation.scope.permittedTools.includes(input.action.tool)) reasons.push("TOOL_OUT_OF_DELEGATED_SCOPE");
   if (!input.delegation.scope.permittedTargets.includes(input.action.target)) reasons.push("TARGET_OUT_OF_DELEGATED_SCOPE");
@@ -389,7 +430,7 @@ export function evaluateDelegatedAction(input: {
   const grants: AuthorityGrant[] = [
     { id: `enterprise:${input.parentAuthority.authorityId}`, tenantId: input.parentAuthority.enterpriseId, grantorId: input.parentAuthority.enterpriseId, grantorType: "organization", granteeId: input.parentAuthority.accountableOwnerId, granteeType: "human", scope: input.parentAuthority.scope.permittedActions, permittedActions: input.parentAuthority.scope.permittedActions, resourceScope: input.parentAuthority.scope.permittedTargets, maxDelegationDepth: input.parentAuthority.maximumDelegationDepth + 1, issuedAt: input.parentAuthority.issuedAt, expiresAt: input.parentAuthority.expiresAt, revokedAt: input.parentAuthority.revokedAt, evidenceRefs: input.parentAuthority.evidenceReferences },
     { id: input.parentAuthority.authorityId, tenantId: input.parentAuthority.enterpriseId, grantorId: input.parentAuthority.accountableOwnerId, grantorType: "human", granteeId: input.parentAuthority.operationalEntityId, granteeType: "ai_agent", scope: input.parentAuthority.scope.permittedActions, permittedActions: input.parentAuthority.scope.permittedActions, resourceScope: input.parentAuthority.scope.permittedTargets, parentGrantId: `enterprise:${input.parentAuthority.authorityId}`, maxDelegationDepth: input.parentAuthority.maximumDelegationDepth, issuedAt: input.parentAuthority.issuedAt, expiresAt: input.parentAuthority.expiresAt, revokedAt: input.parentAuthority.revokedAt, evidenceRefs: input.parentAuthority.evidenceReferences },
-    { id: input.delegation.delegationId, tenantId: input.delegation.enterpriseId, grantorId: input.delegation.delegatorOperationalEntityId, grantorType: "ai_agent", granteeId: input.delegation.delegateOperationalEntityId, granteeType: "ai_agent", scope: input.delegation.scope.permittedActions, permittedActions: input.delegation.scope.permittedActions, resourceScope: input.delegation.scope.permittedTargets, parentGrantId: input.parentAuthority.authorityId, maxDelegationDepth: input.delegation.maximumDelegationDepth, issuedAt: input.delegation.notBefore, expiresAt: input.delegation.expiresAt, revokedAt: input.delegation.revokedAt, evidenceRefs: input.delegation.evidenceReferences, policyVersion: input.delegation.policyVersion, purpose: input.delegation.objective },
+    ...[...ancestors, input.delegation].map(item => ({ id: item.delegationId, tenantId: item.enterpriseId, grantorId: item.delegatorOperationalEntityId, grantorType: "ai_agent" as const, granteeId: item.delegateOperationalEntityId, granteeType: "ai_agent" as const, scope: item.scope.permittedActions, permittedActions: item.scope.permittedActions, resourceScope: item.scope.permittedTargets, parentGrantId: item.parentDelegationId ?? input.parentAuthority.authorityId, maxDelegationDepth: item.maximumDelegationDepth, issuedAt: item.notBefore, expiresAt: item.expiresAt, revokedAt: item.revokedAt, evidenceRefs: item.evidenceReferences, policyVersion: item.policyVersion, purpose: item.objective })),
   ];
   const authorityGraph = evaluateAuthorityGraph({ tenantId: input.delegation.enterpriseId, subjectId: input.delegation.delegateOperationalEntityId, workflowId: input.action.workflowId, action: input.action.type, purpose: input.action.purpose, requestedScope: [input.action.type], resource: input.action.target, policyVersion: input.delegation.policyVersion, grants, evaluatedAt: now });
   if (!authorityGraph.valid) reasons.push("AUTHORITY_LINEAGE_INVALID");

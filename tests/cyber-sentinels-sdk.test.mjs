@@ -75,6 +75,25 @@ test("SDK exposes provider evidence, outcome, authority and verification facades
   assert.match(requests[4].url, /\/proof$/);
 });
 
+test("OpenGraph tool SDK sends only the bounded request body and places idempotency in its header", async () => {
+  let observed;
+  const cs = new CyberSentinels({ apiKey: key, baseUrl: "https://preview.example", fetch: async (url, init) => {
+    observed = { url, init };
+    return response(201, { receipt: {} });
+  } });
+  await cs.tools.requestOpenGraphSite({
+    operational_entity_id: "agent:alpha",
+    target_url: "https://example.com",
+    idempotency_key: "opengraph-site-001",
+  });
+  assert.match(observed.url, /\/api\/v1\/tools\/opengraph\/site$/);
+  assert.equal(observed.init.headers["idempotency-key"], "opengraph-site-001");
+  assert.deepEqual(JSON.parse(observed.init.body), {
+    operational_entity_id: "agent:alpha",
+    target_url: "https://example.com",
+  });
+});
+
 test("SDK exposes the productized V1 aliases without removing compatibility methods", async () => {
   const requests = [];
   const cs = new CyberSentinels({ apiKey: key, baseUrl: "https://preview.example", fetch: async (url, init) => {

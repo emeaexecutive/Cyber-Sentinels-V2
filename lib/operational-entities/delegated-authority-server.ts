@@ -1,4 +1,5 @@
 import "server-only";
+import { safeExecutionParameters } from "../trust-transaction/action-envelope";
 
 import type { User } from "@supabase/supabase-js";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -95,7 +96,10 @@ async function currentIdentity(enterpriseId: string, operationalEntityId: string
     db.from("native_entity_identity_evidence").select("evidence_id,revoked_at").eq("enterprise_id", enterpriseId).eq("verification_id", verification.data.verification_id).maybeSingle(),
   ]);
   for (const result of [credential, owner, evidence]) if (result.error) fail("Native identity binding resolution", result.error);
-  if (!credential.data || evidence.data?.revoked_at) throw new DelegatedAuthorityServerError("The native identity credential is unavailable or revoked.", "IDENTITY_PROOF_FAILED", 409);
+  if (!credential.data || credential.data.state !== "ACTIVE" || credential.data.revoked_at
+    || Date.parse(String(credential.data.valid_from)) > Date.now()
+    || (credential.data.expires_at && Date.parse(String(credential.data.expires_at)) <= Date.now())
+    || !evidence.data || evidence.data.revoked_at) throw new DelegatedAuthorityServerError("The native identity credential is unavailable or revoked.", "IDENTITY_PROOF_FAILED", 409);
   return {
     credential: rowCredential(credential.data),
     manifestId: String(verification.data.manifest_id),
@@ -329,6 +333,19 @@ export async function revokeAuthorityDelegation(context: DelegatedAuthorityConte
   return { delegationId, status: "REVOKED", revokedAt: now, identityState: "UNCHANGED" };
 }
 
+export async function restrictTenenteAuthority(context: DelegatedAuthorityContext, entityId: string, raw: Record<string, unknown>) {
+  ensureRole(context.role, ["owner", "admin"]);
+  const operation = String(raw.operation ?? "");
+  const reason = String(raw.reason ?? "").trim();
+  if (!["SUSPEND", "REVOKE"].includes(operation) || !reason || reason.length > 500) throw new DelegatedAuthorityServerError("A supported restriction and bounded audit reason are required.", "TENENTE_INVALID_RESTRICTION", 400);
+  const result = await createServiceRoleClient().rpc("restrict_tenente_delegation_v1", {
+    p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id, p_entity_id: entityId,
+    p_delegation_id: uuid(raw.delegationId, "delegationId"), p_operation: operation, p_reason: reason,
+  });
+  if (result.error) fail("Audited TENENTE restriction", result.error);
+  return result.data;
+}
+
 export async function revokeParentAuthority(context: DelegatedAuthorityContext, delegatorId: string, authorityId: string, reason: string) {
   ensureRole(context.role, ["owner", "admin"]);
   const safeReason = reason.trim();
@@ -380,7 +397,19 @@ export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityC
   if (!storedDelegation.data || !storedAcceptance.data) throw new DelegatedAuthorityServerError("An active, accepted delegation is required.", "DELEGATED_AUTHORITY_NOT_FOUND", 404);
   const delegation = rowDelegation(storedDelegation.data);
   const acceptance = rowAcceptance(storedAcceptance.data);
-  const { parent, contract } = await parentAuthorityFor(context.enterpriseId, delegation.parentAuthorityId, delegation.delegatorOperationalEntityId);
+  const ancestorDelegations: AuthorityDelegation[] = [];
+  let parentDelegationId = delegation.parentDelegationId;
+  const seen = new Set([delegation.delegationId]);
+  while (parentDelegationId) {
+    if (seen.has(parentDelegationId) || seen.size > 16) throw new DelegatedAuthorityServerError("Delegation chain is cyclic or too deep.", "PARENT_DELEGATION_CHAIN_INVALID", 409);
+    seen.add(parentDelegationId);
+    const ancestor = await db.from("operational_entity_authority_delegations").select("*").eq("enterprise_id", context.enterpriseId).eq("delegation_id", parentDelegationId).maybeSingle();
+    if (ancestor.error || !ancestor.data) throw new DelegatedAuthorityServerError("Parent delegation is unavailable.", "PARENT_DELEGATION_CHAIN_INVALID", 409);
+    const value = rowDelegation(ancestor.data);
+    ancestorDelegations.push(value);
+    parentDelegationId = value.parentDelegationId;
+  }
+  const { parent, contract } = await parentAuthorityFor(context.enterpriseId, delegation.parentAuthorityId, ancestorDelegations.at(-1)?.delegatorOperationalEntityId ?? delegation.delegatorOperationalEntityId);
   const requested = raw.request as Record<string, unknown>;
   if (!requested || typeof requested !== "object") throw new DelegatedAuthorityServerError("A bounded delegated action is required.", "DELEGATED_ACTION_INVALID");
   const action = {
@@ -389,9 +418,14 @@ export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityC
     ...(requested.financialAmount === undefined ? {} : { financialAmount: Number(requested.financialAmount) }),
     ...(requested.executionCount === undefined ? {} : { executionCount: Number(requested.executionCount) }),
     workflowId: String(requested.workflowId ?? ""),
+    ...(requested.parameters === undefined ? {} : { parameters: safeExecutionParameters(requested.parameters) }),
   };
+  const payloadDigest = requested.parameters === undefined ? String(requested.payloadDigest ?? "") : hashCanonical(action);
+  if (requested.parameters !== undefined && requested.payloadDigest !== undefined && requested.payloadDigest !== payloadDigest) {
+    throw new DelegatedAuthorityServerError("Payload digest differs from the exact executable action.", "EXECUTION_PAYLOAD_MISMATCH", 409);
+  }
   const evaluatedAt = new Date().toISOString();
-  const result = evaluateDelegatedAction({ parentAuthority: parent, delegation, acceptance, delegateIdentity: beta.identity, action, now: evaluatedAt });
+  const result = evaluateDelegatedAction({ parentAuthority: parent, delegation, ancestorDelegations, acceptance, delegateIdentity: beta.identity, action, now: evaluatedAt });
   const evaluationId = crypto.randomUUID();
   const decisionDigest = hashCanonical({ evaluationId, delegationId, delegateId, action, result: { decision: result.decision, reasonCodes: result.reasonCodes }, evaluatedAt });
   const persisted = await db.rpc("persist_delegated_action_evaluation_v1", { p_enterprise_id: context.enterpriseId, p_delegation_id: delegationId, p_delegate_operational_entity_id: delegateId, p_actor_id: context.user.id, p_evaluation: { evaluationId, canonicalTransactionId: null, actionType: action.type, actionTarget: action.target, actionTool: action.tool, environment: action.environment, decision: result.decision, reasonCodes: result.reasonCodes, authorityLineage: result.authorityLineage, decisionSnapshot: result.decisionSnapshot, decisionDigest, evaluatedAt } });
@@ -422,7 +456,7 @@ export async function evaluateStoredDelegatedAction(context: DelegatedAuthorityC
   };
   const receipt = await executeCanonicalTrustTransaction({
     trustObject: { subjectType: "ai_agent", subjectId: delegateId }, operationalEntityId: delegateId,
-    action: { type: action.type, purpose: action.purpose, resource: action.target, environment: action.environment, payloadDigest: String(requested.payloadDigest ?? "") },
+    action: { type: action.type, purpose: action.purpose, resource: action.target, environment: action.environment, payloadDigest },
     idempotencyKey: String(requested.idempotencyKey ?? ""),
     managedControl: {
       responsibilityLineage: { controlOwner: beta.identity.accountableOwnerId, policyApprover: parent.accountableOwnerId, controlOperator: delegateId, identityAuthorizationProvider: "cyber_sentinels_native", runtimeProvider: beta.identity.runtimeBinding, destinationSystem: action.target, evidenceProvider: "cyber_sentinels_native" },

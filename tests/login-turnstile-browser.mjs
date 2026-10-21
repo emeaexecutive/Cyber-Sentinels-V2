@@ -18,7 +18,7 @@ before(async () => {
         function WidgetFixture() {
           const [visible, setVisible] = useState(true);
           useEffect(() => { window.__unmountWidget = () => setVisible(false); }, []);
-          return visible ? <TurnstileField siteKey="fixture-public-key"
+          return visible ? <TurnstileField siteKey="fixture-public-key" action="login"
             onTokenChange={(value) => window.__events.push({ type: "token", value })}
             onErrorChange={(value) => window.__events.push({ type: "error", value })} /> : <p>Widget removed</p>;
         }
@@ -47,17 +47,7 @@ before(async () => {
             ? 'const router = { push: () => { throw new Error("Unexpected navigation"); } }; export const useRouter = () => router;'
             : `export const createClient = () => ({ auth: {
                 getUser: async () => ({ data: { user: null }, error: null }),
-                signInWithPassword: async (input) => {
-                  window.__authCalls++;
-                  if (window.__authSuccess) {
-                    const response = await fetch("/__fixture/sign-in", {
-                      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
-                    });
-                    if (!response.ok) throw new Error("Mock authentication failed");
-                    return { data: { user: { id: "fixture-user" } }, error: null };
-                  }
-                  return { data: { user: null }, error: new Error("Invalid login credentials") };
-                },
+                setSession: async () => ({ error: null }),
               } });`,
       }));
     } }],
@@ -140,10 +130,22 @@ async function withFixture(options, run) {
     if (url.href === "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit") {
       return route.fulfill({ contentType: "application/javascript", body: providerScript });
     }
-    if (url.origin === origin && ["/api/auth/turnstile", "/api/auth/password-reset/request"].includes(url.pathname)) {
-      requests.push(route.request().postDataJSON());
+    if (url.origin === origin && ["/api/auth/submit", "/api/auth/password-reset/request"].includes(url.pathname)) {
+      const input = route.request().postDataJSON();
+      requests.push(input);
+      if (url.pathname === "/api/auth/submit") assert.equal(input.operation, "password");
       sequence.push("mock-verification");
       if (verification.transportFailure) return route.abort("failed");
+      if (url.pathname === "/api/auth/submit" && verification.status === 200) {
+        await page.evaluate(() => window.__authCalls++);
+        authenticationRequests.push({ email: input.email, password: input.password });
+        sequence.push("mock-authentication");
+        if (options.authSuccess) {
+          await context.addCookies([{name:"fixture_authenticated", value:"1", url:origin, httpOnly:true, sameSite:"Lax"}]);
+          return route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({error:null,data:{session:{access_token:"fixture-access",refresh_token:"fixture-refresh"}}})});
+        }
+        return route.fulfill({status:400,contentType:"application/json",body:JSON.stringify({error:{code:"invalid_credentials",message:"Invalid credentials"}})});
+      }
       return route.fulfill({ status: verification.status, contentType: "application/json", body: JSON.stringify(verification.body) });
     }
     if (url.origin === origin) return route.continue();
@@ -203,7 +205,7 @@ for (const width of [1440, 390]) {
       assert.equal(new URL(page.url()).pathname, "/operational-entities");
       assert.equal(await page.evaluate(() => window.__loginDocumentMarker), undefined, "authentication must load a new document");
       assert.equal(await page.evaluate(() => window.innerWidth), width);
-      assert.deepEqual(requests, [{ turnstileToken: "fixture-success-token" }]);
+      assert.deepEqual(requests, [{ operation: "password", email: "fixture@example.test", password: "fixture-password", turnstileToken: "fixture-success-token" }]);
       assert.deepEqual(authenticationRequests, [{ email: "fixture@example.test", password: "fixture-password" }]);
       assert.deepEqual(protectedRequests, [{ authenticated: true, destination: "document" }]);
       assert.deepEqual(sequence, ["mock-verification", "mock-authentication", "replay:login", "protected-document"]);
@@ -251,7 +253,7 @@ test("verification transport failure discards the submitted token until a fresh 
     await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeDisabled();
     assert.deepEqual(await page.evaluate(() => window.__resets), ["fixture-widget-1"]);
     assert.equal(await page.locator('input[name="cf-turnstile-response"]').inputValue(), "");
-    assert.deepEqual(requests, [{ turnstileToken: "fixture-possibly-consumed-token" }]);
+    assert.deepEqual(requests, [{ operation: "password", email: "fixture@example.test", password: "fixture-password", turnstileToken: "fixture-possibly-consumed-token" }]);
     assert.equal(await page.evaluate(() => window.__authCalls), 0);
     setVerification({ status: 200, body: { ok: true } });
     await issueToken(page, "fixture-replacement-token");

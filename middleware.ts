@@ -8,6 +8,8 @@ import {
 } from "@/lib/env";
 import { isMissingAuthSessionError } from "@/lib/supabase/auth-errors";
 import { isPasswordRecoverySession, isRecoveryWorkflowPath, PASSWORD_RECOVERY_COOKIE, PASSWORD_RECOVERY_PATH } from "@/lib/auth/password-recovery";
+import { isJudgeMeWebhookCallback } from "@/lib/providers/judgeme-route";
+import { approvalBoundary, isTenantAdminSurface } from "@/lib/auth/approval-boundary";
 
 const adminVerifiedCookieName = "cyber_admin_verified";
 
@@ -46,6 +48,7 @@ const userPagePrefixes = [
   "/timeline",
   "/team-access",
   "/team-workspace",
+  "/operational-entities",
   "/trust",
   "/trust-replay",
   "/trust-center",
@@ -57,6 +60,38 @@ const userPagePrefixes = [
   "/verification/receipt",
   "/verifier-network",
   "/interview/session",
+];
+
+const protectedUserApiPrefixes = [
+  "/api/agents",
+  "/api/appeals",
+  "/api/billing",
+  "/api/candidate",
+  "/api/client",
+  "/api/data-rights",
+  "/api/developer/api-keys",
+  "/api/evidence",
+  "/api/feedback",
+  "/api/interview",
+  "/api/messages",
+  "/api/notifications",
+  "/api/operational-entities",
+  "/api/passports",
+  "/api/provenance",
+  "/api/recruiter",
+  "/api/replay",
+  "/api/session",
+  "/api/step-up",
+  "/api/stripe/create-checkout-session",
+  "/api/stripe/customer-portal",
+  "/api/support",
+  "/api/team",
+  "/api/trust",
+  "/api/trust-events",
+  "/api/trust-reports",
+  "/api/verification",
+  "/api/verifiers",
+  "/api/world-id",
 ];
 
 const adminPagePrefixes = [
@@ -169,7 +204,10 @@ function isProtectedUserPath(pathname: string) {
   ) {
     return false;
   }
-  return matchesPrefix(pathname, userPagePrefixes);
+  return (
+    matchesPrefix(pathname, userPagePrefixes) ||
+    matchesPrefix(pathname, protectedUserApiPrefixes)
+  );
 }
 
 function isProtectedAdminPath(pathname: string) {
@@ -177,7 +215,8 @@ function isProtectedAdminPath(pathname: string) {
     matchesPrefix(pathname, adminPagePrefixes) ||
     matchesPrefix(pathname, internalToolingPrefixes) ||
     matchesPrefix(pathname, experimentalPagePrefixes) ||
-    pathname.startsWith("/api/admin/")
+    pathname.startsWith("/api/admin/") ||
+    /^\/api\/passports\/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/decision$/i.test(pathname)
   );
 }
 
@@ -326,6 +365,11 @@ export async function middleware(req: NextRequest) {
 
 async function applicationMiddleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
+  const boundary = approvalBoundary(pathname, req.method);
+  if (pathname.startsWith("/api/") && boundary !== "CUSTOMER") {
+    // API keys verify owner approval in the route; callbacks verify signatures.
+    return NextResponse.next();
+  }
   // Provider callbacks authenticate with a timestamped HMAC in the route.
   // Browser GET access to the provider registry remains session-protected.
   if (
@@ -334,17 +378,16 @@ async function applicationMiddleware(req: NextRequest) {
       "/api/providers",
       "/api/providers/hopae/callback",
       "/api/providers/world-id/callback",
-    ].includes(pathname) || pathname.startsWith("/api/trust-events/ingest/"))
+    ].includes(pathname) || pathname.startsWith("/api/trust-events/ingest/") || isJudgeMeWebhookCallback(pathname, req.method))
   ) {
     return NextResponse.next();
   }
   // Enterprise consent-admin APIs authorize workspace owner/admin roles in the
   // route and are not restricted to the platform-wide founder allowlist.
-  if (pathname === "/admin/consent" || pathname.startsWith("/api/admin/consent/")) return NextResponse.next();
-  if (pathname.startsWith("/admin/consensus") || pathname.startsWith("/api/admin/consensus/")) return NextResponse.next();
-  if (pathname.startsWith("/admin/trust-architecture") || pathname.startsWith("/api/admin/trust-architecture/")) return NextResponse.next();
-  const protectsUser = isProtectedUserPath(pathname);
-  const protectsAdmin = isProtectedAdminPath(pathname);
+  const tenantAdmin = isTenantAdminSurface(pathname);
+  const protectsAdmin = !tenantAdmin && isProtectedAdminPath(pathname);
+  const protectsUser = tenantAdmin || isProtectedUserPath(pathname) ||
+    (pathname.startsWith("/api/") && !protectsAdmin);
 
   if (!protectsUser && !protectsAdmin) {
     return NextResponse.next();
@@ -429,6 +472,43 @@ async function applicationMiddleware(req: NextRequest) {
   }
 
   if (protectsUser && !protectsAdmin) {
+    const { data: approval, error: approvalError } = await supabase
+      .from("account_access_approvals")
+      .select("status")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (approvalError) {
+      console.error("User access approval lookup failed.", {
+        code: approvalError.code,
+      });
+      return protectedSurfaceUnavailable();
+    }
+
+    const approved = approval?.status === "APPROVED";
+    const { error: accessAuditError } = await supabase.rpc(
+      "record_account_access_attempt",
+      { p_access_granted: approved }
+    );
+
+    if (accessAuditError) {
+      console.error("User access approval audit failed.", {
+        code: accessAuditError.code,
+      });
+      return protectedSurfaceUnavailable();
+    }
+
+    if (!approved) {
+      if (pathname.startsWith("/api/")) {
+        return NextResponse.json(
+          { ok: false, error: "ACCESS_APPROVAL_REQUIRED" },
+          { status: 403 }
+        );
+      }
+
+      return redirectTo(req, "/access-pending");
+    }
+
     return response;
   }
 

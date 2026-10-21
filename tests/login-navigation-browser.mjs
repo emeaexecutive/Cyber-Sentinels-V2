@@ -74,10 +74,8 @@ before(async () => {
                 });
                 return claims;
               },
-              signInWithPassword: async () => {
-                window.__authCalls.push("signInWithPassword");
-                const response = await fetch("/__fixture/authenticate", { method: "POST" });
-                if (!response.ok) throw new Error("Fixture sign-in failed");
+              setSession: async () => {
+                window.__authCalls.push("setSession");
                 return { data: { user }, error: null };
               },
             };
@@ -124,12 +122,12 @@ async function withFixture(options, run) {
       if (url.pathname === "/fixture.js") return send("application/javascript", script);
       if (url.pathname === "/style.css") return send("text/css", css);
       if (url.pathname === "/favicon.ico") { res.statusCode = 204; return res.end(); }
-      if (url.pathname === "/__fixture/authenticate") {
+      if (url.pathname === "/api/auth/submit") {
         assert.equal(req.method, "POST");
         authenticationCalls++;
         return respondAtBoundary("authentication", () => {
           res.setHeader("Set-Cookie", "fixture_authenticated=1; Path=/; HttpOnly; SameSite=Lax");
-          send("application/json", '{"ok":true}');
+          send("application/json", '{"error":null,"data":{"session":{"access_token":"fixture-access","refresh_token":"fixture-refresh"}}}');
         });
       }
       if (url.pathname === "/api/auth/replay-event") {
@@ -267,7 +265,7 @@ test("a delayed getClaims result cannot override clicking Forgot password", asyn
 
 for (const scenario of [
   { boundary: "replay-event", endpoint: "/api/auth/replay-event", events: ["login"] },
-  { boundary: "authentication", endpoint: "/__fixture/authenticate", events: [] },
+  { boundary: "authentication", endpoint: "/api/auth/submit", events: [] },
 ]) {
   test(`a delayed password-login ${scenario.boundary} response cannot override Forgot password`, { timeout: 20_000 }, async () => {
     await withFixture({ delayResponse: scenario.boundary }, async (fixture) => {
@@ -291,7 +289,7 @@ for (const scenario of [
       assert.equal(await resetButton.isEnabled(), true);
       assert.equal(fixture.authenticationCalls(), 1);
       assert.deepEqual(fixture.replayEvents.map(({ event_type }) => event_type), scenario.events);
-      assert.deepEqual(await page.evaluate(() => window.__authCalls), ["getUser", "signInWithPassword"]);
+      assert.deepEqual(await page.evaluate(() => window.__authCalls), ["getUser", "setSession"]);
     });
   });
 }

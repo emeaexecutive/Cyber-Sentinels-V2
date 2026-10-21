@@ -109,11 +109,21 @@ function assertNoSecretLeak(value, context) {
 }
 
 async function getResponse(path) {
-  const response = await fetch(`http://127.0.0.1:${port}${path}`, {
-    cache: "no-store",
-    signal: AbortSignal.timeout(5_000),
-  });
-  const text = await response.text();
+  const controller = new AbortController();
+  // Keep the deadline referenced: AbortSignal.timeout alone can let Node exit
+  // with an unsettled top-level await while Docker Desktop is opening the port.
+  const deadline = setTimeout(() => controller.abort(), 5_000);
+  let response;
+  let text;
+  try {
+    response = await fetch(`http://127.0.0.1:${port}${path}`, {
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    text = await response.text();
+  } finally {
+    clearTimeout(deadline);
+  }
   assertNoSecretLeak(text, path);
   if (/\bat\s+[A-Za-z0-9_$.[\]<>]+\s*\([^\n]+:\d+:\d+\)/.test(text)) {
     fail(`${path} exposed an internal stack trace.`);
@@ -162,6 +172,10 @@ if (daemon.error || daemon.status !== 0) {
 
 const sha = run(git, ["rev-parse", "HEAD"], { capture: true }).stdout.trim();
 if (!/^[a-f0-9]{40}$/.test(sha)) fail("Git release SHA could not be determined.");
+const sourceState = run(git, ["status", "--porcelain"], { capture: true }).stdout.trim()
+  ? "DIRTY_WORKTREE"
+  : "CLEAN_COMMIT";
+console.log(`DOCKER_SOURCE_BASE_SHA=${sha};SOURCE_STATE=${sourceState}`);
 const shortSha = sha.slice(0, 12);
 const image = `cyber-sentinels-v1:${shortSha}-a`;
 const rebuildImage = `cyber-sentinels-v1:${shortSha}-b`;
@@ -291,7 +305,7 @@ function walk(dir){for(const entry of fs.readdirSync(dir,{withFileTypes:true})){
   console.log(`DOCKER_NODE_VERSION_B=${rebuildNodeVersion}`);
   console.log(`DOCKER_RUNTIME_USER_A=${imageUser}`);
   console.log(`DOCKER_RUNTIME_USER_B=${rebuildImageUser}`);
-  console.log(`DOCKER_REPRODUCIBILITY=PASS;SOURCE_SHA=${sha};NODE_MAJOR=22`);
+  console.log(`DOCKER_REPRODUCIBILITY=PASS;SOURCE_BASE_SHA=${sha};SOURCE_STATE=${sourceState};NODE_MAJOR=22`);
   console.log("DOCKER_HOMEPAGE=PASS");
   console.log("DOCKER_HEALTH=PASS");
   console.log(`DOCKER_READY_HTTP=${ready.response.status};REASON=${readyBody.reasonCode || "READY"}`);

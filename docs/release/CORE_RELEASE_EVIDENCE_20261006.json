@@ -1,0 +1,2052 @@
+{
+  "generatedAt": "2026-10-06T09:15:00.589Z",
+  "decision": "NO-GO",
+  "branch": "fix/p0p1-production-security-closure",
+  "baseSha": "94a530cfacbc4470a3f02ff8b08dfc60cd3e13de",
+  "rcSha": null,
+  "staging": {
+    "origin": "https://staging.cybersentinels.com",
+    "project": "agpyhygpfmppjkxwcpac",
+    "qualifiedDeployment": "dpl_AVxy1SiYEnoDLKabBtyLb87S8eqF",
+    "cleanupDeployment": "dpl_7Dh9WFJQEsQbudh1W22W99XiaY3f",
+    "cleanupUrl": "https://cyber-sentinels-v2-df7ajdlyi-keith-speres-projects.vercel.app"
+  },
+  "production": {
+    "mutated": false,
+    "deployment": "dpl_3aKJiNZB6jQssp9Urm8uDG1zBsyp"
+  },
+  "readiness": {
+    "schemaVersion": "readiness-v3",
+    "status": "READY",
+    "reasonCode": "ENTERPRISE_TRUST_ARCHITECTURE_AVAILABLE",
+    "checks": {
+      "environment": "READY",
+      "enterpriseTrustArchitecture": "READY",
+      "repositoryRuntime": "NOT_CONFIGURED",
+      "externalControls": "BLOCKED",
+      "process": "PROCESS_HEALTHY",
+      "projectIdentity": "VALID",
+      "dataPlane": "READY",
+      "apiAuthentication": "READY",
+      "canonicalPersistence": "READY",
+      "authority": "READY",
+      "humanReview": "READY",
+      "rateLimiting": "READY",
+      "apiKeyRotation": "READY"
+    },
+    "enterpriseTrustRegistry": {
+      "missingDomains": [],
+      "inactiveDomains": [],
+      "versionMismatchDomains": [],
+      "duplicateDomains": []
+    },
+    "runtime": {
+      "commitSha": null
+    },
+    "externalControls": {
+      "state": "BLOCKED",
+      "reasonCode": "AUTHORITATIVE_CONTROL_PLANE_EVIDENCE_REQUIRED"
+    },
+    "generatedAt": "2026-10-06T09:16:04.120Z",
+    "diagnosticState": "PROCESS_HEALTHY",
+    "publicApiEnvironment": {
+      "valid": true,
+      "state": "CONFIGURED",
+      "reasonCode": "PUBLIC_API_ENVIRONMENT_CONFIGURED",
+      "name": "staging",
+      "origin": "https://staging.cybersentinels.com"
+    },
+    "projectBinding": {
+      "valid": true,
+      "expectedProject": "agpyhygpfmppjkxwcpac",
+      "projectIdentity": "VALID",
+      "statuses": {
+        "NEXT_PUBLIC_SUPABASE_URL": "PRESENT",
+        "SUPABASE_URL": "PRESENT",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY": "PRESENT",
+        "SUPABASE_SERVICE_ROLE_KEY": "PRESENT"
+      },
+      "productionProjectActive": "NOT_ACTIVE"
+    }
+  },
+  "apiKeyStability": [
+    {
+      "phase": "before-redeploy",
+      "checks": [
+        {
+          "keyId": "8c7715b8-c5b0-4827-9368-6ed8d0e8a52f",
+          "hashMatchesPersistentPepper": true,
+          "calls": [
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            },
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            },
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            }
+          ]
+        },
+        {
+          "keyId": "f7fbc751-a8e5-4b05-92bf-7f2864684653",
+          "hashMatchesPersistentPepper": true,
+          "calls": [
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            },
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            },
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            }
+          ]
+        }
+      ],
+      "at": "2026-10-06T08:53:41.742Z"
+    },
+    {
+      "phase": "after-redeploy",
+      "checks": [
+        {
+          "keyId": "8c7715b8-c5b0-4827-9368-6ed8d0e8a52f",
+          "hashMatchesPersistentPepper": true,
+          "calls": [
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            },
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            },
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            }
+          ]
+        },
+        {
+          "keyId": "f7fbc751-a8e5-4b05-92bf-7f2864684653",
+          "hashMatchesPersistentPepper": true,
+          "calls": [
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            },
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            },
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            }
+          ]
+        }
+      ],
+      "at": "2026-10-06T08:58:23.649Z"
+    },
+    {
+      "phase": "final-deployment",
+      "checks": [
+        {
+          "keyId": "8c7715b8-c5b0-4827-9368-6ed8d0e8a52f",
+          "hashMatchesPersistentPepper": true,
+          "calls": [
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            },
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            },
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            }
+          ]
+        },
+        {
+          "keyId": "f7fbc751-a8e5-4b05-92bf-7f2864684653",
+          "hashMatchesPersistentPepper": true,
+          "calls": [
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            },
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            },
+            {
+              "status": 404,
+              "code": "AGENT_NOT_OWNED"
+            }
+          ]
+        }
+      ],
+      "at": "2026-10-06T09:09:12.774Z"
+    }
+  ],
+  "runtime": {
+    "qualification": "CONTROLLED_RUNTIME_ADAPTER_NOT_LIVE_ATTESTATION",
+    "status": "PASS_CONTROLLED_RUNTIME",
+    "fullMandatoryApprovedModelScenario": "NOT_PROVEN",
+    "modelStateIntegrity": null,
+    "identityAssurance": "CURRENT",
+    "unknown": {
+      "decision": "REVIEW",
+      "transactionId": "fc25869c-4964-50a3-8fc2-43d7fe4d8ff6",
+      "reasonCodes": [
+        "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+        "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+        "AUTHORITY_SCOPE_VALID",
+        "CANONICAL_POLICY_ALLOW",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "DELEGATED_AUTHORITY_VALID",
+        "EVIDENCE_STALE_OR_UNAVAILABLE",
+        "EVIDENCE_SUFFICIENT",
+        "MISSING_VERIFY_MONITORING",
+        "MISSING_VERIFY_RUNTIME",
+        "TRUST_FORECAST_ELEVATED",
+        "TRUST_FORECAST_RECOMMENDS_HOLD",
+        "TRUST_GAP_OPEN"
+      ],
+      "authorityReference": "5a741598-e6b2-43d9-8293-83a0ad2fd7b5",
+      "policy": {
+        "id": "external-agent-trust-v1",
+        "version": "0.2.0",
+        "hash": "ee25b316f39ea5ecdf0d4eff11692d27867aa192ce073a47db4ffc61bca18d6b"
+      },
+      "digest": "0ac8ab6ddd70d806d9a39e8e120d68f9c1a768d93ebbad20d341825384b52a62"
+    },
+    "allow": {
+      "decision": "ALLOW",
+      "transactionId": "eb2062f2-c4a7-54c1-bf2b-f5e525e396f9",
+      "reasonCodes": [
+        "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+        "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+        "AUTHORITY_SCOPE_VALID",
+        "CANONICAL_POLICY_ALLOW",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "DELEGATED_AUTHORITY_VALID",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_SUFFICIENT",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE"
+      ],
+      "authorityReference": "5a741598-e6b2-43d9-8293-83a0ad2fd7b5",
+      "policy": {
+        "id": "external-agent-trust-v1",
+        "version": "0.2.0",
+        "hash": "ee25b316f39ea5ecdf0d4eff11692d27867aa192ce073a47db4ffc61bca18d6b"
+      },
+      "digest": "f4dd17573d82169e97dcef28f5ca4737e8d904a010bf65bf5bdaf9949993078f"
+    },
+    "failed": {
+      "decision": "DENY",
+      "transactionId": "6ad0916f-d1ac-525a-b048-59d227b51b83",
+      "reasonCodes": [
+        "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+        "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+        "AUTHORITY_SCOPE_VALID",
+        "CANONICAL_POLICY_ALLOW",
+        "CONCLUSION_CONFIDENCE_LOW",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "DELEGATED_AUTHORITY_VALID",
+        "EVIDENCE_CONFLICT",
+        "EVIDENCE_STALE_OR_UNAVAILABLE",
+        "EVIDENCE_SUFFICIENT",
+        "MISSING_VERIFY_MONITORING",
+        "MISSING_VERIFY_RUNTIME",
+        "NEGATIVE_PROVIDER_EVIDENCE",
+        "TRUST_FORECAST_ELEVATED",
+        "TRUST_FORECAST_RECOMMENDS_HOLD",
+        "TRUST_GAP_OPEN"
+      ],
+      "authorityReference": "5a741598-e6b2-43d9-8293-83a0ad2fd7b5",
+      "policy": {
+        "id": "external-agent-trust-v1",
+        "version": "0.2.0",
+        "hash": "ee25b316f39ea5ecdf0d4eff11692d27867aa192ce073a47db4ffc61bca18d6b"
+      },
+      "digest": "6b134bdf08188fe796a3535677437de349100d29e1d2e79b30071e0416e731e5"
+    },
+    "negativeEvidenceReference": "07def9f1-8b00-401d-8d3c-82d839974912",
+    "explicitDigestMismatch": true,
+    "zeroProof": [
+      {
+        "name": "REVIEW execution zero and customer history",
+        "transactionId": "fc25869c-4964-50a3-8fc2-43d7fe4d8ff6",
+        "counts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptDecision": "REVIEW",
+        "replayStatus": 200
+      },
+      {
+        "name": "DENY execution zero and customer history",
+        "transactionId": "6ad0916f-d1ac-525a-b048-59d227b51b83",
+        "counts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0,
+          "native_enforcement_requests": 0,
+          "native_enforcement_acknowledgements": 0
+        },
+        "receiptDecision": "DENY",
+        "replayStatus": 200
+      }
+    ],
+    "replayAfterRuntimeChange": {
+      "status": 200,
+      "transactionId": "eb2062f2-c4a7-54c1-bf2b-f5e525e396f9",
+      "chronology": true,
+      "htmlDigest": "3b4e6742a73177c49c344afb18cd42a0e76408328cc991dca90e1deb5557be69"
+    }
+  },
+  "authorityMatrix": [
+    {
+      "name": "expired delegation",
+      "decision": {
+        "decision": "DENY",
+        "transactionId": "c6bf7cba-e493-5eec-9f9c-a1cfd63d5694",
+        "reasonCodes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_LINEAGE_INVALID",
+          "AUTHORITY_SCOPE_INVALID",
+          "CONCLUSION_CONFIDENCE_LOW",
+          "CONSEQUENCE_LOW",
+          "CONTRACT_EXPIRED",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "DELEGATION_EXPIRED",
+          "EVIDENCE_CONFLICT",
+          "EVIDENCE_STALE_OR_UNAVAILABLE",
+          "EVIDENCE_SUFFICIENT",
+          "MISSING_VERIFY_AUTHORITY",
+          "MISSING_VERIFY_AUTHORITY_STATE",
+          "MISSING_VERIFY_MONITORING",
+          "MISSING_VERIFY_RUNTIME",
+          "NEGATIVE_PROVIDER_EVIDENCE",
+          "TRUST_FORECAST_ELEVATED",
+          "TRUST_FORECAST_RECOMMENDS_HOLD",
+          "TRUST_GAP_OPEN"
+        ],
+        "authorityReference": "cb7a7e16-77dd-4883-81fc-7dfc816ea23a",
+        "policy": {
+          "id": "external-agent-trust-v1",
+          "version": "0.2.0",
+          "hash": "ee25b316f39ea5ecdf0d4eff11692d27867aa192ce073a47db4ffc61bca18d6b"
+        },
+        "digest": "a7220dc77e25cedd8168945df2110cb3df9cb803455cd436dd10ec0f16472920"
+      },
+      "counts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receipt": "AVAILABLE",
+      "replay": "AVAILABLE"
+    },
+    {
+      "name": "action outside scope",
+      "decision": {
+        "decision": "DENY",
+        "transactionId": "6213f482-b5fa-5a7c-b255-cd56bb592298",
+        "reasonCodes": [
+          "ACTION_OUT_OF_DELEGATED_SCOPE",
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_LINEAGE_INVALID",
+          "AUTHORITY_REQUIREMENT_UNSATISFIED",
+          "AUTHORITY_SCOPE_INVALID",
+          "CONCLUSION_CONFIDENCE_LOW",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CONFLICT",
+          "EVIDENCE_STALE_OR_UNAVAILABLE",
+          "EVIDENCE_SUFFICIENT",
+          "MISSING_VERIFY_AUTHORITY",
+          "MISSING_VERIFY_AUTHORITY_STATE",
+          "MISSING_VERIFY_MONITORING",
+          "MISSING_VERIFY_RUNTIME",
+          "NEGATIVE_PROVIDER_EVIDENCE",
+          "SCOPE_OUTSIDE_CONTRACT",
+          "TRUST_FORECAST_ELEVATED",
+          "TRUST_FORECAST_RECOMMENDS_HOLD",
+          "TRUST_GAP_OPEN"
+        ],
+        "authorityReference": "5a741598-e6b2-43d9-8293-83a0ad2fd7b5",
+        "policy": {
+          "id": "external-agent-trust-v1",
+          "version": "0.2.0",
+          "hash": "ee25b316f39ea5ecdf0d4eff11692d27867aa192ce073a47db4ffc61bca18d6b"
+        },
+        "digest": "c99859b07d29bceddd87fa5bd6f20ad1e78efdc1812f0adf3a2929efbdea3c0c"
+      },
+      "counts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receipt": "AVAILABLE",
+      "replay": "AVAILABLE"
+    },
+    {
+      "name": "tool outside scope",
+      "decision": {
+        "decision": "DENY",
+        "transactionId": "6f2a504c-1a01-5db4-a7e4-611a32f78336",
+        "reasonCodes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_LOW",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CONFLICT",
+          "EVIDENCE_STALE_OR_UNAVAILABLE",
+          "EVIDENCE_SUFFICIENT",
+          "MISSING_VERIFY_MONITORING",
+          "MISSING_VERIFY_RUNTIME",
+          "NEGATIVE_PROVIDER_EVIDENCE",
+          "TOOL_OUT_OF_DELEGATED_SCOPE",
+          "TRUST_FORECAST_ELEVATED",
+          "TRUST_FORECAST_RECOMMENDS_HOLD",
+          "TRUST_GAP_OPEN"
+        ],
+        "authorityReference": "5a741598-e6b2-43d9-8293-83a0ad2fd7b5",
+        "policy": {
+          "id": "external-agent-trust-v1",
+          "version": "0.2.0",
+          "hash": "ee25b316f39ea5ecdf0d4eff11692d27867aa192ce073a47db4ffc61bca18d6b"
+        },
+        "digest": "9ee685a809432a6d8173ae2e7610ecde73c586b86497f7e3180be8396d55c89a"
+      },
+      "counts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receipt": "AVAILABLE",
+      "replay": "AVAILABLE"
+    },
+    {
+      "name": "wrong organisation",
+      "status": 409,
+      "executionDelta": 0,
+      "receipt": "NOT_CREATED_AUTHORIZATION_REJECTED",
+      "replay": "NOT_CREATED_AUTHORIZATION_REJECTED"
+    },
+    {
+      "name": "expired authority",
+      "decision": {
+        "decision": "DENY",
+        "transactionId": "732c7339-b525-58ab-93b4-2128a26262fb",
+        "reasonCodes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_SCOPE_INVALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CONTRACT_EXPIRED",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_INSUFFICIENT",
+          "MISSING_VERIFY_AGENT_CONFIGURATION",
+          "MISSING_VERIFY_AUTHORITY",
+          "MISSING_VERIFY_AUTHORITY_STATE",
+          "MISSING_VERIFY_MONITORING",
+          "MISSING_VERIFY_RUNTIME",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE",
+          "TRUST_GAP_OPEN"
+        ],
+        "policy": {
+          "id": "external-agent-trust-v1",
+          "version": "0.2.0"
+        }
+      },
+      "counts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receipt": "AVAILABLE",
+      "replay": "AVAILABLE"
+    },
+    {
+      "name": "revoked authority",
+      "decision": {
+        "decision": "DENY",
+        "transactionId": "0ddeae4c-33fd-5259-bef5-3e2c79655f08",
+        "reasonCodes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_REVOKED",
+          "AUTHORITY_SCOPE_INVALID",
+          "CONCLUSION_CONFIDENCE_MODERATE",
+          "CONSEQUENCE_LOW",
+          "CONTRACT_REVOKED",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CURRENT",
+          "EVIDENCE_INSUFFICIENT",
+          "MISSING_VERIFY_AGENT_CONFIGURATION",
+          "MISSING_VERIFY_AUTHORITY",
+          "MISSING_VERIFY_AUTHORITY_STATE",
+          "MISSING_VERIFY_MONITORING",
+          "MISSING_VERIFY_RUNTIME",
+          "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+          "TRUST_FORECAST_STABLE",
+          "TRUST_GAP_OPEN"
+        ],
+        "policy": {
+          "id": "external-agent-trust-v1",
+          "version": "0.2.0"
+        }
+      },
+      "counts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receipt": "AVAILABLE",
+      "replay": "AVAILABLE"
+    },
+    {
+      "name": "invalid/revoked credential",
+      "decision": {
+        "decision": "DENY",
+        "transactionId": "a7fbf513-505c-5399-a430-f624e1f842d5",
+        "reasonCodes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_LOW",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "EVIDENCE_CONFLICT",
+          "EVIDENCE_INSUFFICIENT",
+          "EVIDENCE_STALE_OR_UNAVAILABLE",
+          "MISSING_VERIFY_AGENT_CONFIGURATION",
+          "MISSING_VERIFY_AUTHORITY",
+          "MISSING_VERIFY_MONITORING",
+          "MISSING_VERIFY_RUNTIME",
+          "NEGATIVE_PROVIDER_EVIDENCE",
+          "REQUIRED_EVIDENCE_MISSING",
+          "TRUST_FORECAST_ELEVATED",
+          "TRUST_FORECAST_RECOMMENDS_HOLD",
+          "TRUST_GAP_OPEN"
+        ],
+        "policy": {
+          "id": "external-agent-trust-v1",
+          "version": "0.2.0"
+        }
+      },
+      "counts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receipt": "AVAILABLE",
+      "replay": "AVAILABLE"
+    },
+    {
+      "name": "revoked agent",
+      "decision": {
+        "decision": "DENY",
+        "transactionId": "060cf5b8-366f-5e60-b15f-7afb12790fc4",
+        "reasonCodes": [
+          "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+          "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+          "AUTHORITY_SCOPE_VALID",
+          "CONCLUSION_CONFIDENCE_INSUFFICIENT",
+          "CONSEQUENCE_LOW",
+          "CURRENT_CONDITIONS_REEVALUATED",
+          "ENTITY_REVOKED",
+          "EVIDENCE_INSUFFICIENT",
+          "EVIDENCE_MISSING",
+          "EVIDENCE_STALE_OR_UNAVAILABLE",
+          "IDENTITY_REQUIREMENT_UNSATISFIED",
+          "MISSING_VERIFY_AGENT_CONFIGURATION",
+          "MISSING_VERIFY_AUTHORITY",
+          "MISSING_VERIFY_IDENTITY",
+          "MISSING_VERIFY_MONITORING",
+          "MISSING_VERIFY_RUNTIME",
+          "REQUIRED_EVIDENCE_MISSING",
+          "TRUST_FORECAST_ELEVATED",
+          "TRUST_FORECAST_RECOMMENDS_HOLD",
+          "TRUST_GAP_OPEN"
+        ],
+        "policy": {
+          "id": "external-agent-trust-v1",
+          "version": "0.2.0"
+        }
+      },
+      "counts": {
+        "external_action_requests": 0,
+        "external_action_acknowledgements": 0,
+        "external_action_outcomes": 0,
+        "native_enforcement_requests": 0,
+        "native_enforcement_acknowledgements": 0
+      },
+      "receipt": "AVAILABLE",
+      "replay": "AVAILABLE"
+    }
+  ],
+  "customerReplay": [
+    {
+      "name": "B cannot read A agent",
+      "status": 404,
+      "code": "AGENT_NOT_OWNED",
+      "result": "PASS"
+    },
+    {
+      "name": "B cannot read A authority",
+      "status": 404,
+      "code": "AGENT_NOT_OWNED",
+      "result": "PASS"
+    },
+    {
+      "name": "B cannot getTransaction A",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "result": "PASS"
+    },
+    {
+      "name": "B cannot getReceipt A",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "result": "PASS"
+    },
+    {
+      "name": "B cannot getReplay A",
+      "status": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "result": "PASS"
+    },
+    {
+      "name": "expired required heartbeat produces REVIEW without execution authorization",
+      "result": "PASS"
+    },
+    {
+      "name": "unresolved REVIEW rejects successful outcome",
+      "status": 409,
+      "code": "IDEMPOTENCY_CONFLICT",
+      "result": "PASS"
+    },
+    {
+      "name": "revoked authority DENY",
+      "result": "PASS"
+    },
+    {
+      "name": "historical transaction digests preserved after runtime expiry and authority revocation",
+      "result": "PASS"
+    }
+  ],
+  "memory": {
+    "status": "PASS",
+    "surfaces": [
+      "native-verification GET",
+      "trust-architecture subject timeline GET"
+    ],
+    "chronology": [
+      {
+        "type": "ENTITY_CHANGED",
+        "occurredAt": "2026-10-06T08:54:39.379+00:00",
+        "sourceId": "c567d447-f38b-4825-a741-414f4c48b549"
+      },
+      {
+        "type": "NATIVE_IDENTITY_VERIFIED",
+        "occurredAt": "2026-10-06T08:54:49.795+00:00",
+        "sourceId": "39da0ce6-9e95-413c-b919-e580d664fcec"
+      },
+      {
+        "type": "DELEGATION_ACTIVATED",
+        "occurredAt": "2026-10-06T08:55:05.599+00:00",
+        "sourceId": "5a741598-e6b2-43d9-8293-83a0ad2fd7b5"
+      },
+      {
+        "type": "CANONICAL_TRUST_TRANSACTION",
+        "occurredAt": "2026-10-06T09:04:12.308+00:00",
+        "decision": "ALLOW",
+        "sourceId": "eb2062f2-c4a7-54c1-bf2b-f5e525e396f9"
+      },
+      {
+        "type": "CANONICAL_TRUST_TRANSACTION",
+        "occurredAt": "2026-10-06T09:04:22.065+00:00",
+        "decision": "DENY",
+        "sourceId": "6ad0916f-d1ac-525a-b048-59d227b51b83"
+      },
+      {
+        "type": "DELEGATION_REVOKED",
+        "occurredAt": "2026-10-06T09:07:59.294+00:00",
+        "sourceId": "5a741598-e6b2-43d9-8293-83a0ad2fd7b5"
+      }
+    ],
+    "foreignStatus": 403,
+    "receiptAfterRevocation": {
+      "receiptVersion": "canonical-trust-transaction-v1",
+      "transactionId": "eb2062f2-c4a7-54c1-bf2b-f5e525e396f9",
+      "entity": {
+        "operationalEntityId": "agent:fe69c510-8cf0-4a57-a8be-f7c1d20f4af7",
+        "type": "ai_agent",
+        "accountableOwnerId": "owner:qualification"
+      },
+      "decision": "ALLOW",
+      "trustState": "verified",
+      "timestamp": "2026-10-06T09:04:12.308+00:00",
+      "action": {
+        "type": "read_repository",
+        "purpose": "incident_evidence_qualification",
+        "resource": "repository:hosted-qualification",
+        "environment": "staging",
+        "requestDigest": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "reasonCodes": [
+        "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+        "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+        "AUTHORITY_SCOPE_VALID",
+        "CANONICAL_POLICY_ALLOW",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "DELEGATED_AUTHORITY_VALID",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_SUFFICIENT",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE"
+      ],
+      "decisionOutcomeReview": null,
+      "evidenceReferences": [
+        {
+          "reference": "fb536768-eaab-46ab-b17f-84fd5df765c9",
+          "sourceDigest": "56392a8548965ac899b9ce36c02b78f8c6220721b53a84c83ed0f2fb1f29d4c9"
+        },
+        {
+          "reference": "dc3d00c6-df17-4b3a-8e47-728174df763a",
+          "sourceDigest": "bca871538ea3404005ee642c1ff84ea72548a704d4103d0a242cd8cebb9066bb"
+        },
+        {
+          "reference": "418d07cc-916d-5fa3-94a2-45c5cfd10929",
+          "sourceDigest": "6b04de7620ba8c5be88201d270efb781d8bcc7bbfad4c84f6cf7b9332a8d09f2"
+        },
+        {
+          "reference": "a10d58a4-de6f-532b-825b-9b39fc0a0c13",
+          "sourceDigest": "6b04de7620ba8c5be88201d270efb781d8bcc7bbfad4c84f6cf7b9332a8d09f2"
+        },
+        {
+          "reference": "22c5baed-1faa-4deb-87bb-cfc55a1492c1",
+          "sourceDigest": "a198e6dac0a68b3303622d00411d1f1b47ee5f84bc6b84193d598006adf51bf5"
+        },
+        {
+          "reference": "fb536768-eaab-46ab-b17f-84fd5df765c9",
+          "sourceDigest": "56392a8548965ac899b9ce36c02b78f8c6220721b53a84c83ed0f2fb1f29d4c9"
+        }
+      ],
+      "authorityReference": "5a741598-e6b2-43d9-8293-83a0ad2fd7b5",
+      "delegationReference": "5a741598-e6b2-43d9-8293-83a0ad2fd7b5",
+      "parentAuthorityReference": "8ae702d2-f1bb-441b-b91e-44e1289ad97f",
+      "policy": {
+        "id": "external-agent-trust-v1",
+        "version": "0.2.0",
+        "hash": "ee25b316f39ea5ecdf0d4eff11692d27867aa192ce073a47db4ffc61bca18d6b"
+      },
+      "decisionDigest": "f4dd17573d82169e97dcef28f5ca4737e8d904a010bf65bf5bdaf9949993078f",
+      "evidenceGraphReference": "f3b999d4-8472-4e09-a1fc-def217d0fa8b",
+      "replayReference": "293d3603-8952-482a-a755-f1bce33f7411",
+      "trustMemoryReference": "101580ba-a593-45a0-ad99-24145446baad",
+      "protectedWorkflow": null
+    },
+    "replayAfterRevocationStatus": 200
+  },
+  "storage": {
+    "application": {
+      "status": "PASS_BOUNDED_MATRIX",
+      "checks": [
+        {
+          "actor": "a",
+          "name": "own upload",
+          "status": 200,
+          "location": null,
+          "body": "{\"ok\":true,\"evidence_id\":\"b9cdf308-f200-41f9-8ee9-9691557aa0dc\",\"signal_id\":\"c719acf3-138d-4aee-83bf-3c9954a5269c\",\"audit_id\":\"121e0a13-cf42-407f-87db-11f8d7169ea0\"}"
+        },
+        {
+          "actor": "a",
+          "name": "foreign upload",
+          "status": 404,
+          "location": null,
+          "body": "{\"ok\":false,\"error\":\"Verification case not found\"}"
+        },
+        {
+          "actor": "a",
+          "name": "forged owner foreign case metadata",
+          "status": 404
+        },
+        {
+          "actor": "a",
+          "name": "GET foreign tenant contracts",
+          "status": 403
+        },
+        {
+          "actor": "a",
+          "name": "POST foreign tenant contracts",
+          "status": 403
+        },
+        {
+          "actor": "a",
+          "name": "PATCH foreign tenant contracts",
+          "status": 405
+        },
+        {
+          "actor": "a",
+          "name": "DELETE foreign tenant contracts",
+          "status": 405
+        },
+        {
+          "actor": "b",
+          "name": "own upload",
+          "status": 200,
+          "location": null,
+          "body": "{\"ok\":true,\"evidence_id\":\"1fe314d3-21c2-463b-90fd-fc123a3e9870\",\"signal_id\":\"3e81212d-5bb5-4c36-aa1e-02093ec44676\",\"audit_id\":\"2252294d-6bcd-47db-886f-15f6bf3b5536\"}"
+        },
+        {
+          "actor": "b",
+          "name": "foreign upload",
+          "status": 404,
+          "location": null,
+          "body": "{\"ok\":false,\"error\":\"Verification case not found\"}"
+        },
+        {
+          "actor": "b",
+          "name": "forged owner foreign case metadata",
+          "status": 404
+        },
+        {
+          "actor": "b",
+          "name": "GET foreign tenant contracts",
+          "status": 403
+        },
+        {
+          "actor": "b",
+          "name": "POST foreign tenant contracts",
+          "status": 403
+        },
+        {
+          "actor": "b",
+          "name": "PATCH foreign tenant contracts",
+          "status": 405
+        },
+        {
+          "actor": "b",
+          "name": "DELETE foreign tenant contracts",
+          "status": 405
+        }
+      ]
+    },
+    "read": {
+      "status": "PASS",
+      "checks": [
+        {
+          "actor": "a",
+          "kind": "own",
+          "status": 200,
+          "evidenceVisible": true
+        },
+        {
+          "actor": "a",
+          "kind": "foreign",
+          "status": 200,
+          "evidenceVisible": false
+        },
+        {
+          "actor": "b",
+          "kind": "own",
+          "status": 200,
+          "evidenceVisible": true
+        },
+        {
+          "actor": "b",
+          "kind": "foreign",
+          "status": 200,
+          "evidenceVisible": false
+        }
+      ],
+      "notExposed": [
+        "evidence download API",
+        "evidence signed URL API",
+        "evidence replace API",
+        "evidence delete API"
+      ],
+      "adminOnlyDistinctSurface": "support screenshot signing"
+    },
+    "direct": {
+      "generatedAt": "2026-10-06T09:05:08.008Z",
+      "checks": [
+        {
+          "tenant": "A",
+          "operation": "read own approval",
+          "table": "account_access_approvals",
+          "http_status": 200,
+          "expected": "PENDING",
+          "actual": "PENDING",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "list approvals",
+          "table": "account_access_approvals",
+          "http_status": 200,
+          "expected": "only Tenant A own row",
+          "actual": "rows=1; own=true",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "read approval audit events",
+          "table": "account_access_approval_events",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "mutate own approval",
+          "table": "account_access_approvals",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A/PENDING",
+          "operation": "SELECT own protected row",
+          "table": "passports",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A/PENDING",
+          "operation": "INSERT protected row",
+          "table": "passports",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A/PENDING",
+          "operation": "record blocked login",
+          "table": "account_access_approval_events",
+          "http_status": 200,
+          "expected": "RPC records blocked attempt",
+          "actual": "RECORDED",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "SELECT",
+          "table": "passports",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "SELECT",
+          "table": "verification_cases",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "SELECT",
+          "table": "trust_reports",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "SELECT",
+          "table": "evidence_files",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "SELECT",
+          "table": "decisions",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "SELECT",
+          "table": "signals",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "SELECT",
+          "table": "ai_agents",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "SELECT",
+          "table": "api_keys",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "UPDATE own passport to verified",
+          "table": "passports",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "verify own passport unchanged",
+          "table": "passports",
+          "expected": "not verified by customer",
+          "actual": "false/pending/pending/50",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "passports",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "trust_reports",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "verification_cases",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "evidence_files",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "decisions",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "signals",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "ai_agents",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "UPDATE foreign report",
+          "table": "trust_reports",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "zero affected rows",
+          "actual": "rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A->B",
+          "operation": "DELETE foreign passport",
+          "table": "passports",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "ACL/RLS denial or zero deleted; row remains",
+          "actual": "rows=0,present=yes",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "SELECT",
+          "table": "passports",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "SELECT",
+          "table": "verification_cases",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "SELECT",
+          "table": "trust_reports",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "SELECT",
+          "table": "evidence_files",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "SELECT",
+          "table": "decisions",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "SELECT",
+          "table": "signals",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "SELECT",
+          "table": "ai_agents",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "SELECT",
+          "table": "api_keys",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "HTTP 200 with zero visible rows",
+          "actual": "HTTP 200, rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "UPDATE own passport to verified",
+          "table": "passports",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "verify own passport unchanged",
+          "table": "passports",
+          "expected": "not verified by customer",
+          "actual": "false/pending/pending/50",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "passports",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "trust_reports",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "verification_cases",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "evidence_files",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "decisions",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "signals",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "INSERT foreign parent/team/tenant",
+          "table": "ai_agents",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "HTTP 4xx denial",
+          "actual": "HTTP 403, code=42501",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "UPDATE foreign report",
+          "table": "trust_reports",
+          "http_status": 200,
+          "database_code": null,
+          "expected": "zero affected rows",
+          "actual": "rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B->A",
+          "operation": "DELETE foreign passport",
+          "table": "passports",
+          "http_status": 403,
+          "database_code": "42501",
+          "expected": "ACL/RLS denial or zero deleted; row remains",
+          "actual": "rows=0,present=yes",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "LIST own prefix",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "one own object",
+          "actual": "SUCCESS rows=1",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "READ own object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "download succeeds",
+          "actual": "SUCCESS",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "CREATE SIGNED URL own object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "signed URL succeeds",
+          "actual": "SUCCESS",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "LIST foreign prefix",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "zero visible objects",
+          "actual": "SUCCESS rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "READ foreign object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 400,
+          "storage_error_status": "404",
+          "expected": "download denied",
+          "actual": "DENIED 404",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "CREATE SIGNED URL foreign object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 400,
+          "storage_error_status": "404",
+          "expected": "signed URL denied",
+          "actual": "DENIED 404",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "UPLOAD into foreign prefix",
+          "table": "storage.objects/evidence-files",
+          "http_status": 400,
+          "storage_error_status": "403",
+          "expected": "upload denied",
+          "actual": "DENIED 403",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "REPLACE foreign object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 400,
+          "storage_error_status": "403",
+          "expected": "replace denied",
+          "actual": "DENIED 403",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "DELETE foreign object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "object remains after denied/empty delete",
+          "actual": "SUCCESS rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "UPLOAD own prefix",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "same-tenant upload succeeds",
+          "actual": "SUCCESS",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "REPLACE own object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "same-tenant replace succeeds",
+          "actual": "SUCCESS",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "DELETE own object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "same-tenant delete succeeds",
+          "actual": "SUCCESS rows=1",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "service-role READ foreign object",
+          "table": "storage.objects/evidence-files",
+          "expected": "trusted service role succeeds",
+          "actual": "SUCCESS",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "LIST own prefix",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "one own object",
+          "actual": "SUCCESS rows=1",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "READ own object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "download succeeds",
+          "actual": "SUCCESS",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "CREATE SIGNED URL own object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "signed URL succeeds",
+          "actual": "SUCCESS",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "LIST foreign prefix",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "zero visible objects",
+          "actual": "SUCCESS rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "READ foreign object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 400,
+          "storage_error_status": "404",
+          "expected": "download denied",
+          "actual": "DENIED 404",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "CREATE SIGNED URL foreign object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 400,
+          "storage_error_status": "404",
+          "expected": "signed URL denied",
+          "actual": "DENIED 404",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "UPLOAD into foreign prefix",
+          "table": "storage.objects/evidence-files",
+          "http_status": 400,
+          "storage_error_status": "403",
+          "expected": "upload denied",
+          "actual": "DENIED 403",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "REPLACE foreign object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 400,
+          "storage_error_status": "403",
+          "expected": "replace denied",
+          "actual": "DENIED 403",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "DELETE foreign object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "object remains after denied/empty delete",
+          "actual": "SUCCESS rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "UPLOAD own prefix",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "same-tenant upload succeeds",
+          "actual": "SUCCESS",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "REPLACE own object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "same-tenant replace succeeds",
+          "actual": "SUCCESS",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "DELETE own object",
+          "table": "storage.objects/evidence-files",
+          "http_status": 200,
+          "storage_error_status": null,
+          "expected": "same-tenant delete succeeds",
+          "actual": "SUCCESS rows=1",
+          "result": "PASS"
+        },
+        {
+          "tenant": "B",
+          "operation": "service-role READ foreign object",
+          "table": "storage.objects/evidence-files",
+          "expected": "trusted service role succeeds",
+          "actual": "SUCCESS",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A/DENIED",
+          "operation": "protected PostgREST SELECT",
+          "table": "passports",
+          "http_status": 200,
+          "expected": "zero rows",
+          "actual": "rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A/APPROVED",
+          "operation": "protected PostgREST SELECT",
+          "table": "passports",
+          "http_status": 200,
+          "expected": "one own row",
+          "actual": "rows=1",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A/SUSPENDED",
+          "operation": "protected PostgREST SELECT",
+          "table": "passports",
+          "http_status": 200,
+          "expected": "zero rows",
+          "actual": "rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A/APPROVED",
+          "operation": "protected PostgREST SELECT",
+          "table": "passports",
+          "http_status": 200,
+          "expected": "one own row",
+          "actual": "rows=1",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A/REVOKED",
+          "operation": "protected PostgREST SELECT",
+          "table": "passports",
+          "http_status": 200,
+          "expected": "zero rows",
+          "actual": "rows=0",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "audit ACCESS_REQUESTED",
+          "table": "account_access_approval_events",
+          "expected": "one or more events",
+          "actual": "count=1",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "audit ACCESS_APPROVED",
+          "table": "account_access_approval_events",
+          "expected": "one or more events",
+          "actual": "count=3",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "audit ACCESS_DENIED",
+          "table": "account_access_approval_events",
+          "expected": "one or more events",
+          "actual": "count=1",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "audit ACCESS_SUSPENDED",
+          "table": "account_access_approval_events",
+          "expected": "one or more events",
+          "actual": "count=1",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "audit ACCESS_REVOKED",
+          "table": "account_access_approval_events",
+          "expected": "one or more events",
+          "actual": "count=1",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "audit BLOCKED_LOGIN_ATTEMPT",
+          "table": "account_access_approval_events",
+          "expected": "one or more events",
+          "actual": "count=1",
+          "result": "PASS"
+        },
+        {
+          "tenant": "A",
+          "operation": "audit SUCCESSFUL_APPROVED_LOGIN",
+          "table": "account_access_approval_events",
+          "expected": "one or more events",
+          "actual": "count=1",
+          "result": "PASS"
+        }
+      ]
+    }
+  },
+  "opengraph": {
+    "status": "PASS",
+    "gateway": "PROVEN_STAGING",
+    "liveProvider": "UNQUALIFIED",
+    "checks": [
+      {
+        "decision": "REVIEW",
+        "transactionId": "c28e7c23-0174-51c6-8e36-6b6c17df41dd",
+        "counts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0
+        },
+        "requestReference": null,
+        "outcome": "NOT_REQUESTED"
+      },
+      {
+        "decision": "DENY",
+        "transactionId": "5c70e4e6-049f-55f0-9b75-28e5393fd0c9",
+        "counts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0
+        },
+        "requestReference": null,
+        "outcome": "NOT_REQUESTED"
+      },
+      {
+        "decision": "ALLOW",
+        "transactionId": "82ffdb5e-a398-55ea-8c0d-493f17dc3acb",
+        "counts": {
+          "external_action_requests": 1,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 1
+        },
+        "requestReference": "f9afb741-9445-4128-9773-550750b0e219",
+        "outcome": "UNKNOWN"
+      },
+      {
+        "decision": "DENY",
+        "transactionId": "a45755fd-6dda-5a99-a7ba-bee82bade35a",
+        "counts": {
+          "external_action_requests": 0,
+          "external_action_acknowledgements": 0,
+          "external_action_outcomes": 0
+        },
+        "requestReference": null,
+        "outcome": "NOT_REQUESTED"
+      }
+    ]
+  },
+  "gamma": {
+    "result": "PUBLIC_API_ONLY_END_TO_END_COMPLETE",
+    "agent": {
+      "agent_id": "agent:40532daa-61d5-4baa-94eb-f735e796bd28",
+      "status": "PENDING_IDENTITY_PROOF"
+    },
+    "allow": {
+      "decision_id": "26fb82b1-b609-5efd-ba55-f77fde763fd5",
+      "transaction_id": "995ca865-6dc3-596c-9f56-a92c00252117",
+      "receipt_id": "995ca865-6dc3-596c-9f56-a92c00252117",
+      "replay_id": "995ca865-6dc3-596c-9f56-a92c00252117",
+      "correlation_id": "5e13667b-a7ff-440e-947d-0ce646cba3e8",
+      "decision": "ALLOW",
+      "reason_codes": [
+        "ADAPTIVE_VERIFICATION_DEPTH_OBSERVE",
+        "ADAPTIVE_VERIFICATION_STATUS_OBSERVING",
+        "AUTHORITY_SCOPE_VALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_SUFFICIENT",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE"
+      ]
+    },
+    "review": {
+      "review_reference": "c4f0c3db-0cf8-5525-a0e1-915a06ad09ba",
+      "transaction_id": "af65442a-dc2a-5a04-868b-7941cff5fe35",
+      "original_decision": "REVIEW",
+      "resolution": "APPROVED",
+      "next_action": "SUBMIT_NEW_CANONICAL_EVALUATION"
+    },
+    "postReview": {
+      "decision_id": "9a08dfbd-c50a-5704-950e-dcca130e22c7",
+      "transaction_id": "7fb17ddf-a170-5b9e-9002-099be2b0cc86",
+      "decision": "ALLOW"
+    },
+    "deny": {
+      "decision_id": "66577d30-42e2-57d6-9356-a104f51be24e",
+      "transaction_id": "68c84016-5eaf-5603-9bc8-7e1358809898",
+      "receipt_id": "68c84016-5eaf-5603-9bc8-7e1358809898",
+      "replay_id": "68c84016-5eaf-5603-9bc8-7e1358809898",
+      "correlation_id": "92d92b32-cedb-4853-bc88-e97461911b32",
+      "decision": "DENY",
+      "reason_codes": [
+        "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+        "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+        "AUTHORITY_REQUIREMENT_UNSATISFIED",
+        "AUTHORITY_SCOPE_INVALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_SUFFICIENT",
+        "MISSING_VERIFY_AUTHORITY",
+        "MISSING_VERIFY_AUTHORITY_STATE",
+        "MISSING_VERIFY_MONITORING",
+        "SCOPE_OUTSIDE_CONTRACT",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE",
+        "TRUST_GAP_OPEN"
+      ]
+    },
+    "postRevocation": {
+      "decision_id": "ccf43f83-b7aa-5c12-8606-f303f442bd43",
+      "transaction_id": "198afc56-09c0-58b1-a7df-a44665f53cf3",
+      "receipt_id": "198afc56-09c0-58b1-a7df-a44665f53cf3",
+      "replay_id": "198afc56-09c0-58b1-a7df-a44665f53cf3",
+      "decision": "DENY",
+      "reason_codes": [
+        "ADAPTIVE_VERIFICATION_DEPTH_STEP_UP",
+        "ADAPTIVE_VERIFICATION_STATUS_STEP_UP_REQUIRED",
+        "AUTHORITY_REVOKED",
+        "AUTHORITY_SCOPE_INVALID",
+        "CONCLUSION_CONFIDENCE_MODERATE",
+        "CONSEQUENCE_LOW",
+        "CONTRACT_REVOKED",
+        "CURRENT_CONDITIONS_REEVALUATED",
+        "EVIDENCE_CURRENT",
+        "EVIDENCE_INSUFFICIENT",
+        "MISSING_VERIFY_AGENT_CONFIGURATION",
+        "MISSING_VERIFY_AUTHORITY",
+        "MISSING_VERIFY_AUTHORITY_STATE",
+        "MISSING_VERIFY_MONITORING",
+        "MISSING_VERIFY_RUNTIME",
+        "PREVIOUS_ALLOW_NOT_STANDING_AUTHORIZATION",
+        "TRUST_FORECAST_RECOMMENDS_QUALIFY",
+        "TRUST_FORECAST_STABLE",
+        "TRUST_GAP_OPEN"
+      ]
+    },
+    "attacks": {
+      "challenge_replay": "REJECTED",
+      "wrong_private_key": "REJECTED"
+    },
+    "performance": {
+      "samples": 18,
+      "methodology": "one observed Preview round trip per stage; no percentile claim",
+      "observations": [
+        {
+          "stage": "registration",
+          "latency_ms": 1615
+        },
+        {
+          "stage": "challenge",
+          "latency_ms": 1852.3
+        },
+        {
+          "stage": "signature_verification",
+          "latency_ms": 3682
+        },
+        {
+          "stage": "authority_grant",
+          "latency_ms": 1903
+        },
+        {
+          "stage": "runtime_heartbeat",
+          "latency_ms": 1588.8
+        },
+        {
+          "stage": "allow_decision",
+          "latency_ms": 3432.2
+        },
+        {
+          "stage": "review_decision",
+          "latency_ms": 3827.8
+        },
+        {
+          "stage": "review_resolution",
+          "latency_ms": 1343.3
+        },
+        {
+          "stage": "post_review_decision",
+          "latency_ms": 4095.6
+        },
+        {
+          "stage": "deny_decision",
+          "latency_ms": 3802.4
+        },
+        {
+          "stage": "receipt_read",
+          "latency_ms": 1562
+        },
+        {
+          "stage": "transaction_read",
+          "latency_ms": 1577.1
+        },
+        {
+          "stage": "deny_receipt_read",
+          "latency_ms": 1762.9
+        },
+        {
+          "stage": "deny_replay_read",
+          "latency_ms": 1883.8
+        },
+        {
+          "stage": "replay_read",
+          "latency_ms": 2654
+        },
+        {
+          "stage": "outcome_submit",
+          "latency_ms": 1562.5
+        },
+        {
+          "stage": "authority_revocation",
+          "latency_ms": 1500.6
+        },
+        {
+          "stage": "post_revocation_decision",
+          "latency_ms": 3592.8
+        }
+      ]
+    }
+  },
+  "parity": {
+    "status": "PASS",
+    "decision": "REVIEW",
+    "transactionId": "7ab60cb0-135f-527b-a652-845d4bb871f6",
+    "rawStatus": 200,
+    "openapiStatus": 200
+  },
+  "regression": {
+    "fullCommand": "npm test",
+    "suiteRuns": 87,
+    "tests": 1947,
+    "pass": 1947,
+    "fail": 0,
+    "skipped": 0,
+    "countingNote": "Full-command counts are test executions, with overlapping files across suites. Reruns are not added. Two new API-key stability tests passed additionally; latest external-agent suite 149/149 includes those two.",
+    "latestExternalAgent": 149,
+    "canonical": 214,
+    "opengraph": 86,
+    "directHostedAssertions": 83
+  },
+  "cleanup": {
+    "project": "agpyhygpfmppjkxwcpac",
+    "actions": [
+      {
+        "name": "revoke fixture API keys",
+        "rows": 13
+      },
+      {
+        "name": "remove disposable API bindings",
+        "rows": 11
+      },
+      {
+        "name": "remove disposable API keys",
+        "rows": 13
+      },
+      {
+        "name": "revoke fixture public native credentials",
+        "rows": 10
+      },
+      {
+        "name": "remove disposable Storage objects",
+        "rows": 1
+      },
+      {
+        "name": "remove disposable signals",
+        "rows": 8
+      },
+      {
+        "name": "remove disposable verification_cases",
+        "rows": 4
+      },
+      {
+        "name": "remove disposable passports",
+        "rows": 4
+      },
+      {
+        "name": "remove disposable tenant memberships",
+        "rows": 2
+      },
+      {
+        "name": "Auth fixture deleted",
+        "id": "2f7e4b3c-07ff-4162-b6d5-62ead84b38f8"
+      },
+      {
+        "name": "Auth fixture deleted",
+        "id": "29fde783-ac24-4dba-b263-df0df3a6080c"
+      },
+      {
+        "name": "Auth fixture deleted",
+        "id": "143d3f0f-3c2a-4c25-aabe-0bdc06596ab0"
+      },
+      {
+        "name": "remove application-upload fixture objects by exact case prefix",
+        "rows": 4
+      },
+      {
+        "name": "verify uploaded evidence metadata removed",
+        "rows": 0,
+        "remaining": 0
+      }
+    ],
+    "retained": [],
+    "activeFixtureKeys": 0,
+    "retiredKeyHttpStatus": 401,
+    "retiredSessionHttpStatus": 401,
+    "status": "PASS_RETAINING_APPEND_ONLY_HISTORY"
+  },
+  "blockers": [
+    "The hosted delegated flow does not resolve approvedModelState/currentObservedModelState; modelStateIntegrity is null. A signed model declaration is not approved-model-state proof. The full mandatory model-approved runtime-failure scenario and its complete Replay explanation remain unqualified."
+  ],
+  "locationAssurance": "LOCATION ASSURANCE DESIGN RETAINED — POST-GO IMPLEMENTATION ONLY.",
+  "localChecks": {
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "optimizedBuild": "PASS",
+    "diffCheck": "PASS",
+    "credentialExportsDeleted": 25,
+    "qualificationScratchRemoved": false,
+    "scratchCleanupLimitation": "Automatic approval review rejected recursive directory deletion: blocked by policy. Credential exports were already deleted."
+  },
+  "secretScan": {
+    "status": "PASS",
+    "filesScanned": 2913,
+    "knownSecretMatches": [],
+    "scope": "tracked and untracked non-ignored working-tree files"
+  }
+}

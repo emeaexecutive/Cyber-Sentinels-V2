@@ -1,4 +1,5 @@
 import "server-only";
+import { createHttpToolAdapter } from "./http-tool-adapter";
 
 import { randomUUID } from "node:crypto";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -67,7 +68,7 @@ function evidenceKey() {
 function requestFromRow(row: Row): EnforcementRequest {
   return {
     requestId: String(row.request_id), enterpriseId: String(row.enterprise_id), transactionId: String(row.transaction_id), operationalEntityId: String(row.operational_entity_id),
-    authorityId: String(row.authority_id), delegationId: String(row.delegation_id), action: { type: String(row.action_type), target: String(row.action_target), environment: String(row.environment), consequence: String(row.consequence) as EnforcementRequest["action"]["consequence"] },
+    authorityId: String(row.authority_id), delegationId: String(row.delegation_id), action: { type: String(row.action_type), target: String(row.action_target), environment: String(row.environment), ...(row.payload_digest ? { payloadDigest: String(row.payload_digest) } : {}), consequence: String(row.consequence) as EnforcementRequest["action"]["consequence"] },
     actionDigest: String(row.action_digest), decisionDigest: String(row.decision_digest), idempotencyKey: String(row.idempotency_key), requestedAt: String(row.requested_at),
   };
 }
@@ -168,6 +169,40 @@ function controlledDestinationAdapter(context: DelegatedAuthorityContext) {
       return { status: "ACCEPTED", adapterReference: destinationReference, acknowledgedAt: occurredAt, executionClaim, runtimeObservation, destinationObservation, reasonCodes: ["CONTROLLED_DESTINATION_ACCEPTED"] };
     },
   };
+}
+
+function registeredToolAdapter(context: DelegatedAuthorityContext, payload: Record<string, unknown>) {
+  const registry = JSON.parse(process.env.TENENTE_TOOL_ADAPTERS ?? "{}") as Record<string, { endpoint: string; transport: "http" | "mcp" }>;
+  const tool = String(payload.tool ?? "");
+  const entry = Object.hasOwn(registry, tool) ? registry[tool] : null;
+  if (!entry || !["http", "mcp"].includes(entry.transport)) throw new NativeEnforcementServerError("The requested tool has no configured enforcement adapter.", "TOOL_ADAPTER_NOT_CONFIGURED", 409);
+  const adapter = createHttpToolAdapter({ ...entry, tool, payload, evidenceKey: evidenceKey(), allowLocal: process.env.NODE_ENV === "development" });
+  return { async execute(request: EnforcementRequest): Promise<EnforcementAdapterResult> {
+    let result: EnforcementAdapterResult;
+    try { result = await adapter.execute(request); }
+    catch (error) {
+      result = { status: "UNKNOWN", adapterReference: null, acknowledgedAt: new Date().toISOString(), executionClaim: null, runtimeObservation: null, destinationObservation: null,
+        reasonCodes: [error instanceof Error && "code" in error ? String(error.code) : "DESTINATION_OUTCOME_UNKNOWN"] };
+    }
+    const ack = { acknowledgementId: randomUUID(), enterpriseId: request.enterpriseId, transactionId: request.transactionId, requestId: request.requestId,
+      operationalEntityId: request.operationalEntityId, actionDigest: request.actionDigest, target: request.action.target, idempotencyKey: request.idempotencyKey,
+      status: result.status, adapterReference: result.adapterReference, acknowledgedAt: result.acknowledgedAt,
+      // One configured destination/HMAC trust boundary is one source, regardless of transport.
+      sourcePartyId: result.destinationObservation?.sourcePartyId ?? `tool:${tool}` };
+    await insertIgnoringDuplicate("native_enforcement_acknowledgements", { acknowledgement_id: ack.acknowledgementId, enterprise_id: ack.enterpriseId, transaction_id: ack.transactionId,
+      request_id: ack.requestId, operational_entity_id: ack.operationalEntityId, action_digest: ack.actionDigest, target: ack.target, idempotency_key: ack.idempotencyKey,
+      status: ack.status, adapter_reference: ack.adapterReference, acknowledged_at: ack.acknowledgedAt, source_party_id: ack.sourcePartyId, reason_codes: result.reasonCodes, acknowledgement_digest: hashCanonical(ack) });
+    // Only destination-authenticated evidence is promoted into the existing outcome path.
+    const observation = result.destinationObservation;
+    if (observation) await insertIgnoringDuplicate("native_destination_observations", {
+      observation_id: observation.observationId, enterprise_id: observation.enterpriseId, transaction_id: observation.transactionId, request_id: request.requestId,
+      operational_entity_id: observation.operationalEntityId, destination_id: observation.destinationId, action: observation.action, target: observation.target,
+      action_digest: observation.actionDigest, idempotency_key: observation.idempotencyKey, observed_at: observation.observedAt, expires_at: observation.expiresAt,
+      result: observation.result, destination_reference: observation.destinationReference, evidence_digest: observation.evidenceDigest, evidence_mac: observation.evidenceMac,
+      source_party_id: observation.sourcePartyId, ingested_by: context.user.id,
+    });
+    return { ...result, executionClaim: null, runtimeObservation: null };
+  } };
 }
 
 async function extendOutcomeGraph(input: {
@@ -345,7 +380,7 @@ export async function requestNativeEnforcement(context: DelegatedAuthorityContex
       return { enterpriseId: context.enterpriseId, operationalEntityId: entityId, authorityId: request.authorityId, delegationId: request.delegationId, authorityActive: authority.data?.revocation_state === "active" && Date.parse(String(authority.data?.expires_at)) > instant, delegationActive: currentDelegation.data?.status === "ACTIVE" && !currentDelegation.data?.revoked_at && Date.parse(String(currentDelegation.data?.expires_at)) > instant, identityVerified: verification.data?.status === "VERIFIED" && Date.parse(String(verification.data?.expires_at)) > instant, ownerConfirmed: owner.data?.state === "CONFIRMED", runtimeContinuity: verification.data?.runtime_binding === "RUNTIME_MATCH" ? "MATCH" : verification.data?.runtime_binding ? "CHANGED" : "UNKNOWN" };
     },
     async reserveRequest(request) {
-      const reserved = await db.rpc("reserve_native_enforcement_request_v1", { p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id, p_request: { requestId: request.requestId, evaluationId, transactionId, operationalEntityId: entityId, authorityId: request.authorityId, delegationId: request.delegationId, actionType: request.action.type, actionTarget: request.action.target, environment: request.action.environment, consequence: request.action.consequence, actionDigest: request.actionDigest, decisionDigest: request.decisionDigest, idempotencyKey: request.idempotencyKey, requestedAt: request.requestedAt } });
+      const reserved = await db.rpc("reserve_native_enforcement_request_v1", { p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id, p_request: { requestId: request.requestId, evaluationId, transactionId, operationalEntityId: entityId, authorityId: request.authorityId, delegationId: request.delegationId, actionType: request.action.type, actionTarget: request.action.target, environment: request.action.environment, payloadDigest: request.action.payloadDigest, consequence: request.action.consequence, actionDigest: request.actionDigest, decisionDigest: request.decisionDigest, idempotencyKey: request.idempotencyKey, requestedAt: request.requestedAt } });
       if (reserved.error) fail("Current-state enforcement reservation", reserved.error);
       const data = reserved.data as Row;
       if (String(data.status) === "DUPLICATE") {
@@ -357,7 +392,9 @@ export async function requestNativeEnforcement(context: DelegatedAuthorityContex
       if (String(data.requestState) !== "REQUESTED") return { created: false as const, blocked: true as const, reasonCodes: Array.isArray(data.reasonCodes) ? data.reasonCodes.map(String) : ["ENFORCEMENT_CANCELLED"] };
       return { created: true as const };
     },
-    adapter: controlledDestinationAdapter(context),
+    adapter: evaluation.data.decision_snapshot?.action?.parameters
+      ? registeredToolAdapter(context, evaluation.data.decision_snapshot.action)
+      : controlledDestinationAdapter(context),
   });
   if (!executed.requested || !executed.request) {
     if (executed.eligibility.reasonCodes.includes("ENFORCEMENT_CANCELLED_AUTHORITY_CHANGED")) {

@@ -12,6 +12,7 @@ import {
   reviewAuthorityDelegation,
   revokeAuthorityDelegation,
   revokeParentAuthority,
+  restrictTenenteAuthority,
 } from "@/lib/operational-entities/delegated-authority-server";
 
 export const dynamic = "force-dynamic";
@@ -61,6 +62,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ ent
     const entityId = decodeURIComponent((await params).entityId);
     const input = await body(request);
     const action = String(input.action ?? "");
+    if (action === "restrict_tenente_authority") return response({ ok: true, result: await restrictTenenteAuthority(context, entityId, input) });
     if (action === "create_delegation") return response({ ok: true, result: await createAuthorityDelegation(context, entityId, input) }, 201);
     if (action === "review_delegation") return response({ ok: true, result: await reviewAuthorityDelegation(context, entityId, String(input.delegationId ?? ""), Boolean(input.approve)) });
     if (action === "accept_delegation") return response({ ok: true, result: await acceptAuthorityDelegation(context, entityId, input) }, 201);

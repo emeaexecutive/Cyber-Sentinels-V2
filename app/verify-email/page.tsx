@@ -1,20 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { DEFAULT_AUTH_REDIRECT, resolveSafeInternalRedirect } from "@/lib/auth/safe-redirect";
-import { createClient } from "@/lib/supabase/client";
+import { useState } from "react";
+import { TurnstileField } from "@/components/turnstile-field";
 
 export default function VerifyEmailPage() {
   const [email, setEmail] = useState("");
-  const [nextPath, setNextPath] = useState(DEFAULT_AUTH_REDIRECT);
+  const [token, setToken] = useState("");
+  const [resetKey, setResetKey] = useState(0);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    setNextPath(resolveSafeInternalRedirect(searchParams.get("next"), window.location.origin));
-  }, []);
 
   async function resendVerificationEmail() {
     const trimmedEmail = email.trim();
@@ -28,26 +23,24 @@ export default function VerifyEmailPage() {
     setMessage("");
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email: trimmedEmail,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
-        },
+      const response = await fetch("/api/auth/submit", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ operation: "resend", email: trimmedEmail, turnstileToken: token }),
       });
+      const { error } = await response.json();
 
-      if (error) {
+      if (!response.ok || error) {
         setMessage("Could not resend the verification email. Please wait a moment and try again.");
         return;
       }
 
       setMessage("Verification email resent. Check your inbox and spam or junk folder.");
-    } catch (error) {
-      console.error("Supabase verification resend failed.", error);
+    } catch {
       setMessage("Could not resend the verification email. Please try again shortly.");
     } finally {
       setLoading(false);
+      setToken("");
+      setResetKey(value => value + 1);
     }
   }
 
@@ -81,13 +74,15 @@ export default function VerifyEmailPage() {
             />
             <button
               onClick={resendVerificationEmail}
-              disabled={loading}
+              disabled={loading || !token}
               type="button"
               className="rounded-lg border border-cyan-800 px-4 py-3 text-sm font-semibold text-cyan-100 hover:border-cyan-500 disabled:opacity-50"
             >
               {loading ? "Sending..." : "Resend verification"}
             </button>
           </div>
+          <TurnstileField action="signup" siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ""}
+            onTokenChange={setToken} onErrorChange={error => { if (error) setMessage(error); }} resetKey={resetKey} />
           {message ? <p role="status" aria-live="polite" className="mt-3 text-sm text-zinc-300">{message}</p> : null}
         </div>
 

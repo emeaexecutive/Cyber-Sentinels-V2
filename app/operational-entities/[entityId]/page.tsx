@@ -5,6 +5,7 @@ import { loadOperationalEntities, loadOperationalEntityDetail } from "@/lib/oper
 import { projectOperationalEntityIntelligence } from "@/lib/operational-entities/intelligence";
 import { NativeEntityVerificationPanel } from "@/components/native-entity-verification-panel";
 import { AlphaBetaProductProof } from "@/components/alpha-beta-product-proof";
+import { TenenteAuthorityPanel } from "@/components/tenente-authority-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,11 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
   if (!user) redirect(`/login?next=${encodeURIComponent(`/operational-entities/${entityId}`)}`);
   const detail = await loadOperationalEntityDetail({ supabase, user, entityId });
   if (!detail) notFound();
+  const [workspace, membership] = await Promise.all([
+    supabase.from("trust_workspaces").select("created_by").eq("id", detail.entity.enterpriseId).maybeSingle(),
+    supabase.from("workspace_members").select("role").eq("workspace_id", detail.entity.enterpriseId).eq("user_id", user.id).maybeSingle(),
+  ]);
+  const canAdministerAuthority = !workspace.error && !membership.error && (workspace.data?.created_by === user.id || membership.data?.role === "admin");
   const entities = await loadOperationalEntities({ supabase, user });
   const alphaEntity = entities.find((candidate) => candidate.displayReference.trim().toLowerCase() === "agent alpha");
   const betaEntity = entities.find((candidate) => candidate.displayReference.trim().toLowerCase() === "agent beta");
@@ -88,6 +94,8 @@ export default async function OperationalEntityDetailPage({ params }: { params: 
 
   return (
     <main className="mx-auto min-h-screen max-w-6xl space-y-6 px-6 py-16 text-slate-900">
+      <TenenteAuthorityPanel enterpriseId={detail.entity.enterpriseId} entityId={entityId} canAdminister={canAdministerAuthority}
+        delegations={[...new Map([...detail.delegatedAuthority.delegated, ...detail.delegatedAuthority.received].map(item => [String(item.delegation_id), item])).values()]} />
       <header>
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Operational Entity · Persisted tenant data</p>
         <h1 className="mt-2 text-3xl font-semibold">{detail.entity.displayReference}</h1>

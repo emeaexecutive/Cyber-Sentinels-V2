@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 type TurnstileFieldProps = {
   siteKey?: string | null;
+  action: string;
   onTokenChange?(token: string): void;
   onErrorChange?(message: string): void;
   quiet?: boolean;
@@ -12,6 +13,7 @@ type TurnstileFieldProps = {
 
 export type TurnstileRenderOptions = {
   sitekey: string;
+  action: string;
   callback(token: string): void;
   "error-callback"(errorCode?: string | number): boolean;
   "expired-callback"(): void;
@@ -97,11 +99,13 @@ export function shouldUsePreviewTurnstileFallback() {
 
 export function createTurnstileOptions(input: {
   siteKey: string;
+  action?: string;
   onToken(token: string): void;
   onError(message: string): void;
 }): TurnstileRenderOptions {
   return {
     sitekey: input.siteKey,
+    action: input.action ?? "enterprise_access",
     callback: (token) => {
       input.onError("");
       input.onToken(token);
@@ -128,7 +132,7 @@ export function createTurnstileOptions(input: {
   };
 }
 
-export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = false, resetKey = 0 }: TurnstileFieldProps) {
+export function TurnstileField({ siteKey, action, onTokenChange, onErrorChange, quiet = false, resetKey = 0 }: TurnstileFieldProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const apiRef = useRef<TurnstileApi | null>(null);
@@ -169,6 +173,7 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
         widgetIdRef.current = turnstile.render(
           containerRef.current,
           createTurnstileOptions({
+            action,
             siteKey: siteKey ?? "",
             onToken: (token) => { if (active) publishToken(token); },
             onError: (error) => { if (active) publishError(error); },
@@ -219,7 +224,7 @@ export function TurnstileField({ siteKey, onTokenChange, onErrorChange, quiet = 
       onTokenChangeRef.current?.("");
       if (script.parentNode) script.parentNode.removeChild(script);
     };
-  }, [publishError, publishToken, siteKey]);
+  }, [publishError, publishToken, siteKey, action]);
 
   useEffect(() => {
     if (resetKey > 0 && apiRef.current && widgetIdRef.current) {
@@ -322,6 +327,7 @@ export function EnterpriseAccessForm({ buttonLabel, designPartner }: EnterpriseA
       </label>
       <label className="grid min-w-0 gap-2 text-sm text-zinc-300"><span>Requirements <span aria-hidden="true" className="text-cyan-300">*</span></span><textarea required name="message" rows={5} placeholder="Workflow, verification evidence, review or pilot requirements" className="min-w-0 rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-white" /></label>
       <TurnstileField
+        action="enterprise_access"
         siteKey={siteKey}
         onTokenChange={setTurnstileToken}
         resetKey={resetKey}

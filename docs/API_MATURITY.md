@@ -1,5 +1,13 @@
 # API Maturity RC5
 
+## Current release boundary — 8 October 2026
+
+The historical RC5 inventory below is not the current public-access allowlist. Customer APIs now deny access by default unless the database-owned account approval is APPROVED and the existing tenant/ownership/authority checks pass. Only the exact transport exceptions in `lib/auth/approval-boundary.ts` are public; provider callbacks and API-key APIs retain their independent verification.
+
+Core is **RC_QUALIFIED / PROVEN_STAGING**, with no new Production proof. See the [complete current boundary matrix](release/CORE_APPROVAL_BOUNDARY.md) and [final Core closure](release/CORE_FINAL_CLOSURE_20261008.md). OpenGraph, Judge.me and World ID remain **PROVIDER_UNQUALIFIED**.
+
+## Historical RC5 snapshot
+
 ## Audit scope
 
 The RC5 inventory found 118 `app/api/**/route.ts` handlers. Most are authenticated application workflows and remain internal. The public inventory is centralized in `lib/api/public-endpoint-inventory.ts`; `lib/api/public-contracts.ts` provides its Next.js response adapter, and `/api-docs` renders the contract.

@@ -35,6 +35,7 @@ const clientTokens = {
   "POST /api/v1/agents/{agentId}/authorities/{authorityId}/revoke": ["revoke: (agentId", 'Invoke-CyberSentinelsApi "POST" "$authorityPath/', "POST /api/v1/agents/{agentId}/authorities/{authorityId}/revoke"],
   "GET /api/v1/agents/{agentId}/trust-state": ["/trust-state", 'Get-AgentPath $agentId "trust-state"', "GET  /api/v1/agents/{agentId}/trust-state"],
   "POST /api/v1/trust/decisions": ["/api/v1/trust/decisions", 'Invoke-CyberSentinelsApi "POST" "/api/v1/trust/decisions"', "POST /api/v1/trust/decisions"],
+  "POST /api/v1/tools/opengraph/site": ["/api/v1/tools/opengraph/site", 'Invoke-CyberSentinelsApi "POST" "/api/v1/tools/opengraph/site"', "POST /api/v1/tools/opengraph/site"],
   "POST /api/v1/evidence": ["/api/v1/evidence", "/api/v1/evidence", "POST /api/v1/evidence"],
   "GET /api/v1/trust/transactions/{transactionId}": ["/api/v1/trust/transactions/", 'Invoke-CyberSentinelsApi "GET" "/api/v1/trust/transactions/', "GET  /api/v1/trust/transactions/{transactionId}"],
   "GET /api/v1/trust/transactions/{transactionId}/replay": ["/replay", "/replay", "GET  /api/v1/trust/transactions/{transactionId}/replay"],

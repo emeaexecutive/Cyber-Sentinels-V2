@@ -347,6 +347,21 @@ function Invoke-CyberSentinelsApi {
     catch { throw (New-CyberSentinelsException "Cyber Sentinels returned invalid JSON." "INVALID_API_RESPONSE" $response.Status $response.CorrelationId) }
 }
 
+function Request-CyberSentinelsOpenGraphSite {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string]$OperationalEntityId,
+        [Parameter(Mandatory = $true)][string]$TargetUrl,
+        [Parameter(Mandatory = $true)][string]$IdempotencyKey
+    )
+
+    $body = [ordered]@{
+        operational_entity_id = $OperationalEntityId
+        target_url = $TargetUrl
+    }
+    return Invoke-CyberSentinelsApi "POST" "/api/v1/tools/opengraph/site" $body @{ "Idempotency-Key" = $IdempotencyKey }
+}
+
 function Submit-CyberSentinelsEvidence {
     [CmdletBinding()]
     param(

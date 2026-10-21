@@ -22,6 +22,10 @@ export const rateLimitedMessage =
   "Too many attempts. Please wait a moment and try again.";
 
 export function classifyAuthFailure(error: unknown, fallback: string): SafeAuthFailure {
+  const code = error && typeof error === "object" && "code" in error ? error.code : undefined;
+  if (code === "invalid_credentials") return { state: "AUTHENTICATION_FAILED", message: "Email or password is incorrect." };
+  if (code === "email_not_confirmed") return { state: "EMAIL_VERIFICATION_REQUIRED", message: "Please verify your email to continue." };
+  if (code === "over_request_rate_limit" || code === "over_email_send_rate_limit") return { state: "RATE_LIMITED", message: rateLimitedMessage };
   const raw = error instanceof Error ? error.message : typeof error === "string" ? error : "";
   const message = raw.toLowerCase();
 

@@ -96,7 +96,7 @@ test("auth affordances remain visible and administrative navigation is role-gate
 
 test("production security baseline remains preserved", () => {
   assert.match(read("next.config.mjs"), /Strict-Transport-Security/);
-  assert.match(read("app/login/page.tsx"), /\/api\/auth\/turnstile/);
+  assert.match(read("app/login/page.tsx"), /\/api\/auth\/submit/);
   assert.equal(fs.existsSync("app/trust/page.tsx"), true);
   assert.equal(fs.existsSync("app/methodology/page.tsx"), true);
   assert.equal(

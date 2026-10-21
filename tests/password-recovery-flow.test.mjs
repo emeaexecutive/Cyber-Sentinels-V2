@@ -52,6 +52,8 @@ export function harness() {
       return json(payload());
     }
     if (url.pathname.endsWith("/user")) return json(user);
+    if (url.pathname.endsWith("/account_access_approvals")) return json([{ status: "APPROVED" }]);
+    if (url.pathname.endsWith("/rpc/record_account_access_attempt")) return json(null);
     throw new Error(`Unexpected fixture Auth path: ${url.pathname}`);
   };
   const cookieStore = {
@@ -69,6 +71,7 @@ export function harness() {
       } },
   });
   const mocks = {
+    "@/lib/supabase/protected-auth": { createProtectedAuthClient: async () => client() },
     "./globals.css": {},
     "@/components/global-navigation": { GlobalNavigation: ({ accessLevel }) => React.createElement("nav", { "data-access": accessLevel }) },
     "@/components/trust-os/enterprise-shell": { EnterpriseTrustOSShell: ({ children }) => React.createElement("section", { "data-enterprise-shell": true }, children) },
