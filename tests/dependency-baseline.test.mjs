@@ -86,6 +86,8 @@ test("the production framework and image dependencies use patched releases", () 
   assert.equal(lock.packages["node_modules/sharp"].version, "0.35.5");
   assert.equal(manifest.overrides["source-map-js"], "1.2.2");
   assert.equal(lock.packages["node_modules/source-map-js"].version, "1.2.2");
+  assert.equal(manifest.overrides["postcss-selector-parser"], "7.1.7");
+  assert.equal(lock.packages["node_modules/postcss-selector-parser"].version, "7.1.7");
   const braceExpansionVersions = Object.entries(lock.packages)
     .filter(([packagePath]) => packagePath.endsWith("node_modules/brace-expansion"))
     .map(([, metadata]) => metadata.version)
