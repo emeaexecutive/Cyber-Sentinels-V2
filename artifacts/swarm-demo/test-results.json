@@ -1,0 +1,23 @@
+{
+    "branch":  "swarm/qualification-hardening",
+    "baseCommit":  "5652c25",
+    "mode":  "synthetic-local",
+    "demo":  {
+                 "passed":  9,
+                 "failed":  0
+             },
+    "tests":  {
+                  "passed":  107,
+                  "demo":  9,
+                  "failed":  0,
+                  "routeRegression":  11,
+                  "swarmRegression":  87,
+                  "skipped":  0
+              },
+    "changedFileLintExitCode":  0,
+    "logs":  [
+                 "qualification.txt",
+                 "demo-tests.tap"
+             ],
+    "hostedMutations":  0
+}

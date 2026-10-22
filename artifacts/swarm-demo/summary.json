@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "mode": "synthetic-local",
+  "results": [
+    {
+      "scenario": "ALLOW",
+      "passed": true,
+      "effects": 1,
+      "receipts": 21,
+      "evidenceDigest": "be07d770d75b97477a4a9535d83eee69e5ce716f0bdcddebe0454909dab3165e"
+    },
+    {
+      "scenario": "REVIEW",
+      "passed": true,
+      "effects": 0,
+      "receipts": 19,
+      "evidenceDigest": "19f3ec18c68e251fbb10b1c700fef6edea6f6a568d33e2feca9fa07142b906af"
+    },
+    {
+      "scenario": "DENY",
+      "passed": true,
+      "effects": 0,
+      "receipts": 19,
+      "evidenceDigest": "70acdeaaa93947b1ae18478104b60c2ca66422dd14cef1a1689e5fc9febfc58b"
+    },
+    {
+      "scenario": "revocation",
+      "passed": true,
+      "effects": 0,
+      "receipts": 20,
+      "evidenceDigest": "3931e854e696abf4dfd0f4675c37138a6899cf2b9ffb8da6efe8f36531cd4ed0"
+    },
+    {
+      "scenario": "budget-exhaustion",
+      "passed": true,
+      "effects": 1,
+      "receipts": 22,
+      "evidenceDigest": "9b7ddcf5f960443998721a823a596253fd21f02a2c9afffe42727ca9289070dd"
+    },
+    {
+      "scenario": "forged-delegation",
+      "passed": true,
+      "effects": 0,
+      "receipts": 19,
+      "evidenceDigest": "4205bdc3eeb5c43f5688104d4b82b56ee69c6ea9ec2b33d8cd990e4939cecc3c"
+    },
+    {
+      "scenario": "cross-tenant",
+      "passed": true,
+      "effects": 0,
+      "receipts": 18,
+      "evidenceDigest": "601b5c116a53ef530308a790c32dddca8579603aa1ca2c6effa967c269d2da4e"
+    },
+    {
+      "scenario": "ambiguous-cancellation",
+      "passed": true,
+      "effects": 1,
+      "receipts": 23,
+      "evidenceDigest": "34db7617533c5a116fa5f26c9e0dff796d349022ca8b36b14e238827988b731f"
+    },
+    {
+      "scenario": "missing-evidence",
+      "passed": true,
+      "effects": 1,
+      "receipts": 22,
+      "evidenceDigest": "85250d425b5f04bc41f8c69119c87618ff12f318754ea922073ebb8ab369d977"
+    }
+  ],
+  "passed": 9,
+  "failed": 0
+}

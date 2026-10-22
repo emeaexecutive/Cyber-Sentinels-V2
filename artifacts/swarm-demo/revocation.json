@@ -1,0 +1,2974 @@
+{
+  "scenario": "revocation",
+  "tenant": "10000000-0000-4000-8000-000000000001",
+  "agents": [
+    "Coordinator",
+    "Research",
+    "Analysis",
+    "Execution",
+    "Audit"
+  ],
+  "steps": [
+    {
+      "role": "Coordinator",
+      "inputDigest": "209268c428c4a93e6a7cf3edccd68941c38849c5b1addcbfc50be1c536ea1ee7",
+      "output": {
+        "customer": "synthetic:customer",
+        "order": "synthetic:order",
+        "tasks": [
+          "Research",
+          "Analysis",
+          "Execution",
+          "Audit"
+        ]
+      },
+      "outputDigest": "26fa288bfaf852ede7bfe9ef22962824e8b9d3429c82dfb365c566c52929df6e",
+      "leaseId": "84aeb200207c143712c5b3b0933a9d2886cca345a7103f7f791aca7725ff6a48"
+    },
+    {
+      "role": "Research",
+      "inputDigest": "26fa288bfaf852ede7bfe9ef22962824e8b9d3429c82dfb365c566c52929df6e",
+      "output": {
+        "customer": "synthetic:customer",
+        "order": "synthetic:order",
+        "tasks": [
+          "Research",
+          "Analysis",
+          "Execution",
+          "Audit"
+        ],
+        "paidMinor": 100,
+        "duplicateCharge": true,
+        "source": "synthetic-ledger:v1"
+      },
+      "outputDigest": "3f3cc0839557bd94bcf24bd57f77cfd4810a3e984006862ca63d77075af8bcaa",
+      "leaseId": "07f5d71c939efb60b54d9931ba7f89a5822eef17d4bbc66e61bae2cbea3a6b6f"
+    },
+    {
+      "role": "Analysis",
+      "inputDigest": "3f3cc0839557bd94bcf24bd57f77cfd4810a3e984006862ca63d77075af8bcaa",
+      "output": {
+        "customer": "synthetic:customer",
+        "refundMinor": 100,
+        "evidenceDigest": "3f3cc0839557bd94bcf24bd57f77cfd4810a3e984006862ca63d77075af8bcaa"
+      },
+      "outputDigest": "16aeac838577114b28876a667d583b781ff9a23a8eb5ab4d8bf16b25d80aef36",
+      "leaseId": "71b8a9e59475f2c7a46544dbc49be77bdcb0334f489f8de1e14bcfa3c8833958"
+    },
+    {
+      "role": "Audit",
+      "inputDigest": "d3a947fbf63557c0039abb43b77d7257b30630cc0ae0248d8470214f13b607b8",
+      "output": {
+        "receiptVerification": [],
+        "replayVerified": true,
+        "observedLocalEffects": 0,
+        "journalHead": "d1790f9c079f596c0932b8b2b722259d8a8a05fe9f6977e26a7532fb7298e69a",
+        "cancellationStatus": null
+      },
+      "outputDigest": "c482912bc7b577cdc62e5c60251709a2151560f744a12f63e25a31d2840b798e",
+      "leaseId": "1302a904030d1b5202566bb5fa255d9f0f902e55eb9f3d281c198ea8e26dc44f"
+    }
+  ],
+  "attempts": [
+    {
+      "role": "Coordinator",
+      "identity": {
+        "id": "Coordinator",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "agent",
+        "controlledBy": [],
+        "permissions": [],
+        "credentialVersion": 1,
+        "expiresAt": 1792674000000
+      },
+      "delegationChain": [
+        {
+          "id": "10000000-0000-4000-8000-000000000003",
+          "tenantId": "10000000-0000-4000-8000-000000000001",
+          "grantorId": "synthetic-enterprise",
+          "grantorType": "organization",
+          "granteeId": "Coordinator",
+          "granteeType": "ai_agent",
+          "scope": [
+            "COORDINATOR",
+            "RESEARCH",
+            "ANALYSIS",
+            "REFUND",
+            "AUDIT"
+          ],
+          "maxDelegationDepth": 2,
+          "issuedAt": "2026-10-22T11:59:00.000Z",
+          "expiresAt": "2026-10-22T13:00:00.000Z"
+        }
+      ],
+      "policyDecision": "ALLOW",
+      "request": {
+        "requestId": "Coordinator:1",
+        "enterpriseId": "10000000-0000-4000-8000-000000000001",
+        "transactionId": "10000000-0000-4000-8000-000000000002",
+        "operationalEntityId": "Coordinator",
+        "authorityId": "10000000-0000-4000-8000-000000000003",
+        "delegationId": "10000000-0000-4000-8000-000000000010",
+        "action": {
+          "type": "COORDINATOR",
+          "target": "synthetic:customer",
+          "environment": "test",
+          "consequence": "LOW",
+          "payloadDigest": "209268c428c4a93e6a7cf3edccd68941c38849c5b1addcbfc50be1c536ea1ee7"
+        },
+        "decision": "ALLOW",
+        "actionDigest": "209268c428c4a93e6a7cf3edccd68941c38849c5b1addcbfc50be1c536ea1ee7",
+        "decisionDigest": "ee8cf03761103bbfd9127b588f99e4f005eb9920aab472f9cdbc5c6a76cd67a7",
+        "idempotencyKey": "Coordinator:1",
+        "requestedAt": "2026-10-22T12:00:00.000Z"
+      },
+      "requested": true,
+      "error": null,
+      "result": {
+        "requested": true,
+        "request": {
+          "requestId": "b56245b9-bf6a-408e-bbf0-bfbf1facb961",
+          "enterpriseId": "10000000-0000-4000-8000-000000000001",
+          "transactionId": "10000000-0000-4000-8000-000000000002",
+          "operationalEntityId": "Coordinator",
+          "authorityId": "10000000-0000-4000-8000-000000000003",
+          "delegationId": "10000000-0000-4000-8000-000000000010",
+          "action": {
+            "type": "COORDINATOR",
+            "target": "synthetic:customer",
+            "environment": "test",
+            "payloadDigest": "209268c428c4a93e6a7cf3edccd68941c38849c5b1addcbfc50be1c536ea1ee7",
+            "consequence": "LOW"
+          },
+          "actionDigest": "b9e3a5d5e156fdd5ef820c573c293a5cab05503dc9e6967ad6e896d58fa77dcf",
+          "decisionDigest": "ee8cf03761103bbfd9127b588f99e4f005eb9920aab472f9cdbc5c6a76cd67a7",
+          "idempotencyKey": "Coordinator:1",
+          "requestedAt": "2026-10-22T12:00:00.000Z"
+        },
+        "result": {
+          "status": "ACCEPTED",
+          "adapterReference": "local:Coordinator",
+          "acknowledgedAt": "2026-10-22T12:00:00.000Z",
+          "executionClaim": null,
+          "runtimeObservation": null,
+          "destinationObservation": null,
+          "reasonCodes": []
+        },
+        "duplicate": false,
+        "eligibility": {
+          "eligible": true,
+          "state": "ELIGIBLE",
+          "reasonCodes": [
+            "ENFORCEMENT_ELIGIBLE"
+          ],
+          "algorithmVersion": "enforcement-eligibility-v1"
+        }
+      },
+      "executionOutcome": "DISPATCHED",
+      "receiptVerification": {
+        "count": 2,
+        "verified": true,
+        "replayVerified": true
+      }
+    },
+    {
+      "role": "Research",
+      "identity": {
+        "id": "Research",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "agent",
+        "controlledBy": [],
+        "permissions": [],
+        "credentialVersion": 1,
+        "expiresAt": 1792674000000
+      },
+      "delegationChain": [
+        {
+          "id": "10000000-0000-4000-8000-000000000003",
+          "tenantId": "10000000-0000-4000-8000-000000000001",
+          "grantorId": "synthetic-enterprise",
+          "grantorType": "organization",
+          "granteeId": "Coordinator",
+          "granteeType": "ai_agent",
+          "scope": [
+            "COORDINATOR",
+            "RESEARCH",
+            "ANALYSIS",
+            "REFUND",
+            "AUDIT"
+          ],
+          "maxDelegationDepth": 2,
+          "issuedAt": "2026-10-22T11:59:00.000Z",
+          "expiresAt": "2026-10-22T13:00:00.000Z"
+        },
+        {
+          "id": "10000000-0000-4000-8000-000000000011",
+          "tenantId": "10000000-0000-4000-8000-000000000001",
+          "grantorId": "Coordinator",
+          "grantorType": "ai_agent",
+          "granteeId": "Research",
+          "granteeType": "ai_agent",
+          "scope": [
+            "RESEARCH"
+          ],
+          "maxDelegationDepth": 0,
+          "issuedAt": "2026-10-22T11:59:00.000Z",
+          "expiresAt": "2026-10-22T13:00:00.000Z",
+          "parentGrantId": "10000000-0000-4000-8000-000000000003"
+        }
+      ],
+      "policyDecision": "ALLOW",
+      "request": {
+        "requestId": "Research:1",
+        "enterpriseId": "10000000-0000-4000-8000-000000000001",
+        "transactionId": "10000000-0000-4000-8000-000000000002",
+        "operationalEntityId": "Research",
+        "authorityId": "10000000-0000-4000-8000-000000000003",
+        "delegationId": "10000000-0000-4000-8000-000000000011",
+        "action": {
+          "type": "RESEARCH",
+          "target": "synthetic:customer",
+          "environment": "test",
+          "consequence": "LOW",
+          "payloadDigest": "26fa288bfaf852ede7bfe9ef22962824e8b9d3429c82dfb365c566c52929df6e"
+        },
+        "decision": "ALLOW",
+        "actionDigest": "26fa288bfaf852ede7bfe9ef22962824e8b9d3429c82dfb365c566c52929df6e",
+        "decisionDigest": "ee8cf03761103bbfd9127b588f99e4f005eb9920aab472f9cdbc5c6a76cd67a7",
+        "idempotencyKey": "Research:1",
+        "requestedAt": "2026-10-22T12:00:00.000Z"
+      },
+      "requested": true,
+      "error": null,
+      "result": {
+        "requested": true,
+        "request": {
+          "requestId": "393cc2a3-cd4b-422d-9ef1-42f9fefac439",
+          "enterpriseId": "10000000-0000-4000-8000-000000000001",
+          "transactionId": "10000000-0000-4000-8000-000000000002",
+          "operationalEntityId": "Research",
+          "authorityId": "10000000-0000-4000-8000-000000000003",
+          "delegationId": "10000000-0000-4000-8000-000000000011",
+          "action": {
+            "type": "RESEARCH",
+            "target": "synthetic:customer",
+            "environment": "test",
+            "payloadDigest": "26fa288bfaf852ede7bfe9ef22962824e8b9d3429c82dfb365c566c52929df6e",
+            "consequence": "LOW"
+          },
+          "actionDigest": "688cac8423a5c9b8ef254e9cedbe2c800ef2a156f201024e7f408bb7779f4a97",
+          "decisionDigest": "ee8cf03761103bbfd9127b588f99e4f005eb9920aab472f9cdbc5c6a76cd67a7",
+          "idempotencyKey": "Research:1",
+          "requestedAt": "2026-10-22T12:00:00.000Z"
+        },
+        "result": {
+          "status": "ACCEPTED",
+          "adapterReference": "local:Research",
+          "acknowledgedAt": "2026-10-22T12:00:00.000Z",
+          "executionClaim": null,
+          "runtimeObservation": null,
+          "destinationObservation": null,
+          "reasonCodes": []
+        },
+        "duplicate": false,
+        "eligibility": {
+          "eligible": true,
+          "state": "ELIGIBLE",
+          "reasonCodes": [
+            "ENFORCEMENT_ELIGIBLE"
+          ],
+          "algorithmVersion": "enforcement-eligibility-v1"
+        }
+      },
+      "executionOutcome": "DISPATCHED",
+      "receiptVerification": {
+        "count": 2,
+        "verified": true,
+        "replayVerified": true
+      }
+    },
+    {
+      "role": "Analysis",
+      "identity": {
+        "id": "Analysis",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "agent",
+        "controlledBy": [],
+        "permissions": [],
+        "credentialVersion": 1,
+        "expiresAt": 1792674000000
+      },
+      "delegationChain": [
+        {
+          "id": "10000000-0000-4000-8000-000000000003",
+          "tenantId": "10000000-0000-4000-8000-000000000001",
+          "grantorId": "synthetic-enterprise",
+          "grantorType": "organization",
+          "granteeId": "Coordinator",
+          "granteeType": "ai_agent",
+          "scope": [
+            "COORDINATOR",
+            "RESEARCH",
+            "ANALYSIS",
+            "REFUND",
+            "AUDIT"
+          ],
+          "maxDelegationDepth": 2,
+          "issuedAt": "2026-10-22T11:59:00.000Z",
+          "expiresAt": "2026-10-22T13:00:00.000Z"
+        },
+        {
+          "id": "10000000-0000-4000-8000-000000000012",
+          "tenantId": "10000000-0000-4000-8000-000000000001",
+          "grantorId": "Coordinator",
+          "grantorType": "ai_agent",
+          "granteeId": "Analysis",
+          "granteeType": "ai_agent",
+          "scope": [
+            "ANALYSIS"
+          ],
+          "maxDelegationDepth": 0,
+          "issuedAt": "2026-10-22T11:59:00.000Z",
+          "expiresAt": "2026-10-22T13:00:00.000Z",
+          "parentGrantId": "10000000-0000-4000-8000-000000000003"
+        }
+      ],
+      "policyDecision": "ALLOW",
+      "request": {
+        "requestId": "Analysis:1",
+        "enterpriseId": "10000000-0000-4000-8000-000000000001",
+        "transactionId": "10000000-0000-4000-8000-000000000002",
+        "operationalEntityId": "Analysis",
+        "authorityId": "10000000-0000-4000-8000-000000000003",
+        "delegationId": "10000000-0000-4000-8000-000000000012",
+        "action": {
+          "type": "ANALYSIS",
+          "target": "synthetic:customer",
+          "environment": "test",
+          "consequence": "LOW",
+          "payloadDigest": "3f3cc0839557bd94bcf24bd57f77cfd4810a3e984006862ca63d77075af8bcaa"
+        },
+        "decision": "ALLOW",
+        "actionDigest": "3f3cc0839557bd94bcf24bd57f77cfd4810a3e984006862ca63d77075af8bcaa",
+        "decisionDigest": "ee8cf03761103bbfd9127b588f99e4f005eb9920aab472f9cdbc5c6a76cd67a7",
+        "idempotencyKey": "Analysis:1",
+        "requestedAt": "2026-10-22T12:00:00.000Z"
+      },
+      "requested": true,
+      "error": null,
+      "result": {
+        "requested": true,
+        "request": {
+          "requestId": "f5ebd69d-1183-4b63-8599-72c1a06a66d0",
+          "enterpriseId": "10000000-0000-4000-8000-000000000001",
+          "transactionId": "10000000-0000-4000-8000-000000000002",
+          "operationalEntityId": "Analysis",
+          "authorityId": "10000000-0000-4000-8000-000000000003",
+          "delegationId": "10000000-0000-4000-8000-000000000012",
+          "action": {
+            "type": "ANALYSIS",
+            "target": "synthetic:customer",
+            "environment": "test",
+            "payloadDigest": "3f3cc0839557bd94bcf24bd57f77cfd4810a3e984006862ca63d77075af8bcaa",
+            "consequence": "LOW"
+          },
+          "actionDigest": "b6eee4518eeba935afc902922eaaf258424ed2412e405a56213c4f23896cf329",
+          "decisionDigest": "ee8cf03761103bbfd9127b588f99e4f005eb9920aab472f9cdbc5c6a76cd67a7",
+          "idempotencyKey": "Analysis:1",
+          "requestedAt": "2026-10-22T12:00:00.000Z"
+        },
+        "result": {
+          "status": "ACCEPTED",
+          "adapterReference": "local:Analysis",
+          "acknowledgedAt": "2026-10-22T12:00:00.000Z",
+          "executionClaim": null,
+          "runtimeObservation": null,
+          "destinationObservation": null,
+          "reasonCodes": []
+        },
+        "duplicate": false,
+        "eligibility": {
+          "eligible": true,
+          "state": "ELIGIBLE",
+          "reasonCodes": [
+            "ENFORCEMENT_ELIGIBLE"
+          ],
+          "algorithmVersion": "enforcement-eligibility-v1"
+        }
+      },
+      "executionOutcome": "DISPATCHED",
+      "receiptVerification": {
+        "count": 2,
+        "verified": true,
+        "replayVerified": true
+      }
+    },
+    {
+      "role": "Execution",
+      "identity": {
+        "id": "Execution",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "agent",
+        "controlledBy": [],
+        "permissions": [],
+        "credentialVersion": 1,
+        "expiresAt": 1792674000000
+      },
+      "delegationChain": [
+        {
+          "id": "10000000-0000-4000-8000-000000000003",
+          "tenantId": "10000000-0000-4000-8000-000000000001",
+          "grantorId": "synthetic-enterprise",
+          "grantorType": "organization",
+          "granteeId": "Coordinator",
+          "granteeType": "ai_agent",
+          "scope": [
+            "COORDINATOR",
+            "RESEARCH",
+            "ANALYSIS",
+            "REFUND",
+            "AUDIT"
+          ],
+          "maxDelegationDepth": 2,
+          "issuedAt": "2026-10-22T11:59:00.000Z",
+          "expiresAt": "2026-10-22T13:00:00.000Z"
+        },
+        {
+          "id": "10000000-0000-4000-8000-000000000013",
+          "tenantId": "10000000-0000-4000-8000-000000000001",
+          "grantorId": "Coordinator",
+          "grantorType": "ai_agent",
+          "granteeId": "Execution",
+          "granteeType": "ai_agent",
+          "scope": [
+            "REFUND"
+          ],
+          "maxDelegationDepth": 0,
+          "issuedAt": "2026-10-22T11:59:00.000Z",
+          "expiresAt": "2026-10-22T13:00:00.000Z",
+          "parentGrantId": "10000000-0000-4000-8000-000000000003"
+        }
+      ],
+      "policyDecision": "ALLOW",
+      "request": {
+        "requestId": "Execution:1",
+        "enterpriseId": "10000000-0000-4000-8000-000000000001",
+        "transactionId": "10000000-0000-4000-8000-000000000002",
+        "operationalEntityId": "Execution",
+        "authorityId": "10000000-0000-4000-8000-000000000003",
+        "delegationId": "10000000-0000-4000-8000-000000000013",
+        "action": {
+          "type": "REFUND",
+          "target": "synthetic:customer",
+          "environment": "test",
+          "consequence": "LOW",
+          "payloadDigest": "16aeac838577114b28876a667d583b781ff9a23a8eb5ab4d8bf16b25d80aef36"
+        },
+        "decision": "ALLOW",
+        "actionDigest": "16aeac838577114b28876a667d583b781ff9a23a8eb5ab4d8bf16b25d80aef36",
+        "decisionDigest": "ee8cf03761103bbfd9127b588f99e4f005eb9920aab472f9cdbc5c6a76cd67a7",
+        "idempotencyKey": "Execution:1",
+        "requestedAt": "2026-10-22T12:00:00.000Z"
+      },
+      "requested": false,
+      "error": null,
+      "result": {
+        "requested": false,
+        "request": null,
+        "result": null,
+        "eligibility": {
+          "eligible": false,
+          "state": "DENIED",
+          "reasonCodes": [
+            "CREDENTIAL_REVOKED",
+            "SWARM_NOT_ACTIVE",
+            "RUNTIME_UNVERIFIED",
+            "SCOPE_QUARANTINED"
+          ],
+          "algorithmVersion": "enforcement-eligibility-v1"
+        }
+      },
+      "executionOutcome": "NOT_DISPATCHED",
+      "receiptVerification": {
+        "count": 1,
+        "verified": true,
+        "replayVerified": true
+      }
+    },
+    {
+      "role": "Audit",
+      "identity": {
+        "id": "Audit",
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "agent",
+        "controlledBy": [],
+        "permissions": [],
+        "credentialVersion": 1,
+        "expiresAt": 1792674000000
+      },
+      "delegationChain": [
+        {
+          "id": "10000000-0000-4000-8000-000000000003",
+          "tenantId": "10000000-0000-4000-8000-000000000001",
+          "grantorId": "synthetic-enterprise",
+          "grantorType": "organization",
+          "granteeId": "Coordinator",
+          "granteeType": "ai_agent",
+          "scope": [
+            "COORDINATOR",
+            "RESEARCH",
+            "ANALYSIS",
+            "REFUND",
+            "AUDIT"
+          ],
+          "maxDelegationDepth": 2,
+          "issuedAt": "2026-10-22T11:59:00.000Z",
+          "expiresAt": "2026-10-22T13:00:00.000Z"
+        },
+        {
+          "id": "10000000-0000-4000-8000-000000000014",
+          "tenantId": "10000000-0000-4000-8000-000000000001",
+          "grantorId": "Coordinator",
+          "grantorType": "ai_agent",
+          "granteeId": "Audit",
+          "granteeType": "ai_agent",
+          "scope": [
+            "AUDIT"
+          ],
+          "maxDelegationDepth": 0,
+          "issuedAt": "2026-10-22T11:59:00.000Z",
+          "expiresAt": "2026-10-22T13:00:00.000Z",
+          "parentGrantId": "10000000-0000-4000-8000-000000000003"
+        }
+      ],
+      "policyDecision": "ALLOW",
+      "request": {
+        "requestId": "Audit:1",
+        "enterpriseId": "10000000-0000-4000-8000-000000000001",
+        "transactionId": "10000000-0000-4000-8000-000000000002",
+        "operationalEntityId": "Audit",
+        "authorityId": "10000000-0000-4000-8000-000000000003",
+        "delegationId": "10000000-0000-4000-8000-000000000014",
+        "action": {
+          "type": "AUDIT",
+          "target": "synthetic:customer",
+          "environment": "test",
+          "consequence": "LOW",
+          "payloadDigest": "d3a947fbf63557c0039abb43b77d7257b30630cc0ae0248d8470214f13b607b8"
+        },
+        "decision": "ALLOW",
+        "actionDigest": "d3a947fbf63557c0039abb43b77d7257b30630cc0ae0248d8470214f13b607b8",
+        "decisionDigest": "ee8cf03761103bbfd9127b588f99e4f005eb9920aab472f9cdbc5c6a76cd67a7",
+        "idempotencyKey": "Audit:1",
+        "requestedAt": "2026-10-22T12:00:00.000Z"
+      },
+      "requested": true,
+      "error": null,
+      "result": {
+        "requested": true,
+        "request": {
+          "requestId": "31869228-d50a-4af1-a41e-31fc03316e66",
+          "enterpriseId": "10000000-0000-4000-8000-000000000001",
+          "transactionId": "10000000-0000-4000-8000-000000000002",
+          "operationalEntityId": "Audit",
+          "authorityId": "10000000-0000-4000-8000-000000000003",
+          "delegationId": "10000000-0000-4000-8000-000000000014",
+          "action": {
+            "type": "AUDIT",
+            "target": "synthetic:customer",
+            "environment": "test",
+            "payloadDigest": "d3a947fbf63557c0039abb43b77d7257b30630cc0ae0248d8470214f13b607b8",
+            "consequence": "LOW"
+          },
+          "actionDigest": "4a0366e09da998938097e13a143b99a16034bd0b383ef9323b0548258f4bc43f",
+          "decisionDigest": "ee8cf03761103bbfd9127b588f99e4f005eb9920aab472f9cdbc5c6a76cd67a7",
+          "idempotencyKey": "Audit:1",
+          "requestedAt": "2026-10-22T12:00:00.000Z"
+        },
+        "result": {
+          "status": "ACCEPTED",
+          "adapterReference": "local:Audit",
+          "acknowledgedAt": "2026-10-22T12:00:00.000Z",
+          "executionClaim": null,
+          "runtimeObservation": null,
+          "destinationObservation": null,
+          "reasonCodes": []
+        },
+        "duplicate": false,
+        "eligibility": {
+          "eligible": true,
+          "state": "ELIGIBLE",
+          "reasonCodes": [
+            "ENFORCEMENT_ELIGIBLE"
+          ],
+          "algorithmVersion": "enforcement-eligibility-v1"
+        }
+      },
+      "executionOutcome": "DISPATCHED",
+      "receiptVerification": {
+        "count": 2,
+        "verified": true,
+        "replayVerified": true
+      }
+    }
+  ],
+  "destination": [],
+  "cancellation": null,
+  "state": {
+    "tenantId": "10000000-0000-4000-8000-000000000001",
+    "collectives": {
+      "swarm:demo": {
+        "id": "swarm:demo",
+        "entityType": "AGENT_SWARM",
+        "objective": "synthetic-refund",
+        "workflowId": "workflow:demo",
+        "originalAuthority": "10000000-0000-4000-8000-000000000003",
+        "state": "ACTIVE",
+        "maxMembers": 5,
+        "orchestratorId": "Coordinator",
+        "responsiblePrincipalId": "operator"
+      }
+    },
+    "members": {
+      "Coordinator": {
+        "id": "Coordinator",
+        "swarmId": "swarm:demo",
+        "parentId": null,
+        "credentialVersion": 1,
+        "state": "ACTIVE",
+        "heartbeatAt": 1792670400000,
+        "heartbeatSequence": 1,
+        "expiresAt": 1792674000000
+      },
+      "Research": {
+        "id": "Research",
+        "swarmId": "swarm:demo",
+        "parentId": "Coordinator",
+        "credentialVersion": 1,
+        "state": "ACTIVE",
+        "heartbeatAt": 1792670400000,
+        "heartbeatSequence": 1,
+        "expiresAt": 1792674000000
+      },
+      "Analysis": {
+        "id": "Analysis",
+        "swarmId": "swarm:demo",
+        "parentId": "Coordinator",
+        "credentialVersion": 1,
+        "state": "ACTIVE",
+        "heartbeatAt": 1792670400000,
+        "heartbeatSequence": 1,
+        "expiresAt": 1792674000000
+      },
+      "Execution": {
+        "id": "Execution",
+        "swarmId": "swarm:demo",
+        "parentId": "Coordinator",
+        "credentialVersion": 2,
+        "state": "SUSPENDED",
+        "heartbeatAt": 0,
+        "heartbeatSequence": 1,
+        "expiresAt": 1792674000000
+      },
+      "Audit": {
+        "id": "Audit",
+        "swarmId": "swarm:demo",
+        "parentId": "Coordinator",
+        "credentialVersion": 1,
+        "state": "ACTIVE",
+        "heartbeatAt": 1792670400000,
+        "heartbeatSequence": 1,
+        "expiresAt": 1792674000000
+      }
+    },
+    "leases": {
+      "84aeb200207c143712c5b3b0933a9d2886cca345a7103f7f791aca7725ff6a48": {
+        "id": "84aeb200207c143712c5b3b0933a9d2886cca345a7103f7f791aca7725ff6a48",
+        "memberId": "Coordinator",
+        "swarmId": "swarm:demo",
+        "requestDigest": "84aeb200207c143712c5b3b0933a9d2886cca345a7103f7f791aca7725ff6a48",
+        "expiresAt": 1792670415000,
+        "state": "DISPATCHED",
+        "credentialVersion": 1,
+        "classification": {
+          "correlationId": "task:Coordinator",
+          "resource": "synthetic:customer",
+          "operation": "COORDINATOR",
+          "units": 1,
+          "limit": 100,
+          "mandatoryRestriction": false,
+          "sensitive": false,
+          "transfer": "NONE",
+          "transferPermitted": false,
+          "policyVersion": "demo:v1",
+          "evidenceRefs": [
+            "synthetic-policy:v1"
+          ]
+        },
+        "requesterId": "Coordinator",
+        "authorityChain": [
+          "10000000-0000-4000-8000-000000000003",
+          "synthetic-enterprise",
+          "Coordinator"
+        ]
+      },
+      "07f5d71c939efb60b54d9931ba7f89a5822eef17d4bbc66e61bae2cbea3a6b6f": {
+        "id": "07f5d71c939efb60b54d9931ba7f89a5822eef17d4bbc66e61bae2cbea3a6b6f",
+        "memberId": "Research",
+        "swarmId": "swarm:demo",
+        "requestDigest": "07f5d71c939efb60b54d9931ba7f89a5822eef17d4bbc66e61bae2cbea3a6b6f",
+        "expiresAt": 1792670415000,
+        "state": "DISPATCHED",
+        "credentialVersion": 1,
+        "classification": {
+          "correlationId": "task:Research",
+          "resource": "synthetic:customer",
+          "operation": "RESEARCH",
+          "units": 1,
+          "limit": 100,
+          "mandatoryRestriction": false,
+          "sensitive": false,
+          "transfer": "NONE",
+          "transferPermitted": false,
+          "policyVersion": "demo:v1",
+          "evidenceRefs": [
+            "synthetic-policy:v1"
+          ]
+        },
+        "requesterId": "Research",
+        "authorityChain": [
+          "10000000-0000-4000-8000-000000000003",
+          "synthetic-enterprise",
+          "Coordinator",
+          "10000000-0000-4000-8000-000000000011",
+          "Coordinator",
+          "Research"
+        ]
+      },
+      "71b8a9e59475f2c7a46544dbc49be77bdcb0334f489f8de1e14bcfa3c8833958": {
+        "id": "71b8a9e59475f2c7a46544dbc49be77bdcb0334f489f8de1e14bcfa3c8833958",
+        "memberId": "Analysis",
+        "swarmId": "swarm:demo",
+        "requestDigest": "71b8a9e59475f2c7a46544dbc49be77bdcb0334f489f8de1e14bcfa3c8833958",
+        "expiresAt": 1792670415000,
+        "state": "DISPATCHED",
+        "credentialVersion": 1,
+        "classification": {
+          "correlationId": "task:Analysis",
+          "resource": "synthetic:customer",
+          "operation": "ANALYSIS",
+          "units": 1,
+          "limit": 100,
+          "mandatoryRestriction": false,
+          "sensitive": false,
+          "transfer": "NONE",
+          "transferPermitted": false,
+          "policyVersion": "demo:v1",
+          "evidenceRefs": [
+            "synthetic-policy:v1"
+          ]
+        },
+        "requesterId": "Analysis",
+        "authorityChain": [
+          "10000000-0000-4000-8000-000000000003",
+          "synthetic-enterprise",
+          "Coordinator",
+          "10000000-0000-4000-8000-000000000012",
+          "Coordinator",
+          "Analysis"
+        ]
+      },
+      "1302a904030d1b5202566bb5fa255d9f0f902e55eb9f3d281c198ea8e26dc44f": {
+        "id": "1302a904030d1b5202566bb5fa255d9f0f902e55eb9f3d281c198ea8e26dc44f",
+        "memberId": "Audit",
+        "swarmId": "swarm:demo",
+        "requestDigest": "1302a904030d1b5202566bb5fa255d9f0f902e55eb9f3d281c198ea8e26dc44f",
+        "expiresAt": 1792670415000,
+        "state": "DISPATCHED",
+        "credentialVersion": 1,
+        "classification": {
+          "correlationId": "task:Audit",
+          "resource": "synthetic:customer",
+          "operation": "AUDIT",
+          "units": 1,
+          "limit": 100,
+          "mandatoryRestriction": false,
+          "sensitive": false,
+          "transfer": "NONE",
+          "transferPermitted": false,
+          "policyVersion": "demo:v1",
+          "evidenceRefs": [
+            "synthetic-policy:v1"
+          ]
+        },
+        "requesterId": "Audit",
+        "authorityChain": [
+          "10000000-0000-4000-8000-000000000003",
+          "synthetic-enterprise",
+          "Coordinator",
+          "10000000-0000-4000-8000-000000000014",
+          "Coordinator",
+          "Audit"
+        ]
+      }
+    },
+    "approvals": {},
+    "quarantines": [
+      {
+        "kind": "agent",
+        "id": "Execution",
+        "receipt": "025493a282f8dd4f679e93a1fb5c064be174452607f7452872cdb5426044dd55"
+      }
+    ],
+    "budgets": {},
+    "events": [
+      {
+        "sequence": 1,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "MEMBERSHIP_ADDED",
+        "actorId": "operator",
+        "subjectId": "Coordinator",
+        "at": 1792670400000,
+        "details": {
+          "swarmId": "swarm:demo",
+          "parentId": null,
+          "originalAuthority": "10000000-0000-4000-8000-000000000003",
+          "workflowId": "workflow:demo",
+          "authorityConferred": false
+        },
+        "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "digest": "0b726fb2c3a0aa8d57dae34f319719770c003f3d3616c594292bda4824d870af"
+      },
+      {
+        "sequence": 2,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "HEARTBEAT_VERIFIED",
+        "actorId": "Coordinator",
+        "subjectId": "Coordinator",
+        "at": 1792670400000,
+        "details": {
+          "sequence": 1,
+          "credentialVersion": 1
+        },
+        "previousHash": "0b726fb2c3a0aa8d57dae34f319719770c003f3d3616c594292bda4824d870af",
+        "digest": "dd24a0428304826fef91ce6e53517a976dea2d24bb90eddabc4ce08c44914380"
+      },
+      {
+        "sequence": 3,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "MEMBERSHIP_ADDED",
+        "actorId": "operator",
+        "subjectId": "Research",
+        "at": 1792670400000,
+        "details": {
+          "swarmId": "swarm:demo",
+          "parentId": "Coordinator",
+          "originalAuthority": "10000000-0000-4000-8000-000000000003",
+          "workflowId": "workflow:demo",
+          "authorityConferred": false
+        },
+        "previousHash": "dd24a0428304826fef91ce6e53517a976dea2d24bb90eddabc4ce08c44914380",
+        "digest": "96a618fabb88785958b5a5d1f058a24e91d18ad4baa4bb7e110ad2ba68ebd068"
+      },
+      {
+        "sequence": 4,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "HEARTBEAT_VERIFIED",
+        "actorId": "Research",
+        "subjectId": "Research",
+        "at": 1792670400000,
+        "details": {
+          "sequence": 1,
+          "credentialVersion": 1
+        },
+        "previousHash": "96a618fabb88785958b5a5d1f058a24e91d18ad4baa4bb7e110ad2ba68ebd068",
+        "digest": "b39c8f7ea04cfb85723e6a6bce7fbe28b8a30c5b7fd56f7665533f350643755e"
+      },
+      {
+        "sequence": 5,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "MEMBERSHIP_ADDED",
+        "actorId": "operator",
+        "subjectId": "Analysis",
+        "at": 1792670400000,
+        "details": {
+          "swarmId": "swarm:demo",
+          "parentId": "Coordinator",
+          "originalAuthority": "10000000-0000-4000-8000-000000000003",
+          "workflowId": "workflow:demo",
+          "authorityConferred": false
+        },
+        "previousHash": "b39c8f7ea04cfb85723e6a6bce7fbe28b8a30c5b7fd56f7665533f350643755e",
+        "digest": "4947ae42e9bfd5f31e63e9dd7e755c0ee384828261028041c23e6229ed72647f"
+      },
+      {
+        "sequence": 6,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "HEARTBEAT_VERIFIED",
+        "actorId": "Analysis",
+        "subjectId": "Analysis",
+        "at": 1792670400000,
+        "details": {
+          "sequence": 1,
+          "credentialVersion": 1
+        },
+        "previousHash": "4947ae42e9bfd5f31e63e9dd7e755c0ee384828261028041c23e6229ed72647f",
+        "digest": "32284f0478fe1b20cea13893edf71ddd282b0d52a71626163e5a2e0bc085ad61"
+      },
+      {
+        "sequence": 7,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "MEMBERSHIP_ADDED",
+        "actorId": "operator",
+        "subjectId": "Execution",
+        "at": 1792670400000,
+        "details": {
+          "swarmId": "swarm:demo",
+          "parentId": "Coordinator",
+          "originalAuthority": "10000000-0000-4000-8000-000000000003",
+          "workflowId": "workflow:demo",
+          "authorityConferred": false
+        },
+        "previousHash": "32284f0478fe1b20cea13893edf71ddd282b0d52a71626163e5a2e0bc085ad61",
+        "digest": "c001142b3ee9f590bfa154da61069a5cb2359251b5fdd25d9d386a2439c353df"
+      },
+      {
+        "sequence": 8,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "HEARTBEAT_VERIFIED",
+        "actorId": "Execution",
+        "subjectId": "Execution",
+        "at": 1792670400000,
+        "details": {
+          "sequence": 1,
+          "credentialVersion": 1
+        },
+        "previousHash": "c001142b3ee9f590bfa154da61069a5cb2359251b5fdd25d9d386a2439c353df",
+        "digest": "c3d6bb386ff4f2c0b3bfcff0acd0256df6a707857c8bc3f7d3f276df2983bc14"
+      },
+      {
+        "sequence": 9,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "MEMBERSHIP_ADDED",
+        "actorId": "operator",
+        "subjectId": "Audit",
+        "at": 1792670400000,
+        "details": {
+          "swarmId": "swarm:demo",
+          "parentId": "Coordinator",
+          "originalAuthority": "10000000-0000-4000-8000-000000000003",
+          "workflowId": "workflow:demo",
+          "authorityConferred": false
+        },
+        "previousHash": "c3d6bb386ff4f2c0b3bfcff0acd0256df6a707857c8bc3f7d3f276df2983bc14",
+        "digest": "4e995ea1a369dd5a6be618a8530f97a58e72123fda7f1166a3e4bed1e1bfa3a0"
+      },
+      {
+        "sequence": 10,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "HEARTBEAT_VERIFIED",
+        "actorId": "Audit",
+        "subjectId": "Audit",
+        "at": 1792670400000,
+        "details": {
+          "sequence": 1,
+          "credentialVersion": 1
+        },
+        "previousHash": "4e995ea1a369dd5a6be618a8530f97a58e72123fda7f1166a3e4bed1e1bfa3a0",
+        "digest": "dea68452df1894ca362b5301723b2b9c7e6c1216f3a2b7e86f5466e3b9ce1ac2"
+      },
+      {
+        "sequence": 11,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "LEASE_RESERVED",
+        "actorId": "Coordinator",
+        "subjectId": "Coordinator",
+        "at": 1792670400000,
+        "details": {
+          "requestDigest": "84aeb200207c143712c5b3b0933a9d2886cca345a7103f7f791aca7725ff6a48",
+          "swarmId": "swarm:demo",
+          "classification": {
+            "correlationId": "task:Coordinator",
+            "resource": "synthetic:customer",
+            "operation": "COORDINATOR",
+            "units": 1,
+            "limit": 100,
+            "mandatoryRestriction": false,
+            "sensitive": false,
+            "transfer": "NONE",
+            "transferPermitted": false,
+            "policyVersion": "demo:v1",
+            "evidenceRefs": [
+              "synthetic-policy:v1"
+            ]
+          },
+          "authorityId": "10000000-0000-4000-8000-000000000003",
+          "delegationId": "10000000-0000-4000-8000-000000000010",
+          "transactionId": "10000000-0000-4000-8000-000000000002",
+          "authoritySnapshot": {
+            "tenantId": "10000000-0000-4000-8000-000000000001",
+            "subjectId": "Coordinator",
+            "workflowId": "workflow:demo",
+            "action": "COORDINATOR",
+            "resource": "synthetic:customer",
+            "purpose": "synthetic-refund",
+            "grants": [
+              {
+                "id": "10000000-0000-4000-8000-000000000003",
+                "tenantId": "10000000-0000-4000-8000-000000000001",
+                "grantorId": "synthetic-enterprise",
+                "grantorType": "organization",
+                "granteeId": "Coordinator",
+                "granteeType": "ai_agent",
+                "scope": [
+                  "COORDINATOR",
+                  "RESEARCH",
+                  "ANALYSIS",
+                  "REFUND",
+                  "AUDIT"
+                ],
+                "maxDelegationDepth": 2,
+                "issuedAt": "2026-10-22T11:59:00.000Z",
+                "expiresAt": "2026-10-22T13:00:00.000Z"
+              }
+            ]
+          },
+          "responsiblePrincipalId": "operator",
+          "orchestratorId": "Coordinator",
+          "decision": "ALLOW",
+          "journalOrderIsExternalExecutionOrder": false
+        },
+        "previousHash": "dea68452df1894ca362b5301723b2b9c7e6c1216f3a2b7e86f5466e3b9ce1ac2",
+        "digest": "346d49f9c8e966c8ac0ca4f945782aa4fd96250d503bc9f59a85aa80aa033dbe"
+      },
+      {
+        "sequence": 12,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "DISPATCH_STARTED",
+        "actorId": "Coordinator",
+        "subjectId": "Coordinator",
+        "at": 1792670400000,
+        "details": {
+          "leaseId": "84aeb200207c143712c5b3b0933a9d2886cca345a7103f7f791aca7725ff6a48",
+          "transactionId": "10000000-0000-4000-8000-000000000002",
+          "externalCancellationGuaranteed": false
+        },
+        "previousHash": "346d49f9c8e966c8ac0ca4f945782aa4fd96250d503bc9f59a85aa80aa033dbe",
+        "digest": "8c0d5df9c6be7ea3470a7165a9fc984c33a34cdf1289e09cc713bd508bc2f324"
+      },
+      {
+        "sequence": 13,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "LEASE_RESERVED",
+        "actorId": "Research",
+        "subjectId": "Research",
+        "at": 1792670400000,
+        "details": {
+          "requestDigest": "07f5d71c939efb60b54d9931ba7f89a5822eef17d4bbc66e61bae2cbea3a6b6f",
+          "swarmId": "swarm:demo",
+          "classification": {
+            "correlationId": "task:Research",
+            "resource": "synthetic:customer",
+            "operation": "RESEARCH",
+            "units": 1,
+            "limit": 100,
+            "mandatoryRestriction": false,
+            "sensitive": false,
+            "transfer": "NONE",
+            "transferPermitted": false,
+            "policyVersion": "demo:v1",
+            "evidenceRefs": [
+              "synthetic-policy:v1"
+            ]
+          },
+          "authorityId": "10000000-0000-4000-8000-000000000003",
+          "delegationId": "10000000-0000-4000-8000-000000000011",
+          "transactionId": "10000000-0000-4000-8000-000000000002",
+          "authoritySnapshot": {
+            "tenantId": "10000000-0000-4000-8000-000000000001",
+            "subjectId": "Research",
+            "workflowId": "workflow:demo",
+            "action": "RESEARCH",
+            "resource": "synthetic:customer",
+            "purpose": "synthetic-refund",
+            "grants": [
+              {
+                "id": "10000000-0000-4000-8000-000000000003",
+                "tenantId": "10000000-0000-4000-8000-000000000001",
+                "grantorId": "synthetic-enterprise",
+                "grantorType": "organization",
+                "granteeId": "Coordinator",
+                "granteeType": "ai_agent",
+                "scope": [
+                  "COORDINATOR",
+                  "RESEARCH",
+                  "ANALYSIS",
+                  "REFUND",
+                  "AUDIT"
+                ],
+                "maxDelegationDepth": 2,
+                "issuedAt": "2026-10-22T11:59:00.000Z",
+                "expiresAt": "2026-10-22T13:00:00.000Z"
+              },
+              {
+                "id": "10000000-0000-4000-8000-000000000011",
+                "tenantId": "10000000-0000-4000-8000-000000000001",
+                "grantorId": "Coordinator",
+                "grantorType": "ai_agent",
+                "granteeId": "Research",
+                "granteeType": "ai_agent",
+                "scope": [
+                  "RESEARCH"
+                ],
+                "maxDelegationDepth": 0,
+                "issuedAt": "2026-10-22T11:59:00.000Z",
+                "expiresAt": "2026-10-22T13:00:00.000Z",
+                "parentGrantId": "10000000-0000-4000-8000-000000000003"
+              }
+            ]
+          },
+          "responsiblePrincipalId": "operator",
+          "orchestratorId": "Coordinator",
+          "decision": "ALLOW",
+          "journalOrderIsExternalExecutionOrder": false
+        },
+        "previousHash": "8c0d5df9c6be7ea3470a7165a9fc984c33a34cdf1289e09cc713bd508bc2f324",
+        "digest": "27893dc84fb41c2003e715df307713bb127a84edcec2d13a2f71013165e91238"
+      },
+      {
+        "sequence": 14,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "DISPATCH_STARTED",
+        "actorId": "Research",
+        "subjectId": "Research",
+        "at": 1792670400000,
+        "details": {
+          "leaseId": "07f5d71c939efb60b54d9931ba7f89a5822eef17d4bbc66e61bae2cbea3a6b6f",
+          "transactionId": "10000000-0000-4000-8000-000000000002",
+          "externalCancellationGuaranteed": false
+        },
+        "previousHash": "27893dc84fb41c2003e715df307713bb127a84edcec2d13a2f71013165e91238",
+        "digest": "0099408f4fe137d9ce9000db8b457a726465a54172acd947115b6a5cb11e18c9"
+      },
+      {
+        "sequence": 15,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "LEASE_RESERVED",
+        "actorId": "Analysis",
+        "subjectId": "Analysis",
+        "at": 1792670400000,
+        "details": {
+          "requestDigest": "71b8a9e59475f2c7a46544dbc49be77bdcb0334f489f8de1e14bcfa3c8833958",
+          "swarmId": "swarm:demo",
+          "classification": {
+            "correlationId": "task:Analysis",
+            "resource": "synthetic:customer",
+            "operation": "ANALYSIS",
+            "units": 1,
+            "limit": 100,
+            "mandatoryRestriction": false,
+            "sensitive": false,
+            "transfer": "NONE",
+            "transferPermitted": false,
+            "policyVersion": "demo:v1",
+            "evidenceRefs": [
+              "synthetic-policy:v1"
+            ]
+          },
+          "authorityId": "10000000-0000-4000-8000-000000000003",
+          "delegationId": "10000000-0000-4000-8000-000000000012",
+          "transactionId": "10000000-0000-4000-8000-000000000002",
+          "authoritySnapshot": {
+            "tenantId": "10000000-0000-4000-8000-000000000001",
+            "subjectId": "Analysis",
+            "workflowId": "workflow:demo",
+            "action": "ANALYSIS",
+            "resource": "synthetic:customer",
+            "purpose": "synthetic-refund",
+            "grants": [
+              {
+                "id": "10000000-0000-4000-8000-000000000003",
+                "tenantId": "10000000-0000-4000-8000-000000000001",
+                "grantorId": "synthetic-enterprise",
+                "grantorType": "organization",
+                "granteeId": "Coordinator",
+                "granteeType": "ai_agent",
+                "scope": [
+                  "COORDINATOR",
+                  "RESEARCH",
+                  "ANALYSIS",
+                  "REFUND",
+                  "AUDIT"
+                ],
+                "maxDelegationDepth": 2,
+                "issuedAt": "2026-10-22T11:59:00.000Z",
+                "expiresAt": "2026-10-22T13:00:00.000Z"
+              },
+              {
+                "id": "10000000-0000-4000-8000-000000000012",
+                "tenantId": "10000000-0000-4000-8000-000000000001",
+                "grantorId": "Coordinator",
+                "grantorType": "ai_agent",
+                "granteeId": "Analysis",
+                "granteeType": "ai_agent",
+                "scope": [
+                  "ANALYSIS"
+                ],
+                "maxDelegationDepth": 0,
+                "issuedAt": "2026-10-22T11:59:00.000Z",
+                "expiresAt": "2026-10-22T13:00:00.000Z",
+                "parentGrantId": "10000000-0000-4000-8000-000000000003"
+              }
+            ]
+          },
+          "responsiblePrincipalId": "operator",
+          "orchestratorId": "Coordinator",
+          "decision": "ALLOW",
+          "journalOrderIsExternalExecutionOrder": false
+        },
+        "previousHash": "0099408f4fe137d9ce9000db8b457a726465a54172acd947115b6a5cb11e18c9",
+        "digest": "83b434318ac3034432ec09682fd2db76c0a6964092c0382c683e3edeb8e9cb7b"
+      },
+      {
+        "sequence": 16,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "DISPATCH_STARTED",
+        "actorId": "Analysis",
+        "subjectId": "Analysis",
+        "at": 1792670400000,
+        "details": {
+          "leaseId": "71b8a9e59475f2c7a46544dbc49be77bdcb0334f489f8de1e14bcfa3c8833958",
+          "transactionId": "10000000-0000-4000-8000-000000000002",
+          "externalCancellationGuaranteed": false
+        },
+        "previousHash": "83b434318ac3034432ec09682fd2db76c0a6964092c0382c683e3edeb8e9cb7b",
+        "digest": "dcc307130c48f217f5c6babab96b2c4c259f318d9a2285428a67631ff133f6f9"
+      },
+      {
+        "sequence": 17,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "EMERGENCY_CONTAINMENT",
+        "actorId": "operator",
+        "subjectId": "Execution",
+        "at": 1792670400000,
+        "details": {
+          "scope": {
+            "kind": "agent",
+            "id": "Execution"
+          },
+          "reason": "synthetic credential revocation",
+          "signedCommand": null,
+          "commandSignature": null,
+          "affected": [
+            "Execution"
+          ],
+          "inFlight": [],
+          "credentialsInvalidatedAtGateway": true,
+          "externalCredentialsRotated": false,
+          "restorationRequiresIndependentApproval": true
+        },
+        "previousHash": "dcc307130c48f217f5c6babab96b2c4c259f318d9a2285428a67631ff133f6f9",
+        "digest": "025493a282f8dd4f679e93a1fb5c064be174452607f7452872cdb5426044dd55"
+      },
+      {
+        "sequence": 18,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "EXECUTION_DENIED",
+        "actorId": "Execution",
+        "subjectId": "Execution",
+        "at": 1792670400000,
+        "details": {
+          "requestDigest": "894c73199c0e07cbff9ffe060d3ad31e543936490f93082d0107c9a7a3dd1a7a",
+          "decision": "DENY",
+          "reasons": [
+            "CREDENTIAL_REVOKED",
+            "SWARM_NOT_ACTIVE",
+            "RUNTIME_UNVERIFIED",
+            "SCOPE_QUARANTINED"
+          ],
+          "resource": "synthetic:customer",
+          "operation": "REFUND",
+          "correlationId": "task:Execution",
+          "evidenceRefs": [
+            "synthetic-policy:v1"
+          ]
+        },
+        "previousHash": "025493a282f8dd4f679e93a1fb5c064be174452607f7452872cdb5426044dd55",
+        "digest": "b677b4ef7893b95a6444d228bc558f819bfe4044c032cb243060450ca5e5f04e"
+      },
+      {
+        "sequence": 19,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "LEASE_RESERVED",
+        "actorId": "Audit",
+        "subjectId": "Audit",
+        "at": 1792670400000,
+        "details": {
+          "requestDigest": "1302a904030d1b5202566bb5fa255d9f0f902e55eb9f3d281c198ea8e26dc44f",
+          "swarmId": "swarm:demo",
+          "classification": {
+            "correlationId": "task:Audit",
+            "resource": "synthetic:customer",
+            "operation": "AUDIT",
+            "units": 1,
+            "limit": 100,
+            "mandatoryRestriction": false,
+            "sensitive": false,
+            "transfer": "NONE",
+            "transferPermitted": false,
+            "policyVersion": "demo:v1",
+            "evidenceRefs": [
+              "synthetic-policy:v1"
+            ]
+          },
+          "authorityId": "10000000-0000-4000-8000-000000000003",
+          "delegationId": "10000000-0000-4000-8000-000000000014",
+          "transactionId": "10000000-0000-4000-8000-000000000002",
+          "authoritySnapshot": {
+            "tenantId": "10000000-0000-4000-8000-000000000001",
+            "subjectId": "Audit",
+            "workflowId": "workflow:demo",
+            "action": "AUDIT",
+            "resource": "synthetic:customer",
+            "purpose": "synthetic-refund",
+            "grants": [
+              {
+                "id": "10000000-0000-4000-8000-000000000003",
+                "tenantId": "10000000-0000-4000-8000-000000000001",
+                "grantorId": "synthetic-enterprise",
+                "grantorType": "organization",
+                "granteeId": "Coordinator",
+                "granteeType": "ai_agent",
+                "scope": [
+                  "COORDINATOR",
+                  "RESEARCH",
+                  "ANALYSIS",
+                  "REFUND",
+                  "AUDIT"
+                ],
+                "maxDelegationDepth": 2,
+                "issuedAt": "2026-10-22T11:59:00.000Z",
+                "expiresAt": "2026-10-22T13:00:00.000Z"
+              },
+              {
+                "id": "10000000-0000-4000-8000-000000000014",
+                "tenantId": "10000000-0000-4000-8000-000000000001",
+                "grantorId": "Coordinator",
+                "grantorType": "ai_agent",
+                "granteeId": "Audit",
+                "granteeType": "ai_agent",
+                "scope": [
+                  "AUDIT"
+                ],
+                "maxDelegationDepth": 0,
+                "issuedAt": "2026-10-22T11:59:00.000Z",
+                "expiresAt": "2026-10-22T13:00:00.000Z",
+                "parentGrantId": "10000000-0000-4000-8000-000000000003"
+              }
+            ]
+          },
+          "responsiblePrincipalId": "operator",
+          "orchestratorId": "Coordinator",
+          "decision": "ALLOW",
+          "journalOrderIsExternalExecutionOrder": false
+        },
+        "previousHash": "b677b4ef7893b95a6444d228bc558f819bfe4044c032cb243060450ca5e5f04e",
+        "digest": "c856865575f4a3c2b295cf876b8ae7d96026d5a352f52eab258cc8d9eb395fb5"
+      },
+      {
+        "sequence": 20,
+        "tenantId": "10000000-0000-4000-8000-000000000001",
+        "kind": "DISPATCH_STARTED",
+        "actorId": "Audit",
+        "subjectId": "Audit",
+        "at": 1792670400000,
+        "details": {
+          "leaseId": "1302a904030d1b5202566bb5fa255d9f0f902e55eb9f3d281c198ea8e26dc44f",
+          "transactionId": "10000000-0000-4000-8000-000000000002",
+          "externalCancellationGuaranteed": false
+        },
+        "previousHash": "c856865575f4a3c2b295cf876b8ae7d96026d5a352f52eab258cc8d9eb395fb5",
+        "digest": "d1790f9c079f596c0932b8b2b722259d8a8a05fe9f6977e26a7532fb7298e69a"
+      }
+    ]
+  },
+  "projections": [
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "17cf50d8-c479-5000-83fa-e8a319359fd6",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Coordinator",
+        "event_type": "SWARM_MEMBERSHIP_ADDED",
+        "actor_reference": "operator",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:0b726fb2c3a0aa8d57dae34f319719770c003f3d3616c594292bda4824d870af"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "0b726fb2c3a0aa8d57dae34f319719770c003f3d3616c594292bda4824d870af",
+          "previousReceipt": "0000000000000000000000000000000000000000000000000000000000000000",
+          "lifecycleEvent": "MEMBERSHIP_ADDED",
+          "journalSequence": 1,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "swarmId": "swarm:demo",
+            "parentId": null,
+            "originalAuthority": "10000000-0000-4000-8000-000000000003",
+            "workflowId": "workflow:demo",
+            "authorityConferred": false
+          }
+        },
+        "event_digest": "a5854fda0bc938b5539709bdde9e5bd679de6c636f53f41bfd8833959d1c4129",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Coordinator",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_MEMBERSHIP_ADDED",
+        "source_id": "swarm:0b726fb2c3a0aa8d57dae34f319719770c003f3d3616c594292bda4824d870af:Coordinator",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "0b726fb2c3a0aa8d57dae34f319719770c003f3d3616c594292bda4824d870af",
+          "previousReceipt": "0000000000000000000000000000000000000000000000000000000000000000",
+          "lifecycleEvent": "MEMBERSHIP_ADDED",
+          "journalSequence": 1,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "swarmId": "swarm:demo",
+            "parentId": null,
+            "originalAuthority": "10000000-0000-4000-8000-000000000003",
+            "workflowId": "workflow:demo",
+            "authorityConferred": false
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "1286e8a1-2533-57dd-82cf-48c3463ba971",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Coordinator",
+        "event_type": "SWARM_HEARTBEAT_VERIFIED",
+        "actor_reference": "Coordinator",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:dd24a0428304826fef91ce6e53517a976dea2d24bb90eddabc4ce08c44914380"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "dd24a0428304826fef91ce6e53517a976dea2d24bb90eddabc4ce08c44914380",
+          "previousReceipt": "0b726fb2c3a0aa8d57dae34f319719770c003f3d3616c594292bda4824d870af",
+          "lifecycleEvent": "HEARTBEAT_VERIFIED",
+          "journalSequence": 2,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "sequence": 1,
+            "credentialVersion": 1
+          }
+        },
+        "event_digest": "f139b6a8380119079f03be472a288c4821922126ac698993a8036f46fcfe2dac",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Coordinator",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_HEARTBEAT_VERIFIED",
+        "source_id": "swarm:dd24a0428304826fef91ce6e53517a976dea2d24bb90eddabc4ce08c44914380:Coordinator",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "dd24a0428304826fef91ce6e53517a976dea2d24bb90eddabc4ce08c44914380",
+          "previousReceipt": "0b726fb2c3a0aa8d57dae34f319719770c003f3d3616c594292bda4824d870af",
+          "lifecycleEvent": "HEARTBEAT_VERIFIED",
+          "journalSequence": 2,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "sequence": 1,
+            "credentialVersion": 1
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "a4eba03a-7525-5262-8b72-acacdc2d848c",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Research",
+        "event_type": "SWARM_MEMBERSHIP_ADDED",
+        "actor_reference": "operator",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:96a618fabb88785958b5a5d1f058a24e91d18ad4baa4bb7e110ad2ba68ebd068"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "96a618fabb88785958b5a5d1f058a24e91d18ad4baa4bb7e110ad2ba68ebd068",
+          "previousReceipt": "dd24a0428304826fef91ce6e53517a976dea2d24bb90eddabc4ce08c44914380",
+          "lifecycleEvent": "MEMBERSHIP_ADDED",
+          "journalSequence": 3,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "swarmId": "swarm:demo",
+            "parentId": "Coordinator",
+            "originalAuthority": "10000000-0000-4000-8000-000000000003",
+            "workflowId": "workflow:demo",
+            "authorityConferred": false
+          }
+        },
+        "event_digest": "fb9772fc120f81ef7f8959d52da4fa292ddf61d5a8e6455dc6b1214ba46ddf58",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Research",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_MEMBERSHIP_ADDED",
+        "source_id": "swarm:96a618fabb88785958b5a5d1f058a24e91d18ad4baa4bb7e110ad2ba68ebd068:Research",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "96a618fabb88785958b5a5d1f058a24e91d18ad4baa4bb7e110ad2ba68ebd068",
+          "previousReceipt": "dd24a0428304826fef91ce6e53517a976dea2d24bb90eddabc4ce08c44914380",
+          "lifecycleEvent": "MEMBERSHIP_ADDED",
+          "journalSequence": 3,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "swarmId": "swarm:demo",
+            "parentId": "Coordinator",
+            "originalAuthority": "10000000-0000-4000-8000-000000000003",
+            "workflowId": "workflow:demo",
+            "authorityConferred": false
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "4b0d8545-18de-5eaa-8db2-8915c3636b79",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Research",
+        "event_type": "SWARM_HEARTBEAT_VERIFIED",
+        "actor_reference": "Research",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:b39c8f7ea04cfb85723e6a6bce7fbe28b8a30c5b7fd56f7665533f350643755e"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "b39c8f7ea04cfb85723e6a6bce7fbe28b8a30c5b7fd56f7665533f350643755e",
+          "previousReceipt": "96a618fabb88785958b5a5d1f058a24e91d18ad4baa4bb7e110ad2ba68ebd068",
+          "lifecycleEvent": "HEARTBEAT_VERIFIED",
+          "journalSequence": 4,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "sequence": 1,
+            "credentialVersion": 1
+          }
+        },
+        "event_digest": "a19f6d1bc572fa7cba7b19524dae363c25217ee99cf842814daa1b5edaa7ee04",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Research",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_HEARTBEAT_VERIFIED",
+        "source_id": "swarm:b39c8f7ea04cfb85723e6a6bce7fbe28b8a30c5b7fd56f7665533f350643755e:Research",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "b39c8f7ea04cfb85723e6a6bce7fbe28b8a30c5b7fd56f7665533f350643755e",
+          "previousReceipt": "96a618fabb88785958b5a5d1f058a24e91d18ad4baa4bb7e110ad2ba68ebd068",
+          "lifecycleEvent": "HEARTBEAT_VERIFIED",
+          "journalSequence": 4,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "sequence": 1,
+            "credentialVersion": 1
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "55c60a7a-6022-5cd8-8fed-c7de1d63d963",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Analysis",
+        "event_type": "SWARM_MEMBERSHIP_ADDED",
+        "actor_reference": "operator",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:4947ae42e9bfd5f31e63e9dd7e755c0ee384828261028041c23e6229ed72647f"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "4947ae42e9bfd5f31e63e9dd7e755c0ee384828261028041c23e6229ed72647f",
+          "previousReceipt": "b39c8f7ea04cfb85723e6a6bce7fbe28b8a30c5b7fd56f7665533f350643755e",
+          "lifecycleEvent": "MEMBERSHIP_ADDED",
+          "journalSequence": 5,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "swarmId": "swarm:demo",
+            "parentId": "Coordinator",
+            "originalAuthority": "10000000-0000-4000-8000-000000000003",
+            "workflowId": "workflow:demo",
+            "authorityConferred": false
+          }
+        },
+        "event_digest": "fe54354168775b0ad60d3b81f1a48268205f0036b027e11ef4e3dfe7e4c2aae2",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Analysis",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_MEMBERSHIP_ADDED",
+        "source_id": "swarm:4947ae42e9bfd5f31e63e9dd7e755c0ee384828261028041c23e6229ed72647f:Analysis",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "4947ae42e9bfd5f31e63e9dd7e755c0ee384828261028041c23e6229ed72647f",
+          "previousReceipt": "b39c8f7ea04cfb85723e6a6bce7fbe28b8a30c5b7fd56f7665533f350643755e",
+          "lifecycleEvent": "MEMBERSHIP_ADDED",
+          "journalSequence": 5,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "swarmId": "swarm:demo",
+            "parentId": "Coordinator",
+            "originalAuthority": "10000000-0000-4000-8000-000000000003",
+            "workflowId": "workflow:demo",
+            "authorityConferred": false
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "cba1f0db-3f46-5dd1-8c16-7b1a3acada25",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Analysis",
+        "event_type": "SWARM_HEARTBEAT_VERIFIED",
+        "actor_reference": "Analysis",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:32284f0478fe1b20cea13893edf71ddd282b0d52a71626163e5a2e0bc085ad61"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "32284f0478fe1b20cea13893edf71ddd282b0d52a71626163e5a2e0bc085ad61",
+          "previousReceipt": "4947ae42e9bfd5f31e63e9dd7e755c0ee384828261028041c23e6229ed72647f",
+          "lifecycleEvent": "HEARTBEAT_VERIFIED",
+          "journalSequence": 6,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "sequence": 1,
+            "credentialVersion": 1
+          }
+        },
+        "event_digest": "18002dcf16a43be490e0b66b931116828204f933997fc08787912d7f3708191c",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Analysis",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_HEARTBEAT_VERIFIED",
+        "source_id": "swarm:32284f0478fe1b20cea13893edf71ddd282b0d52a71626163e5a2e0bc085ad61:Analysis",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "32284f0478fe1b20cea13893edf71ddd282b0d52a71626163e5a2e0bc085ad61",
+          "previousReceipt": "4947ae42e9bfd5f31e63e9dd7e755c0ee384828261028041c23e6229ed72647f",
+          "lifecycleEvent": "HEARTBEAT_VERIFIED",
+          "journalSequence": 6,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "sequence": 1,
+            "credentialVersion": 1
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "a8d156b4-cdb8-55b3-82d4-a148a29c333c",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Execution",
+        "event_type": "SWARM_MEMBERSHIP_ADDED",
+        "actor_reference": "operator",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:c001142b3ee9f590bfa154da61069a5cb2359251b5fdd25d9d386a2439c353df"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "c001142b3ee9f590bfa154da61069a5cb2359251b5fdd25d9d386a2439c353df",
+          "previousReceipt": "32284f0478fe1b20cea13893edf71ddd282b0d52a71626163e5a2e0bc085ad61",
+          "lifecycleEvent": "MEMBERSHIP_ADDED",
+          "journalSequence": 7,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "swarmId": "swarm:demo",
+            "parentId": "Coordinator",
+            "originalAuthority": "10000000-0000-4000-8000-000000000003",
+            "workflowId": "workflow:demo",
+            "authorityConferred": false
+          }
+        },
+        "event_digest": "c82ac41ca7ca7d5d8b8cb86c41d99b0023c7e7ec1873c748a6b2fd13b1f5cb37",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Execution",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_MEMBERSHIP_ADDED",
+        "source_id": "swarm:c001142b3ee9f590bfa154da61069a5cb2359251b5fdd25d9d386a2439c353df:Execution",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "c001142b3ee9f590bfa154da61069a5cb2359251b5fdd25d9d386a2439c353df",
+          "previousReceipt": "32284f0478fe1b20cea13893edf71ddd282b0d52a71626163e5a2e0bc085ad61",
+          "lifecycleEvent": "MEMBERSHIP_ADDED",
+          "journalSequence": 7,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "swarmId": "swarm:demo",
+            "parentId": "Coordinator",
+            "originalAuthority": "10000000-0000-4000-8000-000000000003",
+            "workflowId": "workflow:demo",
+            "authorityConferred": false
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "e25df282-807a-54b5-89a0-31a404e33258",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Execution",
+        "event_type": "SWARM_HEARTBEAT_VERIFIED",
+        "actor_reference": "Execution",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:c3d6bb386ff4f2c0b3bfcff0acd0256df6a707857c8bc3f7d3f276df2983bc14"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "c3d6bb386ff4f2c0b3bfcff0acd0256df6a707857c8bc3f7d3f276df2983bc14",
+          "previousReceipt": "c001142b3ee9f590bfa154da61069a5cb2359251b5fdd25d9d386a2439c353df",
+          "lifecycleEvent": "HEARTBEAT_VERIFIED",
+          "journalSequence": 8,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "sequence": 1,
+            "credentialVersion": 1
+          }
+        },
+        "event_digest": "64753c2d3f43094164ddb6bdc5033a15a0b50b665f0ab5f2a7d8d7bd25068fa5",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Execution",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_HEARTBEAT_VERIFIED",
+        "source_id": "swarm:c3d6bb386ff4f2c0b3bfcff0acd0256df6a707857c8bc3f7d3f276df2983bc14:Execution",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "c3d6bb386ff4f2c0b3bfcff0acd0256df6a707857c8bc3f7d3f276df2983bc14",
+          "previousReceipt": "c001142b3ee9f590bfa154da61069a5cb2359251b5fdd25d9d386a2439c353df",
+          "lifecycleEvent": "HEARTBEAT_VERIFIED",
+          "journalSequence": 8,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "sequence": 1,
+            "credentialVersion": 1
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "aefa1b6f-5acc-5b23-8885-a986473d7259",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Audit",
+        "event_type": "SWARM_MEMBERSHIP_ADDED",
+        "actor_reference": "operator",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:4e995ea1a369dd5a6be618a8530f97a58e72123fda7f1166a3e4bed1e1bfa3a0"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "4e995ea1a369dd5a6be618a8530f97a58e72123fda7f1166a3e4bed1e1bfa3a0",
+          "previousReceipt": "c3d6bb386ff4f2c0b3bfcff0acd0256df6a707857c8bc3f7d3f276df2983bc14",
+          "lifecycleEvent": "MEMBERSHIP_ADDED",
+          "journalSequence": 9,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "swarmId": "swarm:demo",
+            "parentId": "Coordinator",
+            "originalAuthority": "10000000-0000-4000-8000-000000000003",
+            "workflowId": "workflow:demo",
+            "authorityConferred": false
+          }
+        },
+        "event_digest": "861bb9d20ef59c61a0ba6a34bf54adece676c4fe9a641f07f8541029c40b7499",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Audit",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_MEMBERSHIP_ADDED",
+        "source_id": "swarm:4e995ea1a369dd5a6be618a8530f97a58e72123fda7f1166a3e4bed1e1bfa3a0:Audit",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "4e995ea1a369dd5a6be618a8530f97a58e72123fda7f1166a3e4bed1e1bfa3a0",
+          "previousReceipt": "c3d6bb386ff4f2c0b3bfcff0acd0256df6a707857c8bc3f7d3f276df2983bc14",
+          "lifecycleEvent": "MEMBERSHIP_ADDED",
+          "journalSequence": 9,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "swarmId": "swarm:demo",
+            "parentId": "Coordinator",
+            "originalAuthority": "10000000-0000-4000-8000-000000000003",
+            "workflowId": "workflow:demo",
+            "authorityConferred": false
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "44828c20-fe2f-5c05-859d-8a9952662fbc",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Audit",
+        "event_type": "SWARM_HEARTBEAT_VERIFIED",
+        "actor_reference": "Audit",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:dea68452df1894ca362b5301723b2b9c7e6c1216f3a2b7e86f5466e3b9ce1ac2"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "dea68452df1894ca362b5301723b2b9c7e6c1216f3a2b7e86f5466e3b9ce1ac2",
+          "previousReceipt": "4e995ea1a369dd5a6be618a8530f97a58e72123fda7f1166a3e4bed1e1bfa3a0",
+          "lifecycleEvent": "HEARTBEAT_VERIFIED",
+          "journalSequence": 10,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "sequence": 1,
+            "credentialVersion": 1
+          }
+        },
+        "event_digest": "399cb1752cdda71bdb63b5c2b277c527f203de75a207564f963ccc125c428246",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Audit",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_HEARTBEAT_VERIFIED",
+        "source_id": "swarm:dea68452df1894ca362b5301723b2b9c7e6c1216f3a2b7e86f5466e3b9ce1ac2:Audit",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "dea68452df1894ca362b5301723b2b9c7e6c1216f3a2b7e86f5466e3b9ce1ac2",
+          "previousReceipt": "4e995ea1a369dd5a6be618a8530f97a58e72123fda7f1166a3e4bed1e1bfa3a0",
+          "lifecycleEvent": "HEARTBEAT_VERIFIED",
+          "journalSequence": 10,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "sequence": 1,
+            "credentialVersion": 1
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "b2b439be-7854-58d8-89c1-8d2402b19ed8",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Coordinator",
+        "event_type": "SWARM_LEASE_RESERVED",
+        "actor_reference": "Coordinator",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:346d49f9c8e966c8ac0ca4f945782aa4fd96250d503bc9f59a85aa80aa033dbe"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "346d49f9c8e966c8ac0ca4f945782aa4fd96250d503bc9f59a85aa80aa033dbe",
+          "previousReceipt": "dea68452df1894ca362b5301723b2b9c7e6c1216f3a2b7e86f5466e3b9ce1ac2",
+          "lifecycleEvent": "LEASE_RESERVED",
+          "journalSequence": 11,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "requestDigest": "84aeb200207c143712c5b3b0933a9d2886cca345a7103f7f791aca7725ff6a48",
+            "swarmId": "swarm:demo",
+            "classification": {
+              "correlationId": "task:Coordinator",
+              "resource": "synthetic:customer",
+              "operation": "COORDINATOR",
+              "units": 1,
+              "limit": 100,
+              "mandatoryRestriction": false,
+              "sensitive": false,
+              "transfer": "NONE",
+              "transferPermitted": false,
+              "policyVersion": "demo:v1",
+              "evidenceRefs": [
+                "synthetic-policy:v1"
+              ]
+            },
+            "authorityId": "10000000-0000-4000-8000-000000000003",
+            "delegationId": "10000000-0000-4000-8000-000000000010",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "authoritySnapshot": {
+              "tenantId": "10000000-0000-4000-8000-000000000001",
+              "subjectId": "Coordinator",
+              "workflowId": "workflow:demo",
+              "action": "COORDINATOR",
+              "resource": "synthetic:customer",
+              "purpose": "synthetic-refund",
+              "grants": [
+                {
+                  "id": "10000000-0000-4000-8000-000000000003",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "synthetic-enterprise",
+                  "grantorType": "organization",
+                  "granteeId": "Coordinator",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "COORDINATOR",
+                    "RESEARCH",
+                    "ANALYSIS",
+                    "REFUND",
+                    "AUDIT"
+                  ],
+                  "maxDelegationDepth": 2,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z"
+                }
+              ]
+            },
+            "responsiblePrincipalId": "operator",
+            "orchestratorId": "Coordinator",
+            "decision": "ALLOW",
+            "journalOrderIsExternalExecutionOrder": false
+          }
+        },
+        "event_digest": "c7ee6754029b8964f00f967831952f5f222a3fbf963713502852de512bb0a694",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Coordinator",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_LEASE_RESERVED",
+        "source_id": "swarm:346d49f9c8e966c8ac0ca4f945782aa4fd96250d503bc9f59a85aa80aa033dbe:Coordinator",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "346d49f9c8e966c8ac0ca4f945782aa4fd96250d503bc9f59a85aa80aa033dbe",
+          "previousReceipt": "dea68452df1894ca362b5301723b2b9c7e6c1216f3a2b7e86f5466e3b9ce1ac2",
+          "lifecycleEvent": "LEASE_RESERVED",
+          "journalSequence": 11,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "requestDigest": "84aeb200207c143712c5b3b0933a9d2886cca345a7103f7f791aca7725ff6a48",
+            "swarmId": "swarm:demo",
+            "classification": {
+              "correlationId": "task:Coordinator",
+              "resource": "synthetic:customer",
+              "operation": "COORDINATOR",
+              "units": 1,
+              "limit": 100,
+              "mandatoryRestriction": false,
+              "sensitive": false,
+              "transfer": "NONE",
+              "transferPermitted": false,
+              "policyVersion": "demo:v1",
+              "evidenceRefs": [
+                "synthetic-policy:v1"
+              ]
+            },
+            "authorityId": "10000000-0000-4000-8000-000000000003",
+            "delegationId": "10000000-0000-4000-8000-000000000010",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "authoritySnapshot": {
+              "tenantId": "10000000-0000-4000-8000-000000000001",
+              "subjectId": "Coordinator",
+              "workflowId": "workflow:demo",
+              "action": "COORDINATOR",
+              "resource": "synthetic:customer",
+              "purpose": "synthetic-refund",
+              "grants": [
+                {
+                  "id": "10000000-0000-4000-8000-000000000003",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "synthetic-enterprise",
+                  "grantorType": "organization",
+                  "granteeId": "Coordinator",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "COORDINATOR",
+                    "RESEARCH",
+                    "ANALYSIS",
+                    "REFUND",
+                    "AUDIT"
+                  ],
+                  "maxDelegationDepth": 2,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z"
+                }
+              ]
+            },
+            "responsiblePrincipalId": "operator",
+            "orchestratorId": "Coordinator",
+            "decision": "ALLOW",
+            "journalOrderIsExternalExecutionOrder": false
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "fb53b7be-6d14-5966-8c1f-fa1531555f53",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Coordinator",
+        "event_type": "SWARM_DISPATCH_STARTED",
+        "actor_reference": "Coordinator",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:8c0d5df9c6be7ea3470a7165a9fc984c33a34cdf1289e09cc713bd508bc2f324"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "8c0d5df9c6be7ea3470a7165a9fc984c33a34cdf1289e09cc713bd508bc2f324",
+          "previousReceipt": "346d49f9c8e966c8ac0ca4f945782aa4fd96250d503bc9f59a85aa80aa033dbe",
+          "lifecycleEvent": "DISPATCH_STARTED",
+          "journalSequence": 12,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "leaseId": "84aeb200207c143712c5b3b0933a9d2886cca345a7103f7f791aca7725ff6a48",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "externalCancellationGuaranteed": false
+          }
+        },
+        "event_digest": "ec9bceb94b2739f4314c999f966d4fb8b4a01593ecc0890d226ad07c6bcc2f31",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Coordinator",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_DISPATCH_STARTED",
+        "source_id": "swarm:8c0d5df9c6be7ea3470a7165a9fc984c33a34cdf1289e09cc713bd508bc2f324:Coordinator",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "8c0d5df9c6be7ea3470a7165a9fc984c33a34cdf1289e09cc713bd508bc2f324",
+          "previousReceipt": "346d49f9c8e966c8ac0ca4f945782aa4fd96250d503bc9f59a85aa80aa033dbe",
+          "lifecycleEvent": "DISPATCH_STARTED",
+          "journalSequence": 12,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "leaseId": "84aeb200207c143712c5b3b0933a9d2886cca345a7103f7f791aca7725ff6a48",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "externalCancellationGuaranteed": false
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "cae11c5e-8d59-5950-8fb6-585c4e69012d",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Research",
+        "event_type": "SWARM_LEASE_RESERVED",
+        "actor_reference": "Research",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:27893dc84fb41c2003e715df307713bb127a84edcec2d13a2f71013165e91238"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "27893dc84fb41c2003e715df307713bb127a84edcec2d13a2f71013165e91238",
+          "previousReceipt": "8c0d5df9c6be7ea3470a7165a9fc984c33a34cdf1289e09cc713bd508bc2f324",
+          "lifecycleEvent": "LEASE_RESERVED",
+          "journalSequence": 13,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "requestDigest": "07f5d71c939efb60b54d9931ba7f89a5822eef17d4bbc66e61bae2cbea3a6b6f",
+            "swarmId": "swarm:demo",
+            "classification": {
+              "correlationId": "task:Research",
+              "resource": "synthetic:customer",
+              "operation": "RESEARCH",
+              "units": 1,
+              "limit": 100,
+              "mandatoryRestriction": false,
+              "sensitive": false,
+              "transfer": "NONE",
+              "transferPermitted": false,
+              "policyVersion": "demo:v1",
+              "evidenceRefs": [
+                "synthetic-policy:v1"
+              ]
+            },
+            "authorityId": "10000000-0000-4000-8000-000000000003",
+            "delegationId": "10000000-0000-4000-8000-000000000011",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "authoritySnapshot": {
+              "tenantId": "10000000-0000-4000-8000-000000000001",
+              "subjectId": "Research",
+              "workflowId": "workflow:demo",
+              "action": "RESEARCH",
+              "resource": "synthetic:customer",
+              "purpose": "synthetic-refund",
+              "grants": [
+                {
+                  "id": "10000000-0000-4000-8000-000000000003",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "synthetic-enterprise",
+                  "grantorType": "organization",
+                  "granteeId": "Coordinator",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "COORDINATOR",
+                    "RESEARCH",
+                    "ANALYSIS",
+                    "REFUND",
+                    "AUDIT"
+                  ],
+                  "maxDelegationDepth": 2,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z"
+                },
+                {
+                  "id": "10000000-0000-4000-8000-000000000011",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "Coordinator",
+                  "grantorType": "ai_agent",
+                  "granteeId": "Research",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "RESEARCH"
+                  ],
+                  "maxDelegationDepth": 0,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z",
+                  "parentGrantId": "10000000-0000-4000-8000-000000000003"
+                }
+              ]
+            },
+            "responsiblePrincipalId": "operator",
+            "orchestratorId": "Coordinator",
+            "decision": "ALLOW",
+            "journalOrderIsExternalExecutionOrder": false
+          }
+        },
+        "event_digest": "9365adc1a12e8e2b0327e230ed306b3b4e7a1c2096bb680d72581e4c78c3b5cb",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Research",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_LEASE_RESERVED",
+        "source_id": "swarm:27893dc84fb41c2003e715df307713bb127a84edcec2d13a2f71013165e91238:Research",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "27893dc84fb41c2003e715df307713bb127a84edcec2d13a2f71013165e91238",
+          "previousReceipt": "8c0d5df9c6be7ea3470a7165a9fc984c33a34cdf1289e09cc713bd508bc2f324",
+          "lifecycleEvent": "LEASE_RESERVED",
+          "journalSequence": 13,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "requestDigest": "07f5d71c939efb60b54d9931ba7f89a5822eef17d4bbc66e61bae2cbea3a6b6f",
+            "swarmId": "swarm:demo",
+            "classification": {
+              "correlationId": "task:Research",
+              "resource": "synthetic:customer",
+              "operation": "RESEARCH",
+              "units": 1,
+              "limit": 100,
+              "mandatoryRestriction": false,
+              "sensitive": false,
+              "transfer": "NONE",
+              "transferPermitted": false,
+              "policyVersion": "demo:v1",
+              "evidenceRefs": [
+                "synthetic-policy:v1"
+              ]
+            },
+            "authorityId": "10000000-0000-4000-8000-000000000003",
+            "delegationId": "10000000-0000-4000-8000-000000000011",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "authoritySnapshot": {
+              "tenantId": "10000000-0000-4000-8000-000000000001",
+              "subjectId": "Research",
+              "workflowId": "workflow:demo",
+              "action": "RESEARCH",
+              "resource": "synthetic:customer",
+              "purpose": "synthetic-refund",
+              "grants": [
+                {
+                  "id": "10000000-0000-4000-8000-000000000003",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "synthetic-enterprise",
+                  "grantorType": "organization",
+                  "granteeId": "Coordinator",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "COORDINATOR",
+                    "RESEARCH",
+                    "ANALYSIS",
+                    "REFUND",
+                    "AUDIT"
+                  ],
+                  "maxDelegationDepth": 2,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z"
+                },
+                {
+                  "id": "10000000-0000-4000-8000-000000000011",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "Coordinator",
+                  "grantorType": "ai_agent",
+                  "granteeId": "Research",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "RESEARCH"
+                  ],
+                  "maxDelegationDepth": 0,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z",
+                  "parentGrantId": "10000000-0000-4000-8000-000000000003"
+                }
+              ]
+            },
+            "responsiblePrincipalId": "operator",
+            "orchestratorId": "Coordinator",
+            "decision": "ALLOW",
+            "journalOrderIsExternalExecutionOrder": false
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "9f504caa-0363-5e2c-803e-953df236b193",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Research",
+        "event_type": "SWARM_DISPATCH_STARTED",
+        "actor_reference": "Research",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:0099408f4fe137d9ce9000db8b457a726465a54172acd947115b6a5cb11e18c9"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "0099408f4fe137d9ce9000db8b457a726465a54172acd947115b6a5cb11e18c9",
+          "previousReceipt": "27893dc84fb41c2003e715df307713bb127a84edcec2d13a2f71013165e91238",
+          "lifecycleEvent": "DISPATCH_STARTED",
+          "journalSequence": 14,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "leaseId": "07f5d71c939efb60b54d9931ba7f89a5822eef17d4bbc66e61bae2cbea3a6b6f",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "externalCancellationGuaranteed": false
+          }
+        },
+        "event_digest": "173228f22811317918a181e8a005d30f106c29e42be7cb0f8d0f2f63e7b47660",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Research",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_DISPATCH_STARTED",
+        "source_id": "swarm:0099408f4fe137d9ce9000db8b457a726465a54172acd947115b6a5cb11e18c9:Research",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "0099408f4fe137d9ce9000db8b457a726465a54172acd947115b6a5cb11e18c9",
+          "previousReceipt": "27893dc84fb41c2003e715df307713bb127a84edcec2d13a2f71013165e91238",
+          "lifecycleEvent": "DISPATCH_STARTED",
+          "journalSequence": 14,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "leaseId": "07f5d71c939efb60b54d9931ba7f89a5822eef17d4bbc66e61bae2cbea3a6b6f",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "externalCancellationGuaranteed": false
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "32830834-9c7c-5867-8f18-41ecb9db03cd",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Analysis",
+        "event_type": "SWARM_LEASE_RESERVED",
+        "actor_reference": "Analysis",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:83b434318ac3034432ec09682fd2db76c0a6964092c0382c683e3edeb8e9cb7b"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "83b434318ac3034432ec09682fd2db76c0a6964092c0382c683e3edeb8e9cb7b",
+          "previousReceipt": "0099408f4fe137d9ce9000db8b457a726465a54172acd947115b6a5cb11e18c9",
+          "lifecycleEvent": "LEASE_RESERVED",
+          "journalSequence": 15,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "requestDigest": "71b8a9e59475f2c7a46544dbc49be77bdcb0334f489f8de1e14bcfa3c8833958",
+            "swarmId": "swarm:demo",
+            "classification": {
+              "correlationId": "task:Analysis",
+              "resource": "synthetic:customer",
+              "operation": "ANALYSIS",
+              "units": 1,
+              "limit": 100,
+              "mandatoryRestriction": false,
+              "sensitive": false,
+              "transfer": "NONE",
+              "transferPermitted": false,
+              "policyVersion": "demo:v1",
+              "evidenceRefs": [
+                "synthetic-policy:v1"
+              ]
+            },
+            "authorityId": "10000000-0000-4000-8000-000000000003",
+            "delegationId": "10000000-0000-4000-8000-000000000012",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "authoritySnapshot": {
+              "tenantId": "10000000-0000-4000-8000-000000000001",
+              "subjectId": "Analysis",
+              "workflowId": "workflow:demo",
+              "action": "ANALYSIS",
+              "resource": "synthetic:customer",
+              "purpose": "synthetic-refund",
+              "grants": [
+                {
+                  "id": "10000000-0000-4000-8000-000000000003",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "synthetic-enterprise",
+                  "grantorType": "organization",
+                  "granteeId": "Coordinator",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "COORDINATOR",
+                    "RESEARCH",
+                    "ANALYSIS",
+                    "REFUND",
+                    "AUDIT"
+                  ],
+                  "maxDelegationDepth": 2,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z"
+                },
+                {
+                  "id": "10000000-0000-4000-8000-000000000012",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "Coordinator",
+                  "grantorType": "ai_agent",
+                  "granteeId": "Analysis",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "ANALYSIS"
+                  ],
+                  "maxDelegationDepth": 0,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z",
+                  "parentGrantId": "10000000-0000-4000-8000-000000000003"
+                }
+              ]
+            },
+            "responsiblePrincipalId": "operator",
+            "orchestratorId": "Coordinator",
+            "decision": "ALLOW",
+            "journalOrderIsExternalExecutionOrder": false
+          }
+        },
+        "event_digest": "347f36149002eca4a6b1d8edc3078f6911cf2fdb80bcaec38990a4037ed0589f",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Analysis",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_LEASE_RESERVED",
+        "source_id": "swarm:83b434318ac3034432ec09682fd2db76c0a6964092c0382c683e3edeb8e9cb7b:Analysis",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "83b434318ac3034432ec09682fd2db76c0a6964092c0382c683e3edeb8e9cb7b",
+          "previousReceipt": "0099408f4fe137d9ce9000db8b457a726465a54172acd947115b6a5cb11e18c9",
+          "lifecycleEvent": "LEASE_RESERVED",
+          "journalSequence": 15,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "requestDigest": "71b8a9e59475f2c7a46544dbc49be77bdcb0334f489f8de1e14bcfa3c8833958",
+            "swarmId": "swarm:demo",
+            "classification": {
+              "correlationId": "task:Analysis",
+              "resource": "synthetic:customer",
+              "operation": "ANALYSIS",
+              "units": 1,
+              "limit": 100,
+              "mandatoryRestriction": false,
+              "sensitive": false,
+              "transfer": "NONE",
+              "transferPermitted": false,
+              "policyVersion": "demo:v1",
+              "evidenceRefs": [
+                "synthetic-policy:v1"
+              ]
+            },
+            "authorityId": "10000000-0000-4000-8000-000000000003",
+            "delegationId": "10000000-0000-4000-8000-000000000012",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "authoritySnapshot": {
+              "tenantId": "10000000-0000-4000-8000-000000000001",
+              "subjectId": "Analysis",
+              "workflowId": "workflow:demo",
+              "action": "ANALYSIS",
+              "resource": "synthetic:customer",
+              "purpose": "synthetic-refund",
+              "grants": [
+                {
+                  "id": "10000000-0000-4000-8000-000000000003",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "synthetic-enterprise",
+                  "grantorType": "organization",
+                  "granteeId": "Coordinator",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "COORDINATOR",
+                    "RESEARCH",
+                    "ANALYSIS",
+                    "REFUND",
+                    "AUDIT"
+                  ],
+                  "maxDelegationDepth": 2,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z"
+                },
+                {
+                  "id": "10000000-0000-4000-8000-000000000012",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "Coordinator",
+                  "grantorType": "ai_agent",
+                  "granteeId": "Analysis",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "ANALYSIS"
+                  ],
+                  "maxDelegationDepth": 0,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z",
+                  "parentGrantId": "10000000-0000-4000-8000-000000000003"
+                }
+              ]
+            },
+            "responsiblePrincipalId": "operator",
+            "orchestratorId": "Coordinator",
+            "decision": "ALLOW",
+            "journalOrderIsExternalExecutionOrder": false
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "3cd16383-2eb6-5ee1-874c-13eb55dda0ac",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Analysis",
+        "event_type": "SWARM_DISPATCH_STARTED",
+        "actor_reference": "Analysis",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:dcc307130c48f217f5c6babab96b2c4c259f318d9a2285428a67631ff133f6f9"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "dcc307130c48f217f5c6babab96b2c4c259f318d9a2285428a67631ff133f6f9",
+          "previousReceipt": "83b434318ac3034432ec09682fd2db76c0a6964092c0382c683e3edeb8e9cb7b",
+          "lifecycleEvent": "DISPATCH_STARTED",
+          "journalSequence": 16,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "leaseId": "71b8a9e59475f2c7a46544dbc49be77bdcb0334f489f8de1e14bcfa3c8833958",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "externalCancellationGuaranteed": false
+          }
+        },
+        "event_digest": "33e6df8914f97e7bc20e907c71f28f10cec3c923cad504292fdea8ddbe3de27e",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Analysis",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_DISPATCH_STARTED",
+        "source_id": "swarm:dcc307130c48f217f5c6babab96b2c4c259f318d9a2285428a67631ff133f6f9:Analysis",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "dcc307130c48f217f5c6babab96b2c4c259f318d9a2285428a67631ff133f6f9",
+          "previousReceipt": "83b434318ac3034432ec09682fd2db76c0a6964092c0382c683e3edeb8e9cb7b",
+          "lifecycleEvent": "DISPATCH_STARTED",
+          "journalSequence": 16,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "leaseId": "71b8a9e59475f2c7a46544dbc49be77bdcb0334f489f8de1e14bcfa3c8833958",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "externalCancellationGuaranteed": false
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "9171af1b-1401-54ed-842e-834431867ccc",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Execution",
+        "event_type": "SWARM_EMERGENCY_CONTAINMENT",
+        "actor_reference": "operator",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:025493a282f8dd4f679e93a1fb5c064be174452607f7452872cdb5426044dd55"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "025493a282f8dd4f679e93a1fb5c064be174452607f7452872cdb5426044dd55",
+          "previousReceipt": "dcc307130c48f217f5c6babab96b2c4c259f318d9a2285428a67631ff133f6f9",
+          "lifecycleEvent": "EMERGENCY_CONTAINMENT",
+          "journalSequence": 17,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "scope": {
+              "kind": "agent",
+              "id": "Execution"
+            },
+            "reason": "synthetic credential revocation",
+            "signedCommand": null,
+            "commandSignature": null,
+            "affected": [
+              "Execution"
+            ],
+            "inFlight": [],
+            "credentialsInvalidatedAtGateway": true,
+            "externalCredentialsRotated": false,
+            "restorationRequiresIndependentApproval": true
+          }
+        },
+        "event_digest": "ac04f19b7dd69d50049345694b3a6afa46f9432e896fa04ea8b0239bbb4ce96c",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Execution",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_EMERGENCY_CONTAINMENT",
+        "source_id": "swarm:025493a282f8dd4f679e93a1fb5c064be174452607f7452872cdb5426044dd55:Execution",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "025493a282f8dd4f679e93a1fb5c064be174452607f7452872cdb5426044dd55",
+          "previousReceipt": "dcc307130c48f217f5c6babab96b2c4c259f318d9a2285428a67631ff133f6f9",
+          "lifecycleEvent": "EMERGENCY_CONTAINMENT",
+          "journalSequence": 17,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "scope": {
+              "kind": "agent",
+              "id": "Execution"
+            },
+            "reason": "synthetic credential revocation",
+            "signedCommand": null,
+            "commandSignature": null,
+            "affected": [
+              "Execution"
+            ],
+            "inFlight": [],
+            "credentialsInvalidatedAtGateway": true,
+            "externalCredentialsRotated": false,
+            "restorationRequiresIndependentApproval": true
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "29827b69-636a-5ccf-8b0c-2931250b8bed",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Execution",
+        "event_type": "SWARM_EXECUTION_DENIED",
+        "actor_reference": "Execution",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:b677b4ef7893b95a6444d228bc558f819bfe4044c032cb243060450ca5e5f04e"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "b677b4ef7893b95a6444d228bc558f819bfe4044c032cb243060450ca5e5f04e",
+          "previousReceipt": "025493a282f8dd4f679e93a1fb5c064be174452607f7452872cdb5426044dd55",
+          "lifecycleEvent": "EXECUTION_DENIED",
+          "journalSequence": 18,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "requestDigest": "894c73199c0e07cbff9ffe060d3ad31e543936490f93082d0107c9a7a3dd1a7a",
+            "decision": "DENY",
+            "reasons": [
+              "CREDENTIAL_REVOKED",
+              "SWARM_NOT_ACTIVE",
+              "RUNTIME_UNVERIFIED",
+              "SCOPE_QUARANTINED"
+            ],
+            "resource": "synthetic:customer",
+            "operation": "REFUND",
+            "correlationId": "task:Execution",
+            "evidenceRefs": [
+              "synthetic-policy:v1"
+            ]
+          }
+        },
+        "event_digest": "c540f15cd69a7c7192391bf8cf9fbfda3918ff4f2175be29c05bbece3df27595",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Execution",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_EXECUTION_DENIED",
+        "source_id": "swarm:b677b4ef7893b95a6444d228bc558f819bfe4044c032cb243060450ca5e5f04e:Execution",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "b677b4ef7893b95a6444d228bc558f819bfe4044c032cb243060450ca5e5f04e",
+          "previousReceipt": "025493a282f8dd4f679e93a1fb5c064be174452607f7452872cdb5426044dd55",
+          "lifecycleEvent": "EXECUTION_DENIED",
+          "journalSequence": 18,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "requestDigest": "894c73199c0e07cbff9ffe060d3ad31e543936490f93082d0107c9a7a3dd1a7a",
+            "decision": "DENY",
+            "reasons": [
+              "CREDENTIAL_REVOKED",
+              "SWARM_NOT_ACTIVE",
+              "RUNTIME_UNVERIFIED",
+              "SCOPE_QUARANTINED"
+            ],
+            "resource": "synthetic:customer",
+            "operation": "REFUND",
+            "correlationId": "task:Execution",
+            "evidenceRefs": [
+              "synthetic-policy:v1"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "11761933-318d-59be-8e17-0a2004950255",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Audit",
+        "event_type": "SWARM_LEASE_RESERVED",
+        "actor_reference": "Audit",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:c856865575f4a3c2b295cf876b8ae7d96026d5a352f52eab258cc8d9eb395fb5"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "c856865575f4a3c2b295cf876b8ae7d96026d5a352f52eab258cc8d9eb395fb5",
+          "previousReceipt": "b677b4ef7893b95a6444d228bc558f819bfe4044c032cb243060450ca5e5f04e",
+          "lifecycleEvent": "LEASE_RESERVED",
+          "journalSequence": 19,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "requestDigest": "1302a904030d1b5202566bb5fa255d9f0f902e55eb9f3d281c198ea8e26dc44f",
+            "swarmId": "swarm:demo",
+            "classification": {
+              "correlationId": "task:Audit",
+              "resource": "synthetic:customer",
+              "operation": "AUDIT",
+              "units": 1,
+              "limit": 100,
+              "mandatoryRestriction": false,
+              "sensitive": false,
+              "transfer": "NONE",
+              "transferPermitted": false,
+              "policyVersion": "demo:v1",
+              "evidenceRefs": [
+                "synthetic-policy:v1"
+              ]
+            },
+            "authorityId": "10000000-0000-4000-8000-000000000003",
+            "delegationId": "10000000-0000-4000-8000-000000000014",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "authoritySnapshot": {
+              "tenantId": "10000000-0000-4000-8000-000000000001",
+              "subjectId": "Audit",
+              "workflowId": "workflow:demo",
+              "action": "AUDIT",
+              "resource": "synthetic:customer",
+              "purpose": "synthetic-refund",
+              "grants": [
+                {
+                  "id": "10000000-0000-4000-8000-000000000003",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "synthetic-enterprise",
+                  "grantorType": "organization",
+                  "granteeId": "Coordinator",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "COORDINATOR",
+                    "RESEARCH",
+                    "ANALYSIS",
+                    "REFUND",
+                    "AUDIT"
+                  ],
+                  "maxDelegationDepth": 2,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z"
+                },
+                {
+                  "id": "10000000-0000-4000-8000-000000000014",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "Coordinator",
+                  "grantorType": "ai_agent",
+                  "granteeId": "Audit",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "AUDIT"
+                  ],
+                  "maxDelegationDepth": 0,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z",
+                  "parentGrantId": "10000000-0000-4000-8000-000000000003"
+                }
+              ]
+            },
+            "responsiblePrincipalId": "operator",
+            "orchestratorId": "Coordinator",
+            "decision": "ALLOW",
+            "journalOrderIsExternalExecutionOrder": false
+          }
+        },
+        "event_digest": "a346a5b3d06d76930387f416e459f2533994dc1ae450855b863ca6518d9fd26b",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Audit",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_LEASE_RESERVED",
+        "source_id": "swarm:c856865575f4a3c2b295cf876b8ae7d96026d5a352f52eab258cc8d9eb395fb5:Audit",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "c856865575f4a3c2b295cf876b8ae7d96026d5a352f52eab258cc8d9eb395fb5",
+          "previousReceipt": "b677b4ef7893b95a6444d228bc558f819bfe4044c032cb243060450ca5e5f04e",
+          "lifecycleEvent": "LEASE_RESERVED",
+          "journalSequence": 19,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "requestDigest": "1302a904030d1b5202566bb5fa255d9f0f902e55eb9f3d281c198ea8e26dc44f",
+            "swarmId": "swarm:demo",
+            "classification": {
+              "correlationId": "task:Audit",
+              "resource": "synthetic:customer",
+              "operation": "AUDIT",
+              "units": 1,
+              "limit": 100,
+              "mandatoryRestriction": false,
+              "sensitive": false,
+              "transfer": "NONE",
+              "transferPermitted": false,
+              "policyVersion": "demo:v1",
+              "evidenceRefs": [
+                "synthetic-policy:v1"
+              ]
+            },
+            "authorityId": "10000000-0000-4000-8000-000000000003",
+            "delegationId": "10000000-0000-4000-8000-000000000014",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "authoritySnapshot": {
+              "tenantId": "10000000-0000-4000-8000-000000000001",
+              "subjectId": "Audit",
+              "workflowId": "workflow:demo",
+              "action": "AUDIT",
+              "resource": "synthetic:customer",
+              "purpose": "synthetic-refund",
+              "grants": [
+                {
+                  "id": "10000000-0000-4000-8000-000000000003",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "synthetic-enterprise",
+                  "grantorType": "organization",
+                  "granteeId": "Coordinator",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "COORDINATOR",
+                    "RESEARCH",
+                    "ANALYSIS",
+                    "REFUND",
+                    "AUDIT"
+                  ],
+                  "maxDelegationDepth": 2,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z"
+                },
+                {
+                  "id": "10000000-0000-4000-8000-000000000014",
+                  "tenantId": "10000000-0000-4000-8000-000000000001",
+                  "grantorId": "Coordinator",
+                  "grantorType": "ai_agent",
+                  "granteeId": "Audit",
+                  "granteeType": "ai_agent",
+                  "scope": [
+                    "AUDIT"
+                  ],
+                  "maxDelegationDepth": 0,
+                  "issuedAt": "2026-10-22T11:59:00.000Z",
+                  "expiresAt": "2026-10-22T13:00:00.000Z",
+                  "parentGrantId": "10000000-0000-4000-8000-000000000003"
+                }
+              ]
+            },
+            "responsiblePrincipalId": "operator",
+            "orchestratorId": "Coordinator",
+            "decision": "ALLOW",
+            "journalOrderIsExternalExecutionOrder": false
+          }
+        }
+      }
+    },
+    {
+      "table": "operational_entity_native_replay_events",
+      "row": {
+        "event_id": "2571820f-cf70-5216-805b-459d5596d973",
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "operational_entity_id": "Audit",
+        "event_type": "SWARM_DISPATCH_STARTED",
+        "actor_reference": "Audit",
+        "attribution": "CYBER_SENTINELS_INTERPRETATION",
+        "evidence_references": [
+          "swarm-receipt:d1790f9c079f596c0932b8b2b722259d8a8a05fe9f6977e26a7532fb7298e69a"
+        ],
+        "reason_codes": [],
+        "payload": {
+          "swarmReceipt": "d1790f9c079f596c0932b8b2b722259d8a8a05fe9f6977e26a7532fb7298e69a",
+          "previousReceipt": "c856865575f4a3c2b295cf876b8ae7d96026d5a352f52eab258cc8d9eb395fb5",
+          "lifecycleEvent": "DISPATCH_STARTED",
+          "journalSequence": 20,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "leaseId": "1302a904030d1b5202566bb5fa255d9f0f902e55eb9f3d281c198ea8e26dc44f",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "externalCancellationGuaranteed": false
+          }
+        },
+        "event_digest": "f68885b69cefa9f03106dc75abd95ef8b2bdaebd73e9367a7395bb6a0c02639a",
+        "occurred_at": "2026-10-22T12:00:00.000Z"
+      }
+    },
+    {
+      "table": "trust_memory_index",
+      "row": {
+        "enterprise_id": "10000000-0000-4000-8000-000000000001",
+        "subject_id": "Audit",
+        "domain_key": "RUNTIME",
+        "memory_type": "SWARM_DISPATCH_STARTED",
+        "source_id": "swarm:d1790f9c079f596c0932b8b2b722259d8a8a05fe9f6977e26a7532fb7298e69a:Audit",
+        "occurred_at": "2026-10-22T12:00:00.000Z",
+        "summary": {
+          "swarmReceipt": "d1790f9c079f596c0932b8b2b722259d8a8a05fe9f6977e26a7532fb7298e69a",
+          "previousReceipt": "c856865575f4a3c2b295cf876b8ae7d96026d5a352f52eab258cc8d9eb395fb5",
+          "lifecycleEvent": "DISPATCH_STARTED",
+          "journalSequence": 20,
+          "externalExecutionOrder": "UNKNOWN",
+          "details": {
+            "leaseId": "1302a904030d1b5202566bb5fa255d9f0f902e55eb9f3d281c198ea8e26dc44f",
+            "transactionId": "10000000-0000-4000-8000-000000000002",
+            "externalCancellationGuaranteed": false
+          }
+        }
+      }
+    }
+  ],
+  "replayVerified": true
+}
