@@ -8,6 +8,8 @@
     "npm": "10.x"
   },
   "scripts": {
+    "demo:swarm": "tsx tools/swarm/five-agent-demo.mjs && npm run test:swarm-demo && npm run test:swarm-authority",
+    "test:swarm-demo": "tsx --test tests/swarm-five-agent-demo.test.mjs",
     "dev": "next dev",
     "build": "next build",
     "docker:verify": "node tools/docker-verify.mjs",
