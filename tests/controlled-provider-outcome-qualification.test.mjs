@@ -279,4 +279,3 @@ for (const scenario of cases) {
     assert.equal(adapterCalls, expectedAttempts);
   });
 }
-
