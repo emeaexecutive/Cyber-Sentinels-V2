@@ -502,6 +502,16 @@ export async function executeAuthorizedAction(input: {
     try { const checked = await dependencies.swarmGuard.dispatch(request); if (!checked.allowed) return guardDenied(checked.reasonCodes); }
     catch { return guardDenied(["SWARM_DISPATCH_UNAVAILABLE"]); }
   }
+  // Reservation can await durable I/O. Its earlier ALLOW must not survive a
+  // revocation, identity change or approval expiry observed before dispatch.
+  // This is the last generic state check; the destination still owns the actual
+  // effect commit boundary and must enforce its own durable replay protection.
+  const dispatchCurrent = await dependencies.loadCurrentState(request);
+  const dispatchEligibility = evaluateEnforcementEligibility({
+    decision: input.decision, request, current: dispatchCurrent, approval: input.approval,
+    now: (dependencies.now ?? (() => new Date().toISOString()))(),
+  });
+  if (!dispatchEligibility.eligible) return { requested: false, request: null, result: null, eligibility: dispatchEligibility };
   const result = await dependencies.adapter.execute(request);
   return { requested: true, request, result, duplicate: false, eligibility };
 }
