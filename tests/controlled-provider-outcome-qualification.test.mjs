@@ -75,6 +75,7 @@ for (const scenario of cases) {
       ? { authority: { revocationState: "revoked", revokedAt: at } } : {});
     const chronology = [];
     const captured = {};
+    const writes = { decision: 0, graph: 0, replay: 0, memory: 0, acknowledgement: 0, outcome: 0 };
     let native = { requested: false, request: null, result: null };
     let adapterCalls = 0;
     let reservationCalls = 0;
@@ -87,6 +88,7 @@ for (const scenario of cases) {
       return captured.authority;
     };
     h.deps.persistDecision = async (record) => {
+      writes.decision++;
       chronology.push("decision");
       captured.decision = structuredClone(record);
       h.records.push(freezeTree(record));
@@ -94,6 +96,7 @@ for (const scenario of cases) {
     };
     for (const [hook, stage] of [["extendEvidenceGraph", "graph"], ["appendReplay", "replay"], ["emitTrustMemory", "memory"]]) {
       h.deps[hook] = async (record) => {
+        writes[stage]++;
         chronology.push(stage);
         captured[stage] = structuredClone(record);
         return `fixture:${scenario.key}:${stage}`;
@@ -142,11 +145,13 @@ for (const scenario of cases) {
         outcome: { state: native.result.executionClaim.result, externalReference: "fixture:provider-outcome", occurredAt: observedAt, reason: "Local provider assertion" } };
     };
     h.deps.recordExternalAcknowledgement = async (record, acknowledgement) => {
+      writes.acknowledgement++;
       chronology.push("acknowledgement-hook");
       captured.acknowledgement = { transactionId: record.transactionId, ...acknowledgement };
       return `fixture:${scenario.key}:acknowledgement`;
     };
     h.deps.recordExternalOutcome = async (record, outcome) => {
+      writes.outcome++;
       chronology.push("outcome-hook");
       captured.providerOutcome = { transactionId: record.transactionId, ...outcome };
       return `fixture:${scenario.key}:provider-outcome`;
@@ -169,7 +174,9 @@ for (const scenario of cases) {
     }
     const expectedAttempts = scenario.provider ? 1 : 0;
     assert.equal(dispatchHookCalls, scenario.decision === "ALLOW" ? 1 : 0);
-    assert.equal(currentStateCalls, expectedAttempts);
+    // Eligibility is checked before reservation and revalidated after durable
+    // reservation immediately before dispatch. These are reads, not effects.
+    assert.equal(currentStateCalls, expectedAttempts * 2);
     assert.equal(reservationCalls, expectedAttempts);
     assert.equal(adapterCalls, expectedAttempts);
     assert.equal(receipt.externalExecution.requested, Boolean(scenario.provider));
@@ -234,7 +241,7 @@ for (const scenario of cases) {
 
     assert.equal(receipt.materialChange, true);
     assert.deepEqual(chronology, ["authority", "decision", "graph", "replay", "memory",
-      ...(scenario.provider ? ["dispatch-hook", "current-authority", "reservation", "provider", "acknowledgement-hook", "outcome-hook"]
+      ...(scenario.provider ? ["dispatch-hook", "current-authority", "reservation", "current-authority", "provider", "acknowledgement-hook", "outcome-hook"]
         : scenario.decision === "ALLOW" ? ["dispatch-hook"] : [])]);
     for (const stage of ["graph", "replay", "memory"]) {
       const artifact = captured[stage];
@@ -260,10 +267,15 @@ for (const scenario of cases) {
     // Historical canonical replay returns the original receipt without renewing
     // authority, reservation, dispatch, or material-memory hooks.
     const beforeReplay = [...chronology];
+    const beforeReplayWrites = { ...writes };
+    assert.equal(h.records.length, 1);
+    assert.deepEqual(writes, { decision: 1, graph: 1, replay: 1, memory: 1,
+      acknowledgement: expectedAttempts, outcome: expectedAttempts });
     h.deps.findByIdempotency = async () => receipt;
     const replayed = await executeCanonicalTrustTransaction(input, h.deps);
     assert.deepEqual(replayed, { ...receipt, idempotentReplay: true });
     assert.deepEqual(chronology, beforeReplay);
+    assert.deepEqual(writes, beforeReplayWrites);
     assert.equal(adapterCalls, expectedAttempts);
   });
 }

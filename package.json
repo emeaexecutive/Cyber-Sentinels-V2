@@ -122,7 +122,7 @@
     "test:rls": "node --test tests/rls/rc6-denial.test.mjs",
     "test:security-closure": "tsx --test tests/permissions-check-retired.test.mjs tests/sign-out.test.mjs tests/rls/legacy-security-closure.test.mjs tests/rls/legacy-security-closure-runtime.test.mjs",
     "test:swarm-authority": "tsx --test --test-concurrency=1 tests/swarm-authority.test.mjs tests/swarm-budget.test.mjs tests/swarm-contract.test.mjs tests/swarm-runtime-heartbeat.test.mjs tests/swarm-prevention-kit.test.mjs tests/swarm-cancellation.test.mjs tests/swarm-projection-recovery.test.mjs tests/swarm-projection-sql.test.mjs tests/swarm-memory-projection.test.mjs tests/swarm-http-budget.test.mjs tests/swarm-operations.test.mjs tests/swarm-delegation-properties.test.mjs tests/swarm-enterprise-context.test.mjs tests/rls/swarm-authority.test.mjs && node --import tsx --experimental-test-module-mocks --test tests/swarm-route.test.mjs tests/swarm-native-server-controls.test.mjs",
-    "test:authority-of-record": "tsx --test tests/authority-of-record-tenente.test.mjs tests/authority-of-record-http.test.mjs",
+    "test:authority-of-record": "tsx --test tests/authority-of-record-tenente.test.mjs tests/authority-of-record-http.test.mjs && npm run test:authority-audit-regressions",
     "qualify:authority-of-record:local": "node --experimental-strip-types tools/qualification/authority-of-record-local.mjs",
     "test:core-closure": "tsx --test tests/rls/account-approval-default-deny.test.mjs tests/rls/audited-account-transition.test.mjs tests/rls/active-customer-session.test.mjs tests/schema-equivalence.test.mjs tests/waitlist-approval-boundary.test.mjs tests/evidence-download-approval.test.mjs",
     "test:employment-governance": "node --experimental-strip-types --test tests/employment-decision-governance.test.mjs tests/backup-recovery-security.test.mjs",
@@ -171,7 +171,8 @@
     "test:opengraph": "tsx --test tests/opengraph-boundary.test.mjs tests/opengraph-executor.test.mjs tests/opengraph-gateway-input.test.mjs tests/provider-execution-qualification.test.mjs tests/identity-corroboration-qualification.test.mjs",
     "test:sign-out-browser": "tsx --test tests/sign-out-browser.mjs",
     "test:synthetic-interaction": "tsx --test tests/synthetic-interaction-trust.test.mjs tests/judgeme-boundary.test.mjs tests/judgeme-installation.test.mjs tests/judgeme-webhook-runtime.test.mjs tests/webhook-event-replay.test.mjs",
-    "test:search": "tsx --test tests/search-authority.test.mjs tests/public-i18n.test.mjs"
+    "test:search": "tsx --test tests/search-authority.test.mjs tests/public-i18n.test.mjs",
+    "test:authority-audit-regressions": "node --import tsx --test tests/twelve-scenario-execution.test.mjs tests/twelve-scenario-approval-sql.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.4",
