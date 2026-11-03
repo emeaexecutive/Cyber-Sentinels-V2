@@ -12,7 +12,7 @@ function load({configured,createClient}) {
     '@/lib/search/metadata':{publicSocialMetadata:()=>({})},
     '@/lib/env':{hasPublicSupabaseEnv:()=>configured},
     '@/lib/supabase/server':{createClient},
-    '@/lib/admin-auth':{isAdminAllowlisted:()=>false},
+    '@/lib/admin-auth':{isAdminAllowlisted:(email)=>{assert.ok(email,'anonymous visitors must not trigger the admin email check');return false;}},
     '@/lib/trust-engine/createAuditLog':{},'@/lib/trust-engine/createSignal':{},
     'next/link':{__esModule:true,default:({children,...props})=>require('react').createElement('a',props,children)},
     'next/navigation':{redirect:()=>{throw new Error('Unexpected redirect');}},
@@ -34,4 +34,12 @@ test('public Help guidance renders without initializing an unconfigured database
 test('configured Help infrastructure errors remain real failures',async()=>{
   const page=load({configured:true,createClient:async()=>{throw new Error('Database unavailable');}});
   await assert.rejects(()=>page({searchParams:Promise.resolve({})}),/Database unavailable/);
+});
+
+test('configured anonymous Help renders without admin email errors',async()=>{
+  const query={select(){return this;},eq(){return this;},order(){return this;},limit(){return this;},returns:async()=>({data:[]})};
+  const page=load({configured:true,createClient:async()=>({auth:{getUser:async()=>({data:{user:null}})},from:()=>query})});
+  const html=renderToStaticMarkup(await page({searchParams:Promise.resolve({})}));
+  assert.match(html,/How can we help/);
+  assert.doesNotMatch(html,/name="question"/);
 });

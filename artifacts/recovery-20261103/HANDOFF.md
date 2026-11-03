@@ -1,3 +1,5 @@
+> Superseded for the current release decision by P0-RELEASE-DECISION.md and P0-SUMMARY.json. The source-equivalence and publication gates below describe the earlier candidate state.
+
 # CPTO production recovery ? 3 November 2026
 
 Local website implementation and release preparation. No push, merge, deployment, hosted mutation, migration, DNS change, paid infrastructure or provider execution.

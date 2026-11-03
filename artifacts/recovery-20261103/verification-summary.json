@@ -34,5 +34,6 @@
     "signal": null,
     "finishedAt": "2026-11-03T15:23:32.194Z",
     "staticPages": 208
-  }
+  },
+  "supersededBy": "P0-SUMMARY.json"
 }

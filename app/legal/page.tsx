@@ -4,9 +4,10 @@ import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export const metadata: Metadata = {
-  ...publicSocialMetadata("Legal Notices | Cyber Sentinels", "Cyber Sentinels legal notices and service information.", "/legal"),
+  robots: { index: false, follow: true },
+  ...publicSocialMetadata("Legal Notices | Cyber Sentinels", "Publication status of Cyber Sentinels legal notices.", "/legal"),
   title: "Legal Notices | Cyber Sentinels",
-  description: "Cyber Sentinels legal notices and service information.",
+  description: "Publication status of Cyber Sentinels legal notices.",
   alternates: { canonical: "/legal" },
 };
 

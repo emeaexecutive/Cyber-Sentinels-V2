@@ -124,7 +124,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
   const {
     data: { user },
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-  const isAdmin = isAdminAllowlisted(user?.email);
+  const isAdmin = user?.email ? isAdminAllowlisted(user.email) : false;
   const { data: helpQuestions } = user && supabase
     ? isAdmin
       ? await supabase

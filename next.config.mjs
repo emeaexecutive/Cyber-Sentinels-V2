@@ -7,6 +7,7 @@ const nextConfig = {
   output: process.env.CYBER_SENTINELS_DOCKER_BUILD === "1" ? "standalone" : undefined,
   async redirects() {
     return [
+      { source: "/contact", destination: "/enterprise-access?intent=intro_call", permanent: false },
       {
         source: "/:path*",
         has: [{ type: "host", value: "cybersentinels.com" }],
