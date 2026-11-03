@@ -3,64 +3,20 @@ import Link from "next/link";
 type LegalDraftPageProps = {
   title: string;
   subtitle: string;
-  sections: Array<{
-    title: string;
-    body: string;
-  }>;
+  sections: Array<{ title: string; body: string }>;
   links?: Array<[string, string]>;
 };
 
-export function LegalDraftPage({
-  title,
-  subtitle,
-  sections,
-  links = [],
-}: LegalDraftPageProps) {
-  return (
-    <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
-      <div className="mx-auto max-w-5xl">
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-amber-300">
-            Draft policy — requires legal review before production use.
-          </p>
-          <h1 className="mt-4 text-4xl font-semibold">{title}</h1>
-          <p className="mt-4 max-w-3xl leading-7 text-zinc-400">{subtitle}</p>
-        </div>
-
-        <section className="mt-8 grid gap-4 md:grid-cols-2">
-          {sections.map((section) => (
-            <article
-              key={section.title}
-              id={section.title === "Responsible Disclosure" ? "responsible-disclosure" : undefined}
-              className="rounded-lg border border-zinc-800 bg-black p-5"
-            >
-              <h2 className="text-lg font-semibold text-zinc-100">
-                {section.title}
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">
-                {section.body}
-              </p>
-            </article>
-          ))}
-        </section>
-
-        {links.length ? (
-          <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-            <h2 className="text-lg font-semibold">Related Pages</h2>
-            <div className="mt-4 flex flex-wrap gap-3 text-sm">
-              {links.map(([href, label]) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="rounded-lg border border-zinc-700 px-3 py-2 text-zinc-300 hover:border-cyan-500 hover:text-white"
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </section>
-        ) : null}
+// Existing draft text stays in source for review and is never rendered publicly.
+export function LegalDraftPage({ title }: LegalDraftPageProps) {
+  return <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
+    <div className="mx-auto max-w-3xl">
+      <h1 className="text-4xl font-semibold">{title}</h1>
+      <p className="mt-5 leading-7 text-zinc-300">The content for this page is under review. An approved version has not been published.</p>
+      <div id="responsible-disclosure" className="mt-6 flex flex-wrap gap-6">
+        <Link href="/contact" className="text-cyan-200 underline">Contact Cyber Sentinels</Link>
+        <Link href="/privacy/preferences" className="text-cyan-200 underline">Manage privacy preferences</Link>
       </div>
-    </main>
-  );
+    </div>
+  </main>;
 }

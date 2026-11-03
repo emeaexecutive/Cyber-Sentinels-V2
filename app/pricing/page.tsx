@@ -1,7 +1,6 @@
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ExecutiveSummary } from "@/components/executive-summary";
+import { PricingCard } from "@/components/pricing-card";
 import { clearancePlans } from "@/lib/billing/plans";
 
 export const metadata: Metadata = {
@@ -33,29 +32,19 @@ export default function PricingPage() {
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-12 text-white md:px-8">
       <div className="mx-auto max-w-6xl">
-        <ExecutiveSummary
-          eyebrow="Plans"
-          title="Start with one decision workflow and expand when the evidence proves value."
-          bullets={["Use the smallest plan that supports the current workflow.", "Add governance and Replay as decision risk grows.", "Keep enterprise scope and support explicit before deployment.", "Treat pilot evidence as the basis for expansion."]}
-          primary={{ href: "/enterprise-access?intent=pilot", label: "Discuss a pilot" }}
-          secondary={{ href: "/platform", label: "View Architecture" }}
-        />
+        <header className="max-w-3xl">
+          <p className="operational-eyebrow">Plans &amp; access</p>
+          <h1 className="mt-4 text-4xl font-semibold leading-tight md:text-5xl">Start with one workflow.</h1>
+          <p className="mt-5 text-lg leading-8 text-zinc-300">Explore with us, validate a pilot, then expand around proven value.</p>
+        </header>
         <p className="mt-6 max-w-3xl text-sm leading-7 text-zinc-400">
           Cyber Sentinels is opening selected design-partner and pilot engagements. Commercial terms will reflect workflow scope, evidence providers, deployment requirements and enterprise assurance needs.
         </p>
-        <section className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        <section aria-label="Access options" className="pricing-grid mt-10 grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan) => {
             const copy = publicPlanCopy[plan.tier as keyof typeof publicPlanCopy];
             return (
-              <article key={plan.tier} className={"rounded-lg border p-6 " + (plan.tier === "professional" ? "border-cyan-700 bg-cyan-950/10" : "border-zinc-800 bg-black")}>
-                <h2 className="text-2xl font-semibold">{copy.name}</h2>
-                <p className="mt-4 text-3xl font-semibold">{copy.priceLabel}</p>
-                <p className="mt-5 text-sm leading-6 text-zinc-400">{plan.description}</p>
-                <ul className="mt-6 grid gap-3 text-sm text-zinc-300">
-                  {features[plan.tier].map((feature) => <li key={feature} className="border-t border-zinc-800 pt-3">{feature}</li>)}
-                </ul>
-                <Link href={copy.href} className="mt-6 inline-flex w-full justify-center rounded-md bg-white px-4 py-3 text-sm font-semibold text-black">{copy.label}</Link>
-              </article>
+              <PricingCard key={plan.tier} name={copy.name} offer={copy.priceLabel} description={plan.description} features={features[plan.tier]} href={copy.href} action={copy.label} preferred={plan.tier === "starter"} />
             );
           })}
         </section>

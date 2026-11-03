@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isAdminAllowlisted } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
+import { hasPublicSupabaseEnv } from "@/lib/env";
 import { createAuditLog } from "@/lib/trust-engine/createAuditLog";
 
 export const metadata: Metadata = {
@@ -117,12 +118,14 @@ async function submitHelpQuestion(formData: FormData) {
 
 export default async function HelpPage({ searchParams }: HelpPageProps) {
   const params = await searchParams;
-  const supabase = await createClient();
+  // Static public guidance remains readable in an unconfigured marketing preview.
+  // Authenticated reads and the submission action retain their normal Auth boundary.
+  const supabase = hasPublicSupabaseEnv() ? await createClient() : null;
   const {
     data: { user },
-  } = await supabase.auth.getUser();
-  const isAdmin = isAdminAllowlisted(user?.email);
-  const { data: helpQuestions } = user
+  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const isAdmin = user?.email ? isAdminAllowlisted(user.email) : false;
+  const { data: helpQuestions } = user && supabase
     ? isAdmin
       ? await supabase
           .from("help_questions")
@@ -142,23 +145,23 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
           .limit(50)
           .returns<HelpQuestion[]>()
     : { data: [] as HelpQuestion[] };
-  const { data: knowledgeArticles } = await supabase
+  const { data: knowledgeArticles } = supabase ? await supabase
     .from("knowledge_articles")
     .select("id,title,category,summary,body")
     .eq("status", "approved")
     .order("updated_at", { ascending: false })
     .limit(12)
-    .returns<KnowledgeArticle[]>();
+    .returns<KnowledgeArticle[]>() : { data: [] as KnowledgeArticle[] };
 
   return (
     <main className="min-h-screen bg-[#04070c] px-6 py-8 text-white md:px-8">
       <div className="mx-auto max-w-7xl">
-        <section className="rounded-lg border border-zinc-800 bg-gradient-to-br from-black via-zinc-950 to-[#06111d] p-6 md:p-8">
+        <section className="py-4 md:py-6">
           <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">
             Help Center
           </p>
           <h1 className="mt-4 text-4xl font-semibold md:text-6xl">
-            Cyber Sentinels Help Center
+            How can we help?
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-300">
             Understand passports, evidence, decisions, trust scores and graph
@@ -166,31 +169,23 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
           </p>
         </section>
 
-        <section className="mt-8 rounded-lg border border-dashed border-cyan-800/70 bg-zinc-950 p-6">
-          <p className="text-sm uppercase tracking-[0.22em] text-cyan-200">
-            Explainer Video
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold">
-            Cyber Sentinels in two minutes
-          </h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400">
-            Video placeholder for a short walkthrough of identity verification,
-            risk flags, governance review, and audit-ready trust trails.
-          </p>
+        <section className="mt-8 flex flex-wrap gap-4">
+          <Link href="/demo" className="brand-primary-action">Explore the guided demo</Link>
+          <Link href="/developers/docs" className="inline-flex min-h-11 items-center text-cyan-200 underline">Developer documentation</Link>
         </section>
 
-        <section className="mt-8 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+        <section className="mt-8">
           <p className="text-sm uppercase tracking-[0.22em] text-zinc-400">
             Quick Questions
           </p>
-          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
             {faqs.map(([question, answer]) => (
-              <div key={question} className="rounded-lg border border-zinc-800 bg-black p-5">
-                <h2 className="text-base font-semibold text-zinc-100">
+              <details key={question} className="rounded-lg border border-zinc-800 p-4">
+                <summary className="cursor-pointer text-base font-semibold text-zinc-100">
                   {question}
-                </h2>
+                </summary>
                 <p className="mt-3 text-sm leading-6 text-zinc-400">{answer}</p>
-              </div>
+              </details>
             ))}
           </div>
         </section>
@@ -220,7 +215,7 @@ export default async function HelpPage({ searchParams }: HelpPageProps) {
               ))
             ) : (
               <p className="rounded-lg border border-zinc-800 bg-black p-4 text-sm text-zinc-400 md:col-span-2 xl:col-span-3">
-                Approved knowledge articles will appear here.
+                {supabase ? "Approved knowledge articles will appear here." : "Knowledge articles and account support are unavailable in this unconfigured local preview. Public guidance above remains available."}
               </p>
             )}
           </div>

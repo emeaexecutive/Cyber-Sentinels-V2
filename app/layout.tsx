@@ -120,7 +120,6 @@ const footerSections = [
       ["/cookies", "Cookies"],
       ["/legal", "Legal"],
       ["/modern-slavery", "Modern Slavery"],
-      ["/status", "Status"],
     ],
   },
 ];
@@ -217,7 +216,7 @@ export default async function RootLayout({
       <body suppressHydrationWarning>
         {accessLevel === "public" ? <StructuredData value={organizationGraph} /> : null}
         <ConsentManager />
-        <div className="shell">
+        <div className={accessLevel === "public" ? "shell public-website" : "shell"}>
           <GlobalNavigation accessLevel={accessLevel} />
           {accessLevel === "public" ? children : (
             <EnterpriseTrustOSShell accessLevel={accessLevel} status={trustOSStatus}>
@@ -227,7 +226,7 @@ export default async function RootLayout({
           {accessLevel === "public" ? <PublicPageAdoptionRail /> : null}
           {accessLevel !== "public" ? <ReportIssue authState={accessLevel} /> : null}
           {accessLevel === "public" ? <footer className="border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8">
-            <div className="mx-auto grid max-w-7xl gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+            <div className="mx-auto grid max-w-6xl gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
               {footerSections.map((section) => (
                 <nav key={section.title} aria-label={`${section.title} footer navigation`} className="min-w-0">
                   <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-300">

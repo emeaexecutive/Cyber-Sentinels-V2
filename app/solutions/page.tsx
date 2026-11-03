@@ -33,8 +33,7 @@ export default function SolutionsPage() {
             {solutionOutcomes.map(([id, title, copy, href]) => {
               const content = (
                 <>
-                  <p className="font-mono text-xs text-cyan-300">Workflow</p>
-                  <h3 className="mt-3 text-xl font-semibold text-zinc-100">{title}</h3>
+                  <h3 className="text-xl font-semibold text-zinc-100">{title}</h3>
                   <p className="mt-3 text-sm leading-6 text-zinc-400">{copy}</p>
                 </>
               );

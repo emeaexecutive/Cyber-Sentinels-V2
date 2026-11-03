@@ -1,0 +1,83 @@
+{
+  "baseSha": "4922c579d4438628f2ebae02c8a3c808ba37f3a3",
+  "build": {
+    "exitCode": 0,
+    "finishedAt": "2026-11-02T17:38:59.400Z"
+  },
+  "tests": {
+    "exitCode": 0,
+    "tests": 73,
+    "pass": 73,
+    "fail": 0,
+    "files": [
+      "tests/pricing-surface.test.mjs",
+      "tests/public-i18n.test.mjs",
+      "tests/supabase-ssr-auth-regression.test.mjs",
+      "tests/auth-callback-redirect-security.test.mjs",
+      "tests/investor-error-observability.test.mjs",
+      "tests/public-surface-navigation.test.mjs",
+      "tests/enterprise-experience.test.mjs",
+      "tests/cookie-consent-recovery.test.mjs",
+      "tests/consent-manager.test.mjs",
+      "tests/public-help-preview.test.mjs"
+    ]
+  },
+  "interactions": {
+    "result": "PASS",
+    "checks": 16
+  },
+  "accessibility": {
+    "pages": 12,
+    "violations": 0,
+    "scope": "axe WCAG A/AA; not full compliance certification"
+  },
+  "urlsReviewed": 150,
+  "publicResponses": 107,
+  "distinctPublicPaths": 92,
+  "publicLinkFailures": 0,
+  "protectedLinkAssertionsClassified": 26,
+  "publicRenderErrors": 0,
+  "horizontalOverflow": 0,
+  "remainingAuthenticatedEntryDefects": [
+    {
+      "path": "/access-pending",
+      "status": 200,
+      "heading": [
+        "This page could not be loaded safely."
+      ],
+      "note": "Existing authenticated entry requires Supabase; generic render error remains in this unconfigured marketing preview. Not a public marketing page PASS."
+    },
+    {
+      "path": "/demo/trust-runtime",
+      "status": 200,
+      "heading": [
+        "This page could not be loaded safely."
+      ],
+      "note": "Existing authenticated entry requires Supabase; generic render error remains in this unconfigured marketing preview. Not a public marketing page PASS."
+    },
+    {
+      "path": "/world-id-preview",
+      "status": 200,
+      "heading": [
+        "This page could not be loaded safely."
+      ],
+      "note": "Existing authenticated entry requires Supabase; generic render error remains in this unconfigured marketing preview. Not a public marketing page PASS."
+    }
+  ],
+  "environmentGates": [
+    {
+      "path": "/demo/track-block-candidate-alice",
+      "note": "Source deliberately calls notFound outside its allowed demo environment. Gate preserved; not a public-page PASS."
+    },
+    {
+      "path": "/supplier-sign-in",
+      "note": "Source deliberately calls notFound outside its allowed demo environment. Gate preserved; not a public-page PASS."
+    }
+  ],
+  "localization": "Eight navigation languages only; page content English",
+  "founderShaPreserved": "b7891662ff98de1d14bfe514a08bd85fcb97a2dd",
+  "hostedChanges": 0,
+  "spending": 0,
+  "production": "NO-GO",
+  "investorHttps": "NO-GO"
+}

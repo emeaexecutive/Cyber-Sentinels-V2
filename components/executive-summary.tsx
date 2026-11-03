@@ -13,6 +13,7 @@ export function ExecutiveSummary({
   bullets,
   primary,
   secondary,
+  headingLevel = "h1",
 }: {
   eyebrow: string;
   title: string;
@@ -20,23 +21,25 @@ export function ExecutiveSummary({
   bullets: string[];
   primary: SummaryAction;
   secondary?: SummaryAction;
+  headingLevel?: "h1" | "h2";
 }) {
+  const Heading = headingLevel;
   return (
-    <section className="rounded-lg border border-zinc-800 bg-zinc-950 p-6 md:p-8">
+    <section className="executive-summary py-4 md:py-6">
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">{eyebrow}</p>
-      <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Executive Summary</p>
-      <h1 className="mt-3 max-w-5xl text-4xl font-semibold leading-tight md:text-5xl">{title}</h1>
+      <Heading className="mt-4 max-w-4xl text-4xl font-semibold leading-tight md:text-5xl">{title}</Heading>
       {description ? <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">{description}</p> : null}
-      <ul className="mt-6 grid max-w-5xl gap-3 text-sm leading-6 text-zinc-300 md:grid-cols-2">
-        {bullets.slice(0, 4).map((bullet) => (
-          <li key={bullet} className="border-l border-cyan-900 pl-4">{bullet}</li>
-        ))}
-      </ul>
+      <details className="mt-5 max-w-4xl text-sm leading-6 text-zinc-300">
+        <summary className="w-fit cursor-pointer text-cyan-200">At a glance</summary>
+        <ul className="mt-4 grid gap-3 md:grid-cols-2">
+          {bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}
+        </ul>
+      </details>
       <div className="mt-7 flex flex-wrap gap-3">
         <Link href={primary.href} className="brand-primary-action brand-action-large text-sm">{primary.label}</Link>
         {secondary ? secondary.download
           ? <a href={secondary.href} download className="brand-secondary-action brand-action-large text-sm">{secondary.label}</a>
-          : <Link href={secondary.href} className="brand-secondary-action brand-action-large text-sm">{secondary.label}</Link>
+          : <Link href={secondary.href} className="inline-flex min-h-11 items-center px-2 text-sm text-cyan-200 underline underline-offset-4">{secondary.label}</Link>
         : null}
       </div>
     </section>

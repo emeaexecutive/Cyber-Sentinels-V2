@@ -1,0 +1,245 @@
+{
+  "result": "PASS",
+  "results": [
+    {
+      "check": "pricing",
+      "width": 1440,
+      "pass": true,
+      "metrics": [
+        {
+          "title": "Explore",
+          "cardTop": 394.203125,
+          "cardHeight": 393.75,
+          "ctaTop": 698.953125,
+          "ctaBottom": 762.953125,
+          "ctaWidth": 223,
+          "ctaHeight": 64
+        },
+        {
+          "title": "Pilot Access",
+          "cardTop": 394.203125,
+          "cardHeight": 393.75,
+          "ctaTop": 698.953125,
+          "ctaBottom": 762.953125,
+          "ctaWidth": 223,
+          "ctaHeight": 64
+        },
+        {
+          "title": "Professional",
+          "cardTop": 394.203125,
+          "cardHeight": 393.75,
+          "ctaTop": 698.953125,
+          "ctaBottom": 762.953125,
+          "ctaWidth": 223,
+          "ctaHeight": 64
+        },
+        {
+          "title": "Enterprise",
+          "cardTop": 394.203125,
+          "cardHeight": 393.75,
+          "ctaTop": 698.953125,
+          "ctaBottom": 762.953125,
+          "ctaWidth": 223,
+          "ctaHeight": 64
+        }
+      ]
+    },
+    {
+      "check": "pricing",
+      "width": 1024,
+      "pass": true,
+      "metrics": [
+        {
+          "title": "Explore",
+          "cardTop": 391.25,
+          "cardHeight": 516.75,
+          "ctaTop": 819,
+          "ctaBottom": 883,
+          "ctaWidth": 175,
+          "ctaHeight": 64
+        },
+        {
+          "title": "Pilot Access",
+          "cardTop": 391.25,
+          "cardHeight": 516.75,
+          "ctaTop": 819,
+          "ctaBottom": 883,
+          "ctaWidth": 175,
+          "ctaHeight": 64
+        },
+        {
+          "title": "Professional",
+          "cardTop": 391.25,
+          "cardHeight": 516.75,
+          "ctaTop": 819,
+          "ctaBottom": 883,
+          "ctaWidth": 175,
+          "ctaHeight": 64
+        },
+        {
+          "title": "Enterprise",
+          "cardTop": 391.25,
+          "cardHeight": 516.75,
+          "ctaTop": 819,
+          "ctaBottom": 883,
+          "ctaWidth": 175,
+          "ctaHeight": 64
+        }
+      ]
+    },
+    {
+      "check": "pricing",
+      "width": 768,
+      "pass": true,
+      "metrics": [
+        {
+          "title": "Explore",
+          "cardTop": 491,
+          "cardHeight": 393.75,
+          "ctaTop": 795.75,
+          "ctaBottom": 859.75,
+          "ctaWidth": 292,
+          "ctaHeight": 64
+        },
+        {
+          "title": "Pilot Access",
+          "cardTop": 491,
+          "cardHeight": 393.75,
+          "ctaTop": 795.75,
+          "ctaBottom": 859.75,
+          "ctaWidth": 292,
+          "ctaHeight": 64
+        },
+        {
+          "title": "Professional",
+          "cardTop": 904.75,
+          "cardHeight": 393.75,
+          "ctaTop": 1209.5,
+          "ctaBottom": 1273.5,
+          "ctaWidth": 292,
+          "ctaHeight": 64
+        },
+        {
+          "title": "Enterprise",
+          "cardTop": 904.75,
+          "cardHeight": 393.75,
+          "ctaTop": 1209.5,
+          "ctaBottom": 1273.5,
+          "ctaWidth": 292,
+          "ctaHeight": 64
+        }
+      ]
+    },
+    {
+      "check": "pricing",
+      "width": 390,
+      "pass": true,
+      "metrics": [
+        {
+          "title": "Explore",
+          "cardTop": 514.75,
+          "cardHeight": 393.75,
+          "ctaTop": 819.5,
+          "ctaBottom": 883.5,
+          "ctaWidth": 292,
+          "ctaHeight": 64
+        },
+        {
+          "title": "Pilot Access",
+          "cardTop": 928.5,
+          "cardHeight": 393.75,
+          "ctaTop": 1233.25,
+          "ctaBottom": 1297.25,
+          "ctaWidth": 292,
+          "ctaHeight": 64
+        },
+        {
+          "title": "Professional",
+          "cardTop": 1342.25,
+          "cardHeight": 393.75,
+          "ctaTop": 1647,
+          "ctaBottom": 1711,
+          "ctaWidth": 292,
+          "ctaHeight": 64
+        },
+        {
+          "title": "Enterprise",
+          "cardTop": 1756,
+          "cardHeight": 393.75,
+          "ctaTop": 2060.75,
+          "ctaBottom": 2124.75,
+          "ctaWidth": 292,
+          "ctaHeight": 64
+        }
+      ]
+    },
+    {
+      "check": "selection-closes-and-persists-across-navigation-and-refresh",
+      "pass": true
+    },
+    {
+      "check": "navigation-language",
+      "name": "Français",
+      "pass": true,
+      "coverage": "navigation only; page content remains English"
+    },
+    {
+      "check": "navigation-language",
+      "name": "Deutsch",
+      "pass": true,
+      "coverage": "navigation only; page content remains English"
+    },
+    {
+      "check": "navigation-language",
+      "name": "Português",
+      "pass": true,
+      "coverage": "navigation only; page content remains English"
+    },
+    {
+      "check": "navigation-language",
+      "name": "Italiano",
+      "pass": true,
+      "coverage": "navigation only; page content remains English"
+    },
+    {
+      "check": "navigation-language",
+      "name": "العربية",
+      "pass": true,
+      "coverage": "navigation only; page content remains English"
+    },
+    {
+      "check": "navigation-language",
+      "name": "中文",
+      "pass": true,
+      "coverage": "navigation only; page content remains English"
+    },
+    {
+      "check": "navigation-language",
+      "name": "English",
+      "pass": true,
+      "coverage": "navigation only; page content remains English"
+    },
+    {
+      "check": "keyboard-arrows-home-end-escape-focus-return-and-outside-click",
+      "pass": true
+    },
+    {
+      "check": "mobile-menu-language-selection-and-close",
+      "pass": true
+    },
+    {
+      "check": "pricing-enquiry-destinations-and-empty-form-validation",
+      "pass": true,
+      "destinations": [
+        "/enterprise-access?intent=design_partner",
+        "/enterprise-access?intent=pilot",
+        "/enterprise-access"
+      ],
+      "note": "No message sent; delivery/CAPTCHA controls preserved"
+    },
+    {
+      "check": "technical-summary-progressive-disclosure",
+      "pass": true
+    }
+  ]
+}

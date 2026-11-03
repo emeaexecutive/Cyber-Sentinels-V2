@@ -4,6 +4,7 @@ import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   ...publicSocialMetadata("Cookies and Preferences | Cyber Sentinels", "How Cyber Sentinels uses cookies, browser storage and privacy preferences.", "/cookies"),
   title: "Cookies and Preferences | Cyber Sentinels",
   description: "How Cyber Sentinels uses cookies, browser storage and privacy preferences.",

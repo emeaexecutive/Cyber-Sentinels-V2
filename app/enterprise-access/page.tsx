@@ -53,6 +53,7 @@ export default async function EnterpriseAccessPage({ searchParams }: {
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">Enterprise Access</p>
           <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Executive Summary</p>
           <h1 className="mt-4 text-4xl font-semibold md:text-5xl">{pageTitle}</h1>
+          <p className="mt-4 text-sm text-zinc-300">Prefer email? <a className="text-cyan-200 underline" href="mailto:emeaexecutive@icloud.com?subject=Cyber%20Sentinels%20Pilot%20Enquiry">Contact the founder about access or a pilot</a>. This opens your email application.</p>
           <ul className="mt-5 grid max-w-2xl gap-3 text-sm leading-6 text-zinc-300 sm:grid-cols-2">
             <li className="border-l border-cyan-900 pl-4">Name the workflow and business decision at risk.</li>
             <li className="border-l border-cyan-900 pl-4">Identify the accountable operational owner.</li>
