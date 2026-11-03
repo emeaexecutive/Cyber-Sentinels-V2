@@ -8,9 +8,9 @@ const require=createRequire(import.meta.url);
 function load(path){
  const source=readFileSync(new URL('../'+path,import.meta.url),'utf8');
  const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText;
- const module={exports:{}};
- new Function('require','module','exports',js)(id=>id==='next/link'?{__esModule:true,default:({children,...props})=>require('react').createElement('a',props,children)}:id==='@/lib/search/metadata'?{publicSocialMetadata:()=>({})}:require(id),module,module.exports);
- return module.exports;
+ const testModule={exports:{}};
+ new Function('require','module','exports',js)(id=>id==='next/link'?{__esModule:true,default:({children,...props})=>require('react').createElement('a',props,children)}:id==='@/lib/search/metadata'?{publicSocialMetadata:()=>({})}:require(id),testModule,testModule.exports);
+ return testModule.exports;
 }
 test('draft policy body, subtitle and unapproved contact routing are never published',()=>{
  const {LegalDraftPage}=load('components/legal-draft-page.tsx');
