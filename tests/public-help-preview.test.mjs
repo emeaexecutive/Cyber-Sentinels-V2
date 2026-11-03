@@ -17,9 +17,9 @@ function load({configured,createClient}) {
     'next/link':{__esModule:true,default:({children,...props})=>require('react').createElement('a',props,children)},
     'next/navigation':{redirect:()=>{throw new Error('Unexpected redirect');}},
   };
-  const module={exports:{}};
-  new Function('require','module','exports',compiled)(name=>mocks[name]??require(name),module,module.exports);
-  return module.exports.default;
+  const testModule={exports:{}};
+  new Function('require','module','exports',compiled)(name=>mocks[name]??require(name),testModule,testModule.exports);
+  return testModule.exports.default;
 }
 test('public Help guidance renders without initializing an unconfigured database',async()=>{
   let calls=0;
