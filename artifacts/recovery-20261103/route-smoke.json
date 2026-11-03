@@ -1,0 +1,32 @@
+{
+  "results": [
+    {
+      "route": "/help",
+      "status": 200,
+      "heading": "How can we help?"
+    },
+    {
+      "route": "/demo/trust-runtime",
+      "status": 200,
+      "heading": "Sign-in is currently unavailable"
+    },
+    {
+      "route": "/world-id-preview",
+      "status": 200,
+      "heading": "Sign-in is currently unavailable"
+    },
+    {
+      "route": "/enterprise-access?intent=pilot",
+      "status": 200,
+      "heading": "Start Pilot"
+    },
+    {
+      "route": "/enterprise-access?intent=demo",
+      "status": 200,
+      "heading": "Request Enterprise Demo"
+    },
+    {
+      "conversion": "mailto opens visitor email application; no send or delivery claim"
+    }
+  ]
+}

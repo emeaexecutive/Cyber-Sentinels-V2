@@ -1,3 +1,5 @@
+import { hasPublicSupabaseEnv } from "@/lib/env";
+import { AuthUnavailable } from "@/components/auth-unavailable";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -12,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function WorldIdPreviewPage() {
+  if (!hasPublicSupabaseEnv()) return <AuthUnavailable />;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/world-id-preview");

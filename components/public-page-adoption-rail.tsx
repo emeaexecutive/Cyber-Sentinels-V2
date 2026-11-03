@@ -19,7 +19,10 @@ export function PublicPageAdoptionRail() {
 
   return (
     <aside aria-label="Enterprise adoption next steps" className="border-t border-zinc-800 bg-[#070a0f] px-6 py-8 md:px-8">
-      <div className="mx-auto grid max-w-7xl gap-5 rounded-xl border border-zinc-800 bg-zinc-950 p-5 lg:grid-cols-[1fr_1fr_1.2fr_auto] lg:items-center">
+      <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
+        <details className="text-sm leading-6 text-zinc-300">
+          <summary className="cursor-pointer text-base font-medium text-white">Is this right for your team?</summary>
+          <div className="mt-5 grid gap-5 md:grid-cols-3">
         <div>
           <p className="operational-eyebrow">Who this is for</p>
           <p className="mt-2 text-sm leading-6 text-zinc-300">{contract.audience}</p>
@@ -32,9 +35,11 @@ export function PublicPageAdoptionRail() {
           <p className="operational-eyebrow">Why Cyber Sentinels</p>
           <p className="mt-2 text-sm leading-6 text-zinc-300">{contract.differentiation}</p>
         </div>
-        <div className="flex flex-wrap gap-2 lg:justify-end">
+          </div>
+        </details>
+        <div className="flex flex-wrap items-center gap-4 lg:justify-end">
           <Link href={contract.primary.href} className="brand-primary-action text-sm">{contract.primary.label}</Link>
-          <Link href={contract.supporting.href} className="brand-secondary-action text-sm">{contract.supporting.label}</Link>
+          <Link href={contract.supporting.href} className="inline-flex min-h-11 items-center text-sm text-cyan-200 underline underline-offset-4">{contract.supporting.label}</Link>
         </div>
       </div>
     </aside>
