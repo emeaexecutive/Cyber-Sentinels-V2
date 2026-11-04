@@ -44,6 +44,17 @@ export default function DeveloperQuickstartPage() {
         <li><h2 className="text-xl font-semibold">9. Replay the decision</h2><p className="mt-2 text-sm text-zinc-400">Inspect the canonical transaction chronology for evidence, authority, policy, decision, and digest references. This yields the ordered Replay view of the interaction.</p><pre className={`${code} mt-3`}>{`await cs.trust.getReplay(result.transaction_id);`}</pre></li>
       </ol>
 
+      <section className="mt-12"><h2 className="text-2xl font-semibold">Customer workload authentication (qualification required)</h2><p className="mt-2 text-sm text-zinc-400">A registered machine workload may request a decision using a short-lived OIDC/OAuth token only after the service operator has pinned the customer-approved issuer, JWKS URL, and audience. A tenant owner or administrator must bind the issuer subject to one registered agent. The token must contain the matching tenant_id, workload_id, subject, scope, jti, issuer, audience, issued-at, and expiry claims. The server rechecks current tenant binding and authority; the body cannot choose the agent. This route does not dispatch actions, and it is not enabled for hosted customers until issuer configuration and tenant-isolation qualification pass.</p><pre className={`${code} mt-4`}>{`const bindings = await cs.agents.listWorkloadBindings(agent.id);
+const binding = await cs.agents.registerWorkloadBinding(agent.id, {
+  subject: "synthetic-test-workload",
+  scopes: ["trust:request"],
+  expires_at: "2026-12-31T23:59:59Z"
+});
+const decision = await cs.workloads.requestDecision(agent.id, workloadAccessToken, {
+  action: { type: "read_repository", target: "repository:a", purpose: "deployment_evidence_review", environment: "staging" }
+}, crypto.randomUUID());
+await cs.agents.revokeWorkloadBinding(agent.id, binding.binding_id);`}</pre><p className="mt-2 text-sm text-zinc-400">The API key is used only for owner/admin binding management. Obtain the short-lived token from the configured issuer and pass it per decision; the SDK never stores it. Use a non-Production identity tenant and test workload. Never paste access tokens into browser code, source control, support tickets, or logs.</p></section>
+
       <section className="mt-12"><h2 className="text-2xl font-semibold">Client evidence is assertion, not proof</h2><p className="mt-2 text-sm text-zinc-400">Only submit evidence for an agent registered to the same API client. The public route derives the provider identity from the API key and stores the result as AGENT_ASSERTED / INCONCLUSIVE. Verified provider and native evidence use their existing authenticated server paths.</p><pre className={`${code} mt-4`}>{`await cs.evidence.submit({
   provider: { key: "self", class: "APPLICATION_SIGNAL", event_id: "alpha-log-001", finding: "ACTION_PLANNED" },
   type: "AGENT_ACTIVITY_LOG",
@@ -63,8 +74,12 @@ GET  /api/v1/agents/{agentId}/authorities
 POST /api/v1/agents/{agentId}/authorities
 GET  /api/v1/agents/{agentId}/authorities/{authorityId}
 POST /api/v1/agents/{agentId}/authorities/{authorityId}/revoke
+GET  /api/v1/agents/{agentId}/workload-bindings
+POST /api/v1/agents/{agentId}/workload-bindings
+POST /api/v1/agents/{agentId}/workload-bindings/{bindingId}/revoke
 GET  /api/v1/agents/{agentId}/trust-state
 POST /api/v1/trust/decisions
+POST /api/v1/workloads/{agentId}/decisions
 GET  /api/v1/reviews/{reviewReference}
 POST /api/v1/reviews/{reviewReference}/resolve
 POST /api/v1/evidence

@@ -324,13 +324,23 @@ function Invoke-CyberSentinelsApi {
         [Parameter(Mandatory = $true)][string]$Method,
         [Parameter(Mandatory = $true)][string]$Path,
         [AllowNull()][object]$Body = $null,
-        [hashtable]$Headers = @{}
+        [hashtable]$Headers = @{},
+        [AllowEmptyString()][string]$WorkloadAccessToken = ""
     )
 
     if ($Path -match '/agents//') {
         throw (New-CyberSentinelsException "An empty AgentId route was blocked before network access." "EMPTY_AGENT_ROUTE")
     }
-    $response = Invoke-CyberSentinelsHttp $script:HttpClient $Method (New-Object Uri("$($script:BaseUri)$Path")) $Body $script:ApiKey $Headers
+    $apiKey = $script:ApiKey
+    if ($WorkloadAccessToken) {
+        if ($WorkloadAccessToken.Length -gt 16384 -or $WorkloadAccessToken -notmatch '^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$') {
+            throw (New-CyberSentinelsException "A compact signed workload access token is required." "INVALID_WORKLOAD_TOKEN")
+        }
+        $apiKey = ""
+        $Headers = @{} + $Headers
+        $Headers["Authorization"] = "Bearer $WorkloadAccessToken"
+    }
+    $response = Invoke-CyberSentinelsHttp $script:HttpClient $Method (New-Object Uri("$($script:BaseUri)$Path")) $Body $apiKey $Headers
     if ($response.Status -lt 200 -or $response.Status -ge 300) {
         $safe = Read-SafeApiError $response
         $suffix = if ($safe.CorrelationId) { " Correlation: $($safe.CorrelationId)." } else { "" }
@@ -347,6 +357,42 @@ function Invoke-CyberSentinelsApi {
     catch { throw (New-CyberSentinelsException "Cyber Sentinels returned invalid JSON." "INVALID_API_RESPONSE" $response.Status $response.CorrelationId) }
 }
 
+function Get-CyberSentinelsWorkloadBindings {
+    param([Parameter(Mandatory = $true)][string]$AgentId)
+    $workloadBindingPath = "$(Get-AgentPath $AgentId 'workload-bindings')"
+    return Invoke-CyberSentinelsApi "GET" $workloadBindingPath
+}
+
+function Register-CyberSentinelsWorkloadBinding {
+    param(
+        [Parameter(Mandatory = $true)][string]$AgentId,
+        [Parameter(Mandatory = $true)][string]$Subject,
+        [Parameter(Mandatory = $true)][string]$ExpiresAt
+    )
+    $workloadBindingPath = "$(Get-AgentPath $AgentId 'workload-bindings')"
+    $body = [ordered]@{ subject = $Subject; scopes = @("trust:request"); expires_at = $ExpiresAt }
+    return Invoke-CyberSentinelsApi "POST" $workloadBindingPath $body
+}
+
+function Revoke-CyberSentinelsWorkloadBinding {
+    param(
+        [Parameter(Mandatory = $true)][string]$AgentId,
+        [Parameter(Mandatory = $true)][string]$BindingId
+    )
+    $workloadBindingPath = "$(Get-AgentPath $AgentId 'workload-bindings')"
+    return Invoke-CyberSentinelsApi "POST" "$workloadBindingPath/$([Uri]::EscapeDataString($BindingId))/revoke" @{}
+}
+
+function Request-CyberSentinelsWorkloadDecision {
+    param(
+        [Parameter(Mandatory = $true)][string]$AgentId,
+        [Parameter(Mandatory = $true)][string]$WorkloadAccessToken,
+        [Parameter(Mandatory = $true)][object]$Body,
+        [Parameter(Mandatory = $true)][string]$IdempotencyKey
+    )
+    $workloadDecisionPath = "/api/v1/workloads/$([Uri]::EscapeDataString((Assert-NonEmptyIdentifier $AgentId 'AgentId')))/decisions"
+    return Invoke-CyberSentinelsApi "POST" $workloadDecisionPath $Body @{ "Idempotency-Key" = $IdempotencyKey } $WorkloadAccessToken
+}
 function Submit-CyberSentinelsEvidence {
     [CmdletBinding()]
     param(

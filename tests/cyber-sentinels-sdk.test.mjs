@@ -75,6 +75,43 @@ test("SDK exposes provider evidence, outcome, authority and verification facades
   assert.match(requests[4].url, /\/proof$/);
 });
 
+test("workload SDK keeps owner API-key calls separate from OIDC decision credentials", async () => {
+  const requests = [];
+  const cs = new CyberSentinels({ apiKey: key, baseUrl: "https://preview.example", fetch: async (url, init) => {
+    requests.push({ url, init });
+    return response(201, { transaction_id: "workload-transaction", decision: "ALLOW" });
+  } });
+  const bindingInput = {
+    subject: "synthetic-workload",
+    scopes: ["trust:request"],
+    expires_at: "2026-12-31T23:59:59Z",
+  };
+  await cs.agents.listWorkloadBindings("agent:alpha");
+  await cs.agents.registerWorkloadBinding("agent:alpha", bindingInput);
+  await cs.agents.revokeWorkloadBinding("agent:alpha", "11111111-1111-4111-8111-111111111111");
+  const decisionInput = {
+    action: { type: "update_contact", target: "hubspot:contact:synthetic-1", purpose: "crm_test", environment: "sandbox" },
+  };
+  const result = await cs.workloads.requestDecision(
+    "agent:alpha",
+    "header.payload.signature",
+    decisionInput,
+    "workload-decision-001",
+  );
+  assert.equal(result.decision, "ALLOW");
+  assert.match(requests[0].url, /\/api\/v1\/agents\/agent%3Aalpha\/workload-bindings$/);
+  assert.match(requests[2].url, /\/workload-bindings\/11111111-1111-4111-8111-111111111111\/revoke$/);
+  assert.ok(requests.slice(0, 3).every(({ init }) => init.headers.authorization.startsWith("Bearer ")));
+  assert.match(requests[3].url, /\/api\/v1\/workloads\/agent%3Aalpha\/decisions$/);
+  assert.equal(requests[3].init.headers.authorization, "Bearer header.payload.signature");
+  assert.equal(requests[3].init.headers["idempotency-key"], "workload-decision-001");
+  assert.deepEqual(JSON.parse(requests[3].init.body), decisionInput);
+  assert.throws(
+    () => cs.workloads.requestDecision("agent:alpha", "not-a-jwt", decisionInput, "workload-decision-002"),
+    TypeError,
+  );
+  assert.equal(requests.length, 4);
+});
 test("SDK exposes the productized V1 aliases without removing compatibility methods", async () => {
   const requests = [];
   const cs = new CyberSentinels({ apiKey: key, baseUrl: "https://preview.example", fetch: async (url, init) => {
