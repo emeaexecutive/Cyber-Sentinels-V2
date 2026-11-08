@@ -1,0 +1,1298 @@
+{
+  "checkedDate": "2026-11-08",
+  "mode": "READ ONLY; migration identifiers do not establish schema equivalence",
+  "metadata": [
+    {
+      "version": "001",
+      "name": "initial_schema",
+      "statement_count": 165,
+      "statements_hash": "9e92f854cb1258c0900d35bdb6391972"
+    },
+    {
+      "version": "202605260001",
+      "name": "private_beta_schema_fix",
+      "statement_count": 91,
+      "statements_hash": "7782d82f506ba1ffb888906780fffb20"
+    },
+    {
+      "version": "20260528",
+      "name": "explicit_supabase_api_grants",
+      "statement_count": 3,
+      "statements_hash": "eb5516827a3db0594cffbba05ec53264"
+    },
+    {
+      "version": "202605300001",
+      "name": "evidence_upload_flow",
+      "statement_count": 16,
+      "statements_hash": "b7dbeb8bc4c964138250743184e08832"
+    },
+    {
+      "version": "202605300002",
+      "name": "align_evidence_file_url",
+      "statement_count": 2,
+      "statements_hash": "d1b4bd3bec16124f18d4cbe8b9d21a15"
+    },
+    {
+      "version": "202605300003",
+      "name": "add_signal_metadata",
+      "statement_count": 1,
+      "statements_hash": "39e29b2d6d4a9fb948092475393e76ce"
+    },
+    {
+      "version": "202605310001",
+      "name": "real_evidence_file_upload",
+      "statement_count": 11,
+      "statements_hash": "5242c44e50928afd200ea33955e19096"
+    },
+    {
+      "version": "202606010001",
+      "name": "intent_requests",
+      "statement_count": 6,
+      "statements_hash": "ff6d3189aae7ae4a77abb7d2ef4d6b97"
+    },
+    {
+      "version": "202606010002",
+      "name": "autonomy_profiles",
+      "statement_count": 6,
+      "statements_hash": "3f549fa846ccf8d9b0d2dfe7aba3025e"
+    },
+    {
+      "version": "202606010003",
+      "name": "passport_state_checks",
+      "statement_count": 6,
+      "statements_hash": "8d75bcea8578ab8e85a8b18077ceebf2"
+    },
+    {
+      "version": "202606010004",
+      "name": "execution_passports",
+      "statement_count": 6,
+      "statements_hash": "30e5a54776117e45cf2e4d77f365dd69"
+    },
+    {
+      "version": "202606020001",
+      "name": "trust_graph_engine_help",
+      "statement_count": 18,
+      "statements_hash": "da59c37ff0759542797350c5c3c71d12"
+    },
+    {
+      "version": "202606020002",
+      "name": "harden_operational_tables",
+      "statement_count": 30,
+      "statements_hash": "064827f21f02789ce7dd80b2d22fda1d"
+    },
+    {
+      "version": "202606020004",
+      "name": "help_question_traceability",
+      "statement_count": 5,
+      "statements_hash": "65b069524202a128ddceb5a569ba4faf"
+    },
+    {
+      "version": "202606020005",
+      "name": "trust_assistant_questions",
+      "statement_count": 10,
+      "statements_hash": "10f3df8fe62535c9cb1ccf2f839bafd1"
+    },
+    {
+      "version": "202606020006",
+      "name": "knowledge_articles",
+      "statement_count": 8,
+      "statements_hash": "d508b107f8dd3df0d8fef517118e79b7"
+    },
+    {
+      "version": "202606030001",
+      "name": "data_rights_requests",
+      "statement_count": 6,
+      "statements_hash": "9ad51e3318db2f13510581e2b761fece"
+    },
+    {
+      "version": "202606030002",
+      "name": "messages_notifications_appeals",
+      "statement_count": 32,
+      "statements_hash": "97ad2895a018a609e30750390fb5ca50"
+    },
+    {
+      "version": "202606030003",
+      "name": "ai_trust_event_pipeline",
+      "statement_count": 54,
+      "statements_hash": "ff125dd8fbedfa180195a1de718bf7ab"
+    },
+    {
+      "version": "202606030004",
+      "name": "developer_platform_api_keys",
+      "statement_count": 19,
+      "statements_hash": "ff1e28530b8ce287b81b681e9153907f"
+    },
+    {
+      "version": "202606030005",
+      "name": "enterprise_access_requests",
+      "statement_count": 11,
+      "statements_hash": "d34a055ba7b9c90a282457a5e854983b"
+    },
+    {
+      "version": "202606030006",
+      "name": "private_evidence_bucket",
+      "statement_count": 1,
+      "statements_hash": "f6ae5d325fe5eb8887d8d60121e4c032"
+    },
+    {
+      "version": "202606040001",
+      "name": "feedback_signal_intelligence",
+      "statement_count": 13,
+      "statements_hash": "5ff84c12f34297266bf92be5e91c2a7c"
+    },
+    {
+      "version": "202606040002",
+      "name": "ensure_enterprise_access_requests_public_submit",
+      "statement_count": 21,
+      "statements_hash": "2a2fb8681bbaed45cf465bb2349ca473"
+    },
+    {
+      "version": "202606040003",
+      "name": "enterprise_access_problem_category",
+      "statement_count": 1,
+      "statements_hash": "8b435be48dd715be2690993bf877fcb0"
+    },
+    {
+      "version": "202606050001",
+      "name": "enterprise_access_design_partner_signals",
+      "statement_count": 3,
+      "statements_hash": "aa8f1a9a1bbcfcf7d354506fd64e1b55"
+    },
+    {
+      "version": "202606050002",
+      "name": "billing_subscriptions_usage_limits",
+      "statement_count": 20,
+      "statements_hash": "1e82fce7bf39edff108fa527bdd75866"
+    },
+    {
+      "version": "202606050003",
+      "name": "harden_enterprise_access_insert_permissions",
+      "statement_count": 7,
+      "statements_hash": "5a1dc12badf1c4ecb80d2350a276c814"
+    },
+    {
+      "version": "202606050004",
+      "name": "submit_enterprise_access_request_rpc",
+      "statement_count": 2,
+      "statements_hash": "1f7c0207c0f286b6b67a510765efa3a1"
+    },
+    {
+      "version": "202606060001",
+      "name": "trusted_hiring_mvp",
+      "statement_count": 72,
+      "statements_hash": "dde53198099bc868b749d852cbef11dc"
+    },
+    {
+      "version": "202606070001",
+      "name": "ai_agent_identity_direction",
+      "statement_count": 22,
+      "statements_hash": "8ee53f9300c0f4b36cbeba9076859174"
+    },
+    {
+      "version": "202606070002",
+      "name": "trust_algorithm_runs",
+      "statement_count": 10,
+      "statements_hash": "4cc53c51d60b85bd9e64b15dbb501fa4"
+    },
+    {
+      "version": "202606070003",
+      "name": "integration_status",
+      "statement_count": 10,
+      "statements_hash": "7ae356fd508a2ddd05f64693d9904034"
+    },
+    {
+      "version": "202606070004",
+      "name": "api_test_runs",
+      "statement_count": 10,
+      "statements_hash": "7668d25bb0f9f27270d30c66e54885b4"
+    },
+    {
+      "version": "202606070005",
+      "name": "launch_control_notes",
+      "statement_count": 8,
+      "statements_hash": "4bddff39b6f594a48f9de5a5147b1acc"
+    },
+    {
+      "version": "202606080001",
+      "name": "trust_relationships",
+      "statement_count": 12,
+      "statements_hash": "0e920555a0c83b9113b4b7a227072053"
+    },
+    {
+      "version": "202606080002",
+      "name": "trust_timeline_events",
+      "statement_count": 42,
+      "statements_hash": "732b18f61470106fbbae677056e72cda"
+    },
+    {
+      "version": "202606080003",
+      "name": "trust_replay_sessions",
+      "statement_count": 11,
+      "statements_hash": "63472646a8701b3070923e1a40f1dee7"
+    },
+    {
+      "version": "202606080004",
+      "name": "trust_workspaces_cases",
+      "statement_count": 38,
+      "statements_hash": "dacb840cbbf3020e04c5f2f2d6c30b4c"
+    },
+    {
+      "version": "202606080005",
+      "name": "operational_governance_engine",
+      "statement_count": 41,
+      "statements_hash": "07d03187096a99005ac4780ebfc95b21"
+    },
+    {
+      "version": "202606080006",
+      "name": "operational_hardening_rls",
+      "statement_count": 54,
+      "statements_hash": "d965c6cdfb8aae238faa892b6809e198"
+    },
+    {
+      "version": "202606080007",
+      "name": "operational_notifications_coordination",
+      "statement_count": 48,
+      "statements_hash": "2eac0e19dadcfdbda3231c130f62ec84"
+    },
+    {
+      "version": "202606090001",
+      "name": "hiring_security_interview_integrity",
+      "statement_count": 27,
+      "statements_hash": "17e40452c595c7d8f73d7427e8193456"
+    },
+    {
+      "version": "202606090002",
+      "name": "trust_evidence_chains_receipts",
+      "statement_count": 27,
+      "statements_hash": "806137057d16603c9f317d2b96db9c32"
+    },
+    {
+      "version": "202606090003",
+      "name": "operational_trust_intelligence",
+      "statement_count": 31,
+      "statements_hash": "5c582d174d4203dfc088a82e96be4795"
+    },
+    {
+      "version": "202606100001",
+      "name": "runtime_validation_logs",
+      "statement_count": 11,
+      "statements_hash": "fd0d047ffe07e8f6c8ba3869795ddbd2"
+    },
+    {
+      "version": "202606180001",
+      "name": "enterprise_ai_trust_governance",
+      "statement_count": 56,
+      "statements_hash": "8cd586c5e7a4b8f8cbae433ad48bbc23"
+    },
+    {
+      "version": "202606190001",
+      "name": "verifiers",
+      "statement_count": 11,
+      "statements_hash": "90eb6c1a99915b0128b29f332b061ec8"
+    },
+    {
+      "version": "202606190002",
+      "name": "session_integrity_signal_separation",
+      "statement_count": 51,
+      "statements_hash": "f58012d06b6b27d84661125aecab6413"
+    },
+    {
+      "version": "202606190003",
+      "name": "hopae_connect_upstream_identity",
+      "statement_count": 15,
+      "statements_hash": "929e621900abdc727626d7af1cbf49c6"
+    },
+    {
+      "version": "202606270001",
+      "name": "screenshot_support_debugging",
+      "statement_count": 38,
+      "statements_hash": "9301272de70217c74028c77406bc2fc6"
+    },
+    {
+      "version": "202607010001",
+      "name": "production_owner_scoped_rls",
+      "statement_count": 52,
+      "statements_hash": "5714adb54cdf9acdbdefa25cfe37f208"
+    },
+    {
+      "version": "202607020001",
+      "name": "critical_trust_infrastructure_alignment",
+      "statement_count": 7,
+      "statements_hash": "544f02c0d6196175293a7dcb08bd5470"
+    },
+    {
+      "version": "202607160001",
+      "name": "release_1_rc1_provider_evidence_gate",
+      "statement_count": 90,
+      "statements_hash": "8074b666f2504ab74b53be7eca90b26f"
+    },
+    {
+      "version": "202607160002",
+      "name": "release_1_rc2_living_trust_privacy",
+      "statement_count": 14,
+      "statements_hash": "fca24a4bd1912bc0849ce3661237b5fa"
+    },
+    {
+      "version": "202607160003",
+      "name": "release_1_rc6_production_evidence_gate",
+      "statement_count": 46,
+      "statements_hash": "78dde5673406677fc9daab6bbcbfb9b0"
+    },
+    {
+      "version": "202607170001",
+      "name": "operational_risk_intelligence_shadow",
+      "statement_count": 56,
+      "statements_hash": "878da4a819f433d696a8eb7ca20ed7ab"
+    },
+    {
+      "version": "202607170002",
+      "name": "provider_abstraction_hopae",
+      "statement_count": 31,
+      "statements_hash": "23d2bb2bf15a937aaa4d3282715a3e8e"
+    },
+    {
+      "version": "202607190001",
+      "name": "identity_signal_engine",
+      "statement_count": 35,
+      "statements_hash": "b776980756bbab908c0699c61183b7a4"
+    },
+    {
+      "version": "202607190002",
+      "name": "identity_signal_runtime",
+      "statement_count": 34,
+      "statements_hash": "afe01cb887badad55f64d7989113d8b6"
+    },
+    {
+      "version": "202607200001",
+      "name": "canonical_trust_event_foundation",
+      "statement_count": 56,
+      "statements_hash": "f7d639017c88963bffc52ab2ac7cca63"
+    },
+    {
+      "version": "202607200002",
+      "name": "enterprise_trust_consent_manager",
+      "statement_count": 53,
+      "statements_hash": "fbf5403055c917fecb9c14289df5393e"
+    },
+    {
+      "version": "202607200003",
+      "name": "provider_consensus_engine",
+      "statement_count": 42,
+      "statements_hash": "d8d3c24e52703638fb1f1f9e801b14fb"
+    },
+    {
+      "version": "202607210001",
+      "name": "enterprise_trust_architecture",
+      "statement_count": 80,
+      "statements_hash": "12123927dc6906b2ffaf04395c12c31e"
+    },
+    {
+      "version": "202607210002",
+      "name": "continuous_trust_runtime",
+      "statement_count": 46,
+      "statements_hash": "fa0ff887bac4768b34d30626d083285c"
+    },
+    {
+      "version": "202607230001",
+      "name": "trust_intelligence_engine",
+      "statement_count": 59,
+      "statements_hash": "50cbe4c6c4172fe722b3986845cfcedc"
+    },
+    {
+      "version": "202607230002",
+      "name": "enterprise_trust_graph",
+      "statement_count": 39,
+      "statements_hash": "c6d53bbd4a2cb93be926c41d72fa4b7e"
+    },
+    {
+      "version": "202607240001",
+      "name": "trust_dna_engine",
+      "statement_count": 25,
+      "statements_hash": "b56da66c8521f79aa9b1676772aa0c3b"
+    },
+    {
+      "version": "202607240002",
+      "name": "replay_timeline_engine",
+      "statement_count": 24,
+      "statements_hash": "4f5e9a78b72988b794d9eeb9def8ae83"
+    },
+    {
+      "version": "202607240003",
+      "name": "continuous_trust_engine",
+      "statement_count": 74,
+      "statements_hash": "122170311d18cf6343527cdc5fbb6890"
+    },
+    {
+      "version": "202607240004",
+      "name": "enterprise_trust_centre",
+      "statement_count": 13,
+      "statements_hash": "59f46de9052a3380cfe1ee6d26877729"
+    },
+    {
+      "version": "202607310001",
+      "name": "environment_attestation_scope_continuity",
+      "statement_count": 38,
+      "statements_hash": "fd7896e8bb27cc3c8c631116ebed9542"
+    },
+    {
+      "version": "202608010001",
+      "name": "ai_serious_incident_regulatory_lineage",
+      "statement_count": 49,
+      "statements_hash": "2c9bf9a2e4cc814550c23d14d4a7b2ef"
+    },
+    {
+      "version": "202608010002",
+      "name": "enterprise_trust_fabric",
+      "statement_count": 45,
+      "statements_hash": "51264d22fd2ba9c826a07186dbe635bf"
+    },
+    {
+      "version": "202608060001",
+      "name": "rc2_enterprise_operational_readiness",
+      "statement_count": 33,
+      "statements_hash": "49db8dc0c9bf00caddd9884491832b9a"
+    },
+    {
+      "version": "202608060002",
+      "name": "end_to_end_trust_transaction",
+      "statement_count": 44,
+      "statements_hash": "090454cd206b30a9583f6286af8cba29"
+    },
+    {
+      "version": "202608080001",
+      "name": "provider_neutral_evidence_independence",
+      "statement_count": 35,
+      "statements_hash": "e0c2157ebfc77e4841dede26b5a044d9"
+    },
+    {
+      "version": "202608080002",
+      "name": "provider_neutral_workspace_rls_forward_repair",
+      "statement_count": 8,
+      "statements_hash": "ec8d05300460bb20b9df8c3d4bde1006"
+    },
+    {
+      "version": "202608080003",
+      "name": "native_operational_entity_verification",
+      "statement_count": 41,
+      "statements_hash": "3c637daceb7dce093af1961742b90c2b"
+    },
+    {
+      "version": "202608090001",
+      "name": "native_delegated_authority",
+      "statement_count": 35,
+      "statements_hash": "043f2cbce80f7e502201e4e3311f1d65"
+    },
+    {
+      "version": "202608090002",
+      "name": "native_enforcement_outcome_proof",
+      "statement_count": 36,
+      "statements_hash": "1448e33e7bead0112d4c0c618ead2725"
+    },
+    {
+      "version": "202608100001",
+      "name": "pgcrypto_routine_search_path",
+      "statement_count": 16,
+      "statements_hash": "c2a3069f5afc9d1548c46af80bb7e0a2"
+    },
+    {
+      "version": "202608100002",
+      "name": "runtime_persistence_compatibility",
+      "statement_count": 4,
+      "statements_hash": "3112af4c0cecc2652ef26f25ee3478e2"
+    },
+    {
+      "version": "202608100003",
+      "name": "alpha_beta_persistence_repairs",
+      "statement_count": 4,
+      "statements_hash": "2f5f032b0b6d9fd563e48c8dfb628b9b"
+    },
+    {
+      "version": "202608100004",
+      "name": "continuous_trust_legacy_consensus_fk_repair",
+      "statement_count": 4,
+      "statements_hash": "861b9f233d427de633c2dd4f54391578"
+    },
+    {
+      "version": "202608100005",
+      "name": "optional_legacy_consensus_pointer",
+      "statement_count": 3,
+      "statements_hash": "62c80ba34bf1886e259414fab67bd17b"
+    },
+    {
+      "version": "202608110001",
+      "name": "external_agent_trust_api",
+      "statement_count": 36,
+      "statements_hash": "ee514a18dda6fd9b351167b630f1436a"
+    },
+    {
+      "version": "20260814153327",
+      "name": "customer_workspace_bootstrap",
+      "statement_count": 1,
+      "statements_hash": "5fc09b0f8103730ae7670d67b25daf9d"
+    },
+    {
+      "version": "20260814153337",
+      "name": "staging_product_closure_security_reconciliation",
+      "statement_count": 1,
+      "statements_hash": "bccea2c5eccd06e17a40ecbbe32edcca"
+    },
+    {
+      "version": "20260815172418",
+      "name": "customer_workspace_creator_returning",
+      "statement_count": 1,
+      "statements_hash": "479abf838dbe1176077dff40673257f4"
+    },
+    {
+      "version": "20260815172840",
+      "name": "customer_workspace_creator_returning_guard_reconciliation",
+      "statement_count": 1,
+      "statements_hash": "306557bcadbf8ffa2974045ce013111d"
+    },
+    {
+      "version": "20260815174612",
+      "name": "gamma_authority_replay_event",
+      "statement_count": 1,
+      "statements_hash": "acadaf463f62fb59797e2682ebca83ac"
+    },
+    {
+      "version": "20260815180521",
+      "name": "native_replay_chronology_extension",
+      "statement_count": 1,
+      "statements_hash": "e4f439c409f661a820494e61a0f34930"
+    },
+    {
+      "version": "20260815180807",
+      "name": "consent_evidence_freshness",
+      "statement_count": 1,
+      "statements_hash": "9839d26f34838eab12d70632f92e76d6"
+    },
+    {
+      "version": "20260816135031",
+      "name": "staging_repair_append_trust_event_consent_namespace",
+      "statement_count": 1,
+      "statements_hash": "ca345f851ea5592b81bf5d211d3b74c3"
+    },
+    {
+      "version": "20260817173631",
+      "name": "track_block_protected_workflow",
+      "statement_count": 27,
+      "statements_hash": "4f685fb1c4a4ddc73a31348a1d5f3748"
+    },
+    {
+      "version": "20260817175031",
+      "name": "track_block_protected_workflow",
+      "statement_count": 1,
+      "statements_hash": "c3d05df0652db1e73d879ae13d561ee1"
+    },
+    {
+      "version": "20260817175111",
+      "name": "track_block_fk_indexes",
+      "statement_count": 1,
+      "statements_hash": "e703045e914ba4db6b3039efd5e49f65"
+    },
+    {
+      "version": "20260817175137",
+      "name": "track_block_evidence_index",
+      "statement_count": 1,
+      "statements_hash": "ca31a73f73fce3026cafeaf995fc4e72"
+    },
+    {
+      "version": "20260817175347",
+      "name": "reconcile_enterprise_trust_domain_registry",
+      "statement_count": 10,
+      "statements_hash": "8e955632b2cb7e6ea55671bfe6ba0e0d"
+    },
+    {
+      "version": "20260817175421",
+      "name": "runtime_validation_legacy_shape_rehearsal",
+      "statement_count": 1,
+      "statements_hash": "2353062a5bfec0548eac3f4684609834"
+    },
+    {
+      "version": "20260817175448",
+      "name": "reconcile_enterprise_trust_domain_registry_v2",
+      "statement_count": 1,
+      "statements_hash": "527d0fd59c38b649e4d4ecb4af7e0aa4"
+    },
+    {
+      "version": "20260817175455",
+      "name": "reconcile_enterprise_trust_domain_registry_idempotency",
+      "statement_count": 1,
+      "statements_hash": "527d0fd59c38b649e4d4ecb4af7e0aa4"
+    },
+    {
+      "version": "20260818075145",
+      "name": "remove_user_metadata_rls_authorization",
+      "statement_count": 21,
+      "statements_hash": "548b80934c10d3a36b586dc6d726b0a5"
+    },
+    {
+      "version": "20260818075422",
+      "name": "remove_user_editable_rls_authorization",
+      "statement_count": 1,
+      "statements_hash": "929da5aa4e0708eccce381b5105507d7"
+    },
+    {
+      "version": "20260819082001",
+      "name": "consent_evidence_freshness_repair",
+      "statement_count": 2,
+      "statements_hash": "55973beb3ed6cd4517bdfbee7a85b6d7"
+    },
+    {
+      "version": "20260820085027",
+      "name": "vale_canonical_provider_preview",
+      "statement_count": 12,
+      "statements_hash": "c6f0dc895db336c65feed0d706e7114a"
+    },
+    {
+      "version": "20260821085309",
+      "name": "track_block_policy_identity_continuity",
+      "statement_count": 6,
+      "statements_hash": "34ce138336bea8b5d9da4857053f924d"
+    },
+    {
+      "version": "20260821174100",
+      "name": "reconcile_canonical_persist_search_path",
+      "statement_count": 3,
+      "statements_hash": "cbd450a16b556a0e647b664f01d367aa"
+    },
+    {
+      "version": "20260822124942",
+      "name": "repair_production_consent_event_metadata",
+      "statement_count": 3,
+      "statements_hash": "010433109f8bb7fc6dbcc54657531693"
+    },
+    {
+      "version": "20260824181053",
+      "name": "authority_integrity_authorization_propagation",
+      "statement_count": 10,
+      "statements_hash": "8a9f7ef41c7c4405913a8a9b1f213fd8"
+    },
+    {
+      "version": "20260824184543",
+      "name": "trust_forecast_operational_intelligence",
+      "statement_count": 10,
+      "statements_hash": "b0ab612e815b5d7afe5966edd7428866"
+    },
+    {
+      "version": "20260825175059",
+      "name": "authority_integrity_authorization_propagation",
+      "statement_count": 1,
+      "statements_hash": "6af1aad7441aee83f7d7bcbe5a453cd3"
+    },
+    {
+      "version": "20260825175143",
+      "name": "trust_forecast_operational_intelligence",
+      "statement_count": 1,
+      "statements_hash": "860643aaf44205c3e80cababbb1110b1"
+    },
+    {
+      "version": "20260828165913",
+      "name": "close_public_api_security_contract",
+      "statement_count": 6,
+      "statements_hash": "12a7c9fdc23386703f98149831989ac1"
+    },
+    {
+      "version": "20260829094528",
+      "name": "harden_public_api_rate_limit_isolation",
+      "statement_count": 5,
+      "statements_hash": "95683c5130b734e69921a91558ecc68a"
+    },
+    {
+      "version": "20260829164824",
+      "name": "close_public_api_customer_zero",
+      "statement_count": 42,
+      "statements_hash": "27cb51c781590a4d62eea14aaf0b69ee"
+    },
+    {
+      "version": "20260831121500",
+      "name": "fix_public_api_replay_subject",
+      "statement_count": 4,
+      "statements_hash": "187592e07ba3a5ca7753826957dbf070"
+    },
+    {
+      "version": "20260831124000",
+      "name": "expand_canonical_replay_event_types",
+      "statement_count": 3,
+      "statements_hash": "c3da3ecf2588fd779e5ec772b378cd53"
+    },
+    {
+      "version": "20260831125500",
+      "name": "fix_public_api_trust_memory_source_id",
+      "statement_count": 4,
+      "statements_hash": "5c26a9b93c8b2033c58ac3d069d5f6d5"
+    },
+    {
+      "version": "20260901120000",
+      "name": "grant_service_role_api_keys_privileges",
+      "statement_count": 1,
+      "statements_hash": "bfc4422f9700d4f4f46405d05098442f"
+    },
+    {
+      "version": "20260903093116",
+      "name": "reconcile_public_api_webhook_event_types",
+      "statement_count": 3,
+      "statements_hash": "48add214a9ac10bfdba068f7efb3c6ee"
+    },
+    {
+      "version": "20260903093247",
+      "name": "reconcile_public_api_webhook_event_types",
+      "statement_count": 1,
+      "statements_hash": "5eb1e88b9b607e1ea2131f081e0c2df4"
+    },
+    {
+      "version": "20260904100313",
+      "name": "normalize_continuous_trust_alert_contract",
+      "statement_count": 6,
+      "statements_hash": "ca44a4c464144a2d551fb4166226027d"
+    },
+    {
+      "version": "20260904100445",
+      "name": "normalize_continuous_trust_alert_contract",
+      "statement_count": 1,
+      "statements_hash": "76896ff72b27d24b41385d71266ebc4c"
+    },
+    {
+      "version": "202609060001",
+      "name": "world_id_durable_replay_guard",
+      "statement_count": 7,
+      "statements_hash": "498cc6125442a2d9fcf0ba0207a5aafb"
+    },
+    {
+      "version": "202609060002",
+      "name": "world_id_replay_hardening",
+      "statement_count": 6,
+      "statements_hash": "70c776ab41521820d79a54170ccaedf6"
+    },
+    {
+      "version": "20260906155836",
+      "name": "world_id_durable_replay_guard",
+      "statement_count": 1,
+      "statements_hash": "899887a53ef7635a164c3efc7c26396c"
+    },
+    {
+      "version": "20260906165033",
+      "name": "world_id_replay_hardening",
+      "statement_count": 1,
+      "statements_hash": "1c5964263b8f1acbebbb3c128f976952"
+    },
+    {
+      "version": "20260907120000",
+      "name": "add_decision_outcome_review_to_canonical_trust",
+      "statement_count": 18,
+      "statements_hash": "9109216491a9cbcd2b99ea4f2501e71a"
+    },
+    {
+      "version": "20260909163513",
+      "name": "operational_incident_evidence_foundation",
+      "statement_count": 1,
+      "statements_hash": "7b664406e90dc35a09f3af86e5f0db9b"
+    },
+    {
+      "version": "20260913132642",
+      "name": "fix_operational_incident_api_key_revocation_check",
+      "statement_count": 5,
+      "statements_hash": "0f08f0427236d0000430bb8b7b4525ac"
+    },
+    {
+      "version": "20260926113958",
+      "name": "restrict_internal_governance_helper_execution",
+      "statement_count": 8,
+      "statements_hash": "d7bf7a0a8071fed7ff760c2490cac40e"
+    },
+    {
+      "version": "20260929084417",
+      "name": "repair_execution_proof_sql_lint",
+      "statement_count": 4,
+      "statements_hash": "cc8793dc523b885b777e2a83c2d9d855"
+    },
+    {
+      "version": "202610020001",
+      "name": "judgeme_installations",
+      "statement_count": 6,
+      "statements_hash": "a17937fa1c8f5b30a8c740e880b9fb65"
+    },
+    {
+      "version": "202610040001",
+      "name": "p0p1_security_closure",
+      "statement_count": 103,
+      "statements_hash": "8072384ca6b31a907218b732f32c6ead"
+    },
+    {
+      "version": "202610040002",
+      "name": "account_access_approval",
+      "statement_count": 22,
+      "statements_hash": "0d2b129793ad9412cc1dc98c1e815352"
+    },
+    {
+      "version": "202610040003",
+      "name": "require_approved_accounts_for_data_api",
+      "statement_count": 4,
+      "statements_hash": "27a1fce493e1213d6391200ec0e62dc0"
+    },
+    {
+      "version": "202610040004",
+      "name": "lock_legacy_passport_decision_writes",
+      "statement_count": 1,
+      "statements_hash": "5d2bf9dc493f937943da6129fe012cb3"
+    },
+    {
+      "version": "20261006105554",
+      "name": "model_approval_evidence_lifecycle",
+      "statement_count": 1,
+      "statements_hash": "4962f4913b426b3aaf67cb15a2bb5685"
+    },
+    {
+      "version": "20261006110619",
+      "name": "model_state_replay_event_contract",
+      "statement_count": 1,
+      "statements_hash": "24f01a85ba15b8cfc8afd9a480154666"
+    },
+    {
+      "version": "20261007150222",
+      "name": "account_approval_default_deny",
+      "statement_count": 40,
+      "statements_hash": "e46bdc37d4e539dad1436dc934acdb47"
+    },
+    {
+      "version": "20261007150224",
+      "name": "canonical_trust_memory_function_reconciliation",
+      "statement_count": 5,
+      "statements_hash": "2fe2086f5120adca377040911501bbfe"
+    },
+    {
+      "version": "20261007150835",
+      "name": "canonical_workspace_bootstrap",
+      "statement_count": 36,
+      "statements_hash": "4383fb24d8e53c34a523eef45308090f"
+    },
+    {
+      "version": "20261008093614",
+      "name": "canonical_application_access_grants",
+      "statement_count": 1,
+      "statements_hash": "f5492070917a2a6ad80b937cbaeec3a1"
+    },
+    {
+      "version": "20261008105722",
+      "name": "canonical_application_schema_reconciliation",
+      "statement_count": 1,
+      "statements_hash": "92487089e358453f1d9313ee07caa5c7"
+    },
+    {
+      "version": "20261008112858",
+      "name": "evidence_download_approval_revalidation",
+      "statement_count": 1,
+      "statements_hash": "a2ca3031a74e0ed77dfcf03ee58a51cc"
+    },
+    {
+      "version": "20261008120422",
+      "name": "authority_of_record_exact_execution",
+      "statement_count": 1,
+      "statements_hash": "1065bc18c86e79c6e46c786ae9e0f11f"
+    },
+    {
+      "version": "20261010110000",
+      "name": "employment_access_governance_hardening",
+      "statement_count": 1,
+      "statements_hash": "ceece8895fb1f94b9a2218e557bef258"
+    },
+    {
+      "version": "20261012084456",
+      "name": "audited_account_approval_transition",
+      "statement_count": 1,
+      "statements_hash": "11d0755b00f59fe8ac9bf0d81ed72343"
+    },
+    {
+      "version": "20261012122704",
+      "name": "require_active_customer_sessions",
+      "statement_count": 1,
+      "statements_hash": "2731ecf9b66878f43f613662f007ac12"
+    }
+  ],
+  "effects": {
+    "staging": {
+      "trigger_exec": [
+        {
+          "anon": false,
+          "name": "materialize_consent_receipt_evidence_v1",
+          "service_role": true,
+          "authenticated": false
+        },
+        {
+          "anon": false,
+          "name": "materialize_provider_observation_evidence_v1",
+          "service_role": true,
+          "authenticated": false
+        }
+      ],
+      "alert_columns": [
+        {
+          "name": "acknowledged_at",
+          "type": "timestamp with time zone",
+          "nullable": "YES"
+        },
+        {
+          "name": "alert_description",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "alert_title",
+          "type": "text",
+          "nullable": "NO"
+        },
+        {
+          "name": "alert_type",
+          "type": "text",
+          "nullable": "NO"
+        },
+        {
+          "name": "assessment_id",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "assigned_to",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": "NO"
+        },
+        {
+          "name": "created_by",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "detected_at",
+          "type": "timestamp with time zone",
+          "nullable": "YES"
+        },
+        {
+          "name": "drift_id",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "enterprise_id",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "evidence_references",
+          "type": "ARRAY",
+          "nullable": "NO"
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": "NO"
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb",
+          "nullable": "NO"
+        },
+        {
+          "name": "policy_decision_id",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "policy_id",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "policy_version",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "reason_codes",
+          "type": "ARRAY",
+          "nullable": "NO"
+        },
+        {
+          "name": "remediation_guidance",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "resolved_at",
+          "type": "timestamp with time zone",
+          "nullable": "YES"
+        },
+        {
+          "name": "reviewed_by",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "risk_level",
+          "type": "text",
+          "nullable": "NO"
+        },
+        {
+          "name": "severity",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "signal_ids",
+          "type": "ARRAY",
+          "nullable": "NO"
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": "NO"
+        },
+        {
+          "name": "subject_id",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "subject_reference",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "subject_type",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "summary",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "triggering_event_id",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": "NO"
+        }
+      ],
+      "consent_evidence": "f8b52fcd07738b5609be30dd464dcbfd",
+      "provider_evidence": "1bbe7c60288846f67f2a6a4ef51c2a82",
+      "webhook_constraint": "CHECK ((event_type = ANY (ARRAY['decision.created'::text, 'decision.review_required'::text, 'decision.denied'::text, 'authority.changed'::text, 'monitoring.coverage_gap'::text, 'deployment.reauthorization_required'::text, 'intent.execution_mismatch'::text, 'execution.outcome'::text, 'data.impact_detected'::text, 'receipt.available'::text, 'authority.revoked'::text, 'trust.material_change'::text, 'outcome.contradiction'::text])))",
+      "api_key_service_privileges": true
+    },
+    "production": {
+      "trigger_exec": [
+        {
+          "anon": false,
+          "name": "materialize_consent_receipt_evidence_v1",
+          "service_role": true,
+          "authenticated": false
+        },
+        {
+          "anon": false,
+          "name": "materialize_provider_observation_evidence_v1",
+          "service_role": true,
+          "authenticated": false
+        }
+      ],
+      "alert_columns": [
+        {
+          "name": "acknowledged_at",
+          "type": "timestamp with time zone",
+          "nullable": "YES"
+        },
+        {
+          "name": "alert_description",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "alert_title",
+          "type": "text",
+          "nullable": "NO"
+        },
+        {
+          "name": "alert_type",
+          "type": "text",
+          "nullable": "NO"
+        },
+        {
+          "name": "assessment_id",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "assigned_to",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": "YES"
+        },
+        {
+          "name": "created_by",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "detected_at",
+          "type": "timestamp with time zone",
+          "nullable": "YES"
+        },
+        {
+          "name": "drift_id",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "enterprise_id",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "evidence_references",
+          "type": "ARRAY",
+          "nullable": "NO"
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": "NO"
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb",
+          "nullable": "YES"
+        },
+        {
+          "name": "policy_decision_id",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "policy_id",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "policy_version",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "reason_codes",
+          "type": "ARRAY",
+          "nullable": "NO"
+        },
+        {
+          "name": "remediation_guidance",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "resolved_at",
+          "type": "timestamp with time zone",
+          "nullable": "YES"
+        },
+        {
+          "name": "reviewed_by",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "risk_level",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "severity",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "signal_ids",
+          "type": "ARRAY",
+          "nullable": "NO"
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "subject_id",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "subject_reference",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "subject_type",
+          "type": "text",
+          "nullable": "NO"
+        },
+        {
+          "name": "summary",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "nullable": "YES"
+        },
+        {
+          "name": "triggering_event_id",
+          "type": "uuid",
+          "nullable": "YES"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": "YES"
+        }
+      ],
+      "consent_evidence": "aeff19bd78556f866f65245c53c13ab0",
+      "provider_evidence": "7e8c4b89420505d1a81d73766a03c015",
+      "webhook_constraint": "CHECK ((event_type = ANY (ARRAY['decision.created'::text, 'decision.review_required'::text, 'decision.denied'::text, 'authority.changed'::text, 'monitoring.coverage_gap'::text, 'deployment.reauthorization_required'::text, 'intent.execution_mismatch'::text, 'execution.outcome'::text, 'data.impact_detected'::text, 'receipt.available'::text, 'authority.revoked'::text, 'trust.material_change'::text, 'outcome.contradiction'::text])))",
+      "api_key_service_privileges": true
+    }
+  }
+}

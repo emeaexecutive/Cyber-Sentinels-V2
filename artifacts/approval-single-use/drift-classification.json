@@ -1,0 +1,399 @@
+{
+  "missingMarkers": [
+    "20260819084252_consent_evidence_freshness_repair.sql",
+    "20260819084329_restrict_evidence_trigger_functions.sql",
+    "20260902083450_grant_service_role_api_keys_privileges.sql",
+    "20260903095127_reconcile_public_api_webhook_event_types.sql",
+    "20260904113046_normalize_continuous_trust_alert_contract.sql"
+  ],
+  "extras": [
+    {
+      "version": "20260814153327",
+      "name": "customer_workspace_bootstrap",
+      "statement_count": 1,
+      "statements_hash": "5fc09b0f8103730ae7670d67b25daf9d",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260814153327_customer_workspace_bootstrap.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260814153337",
+      "name": "staging_product_closure_security_reconciliation",
+      "statement_count": 1,
+      "statements_hash": "bccea2c5eccd06e17a40ecbbe32edcca",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260814153337_staging_product_closure_security_reconciliation.sql",
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20260815172418",
+      "name": "customer_workspace_creator_returning",
+      "statement_count": 1,
+      "statements_hash": "479abf838dbe1176077dff40673257f4",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260815172418_customer_workspace_creator_returning.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260815172840",
+      "name": "customer_workspace_creator_returning_guard_reconciliation",
+      "statement_count": 1,
+      "statements_hash": "306557bcadbf8ffa2974045ce013111d",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260815172840_customer_workspace_creator_returning_guard_reconciliation.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260815174612",
+      "name": "gamma_authority_replay_event",
+      "statement_count": 1,
+      "statements_hash": "acadaf463f62fb59797e2682ebca83ac",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260815174612_gamma_authority_replay_event.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260815180521",
+      "name": "native_replay_chronology_extension",
+      "statement_count": 1,
+      "statements_hash": "e4f439c409f661a820494e61a0f34930",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260815180521_native_replay_chronology_extension.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260815180807",
+      "name": "consent_evidence_freshness",
+      "statement_count": 1,
+      "statements_hash": "9839d26f34838eab12d70632f92e76d6",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260815180807_consent_evidence_freshness.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260816135031",
+      "name": "staging_repair_append_trust_event_consent_namespace",
+      "statement_count": 1,
+      "statements_hash": "ca345f851ea5592b81bf5d211d3b74c3",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260816135031_staging_repair_append_trust_event_consent_namespace.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260817175031",
+      "name": "track_block_protected_workflow",
+      "statement_count": 1,
+      "statements_hash": "c3d05df0652db1e73d879ae13d561ee1",
+      "localSource": null,
+      "priorNameMatch": [
+        "20260817173631"
+      ],
+      "archivedSource": "20260817175031_track_block_protected_workflow.sql",
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20260817175111",
+      "name": "track_block_fk_indexes",
+      "statement_count": 1,
+      "statements_hash": "e703045e914ba4db6b3039efd5e49f65",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260817175111_track_block_fk_indexes.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260817175137",
+      "name": "track_block_evidence_index",
+      "statement_count": 1,
+      "statements_hash": "ca31a73f73fce3026cafeaf995fc4e72",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260817175137_track_block_evidence_index.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260817175421",
+      "name": "runtime_validation_legacy_shape_rehearsal",
+      "statement_count": 1,
+      "statements_hash": "2353062a5bfec0548eac3f4684609834",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260817175421_runtime_validation_legacy_shape_rehearsal.sql",
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20260817175448",
+      "name": "reconcile_enterprise_trust_domain_registry_v2",
+      "statement_count": 1,
+      "statements_hash": "527d0fd59c38b649e4d4ecb4af7e0aa4",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260817175448_reconcile_enterprise_trust_domain_registry_v2.sql",
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20260817175455",
+      "name": "reconcile_enterprise_trust_domain_registry_idempotency",
+      "statement_count": 1,
+      "statements_hash": "527d0fd59c38b649e4d4ecb4af7e0aa4",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260817175455_reconcile_enterprise_trust_domain_registry_idempotency.sql",
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20260818075422",
+      "name": "remove_user_editable_rls_authorization",
+      "statement_count": 1,
+      "statements_hash": "929da5aa4e0708eccce381b5105507d7",
+      "localSource": null,
+      "priorNameMatch": [],
+      "archivedSource": "20260818075422_remove_user_editable_rls_authorization.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260825175059",
+      "name": "authority_integrity_authorization_propagation",
+      "statement_count": 1,
+      "statements_hash": "6af1aad7441aee83f7d7bcbe5a453cd3",
+      "localSource": null,
+      "priorNameMatch": [
+        "20260824181053"
+      ],
+      "archivedSource": "20260825175059_authority_integrity_authorization_propagation.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260825175143",
+      "name": "trust_forecast_operational_intelligence",
+      "statement_count": 1,
+      "statements_hash": "860643aaf44205c3e80cababbb1110b1",
+      "localSource": null,
+      "priorNameMatch": [
+        "20260824184543"
+      ],
+      "archivedSource": "20260825175143_trust_forecast_operational_intelligence.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260903093247",
+      "name": "reconcile_public_api_webhook_event_types",
+      "statement_count": 1,
+      "statements_hash": "5eb1e88b9b607e1ea2131f081e0c2df4",
+      "localSource": null,
+      "priorNameMatch": [
+        "20260903093116"
+      ],
+      "archivedSource": "20260903093247_reconcile_public_api_webhook_event_types.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260904100445",
+      "name": "normalize_continuous_trust_alert_contract",
+      "statement_count": 1,
+      "statements_hash": "76896ff72b27d24b41385d71266ebc4c",
+      "localSource": null,
+      "priorNameMatch": [
+        "20260904100313"
+      ],
+      "archivedSource": "20260904100445_normalize_continuous_trust_alert_contract.sql",
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20260906155836",
+      "name": "world_id_durable_replay_guard",
+      "statement_count": 1,
+      "statements_hash": "899887a53ef7635a164c3efc7c26396c",
+      "localSource": null,
+      "priorNameMatch": [
+        "202609060001"
+      ],
+      "archivedSource": "20260906155836_world_id_durable_replay_guard.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20260906165033",
+      "name": "world_id_replay_hardening",
+      "statement_count": 1,
+      "statements_hash": "1c5964263b8f1acbebbb3c128f976952",
+      "localSource": null,
+      "priorNameMatch": [
+        "202609060002"
+      ],
+      "archivedSource": "20260906165033_world_id_replay_hardening.sql",
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "202610040001",
+      "name": "p0p1_security_closure",
+      "statement_count": 103,
+      "statements_hash": "8072384ca6b31a907218b732f32c6ead",
+      "localSource": "202610040001_p0p1_security_closure.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "202610040002",
+      "name": "account_access_approval",
+      "statement_count": 22,
+      "statements_hash": "0d2b129793ad9412cc1dc98c1e815352",
+      "localSource": "202610040002_account_access_approval.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "202610040003",
+      "name": "require_approved_accounts_for_data_api",
+      "statement_count": 4,
+      "statements_hash": "27a1fce493e1213d6391200ec0e62dc0",
+      "localSource": "202610040003_require_approved_accounts_for_data_api.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "202610040004",
+      "name": "lock_legacy_passport_decision_writes",
+      "statement_count": 1,
+      "statements_hash": "5d2bf9dc493f937943da6129fe012cb3",
+      "localSource": "202610040004_lock_legacy_passport_decision_writes.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20261006105554",
+      "name": "model_approval_evidence_lifecycle",
+      "statement_count": 1,
+      "statements_hash": "4962f4913b426b3aaf67cb15a2bb5685",
+      "localSource": "20261006105554_model_approval_evidence_lifecycle.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20261006110619",
+      "name": "model_state_replay_event_contract",
+      "statement_count": 1,
+      "statements_hash": "24f01a85ba15b8cfc8afd9a480154666",
+      "localSource": "20261006110619_model_state_replay_event_contract.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20261007150222",
+      "name": "account_approval_default_deny",
+      "statement_count": 40,
+      "statements_hash": "e46bdc37d4e539dad1436dc934acdb47",
+      "localSource": "20261007150222_account_approval_default_deny.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20261007150224",
+      "name": "canonical_trust_memory_function_reconciliation",
+      "statement_count": 5,
+      "statements_hash": "2fe2086f5120adca377040911501bbfe",
+      "localSource": "20261007150224_canonical_trust_memory_function_reconciliation.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20261007150835",
+      "name": "canonical_workspace_bootstrap",
+      "statement_count": 36,
+      "statements_hash": "4383fb24d8e53c34a523eef45308090f",
+      "localSource": "20261007150835_canonical_workspace_bootstrap.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20261008093614",
+      "name": "canonical_application_access_grants",
+      "statement_count": 1,
+      "statements_hash": "f5492070917a2a6ad80b937cbaeec3a1",
+      "localSource": "20261008093614_canonical_application_access_grants.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20261008105722",
+      "name": "canonical_application_schema_reconciliation",
+      "statement_count": 1,
+      "statements_hash": "92487089e358453f1d9313ee07caa5c7",
+      "localSource": "20261008105722_canonical_application_schema_reconciliation.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20261008112858",
+      "name": "evidence_download_approval_revalidation",
+      "statement_count": 1,
+      "statements_hash": "a2ca3031a74e0ed77dfcf03ee58a51cc",
+      "localSource": "20261008112858_evidence_download_approval_revalidation.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20261008120422",
+      "name": "authority_of_record_exact_execution",
+      "statement_count": 1,
+      "statements_hash": "1065bc18c86e79c6e46c786ae9e0f11f",
+      "localSource": "20261008120422_authority_of_record_exact_execution.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": false
+    },
+    {
+      "version": "20261010110000",
+      "name": "employment_access_governance_hardening",
+      "statement_count": 1,
+      "statements_hash": "ceece8895fb1f94b9a2218e557bef258",
+      "localSource": "20261010110000_employment_access_governance_hardening.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20261012084456",
+      "name": "audited_account_approval_transition",
+      "statement_count": 1,
+      "statements_hash": "11d0755b00f59fe8ac9bf0d81ed72343",
+      "localSource": "20261012084456_audited_account_approval_transition.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": true
+    },
+    {
+      "version": "20261012122704",
+      "name": "require_active_customer_sessions",
+      "statement_count": 1,
+      "statements_hash": "2731ecf9b66878f43f613662f007ac12",
+      "localSource": "20261012122704_require_active_customer_sessions.sql",
+      "priorNameMatch": [],
+      "archivedSource": null,
+      "sourceHashMatchesRecordedStatements": true
+    }
+  ],
+  "extraCount": 37,
+  "extraRootSourceCount": 16,
+  "archivedSourceCount": 21,
+  "exactRawOrLineEndingMatches": 20
+}
