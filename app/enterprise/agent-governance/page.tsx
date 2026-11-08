@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("AI Agent Governance | Cyber Sentinels", "Govern agent purpose, delegated authority, runtime change and accountable ownership.", "/enterprise/agent-governance"),
   title: "AI Agent Governance | Cyber Sentinels",
   description: "Govern agent purpose, delegated authority, runtime change and accountable ownership.",
-  alternates: { canonical: "/enterprise/agent-governance" },
+  alternates: publicPageAlternates("/enterprise/agent-governance"),
 };
 
 const agentProblems = [

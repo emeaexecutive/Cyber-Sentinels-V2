@@ -1,0 +1,186 @@
+{
+  "messages": 1108,
+  "publicRoutes": 42,
+  "generated": [
+    {
+      "source": "components/enterprise-visuals.tsx",
+      "destination": "components/i18n/es/enterprise-visuals.tsx",
+      "displayEdits": 10,
+      "sourceHash": "b01f20168e0e9323606e72afb201c5ccfc013f210fb42234e56ce61fe375ab0b"
+    },
+    {
+      "source": "components/enterprise-breadcrumbs.tsx",
+      "destination": "components/i18n/es/enterprise-breadcrumbs.tsx",
+      "displayEdits": 6,
+      "sourceHash": "3225d5a3d6ecc8838d5ece68f3efd135a2127bf8b1a3c6522eaa9a674557a1ea"
+    },
+    {
+      "source": "components/enterprise-cta-group.tsx",
+      "destination": "components/i18n/es/enterprise-cta-group.tsx",
+      "displayEdits": 2,
+      "sourceHash": "3d743cb0b9de5879b7c1cfa3d4cf55e7c35ef07e8d48f2468c015eb568ae5ad9"
+    },
+    {
+      "source": "components/search/security-resource.tsx",
+      "destination": "components/i18n/es/search/security-resource.tsx",
+      "displayEdits": 16,
+      "sourceHash": "3715082a714decf247492346f1f7195e738bf43601d1309745ea7a14b7517d5d"
+    },
+    {
+      "source": "lib/enterprise-experience.ts",
+      "destination": "lib/i18n/es-enterprise-experience.ts",
+      "displayEdits": 23,
+      "sourceHash": "df6cadc861c38770a3f8f7e3b47fea6d7321c2cd77754efa8a90c9e727e4b076"
+    },
+    {
+      "source": "lib/search/resources.ts",
+      "destination": "lib/i18n/es-search-resources.ts",
+      "displayEdits": 129,
+      "sourceHash": "b2607d1425319e5d95d3fd6246792fed1b77f4bf7fe5eb098a9f7b74338bdcb4"
+    },
+    {
+      "source": "app/solutions/page.tsx",
+      "destination": "app/es/solutions/page.tsx",
+      "displayEdits": 39,
+      "sourceHash": "c5879bc3c4c01344916c9b8c9096503ef50c04c0554cdae8f1cb7a0153f5a1eb"
+    },
+    {
+      "source": "app/trust/page.tsx",
+      "destination": "app/es/trust/page.tsx",
+      "displayEdits": 111,
+      "sourceHash": "234b7d19216df360f81c4356455e24dbfbe37faf0bedb31e3387d494cb5371b5"
+    },
+    {
+      "source": "app/trust/data-sovereignty/page.tsx",
+      "destination": "app/es/trust/data-sovereignty/page.tsx",
+      "displayEdits": 51,
+      "sourceHash": "80b2f20403cd1ba79e7e754dd070678ebd48f5f6b7b6abc3bd5f603da97c09c5"
+    },
+    {
+      "source": "app/verification-replay/page.tsx",
+      "destination": "app/es/verification-replay/page.tsx",
+      "displayEdits": 78,
+      "sourceHash": "823460bdaaf96fce47257c1de1e3d47d6374dd920e5016e232feae64a9f07916"
+    },
+    {
+      "source": "app/enterprise/page.tsx",
+      "destination": "app/es/enterprise/page.tsx",
+      "displayEdits": 60,
+      "sourceHash": "d8ea9b846670111327e93e6e78a9c08268cd47e0cd520d43200d0c1f19e9e568"
+    },
+    {
+      "source": "app/enterprise/agent-governance/page.tsx",
+      "destination": "app/es/enterprise/agent-governance/page.tsx",
+      "displayEdits": 34,
+      "sourceHash": "c88806d4517680c2594deae0ec2c322fbc75970e98b6868b02fffeb87b6d81fc"
+    },
+    {
+      "source": "app/enterprise/buyer-documentation/page.tsx",
+      "destination": "app/es/enterprise/buyer-documentation/page.tsx",
+      "displayEdits": 90,
+      "sourceHash": "8eb404d5b0552ef1d5853ab63bdabebdcc342351f65409949d5782288357cc61"
+    },
+    {
+      "source": "app/enterprise/hiring-security/page.tsx",
+      "destination": "app/es/enterprise/hiring-security/page.tsx",
+      "displayEdits": 44,
+      "sourceHash": "d613aa7dde8c5497e9b9960f4b577a6ec15aa729b289cd56db0faba135ffada5"
+    },
+    {
+      "source": "app/enterprise/pilot/page.tsx",
+      "destination": "app/es/enterprise/pilot/page.tsx",
+      "displayEdits": 106,
+      "sourceHash": "3cc5ac07e3557cc3e502de429103a62defdd0f633450d0dbd87a5e7d2a4117a1"
+    },
+    {
+      "source": "app/enterprise/pilot-checklist/page.tsx",
+      "destination": "app/es/enterprise/pilot-checklist/page.tsx",
+      "displayEdits": 62,
+      "sourceHash": "0622b55bbda0060ff864e0a099130ca12e4aa79f2a57909bc5cafee216f2f718"
+    },
+    {
+      "source": "app/developers/page.tsx",
+      "destination": "app/es/developers/page.tsx",
+      "displayEdits": 69,
+      "sourceHash": "4049ef22c28560527acc21d9e2ca289439a3a07576a171489470054fc2e96688"
+    },
+    {
+      "source": "app/developers/docs/page.tsx",
+      "destination": "app/es/developers/docs/page.tsx",
+      "displayEdits": 52,
+      "sourceHash": "d220b55d2ecf0daa9b34c003e5aed390e4d7ed627bf05ef983260e73a9bed5b4"
+    },
+    {
+      "source": "app/developers/authentication/page.tsx",
+      "destination": "app/es/developers/authentication/page.tsx",
+      "displayEdits": 33,
+      "sourceHash": "627b1a66f608986529eacb125c80426bd47d290afc676b185e4e9430bd6c7e6e"
+    },
+    {
+      "source": "app/developers/api-reference/page.tsx",
+      "destination": "app/es/developers/api-reference/page.tsx",
+      "displayEdits": 35,
+      "sourceHash": "49b81c8c83e9584082b93dcf113a2b62aacd8560a5f863ba56347acb1396ab87"
+    },
+    {
+      "source": "app/developers/quickstart/page.tsx",
+      "destination": "app/es/developers/quickstart/page.tsx",
+      "displayEdits": 41,
+      "sourceHash": "45ad78cc75b405c16d86ccc1424d8f726c52cbb6b24c052823e4f095bbdd7957"
+    },
+    {
+      "source": "app/governance/page.tsx",
+      "destination": "app/es/governance/page.tsx",
+      "displayEdits": 26,
+      "sourceHash": "60f6d5d63e48041792b8015e1dcdd989db960550bad1e984a3ba1a04f0dc87e4"
+    },
+    {
+      "source": "app/resources/agent-security/page.tsx",
+      "destination": "app/es/resources/agent-security/page.tsx",
+      "displayEdits": 26,
+      "sourceHash": "f780bd562ad9a517b1af56fa0973021064bea190eb9fe2e2809c274dd23da846"
+    },
+    {
+      "source": "app/resources/agent-security/[slug]/page.tsx",
+      "destination": "app/es/resources/agent-security/[slug]/page.tsx",
+      "displayEdits": 4,
+      "sourceHash": "268eb411fe31c982697221f8ad5389a74992c8ffffaf1df56270f6c42cd6ba09"
+    },
+    {
+      "source": "app/documents/page.tsx",
+      "destination": "app/es/documents/page.tsx",
+      "displayEdits": 50,
+      "sourceHash": "122f6c153c8c77c38c3fda8e03d25a6296bf6a97579a36176572f08e5e118414"
+    },
+    {
+      "source": "app/documents/operational-trust-whitepaper/page.tsx",
+      "destination": "app/es/documents/operational-trust-whitepaper/page.tsx",
+      "displayEdits": 79,
+      "sourceHash": "e44201acc7b6d156e57bbb01e1dbfefb1772dab293b732f284569ec7bf0a0b17"
+    },
+    {
+      "source": "app/methodology/page.tsx",
+      "destination": "app/es/methodology/page.tsx",
+      "displayEdits": 34,
+      "sourceHash": "f025b73c6d2f9dc5b36483893e120bb9fa7703e3039ac4885175a12cc96218ff"
+    },
+    {
+      "source": "app/journal/page.tsx",
+      "destination": "app/es/journal/page.tsx",
+      "displayEdits": 24,
+      "sourceHash": "07fd1502023036fb7e410ef0ccce85dd78b193cebfbd67c44be563a840fabd37"
+    },
+    {
+      "source": "app/about-us/page.tsx",
+      "destination": "app/es/about/page.tsx",
+      "displayEdits": 29,
+      "sourceHash": "d1189be35ff043894f4efef9b9462fabd9dc3ff5f7a1403733b5e91caf59eebb"
+    },
+    {
+      "source": "app/about/mission/page.tsx",
+      "destination": "app/es/about/mission/page.tsx",
+      "displayEdits": 30,
+      "sourceHash": "3553014f7fae303b7a8efd0d0d32f3da703c31b092b83729a95404c75211049d"
+    }
+  ]
+}

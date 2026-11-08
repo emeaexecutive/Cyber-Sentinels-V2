@@ -115,6 +115,7 @@ export async function POST(request: Request) {
     turnstileToken,
     getClientIp(request),
     getExpectedTurnstileHostname(new URL(request.url).hostname),
+    "password_reset",
   );
 
   if (!turnstile.ok) {

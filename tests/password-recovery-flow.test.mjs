@@ -78,7 +78,7 @@ export function harness() {
     "@/components/public-page-adoption-rail": { PublicPageAdoptionRail: () => null },
     "@/src/components/consent/ConsentManager": { ConsentManager: () => null },
     "@/src/components/consent/ConsentPreferencesLink": { ConsentPreferencesLink: () => null },
-    "next/headers": { cookies: async () => cookieStore },
+    "next/headers": { cookies: async () => cookieStore, headers: async () => new Headers() },
     "next/link": { __esModule: true, default: ({ children, ...props }) => React.createElement("a", props, children) },
     "@/lib/supabase/server": { createClient: async (headers) => client(headers), createNavigationClient: async () => client(), isInvalidRefreshTokenError: () => false },
     "@/lib/operational-monitoring": { captureOperationalIssue() {} },

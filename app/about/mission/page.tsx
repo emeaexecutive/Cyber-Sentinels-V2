@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Mission | Cyber Sentinels", "The Cyber Sentinels mission and principles for evidence-backed, human-governed operational trust.", "/about/mission"),
   title: "Mission | Cyber Sentinels",
   description: "The Cyber Sentinels mission and principles for evidence-backed, human-governed operational trust.",
-  alternates: { canonical: "/about/mission" },
+  alternates: publicPageAlternates("/about/mission"),
 };
 
 const principles = [

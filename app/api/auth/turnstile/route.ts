@@ -39,6 +39,7 @@ export async function POST(req: Request) {
     token,
     getClientIp(req),
     expectedHostname,
+    "auth",
   );
 
   emitTraceSpan("auth.turnstile.verified", {

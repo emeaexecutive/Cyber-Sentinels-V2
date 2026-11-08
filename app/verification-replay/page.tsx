@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -153,5 +154,5 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Verification Replay | Cyber Sentinels", "Reconstruct actor, authority, evidence, change, governance and outcome chronology.", "/verification-replay"),
   title: "Verification Replay | Cyber Sentinels",
   description: "Reconstruct actor, authority, evidence, change, governance and outcome chronology.",
-  alternates: { canonical: "/verification-replay" },
+  alternates: publicPageAlternates("/verification-replay"),
 };

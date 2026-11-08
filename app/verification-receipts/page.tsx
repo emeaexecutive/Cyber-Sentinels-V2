@@ -56,7 +56,7 @@ export default function VerificationReceiptsPage() {
             <Link href="/verification/receipt/demo" className="rounded-lg border border-cyan-800 px-4 py-2 text-sm font-semibold text-cyan-100 hover:border-cyan-400">
               Open protected receipt
             </Link>
-            <Link href="/enterprise/compliance" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-200 hover:border-cyan-400">
+            <Link href="/enterprise#compliance" className="rounded-lg border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-200 hover:border-cyan-400">
               Compliance readiness
             </Link>
           </div>

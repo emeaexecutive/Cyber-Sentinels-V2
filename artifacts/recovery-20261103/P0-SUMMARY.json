@@ -1,0 +1,36 @@
+{
+  "decision": "WEBSITE PRODUCTION: GO ? READY FOR FOUNDER DEPLOYMENT APPROVAL",
+  "originalCandidate": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+  "sourceEquivalentBaseline": "9950dd34e3a17645d853346dcc28dc4526fb70a3",
+  "sourceFingerprintsMatched": 2882,
+  "deploymentMetadataSha": null,
+  "apiAuthLibraryMiddlewareSchemaDiff": false,
+  "newEnvironmentVariables": [],
+  "newInfrastructure": false,
+  "publicMailboxApproved": "emeaexecutive@icloud.com",
+  "legalStatus": "Unapproved policy wording withheld; review notices only; no invented legal approval",
+  "verification": {
+    "priorFocusedTestsReused": 85,
+    "priorBrowserInteractionsReused": 16,
+    "changedGateTestsPassed": 7,
+    "independentDependencyTestsPassed": 8,
+    "productionAuditVulnerabilities": 0,
+    "newBrowserChecksPassed": 12,
+    "routeSmokesPassed": 5,
+    "productionBuild": {
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-11-03T18:43:41.685Z"
+    },
+    "staticPages": 208
+  },
+  "productionProject": "prj_7v7vbNXHaf7gfAqYjGxRMQEB8FAr",
+  "target": "production",
+  "branch": "release/website-only-20261103",
+  "rollbackDeployment": "dpl_AFsCyKcsWaKBjAdS32F3Uyqp2FUM",
+  "hostedChanges": 0,
+  "pushMergeDeployApprovalStillRequired": true,
+  "historical500": "OPEN as separate operational investigation; none reproduced in the checked current public website paths",
+  "platformRelease": "NO-GO",
+  "investorHosting": "NO-GO"
+}

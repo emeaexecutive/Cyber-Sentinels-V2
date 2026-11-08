@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
+import {harness} from "./fixtures/sign-out-session.mjs";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -39,9 +40,9 @@ test("homepage uses the approved category, supporting statement and restrained c
   assert.match(home, /Before an AI agent acts, prove it has the authority to do so\./);
   assert.match(
     home,
-    /Cyber Sentinels checks who or what is acting, what it is trying to do, and whether it has authority under the current policy\./,
+    /Cyber Sentinels asks whether the actor has the authority to perform the requested action under the current policy, not whether it is universally trustworthy\./,
   );
-  assert.match(home, /Every decision keeps the evidence needed for audit and Replay\./);
+  assert.match(home, /Keep the evidence behind every decision and reconstruct what happened later\./);
   assert.match(home, /Request a demo/);
   assert.match(home, /Explore the API/);
 });
@@ -76,9 +77,8 @@ test("investor page uses approved restrained positioning and interest wording", 
 });
 
 test("About and Platform use approved TENENTE wording and state qualification limits", async () => {
-  const [about, aboutMetadata, platform, metadata] = await Promise.all([
+  const [about, platform, metadata] = await Promise.all([
     read("app/about-us/page.tsx"),
-    read("app/about/page.tsx"),
     read("app/platform/page.tsx"),
     read("lib/search/metadata.ts"),
   ]);
@@ -90,7 +90,7 @@ test("About and Platform use approved TENENTE wording and state qualification li
   assert.match(about, /TENENTE is the product direction within Cyber Sentinels/);
   assert.doesNotMatch(about, /Hiring Security, Session Integrity/);
   assert.match(about, /href="\/platform#agent-authority"/);
-  assert.match(aboutMetadata, /alternates: \{ canonical: "\/about" \}/);
+  assert.equal(harness().load("app/about/page.tsx").metadata.alternates.canonical, "/about");
 
   assert.match(
     platform,
@@ -102,8 +102,10 @@ test("About and Platform use approved TENENTE wording and state qualification li
   assert.match(platform, /local test coverage, which does not establish hosted or Production readiness/);
   assert.match(platform, /Swarm cancellation and emergency containment remain under qualification and are not Production-qualified/);
   assert.match(platform, /Capabilities are qualified individually/);
-  assert.match(platform, /alternates: \{ canonical: "\/platform" \}/);
-  assert.match(platform, /title: platformTitle/);
+  const generated=await harness().load("app/platform/page.tsx").generateMetadata();
+  assert.equal(generated.alternates.canonical,"/platform");
+  assert.deepEqual(generated.alternates.languages,{en:"/platform",es:"/es/platform","x-default":"/platform"});
+  assert.ok(typeof generated.title === "string" && generated.title.includes("Cyber Sentinels"));
   assert.match(metadata, /Cyber Sentinels helps organisations determine whether AI agents are authorised to act under current policy and preserve evidence of the decision\./);
 });
 

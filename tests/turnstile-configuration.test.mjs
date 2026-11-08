@@ -18,6 +18,24 @@ const managedKeys = {
   TURNSTILE_SECRET_KEY: "managed-live-secret-key",
 };
 
+test("form-bound tokens reject cross-form and missing actions without accepting provider success alone", async () => {
+  await withEnvironment({NODE_ENV:"production",VERCEL_ENV:"production",...managedKeys}, async () => {
+    let calls=0;
+    for (const action of [undefined,"auth","waitlist"]) {
+      globalThis.fetch=async()=>{calls++;return Response.json({success:true,hostname:"www.cybersentinels.com",action});};
+      const result=await verifyTurnstileToken("private-token",null,"www.cybersentinels.com","enterprise_access");
+      assert.equal(result.ok,false);assert.equal(result.reason,"action_mismatch");
+    }
+    globalThis.fetch=async()=>{calls++;return Response.json({success:true,hostname:"www.cybersentinels.com",action:"enterprise_access"});};
+    assert.equal((await verifyTurnstileToken("private-token",null,"www.cybersentinels.com","enterprise_access")).ok,true);
+    const before=calls;
+    assert.equal((await verifyTurnstileToken("x".repeat(2049),null,"www.cybersentinels.com","enterprise_access")).ok,false);
+    assert.equal(calls,before);
+    globalThis.fetch=async()=>Response.json({success:false,"error-codes":["timeout-or-duplicate"]});
+    assert.equal((await verifyTurnstileToken("private-token",null,"www.cybersentinels.com","enterprise_access")).ok,false);
+  });
+});
+
 test("auth route rejects failed checks and retains safe provider diagnostics without token or secret", async () => {
   await withEnvironment({ NODE_ENV: "production", VERCEL_ENV: "production", ...managedKeys }, async () => {
     const originalInfo = console.info;
@@ -29,7 +47,7 @@ test("auth route rejects failed checks and retains safe provider diagnostics wit
         [{ success: false, "error-codes": ["timeout-or-duplicate"] }, 400, "INVALID_TOKEN"],
         [{ success: false, "error-codes": ["invalid-input-secret"] }, 503, "TURNSTILE_NOT_CONFIGURED"],
         [{ success: true, hostname: "other.example.com" }, 400, "HOSTNAME_MISMATCH"],
-        [{ success: true, hostname: "www.cybersentinels.com", challenge_ts: "2026-09-29T17:00:00.000Z" }, 200, undefined],
+        [{ success: true, hostname: "www.cybersentinels.com", action: "auth", challenge_ts: "2026-09-29T17:00:00.000Z" }, 200, undefined],
       ]) {
         globalThis.fetch = async (url, options) => {
           assert.equal(url, "https://challenges.cloudflare.com/turnstile/v0/siteverify");

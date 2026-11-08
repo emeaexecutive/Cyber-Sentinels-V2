@@ -1,0 +1,36 @@
+name: Public website exact-head qualification
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  public-ui-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm audit --omit=dev
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Check local public rendering without database bindings
+        shell: bash
+        run: |
+          npm run start -- --hostname 127.0.0.1 --port 4340 > /tmp/public-ui-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:4340/ > /dev/null; then break; fi
+            sleep 1
+          done
+          npm run test:spanish-browser

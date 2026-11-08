@@ -1,12 +1,14 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   ...publicSocialMetadata("Media Centre | Cyber Sentinels", "Approved Cyber Sentinels media resources and company updates.", "/media-centre"),
   title: "Media Centre | Cyber Sentinels",
   description: "Approved Cyber Sentinels media resources and company updates.",
-  alternates: { canonical: "/media-centre" },
+  alternates: publicPageAlternates("/media-centre"),
 };
 
 export default function MediaCentrePage() {

@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("API Authentication | Cyber Sentinels", "Authentication, scoped credentials and server-side security guidance for Cyber Sentinels APIs.", "/developers/authentication"),
   title: "API Authentication | Cyber Sentinels",
   description: "Authentication, scoped credentials and server-side security guidance for Cyber Sentinels APIs.",
-  alternates: { canonical: "/developers/authentication" },
+  alternates: publicPageAlternates("/developers/authentication"),
 };
 
 export default function DeveloperAuthenticationPage() {

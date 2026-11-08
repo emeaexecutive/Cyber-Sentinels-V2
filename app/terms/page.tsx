@@ -1,13 +1,15 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export const metadata: Metadata = {
-  ...publicSocialMetadata("Terms and Conditions | Cyber Sentinels", "Terms governing Cyber Sentinels operational trust workflows and services.", "/terms"),
+  robots: { index: false, follow: true },
+  ...publicSocialMetadata("Terms and Conditions | Cyber Sentinels", "Publication status of Cyber Sentinels terms.", "/terms"),
   title: "Terms and Conditions | Cyber Sentinels",
-  description: "Terms governing Cyber Sentinels operational trust workflows and services.",
-  alternates: { canonical: "/terms" },
+  description: "Publication status of Cyber Sentinels terms.",
+  alternates: publicPageAlternates("/terms"),
 };
 
 export default function TermsPage() {

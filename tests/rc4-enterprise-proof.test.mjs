@@ -95,7 +95,7 @@ test("homepage is action-led with five sections, two bounded CTAs and no bluepri
   assert.equal((source.match(/<Link/g) ?? []).length, 2);
   assert.equal((source.match(/<LifecycleDiagram/g) ?? []).length, 0);
   assert.equal((source.match(/<ComparisonCard/g) ?? []).length, 0);
-  for (const outcome of ["Operational Trust Infrastructure", "ALLOW · REVIEW · DENY", "Every decision keeps the evidence needed for audit and Replay", "Trust is contextual to the action"]) {
+  for (const outcome of ["Operational Trust Infrastructure", "ALLOW · REVIEW · DENY", "Keep the proof and Replay trail.", "Trust is contextual to the action"]) {
     assert.match(source, new RegExp(outcome, "i"));
   }
 });

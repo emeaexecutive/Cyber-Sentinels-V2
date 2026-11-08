@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Hiring Security | Cyber Sentinels", "A governed solution for synthetic applicant, proxy interview and session-integrity risk.", "/enterprise/hiring-security"),
   title: "Hiring Security | Cyber Sentinels",
   description: "A governed solution for synthetic applicant, proxy interview and session-integrity risk.",
-  alternates: { canonical: "/enterprise/hiring-security" },
+  alternates: publicPageAlternates("/enterprise/hiring-security"),
 };
 
 export const dynamic = "force-dynamic";

@@ -1,0 +1,227 @@
+[
+  {
+    "path": "app/accessibility/page.tsx",
+    "unapprovedStatements": [
+      "Cyber Sentinels aims to provide clear, readable and keyboard-friendly trust operations workflows.",
+      "The product should move toward WCAG-aligned design, including meaningful structure, readable text, sufficient contrast and accessible form labels.",
+      "Core navigation, forms and admin actions should remain usable with keyboard input, including Escape behavior for dropdown menus.",
+      "The dark product interface should preserve strong contrast for headings, labels, form controls, status chips and operational text.",
+      "Accessibility feedback should be routed to a monitored contact channel once support ownership and response timelines are approved.",
+      "A formal accessibility audit should be completed before claiming WCAG conformance or certified accessibility compliance."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "888e3b6ce734ba8c995bec79ec599659aafb597c",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/ai-governance/page.tsx",
+    "unapprovedStatements": [
+      "Cyber Sentinels governs AI execution inside authorization-aware, evidence-backed enterprise workflows.",
+      "AI agents and assistive models operate within approved workflow purpose, delegated authority, provider policy and data-classification boundaries. Runtime actions remain attributable to accountable enterprise ownership.",
+      "AI-assisted actions should retain the actor, workflow, authorization state, evidence context, provider decision and operational outcome required for replay and review.",
+      "Trust posture can evolve, decay, escalate, recover or require reverification as runtime context, evidence and authorization change. Posture informs review; it is not an automated verdict.",
+      "Cyber Sentinels does not rely solely on automated decision-making for high-risk trust outcomes. Human review, escalation and evidence verification are part of the governance posture for sensitive decisions.",
+      "AI-supported outputs should be understandable, reviewable and connected to source material where possible. Operators should be able to see whether an answer, summary or assessment came from approved knowledge, workflow data or human review.",
+      "AI analysis can be incomplete, uncertain or incorrect. It should not be treated as a guarantee of identity authenticity, fraud prevention, trustworthiness or regulatory compliance.",
+      "The platform recognizes risks including over-reliance, biased or incomplete context, automation drift and unclear accountability. Governance controls should reduce these risks through evidence-backed review and auditability.",
+      "Cyber Sentinels keeps AI execution subordinate to enterprise policy and accountable people. High-risk outcomes require visible authorization, evidence verification, escalation and review paths.",
+      "Customer-owned operational memory, restricted-data controls and provider-agnostic governance keep enterprise policy stable when AI providers change. Provider-specific guarantees must be verified before sensitive processing.",
+      "Where a trust assessment affects access, status or review outcomes, users may need practical routes to request review, correction or deletion according to applicable policy and legal requirements."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "9bf496bb7d38f28048cf12c5c869d7f357a778b3",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/careers/page.tsx",
+    "unapprovedStatements": [
+      "Cyber Sentinels career information will be published when roles, hiring process details and candidate privacy notices are approved.",
+      "No public roles are listed in this draft. Future postings should include role scope, location expectations, compensation practices where required and application instructions.",
+      "Candidate data handling, retention and review access should be documented before collecting applications through the site.",
+      "Hiring workflows should be fair, transparent, privacy-aware and reviewed before public launch."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "b210a2bc1464ce3bc20de45de68f7196eaf67d08",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/cookies/page.tsx",
+    "unapprovedStatements": [
+      "This draft explains how cookies and similar browser storage may support Cyber Sentinels sessions, security and future preferences.",
+      "Essential cookies support core service operation, including routing, session continuity, authentication and secure access to protected workflows.",
+      "Authentication cookies help maintain signed-in sessions and admin verification state. Removing them may end the session or require re-verification.",
+      "Analytics cookies are not described as active here. If analytics are added, they should be documented with consent and preference controls where required.",
+      "Preference controls should allow users to manage optional cookies before optional tracking or marketing technologies are enabled.",
+      "Users can manage cookies through browser settings. Blocking essential cookies may prevent login, admin access or evidence workflows from working correctly."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "f7437b90fbc3893e96e7c1bddf90dbebe3078be5",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/corporate-sustainability/page.tsx",
+    "unapprovedStatements": [
+      "Cyber Sentinels is designed to support responsible, auditable and human-governed trust infrastructure.",
+      "The product direction emphasizes accountable workflows, evidence-backed decisions and human governance for sensitive trust operations.",
+      "Sustainability commitments should be specific, measurable and reviewed before public use.",
+      "Environmental, social and governance reporting should be added only when ownership, methodology and review cadence are confirmed."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "cd4d84d1d79a2fdabedb9677733fb06dfec4b9f1",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/data-rights/page.tsx",
+    "unapprovedStatements": [],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "1527b04770ab3ed05109023955af67e876250beb",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/how-to-use/page.tsx",
+    "unapprovedStatements": [],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "cd505c1470062887f8960a0bc069567b0c63c67f",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/legal/page.tsx",
+    "unapprovedStatements": [
+      "General legal notices for Cyber Sentinels, including entity, jurisdiction, contact and operational-owner information that requires counsel review before production reliance.",
+      "Cyber Sentinels provides trust operations software for identity, evidence, workflow governance and auditability. Final service descriptions require approval.",
+      "Governing law, venue, contracting entity and regional notices must be confirmed by counsel before production use.",
+      "Company: contact@cybersentinels.ai. Security: security@cybersentinels.ai. Trust operations: trust@cybersentinels.ai. Abuse reporting: abuse@cybersentinels.ai. Privacy and legal requests should use privacy@cybersentinels.ai and legal@cybersentinels.ai once counsel approves production routing.",
+      "Enterprise workflows should identify the reviewer, evidence reviewed, escalation reason, workflow reference and outcome before a trust record is treated as complete.",
+      "Cyber Sentinels names, marks, interface copy and product concepts should be treated as protected business materials subject to final legal review.",
+      "The product and these draft notices do not provide legal advice. Customers should consult qualified counsel for compliance obligations."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "31d98af671f11d63b1cdf49593b50f172ac7ba61",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/media-centre/page.tsx",
+    "unapprovedStatements": [
+      "Media resources and company updates for Cyber Sentinels will be maintained here after approval.",
+      "Approved boilerplate, media contacts, screenshots, logos and product descriptions should be added only after communications review.",
+      "Security, regulatory, compliance, customer and funding statements should not be published unless verified and approved.",
+      "Brand assets and trademarks should be used according to approved guidelines once those guidelines are finalized."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "c4647eae4846b3d311ed94b48e70b0dc1a5e44e7",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/modern-slavery-statement/page.tsx",
+    "unapprovedStatements": [
+      "Cyber Sentinels expects responsible, lawful and transparent operations across its product, partners and supply chain.",
+      "This page is a placeholder structure and is not a finalized statutory modern slavery statement.",
+      "Supplier scope, due diligence procedures, risk assessment, training and reporting obligations should be confirmed before publication.",
+      "Cyber Sentinels intends to support human-governed, auditable trust infrastructure while avoiding claims that have not been reviewed."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "b75d0622baee21de239b2405768b8ae0200ff965",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/our-people/page.tsx",
+    "unapprovedStatements": [
+      "Cyber Sentinels is built around human-governed trust operations, security review and accountable decision workflows.",
+      "The product direction centers human review for sensitive evidence, decisions, trust graph interpretation and high-risk workflow authorization.",
+      "Operational roles, responsibilities and escalation paths should be documented before production deployment.",
+      "Leadership, advisors, hiring contacts and team biographies should be published only after consent and communications review."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "e83e6b4fcda27bc35c2859f6961cd2536502e63c",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/regulatory/page.tsx",
+    "unapprovedStatements": [
+      "Cyber Sentinels supports governance-aware trust workflows, but formal regulatory positions depend on jurisdiction, use case and legal review.",
+      "The platform is structured to keep high-impact trust workflows explainable, auditable and subject to human review rather than ungoverned automation.",
+      "Privacy, data-rights, retention, subprocessors and lawful-basis requirements should be assessed before using Cyber Sentinels with personal data in GDPR contexts.",
+      "AI Act classification, provider/deployer responsibilities and high-risk obligations require separate review before any regulated AI deployment claim is made.",
+      "Audit logs, signals, decisions and Trust Graph relationships are intended to support reviewability and operational accountability.",
+      "Admin review, evidence assessment and decision workflows should remain human-governed for sensitive verification and execution contexts.",
+      "This draft does not claim SOC 2, ISO, GDPR, AI Act, biometric or sector-specific compliance unless separately verified and documented."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "fb822aa8c6d24d2493fd64fe853f4076c48ebbf2",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/security/page.tsx",
+    "unapprovedStatements": [
+      "Cyber Sentinels is designed around evidence-backed verification, protected evidence handling, accountable governance review and auditable operational chronology.",
+      "Security reports should be sent to security@cybersentinels.ai. Trust workflow questions should be routed to trust@cybersentinels.ai, and abuse reports should be sent to abuse@cybersentinels.ai.",
+      "Operational data stores use row-level access policies and authenticated grants so records remain scoped to owners and authorized workflows.",
+      "Evidence files should be stored in private buckets and accessed through controlled review flows. Public evidence exposure should require separate approval.",
+      "Security-relevant activity writes audit events so passport creation, evidence review, decisions, admin access and data-rights requests can be traced.",
+      "Protected operational areas and sensitive APIs require authenticated sessions, admin allowlist checks and a verified admin cookie before sensitive actions can be performed.",
+      "Reports should include the affected route or API, reproduction steps, observed impact, screenshots or request IDs where safe, and contact details for follow-up. Do not access customer data, disrupt service, bypass rate limits or disclose findings publicly before review.",
+      "Security, abuse and trust reports should be acknowledged, triaged to an owner, reviewed against evidence and closed with a recorded outcome appropriate to severity and operational impact.",
+      "Logout and session-expiry flows should clear admin state and redirect users away from protected operations when access is no longer valid.",
+      "Cyber Sentinels does not claim raw biometric storage. No raw biometric processing or storage should be implemented unless separately designed and legally reviewed."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "a1a0c09335c5203e5387a100b6357b4b69d780fd",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/terms/page.tsx",
+    "unapprovedStatements": [
+      "These draft terms describe expected use of Cyber Sentinels trust workflows, admin review tools and evidence-backed decision systems.",
+      "Users must submit accurate information, use the service for authorized trust workflows and avoid misleading, unlawful or abusive verification activity.",
+      "Users are responsible for maintaining account security, protecting credentials and ensuring that admin access is granted only to authorized personnel.",
+      "Prohibited uses include fraudulent evidence submission, unauthorized monitoring, attempts to bypass admin controls, abuse of data-rights workflows or misuse of trust scores.",
+      "Admin decisions should be based on verification evidence, policy, analyst notes and human review. The platform provides workflow support and does not replace organizational judgment.",
+      "Suspected misuse, fraudulent evidence, unauthorized monitoring or attempts to bypass trust workflows should be reported to abuse@cybersentinels.ai with the relevant workflow reference and evidence summary.",
+      "Cyber Sentinels does not guarantee that a verification, trust score or graph result will approve, reject or validate any person, organization, agent or workflow.",
+      "Accounts, workflows or access may be suspended where misuse, security risk, unauthorized access or policy violation is suspected.",
+      "Liability limits, warranty disclaimers, dispute terms and governing law require legal drafting before production use."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "b6a3f83d62b9d6a27e257caacedd874761a06aaf",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/transparency/page.tsx",
+    "unapprovedStatements": [
+      "Cyber Sentinels provides risk-based trust assessment with evidence-backed review, human oversight and operational auditability.",
+      "Cyber Sentinels helps create trust passports, collect evidence, support verification workflows, record decisions, generate audit events and provide visibility into trust relationships over time.",
+      "The platform does not guarantee fraud prevention, identity authenticity, trustworthiness, safety or full regulatory compliance. Trust scores and status labels are risk indicators that support review, not guarantees.",
+      "Trust scores should be treated as risk-based indicators. They may reflect evidence, review status, signals, decisions and audit history, but they should be interpreted with context and human oversight.",
+      "Verification is evidence-backed and risk-based. Outcomes may depend on available evidence, evidence quality, review history, risk signals and administrative decisions.",
+      "Users may request access, correction, deletion or export of their data through available data-rights workflows, subject to identity checks, legal obligations and operational retention requirements.",
+      "Cyber Sentinels records audit events and signals to support accountability, review and investigation. Auditability helps explain how a trust state was reached and how it changed over time."
+    ],
+    "status": "withheld from public rendering; approval not inferred",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "sourceBlob": "e6caeced406e3589916dacaace67851b929ebddb",
+    "publication": "review notice only; original draft subtitle/sections withheld from anonymous visitors"
+  },
+  {
+    "path": "app/privacy/page.tsx",
+    "sourceCommit": "0b2ab905ceaa916fe4263c95d0d0f007ae99a9c6",
+    "unapprovedStatements": [
+      "Account identifiers, governed workflow evidence and audit records are processed only for documented service purposes.",
+      "Full IP addresses, raw authentication secrets, unrestricted device fingerprints and unnecessary user-agent strings are not stored in consent records."
+    ],
+    "publication": "unapproved privacy assertions withheld; preference controls retained; no legal approval asserted"
+  }
+]

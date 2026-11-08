@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
   title: "Our Story | Cyber Sentinels",
   description:
     "The story behind TENENTE™, its inspiration in watchfulness and guardianship, and the founder's connection to Aragón, Spain.",
-  alternates: { canonical: "/about" },
+  alternates: publicPageAlternates("/about"),
 };
 
 export { default } from "@/app/about-us/page";

@@ -1,0 +1,23 @@
+# P0 final targeted verification
+
+All commands run in tmp/website-only-20261103 unless stated otherwise. No hosted mutation, real form submission or message.
+
+- Source identity: Vercel CLI GET /v6/deployments/dpl_AFsCyKcsWaKBjAdS32F3Uyqp2FUM/files; complete 2,882-file manifest, compared with Git blobs using raw SHA-1 LF/CRLF variants. 2,882 match 9950dd34e3a17645d853346dcc28dc4526fb70a3. Exact CLI deployment metadata SHA remains absent; reliable source equivalence is established instead.
+- Live GitHub main/protection read: main remains 63a0e0f550f65b4beb3c52afabdba0481b510e69. Required merge checks recorded in release decision; no fresh CI is claimed for the local unpushed SHA.
+- Vercel environment GET with decrypt=false; sanitized keys/scopes only in environment-names.json. 103 entries; required Production Supabase URL/anon/service-role and public Turnstile site/secret keys present. No values decrypted, printed or changed.
+- Read-only HTTPS identified release client: first public critical paths returned 200, except demonstrated /contact 404 repaired locally. Second set: nine public pages plus eight static assets, all 17 returned 200. No application render errors. Error-boundary text inside a static JS asset was correctly classified as source code, not a rendered error page. Default Python user agent received 403 and was distinguished from application errors. No claim of exhaustive reliability or historical 500 closure.
+- `npm.cmd ci --ignore-scripts --no-audit --no-fund`: NATIVE EXIT 0. Lifecycle scripts disabled. Independently installs this exact lockfile, replacing earlier parent-workspace dependency resolution. No source/lockfile changes.
+- `npm.cmd run test:dependency-baseline`: EXIT 0, 8 passed. An earlier direct-node invocation failed the explicit npm_execpath harness precondition; corrected command passes without weakening the test. A founder-workspace graph check was not counted as candidate qualification; its differing lockfile triggered the independent install.
+- `node --import tsx --test tests/public-help-preview.test.mjs tests/website-release-gates.test.mjs`: EXIT 0, 7 passed, 0 failed. Anonymous Help does not emit an admin-email error; configured failures remain failures; draft subtitle/body/contact text is withheld; privacy controls remain; contact redirect resolves; only the approved mailbox is used.
+- `npm.cmd audit --omit=dev --json`: NATIVE EXIT 0; 0 info/low/moderate/high/critical vulnerabilities.
+- `node tools/release/website-recovery-build.mjs`: NATIVE EXIT 0; 208 static pages; full build includes lint/type validity checks. native-build-result.json records completion. Workspace-root inference/cache warnings do not change runtime pins or the independent installed graph.
+- `node node_modules/next/dist/bin/next start -H 127.0.0.1 -p 4333`: production-mode local server. Founder service ports unchanged.
+- `node tools/release/website-p0-browser-checks.mjs`: EXIT 0, 12 passed. Seven legal/publication routes, contact redirect, approved mailto and CAPTCHA guard, investor mailto, Help, and the existing protected Data Rights 503. Initial test wrongly expected Data Rights to be public; inspection proved unchanged middleware intentionally protects it, and the final check asserts that fail-closed response. No Auth bypass or relaxed application check.
+- `node tools/release/website-recovery-smoke.mjs`: NATIVE EXIT 0; five route smokes plus approved-mailto inspection. No sends or live submissions.
+- `git -C <candidate> diff --check`: EXIT 0. `git -C <candidate> diff 9950dd3 --quiet -- app/api lib src/lib middleware.ts supabase/migrations`: EXIT 0. No backend/service/Auth/schema changes from source-equivalent Production.
+
+Reuse original 85 focused tests and 16 pricing/Translate/mobile/browser checks; they were not repeated or counted as fresh tests. The newly added seven-test set includes two earlier Help tests, so counts must not be naively summed as unique scenarios. Existing accessibility proof remains prior branch-specific evidence, not a fresh full audit. No unchanged all-handler or full platform suite was rerun.
+
+Current legal-policy notices and the public mailbox are part of the reviewable release content. This is website release qualification, not hosted API/provider qualification, legal compliance certification, proof of email receipt, or investor-hosting authorization.
+
+The screenshot uses the existing local Reject Optional/Dismiss controls. The unconfigured local consent-receipt rejection is not hidden in product code and does not certify hosted consent persistence. No hosted consent preference was changed.
