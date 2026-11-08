@@ -150,6 +150,13 @@ p {
   transform: translateY(1px);
 }
 
+.public-website main .brand-primary-action,
+.public-website main .brand-secondary-action {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+}
+
 .brand-action-large {
   min-height: 2.75rem;
   padding: 0.7rem 1.25rem;
