@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { canonicalNavigation, publicHeaderLinks } from "@/lib/navigation/canonical-navigation";
 import { clearSignedOutSessionState, revalidateRestoredSession } from "@/lib/auth/sign-out";
+import { navigationLanguages, PublicLanguageSelector, useNavigationLanguage } from "@/components/public-language-selector";
 
 export type NavigationAccessLevel =
   | "public"
@@ -31,18 +32,23 @@ function LogoutButton({ onNavigate }: { onNavigate?: CloseMenus }) {
 }
 
 function PublicNavigation({ onNavigate }: { onNavigate: CloseMenus }) {
+  const { language, select } = useNavigationLanguage();
   return (
     <>
-      {publicHeaderLinks.map((item) => (
+      {publicHeaderLinks.map((item, index) => (
         <Link
           key={item.href}
           href={item.href}
           onClick={onNavigate}
-          className={item.href === "/login" ? "brand-primary-action" : "nav-control"}
+          lang={language}
+          dir={language === "ar" ? "rtl" : "ltr"}
+          className={item.href === "/login" ? "brand-primary-action" : "nav-control !border-transparent"}
         >
-          {item.label}
+          {navigationLanguages[language].labels[index]}
         </Link>
       ))}
+      <PublicLanguageSelector language={language} onSelect={select} />
+      {language !== "en" ? <span className="w-full text-end text-xs text-zinc-400" lang="en">Navigation: {navigationLanguages[language].name} · Page content: English</span> : null}
     </>
   );
 }

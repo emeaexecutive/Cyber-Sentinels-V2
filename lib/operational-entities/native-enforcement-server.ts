@@ -292,10 +292,9 @@ export async function recordNativeEnforcementApproval(context: DelegatedAuthorit
     actionDigest, approvedBy: context.user.id, approvedAt,
     expiresAt: new Date(Date.parse(approvedAt) + lifetimeSeconds * 1000).toISOString(), nonTransferable: true,
   };
-  const inserted = await db.from("native_enforcement_human_approvals").insert({
-    approval_id: approval.approvalId, enterprise_id: approval.enterpriseId, transaction_id: approval.transactionId,
-    operational_entity_id: approval.operationalEntityId, action_digest: approval.actionDigest, approved_by: approval.approvedBy,
-    approved_at: approval.approvedAt, expires_at: approval.expiresAt, non_transferable: true, approval_digest: hashCanonical(approval),
+  const inserted = await db.rpc("issue_native_enforcement_approval_v2", {
+    p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id,
+    p_approval: { ...approval, approvalDigest: hashCanonical(approval) },
   });
   if (inserted.error?.code === "23505") throw new NativeEnforcementServerError("A non-transferable approval already exists for this exact transaction and action.", "HUMAN_APPROVAL_ALREADY_RECORDED", 409);
   if (inserted.error) fail("Human approval persistence", inserted.error);
@@ -345,7 +344,7 @@ export async function requestNativeEnforcement(context: DelegatedAuthorityContex
       return { enterpriseId: context.enterpriseId, operationalEntityId: entityId, authorityId: request.authorityId, delegationId: request.delegationId, authorityActive: authority.data?.revocation_state === "active" && Date.parse(String(authority.data?.expires_at)) > instant, delegationActive: currentDelegation.data?.status === "ACTIVE" && !currentDelegation.data?.revoked_at && Date.parse(String(currentDelegation.data?.expires_at)) > instant, identityVerified: verification.data?.status === "VERIFIED" && Date.parse(String(verification.data?.expires_at)) > instant, ownerConfirmed: owner.data?.state === "CONFIRMED", runtimeContinuity: verification.data?.runtime_binding === "RUNTIME_MATCH" ? "MATCH" : verification.data?.runtime_binding ? "CHANGED" : "UNKNOWN" };
     },
     async reserveRequest(request) {
-      const reserved = await db.rpc("reserve_native_enforcement_request_v1", { p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id, p_request: { requestId: request.requestId, evaluationId, transactionId, operationalEntityId: entityId, authorityId: request.authorityId, delegationId: request.delegationId, actionType: request.action.type, actionTarget: request.action.target, environment: request.action.environment, consequence: request.action.consequence, actionDigest: request.actionDigest, decisionDigest: request.decisionDigest, idempotencyKey: request.idempotencyKey, requestedAt: request.requestedAt } });
+      const reserved = await db.rpc("reserve_native_enforcement_request_v1", { p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id, p_request: { requestId: request.requestId, evaluationId, transactionId, operationalEntityId: entityId, authorityId: request.authorityId, delegationId: request.delegationId, actionType: request.action.type, actionTarget: request.action.target, environment: request.action.environment, consequence: request.action.consequence, actionDigest: request.actionDigest, decisionDigest: request.decisionDigest, payloadDigest: request.action.payloadDigest, idempotencyKey: request.idempotencyKey, requestedAt: request.requestedAt } });
       if (reserved.error) fail("Current-state enforcement reservation", reserved.error);
       const data = reserved.data as Row;
       if (String(data.status) === "DUPLICATE") {
@@ -358,6 +357,14 @@ export async function requestNativeEnforcement(context: DelegatedAuthorityContex
       return { created: true as const };
     },
     adapter: controlledDestinationAdapter(context),
+    async claimDispatch(request) {
+      const result = await db.rpc("claim_native_enforcement_dispatch_v2", {
+        p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id, p_request_id: request.requestId,
+      });
+      if (result.error) fail("Durable dispatch consumption", result.error);
+      const data = result.data as Row | null;
+      return { claimed: data?.claimed === true, reason: String(data?.reason ?? "DISPATCH_NOT_CLAIMED") };
+    },
   });
   if (!executed.requested || !executed.request) {
     if (executed.eligibility.reasonCodes.includes("ENFORCEMENT_CANCELLED_AUTHORITY_CHANGED")) {

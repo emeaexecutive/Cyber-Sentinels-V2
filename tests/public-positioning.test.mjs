@@ -39,9 +39,9 @@ test("homepage uses the approved category, supporting statement and restrained c
   assert.match(home, /Before an AI agent acts, prove it has the authority to do so\./);
   assert.match(
     home,
-    /Cyber Sentinels checks who or what is acting, what it is trying to do, and whether it has authority under the current policy\./,
+    /Cyber Sentinels asks whether the actor has the authority to perform the requested action under the current policy, not whether it is universally trustworthy\./,
   );
-  assert.match(home, /Every decision keeps the evidence needed for audit and Replay\./);
+  assert.match(home, /Keep the evidence behind every decision and reconstruct what happened later\./);
   assert.match(home, /Request a demo/);
   assert.match(home, /Explore the API/);
 });

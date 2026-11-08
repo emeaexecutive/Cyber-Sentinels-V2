@@ -1,0 +1,178 @@
+{
+  "base": "63a0e0f550f65b4beb3c52afabdba0481b510e69",
+  "productionSourceEquivalentBaseline": "9950dd34e3a17645d853346dcc28dc4526fb70a3",
+  "files": [
+    {
+      "path": "app/accessibility/page.tsx",
+      "sha256": "f6b00b845c8b8433bd4866c219692952c005966bc4ff87e957d131b26034ae8f"
+    },
+    {
+      "path": "app/ai-governance/page.tsx",
+      "sha256": "3462ad2c5c923ddb5d98726dbca6c636c0cfc6d20f1b4d7231b77006147368e8"
+    },
+    {
+      "path": "app/careers/page.tsx",
+      "sha256": "eb406bccdb95073c5d361ff6fd475d15af993cfd8d8dd147b759ae69a4a9a53c"
+    },
+    {
+      "path": "app/cookies/page.tsx",
+      "sha256": "63346c8f8d83e015394a915d483cbfd1e0afe21dd0a58adec28028ffcd9ae754"
+    },
+    {
+      "path": "app/corporate-sustainability/page.tsx",
+      "sha256": "7ff865bf44dc2955fce1faf923a79839d661130fbe942a48fbc2260139481dc7"
+    },
+    {
+      "path": "app/data-rights/page.tsx",
+      "sha256": "252380885adc8f906909a9376ff87d235541f85f50d5a03025512593fe927e82"
+    },
+    {
+      "path": "app/demo/page.tsx",
+      "sha256": "e3965fe00f51e3a0118c3b32c0a7f5b59f5ec4505f6dab1871d7699d10922a9d"
+    },
+    {
+      "path": "app/demo/trust-runtime/page.tsx",
+      "sha256": "e742dca91a1b6ec01616182df145b8759d4326be32f6d7958837f7c23bbe9b69"
+    },
+    {
+      "path": "app/enterprise-access/page.tsx",
+      "sha256": "4cb9926aac7aa457ebad828ad7c94ca6ca6fc6e5b51c8c145b96b5a89d0f1f7b"
+    },
+    {
+      "path": "app/globals.css",
+      "sha256": "5d600cc67160d933afbf8cfc8658ea225f35868d321913b3a8224c30d151eb53"
+    },
+    {
+      "path": "app/help/page.tsx",
+      "sha256": "773c3b6e11b8b842b017ad793953d77b5f639ce427dafa0745a20a5fe137134e"
+    },
+    {
+      "path": "app/how-to-use/page.tsx",
+      "sha256": "819be9e553773530719fe0257de0b3d9d0ef72ec11f85619f22207a035fc584c"
+    },
+    {
+      "path": "app/layout.tsx",
+      "sha256": "56632bb88bfe396ee6384255379a85b62ce5c0fa4bf29f6717c4c5d480ceb4fa"
+    },
+    {
+      "path": "app/legal/page.tsx",
+      "sha256": "a3bc324464d3f07680d0f25badfef9e47cabc4c8bd9e0fba3020769032d6aa5c"
+    },
+    {
+      "path": "app/media-centre/page.tsx",
+      "sha256": "2c50c4813b857aae40bb6748a856e11e3494348d3c87b4047d4fd5294b5314ca"
+    },
+    {
+      "path": "app/modern-slavery-statement/page.tsx",
+      "sha256": "7b010dbafdd28ab398543f08d1c5703d880f043f6cb2badde179ee6a1460bbbe"
+    },
+    {
+      "path": "app/our-people/page.tsx",
+      "sha256": "682d9f87b9966b99d6db1aac1747dae91dd27eca0944cbac2ad90b6f9d4da431"
+    },
+    {
+      "path": "app/page.tsx",
+      "sha256": "725e501ee44d4ba8f72bb40f746e8c15f7bed2b215bedaa97f25d4e657f103aa"
+    },
+    {
+      "path": "app/pricing/page.tsx",
+      "sha256": "ba0897efe4a2da4094ac429c89deabd524f7ae6cff71c6fde2417985ce20abc4"
+    },
+    {
+      "path": "app/privacy/page.tsx",
+      "sha256": "911430fa942a12b5d79725a324d57adc15f0c64aec4974cfc6788fc0f9be3521"
+    },
+    {
+      "path": "app/regulatory/page.tsx",
+      "sha256": "dba11e4c1233895ae118b6cc41144e0cc8953fcfb21b534efc81617c61e219b8"
+    },
+    {
+      "path": "app/security/page.tsx",
+      "sha256": "e5fd4cdbf8e07f10dd0ba1125b75a4a05db74b8176c1c60819365a16178a6f3b"
+    },
+    {
+      "path": "app/solutions/page.tsx",
+      "sha256": "7735bd489fdd654c4dfdbd6e4936f424c83bb0f1762d902cc04fe8fe82dae77c"
+    },
+    {
+      "path": "app/terms/page.tsx",
+      "sha256": "3dcb8eb88f4a32312646e192e34788be20351849f73bff3b8f217f47c58e34e6"
+    },
+    {
+      "path": "app/transparency/page.tsx",
+      "sha256": "7132c8f95ea4f6e70be754beedb1ee51d67135f7a618638311b5c67f8279573b"
+    },
+    {
+      "path": "app/verification-receipts/page.tsx",
+      "sha256": "84c46d07b8ad5f9feaa19a974c80629018c1da09ad113a6a50ee44eb153ed20e"
+    },
+    {
+      "path": "app/world-id-preview/page.tsx",
+      "sha256": "a8baaae3c393a2a310f049731668bb6a3ce788b502a590c723ac52c7de988fe7"
+    },
+    {
+      "path": "components/auth-unavailable.tsx",
+      "sha256": "03b347cccac8e3bfc344d38862f8049211653d94ed776627ef4cf29df0c4e9ad"
+    },
+    {
+      "path": "components/executive-summary.tsx",
+      "sha256": "1451c467fc4b8c0ae0af6fedbf150e8c740924ced2784171bd1c74cee7ca332c"
+    },
+    {
+      "path": "components/global-navigation.tsx",
+      "sha256": "58e8236bb6b76e256f285e411c085b69e5e109d5ae628b395d9c1e356c415621"
+    },
+    {
+      "path": "components/legal-draft-page.tsx",
+      "sha256": "9473b180282730a97576483124b03c24c0497e1b40d8633e297e3629aa46ee49"
+    },
+    {
+      "path": "components/pricing-card.tsx",
+      "sha256": "3acf9e91f53c919a8d80be590c604dfcb0d72a386c22c655767a157d626f98b8"
+    },
+    {
+      "path": "components/public-language-selector.tsx",
+      "sha256": "fc48ddb73b066ea5fd4a1f5b6e79ba222c085fc73c2f4235f575c68a6a80b4ce"
+    },
+    {
+      "path": "components/public-page-adoption-rail.tsx",
+      "sha256": "f5ec8d6f535cae0aa69873320e3be0d81a4cd5398193183555df477b47bab5df"
+    },
+    {
+      "path": "next.config.mjs",
+      "sha256": "8de96c4bc36c8a5cec56c7f05915e267eab94fbec3f8b217273f3a19466f0d1d"
+    },
+    {
+      "path": "tests/public-help-preview.test.mjs",
+      "sha256": "8691850644b5c0304f6f27d9d80cf27ae4b332ac49448675eb3ef1685858f2ab"
+    },
+    {
+      "path": "tests/public-surface-navigation.test.mjs",
+      "sha256": "3f280936b52699e25544e728fe045523e40197a1b40c06ce01b53d45e22657fe"
+    },
+    {
+      "path": "tests/website-auth-entry.test.mjs",
+      "sha256": "c7885edd665f8a86307808326243e9ea6b1c7beb7e022d61353f23b7c8ebc718"
+    },
+    {
+      "path": "tests/website-release-gates.test.mjs",
+      "sha256": "3afcf26c204d568034e789dd8be9b20d389e8357d27c2b1cf8bff45ccfa695ec"
+    },
+    {
+      "path": "tools/release/website-p0-browser-checks.mjs",
+      "sha256": "2ebe7eeab0432ee97a8ed2c68dc09b4eef19023cb7e9e031a534b5f361941836"
+    },
+    {
+      "path": "tools/release/website-recovery-build.mjs",
+      "sha256": "4e06db062ffc4ab606433fef84397384b3f499ab7794b38c44edfddf1a5cdec2"
+    },
+    {
+      "path": "tools/release/website-recovery-interactions.mjs",
+      "sha256": "dc08f14a85688f37398e9a898e94c38bcfe821d5418767edd3d789dd1eee78de"
+    },
+    {
+      "path": "tools/release/website-recovery-smoke.mjs",
+      "sha256": "7fd07fbee83a7abc9225f190adac2fc1299155cb1457cb96ceb1ab37a02d0a49"
+    }
+  ]
+}

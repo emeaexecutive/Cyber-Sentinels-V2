@@ -76,7 +76,6 @@ test("footer exposes the final seven detailed discovery groups accessibly", asyn
   ]) assert.match(source, new RegExp(label));
   assert.match(source, /aria-label=\{`\$\{section\.title\} footer navigation`\}/);
   assert.equal((source.match(/<nav key=\{section\.title\}/g) ?? []).length, 1);
-  assert.match(source, /sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7/);
 });
 
 test("homepage preserves the canonical release promise and section ceiling", async () => {

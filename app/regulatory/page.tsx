@@ -4,6 +4,7 @@ import { LegalDraftPage } from "@/components/legal-draft-page";
 import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   ...publicSocialMetadata("Regulatory | Cyber Sentinels", "Governance-aware regulatory information for Cyber Sentinels operational trust workflows.", "/regulatory"),
   title: "Regulatory | Cyber Sentinels",
   description: "Governance-aware regulatory information for Cyber Sentinels operational trust workflows.",

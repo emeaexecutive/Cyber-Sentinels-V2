@@ -57,7 +57,7 @@ test("CISO and CIO buyer journeys preserve canonical proof and readiness surface
   const [home, demoPage, legacyDemo, platform] = await Promise.all([read("app/page.tsx"), read("app/demo/page.tsx"), read("app/demo/trust-execution-flow/page.tsx"), read("app/platform/page.tsx")]);
   assert.match(home, /href="\/enterprise-access\?intent=demo"/);
   assert.match(home, /href="\/developers\/docs"/);
-  for (const href of ["/replay/demo", "/trust-centre/fabric"]) assert.match(demoPage, new RegExp(`href[:=]"${href.replaceAll("/", "\\/")}"`));
+  for (const href of ["/replay/demo", "/platform#trust-fabric"]) assert.match(demoPage, new RegExp(`href[:=]"${href.replaceAll("/", "\\/")}"`));
   assert.match(legacyDemo,/redirect\("\/demo"\)/);
   assert.equal((home.match(/<Link/g) ?? []).length, 2);
   assert.match(platform, /href="\/developers"/);

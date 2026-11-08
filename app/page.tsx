@@ -48,13 +48,10 @@ export default function Home() {
               Before an AI agent acts, prove it has the authority to do so.
             </h1>
             <p className="mt-6 text-lg leading-8 text-zinc-300 sm:text-xl">
-              Cyber Sentinels checks who or what is acting, what it is trying to do, and whether it has authority under the current policy.
+              Cyber Sentinels evaluates whether AI agents are authorised to act — and preserves evidence of the decision.
             </p>
             <p className="mt-4 text-base leading-8 text-zinc-400">
               ALLOW · REVIEW · DENY
-            </p>
-            <p className="mt-3 text-sm leading-7 text-zinc-400">
-              Every decision keeps the evidence needed for audit and Replay.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/enterprise-access?intent=demo" className="brand-primary-action brand-action-large">

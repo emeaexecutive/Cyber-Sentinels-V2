@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Public presentation only; authenticated workspaces keep their existing layout. */
+.public-website main { overflow-wrap: anywhere; }
+.public-website main > div > section + section { margin-top: 3rem; }
+.public-website main p { max-width: 75ch; }
+.public-website main .grid > * { min-width: 0; }
+.public-website main pre { max-width: 100%; overflow-x: auto; }
+.public-website .executive-summary + section { margin-top: 2.5rem; }
+.public-website :is(a, button, input, textarea, select, summary):focus-visible {
+  outline: 2px solid #67e8f9;
+  outline-offset: 4px;
+}
+.public-website summary { min-height: 2.75rem; padding-block: 0.5rem; }
+.public-website .pricing-grid { grid-auto-rows: 1fr; }
+@media (prefers-reduced-motion: reduce) {
+  .public-website *, .public-website *::before, .public-website *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 :root {
   color-scheme: dark;
   --brand-canvas: #06080c;

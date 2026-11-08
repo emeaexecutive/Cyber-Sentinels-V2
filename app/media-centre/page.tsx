@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   ...publicSocialMetadata("Media Centre | Cyber Sentinels", "Approved Cyber Sentinels media resources and company updates.", "/media-centre"),
   title: "Media Centre | Cyber Sentinels",
   description: "Approved Cyber Sentinels media resources and company updates.",

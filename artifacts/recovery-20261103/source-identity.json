@@ -1,0 +1,6 @@
+{
+  "equivalentCommit": "9950dd34e3a17645d853346dcc28dc4526fb70a3",
+  "productionFilesCompared": 2882,
+  "differences": [],
+  "comparison": "raw SHA-1 of LF or CRLF bytes against Vercel UID; matching all source files does not assert deployment commit metadata"
+}
