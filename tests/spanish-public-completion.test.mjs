@@ -25,8 +25,8 @@ test('every English public owner advertises its real reciprocal Spanish route',a
   for(const path of canonicalPublicRoutes){
     const dynamicResource=path.startsWith('/resources/agent-security/');
     const file=dynamicResource?'app/resources/agent-security/[slug]/page.tsx':path==='/'?'app/page.tsx':`app${path}/page.tsx`;
-    const module=h.load(file);
-    const metadata=module.metadata??await module.generateMetadata({params:Promise.resolve({slug:path.split('/').at(-1)})});
+    const pageModule=h.load(file);
+    const metadata=pageModule.metadata??await pageModule.generateMetadata({params:Promise.resolve({slug:path.split('/').at(-1)})});
     assert.equal(metadata.alternates.canonical,path,path);
     assert.equal(metadata.alternates.languages.es,`/es${path==='/'?'':path}`,path);
   }
@@ -39,8 +39,9 @@ test('Spanish API presentation preserves every machine contract field',()=>{
     assert.deepEqual(Object.keys(spanishOpenApiView.paths[path]),Object.keys(methods));
     for(const [method,original] of Object.entries(methods)){
       const translated=spanishOpenApiView.paths[path][method];
-      const {summary:_a,description:_b,...originalContract}=original;
-      const {summary:_c,description:_d,...translatedContract}=translated;
+      const contractFields=operation=>Object.fromEntries(Object.entries(operation).filter(([key])=>!['summary','description'].includes(key)));
+      const originalContract=contractFields(original);
+      const translatedContract=contractFields(translated);
       assert.deepEqual(translatedContract,originalContract,`${method} ${path}`);
       assert.ok(translated.summary);operations++;
     }
