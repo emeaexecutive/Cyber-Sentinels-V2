@@ -70,6 +70,14 @@ test("every declared indexable public route has explicit canonical metadata", as
     }
     const page = route === "/" ? "app/page.tsx" : `app${route}/page.tsx`;
     assert.equal(fs.existsSync(page), true, `${page} should exist`);
+    if (["/","/platform","/pricing","/help","/enterprise-access"].includes(route)) {
+      const {harness}=await import("./fixtures/sign-out-session.mjs");
+      const metadata=await harness().load(page).generateMetadata();
+      assert.equal(metadata.alternates.canonical,route,`${route} generated canonical`);
+      assert.equal(metadata.alternates.languages.en,route);
+      assert.equal(metadata.alternates.languages.es,route==="/"?"/es":`/es${route}`);
+      continue;
+    }
     assert.match(
       read(page),
       new RegExp(`canonical:\\s*["']${route.replaceAll("/", "\\/")}["']`),

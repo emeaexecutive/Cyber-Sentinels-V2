@@ -6,6 +6,7 @@ type TurnstileVerifyResponse = {
   "error-codes"?: string[];
   challenge_ts?: string;
   hostname?: string;
+  action?: string;
 };
 
 export type TurnstileVerificationResult = {
@@ -18,6 +19,7 @@ export type TurnstileVerificationResult = {
     | "missing_token"
     | "invalid_token"
     | "hostname_mismatch"
+    | "action_mismatch"
     | "provider_unavailable"
     | "provider_error";
   errorCodes?: string[];
@@ -188,6 +190,7 @@ export async function verifyTurnstileToken(
   token: string | null | undefined,
   ip?: string | null,
   expectedHostname?: string | null,
+  expectedAction?: string,
 ): Promise<TurnstileVerificationResult> {
   const secret = String(process.env.TURNSTILE_SECRET_KEY ?? "").trim();
 
@@ -209,6 +212,7 @@ export async function verifyTurnstileToken(
   if (!token) {
     return { ok: false, skipped: false, reason: "missing_token" };
   }
+  if (token.length > 2048) return { ok: false, skipped: false, reason: "invalid_token" };
 
   try {
     const formData = new FormData();
@@ -246,6 +250,9 @@ export async function verifyTurnstileToken(
       }
       if (hostname !== expected) {
         return { ok: false, skipped: false, reason: "hostname_mismatch", ...diagnostics };
+      }
+      if (expectedAction && result.action !== expectedAction) {
+        return { ok: false, skipped: false, reason: "action_mismatch", ...diagnostics };
       }
       return { ok: true, skipped: false, reason: "verified", ...diagnostics };
     }

@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Methodology | Cyber Sentinels", "How Cyber Sentinels collects, normalizes and evaluates operational trust evidence.", "/methodology"),
   title: "Methodology | Cyber Sentinels",
   description: "How Cyber Sentinels collects, normalizes and evaluates operational trust evidence.",
-  alternates: { canonical: "/methodology" },
+  alternates: publicPageAlternates("/methodology"),
 };
 
 const stages = [

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import ts from "typescript";
@@ -71,7 +71,7 @@ export function harness() {
     "@/components/public-page-adoption-rail": { PublicPageAdoptionRail: () => null },
     "@/src/components/consent/ConsentManager": { ConsentManager: () => null },
     "@/src/components/consent/ConsentPreferencesLink": { ConsentPreferencesLink: () => null },
-    "next/headers": { cookies: async () => cookieStore },
+    "next/headers": { cookies: async () => cookieStore, headers: async () => new Headers() },
     "next/link": { __esModule: true, default: ({ children, ...props }) => React.createElement("a", props, children) },
     "@/lib/supabase/server": { createClient: async (headers) => client(headers), createNavigationClient: async () => client(), isInvalidRefreshTokenError: () => false },
     "@/lib/operational-monitoring": { captureOperationalIssue() {} },
@@ -84,7 +84,10 @@ export function harness() {
   const cache = new Map();
   function load(filename) {
     filename = path.resolve(root, filename);
-    if (!existsSync(filename)) filename += existsSync(`${filename}.ts`) ? ".ts" : ".tsx";
+    const resolved = [filename, `${filename}.ts`, `${filename}.tsx`, path.join(filename, "index.ts"), path.join(filename, "index.tsx")]
+      .find(candidate => existsSync(candidate) && statSync(candidate).isFile());
+    if (!resolved) throw new Error(`Test module could not resolve to a source file: ${filename}`);
+    filename = resolved;
     if (cache.has(filename)) return cache.get(filename);
     const loaded = { exports: {} };
     cache.set(filename, loaded.exports);

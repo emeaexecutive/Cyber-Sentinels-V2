@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Agent Authorization API Quickstart | Cyber Sentinels", "Follow a non-production agent lifecycle: registration, identity proof, bounded authority, a current decision, receipt and Replay.", "/developers/quickstart"),
   title: "Agent Authorization API Quickstart | Cyber Sentinels",
   description: "Follow a non-production agent lifecycle: registration, identity proof, bounded authority, a current decision, receipt and Replay.",
-  alternates: { canonical: "/developers/quickstart" },
+  alternates: publicPageAlternates("/developers/quickstart"),
 };
 
 const code = "overflow-x-auto whitespace-pre rounded-xl border border-zinc-800 bg-black p-4 font-mono text-xs leading-6 text-cyan-100";

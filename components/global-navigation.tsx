@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { canonicalNavigation, publicHeaderLinks } from "@/lib/navigation/canonical-navigation";
 import { clearSignedOutSessionState, revalidateRestoredSession } from "@/lib/auth/sign-out";
-import { navigationLanguages, PublicLanguageSelector, useNavigationLanguage } from "@/components/public-language-selector";
+import { navigationLanguages, PublicLanguageSelector, type NavigationLanguage } from "@/components/public-language-selector";
+import { localizedPublicHref, type PublicLocale } from "@/lib/i18n/public-locales";
 
 export type NavigationAccessLevel =
   | "public"
@@ -31,37 +32,65 @@ function LogoutButton({ onNavigate }: { onNavigate?: CloseMenus }) {
   );
 }
 
-function PublicNavigation({ onNavigate }: { onNavigate: CloseMenus }) {
-  const { language, select } = useNavigationLanguage();
+function PublicNavigation({
+  onNavigate,
+  language,
+  onSelect,
+}: {
+  onNavigate: CloseMenus;
+  language: NavigationLanguage;
+  onSelect: (language: NavigationLanguage) => void;
+}) {
   return (
     <>
       {publicHeaderLinks.map((item, index) => (
         <Link
           key={item.href}
-          href={item.href}
+          href={localizedPublicHref(item.href, language)}
           onClick={onNavigate}
           lang={language}
-          dir={language === "ar" ? "rtl" : "ltr"}
           className={item.href === "/login" ? "brand-primary-action" : "nav-control !border-transparent"}
         >
           {navigationLanguages[language].labels[index]}
         </Link>
       ))}
-      <PublicLanguageSelector language={language} onSelect={select} />
-      {language !== "en" ? <span className="w-full text-end text-xs text-zinc-400" lang="en">Navigation: {navigationLanguages[language].name} · Page content: English</span> : null}
+      <PublicLanguageSelector language={language} onSelect={onSelect} />
     </>
   );
 }
 
-export function GlobalNavigation({ accessLevel }: { accessLevel: NavigationAccessLevel }) {
+export function GlobalNavigation({
+  accessLevel,
+  locale = "en",
+  sourcePath,
+}: {
+  accessLevel: NavigationAccessLevel;
+  locale?: PublicLocale;
+  sourcePath?: string | null;
+}) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [language, setLanguage] = useState<NavigationLanguage>(locale);
 
   const closeMenus = useCallback(() => {
     setMobileMenuOpen(false);
   }, []);
 
   useEffect(() => closeMenus(), [closeMenus, pathname]);
+
+  useEffect(() => {
+    setLanguage(pathname === "/es" || pathname.startsWith("/es/") ? "es" : locale);
+  }, [locale, pathname]);
+
+  const selectLanguage = useCallback((next: NavigationLanguage) => {
+    setLanguage(next);
+    const currentSourcePath = pathname === "/es/unavailable"
+      ? sourcePath ?? "/"
+      : `${pathname}${window.location.search}${window.location.hash}`;
+    // A full locale transition refreshes the root document, footer and consent
+    // controls together; App Router otherwise retains its cached root layout.
+    window.location.assign(localizedPublicHref(currentSourcePath, next));
+  }, [pathname, sourcePath]);
 
   useEffect(() => {
     if (accessLevel === "public") return;
@@ -73,14 +102,14 @@ export function GlobalNavigation({ accessLevel }: { accessLevel: NavigationAcces
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-900 bg-[#04070c]/95 text-white backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3.5 md:px-8">
-        <Link href="/" onClick={closeMenus} className="brand-wordmark">Cyber Sentinels</Link>
+        <Link href={localizedPublicHref("/", language)} onClick={closeMenus} lang={language} className="brand-wordmark">Cyber Sentinels</Link>
         {accessLevel !== "public" ? <LogoutButton onNavigate={closeMenus} /> : null}
-        <button type="button" aria-label={mobileMenuOpen ? "Close" : "Menu"} aria-expanded={mobileMenuOpen} aria-controls="primary-navigation" onClick={() => setMobileMenuOpen((current) => !current)} className="nav-control min-h-11 sm:hidden">
-          {mobileMenuOpen ? "Close" : "Menu"}
+        <button type="button" aria-label={language === "es" ? (mobileMenuOpen ? "Cerrar menú" : "Abrir menú") : (mobileMenuOpen ? "Close" : "Open menu")} aria-expanded={mobileMenuOpen} aria-controls="primary-navigation" onClick={() => setMobileMenuOpen((current) => !current)} className="nav-control min-h-11 sm:hidden">
+          {language === "es" ? (mobileMenuOpen ? "Cerrar" : "Menú") : (mobileMenuOpen ? "Close" : "Menu")}
         </button>
-        <nav id="primary-navigation" aria-label="Primary navigation" className={`${mobileMenuOpen ? "flex" : "hidden"} max-h-[calc(100vh-5rem)] w-full min-w-0 flex-col items-stretch gap-2 overflow-y-auto pb-2 text-sm text-zinc-200 sm:flex sm:max-h-none sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:overflow-visible sm:pb-0`}>
+        <nav id="primary-navigation" aria-label={language === "es" ? "Navegación principal" : "Primary navigation"} className={`${mobileMenuOpen ? "flex" : "hidden"} max-h-[calc(100vh-5rem)] w-full min-w-0 flex-col items-stretch gap-2 overflow-y-auto pb-2 text-sm text-zinc-200 sm:flex sm:max-h-none sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:overflow-visible sm:pb-0`}>
           {accessLevel === "public" ? (
-            <PublicNavigation onNavigate={closeMenus} />
+            <PublicNavigation onNavigate={closeMenus} language={language} onSelect={selectLanguage} />
           ) : null}
           {accessLevel === "user" || accessLevel === "admin-unverified" ? (
             <>

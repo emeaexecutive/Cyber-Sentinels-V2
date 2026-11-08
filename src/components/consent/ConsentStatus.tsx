@@ -12,15 +12,17 @@ const receiptStatusLabels: Record<ConsentReceiptSyncStatus, string> = {
   rejected: "Stored locally; receipt rejected",
 };
 
-export function ConsentStatus({ choices, receiptStatus, canRetry, retrying, onRetry }: {
+export function ConsentStatus({ choices, receiptStatus, canRetry, retrying, locale = "en", onRetry }: {
   choices: ConsentChoices;
   receiptStatus: ConsentReceiptSyncStatus;
   canRetry: boolean;
   retrying: boolean;
+  locale?: "en" | "es";
   onRetry: () => void;
 }) {
   return (
-    <section className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+    <section lang="en" className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+      {locale === "es" ? <p lang="es" className="mb-3 rounded-lg border border-amber-900/70 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">Los avisos y controles de privacidad siguen disponibles en inglés; no se ha publicado una traducción legal revisada.</p> : null}
       <h2 className="text-lg font-semibold text-white">Privacy status</h2>
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         {consentCategoryKeys.map((key) => <p key={key} className="text-sm text-zinc-300"><span className="text-zinc-500">{labels[key]}:</span> {choices[key] ? "Enabled" : "Disabled"}</p>)}

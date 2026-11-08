@@ -179,7 +179,7 @@ test("Request Demo frontend sets the Turnstile callback token on FormData", asyn
   const page = await readFile(new URL("../app/enterprise-access/page.tsx", import.meta.url), "utf8");
   const field = await readFile(new URL("../components/turnstile-field.tsx", import.meta.url), "utf8");
   const botProtection = await readFile(new URL("../lib/bot-protection.ts", import.meta.url), "utf8");
-  assert.match(page, /<EnterpriseAccessForm buttonLabel=\{buttonLabel\} designPartner=\{designPartner\}/);
+  assert.match(page, /<EnterpriseAccessForm buttonLabel=\{buttonLabel\} designPartner=\{designPartner\} locale=\{locale\}/);
   assert.match(field, /process\.env\.NEXT_PUBLIC_TURNSTILE_SITE_KEY/);
   assert.match(field, /turnstile\.render\(\s*containerRef\.current/);
   assert.match(field, /onToken: \(token\) => \{ if \(active\) publishToken\(token\); \}/);

@@ -163,7 +163,8 @@
     "test:opengraph": "tsx --test tests/opengraph-boundary.test.mjs tests/opengraph-executor.test.mjs tests/provider-execution-qualification.test.mjs tests/identity-corroboration-qualification.test.mjs",
     "test:sign-out-browser": "tsx --test tests/sign-out-browser.mjs",
     "test:synthetic-interaction": "tsx --test tests/synthetic-interaction-trust.test.mjs tests/judgeme-boundary.test.mjs tests/judgeme-installation.test.mjs tests/judgeme-webhook-runtime.test.mjs tests/webhook-event-replay.test.mjs",
-    "test:search": "tsx --test tests/search-authority.test.mjs tests/public-i18n.test.mjs"
+    "test:search": "tsx --test tests/search-authority.test.mjs tests/public-i18n.test.mjs tests/spanish-public-completion.test.mjs",
+    "test:spanish-browser": "node --experimental-strip-types tools/i18n/verify-public-browser.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.4",

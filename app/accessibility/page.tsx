@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Accessibility | Cyber Sentinels", "Cyber Sentinels accessibility commitments and support information.", "/accessibility"),
   title: "Accessibility | Cyber Sentinels",
   description: "Cyber Sentinels accessibility commitments and support information.",
-  alternates: { canonical: "/accessibility" },
+  alternates: publicPageAlternates("/accessibility"),
 };
 
 export default function AccessibilityPage() {

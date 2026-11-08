@@ -14,6 +14,7 @@ export function ExecutiveSummary({
   primary,
   secondary,
   headingLevel = "h1",
+  locale = "en",
 }: {
   eyebrow: string;
   title: string;
@@ -22,6 +23,7 @@ export function ExecutiveSummary({
   primary: SummaryAction;
   secondary?: SummaryAction;
   headingLevel?: "h1" | "h2";
+  locale?: "en" | "es";
 }) {
   const Heading = headingLevel;
   return (
@@ -30,7 +32,7 @@ export function ExecutiveSummary({
       <Heading className="mt-4 max-w-4xl text-4xl font-semibold leading-tight md:text-5xl">{title}</Heading>
       {description ? <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-300">{description}</p> : null}
       <details className="mt-5 max-w-4xl text-sm leading-6 text-zinc-300">
-        <summary className="w-fit cursor-pointer text-cyan-200">At a glance</summary>
+        <summary className="w-fit cursor-pointer text-cyan-200">{locale === "es" ? "Resumen" : "At a glance"}</summary>
         <ul className="mt-4 grid gap-3 md:grid-cols-2">
           {bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}
         </ul>

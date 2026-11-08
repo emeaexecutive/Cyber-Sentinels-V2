@@ -26,6 +26,7 @@ export async function POST(req: Request) {
       getTurnstileTokenFromJson(body),
       getClientIp(req),
       getExpectedTurnstileHostname(new URL(req.url).hostname),
+      "waitlist",
     );
 
     if (!turnstile.ok) {

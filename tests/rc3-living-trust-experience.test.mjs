@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import {renderToStaticMarkup} from "react-dom/server";
+import {harness} from "./fixtures/sign-out-session.mjs";
 
 import { evaluateAuthorityGraph } from "../lib/core/authority-graph.ts";
 import { normalizeEntityIdentity } from "../lib/core/entity-identity.ts";
@@ -54,12 +56,15 @@ test("canonical public routes remain indexable while protected and archived rout
 });
 
 test("CISO and CIO buyer journeys preserve canonical proof and readiness surfaces", async () => {
-  const [home, demoPage, legacyDemo, platform] = await Promise.all([read("app/page.tsx"), read("app/demo/page.tsx"), read("app/demo/trust-execution-flow/page.tsx"), read("app/platform/page.tsx")]);
+  const [demoPage, legacyDemo] = await Promise.all([read("app/demo/page.tsx"), read("app/demo/trust-execution-flow/page.tsx")]);
+  const h=harness();
+  const home=renderToStaticMarkup(await h.load("app/page.tsx").default());
+  const platform=renderToStaticMarkup(await h.load("app/platform/page.tsx").default());
   assert.match(home, /href="\/enterprise-access\?intent=demo"/);
   assert.match(home, /href="\/developers\/docs"/);
   for (const href of ["/replay/demo", "/platform#trust-fabric"]) assert.match(demoPage, new RegExp(`href[:=]"${href.replaceAll("/", "\\/")}"`));
   assert.match(legacyDemo,/redirect\("\/demo"\)/);
-  assert.equal((home.match(/<Link/g) ?? []).length, 2);
+  assert.equal((home.match(/<a\b/g) ?? []).length, 2);
   assert.match(platform, /href="\/developers"/);
   assert.match(platform, /href="\/enterprise\/pilot"/);
 });

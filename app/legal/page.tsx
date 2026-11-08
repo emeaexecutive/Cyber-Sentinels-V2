@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Legal Notices | Cyber Sentinels", "Publication status of Cyber Sentinels legal notices.", "/legal"),
   title: "Legal Notices | Cyber Sentinels",
   description: "Publication status of Cyber Sentinels legal notices.",
-  alternates: { canonical: "/legal" },
+  alternates: publicPageAlternates("/legal"),
 };
 
 export default function LegalPage() {

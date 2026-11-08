@@ -1,5 +1,7 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PublicDisclosure } from "@/components/public-disclosure";
 import { ArchitectureBlock, TrustFlow, VisualFrame } from "@/components/enterprise-visuals";
 import { StructuredData } from "@/components/search/structured-data";
 import { ORGANIZATION_ID, SITE_URL, SOFTWARE_ID, publicSocialMetadata } from "@/lib/search/metadata";
@@ -21,9 +23,9 @@ const sections = [
   ["06", "ALLOW / REVIEW / DENY", "ALLOW authorizes the evaluated request, REVIEW requires accountable intervention or evidence, and DENY means the action is not authorized. None proves downstream execution."],
   ["07", "Evidence independence", "Agent assertions, provider observations, control-plane acknowledgements and independently observed outcomes retain distinct provenance and cannot silently upgrade one another."],
   ["08", "Receipt, Replay and Trust Memory", "Stable identifiers and integrity-linked records preserve what was decided, which versions were active, what evidence existed and how later events extended the lineage."],
-  ["09", "Provider-neutral architecture", "Supabase and Turnstile are exercised Production dependencies. Hopae and OpenAI are not configured in Production. World ID is implemented and Staging database qualified, ready for real human provider qualification, and NOT PRODUCTION EXERCISED. Stripe Identity implementation exists but is BLOCKED_EXTERNAL because business/account setup is incomplete; PRODUCTION EXERCISED = NO. CrowdStrike remains an adapter-only or compatibility boundary."],
+  ["09", "Provider-neutral architecture", "The September 2026 edition records Supabase and Turnstile as Production dependencies; Hopae and OpenAI were not configured in Production. World ID was recorded as implemented and Staging-database qualified, awaiting real human provider qualification and not exercised in Production. Stripe Identity remained BLOCKED_EXTERNAL pending business/account setup, with PRODUCTION EXERCISED = NO. CrowdStrike remained adapter-only or compatibility scope. These historical classifications do not establish current hosted qualification."],
   ["10", "Security and deployment", "Shown-once hashed API keys, scoped access, rotation, revocation, tenant isolation, rate limiting, forward migrations and safe logs form the V1 operating boundary."],
-  ["11", "Current product reality", "The Production API and core trust lifecycle are working. Conditional review, richer provider proof, advanced reporting and arbitrary third-party enforcement are partial or roadmap."],
+  ["11", "Current product reality", "The API and core trust lifecycle have implementations and source tests; this does not establish current Production qualification. Conditional review, richer provider proof, advanced reporting and arbitrary third-party enforcement remain partial or roadmap."],
   ["12", "Accountable autonomy", "The V1 foundation combines identity without self-assertion, authority without silent expansion, current decisions without standing permission and evidence without execution overclaim."],
 ] as const;
 
@@ -78,11 +80,9 @@ export default function OperationalTrustWhitepaperPage() {
           <p className="operational-eyebrow">Technical argument</p>
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {sections.map(([number, title, copy]) => (
-              <section key={number} className="rounded-xl border border-zinc-800 bg-black/50 p-5">
-                <p className="font-mono text-xs text-cyan-300">{number}</p>
-                <h2 className="mt-2 text-xl font-semibold text-zinc-100">{title}</h2>
+              <PublicDisclosure key={number} id={`paper-${number}`} title={<>{number}. {title}</>}>
                 <p className="mt-3 text-sm leading-7 text-zinc-400">{copy}</p>
-              </section>
+              </PublicDisclosure>
             ))}
           </div>
         </section>
@@ -116,7 +116,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Cyber Sentinels Operational Trust Whitepaper", "Technical overview of Cyber Sentinels' operational trust control layer for AI agents, identity, delegated authority, policy decisions, evidence, receipts and Replay.", "/documents/operational-trust-whitepaper"),
   title: "Cyber Sentinels Operational Trust Whitepaper",
   description: "Technical overview of Cyber Sentinels' operational trust control layer for AI agents, identity, delegated authority, policy decisions, evidence, receipts and Replay.",
-  alternates: { canonical: "/documents/operational-trust-whitepaper" },
+  alternates: publicPageAlternates("/documents/operational-trust-whitepaper"),
   openGraph: {
     title: "Operational Trust Infrastructure for Autonomous Systems",
     description: "The Cyber Sentinels V1 technical whitepaper.",

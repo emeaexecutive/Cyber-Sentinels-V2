@@ -9,6 +9,7 @@ function load({configured,createClient}) {
   const source=readFileSync(new URL('../app/help/page.tsx',import.meta.url),'utf8');
   const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText;
   const mocks={
+    '@/lib/i18n/request-locale':{getPublicRequestLocale:async()=> 'en'},
     '@/lib/search/metadata':{publicSocialMetadata:()=>({})},
     '@/lib/env':{hasPublicSupabaseEnv:()=>configured},
     '@/lib/supabase/server':{createClient},

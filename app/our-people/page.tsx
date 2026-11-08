@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import { LegalDraftPage } from "@/components/legal-draft-page";
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Our People | Cyber Sentinels", "The people and accountable operating principles behind Cyber Sentinels.", "/our-people"),
   title: "Our People | Cyber Sentinels",
   description: "The people and accountable operating principles behind Cyber Sentinels.",
-  alternates: { canonical: "/our-people" },
+  alternates: publicPageAlternates("/our-people"),
 };
 
 export default function OurPeoplePage() {

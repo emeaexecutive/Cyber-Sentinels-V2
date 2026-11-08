@@ -101,7 +101,7 @@ function cookieRequest(receipt: LocalConsentReceipt) {
   };
 }
 
-export function ConsentManager({ preferencePage = false }: { preferencePage?: boolean }) {
+export function ConsentManager({ preferencePage = false, locale = "en" }: { preferencePage?: boolean; locale?: "en" | "es" }) {
   const pathname = usePathname();
   const [choices, setChoices] = useState<ConsentChoices>(strictConsentChoices);
   const [ready, setReady] = useState(false);
@@ -315,11 +315,11 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
     else void syncReceipt(receiptRef.current, true);
   }
 
-  const status = <ConsentStatus choices={effectiveConsentChoices(receiptRef.current)} receiptStatus={syncStatus} canRetry={Boolean(receiptRef.current && !["synced", "rejected"].includes(syncStatus))} retrying={syncStatus === "syncing"} onRetry={retrySync}/>;
+  const status = <ConsentStatus choices={effectiveConsentChoices(receiptRef.current)} receiptStatus={syncStatus} canRetry={Boolean(receiptRef.current && !["synced", "rejected"].includes(syncStatus))} retrying={syncStatus === "syncing"} locale={locale} onRetry={retrySync}/>;
   const showConsentBanner = ready && decisionState === "undecided";
 
   if (!ready && !preferencePage) return null;
-  if (preferencePage) return <div className="grid gap-6" data-state={syncStatus}>{status}<ConsentPreferences policy={currentConsentPolicy} choices={choices} busy={saving} error={error} onChange={setChoices} onSave={() => persist("SAVE_PREFERENCES")} onAcceptAll={() => persist("ACCEPT_ALL")} onRejectOptional={() => persist("REJECT_OPTIONAL")} onCancel={() => history.back()}/><button type="button" className="justify-self-start text-sm text-red-300 underline" onClick={() => persist("WITHDRAW")}>Withdraw optional consent</button></div>;
+  if (preferencePage) return <div className="grid gap-6" data-state={syncStatus}>{status}<ConsentPreferences policy={currentConsentPolicy} choices={choices} busy={saving} error={error} locale={locale} onChange={setChoices} onSave={() => persist("SAVE_PREFERENCES")} onAcceptAll={() => persist("ACCEPT_ALL")} onRejectOptional={() => persist("REJECT_OPTIONAL")} onCancel={() => history.back()}/><button type="button" className="justify-self-start text-sm text-red-300 underline" onClick={() => persist("WITHDRAW")}>Withdraw optional consent</button></div>;
   if (hiddenManagerPaths.includes(pathname)) return null;
   if (managing) return (
     <div
@@ -355,13 +355,13 @@ export function ConsentManager({ preferencePage = false }: { preferencePage?: bo
         <div className="overscroll-contain overflow-y-auto p-4 sm:p-6">
           {status}
           <div className="mt-5">
-            <ConsentPreferences policy={currentConsentPolicy} choices={choices} busy={saving} error={error} onChange={setChoices} onSave={() => persist("SAVE_PREFERENCES")} onAcceptAll={() => persist("ACCEPT_ALL")} onRejectOptional={() => persist("REJECT_OPTIONAL")} onCancel={() => setManaging(false)}/>
+            <ConsentPreferences policy={currentConsentPolicy} choices={choices} busy={saving} error={error} locale={locale} onChange={setChoices} onSave={() => persist("SAVE_PREFERENCES")} onAcceptAll={() => persist("ACCEPT_ALL")} onRejectOptional={() => persist("REJECT_OPTIONAL")} onCancel={() => setManaging(false)}/>
           </div>
         </div>
       </div>
     </div>
   );
-  if (showConsentBanner) return <ConsentBanner state={saving ? "saving" : "open"} error={error} onAcceptAll={() => persist("ACCEPT_ALL")} onRejectOptional={() => persist("REJECT_OPTIONAL")} onManage={() => setManaging(true)}/>;
-  if (savedToast) return <aside data-notice="preferences-saved" className="pointer-events-none fixed bottom-4 right-4 z-[90] max-w-sm rounded-xl border border-cyan-900 bg-[#071018] p-4 text-sm text-cyan-50 shadow-xl" role="status" aria-live="polite"><p>{syncStatus === "synced" ? "Privacy choice saved and receipt persisted." : syncStatus === "failed_terminal" ? "Privacy choice stored locally. Receipt persistence is temporarily unavailable." : syncStatus === "rejected" ? "Privacy choice stored locally, but the server rejected its receipt." : "Privacy choice stored locally. Receipt synchronisation is pending."}</p><button type="button" className="pointer-events-auto mt-3 min-h-11 rounded px-2 font-semibold underline" onClick={() => setSavedToast(null)} aria-label="Dismiss saved preferences notification">Dismiss</button></aside>;
+  if (showConsentBanner) return <ConsentBanner state={saving ? "saving" : "open"} error={error} locale={locale} onAcceptAll={() => persist("ACCEPT_ALL")} onRejectOptional={() => persist("REJECT_OPTIONAL")} onManage={() => setManaging(true)}/>;
+  if (savedToast) return <aside lang="en" data-notice="preferences-saved" className="pointer-events-none fixed bottom-4 right-4 z-[90] max-w-sm rounded-xl border border-cyan-900 bg-[#071018] p-4 text-sm text-cyan-50 shadow-xl" role="status" aria-live="polite">{locale === "es" ? <p lang="es" className="mb-2 text-xs">La confirmación de privacidad aparece en inglés.</p> : null}<p>{syncStatus === "synced" ? "Privacy choice saved and receipt persisted." : syncStatus === "failed_terminal" ? "Privacy choice stored locally. Receipt persistence is temporarily unavailable." : syncStatus === "rejected" ? "Privacy choice stored locally, but the server rejected its receipt." : "Privacy choice stored locally. Receipt synchronisation is pending."}</p><button type="button" lang="en" className="pointer-events-auto mt-3 min-h-11 rounded px-2 font-semibold underline" onClick={() => setSavedToast(null)} aria-label="Dismiss saved preferences notification">Dismiss</button></aside>;
   return <span hidden data-state={syncStatus} />;
 }

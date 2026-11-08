@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -170,7 +171,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Enterprise Buyer Documentation | Cyber Sentinels", "See how Cyber Sentinels supports CISOs, CIOs, CTOs, compliance leaders, CEOs and investors through operational trust evidence and controlled deployment.", "/enterprise/buyer-documentation"),
   title: "Enterprise Buyer Documentation | Cyber Sentinels",
   description: "See how Cyber Sentinels supports CISOs, CIOs, CTOs, compliance leaders, CEOs and investors through operational trust evidence and controlled deployment.",
-  alternates: { canonical: "/enterprise/buyer-documentation" },
+  alternates: publicPageAlternates("/enterprise/buyer-documentation"),
   openGraph: {
     type: "website",
     url: "/enterprise/buyer-documentation",

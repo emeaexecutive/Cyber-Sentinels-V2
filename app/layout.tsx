@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import {
   GlobalNavigation,
@@ -20,6 +21,7 @@ import { ConsentPreferencesLink } from "@/src/components/consent/ConsentPreferen
 import "./globals.css";
 import { StructuredData } from "@/components/search/structured-data";
 import { organizationGraph } from "@/lib/search/metadata";
+import { localizedPublicHref, type PublicLocale } from "@/lib/i18n/public-locales";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.cybersentinels.com"),
@@ -124,6 +126,16 @@ const footerSections = [
   },
 ];
 
+const spanishFooterSections = [
+  { title: "Plataforma", links: [["/platform#trust-engine", "Orquestador de confianza"], ["/platform#runtime-engine", "Confianza en tiempo de ejecución"], ["/platform#authorization-gateway", "Autorización y aplicación"], ["/platform#trust-fabric", "Tejido de confianza empresarial"]] },
+  { title: "Confianza", links: [["/trust#living-trust-profile", "Perfil de confianza dinámico"], ["/trust#trust-dna", "ADN de confianza"], ["/trust#trust-memory", "Memoria de confianza"], ["/verification-replay", "Replay"], ["/trust#evidence-audit", "Evidencia y auditoría"], ["/governance", "Gobernanza"], ["/trust/data-sovereignty", "Soberanía de IA"], ["/trust#ml-validation", "Transparencia de validación"]] },
+  { title: "Soluciones", links: [["/solutions#ai-operations", "Operaciones con agentes de IA"], ["/solutions#vendor-access", "Identidad de máquinas"], ["/solutions#privileged-operations", "Flujos de trabajo regulados"], ["/solutions#financial-services", "Servicios financieros"], ["/solutions#insurance", "Seguros"], ["/solutions#critical-infrastructure", "Infraestructura crítica"], ["/enterprise/hiring-security", "Seguridad en contratación"]] },
+  { title: "Empresa", links: [["/security", "Seguridad"], ["/enterprise#compliance", "Cumplimiento"], ["/enterprise#deployment", "Despliegue"], ["/platform#trust-fabric", "Arquitectura"], ["/enterprise/buyer-documentation", "Documentación para compradores"], ["/enterprise/pilot-checklist", "Lista de verificación del piloto"], ["/enterprise/pilot", "Programa piloto"], ["/enterprise#support", "Soporte empresarial"]] },
+  { title: "Desarrollo y recursos", links: [["/developers", "Portal para desarrolladores"], ["/developers/docs", "Documentación de la API"], ["/developers/authentication", "Autenticación"], ["/developers/docs#webhooks", "Webhooks"], ["/developers/docs#integrations", "Integraciones"], ["/documents", "Documentos"], ["/resources/agent-security", "Recursos de seguridad de agentes"], ["/methodology", "Metodología"], ["/journal", "Diario"], ["/regulatory", "Material normativo"]] },
+  { title: "Compañía", links: [["/about", "Acerca de"], ["/about/mission", "Misión"], ["/our-people", "Nuestro equipo"], ["/careers", "Empleo"], ["/enterprise-access", "Contacto"], ["/media-centre", "Centro de prensa"]] },
+  { title: "Legal y soporte", links: [["/help", "Ayuda"], ["/accessibility", "Accesibilidad"], ["/privacy", "Privacidad"], ["/privacy/preferences", "Preferencias de privacidad (en inglés)"], ["/terms", "Términos"], ["/cookies", "Cookies"], ["/legal", "Avisos legales"], ["/modern-slavery", "Esclavitud moderna"]] },
+];
+
 type NavigationState = {
   accessLevel: NavigationAccessLevel;
 };
@@ -208,27 +220,29 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const requestHeaders = await headers();
+  const locale: PublicLocale = requestHeaders.get("x-public-locale") === "es" ? "es" : "en";
   const { accessLevel } = await getNavigationState();
   const trustOSStatus = accessLevel === "public" ? [] : getTrustOSStatus(accessLevel);
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} dir="ltr" suppressHydrationWarning>
       <body suppressHydrationWarning>
         {accessLevel === "public" ? <StructuredData value={organizationGraph} /> : null}
-        <ConsentManager />
+        <ConsentManager locale={locale} />
         <div className={accessLevel === "public" ? "shell public-website" : "shell"}>
-          <GlobalNavigation accessLevel={accessLevel} />
+          <GlobalNavigation accessLevel={accessLevel} locale={locale} sourcePath={requestHeaders.get("x-public-source-path")} />
           {accessLevel === "public" ? children : (
             <EnterpriseTrustOSShell accessLevel={accessLevel} status={trustOSStatus}>
               {children}
             </EnterpriseTrustOSShell>
           )}
-          {accessLevel === "public" ? <PublicPageAdoptionRail /> : null}
+          {accessLevel === "public" ? <PublicPageAdoptionRail locale={locale} /> : null}
           {accessLevel !== "public" ? <ReportIssue authState={accessLevel} /> : null}
           {accessLevel === "public" ? <footer className="border-t border-zinc-900 bg-black px-6 py-10 text-sm text-zinc-500 md:px-8">
             <div className="mx-auto grid max-w-6xl gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-              {footerSections.map((section) => (
-                <nav key={section.title} aria-label={`${section.title} footer navigation`} className="min-w-0">
+              {(locale === "es" ? spanishFooterSections : footerSections).map((section) => (
+                <nav key={section.title} aria-label={locale === "es" ? `${section.title}: navegación de pie de página` : `${section.title} footer navigation`} className="min-w-0">
                   <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-300">
                     {section.title}
                   </h2>
@@ -239,7 +253,8 @@ export default async function RootLayout({
                       return (
                         <Link
                           key={href}
-                          href={href}
+                          href={localizedPublicHref(href, locale)}
+                          lang={locale}
                           target={external ? "_blank" : undefined}
                           rel={external ? "noreferrer" : undefined}
                           className="hover:text-white"
@@ -253,11 +268,12 @@ export default async function RootLayout({
               ))}
             </div>
             <div className="mx-auto mt-8 max-w-7xl border-t border-zinc-900 pt-6">
-              <p>&copy;2026 Cyber Sentinels&trade;. All rights reserved.</p>
-              <ConsentPreferencesLink />
+              <p>&copy;2026 Cyber Sentinels&trade;. {locale === "es" ? "Todos los derechos reservados." : "All rights reserved."}</p>
+              <ConsentPreferencesLink locale={locale} />
               <p className="mt-3 max-w-3xl leading-6">
-                Cyber Sentinels links identity, authority, runtime evidence,
-                policy and replay in one operational trust control plane.
+                {locale === "es"
+                  ? "Cyber Sentinels conecta identidad, autoridad, evidencia de ejecución, políticas y Replay en un único plano de control de confianza operativa."
+                  : "Cyber Sentinels links identity, authority, runtime evidence, policy and replay in one operational trust control plane."}
               </p>
             </div>
           </footer> : null}

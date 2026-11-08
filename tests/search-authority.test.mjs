@@ -18,7 +18,13 @@ const graph = (html) => [...html.matchAll(/<script type="application\/ld\+json">
 test("sitemap includes only deliberate public owners, with stable editorial dates", () => {
   const entries = h.load("app/sitemap.ts").default();
   assert.equal(entries.length, new Set(entries.map((entry) => entry.url)).size);
-  assert.deepEqual(entries.map((entry) => entry.url), canonicalPublicRoutes.map((route) => SITE_URL + (route === "/" ? "" : route)));
+  const translated = new Map(canonicalPublicRoutes.map(path=>[path,`/es${path==="/"?"":path}`]));
+  const expected = canonicalPublicRoutes.flatMap(route=>[SITE_URL+(route==="/"?"":route),...(translated.has(route)?[SITE_URL+translated.get(route)]:[])]);
+  assert.deepEqual(entries.map((entry) => entry.url), expected);
+  for (const [english,spanish] of translated) {
+    const en=SITE_URL+(english==="/"?"":english),es=SITE_URL+spanish;
+    for (const url of [en,es]) assert.deepEqual(entries.find(entry=>entry.url===url).alternates.languages,{en,es,"x-default":en});
+  }
   for (const entry of entries) {
     assert.equal(entry.lastModified, entry.url.includes(RESOURCE_ROOT) ? "2026-09-27" : undefined);
     assert.doesNotMatch(entry.url, /\/api\/|\/admin|\/account|\/dashboard|\/trust-center|\/operational-entities/);

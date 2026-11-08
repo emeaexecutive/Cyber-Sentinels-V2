@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -111,7 +112,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("API Reference | Cyber Sentinels", "Human-readable reference for the canonical Cyber Sentinels V1 OpenAPI contract.", "/developers/api-reference"),
   title: "API Reference | Cyber Sentinels",
   description: "Human-readable reference for the canonical Cyber Sentinels V1 OpenAPI contract.",
-  alternates: { canonical: "/developers/api-reference" },
+  alternates: publicPageAlternates("/developers/api-reference"),
 };
 
 export default function DevelopersApiReferencePage() {

@@ -1,3 +1,4 @@
+import { publicPageAlternates } from "@/lib/i18n/public-locales";
 import { publicSocialMetadata } from "@/lib/search/metadata";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
   ...publicSocialMetadata("Accountable Review and Governance | Cyber Sentinels", "Connect human review, decision rationale, authority and evidence without confusing governance responsibility with permission to execute.", "/governance"),
   title: "Accountable Review and Governance | Cyber Sentinels",
   description: "Connect human review, decision rationale, authority and evidence without confusing governance responsibility with permission to execute.",
-  alternates: { canonical: "/governance" },
+  alternates: publicPageAlternates("/governance"),
 };
 
 const reviewSteps = [
