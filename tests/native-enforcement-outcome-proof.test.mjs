@@ -38,6 +38,45 @@ function current(overrides = {}) {
   return { enterpriseId, operationalEntityId, authorityId, delegationId, authorityActive: true, delegationActive: true, identityVerified: true, ownerConfirmed: true, runtimeContinuity: "MATCH", ...overrides };
 }
 
+for (const [name,changed] of [
+  ["revocation",{authorityActive:false}],
+  ["policy invalidation",{delegationActive:false}],
+  ["runtime identity change",{runtimeContinuity:"CHANGED"}],
+]) test(`a ${name} committed while reservation waits prevents adapter execution`,async()=>{
+  let state=current(),effects=0,release,entered;
+  const waiting=new Promise(resolve=>{release=resolve;});
+  const reserved=new Promise(resolve=>{entered=resolve;});
+  const pending=executeAuthorizedAction({...request(),decision:"ALLOW"},{
+    now:()=>now,findByIdempotencyKey:async()=>null,loadCurrentState:async()=>({...state}),
+    reserveRequest:async()=>{entered();await waiting;return {created:true};},
+    adapter:{execute:async()=>{effects++;throw Error("prohibited dispatch");}},
+  });
+  await reserved;state=current(changed);release();
+  assert.equal((await pending).requested,false);assert.equal(effects,0);
+});
+
+test("high-consequence approval expiry during reservation cannot dispatch",async()=>{
+  const selected=request({action:action({consequence:"HIGH"})});let clock=now,effects=0;
+  const approval={approvalId:randomUUID(),enterpriseId,transactionId,operationalEntityId,
+    actionDigest:selected.actionDigest,approvedBy:randomUUID(),approvedAt:"2026-08-09T11:59:00.000Z",
+    expiresAt:"2026-08-09T12:01:00.000Z",nonTransferable:true};
+  const result=await executeAuthorizedAction({...selected,decision:"ALLOW",approval},{
+    now:()=>clock,findByIdempotencyKey:async()=>null,loadCurrentState:async()=>current(),
+    reserveRequest:async()=>{clock=approval.expiresAt;return {created:true};},
+    adapter:{execute:async()=>{effects++;throw Error("expired approval reached provider");}},
+  });
+  assert.equal(result.requested,false);assert.equal(effects,0);assert.ok(result.eligibility.reasonCodes.includes("HUMAN_APPROVAL_INVALID"));
+});
+
+test("idempotency reuse cannot substitute a different destination or decision",async()=>{
+  const prior=request(),deps={now:()=>now,findByIdempotencyKey:async()=>({request:prior,result:null}),
+    loadCurrentState:async()=>assert.fail("cached retrieval must not dispatch"),reserveRequest:async()=>assert.fail(),adapter:{execute:async()=>assert.fail()}};
+  assert.equal((await executeAuthorizedAction({...prior,decision:"ALLOW"},deps)).duplicate,true);
+  for(const change of [{action:action({target:"other-destination"})},{transactionId:randomUUID()},{decisionDigest:"b".repeat(64)}]){
+    await assert.rejects(executeAuthorizedAction({...prior,...change,decision:"ALLOW"},deps),{code:"ENFORCEMENT_IDEMPOTENCY_CONFLICT"});
+  }
+});
+
 function observation(boundRequest, overrides = {}) {
   return signDestinationObservation({
     observationId: randomUUID(), enterpriseId: boundRequest.enterpriseId, transactionId: boundRequest.transactionId,
@@ -251,6 +290,8 @@ test("double submit, network retry and concurrent retry reserve one logical exec
   let executions = 0;
   const adapterResult = { status: "ACCEPTED", adapterReference: "controlled:a", acknowledgedAt: now, executionClaim: null, runtimeObservation: null, destinationObservation: null, reasonCodes: ["CONTROLLED_DESTINATION_ACCEPTED"] };
   const dependencies = {
+    // Controlled unit fixture; database atomicity is tested separately.
+    claimDispatch: async () => ({ claimed: true }),
     async loadCurrentState() { return current(); },
     async findByIdempotencyKey(_tenant, key) { return records.get(key)?.complete ?? null; },
     async reserveRequest(selected) {

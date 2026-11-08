@@ -115,6 +115,8 @@ for (const scenario of cases) {
         captured.request = structuredClone(request);
         return { created: true };
       },
+      // Controlled provider composition fixture, not the durable boundary proof.
+      claimDispatch: async () => ({ claimed: true }),
       adapter: { async execute(request) {
         adapterCalls++;
         chronology.push("provider");
@@ -169,7 +171,7 @@ for (const scenario of cases) {
     }
     const expectedAttempts = scenario.provider ? 1 : 0;
     assert.equal(dispatchHookCalls, scenario.decision === "ALLOW" ? 1 : 0);
-    assert.equal(currentStateCalls, expectedAttempts);
+    assert.equal(currentStateCalls, expectedAttempts * 2, "authority checked before reservation and before dispatch");
     assert.equal(reservationCalls, expectedAttempts);
     assert.equal(adapterCalls, expectedAttempts);
     assert.equal(receipt.externalExecution.requested, Boolean(scenario.provider));
@@ -234,7 +236,7 @@ for (const scenario of cases) {
 
     assert.equal(receipt.materialChange, true);
     assert.deepEqual(chronology, ["authority", "decision", "graph", "replay", "memory",
-      ...(scenario.provider ? ["dispatch-hook", "current-authority", "reservation", "provider", "acknowledgement-hook", "outcome-hook"]
+      ...(scenario.provider ? ["dispatch-hook", "current-authority", "reservation", "current-authority", "provider", "acknowledgement-hook", "outcome-hook"]
         : scenario.decision === "ALLOW" ? ["dispatch-hook"] : [])]);
     for (const stage of ["graph", "replay", "memory"]) {
       const artifact = captured[stage];
