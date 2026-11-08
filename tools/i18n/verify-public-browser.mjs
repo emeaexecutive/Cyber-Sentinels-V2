@@ -12,6 +12,13 @@ const messages=JSON.parse(readFileSync('artifacts/spanish-completion/messages.js
 const translated=readdirSync('lib/i18n/es-public-batches').filter(file=>/^\d+\.json$/.test(file)).sort((a,b)=>parseInt(a)-parseInt(b)).flatMap(file=>JSON.parse(readFileSync('lib/i18n/es-public-batches/'+file,'utf8')));
 const englishProse=messages.filter((entry,index)=>entry.en.length>=35&&entry.en!==translated[index]).map(entry=>entry.en.replaceAll('&apos;',"'").replaceAll('&amp;','&'));
 const out='artifacts/spanish-completion/browser';mkdirSync(out,{recursive:true});
+const middleware=readFileSync('middleware.ts','utf8');
+const guardedRoutes=['userPagePrefixes','adminPagePrefixes'].flatMap(name=>{
+  const declaration=middleware.match(new RegExp(`const ${name} = \\[([\\s\\S]*?)\\];`));
+  assert.ok(declaration,'Missing middleware guard inventory: '+name);
+  return [...declaration[1].matchAll(/"([^"]+)"/g)].map(match=>match[1]);
+});
+const protectedPrefixes=[...protectedRoutePrefixes,...guardedRoutes];
 const report={origin,checkedAt:new Date().toISOString(),scope:'LOCAL public rendering and browser navigation; no hosted Auth/DB/provider qualification',http:[],browser:[],links:[],pageErrors:[],assetFailures:[],apiFailures:[],protectedWorkflowBlockers:[],failures:[]};
 const browser=await chromium.launch({headless:true});
 try{
@@ -27,7 +34,7 @@ try{
     const page=await context.newPage();
     await page.setViewportSize({width,height});
     page.on('pageerror',e=>report.pageErrors.push({viewport,message:e.message}));
-    page.on('response',r=>{if(r.url().startsWith(origin)&&r.status()>=400){const failure={path:new URL(r.url()).pathname,status:r.status()};if(r.url().startsWith(origin+'/api/'))report.apiFailures.push(failure);else if(failure.status===503&&routeMatchesPrefix(failure.path,protectedRoutePrefixes))report.protectedWorkflowBlockers.push(failure);else report.assetFailures.push(failure);}});
+    page.on('response',r=>{if(r.url().startsWith(origin)&&r.status()>=400){const failure={path:new URL(r.url()).pathname,status:r.status()};if(r.url().startsWith(origin+'/api/'))report.apiFailures.push(failure);else if(failure.status===503&&routeMatchesPrefix(failure.path,protectedPrefixes))report.protectedWorkflowBlockers.push(failure);else report.assetFailures.push(failure);}});
     for(const path of paths){
       // Next Link prefetches can stay pending for protected routes in this unbound
       // environment. Readiness is the actual document and visible page contract.
@@ -74,7 +81,7 @@ try{
     const url=new URL(href,origin),response=await context.request.get(url.href,{timeout:60000});
     const item={href,status:response.status(),finalPath:new URL(response.url()).pathname};
     report.links.push(item);
-    if(routeMatchesPrefix(url.pathname,protectedRoutePrefixes)&&response.status()===503){
+    if(routeMatchesPrefix(url.pathname,protectedPrefixes)&&response.status()===503){
       assert.match(await response.text(),/Protected surface unavailable/);
       item.qualification='BLOCKED: protected workflow requires isolated Auth/database bindings';
       continue;
@@ -89,7 +96,9 @@ try{
   const page=await context.newPage();
   const resource='/es/resources/agent-security/agent-authorization';
   await page.goto(origin+resource);const disclosure=page.locator('details').nth(1);const id=await disclosure.getAttribute('id');
-  await page.goto(origin+resource+'#'+id);assert.equal(await page.locator(`[id="${id}"]`).getAttribute('open'),'');
+  assert.ok(id,'Technical disclosure must have a stable hash target');
+  await page.goto(origin+resource+'#'+id);
+  await page.locator(`[id="${id}"][open]`).waitFor({state:'visible'});
   report.browser.push({name:'Hash navigation opens the retained technical section',passed:true});
   await page.goto(origin+'/enterprise-access?intent=intro_call#contact');
   // Close the visible consent UI through its real control, without changing any security or fixture configuration.
