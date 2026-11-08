@@ -8,7 +8,7 @@ permissions:
 jobs:
   postgres-boundary:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 45
     services:
       postgres:
         image: postgres:17.6
@@ -30,8 +30,13 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - run: npm audit --omit=dev
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
       - run: node --experimental-strip-types --test tests/native-dispatch-postgres.test.mjs
         env:
           APPROVAL_TEST_HOST: 127.0.0.1
           APPROVAL_TEST_PORT: '5432'
           APPROVAL_TEST_PASSWORD: local-synthetic-ci-only
+      - run: npm run build

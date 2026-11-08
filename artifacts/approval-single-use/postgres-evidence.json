@@ -113,6 +113,11 @@
       "effects": 0,
       "outcome": "UNKNOWN",
       "passed": true
+    },
+    {
+      "case": "policy update during observed database lock wait",
+      "effects": 0,
+      "passed": true
     }
   ]
 }

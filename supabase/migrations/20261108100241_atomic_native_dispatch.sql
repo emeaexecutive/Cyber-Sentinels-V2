@@ -66,7 +66,7 @@ create function public.claim_native_enforcement_dispatch_v2(p_enterprise_id uuid
 returns jsonb language plpgsql security definer set search_path=pg_catalog,public as $$
 declare r public.native_enforcement_requests%rowtype; a public.native_enforcement_human_approvals%rowtype;
   d public.operational_entity_authority_delegations%rowtype; parent public.trust_contracts%rowtype;
-  v public.operational_entity_native_verifications%rowtype; s jsonb; bound jsonb; approval_uuid uuid; expected_fingerprint text; inserted uuid;
+  v public.operational_entity_native_verifications%rowtype; s jsonb; bound jsonb; locked_scope jsonb; approval_uuid uuid; expected_fingerprint text; inserted uuid;
 begin
   if auth.role() is distinct from 'service_role' then raise exception 'Service path required'; end if;
   select * into r from public.native_enforcement_requests where enterprise_id=p_enterprise_id and request_id=p_request_id;
@@ -91,6 +91,10 @@ begin
     or not exists(select 1 from public.operational_entity_owner_bindings where enterprise_id=p_enterprise_id and operational_entity_id=r.operational_entity_id and state='CONFIRMED'
       and effective_from=(select max(effective_from) from public.operational_entity_owner_bindings where enterprise_id=p_enterprise_id and operational_entity_id=r.operational_entity_id)) then
     return jsonb_build_object('claimed',false,'reason','DISPATCH_IDENTITY_CHANGED'); end if;
+  -- Locks may have waited behind a policy/lineage update. Do not approve the
+  -- pre-wait scope; READ COMMITTED must see the newly committed version here.
+  locked_scope:=public.native_enforcement_scope_v2(p_enterprise_id,p_actor_id,r.transaction_id,r.operational_entity_id);
+  if locked_scope is distinct from s then return jsonb_build_object('claimed',false,'reason','DISPATCH_SCOPE_CHANGED'); end if;
   if r.consequence in ('HIGH','CRITICAL') then
     select * into a from public.native_enforcement_human_approvals where enterprise_id=p_enterprise_id and transaction_id=r.transaction_id and operational_entity_id=r.operational_entity_id and action_digest=r.action_digest for update;
     select scope into bound from public.native_enforcement_approval_scopes where enterprise_id=p_enterprise_id and approval_id=a.approval_id;

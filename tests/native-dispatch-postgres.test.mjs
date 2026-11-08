@@ -148,3 +148,21 @@ test('claim response loss after database commit never permits a second dispatch'
   assert.equal((await executeAuthorizedAction({...f.input,idempotencyKey:'claim-lost:2'},deps(db,f))).requested,false);
   assert.equal(effects-start,0);evidence.push({case:'claim response lost after commit',effects:0,outcome:'UNKNOWN',passed:true});
 });
+test('policy change committed while a claim waits for the delegation lock prevents dispatch',async()=>{
+  const f=await fixture(),holder=await connect(),waiter=await connect(),start=effects;
+  const r={...f.input,requestId:randomUUID(),actionDigest:f.input.approval.actionDigest,idempotencyKey:'policy-wait'};
+  try{
+    await reserve(db,f,r);await holder.query('begin');
+    await holder.query('select 1 from operational_entity_authority_delegations where enterprise_id=$1 for update',[f.tenant]);
+    const pending=claim(waiter,f,r);
+    const deadline=Date.now()+3000;let blocked=false;
+    while(Date.now()<deadline){
+      blocked=(await db.query('select cardinality(pg_blocking_pids($1))>0 as blocked',[waiter.processID])).rows[0].blocked;
+      if(blocked)break;await new Promise(resolve=>setTimeout(resolve,10));
+    }
+    assert.equal(blocked,true,'The test must observe a real database lock wait');
+    await holder.query("update operational_entity_authority_delegations set policy_version='v2' where enterprise_id=$1",[f.tenant]);
+    await holder.query('commit');assert.equal((await pending).claimed,false);assert.equal(effects-start,0);
+    evidence.push({case:'policy update during observed database lock wait',effects:0,passed:true});
+  }finally{await holder.query('rollback');await holder.end();await waiter.end();}
+});
