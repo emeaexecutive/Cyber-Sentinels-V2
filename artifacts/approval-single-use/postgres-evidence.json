@@ -1,0 +1,118 @@
+{
+  "mode": "Real local PostgreSQL17 routines plus loopback HTTP destination; minimal predecessor schema fixture",
+  "hosted": false,
+  "tests": [
+    {
+      "case": "12 concurrent keys",
+      "effects": 1,
+      "claims": 1,
+      "passed": true
+    },
+    {
+      "case": "response lost/reconnected retry",
+      "effects": 1,
+      "outcome": "UNKNOWN",
+      "passed": true
+    },
+    {
+      "case": "crash before dispatch",
+      "effects": 0,
+      "outcome": "UNKNOWN",
+      "passed": true
+    },
+    {
+      "case": "policy version",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "parameters",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "destination",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "actor",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "expiry",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "revocation",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "runtime",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "legacy approval without bound scope",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "rollback and commit/replay",
+      "passed": true
+    },
+    {
+      "case": "role permissions",
+      "passed": true
+    },
+    {
+      "case": "tenant substitution",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "actor substitution",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "entity substitution",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "action substitution",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "authority substitution",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "delegation substitution",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "expiry while waiting for transaction lock",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "missing durable boundary",
+      "effects": 0,
+      "passed": true
+    },
+    {
+      "case": "claim response lost after commit",
+      "effects": 0,
+      "outcome": "UNKNOWN",
+      "passed": true
+    }
+  ]
+}
