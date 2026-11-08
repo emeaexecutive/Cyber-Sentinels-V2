@@ -1,0 +1,42 @@
+name: Atomic approval consumption
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  postgres-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_PASSWORD: local-synthetic-ci-only
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm audit --omit=dev
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: node --experimental-strip-types --test tests/native-dispatch-postgres.test.mjs
+        env:
+          APPROVAL_TEST_HOST: 127.0.0.1
+          APPROVAL_TEST_PORT: '5432'
+          APPROVAL_TEST_PASSWORD: local-synthetic-ci-only
+      - run: npm run build
