@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArchitectureBlock, DecisionFlow, VisualFrame } from "@/components/enterprise-visuals";
+import { ArchitectureBlock as EnglishArchitectureBlock, DecisionFlow as EnglishDecisionFlow, VisualFrame as EnglishVisualFrame } from "@/components/enterprise-visuals";
+import { ArchitectureBlock as SpanishArchitectureBlock, DecisionFlow as SpanishDecisionFlow, VisualFrame as SpanishVisualFrame } from "@/components/i18n/es/enterprise-visuals";
 import { ExecutiveSummary } from "@/components/executive-summary";
 import { StructuredData } from "@/components/search/structured-data";
 import { softwareGraph, publicSocialMetadata } from "@/lib/search/metadata";
@@ -54,6 +55,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PlatformPage() {
   const locale = await getPublicRequestLocale();
   const isSpanish = locale === "es";
+  const ArchitectureBlock = isSpanish ? SpanishArchitectureBlock : EnglishArchitectureBlock;
+  const DecisionFlow = isSpanish ? SpanishDecisionFlow : EnglishDecisionFlow;
+  const VisualFrame = isSpanish ? SpanishVisualFrame : EnglishVisualFrame;
   const copy = platformCopy[locale];
   const requestFlow = copy.requestFlow.map((label) => ({ label }));
 

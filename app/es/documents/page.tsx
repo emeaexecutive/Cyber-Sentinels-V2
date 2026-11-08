@@ -56,8 +56,8 @@ export default function DocumentsPage() {
 
         <p className="mt-8 text-base leading-8 text-zinc-300">{"Empiece por los "}<Link href={"/es/resources/agent-security"} className="text-cyan-200 underline">{"recursos de seguridad de agentes de IA"}</Link>{" para explicaciones breves de autorización, herramientas MCP y confianza en interacciones sintéticas; después consulte el documento y el contrato público para conocer los detalles técnicos."}</p>
         <section className="mt-10">
-          <VisualFrame eyebrow={"Contenido del documento"} title={"Un ciclo de vida con límites explícitos de confianza."} caption="Conceptual flow. The paper distinguishes authorization from downstream execution and outcome proof.">
-            <TrustFlow steps={lifecycle} ariaLabel="Whitepaper operational trust lifecycle" />
+          <VisualFrame eyebrow={"Contenido del documento"} title={"Un ciclo de vida con límites explícitos de confianza."} caption={"Flujo conceptual. El documento distingue la autorizaci?n de la ejecuci?n posterior y de las pruebas del resultado."}>
+            <TrustFlow steps={lifecycle} ariaLabel={"Ciclo de confianza operativa del documento t?cnico"} />
           </VisualFrame>
         </section>
       </div>

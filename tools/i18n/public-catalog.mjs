@@ -15,7 +15,7 @@ export function humanNode(node){
   if(ts.isBinaryExpression(p)||ts.isCaseClause(p)||ts.isElementAccessExpression(p))return false;
   if(protocol.has(s)||!/[A-Za-z]/.test(s)||/^[@/#.]|https?:|^[a-z]+:/.test(s)||s.includes('\\n')||s.includes('\n'))return false;
   if(ts.isImportDeclaration(p)||ts.isExportDeclaration(p)||ts.isLiteralTypeNode(p)||ts.isPropertyAssignment(p)&&p.name===node)return false;
-  if(ts.isJsxAttribute(p)&&!['title','alt','aria-label','placeholder','label','eyebrow','subtitle','description'].includes(p.name.getText()))return false;
+  if(ts.isJsxAttribute(p)&&!['title','alt','aria-label','ariaLabel','placeholder','label','eyebrow','subtitle','description','caption'].includes(p.name.getText()))return false;
   if(ts.isPropertyAssignment(p)&&['id','type','kind','status','state','variant','className','rel','target','slug','key','method','operationId','audience','version','provider','icon'].includes(p.name.getText()))return false;
   if(/^[a-z0-9_.:/-]+$/.test(s))return false;
   if(/^(?:use client|use server|[A-Z_]+)$/.test(s))return false;

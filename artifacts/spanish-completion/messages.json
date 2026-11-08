@@ -714,6 +714,20 @@
     ]
   },
   {
+    "id": "b85a75f4fdb9df83",
+    "en": "Evidence Graph stores relationships. Operational Trust Graph™ connects identity, authority, action and evolving trust across the decision chronology.",
+    "files": [
+      "app/trust/page.tsx"
+    ]
+  },
+  {
+    "id": "8e8847a2cd2e1525",
+    "en": "Operational Trust Graph",
+    "files": [
+      "app/trust/page.tsx"
+    ]
+  },
+  {
     "id": "0b6d3f4845e5a140",
     "en": "Evidence Graph",
     "files": [
@@ -740,6 +754,20 @@
   {
     "id": "9d23c6640b5db49a",
     "en": "Trust evolves; its history remains explainable.",
+    "files": [
+      "app/trust/page.tsx"
+    ]
+  },
+  {
+    "id": "5bd599d7a78208f8",
+    "en": "Every change records why, by whom, with which evidence, policy and authority.",
+    "files": [
+      "app/trust/page.tsx"
+    ]
+  },
+  {
+    "id": "890eef71c9c26b33",
+    "en": "Trust Memory evolution timeline",
     "files": [
       "app/trust/page.tsx"
     ]
@@ -5761,6 +5789,20 @@
     ]
   },
   {
+    "id": "df5bd3bf8855eef4",
+    "en": "Conceptual flow. The paper distinguishes authorization from downstream execution and outcome proof.",
+    "files": [
+      "app/documents/page.tsx"
+    ]
+  },
+  {
+    "id": "08f37eed49dae801",
+    "en": "Whitepaper operational trust lifecycle",
+    "files": [
+      "app/documents/page.tsx"
+    ]
+  },
+  {
     "id": "aa175df5594ab949",
     "en": "Documents and Technical Resources | Cyber Sentinels",
     "files": [
@@ -6104,6 +6146,20 @@
   {
     "id": "afeb7c6ccd616c4c",
     "en": "Separate identity, authority, decision and evidence.",
+    "files": [
+      "app/documents/operational-trust-whitepaper/page.tsx"
+    ]
+  },
+  {
+    "id": "1677b3cb043c1fdb",
+    "en": "Conceptual architecture; the Production API exposes each state as a distinct resource and transition.",
+    "files": [
+      "app/documents/operational-trust-whitepaper/page.tsx"
+    ]
+  },
+  {
+    "id": "63513a9505d93769",
+    "en": "Operational trust lifecycle",
     "files": [
       "app/documents/operational-trust-whitepaper/page.tsx"
     ]
@@ -6878,6 +6934,20 @@
     "en": "Enterprise Access",
     "files": [
       "app/about/mission/page.tsx"
+    ]
+  },
+  {
+    "id": "03d9bb0b380a3a15",
+    "en": "Operational Trust Lifecycle",
+    "files": [
+      "components/enterprise-visuals.tsx"
+    ]
+  },
+  {
+    "id": "fa6718fd8e8c6414",
+    "en": "Trust decision flow",
+    "files": [
+      "components/enterprise-visuals.tsx"
     ]
   },
   {

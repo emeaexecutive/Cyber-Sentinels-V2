@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { harness } from "./fixtures/sign-out-session.mjs";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -74,7 +77,14 @@ test("footer exposes the final seven detailed discovery groups accessibly", asyn
     "About", "Mission", "Our People", "Careers", "Contact", "Media Centre",
     "Help", "Accessibility", "Privacy", "Terms", "Cookies", "Legal", "Modern Slavery", "Status",
   ]) assert.match(source, new RegExp(label));
-  assert.match(source, /aria-label=\{`\$\{section\.title\} footer navigation`\}/);
+  for (const locale of ["en", "es"]) {
+    const root = await harness({ locale }).load("app/layout.tsx").default({ children: React.createElement("main") });
+    const html = renderToStaticMarkup(root);
+    const footer = html.match(/<footer[\s\S]*?<\/footer>/)?.[0] ?? "";
+    const labels = [...footer.matchAll(/<nav[^>]+aria-label="([^"]+)"/g)].map(match => match[1]);
+    assert.equal(labels.length, 7, locale);
+    assert.ok(labels.every(label => label.includes(locale === "es" ? "navegación de pie de página" : "footer navigation")));
+  }
   assert.equal((source.match(/<nav key=\{section\.title\}/g) ?? []).length, 1);
 });
 

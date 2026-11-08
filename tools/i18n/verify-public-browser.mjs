@@ -1,14 +1,18 @@
 import assert from 'node:assert/strict';
-import {mkdirSync,writeFileSync} from 'node:fs';
+import {mkdirSync,writeFileSync,readFileSync,readdirSync,existsSync} from 'node:fs';
 import {chromium} from '@playwright/test';
-import {canonicalPublicRoutes} from '../../lib/navigation/route-visibility.ts';
+import {canonicalPublicRoutes,protectedRoutePrefixes,routeMatchesPrefix} from '../../lib/navigation/route-visibility.ts';
 import {getPublishedPublicEquivalents} from '../../lib/i18n/public-locales.ts';
 
 const origin=process.env.PUBLIC_BROWSER_ORIGIN??'http://127.0.0.1:4340';
 assert.ok(/^http:\/\/(127\.0\.0\.1|localhost):4340$/.test(origin),'Local read-only public browser qualification only');
 assert.ok(!process.env.NEXT_PUBLIC_SUPABASE_URL&&!process.env.SUPABASE_SERVICE_ROLE_KEY,'This public UI proof must run unbound; hosted write qualification is separate');
+assert.ok(!['.env','.env.local','.env.production','.env.production.local'].some(file=>existsSync(file)),'This proof must not load database bindings from dotenv files');
+const messages=JSON.parse(readFileSync('artifacts/spanish-completion/messages.json','utf8'));
+const translated=readdirSync('lib/i18n/es-public-batches').filter(file=>/^\d+\.json$/.test(file)).sort((a,b)=>parseInt(a)-parseInt(b)).flatMap(file=>JSON.parse(readFileSync('lib/i18n/es-public-batches/'+file,'utf8')));
+const englishProse=messages.filter((entry,index)=>entry.en.length>=35&&entry.en!==translated[index]).map(entry=>entry.en.replaceAll('&apos;',"'").replaceAll('&amp;','&'));
 const out='artifacts/spanish-completion/browser';mkdirSync(out,{recursive:true});
-const report={origin,checkedAt:new Date().toISOString(),scope:'LOCAL public rendering and browser navigation; no hosted Auth/DB/provider qualification',http:[],browser:[],links:[],pageErrors:[],apiFailures:[],failures:[]};
+const report={origin,checkedAt:new Date().toISOString(),scope:'LOCAL public rendering and browser navigation; no hosted Auth/DB/provider qualification',http:[],browser:[],links:[],pageErrors:[],assetFailures:[],apiFailures:[],protectedWorkflowBlockers:[],failures:[]};
 const browser=await chromium.launch({headless:true});
 try{
   const context=await browser.newContext();
@@ -20,17 +24,37 @@ try{
   }
   const screenshots=new Set(['/es','/es/pricing','/es/enterprise-access','/es/solutions','/es/developers/api-reference','/es/resources/agent-security/agent-authorization','/es/documents/operational-trust-whitepaper','/es/privacy']);
   for(const [viewport,width,height] of [['mobile',390,844],['desktop',1440,1000]]){
-    const page=await context.newPage({viewport:{width,height}});
+    const page=await context.newPage();
+    await page.setViewportSize({width,height});
     page.on('pageerror',e=>report.pageErrors.push({viewport,message:e.message}));
-    page.on('response',r=>{if(r.url().startsWith(origin+'/api/')&&r.status()>=500)report.apiFailures.push({path:new URL(r.url()).pathname,status:r.status()});});
+    page.on('response',r=>{if(r.url().startsWith(origin)&&r.status()>=400){const failure={path:new URL(r.url()).pathname,status:r.status()};if(r.url().startsWith(origin+'/api/'))report.apiFailures.push(failure);else if(failure.status===503&&routeMatchesPrefix(failure.path,protectedRoutePrefixes))report.protectedWorkflowBlockers.push(failure);else report.assetFailures.push(failure);}});
     for(const path of paths){
-      await page.goto(origin+path,{waitUntil:'networkidle',timeout:60000});
+      // Next Link prefetches can stay pending for protected routes in this unbound
+      // environment. Readiness is the actual document and visible page contract.
+      await page.goto(origin+path,{waitUntil:'domcontentloaded',timeout:60000});
       await page.locator('main h1').first().waitFor();
+      await page.evaluate(async()=>{await document.fonts.ready;await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});
       const expected=path==='/es'||path.startsWith('/es/')?'es':'en';
       assert.equal(await page.locator('html').getAttribute('lang'),expected,path);
       const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);
       assert.equal(overflow,false,`${viewport} ${path} overflow`);
       const heading=await page.locator('main h1').first().innerText();assert.ok(heading.trim());
+      if(path==='/'){
+        await page.screenshot({path:`${out}/${viewport}-initial-consent.png`,fullPage:false});
+        const reject=page.getByRole('button',{name:'Reject Optional',exact:true});
+        if(await reject.isVisible())await reject.click();
+        if(viewport==='mobile'){
+          const menu=page.getByRole('button',{name:'Open menu',exact:true});await menu.click();
+          assert.equal(await page.getByRole('button',{name:'Close',exact:true}).getAttribute('aria-expanded'),'true');
+          await page.getByRole('button',{name:'Close',exact:true}).click();
+        }
+      }
+      if(expected==='es'){
+        const prose=await page.locator('body').evaluate(element=>{const copy=element.cloneNode(true);copy.querySelectorAll('pre,code,script').forEach(node=>node.remove());return copy.textContent.replace(/\s+/g,' ');});
+        const untranslated=englishProse.filter(english=>prose.includes(english));
+        assert.deepEqual(untranslated,[],path+' untranslated prose');
+        assert.doesNotMatch(prose,/At a glance|Is this right for your team\?/);
+      }
       if(viewport==='desktop'){
         const canonical=await page.locator('link[rel=canonical]').getAttribute('href');
         assert.equal(new URL(canonical).pathname,path==='/'?'/':path,`${path} canonical`);
@@ -41,14 +65,21 @@ try{
         }
       }
       if(screenshots.has(path))await page.screenshot({path:`${out}/${viewport}-${path.replaceAll('/','-')}.png`,fullPage:true});
-      report.browser.push({viewport,path,lang:expected,overflow,heading});
+      assert.equal(await page.evaluate(()=>innerWidth),width);
+      report.browser.push({viewport,width,height,path,lang:expected,overflow,heading});
     }
     await page.close();
   }
   for(const href of targets){
     const url=new URL(href,origin),response=await context.request.get(url.href,{timeout:60000});
     const item={href,status:response.status(),finalPath:new URL(response.url()).pathname};
-    report.links.push(item);assert.ok(response.status()<400,href+' '+response.status());
+    report.links.push(item);
+    if(routeMatchesPrefix(url.pathname,protectedRoutePrefixes)&&response.status()===503){
+      assert.match(await response.text(),/Protected surface unavailable/);
+      item.qualification='BLOCKED: protected workflow requires isolated Auth/database bindings';
+      continue;
+    }
+    assert.ok(response.status()<400,href+' '+response.status());
     if(url.hash&&new URL(response.url()).pathname===url.pathname){
       const body=html.get(url.pathname)??await response.text();
       const ids=[...body.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
@@ -74,7 +105,7 @@ try{
   const spoof=await context.request.get(origin+'/platform',{headers:{'x-public-locale':'es','x-public-source-path':'/admin'}});assert.match(await spoof.text(),/<html[^>]*lang="en"/);
   const fallback=await context.request.get(origin+'/es/demo');assert.match(fallback.url(),/\/es\/unavailable/);assert.match(await fallback.text(),/Continuar en ingl/);
   report.browser.push({name:'Spoofed locale headers denied; untranslated account/demo route has explicit fallback',passed:true});
-  report.passedPublicRendering=report.pageErrors.length===0;
+  report.passedPublicRendering=report.pageErrors.length===0&&report.assetFailures.length===0;
   report.hostedWorkflowQualified=false;
   report.limitations=['No valid Contact submission, Auth session, consent persistence, real positive Turnstile challenge or provider execution was attempted.','Any API 503s in this unbound local environment remain recorded as blockers, not successful backend tests.'];
   if(!report.passedPublicRendering)process.exitCode=1;

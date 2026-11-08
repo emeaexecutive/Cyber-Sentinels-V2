@@ -65,8 +65,8 @@ export default function OperationalTrustWhitepaperPage() {
           </div>
         </section>
 
-        <VisualFrame eyebrow={"Ruta de control V1"} title={"Separe identidad, autoridad, decisión y pruebas."} caption="Conceptual architecture; the Production API exposes each state as a distinct resource and transition.">
-          <TrustFlow steps={lifecycle} ariaLabel="Operational trust lifecycle" />
+        <VisualFrame eyebrow={"Ruta de control V1"} title={"Separe identidad, autoridad, decisión y pruebas."} caption={"Arquitectura conceptual; la API de producci?n expone cada estado como un recurso y una transici?n distintos."}>
+          <TrustFlow steps={lifecycle} ariaLabel={"Ciclo de confianza operativa"} />
         </VisualFrame>
 
         <section className="mt-10">

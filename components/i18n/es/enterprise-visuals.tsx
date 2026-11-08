@@ -61,11 +61,11 @@ export function TrustFlow({
 }
 
 export function LifecycleDiagram({ steps }: { steps: VisualStep[] }) {
-  return <TrustFlow steps={steps} ariaLabel="Operational Trust Lifecycle" />;
+  return <TrustFlow steps={steps} ariaLabel={"Ciclo de confianza operativa"} />;
 }
 
 export function DecisionFlow({ steps }: { steps: VisualStep[] }) {
-  return <TrustFlow steps={steps} ariaLabel="Trust decision flow" compact />;
+  return <TrustFlow steps={steps} ariaLabel={"Flujo de decisiones de confianza"} compact />;
 }
 
 export function ComparisonCard({

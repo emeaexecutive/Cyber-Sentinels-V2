@@ -1,11 +1,11 @@
 {
-  "messages": 1098,
+  "messages": 1108,
   "publicRoutes": 42,
   "generated": [
     {
       "source": "components/enterprise-visuals.tsx",
       "destination": "components/i18n/es/enterprise-visuals.tsx",
-      "displayEdits": 8,
+      "displayEdits": 10,
       "sourceHash": "b01f20168e0e9323606e72afb201c5ccfc013f210fb42234e56ce61fe375ab0b"
     },
     {
@@ -47,7 +47,7 @@
     {
       "source": "app/trust/page.tsx",
       "destination": "app/es/trust/page.tsx",
-      "displayEdits": 107,
+      "displayEdits": 111,
       "sourceHash": "234b7d19216df360f81c4356455e24dbfbe37faf0bedb31e3387d494cb5371b5"
     },
     {
@@ -149,13 +149,13 @@
     {
       "source": "app/documents/page.tsx",
       "destination": "app/es/documents/page.tsx",
-      "displayEdits": 48,
+      "displayEdits": 50,
       "sourceHash": "122f6c153c8c77c38c3fda8e03d25a6296bf6a97579a36176572f08e5e118414"
     },
     {
       "source": "app/documents/operational-trust-whitepaper/page.tsx",
       "destination": "app/es/documents/operational-trust-whitepaper/page.tsx",
-      "displayEdits": 77,
+      "displayEdits": 79,
       "sourceHash": "e44201acc7b6d156e57bbb01e1dbfefb1772dab293b732f284569ec7bf0a0b17"
     },
     {

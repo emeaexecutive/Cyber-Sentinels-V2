@@ -75,3 +75,9 @@ test('Spanish pages retain the same adoption actions instead of dropping the sha
   }
   assert.equal(spanishAdoptionFor('/es/admin'),null);
 });
+test('the original Spanish Platform page also localises its shared architecture diagrams',async()=>{
+  const page=await harness({locale:'es'}).load('app/platform/page.tsx').default();
+  const html=renderToStaticMarkup(page);
+  assert.match(html,/Identidad · Autoridad · Ejecución · Política/);
+  assert.doesNotMatch(html,/Identity · Authority · Runtime · Policy|Shared control layer/);
+});

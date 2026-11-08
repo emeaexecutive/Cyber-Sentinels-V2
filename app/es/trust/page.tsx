@@ -81,8 +81,8 @@ export default async function TrustPage() {
         </section>
 
         <section id="operational-trust-graph" className="mt-8 scroll-mt-28">
-          <VisualFrame eyebrow="Operational Trust Graph™" title={"Confianza operativa conectada a lo largo del tiempo."} caption="Evidence Graph stores relationships. Operational Trust Graph™ connects identity, authority, action and evolving trust across the decision chronology.">
-            <TrustFlow steps={operationalTrustGraph} ariaLabel="Operational Trust Graph" />
+          <VisualFrame eyebrow="Operational Trust Graph™" title={"Confianza operativa conectada a lo largo del tiempo."} caption={"Evidence Graph almacena relaciones. Operational Trust Graph? conecta identidad, autoridad, acci?n y confianza cambiante a lo largo de la cronolog?a de decisiones."}>
+            <TrustFlow steps={operationalTrustGraph} ariaLabel={"Grafo de confianza operativa"} />
           </VisualFrame>
           <div id="evidence-audit" className="mt-4 grid scroll-mt-28 gap-4 md:grid-cols-3">
             <EvidenceCard label={"Grafo de pruebas"} state="Relationship continuity" detail="Actors, authority, providers, decisions and outcomes remain linked." />
@@ -93,8 +93,8 @@ export default async function TrustPage() {
         </section>
 
         <section id="trust-memory" className="mt-8 scroll-mt-28">
-          <VisualFrame eyebrow="Trust Memory™" title={"La confianza evoluciona; su historia sigue siendo explicable."} caption="Every change records why, by whom, with which evidence, policy and authority.">
-            <Timeline events={memoryTimeline} ariaLabel="Trust Memory evolution timeline" />
+          <VisualFrame eyebrow="Trust Memory™" title={"La confianza evoluciona; su historia sigue siendo explicable."} caption={"Cada cambio registra el motivo, la persona responsable y las pruebas, pol?ticas y autoridad utilizadas."}>
+            <Timeline events={memoryTimeline} ariaLabel={"Cronolog?a de evoluci?n de Trust Memory"} />
           </VisualFrame>
         </section>
 
