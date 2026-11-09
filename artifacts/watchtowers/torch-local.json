@@ -11,7 +11,7 @@
         "accepted": true,
         "investigations": 1,
         "destinationEffects": 0,
-        "evidenceDigest": "78f876f1338630abf5414fa094ce07184dd1c22638092914c1ac954385dc92cb"
+        "evidenceDigest": "75702c80ca5e678b8be2f7b86813c9a986f776ae817e35c0795af79df37213ca"
       },
       {
         "scenario": "B",
@@ -19,7 +19,7 @@
         "accepted": false,
         "investigations": 0,
         "destinationEffects": 0,
-        "evidenceDigest": "02960153da4b175ab71dd550d64b81976b677543db21e1823b842bc90bdd60cc"
+        "evidenceDigest": "14c045ff375fb344d3f66932d3c86f7fe1be9f26ddfeddae284f1a51d42747fb"
       },
       {
         "scenario": "C",
@@ -27,7 +27,7 @@
         "accepted": false,
         "investigations": 0,
         "destinationEffects": 0,
-        "evidenceDigest": "fff966e844b145079933f124944cd77971e16bf4b9637dd16ace06791157e00b"
+        "evidenceDigest": "0987da82fb6aa4c3c5fb38f843f515310ce142f5a8cd81d134d357bb3e3a4570"
       },
       {
         "scenario": "D-initial",
@@ -35,14 +35,14 @@
         "accepted": true,
         "investigations": 1,
         "destinationEffects": 0,
-        "evidenceDigest": "bffabb98bb5fe3a41753900e993925a92273fa5fd2e8d562a9c79b6871e4f371"
+        "evidenceDigest": "73cc85a8352af13d174e09018f82817c4d40d6763d75bf7b032264762a443429"
       },
       {
         "scenario": "D",
         "reason": "MESSAGE_REPLAY",
         "destinationEffects": 0,
         "investigations": 0,
-        "evidenceDigest": "5e3c7687bc2c73cc4c34766cf64b4a16033311700b3c23c34d7691a7ba1312ef"
+        "evidenceDigest": "186b6d5d9258f965de03c5fddc7c2b7530f5e26784cc6f7071331d448cc45071"
       },
       {
         "scenario": "E",
@@ -50,7 +50,7 @@
         "accepted": false,
         "investigations": 0,
         "destinationEffects": 0,
-        "evidenceDigest": "d82d320d8a56525ed0eac63f8a952560ed1d08ceab69ad10e6d8e0f36176ea27"
+        "evidenceDigest": "59f5924269c750bb98c609d519ea7836af812c81cef253b408e62f86432f3c3d"
       },
       {
         "scenario": "PAYLOAD-TAMPER",
@@ -58,7 +58,7 @@
         "accepted": false,
         "investigations": 0,
         "destinationEffects": 0,
-        "evidenceDigest": "b16884972de3c89721b04bb75db9fe40c4e3a68488aaf284d2e5d8b5132e3051"
+        "evidenceDigest": "805e29a2f09107fc5ee034efe5e1c1ff8f9ad61a354a62efbcb7db79bfb003a5"
       },
       {
         "scenario": "F-initial",
@@ -66,18 +66,18 @@
         "accepted": true,
         "investigations": 1,
         "destinationEffects": 0,
-        "evidenceDigest": "0f2c6238c3d55f6f5ed60bc3e95ab2da64d42c5d4dac63566b94acd67121c58f"
+        "evidenceDigest": "c96886ec02663cb4f4fbc02384bf583b98b28fd3f99a27719f935a59a1dbec0d"
       },
       {
         "scenario": "F",
         "reason": "VALID_ALTERNATE_RELAY",
         "destinationEffects": 0,
         "investigations": 0,
-        "evidenceDigest": "302f9f5f39c395ffbade6be2b57eaa035fb47d042840c9b1fdf5a99e78cb7f0f"
+        "evidenceDigest": "6ea3b8444dd405597536929e8ab0eabb104e3e25ead635f44a8f993da42c703c"
       }
     ]
   },
-  "signature": "Kuyt0RGK1NJlegIKbkYWyj24yC7oAH0scFF4ZxTtBIOs2mnqLCi1o6Bl0p69_c4Ww3g-KypNWSG1VDOH59RhBQ",
-  "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAZMaRewJnd0DE6uZ2wjQP4FWDNGxw4+D7dTHOr53KnkI=\n-----END PUBLIC KEY-----\n",
+  "signature": "VxtWgIjo_NNWEdlM3c_pp6HvjXtP59QJLLWWKaTk4CsHceVuyLs1vc9PNh3HSVJsCk-B5hI7iZIjFORnUWeVDw",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAO73dSHblDY2YmTvhBRy/pDqu31quE49men04apc272U=\n-----END PUBLIC KEY-----\n",
   "trustAnchor": "Ephemeral local test key; not a Production identity assertion"
 }

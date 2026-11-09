@@ -14,6 +14,8 @@ CHIRIVETA may reject an unsupported proposal, recommend investigation, request a
 
 The local reviewer is deterministic fixture logic, not a connected AI model. A future model response must remain untrusted structured advice. A veto may restrict an action; no model result may turn REVIEW/DENY into permission. No prompt, retrieved document or warning can supply a trusted grant or human approval.
 
+`WatchtowerSignals.review` reads an accepted warning from the existing tenant's durable Replay, rechecks its enrolled origin and freshness, and records advisory evidence. Unsupported targets or reversible windows over300seconds are vetoed; missing corroboration recommends investigation; bounded reversible requests still require the gateway; destructive proposals always require separate human approval. It never returns ALLOW, creates approvals/leases or invokes an adapter. Corroborating reference strings are synthetic trusted fixture facts, not independently verified provider evidence. The method is not yet a hosted ingress or a mandatory gateway veto.
+
 ## Independent execution dependency
 
 River proof is a separate PR stacked on PR132 (`ad4a0e907a48bdb687351672355cddc5e74e2c00`), which includes PR131's dispatcher. It uses the existing policy function, native dispatcher and atomic SQL. The controlled loopback destination requires a gateway proof and a committed exact-scope dispatch claim; independent database queries inspect actual synthetic effects. No root TENENTE dispatcher or P0 branch was modified to integrate this work. Torch and River are separately qualified local boundaries; a combined hosted flow is BLOCKED, not claimed as working.

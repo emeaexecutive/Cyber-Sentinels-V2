@@ -25,6 +25,44 @@ function enrolled(state: SwarmState, hop: SignalHop, payload: unknown, tenant: s
  */
 export class WatchtowerSignals {
   constructor(private readonly store: SwarmStore, private readonly now: () => number) {}
+  /** Deterministic advisory reviewer, not a model and not an authorisation engine.
+   * Only a persisted accepted signal can support a response request. Supplied
+   * corroborating references are fixture facts, not proof of provider independence.
+   * Every recommendation still needs the existing authority/policy/approval gateway.
+   */
+  async review(tenant: string, warningEvidenceDigest: string, proposal: {
+    kind: "INVESTIGATE" | "TEMPORARY_BLOCK" | "DESTRUCTIVE";
+    target: string; durationSeconds?: number; corroboratingEvidenceRefs: string[];
+  }) {
+    return this.store.transact(tenant, state => {
+      const now = this.now();
+      const warningEvent = state.events.find(e => e.tenantId === tenant && e.kind === "WATCHTOWER_WARNING" && e.digest === warningEvidenceDigest && e.details.accepted === true);
+      const envelope = warningEvent?.details.envelope as WarningEnvelope | undefined;
+      const corroboration = new Set(proposal.corroboratingEvidenceRefs.filter(ref => typeof ref === "string" && ref.trim().length > 0 && ref.length <= 240));
+      let recommendation = "VETO", reason = "VERIFIED_CURRENT_WARNING_REQUIRED";
+      if (envelope && enrolled(state, envelope.origin, envelope.warning, tenant, envelope.origin.claims.swarmId, now)
+        && state.members.CHIRIVETA?.state === "ACTIVE" && state.members.CHIRIVETA.expiresAt > now
+        && state.members.CHIRIVETA.swarmId === envelope.origin.claims.swarmId
+        && !state.quarantines.some(q => q.kind === "agent" && q.id === "CHIRIVETA")) {
+        if (proposal.target !== envelope.warning.route) reason = "UNSUPPORTED_TARGET";
+        else if (!["INVESTIGATE", "TEMPORARY_BLOCK", "DESTRUCTIVE"].includes(proposal.kind)) reason = "UNSUPPORTED_PROPOSAL";
+        else if (proposal.kind === "INVESTIGATE" || corroboration.size < 2) {
+          recommendation = "INVESTIGATE"; reason = "MORE_EVIDENCE_RECOMMENDED";
+        } else if (proposal.kind === "DESTRUCTIVE") {
+          recommendation = "REQUEST_INDEPENDENT_HUMAN_APPROVAL"; reason = "DESTRUCTIVE_ACTION_REQUIRES_SEPARATE_HUMAN_APPROVAL";
+        } else if (!Number.isSafeInteger(proposal.durationSeconds) || proposal.durationSeconds! < 1 || proposal.durationSeconds! > 300) reason = "REVERSIBLE_WINDOW_OUT_OF_BOUNDS";
+        else { recommendation = "REQUEST_TEMPORARY_BLOCK"; reason = "BOUNDED_REVERSIBLE_REQUEST_ONLY"; }
+      }
+      const body = { sequence: state.events.length + 1, tenantId: tenant, kind: "CHIRIVETA_REVIEW", actorId: "CHIRIVETA", subjectId: warningEvent?.subjectId ?? "unsupported-warning",
+        at: now, previousHash: state.events.at(-1)?.digest ?? "0".repeat(64), details: {
+          warningEvidenceDigest, proposal: structuredClone(proposal), recommendation, reason, authorityConferred: false,
+          requiresGateway: true, requiresIndependentHumanApproval: proposal.kind === "DESTRUCTIVE", aiModelUsed: false,
+        } };
+      const evidence = { ...body, digest: hashCanonical(body) }; state.events.push(evidence);
+      return { recommendation, reason, authorityConferred: false as const, requiresGateway: true as const,
+        requiresIndependentHumanApproval: proposal.kind === "DESTRUCTIVE", evidence };
+    });
+  }
   async receive(tenant: string, envelope: WarningEnvelope) {
     return this.store.transact(tenant, state => {
       const now = this.now(), { warning, origin, relays } = envelope;
