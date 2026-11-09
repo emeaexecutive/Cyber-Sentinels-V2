@@ -1,0 +1,25 @@
+name: Watchtower signed warning boundary
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  signed-warning:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm audit --omit=dev
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: node --import=tsx --test tests/watchtower-signals.test.mjs
+      - run: npm run build
