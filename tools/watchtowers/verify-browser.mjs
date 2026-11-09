@@ -25,10 +25,14 @@ try{
     for(const kind of ['torch','river']){
       await page.goto(origin+base+'/'+(kind==='torch'?'torch-code':'river-crossing'));
       const select=page.getByLabel(copy.scenario,{exact:true});await select.focus();await page.keyboard.press('ArrowDown');
+      assert.notEqual(await select.inputValue(),'A','Keyboard must change the selected scenario');
       await page.keyboard.press('ArrowUp');
+      assert.equal(await select.inputValue(),'A');
       const cases=kind==='torch'?torchCases:riverCases;
       for(const scenario of cases){
-        await select.selectOption(scenario.id);await page.getByRole('button',{name:copy.run,exact:true}).click();
+        await select.selectOption(scenario.id);
+        const replay=page.getByRole('button',{name:copy.run,exact:true});
+        if(scenario.id==='A'){await replay.focus();await page.keyboard.press('Enter');}else await replay.click();
         assert.equal(await page.getByTestId('destination-effects').innerText(),String(kind==='torch'?0:scenario.effects));
         assert.equal(await page.getByTestId('recorded-outcome').innerText(),resultLabels[scenario.result][locale]);
         await page.getByRole('button',{name:copy.next,exact:true}).click();
