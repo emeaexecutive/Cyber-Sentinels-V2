@@ -12,6 +12,9 @@ export type PublicLocale = keyof typeof publicLocales;
 type CanonicalPublicPath = (typeof canonicalPublicRoutes)[number];
 
 const publishedSpanishPages: Readonly<Partial<Record<CanonicalPublicPath, `/es${string}`>>> = {
+  "/tenente-swarm": "/es/tenente-swarm",
+  "/tenente-swarm/torch-code": "/es/tenente-swarm/torch-code",
+  "/tenente-swarm/river-crossing": "/es/tenente-swarm/river-crossing",
   "/": "/es",
   "/platform": "/es/platform",
   "/pricing": "/es/pricing",
