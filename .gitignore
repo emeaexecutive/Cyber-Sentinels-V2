@@ -41,3 +41,4 @@ supabase/.temp/
 /artifacts/recovery-*.png
 /artifacts/sign-out-*.png
 /artifacts/auth-production/
+artifacts/watchtowers/local-registry-replay/
