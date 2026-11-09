@@ -55,6 +55,7 @@ try{
         assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
         report.checks.push({viewport,width,locale,kind,scenario:scenario.id,passed:true});
       }
+      await page.evaluate(()=>scrollTo(0,0));
       await page.screenshot({path:`${out}/${viewport}-${locale}-${kind}.png`,fullPage:true});
     }
     await page.close();

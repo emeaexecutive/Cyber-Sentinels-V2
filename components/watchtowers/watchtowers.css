@@ -5,3 +5,4 @@
 .watchtower-signal{transition:transform .45s ease}@media(prefers-reduced-motion:reduce){.watchtower-signal{transition:none}}
 @media(max-width:700px){.watchtower-network text{font-size:25px}}
 .watchtower-toolbar .watchtower-scenario{display:flex;flex:1 1 300px;flex-direction:column;gap:.4rem;min-width:0}.watchtower-toolbar .watchtower-scenario label{flex:initial}
+.watchtower-cards article>.watchtower-badge{flex:none}

@@ -11,7 +11,7 @@ export function WatchtowerPage({locale,kind}:{locale:WatchtowerLocale;kind?:"tor
       {kind?<Link href={base}>{copy.home}</Link>:null}
     </header>
     {kind?<><WatchtowerDemo locale={locale} kind={kind}/><p className="watchtower-principle">{copy.principle}</p><p>{copy.limits}</p><Link href={`${base}/${kind==="torch"?"river-crossing":"torch-code"}`}>{copy.other}</Link></>:<>
-      <section className="watchtower-origin"><div><h2>{copy.originTitle}</h2><p>{copy.origin}</p><p>{copy.distinction}</p></div><WatchtowerNetwork locale={locale}/></section>
+      <section className="watchtower-origin"><div><h2>{copy.originTitle}</h2><p>{copy.origin}</p></div><WatchtowerNetwork locale={locale}/></section>
       <p className="watchtower-caption">{copy.historical}</p>
       <p className="watchtower-caption"><a href="https://www.turismodearagon.com/ficha/viacamp/" rel="noopener noreferrer">{locale==="es"?"Contexto patrimonial: Viacamp y el Centro de Interpretación de las Torres Vigía (Turismo de Aragón)":"Heritage context: Viacamp and its watchtower interpretation centre (Aragón Tourism)"}</a></p>
       <section className="watchtower-roles" aria-label={locale==="es"?"Tres agentes, funciones limitadas":"Three agents, bounded roles"}>{copy.roles.map(([name,role,description])=><article key={name}><p className="watchtower-eyebrow">{name}</p><h2>{role}</h2><p>{description}</p></article>)}</section>
