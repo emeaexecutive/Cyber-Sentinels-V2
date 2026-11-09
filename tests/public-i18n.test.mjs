@@ -155,7 +155,7 @@ test("resource metadata keeps English URLs and social locale with reciprocal Spa
     assert.equal(metadata.openGraph.locale, "en_GB");
   }
   const sitemap = h.load("app/sitemap.ts").default();
-  assert.equal(sitemap.length, 84);
+  assert.equal(sitemap.length, 90);
   assert.equal(sitemap.some(({ url }) => new URL(url).pathname === "/es/platform"), true);
   assert.equal(sitemap.some(({ url }) => new URL(url).pathname === "/es/solutions"), true);
 });

@@ -34,3 +34,4 @@ jobs:
             sleep 1
           done
           npm run test:spanish-browser
+          npm run test:watchtowers-browser

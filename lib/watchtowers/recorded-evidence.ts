@@ -1,0 +1,315 @@
+// Generated from signed LOCAL fixture bundles. Never a runtime authorisation decision.
+export const recordedEvidence = {
+  "classification": "ILLUSTRATIVE SIMULATION",
+  "hosted": false,
+  "torchSha": "86c116a4e3bced67944bf505aa240e932851473a",
+  "riverSha": "aa572b6e5e6bdcb63e2ddce613180c06c98f1292",
+  "torch": {
+    "manifest": {
+      "environment": "LOCAL SYNTHETIC FIXTURE",
+      "hosted": false,
+      "classification": "PARTIAL",
+      "cryptography": "Existing Ed25519 agent-message verification; existing file CAS and Swarm Replay",
+      "results": [
+        {
+          "scenario": "A",
+          "reason": "INVESTIGATION_OPENED",
+          "accepted": true,
+          "investigations": 1,
+          "destinationEffects": 0,
+          "evidenceDigest": "8f6f6cc8c228693270de6b4a1202c12edd5e576dd9984944769387a553a705db"
+        },
+        {
+          "scenario": "B",
+          "reason": "INVALID_WARNING",
+          "accepted": false,
+          "investigations": 0,
+          "destinationEffects": 0,
+          "evidenceDigest": "b8ab2d6de3c5a4a41bad604fc40c5fc9ba6aff564868e5bc9680fbabe97d72f9"
+        },
+        {
+          "scenario": "C",
+          "reason": "INVALID_ORIGIN",
+          "accepted": false,
+          "investigations": 0,
+          "destinationEffects": 0,
+          "evidenceDigest": "27969fa7fe9d4f61e5bbb18477530f46e6ad370d89742dac805e0dc087059cce"
+        },
+        {
+          "scenario": "D-initial",
+          "reason": "INVESTIGATION_OPENED",
+          "accepted": true,
+          "investigations": 1,
+          "destinationEffects": 0,
+          "evidenceDigest": "a3f5370691aa96a837c607fd4cf225199cbe5fda25dabdb2d5940664c2974e54"
+        },
+        {
+          "scenario": "D",
+          "reason": "MESSAGE_REPLAY",
+          "destinationEffects": 0,
+          "investigations": 0,
+          "evidenceDigest": "052802ba5b9b546eec4272fd1828571e91606d8facde11362dbf23fe8b707994"
+        },
+        {
+          "scenario": "E",
+          "reason": "INVALID_ORIGIN",
+          "accepted": false,
+          "investigations": 0,
+          "destinationEffects": 0,
+          "evidenceDigest": "21c0d39df5a8fcf030aa2f465a08d376a38b5b4a692f98a71a24d148629351de"
+        },
+        {
+          "scenario": "PAYLOAD-TAMPER",
+          "reason": "INVALID_ORIGIN",
+          "accepted": false,
+          "investigations": 0,
+          "destinationEffects": 0,
+          "evidenceDigest": "73fd092f227b02b0678a7db92adccb780a23315946fa315505811ae0962019ed"
+        },
+        {
+          "scenario": "F-initial",
+          "reason": "INVESTIGATION_OPENED",
+          "accepted": true,
+          "investigations": 1,
+          "destinationEffects": 0,
+          "evidenceDigest": "855dba0de0b03103e3c66ff72906f603e4279f3ddb7450c1aef7c66affa14bcf"
+        },
+        {
+          "scenario": "F",
+          "reason": "VALID_ALTERNATE_RELAY",
+          "destinationEffects": 0,
+          "investigations": 0,
+          "evidenceDigest": "13c28c52c75fb29988c0a368799cc86694497c525045cdc072a55a5cfc6fa2b8"
+        }
+      ]
+    },
+    "signature": "iGbpt_yrBHaZQrjN1KGde4Ltmpe2JVUhqAutZX8ZuVO7UNZEuxJUyOT2AgKkcda-6x0NN8IOYB2mvNnpqnbvDg",
+    "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAZ/25MmGOJ54KkuTiu18poDl6CiBpws6q2iVpUxar/hI=\n-----END PUBLIC KEY-----\n",
+    "trustAnchor": "Ephemeral local test key; not a Production identity assertion"
+  },
+  "river": {
+    "manifest": {
+      "environment": "LOCAL SYNTHETIC ONLY",
+      "hosted": false,
+      "scope": "Actual existing policy function, application dispatcher and PR132 SQL; minimal predecessor schema; synthetic identity/approval fixtures",
+      "gateway": "loopback authenticated controlled-export",
+      "limitations": [
+        "No hosted Auth, full schema, real AI review or Production provider qualification",
+        "Signal fixtures and River execution are separately qualified; unified hosted integration is BLOCKED"
+      ],
+      "tests": [
+        {
+          "scenario": "A",
+          "tenant": "3b070ea3-9e70-433a-9e55-820a9e0e0af7",
+          "actor": "36986402-401f-41ec-a786-79f784e848ca",
+          "agent": "CHIRIVETA",
+          "transaction": "9c221f84-0e74-4a7c-a2e6-28ef53b97075",
+          "authority": "a25490fc-f1ec-411e-abe8-9be7c83ed80d",
+          "delegation": "ee2b1e82-2637-4c48-8986-17a3a59cce0d",
+          "policy": "export-policy:v1",
+          "approval": null,
+          "actionDigest": "78f0f86282547ce7438ae2b2c1aeb1a35e5b7a6b20c89ba2e1d91632a43b72ca",
+          "decision": "ALLOW",
+          "effects": 1,
+          "claims": 1,
+          "steps": [
+            "DETECTION_FIXTURE",
+            "RELAY_FIXTURE",
+            "CHIRIVETA_ADVISORY",
+            "EXISTING_POLICY_GATEWAY",
+            "DISPATCH_BOUNDARY",
+            "INDEPENDENT_DESTINATION_QUERY"
+          ],
+          "temporarySeconds": 300,
+          "expiryEvaluation": "Independent query at simulated time after expiry; no wall-clock wait",
+          "evidenceDigest": "adbb795da5cdbc6fdc36a073f4023711ce8ec4ca1dd51f342d865280747a9783"
+        },
+        {
+          "scenario": "B",
+          "tenant": "b040c6dd-ed90-4880-8e8b-70896f06a924",
+          "actor": "8c7112f5-9445-46ca-b11d-84ca45ab81f2",
+          "agent": "CHIRIVETA",
+          "transaction": "3ce277dc-455b-44b1-b4ef-e15a5183470a",
+          "authority": "00a905fd-c240-45d1-a6e0-b1657593d3f7",
+          "delegation": "293c0644-037e-473f-999b-8809d0f463f1",
+          "policy": "export-policy:v1",
+          "approval": "3ddaf402-0806-4169-95d0-0d46e066c89b",
+          "actionDigest": "f91a873a9834e20e1cc1d482aa375dec4e2fcde60c3103a2b0527103f1325ec6",
+          "decision": "REVIEW → ALLOW",
+          "effects": 1,
+          "claims": 1,
+          "steps": [
+            "DETECTION_FIXTURE",
+            "RELAY_FIXTURE",
+            "CHIRIVETA_ADVISORY",
+            "EXISTING_POLICY_GATEWAY",
+            "EXACT_ACTION_HUMAN_APPROVAL",
+            "DISPATCH_BOUNDARY",
+            "INDEPENDENT_DESTINATION_QUERY"
+          ],
+          "pendingEffects": 0,
+          "evidenceDigest": "40e759af0047ba2468dcd6977537a838e1034a80323c4c76f6304d1a1d6f7204"
+        },
+        {
+          "scenario": "C",
+          "tenant": "cdd13331-f681-4eaf-9c4e-e4a9a417a276",
+          "actor": "c9a3dfce-f580-4a92-bfa1-ee405c2fd3ae",
+          "agent": "CHIRIVETA",
+          "transaction": "fb3755c9-2e33-4194-bccb-63d1c0251393",
+          "authority": "588a7c10-00ea-4817-b6a2-605d8b927afd",
+          "delegation": "a3a94970-aa7b-4213-a165-80b8350054b3",
+          "policy": "export-policy:v1",
+          "approval": null,
+          "actionDigest": "1db714e32d48f8094b6f4646632db8f6ba68bc851a270cb0430bf2fd5e9aa0b2",
+          "decision": "DENY",
+          "effects": 0,
+          "claims": 0,
+          "steps": [
+            "DETECTION_FIXTURE",
+            "RELAY_FIXTURE",
+            "CHIRIVETA_ADVISORY",
+            "EXISTING_POLICY_GATEWAY",
+            "DISPATCH_BOUNDARY",
+            "INDEPENDENT_DESTINATION_QUERY"
+          ],
+          "evidenceDigest": "5649f3508d5f285c808d951be4caaec7869898d8c3a0ca447be097f7ec21bf35"
+        },
+        {
+          "scenario": "D",
+          "tenant": "d809cac8-d346-4938-ba11-19d514d4d3b2",
+          "actor": "bbb25485-34ed-442b-8fa5-5cc40d94db80",
+          "agent": "CHIRIVETA",
+          "transaction": "86fd3912-adda-406c-a8b1-42c118a7e183",
+          "authority": "07b0044e-23b8-40c9-bc49-b514cad20d27",
+          "delegation": "11b83fc3-66ed-4c96-a49f-514d8660c4a9",
+          "policy": "export-policy:v1",
+          "approval": "a367359a-86cb-42cf-bb83-a78e0bb92c3d",
+          "actionDigest": "ce5ee960cebb07685b1543f1315a7eaf1d6607d6ec9875c19109154e81deac81",
+          "decision": "DENY",
+          "effects": 0,
+          "claims": 0,
+          "steps": [
+            "DETECTION_FIXTURE",
+            "RELAY_FIXTURE",
+            "CHIRIVETA_ADVISORY",
+            "EXISTING_POLICY_GATEWAY",
+            "EXACT_ACTION_HUMAN_APPROVAL",
+            "DISPATCH_BOUNDARY",
+            "INDEPENDENT_DESTINATION_QUERY"
+          ],
+          "reason": "AUTHORITY_REVOKED_BEFORE_DISPATCH",
+          "evidenceDigest": "6447a250e7a8c1fbc9cb011139671615ff370a6257d7f12f289a822d57a65d55"
+        },
+        {
+          "scenario": "E",
+          "tenant": "2422dcef-ee70-43b8-81d5-1410a615a947",
+          "actor": "94560644-e4d0-4cfd-8da6-349d4536c4a7",
+          "agent": "CHIRIVETA",
+          "transaction": "261d317b-6404-4d4e-8d06-1a9833dddedf",
+          "authority": "c3f732c3-78b4-4ae8-a553-93762196f175",
+          "delegation": "7b181542-b533-421c-a733-547a67c330e8",
+          "policy": "export-policy:v1",
+          "approval": "45928f3d-0a59-492a-8d72-0fd98f3835d4",
+          "actionDigest": "96814b56ef0af08426080bfaf3ad0200b7aeb0eb6e56168e623c7ad4ed2251d4",
+          "decision": "REVIEW → ALLOW",
+          "effects": 1,
+          "claims": 1,
+          "steps": [
+            "DETECTION_FIXTURE",
+            "RELAY_FIXTURE",
+            "CHIRIVETA_ADVISORY",
+            "EXISTING_POLICY_GATEWAY",
+            "EXACT_ACTION_HUMAN_APPROVAL",
+            "DISPATCH_BOUNDARY",
+            "INDEPENDENT_DESTINATION_QUERY"
+          ],
+          "pendingEffects": 0,
+          "wrongTargetEffects": 0,
+          "syntheticOnly": true,
+          "evidenceDigest": "09e569bd0087795bb265fcac6a706360893821ce1c4e4d7e18c6a992900e048c"
+        },
+        {
+          "scenario": "F",
+          "tenant": "7e5b711f-ed5e-4f6c-b9cc-68bde8c266db",
+          "actor": "bd5dc6b0-3460-4272-a6a2-8544bf1204c8",
+          "agent": "CHIRIVETA",
+          "transaction": "564281f7-ac43-48c0-b271-5b81a41d6380",
+          "authority": "f80e418e-0e9f-4d2b-8a70-1a974eda7366",
+          "delegation": "59b6a16e-a2b8-40f8-a41a-a5bf0cc67392",
+          "policy": "export-policy:v1",
+          "approval": "1e594147-4c36-4703-8d73-8b12b8c7bedb",
+          "actionDigest": "5778fad3a156a24cd2f1039670a3d8c6f8215176c0013c231f64eee727396add",
+          "decision": "ALLOW",
+          "effects": 1,
+          "claims": 1,
+          "steps": [
+            "DETECTION_FIXTURE",
+            "RELAY_FIXTURE",
+            "CHIRIVETA_ADVISORY",
+            "EXISTING_POLICY_GATEWAY",
+            "EXACT_ACTION_HUMAN_APPROVAL",
+            "DISPATCH_BOUNDARY",
+            "INDEPENDENT_DESTINATION_QUERY"
+          ],
+          "attempts": 12,
+          "evidenceDigest": "8cd4e661beb7617617a6095e871b93d7eeed9521c9ace2e1b512876c33b06e19"
+        },
+        {
+          "scenario": "G",
+          "tenant": "e7643526-8e3c-43de-bdc4-e506f3681a6d",
+          "actor": "b54d765a-39bc-4b16-9237-2b917b2c7b8a",
+          "agent": "CHIRIVETA",
+          "transaction": "00e663f4-fb74-432a-b041-e2f487fa85ad",
+          "authority": "d2353382-f98e-4295-9e53-8a15c6b6608a",
+          "delegation": "6bee558d-cdde-4c29-88af-eb036cd565c5",
+          "policy": "export-policy:v1",
+          "approval": "259d768b-e0c8-4c8e-b3e9-173f5c1e7075",
+          "actionDigest": "45c40a926fd0f3a5c629a3ebb9d324754248a2239b587358902d5c470199d977",
+          "decision": "UNKNOWN",
+          "effects": 1,
+          "claims": 1,
+          "steps": [
+            "DETECTION_FIXTURE",
+            "RELAY_FIXTURE",
+            "CHIRIVETA_ADVISORY",
+            "EXISTING_POLICY_GATEWAY",
+            "EXACT_ACTION_HUMAN_APPROVAL",
+            "DISPATCH_BOUNDARY",
+            "INDEPENDENT_DESTINATION_QUERY"
+          ],
+          "reconciled": "DESTINATION_EFFECT_OBSERVED",
+          "blindRedispatch": false,
+          "evidenceDigest": "94c43679c53b336cd6eba0de5b4d86d91528c3f7098124341eb147ea8bf80c07"
+        },
+        {
+          "scenario": "ADVERSARIAL",
+          "tenant": "b1e10128-dad3-4b48-b945-3b370044f9a6",
+          "actor": "209996ce-39fc-40c1-9411-1ce39ded76f8",
+          "agent": "CHIRIVETA",
+          "transaction": "fecc57ab-4781-4834-931f-f28331613521",
+          "authority": "c532909c-6476-4855-95ca-8156df57051b",
+          "delegation": "8bca2787-be04-4d60-ad5d-a7101389c8fd",
+          "policy": "export-policy:v1",
+          "approval": "fb3cfafb-298e-49e8-9549-0ab9ad28e6c9",
+          "actionDigest": "76816b9d6a1c65ab5cbc8e8540610f3288117a88d5a90495326116ebfbaf513d",
+          "decision": "DENY",
+          "effects": 0,
+          "claims": 0,
+          "steps": [
+            "DETECTION_FIXTURE",
+            "RELAY_FIXTURE",
+            "CHIRIVETA_ADVISORY",
+            "EXISTING_POLICY_GATEWAY",
+            "EXACT_ACTION_HUMAN_APPROVAL",
+            "DISPATCH_BOUNDARY",
+            "INDEPENDENT_DESTINATION_QUERY"
+          ],
+          "evidenceDigest": "68ad7c64f789b238f18837d96989f3082bb45e5679c9c63ed5b64ce0ecbafa1c"
+        }
+      ]
+    },
+    "signature": "chcAOQjqPW3hgOxJ6xNqsQcuFC16zPi98xTXLRhsN0KwaS6krCgl-u2I4uOq1SNc-BOAD63VgiT9wb0u4SemAQ",
+    "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA1J07RT9QSbU7Y1fTYzts5db9kpsj/eibafN+YzHiKhk=\n-----END PUBLIC KEY-----\n",
+    "trustAnchor": "Ephemeral local test key; not a Production identity assertion"
+  }
+} as const;

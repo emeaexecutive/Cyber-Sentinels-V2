@@ -42,6 +42,9 @@ export const routeSurfaceManifest: RouteSurfaceManifestEntry[] = [
 ];
 
 export const canonicalPublicRoutes = [
+  "/tenente-swarm",
+  "/tenente-swarm/torch-code",
+  "/tenente-swarm/river-crossing",
   "/",
   "/platform",
   "/solutions",

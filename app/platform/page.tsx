@@ -140,6 +140,7 @@ export default async function PlatformPage() {
             <Link href={localizedPublicHref("/developers", locale)} className="brand-secondary-action">{isSpanish ? "Desarrollo" : "Developers"}</Link>
             <Link href={localizedPublicHref("/documents/operational-trust-whitepaper", locale)} className="brand-secondary-action">{isSpanish ? "Documento técnico" : "Technical whitepaper"}</Link>
             <Link href={localizedPublicHref("/enterprise/pilot", locale)} className="brand-primary-action">{isSpanish ? "Iniciar un piloto" : "Start Pilot"}</Link>
+            <Link href={localizedPublicHref("/tenente-swarm", locale)} className="brand-secondary-action">{isSpanish ? "Explorar TENENTE SWARM" : "Explore TENENTE SWARM"}</Link>
           </div>
         </section>
       </div>

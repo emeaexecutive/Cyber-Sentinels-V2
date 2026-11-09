@@ -1,0 +1,15 @@
+# TENENTE SWARM — watchtower fixture viewers
+
+Public routes: `/tenente-swarm`, `/tenente-swarm/torch-code`, `/tenente-swarm/river-crossing`, and their `/es` equivalents. Platform links to the overview; reciprocal metadata, global locale switching and sitemap include all six routes. Existing website release PR133 is unchanged. This review stacks on PR133 and must remain separate from Production promotion.
+
+The overview contains a short bilingual origin account, three agent roles, two demo cards, a security principle and an expandable technical boundary. It uses an original diagram, not a founder photograph or historical map. The founder's account of heritage panels is attributed; communication links are illustrative and torch codes fictional. Publication rights and photo credit are unconfirmed, so the photograph is excluded. Official background: https://www.turismodearagon.com/ficha/viacamp/ describes Viacamp and the watchtower interpretation centre; it does not establish this demonstration's signal code or exact communication sequence.
+
+Both interactive experiences are ILLUSTRATIVE SIMULATION. They replay pedagogical summaries of signed local test bundles. Buttons do not call policy, Auth, approvals or execution APIs. Exploring an approved fixture is not granting an approval. Reconciliation retains the original UNKNOWN. Machine decision codes, source SHAs and evidence fields remain unchanged across languages.
+
+`tools/watchtowers/import-local-evidence.mjs` verifies signed local manifests and records the exact source SHAs before generating the client-readable fixture. Included public keys are ephemeral local test keys, not independently trusted Production identities. `--check` detects signature/projection drift. A separately pinned environment key is required for hosted evidence trust.
+
+Local verification: `npm run test:watchtowers`; full mandatory CI; `npm run build`; start the built site on loopback4340, then `npm run test:spanish-browser` and `npm run test:watchtowers-browser`. Browser qualification asserts actual 390px/1440px widths, native keyboard controls, English/Spanish, scenario outcomes, navigation and zero demo API writes. Reduced motion is supported. No hosted Auth, consent, positive Turnstile or provider qualification follows from these checks.
+
+Truth: public execution is MOCKED; signed warning/relay and controlled-destination proofs are separate PARTIAL local qualifications. CHIRIVETA's AI reasoning is MOCKED, with no connected model. Unified hosted Registry, Authority Graph, Evidence Vault, Replay and Trust Memory integration is BLOCKED. The existing first-party components are dependencies, not replaced with a browser authoriser.
+
+Staging remains `agpyhygpfmppjkxwcpac`. The named PR132 migration, full drift rehearsal, private configuration, isolated branch bindings and controlled synthetic writes have separate approval gates. No migration, hosted write, cloud configuration or Production change is included. Website and platform Production are NO-GO until their respective evidence and release approvals exist.
