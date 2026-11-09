@@ -2,7 +2,7 @@
   "classification": "ILLUSTRATIVE SIMULATION",
   "hosted": false,
   "torchSha": "202117ae82a48a7f8d536c29d5d700e8fbf11c70",
-  "riverSha": "0b256b0e14b1138220228baea1051a2b0b3b5028",
+  "riverSha": "25f82561435be959e4b14b61873fb454cc1aa51a",
   "torch": {
     "manifest": {
       "environment": "LOCAL SYNTHETIC FIXTURE",
@@ -100,18 +100,45 @@
       "tests": [
         {
           "scenario": "A",
-          "tenant": "abffb9a9-2780-4299-a531-c5dd8cdc8b31",
-          "actor": "1e5224cd-6b5a-43ce-b945-1d7c5f0ad594",
+          "tenant": "1b76ea68-b030-45f8-9e86-9c1c47970d8a",
+          "actor": "055fd8aa-8d22-448e-bcbf-5a835cf533ac",
           "agent": "CHIRIVETA",
-          "transaction": "38d6d681-4cfa-4533-b3ff-1e6da23ec33e",
-          "authority": "a3cdd4dd-4d44-46f6-872f-71b6e19f90a9",
-          "delegation": "65cdb460-8f38-44de-af3e-083d8768c5cd",
+          "transaction": "f3f55331-b27c-49c2-9b1e-0718ce8973eb",
+          "authority": "5d309784-e98b-4034-94c2-d6ec571b387c",
+          "delegation": "c829bc99-c63a-4935-a8b3-7b5e51750be7",
           "policy": "export-policy:v1",
           "approval": null,
-          "actionDigest": "2b76206ae820dec51b748a7fed1211324ef348ce7c0515c02d4d13e87a4a6fb0",
+          "actionDigest": "3688d4598a170031fabd11ca441ae21fc21aa49d37ad8e9a85aa8cceb9534d25",
           "decision": "ALLOW",
           "effects": 1,
           "claims": 1,
+          "dispatchClaims": [
+            {
+              "request_id": "3033867b-ea89-4f79-ac77-771e58dfae00",
+              "transaction_id": "f3f55331-b27c-49c2-9b1e-0718ce8973eb",
+              "approval_id": null,
+              "actor_id": "055fd8aa-8d22-448e-bcbf-5a835cf533ac",
+              "claimed_at": "2026-11-09T12:33:54.706Z",
+              "decision_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "destinationObservations": [
+            {
+              "request_id": "3033867b-ea89-4f79-ac77-771e58dfae00",
+              "tenant": "1b76ea68-b030-45f8-9e86-9c1c47970d8a",
+              "target": "synthetic:customer-export",
+              "action": "TEMPORARY_EXPORT_BLOCK",
+              "action_digest": "3688d4598a170031fabd11ca441ae21fc21aa49d37ad8e9a85aa8cceb9534d25",
+              "observed_at": "2026-11-09T12:33:54.782Z"
+            }
+          ],
+          "destinationState": {
+            "tenant": "1b76ea68-b030-45f8-9e86-9c1c47970d8a",
+            "target": "synthetic:customer-export",
+            "blocked": true,
+            "blocked_until": "2026-11-09T12:38:54.787Z",
+            "workload_state": "running"
+          },
           "steps": [
             "DETECTION_FIXTURE",
             "RELAY_FIXTURE",
@@ -122,22 +149,49 @@
           ],
           "temporarySeconds": 300,
           "expiryEvaluation": "Independent query at simulated time after expiry; no wall-clock wait",
-          "evidenceDigest": "c77865a0529e460920ea90810ab3f26976d6d733ef039e0899ea2905bdfdd5e2"
+          "evidenceDigest": "4d6767e8a333c2171a5e0b7cfbaafd38c220b85c6be5cf53aa6817ee7e2cab0e"
         },
         {
           "scenario": "B",
-          "tenant": "e0e41723-10f7-4af0-995b-e6d08cfff6e4",
-          "actor": "1fa8ad18-5481-42e6-903e-6b412d8f8fbe",
+          "tenant": "fda58ba3-5ec1-426c-a059-68f99f756a88",
+          "actor": "197d10f1-d187-43e6-b177-79d11430352f",
           "agent": "CHIRIVETA",
-          "transaction": "855b3a9c-1487-4c4d-89c7-cf37ab093668",
-          "authority": "5548ea98-650a-4d52-8ae4-51e4e631cb62",
-          "delegation": "f86f6201-6fc8-4da0-bc07-9381f2a8b027",
+          "transaction": "0c9df7d6-0a40-40ce-977f-983f91cb202c",
+          "authority": "64872335-a55f-41ca-987c-c8ff1cdb55fb",
+          "delegation": "e87c0bce-b436-4c78-891f-5fb395490dc5",
           "policy": "export-policy:v1",
-          "approval": "f2ff437e-5fb2-40a0-996f-2d081d391244",
-          "actionDigest": "db9e47403467178a82f32ec8cbe9996b4cb7581f6325800b02bf32a6a0f89929",
+          "approval": "9a8f3f85-315d-46fe-a44c-7918f3d31e99",
+          "actionDigest": "d8e27ff8bb836145deb4ecdf47cbaee7f945f0ebec0734580dadaa9bd529767b",
           "decision": "REVIEW → ALLOW",
           "effects": 1,
           "claims": 1,
+          "dispatchClaims": [
+            {
+              "request_id": "02eb512c-65e8-4aba-81cc-fff044ed6c6c",
+              "transaction_id": "0c9df7d6-0a40-40ce-977f-983f91cb202c",
+              "approval_id": "9a8f3f85-315d-46fe-a44c-7918f3d31e99",
+              "actor_id": "197d10f1-d187-43e6-b177-79d11430352f",
+              "claimed_at": "2026-11-09T12:33:54.836Z",
+              "decision_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "destinationObservations": [
+            {
+              "request_id": "02eb512c-65e8-4aba-81cc-fff044ed6c6c",
+              "tenant": "fda58ba3-5ec1-426c-a059-68f99f756a88",
+              "target": "synthetic:customer-export",
+              "action": "TEMPORARY_EXPORT_BLOCK",
+              "action_digest": "d8e27ff8bb836145deb4ecdf47cbaee7f945f0ebec0734580dadaa9bd529767b",
+              "observed_at": "2026-11-09T12:33:54.900Z"
+            }
+          ],
+          "destinationState": {
+            "tenant": "fda58ba3-5ec1-426c-a059-68f99f756a88",
+            "target": "synthetic:customer-export",
+            "blocked": true,
+            "blocked_until": "2026-11-09T12:38:54.903Z",
+            "workload_state": "running"
+          },
           "steps": [
             "DETECTION_FIXTURE",
             "RELAY_FIXTURE",
@@ -148,22 +202,31 @@
             "INDEPENDENT_DESTINATION_QUERY"
           ],
           "pendingEffects": 0,
-          "evidenceDigest": "89b0890bff81d361a6a5f978e23d37e6fb0de98f561340ab7452ce44625d5d29"
+          "evidenceDigest": "01eaf527ec77e5fc0d2088afbe56145b075fa703079dfa586ad6ee9818c96822"
         },
         {
           "scenario": "C",
-          "tenant": "8b235b23-19e6-4679-b36c-96dfb92fb9f0",
-          "actor": "ab9b1bda-e26d-47d0-ac91-6c10b406df61",
+          "tenant": "eb857c61-6b93-486d-897d-ad5bba944c93",
+          "actor": "568c0f56-a6dd-4f29-bc14-55d2dbb25b07",
           "agent": "CHIRIVETA",
-          "transaction": "b4678ce5-3a43-451b-831b-eed16f32161c",
-          "authority": "0bbf9b63-7d22-4faa-a4bb-0c3e4c682ca2",
-          "delegation": "0dd71986-4cc5-401f-bd57-269e9972f245",
+          "transaction": "45a81e1c-f11d-4a1d-8e6c-5887029bcf70",
+          "authority": "db073115-6168-460a-98dc-1d54c2a18eb1",
+          "delegation": "cf701532-4ae5-40ec-b0d9-16c298d6a4af",
           "policy": "export-policy:v1",
           "approval": null,
-          "actionDigest": "a22bb6e8882b7cc1164785bc77ad568c9b93caa00c12fdadebf050b0529ffbbc",
+          "actionDigest": "689394fc0712d1f755b020eb1ded3071a9264202a1af06c410f2fdc89d4aebd4",
           "decision": "DENY",
           "effects": 0,
           "claims": 0,
+          "dispatchClaims": [],
+          "destinationObservations": [],
+          "destinationState": {
+            "tenant": "eb857c61-6b93-486d-897d-ad5bba944c93",
+            "target": "synthetic:customer-export",
+            "blocked": false,
+            "blocked_until": null,
+            "workload_state": "running"
+          },
           "steps": [
             "DETECTION_FIXTURE",
             "RELAY_FIXTURE",
@@ -172,22 +235,31 @@
             "DISPATCH_BOUNDARY",
             "INDEPENDENT_DESTINATION_QUERY"
           ],
-          "evidenceDigest": "f3bfdbd55cf198cb2d1573a0c81bce60b1b59f54e95bc18e4c928241a11b629e"
+          "evidenceDigest": "d5c8803d4528f678ac365ec5f1fed0ae739f5d0174069ec4e13aa1414fa5ba88"
         },
         {
           "scenario": "D",
-          "tenant": "09751be3-1ec5-4748-9b32-628027bb583a",
-          "actor": "40a88712-6e90-4158-9498-d7a35abf1984",
+          "tenant": "2086923b-6afe-41c2-a291-450418800489",
+          "actor": "f2837a9f-08a5-44ff-aa2f-9c29d94667ab",
           "agent": "CHIRIVETA",
-          "transaction": "8df1cdb5-bbd1-4bd2-9cd9-8e65a2aee523",
-          "authority": "65b88776-02e3-4d44-9e7f-d402e8287bb5",
-          "delegation": "adf11d07-e007-47f1-96c0-1f1e015a09ab",
+          "transaction": "841bca14-0412-4b78-a841-f38996d42310",
+          "authority": "b455111e-8057-4561-89cd-26d5b5d50a93",
+          "delegation": "c1b6ce14-1384-4343-89bb-4fba773c701d",
           "policy": "export-policy:v1",
-          "approval": "d3334ffc-44aa-40b5-9fd1-e0cb95ec178a",
-          "actionDigest": "027744d2a67dd5da3e4aaed630542288a3069f8ee70991e45a1925363108a7dd",
+          "approval": "c3124b09-acc3-441a-ab0f-03bee1859998",
+          "actionDigest": "d422768e0d19b44a704567d1271d45f8437da42504d2f0bf0e79dc244e530867",
           "decision": "DENY",
           "effects": 0,
           "claims": 0,
+          "dispatchClaims": [],
+          "destinationObservations": [],
+          "destinationState": {
+            "tenant": "2086923b-6afe-41c2-a291-450418800489",
+            "target": "synthetic:customer-export",
+            "blocked": false,
+            "blocked_until": null,
+            "workload_state": "running"
+          },
           "steps": [
             "DETECTION_FIXTURE",
             "RELAY_FIXTURE",
@@ -198,22 +270,49 @@
             "INDEPENDENT_DESTINATION_QUERY"
           ],
           "reason": "AUTHORITY_REVOKED_BEFORE_DISPATCH",
-          "evidenceDigest": "a895ddfeff006ea9f13aff7c7ca1accf00e72d001210a2ea5a9297de736e594d"
+          "evidenceDigest": "4bf96951030d34ea9de4866503385c357a8631196b3c880e1696152eb0f645cb"
         },
         {
           "scenario": "E",
-          "tenant": "3962b02f-1624-4ac2-a69d-46b3eb0e9a66",
-          "actor": "939583ab-5466-4f4a-b047-75072347b1d0",
+          "tenant": "ffa9613a-6b51-44b5-ab8f-8ba6c6c9cdda",
+          "actor": "962fc652-c17c-4360-bcb9-2824404a25e7",
           "agent": "CHIRIVETA",
-          "transaction": "8bf619d4-5f57-4ad6-aa28-b23c8b20ceda",
-          "authority": "bf90af6c-fe93-4261-8b35-a8d9a6823267",
-          "delegation": "ee10f551-c65f-4e0a-ac51-66cf36a62ca3",
+          "transaction": "3342cd81-885a-4531-80e3-d2d1b86d538e",
+          "authority": "f9a7c8b7-af7e-44a9-8a37-69abafd1975d",
+          "delegation": "64cfb2c8-0f17-4ce8-ad8f-edd3cdb5d6f8",
           "policy": "export-policy:v1",
-          "approval": "b2083353-8477-4faa-a290-a3d78253cd68",
-          "actionDigest": "fddc6a6cd1093c67b3e037ff1dd619161429ca8f188e0d67afbebee63ee2d063",
+          "approval": "659e202f-ff9a-4495-9772-e0c973dda427",
+          "actionDigest": "e41cb4f2d2dc37aef51bbd62a8bd5a326e1156a72221baa46e8e0cd7b3a4c361",
           "decision": "REVIEW → ALLOW",
           "effects": 1,
           "claims": 1,
+          "dispatchClaims": [
+            {
+              "request_id": "b7e4a382-ad2a-484f-bc82-f0459ecba4c5",
+              "transaction_id": "3342cd81-885a-4531-80e3-d2d1b86d538e",
+              "approval_id": "659e202f-ff9a-4495-9772-e0c973dda427",
+              "actor_id": "962fc652-c17c-4360-bcb9-2824404a25e7",
+              "claimed_at": "2026-11-09T12:33:54.949Z",
+              "decision_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "destinationObservations": [
+            {
+              "request_id": "b7e4a382-ad2a-484f-bc82-f0459ecba4c5",
+              "tenant": "ffa9613a-6b51-44b5-ab8f-8ba6c6c9cdda",
+              "target": "synthetic:customer-export",
+              "action": "TERMINATE_SYNTHETIC_WORKLOAD",
+              "action_digest": "e41cb4f2d2dc37aef51bbd62a8bd5a326e1156a72221baa46e8e0cd7b3a4c361",
+              "observed_at": "2026-11-09T12:33:55.124Z"
+            }
+          ],
+          "destinationState": {
+            "tenant": "ffa9613a-6b51-44b5-ab8f-8ba6c6c9cdda",
+            "target": "synthetic:customer-export",
+            "blocked": true,
+            "blocked_until": null,
+            "workload_state": "terminated"
+          },
           "steps": [
             "DETECTION_FIXTURE",
             "RELAY_FIXTURE",
@@ -226,22 +325,49 @@
           "pendingEffects": 0,
           "wrongTargetEffects": 0,
           "syntheticOnly": true,
-          "evidenceDigest": "996218b518c86272bead275f32ad28950a56a04126b4d0e2d628d2542f54a6bb"
+          "evidenceDigest": "79ddd2f10fce968ab868aa30a920eadc20133be38aed8136e16b810ac13bf13e"
         },
         {
           "scenario": "F",
-          "tenant": "e0a8f8d8-d8d7-4430-a993-942d1d0ec5d9",
-          "actor": "31879970-80c0-4f4e-a3e7-fb59b763919a",
+          "tenant": "3fbc0f43-986b-4ac4-acf1-c0f8674f2cd9",
+          "actor": "ff31b7cd-552c-4b0f-866d-50c3db2aec92",
           "agent": "CHIRIVETA",
-          "transaction": "0d7835a2-50ff-4e68-a2be-0bc1058dfdd6",
-          "authority": "53da6cc4-ac33-4047-937b-ad1b8f47db6f",
-          "delegation": "dd0fa50c-ca8e-4cb9-a442-94a76020b53a",
+          "transaction": "c6e1ace7-4d08-4744-9a25-e9dca32d27c3",
+          "authority": "6d5a5eb6-305b-4e9c-a251-d6939c23e43e",
+          "delegation": "95ea0e3d-1f94-4ddc-9218-8e64891135c7",
           "policy": "export-policy:v1",
-          "approval": "5d5d8c48-9367-412c-b3fd-b78200229c8c",
-          "actionDigest": "cdbdf60d18e156efb8146d3b6059cfb457c295061b58ebc444719cdcdfb5b40e",
+          "approval": "0d7b423c-a8e5-48f3-b518-1c597bcdf0d3",
+          "actionDigest": "47b66548b43f4a1720dd40905098363984d5a0945608d33c0630fcb8589609c0",
           "decision": "ALLOW",
           "effects": 1,
           "claims": 1,
+          "dispatchClaims": [
+            {
+              "request_id": "96aedac7-9179-450a-a76e-dd23563cba91",
+              "transaction_id": "c6e1ace7-4d08-4744-9a25-e9dca32d27c3",
+              "approval_id": "0d7b423c-a8e5-48f3-b518-1c597bcdf0d3",
+              "actor_id": "ff31b7cd-552c-4b0f-866d-50c3db2aec92",
+              "claimed_at": "2026-11-09T12:33:55.356Z",
+              "decision_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "destinationObservations": [
+            {
+              "request_id": "96aedac7-9179-450a-a76e-dd23563cba91",
+              "tenant": "3fbc0f43-986b-4ac4-acf1-c0f8674f2cd9",
+              "target": "synthetic:customer-export",
+              "action": "TEMPORARY_EXPORT_BLOCK",
+              "action_digest": "47b66548b43f4a1720dd40905098363984d5a0945608d33c0630fcb8589609c0",
+              "observed_at": "2026-11-09T12:33:55.445Z"
+            }
+          ],
+          "destinationState": {
+            "tenant": "3fbc0f43-986b-4ac4-acf1-c0f8674f2cd9",
+            "target": "synthetic:customer-export",
+            "blocked": true,
+            "blocked_until": "2026-11-09T12:38:55.450Z",
+            "workload_state": "running"
+          },
           "steps": [
             "DETECTION_FIXTURE",
             "RELAY_FIXTURE",
@@ -252,22 +378,49 @@
             "INDEPENDENT_DESTINATION_QUERY"
           ],
           "attempts": 12,
-          "evidenceDigest": "989db4af7d5cab160027de6e76180b7fadf605c87e4d21add43f2f943882c791"
+          "evidenceDigest": "7f511cb2280664f0a05225f8fd4c2c6727ffb0aca806f4a4c65bd0c4d633676b"
         },
         {
           "scenario": "G",
-          "tenant": "bc169886-ce01-4ff0-8239-bccdf11601b3",
-          "actor": "f681d112-e333-4f18-a051-32abfcf7e5d4",
+          "tenant": "18cfed96-1901-4737-b128-39a0cd7f4364",
+          "actor": "9ae1a20c-9d8c-4943-a6a8-31bd08e7e7ec",
           "agent": "CHIRIVETA",
-          "transaction": "023445fa-1b8b-4366-8de3-943c1d2a2430",
-          "authority": "493d6604-c1ce-4ff5-a160-4121f00a26ee",
-          "delegation": "59192ac4-dc67-4832-b274-16e72cf91db6",
+          "transaction": "1bddb55a-3dd0-4d91-9487-87c519480158",
+          "authority": "54abc514-0e3d-4ec7-b04b-e06a870397f4",
+          "delegation": "87d55d5c-842a-4145-b88d-90dd5af8010e",
           "policy": "export-policy:v1",
-          "approval": "1d09ccdd-e790-4428-b1ac-bbf43618f58b",
-          "actionDigest": "2aac22ec3eb870c31bd7cc2f8a5ef94b5f2057f5d586fd27e3f5c1085be227e8",
+          "approval": "b6f83f1a-73c5-4ff1-b9b1-0e162ed2801a",
+          "actionDigest": "3ff4cc9d0afe4b182e4e049231d7475dffe83d3fc49db3f2915572724b9fd7c8",
           "decision": "UNKNOWN",
           "effects": 1,
           "claims": 1,
+          "dispatchClaims": [
+            {
+              "request_id": "c0deb4f4-9722-49d3-bde4-179205e3f55e",
+              "transaction_id": "1bddb55a-3dd0-4d91-9487-87c519480158",
+              "approval_id": "b6f83f1a-73c5-4ff1-b9b1-0e162ed2801a",
+              "actor_id": "9ae1a20c-9d8c-4943-a6a8-31bd08e7e7ec",
+              "claimed_at": "2026-11-09T12:33:55.620Z",
+              "decision_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ],
+          "destinationObservations": [
+            {
+              "request_id": "c0deb4f4-9722-49d3-bde4-179205e3f55e",
+              "tenant": "18cfed96-1901-4737-b128-39a0cd7f4364",
+              "target": "synthetic:customer-export",
+              "action": "TEMPORARY_EXPORT_BLOCK",
+              "action_digest": "3ff4cc9d0afe4b182e4e049231d7475dffe83d3fc49db3f2915572724b9fd7c8",
+              "observed_at": "2026-11-09T12:33:55.684Z"
+            }
+          ],
+          "destinationState": {
+            "tenant": "18cfed96-1901-4737-b128-39a0cd7f4364",
+            "target": "synthetic:customer-export",
+            "blocked": true,
+            "blocked_until": "2026-11-09T12:38:55.688Z",
+            "workload_state": "running"
+          },
           "steps": [
             "DETECTION_FIXTURE",
             "RELAY_FIXTURE",
@@ -279,22 +432,31 @@
           ],
           "reconciled": "DESTINATION_EFFECT_OBSERVED",
           "blindRedispatch": false,
-          "evidenceDigest": "b3c6458db089f4bd91cae4396833791ece79f49dbd0d7bba070d3a361aeb0cb0"
+          "evidenceDigest": "6cfcd5611f685fa635cfbcb31beb502c390b36409ad5abc57a80fec309b87e39"
         },
         {
           "scenario": "ADVERSARIAL",
-          "tenant": "e5b9f8d1-b933-440f-b8d5-84ccb43dc469",
-          "actor": "3ca23c5e-d469-467c-9453-7b8ef1a071e9",
+          "tenant": "cc5b8f05-f782-403d-9412-36cca57b7ee0",
+          "actor": "daa6768a-e2cb-475f-84a0-785b6551c2b7",
           "agent": "CHIRIVETA",
-          "transaction": "6864e964-396e-4b89-89e7-18efacb45fc0",
-          "authority": "c99715a7-ed74-49d4-9d74-c8b86c992fd2",
-          "delegation": "c6895d27-7ad0-442c-b7d8-7b450e80adb6",
+          "transaction": "2ec46cc7-082a-45f5-a463-56968296a0dc",
+          "authority": "2571d695-d29b-4420-87a9-77389553a5a3",
+          "delegation": "1812f19e-6f8d-4336-aa90-8b6a14a2d2bf",
           "policy": "export-policy:v1",
-          "approval": "8884152b-b646-4eb5-b77f-d7a4443432b2",
-          "actionDigest": "79f426667a08994827f17bd55f20082ee90fb47291f65778273e94f6a8e28122",
+          "approval": "dbeef123-866d-422b-bff7-0818bf068cb4",
+          "actionDigest": "e78ce7f5d896cd667c7252130920cb432ef8041627423f7a75d89f25dce0d50c",
           "decision": "DENY",
           "effects": 0,
           "claims": 0,
+          "dispatchClaims": [],
+          "destinationObservations": [],
+          "destinationState": {
+            "tenant": "cc5b8f05-f782-403d-9412-36cca57b7ee0",
+            "target": "synthetic:customer-export",
+            "blocked": false,
+            "blocked_until": null,
+            "workload_state": "running"
+          },
           "steps": [
             "DETECTION_FIXTURE",
             "RELAY_FIXTURE",
@@ -304,22 +466,49 @@
             "DISPATCH_BOUNDARY",
             "INDEPENDENT_DESTINATION_QUERY"
           ],
-          "evidenceDigest": "21c63fcb9da85e67da87c73e4889165a8c4022814bd86e54593b56436b348b00"
+          "evidenceDigest": "9dcee2d463af09782a2107264b3585534c4c33b175e265ed09fd25681ee0b464"
         },
         {
           "scenario": "H-ALLOW",
-          "tenant": "a0590922-5230-4807-814b-b7485dc9fb36",
-          "actor": "75db3b6f-5b63-4dc3-b382-24216ec80879",
+          "tenant": "96603cb1-0eea-4b4b-9e65-6767914c4aa7",
+          "actor": "56b1988e-42a1-4892-9366-36eb812f4c6f",
           "agent": "CHIRIVETA",
-          "transaction": "a38fca09-f744-4bc6-a201-2ade3ef4798b",
-          "authority": "79b73e4c-6595-4761-8f2d-725c5268278c",
-          "delegation": "38a6d4a5-c01e-49c6-bad7-e7a8bd954672",
+          "transaction": "9e42c8de-c449-4721-9151-c8bd214200f0",
+          "authority": "7a297559-62e2-47dc-bb36-2ec59fe6e741",
+          "delegation": "58cd370d-564e-4c6b-a327-caf2cc827916",
           "policy": "export-policy:v1",
           "approval": null,
-          "actionDigest": "2e73ecf8f446a8a526f5ae77bee25607c918a5aef3742376202940cde1d25ca3",
+          "actionDigest": "de41026cde6e42b166168a85e03a6a96c514cb15e65e2fcb6c748bf3a480556f",
           "decision": "ALLOW",
           "effects": 1,
           "claims": 1,
+          "dispatchClaims": [
+            {
+              "request_id": "e571e6db-e2ee-4359-9320-fb09b19ea6ae",
+              "transaction_id": "9e42c8de-c449-4721-9151-c8bd214200f0",
+              "approval_id": null,
+              "actor_id": "56b1988e-42a1-4892-9366-36eb812f4c6f",
+              "claimed_at": "2026-11-09T12:33:55.904Z",
+              "decision_digest": "884d89b3c2bf13dc493c9680a19b9c65912f96d13e305dfa856cc21688c94e4c"
+            }
+          ],
+          "destinationObservations": [
+            {
+              "request_id": "e571e6db-e2ee-4359-9320-fb09b19ea6ae",
+              "tenant": "96603cb1-0eea-4b4b-9e65-6767914c4aa7",
+              "target": "synthetic:customer-export",
+              "action": "TEMPORARY_EXPORT_BLOCK",
+              "action_digest": "de41026cde6e42b166168a85e03a6a96c514cb15e65e2fcb6c748bf3a480556f",
+              "observed_at": "2026-11-09T12:33:55.965Z"
+            }
+          ],
+          "destinationState": {
+            "tenant": "96603cb1-0eea-4b4b-9e65-6767914c4aa7",
+            "target": "synthetic:customer-export",
+            "blocked": true,
+            "blocked_until": "2026-11-09T12:38:55.969Z",
+            "workload_state": "running"
+          },
           "steps": [
             "DETECTION_FIXTURE",
             "RELAY_FIXTURE",
@@ -330,105 +519,105 @@
           ],
           "signalTrace": {
             "sourceSha": "202117ae82a48a7f8d536c29d5d700e8fbf11c70",
-            "originalEventId": "e69572ed9ed4429da68a66ec278770b9",
-            "detectionReference": "synthetic-export-attempt:05a6aab9-3cfc-4d67-9ac6-2817cb5dfa63",
-            "warningEvidenceDigest": "62abe6054ee092510173ee7c5d05d79a7f85bed929e97b137491b85bcd5bf070",
-            "reviewEvidenceDigest": "65a70771de8ff57bc32558a3cdf00cabeadae1c06c5632f7c755d1c6dedbe695",
+            "originalEventId": "c4eea0e3781a4729b3640e42cf32d114",
+            "detectionReference": "synthetic-export-attempt:23678c45-f187-426b-a0cc-4717df3bfe05",
+            "warningEvidenceDigest": "0346090a13741d3e7df6ee22dc95a9b66ea1e4b3f3b920ccd7951181805f2604",
+            "reviewEvidenceDigest": "07a1fc5d852d7f9b6956f584e2bb1d2c3565c216a32d838953eabda32aff9c64",
             "recommendation": "REQUEST_TEMPORARY_BLOCK",
             "authorityConferred": false,
             "publicKeys": {
-              "ALSAMORA": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAWqn+NJmwJPi6lswDBGcWOaokHOh85tsclPbCebBtniY=\n-----END PUBLIC KEY-----\n",
-              "VIACAMP": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAvVnD/u49e7ysQ78lnx9YE+ZydC6ZO1w5buxDUQ16gUo=\n-----END PUBLIC KEY-----\n",
-              "CHIRIVETA": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAhj9/uCgY6PePoD6dqBETuzWhgnquoolkWpII/E4+NvU=\n-----END PUBLIC KEY-----\n"
+              "ALSAMORA": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAQSTeXReK8sQfjcMVdZZCN8vrV/zlmZD2R8S3dmSNGKM=\n-----END PUBLIC KEY-----\n",
+              "VIACAMP": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAuVVW60IF/qGjec+ddQh4w/BJThiirLELDIhiZ25aky0=\n-----END PUBLIC KEY-----\n",
+              "CHIRIVETA": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAnLtfIoRgTwV+lzB/QndHYjoYUChridh+e8o+sPrYWvI=\n-----END PUBLIC KEY-----\n"
             },
             "replayVerified": true,
             "signatureReplayVerified": true,
-            "replayTime": 1794226512523,
-            "replayHead": "65a70771de8ff57bc32558a3cdf00cabeadae1c06c5632f7c755d1c6dedbe695",
-            "registryAnchor": "66c8c4d24411230bcba79437316b76e80a36f85af15bba55120fece5b27f1a4d",
+            "replayTime": 1794227635742,
+            "replayHead": "07a1fc5d852d7f9b6956f584e2bb1d2c3565c216a32d838953eabda32aff9c64",
+            "registryAnchor": "5a2259d2e793d7555df31c0614ebc950075c9c0322e58b2f9b6acf9ec9ccd3c5",
             "replayExportScope": "WARNING_REVIEW_SUFFIX; full registry Replay verified and retained locally",
             "events": [
               {
                 "sequence": 7,
-                "tenantId": "a0590922-5230-4807-814b-b7485dc9fb36",
+                "tenantId": "96603cb1-0eea-4b4b-9e65-6767914c4aa7",
                 "kind": "WATCHTOWER_WARNING",
                 "actorId": "CHIRIVETA",
-                "subjectId": "e69572ed9ed4429da68a66ec278770b9",
-                "at": 1794226512642,
-                "previousHash": "66c8c4d24411230bcba79437316b76e80a36f85af15bba55120fece5b27f1a4d",
+                "subjectId": "c4eea0e3781a4729b3640e42cf32d114",
+                "at": 1794227635856,
+                "previousHash": "5a2259d2e793d7555df31c0614ebc950075c9c0322e58b2f9b6acf9ec9ccd3c5",
                 "details": {
-                  "eventId": "e69572ed9ed4429da68a66ec278770b9",
+                  "eventId": "c4eea0e3781a4729b3640e42cf32d114",
                   "source": "ALSAMORA",
                   "swarm": "swarm:river-fixture",
                   "accepted": true,
                   "investigationOpened": true,
                   "reason": "INVESTIGATION_OPENED",
                   "authorityConferred": false,
-                  "envelopeDigest": "a0654f3d50e9dbf3c5da94862545f49f6f37f3a6d425a81baf0b871a239353ab",
+                  "envelopeDigest": "b881b615f5b017f3ef57ecfe0e7838a833202dc2da4f224796b95b35674093e1",
                   "envelope": {
                     "warning": {
-                      "eventId": "e69572ed9ed4429da68a66ec278770b9",
+                      "eventId": "c4eea0e3781a4729b3640e42cf32d114",
                       "source": "ALSAMORA",
                       "kind": "SYNTHETIC_EXPORT_WARNING",
                       "route": "synthetic:customer-export",
                       "authorityConferred": false,
-                      "detectionReference": "synthetic-export-attempt:05a6aab9-3cfc-4d67-9ac6-2817cb5dfa63"
+                      "detectionReference": "synthetic-export-attempt:23678c45-f187-426b-a0cc-4717df3bfe05"
                     },
                     "origin": {
                       "claims": {
                         "domain": "cyber-sentinels:agent-message:v1",
-                        "tenantId": "a0590922-5230-4807-814b-b7485dc9fb36",
+                        "tenantId": "96603cb1-0eea-4b4b-9e65-6767914c4aa7",
                         "swarmId": "swarm:river-fixture",
                         "senderId": "ALSAMORA",
                         "recipientId": "CHIRIVETA",
                         "audience": "tenente:watchtower:warning:v1",
                         "credentialVersion": 2,
-                        "nonce": "e69572ed9ed4429da68a66ec278770b9",
-                        "issuedAt": 1794226512523,
-                        "expiresAt": 1794226542523,
-                        "payloadDigest": "9199f8471dca3bb3d62b6c6f19b6bb52506dd29b6258edb605da2bff8d75579c"
+                        "nonce": "c4eea0e3781a4729b3640e42cf32d114",
+                        "issuedAt": 1794227635742,
+                        "expiresAt": 1794227665742,
+                        "payloadDigest": "a9ab92a836d4cd1828b6d95ee23304d8390bddad8c75eb2757f0892deb9a5dae"
                       },
-                      "signature": "KiNY-2aH3Zc8KKFjBRkJhyQQh53W-5BBgJQzgQSwF_n--rHQrOfmMPbqd60vJDUhA2fNTDHzL0L5JTmPUIjrCg"
+                      "signature": "-OMAHLbFj350ZEFsEjydPRMT2PNwJLVuNYuL_PuudNODbVAdKg0CK8Wx6ixEeOzd4pcwODR-IcfJAO64X5IcDw"
                     },
                     "relays": [
                       {
                         "claims": {
                           "domain": "cyber-sentinels:agent-message:v1",
-                          "tenantId": "a0590922-5230-4807-814b-b7485dc9fb36",
+                          "tenantId": "96603cb1-0eea-4b4b-9e65-6767914c4aa7",
                           "swarmId": "swarm:river-fixture",
                           "senderId": "VIACAMP",
                           "recipientId": "CHIRIVETA",
                           "audience": "tenente:watchtower:warning:v1",
                           "credentialVersion": 2,
-                          "nonce": "6037d5c2696341aba7f33d06e5f62be7",
-                          "issuedAt": 1794226512523,
-                          "expiresAt": 1794226542523,
-                          "payloadDigest": "816e0e65f49e834aecea07177780ba4f3e5610e1e0d6553a1720a15d14368a2b"
+                          "nonce": "76505b275861433cabac9bb9a12f3901",
+                          "issuedAt": 1794227635742,
+                          "expiresAt": 1794227665742,
+                          "payloadDigest": "699bae02908fa06d578036b19a95b8f2bb4aae5409944f6626cb9223a24b98f2"
                         },
-                        "signature": "zhIrRvUaKa6eYz-BgekEsBUBl01IEzoMyGCI1byP-eF9yl3uMbzY13M4MyHY6J-C6QhJLW_OEyP2J_BqcdrxBg"
+                        "signature": "jbpbaIwsbYtHQwGnZ_o-J5jUTuLDAlnSzwdJj7HSI0txdQTm3RcSrIlVCMLTqBwvvc-Eslc9ghXu26WayQ5qCA"
                       }
                     ]
                   }
                 },
-                "digest": "62abe6054ee092510173ee7c5d05d79a7f85bed929e97b137491b85bcd5bf070"
+                "digest": "0346090a13741d3e7df6ee22dc95a9b66ea1e4b3f3b920ccd7951181805f2604"
               },
               {
                 "sequence": 8,
-                "tenantId": "a0590922-5230-4807-814b-b7485dc9fb36",
+                "tenantId": "96603cb1-0eea-4b4b-9e65-6767914c4aa7",
                 "kind": "CHIRIVETA_REVIEW",
                 "actorId": "CHIRIVETA",
-                "subjectId": "e69572ed9ed4429da68a66ec278770b9",
-                "at": 1794226512668,
-                "previousHash": "62abe6054ee092510173ee7c5d05d79a7f85bed929e97b137491b85bcd5bf070",
+                "subjectId": "c4eea0e3781a4729b3640e42cf32d114",
+                "at": 1794227635876,
+                "previousHash": "0346090a13741d3e7df6ee22dc95a9b66ea1e4b3f3b920ccd7951181805f2604",
                 "details": {
-                  "warningEvidenceDigest": "62abe6054ee092510173ee7c5d05d79a7f85bed929e97b137491b85bcd5bf070",
+                  "warningEvidenceDigest": "0346090a13741d3e7df6ee22dc95a9b66ea1e4b3f3b920ccd7951181805f2604",
                   "proposal": {
                     "kind": "TEMPORARY_BLOCK",
                     "target": "synthetic:customer-export",
                     "durationSeconds": 300,
                     "corroboratingEvidenceRefs": [
-                      "synthetic-export-attempt:05a6aab9-3cfc-4d67-9ac6-2817cb5dfa63",
-                      "fixture:runtime-observation:a38fca09-f744-4bc6-a201-2ade3ef4798b"
+                      "synthetic-export-attempt:23678c45-f187-426b-a0cc-4717df3bfe05",
+                      "fixture:runtime-observation:9e42c8de-c449-4721-9151-c8bd214200f0"
                     ]
                   },
                   "recommendation": "REQUEST_TEMPORARY_BLOCK",
@@ -438,30 +627,39 @@
                   "requiresIndependentHumanApproval": false,
                   "aiModelUsed": false
                 },
-                "digest": "65a70771de8ff57bc32558a3cdf00cabeadae1c06c5632f7c755d1c6dedbe695"
+                "digest": "07a1fc5d852d7f9b6956f584e2bb1d2c3565c216a32d838953eabda32aff9c64"
               }
             ]
           },
-          "boundDecisionDigest": "5aab1e791cc535e1538e271384fa5af4248a7335124d45a78649040a5f9e48df",
+          "boundDecisionDigest": "884d89b3c2bf13dc493c9680a19b9c65912f96d13e305dfa856cc21688c94e4c",
           "exportBefore": 200,
           "exportAfter": 423,
           "authentication": "Synthetic enrolled human/agent fixtures; no hosted Auth claim",
-          "evidenceDigest": "fd243a1072578eff6590fa99c752a1522477f438228d20001c858d4cdec71a78"
+          "evidenceDigest": "dde815cc7834704f468221266d7a4b37141839004b6368a24c4b5926c27810dd"
         },
         {
           "scenario": "H-DENY",
-          "tenant": "f85b8761-e499-4063-a596-82b016a785e6",
-          "actor": "9fb1df43-d4ed-45c1-bda5-5f9dd30a8eb3",
+          "tenant": "cdcd7eb6-b176-41c3-8992-17a9c6785dbb",
+          "actor": "c7b32660-54f1-4c28-a565-090d76d2f756",
           "agent": "CHIRIVETA",
-          "transaction": "1b2944b2-9391-417b-bc21-c47f44b74c8c",
-          "authority": "4c9a67f1-8c09-42b4-8d86-41f3e83d2fe7",
-          "delegation": "573de6b3-c3ce-4826-ae62-7074005da403",
+          "transaction": "25b613e0-a807-473c-81cd-8ca2cdca4ca2",
+          "authority": "cd5852b4-8bac-4e7f-b156-7d6b5aa23f12",
+          "delegation": "78d01b3c-e485-4c52-9930-8f382153cf2a",
           "policy": "export-policy:v1",
           "approval": null,
-          "actionDigest": "c141d783b7ddd3b93144bdc58ee49c5443683948544db30a83a193f5e08fc353",
+          "actionDigest": "6c29d2704890e83f380deab704f7409723757c6e1ac3db907d79167e38d1ce55",
           "decision": "DENY",
           "effects": 0,
           "claims": 0,
+          "dispatchClaims": [],
+          "destinationObservations": [],
+          "destinationState": {
+            "tenant": "cdcd7eb6-b176-41c3-8992-17a9c6785dbb",
+            "target": "synthetic:customer-export",
+            "blocked": false,
+            "blocked_until": null,
+            "workload_state": "running"
+          },
           "steps": [
             "DETECTION_FIXTURE",
             "RELAY_FIXTURE",
@@ -472,105 +670,105 @@
           ],
           "signalTrace": {
             "sourceSha": "202117ae82a48a7f8d536c29d5d700e8fbf11c70",
-            "originalEventId": "b8c74447f7644069b87a522c1420d9db",
-            "detectionReference": "synthetic-export-attempt:681b6b6e-0d06-4c8d-998d-5ecc6c734e60",
-            "warningEvidenceDigest": "a4d65cd3bc81053493445f82f5fe32fe0c522713bb4e48de0e3752a8a54d88dd",
-            "reviewEvidenceDigest": "938334a210274513e33fcdac4adbbc481dd9f7780b0c4722e8aa9f12c57f5421",
+            "originalEventId": "ae0379ce2d1c4b8fb957e3172dc73ccf",
+            "detectionReference": "synthetic-export-attempt:c3006dcb-9f9a-4053-b673-f2598631b551",
+            "warningEvidenceDigest": "136f779fc621258cb0a7737c83d766fbe7408c356ab7a8b70976d43341100ed0",
+            "reviewEvidenceDigest": "a5c9dc93a1b060d1f6cc60f14344da60469a4810f6739f9f103466639a587a23",
             "recommendation": "REQUEST_TEMPORARY_BLOCK",
             "authorityConferred": false,
             "publicKeys": {
-              "ALSAMORA": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAbQHV8ia8aJ9nYJACI+Y6vwYo/vJpA97aYsOp2dMy4lw=\n-----END PUBLIC KEY-----\n",
-              "VIACAMP": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA1zYwG+evfhozjfYMqZZD0gfVX/dNfEYlVMIg8/dd9i8=\n-----END PUBLIC KEY-----\n",
-              "CHIRIVETA": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA5tL0AKP9Shvq5h3XZR0lDnxOxIDrrQhzZjPYmJU6cUA=\n-----END PUBLIC KEY-----\n"
+              "ALSAMORA": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEARRazK7YOi4W3Y6AUl6hRdTThz2e5DGUlEKfmPBbeX24=\n-----END PUBLIC KEY-----\n",
+              "VIACAMP": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA2eLfLa1vzyb56nBaUY9GkfcFHWXGU9j0qKb8H2cdZzA=\n-----END PUBLIC KEY-----\n",
+              "CHIRIVETA": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAF1hgtk0TSexEMw+7vOJCpwoIfNlM1lospsU+XHKEcpI=\n-----END PUBLIC KEY-----\n"
             },
             "replayVerified": true,
             "signatureReplayVerified": true,
-            "replayTime": 1794226512942,
-            "replayHead": "938334a210274513e33fcdac4adbbc481dd9f7780b0c4722e8aa9f12c57f5421",
-            "registryAnchor": "da7654256c853f8861b2822019a0d9f640b00baac4f3db7019263a7dab45c06a",
+            "replayTime": 1794227636029,
+            "replayHead": "a5c9dc93a1b060d1f6cc60f14344da60469a4810f6739f9f103466639a587a23",
+            "registryAnchor": "f4475c69d401fbe27c0f3381cb831aea32e551fc9d647a1672f196ac6c948f6b",
             "replayExportScope": "WARNING_REVIEW_SUFFIX; full registry Replay verified and retained locally",
             "events": [
               {
                 "sequence": 7,
-                "tenantId": "f85b8761-e499-4063-a596-82b016a785e6",
+                "tenantId": "cdcd7eb6-b176-41c3-8992-17a9c6785dbb",
                 "kind": "WATCHTOWER_WARNING",
                 "actorId": "CHIRIVETA",
-                "subjectId": "b8c74447f7644069b87a522c1420d9db",
-                "at": 1794226513042,
-                "previousHash": "da7654256c853f8861b2822019a0d9f640b00baac4f3db7019263a7dab45c06a",
+                "subjectId": "ae0379ce2d1c4b8fb957e3172dc73ccf",
+                "at": 1794227636130,
+                "previousHash": "f4475c69d401fbe27c0f3381cb831aea32e551fc9d647a1672f196ac6c948f6b",
                 "details": {
-                  "eventId": "b8c74447f7644069b87a522c1420d9db",
+                  "eventId": "ae0379ce2d1c4b8fb957e3172dc73ccf",
                   "source": "ALSAMORA",
                   "swarm": "swarm:river-fixture",
                   "accepted": true,
                   "investigationOpened": true,
                   "reason": "INVESTIGATION_OPENED",
                   "authorityConferred": false,
-                  "envelopeDigest": "df1b82c5fafca9482dee8637ac48649f438fb3b898ce987715bc0955848efff8",
+                  "envelopeDigest": "c545a0c256e043bec31591f8442f15d10ae9f8c364090057a2036f6007cb5270",
                   "envelope": {
                     "warning": {
-                      "eventId": "b8c74447f7644069b87a522c1420d9db",
+                      "eventId": "ae0379ce2d1c4b8fb957e3172dc73ccf",
                       "source": "ALSAMORA",
                       "kind": "SYNTHETIC_EXPORT_WARNING",
                       "route": "synthetic:customer-export",
                       "authorityConferred": false,
-                      "detectionReference": "synthetic-export-attempt:681b6b6e-0d06-4c8d-998d-5ecc6c734e60"
+                      "detectionReference": "synthetic-export-attempt:c3006dcb-9f9a-4053-b673-f2598631b551"
                     },
                     "origin": {
                       "claims": {
                         "domain": "cyber-sentinels:agent-message:v1",
-                        "tenantId": "f85b8761-e499-4063-a596-82b016a785e6",
+                        "tenantId": "cdcd7eb6-b176-41c3-8992-17a9c6785dbb",
                         "swarmId": "swarm:river-fixture",
                         "senderId": "ALSAMORA",
                         "recipientId": "CHIRIVETA",
                         "audience": "tenente:watchtower:warning:v1",
                         "credentialVersion": 2,
-                        "nonce": "b8c74447f7644069b87a522c1420d9db",
-                        "issuedAt": 1794226512942,
-                        "expiresAt": 1794226542942,
-                        "payloadDigest": "cac0c5babcae8a3d7378a717c3b4db1271e3083f587ca879b8c90f2fedd62d20"
+                        "nonce": "ae0379ce2d1c4b8fb957e3172dc73ccf",
+                        "issuedAt": 1794227636029,
+                        "expiresAt": 1794227666029,
+                        "payloadDigest": "e7fbf9ceb8458ea15db83ba18969a04c5c85b0911b03480bcccca149d78c176d"
                       },
-                      "signature": "pFYOJJhUU71Prk4NNmsWAjS9kww12o6GBg3UDm9Nsqp3F-hwXfAbdQh2VY_l3PPORzFv0esk_9GJFVvxImNSDA"
+                      "signature": "k2h98gUcTOcf2oqByc2qlzRtvT8uHBgX4l82Xo9EHUPy4NU5LdFSaxiFRGZrYF_VPZFt6ZzI3f7J3Vbu1xo1Ag"
                     },
                     "relays": [
                       {
                         "claims": {
                           "domain": "cyber-sentinels:agent-message:v1",
-                          "tenantId": "f85b8761-e499-4063-a596-82b016a785e6",
+                          "tenantId": "cdcd7eb6-b176-41c3-8992-17a9c6785dbb",
                           "swarmId": "swarm:river-fixture",
                           "senderId": "VIACAMP",
                           "recipientId": "CHIRIVETA",
                           "audience": "tenente:watchtower:warning:v1",
                           "credentialVersion": 2,
-                          "nonce": "07c24069dfcd4bbbab8d968f3f9a9a25",
-                          "issuedAt": 1794226512942,
-                          "expiresAt": 1794226542942,
-                          "payloadDigest": "4ce8107a797822f29da6e9de209313b40064faeee04712ae1db00d24c434f42b"
+                          "nonce": "9fe34d7a39b3429ea3787acf895cfe88",
+                          "issuedAt": 1794227636029,
+                          "expiresAt": 1794227666029,
+                          "payloadDigest": "5eaeb9587585929f7262523eb4595d2e6e160089b0ba61bed579df465c8f1ea5"
                         },
-                        "signature": "GbXUsvQX6YiNZT6q9akiIK1qZZciaaoJoTD7wdG8erga99Pi8WwaDdKEcVMFSlGd2WB0Q-WxtPZ1yveNSvuXBA"
+                        "signature": "jhhCnvRMAlxmvw2hEge9wJZN0tvwozAQ82thUIQMf5aQ4UuPLycA3gHTVcLy6Y0fgZJwlS0M8na9MYWhXXMEDg"
                       }
                     ]
                   }
                 },
-                "digest": "a4d65cd3bc81053493445f82f5fe32fe0c522713bb4e48de0e3752a8a54d88dd"
+                "digest": "136f779fc621258cb0a7737c83d766fbe7408c356ab7a8b70976d43341100ed0"
               },
               {
                 "sequence": 8,
-                "tenantId": "f85b8761-e499-4063-a596-82b016a785e6",
+                "tenantId": "cdcd7eb6-b176-41c3-8992-17a9c6785dbb",
                 "kind": "CHIRIVETA_REVIEW",
                 "actorId": "CHIRIVETA",
-                "subjectId": "b8c74447f7644069b87a522c1420d9db",
-                "at": 1794226513066,
-                "previousHash": "a4d65cd3bc81053493445f82f5fe32fe0c522713bb4e48de0e3752a8a54d88dd",
+                "subjectId": "ae0379ce2d1c4b8fb957e3172dc73ccf",
+                "at": 1794227636150,
+                "previousHash": "136f779fc621258cb0a7737c83d766fbe7408c356ab7a8b70976d43341100ed0",
                 "details": {
-                  "warningEvidenceDigest": "a4d65cd3bc81053493445f82f5fe32fe0c522713bb4e48de0e3752a8a54d88dd",
+                  "warningEvidenceDigest": "136f779fc621258cb0a7737c83d766fbe7408c356ab7a8b70976d43341100ed0",
                   "proposal": {
                     "kind": "TEMPORARY_BLOCK",
                     "target": "synthetic:customer-export",
                     "durationSeconds": 300,
                     "corroboratingEvidenceRefs": [
-                      "synthetic-export-attempt:681b6b6e-0d06-4c8d-998d-5ecc6c734e60",
-                      "fixture:runtime-observation:1b2944b2-9391-417b-bc21-c47f44b74c8c"
+                      "synthetic-export-attempt:c3006dcb-9f9a-4053-b673-f2598631b551",
+                      "fixture:runtime-observation:25b613e0-a807-473c-81cd-8ca2cdca4ca2"
                     ]
                   },
                   "recommendation": "REQUEST_TEMPORARY_BLOCK",
@@ -580,20 +778,20 @@
                   "requiresIndependentHumanApproval": false,
                   "aiModelUsed": false
                 },
-                "digest": "938334a210274513e33fcdac4adbbc481dd9f7780b0c4722e8aa9f12c57f5421"
+                "digest": "a5c9dc93a1b060d1f6cc60f14344da60469a4810f6739f9f103466639a587a23"
               }
             ]
           },
-          "boundDecisionDigest": "216d5c485ab415dfef0a7104b617912c381f77e695f4b13ec9262ae53c04a6a2",
+          "boundDecisionDigest": "682afa5725fff65dce021f31c2611bfb57a4f2a0f2e6399f08c421592644f526",
           "exportBefore": 200,
           "exportAfter": 200,
           "authentication": "Synthetic enrolled human/agent fixtures; no hosted Auth claim",
-          "evidenceDigest": "27fdc4ad466055157285759cbb0a98756ae896a1a31447b4992c747a24560988"
+          "evidenceDigest": "9ff3ee87e650cb499fa044861d6f2741a6f84663342851306d88dffcbd4a4868"
         }
       ]
     },
-    "signature": "wz_7zNHtDJKL8X2EMZRGOGqL_QWePNbHzigI0nGspMmcwAI2wHYHLA9LbZ4aZBCGrtEcMlXHMi4oU58yW4OOCg",
-    "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAtcFi0sw/SvF3xEAHcZiUZz5zfQQ+G3i/vzMdrlD129s=\n-----END PUBLIC KEY-----\n",
+    "signature": "V7Wmtfx9TvXnSxVMV6m7NiOLKiuTQPiiqNNIhUKYmc7rWuCosyrcWJSp0mW_H9yh09sB40SHta3VvXejNUDoDQ",
+    "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA6sxkyUSdTPi/ZsyanNzMCXObMev5yiW7uuPUHf3A2Ik=\n-----END PUBLIC KEY-----\n",
     "trustAnchor": "Ephemeral local test key; not a Production identity assertion"
   }
 }
