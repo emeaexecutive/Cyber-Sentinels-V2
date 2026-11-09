@@ -6,3 +6,4 @@
 @media(max-width:700px){.watchtower-network text{font-size:25px}}
 .watchtower-toolbar .watchtower-scenario{display:flex;flex:1 1 300px;flex-direction:column;gap:.4rem;min-width:0}.watchtower-toolbar .watchtower-scenario label{flex:initial}
 .watchtower-cards article>.watchtower-badge{flex:none}
+.watchtower-demo pre{max-height:24rem;overflow:auto;font-size:.78rem;line-height:1.6}

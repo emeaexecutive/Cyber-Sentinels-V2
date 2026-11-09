@@ -6,6 +6,8 @@ The overview contains a short bilingual origin account, three agent roles, two d
 
 Both interactive experiences are ILLUSTRATIVE SIMULATION. They replay pedagogical summaries of signed local test bundles. Buttons do not call policy, Auth, approvals or execution APIs. Exploring an approved fixture is not granting an approval. Reconciliation retains the original UNKNOWN. Machine decision codes, source SHAs and evidence fields remain unchanged across languages.
 
+The River viewer also exposes the signed H-ALLOW/H-DENY local composition: actual enrolled-key warning verification, relay, advisory review, a canonical decision digest binding that evidence, the unchanged P0 SQL claim and independent export probes. A scoped request changes the synthetic export probe200→423; the same advice outside scope creates zero containment effects. It remains a replay viewer, not a hosted execution client.
+
 `tools/watchtowers/import-local-evidence.mjs` verifies signed local manifests and records the exact source SHAs before generating the client-readable fixture. Included public keys are ephemeral local test keys, not independently trusted Production identities. `--check` detects signature/projection drift. A separately pinned environment key is required for hosted evidence trust.
 
 Local verification: `npm run test:watchtowers`; full mandatory CI; `npm run build`; start the built site on loopback4340, then `npm run test:spanish-browser` and `npm run test:watchtowers-browser`. Browser qualification asserts actual 390px/1440px widths, native keyboard controls, English/Spanish, scenario outcomes, navigation and zero demo API writes. Reduced motion is supported. No hosted Auth, consent, positive Turnstile or provider qualification follows from these checks.

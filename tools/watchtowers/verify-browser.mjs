@@ -55,6 +55,10 @@ try{
         assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
         report.checks.push({viewport,width,locale,kind,scenario:scenario.id,passed:true});
       }
+      if(kind==='river'){
+        await page.getByText(locale==='es'?'Examinar la prueba local de extremo a extremo':'Inspect the end-to-end local proof',{exact:true}).click();
+        const proof=await page.getByTestId('composed-proof').innerText();assert.ok(proof.includes('H-ALLOW'));assert.ok(proof.includes('H-DENY'));
+      }
       await page.evaluate(()=>scrollTo(0,0));
       await page.screenshot({path:`${out}/${viewport}-${locale}-${kind}.png`,fullPage:true});
     }
