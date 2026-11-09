@@ -6,16 +6,21 @@ const origin='http://127.0.0.1:4340';
 assert.ok(!process.env.NEXT_PUBLIC_SUPABASE_URL&&!process.env.SUPABASE_SERVICE_ROLE_KEY);
 assert.ok(!['.env','.env.local','.env.production','.env.production.local'].some(file=>existsSync(file)));
 const out='artifacts/watchtowers/browser';mkdirSync(out,{recursive:true});
-const report={environment:'LOCAL UNBOUND PUBLIC SIMULATION',hosted:false,checks:[],pageErrors:[],demoWrites:[],failures:[]};
+const report={environment:'LOCAL UNBOUND PUBLIC SIMULATION',hosted:false,checks:[],pageErrors:[],demoWrites:[],unqualifiedApiResponses:[],failures:[]};
 const browser=await chromium.launch();
 try{
   const context=await browser.newContext({reducedMotion:'reduce'});
   for(const [viewport,width,height]of[['mobile',390,844],['desktop',1440,1000]])for(const locale of ['en','es']){
     const copy=watchtowerCopy[locale],base=(locale==='es'?'/es':'')+'/tenente-swarm',page=await context.newPage();await page.setViewportSize({width,height});
     page.on('pageerror',e=>report.pageErrors.push(e.message));
+    page.on('response',r=>{if(r.url().startsWith(origin+'/api/')&&r.status()>=400)report.unqualifiedApiResponses.push({path:new URL(r.url()).pathname,status:r.status()});});
     page.on('request',r=>{if(r.method()==='POST'&&r.url().includes('/api/')&&!r.url().includes('/api/consent/'))report.demoWrites.push(r.url());});
     const response=await page.goto(origin+base);assert.equal(response.status(),200);
-    const reject=page.getByRole('button',{name:'Reject Optional',exact:true});if(await reject.isVisible())await reject.click();
+    const reject=page.getByRole('button',{name:'Reject Optional',exact:true});
+    // The first consent dialog appears after hydration. Make a real UI choice;
+    // never seed a cookie or hide an overlay to make the demo test pass.
+    if(report.checks.length===0)await reject.waitFor({state:'visible'});
+    if(await reject.isVisible()){await reject.click();await reject.waitFor({state:'hidden'});}
     await page.locator('main h1').waitFor();assert.equal(await page.locator('html').getAttribute('lang'),locale);
     assert.equal(await page.evaluate(()=>innerWidth),width);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
     assert.ok(await page.getByRole('link',{name:copy.explore+': '+copy.torch}).isVisible());

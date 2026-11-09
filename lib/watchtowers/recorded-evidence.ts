@@ -2,7 +2,7 @@
 export const recordedEvidence = {
   "classification": "ILLUSTRATIVE SIMULATION",
   "hosted": false,
-  "torchSha": "86c116a4e3bced67944bf505aa240e932851473a",
+  "torchSha": "a3b38e43099f17f204037622c9284dee7c5aa615",
   "riverSha": "aa572b6e5e6bdcb63e2ddce613180c06c98f1292",
   "torch": {
     "manifest": {
@@ -17,7 +17,7 @@ export const recordedEvidence = {
           "accepted": true,
           "investigations": 1,
           "destinationEffects": 0,
-          "evidenceDigest": "8f6f6cc8c228693270de6b4a1202c12edd5e576dd9984944769387a553a705db"
+          "evidenceDigest": "78f876f1338630abf5414fa094ce07184dd1c22638092914c1ac954385dc92cb"
         },
         {
           "scenario": "B",
@@ -25,7 +25,7 @@ export const recordedEvidence = {
           "accepted": false,
           "investigations": 0,
           "destinationEffects": 0,
-          "evidenceDigest": "b8ab2d6de3c5a4a41bad604fc40c5fc9ba6aff564868e5bc9680fbabe97d72f9"
+          "evidenceDigest": "02960153da4b175ab71dd550d64b81976b677543db21e1823b842bc90bdd60cc"
         },
         {
           "scenario": "C",
@@ -33,7 +33,7 @@ export const recordedEvidence = {
           "accepted": false,
           "investigations": 0,
           "destinationEffects": 0,
-          "evidenceDigest": "27969fa7fe9d4f61e5bbb18477530f46e6ad370d89742dac805e0dc087059cce"
+          "evidenceDigest": "fff966e844b145079933f124944cd77971e16bf4b9637dd16ace06791157e00b"
         },
         {
           "scenario": "D-initial",
@@ -41,14 +41,14 @@ export const recordedEvidence = {
           "accepted": true,
           "investigations": 1,
           "destinationEffects": 0,
-          "evidenceDigest": "a3f5370691aa96a837c607fd4cf225199cbe5fda25dabdb2d5940664c2974e54"
+          "evidenceDigest": "bffabb98bb5fe3a41753900e993925a92273fa5fd2e8d562a9c79b6871e4f371"
         },
         {
           "scenario": "D",
           "reason": "MESSAGE_REPLAY",
           "destinationEffects": 0,
           "investigations": 0,
-          "evidenceDigest": "052802ba5b9b546eec4272fd1828571e91606d8facde11362dbf23fe8b707994"
+          "evidenceDigest": "5e3c7687bc2c73cc4c34766cf64b4a16033311700b3c23c34d7691a7ba1312ef"
         },
         {
           "scenario": "E",
@@ -56,7 +56,7 @@ export const recordedEvidence = {
           "accepted": false,
           "investigations": 0,
           "destinationEffects": 0,
-          "evidenceDigest": "21c0d39df5a8fcf030aa2f465a08d376a38b5b4a692f98a71a24d148629351de"
+          "evidenceDigest": "d82d320d8a56525ed0eac63f8a952560ed1d08ceab69ad10e6d8e0f36176ea27"
         },
         {
           "scenario": "PAYLOAD-TAMPER",
@@ -64,7 +64,7 @@ export const recordedEvidence = {
           "accepted": false,
           "investigations": 0,
           "destinationEffects": 0,
-          "evidenceDigest": "73fd092f227b02b0678a7db92adccb780a23315946fa315505811ae0962019ed"
+          "evidenceDigest": "b16884972de3c89721b04bb75db9fe40c4e3a68488aaf284d2e5d8b5132e3051"
         },
         {
           "scenario": "F-initial",
@@ -72,19 +72,19 @@ export const recordedEvidence = {
           "accepted": true,
           "investigations": 1,
           "destinationEffects": 0,
-          "evidenceDigest": "855dba0de0b03103e3c66ff72906f603e4279f3ddb7450c1aef7c66affa14bcf"
+          "evidenceDigest": "0f2c6238c3d55f6f5ed60bc3e95ab2da64d42c5d4dac63566b94acd67121c58f"
         },
         {
           "scenario": "F",
           "reason": "VALID_ALTERNATE_RELAY",
           "destinationEffects": 0,
           "investigations": 0,
-          "evidenceDigest": "13c28c52c75fb29988c0a368799cc86694497c525045cdc072a55a5cfc6fa2b8"
+          "evidenceDigest": "302f9f5f39c395ffbade6be2b57eaa035fb47d042840c9b1fdf5a99e78cb7f0f"
         }
       ]
     },
-    "signature": "iGbpt_yrBHaZQrjN1KGde4Ltmpe2JVUhqAutZX8ZuVO7UNZEuxJUyOT2AgKkcda-6x0NN8IOYB2mvNnpqnbvDg",
-    "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAZ/25MmGOJ54KkuTiu18poDl6CiBpws6q2iVpUxar/hI=\n-----END PUBLIC KEY-----\n",
+    "signature": "Kuyt0RGK1NJlegIKbkYWyj24yC7oAH0scFF4ZxTtBIOs2mnqLCi1o6Bl0p69_c4Ww3g-KypNWSG1VDOH59RhBQ",
+    "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAZMaRewJnd0DE6uZ2wjQP4FWDNGxw4+D7dTHOr53KnkI=\n-----END PUBLIC KEY-----\n",
     "trustAnchor": "Ephemeral local test key; not a Production identity assertion"
   },
   "river": {
