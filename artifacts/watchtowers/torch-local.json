@@ -1,0 +1,83 @@
+{
+  "manifest": {
+    "environment": "LOCAL SYNTHETIC FIXTURE",
+    "hosted": false,
+    "classification": "PARTIAL",
+    "cryptography": "Existing Ed25519 agent-message verification; existing file CAS and Swarm Replay",
+    "results": [
+      {
+        "scenario": "A",
+        "reason": "INVESTIGATION_OPENED",
+        "accepted": true,
+        "investigations": 1,
+        "destinationEffects": 0,
+        "evidenceDigest": "75702c80ca5e678b8be2f7b86813c9a986f776ae817e35c0795af79df37213ca"
+      },
+      {
+        "scenario": "B",
+        "reason": "INVALID_WARNING",
+        "accepted": false,
+        "investigations": 0,
+        "destinationEffects": 0,
+        "evidenceDigest": "14c045ff375fb344d3f66932d3c86f7fe1be9f26ddfeddae284f1a51d42747fb"
+      },
+      {
+        "scenario": "C",
+        "reason": "INVALID_ORIGIN",
+        "accepted": false,
+        "investigations": 0,
+        "destinationEffects": 0,
+        "evidenceDigest": "0987da82fb6aa4c3c5fb38f843f515310ce142f5a8cd81d134d357bb3e3a4570"
+      },
+      {
+        "scenario": "D-initial",
+        "reason": "INVESTIGATION_OPENED",
+        "accepted": true,
+        "investigations": 1,
+        "destinationEffects": 0,
+        "evidenceDigest": "73cc85a8352af13d174e09018f82817c4d40d6763d75bf7b032264762a443429"
+      },
+      {
+        "scenario": "D",
+        "reason": "MESSAGE_REPLAY",
+        "destinationEffects": 0,
+        "investigations": 0,
+        "evidenceDigest": "186b6d5d9258f965de03c5fddc7c2b7530f5e26784cc6f7071331d448cc45071"
+      },
+      {
+        "scenario": "E",
+        "reason": "INVALID_ORIGIN",
+        "accepted": false,
+        "investigations": 0,
+        "destinationEffects": 0,
+        "evidenceDigest": "59f5924269c750bb98c609d519ea7836af812c81cef253b408e62f86432f3c3d"
+      },
+      {
+        "scenario": "PAYLOAD-TAMPER",
+        "reason": "INVALID_ORIGIN",
+        "accepted": false,
+        "investigations": 0,
+        "destinationEffects": 0,
+        "evidenceDigest": "805e29a2f09107fc5ee034efe5e1c1ff8f9ad61a354a62efbcb7db79bfb003a5"
+      },
+      {
+        "scenario": "F-initial",
+        "reason": "INVESTIGATION_OPENED",
+        "accepted": true,
+        "investigations": 1,
+        "destinationEffects": 0,
+        "evidenceDigest": "c96886ec02663cb4f4fbc02384bf583b98b28fd3f99a27719f935a59a1dbec0d"
+      },
+      {
+        "scenario": "F",
+        "reason": "VALID_ALTERNATE_RELAY",
+        "destinationEffects": 0,
+        "investigations": 0,
+        "evidenceDigest": "6ea3b8444dd405597536929e8ab0eabb104e3e25ead635f44a8f993da42c703c"
+      }
+    ]
+  },
+  "signature": "VxtWgIjo_NNWEdlM3c_pp6HvjXtP59QJLLWWKaTk4CsHceVuyLs1vc9PNh3HSVJsCk-B5hI7iZIjFORnUWeVDw",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAO73dSHblDY2YmTvhBRy/pDqu31quE49men04apc272U=\n-----END PUBLIC KEY-----\n",
+  "trustAnchor": "Ephemeral local test key; not a Production identity assertion"
+}
