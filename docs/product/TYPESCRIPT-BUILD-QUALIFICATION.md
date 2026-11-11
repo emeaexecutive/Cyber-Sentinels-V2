@@ -1,6 +1,7 @@
 # TypeScript and production-build qualification
 
-**Baseline:** `main` at `63a0e0f550f65b4beb3c52afabdba0481b510e69`  
+**Baseline:** `main` at `63a0e0f550f65b4beb3c52afabdba0481b510e69`
+
 **Qualification date:** 11 November 2026
 
 ## Root cause and correction
