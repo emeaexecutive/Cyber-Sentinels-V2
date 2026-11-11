@@ -20,8 +20,8 @@ With the generated Next.js route types present and `tsconfig.tsbuildinfo` remove
 
 - Across fresh runs, TypeScript-reported memory was approximately `1.6–2.2 GiB`, and total time was `60–100s`.
 - Sampled aggregate Node working set peaked at approximately `2.3 GiB`.
-- No heap-size override or suppressed diagnostics
+- No heap-size override or new diagnostic suppression was added; the existing `skipLibCheck: true` setting was unchanged.
 
-`npm run build` passed, compiled successfully, and generated all `208/208` static pages. Across clean builds, sampled aggregate Node working set peaked at approximately `2.4–3.0 GiB`. These measurements are local, not hosted or Production qualification.
+`npm run build` passed, compiled successfully, and generated all `208/208` static pages. Across clean builds, sampled aggregate Node working set peaked at approximately `2.4–3.2 GiB` (3,187 MiB in the latest run). These measurements are local, not hosted or Production qualification.
 
 The full `npm audit` reported six moderate issues in development dependencies; `npm audit --omit=dev` reported zero production dependency issues. No dependency updates were applied.
