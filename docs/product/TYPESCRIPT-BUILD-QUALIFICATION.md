@@ -17,10 +17,10 @@ An ignored nested `tmp/typescript-include-probe/nested/ignored.ts` fixture was a
 
 With the generated Next.js route types present and `tsconfig.tsbuildinfo` removed to force a fresh full check, `npm run typecheck -- --extendedDiagnostics` passed:
 
-- Across fresh runs, TypeScript-reported memory ranged from `1,688,786K` to `2,135,064K`, and total time from `73.89s` to `95.79s`.
-- Sampled aggregate Node working set peaked at approximately `2,273 MiB`.
+- Across fresh runs, TypeScript-reported memory was approximately `1.6–2.2 GiB`, and total time was `70–100s`.
+- Sampled aggregate Node working set peaked at approximately `2.3 GiB`.
 - No heap-size override or suppressed diagnostics
 
-`npm run build` passed, compiled successfully, and generated all `208/208` static pages. Across clean builds, sampled aggregate Node working set peaked between approximately `2,616 MiB` and `2,911 MiB`. These measurements are local, not hosted or Production qualification.
+`npm run build` passed, compiled successfully, and generated all `208/208` static pages. Across clean builds, sampled aggregate Node working set peaked at approximately `2.4–3.0 GiB`. These measurements are local, not hosted or Production qualification.
 
 The full `npm audit` reported six moderate issues in development dependencies; `npm audit --omit=dev` reported zero production dependency issues. No dependency updates were applied.
