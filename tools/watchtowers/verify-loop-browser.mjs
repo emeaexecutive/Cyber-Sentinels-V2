@@ -18,12 +18,10 @@ try{
   page.on('response',response=>{if(response.url().includes('/api/')&&response.status()>=400)report.unqualifiedApiResponses.push({path:new URL(response.url()).pathname,status:response.status()});});
   try{
    const response=await page.goto(`${origin}${locale==='es'?'/es':''}/tenente-swarm/river-crossing#loop-limit`);assert.equal(response.status(),200);
-   const consent=page.getByRole('button',{name:locale==='es'?'Rechazar opcionales':'Reject Optional',exact:true});
-   // The public shell may defer its consent dialog until hydration. Make the real UI choice.
-   await page.locator('#loop-limit').waitFor();await page.waitForTimeout(500);
-   if(await consent.isVisible())await consent.click();
-   // Older shared consent uses English even on ES. Preserve and record the fallback honestly.
-   const englishConsent=page.getByRole('button',{name:'Reject Optional',exact:true});if(await englishConsent.isVisible())await englishConsent.click();
+   // Consent controls deliberately remain English pending reviewed privacy translation.
+   // Every page owns a fresh browser context: await hydration and make the actual UI choice.
+   await page.locator('#loop-limit').waitFor();
+   const englishConsent=page.getByRole('button',{name:'Reject Optional',exact:true});await englishConsent.waitFor({state:'visible'});await englishConsent.click();await englishConsent.waitFor({state:'hidden'});
    assert.equal(await page.locator('html').getAttribute('lang'),locale);
    const panel=page.locator('#loop-limit');assert.match(await panel.innerText(),/ILLUSTRATIVE SIMULATION/);
    const click=async name=>{await panel.getByRole('button',{name,exact:true}).click();await panel.getByRole('button',{name:copy.reset,exact:true}).waitFor({state:'visible'});await page.waitForFunction(()=>!document.querySelector('#loop-limit button:last-of-type')?.disabled);};
