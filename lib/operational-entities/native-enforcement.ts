@@ -436,6 +436,8 @@ export async function executeAuthorizedAction(input: {
     | { created: false; blocked?: false; request: EnforcementRequest; result: EnforcementAdapterResult }
   >;
   adapter: { execute(request: EnforcementRequest): Promise<EnforcementAdapterResult> };
+  // An irrevocable, current-state database claim must precede any adapter effect.
+  claimDispatch?: (request: EnforcementRequest) => Promise<{ claimed: boolean; reason?: string }>;
   // Server-selected restrictive controls; never selected or disabled by request input.
   swarmGuard?: {
     admit(request: EnforcementRequest): Promise<{ allowed: boolean; reasonCodes: string[]; receiptDigest?: string }>;
@@ -444,6 +446,7 @@ export async function executeAuthorizedAction(input: {
   requireSwarmGuard?: boolean;
   now?: () => string;
 }) {
+  input = structuredClone(input);
   exactUuid(input.enterpriseId, "enterpriseId");
   exactUuid(input.transactionId, "transactionId");
   exactUuid(input.authorityId, "authorityId");
@@ -498,10 +501,26 @@ export async function executeAuthorizedAction(input: {
     assertSameRequest(reservation.request);
     return { requested: true, request: reservation.request, result: reservation.result, duplicate: true, eligibility: { ...eligibility, reasonCodes: ["IDEMPOTENT_REPLAY"] } };
   }
+  if (!dependencies.claimDispatch) throw new NativeEnforcementError("Durable dispatch claim is not configured.", "DURABLE_DISPATCH_UNAVAILABLE", 503);
+  const claim = await dependencies.claimDispatch(request);
+  if (!claim.claimed) return guardDenied([claim.reason ?? "DISPATCH_NOT_CLAIMED"]);
+  // Swarm policy/stop/revocation is checked after the potentially blocking DB
+  // claim. A consumed claim denied here cannot be blindly retried.
   if (dependencies.swarmGuard) {
     try { const checked = await dependencies.swarmGuard.dispatch(request); if (!checked.allowed) return guardDenied(checked.reasonCodes); }
     catch { return guardDenied(["SWARM_DISPATCH_UNAVAILABLE"]); }
   }
-  const result = await dependencies.adapter.execute(request);
+  // Keep #128's last generic authority/approval check AFTER every potentially
+  // asynchronous claim and guard, including approval expiry inside the guard.
+  const dispatchCurrent = await dependencies.loadCurrentState(request);
+  const dispatchEligibility = evaluateEnforcementEligibility({ decision: input.decision, request, current: dispatchCurrent,
+    approval: input.approval, now: (dependencies.now ?? (() => new Date().toISOString()))() });
+  if (!dispatchEligibility.eligible) return { requested: false, request: null, result: null, eligibility: dispatchEligibility };
+  let result: EnforcementAdapterResult;
+  try { result = await dependencies.adapter.execute(request); }
+  catch {
+    result = { status: "UNKNOWN", adapterReference: null, acknowledgedAt: (dependencies.now ?? (() => new Date().toISOString()))(),
+      executionClaim: null, runtimeObservation: null, destinationObservation: null, reasonCodes: ["DISPATCH_OUTCOME_UNKNOWN_RECONCILIATION_REQUIRED"] };
+  }
   return { requested: true, request, result, duplicate: false, eligibility };
 }

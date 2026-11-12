@@ -328,10 +328,9 @@ export async function recordNativeEnforcementApproval(context: DelegatedAuthorit
     actionDigest, approvedBy: context.user.id, approvedAt,
     expiresAt: new Date(Date.parse(approvedAt) + lifetimeSeconds * 1000).toISOString(), nonTransferable: true,
   };
-  const inserted = await db.from("native_enforcement_human_approvals").insert({
-    approval_id: approval.approvalId, enterprise_id: approval.enterpriseId, transaction_id: approval.transactionId,
-    operational_entity_id: approval.operationalEntityId, action_digest: approval.actionDigest, approved_by: approval.approvedBy,
-    approved_at: approval.approvedAt, expires_at: approval.expiresAt, non_transferable: true, approval_digest: hashCanonical(approval),
+  const inserted = await db.rpc("issue_native_enforcement_approval_v2", {
+    p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id,
+    p_approval: { ...approval, approvalDigest: hashCanonical(approval) },
   });
   if (inserted.error?.code === "23505") throw new NativeEnforcementServerError("A non-transferable approval already exists for this exact transaction and action.", "HUMAN_APPROVAL_ALREADY_RECORDED", 409);
   if (inserted.error) fail("Human approval persistence", inserted.error);
@@ -413,6 +412,14 @@ export async function requestNativeEnforcement(context: DelegatedAuthorityContex
       }
       if (String(data.requestState) !== "REQUESTED") return { created: false as const, blocked: true as const, reasonCodes: Array.isArray(data.reasonCodes) ? data.reasonCodes.map(String) : ["ENFORCEMENT_CANCELLED"] };
       return { created: true as const };
+    },
+    async claimDispatch(request) {
+      const result = await db.rpc("claim_native_enforcement_dispatch_v2", {
+        p_enterprise_id: context.enterpriseId, p_actor_id: context.user.id, p_request_id: request.requestId,
+      });
+      if (result.error) fail("Durable dispatch consumption", result.error);
+      const data = result.data as Row | null;
+      return { claimed: data?.claimed === true, reason: String(data?.reason ?? "DISPATCH_NOT_CLAIMED") };
     },
     adapter: evaluation.data.decision_snapshot?.action?.parameters
       ? registeredToolAdapter(context, evaluation.data.decision_snapshot.action, storedSwarmControls?.cancellation)

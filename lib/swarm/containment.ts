@@ -188,14 +188,26 @@ export class SwarmContainment {
             (!/^[A-Za-z0-9_.:/-]{1,240}$/.test(classification.quotaScope) ||
              ["__proto__", "constructor", "prototype"].includes(classification.quotaScope))) reasons.push("QUOTA_SCOPE_INVALID");
         const sharedScope = classification.quotaMode === "AGGREGATE" ? classification.quotaScope : undefined;
+        if (classification.quotaMode !== undefined && !["PER_ACTION", "AGGREGATE"].includes(classification.quotaMode)) reasons.push("QUOTA_MODE_INVALID");
+        // A scope cannot be reset by changing its mode or sliding an active
+        // window. Expired completed windows may roll over; unresolved external
+        // effects remain charged even across that rollover.
+        const scopeHistory = classification.quotaScope ? Object.values(state.leases).filter(l => l.classification.quotaScope === classification.quotaScope) : [];
+        const activeScopeHistory = scopeHistory.filter(l => !l.classification.quotaWindow || l.classification.quotaWindow.end > now || ["DISPATCHED", "UNKNOWN"].includes(l.state));
+        if (activeScopeHistory.some(l => l.classification.quotaMode === "AGGREGATE" && !sharedScope)) reasons.push("SHARED_QUOTA_POLICY_MISMATCH");
+        if (sharedScope && activeScopeHistory.some(l => {
+          const previous = l.classification.quotaWindow;
+          return l.classification.limit !== classification.limit || l.classification.quotaMode !== "AGGREGATE"
+            || Boolean(previous) !== Boolean(window)
+            || (previous && window && (previous.end - previous.start !== window.end - window.start
+              || (previous.end > now && (previous.start !== window.start || previous.end !== window.end))
+              || (previous.end <= now && window.start < previous.end)));
+        })) reasons.push("SHARED_QUOTA_POLICY_MISMATCH");
         const equivalent = (c: Classification) => sharedScope
           ? c.quotaScope === sharedScope
           : c.resource === classification.resource && c.operation === classification.operation;
         const scopedLeases = Object.values(state.leases).filter(l => equivalent(l.classification) &&
           (!window || l.classification.quotaWindow?.start === window.start || ["DISPATCHED", "UNKNOWN"].includes(l.state)));
-        // Prevent a second agent from widening a shared limit under the same scope/window.
-        if (sharedScope && scopedLeases.some(l => l.classification.limit !== classification.limit ||
-            l.classification.quotaMode !== "AGGREGATE")) reasons.push("SHARED_QUOTA_POLICY_MISMATCH");
         const consumed = classification.quotaMode === "PER_ACTION" ? 0 : scopedLeases.reduce((n, l) => n + l.classification.units, 0);
         if (consumed + classification.units > classification.limit) reasons.push("COLLECTIVE_LIMIT_EXCEEDED");
         const components = new Set(Object.values(state.leases).filter(l => l.classification.resource === classification.resource).map(l => l.classification.component));

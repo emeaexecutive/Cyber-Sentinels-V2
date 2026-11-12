@@ -2,15 +2,17 @@ import { cancellationRuntime, type SignedCancellation } from "./cancellation.ts"
 import { detectSwarmAnomalies } from "./prevention-kit.ts";
 import { GovernedSoc, SOC_AGENTS } from "../soc/workflow.ts";
 import { investigateWithCopilot } from "../soc/copilot.ts";
+import { SocModelBudget, type ModelBudgetConfiguration } from "../soc/model-budget.ts";
 import { SwarmContainment, type Actor, type SwarmStore, type SwarmDependencies, type Collective, type Member } from "./containment.ts";
 
 /** Authentication and tenant binding are supplied by the server, never by request JSON. */
-export function swarmOperations(store: SwarmStore, authenticate: () => Promise<Actor>, now = Date.now, dependencies: Pick<SwarmDependencies, "containmentKey"> & { cancellationEvidenceKey?: () => string; cancellationProject?: (event: import("./containment.ts").SwarmEvent) => Promise<void> } = {}) {
+export function swarmOperations(store: SwarmStore, authenticate: () => Promise<Actor>, now = Date.now, dependencies: Pick<SwarmDependencies, "containmentKey"> & { modelBudget?: ModelBudgetConfiguration; cancellationEvidenceKey?: () => string; cancellationProject?: (event: import("./containment.ts").SwarmEvent) => Promise<void> } = {}) {
   const unavailable = async (): Promise<never> => { throw new Error("SWARM_EXECUTION_RESOLVER_UNAVAILABLE"); };
   const control = new SwarmContainment({ ...dependencies, store, authenticate, now, resolve: unavailable, heartbeatKey: unavailable, verifyOutcome: unavailable });
+  const modelBudget = dependencies.modelBudget ? new SocModelBudget({ store, now }, dependencies.modelBudget) : undefined;
   const soc = new GovernedSoc({ store, control, authenticate, now,
     destination: { execute: unavailable, observe: unavailable },
-    ...(process.env.OPENAI_API_KEY && process.env.OPENAI_SOC_MODEL ? { investigate: async (tenant: string, evidence: import("./containment.ts").SwarmEvent[]) => investigateWithCopilot({ tenantId: tenant, question: "Explain the recorded warning and observed facts. Report uncertainty.", evidence }, { apiKey: process.env.OPENAI_API_KEY!, model: process.env.OPENAI_SOC_MODEL! }) } : {}),
+    ...(process.env.OPENAI_API_KEY && process.env.OPENAI_SOC_MODEL && modelBudget && modelBudget.configuration.provider === "openai" && modelBudget.configuration.model === process.env.OPENAI_SOC_MODEL ? { modelBudget, investigate: async (tenant: string, evidence: import("./containment.ts").SwarmEvent[], signal?: AbortSignal) => investigateWithCopilot({ tenantId: tenant, question: "Explain the recorded warning and observed facts. Report uncertainty.", evidence }, { apiKey: process.env.OPENAI_API_KEY!, model: modelBudget.configuration.model, timeoutMs: modelBudget.configuration.maxDurationMs, signal }) } : {}),
   });
   async function operator() {
     const actor = await authenticate();
@@ -33,7 +35,7 @@ export function swarmOperations(store: SwarmStore, authenticate: () => Promise<A
         soc: {
           timeline: state.events.filter(e => e.kind.startsWith("SOC_")).slice(-100),
           totalAlerts: state.events.filter(e => e.kind === "SOC_ALERT").length,
-          modelConfigured: Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_SOC_MODEL),
+          modelConfigured: Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_SOC_MODEL && modelBudget && modelBudget.configuration.provider === "openai" && modelBudget.configuration.model === process.env.OPENAI_SOC_MODEL),
           responseDispatchEnabled: false,
         },
       }));

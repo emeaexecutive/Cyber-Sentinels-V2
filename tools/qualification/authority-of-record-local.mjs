@@ -110,7 +110,7 @@ try {
     if(result.requestState!=='REQUESTED')return {created:false,blocked:true,reasonCodes:result.reasonCodes};
     if(result.status==='DUPLICATE')return {created:false,...storedRequests.get(`${tenant}:${request.idempotencyKey}`)};
     storedRequests.set(`${tenant}:${request.idempotencyKey}`,{request,result:null});return {created:true};
-   },adapter:createHttpToolAdapter({endpoint,tool:'refund',payload:record.payload,evidenceKey,transport,allowLocal:true}),
+   },claimDispatch:async request=>{const result=(await db.query('select public.claim_native_enforcement_dispatch_v2($1,$2,$3) as result',[tenant,actor,request.requestId])).rows[0].result;return{claimed:result.claimed===true,reason:result.reason};},adapter:createHttpToolAdapter({endpoint,tool:'refund',payload:record.payload,evidenceKey,transport,allowLocal:true}),
   });
  }
  const allow=await evaluateAndPersist();assert.equal(allow.decision.decision,'ALLOW');const execution=await dispatch(allow);assert.equal(execution.requested,true);assert.equal(execution.result.status,'ACCEPTED');
