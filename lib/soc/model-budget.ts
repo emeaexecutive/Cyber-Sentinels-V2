@@ -25,7 +25,7 @@ type BudgetDependencies = {
 export class ModelBudgetError extends Error {
   constructor(readonly code: string) { super(code); this.name = "ModelBudgetError"; }
 }
-const fail = (code: string): never => { throw new ModelBudgetError(code); };
+function fail(code: string): never { throw new ModelBudgetError(code); }
 const reference = (value: unknown): value is string => typeof value === "string" && /^[A-Za-z0-9_.:/-]{1,240}$/.test(value) && !["constructor", "prototype", "__proto__"].includes(value);
 const positive = (value: number) => Number.isSafeInteger(value) && value > 0;
 const reserved = (event: SwarmEvent, scope: string) => event.kind === "SOC_MODEL_BUDGET_RESERVED" && event.details.scope === scope;
