@@ -3,6 +3,7 @@ import { publicSocialMetadata } from "@/lib/search/metadata";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   ...publicSocialMetadata("Modern Slavery Statement | Cyber Sentinels", "Publication status: this page is under review; an approved version has not been published.", "/modern-slavery"),
   title: "Modern Slavery Statement | Cyber Sentinels",
   description: "Publication status: this page is under review; an approved version has not been published.",
