@@ -23,3 +23,6 @@ a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api
 a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:828
 a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:888
 a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:948
+
+# Deliberately incorrect local recovery-test password; never an issued credential.
+a9bffc15e6889e874a9f58fb523965fc45260e5c:tools/qualification/execution03-database-rehearsal.mjs:generic-api-key:63
