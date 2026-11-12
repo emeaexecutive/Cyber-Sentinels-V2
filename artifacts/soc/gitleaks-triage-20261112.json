@@ -1,0 +1,133 @@
+{
+  "scope": "483d7dc..2f77ed6",
+  "reviewed": 21,
+  "credentialFindings": 0,
+  "findings": [
+    {
+      "fingerprint": "9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:34",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "Fixture randomUUID used for request/idempotency correlation; synthetic test-only destination and no authentication capability"
+    },
+    {
+      "fingerprint": "9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:471",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:531",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:591",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:651",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/destination-1794480850563.json:generic-api-key:1",
+      "file": "artifacts/soc/destination-1794480850563.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "Fixture randomUUID used for request/idempotency correlation; synthetic test-only destination and no authentication capability"
+    },
+    {
+      "fingerprint": "9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:711",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:771",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:831",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:891",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:951",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:34",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "Fixture randomUUID used for request/idempotency correlation; synthetic test-only destination and no authentication capability"
+    },
+    {
+      "fingerprint": "a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:468",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:528",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:588",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:648",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:708",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:768",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:828",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:888",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    },
+    {
+      "fingerprint": "a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:948",
+      "file": "artifacts/soc/incident.json",
+      "classification": "VERIFIED_NON_SECRET_SYNTHETIC_METADATA",
+      "reason": "SHA-256 digest of normalized public Ed25519 key, emitted by enrollRuntimeKey; not a private key or credential"
+    }
+  ]
+}

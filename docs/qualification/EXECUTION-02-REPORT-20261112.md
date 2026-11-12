@@ -4,7 +4,7 @@
 
 ## Candidate and review scope
 
-Runtime branch: `codex/governed-soc-runtime-20261112`. Code candidate: `9ccf1b153c663b560c286e62620bb952dbd54909`. It starts at PR135 `202117ae82a48a7f8d536c29d5d700e8fbf11c70`, carries PR137's tooling fix, and includes schema branch `483d7dc18c12edfe636a8f8faec06df31389b635` as an ancestor. Later evidence-only commits must be distinguished from this code SHA.
+Runtime branch: `codex/governed-soc-runtime-20261112`. Final code/build candidate: `2f77ed63c20fe312c3a5d4c07ef9d70bb9f52eb1` (SOC security source at `9ccf1b153c663b560c286e62620bb952dbd54909`, then CI/docs and explicit checkout tracing-root fixes). It starts at PR135 `202117ae82a48a7f8d536c29d5d700e8fbf11c70`, carries PR137's tooling fix, and includes schema branch `483d7dc18c12edfe636a8f8faec06df31389b635` as an ancestor. Later evidence-only commits must be distinguished from this code SHA.
 
 All 13 original open PRs were inspected, including #116, #118, #123 and #128–137. Exact heads/checks/file lists and dependency findings are in [PR reconciliation](PR-DEPENDENCY-RECONCILIATION-20261112.md). Important: #131 is not a descendant of #128, #134 does not include #118's runtime, and River proof imports watchtower source from a separately pinned checkout. Green individual heads do not qualify their composition. Full integration attempts demonstrated conflicts in application, enforcement, package and deployment configuration; these were abandoned only in the new isolated checkout, without dropping original work or tests.
 
@@ -36,7 +36,7 @@ The first fresh candidate typecheck exposed one route response-union error, subs
 
 Four isolated SQL tests passed, including rollback/reapply, actual projection rows, tenant binding, grants, CAS conflicts and append-only history. Engine: **PGlite**, with serialized queries. This is not independent multi-connection PostgreSQL race proof or rehearsal of every hosted migration. See [database reconciliation](SOC-DATABASE-RECONCILIATION-20261112.md). Later atomic native-dispatch migrations in PR132 are not silently assumed present in the runtime base.
 
-The runtime implementation and full qualification reports are prepared on the separate runtime branch, stacked on the schema branch. Neither PR authorizes merging, Production SQL or Production deployment.
+The runtime implementation and full qualification reports are in [draft PR #139](https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/139), stacked on schema PR #138. Neither PR authorizes merging, Production SQL or Production deployment.
 
 ## 10–12. Demonstration, model costs and emergency stop
 
@@ -62,6 +62,8 @@ English is the published source language. Presence of English routes is not a me
 - External destination: one file-backed synthetic adapter/observer demonstrated; no customer security connector, infrastructure-containment provider or real TTL enforcement qualified.
 - External API/MCP: existing routes and tests inventoried; no new hosted product MCP endpoint or all-tools execution qualification established.
 - Recovery: journal reopening and bounded SQL rollback/reapply tested. Full hosted DB/Storage backup restore, current recovery point, offsite ownership and external outcome reconciliation remain required.
+
+On the exact locked dependency tree, the combined SOC/warning/authority/cancellation/persistence regression run passed **99/99**, API route mocks **6/6**, and the desktop/mobile browser journey **1/1**. Targeted ESLint passed. A redacted exact-range Gitleaks scan initially flagged 21 synthetic UUID/public-key fingerprint occurrences; each was verified against its historical JSON and source generator, then only those exact historical fingerprints were excepted. CI-configured rescan found no remaining leaks. These checks do not qualify unrelated repository history or hosted secrets.
 
 Customer-ready claim is limited to a reviewable **local synthetic governance demonstration**. A customer-operating autonomous SOC, independently acting AI swarm, comprehensive alerting/detection coverage, full Spanish product and governed Production containment remain roadmap/qualification work. The four-record hand-labelled adversarial dataset deliberately records TP2/FP1/TN1/FN0: precision 2/3, recall 2/2 on that fixture only. Provenance does not establish maliciousness; the false positive is retained in the evidence.
 
