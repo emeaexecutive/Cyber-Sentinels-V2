@@ -71,4 +71,25 @@ test('SOC emergency stop recovery needs independent authorization and fresh cred
 test('SOC in-flight uncertainty blocks emergency-stop recovery',async t=>{
  let entered,release;const started=new Promise(r=>entered=r),pending=new Promise(r=>release=r);const f=await setup(t,{execute:async()=>{entered();await pending;}}),a=await f.ready(),r=f.request(),response=f.soc.respond(tenant,'operator',a.digest,r);await started;const stop=await f.soc.emergencyStop(tenant,'operator','swarm:1','in-flight stop');await assert.rejects(f.h.control.restoreScope(tenant,'reviewer',stop.digest),/RECONCILIATION_REQUIRED/);release();await response;assert.equal(f.effects.get(r.idempotencyKey),1);
 });
+test('SOC caller mutation during dispatch cannot replace the authorised destination action',async t=>{
+ let observedAction;
+ const f=await setup(t,{execute:async request=>{observedAction=structuredClone(request.action);}}),a=await f.ready(),request=f.request(),dispatch=f.h.control.dispatch.bind(f.h.control);
+ f.h.control.dispatch=async(...args)=>{const result=await dispatch(...args);request.action.type='WIPE_SYSTEM';request.action.target='production:customer-data';request.action.environment='production';return result;};
+ const response=await f.soc.respond(tenant,'operator',a.digest,request);
+ assert.equal(response.details.outcome,'COMPLETED');assert.equal(request.action.type,'WIPE_SYSTEM');
+ assert.deepEqual(observedAction,{type:'BLOCK_SYNTHETIC_ACTION',target:'synthetic:customer-export',environment:'test',consequence:'LOW'});assert.equal(f.effects.size,1);
+});
+test('SOC snapshots signed warning before awaiting authentication',async t=>{
+ const f=await setup(t),envelope=f.envelope(),eventId=envelope.warning.eventId,authenticate=f.deps.authenticate;
+ f.deps.authenticate=async proof=>{const actor=await authenticate(proof);envelope.warning.eventId='mutated-after-entry';envelope.warning.route='production:customer-data';return actor;};
+ const result=await f.soc.ingest(tenant,'operator',envelope);assert.equal(result.accepted,true);assert.equal(result.alert.subjectId,eventId);assert.equal(result.evidence.details.envelope.warning.route,'synthetic:customer-export');
+});
+test('SOC concurrent and repeated investigation reserves model execution exactly once',async t=>{
+ let calls=0,release,entered;const pending=new Promise(r=>release=r),started=new Promise(r=>entered=r);
+ const f=await setup(t,{investigate:async()=>{calls++;entered();await pending;return{authority:'NONE'};}}),alert=await f.alert();
+ const first=f.soc.investigate(tenant,'operator',alert.digest);await started;
+ const duplicate=await f.soc.investigate(tenant,'operator',alert.digest);assert.equal(duplicate.kind,'SOC_INVESTIGATION');assert.equal(duplicate.details.automaticRetry,false);assert.equal(calls,1);
+ release();assert.equal((await first).kind,'SOC_ASSESSMENT');assert.equal((await f.soc.investigate(tenant,'operator',alert.digest)).kind,'SOC_ASSESSMENT');assert.equal(calls,1);
+ assert.equal((await f.soc.snapshot(tenant,'operator')).timeline.filter(e=>e.kind==='SOC_INVESTIGATION').length,1);
+});
 

@@ -2,6 +2,9 @@ import subprocess,re,json,pathlib,datetime
 root=pathlib.Path.cwd(); out=root/'tmp/master-execution-02-inventory';out.mkdir(parents=True,exist_ok=True)
 def git(*args):return subprocess.check_output(['git',*args],text=True,encoding='utf-8',errors='replace').strip()
 refs=['HEAD','origin/main','origin/feat/tenente-swarm-authority-control','origin/feat/watchtower-controlled-demos-20261109','origin/test/watchtower-river-boundary-20261109','origin/website/watchtowers-ribagorza-20261109','origin/fix/approval-single-use-20261106','origin/migration/approval-consumption-20261108','origin/codex/p0-typecheck-20261111','origin/pr-118']
+snapshot=root/'docs/qualification/PR-DEPENDENCY-SNAPSHOT-20261112.json'
+if snapshot.exists():
+ refs=list(dict.fromkeys(refs+[row['pr']['head_sha'] for row in json.loads(snapshot.read_text(encoding='utf-8'))['prs']]))
 inventory=[]; snapshots=[]
 for ref in refs:
  try:sha=git('rev-parse',ref); paths=git('ls-tree','-r','--name-only',ref).splitlines()

@@ -58,6 +58,9 @@ export class GovernedSoc {
     }
   }
   async ingest(tenant: string, proof: string, envelope: WarningEnvelope) {
+    // Snapshot caller-owned data before authentication or any other await. A
+    // later caller mutation must not change the verified warning's alert binding.
+    envelope = structuredClone(envelope);
     await this.actor(tenant, proof);
     const received = await this.signals.receive(tenant, envelope);
     if (!received.accepted) return { accepted: false, evidence: received.evidence };
@@ -76,16 +79,21 @@ export class GovernedSoc {
   }
   async investigate(tenant: string, proof: string, alertDigest: string) {
     await this.actor(tenant, proof);
-    const evidence = await this.deps.store.transact(tenant, state => {
+    const reserved = await this.deps.store.transact(tenant, state => {
       const alert = state.events.find(e => e.kind === "SOC_ALERT" && e.digest === alertDigest);
       if (!alert) throw Error("SOC_ALERT_NOT_FOUND");
       const swarm = String(alert.details.swarmId);
       this.agents(state, swarm);
+      const prior = state.events.find(e => e.kind === "SOC_INVESTIGATION" && e.details.alertDigest === alertDigest);
+      if (prior) return { existing: state.events.find(e => e.kind === "SOC_ASSESSMENT" && e.details.alertDigest === alertDigest) ?? prior, evidence: null };
       const refs = new Set([alert.digest, ...(alert.details.evidenceRefs as string[])]);
-      return state.events.filter(e => refs.has(e.digest)).slice(-24);
+      const evidence = state.events.filter(e => refs.has(e.digest)).slice(-SOC_LIMITS.maxEvidenceRecords);
+      appendSwarmEvent(state, this.deps.now(), "SOC_INVESTIGATION", "Swarm Investigator", alert.subjectId, { alertDigest, evidenceRefs: evidence.map(e => e.digest), maxRecords: SOC_LIMITS.maxEvidenceRecords, status: "RESERVED", automaticRetry: false, interruptionRecovery: "OPERATOR_REVIEW_REQUIRED", authorityConferred: false });
+      return { existing: null, evidence };
     });
+    if (reserved.existing) return reserved.existing;
+    const evidence = reserved.evidence!;
     const alert = evidence.find(e => e.digest === alertDigest)!;
-    await this.record(tenant, "SOC_INVESTIGATION", "Swarm Investigator", alert.subjectId, { alertDigest, evidenceRefs: evidence.map(e => e.digest), maxRecords: 24, authorityConferred: false });
     if (this.deps.investigate) {
       try {
         let timer: ReturnType<typeof setTimeout> | undefined;
@@ -104,6 +112,9 @@ export class GovernedSoc {
     });
   }
   async respond(tenant: string, proof: string, alertDigest: string, request: EnforcementRequest) {
+    // The same private snapshot must reach classification, authority, dispatch
+    // and the destination. Caller mutation cannot replace an authorised action.
+    request = structuredClone(request);
     await this.actor(tenant, proof, "swarm:execute");
     const alert = await this.deps.store.transact(tenant, state => {
       const found = state.events.find(e => e.kind === "SOC_ALERT" && e.digest === alertDigest);
