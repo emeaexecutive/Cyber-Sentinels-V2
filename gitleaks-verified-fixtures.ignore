@@ -1,2 +1,25 @@
 # Reviewed deterministic readiness-route test fixture; exact historical finding only.
 12d67951201b1dae6a3b91ac9fae405322671905:tests/readiness-route-binding.test.mjs:generic-api-key:23
+
+# Exact historical SOC metadata, reviewed in Execution03; no path/rule exclusions.
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:34
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:471
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:531
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:591
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:651
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:711
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:771
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:831
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:891
+9ccf1b153c663b560c286e62620bb952dbd54909:artifacts/soc/incident.json:generic-api-key:951
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/destination-1794480850563.json:generic-api-key:1
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:34
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:468
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:528
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:588
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:648
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:708
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:768
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:828
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:888
+a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:948
