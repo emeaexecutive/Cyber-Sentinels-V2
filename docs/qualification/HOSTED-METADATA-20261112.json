@@ -1,0 +1,115 @@
+{
+  "date": "2026-11-12",
+  "scope": "Read-only metadata only; no functional requests, share links or writes",
+  "deployments": [
+    {
+      "id": "dpl_J8F2VHbZqVF5XrAwX1Z2ui4vgW4X",
+      "name": "cyber-sentinels-v2",
+      "url": "cyber-sentinels-v2-ljflhg0l1-keith-speres-projects.vercel.app",
+      "type": "LAMBDAS",
+      "state": "READY",
+      "createdAt": 1794227682594,
+      "creator": {
+        "uid": "8s6V9COhAgO8vljOoqTak7gj",
+        "username": "emeaexecutive-9603"
+      },
+      "project": {
+        "id": "prj_7v7vbNXHaf7gfAqYjGxRMQEB8FAr",
+        "name": "cyber-sentinels-v2",
+        "framework": "nextjs"
+      },
+      "meta": {
+        "githubCommitRef": "website/watchtowers-ribagorza-20261109",
+        "githubCommitSha": "582acc889afbe59991ea307bc5e4a2b986b11c0e",
+        "githubCommitMessage": "test: publish signed claim and destination observation fixtures",
+        "githubRepo": "Cyber-Sentinels-V2",
+        "githubOrg": "emeaexecutive"
+      },
+      "alias": [
+        "cyber-sentinels-v2-git-website-wat-627593-keith-speres-projects.vercel.app"
+      ],
+      "target": null,
+      "regions": [
+        "iad1"
+      ],
+      "buildingAt": 1794227925966,
+      "ready": 1794228202413,
+      "readyState": "READY",
+      "source": "git",
+      "aliasError": null
+    },
+    {
+      "id": "dpl_EbJKhGVBZK3r76qxHcxAeXh4Sa9S",
+      "name": "cyber-sentinels-v2",
+      "url": "cyber-sentinels-v2-fnbox7uox-keith-speres-projects.vercel.app",
+      "type": "LAMBDAS",
+      "state": "READY",
+      "createdAt": 1794154478383,
+      "creator": {
+        "uid": "8s6V9COhAgO8vljOoqTak7gj",
+        "username": "emeaexecutive-9603"
+      },
+      "project": {
+        "id": "prj_7v7vbNXHaf7gfAqYjGxRMQEB8FAr",
+        "name": "cyber-sentinels-v2",
+        "framework": "nextjs"
+      },
+      "meta": {
+        "githubCommitRef": "website/spanish-public-completion-20261108",
+        "githubCommitSha": "13a3485bb8a6ec8af720ec579bcf6b357003dec6",
+        "githubCommitMessage": "test(website): verify hash navigation and classify guarded routes",
+        "githubRepo": "Cyber-Sentinels-V2",
+        "githubOrg": "emeaexecutive"
+      },
+      "alias": [
+        "cyber-sentinels-v2-git-website-spa-bde4cc-keith-speres-projects.vercel.app"
+      ],
+      "target": null,
+      "regions": [
+        "iad1"
+      ],
+      "buildingAt": 1794154479393,
+      "ready": 1794154730252,
+      "readyState": "READY",
+      "source": "git",
+      "aliasError": null
+    },
+    {
+      "id": "dpl_AC1fjAAHou4JgeYmYScqt1smynrH",
+      "name": "cyber-sentinels-v2",
+      "url": "cyber-sentinels-v2-lfdqr060r-keith-speres-projects.vercel.app",
+      "type": "LAMBDAS",
+      "state": "READY",
+      "createdAt": 1794419860711,
+      "creator": {
+        "uid": "8s6V9COhAgO8vljOoqTak7gj",
+        "username": "emeaexecutive-9603"
+      },
+      "project": {
+        "id": "prj_7v7vbNXHaf7gfAqYjGxRMQEB8FAr",
+        "name": "cyber-sentinels-v2",
+        "framework": "nextjs"
+      },
+      "meta": {
+        "githubCommitRef": "codex/p0-typecheck-20261111",
+        "githubCommitSha": "efb3a64036b984c309f4ac45c7a54e819a3c777e",
+        "githubCommitMessage": "docs: correct TypeScript build qualification ranges",
+        "githubRepo": "Cyber-Sentinels-V2",
+        "githubOrg": "emeaexecutive"
+      },
+      "alias": [
+        "cyber-sentinels-v2-git-codex-p0-ty-25890d-keith-speres-projects.vercel.app"
+      ],
+      "target": null,
+      "regions": [
+        "iad1"
+      ],
+      "buildingAt": 1794419861616,
+      "ready": 1794420110980,
+      "readyState": "READY",
+      "source": "git",
+      "aliasError": null
+    }
+  ],
+  "newSocBranchDeployments": 0
+}

@@ -1,0 +1,39 @@
+{
+  "environment": "LOCAL SYNTHETIC BROWSER FIXTURE",
+  "realComponents": true,
+  "realOperations": true,
+  "realCryptography": true,
+  "hosted": false,
+  "supabase": false,
+  "nextRoute": false,
+  "results": [
+    {
+      "width": 1440,
+      "requests": [
+        "soc-register",
+        "soc-ingest",
+        "soc-investigate",
+        "soc-feedback",
+        "soc-ingest"
+      ],
+      "alerts": 1,
+      "destinationEffects": 0,
+      "pageErrors": [],
+      "passed": true
+    },
+    {
+      "width": 390,
+      "requests": [
+        "soc-register",
+        "soc-ingest",
+        "soc-investigate",
+        "soc-feedback",
+        "soc-ingest"
+      ],
+      "alerts": 1,
+      "destinationEffects": 0,
+      "pageErrors": [],
+      "passed": true
+    }
+  ]
+}

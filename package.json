@@ -10,6 +10,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "test:soc": "node --import tsx --test tests/soc-workflow.test.mjs tests/soc-copilot.test.mjs tests/soc-operations.test.mjs tests/soc-persistence-sql.test.mjs",
+    "demo:soc": "node --import tsx tools/soc/incident-demo.mjs",
+    "test:soc-browser": "node --import tsx --test tests/soc-console-browser.mjs",
     "docker:verify": "node tools/docker-verify.mjs",
     "test:hopae": "node --experimental-strip-types --test tests/hopae-assurance.test.mjs tests/hopae-provider-integration.test.mjs",
     "test:providers": "node --experimental-strip-types --test tests/provider-abstraction.test.mjs",

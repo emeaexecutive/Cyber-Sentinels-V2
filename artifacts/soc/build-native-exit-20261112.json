@@ -1,0 +1,7 @@
+﻿{
+    "completedUtc":  "2026-11-12T11:25:52.8607463Z",
+    "startedUtc":  "2026-11-12T11:20:03.1554252Z",
+    "sourceSha":  "2f77ed63c20fe312c3a5d4c07ef9d70bb9f52eb1",
+    "note":  "Explicit native status capture after cold build; PowerShell stderr formatting had obscured prior shell exit status.",
+    "nativeExitCode":  0
+}
