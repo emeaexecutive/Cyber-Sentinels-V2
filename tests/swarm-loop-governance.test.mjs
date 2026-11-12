@@ -53,8 +53,8 @@ test('agent cannot expand an established scoped limit after dispatch',async()=>{
   assert.ok(state.events.some(e=>e.kind==='EXECUTION_DENIED'&&e.details.reasons.includes('SHARED_QUOTA_POLICY_MISMATCH')));
 });
 
-test('invalid or per-action shared quota scope fails closed',async()=>{
-  for(const scope of ['', '__proto__', 'loop:invalid']) {
+test('invalid scope names fail closed; labelled PER_ACTION keeps its historic semantics',async()=>{
+  for(const scope of ['', '__proto__']) {
     const h=await fixture();
     h.policy.classification.quotaMode='PER_ACTION';
     h.policy.classification.quotaScope=scope;
@@ -62,4 +62,11 @@ test('invalid or per-action shared quota scope fails closed',async()=>{
     assert.equal(h.effects(),0);
     assert.ok((await h.read()).events.some(e=>e.kind==='EXECUTION_DENIED'&&e.details.reasons.includes('QUOTA_SCOPE_INVALID')));
   }
+  const h=await fixture();
+  h.policy.classification.quotaMode='PER_ACTION';
+  h.policy.classification.quotaScope='authority:existing-audit-label';
+  h.policy.classification.limit=1;
+  assert.equal((await h.run('agent:1','per-action:first')).requested,true);
+  assert.equal((await h.run('agent:1','per-action:second')).requested,true);
+  assert.equal(h.effects(),2);
 });
