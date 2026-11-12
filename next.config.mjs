@@ -1,5 +1,9 @@
+import { fileURLToPath } from "node:url";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Nested qualification worktrees must trace their own locked dependencies.
+  outputFileTracingRoot: fileURLToPath(new URL(".", import.meta.url)),
   reactStrictMode: true,
   poweredByHeader: false,
   // Vercel retains its existing output path. Docker alone opts into Next.js
