@@ -5,9 +5,9 @@ import { LegalDraftPage } from "@/components/legal-draft-page";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: true },
-  ...publicSocialMetadata("Media Centre | Cyber Sentinels", "Approved Cyber Sentinels media resources and company updates.", "/media-centre"),
+  ...publicSocialMetadata("Media Centre | Cyber Sentinels", "Publication status: this page is under review; an approved version has not been published.", "/media-centre"),
   title: "Media Centre | Cyber Sentinels",
-  description: "Approved Cyber Sentinels media resources and company updates.",
+  description: "Publication status: this page is under review; an approved version has not been published.",
   alternates: publicPageAlternates("/media-centre"),
 };
 

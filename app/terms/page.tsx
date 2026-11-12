@@ -6,9 +6,9 @@ import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: true },
-  ...publicSocialMetadata("Terms and Conditions | Cyber Sentinels", "Publication status of Cyber Sentinels terms.", "/terms"),
+  ...publicSocialMetadata("Terms and Conditions | Cyber Sentinels", "Publication status: this page is under review; an approved version has not been published.", "/terms"),
   title: "Terms and Conditions | Cyber Sentinels",
-  description: "Publication status of Cyber Sentinels terms.",
+  description: "Publication status: this page is under review; an approved version has not been published.",
   alternates: publicPageAlternates("/terms"),
 };
 

@@ -1,5 +1,9 @@
+import { fileURLToPath } from "node:url";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Keep nested isolated worktrees and their dependencies outside this build's trace.
+  outputFileTracingRoot: fileURLToPath(new URL(".", import.meta.url)),
   reactStrictMode: true,
   poweredByHeader: false,
   // Vercel retains its existing output path. Docker alone opts into Next.js

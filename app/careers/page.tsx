@@ -5,9 +5,9 @@ import { LegalDraftPage } from "@/components/legal-draft-page";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: true },
-  ...publicSocialMetadata("Careers | Cyber Sentinels", "Career and hiring information for Cyber Sentinels.", "/careers"),
+  ...publicSocialMetadata("Careers | Cyber Sentinels", "Publication status: this page is under review; an approved version has not been published.", "/careers"),
   title: "Careers | Cyber Sentinels",
-  description: "Career and hiring information for Cyber Sentinels.",
+  description: "Publication status: this page is under review; an approved version has not been published.",
   alternates: publicPageAlternates("/careers"),
 };
 

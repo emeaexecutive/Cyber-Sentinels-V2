@@ -23,6 +23,6 @@ for(const id of ['A','B','C','D','E','F'])assert.ok(data.torch.manifest.results.
 for(const [id,count] of [['A',1],['B',1],['C',0],['D',0],['E',1],['F',1],['G',1]])assert.equal(data.river.manifest.tests.find(r=>r.scenario===id)?.effects,count,'River fixture outcome '+id);
 for(const [id,count,probe]of[['H-ALLOW',1,423],['H-DENY',0,200]]){const row=data.river.manifest.tests.find(r=>r.scenario===id);assert.equal(row?.effects,count);assert.equal(row?.exportAfter,probe);assert.equal(row?.signalTrace.replayVerified,true);assert.equal(row?.signalTrace.signatureReplayVerified,true);assert.equal(row?.signalTrace.sourceSha,data.torchSha);assert.ok(row.signalTrace.events.every(event=>['WATCHTOWER_WARNING','CHIRIVETA_REVIEW'].includes(event.kind)),'Registry enrollment snapshots must remain local');}
 const output='// Generated from signed LOCAL fixture bundles. Never a runtime authorisation decision.\nexport const recordedEvidence = '+JSON.stringify(data,null,2)+' as const;\n';
-if(process.argv.includes('--check'))assert.equal(readFileSync(generated,'utf8'),output,'Generated local evidence drift');
+if(process.argv.includes('--check'))assert.equal(readFileSync(generated,'utf8').replaceAll('\r\n','\n'),output,'Generated local evidence drift');
 else{writeFileSync(destination,JSON.stringify(data,null,2)+'\n');writeFileSync(generated,output);}
 console.log(JSON.stringify({verified:true,hosted:false,torchSha:data.torchSha,riverSha:data.riverSha,bundleDigest:createHash('sha256').update(canonicalize(data)).digest('hex')}));
