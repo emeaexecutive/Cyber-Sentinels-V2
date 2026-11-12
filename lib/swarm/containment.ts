@@ -181,18 +181,20 @@ export class SwarmContainment {
         if (classification.transfer !== "NONE" && !classification.transferPermitted) reasons.push("UNAUTHORIZED_TRANSFER");
         const window = classification.quotaWindow;
         if (window && (!Number.isSafeInteger(window.start) || !Number.isSafeInteger(window.end) || window.start > now || window.end <= now || window.start >= window.end)) reasons.push("QUOTA_WINDOW_INVALID");
-        // A trusted aggregate quotaScope is shared across agents, descendant tasks,
-        // tools, resources and operations. No handoff may reset the same allowance.
+        // A trusted AGGREGATE quotaScope is shared across descendants, tools and
+        // operations. PER_ACTION may carry a scope label for auditing, but it must
+        // retain its existing per-action semantics (native server contracts rely on this).
         if (classification.quotaScope !== undefined &&
-            (classification.quotaMode !== "AGGREGATE" || !/^[A-Za-z0-9_.:/-]{1,240}$/.test(classification.quotaScope) ||
+            (!/^[A-Za-z0-9_.:/-]{1,240}$/.test(classification.quotaScope) ||
              ["__proto__", "constructor", "prototype"].includes(classification.quotaScope))) reasons.push("QUOTA_SCOPE_INVALID");
-        const equivalent = (c: Classification) => classification.quotaScope
-          ? c.quotaScope === classification.quotaScope
+        const sharedScope = classification.quotaMode === "AGGREGATE" ? classification.quotaScope : undefined;
+        const equivalent = (c: Classification) => sharedScope
+          ? c.quotaScope === sharedScope
           : c.resource === classification.resource && c.operation === classification.operation;
         const scopedLeases = Object.values(state.leases).filter(l => equivalent(l.classification) &&
           (!window || l.classification.quotaWindow?.start === window.start || ["DISPATCHED", "UNKNOWN"].includes(l.state)));
         // Prevent a second agent from widening a shared limit under the same scope/window.
-        if (classification.quotaScope && scopedLeases.some(l => l.classification.limit !== classification.limit ||
+        if (sharedScope && scopedLeases.some(l => l.classification.limit !== classification.limit ||
             l.classification.quotaMode !== "AGGREGATE")) reasons.push("SHARED_QUOTA_POLICY_MISMATCH");
         const consumed = classification.quotaMode === "PER_ACTION" ? 0 : scopedLeases.reduce((n, l) => n + l.classification.units, 0);
         if (consumed + classification.units > classification.limit) reasons.push("COLLECTIVE_LIMIT_EXCEEDED");
