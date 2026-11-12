@@ -18,3 +18,16 @@ This inspection did not create share links or fetch functional endpoints, change
 
 Vercel deployments skill consulted at `C:/Users/emeae/.codex/plugins/cache/openai-curated-remote/vercel/0.54.1/skills/deployments-cicd/SKILL.md`. Machine-readable Preview evidence is in `HOSTED-METADATA-20261112.json`.
 
+## Post-PR139 metadata refresh — 12 November 2026, 12:26:37 Europe/Madrid (11:26:37 UTC)
+
+The earlier zero-deployment observation above is historical and has been superseded by this read-only refresh after the PR139 branch pushes. A branch-filtered Vercel query now returns two automatically created Preview deployments, both READY:
+
+| Exact source SHA | Deployment ID | Existing Preview URL | State |
+|---|---|---|---|
+| `bc1f86d8ea8853e7443ef0fc9400dbb0d3b36cda` | `dpl_J6cRyGKy2t78tnnxKSFrDt3AEyeo` | https://cyber-sentinels-v2-o79hrvp9g-keith-speres-projects.vercel.app | READY |
+| `41cdd0776be5c496cda8a52f62ef689eb7138ab0` | `dpl_7CGNx6MdAeEkDBbbqckALosUbcah` | https://cyber-sentinels-v2-9o63etzoq-keith-speres-projects.vercel.app | READY |
+
+The latest deployment detail confirms project `prj_7v7vbNXHaf7gfAqYjGxRMQEB8FAr`, branch `codex/governed-soc-runtime-20261112`, Git source, target null (Preview), readyState READY and no alias error. This establishes **PREVIEW ARTIFACT PRESENT / SOC RUNTIME UNQUALIFIED** at `bc1f86d8ea8853e7443ef0fc9400dbb0d3b36cda`; it does not establish authenticated SOC execution, tenant isolation, provider availability, schema compatibility or recovery. No functional endpoint was fetched, no share token was created, and no deployment, promotion or hosted mutation was performed. The build/READY status alone cannot satisfy hosted SOC acceptance.
+
+Machine-readable list and detail metadata: `HOSTED-METADATA-POST-PR139-20261112.json`. Metadata was read with the Vercel deployments skill and plugin; no Production inference has changed.
+
