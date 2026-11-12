@@ -1,0 +1,67 @@
+[
+  {
+    "source": "ab88dbfc848ee09f1ef08d28fd3f1d871981165f",
+    "path": "tests/twelve-scenario-execution.test.mjs",
+    "action": "COPIED_NEW_EXACT"
+  },
+  {
+    "source": "ab88dbfc848ee09f1ef08d28fd3f1d871981165f",
+    "path": "tests/twelve-scenario-approval-sql.test.mjs",
+    "action": "COPIED_NEW_EXACT"
+  },
+  {
+    "source": "ab88dbfc848ee09f1ef08d28fd3f1d871981165f",
+    "path": "supabase/migrations/20261028230354_single_use_high_consequence_approval.sql",
+    "action": "COPIED_NEW_EXACT"
+  },
+  {
+    "source": "ab88dbfc848ee09f1ef08d28fd3f1d871981165f",
+    "path": "docs/authority-of-record/TWELVE_SCENARIO_AUDIT_20261029.md",
+    "action": "COPIED_NEW_EXACT"
+  },
+  {
+    "source": "e155cd35cf8f12fae94186c1fb3e7c55c86a2be8",
+    "path": "app/api/v1/agents/[agentId]/workload-bindings/[bindingId]/revoke/route.ts",
+    "action": "COPIED_NEW_EXACT"
+  },
+  {
+    "source": "e155cd35cf8f12fae94186c1fb3e7c55c86a2be8",
+    "path": "app/api/v1/agents/[agentId]/workload-bindings/route.ts",
+    "action": "COPIED_NEW_EXACT"
+  },
+  {
+    "source": "e155cd35cf8f12fae94186c1fb3e7c55c86a2be8",
+    "path": "app/api/v1/workloads/[agentId]/decisions/route.ts",
+    "action": "COPIED_NEW_EXACT"
+  },
+  {
+    "source": "e155cd35cf8f12fae94186c1fb3e7c55c86a2be8",
+    "path": "lib/public-api/v1/workload-bindings.ts",
+    "action": "COPIED_NEW_EXACT"
+  },
+  {
+    "source": "e155cd35cf8f12fae94186c1fb3e7c55c86a2be8",
+    "path": "lib/public-api/v1/workload-identity.ts",
+    "action": "COPIED_NEW_EXACT"
+  },
+  {
+    "source": "e155cd35cf8f12fae94186c1fb3e7c55c86a2be8",
+    "path": "lib/public-api/v1/workload-token.ts",
+    "action": "COPIED_NEW_EXACT"
+  },
+  {
+    "source": "e155cd35cf8f12fae94186c1fb3e7c55c86a2be8",
+    "path": "supabase/migrations/20261104150000_workload_identity_bindings.sql",
+    "action": "COPIED_NEW_EXACT"
+  },
+  {
+    "source": "e155cd35cf8f12fae94186c1fb3e7c55c86a2be8",
+    "path": "tests/workload-identity.test.mjs",
+    "action": "COPIED_NEW_EXACT"
+  },
+  {
+    "source": "e155cd35cf8f12fae94186c1fb3e7c55c86a2be8",
+    "path": "docs/tenente/WORKLOAD-IDENTITY-PR-A.md",
+    "action": "COPIED_NEW_EXACT"
+  }
+]

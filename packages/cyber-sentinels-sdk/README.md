@@ -14,6 +14,40 @@ example's `file:../../packages/cyber-sentinels-sdk` dependency with
 Public V1 documentation does not declare a standalone SDK download channel;
 having the supplied repository is therefore an onboarding prerequisite.
 
+## Customer workload identity
+
+Tenant owner/admin API keys manage workload bindings. Obtain the workload
+access token separately from the operator-pinned issuer and pass it only to
+the decision call; the SDK does not acquire or persist workload credentials.
+
+```ts
+const binding = await cs.agents.registerWorkloadBinding(agentId, {
+  subject: "synthetic-test-workload",
+  scopes: ["trust:request"],
+  expires_at: "2026-12-31T23:59:59Z",
+});
+
+const decision = await cs.workloads.requestDecision(
+  agentId,
+  workloadAccessToken,
+  {
+    action: {
+      type: "read_repository",
+      target: "repository:a",
+      purpose: "deployment_evidence_review",
+      environment: "staging",
+    },
+  },
+  crypto.randomUUID(),
+);
+if (decision.decision !== "ALLOW") throw new Error(`Stop execution: ${decision.decision}`);
+```
+
+The administration methods use the API key; `workloads.requestDecision`
+replaces it with the supplied short-lived OIDC token for that request. The
+server verifies issuer, audience, tenant, workload, expiry, signature, and
+scope. `REVIEW` and `DENY` do not authorize execution.
+
 ```ts
 import { CyberSentinels } from "@cyber-sentinels/sdk";
 

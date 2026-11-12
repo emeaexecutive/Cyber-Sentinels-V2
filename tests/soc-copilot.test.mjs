@@ -40,3 +40,14 @@ test('empty answer explicitly records uncertainty; pricing requires explicit exa
 test('missing explicit provider credentials/model never falls back to fabricated local AI',async()=>{
  for(const override of [{apiKey:''},{model:''}])await assert.rejects(investigateWithCopilot(input(),{...config(),...override}),/CONFIGURATION_REQUIRED/);
 });
+test('preaborted trusted budget signal never reaches provider transport',async()=>{
+ const controller=new AbortController();controller.abort();let calls=0;
+ await assert.rejects(investigateWithCopilot(input(),{...config(),signal:controller.signal,fetch:async()=>{calls++;return new Response(JSON.stringify(envelope()));}}),/PARENT_ABORTED/);assert.equal(calls,0);
+});
+test('parent budget abort cancels local fetch and removes parent listener',async()=>{
+ const parent=new AbortController();let requestSignal,listenerCount=0;
+ const add=parent.signal.addEventListener.bind(parent.signal),remove=parent.signal.removeEventListener.bind(parent.signal);
+ parent.signal.addEventListener=(...args)=>{if(args[0]==='abort')listenerCount++;return add(...args);};parent.signal.removeEventListener=(...args)=>{if(args[0]==='abort')listenerCount--;return remove(...args);};
+ const pending=investigateWithCopilot(input(),{...config(),signal:parent.signal,fetch:async(_url,options)=>{requestSignal=options.signal;return new Promise((_,reject)=>options.signal.addEventListener('abort',()=>reject(new DOMException('aborted','AbortError')),{once:true}));}});
+ parent.abort();await assert.rejects(pending,/PARENT_ABORTED/);assert.equal(requestSignal.aborted,true);assert.equal(listenerCount,0);
+});

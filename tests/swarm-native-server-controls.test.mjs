@@ -25,14 +25,14 @@ mock.module(new URL('../lib/operational-entities/delegated-authority-server.ts',
   return {action:payload,result:{decision:resolved.decision,authorityGraph:{chain:resolved.graph.grants}}};
 }}});
 const {createStoredSwarmControls}=await import('../lib/swarm/native-server-controls.ts');
-async function setup(dependent=false, prohibited=false){
+async function setup(dependent=false, prohibited=false, operationQuota){
   h=await fixture({now:Date.now()});identity=true;
   // Provisioned policy is trusted persisted registry data, not execution request JSON.
   const state=await h.read();
   request=h.request('server:agent');request.action.payloadDigest=hashCanonical(payload);
   const tasks=[{component:'refund-step',id:'task:child',parentTaskId:dependent?'task:parent':null,transactionId:request.transactionId,memberId:'server:agent',payloadDigest:request.action.payloadDigest},...(dependent?[{id:'task:parent',parentTaskId:null,transactionId:'parent-transaction',memberId:'agent:1',payloadDigest:'parent-digest'}]:[])];
   parentCanonical={decision:'ALLOW',request_digest:'parent-digest'};
-  const policy={tasks,prohibitedCombinations:prohibited?[['refund-step']]:[],version:'v1',allowedTools:['refund'],environments:['test'],resources:['customer:1'],aggregateBudget:{id:'shared:500',currency:'EUR',limitMinor:50000,maxParallel:5},perActionMinor:10000,evidenceRefs:['policy:approved']};
+  const policy={tasks,...(operationQuota?{operationQuota}:{}),prohibitedCombinations:prohibited?[['refund-step']]:[],version:'v1',allowedTools:['refund'],environments:['test'],resources:['customer:1'],aggregateBudget:{id:'shared:500',currency:'EUR',limitMinor:50000,maxParallel:5},perActionMinor:10000,evidenceRefs:['policy:approved']};
   const collective={...state.collectives['swarm:1'],id:'swarm:server',executionPolicy:policy};
   await h.control.register(tenant,'operator',collective,{...state.members['agent:1'],id:'server:agent',swarmId:collective.id,parentId:null});
   h.actors.set('server:agent',{...h.actors.get('agent:1'),id:'server:agent'});await h.beat('server:agent');
@@ -79,6 +79,18 @@ test('Dependent parent REVIEW/DENY blocks dispatch; independent task remains per
     assert.equal((await independent.swarmGuard.admit(request)).allowed,true);
     assert.equal((await independent.swarmGuard.dispatch(request)).allowed,true);
   }
+});
+
+test('Aggregate quota scope ignores agent-selected JSON fields',async()=>{
+  payload.quotaScope='agent-chosen:fresh-budget';
+  try{
+    const c=await setup(false,false,{mode:'AGGREGATE',limit:2});
+    assert.equal((await c.swarmGuard.admit(request)).allowed,true);
+    const state=await h.read(),lease=Object.values(state.leases)[0],original=state.collectives['swarm:server'].originalAuthority;
+    assert.equal(lease.classification.quotaScope,original);
+    assert.equal(lease.classification.budget.id,`authority:${original}:EUR`);
+    assert.notEqual(lease.classification.quotaScope,payload.quotaScope);
+  }finally{delete payload.quotaScope;}
 });
 
 test('Contract 11: wrong tool, environment and resource cause zero dispatched leases',async()=>{

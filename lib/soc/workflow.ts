@@ -1,6 +1,7 @@
 import { appendSwarmEvent, type Actor, type SwarmEvent, type SwarmState, type SwarmStore, type SwarmContainment } from "../swarm/containment.ts";
 import { WatchtowerSignals, type WarningEnvelope } from "../swarm/watchtower-signals.ts";
 import type { EnforcementRequest } from "../operational-entities/native-enforcement.ts";
+import type { SocModelBudget } from "./model-budget.ts";
 
 export const SOC_AGENTS = {
   TORCH: { id: "TORCH", task: "correlate authenticated warnings", tools: ["read:trust-events"] },
@@ -18,7 +19,8 @@ export type SocDependencies = {
   store: SwarmStore; control: SwarmContainment; now(): number;
   authenticate(proof: string): Promise<Actor | null>;
   destinationTimeoutMs?: number;
-  investigate?: (tenant: string, evidence: SwarmEvent[]) => Promise<ModelReport>;
+  investigate?: (tenant: string, evidence: SwarmEvent[], signal?: AbortSignal) => Promise<ModelReport>;
+  modelBudget?: SocModelBudget;
   // Adapter and observer are trusted server configuration, never supplied by model/input.
   destination: { execute(request: EnforcementRequest): Promise<void>; observe(request: EnforcementRequest): Promise<unknown> };
 };
@@ -96,8 +98,10 @@ export class GovernedSoc {
     const alert = evidence.find(e => e.digest === alertDigest)!;
     if (this.deps.investigate) {
       try {
+        if (!this.deps.modelBudget) throw Error("SOC_MODEL_BUDGET_NOT_CONFIGURED");
+        if (new TextEncoder().encode(JSON.stringify(evidence)).byteLength > this.deps.modelBudget.configuration.maxInputBytes) throw Error("SOC_MODEL_INPUT_BUDGET_EXCEEDED");
         let timer: ReturnType<typeof setTimeout> | undefined;
-        const report = await Promise.race([this.deps.investigate(tenant, structuredClone(evidence)), new Promise<never>((_, reject) => { timer = setTimeout(() => reject(Error("SOC_MODEL_TIMEOUT")), SOC_LIMITS.maxModelMs); })]).finally(() => { if (timer) clearTimeout(timer); });
+        const report = await this.deps.modelBudget.run(tenant, alertDigest, signal => Promise.race([this.deps.investigate!(tenant, structuredClone(evidence), signal), new Promise<never>((_, reject) => { timer = setTimeout(() => reject(Error("SOC_MODEL_TIMEOUT")), SOC_LIMITS.maxModelMs); })]).finally(() => { if (timer) clearTimeout(timer); }));
         if (report.authority !== "NONE") throw Error("SOC_MODEL_AUTHORITY_REJECTED");
         await this.record(tenant, "SOC_MODEL_RUN", "Sentinel Copilot", alert.subjectId, { alertDigest, report, authorityConferred: false });
       } catch {

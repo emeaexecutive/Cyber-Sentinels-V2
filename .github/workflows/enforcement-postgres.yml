@@ -1,0 +1,59 @@
+name: Integrated PostgreSQL enforcement
+on:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: enforcement-postgres-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  postgres-boundaries:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_PASSWORD: local-synthetic-ci-only
+        ports: [5432:5432, 55473:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      # The ordinary verification workflows own lint/typecheck/full-suite/build.
+      # This job adds real independent PostgreSQL clients, never PGlite fallback.
+      - run: node --import=tsx --test tests/swarm-postgres-loop-execution03.test.mjs
+        env:
+          TENENTE_LOCAL_PG_PORT: '55473'
+          PGPASSWORD: local-synthetic-ci-only
+      - run: node --experimental-strip-types --test tests/native-dispatch-postgres.test.mjs
+        env:
+          APPROVAL_TEST_HOST: 127.0.0.1
+          APPROVAL_TEST_PORT: '5432'
+          APPROVAL_TEST_PASSWORD: local-synthetic-ci-only
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: '202117ae82a48a7f8d536c29d5d700e8fbf11c70'
+          path: .watchtower-dependency
+          persist-credentials: false
+      - run: node --import=tsx --test tests/watchtower-river-postgres.test.mjs
+        env:
+          WATCHTOWER_SIGNAL_SOURCE: .watchtower-dependency
+          APPROVAL_TEST_HOST: 127.0.0.1
+          APPROVAL_TEST_PORT: '5432'
+          APPROVAL_TEST_PASSWORD: local-synthetic-ci-only
+      - name: Record sanitized PostgreSQL observations
+        if: always()
+        run: |
+          node -e "const fs=require('fs'); for(const p of ['artifacts/execution03/postgres-final-slot.json','artifacts/execution03/postgres-stop-race.json']) if(fs.existsSync(p))console.log(p,fs.readFileSync(p,'utf8'))"
