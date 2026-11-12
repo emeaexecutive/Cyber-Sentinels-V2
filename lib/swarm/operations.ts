@@ -6,7 +6,7 @@ import { SocModelBudget, type ModelBudgetConfiguration } from "../soc/model-budg
 import { SwarmContainment, type Actor, type SwarmStore, type SwarmDependencies, type Collective, type Member } from "./containment.ts";
 
 /** Authentication and tenant binding are supplied by the server, never by request JSON. */
-export function swarmOperations(store: SwarmStore, authenticate: () => Promise<Actor>, now = Date.now, dependencies: Pick<SwarmDependencies, "containmentKey"> & { modelBudget?: ModelBudgetConfiguration; cancellationEvidenceKey?: () => string; cancellationProject?: (event: import("./containment.ts").SwarmEvent) => Promise<void> } = {}) {
+export function swarmOperations(store: SwarmStore, authenticate: () => Promise<Actor>, now = Date.now, dependencies: Pick<SwarmDependencies, "containmentKey"> & { modelBudget?: ModelBudgetConfiguration; modelConfigurationState?: "READY" | "DISABLED" | "INVALID"; cancellationEvidenceKey?: () => string; cancellationProject?: (event: import("./containment.ts").SwarmEvent) => Promise<void> } = {}) {
   const unavailable = async (): Promise<never> => { throw new Error("SWARM_EXECUTION_RESOLVER_UNAVAILABLE"); };
   const control = new SwarmContainment({ ...dependencies, store, authenticate, now, resolve: unavailable, heartbeatKey: unavailable, verifyOutcome: unavailable });
   const modelBudget = dependencies.modelBudget ? new SocModelBudget({ store, now }, dependencies.modelBudget) : undefined;
@@ -36,6 +36,7 @@ export function swarmOperations(store: SwarmStore, authenticate: () => Promise<A
           timeline: state.events.filter(e => e.kind.startsWith("SOC_")).slice(-100),
           totalAlerts: state.events.filter(e => e.kind === "SOC_ALERT").length,
           modelConfigured: Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_SOC_MODEL && modelBudget && modelBudget.configuration.provider === "openai" && modelBudget.configuration.model === process.env.OPENAI_SOC_MODEL),
+          modelConfigurationState: dependencies.modelConfigurationState ?? (modelBudget ? "READY" : "DISABLED"),
           responseDispatchEnabled: false,
         },
       }));
