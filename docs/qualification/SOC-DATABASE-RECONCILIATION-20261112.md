@@ -1,6 +1,6 @@
 ﻿# SOC database reconciliation and isolated rehearsal â€” 12 November 2026
 
-Scope: candidate based on warning runtime PR135 with PR137's scratch exclusion fix, in `tmp/master-execution-02`. No hosted database commands, schema changes or hosted synthetic writes were performed.
+Scope: candidate based on warning runtime PR135 with PR137's scratch exclusion fix, in `tmp/master-execution-02`. No hosted database writes or schema changes were performed. Root subsequently inspected the connected Staging catalog and advisors read-only; see the final report and `STAGING-READONLY-20261112.json`. That target lacks the private swarm tables/RPCs and SWARM/SOC Replay constraint values, so prior persistence/projection migrations are prerequisites.
 
 ## Demonstrated gap and minimal migration
 
