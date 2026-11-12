@@ -5,9 +5,9 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: true },
-  ...publicSocialMetadata("Privacy | Cyber Sentinels", "Cyber Sentinels privacy information, consent controls and trust preferences.", "/privacy"),
+  ...publicSocialMetadata("Privacy | Cyber Sentinels", "Publication status: this page is under review; an approved version has not been published.", "/privacy"),
   title: "Privacy | Cyber Sentinels",
-  description: "Cyber Sentinels privacy information, consent controls and trust preferences.",
+  description: "Publication status: this page is under review; an approved version has not been published.",
   alternates: publicPageAlternates("/privacy"),
 };
 

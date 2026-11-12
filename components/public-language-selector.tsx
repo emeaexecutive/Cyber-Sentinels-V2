@@ -100,8 +100,8 @@ export function PublicLanguageSelector({
         >
           <p className="px-2 pb-2 text-xs leading-5 text-zinc-400" lang={language}>
             {language === "en"
-              ? "English and Spanish cover the public website. Account tools and downloads may be English-only. Other languages are not available yet."
-              : "El sitio público está disponible en inglés y español. Las herramientas de cuenta y las descargas pueden estar solo en inglés. Los demás idiomas aún no están disponibles."}
+              ? "English and Spanish public pages are available; some publication notices are under review. Account tools and downloads may be English-only. Other languages are not available yet."
+              : "Hay páginas públicas en inglés y español; algunos avisos de publicación siguen en revisión. Las herramientas de cuenta y las descargas pueden estar solo en inglés. Los demás idiomas aún no están disponibles."}
           </p>
           <div role="group" aria-label={navigationLanguages[language].group} className="grid gap-1">
             {(["en", "es"] as const).map((key, index) => (

@@ -6,9 +6,9 @@ import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: true },
-  ...publicSocialMetadata("Cookies and Preferences | Cyber Sentinels", "How Cyber Sentinels uses cookies, browser storage and privacy preferences.", "/cookies"),
+  ...publicSocialMetadata("Cookies and Preferences | Cyber Sentinels", "Publication status: this page is under review; an approved version has not been published.", "/cookies"),
   title: "Cookies and Preferences | Cyber Sentinels",
-  description: "How Cyber Sentinels uses cookies, browser storage and privacy preferences.",
+  description: "Publication status: this page is under review; an approved version has not been published.",
   alternates: publicPageAlternates("/cookies"),
 };
 

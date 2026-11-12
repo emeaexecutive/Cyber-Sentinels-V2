@@ -6,9 +6,9 @@ import { legalDraftLinks } from "@/lib/legal/draftPages";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: true },
-  ...publicSocialMetadata("Regulatory | Cyber Sentinels", "Governance-aware regulatory information for Cyber Sentinels operational trust workflows.", "/regulatory"),
+  ...publicSocialMetadata("Regulatory | Cyber Sentinels", "Publication status: this page is under review; an approved version has not been published.", "/regulatory"),
   title: "Regulatory | Cyber Sentinels",
-  description: "Governance-aware regulatory information for Cyber Sentinels operational trust workflows.",
+  description: "Publication status: this page is under review; an approved version has not been published.",
   alternates: publicPageAlternates("/regulatory"),
 };
 

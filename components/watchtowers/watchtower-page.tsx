@@ -2,6 +2,7 @@ import Link from "next/link";
 import {watchtowerCopy,type WatchtowerLocale} from "@/lib/watchtowers/content";
 import {WatchtowerNetwork} from "./watchtower-network";
 import {WatchtowerDemo} from "./watchtower-demo";
+import {LoopLimitDemo} from "./loop-limit-demo";
 
 export function WatchtowerPage({locale,kind}:{locale:WatchtowerLocale;kind?:"torch"|"river"}){
   const copy=watchtowerCopy[locale],base=locale==="es"?"/es/tenente-swarm":"/tenente-swarm";
@@ -10,7 +11,7 @@ export function WatchtowerPage({locale,kind}:{locale:WatchtowerLocale;kind?:"tor
       <h1>{kind?kind==="torch"?copy.torch:copy.river:copy.title}</h1><p className="watchtower-lede">{kind?kind==="torch"?copy.torchIntro:copy.riverIntro:copy.distinction}</p>
       {kind?<Link href={base}>{copy.home}</Link>:null}
     </header>
-    {kind?<><WatchtowerDemo locale={locale} kind={kind}/><p className="watchtower-principle">{copy.principle}</p><p>{copy.limits}</p><Link href={`${base}/${kind==="torch"?"river-crossing":"torch-code"}`}>{copy.other}</Link></>:<>
+    {kind?<><WatchtowerDemo locale={locale} kind={kind}/>{kind==="river"?<LoopLimitDemo locale={locale}/>:null}<p className="watchtower-principle">{copy.principle}</p><p>{copy.limits}</p><Link href={`${base}/${kind==="torch"?"river-crossing":"torch-code"}`}>{copy.other}</Link></>:<>
       <section className="watchtower-origin"><div><h2>{copy.originTitle}</h2><p>{copy.origin}</p></div><WatchtowerNetwork locale={locale}/></section>
       <p className="watchtower-caption">{copy.historical}</p>
       <p className="watchtower-caption"><a href="https://www.turismodearagon.com/ficha/viacamp/" rel="noopener noreferrer">{locale==="es"?"Contexto patrimonial: Viacamp y el Centro de Interpretación de las Torres Vigía (Turismo de Aragón)":"Heritage context: Viacamp and its watchtower interpretation centre (Aragón Tourism)"}</a></p>

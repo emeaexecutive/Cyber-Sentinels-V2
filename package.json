@@ -165,8 +165,9 @@
     "test:synthetic-interaction": "tsx --test tests/synthetic-interaction-trust.test.mjs tests/judgeme-boundary.test.mjs tests/judgeme-installation.test.mjs tests/judgeme-webhook-runtime.test.mjs tests/webhook-event-replay.test.mjs",
     "test:search": "tsx --test tests/search-authority.test.mjs tests/public-i18n.test.mjs tests/spanish-public-completion.test.mjs",
     "test:spanish-browser": "tsx tools/i18n/verify-public-browser.mjs",
-    "test:watchtowers": "node --experimental-strip-types --test tests/watchtowers-public.test.mjs",
-    "test:watchtowers-browser": "tsx tools/watchtowers/verify-browser.mjs"
+    "test:watchtowers": "node --experimental-strip-types --test tests/watchtowers-public.test.mjs tests/river-loop-simulation.test.mjs tests/execution03-publication-status.test.mjs",
+    "test:watchtowers-browser": "tsx tools/watchtowers/verify-browser.mjs",
+    "test:river-loop-browser": "tsx tools/watchtowers/verify-loop-browser.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.4",

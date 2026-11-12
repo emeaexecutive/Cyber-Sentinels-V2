@@ -35,3 +35,4 @@ jobs:
           done
           npm run test:spanish-browser
           npm run test:watchtowers-browser
+          LOOP_DEMO_ORIGIN=http://127.0.0.1:4340 npm run test:river-loop-browser
