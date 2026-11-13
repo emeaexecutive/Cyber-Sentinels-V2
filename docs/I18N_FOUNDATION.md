@@ -1,9 +1,33 @@
 # Public internationalization foundation
 
-Reviewed 28 September 2026 for the PR #109 release. **English remains the source
-language and the only published locale. Spanish is the first planned translation;
-no Spanish page is published by this change.** No translation service, dependency,
-environment variable, locale cookie or automatic redirect is introduced.
+**Historical baseline:** 28 September 2026, prepared for PR #109. The readiness
+statements below describe the foundation at that date and are superseded by the
+current status here.
+
+## Current status — 12 November 2026
+
+The bilingual public-site candidate is PR #141 at
+`f0b0f3258124212b5f0bda96ecdccef4fb0dd803`. English remains the source locale;
+Spanish is registered as `PARTIAL`.
+
+- The locale registry maps 45 canonical public routes to Spanish route owners.
+  Eleven legal, policy, and company routes render publication-status notices,
+  remain `noindex`, and are not approved Spanish publications.
+- The translation catalogue contains 1,108 source entries. Generator checks and
+  tests verify catalogue/source alignment and route coverage; the repository does
+  not record a human-review attestation for translation quality.
+- The public selector offers only English and Spanish. Untranslated and
+  authenticated routes use an explicit English fallback; the authenticated
+  workspace, billing, customer notifications, and end-to-end consent persistence
+  have not been qualified as bilingual experiences.
+- At the PR #141 SHA, local `npm run build` generated 212/212 static pages,
+  `npm run typecheck -- --extendedDiagnostics` passed, `npm run test:search`
+  passed 20/20 tests, and `npm run test:watchtowers` passed 11/11 tests. These
+  checks do not establish hosted behavior or a complete authenticated browser
+  journey.
+
+No automatic locale redirect, translation service, or locale cookie is
+introduced.
 
 ## Readiness audit
 
