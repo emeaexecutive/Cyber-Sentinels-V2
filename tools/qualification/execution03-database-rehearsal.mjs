@@ -4,10 +4,11 @@ import path from 'node:path';
 import {randomUUID,createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
 import pg from 'pg';
-import {compileMigration} from '../release/migration-execution.mjs';
+import {compileMigration,isHistoricalMigrationMarker} from '../release/migration-execution.mjs';
 import {createSwarmStore} from '../../lib/swarm/store.ts';
 import {swarmRpcPersistence} from '../../lib/swarm/rpc-persistence.ts';
 import {appendSwarmEvent,verifySwarmReplay} from '../../lib/swarm/containment.ts';
+import {assertRehearsalDataDirectory} from './local-postgres-fence.mjs';
 
 if(process.env.TENENTE_LOCAL_PG_PORT!=='55473')throw Error('ISOLATED_PORT_REQUIRED');
 const source=path.resolve(process.argv[2]??'tmp/execution03-staging-catalog.json');
@@ -25,8 +26,10 @@ const functionOrder={auth:0,session_security:1,private:2,public:3};
 catalog.functions.sort((a,b)=>(functionOrder[a.schema]??4)-(functionOrder[b.schema]??4));
 const settings={host:'127.0.0.1',port:55473,user:'postgres'},database='execution03_schema_'+randomUUID().replaceAll('-',''),restored=database+'_restore';
 const out='artifacts/execution03';fs.mkdirSync(out,{recursive:true});
-const report={engine:'REAL_POSTGRESQL',classification:'SCHEMA_ONLY_RECONSTRUCTION_NOT_CUSTOMER_RESTORE',sourceSha256:createHash('sha256').update(fs.readFileSync(source)).digest('hex'),database,restored,migrations:[],status:'RUNNING',hostedWrites:0};
+const report={engine:'REAL_POSTGRESQL',classification:'SCHEMA_ONLY_RECONSTRUCTION_NOT_CUSTOMER_RESTORE',sourceSha256:createHash('sha256').update(fs.readFileSync(source)).digest('hex'),database,restored,migrations:[],historicalMarkers:[],status:'RUNNING',hostedWrites:0};
 const admin=new pg.Client({...settings,database:'postgres'});await admin.connect();
+try{report.isolation=assertRehearsalDataDirectory((await admin.query('show data_directory')).rows[0].data_directory);}
+catch(error){await admin.end();throw error;}
 let db;
 try{
  const missing=['auth','storage'].filter(schema=>!catalog.tables.some(t=>t.schema===schema));
@@ -41,7 +44,9 @@ try{
  const prior=catalog.ledger.map(r=>r.version);
  for(const entry of catalog.ledger)await db.query('insert into supabase_migrations.schema_migrations(version,name) values($1,$2) on conflict do nothing',[entry.version,entry.name]);
  for(const name of fs.readdirSync('supabase/migrations').filter(n=>n.endsWith('.sql')&&!prior.includes(n.split('_')[0])).sort()){
-  const text=fs.readFileSync('supabase/migrations/'+name,'utf8'),item={name,sha256:createHash('sha256').update(text).digest('hex'),status:'RUNNING'};report.migrations.push(item);
+  const text=fs.readFileSync('supabase/migrations/'+name,'utf8'),item={name,sha256:createHash('sha256').update(text).digest('hex'),status:'RUNNING'};
+  if(isHistoricalMigrationMarker(text)){report.historicalMarkers.push({...item,status:'SKIPPED_PRODUCTION_HISTORY_MARKER',ledgerChanged:false});continue;}
+  report.migrations.push(item);
   try{await db.query(compileMigration(text,name,prior));item.status='PASS';prior.push(name.split('_')[0]);}catch(error){await db.query('rollback');item.status='FAIL';item.error={code:error.code,message:error.message};throw error;}
  }
  const summarize=async client=>(await client.query("select jsonb_build_object('tables',(select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('public','private','swarm_private') and c.relkind='r'),'policies',(select count(*) from pg_policies where schemaname in ('public','private','swarm_private')),'rlsTables',(select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('public','private','swarm_private') and c.relkind='r' and c.relrowsecurity),'swarmRpcs',(select count(*) from pg_proc where proname in ('load_swarm_state_v1','cas_swarm_state_v1')),'dispatchRpcs',(select count(*) from pg_proc where proname in ('issue_native_enforcement_approval_v2','claim_native_enforcement_dispatch_v2'))) as value")).rows[0].value;
