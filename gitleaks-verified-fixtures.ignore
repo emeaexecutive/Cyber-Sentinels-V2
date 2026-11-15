@@ -24,3 +24,11 @@ a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api
 a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:888
 a0ae7acc04d52737e2d9da60c048eb41200dd9c5:artifacts/soc/incident.json:generic-api-key:948
 # SOC fixture metadata: exact reviewed historical fingerprints; no broad path/rule exclusion.
+
+# Exact reviewed non-secret fixture/public-key metadata; see Execution06 triage.
+a9bffc15e6889e874a9f58fb523965fc45260e5c:tools/qualification/execution03-database-rehearsal.mjs:generic-api-key:63
+35a979fdabc9c52d13871af8270b1c54e00e0e36:tests/workload-decision-boundary.test.mjs:generic-api-key:62
+f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/allow-review-deny.json:generic-api-key:134
+f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/allow-review-deny.json:generic-api-key:160
+f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/race-unknown.json:generic-api-key:134
+f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/race-unknown.json:generic-api-key:160
