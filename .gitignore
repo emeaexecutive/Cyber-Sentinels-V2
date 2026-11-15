@@ -45,3 +45,4 @@ supabase/.temp/
 /execution05-install*.log
 /execution06-*.log
 /execution06-*scan*.json
+/artifacts/execution06-treasury/

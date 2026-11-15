@@ -29,3 +29,9 @@ a9bffc15e6889e874a9f58fb523965fc45260e5c:tools/qualification/execution03-databas
 
 # Non-secret idempotency identifier in the Execution05 route fixture; never authenticates a request.
 35a979fdabc9c52d13871af8270b1c54e00e0e36:tests/workload-decision-boundary.test.mjs:generic-api-key:62
+
+# Exact reviewed non-secret fixture/public-key metadata; see Execution06 triage.
+f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/allow-review-deny.json:generic-api-key:134
+f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/allow-review-deny.json:generic-api-key:160
+f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/race-unknown.json:generic-api-key:134
+f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/race-unknown.json:generic-api-key:160

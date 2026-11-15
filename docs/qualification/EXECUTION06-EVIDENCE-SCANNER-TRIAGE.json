@@ -1,0 +1,39 @@
+{
+  "evidenceCommit": "f48a326f8118973f1b1409b7596f0a9572a7f14c",
+  "findings": [
+    {
+      "file": "artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/allow-review-deny.json",
+      "line": 134,
+      "rule": "generic-api-key",
+      "fingerprint": "f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/allow-review-deny.json:generic-api-key:134",
+      "classification": "SHA256 fingerprint of enrolled public Ed25519 key; not an authentication credential",
+      "source": "lib/swarm/containment.ts enrollRuntimeKey hashes normalized public key"
+    },
+    {
+      "file": "artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/allow-review-deny.json",
+      "line": 160,
+      "rule": "generic-api-key",
+      "fingerprint": "f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/allow-review-deny.json:generic-api-key:160",
+      "classification": "SHA256 fingerprint of enrolled public Ed25519 key; not an authentication credential",
+      "source": "lib/swarm/containment.ts enrollRuntimeKey hashes normalized public key"
+    },
+    {
+      "file": "artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/race-unknown.json",
+      "line": 134,
+      "rule": "generic-api-key",
+      "fingerprint": "f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/race-unknown.json:generic-api-key:134",
+      "classification": "SHA256 fingerprint of enrolled public Ed25519 key; not an authentication credential",
+      "source": "lib/swarm/containment.ts enrollRuntimeKey hashes normalized public key"
+    },
+    {
+      "file": "artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/race-unknown.json",
+      "line": 160,
+      "rule": "generic-api-key",
+      "fingerprint": "f48a326f8118973f1b1409b7596f0a9572a7f14c:artifacts/execution06-treasury/6c83c405-9e91-4bd8-88f1-6d44d0876186/race-unknown.json:generic-api-key:160",
+      "classification": "SHA256 fingerprint of enrolled public Ed25519 key; not an authentication credential",
+      "source": "lib/swarm/containment.ts enrollRuntimeKey hashes normalized public key"
+    }
+  ],
+  "privateKeysExported": false,
+  "scannerRulesChanged": false
+}
