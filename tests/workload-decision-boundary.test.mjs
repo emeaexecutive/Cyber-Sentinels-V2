@@ -26,7 +26,7 @@ test('decision-only API dependencies record no configured relay and make zero ex
   const priorSecret = process.env.TRUST_ACTION_RELAY_SECRET;
   const priorFetch = globalThis.fetch;
   process.env.TRUST_ACTION_RELAY_URL = 'https://relay.example.test';
-  process.env.TRUST_ACTION_RELAY_SECRET = 'synthetic-test-only';
+  process.env.TRUST_ACTION_RELAY_SECRET = 'test';
   globalThis.fetch = async () => assert.fail('Decision-only credentials must never dispatch');
   try {
     const dependencies = server.createCanonicalTrustTransactionDependenciesForApiClient({
