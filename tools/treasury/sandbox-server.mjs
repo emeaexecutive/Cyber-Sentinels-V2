@@ -11,7 +11,10 @@ const html = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="v
 export async function startTreasurySandbox() {
   await mkdir('tmp', { recursive: true });
   const directory = await mkdtemp('tmp/treasury-http-');
-  const h = await treasuryFixture({ persistence: createFileSwarmPersistence(directory) });
+  const h = await treasuryFixture({ now: Date.now(), persistence: createFileSwarmPersistence(directory) });
+  let lastTick = Date.now();
+  const timer = setInterval(() => { const current = Date.now(); h.advance(Math.max(0, current - lastTick)); lastTick = current; }, 100);
+  timer.unref();
   const server = createServer(async (req, res) => {
     const json = (status, body) => { res.writeHead(status, { 'content-type': 'application/json', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' }); res.end(JSON.stringify(body)); };
     try {
@@ -33,7 +36,7 @@ export async function startTreasurySandbox() {
     } catch { if (!res.headersSent) json(400, { error: 'SANDBOX_REQUEST_DENIED' }); else res.end(); }
   });
   server.listen(0, '127.0.0.1'); await once(server, 'listening');
-  return { h, directory, server, url: 'http://127.0.0.1:' + server.address().port, close: () => new Promise(resolve => server.close(resolve)) };
+  return { h, directory, server, url: 'http://127.0.0.1:' + server.address().port, close: () => { clearInterval(timer); return new Promise(resolve => server.close(resolve)); } };
 }
 
 if (process.argv.includes('--serve')) {
