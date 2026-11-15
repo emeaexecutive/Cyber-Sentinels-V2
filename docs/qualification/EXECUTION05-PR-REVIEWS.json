@@ -1,0 +1,508 @@
+[
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 143,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": [
+            {
+              "id": "PRR_kwDOSak6YM8AAAABX2tovg",
+              "state": "COMMENTED",
+              "body": "<!-- ccr-overview-v2 -->\n\n### 🟢 Approval recommended\n\nNo active review issues are recorded for this documentation-only clarification of bilingual coverage and publication limitations.\n\n**No open issues** 🎉\n\n<details>\n<summary><strong>What changed in this PR</strong></summary>\n\nUpdates the internationalization documentation to distinguish the historical foundation from the current bilingual public-site candidate. This is documentation-only and does not approve publication.\n\n**Changes:**\n- Documents partial Spanish coverage across 45 public routes, including 11 `noindex` publication-status notices.\n- Clarifies English fallbacks and account, billing, notification, and consent flows not yet qualified as bilingual.\n- Records local validation results at the referenced commit, while noting that they do not establish translation quality or hosted, end-to-end behavior.\n\n| File | Description |\r\n| ---- | ----------- |\r\n| docs/​I18N_FOUNDATION.md | Adds current bilingual coverage, readiness limitations, and local validation evidence while preserving the historical baseline. |\n</details>\n\n<sub>Review effort: Balanced</sub>",
+              "submitted_at": "2026-11-13T18:08:05Z",
+              "author": {
+                "login": "copilot-pull-request-reviewer",
+                "name": "copilot-pull-request-reviewer",
+                "email": null,
+                "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+                "id": null
+              }
+            }
+          ]
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 142,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 141,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 140,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 139,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 138,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 137,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": [
+            {
+              "id": "PRR_kwDOSak6YM8AAAABXXm1rg",
+              "state": "COMMENTED",
+              "body": "<!-- ccr-overview-v2 -->\n\n### 🟢 Approval recommended\n\nNo active review issues block the change excluding scratch directories from the TypeScript program.\n\n**No open issues** 🎉\n\n<details>\n<summary><strong>What changed in this PR</strong></summary>\n\nThis PR excludes ignored scratch directories from the TypeScript program to prevent unrelated nested-worktree sources from increasing typecheck memory use.\n\n**Changes:**\n- Adds `tmp` and `temp` exclusions while preserving application, test, and generated Next.js route types.\n- Documents the root cause, reported build and typecheck validation, and local resource measurements.\n\n| File | Description |\r\n| ---- | ----------- |\r\n| `tsconfig.json` | Excludes the `tmp` and `temp` scratch trees. |\r\n| `docs/​product/​TYPESCRIPT-BUILD-QUALIFICATION.md` | Records the diagnosis, validation evidence, and local build/typecheck measurements. |\n</details>\n\n<sub>Review effort: Balanced</sub>",
+              "submitted_at": "2026-11-11T17:59:10Z",
+              "author": {
+                "login": "copilot-pull-request-reviewer",
+                "name": "copilot-pull-request-reviewer",
+                "email": null,
+                "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+                "id": null
+              }
+            }
+          ]
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 136,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 135,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 134,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 133,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 132,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 131,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 130,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": [
+            {
+              "id": "PRR_kwDOSak6YM8AAAABWB2r0g",
+              "state": "COMMENTED",
+              "body": "<!-- ccr-overview-v2 -->\n\n### 🟡 Changes recommended\n\nWorkload requests can trigger external relay execution on ALLOW, violating the decision-only boundary, while authentication and API-contract defects can reject valid requests.\n\n<details open>\n<summary><strong>5 open issues</strong></summary>\n\n- <picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/high-v2-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/high-v2-light.svg\"><img src=\"https://github.githubassets.com/static/images/icons/copilot-code-review/high-v2-light.png\" alt=\"High severity\" width=\"62\" height=\"18\" align=\"texttop\"></picture> [Disable external relay execution for workload decisions](https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/130#discussion_r4471351318) · New\n- <picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.svg\"><img src=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.png\" alt=\"Medium severity\" width=\"62\" height=\"18\" align=\"texttop\"></picture> [Exclude workload JWTs from Supabase recovery verification](https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/130#discussion_r4471351406) · New\n- <picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.svg\"><img src=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.png\" alt=\"Medium severity\" width=\"62\" height=\"18\" align=\"texttop\"></picture> [Limit idempotency headers to the supported key length](https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/130#discussion_r4471351477) · New\n- <picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.svg\"><img src=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.png\" alt=\"Medium severity\" width=\"62\" height=\"18\" align=\"texttop\"></picture> [Use a workload-specific decision request schema](https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/130#discussion_r4471351542) · New\n- <picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.svg\"><img src=\"https://github.githubassets.com/static/images/icons/copilot-code-review/medium-v2-light.png\" alt=\"Medium severity\" width=\"62\" height=\"18\" align=\"texttop\"></picture> [Filter revoked bindings before requiring a single active match](https://github.com/emeaexecutive/Cyber-Sentinels-V2/pull/130#discussion_r4471351629) · New\n</details>\n\n<details>\n<summary><strong>What changed in this PR</strong></summary>\n\nAdds tenant-bound OIDC workload authentication to the public API, connecting registered machine identities to the existing canonical trust-decision flow. Hosted qualification remains gated on approved issuer configuration and database-backed isolation tests.\n\n**Changes:**\n- Adds pinned token verification and owner/admin workload-binding management.\n- Introduces a workload-authenticated decision route with shared rate limiting and auditing.\n- Extends API contracts, SDK and PowerShell clients, documentation, and focused tests.\n\n| File | Description |\r\n| ---- | ----------- |\r\n| `tests/​workload-identity.test.mjs` | Tests token validation, binding contracts, and migration restrictions. |\r\n| `tests/​external-agent-client-parity.test.mjs` | Adds workload endpoints to client parity checks. |\r\n| `tests/​cyber-sentinels-sdk.test.mjs` | Tests separation of API-key and workload credentials. |\r\n| `supabase/​migrations/​20261104150000_workload_identity_bindings.sql` | Adds tenant-bound, service-role-only workload registrations. |\r\n| `packages/​cyber-sentinels-sdk/​src/​index.ts` | Adds binding methods and workload decision requests. |\r\n| `packages/​cyber-sentinels-sdk/​README.md` | Documents workload authentication usage. |\r\n| `package.json` | Adds `jose` as a production dependency. |\r\n| `package-lock.json` | Updates the dependency lock accordingly. |\r\n| `lib/​public-api/​v1/​workload-token.ts` | Verifies tokens against pinned issuer, audience, and JWKS configuration. |\r\n| `lib/​public-api/​v1/​workload-identity.ts` | Resolves workload bindings and current owner access. |\r\n| `lib/​public-api/​v1/​workload-bindings.ts` | Implements registration, listing, and revocation. |\r\n| `lib/​public-api/​v1/​openapi.ts` | Documents workload endpoints and authentication. |\r\n| `lib/​public-api/​v1/​handler.ts` | Shares request handling across authentication types. |\r\n| `lib/​public-api/​v1/​contracts.ts` | Adds workload routes and error codes. |\r\n| `examples/​powershell/​agent-gamma.ps1` | Adds workload management and decision helpers. |\r\n| `docs/​tenente/​WORKLOAD-IDENTITY-PR-A.md` | Defines security boundaries and qualification gates. |\r\n| `app/​developers/​quickstart/​page.tsx` | Adds workload onboarding examples and endpoint listings. |\r\n| `app/​api/​v1/​workloads/​[agentId]/​decisions/​route.ts` | Derives agent identity from workload authentication before requesting decisions. |\r\n| `app/​api/​v1/​agents/​[agentId]/​workload-bindings/​route.ts` | Exposes binding listing and registration. |\r\n| `app/​api/​v1/​agents/​[agentId]/​workload-bindings/​[bindingId]/​revoke/​route.ts` | Exposes binding revocation. |\n</details>\n\n<sub>Review effort: Balanced</sub>",
+              "submitted_at": "2026-11-04T18:06:12Z",
+              "author": {
+                "login": "copilot-pull-request-reviewer",
+                "name": "copilot-pull-request-reviewer",
+                "email": null,
+                "avatar_url": "https://avatars.githubusercontent.com/in/946600?v=4",
+                "id": null
+              }
+            }
+          ]
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 129,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 128,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 127,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 126,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 125,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 123,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 118,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 116,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": [
+            {
+              "id": "PRR_kwDOSak6YM8AAAABRp4D_g",
+              "state": "COMMENTED",
+              "body": "",
+              "submitted_at": "2026-10-10T15:58:22Z",
+              "author": {
+                "login": "github-advanced-security",
+                "name": "github-advanced-security",
+                "email": null,
+                "avatar_url": "https://avatars.githubusercontent.com/in/57789?v=4",
+                "id": null
+              }
+            }
+          ]
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 100,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 96,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "number": 95,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "reviews": []
+        },
+        "isError": false
+      }
+    }
+  }
+]

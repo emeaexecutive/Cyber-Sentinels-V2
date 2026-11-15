@@ -1,0 +1,38 @@
+{
+  "candidate": "c08831b43d9c3a8c020b3314c25cd33519dde446",
+  "application": "35a979fdabc9c52d13871af8270b1c54e00e0e36",
+  "files": [
+    {
+      "name": "execution05-api-regression.log",
+      "sha256": "0362bea838df8ce2c148ffecd77c52be90b660ec8a736bfbc07970b258632070"
+    },
+    {
+      "name": "execution05-build.log",
+      "sha256": "39bed83754dc4fd0b5b67803e453984f7dc958338d2510412158979e0a22a8fc"
+    },
+    {
+      "name": "execution05-changed-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "execution05-lint.log",
+      "sha256": "7490e763ebc843c636fa80c8aabf4152cc3a6134a6f0fa8c194e7f5d3d3b7c21"
+    },
+    {
+      "name": "execution05-regression.log",
+      "sha256": "443956da4bf3aabd76202693297258a9ec892fa413e8758ae4ed19b014c45d13"
+    },
+    {
+      "name": "execution05-runner.log",
+      "sha256": "fc0d1aa5fcf744f5d7e010c585807951589778a10430cd93fe4997c0ddef007f"
+    },
+    {
+      "name": "execution05-typecheck.log",
+      "sha256": "18ea1d4d8f471c26163a10b57e1720c9af7ec94037c719c0c0c7711b3066bab2"
+    },
+    {
+      "name": "execution05-workload-boundary.log",
+      "sha256": "68f82ff9ee6cba32b59e365d2c229b52c4b650cf2da9e5bfc80d89b54cd34e5d"
+    }
+  ]
+}
