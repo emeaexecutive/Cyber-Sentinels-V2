@@ -1,0 +1,10 @@
+import { readFile } from 'node:fs/promises';
+import { createPublicKey } from 'node:crypto';
+import { verifyTreasuryExport } from '../../lib/treasury/evidence.ts';
+const [bundleFile, pinnedKeyFile, checkpointFile] = process.argv.slice(2);
+if (!bundleFile || !pinnedKeyFile || !checkpointFile) throw Error('Usage: bundle.json independently-pinned-public-key.pem independently-pinned-checkpoint.json');
+const bundle = JSON.parse(await readFile(bundleFile, 'utf8'));
+const checkpoint = JSON.parse(await readFile(checkpointFile, 'utf8'));
+const key = createPublicKey(await readFile(pinnedKeyFile));
+const valid = verifyTreasuryExport(bundle, new Map([['sandbox:receipt:v1', key]]), checkpoint);
+console.log(JSON.stringify({ valid, synthetic: true })); if (!valid) process.exitCode = 1;

@@ -1,0 +1,19 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Cyber Sentinels local treasury sandbox", "version": "0.1.0", "description": "Synthetic loopback-only API. Not the hosted public API. No real funds, AML provider, blockchain or standards certification."},
+  "servers": [{"url": "http://127.0.0.1:{port}", "variables": {"port": {"default": "3000"}}}],
+  "paths": {
+    "/api/authorize": {"post": {"operationId": "authorizeSyntheticPayment", "requestBody": {"required": true, "content": {"application/json": {"schema": {"type": "object", "required": ["signed"], "properties": {"signed": {"$ref": "#/components/schemas/SignedPayment"}}}}}}, "responses": {"200": {"description": "Signed ALLOW, REVIEW or DENY. ALLOW alone has no destination effect."}, "400": {"description": "Malformed or unavailable boundary"}, "413": {"description": "Body exceeds 16 KiB"}}}},
+    "/api/commit": {"post": {"operationId": "commitSyntheticPayment", "requestBody": {"required": true, "content": {"application/json": {"schema": {"type": "object", "required": ["mandateId", "signed"], "properties": {"mandateId": {"type": "string", "format": "uuid"}, "signed": {"$ref": "#/components/schemas/SignedPayment"}, "available": {"type": "boolean", "description": "Synthetic failure injection; false can only deny."}}}}}}, "responses": {"200": {"description": "Signed current-state decision; effectId exists only after atomic local destination commitment."}, "400": {"description": "Malformed or unavailable boundary"}}}},
+    "/api/destination": {"get": {"operationId": "observeSyntheticDestination", "responses": {"200": {"description": "Separately read persisted synthetic destination ledger"}}}},
+    "/api/status": {"get": {"operationId": "readSyntheticFinancialStatus", "responses": {"200": {"description": "Replay, deterministic advisory signals and effects for the fixed synthetic tenant"}}}},
+    "/api/evidence": {"get": {"operationId": "exportSyntheticFinancialEvidence", "responses": {"200": {"description": "Atomic signed export checkpoint, signed Replay events and destination effects; pin the trust anchor and checkpoint independently."}}}}
+  },
+  "components": {"schemas": {
+    "SignedPayment": {"type": "object", "required": ["payment", "signature"], "properties": {"payment": {"$ref": "#/components/schemas/Payment"}, "signature": {"type": "string", "pattern": "^[A-Za-z0-9_-]{86}$", "description": "Ed25519 over canonical domain-separated paymentSigningPayload(payment)."}}},
+    "Payment": {"type": "object", "required": ["tenantId", "agentId", "requestId", "amountMinor", "currency", "asset", "network", "chainId", "contract", "beneficiary", "destination", "provider", "policyVersion", "expiresAt", "environment"], "properties": {
+      "tenantId": {"type": "string"}, "agentId": {"type": "string"}, "requestId": {"type": "string", "minLength": 8, "maxLength": 120, "pattern": "^[A-Za-z0-9_.:-]+$"},
+      "amountMinor": {"type": "integer", "minimum": 1, "maximum": 9007199254740991}, "currency": {"type": "string"}, "asset": {"type": "string"}, "network": {"type": "string"}, "chainId": {"type": "string"}, "contract": {"type": "string"}, "beneficiary": {"type": "string"}, "destination": {"type": "string"}, "provider": {"type": "string"}, "policyVersion": {"type": "string"}, "expiresAt": {"type": "number", "description": "Epoch milliseconds; at most five minutes ahead."}, "environment": {"const": "sandbox"}
+    }}
+  }}
+}

@@ -173,7 +173,10 @@
     "test:sign-out-browser": "tsx --test tests/sign-out-browser.mjs",
     "test:synthetic-interaction": "tsx --test tests/synthetic-interaction-trust.test.mjs tests/judgeme-boundary.test.mjs tests/judgeme-installation.test.mjs tests/judgeme-webhook-runtime.test.mjs tests/webhook-event-replay.test.mjs",
     "test:search": "tsx --test tests/search-authority.test.mjs tests/public-i18n.test.mjs",
-    "test:execution03": "node --import tsx --test tests/twelve-scenario-execution.test.mjs tests/twelve-scenario-approval-sql.test.mjs tests/workload-identity.test.mjs tests/workload-decision-boundary.test.mjs"
+    "test:execution03": "node --import tsx --test tests/twelve-scenario-execution.test.mjs tests/twelve-scenario-approval-sql.test.mjs tests/workload-identity.test.mjs tests/workload-decision-boundary.test.mjs",
+    "test:treasury": "node --import tsx --test tests/treasury-sandbox.test.mjs",
+    "demo:treasury": "node --import tsx tools/treasury/demo.mjs",
+    "test:treasury-browser": "node --import tsx tools/treasury/browser-check.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.4",
