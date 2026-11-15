@@ -154,8 +154,8 @@ export const publicApiOpenApi = {
         security: [{ workloadBearer: [] }],
         "x-required-scopes": ["trust:request"],
         description: "Accepts a short-lived OIDC/OAuth bearer token signed by the single issuer and JWKS URL configured by the service operator. Required claims include issuer, audience, subject, tenant_id, workload_id, exp, iat, jti and scope. The server binds the issuer/subject/tenant/workload to a tenant-registered agent, then rechecks current scoped authority using the canonical decision path. The body cannot select another agent. ALLOW is a decision, not permission to bypass the customer's execution gateway; REVIEW and DENY must stop execution.",
-        parameters: [{ name: "agentId", in: "path", required: true, schema: { type: "string", maxLength: 180 } }, { name: "Idempotency-Key", in: "header", required: true, schema: { type: "string", minLength: 16, maxLength: 180 } }],
-        requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/DecisionRequest" } } } },
+        parameters: [{ name: "agentId", in: "path", required: true, schema: { type: "string", maxLength: 180 } }, { name: "Idempotency-Key", in: "header", required: true, schema: { type: "string", minLength: 8, maxLength: 120, pattern: "^[A-Za-z0-9_.:-]+$" } }],
+        requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/WorkloadDecisionRequest" } } } },
         responses: { "200": json(decisionResponseSchema, "Idempotent replay"), "201": json(decisionResponseSchema, "Canonical workload decision"), ...errors },
       },
     },
@@ -199,6 +199,15 @@ export const publicApiOpenApi = {
       Authority: { type: "object", required: ["authority_id", "status", "action", "actions", "target", "targets", "purpose", "tools", "environment", "valid_from", "expires_at", "revoked_at", "authority_reference", "authority_version", "supersedes_authority_id", "issuer", "approver", "delegated_from", "delegation_depth", ...responseMetadataRequired], properties: { authority_id: { type: "string", format: "uuid" }, status: { enum: ["ACTIVE", "PENDING_IDENTITY", "SCHEDULED", "EXPIRED", "REVOKED"] }, action: { type: "string" }, actions: { type: "array", items: { type: "string" } }, target: { type: "string" }, targets: { type: "array", items: { type: "string" } }, purpose: { type: "string" }, tools: { type: "array", items: { type: "string" } }, environment: { type: "array", items: { type: "string" } }, valid_from: { type: "string", format: "date-time" }, expires_at: { type: "string", format: "date-time" }, revoked_at: { type: ["string", "null"], format: "date-time" }, authority_reference: { type: "string", format: "uuid" }, authority_version: { type: ["string", "null"] }, supersedes_authority_id: { type: ["string", "null"], format: "uuid" }, issuer: { type: "string" }, approver: { type: "string" }, delegated_from: { type: ["string", "null"] }, delegation_depth: { type: "integer", minimum: 0 }, ...responseMetadataProperties }, additionalProperties: false },
       AuthorityList: { type: "object", required: ["authorities", ...responseMetadataRequired], properties: { authorities: { type: "array", items: { $ref: "#/components/schemas/Authority" }, maxItems: 100 }, ...responseMetadataProperties }, additionalProperties: false },
       AuthorityGrantRequest: { type: "object", required: ["action", "target", "purpose", "environment", "expires_at"], properties: { action: { type: "string", minLength: 1, maxLength: 120 }, target: { type: "string", minLength: 1, maxLength: 240 }, purpose: { type: "string", minLength: 1, maxLength: 180 }, environment: { type: "string", minLength: 1, maxLength: 120 }, valid_from: { type: "string", format: "date-time", description: "Optional; cannot be backdated and may be at most five minutes ahead." }, expires_at: { type: "string", format: "date-time", description: "Required. Indefinite authority is unsupported and the issuing key's max TTL applies." }, data_boundary: { enum: ["PUBLIC", "INTERNAL"] }, execution_limit: { type: "integer", minimum: 1, maximum: 10000 } }, additionalProperties: false },
+      WorkloadDecisionRequest: {
+        type: "object", required: ["action"], additionalProperties: false,
+        properties: {
+          action: { $ref: "#/components/schemas/DecisionRequest/properties/action" },
+          idempotency_key: { type: "string", minLength: 8, maxLength: 120 },
+          decision_type: { $ref: "#/components/schemas/DecisionRequest/properties/decision_type" },
+          context: { $ref: "#/components/schemas/DecisionRequest/properties/context" },
+        },
+      },
       DecisionRequest: {
         type: "object",
         required: ["operational_entity_id", "action", "idempotency_key"],

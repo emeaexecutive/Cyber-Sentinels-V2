@@ -13,8 +13,8 @@ export async function POST(request: Request, { params }: Context) {
     agentId: decodeURIComponent(agentId),
   }, async ({ principal, correlationId, requestId, agentId: boundAgentId }) => {
     const idempotencyKey = request.headers.get("idempotency-key")?.trim() ?? "";
-    if (!idempotencyKey) {
-      throw new PublicApiError("IDEMPOTENCY_KEY_REQUIRED", "An Idempotency-Key header is required.", 400);
+    if (!/^[A-Za-z0-9_.:-]{8,120}$/.test(idempotencyKey)) {
+      throw new PublicApiError("IDEMPOTENCY_KEY_REQUIRED", "An Idempotency-Key header of 8 to 120 supported characters is required.", 400);
     }
     const body = await boundedJson(request, 16_384);
     if (Object.hasOwn(body, "operational_entity_id")) {

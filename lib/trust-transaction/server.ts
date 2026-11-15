@@ -760,7 +760,8 @@ export function createCanonicalTrustTransactionDependenciesForApiClient(input: {
   const dependencies = createCanonicalTrustTransactionDependencies({
     supabase: {} as SupabaseClient,
     user: syntheticUser,
-    allowExternalExecution: input.allowExternalExecution,
+    // Decision APIs do not carry destination-bound execution authority.
+    allowExternalExecution: input.allowExternalExecution ?? false,
   });
   const db = createServiceRoleClient();
   dependencies.authenticateActor = async () => ({

@@ -43,3 +43,5 @@ supabase/.temp/
 /artifacts/auth-production/
 /.npm-cache/
 /execution05-install*.log
+/execution06-*.log
+/execution06-*scan*.json

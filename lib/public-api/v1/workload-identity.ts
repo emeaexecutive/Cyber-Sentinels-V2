@@ -71,6 +71,8 @@ export async function authenticateRegisteredWorkload(
     .eq("operational_entity_id", claims.workloadId)
     .eq("issuer", claims.issuer)
     .eq("subject", claims.subject)
+    .eq("status", "active")
+    .is("revoked_at", null)
     .maybeSingle();
   if (bindingResult.error) {
     throw new PublicApiError(
@@ -83,6 +85,7 @@ export async function authenticateRegisteredWorkload(
   if (!binding
     || binding.status !== "active"
     || binding.revoked_at !== null
+    || !Number.isFinite(Date.parse(String(binding.expires_at)))
     || Date.parse(String(binding.expires_at)) <= Date.now()) {
     throw new PublicApiError("WORKLOAD_BINDING_INACTIVE", "The workload registration is inactive.", 401);
   }
