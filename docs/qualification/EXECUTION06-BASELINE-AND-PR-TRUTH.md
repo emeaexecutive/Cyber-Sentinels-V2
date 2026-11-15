@@ -59,3 +59,35 @@ Remote #130 threads remain unresolved because no push/comment/review mutation is
 
 No pushes, PR merges/closures, hosted SQL, migrations, credential changes, deployments, live charges or real transactions occurred. Remote merge/closure approval remains required; local preparation is reviewable now.
 
+## Per-PR disposition and actual action
+
+No PR is certified SUPERSEDED without equivalence proof. All remote PRs remain open.
+
+| PR | Recommended disposition | Actual action |
+|---|---|---|
+| #143 | CONSOLIDATE — preserve unique source/migrations/tests | Local exact-fingerprint repair3b97827 plus reviewed evidence metadata; remote unchanged |
+| #142 | MERGE CANDIDATE — gated, approval and new exact-head CI required | Local TrackA security closure17055a0; remote unchanged |
+| #141 | MERGE CANDIDATE — gated, approval and new exact-head CI required | Website release boundary preserved; no remote change |
+| #140 | CONSOLIDATE — preserve unique source/migrations/tests | No remote change |
+| #139 | CONSOLIDATE — preserve unique source/migrations/tests | Local two-parent reconciliation29589e6; remote unchanged |
+| #138 | CONSOLIDATE — preserve unique source/migrations/tests | No remote change |
+| #137 | MERGE CANDIDATE — gated, approval and new exact-head CI required | Scratch exclusion retained; no remote change |
+| #136 | CONSOLIDATE — preserve unique source/migrations/tests | No remote change |
+| #135 | CONSOLIDATE — preserve unique source/migrations/tests | No remote change |
+| #134 | CONSOLIDATE — preserve unique source/migrations/tests | No remote change |
+| #133 | CONSOLIDATE — preserve unique source/migrations/tests | No remote change |
+| #132 | CONSOLIDATE — preserve unique source/migrations/tests | No remote change |
+| #131 | CONSOLIDATE — preserve unique source/migrations/tests | No remote change |
+| #130 | CONSOLIDATE — preserve unique source/migrations/tests | Five findings fixed on local TrackA; remote unchanged |
+| #129 | CLOSE CANDIDATE — unique-source equivalence still required | No remote change |
+| #128 | CONSOLIDATE — preserve unique source/migrations/tests | No remote change |
+| #127 | HOLD — dependency/CI compatibility | No remote change |
+| #126 | HOLD — dependency/CI compatibility | No remote change |
+| #125 | HOLD — dependency/CI compatibility | No remote change |
+| #123 | CONSOLIDATE — preserve unique source/migrations/tests | No remote change |
+| #118 | CONSOLIDATE — preserve unique source/migrations/tests | No remote change |
+| #116 | CONSOLIDATE — preserve unique source/migrations/tests | No remote change |
+| #100 | HOLD — dependency/CI compatibility | No remote change |
+| #96 | HOLD — dependency/CI compatibility | No remote change |
+| #95 | HOLD — dependency/CI compatibility | No remote change |
+
