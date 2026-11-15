@@ -148,3 +148,22 @@ test('financial monitoring flags shared-limit attempts without granting interven
   assert.deepEqual(financialSignals(replay.events, 'foreign:tenant'), []);
   assert.equal((await h.treasury.destination(h.tenant)).length, 1);
 });
+
+test('revocation wins after a stale dispatch check but before the atomic destination commit', async () => {
+  await mkdir('tmp', { recursive: true }); const directory = await mkdtemp('tmp/treasury-stop-race-');
+  const persistence = createFileSwarmPersistence(directory), h = await treasuryFixture({ persistence });
+  const s = h.signed(), a = await h.treasury.authorize(h.tenant, s);
+  let release, reached, held = false;
+  const gate = new Promise(resolve => { release = resolve; }), entered = new Promise(resolve => { reached = resolve; });
+  const competing = h.make(createSwarmStore({ load: persistence.load, compareAndSwap: async (tenant, version, state) => {
+    if (!held && state.financial?.effects.length) { held = true; reached(); await gate; }
+    return persistence.compareAndSwap(tenant, version, state);
+  } }));
+  const commit = competing.commit(h.tenant, a.mandateId, s);
+  await entered;
+  await h.control.contain(h.tenant, 'operator', { kind: 'agent', id: 'agent:1' }, 'stop before destination commitment');
+  release();
+  assert.equal((await commit).decision, 'DENY');
+  assert.equal((await h.treasury.destination(h.tenant)).length, 0);
+  assert.equal((await h.treasury.replay(h.tenant)).valid, true);
+});
