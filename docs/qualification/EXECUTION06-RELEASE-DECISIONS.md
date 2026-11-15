@@ -1,0 +1,22 @@
+# Execution06 release decisions
+
+15 November2026. TrackA candidate17055a082112c1c8f134f5132ee97100a68b0cf9; website3b97827927e4d1dbab97276b978ef35449257b5d; local SOC reconciliation29589e66d33ff20586b08636cb1d7e5c21800e05. TrackB candidate189601d51392447ef54e992a1fda088d508330b3. All are local, unpublished branches. TrackB is NOT a TrackA release dependency.
+
+| Scope | Verdict | Evidence / blocker | Smallest next action |
+|---|---|---|---|
+| Core Production release | NO-GO | Final local build209pages, typecheck, lint, API/auth/enforcement tests pass; new exact-head remote CI, hosted recovery/execution and complete EN/ES absent | Approve publishing review branches only after reviewing changes; obtain exact-head CI; qualify target-bound staging |
+| Public bilingual website | NO-GO for unrestricted release | Local scanner correction ready;11 publication notices and operational consent/account gaps; protected parity incomplete | Review source/legal boundaries, current public acceptance and approved content |
+| Protected SaaS onboarding/billing | NO-GO | Full Spanish product corpus, hosted positive auth/consent, billing/webhook/subscription/recovery not qualified | Complete locale implementation and authorized synthetic customer journey |
+| Continuous KYA as complete product | NO-GO | Real cryptography/current local enforcement; principal/financial authority fixtures, passport and hosted APIs incomplete | Integrate existing native Registry/authority repositories and protected console |
+| Local synthetic treasury technical demonstration | CONDITIONAL GO |13tests, actual loopback HTTP, file CAS, signed exports and4 browser combinations; declared fixtures/no funds | Human technical review of boundary, reproduce pinned artifacts |
+| Hosted KYA/treasury design-partner pilot | NO-GO | No approved hosted target or real principal/provider integration, AML or managed recovery | Agree synthetic-only scope and approve a concrete hosted qualification package |
+| Real-money/custody/live billing | NO-GO | No provider contract/integration, regulatory/legal assessment or operational qualification | Separate provider/legal/control design and explicit authorization |
+
+Fresh read-only connector metadata: Staging agpyhygpfmppjkxwcpac is ACTIVE_HEALTHY;151migrations and246tables across inspected public/private schemas, no SWARM tables. Advisors report mutable function search_path,11 authenticated SECURITY DEFINER exposures, leaked-password protection and insufficient MFA options. These are findings for contextual review, not automatic revocations. [Search-path remediation](https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable), [function privilege remediation](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable), [password protection](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection), [MFA](https://supabase.com/docs/guides/auth/auth-mfa).
+
+Latest listed Production-target deployment dpl_HX9XAvn1SB7DQHbFeU3VfhEXit4G is READY, CLI source, has no Git SHA and no aliases in metadata. This does not identify the code serving the public domain. New core SHA has zero deployments. Current Production source is UNKNOWN.
+
+Hosted schema equivalence/RPC/grants require approved catalog inspection and full migration rehearsal. Source/ledger comparison finds7 forward timestamp candidates and5 historical mismatches; EXECUTION06-MIGRATION-CANDIDATES.json contains exact source digests. These are NOT a safe apply list; historical reconciliation and full predecessor-schema rehearsal are required. Backup/restore of managed Auth/Storage/Vault, hosted tenant/workload/approval/final-allowance/revocation/effect/Replay proof, production billing and incident/rollback acceptance remain open. No hosted SQL was executed. Prepared read-only query: EXECUTION06-STAGING-READONLY-CATALOG.sql; explicit authorization requested separately. No hosted writes, deployments or charges authorized or performed.
+
+Required human approvals: pushes, PR merges/closures, hosted SQL/writes/migrations, credentials, deployment/promotion, live billing and real financial/custody operations. Estimates: localization several days; real native KYA/console integration several days; target-bound hosted qualification2–4days after environment/access/approvals; real-money timing depends on provider/legal scope. No guaranteed launch date follows from current evidence.
+
