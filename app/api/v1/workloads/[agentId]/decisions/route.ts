@@ -30,6 +30,7 @@ export async function POST(request: Request, { params }: Context) {
       idempotencyKey,
       new URL(request.url).origin,
       correlationId,
+      { allowExternalExecution: false },
     );
     return publicApiResponse(result, { status: result.idempotent_replay ? 200 : 201 }, correlationId, requestId);
   });

@@ -41,3 +41,5 @@ supabase/.temp/
 /artifacts/recovery-*.png
 /artifacts/sign-out-*.png
 /artifacts/auth-production/
+/.npm-cache/
+/execution05-install*.log
