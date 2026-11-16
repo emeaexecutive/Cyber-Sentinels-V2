@@ -90,6 +90,13 @@ export const publicApiOpenApi = {
     "/api/v1/agents/{agentId}": {
       get: { operationId: "getAgent", tags: ["Agents"], summary: "Retrieve an API-client-bound agent", "x-required-scopes": ["authority:read"], parameters: [agentParameter], responses: { "200": json({ $ref: "#/components/schemas/Agent" }), ...errors } },
     },
+    "/api/v1/agents/{agentId}/workload-bindings": {
+      get: { operationId: "listWorkloadBindings", tags: ["Agents"], summary: "List registered customer workload identities", "x-required-scopes": ["agents:write"], description: "Tenant owners and administrators only. Returns issuer/subject bindings for this registered agent; no token or secret is returned.", parameters: [agentParameter], responses: { "200": json({ type: "object" }), ...errors } },
+      post: { operationId: "registerWorkloadBinding", tags: ["Agents"], summary: "Bind one external OIDC workload to a registered agent", "x-required-scopes": ["agents:write"], description: "Tenant owners and administrators only. Issuer and audience are derived from pinned server configuration, never the request. Supports only trust:request and requires an explicit expiry of at most 90 days.", parameters: [agentParameter], requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/WorkloadBindingRequest" } } } }, responses: { "201": json({ type: "object" }), ...errors } },
+    },
+    "/api/v1/agents/{agentId}/workload-bindings/{bindingId}/revoke": {
+      post: { operationId: "revokeWorkloadBinding", tags: ["Agents"], summary: "Revoke a registered customer workload identity", "x-required-scopes": ["agents:write"], description: "Tenant owners and administrators only. Revocation is durable and blocks subsequent workload requests.", parameters: [agentParameter, { name: "bindingId", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: { "200": json({ type: "object" }), ...errors } },
+    },
     "/api/v1/agents/{agentId}/credentials": {
       post: { operationId: "registerAgentCredential", tags: ["Agents"], summary: "Register or rotate an Ed25519 public credential", "x-required-scopes": ["agents:write"], parameters: [agentParameter], requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/RegisterCredentialRequest" } } } }, responses: { "201": json({ type: "object" }), ...errors } },
     },
@@ -141,6 +148,17 @@ export const publicApiOpenApi = {
         responses: { "200": json({ type: "object", required: ["receipt", ...responseMetadataRequired], properties: { receipt: { type: "object" }, ...responseMetadataProperties } }, "Historical idempotent replay"), "201": json({ type: "object", required: ["receipt", ...responseMetadataRequired], properties: { receipt: { type: "object" }, ...responseMetadataProperties } }, "Fresh canonical decision and receipt"), ...errors },
       },
     },
+    "/api/v1/workloads/{agentId}/decisions": {
+      post: {
+        operationId: "requestWorkloadDecision", tags: ["Trust"], summary: "Request a trust decision using a short-lived registered workload token",
+        security: [{ workloadBearer: [] }],
+        "x-required-scopes": ["trust:request"],
+        description: "Accepts a short-lived OIDC/OAuth bearer token signed by the single issuer and JWKS URL configured by the service operator. Required claims include issuer, audience, subject, tenant_id, workload_id, exp, iat, jti and scope. The server binds the issuer/subject/tenant/workload to a tenant-registered agent, then rechecks current scoped authority using the canonical decision path. The body cannot select another agent. ALLOW is a decision, not permission to bypass the customer's execution gateway; REVIEW and DENY must stop execution.",
+        parameters: [{ name: "agentId", in: "path", required: true, schema: { type: "string", maxLength: 180 } }, { name: "Idempotency-Key", in: "header", required: true, schema: { type: "string", minLength: 8, maxLength: 120, pattern: "^[A-Za-z0-9_.:-]+$" } }],
+        requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/WorkloadDecisionRequest" } } } },
+        responses: { "200": json(decisionResponseSchema, "Idempotent replay"), "201": json(decisionResponseSchema, "Canonical workload decision"), ...errors },
+      },
+    },
     "/api/v1/reviews/{reviewReference}": {
       get: { operationId: "getReview", tags: ["Review"], summary: "Retrieve governed review status and disposition", "x-required-scopes": ["review:read"], description: "Returns only reviews created for this tenant/client's canonical transactions. The original canonical decision remains REVIEW after resolution.", parameters: [reviewParameter], responses: { "200": json({ $ref: "#/components/schemas/Review" }), ...errors } },
     },
@@ -164,10 +182,14 @@ export const publicApiOpenApi = {
     },
   },
   components: {
-    securitySchemes: { bearerApiKey: { type: "http", scheme: "bearer", bearerFormat: "Cyber Sentinels API key", description: `Server-issued cs_test_ or cs_live_ API key. Operation-specific least-privilege scopes are listed in x-required-scopes. Available V1 scopes: ${PUBLIC_API_SCOPES.join(", ")}.` } },
+    securitySchemes: {
+      bearerApiKey: { type: "http", scheme: "bearer", bearerFormat: "Cyber Sentinels API key", description: `Server-issued cs_test_ or cs_live_ API key. Operation-specific least-privilege scopes are listed in x-required-scopes. Available V1 scopes: ${PUBLIC_API_SCOPES.join(", ")}.` },
+      workloadBearer: { type: "http", scheme: "bearer", bearerFormat: "OIDC/OAuth JWT", description: "Short-lived token from the operator-pinned issuer and JWKS. The tenant, workload, issuer, subject, audience and scope are checked against the registered binding." },
+    },
     schemas: {
       Error: { type: "object", required: ["error", ...responseMetadataRequired], properties: { error: { type: "object", required: ["code", "message", "correlation_id"], properties: { code: { type: "string", "x-stable-codes": PUBLIC_API_ERROR_CODES }, message: { type: "string" }, correlation_id: { type: "string", format: "uuid" } }, additionalProperties: false }, ...responseMetadataProperties }, additionalProperties: false },
       RegisterAgentRequest: { type: "object", required: ["display_name", "entity_type", "owner_reference", "runtime", "model"], properties: { display_name: { type: "string", maxLength: 120 }, entity_type: { const: "AI_AGENT" }, owner_reference: { type: "string", maxLength: 180 }, runtime: { type: "object", required: ["environment", "framework"], properties: { environment: { type: "string" }, framework: { type: "string" } }, additionalProperties: false }, model: { type: "object", required: ["provider", "identifier"], properties: { provider: { type: "string" }, identifier: { type: "string" } }, additionalProperties: false } }, additionalProperties: false },
+      WorkloadBindingRequest: { type: "object", required: ["subject", "scopes", "expires_at"], properties: { subject: { type: "string", minLength: 1, maxLength: 240 }, scopes: { type: "array", items: { const: "trust:request" }, minItems: 1, maxItems: 1 }, expires_at: { type: "string", format: "date-time" } }, additionalProperties: false },
       RegisteredAgent: { type: "object", required: ["agent_id", "operational_entity_id", "status", "next_step", "manifest_context", ...responseMetadataRequired], properties: { agent_id: { type: "string" }, operational_entity_id: { type: "string" }, status: { type: "string" }, next_step: { type: "string" }, manifest_context: { type: "object" }, ...responseMetadataProperties }, additionalProperties: false },
       Agent: { type: "object", required: ["agent_id", "operational_entity_id", "entity_type", "display_name", "lifecycle_state", "authority_reference", "authority_status", ...responseMetadataRequired], properties: { agent_id: { type: "string" }, operational_entity_id: { type: "string" }, entity_type: { type: "string" }, display_name: { type: "string" }, lifecycle_state: { type: "string" }, accountable_owner_reference: { type: "string" }, authority_reference: { type: ["string", "null"], format: "uuid" }, authority_version: { type: ["string", "null"] }, authority_status: { enum: ["UNASSIGNED", "SCHEDULED", "PENDING_IDENTITY", "ACTIVE", "EXPIRED", "REVOKED"] }, ...responseMetadataProperties }, additionalProperties: false },
       RegisterCredentialRequest: { type: "object", required: ["public_jwk", "kid", "algorithm"], properties: { public_jwk: { type: "object", required: ["kty", "crv", "x"], properties: { kty: { const: "OKP" }, crv: { const: "Ed25519" }, x: { type: "string" }, kid: { type: "string" }, alg: { const: "EdDSA" }, use: { const: "sig" }, key_ops: { type: "array", prefixItems: [{ const: "verify" }], maxItems: 1 } }, not: { required: ["d"] }, additionalProperties: false }, kid: { type: "string" }, algorithm: { enum: ["Ed25519", "EdDSA"] }, expires_at: { type: ["string", "null"], format: "date-time" }, rotate_from_credential_id: { type: "string" } }, additionalProperties: false },
@@ -177,6 +199,15 @@ export const publicApiOpenApi = {
       Authority: { type: "object", required: ["authority_id", "status", "action", "actions", "target", "targets", "purpose", "tools", "environment", "valid_from", "expires_at", "revoked_at", "authority_reference", "authority_version", "supersedes_authority_id", "issuer", "approver", "delegated_from", "delegation_depth", ...responseMetadataRequired], properties: { authority_id: { type: "string", format: "uuid" }, status: { enum: ["ACTIVE", "PENDING_IDENTITY", "SCHEDULED", "EXPIRED", "REVOKED"] }, action: { type: "string" }, actions: { type: "array", items: { type: "string" } }, target: { type: "string" }, targets: { type: "array", items: { type: "string" } }, purpose: { type: "string" }, tools: { type: "array", items: { type: "string" } }, environment: { type: "array", items: { type: "string" } }, valid_from: { type: "string", format: "date-time" }, expires_at: { type: "string", format: "date-time" }, revoked_at: { type: ["string", "null"], format: "date-time" }, authority_reference: { type: "string", format: "uuid" }, authority_version: { type: ["string", "null"] }, supersedes_authority_id: { type: ["string", "null"], format: "uuid" }, issuer: { type: "string" }, approver: { type: "string" }, delegated_from: { type: ["string", "null"] }, delegation_depth: { type: "integer", minimum: 0 }, ...responseMetadataProperties }, additionalProperties: false },
       AuthorityList: { type: "object", required: ["authorities", ...responseMetadataRequired], properties: { authorities: { type: "array", items: { $ref: "#/components/schemas/Authority" }, maxItems: 100 }, ...responseMetadataProperties }, additionalProperties: false },
       AuthorityGrantRequest: { type: "object", required: ["action", "target", "purpose", "environment", "expires_at"], properties: { action: { type: "string", minLength: 1, maxLength: 120 }, target: { type: "string", minLength: 1, maxLength: 240 }, purpose: { type: "string", minLength: 1, maxLength: 180 }, environment: { type: "string", minLength: 1, maxLength: 120 }, valid_from: { type: "string", format: "date-time", description: "Optional; cannot be backdated and may be at most five minutes ahead." }, expires_at: { type: "string", format: "date-time", description: "Required. Indefinite authority is unsupported and the issuing key's max TTL applies." }, data_boundary: { enum: ["PUBLIC", "INTERNAL"] }, execution_limit: { type: "integer", minimum: 1, maximum: 10000 } }, additionalProperties: false },
+      WorkloadDecisionRequest: {
+        type: "object", required: ["action"], additionalProperties: false,
+        properties: {
+          action: { $ref: "#/components/schemas/DecisionRequest/properties/action" },
+          idempotency_key: { type: "string", minLength: 8, maxLength: 120 },
+          decision_type: { $ref: "#/components/schemas/DecisionRequest/properties/decision_type" },
+          context: { $ref: "#/components/schemas/DecisionRequest/properties/context" },
+        },
+      },
       DecisionRequest: {
         type: "object",
         required: ["operational_entity_id", "action", "idempotency_key"],

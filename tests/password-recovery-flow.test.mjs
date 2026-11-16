@@ -136,6 +136,18 @@ export function harness() {
   };
 }
 
+test("external workload bearer reaches its own verifier while recovery cookies stay quarantined", async () => {
+  const h = harness();
+  const external = 'eyJhbGciOiJFZERTQSJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlLnRlc3QifQ.invalid';
+  const allowed = await h.guard('/api/v1/workloads/agent:1/decisions', { authorization: `Bearer ${external}` }, 'POST');
+  assert.equal(allowed.status, 200);
+  assert.equal(h.calls.length, 0, 'External bearer must not be submitted to Supabase Auth');
+  await h.begin();
+  const denied = await h.guard('/api/v1/workloads/agent:1/decisions', { authorization: `Bearer ${external}` }, 'POST');
+  assert.equal(denied.status, 403);
+  assert.equal((await denied.json()).error, 'PASSWORD_RECOVERY_REQUIRED');
+});
+
 test("connected recovery: email → PKCE callback → visible form → quarantine → update → sign out → login → no replay", async () => {
   const h = harness();
   await h.begin();

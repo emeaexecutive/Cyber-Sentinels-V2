@@ -5,6 +5,7 @@ import {tmpdir} from 'node:os';
 import {join,dirname,resolve} from 'node:path';
 import {fixture,tenant} from './swarm-control.mjs';
 import {GovernedSoc,SOC_AGENTS} from '../../lib/soc/workflow.ts';
+import {SocModelBudget} from '../../lib/soc/model-budget.ts';
 import {createFileSwarmPersistence} from '../../lib/swarm/file-persistence.ts';
 import {signAgentMessage} from '../../lib/swarm/agent-message.ts';
 import {watchtowerAudience} from '../../lib/swarm/watchtower-signals.ts';
@@ -23,7 +24,8 @@ export async function createSocFixture(t,options={}) {
  }
  let observations=0;
  const destination={execute:async request=>{effects.set(request.idempotencyKey,(effects.get(request.idempotencyKey)??0)+1);if(options.execute)await options.execute(request);},observe:async request=>{observations++;assert.equal(effects.get(request.idempotencyKey),1);return options.observe?options.observe(request):'destination:verified';}};
- const deps={store:h.store,control:h.control,authenticate:h.deps.authenticate,now:h.deps.now,destination,destinationTimeoutMs:options.timeoutMs??100,investigate:options.investigate};
+ const modelBudget=options.investigate?new SocModelBudget({store:h.store,now:h.deps.now},{approved:true,environment:'test',tenantId:tenant,scope:'synthetic-model-budget',policyVersion:'fixture-v1',provider:'fixture',model:'mocked-transport',windowMs:60000,maxWindowCalls:10,maxTotalCalls:10,maxAttemptsPerInvestigation:1,maxParallel:1,maxDurationMs:15000,maxInputBytes:32768,maxOutputTokens:1800,maxWindowSpendMicros:100,maxTotalSpendMicros:100,reserveMicrosPerCall:10}):undefined;
+ const deps={store:h.store,control:h.control,authenticate:h.deps.authenticate,now:h.deps.now,destination,destinationTimeoutMs:options.timeoutMs??100,investigate:options.investigate,modelBudget};
  const soc=new GovernedSoc(deps);
  for(const role of Object.keys(SOC_AGENTS))await soc.registerAgent(tenant,'operator',role,'security-owner');
  function envelope(warningOverrides={}){

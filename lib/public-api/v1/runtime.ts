@@ -681,7 +681,7 @@ function consequenceTimeProjection(snapshot: Row | null | undefined) {
   };
 }
 
-export async function requestExternalDecision(principal: PublicApiPrincipal, body: Record<string, unknown>, idempotencyKey: string, origin: string, correlationId?: string) {
+export async function requestExternalDecision(principal: PublicApiPrincipal, body: Record<string, unknown>, idempotencyKey: string, origin: string, correlationId?: string, executionOptions?: { allowExternalExecution: false }) {
   assertOnlyFields(body, ["operational_entity_id", "action", "idempotency_key", "decision_type", "context"]);
   const agentId = requiredText(body.operational_entity_id, "operational_entity_id", 180, referencePattern);
   await entityFor(principal, agentId);
@@ -835,7 +835,7 @@ export async function requestExternalDecision(principal: PublicApiPrincipal, bod
   const controlPlaneContext = normalized.environment === "production"
     ? productionControlPlaneContext(principal.tenantId, agentId, publicPolicyId, publicPolicyVersion) : null;
   const controlPlaneEvidence = await currentControlPlaneEvidence(controlPlaneContext);
-  const dependencies = createCanonicalTrustTransactionDependenciesForApiClient({ enterpriseId: principal.tenantId, clientId: principal.clientId });
+  const dependencies = createCanonicalTrustTransactionDependenciesForApiClient({ enterpriseId: principal.tenantId, clientId: principal.clientId, allowExternalExecution: executionOptions?.allowExternalExecution });
   try {
     const receipt = await executeCanonicalTrustTransaction({
       trustObject: { subjectType: "ai_agent", subjectId: agentId },

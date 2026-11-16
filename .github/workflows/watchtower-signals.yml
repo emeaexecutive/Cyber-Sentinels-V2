@@ -22,6 +22,7 @@ jobs:
       - run: npm run typecheck
       - run: node --import=tsx --test tests/watchtower-signals.test.mjs
       - run: npm run test:soc
+      - run: npm run test:execution03
       - run: node --import tsx --experimental-test-module-mocks --test tests/swarm-route.test.mjs
       - run: npm test
       - run: npm run build

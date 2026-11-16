@@ -20,7 +20,8 @@ export type UsageLimitResult =
       ok: false;
       plan: UserPlan;
       limit: number | null;
-      current: number;
+      current: number | null;
+      code?: "USAGE_LOOKUP_UNAVAILABLE";
       reason: string;
     };
 
@@ -42,10 +43,10 @@ async function countRows(
       message: error.message,
       code: error.code,
     });
-    return 0;
+    return null;
   }
 
-  return count ?? 0;
+  return typeof count === "number" && Number.isSafeInteger(count) && count >= 0 ? count : null;
 }
 
 export async function checkUsageLimit(
@@ -120,6 +121,17 @@ export async function checkUsageLimit(
       user.email ?? user.id
     );
 
+    if (current === null) {
+      return {
+        ok: false,
+        plan: planName,
+        limit,
+        current,
+        code: "USAGE_LOOKUP_UNAVAILABLE",
+        reason: "Usage could not be verified. Please try again.",
+      };
+    }
+
     return current < limit
       ? { ok: true, plan: planName, limit }
       : {
@@ -143,6 +155,17 @@ export async function checkUsageLimit(
     "uploaded_by",
     user.email ?? user.id
   );
+
+  if (current === null) {
+    return {
+      ok: false,
+      plan: planName,
+      limit,
+      current,
+      code: "USAGE_LOOKUP_UNAVAILABLE",
+      reason: "Usage could not be verified. Please try again.",
+    };
+  }
 
   return current < limit
     ? { ok: true, plan: planName, limit }

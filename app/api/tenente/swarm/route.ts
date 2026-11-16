@@ -8,6 +8,7 @@ import { swarmRpcPersistence } from "@/lib/swarm/rpc-persistence";
 import { createSwarmStore } from "@/lib/swarm/store";
 import type { Actor } from "@/lib/swarm/containment";
 import { persistSwarmReceiptProjection, recoverPersistedSwarmProjections } from "@/lib/swarm/evidence-projection-server";
+import { configuredSocModelBudget } from "@/lib/soc/model-budget-config-server";
 
 export const dynamic = "force-dynamic";
 function response(body: unknown, status = 200) {
@@ -16,13 +17,25 @@ function response(body: unknown, status = 200) {
 async function operations(request: Request, write: boolean) {
   if (process.env.TENENTE_SWARM_CONSOLE_ENABLED !== "true") throw new IdentityApiError("Swarm operations are not enabled.", 503, "SWARM_OPERATIONS_DISABLED");
   const context = await resolveIdentityEnterprise(request, write ? ["owner", "admin"] : ["owner", "admin", "reviewer", "observer"]);
+  // Optional inference configuration must never disable deterministic audit,
+  // revocation or emergency containment. Invalid AI configuration disables only
+  // the model callback; the SOC workflow records MODEL_NOT_CONFIGURED on use.
+  let modelBudget: ReturnType<typeof configuredSocModelBudget>;
+  let modelConfigurationState: "READY" | "DISABLED" | "INVALID" = "DISABLED";
+  try {
+    modelBudget = configuredSocModelBudget(context.enterpriseId);
+    modelConfigurationState = modelBudget ? "READY" : "DISABLED";
+  } catch {
+    modelBudget = undefined;
+    modelConfigurationState = "INVALID";
+  }
   const db = createServiceRoleClient();
   const store = createSwarmStore(swarmRpcPersistence((name, args) => db.rpc(name, args)));
   return swarmOperations(store, async (): Promise<Actor> => {
     const current = await resolveIdentityEnterprise(request, write ? ["owner", "admin"] : ["owner", "admin", "reviewer", "observer"]);
     if (current.enterpriseId !== context.enterpriseId || current.user.id !== context.user.id) throw new IdentityApiError("Session changed.", 403, "SWARM_SESSION_CHANGED");
     return { id: current.user.id, tenantId: current.enterpriseId, kind: "human", controlledBy: [], expiresAt: Date.now() + 5000, permissions: write ? ["swarm:audit", "swarm:contain", "swarm:reconcile", "swarm:manage", "swarm:restore"] : ["swarm:audit"] };
-  }, Date.now, { containmentKey: configuredContainmentKey, cancellationEvidenceKey: () => process.env.NATIVE_DESTINATION_EVIDENCE_KEY ?? "", cancellationProject: persistSwarmReceiptProjection });
+  }, Date.now, { modelBudget, modelConfigurationState, containmentKey: configuredContainmentKey, cancellationEvidenceKey: () => process.env.NATIVE_DESTINATION_EVIDENCE_KEY ?? "", cancellationProject: persistSwarmReceiptProjection });
 }
 function failure(error: unknown) {
   if (error instanceof IdentityApiError) return response({ error: error.code }, error.status);

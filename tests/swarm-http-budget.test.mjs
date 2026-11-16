@@ -11,6 +11,10 @@ import {hashCanonical} from '../src/lib/trust-core/hash.ts';
 import {swarmSql} from './fixtures/swarm-sql.mjs';
 
 for(const transport of ['http','mcp']) test(`${transport}: five-agent EUR500 enforcement across real loopback requests, failure and retry`,{timeout:20000},async t=>{
+  // Close the destination before the SQL fixture's teardown, including when a
+  // loaded machine hits the deadline while requests are waiting at the barrier.
+  let cleanupDestination=async()=>{};
+  t.after(()=>cleanupDestination());
   const sql=await swarmSql(t);
   const h=await fixture({now:Date.now(),orchestrator:'orchestrator',persistence:sql.persistence});
   for(let i=2;i<=5;i++) await h.add(`agent:${i}`,'orchestrator');
@@ -46,7 +50,7 @@ for(const transport of ['http','mcp']) test(`${transport}: five-agent EUR500 enf
     }catch(error){res.writeHead(500);res.end();t.diagnostic(error.message);}
   });
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
-  t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve);}));
+  cleanupDestination=()=>new Promise(resolve=>{release();server.closeAllConnections();server.close(resolve);});
   const adapter=createHttpToolAdapter({endpoint:`http://127.0.0.1:${server.address().port}/tool`,tool:'refund',payload,evidenceKey:key,transport,allowLocal:true});
   h.deps.verifyOutcome=async(_tenant,lease,observation)=>{
     const request=requests.get(lease.id);assert.ok(request);
@@ -63,7 +67,7 @@ for(const transport of ['http','mcp']) test(`${transport}: five-agent EUR500 enf
   async function run(id,idempotencyKey){
     const request=h.request(id,idempotencyKey);request.action.payloadDigest=hashCanonical(payload);request.actionDigest=deriveEnforcementActionDigest(request);
     requests.set(swarmRequestDigest(request),request);
-    return executeAuthorizedAction(request,{findByIdempotencyKey:async()=>null,loadCurrentState:async()=>({enterpriseId:tenant,operationalEntityId:id,authorityId:request.authorityId,delegationId:request.delegationId,authorityActive:true,delegationActive:true,identityVerified:true,ownerConfirmed:true,runtimeContinuity:'MATCH'}),reserveRequest:async()=>({created:true}),requireSwarmGuard:true,swarmGuard:swarmNativeGuard(h.control,tenant,id),adapter});
+    return executeAuthorizedAction(request,{findByIdempotencyKey:async()=>null,loadCurrentState:async()=>({enterpriseId:tenant,operationalEntityId:id,authorityId:request.authorityId,delegationId:request.delegationId,authorityActive:true,delegationActive:true,identityVerified:true,ownerConfirmed:true,runtimeContinuity:'MATCH'}),reserveRequest:async()=>({created:true}),claimDispatch:async()=>({claimed:true}),requireSwarmGuard:true,swarmGuard:swarmNativeGuard(h.control,tenant,id),adapter});
   }
   await Promise.all(Array.from({length:5},(_,i)=>run(`agent:${i+1}`,`network:${i+1}`)));
   assert.equal(calls,5);assert.equal(peak,5);assert.equal(spent,40000);

@@ -158,8 +158,8 @@ export async function POST(req: Request) {
 
     if (!usageLimit.ok) {
       return NextResponse.json(
-        { ok: false, error: usageLimit.reason },
-        { status: 403 }
+        { ok: false, error: usageLimit.reason, code: usageLimit.code },
+        { status: usageLimit.code === "USAGE_LOOKUP_UNAVAILABLE" ? 503 : 403 }
       );
     }
 

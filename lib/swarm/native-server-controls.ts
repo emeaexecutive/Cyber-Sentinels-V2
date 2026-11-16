@@ -73,7 +73,7 @@ export function createStoredSwarmControls(context: DelegatedAuthorityContext, ac
       const declaredBudget = parentBudget ?? policy.aggregateBudget;
       if (declaredBudget && (declaredBudget.currency !== "EUR" || !Number.isSafeInteger(declaredBudget.limitMinor) || declaredBudget.limitMinor <= 0 || !Number.isSafeInteger(declaredBudget.maxParallel) || declaredBudget.maxParallel < 1)) throw new Error("SWARM_PARENT_BUDGET_INVALID");
       const aggregateBudget = declaredBudget ? {
-        id: `authority:${request.authorityId}:EUR`, currency: "EUR" as const,
+        id: `authority:${registry.originalAuthority}:EUR`, currency: "EUR" as const,
         limitMinor: Math.min(declaredBudget.limitMinor, policy.aggregateBudget?.limitMinor ?? declaredBudget.limitMinor),
         maxParallel: Math.min(declaredBudget.maxParallel, policy.aggregateBudget?.maxParallel ?? declaredBudget.maxParallel),
       } : null;
@@ -85,7 +85,7 @@ export function createStoredSwarmControls(context: DelegatedAuthorityContext, ac
         correlationId: task.id, resource: request.action.target, operation: request.action.type,
         units: Number(action.executionCount ?? 1), limit: policy.operationQuota?.limit ?? Number.MAX_SAFE_INTEGER,
         quotaMode: policy.operationQuota?.mode ?? "PER_ACTION",
-        quotaScope: request.authorityId,
+        quotaScope: policy.operationQuota?.mode === "AGGREGATE" ? registry.originalAuthority : request.authorityId,
         ...(windowMs && windowStart !== null ? { quotaWindow: { start: windowStart, end: windowStart + windowMs } } : {}),
         mandatoryRestriction: restricted, sensitive: ["HIGH", "CRITICAL"].includes(request.action.consequence ?? ""),
         transfer: "NONE", transferPermitted: false, policyVersion: policy.version, evidenceRefs: policy.evidenceRefs,

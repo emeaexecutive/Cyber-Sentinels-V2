@@ -251,6 +251,7 @@ test("double submit, network retry and concurrent retry reserve one logical exec
   let executions = 0;
   const adapterResult = { status: "ACCEPTED", adapterReference: "controlled:a", acknowledgedAt: now, executionClaim: null, runtimeObservation: null, destinationObservation: null, reasonCodes: ["CONTROLLED_DESTINATION_ACCEPTED"] };
   const dependencies = {
+    async claimDispatch(selected) { return { claimed: records.get(selected.idempotencyKey)?.request.requestId === selected.requestId }; },
     async loadCurrentState() { return current(); },
     async findByIdempotencyKey(_tenant, key) { return records.get(key)?.complete ?? null; },
     async reserveRequest(selected) {

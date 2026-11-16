@@ -9,6 +9,7 @@ export type CopilotConfiguration = {
   model: string;
   fetch?: typeof fetch;
   timeoutMs?: number;
+  signal?: AbortSignal;
   price?: { model: string; inputUsdPerMillion: number; outputUsdPerMillion: number };
 };
 const uncertaintyCodes = ["INSUFFICIENT_EVIDENCE", "UNTRUSTED_CONTENT_PRESENT", "NO_INDEPENDENT_OUTCOME"] as const;
@@ -60,6 +61,7 @@ async function limitedJson(response: Response): Promise<unknown> {
 }
 
 export async function investigateWithCopilot(input: CopilotInput, config: CopilotConfiguration): Promise<CopilotResult> {
+  if (config.signal?.aborted) fail("COPILOT_PARENT_ABORTED");
   if (!bounded(config.apiKey, 4096) || !bounded(config.model, 160) || !/^[a-zA-Z0-9_.:-]+$/.test(config.model)) fail("PROVIDER_CONFIGURATION_REQUIRED");
   const timeoutMs = config.timeoutMs ?? 15000;
   if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 30000) fail("COPILOT_TIMEOUT_CONFIGURATION");
@@ -88,9 +90,17 @@ export async function investigateWithCopilot(input: CopilotInput, config: Copilo
   // Conservative prefilter plus structural output checks; this is not a claim to detect every injection.
   if (injection.test(untrusted)) fail("COPILOT_PROMPT_INJECTION_DETECTED");
   const controller = new AbortController();
+  let rejectParent: ((error: CopilotError) => void) | undefined;
+  const parentAborted = new Promise<never>((_, reject) => { rejectParent = reject; });
+  const abortFromParent = () => {
+    controller.abort(config.signal?.reason);
+    rejectParent?.(new CopilotError("COPILOT_PARENT_ABORTED"));
+  };
+  config.signal?.addEventListener("abort", abortFromParent, { once: true });
   const started = performance.now();
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
+    if (config.signal?.aborted) return fail("COPILOT_PARENT_ABORTED");
     const request = (async () => {
       const response = await (config.fetch ?? fetch)("https://api.openai.com/v1/responses", {
         method: "POST", signal: controller.signal, redirect: "error",
@@ -105,7 +115,7 @@ export async function investigateWithCopilot(input: CopilotInput, config: Copilo
       if (!response.ok) return fail(`COPILOT_PROVIDER_HTTP_${response.status}`);
       return limitedJson(response);
     })();
-    const raw = await Promise.race([request, new Promise<never>((_, reject) => {
+    const raw = await Promise.race([request, parentAborted, new Promise<never>((_, reject) => {
       timer = setTimeout(() => { controller.abort(); reject(new CopilotError("COPILOT_PROVIDER_TIMEOUT")); }, timeoutMs);
     })]);
     if (!object(raw) || raw.status !== "completed" || !bounded(raw.model, 160) || !Array.isArray(raw.output) || !object(raw.usage)) fail("COPILOT_PROVIDER_INCOMPLETE");
@@ -139,7 +149,8 @@ export async function investigateWithCopilot(input: CopilotInput, config: Copilo
       telemetry: { inputTokens: inputTokens as number, outputTokens: outputTokens as number, latencyMs: Math.round(performance.now() - started), costUsd: price ? ((inputTokens as number) * price.inputUsdPerMillion + (outputTokens as number) * price.outputUsdPerMillion) / 1_000_000 : null },
     };
   } catch (error) {
+    if (config.signal?.aborted) return fail("COPILOT_PARENT_ABORTED");
     if (error instanceof CopilotError) throw error;
     return fail(controller.signal.aborted ? "COPILOT_PROVIDER_TIMEOUT" : "COPILOT_PROVIDER_UNAVAILABLE");
-  } finally { if (timer) clearTimeout(timer); }
+  } finally { if (timer) clearTimeout(timer); config.signal?.removeEventListener("abort", abortFromParent); }
 }
