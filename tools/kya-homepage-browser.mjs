@@ -18,10 +18,15 @@ try {
     await page.locator('#kya-heading').waitFor();
     assert.equal(await page.locator('html').getAttribute('lang'), locale);
     assert.match(await page.title(), /KYA/);
-    assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'), new URL(path, 'https://www.cybersentinels.com').href);
+    assert.equal(new URL(await page.locator('link[rel="canonical"]').getAttribute('href')).href, new URL(path, 'https://www.cybersentinels.com').href);
     assert.equal(await page.locator('link[hreflang="es"]').getAttribute('href'), 'https://www.cybersentinels.com/es');
     const reject = page.getByRole('button', { name: 'Reject Optional', exact: true });
-    if (await reject.isVisible()) await reject.click();
+    if (await reject.isVisible()) {
+      await reject.click();
+      const notice = page.getByRole('button', { name: 'Dismiss saved preferences notification', exact: true });
+      await notice.waitFor({ state: 'visible', timeout: 10000 });
+      await notice.click();
+    }
     if (width === 390) await page.getByRole('button', { name: locale === 'es' ? 'Abrir menú' : 'Open menu', exact: true }).click();
     await page.locator('header').getByRole('link', { name: 'KYA', exact: true }).click();
     await page.waitForURL(u => u.hash === '#know-your-agent');
@@ -30,8 +35,9 @@ try {
     assert.match(await section.innerText(), locale === 'es' ? /En desarrollo/ : /In development/);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
     await section.scrollIntoViewIfNeeded();
-    await page.screenshot({ path: `${out}/${locale}-${width}-page.png`, fullPage: true });
     await section.screenshot({ path: `${out}/${locale}-${width}-section.png` });
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    await page.screenshot({ path: `${out}/${locale}-${width}-page.png`, fullPage: true });
     const links = await section.locator('a').evaluateAll(a => a.map(x => ({ text: x.textContent, href: x.getAttribute('href') })));
     for (const link of links) {
       await section.getByRole('link', { name: link.text, exact: true }).click();
