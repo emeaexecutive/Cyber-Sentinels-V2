@@ -10,9 +10,9 @@ const categories: Record<string, string> = {
 /** Advisory detection from existing append-only Replay; never grants authority,
  * changes policy, freezes funds or performs autonomous containment.
  */
-export function financialSignals(events: SwarmEvent[], tenantId: string) {
-  const latest = events.filter(e => e.tenantId === tenantId).at(-1)?.at ?? 0;
-  const denials = events.filter(e => e.tenantId === tenantId && e.at >= latest - 60000 && e.kind === "FINANCIAL_DENY");
+export function financialSignals(events: SwarmEvent[], tenantId: string, now = Date.now()) {
+  if (!Number.isFinite(now)) return [];
+  const denials = events.filter(e => e.tenantId === tenantId && Number.isFinite(e.at) && e.at >= now - 60000 && e.at <= now && e.kind === "FINANCIAL_DENY");
   const signals = denials.flatMap(event => (Array.isArray(event.details.reasons) ? event.details.reasons : [])
     .filter((r): r is string => typeof r === "string" && !!categories[r])
     .map(reason => ({ category: categories[reason], reason, agentId: event.actorId, requestId: event.subjectId, evidence: event.digest, intervention: "REQUIRES_CURRENT_DELEGATED_AUTHORITY" })));

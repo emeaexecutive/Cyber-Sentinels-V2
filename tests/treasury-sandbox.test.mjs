@@ -142,10 +142,10 @@ test('financial monitoring flags shared-limit attempts without granting interven
   const s = h.signed(h.payment({ policyVersion: 'v2' })), a = await h.treasury.authorize(h.tenant, s);
   await h.treasury.commit(h.tenant, a.mandateId, s);
   for (const agentId of ['agent:1', 'agent:2']) await h.treasury.authorize(h.tenant, h.signed(h.payment({ policyVersion: 'v2', agentId, requestId: 'denied:' + agentId })));
-  const replay = await h.treasury.replay(h.tenant), signals = financialSignals(replay.events, h.tenant);
+  const replay = await h.treasury.replay(h.tenant), signals = financialSignals(replay.events, h.tenant, h.deps.now());
   assert.ok(signals.some(s => s.category === 'COORDINATED_LIMIT_ATTEMPT'));
   assert.ok(signals.every(s => s.intervention === 'REQUIRES_CURRENT_DELEGATED_AUTHORITY'));
-  assert.deepEqual(financialSignals(replay.events, 'foreign:tenant'), []);
+  assert.deepEqual(financialSignals(replay.events, 'foreign:tenant', h.deps.now()), []);
   assert.equal((await h.treasury.destination(h.tenant)).length, 1);
 });
 
