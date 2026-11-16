@@ -130,7 +130,7 @@
         ]
       }
     ],
-    "passedRules": 14,
+    "passedRules": 18,
     "manualReview": [
       {
         "rule": "color-contrast",

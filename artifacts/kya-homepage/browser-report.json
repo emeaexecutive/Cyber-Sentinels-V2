@@ -8,6 +8,15 @@
       "width": 390,
       "landing": false,
       "status": "PASS",
+      "image": {
+        "naturalWidth": 390,
+        "naturalHeight": 390,
+        "width": 358,
+        "height": 358,
+        "fit": "contain",
+        "alt": "Conceptual KYA trust flow: an agent requests an action; identity and delegated authority inform the TENENTE decision: ALLOW, REVIEW or DENY, followed by Evidence and Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
       "ctas": [
         {
           "text": "Explore KYA",
@@ -151,7 +160,7 @@
               ]
             }
           ],
-          "passedRules": 14,
+          "passedRules": 18,
           "manualReview": [
             {
               "rule": "color-contrast",
@@ -270,6 +279,15 @@
       "width": 390,
       "landing": true,
       "status": "PASS",
+      "image": {
+        "naturalWidth": 390,
+        "naturalHeight": 390,
+        "width": 358,
+        "height": 358,
+        "fit": "contain",
+        "alt": "Conceptual KYA trust flow: an agent requests an action; identity and delegated authority inform the TENENTE decision: ALLOW, REVIEW or DENY, followed by Evidence and Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
       "ctas": [
         {
           "text": "Request a KYA Pilot",
@@ -413,7 +431,7 @@
               ]
             }
           ],
-          "passedRules": 14,
+          "passedRules": 18,
           "manualReview": [
             {
               "rule": "color-contrast",
@@ -532,6 +550,15 @@
       "width": 1440,
       "landing": false,
       "status": "PASS",
+      "image": {
+        "naturalWidth": 1024,
+        "naturalHeight": 1024,
+        "width": 1024,
+        "height": 1024,
+        "fit": "contain",
+        "alt": "Conceptual KYA trust flow: an agent requests an action; identity and delegated authority inform the TENENTE decision: ALLOW, REVIEW or DENY, followed by Evidence and Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
       "ctas": [
         {
           "text": "Explore KYA",
@@ -675,7 +702,7 @@
               ]
             }
           ],
-          "passedRules": 14,
+          "passedRules": 18,
           "manualReview": [
             {
               "rule": "color-contrast",
@@ -794,6 +821,15 @@
       "width": 1440,
       "landing": true,
       "status": "PASS",
+      "image": {
+        "naturalWidth": 1024,
+        "naturalHeight": 1024,
+        "width": 1024,
+        "height": 1024,
+        "fit": "contain",
+        "alt": "Conceptual KYA trust flow: an agent requests an action; identity and delegated authority inform the TENENTE decision: ALLOW, REVIEW or DENY, followed by Evidence and Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
       "ctas": [
         {
           "text": "Request a KYA Pilot",
@@ -937,7 +973,7 @@
               ]
             }
           ],
-          "passedRules": 14,
+          "passedRules": 18,
           "manualReview": [
             {
               "rule": "color-contrast",
@@ -1056,6 +1092,15 @@
       "width": 390,
       "landing": false,
       "status": "PASS",
+      "image": {
+        "naturalWidth": 390,
+        "naturalHeight": 390,
+        "width": 358,
+        "height": 358,
+        "fit": "contain",
+        "alt": "Diagrama conceptual KYA en inglés: un agente solicita una acción; la identidad y la autoridad delegada informan la decisión de TENENTE: ALLOW, REVIEW o DENY, con pruebas y Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
       "ctas": [
         {
           "text": "Explorar KYA",
@@ -1199,7 +1244,7 @@
               ]
             }
           ],
-          "passedRules": 14,
+          "passedRules": 18,
           "manualReview": [
             {
               "rule": "color-contrast",
@@ -1318,6 +1363,15 @@
       "width": 390,
       "landing": true,
       "status": "PASS",
+      "image": {
+        "naturalWidth": 390,
+        "naturalHeight": 390,
+        "width": 358,
+        "height": 358,
+        "fit": "contain",
+        "alt": "Diagrama conceptual KYA en inglés: un agente solicita una acción; la identidad y la autoridad delegada informan la decisión de TENENTE: ALLOW, REVIEW o DENY, con pruebas y Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
       "ctas": [
         {
           "text": "Solicitar un piloto de KYA",
@@ -1461,7 +1515,7 @@
               ]
             }
           ],
-          "passedRules": 14,
+          "passedRules": 18,
           "manualReview": [
             {
               "rule": "color-contrast",
@@ -1580,6 +1634,15 @@
       "width": 1440,
       "landing": false,
       "status": "PASS",
+      "image": {
+        "naturalWidth": 1024,
+        "naturalHeight": 1024,
+        "width": 1024,
+        "height": 1024,
+        "fit": "contain",
+        "alt": "Diagrama conceptual KYA en inglés: un agente solicita una acción; la identidad y la autoridad delegada informan la decisión de TENENTE: ALLOW, REVIEW o DENY, con pruebas y Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
       "ctas": [
         {
           "text": "Explorar KYA",
@@ -1723,7 +1786,7 @@
               ]
             }
           ],
-          "passedRules": 14,
+          "passedRules": 18,
           "manualReview": [
             {
               "rule": "color-contrast",
@@ -1842,6 +1905,15 @@
       "width": 1440,
       "landing": true,
       "status": "PASS",
+      "image": {
+        "naturalWidth": 1024,
+        "naturalHeight": 1024,
+        "width": 1024,
+        "height": 1024,
+        "fit": "contain",
+        "alt": "Diagrama conceptual KYA en inglés: un agente solicita una acción; la identidad y la autoridad delegada informan la decisión de TENENTE: ALLOW, REVIEW o DENY, con pruebas y Replay."
+      },
+      "originalPngSha256": "abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8",
       "ctas": [
         {
           "text": "Solicitar un piloto de KYA",
@@ -1985,7 +2057,7 @@
               ]
             }
           ],
-          "passedRules": 14,
+          "passedRules": 18,
           "manualReview": [
             {
               "rule": "color-contrast",

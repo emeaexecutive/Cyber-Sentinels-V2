@@ -161,7 +161,7 @@ try {
       await page.waitForURL(u => u.pathname === (locale === 'es' ? '/platform/kya' : '/es/platform/kya'));
       assert.equal(await page.locator('html').getAttribute('lang'), locale === 'es' ? 'en' : 'es');
     }
-    report.cases.push({ path, locale, width, landing, status: 'PASS', ctas: links, fragmentRepeatChecks, accessibility });
+    report.cases.push({ path, locale, width, landing, status: 'PASS', image: imageGeometry, originalPngSha256: 'abdace2668833639f32dbf4331928a737ff93c655172280b9a5ba0826b2fe7e8', ctas: links, fragmentRepeatChecks, accessibility });
     await page.close();
   }
   assert.deepEqual(report.errors, []);

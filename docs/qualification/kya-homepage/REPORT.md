@@ -1,12 +1,13 @@
 # KYA homepage and landing-page integration
 
-Verdict: **IN PROGRESS — final build/browser verification pending**. Approved English narrative and visual content, Spanish translation, homepage integration and the proposed landing page are implemented. **PNG ASSET MISSING:** the original KYA PNG was not identified; the user explicitly authorized the accessible text flow without inventing or substituting an image.
+Verdict: **COMPLETE locally; publication HOLD**. Original PNG integrated unchanged in both locales. See PNG-INTEGRATION.md for the current source, asset, eight-case browser qualification and integration PR status.
 
 ## Source and boundaries
 
 - Branch: `feat/kya-homepage-20261116`.
 - Worktree: `tmp/kya-homepage`.
-- Qualified application/test source: `39eacb144753348d0e0e1e91df083bbf289b1d7f`.
+- Pre-PNG qualified source: `39eacb144753348d0e0e1e91df083bbf289b1d7f`.
+- Original-PNG application source: `abe4ae920f787ddab81144e2fe5331dc3eebf55f`; latest evidence in PNG-INTEGRATION.md.
 - Previous homepage checkpoint: `2e2c44d1850b6287762842c81a7554885047e3fc`.
 - Original bilingual website base: `baf5ac8e282abec127eda44ba1e1820b6b03db42`.
 
@@ -28,7 +29,7 @@ AI Agent Requests Action → KYA Identity — Who is acting? → Delegated Autho
 
 The six stages are an ordered list; the five downward arrows are decorative and hidden from assistive technology. Spanish translates the question, prompts and narrative while retaining KYA, TENENTE™, Replay and ALLOW / REVIEW / DENY as names/protocol outcomes.
 
-**PNG ASSET MISSING.** Repository public assets, tracked PNG names, KYA-named files and available attachments did not identify an original KYA PNG. The existing unrelated public/cyber-sentinels-hero.png remains unchanged. No filename was invented, no image element references a nonexistent asset, and no replacement raster was created or substituted. ASSET-STATUS.json records the scope and hash of the unrelated existing asset. QA screenshots are evidence, not product image assets.
+The original PNG was initially unavailable. The user subsequently supplied the approved graphic, now integrated byte-for-byte in both locales with Next Image, descriptive alt text and a full-size zoom link. The accessible translated text flow remains. ASSET-STATUS.json and PNG-INTEGRATION.md record the current asset hash and status. QA screenshots are evidence, not replacement product image assets.
 
 ## Routes, content and working CTAs
 
@@ -90,7 +91,7 @@ Axe checks WCAG 2 A/AA, 2.1 A/AA and 2.2 AA tagged rules on KYA and the public h
 
 The existing consent receipt notice is dismissed through its normal button before screenshots. Consent behavior is unchanged; local receipt persistence is not qualified. The earlier obscured provisional screenshot is retained under history/. No hosted credentials or env files are configured for this preview. The owned server is stopped after verification.
 
-The only expected asset limitation is **PNG ASSET MISSING**, with the accessible text fallback explicitly authorized. Publication and Production actions remain outside this task.
+The former PNG asset limitation is resolved by the supplied original; the accessible text flow is retained. Publication and Production actions remain outside this task.
 
 ## Navigation and contrast findings retained
 
