@@ -1,0 +1,18 @@
+{
+  "source": "35ec39571d747df6cfe987884107d4c628f9eead",
+  "hostedWrites": 0,
+  "files": [
+    {
+      "path": "lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "20c03491cccb14710b6993aad54be2e7cdfc6d29cdb373140cfc4b38e8195ce6"
+    },
+    {
+      "path": "tests.log",
+      "sha256": "e426dd4cd0d6839d535047a59d8fae80364a10a0f1e3d3b7011c8429b93324b4"
+    }
+  ]
+}
