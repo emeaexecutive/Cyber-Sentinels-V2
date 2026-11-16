@@ -24,6 +24,7 @@ try {
     await page.evaluate(() => document.fonts.ready);
     assert.equal(await page.locator('html').getAttribute('lang'), locale);
     assert.equal(await page.locator('main h1').count(), 1);
+    if (landing) assert.equal(await page.locator('main h1').innerText(), locale === 'es' ? 'Tu agente de IA tiene una identidad. Pero ¿tiene autoridad?' : 'Your AI Agent Has an Identity. But Does It Have Authority?');
     assert.match(await page.title(), /KYA/);
     assert.match(await page.locator('meta[name="description"]').getAttribute('content'), locale === 'es' ? /en desarrollo|desarrollando/ : /developing/);
     assert.equal(new URL(await page.locator('link[rel="canonical"]').getAttribute('href')).href, new URL(path, 'https://www.cybersentinels.com').href);
@@ -61,6 +62,36 @@ try {
         return { scope: selector, violations: result.violations, incomplete: result.incomplete, passedRules: result.passes.length };
       }, selector);
       accessibility.push(result);
+      const reviewTargets = result.incomplete.flatMap(rule => rule.nodes.map(node => ({ rule: rule.id, target: node.target })));
+      result.manualReview = await page.evaluate(targets => {
+        const rgb = value => {
+          const parts = value.match(/[\d.]+/g)?.map(Number);
+          if (!parts || parts.length < 3) throw new Error('Unsupported computed color');
+          return { channels: parts.slice(0, 3), alpha: parts[3] ?? 1 };
+        };
+        const luminance = channels => channels.map(v => v / 255).map(v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+        return targets.map(({ rule, target }) => {
+          if (rule !== 'color-contrast' || target.length !== 1) throw new Error('Unreviewed accessibility result');
+          const element = document.querySelector(target[0]);
+          if (!element || element.tagName !== 'SPAN' || element.getAttribute('aria-hidden') !== 'true' || element.textContent !== '↓') throw new Error('Only decorative arrow glyph contrast has a manual profile');
+          const foreground = rgb(getComputedStyle(element).color);
+          if (foreground.alpha !== 1) throw new Error('Foreground composition needs review');
+          let ancestor = element;
+          let background;
+          while (ancestor) {
+            const color = rgb(getComputedStyle(ancestor).backgroundColor);
+            if (color.alpha === 1) { background = color; break; }
+            if (color.alpha !== 0) throw new Error('Background composition needs review');
+            ancestor = ancestor.parentElement;
+          }
+          if (!background) throw new Error('No opaque background established');
+          const a = luminance(foreground.channels), b = luminance(background.channels);
+          const ratio = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+          if (ratio < 4.5) throw new Error('Arrow contrast below review threshold');
+          return { rule, target, foreground: foreground.channels, background: background.channels, contrastRatio: ratio, threshold: 4.5, result: 'PASS', method: 'Rendered computed colors; raw axe glyph finding retained' };
+        });
+      }, reviewTargets);
+      assert.equal(result.manualReview.length, reviewTargets.length);
       await writeFile(`${out}/${name}-accessibility.json`, JSON.stringify(accessibility, null, 2) + '\n');
       assert.deepEqual(result.violations, [], `${name} accessibility ${selector}`);
       if (selector === 'header' && width === 390) await page.getByRole('button', { name: locale === 'es' ? 'Cerrar menú' : 'Close', exact: true }).click();
@@ -75,7 +106,13 @@ try {
       await control.focus();
       assert.equal(await control.evaluate(e => document.activeElement === e), true);
       await page.keyboard.press('Enter');
-      await page.waitForURL(u => u.pathname + u.search + u.hash === link.href);
+      try {
+        await page.waitForURL(u => u.pathname + u.search + u.hash === link.href, { waitUntil: 'domcontentloaded' });
+      } catch (error) {
+        report.errors.push({ path, width, expected: link.href, actual: page.url(), message: error.message });
+        await page.screenshot({ path: `${out}/${name}-navigation-failure.png`, fullPage: true });
+        throw error;
+      }
       await page.locator('main h1').first().waitFor();
       if (link.href.includes('#agent-authority')) assert.equal(await page.locator('#agent-authority').count(), 1);
       if (link.href.includes('intent=pilot')) {
@@ -86,6 +123,19 @@ try {
       await page.goto(origin + path, { waitUntil: 'domcontentloaded' });
       await page.locator('#kya-heading').waitFor();
     }
+    let fragmentRepeatChecks = 0;
+    if (landing && locale === 'es' && width === 390) {
+      for (let repeat = 0; repeat < 5; repeat++) {
+        const authority = section.getByRole('link', { name: 'Explorar la autoridad de los agentes', exact: true });
+        await authority.focus();
+        await page.keyboard.press('Enter');
+        await page.waitForURL(u => u.pathname === '/es/platform' && u.hash === '#agent-authority', { waitUntil: 'domcontentloaded' });
+        await page.locator('#agent-authority').waitFor();
+        fragmentRepeatChecks++;
+        await page.goto(origin + path, { waitUntil: 'domcontentloaded' });
+        await page.locator('#kya-heading').waitFor();
+      }
+    }
     if (landing) {
       if (width === 390) await page.getByRole('button', { name: locale === 'es' ? 'Abrir menú' : 'Open menu', exact: true }).click();
       await page.getByRole('button', { name: locale === 'es' ? /Cambiar idioma/ : /Change language/ }).click();
@@ -93,7 +143,7 @@ try {
       await page.waitForURL(u => u.pathname === (locale === 'es' ? '/platform/kya' : '/es/platform/kya'));
       assert.equal(await page.locator('html').getAttribute('lang'), locale === 'es' ? 'en' : 'es');
     }
-    report.cases.push({ path, locale, width, landing, status: 'PASS', ctas: links, accessibility });
+    report.cases.push({ path, locale, width, landing, status: 'PASS', ctas: links, fragmentRepeatChecks, accessibility });
     await page.close();
   }
   assert.deepEqual(report.errors, []);

@@ -80,7 +80,7 @@ export function KyaHomepageSection({ locale, landing = false }: { locale: Public
             <p className="mt-4 text-sm leading-7 text-zinc-400">{copy.vision}</p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link href={landing ? `${prefix}/enterprise-access?intent=pilot` : `${prefix}/platform/kya`} className="brand-primary-action">{landing ? copy.pilot : copy.primary}</Link>
-              <Link href={`${prefix}/platform#agent-authority`} className="brand-secondary-action">{copy.secondary}</Link>
+              <a href={`${prefix}/platform#agent-authority`} className="brand-secondary-action">{copy.secondary}</a>
             </div>
           </div>
           <figure className="min-w-0 rounded-2xl border border-cyan-900/60 bg-[#04070c] p-5 sm:p-7">
