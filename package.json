@@ -8,6 +8,7 @@
     "npm": "10.x"
   },
   "scripts": {
+    "test:account-locale": "node --import tsx --test tests/account-locale.test.mjs tests/account-locale-browser.mjs",
     "dev": "next dev",
     "build": "next build",
     "docker:verify": "node tools/docker-verify.mjs",

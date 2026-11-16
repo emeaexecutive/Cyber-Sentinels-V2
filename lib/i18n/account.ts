@@ -1,0 +1,91 @@
+export type AccountLocale = "en" | "es";
+export const ACCOUNT_LOCALE_COOKIE = "cyber_sentinels_locale";
+export function accountLocale(query?: string, cookie?: string): AccountLocale {
+  return query === "es" || query === "en" ? query : cookie === "es" ? "es" : "en";
+}
+export function accountHref(path: string, locale: AccountLocale) {
+  if (locale === "en") return path;
+  const url = new URL(path, "https://account.invalid");
+  url.searchParams.set("lang", locale);
+  return url.pathname + url.search + url.hash;
+}
+export const accountCopy = {
+ en: {
+  "accessTitle": "Access review",
+  "accessLabel": "Account access",
+  "organization": "Organization",
+  "reason": "Reason",
+  "signOut": "Sign out",
+  "PENDING": "Your access request is awaiting review.",
+  "REJECTED": "Your access request was rejected.",
+  "DENIED": "Your access request was denied.",
+  "SUSPENDED": "Your account access is currently suspended.",
+  "REVOKED": "Your account access has been revoked.",
+  "unknownAccess": "Product access is not currently approved.",
+  "expiredTitle": "Reset link expired or invalid",
+  "expiredBody": "Password reset links are single-use and expire for your security. Request a new link to continue.",
+  "requestLink": "Request a new reset link",
+  "newTitle": "Set a new password",
+  "newPassword": "New password",
+  "confirmPassword": "Confirm new password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "showConfirm": "Show confirmation password",
+  "hideConfirm": "Hide confirmation password",
+  "show": "Show",
+  "hide": "Hide",
+  "securityCode": "Security code",
+  "updating": "Updating...",
+  "update": "Update password",
+  "success": "Password updated successfully.",
+  "successBody": "Your recovery session has ended. Sign in with your new password to continue.",
+  "continue": "Continue to sign in",
+  "minimum": "Use at least {minimum} characters.",
+  "singleUse": "This reset link can only be used once.",
+  "mismatch": "Passwords do not match.",
+  "nonceNeeded": "Enter the security code we sent to your email.",
+  "nonceInvalid": "That security code is invalid or expired.",
+  "nonceFailed": "We couldn't send a security code. Please request a new password reset email.",
+  "failure": "We couldn't update your password. Request a new reset link and try again.",
+  "unverified": "Request could not be verified."
+},
+ es: {
+  "accessTitle": "Revisión de acceso",
+  "accessLabel": "Acceso a la cuenta",
+  "organization": "Organización",
+  "reason": "Motivo",
+  "signOut": "Cerrar sesión",
+  "PENDING": "Tu solicitud de acceso está pendiente de revisión.",
+  "REJECTED": "Tu solicitud de acceso fue rechazada.",
+  "DENIED": "Tu solicitud de acceso fue denegada.",
+  "SUSPENDED": "El acceso a tu cuenta está suspendido.",
+  "REVOKED": "El acceso a tu cuenta ha sido revocado.",
+  "unknownAccess": "El acceso al producto no está aprobado actualmente.",
+  "expiredTitle": "El enlace de restablecimiento ha caducado o no es válido",
+  "expiredBody": "Por tu seguridad, los enlaces de restablecimiento son de un solo uso y caducan. Solicita un enlace nuevo para continuar.",
+  "requestLink": "Solicitar un enlace nuevo",
+  "newTitle": "Establecer una contraseña nueva",
+  "newPassword": "Contraseña nueva",
+  "confirmPassword": "Confirmar contraseña nueva",
+  "showPassword": "Mostrar contraseña",
+  "hidePassword": "Ocultar contraseña",
+  "showConfirm": "Mostrar confirmación de contraseña",
+  "hideConfirm": "Ocultar confirmación de contraseña",
+  "show": "Mostrar",
+  "hide": "Ocultar",
+  "securityCode": "Código de seguridad",
+  "updating": "Actualizando...",
+  "update": "Actualizar contraseña",
+  "success": "Contraseña actualizada correctamente.",
+  "successBody": "Tu sesión de recuperación ha finalizado. Inicia sesión con tu contraseña nueva para continuar.",
+  "continue": "Continuar al inicio de sesión",
+  "minimum": "Usa al menos {minimum} caracteres.",
+  "singleUse": "Este enlace de restablecimiento solo se puede utilizar una vez.",
+  "mismatch": "Las contraseñas no coinciden.",
+  "nonceNeeded": "Introduce el código de seguridad que enviamos a tu correo electrónico.",
+  "nonceInvalid": "El código de seguridad no es válido o ha caducado.",
+  "nonceFailed": "No pudimos enviar el código de seguridad. Solicita un correo de restablecimiento nuevo.",
+  "failure": "No pudimos actualizar tu contraseña. Solicita un enlace nuevo e inténtalo de nuevo.",
+  "unverified": "No se pudo verificar la solicitud."
+}
+} satisfies Record<AccountLocale, Record<"accessTitle" | "accessLabel" | "organization" | "reason" | "signOut" | "PENDING" | "REJECTED" | "DENIED" | "SUSPENDED" | "REVOKED" | "unknownAccess" | "expiredTitle" | "expiredBody" | "requestLink" | "newTitle" | "newPassword" | "confirmPassword" | "showPassword" | "hidePassword" | "showConfirm" | "hideConfirm" | "show" | "hide" | "securityCode" | "updating" | "update" | "success" | "successBody" | "continue" | "minimum" | "singleUse" | "mismatch" | "nonceNeeded" | "nonceInvalid" | "nonceFailed" | "failure" | "unverified", string>>;
